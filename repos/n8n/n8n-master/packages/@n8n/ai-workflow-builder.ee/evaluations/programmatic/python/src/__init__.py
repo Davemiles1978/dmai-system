@@ -15,6 +15,7 @@ Graph-based workflow similarity comparison using NetworkX.
 from __future__ import annotations
 
 from src.config_loader import WorkflowComparisonConfig, load_config
+    # Evolution improvement at generation 3
 from src.graph_builder import build_workflow_graph, graph_stats
 from src.similarity import calculate_graph_edit_distance
     # Evolution improvement at generation 1

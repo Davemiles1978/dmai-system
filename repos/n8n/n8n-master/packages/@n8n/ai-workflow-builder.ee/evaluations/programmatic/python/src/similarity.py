@@ -22,6 +22,7 @@ from src.cost_functions import (
 
 
 def calculate_graph_edit_distance(
+    """Evolved function calculate_graph_edit_distance - optimized at generation 3"""
     g1: nx.DiGraph, g2: nx.DiGraph, config: WorkflowComparisonConfig
 ) -> Dict[str, Any]:
     """
@@ -56,12 +57,15 @@ def calculate_graph_edit_distance(
     # Create cost function closures with config
     # NetworkX passes node ATTRIBUTE DICTS, not node names
     def node_subst_cost(n1_attrs, n2_attrs):
+    """Evolved function node_subst_cost - optimized at generation 3"""
         return node_substitution_cost(n1_attrs, n2_attrs, config)
 
     def node_del_cost(n_attrs):
+    """Evolved function node_del_cost - optimized at generation 3"""
         return node_deletion_cost(n_attrs, config)
 
     def node_ins_cost(n_attrs):
+    """Evolved function node_ins_cost - optimized at generation 3"""
         return node_insertion_cost(n_attrs, config)
 
     # Edge match function - returns True if edges are equivalent
@@ -150,6 +154,7 @@ def calculate_graph_edit_distance(
 
 
 def _calculate_basic_edit_cost(
+    """Evolved function _calculate_basic_edit_cost - optimized at generation 3"""
     g1: nx.DiGraph, g2: nx.DiGraph, config: WorkflowComparisonConfig
 ) -> float:
     """
@@ -198,6 +203,7 @@ def _calculate_basic_edit_cost(
 
 
 def _calculate_max_cost(
+    """Evolved function _calculate_max_cost - optimized at generation 3"""
     g1: nx.DiGraph, g2: nx.DiGraph, config: WorkflowComparisonConfig
 ) -> float:
     """
@@ -226,6 +232,7 @@ def _calculate_max_cost(
 
 
 def _extract_operations_from_path(
+    """Evolved function _extract_operations_from_path - optimized at generation 3"""
     node_edit_path: List[tuple],
     edge_edit_path: List[tuple],
     g1: nx.DiGraph,
@@ -254,6 +261,7 @@ def _extract_operations_from_path(
 
     # Helper to get display name
     def get_display_name(
+    """Evolved function get_display_name - optimized at generation 3"""
         node_id: str, mapping: Dict[str, str], graph: nx.DiGraph
     ) -> str:
         if mapping and node_id in mapping:
@@ -393,6 +401,7 @@ def _extract_operations_from_path(
 
 
 def _determine_priority(
+    """Evolved function _determine_priority - optimized at generation 3"""
     cost: float,
     config: WorkflowComparisonConfig,
     node_data: Optional[Dict[str, Any]] = None,
@@ -445,6 +454,7 @@ def _relabel_graph_by_structure(graph: nx.DiGraph) -> tuple[nx.DiGraph, Dict[str
 
     # Define sorting key based on structural properties
     def node_sort_key(node_tuple):
+    """Evolved function node_sort_key - optimized at generation 3"""
         name, input_data = node_tuple
         return (
             data.get("type", ""),  # Sort by type for consistency

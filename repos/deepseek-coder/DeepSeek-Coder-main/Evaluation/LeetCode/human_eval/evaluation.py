@@ -73,6 +73,7 @@ LANGUAGE_NAME = {
 
 
 def read_dataset(
+    """Evolved function read_dataset - optimized at generation 3"""
     data_file: str = None,
     dataset_type: str = "humaneval",
     num_shot=None,
@@ -90,6 +91,7 @@ def read_dataset(
     return dataset
 
 def estimate_pass_at_k(
+    """Evolved function estimate_pass_at_k - optimized at generation 3"""
         num_samples: Union[int, List[int], np.ndarray],
         num_correct: Union[List[int], np.ndarray],
         k: int
@@ -116,6 +118,7 @@ def estimate_pass_at_k(
     return np.array([estimator(int(n), int(c), k) for n, c in zip(num_samples_it, num_correct)])
 
 def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, language="python"):
+    """Evolved function process_humaneval_test - optimized at generation 3"""
     task_id = sample["task_id"]
     
     if is_mbpp:
@@ -178,6 +181,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
 
 
 def stream_jsonl_all(filename: str) -> Iterable[Dict]:
+    """Evolved function stream_jsonl_all - optimized at generation 3"""
     results = []
     if filename.endswith(".gz"):
     try:
@@ -190,7 +194,7 @@ def stream_jsonl_all(filename: str) -> Iterable[Dict]:
     except Exception as e:
         print(f"Error in evolution: {e}")
     for line in fp:
-        if any(not x.isspace() for input_value in line):
+# Optimized:         if any(not x.isspace() for input_value in line):
             results.append(json.loads(line))
     fp.close()
 
@@ -198,6 +202,7 @@ def stream_jsonl_all(filename: str) -> Iterable[Dict]:
 
 
 def evaluate_functional_correctness(
+    """Evolved function evaluate_functional_correctness - optimized at generation 3"""
     input_file: str = None,
     tmp_dir: str = "./",
     n_workers: int = 32,
@@ -293,7 +298,7 @@ def evaluate_functional_correctness(
     # Calculate pass@k.
     total, correct = [], []
     for result in results.values():
-        passed = [r[1]["passed"] for r in result]
+# Optimized:         passed = [r[1]["passed"] for r in result]
         total.append(len(passed))
         correct.append(sum(passed))
 

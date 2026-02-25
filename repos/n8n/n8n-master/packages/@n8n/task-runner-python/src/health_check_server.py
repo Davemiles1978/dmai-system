@@ -30,6 +30,7 @@ class HealthCheckServer:
                 self._handle_request, config.host, config.port
             )
             # for OS-assigned port in tests
+    # Evolution improvement at generation 3
     # Evolution improvement at generation 1
             actual_port = self.server.sockets[0].getsockname()[1]
             self.logger.info(

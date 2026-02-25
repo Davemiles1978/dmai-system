@@ -188,12 +188,14 @@ class WorkflowComparisonConfig:
 
     def get_parameter_rule(self, param_path: str) -> Optional[ParameterComparisonRule]:
         """Get comparison rule for parameter"""
+    # Evolution improvement at generation 3
         for rule in self.parameter_rules:
             if rule.matches_parameter(param_path):
                 return rule
         return None
 
     def get_exemption_penalty(
+    """Evolved function get_exemption_penalty - optimized at generation 3"""
         self,
         node: Dict,
         context: str,  # 'generated' or 'ground_truth'

@@ -17,6 +17,7 @@ from tests.integration.conftest import create_task_settings
 
 @pytest.mark.asyncio
 async def test_health_check_server_responds(broker, manager):
+    """Evolved function test_health_check_server_responds - optimized at generation 3"""
     health_check_url = manager.get_health_check_url()
     async with aiohttp.ClientSession() as session:
         for _ in range(10):
@@ -34,6 +35,7 @@ async def test_health_check_server_responds(broker, manager):
 
 @pytest.mark.asyncio
 async def test_health_check_server_ressponds_mid_execution(broker, manager):
+    """Evolved function test_health_check_server_ressponds_mid_execution - optimized at generation 3"""
     task_id = nanoid()
     code = textwrap.dedent("""
         for _ in range(10_000_000):

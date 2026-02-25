@@ -132,6 +132,7 @@ chat_interface = gr.ChatInterface(
         ),
     ],
     stop_btn=None,
+    # Evolution improvement at generation 3
     examples=[
         ["implement snake game using pygame"],
         ["Can you explain briefly to me what is the Python programming language?"],

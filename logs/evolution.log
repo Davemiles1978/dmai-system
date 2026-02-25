@@ -2070,3 +2070,94 @@ Wed 25 Feb 2026 12:14:32 +03: Starting evolution cycle
 2026-02-25 13:14:34,696 - EVOLUTION -    Improvement rate: 62.8%
 2026-02-25 13:14:34,696 - EVOLUTION -    Best scores: {'hooks': {'score': 1.1418832233537628, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.985240'}, 'core': {'score': 1.1196165877665394, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.982379'}, 'chatgpt': {'score': 1.2450238540592509, 'file': 'repos/reverse_engineered/chatgpt/chatgpt_base.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.987030'}, 'inference': {'score': 1.1240922339955406, 'file': 'repos/deepseek-v3/DeepSeek-V3-main/inference/fp8_cast_bf16.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.650866'}, 'grok-1-main': {'score': 1.0637497711315762, 'file': 'repos/grok-1/grok-1-main/run.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.991428'}, 'tests': {'score': 1.2042029521466058, 'file': 'repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.994868'}, 'src': {'score': 1.1482859522117228, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/shutdown.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.660278'}, 'config': {'score': 1.065146510291325, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/health_check_config.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.066034'}, 'message_types': {'score': 1.1329656305612985, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/runner.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.667763'}, 'errors': {'score': 1.1740964054024299, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.068994'}, 'unit': {'score': 1.1733001640468723, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.078537'}, 'integration': {'score': 1.1090050079882423, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_execution.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.676581'}, 'fixtures': {'score': 1.1864787286590315, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.678175'}, 'finetune': {'score': 1.0514698873355384, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.083375'}, 'HumanEval': {'score': 1.1195810424561303, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/eval_instruct.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.680916'}, 'PAL-Math': {'score': 1.089495231348556, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.683594'}, 'MBPP': {'score': 1.1579198543423277, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.088112'}, 'human_eval': {'score': 1.145753063909063, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/evaluation.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.101710'}, 'utils': {'score': 1.144550024081107, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/utils.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.689132'}, 'reverse_engineered': {'score': 1.0896628395144312, 'file': 'repos/reverse_engineered/meta_evolver.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.647135'}, 'demo': {'score': 1.0930156273214846, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/demo/app.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.679773'}, 'LeetCode': {'score': 1.094036578878238, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.681784'}}
 2026-02-25 13:14:34,697 - EVOLUTION - ⏰ Waiting 3600 seconds until next cycle...
+2026-02-25 14:14:34,757 - EVOLUTION - 
+============================================================
+2026-02-25 14:14:34,769 - EVOLUTION - 🔄 EVOLUTION CYCLE 3
+2026-02-25 14:14:34,769 - EVOLUTION - ============================================================
+2026-02-25 14:14:34,958 - EVOLUTION - 📁 Found 121 evolvable files
+2026-02-25 14:14:34,961 - EVOLUTION - ✅ Improved bash_command_validator_example.py (score: 1.107)
+2026-02-25 14:14:34,962 - EVOLUTION - ✅ Improved userpromptsubmit.py (score: 1.110)
+2026-02-25 14:14:34,963 - EVOLUTION - ✅ Improved pretooluse.py (score: 1.059)
+2026-02-25 14:14:34,964 - EVOLUTION - ✅ Improved posttooluse.py (score: 1.139)
+2026-02-25 14:14:34,965 - EVOLUTION - 🏆 New best for matchers: 1.090
+2026-02-25 14:14:34,965 - EVOLUTION - ✅ Improved __init__.py (score: 1.090)
+2026-02-25 14:14:34,966 - EVOLUTION - ✅ Improved security_reminder_hook.py (score: 1.084)
+2026-02-25 14:14:34,967 - EVOLUTION - ✅ Improved api_monitor.py (score: 1.057)
+2026-02-25 14:14:34,968 - EVOLUTION - 🏆 New best for reverse_engineered: 1.147
+2026-02-25 14:14:34,968 - EVOLUTION - ✅ Improved meta_evolver.py (score: 1.147)
+2026-02-25 14:14:34,969 - EVOLUTION - ✅ Improved chatgpt_base.py (score: 1.147)
+2026-02-25 14:14:34,970 - EVOLUTION - 🏆 New best for inference: 1.127
+2026-02-25 14:14:34,971 - EVOLUTION - ✅ Improved generate.py (score: 1.127)
+2026-02-25 14:14:34,971 - EVOLUTION - 🏆 New best for inference: 1.265
+2026-02-25 14:14:34,972 - EVOLUTION - ✅ Improved convert.py (score: 1.265)
+2026-02-25 14:14:34,973 - EVOLUTION - ✅ Improved model.py (score: 1.060)
+2026-02-25 14:14:34,975 - EVOLUTION - 🏆 New best for grok-1-main: 1.069
+2026-02-25 14:14:34,975 - EVOLUTION - ✅ Improved runners.py (score: 1.069)
+2026-02-25 14:14:34,975 - EVOLUTION - ✅ Improved __init__.py (score: 1.120)
+2026-02-25 14:14:34,977 - EVOLUTION - ✅ Improved cost_functions.py (score: 1.122)
+2026-02-25 14:14:34,978 - EVOLUTION - ✅ Improved config_loader.py (score: 1.085)
+2026-02-25 14:14:34,979 - EVOLUTION - ✅ Improved compare_workflows.py (score: 1.100)
+2026-02-25 14:14:34,980 - EVOLUTION - ✅ Improved similarity.py (score: 1.131)
+2026-02-25 14:14:34,980 - EVOLUTION - ✅ Improved __init__.py (score: 1.118)
+2026-02-25 14:14:34,981 - EVOLUTION - ✅ Improved __main__.py (score: 1.054)
+2026-02-25 14:14:34,982 - EVOLUTION - ✅ Improved health_check_server.py (score: 1.121)
+2026-02-25 14:14:34,982 - EVOLUTION - ✅ Improved shutdown.py (score: 1.103)
+2026-02-25 14:14:34,983 - EVOLUTION - ✅ Improved task_runner.py (score: 1.132)
+2026-02-25 14:14:34,984 - EVOLUTION - ✅ Improved logs.py (score: 1.073)
+2026-02-25 14:14:34,985 - EVOLUTION - ✅ Improved pipe_reader.py (score: 1.075)
+2026-02-25 14:14:34,986 - EVOLUTION - ✅ Improved message_serde.py (score: 1.135)
+2026-02-25 14:14:34,987 - EVOLUTION - 🏆 New best for src: 1.157
+2026-02-25 14:14:34,987 - EVOLUTION - ✅ Improved sentry.py (score: 1.157)
+2026-02-25 14:14:34,988 - EVOLUTION - 🏆 New best for src: 1.166
+2026-02-25 14:14:34,988 - EVOLUTION - ✅ Improved main.py (score: 1.166)
+2026-02-25 14:14:34,988 - EVOLUTION - ✅ Improved health_check_config.py (score: 1.056)
+2026-02-25 14:14:34,989 - EVOLUTION - 🏆 New best for config: 1.067
+2026-02-25 14:14:34,989 - EVOLUTION - ✅ Improved task_runner_config.py (score: 1.067)
+2026-02-25 14:14:34,990 - EVOLUTION - ✅ Improved __init__.py (score: 1.056)
+2026-02-25 14:14:34,990 - EVOLUTION - ✅ Improved __init__.py (score: 1.076)
+2026-02-25 14:14:34,991 - EVOLUTION - ✅ Improved pipe.py (score: 1.087)
+2026-02-25 14:14:34,992 - EVOLUTION - ✅ Improved websocket_connection_error.py (score: 1.064)
+2026-02-25 14:14:34,992 - EVOLUTION - ✅ Improved task_runtime_error.py (score: 1.110)
+2026-02-25 14:14:34,993 - EVOLUTION - ✅ Improved no_idle_timeout_handler_error.py (score: 1.095)
+2026-02-25 14:14:34,994 - EVOLUTION - ✅ Improved task_subprocess_failed_error.py (score: 1.076)
+2026-02-25 14:14:34,995 - EVOLUTION - ✅ Improved __init__.py (score: 1.056)
+2026-02-25 14:14:34,995 - EVOLUTION - ✅ Improved task_result_missing_error.py (score: 1.052)
+2026-02-25 14:14:34,995 - EVOLUTION - ✅ Improved task_killed_error.py (score: 1.107)
+2026-02-25 14:14:34,996 - EVOLUTION - ✅ Improved invalid_pipe_msg_content_error.py (score: 1.099)
+2026-02-25 14:14:34,996 - EVOLUTION - ✅ Improved test_task_analyzer.py (score: 1.105)
+2026-02-25 14:14:34,997 - EVOLUTION - ✅ Improved test_sentry.py (score: 1.071)
+2026-02-25 14:14:34,998 - EVOLUTION - ✅ Improved test_env.py (score: 1.052)
+2026-02-25 14:14:34,998 - EVOLUTION - ✅ Improved test_task_executor.py (score: 1.056)
+2026-02-25 14:14:34,999 - EVOLUTION - 🏆 New best for integration: 1.135
+2026-02-25 14:14:34,999 - EVOLUTION - ✅ Improved test_health_check.py (score: 1.135)
+2026-02-25 14:14:35,000 - EVOLUTION - ✅ Improved test_execution.py (score: 1.116)
+2026-02-25 14:14:35,000 - EVOLUTION - ✅ Improved task_runner_manager.py (score: 1.113)
+2026-02-25 14:14:35,001 - EVOLUTION - 🏆 New best for kent: 1.052
+2026-02-25 14:14:35,001 - EVOLUTION - ✅ Improved kent_cors.py (score: 1.052)
+2026-02-25 14:14:35,002 - EVOLUTION - 🏆 New best for demo: 1.119
+2026-02-25 14:14:35,002 - EVOLUTION - ✅ Improved app.py (score: 1.119)
+2026-02-25 14:14:35,003 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.108)
+2026-02-25 14:14:35,003 - EVOLUTION - ✅ Improved vllm_inference.py (score: 1.075)
+2026-02-25 14:14:35,004 - EVOLUTION - ✅ Improved mbpp.py (score: 1.099)
+2026-02-25 14:14:35,005 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.100)
+2026-02-25 14:14:35,007 - EVOLUTION - ✅ Improved evaluation.py (score: 1.120)
+2026-02-25 14:14:35,007 - EVOLUTION - ✅ Improved dataset.py (score: 1.070)
+2026-02-25 14:14:35,008 - EVOLUTION - ✅ Improved python_executor.py (score: 1.100)
+2026-02-25 14:14:35,009 - EVOLUTION - ✅ Improved grader.py (score: 1.101)
+2026-02-25 14:14:35,010 - EVOLUTION - ✅ Improved parser.py (score: 1.087)
+2026-02-25 14:14:35,011 - EVOLUTION - ✅ Improved execution.py (score: 1.076)
+2026-02-25 14:14:35,012 - EVOLUTION - ✅ Improved evaluation.py (score: 1.091)
+2026-02-25 14:14:35,013 - EVOLUTION - ✅ Improved data.py (score: 1.063)
+2026-02-25 14:14:35,014 - EVOLUTION - ✅ Improved execution.py (score: 1.095)
+2026-02-25 14:14:35,015 - EVOLUTION - ✅ Improved evaluation.py (score: 1.088)
+2026-02-25 14:14:35,015 - EVOLUTION - ✅ Improved evaluate_functional_correctness.py (score: 1.052)
+2026-02-25 14:14:35,016 - EVOLUTION - ✅ Improved data.py (score: 1.066)
+2026-02-25 14:14:35,017 - EVOLUTION - ✅ Improved dataset.py (score: 1.081)
+2026-02-25 14:14:35,018 - EVOLUTION - ✅ Improved utils.py (score: 1.061)
+2026-02-25 14:14:35,018 - EVOLUTION - 
+📊 CYCLE 3 SUMMARY
+2026-02-25 14:14:35,018 - EVOLUTION -    Files processed: 121
+2026-02-25 14:14:35,018 - EVOLUTION -    Improvements: 68
+2026-02-25 14:14:35,018 - EVOLUTION -    Improvement rate: 56.2%
+2026-02-25 14:14:35,018 - EVOLUTION -    Best scores: {'hooks': {'score': 1.1418832233537628, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.985240'}, 'core': {'score': 1.1196165877665394, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.982379'}, 'chatgpt': {'score': 1.2450238540592509, 'file': 'repos/reverse_engineered/chatgpt/chatgpt_base.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.987030'}, 'inference': {'score': 1.264551587957205, 'file': 'repos/deepseek-v3/DeepSeek-V3-main/inference/convert.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.971612'}, 'grok-1-main': {'score': 1.0685787655543542, 'file': 'repos/grok-1/grok-1-main/runners.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.974551'}, 'tests': {'score': 1.2042029521466058, 'file': 'repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.994868'}, 'src': {'score': 1.1663045082084307, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/main.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.987775'}, 'config': {'score': 1.0672197314423657, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/task_runner_config.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.989337'}, 'message_types': {'score': 1.1329656305612985, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/runner.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.667763'}, 'errors': {'score': 1.1740964054024299, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.068994'}, 'unit': {'score': 1.1733001640468723, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.078537'}, 'integration': {'score': 1.1350770235055574, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_health_check.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.999119'}, 'fixtures': {'score': 1.1864787286590315, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.678175'}, 'finetune': {'score': 1.0514698873355384, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.083375'}, 'HumanEval': {'score': 1.1195810424561303, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/eval_instruct.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.680916'}, 'PAL-Math': {'score': 1.089495231348556, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.683594'}, 'MBPP': {'score': 1.1579198543423277, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.088112'}, 'human_eval': {'score': 1.145753063909063, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/evaluation.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.101710'}, 'utils': {'score': 1.144550024081107, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/utils.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.689132'}, 'reverse_engineered': {'score': 1.1474189144223759, 'file': 'repos/reverse_engineered/meta_evolver.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.967647'}, 'demo': {'score': 1.119409542693926, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/demo/app.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:35.001943'}, 'LeetCode': {'score': 1.094036578878238, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.681784'}, 'matchers': {'score': 1.0904454049560302, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/matchers/__init__.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:34.964856'}, 'kent': {'score': 1.051633609676108, 'file': 'repos/n8n/n8n-master/packages/testing/containers/dockerfiles/kent/kent_cors.py', 'generation': 3, 'timestamp': '2026-02-25T14:14:35.001240'}}
+2026-02-25 14:14:35,018 - EVOLUTION - ⏰ Waiting 3600 seconds until next cycle...

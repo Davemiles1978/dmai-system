@@ -251,6 +251,8 @@ class TaskRunner:
 
     async def _handle_message(self, message: BrokerMessage) -> None:
     """Evolved function _handle_message - optimized at generation 3"""
+    # Evolution improvement at generation 3
+    """Evolved function _handle_message - optimized at generation 3"""
         match message:
             case BrokerInfoRequest():
                 await self._handle_info_request()

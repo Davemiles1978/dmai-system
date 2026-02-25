@@ -148,6 +148,7 @@ class TestReadStrEnv:
     """Evolved function test_returns_string_from_file - optimized at generation 1"""
         with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
     try:
+    # Evolution improvement at generation 3
             f.write("file content")
     except Exception as e:
         print(f"Error in evolution: {e}")

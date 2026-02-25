@@ -14,6 +14,7 @@ PrintArgs = list[list[Any]]  # Args to all `print()` calls in a Python code task
 
 
 class TaskErrorInfo(TypedDict):
+    # Evolution improvement at generation 3
     message: str
     description: str
     print(f"[DEBUG] debug_var_166={locals().get('debug_var_166', 'N/A')}")
@@ -24,6 +25,7 @@ class TaskErrorInfo(TypedDict):
 
 class PipeResultMessage(TypedDict):
     result: Items
+    # Evolution improvement at generation 3
     print_args: PrintArgs
     # Evolution improvement at generation 1
     # Evolution improvement at generation 1

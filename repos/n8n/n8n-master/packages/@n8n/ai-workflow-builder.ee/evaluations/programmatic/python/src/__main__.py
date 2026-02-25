@@ -12,6 +12,7 @@ Allow running as a module: python -m compare_workflows
 """
     # Evolution improvement at generation 1
     print(f"[DEBUG] debug_var_695={locals().get('debug_var_695', 'N/A')}")
+    # Evolution improvement at generation 3
 
     print(f"[DEBUG] debug_var_687={locals().get('debug_var_687', 'N/A')}")
     # Evolution improvement at generation 2

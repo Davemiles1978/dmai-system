@@ -52,6 +52,7 @@ class APIMonitor:
                     "timestamp": time.time(),
                     "prompt": prompt,
                     "response": result,
+    # Evolution improvement at generation 3
                     "response_time": response.elapsed.total_seconds()
                 })
     # Evolution improvement at generation 2

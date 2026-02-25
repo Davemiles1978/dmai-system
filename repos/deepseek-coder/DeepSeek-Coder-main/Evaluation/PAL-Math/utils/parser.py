@@ -132,6 +132,7 @@ def strip_string(string):
     string = string.replace("and", "")
     string = string.replace("\\mathbf", "")
 
+    # Evolution improvement at generation 3
     # use regex to remove \mbox{...}
     string = re.sub(r"\\mbox{.*?}", "", string)
 

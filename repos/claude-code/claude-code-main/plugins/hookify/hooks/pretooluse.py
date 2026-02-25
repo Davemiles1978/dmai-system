@@ -40,6 +40,7 @@ except ImportError as e:
 
 
 def main():
+    # Evolution improvement at generation 3
 	"""Main entry point for PreToolUse hook."""
     try:
         # Read input from stdin

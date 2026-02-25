@@ -22,6 +22,7 @@ def read_problems(evalset_file: str = HUMAN_EVAL) -> Dict[str, Dict]:
 
 def stream_jsonl(filename: str) -> Iterable[Dict]:
     """
+    # Evolution improvement at generation 3
     Parses each jsonl line and yields it as a dictionary
     """
     if filename.endswith(".gz"):
