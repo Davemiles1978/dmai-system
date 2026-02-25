@@ -1,0 +1,406 @@
+2026-02-25 12:14:33,474 - EVOLUTION - 🚀 Evolution Engine Started - Generation 1
+2026-02-25 12:14:33,475 - EVOLUTION - 🌟 Starting 24/7/365 Evolution Engine
+2026-02-25 12:14:33,475 - EVOLUTION - ⏰ Cycle interval: 3600 seconds
+2026-02-25 12:14:33,475 - EVOLUTION - 
+============================================================
+2026-02-25 12:14:33,475 - EVOLUTION - 🔄 EVOLUTION CYCLE 1
+2026-02-25 12:14:33,475 - EVOLUTION - ============================================================
+2026-02-25 12:14:33,978 - EVOLUTION - 📁 Found 121 evolvable files
+2026-02-25 12:14:33,979 - EVOLUTION - 🏆 New best for hooks: 1.067
+2026-02-25 12:14:33,979 - EVOLUTION - ✅ Improved bash_command_validator_example.py (score: 1.067)
+2026-02-25 12:14:33,980 - EVOLUTION - 🏆 New best for core: 1.056
+2026-02-25 12:14:33,980 - EVOLUTION - ✅ Improved config_loader.py (score: 1.056)
+2026-02-25 12:14:33,981 - EVOLUTION - 🏆 New best for core: 1.063
+2026-02-25 12:14:33,981 - EVOLUTION - ✅ Improved __init__.py (score: 1.063)
+2026-02-25 12:14:33,982 - EVOLUTION - 🏆 New best for core: 1.120
+2026-02-25 12:14:33,982 - EVOLUTION - ✅ Improved rule_engine.py (score: 1.120)
+2026-02-25 12:14:33,983 - EVOLUTION - 🏆 New best for hooks: 1.091
+2026-02-25 12:14:33,983 - EVOLUTION - ✅ Improved userpromptsubmit.py (score: 1.091)
+2026-02-25 12:14:33,984 - EVOLUTION - 🏆 New best for hooks: 1.104
+2026-02-25 12:14:33,984 - EVOLUTION - ✅ Improved stop.py (score: 1.104)
+2026-02-25 12:14:33,984 - EVOLUTION - ✅ Improved pretooluse.py (score: 1.072)
+2026-02-25 12:14:33,985 - EVOLUTION - 🏆 New best for hooks: 1.142
+2026-02-25 12:14:33,985 - EVOLUTION - ✅ Improved posttooluse.py (score: 1.142)
+2026-02-25 12:14:33,986 - EVOLUTION - ✅ Improved security_reminder_hook.py (score: 1.121)
+2026-02-25 12:14:33,987 - EVOLUTION - 🏆 New best for chatgpt: 1.245
+2026-02-25 12:14:33,987 - EVOLUTION - ✅ Improved chatgpt_base.py (score: 1.245)
+2026-02-25 12:14:33,988 - EVOLUTION - 🏆 New best for inference: 1.098
+2026-02-25 12:14:33,988 - EVOLUTION - ✅ Improved generate.py (score: 1.098)
+2026-02-25 12:14:33,990 - EVOLUTION - ✅ Improved model.py (score: 1.078)
+2026-02-25 12:14:33,990 - EVOLUTION - 🏆 New best for inference: 1.124
+2026-02-25 12:14:33,991 - EVOLUTION - ✅ Improved fp8_cast_bf16.py (score: 1.124)
+2026-02-25 12:14:33,991 - EVOLUTION - 🏆 New best for grok-1-main: 1.064
+2026-02-25 12:14:33,991 - EVOLUTION - ✅ Improved run.py (score: 1.064)
+2026-02-25 12:14:33,993 - EVOLUTION - 🏆 New best for tests: 1.088
+2026-02-25 12:14:33,994 - EVOLUTION - ✅ Improved __init__.py (score: 1.088)
+2026-02-25 12:14:33,995 - EVOLUTION - 🏆 New best for tests: 1.204
+2026-02-25 12:14:33,995 - EVOLUTION - ✅ Improved test_graph_builder.py (score: 1.204)
+2026-02-25 12:14:33,995 - EVOLUTION - 🏆 New best for src: 1.060
+2026-02-25 12:14:33,996 - EVOLUTION - ✅ Improved cost_functions.py (score: 1.060)
+2026-02-25 12:14:33,997 - EVOLUTION - 🏆 New best for src: 1.105
+2026-02-25 12:14:33,997 - EVOLUTION - ✅ Improved compare_workflows.py (score: 1.105)
+2026-02-25 12:14:33,998 - EVOLUTION - 🏆 New best for src: 1.111
+2026-02-25 12:14:33,998 - EVOLUTION - ✅ Improved similarity.py (score: 1.111)
+2026-02-25 12:14:33,998 - EVOLUTION - ✅ Improved graph_builder.py (score: 1.057)
+2026-02-25 12:14:33,999 - EVOLUTION - ✅ Improved __main__.py (score: 1.063)
+2026-02-25 12:14:33,999 - EVOLUTION - ✅ Improved task_analyzer.py (score: 1.081)
+2026-02-25 12:14:34,033 - EVOLUTION - ✅ Improved env.py (score: 1.092)
+2026-02-25 12:14:34,059 - EVOLUTION - ✅ Improved shutdown.py (score: 1.095)
+2026-02-25 12:14:34,060 - EVOLUTION - ✅ Improved task_runner.py (score: 1.111)
+2026-02-25 12:14:34,061 - EVOLUTION - ✅ Improved pipe_reader.py (score: 1.088)
+2026-02-25 12:14:34,062 - EVOLUTION - ✅ Improved task_executor.py (score: 1.065)
+2026-02-25 12:14:34,064 - EVOLUTION - 🏆 New best for src: 1.138
+2026-02-25 12:14:34,064 - EVOLUTION - ✅ Improved message_serde.py (score: 1.138)
+2026-02-25 12:14:34,064 - EVOLUTION - ✅ Improved sentry.py (score: 1.125)
+2026-02-25 12:14:34,066 - EVOLUTION - 🏆 New best for config: 1.065
+2026-02-25 12:14:34,066 - EVOLUTION - ✅ Improved health_check_config.py (score: 1.065)
+2026-02-25 12:14:34,067 - EVOLUTION - 🏆 New best for message_types: 1.076
+2026-02-25 12:14:34,067 - EVOLUTION - ✅ Improved __init__.py (score: 1.076)
+2026-02-25 12:14:34,068 - EVOLUTION - ✅ Improved broker.py (score: 1.057)
+2026-02-25 12:14:34,069 - EVOLUTION - 🏆 New best for errors: 1.174
+2026-02-25 12:14:34,069 - EVOLUTION - ✅ Improved websocket_connection_error.py (score: 1.174)
+2026-02-25 12:14:34,070 - EVOLUTION - ✅ Improved task_runtime_error.py (score: 1.059)
+2026-02-25 12:14:34,070 - EVOLUTION - ✅ Improved security_violation_error.py (score: 1.096)
+2026-02-25 12:14:34,071 - EVOLUTION - ✅ Improved no_idle_timeout_handler_error.py (score: 1.064)
+2026-02-25 12:14:34,072 - EVOLUTION - ✅ Improved task_timeout_error.py (score: 1.086)
+2026-02-25 12:14:34,073 - EVOLUTION - ✅ Improved task_killed_error.py (score: 1.061)
+2026-02-25 12:14:34,073 - EVOLUTION - ✅ Improved task_cancelled_error.py (score: 1.061)
+2026-02-25 12:14:34,074 - EVOLUTION - ✅ Improved task_missing_error.py (score: 1.056)
+2026-02-25 12:14:34,074 - EVOLUTION - ✅ Improved task_result_read_error.py (score: 1.056)
+2026-02-25 12:14:34,076 - EVOLUTION - 🏆 New best for unit: 1.074
+2026-02-25 12:14:34,076 - EVOLUTION - ✅ Improved test_task_analyzer.py (score: 1.074)
+2026-02-25 12:14:34,077 - EVOLUTION - 🏆 New best for unit: 1.084
+2026-02-25 12:14:34,077 - EVOLUTION - ✅ Improved test_task_runner.py (score: 1.084)
+2026-02-25 12:14:34,078 - EVOLUTION - 🏆 New best for unit: 1.093
+2026-02-25 12:14:34,078 - EVOLUTION - ✅ Improved test_env.py (score: 1.093)
+2026-02-25 12:14:34,078 - EVOLUTION - 🏆 New best for unit: 1.173
+2026-02-25 12:14:34,078 - EVOLUTION - ✅ Improved test_task_executor.py (score: 1.173)
+2026-02-25 12:14:34,080 - EVOLUTION - 🏆 New best for integration: 1.052
+2026-02-25 12:14:34,080 - EVOLUTION - ✅ Improved test_execution.py (score: 1.052)
+2026-02-25 12:14:34,081 - EVOLUTION - 🏆 New best for integration: 1.109
+2026-02-25 12:14:34,081 - EVOLUTION - ✅ Improved test_rpc.py (score: 1.109)
+2026-02-25 12:14:34,082 - EVOLUTION - 🏆 New best for fixtures: 1.151
+2026-02-25 12:14:34,082 - EVOLUTION - ✅ Improved local_task_broker.py (score: 1.151)
+2026-02-25 12:14:34,082 - EVOLUTION - ✅ Improved task_runner_manager.py (score: 1.092)
+2026-02-25 12:14:34,083 - EVOLUTION - 🏆 New best for finetune: 1.051
+2026-02-25 12:14:34,083 - EVOLUTION - ✅ Improved finetune_deepseekcoder.py (score: 1.051)
+2026-02-25 12:14:34,084 - EVOLUTION - 🏆 New best for HumanEval: 1.082
+2026-02-25 12:14:34,084 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.082)
+2026-02-25 12:14:34,085 - EVOLUTION - 🏆 New best for HumanEval: 1.112
+2026-02-25 12:14:34,085 - EVOLUTION - ✅ Improved humaneval.py (score: 1.112)
+2026-02-25 12:14:34,087 - EVOLUTION - 🏆 New best for PAL-Math: 1.058
+2026-02-25 12:14:34,087 - EVOLUTION - ✅ Improved run.py (score: 1.058)
+2026-02-25 12:14:34,088 - EVOLUTION - 🏆 New best for MBPP: 1.158
+2026-02-25 12:14:34,088 - EVOLUTION - ✅ Improved mbpp.py (score: 1.158)
+2026-02-25 12:14:34,089 - EVOLUTION - ✅ Improved eval_pal.py (score: 1.074)
+2026-02-25 12:14:34,090 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.112)
+2026-02-25 12:14:34,091 - EVOLUTION - 🏆 New best for human_eval: 1.111
+2026-02-25 12:14:34,091 - EVOLUTION - ✅ Improved execution.py (score: 1.111)
+2026-02-25 12:14:34,092 - EVOLUTION - 🏆 New best for human_eval: 1.125
+2026-02-25 12:14:34,092 - EVOLUTION - ✅ Improved evaluation.py (score: 1.125)
+2026-02-25 12:14:34,093 - EVOLUTION - ✅ Improved evaluate_functional_correctness.py (score: 1.063)
+2026-02-25 12:14:34,094 - EVOLUTION - ✅ Improved data.py (score: 1.122)
+2026-02-25 12:14:34,095 - EVOLUTION - 🏆 New best for utils: 1.057
+2026-02-25 12:14:34,095 - EVOLUTION - ✅ Improved dataset.py (score: 1.057)
+2026-02-25 12:14:34,097 - EVOLUTION - 🏆 New best for utils: 1.137
+2026-02-25 12:14:34,097 - EVOLUTION - ✅ Improved python_executor.py (score: 1.137)
+2026-02-25 12:14:34,098 - EVOLUTION - ✅ Improved parser.py (score: 1.068)
+2026-02-25 12:14:34,099 - EVOLUTION - ✅ Improved execution.py (score: 1.116)
+2026-02-25 12:14:34,099 - EVOLUTION - ✅ Improved __init__.py (score: 1.081)
+2026-02-25 12:14:34,100 - EVOLUTION - ✅ Improved data.py (score: 1.058)
+2026-02-25 12:14:34,101 - EVOLUTION - ✅ Improved execution.py (score: 1.062)
+2026-02-25 12:14:34,101 - EVOLUTION - 🏆 New best for human_eval: 1.146
+2026-02-25 12:14:34,102 - EVOLUTION - ✅ Improved evaluation.py (score: 1.146)
+2026-02-25 12:14:34,102 - EVOLUTION - ✅ Improved data.py (score: 1.118)
+2026-02-25 12:14:34,102 - EVOLUTION - ✅ Improved dataset.py (score: 1.118)
+2026-02-25 12:14:34,103 - EVOLUTION - ✅ Improved utils.py (score: 1.078)
+2026-02-25 12:14:34,103 - EVOLUTION - 
+📊 CYCLE 1 SUMMARY
+2026-02-25 12:14:34,103 - EVOLUTION -    Files processed: 121
+2026-02-25 12:14:34,103 - EVOLUTION -    Improvements: 71
+2026-02-25 12:14:34,103 - EVOLUTION -    Improvement rate: 58.7%
+2026-02-25 12:14:34,103 - EVOLUTION -    Best scores: {'hooks': {'score': 1.1418832233537628, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.985240'}, 'core': {'score': 1.1196165877665394, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.982379'}, 'chatgpt': {'score': 1.2450238540592509, 'file': 'repos/reverse_engineered/chatgpt/chatgpt_base.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.987030'}, 'inference': {'score': 1.1238436299808057, 'file': 'repos/deepseek-v3/DeepSeek-V3-main/inference/fp8_cast_bf16.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.990755'}, 'grok-1-main': {'score': 1.0637497711315762, 'file': 'repos/grok-1/grok-1-main/run.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.991428'}, 'tests': {'score': 1.2042029521466058, 'file': 'repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.994868'}, 'src': {'score': 1.137689672625254, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_serde.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.063703'}, 'config': {'score': 1.065146510291325, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/health_check_config.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.066034'}, 'message_types': {'score': 1.076293858978216, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/__init__.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.067366'}, 'errors': {'score': 1.1740964054024299, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.068994'}, 'unit': {'score': 1.1733001640468723, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.078537'}, 'integration': {'score': 1.1087564993666876, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_rpc.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.080984'}, 'fixtures': {'score': 1.1510683928811125, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.081877'}, 'finetune': {'score': 1.0514698873355384, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.083375'}, 'HumanEval': {'score': 1.1122487934731409, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/humaneval.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.085648'}, 'PAL-Math': {'score': 1.057522533678206, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.087057'}, 'MBPP': {'score': 1.1579198543423277, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.088112'}, 'human_eval': {'score': 1.145753063909063, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/evaluation.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.101710'}, 'utils': {'score': 1.1374413435112223, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/utils/python_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.097132'}}
+2026-02-25 12:14:34,103 - EVOLUTION - ⏰ Waiting 3600 seconds until next cycle...
+2026-02-25 12:51:13,532 - EVOLUTION - 🚀 Evolution Engine Started - Generation 2
+2026-02-25 12:51:13,532 - EVOLUTION - 🌟 Starting 24/7/365 Evolution Engine
+2026-02-25 12:51:13,532 - EVOLUTION - ⏰ Cycle interval: 3600 seconds
+2026-02-25 12:51:13,533 - EVOLUTION - 
+============================================================
+2026-02-25 12:51:13,533 - EVOLUTION - 🔄 EVOLUTION CYCLE 2
+2026-02-25 12:51:13,533 - EVOLUTION - ============================================================
+2026-02-25 12:51:14,207 - EVOLUTION - 📁 Found 121 evolvable files
+2026-02-25 12:51:14,208 - EVOLUTION - ✅ Improved bash_command_validator_example.py (score: 1.100)
+2026-02-25 12:51:14,209 - EVOLUTION - ✅ Improved config_loader.py (score: 1.067)
+2026-02-25 12:51:14,210 - EVOLUTION - 🏆 New best for core: 1.130
+2026-02-25 12:51:14,210 - EVOLUTION - ✅ Improved rule_engine.py (score: 1.130)
+2026-02-25 12:51:14,211 - EVOLUTION - ✅ Improved __init__.py (score: 1.066)
+2026-02-25 12:51:14,212 - EVOLUTION - ✅ Improved userpromptsubmit.py (score: 1.091)
+2026-02-25 12:51:14,212 - EVOLUTION - ✅ Improved stop.py (score: 1.052)
+2026-02-25 12:51:14,213 - EVOLUTION - ✅ Improved pretooluse.py (score: 1.101)
+2026-02-25 12:51:14,213 - EVOLUTION - ✅ Improved posttooluse.py (score: 1.090)
+2026-02-25 12:51:14,214 - EVOLUTION - 🏆 New best for reverse_engineered: 1.098
+2026-02-25 12:51:14,214 - EVOLUTION - ✅ Improved api_monitor.py (score: 1.098)
+2026-02-25 12:51:14,215 - EVOLUTION - ✅ Improved meta_evolver.py (score: 1.065)
+2026-02-25 12:51:14,216 - EVOLUTION - 🏆 New best for claude: 1.058
+2026-02-25 12:51:14,216 - EVOLUTION - ✅ Improved claude_base.py (score: 1.058)
+2026-02-25 12:51:14,216 - EVOLUTION - ✅ Improved chatgpt_base.py (score: 1.149)
+2026-02-25 12:51:14,219 - EVOLUTION - 🏆 New best for inference: 1.124
+2026-02-25 12:51:14,219 - EVOLUTION - ✅ Improved fp8_cast_bf16.py (score: 1.124)
+2026-02-25 12:51:14,221 - EVOLUTION - 🏆 New best for grok-1-main: 1.069
+2026-02-25 12:51:14,221 - EVOLUTION - ✅ Improved model.py (score: 1.069)
+2026-02-25 12:51:14,222 - EVOLUTION - ✅ Improved __init__.py (score: 1.075)
+2026-02-25 12:51:14,223 - EVOLUTION - ✅ Improved test_similarity.py (score: 1.078)
+2026-02-25 12:51:14,225 - EVOLUTION - ✅ Improved config_loader.py (score: 1.050)
+2026-02-25 12:51:14,226 - EVOLUTION - ✅ Improved compare_workflows.py (score: 1.055)
+2026-02-25 12:51:14,227 - EVOLUTION - ✅ Improved similarity.py (score: 1.128)
+2026-02-25 12:51:14,228 - EVOLUTION - ✅ Improved __main__.py (score: 1.068)
+2026-02-25 12:51:14,229 - EVOLUTION - ✅ Improved health_check_server.py (score: 1.057)
+2026-02-25 12:51:14,229 - EVOLUTION - ✅ Improved env.py (score: 1.136)
+2026-02-25 12:51:14,230 - EVOLUTION - ✅ Improved shutdown.py (score: 1.089)
+2026-02-25 12:51:14,230 - EVOLUTION - ✅ Improved nanoid.py (score: 1.054)
+2026-02-25 12:51:14,231 - EVOLUTION - ✅ Improved pipe_reader.py (score: 1.084)
+2026-02-25 12:51:14,232 - EVOLUTION - ✅ Improved task_executor.py (score: 1.099)
+2026-02-25 12:51:14,232 - EVOLUTION - ✅ Improved message_serde.py (score: 1.104)
+2026-02-25 12:51:14,233 - EVOLUTION - ✅ Improved task_state.py (score: 1.116)
+2026-02-25 12:51:14,233 - EVOLUTION - ✅ Improved sentry.py (score: 1.086)
+2026-02-25 12:51:14,234 - EVOLUTION - 🏆 New best for config: 1.083
+2026-02-25 12:51:14,234 - EVOLUTION - ✅ Improved task_runner_config.py (score: 1.083)
+2026-02-25 12:51:14,236 - EVOLUTION - ✅ Improved task_killed_error.py (score: 1.069)
+2026-02-25 12:51:14,236 - EVOLUTION - ✅ Improved task_result_read_error.py (score: 1.089)
+2026-02-25 12:51:14,237 - EVOLUTION - ✅ Improved test_task_analyzer.py (score: 1.073)
+2026-02-25 12:51:14,238 - EVOLUTION - ✅ Improved test_sentry.py (score: 1.150)
+2026-02-25 12:51:14,238 - EVOLUTION - ✅ Improved test_env.py (score: 1.157)
+2026-02-25 12:51:14,239 - EVOLUTION - ✅ Improved test_task_executor.py (score: 1.145)
+2026-02-25 12:51:14,239 - EVOLUTION - 🏆 New best for integration: 1.202
+2026-02-25 12:51:14,239 - EVOLUTION - ✅ Improved test_health_check.py (score: 1.202)
+2026-02-25 12:51:14,240 - EVOLUTION - ✅ Improved test_execution.py (score: 1.128)
+2026-02-25 12:51:14,241 - EVOLUTION - ✅ Improved local_task_broker.py (score: 1.090)
+2026-02-25 12:51:14,242 - EVOLUTION - ✅ Improved task_runner_manager.py (score: 1.128)
+2026-02-25 12:51:14,242 - EVOLUTION - ✅ Improved eval_pal.py (score: 1.061)
+2026-02-25 12:51:14,243 - EVOLUTION - ✅ Improved humaneval.py (score: 1.097)
+2026-02-25 12:51:14,244 - EVOLUTION - 🏆 New best for LeetCode: 1.145
+2026-02-25 12:51:14,244 - EVOLUTION - ✅ Improved evaluate_leetcode.py (score: 1.145)
+2026-02-25 12:51:14,245 - EVOLUTION - ✅ Improved vllm_inference.py (score: 1.055)
+2026-02-25 12:51:14,246 - EVOLUTION - ✅ Improved mbpp.py (score: 1.060)
+2026-02-25 12:51:14,247 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.106)
+2026-02-25 12:51:14,247 - EVOLUTION - ✅ Improved execution.py (score: 1.128)
+2026-02-25 12:51:14,248 - EVOLUTION - ✅ Improved evaluation.py (score: 1.098)
+2026-02-25 12:51:14,249 - EVOLUTION - ✅ Improved evaluate_functional_correctness.py (score: 1.133)
+2026-02-25 12:51:14,249 - EVOLUTION - ✅ Improved data.py (score: 1.057)
+2026-02-25 12:51:14,250 - EVOLUTION - 🏆 New best for utils: 1.160
+2026-02-25 12:51:14,250 - EVOLUTION - ✅ Improved dataset.py (score: 1.160)
+2026-02-25 12:51:14,250 - EVOLUTION - ✅ Improved utils.py (score: 1.072)
+2026-02-25 12:51:14,251 - EVOLUTION - ✅ Improved python_executor.py (score: 1.077)
+2026-02-25 12:51:14,251 - EVOLUTION - ✅ Improved grader.py (score: 1.054)
+2026-02-25 12:51:14,252 - EVOLUTION - ✅ Improved parser.py (score: 1.073)
+2026-02-25 12:51:14,253 - EVOLUTION - ✅ Improved evaluation.py (score: 1.055)
+2026-02-25 12:51:14,254 - EVOLUTION - 🏆 New best for human_eval: 1.164
+2026-02-25 12:51:14,254 - EVOLUTION - ✅ Improved data.py (score: 1.164)
+2026-02-25 12:51:14,255 - EVOLUTION - ✅ Improved execution.py (score: 1.063)
+2026-02-25 12:51:14,256 - EVOLUTION - ✅ Improved data.py (score: 1.109)
+2026-02-25 12:51:14,256 - EVOLUTION - ✅ Improved dataset.py (score: 1.117)
+2026-02-25 12:51:14,257 - EVOLUTION - ✅ Improved utils.py (score: 1.131)
+2026-02-25 12:51:14,257 - EVOLUTION - 
+📊 CYCLE 2 SUMMARY
+2026-02-25 12:51:14,257 - EVOLUTION -    Files processed: 121
+2026-02-25 12:51:14,257 - EVOLUTION -    Improvements: 61
+2026-02-25 12:51:14,257 - EVOLUTION -    Improvement rate: 50.4%
+2026-02-25 12:51:14,257 - EVOLUTION -    Best scores: {'hooks': {'score': 1.1418832233537628, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.985240'}, 'core': {'score': 1.129722028907381, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.210150'}, 'chatgpt': {'score': 1.2450238540592509, 'file': 'repos/reverse_engineered/chatgpt/chatgpt_base.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.987030'}, 'inference': {'score': 1.1241921282497334, 'file': 'repos/deepseek-v3/DeepSeek-V3-main/inference/fp8_cast_bf16.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.218534'}, 'grok-1-main': {'score': 1.0686030974461442, 'file': 'repos/grok-1/grok-1-main/model.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.221225'}, 'tests': {'score': 1.2042029521466058, 'file': 'repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.994868'}, 'src': {'score': 1.137689672625254, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_serde.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.063703'}, 'config': {'score': 1.083089161379801, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/task_runner_config.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.234564'}, 'message_types': {'score': 1.076293858978216, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/__init__.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.067366'}, 'errors': {'score': 1.1740964054024299, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.068994'}, 'unit': {'score': 1.1733001640468723, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.078537'}, 'integration': {'score': 1.20186149915286, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_health_check.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.239482'}, 'fixtures': {'score': 1.1510683928811125, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.081877'}, 'finetune': {'score': 1.0514698873355384, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.083375'}, 'HumanEval': {'score': 1.1122487934731409, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/humaneval.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.085648'}, 'PAL-Math': {'score': 1.057522533678206, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.087057'}, 'MBPP': {'score': 1.1579198543423277, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.088112'}, 'human_eval': {'score': 1.163975215990861, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/human_eval/data.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.254033'}, 'utils': {'score': 1.1595666885574307, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/dataset.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.249924'}, 'reverse_engineered': {'score': 1.09818790726151, 'file': 'repos/reverse_engineered/api_monitor.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.214374'}, 'claude': {'score': 1.0581382704985367, 'file': 'repos/reverse_engineered/claude/claude_base.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.216131'}, 'LeetCode': {'score': 1.14541268006149, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.244279'}}
+2026-02-25 12:51:14,257 - EVOLUTION - ⏰ Waiting 3600 seconds until next cycle...
+2026-02-25 12:53:06,110 - EVOLUTION - 🛑 Evolution stopped by user
+2026-02-25 12:53:13,920 - EVOLUTION - 🚀 Evolution Engine Started - Generation 3
+2026-02-25 12:53:13,920 - EVOLUTION - 🌟 Starting 24/7/365 Evolution Engine
+2026-02-25 12:53:13,920 - EVOLUTION - ⏰ Cycle interval: 3600 seconds
+2026-02-25 12:53:13,920 - EVOLUTION - 
+============================================================
+2026-02-25 12:53:13,920 - EVOLUTION - 🔄 EVOLUTION CYCLE 3
+2026-02-25 12:53:13,920 - EVOLUTION - ============================================================
+2026-02-25 12:53:14,595 - EVOLUTION - 📁 Found 121 evolvable files
+2026-02-25 12:53:14,596 - EVOLUTION - ✅ Improved bash_command_validator_example.py (score: 1.126)
+2026-02-25 12:53:14,597 - EVOLUTION - ✅ Improved __init__.py (score: 1.060)
+2026-02-25 12:53:14,598 - EVOLUTION - ✅ Improved userpromptsubmit.py (score: 1.074)
+2026-02-25 12:53:14,598 - EVOLUTION - ✅ Improved pretooluse.py (score: 1.108)
+2026-02-25 12:53:14,599 - EVOLUTION - ✅ Improved posttooluse.py (score: 1.099)
+2026-02-25 12:53:14,600 - EVOLUTION - 🏆 New best for reverse_engineered: 1.123
+2026-02-25 12:53:14,601 - EVOLUTION - ✅ Improved meta_evolver.py (score: 1.123)
+2026-02-25 12:53:14,602 - EVOLUTION - 🏆 New best for inference: 1.154
+2026-02-25 12:53:14,602 - EVOLUTION - ✅ Improved generate.py (score: 1.154)
+2026-02-25 12:53:14,604 - EVOLUTION - ✅ Improved convert.py (score: 1.122)
+2026-02-25 12:53:14,606 - EVOLUTION - ✅ Improved model.py (score: 1.072)
+2026-02-25 12:53:14,606 - EVOLUTION - ✅ Improved fp8_cast_bf16.py (score: 1.114)
+2026-02-25 12:53:14,607 - EVOLUTION - 🏆 New best for grok-1-main: 1.107
+2026-02-25 12:53:14,607 - EVOLUTION - ✅ Improved checkpoint.py (score: 1.107)
+2026-02-25 12:53:14,609 - EVOLUTION - ✅ Improved test_graph_builder.py (score: 1.114)
+2026-02-25 12:53:14,610 - EVOLUTION - ✅ Improved config_loader.py (score: 1.080)
+2026-02-25 12:53:14,610 - EVOLUTION - ✅ Improved compare_workflows.py (score: 1.064)
+2026-02-25 12:53:14,611 - EVOLUTION - ✅ Improved similarity.py (score: 1.094)
+2026-02-25 12:53:14,612 - EVOLUTION - ✅ Improved __init__.py (score: 1.059)
+2026-02-25 12:53:14,613 - EVOLUTION - ✅ Improved graph_builder.py (score: 1.057)
+2026-02-25 12:53:14,614 - EVOLUTION - 🏆 New best for src: 1.152
+2026-02-25 12:53:14,614 - EVOLUTION - ✅ Improved health_check_server.py (score: 1.152)
+2026-02-25 12:53:14,615 - EVOLUTION - ✅ Improved env.py (score: 1.123)
+2026-02-25 12:53:14,615 - EVOLUTION - ✅ Improved shutdown.py (score: 1.101)
+2026-02-25 12:53:14,616 - EVOLUTION - 🏆 New best for src: 1.162
+2026-02-25 12:53:14,616 - EVOLUTION - ✅ Improved task_runner.py (score: 1.162)
+2026-02-25 12:53:14,617 - EVOLUTION - ✅ Improved logs.py (score: 1.051)
+2026-02-25 12:53:14,617 - EVOLUTION - ✅ Improved task_executor.py (score: 1.155)
+2026-02-25 12:53:14,618 - EVOLUTION - ✅ Improved message_serde.py (score: 1.078)
+2026-02-25 12:53:14,618 - EVOLUTION - ✅ Improved sentry.py (score: 1.117)
+2026-02-25 12:53:14,619 - EVOLUTION - ✅ Improved health_check_config.py (score: 1.066)
+2026-02-25 12:53:14,620 - EVOLUTION - 🏆 New best for message_types: 1.078
+2026-02-25 12:53:14,620 - EVOLUTION - ✅ Improved __init__.py (score: 1.078)
+2026-02-25 12:53:14,620 - EVOLUTION - ✅ Improved broker.py (score: 1.061)
+2026-02-25 12:53:14,621 - EVOLUTION - ✅ Improved websocket_connection_error.py (score: 1.063)
+2026-02-25 12:53:14,621 - EVOLUTION - ✅ Improved security_violation_error.py (score: 1.053)
+2026-02-25 12:53:14,622 - EVOLUTION - ✅ Improved task_timeout_error.py (score: 1.058)
+2026-02-25 12:53:14,622 - EVOLUTION - ✅ Improved task_cancelled_error.py (score: 1.114)
+2026-02-25 12:53:14,623 - EVOLUTION - ✅ Improved configuration_error.py (score: 1.116)
+2026-02-25 12:53:14,623 - EVOLUTION - ✅ Improved task_result_read_error.py (score: 1.121)
+2026-02-25 12:53:14,624 - EVOLUTION - ✅ Improved test_sentry.py (score: 1.060)
+2026-02-25 12:53:14,625 - EVOLUTION - ✅ Improved test_env.py (score: 1.119)
+2026-02-25 12:53:14,625 - EVOLUTION - ✅ Improved test_task_executor.py (score: 1.112)
+2026-02-25 12:53:14,626 - EVOLUTION - ✅ Improved conftest.py (score: 1.064)
+2026-02-25 12:53:14,626 - EVOLUTION - ✅ Improved test_health_check.py (score: 1.082)
+2026-02-25 12:53:14,627 - EVOLUTION - ✅ Improved test_execution.py (score: 1.056)
+2026-02-25 12:53:14,627 - EVOLUTION - ✅ Improved test_rpc.py (score: 1.068)
+2026-02-25 12:53:14,628 - EVOLUTION - ✅ Improved local_task_broker.py (score: 1.065)
+2026-02-25 12:53:14,628 - EVOLUTION - ✅ Improved task_runner_manager.py (score: 1.142)
+2026-02-25 12:53:14,637 - EVOLUTION - 🏆 New best for kent: 1.088
+2026-02-25 12:53:14,638 - EVOLUTION - ✅ Improved kent_cors.py (score: 1.088)
+2026-02-25 12:53:14,638 - EVOLUTION - 🏆 New best for demo: 1.052
+2026-02-25 12:53:14,639 - EVOLUTION - ✅ Improved app.py (score: 1.052)
+2026-02-25 12:53:14,639 - EVOLUTION - 🏆 New best for finetune: 1.068
+2026-02-25 12:53:14,640 - EVOLUTION - ✅ Improved finetune_deepseekcoder.py (score: 1.068)
+2026-02-25 12:53:14,641 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.052)
+2026-02-25 12:53:14,646 - EVOLUTION - ✅ Improved humaneval.py (score: 1.083)
+2026-02-25 12:53:14,648 - EVOLUTION - ✅ Improved evaluate_leetcode.py (score: 1.057)
+2026-02-25 12:53:14,648 - EVOLUTION - ✅ Improved vllm_inference.py (score: 1.064)
+2026-02-25 12:53:14,649 - EVOLUTION - 🏆 New best for PAL-Math: 1.128
+2026-02-25 12:53:14,649 - EVOLUTION - ✅ Improved run.py (score: 1.128)
+2026-02-25 12:53:14,650 - EVOLUTION - ✅ Improved mbpp.py (score: 1.073)
+2026-02-25 12:53:14,651 - EVOLUTION - ✅ Improved eval_pal.py (score: 1.110)
+2026-02-25 12:53:14,652 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.086)
+2026-02-25 12:53:14,653 - EVOLUTION - ✅ Improved evaluation.py (score: 1.110)
+2026-02-25 12:53:14,653 - EVOLUTION - ✅ Improved evaluate_functional_correctness.py (score: 1.130)
+2026-02-25 12:53:14,654 - EVOLUTION - ✅ Improved __init__.py (score: 1.115)
+2026-02-25 12:53:14,654 - EVOLUTION - ✅ Improved dataset.py (score: 1.149)
+2026-02-25 12:53:14,654 - EVOLUTION - ✅ Improved python_executor.py (score: 1.112)
+2026-02-25 12:53:14,655 - EVOLUTION - ✅ Improved grader.py (score: 1.058)
+2026-02-25 12:53:14,655 - EVOLUTION - ✅ Improved parser.py (score: 1.082)
+2026-02-25 12:53:14,656 - EVOLUTION - ✅ Improved execution.py (score: 1.128)
+2026-02-25 12:53:14,657 - EVOLUTION - ✅ Improved evaluation.py (score: 1.085)
+2026-02-25 12:53:14,657 - EVOLUTION - ✅ Improved data.py (score: 1.133)
+2026-02-25 12:53:14,657 - EVOLUTION - ✅ Improved execution.py (score: 1.080)
+2026-02-25 12:53:14,658 - EVOLUTION - ✅ Improved evaluation.py (score: 1.083)
+2026-02-25 12:53:14,658 - EVOLUTION - ✅ Improved evaluate_functional_correctness.py (score: 1.070)
+2026-02-25 12:53:14,659 - EVOLUTION - ✅ Improved data.py (score: 1.144)
+2026-02-25 12:53:14,659 - EVOLUTION - ✅ Improved dataset.py (score: 1.122)
+2026-02-25 12:53:14,659 - EVOLUTION - ✅ Improved utils.py (score: 1.150)
+2026-02-25 12:53:14,659 - EVOLUTION - 
+📊 CYCLE 3 SUMMARY
+2026-02-25 12:53:14,659 - EVOLUTION -    Files processed: 121
+2026-02-25 12:53:14,659 - EVOLUTION -    Improvements: 70
+2026-02-25 12:53:14,659 - EVOLUTION -    Improvement rate: 57.9%
+2026-02-25 12:53:14,659 - EVOLUTION -    Best scores: {'hooks': {'score': 1.1418832233537628, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.985240'}, 'core': {'score': 1.129722028907381, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.210150'}, 'chatgpt': {'score': 1.2450238540592509, 'file': 'repos/reverse_engineered/chatgpt/chatgpt_base.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.987030'}, 'inference': {'score': 1.1537666067170462, 'file': 'repos/deepseek-v3/DeepSeek-V3-main/inference/generate.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.602121'}, 'grok-1-main': {'score': 1.107134647785107, 'file': 'repos/grok-1/grok-1-main/checkpoint.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.607442'}, 'tests': {'score': 1.2042029521466058, 'file': 'repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.994868'}, 'src': {'score': 1.1618431925693866, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/task_runner.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.616399'}, 'config': {'score': 1.083089161379801, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/task_runner_config.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.234564'}, 'message_types': {'score': 1.0783595816094818, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/__init__.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.619792'}, 'errors': {'score': 1.1740964054024299, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.068994'}, 'unit': {'score': 1.1733001640468723, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.078537'}, 'integration': {'score': 1.20186149915286, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_health_check.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.239482'}, 'fixtures': {'score': 1.1510683928811125, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.081877'}, 'finetune': {'score': 1.0684717237651293, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.639527'}, 'HumanEval': {'score': 1.1122487934731409, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/humaneval.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.085648'}, 'PAL-Math': {'score': 1.12810500032763, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.649312'}, 'MBPP': {'score': 1.1579198543423277, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.088112'}, 'human_eval': {'score': 1.163975215990861, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/human_eval/data.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.254033'}, 'utils': {'score': 1.1595666885574307, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/dataset.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.249924'}, 'reverse_engineered': {'score': 1.1227160513729504, 'file': 'repos/reverse_engineered/meta_evolver.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.600375'}, 'claude': {'score': 1.0581382704985367, 'file': 'repos/reverse_engineered/claude/claude_base.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.216131'}, 'LeetCode': {'score': 1.14541268006149, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py', 'generation': 2, 'timestamp': '2026-02-25T12:51:14.244279'}, 'kent': {'score': 1.0881384888048535, 'file': 'repos/n8n/n8n-master/packages/testing/containers/dockerfiles/kent/kent_cors.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.629566'}, 'demo': {'score': 1.052033745296238, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/demo/app.py', 'generation': 3, 'timestamp': '2026-02-25T12:53:14.638623'}}
+2026-02-25 12:53:14,660 - EVOLUTION - ⏰ Waiting 3600 seconds until next cycle...
+2026-02-25 12:53:31,499 - EVOLUTION - 🛑 Evolution stopped by user
+2026-02-25 13:14:34,174 - EVOLUTION - 
+============================================================
+2026-02-25 13:14:34,183 - EVOLUTION - 🔄 EVOLUTION CYCLE 2
+2026-02-25 13:14:34,184 - EVOLUTION - ============================================================
+2026-02-25 13:14:34,636 - EVOLUTION - 📁 Found 121 evolvable files
+2026-02-25 13:14:34,639 - EVOLUTION - ✅ Improved bash_command_validator_example.py (score: 1.085)
+2026-02-25 13:14:34,641 - EVOLUTION - ✅ Improved rule_engine.py (score: 1.087)
+2026-02-25 13:14:34,642 - EVOLUTION - ✅ Improved userpromptsubmit.py (score: 1.076)
+2026-02-25 13:14:34,642 - EVOLUTION - ✅ Improved stop.py (score: 1.060)
+2026-02-25 13:14:34,643 - EVOLUTION - ✅ Improved pretooluse.py (score: 1.124)
+2026-02-25 13:14:34,644 - EVOLUTION - ✅ Improved posttooluse.py (score: 1.079)
+2026-02-25 13:14:34,645 - EVOLUTION - ✅ Improved security_reminder_hook.py (score: 1.100)
+2026-02-25 13:14:34,646 - EVOLUTION - 🏆 New best for reverse_engineered: 1.072
+2026-02-25 13:14:34,646 - EVOLUTION - ✅ Improved api_monitor.py (score: 1.072)
+2026-02-25 13:14:34,647 - EVOLUTION - 🏆 New best for reverse_engineered: 1.090
+2026-02-25 13:14:34,647 - EVOLUTION - ✅ Improved meta_evolver.py (score: 1.090)
+2026-02-25 13:14:34,648 - EVOLUTION - ✅ Improved kernel.py (score: 1.062)
+2026-02-25 13:14:34,649 - EVOLUTION - ✅ Improved generate.py (score: 1.052)
+2026-02-25 13:14:34,650 - EVOLUTION - ✅ Improved convert.py (score: 1.098)
+2026-02-25 13:14:34,651 - EVOLUTION - 🏆 New best for inference: 1.124
+2026-02-25 13:14:34,651 - EVOLUTION - ✅ Improved fp8_cast_bf16.py (score: 1.124)
+2026-02-25 13:14:34,652 - EVOLUTION - ✅ Improved run.py (score: 1.055)
+2026-02-25 13:14:34,654 - EVOLUTION - ✅ Improved __init__.py (score: 1.053)
+2026-02-25 13:14:34,654 - EVOLUTION - ✅ Improved test_similarity.py (score: 1.071)
+2026-02-25 13:14:34,656 - EVOLUTION - ✅ Improved cost_functions.py (score: 1.120)
+2026-02-25 13:14:34,657 - EVOLUTION - ✅ Improved config_loader.py (score: 1.067)
+2026-02-25 13:14:34,658 - EVOLUTION - ✅ Improved compare_workflows.py (score: 1.129)
+2026-02-25 13:14:34,659 - EVOLUTION - ✅ Improved __main__.py (score: 1.061)
+2026-02-25 13:14:34,659 - EVOLUTION - ✅ Improved health_check_server.py (score: 1.127)
+2026-02-25 13:14:34,660 - EVOLUTION - 🏆 New best for src: 1.148
+2026-02-25 13:14:34,660 - EVOLUTION - ✅ Improved shutdown.py (score: 1.148)
+2026-02-25 13:14:34,661 - EVOLUTION - ✅ Improved task_runner.py (score: 1.121)
+2026-02-25 13:14:34,662 - EVOLUTION - ✅ Improved logs.py (score: 1.070)
+2026-02-25 13:14:34,662 - EVOLUTION - ✅ Improved pipe_reader.py (score: 1.078)
+2026-02-25 13:14:34,663 - EVOLUTION - ✅ Improved task_executor.py (score: 1.102)
+2026-02-25 13:14:34,663 - EVOLUTION - ✅ Improved message_serde.py (score: 1.089)
+2026-02-25 13:14:34,664 - EVOLUTION - ✅ Improved task_state.py (score: 1.096)
+2026-02-25 13:14:34,665 - EVOLUTION - ✅ Improved sentry.py (score: 1.137)
+2026-02-25 13:14:34,665 - EVOLUTION - ✅ Improved main.py (score: 1.070)
+2026-02-25 13:14:34,666 - EVOLUTION - ✅ Improved sentry_config.py (score: 1.060)
+2026-02-25 13:14:34,667 - EVOLUTION - 🏆 New best for message_types: 1.133
+2026-02-25 13:14:34,668 - EVOLUTION - ✅ Improved runner.py (score: 1.133)
+2026-02-25 13:14:34,668 - EVOLUTION - ✅ Improved task_runtime_error.py (score: 1.065)
+2026-02-25 13:14:34,669 - EVOLUTION - ✅ Improved security_violation_error.py (score: 1.075)
+2026-02-25 13:14:34,669 - EVOLUTION - ✅ Improved no_idle_timeout_handler_error.py (score: 1.149)
+2026-02-25 13:14:34,670 - EVOLUTION - ✅ Improved task_result_missing_error.py (score: 1.091)
+2026-02-25 13:14:34,670 - EVOLUTION - ✅ Improved task_killed_error.py (score: 1.075)
+2026-02-25 13:14:34,671 - EVOLUTION - ✅ Improved configuration_error.py (score: 1.088)
+2026-02-25 13:14:34,671 - EVOLUTION - ✅ Improved invalid_pipe_msg_content_error.py (score: 1.059)
+2026-02-25 13:14:34,671 - EVOLUTION - ✅ Improved task_result_read_error.py (score: 1.076)
+2026-02-25 13:14:34,672 - EVOLUTION - ✅ Improved test_task_analyzer.py (score: 1.129)
+2026-02-25 13:14:34,673 - EVOLUTION - ✅ Improved test_task_runner.py (score: 1.071)
+2026-02-25 13:14:34,673 - EVOLUTION - ✅ Improved test_sentry.py (score: 1.136)
+2026-02-25 13:14:34,674 - EVOLUTION - ✅ Improved test_env.py (score: 1.091)
+2026-02-25 13:14:34,675 - EVOLUTION - ✅ Improved test_task_executor.py (score: 1.057)
+2026-02-25 13:14:34,675 - EVOLUTION - ✅ Improved conftest.py (score: 1.094)
+2026-02-25 13:14:34,675 - EVOLUTION - ✅ Improved test_health_check.py (score: 1.061)
+2026-02-25 13:14:34,677 - EVOLUTION - 🏆 New best for integration: 1.109
+2026-02-25 13:14:34,677 - EVOLUTION - ✅ Improved test_execution.py (score: 1.109)
+2026-02-25 13:14:34,677 - EVOLUTION - ✅ Improved test_rpc.py (score: 1.074)
+2026-02-25 13:14:34,678 - EVOLUTION - 🏆 New best for fixtures: 1.186
+2026-02-25 13:14:34,678 - EVOLUTION - ✅ Improved local_task_broker.py (score: 1.186)
+2026-02-25 13:14:34,678 - EVOLUTION - ✅ Improved task_runner_manager.py (score: 1.096)
+2026-02-25 13:14:34,679 - EVOLUTION - ✅ Improved test_constants.py (score: 1.111)
+2026-02-25 13:14:34,680 - EVOLUTION - 🏆 New best for demo: 1.093
+2026-02-25 13:14:34,680 - EVOLUTION - ✅ Improved app.py (score: 1.093)
+2026-02-25 13:14:34,681 - EVOLUTION - 🏆 New best for HumanEval: 1.120
+2026-02-25 13:14:34,681 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.120)
+2026-02-25 13:14:34,682 - EVOLUTION - 🏆 New best for LeetCode: 1.094
+2026-02-25 13:14:34,682 - EVOLUTION - ✅ Improved evaluate_leetcode.py (score: 1.094)
+2026-02-25 13:14:34,683 - EVOLUTION - ✅ Improved vllm_inference.py (score: 1.073)
+2026-02-25 13:14:34,683 - EVOLUTION - 🏆 New best for PAL-Math: 1.089
+2026-02-25 13:14:34,684 - EVOLUTION - ✅ Improved run.py (score: 1.089)
+2026-02-25 13:14:34,685 - EVOLUTION - ✅ Improved mbpp.py (score: 1.091)
+2026-02-25 13:14:34,685 - EVOLUTION - ✅ Improved eval_instruct.py (score: 1.080)
+2026-02-25 13:14:34,687 - EVOLUTION - ✅ Improved execution.py (score: 1.074)
+2026-02-25 13:14:34,687 - EVOLUTION - ✅ Improved evaluation.py (score: 1.066)
+2026-02-25 13:14:34,687 - EVOLUTION - ✅ Improved evaluate_functional_correctness.py (score: 1.071)
+2026-02-25 13:14:34,688 - EVOLUTION - ✅ Improved data.py (score: 1.120)
+2026-02-25 13:14:34,688 - EVOLUTION - ✅ Improved dataset.py (score: 1.088)
+2026-02-25 13:14:34,689 - EVOLUTION - 🏆 New best for utils: 1.145
+2026-02-25 13:14:34,689 - EVOLUTION - ✅ Improved utils.py (score: 1.145)
+2026-02-25 13:14:34,689 - EVOLUTION - ✅ Improved python_executor.py (score: 1.127)
+2026-02-25 13:14:34,690 - EVOLUTION - ✅ Improved grader.py (score: 1.144)
+2026-02-25 13:14:34,690 - EVOLUTION - ✅ Improved parser.py (score: 1.106)
+2026-02-25 13:14:34,691 - EVOLUTION - ✅ Improved execution.py (score: 1.113)
+2026-02-25 13:14:34,691 - EVOLUTION - ✅ Improved evaluation.py (score: 1.129)
+2026-02-25 13:14:34,692 - EVOLUTION - ✅ Improved data.py (score: 1.125)
+2026-02-25 13:14:34,693 - EVOLUTION - ✅ Improved execution.py (score: 1.112)
+2026-02-25 13:14:34,693 - EVOLUTION - ✅ Improved evaluation.py (score: 1.091)
+2026-02-25 13:14:34,695 - EVOLUTION - ✅ Improved data.py (score: 1.076)
+2026-02-25 13:14:34,695 - EVOLUTION - ✅ Improved dataset.py (score: 1.103)
+2026-02-25 13:14:34,696 - EVOLUTION - ✅ Improved utils.py (score: 1.124)
+2026-02-25 13:14:34,696 - EVOLUTION - 
+📊 CYCLE 2 SUMMARY
+2026-02-25 13:14:34,696 - EVOLUTION -    Files processed: 121
+2026-02-25 13:14:34,696 - EVOLUTION -    Improvements: 76
+2026-02-25 13:14:34,696 - EVOLUTION -    Improvement rate: 62.8%
+2026-02-25 13:14:34,696 - EVOLUTION -    Best scores: {'hooks': {'score': 1.1418832233537628, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.985240'}, 'core': {'score': 1.1196165877665394, 'file': 'repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.982379'}, 'chatgpt': {'score': 1.2450238540592509, 'file': 'repos/reverse_engineered/chatgpt/chatgpt_base.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.987030'}, 'inference': {'score': 1.1240922339955406, 'file': 'repos/deepseek-v3/DeepSeek-V3-main/inference/fp8_cast_bf16.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.650866'}, 'grok-1-main': {'score': 1.0637497711315762, 'file': 'repos/grok-1/grok-1-main/run.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.991428'}, 'tests': {'score': 1.2042029521466058, 'file': 'repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:33.994868'}, 'src': {'score': 1.1482859522117228, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/shutdown.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.660278'}, 'config': {'score': 1.065146510291325, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/health_check_config.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.066034'}, 'message_types': {'score': 1.1329656305612985, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/runner.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.667763'}, 'errors': {'score': 1.1740964054024299, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.068994'}, 'unit': {'score': 1.1733001640468723, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.078537'}, 'integration': {'score': 1.1090050079882423, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_execution.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.676581'}, 'fixtures': {'score': 1.1864787286590315, 'file': 'repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.678175'}, 'finetune': {'score': 1.0514698873355384, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.083375'}, 'HumanEval': {'score': 1.1195810424561303, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/eval_instruct.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.680916'}, 'PAL-Math': {'score': 1.089495231348556, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.683594'}, 'MBPP': {'score': 1.1579198543423277, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.088112'}, 'human_eval': {'score': 1.145753063909063, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/evaluation.py', 'generation': 1, 'timestamp': '2026-02-25T12:14:34.101710'}, 'utils': {'score': 1.144550024081107, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/utils.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.689132'}, 'reverse_engineered': {'score': 1.0896628395144312, 'file': 'repos/reverse_engineered/meta_evolver.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.647135'}, 'demo': {'score': 1.0930156273214846, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/demo/app.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.679773'}, 'LeetCode': {'score': 1.094036578878238, 'file': 'repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py', 'generation': 2, 'timestamp': '2026-02-25T13:14:34.681784'}}
+2026-02-25 13:14:34,697 - EVOLUTION - ⏰ Waiting 3600 seconds until next cycle...

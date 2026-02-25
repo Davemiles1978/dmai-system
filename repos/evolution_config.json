@@ -1,0 +1,57 @@
+{
+  "repos": [
+    {
+      "name": "claude-code",
+      "path": "claude-code",
+      "files_marked": true,
+      "active": true
+    },
+    {
+      "name": "reverse_engineered",
+      "path": "reverse_engineered",
+      "files_marked": true,
+      "active": true
+    },
+    {
+      "name": "deepseek-v3",
+      "path": "deepseek-v3",
+      "files_marked": true,
+      "active": true
+    },
+    {
+      "name": "grok-1",
+      "path": "grok-1",
+      "files_marked": true,
+      "active": true
+    },
+    {
+      "name": "n8n",
+      "path": "n8n",
+      "files_marked": true,
+      "active": true
+    },
+    {
+      "name": "gemini-cli",
+      "path": "gemini-cli",
+      "files_marked": true,
+      "active": true
+    },
+    {
+      "name": "deepseek-coder",
+      "path": "deepseek-coder",
+      "files_marked": true,
+      "active": true
+    }
+  ],
+  "evolution_settings": {
+    "cycle_interval_hours": 1,
+    "checkpoint_frequency": 10,
+    "min_improvement_threshold": 0.01,
+    "max_generations_per_repo": 1000
+  },
+  "reverse_engineered": {
+    "enabled": true,
+    "update_frequency_days": 7,
+    "api_monitoring": true
+  }
+}

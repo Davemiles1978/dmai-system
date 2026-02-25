@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAI for Android</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff88;
+            font-family: Roboto, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { font-size: 2.5em; }
+        .card {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .button {
+            background: #00ff88;
+            color: #0a0a0a;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 DMAI for Android</h1>
+    <div class="card">
+        <p>Open in Chrome and select "Add to Home Screen"</p>
+        <div id="url-display" style="background: #0a0a0a; padding: 10px; border-radius: 5px; margin: 10px;"></div>
+        <a href="#" id="launch-btn" class="button">Launch DMAI</a>
+    </div>
+    <script>
+        fetch('/api/cloud-url')
+            .then(r => r.text())
+            .then(url => {
+                document.getElementById('url-display').textContent = url;
+                document.getElementById('launch-btn').href = url;
+            });
+    </script>
+</body>
+</html>

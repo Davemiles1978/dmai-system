@@ -1,0 +1,28 @@
+# EVOLVE-BLOCK-START
+- ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 2
+# This file is part of the AI Evolution System
+# All code below can be modified and improved through evolution
+
+import secrets
+import string
+
+
+NANOID_CHARSET = string.ascii_uppercase + string.ascii_lowercase + string.digits
+TARGET_NANOID_LEN = 22
+CHARSET_LEN = len(NANOID_CHARSET)
+
+# Collision probability is roughly k^2/(2n) where k=IDs generated, n=possibilities
+# At 10^12 IDs generated with 62^22 possibilities -> ~1.8e-16 chance of collision
+
+
+def nanoid() -> str:
+    chars = []
+
+    while len(chars) < TARGET_NANOID_LEN:
+        index = secrets.randbits(6)
+        if index < CHARSET_LEN:
+            chars.append(NANOID_CHARSET[index])
+
+    return "".join(chars)
+# EVOLVE-BLOCK-END

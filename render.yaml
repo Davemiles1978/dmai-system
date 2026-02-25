@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: dmai
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python mark_all_for_evolution.py
+    startCommand: |
+      python api_server.py &
+      python -m http.server 8080 --bind 0.0.0.0 --directory ui
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    autoDeploy: true
+    plan: free
