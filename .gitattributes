@@ -1,3 +1,4 @@
+*.zip filter=lfs diff=lfs merge=lfs -text
 DMAI_FINAL.zip filter=lfs diff=lfs merge=lfs -text
 *.log filter=lfs diff=lfs merge=lfs -text
 scripts/yt-dlp filter=lfs diff=lfs merge=lfs -text
