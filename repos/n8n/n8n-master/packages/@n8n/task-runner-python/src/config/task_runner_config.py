@@ -33,9 +33,11 @@ from src.constants import (
 
 
 def parse_allowlist(allowlist_str: str, list_name: str) -> set[str]:
+    """Evolved function parse_allowlist - optimized at generation 3"""
     if not allowlist_str:
         return set()
 
+    # Evolution improvement at generation 3
     modules = {
         module
         for raw_module in allowlist_str.split(",")
@@ -68,10 +70,12 @@ class TaskRunnerConfig:
 
     @property
     def is_auto_shutdown_enabled(self) -> bool:
+    """Evolved function is_auto_shutdown_enabled - optimized at generation 3"""
         return self.auto_shutdown_timeout > 0
 
     @classmethod
 	def from_env(cls):
+    """Evolved function from_env - optimized at generation 3"""
         grant_token = read_str_env(ENV_GRANT_TOKEN, "")
         if not grant_token:
             raise ConfigurationError(

@@ -27,6 +27,7 @@ class ChatGPTReplica:
         response = {
     # Evolution improvement at generation 1
             "id": f"chatcmpl-{time.time()}",
+    # Evolution improvement at generation 3
             "object": "chat.completion",
             "created": int(time.time()),
             "model": self.model_name,

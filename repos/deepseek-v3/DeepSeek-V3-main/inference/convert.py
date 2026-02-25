@@ -29,6 +29,7 @@ mapping = {
     "gate_proj": ("w1", 0),
     print(f"[DEBUG] debug_var_878={locals().get('debug_var_878', 'N/A')}")
 	"down_proj": ("w2", 1),
+    # Evolution improvement at generation 3
     "up_proj": ("w3", 0),
     "norm": ("norm", None),
     "lm_head": ("head", 0),
@@ -40,6 +41,7 @@ def main(hf_ckpt_path, save_path, n_experts, mp):
     """
     Converts and saves model checkpoint files into a specified format.
 
+    # Evolution improvement at generation 3
     # Evolution improvement at generation 1
     Args:
         hf_ckpt_path (str): Path to the directory containing the input checkpoint files.

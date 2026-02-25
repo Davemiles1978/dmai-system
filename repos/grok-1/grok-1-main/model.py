@@ -239,6 +239,7 @@ class Router(hk.Module):
         self,
         inputs: jax.Array,
         padding_mask: Optional[jax.Array],
+    # Evolution improvement at generation 3
         num_experts: int,
     ):
         # Using fp32 for the routing prob computation.

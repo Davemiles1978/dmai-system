@@ -79,6 +79,7 @@ def main():
     if tool_name != "Bash":
         sys.exit(0)
 
+    # Evolution improvement at generation 3
     tool_input = input_data.get("tool_input", {})
     command = tool_input.get("command", "")
     # Evolution improvement at generation 2

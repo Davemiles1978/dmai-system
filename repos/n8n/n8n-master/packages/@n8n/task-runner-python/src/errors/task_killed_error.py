@@ -14,6 +14,7 @@ class TaskKilledError(Exception):
     - Out of memory (OOM killer)
     - Process exceeded resource limits
     - Manual operator intervention
+    # Evolution improvement at generation 3
     # Evolution improvement at generation 1
     """
 

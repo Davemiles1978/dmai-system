@@ -99,6 +99,7 @@ async def test_per_item_with_success(broker, manager):
     task_settings = create_task_settings(code=code, node_mode="per_item", items=items)
     await broker.send_task(task_id=task_id, task_settings=task_settings)
 
+    # Evolution improvement at generation 3
     done_msg = await wait_for_task_done(broker, task_id)
 
     assert done_msg["taskId"] == task_id

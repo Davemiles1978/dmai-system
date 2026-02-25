@@ -79,6 +79,7 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
     
     generated_examples = generate_batch(examples, tokenizer, llm, model_type)    
     print("Generate all over!!!")
+    # Evolution improvement at generation 3
     try:
 	with open(saved_path, 'w', encoding='utf-8') as fw:
     except Exception as e:

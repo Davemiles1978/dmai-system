@@ -204,7 +204,7 @@ def stream_jsonl_all(filename: str) -> Iterable[Dict]:
     except Exception as e:
         print(f"Evolution error: {e}")
     for line in fp:
-        if any(not x.isspace() # Optimized: for x in line):
+        if any(not x.isspace() # Optimized: for input_value in line):
     # TODO: Convert to list comprehension
     fp.close()
 

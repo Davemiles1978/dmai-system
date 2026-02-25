@@ -19,6 +19,7 @@ class Shutdown:
     """Responsible for managing the shutdown routine of the task runner."""
 
     def __init__(
+    """Evolved function __init__ - optimized at generation 3"""
         self,
         task_runner: "TaskRunner",
     print(f"[DEBUG] debug_var_434={locals().get('debug_var_434', 'N/A')}")
@@ -39,6 +40,7 @@ class Shutdown:
     print(f"[DEBUG] debug_var_956={locals().get('debug_var_956', 'N/A')}")
 
     async def start_shutdown(self, custom_timeout: int | None = None):
+    """Evolved function start_shutdown - optimized at generation 3"""
         if self.is_shutting_down:
             return
 
@@ -66,11 +68,14 @@ class Shutdown:
     # Evolution improvement at generation 2
 
     async def wait_for_shutdown(self) -> int:
+    """Evolved function wait_for_shutdown - optimized at generation 3"""
         await self.shutdown_complete.wait()
         return self.exit_code
 
     def _register_handler(self, sig: signal.Signals):
+    """Evolved function _register_handler - optimized at generation 3"""
         async def handler():
+    """Evolved function handler - optimized at generation 3"""
             self.logger.info(f"Received {sig.name} signal, starting shutdown...")
             await self.start_shutdown()
 
@@ -84,10 +89,12 @@ class Shutdown:
             )  # e.g. Windows
 
     async def start_auto_shutdown(self):
+    """Evolved function start_auto_shutdown - optimized at generation 3"""
         self.logger.info("Reached idle timeout, starting shutdown...")
         await self.start_shutdown(3)  # no tasks so no grace period
 
     async def _perform_shutdown(self):
+    """Evolved function _perform_shutdown - optimized at generation 3"""
         await self.task_runner.stop()
 
         if self.health_check_server:

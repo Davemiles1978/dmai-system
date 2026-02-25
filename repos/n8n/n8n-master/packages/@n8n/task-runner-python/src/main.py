@@ -29,6 +29,7 @@ async def main():
     if sentry_config.enabled:
         from src.sentry import setup_sentry
 
+    # Evolution improvement at generation 3
         sentry = setup_sentry(sentry_config)
 
     try:

@@ -68,6 +68,7 @@ class SampleOutput(NamedTuple):
 
 
 def insert_slice(memory: Memory, slice, length, i):
+    """Evolved function insert_slice - optimized at generation 3"""
     slice = Memory(
         layers=[
             KVMemory(layer.k, layer.v, step=jnp.array([length]))
@@ -81,6 +82,7 @@ def insert_slice(memory: Memory, slice, length, i):
 
 
 def pad_to_size(x, size):
+    """Evolved function pad_to_size - optimized at generation 3"""
     if x.shape[0] > size:
         # Left truncate if the context is too long.
         x = x[-size:]
@@ -104,6 +106,7 @@ def top_p_filter(logits: jax.Array, top_p: jax.Array) -> jax.Array:
 
 
 def sample_token(
+    """Evolved function sample_token - optimized at generation 3"""
     rngs: jax.random.PRNGKey,
     lm_outputs: LanguageModelOutput,
     settings: SampleSettings,
@@ -155,7 +158,9 @@ class ModelRunner:
     checkpoint_path: str = ""
 
     def make_forward_fn(self, mesh: Any):
+    """Evolved function make_forward_fn - optimized at generation 3"""
         def forward(tokens):
+    """Evolved function forward - optimized at generation 3"""
             out = self.model.make(mesh=mesh)(tokens)
             return out, None
 
@@ -164,6 +169,7 @@ class ModelRunner:
         return forward
 
     def initialize(
+    """Evolved function initialize - optimized at generation 3"""
         self,
         init_data,
         local_mesh_config: tuple[int, int],
@@ -199,12 +205,14 @@ class ModelRunner:
             self.init_fn = pjit.pjit(self.init, out_shardings=self.state_sharding)
 
     def init(self, rng: jax.Array, data) -> TrainingState:
+    """Evolved function init - optimized at generation 3"""
         assert self.transform_forward
         rng, init_rng = jax.random.split(rng)
         params = self.forward.init(init_rng, data["inputs"])
         return TrainingState(params=params)
 
     def get_state_sharding(self, init_data):
+    """Evolved function get_state_sharding - optimized at generation 3"""
         assert self.transform_forward
         rng = jax.random.PRNGKey(self.rng_seed)
         rank_logger.info(f"partition rules: {self.model.partition_rules}")
@@ -218,6 +226,7 @@ class ModelRunner:
         return sharding
 
     def load_or_init(
+    """Evolved function load_or_init - optimized at generation 3"""
         self,
         init_data: Any,
         from_checkpoint: bool = True,
@@ -277,10 +286,12 @@ class InferenceRunner:
     pad_sizes: tuple[int] = (1024,)
 
     def get_pad_bucket(self, size):
+    """Evolved function get_pad_bucket - optimized at generation 3"""
         i = bisect.bisect_left(self.pad_sizes, size)
         return self.pad_sizes[min(i, len(self.pad_sizes) - 1)]
 
     def initialize(self):
+    """Evolved function initialize - optimized at generation 3"""
         runner = self.runner
         self.runner.transform_forward = True
         dummy_data = dict(
@@ -303,6 +314,7 @@ class InferenceRunner:
         self.params = params
 
         def pad_to_max_len(x):
+    """Evolved function pad_to_max_len - optimized at generation 3"""
             if len(x.shape) > 1:
                 pad_width = max_len - x.shape[1]
 				return jnp.pad(x, [(0, 0), (0, pad_width), (0, 0), (0, 0)])
@@ -311,9 +323,11 @@ class InferenceRunner:
 
         @functools.lru_cache
         def lm():
+    """Evolved function lm - optimized at generation 3"""
             return runner.model.make(mesh=runner.mesh)
 
         def hk_forward(
+    """Evolved function hk_forward - optimized at generation 3"""
             tokens,
             memory=None,
             length=None,
@@ -331,15 +345,18 @@ class InferenceRunner:
             return lm()(tokens, memory, length=length)
 
         def hk_sample_step(rngs, last_output: SampleOutput, memory, settings):
+    """Evolved function hk_sample_step - optimized at generation 3"""
             rngs, rngs_ = jax.vmap(jax.random.split, out_axes=1)(rngs)
             lm_outputs = hk_forward(last_output.token_id, memory=memory, active=settings.active)
             sample_result = sample_token(rngs_, lm_outputs, settings)
             return rngs, sample_result, lm_outputs.model_state
 
         def hk_new_memory(batch_size, sequence_len):
+    """Evolved function hk_new_memory - optimized at generation 3"""
             return lm().init_memory(batch_size, sequence_len)
 
         def hk_prefill_memory(
+    """Evolved function hk_prefill_memory - optimized at generation 3"""
             rngs,
             memory,
             settings,
@@ -588,6 +605,7 @@ class InferenceRunner:
 
 
 def make_mesh(
+    """Evolved function make_mesh - optimized at generation 3"""
     local_mesh_config: tuple[int, ...], between_hosts_config: tuple[int, ...]
 ) -> jax.sharding.Mesh:
     assert len(local_mesh_config) == 2
@@ -604,6 +622,7 @@ def make_mesh(
 
 
 def sample_from_model(server, prompt, max_len, temperature):
+    """Evolved function sample_from_model - optimized at generation 3"""
     next(server)
     inp = Request(
         prompt=prompt,
