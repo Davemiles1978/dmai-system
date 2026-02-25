@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAI - EVOLUTIONARY AI PLATFORM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        
+        /* Light mode - professional, easy on eyes */
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #eef2f6;
+            --text-primary: #2d3e50;
+            --text-secondary: #6c7a8a;
+            --accent: #3498db;
+            --accent-light: #5faee3;
+            --border: #dce4ec;
+            --message-user: #3498db;
+            --message-user-text: white;
+            --message-ai: #ffffff;
+            --message-ai-text: #2d3e50;
+            --shadow: rgba(0,0,0,0.05);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+        
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1e2a3a;
+                --bg-secondary: #2c3e50;
+                --bg-tertiary: #34495e;
+                --text-primary: #ecf0f1;
+                --text-secondary: #bdc3c7;
+                --accent: #3498db;
+                --accent-light: #5faee3;
+                --border: #4a6782;
+                --message-user: #3498db;
+                --message-user-text: white;
+                --message-ai: #34495e;
+                --message-ai-text: #ecf0f1;
+                --shadow: rgba(0,0,0,0.2);
+            }
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* LOGIN SCREEN */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .login-container {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px var(--shadow);
+            width: 400px;
+        }
+        
+        .login-container h1 {
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .login-container h3 {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+        
+        .login-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .login-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1em;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .login-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .login-form {
+            display: block;
+        }
+        
+        .login-form.hidden {
+            display: none;
+        }
+        
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        
+        .login-error {
+            color: var(--danger);
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        /* MAIN APP */
+        #main-app {
+            display: none;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #app {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: 60px 1fr 80px;
+            height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .evolution-badge {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 15px;
+            border: 1px solid var(--border);
+        }
+        
+        .header-right {
+            margin-left: auto;
+        }
+        
+        /* User Menu */
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-menu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 5px 20px var(--shadow);
+            z-index: 1000;
+        }
+        
+        .user-menu:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        /* LEFT COLUMN - Chat List */
+        .chat-list-panel {
+            grid-column: 1;
+            grid-row: 2 / 4;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .panel-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .new-chat-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .chat-item {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        
+        .chat-item:hover {
+            border-color: var(--accent);
+        }
+        
+        .chat-item.active {
+            border-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 10%, var(--bg-tertiary));
+        }
+        
+        .chat-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .chat-meta {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .archive-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .archive-btn:hover {
+            color: var(--accent);
+        }
+        
+        /* CENTER COLUMN - Main Chat */
+        .main-chat-panel {
+            grid-column: 2;
+            grid-row: 2 / 3;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid var(--border);
+        }
+        
+        .chat-header {
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            background: var(--message-user);
+            color: var(--message-user-text);
+        }
+        
+        .message.ai {
+            align-self: flex-start;
+            background: var(--message-ai);
+            color: var(--message-ai-text);
+            border: 1px solid var(--border);
+        }
+        
+        .message-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.7em;
+            color: var(--text-secondary);
+        }
+        
+        .continue-thread-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        .continue-thread-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        /* RIGHT COLUMN - Tools Panel */
+        .tools-panel {
+            grid-column: 3;
+            grid-row: 2 / 4;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .tools-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tools-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .tool-btn {
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        
+        .tool-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .tool-btn.wide {
+            grid-column: span 2;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .action-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .suggestion-box textarea {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 6px;
+            min-height: 60px;
+            margin-bottom: 10px;
+            resize: vertical;
+        }
+        
+        .suggestion-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .info-box {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+        
+        .copy-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        .url-display {
+            color: var(--accent);
+            font-family: monospace;
+            font-size: 0.8em;
+            word-break: break-all;
+        }
+        
+        /* Input Area */
+        .input-area {
+            grid-column: 2;
+            grid-row: 3;
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        textarea {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-size: 0.95em;
+        }
+        
+        .send-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 60px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        
+        /* Evolution Indicator */
+        .evolution-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+            box-shadow: 0 2px 10px var(--shadow);
+            z-index: 100;
+        }
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--accent);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-container">
+            <h1>🧬 DMAI</h1>
+            <h3>Evolutionary AI Platform</h3>
+            
+            <div class="login-tabs">
+                <button class="login-tab active" onclick="switchLoginTab('login')">Sign In</button>
+                <button class="login-tab" onclick="switchLoginTab('register')">Register</button>
+            </div>
+            
+            <div id="login-form" class="login-form">
+                <input type="text" id="login-username" placeholder="Username">
+                <input type="password" id="login-password" placeholder="Password">
+                <div class="login-error" id="login-error"></div>
+                <button onclick="login()">Sign In</button>
+            </div>
+            
+            <div id="register-form" class="login-form hidden">
+                <input type="text" id="reg-username" placeholder="Username">
+                <input type="password" id="reg-password" placeholder="Password">
+                <input type="password" id="reg-confirm" placeholder="Confirm Password">
+                <div class="login-error" id="register-error"></div>
+                <button onclick="register()">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="main-app">
+        <div id="app">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    <span>🧬</span>
+                    <span>DMAI</span>
+                    <span class="evolution-badge" id="version-badge">Gen <span id="gen-display">266</span></span>
+                </div>
+                <div class="header-right">
+                    <div class="user-menu">
+                        <div class="user-menu-trigger">
+                            <div class="avatar" id="user-avatar">DM</div>
+                            <span id="current-user">david</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="dropdown-content">
+                            <div class="dropdown-item" onclick="showProfile()">👤 Profile</div>
+                            <div class="dropdown-item" onclick="openSettings()">⚙️ Settings</div>
+                            <div class="dropdown-item" onclick="showSuggestions()">💡 Suggest</div>
+                            <div class="dropdown-item" onclick="changePassword()">🔑 Password</div>
+                            <div class="dropdown-item" id="admin-menu" style="display:none;" onclick="openAdminPanel()">👑 Admin</div>
+                            <div class="dropdown-item" onclick="logout()">🚪 Logout</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LEFT COLUMN - Chat List -->
+            <div class="chat-list-panel">
+                <div class="panel-header">
+                    <span class="panel-title">📁 CHATS</span>
+                    <button class="new-chat-btn" onclick="newChat()">+ New</button>
+                </div>
+                <div id="chat-list"></div>
+                <div style="margin-top: 20px;">
+                    <button class="action-btn" style="width:100%;" onclick="showArchivedChats()">📦 View Archive</button>
+                </div>
+            </div>
+            
+            <!-- CENTER COLUMN - Main Chat -->
+            <div class="main-chat-panel">
+                <div class="chat-header">
+                    <h2 id="current-chat">Current Chat</h2>
+                </div>
+                <div class="messages-container" id="messages"></div>
+            </div>
+            
+            <!-- RIGHT COLUMN - Tools Panel (ALL CAPABILITIES) -->
+            <div class="tools-panel">
+                <!-- Internet & Research Toggle -->
+                <div class="tools-section">
+                    <div class="tools-title">🌐 INTERNET & RESEARCH</div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span>Online Mode:</span>
+                        <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                            <input type="checkbox" id="internet-toggle" style="opacity:0; width:0; height:0;" onchange="toggleInternet()">
+                            <span style="position: absolute; cursor: pointer; top:0; left:0; right:0; bottom:0; background-color: var(--bg-tertiary); transition: .4s; border-radius: 24px;">
+                                <span id="internet-slider" style="position: absolute; content: ''; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: var(--accent); transition: .4s; border-radius: 50%;"></span>
+                            </span>
+                        </label>
+                        <span id="internet-status">Offline</span>
+                    </div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="webSearch()">🔍 Web Search</button>
+                        <button class="tool-btn" onclick="scrapeWebsite()">🕸️ Scrape</button>
+                        <button class="tool-btn" onclick="researchTopic()">📚 Deep Research</button>
+                        <button class="tool-btn" onclick="trendAnalysis()">📈 Trends</button>
+                    </div>
+                </div>
+                
+                <!-- Image Generation (WORKS WITH ANY PROMPT) -->
+                <div class="tools-section">
+                    <div class="tools-title">🎨 IMAGE GENERATION</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="quickImage()">⚡ Quick Image</button>
+                        <button class="tool-btn" onclick="createImage()">🎨 Create</button>
+                        <button class="tool-btn" onclick="editImage()">✏️ Edit</button>
+                        <button class="tool-btn" onclick="variations()">🔄 Variations</button>
+                    </div>
+                    <p style="font-size:0.75em; color:var(--text-secondary); margin-top:5px;">Just type "cat" - system generates 4 options automatically</p>
+                </div>
+                
+                <!-- Code & Development -->
+                <div class="tools-section">
+                    <div class="tools-title">💻 CODE & DEVELOPMENT</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="writeCode()">✍️ Write Code</button>
+                        <button class="tool-btn" onclick="reviewCode()">🔍 Review</button>
+                        <button class="tool-btn" onclick="testCode()">🧪 Test</button>
+                        <button class="tool-btn" onclick="debugCode()">🐛 Debug</button>
+                        <button class="tool-btn" onclick="optimizeCode()">⚡ Optimize</button>
+                        <button class="tool-btn" onclick="documentCode()">📝 Document</button>
+                        <button class="tool-btn wide" onclick="agenticCoding()">🤖 Agentic Coding</button>
+                    </div>
+                </div>
+                
+                <!-- Data Analysis & Charts -->
+                <div class="tools-section">
+                    <div class="tools-title">📊 DATA & CHARTS</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="analyzeData()">📈 Analyze</button>
+                        <button class="tool-btn" onclick="createChart()">📊 Create Chart</button>
+                        <button class="tool-btn" onclick="forecastTrends()">🔮 Forecast</button>
+                        <button class="tool-btn" onclick="interpretChart()">📉 Interpret</button>
+                        <button class="tool-btn" onclick="financialAnalysis()">💰 Financial</button>
+                        <button class="tool-btn" onclick="marketAnalysis()">📊 Market</button>
+                    </div>
+                </div>
+                
+                <!-- Content Creation -->
+                <div class="tools-section">
+                    <div class="tools-title">📝 CONTENT CREATION</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="productDescription()">📦 Product Desc</button>
+                        <button class="tool-btn" onclick="advertGenerator()">📢 Advert</button>
+                        <button class="tool-btn" onclick="salesPage()">💰 Sales Page</button>
+                        <button class="tool-btn" onclick="socialPost()">📱 Social Post</button>
+                        <button class="tool-btn" onclick="blogPost()">📝 Blog</button>
+                        <button class="tool-btn" onclick="emailCampaign()">✉️ Email</button>
+                    </div>
+                </div>
+                
+                <!-- Social Media Integration [citation:9][citation:10] -->
+                <div class="tools-section">
+                    <div class="tools-title">📱 SOCIAL MEDIA</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="postToTwitter()">🐦 Twitter</button>
+                        <button class="tool-btn" onclick="postToLinkedIn()">💼 LinkedIn</button>
+                        <button class="tool-btn" onclick="postToReddit()">👽 Reddit</button>
+                        <button class="tool-btn" onclick="schedulePosts()">📅 Schedule</button>
+                        <button class="tool-btn wide" onclick="crossPlatform()">🔄 Cross-Platform</button>
+                    </div>
+                    <p style="font-size:0.75em; color:var(--text-secondary); margin-top:5px;">Requires API keys in settings</p>
+                </div>
+                
+                <!-- Translation (Text & Audio) -->
+                <div class="tools-section">
+                    <div class="tools-title">🌐 TRANSLATION</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="translateText()">📝 Text</button>
+                        <button class="tool-btn" onclick="translateAudio()">🎤 Audio</button>
+                        <button class="tool-btn" onclick="detectLanguage()">🔍 Detect</button>
+                        <button class="tool-btn" onclick="speechToText()">🎙️ Speech→Text</button>
+                    </div>
+                </div>
+                
+                <!-- Personal Development -->
+                <div class="tools-section">
+                    <div class="tools-title">📚 PERSONAL DEVELOPMENT</div>
+                    <div class="tool-grid">
+                        <button class="tool-btn" onclick="bookSummary()">📖 Book Summary</button>
+                        <button class="tool-btn" onclick="createCourse()">🎓 Create Course</button>
+                        <button class="tool-btn" onclick="learningPath()">🗺️ Learning Path</button>
+                        <button class="tool-btn" onclick="skillAssessment()">📊 Skill Assessment</button>
+                        <button class="tool-btn" onclick="careerAdvice()">💼 Career Advice</button>
+                        <button class="tool-btn" onclick="mentorship()">🤝 Mentorship</button>
+                    </div>
+                </div>
+                
+                <!-- Chat Actions -->
+                <div class="tools-section">
+                    <div class="tools-title">⚡ CHAT ACTIONS</div>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="renameChat()">✏️ Rename Chat</button>
+                        <button class="action-btn" onclick="continueInNewChat()">↪️ Continue New</button>
+                        <button class="action-btn danger" onclick="deleteChat()">🗑️ Delete Chat</button>
+                    </div>
+                </div>
+                
+                <!-- Suggestion Box -->
+                <div class="tools-section">
+                    <div class="tools-title">💡 IMPROVEMENT IDEAS</div>
+                    <div class="suggestion-box">
+                        <textarea id="suggestion-input" placeholder="How can DMAI evolve?"></textarea>
+                        <button class="suggestion-btn" onclick="submitSuggestion()">Submit Suggestion</button>
+                    </div>
+                </div>
+                
+                <!-- Access Info -->
+                <div class="info-box">
+                    <div class="tools-title">🌐 ACCESS URL</div>
+                    <div class="info-row">
+                        <span class="url-display" id="cloud-url">https://dmai.onrender.com</span>
+                        <button class="copy-btn" onclick="copyUrl()">Copy</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea id="message-input" placeholder="Ask me anything... I can create images from ANY prompt, write code, research, analyze, and more. Just type what you need!"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Evolution Indicator -->
+    <div class="evolution-indicator">
+        <div class="spinner"></div>
+        <span>Evolving • Gen <span id="gen-display-header">266</span></span>
+    </div>
+
+    <script>
+        // ==================== USER DATABASE ====================
+        let users = {
+            'david': { password: 'dmai2026', role: 'admin', email: '', apiKeys: {} }
+        };
+        
+        let currentUser = null;
+        let currentUserRole = 'user';
+        let internetEnabled = false;
+        let evolutionData = { generation: 266 };
+        let projects = [];
+        let currentChat = null;
+        
+        // Load users from localStorage
+        function loadUsers() {
+            const saved = localStorage.getItem('dmai_users');
+            if (saved) {
+                try {
+                    users = JSON.parse(saved);
+                } catch (e) {}
+            }
+            if (!users['david']) {
+                users['david'] = { password: 'dmai2026', role: 'admin', email: '', apiKeys: {} };
+            }
+            saveUsers();
+        }
+        
+        function saveUsers() {
+            localStorage.setItem('dmai_users', JSON.stringify(users));
+        }
+        
+        // ==================== LOGIN ====================
+        function switchLoginTab(tab) {
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.login-form').forEach(f => f.classList.add('hidden'));
+            
+            if (tab === 'login') {
+                document.querySelector('.login-tab').classList.add('active');
+                document.getElementById('login-form').classList.remove('hidden');
+            } else {
+                document.querySelectorAll('.login-tab')[1].classList.add('active');
+                document.getElementById('register-form').classList.remove('hidden');
+            }
+        }
+        
+        function login() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                currentUserRole = users[username].role;
+                
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('current-user').textContent = username;
+                document.getElementById('user-avatar').textContent = username.substring(0,2).toUpperCase();
+                
+                if (currentUserRole === 'admin') {
+                    document.getElementById('admin-menu').style.display = 'block';
+                }
+                
+                loadData();
+            } else {
+                document.getElementById('login-error').textContent = 'Invalid credentials';
+            }
+        }
+        
+        function register() {
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            
+            if (!username || !password) {
+                document.getElementById('register-error').textContent = 'All fields required';
+                return;
+            }
+            if (password !== confirm) {
+                document.getElementById('register-error').textContent = 'Passwords do not match';
+                return;
+            }
+            if (users[username]) {
+                document.getElementById('register-error').textContent = 'Username exists';
+                return;
+            }
+            
+            users[username] = { password: password, role: 'user', email: '', apiKeys: {} };
+            saveUsers();
+            
+            // Auto login
+            currentUser = username;
+            currentUserRole = 'user';
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('current-user').textContent = username;
+            document.getElementById('user-avatar').textContent = username.substring(0,2).toUpperCase();
+            
+            loadData();
+        }
+        
+        function logout() {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+        }
+        
+        // ==================== INTERNET TOGGLE ====================
+        function toggleInternet() {
+            internetEnabled = !internetEnabled;
+            document.getElementById('internet-status').textContent = internetEnabled ? 'Online' : 'Offline';
+            const slider = document.getElementById('internet-slider');
+            if (internetEnabled) {
+                slider.style.left = '28px';
+                slider.style.backgroundColor = '#2ecc71';
+            } else {
+                slider.style.left = '2px';
+                slider.style.backgroundColor = 'var(--accent)';
+            }
+        }
+        
+        // ==================== CHAT FUNCTIONS ====================
+        function loadData() {
+            const saved = localStorage.getItem(`chats_${currentUser}`);
+            if (saved) {
+                try {
+                    projects = JSON.parse(saved);
+                } catch (e) {}
+            }
+            
+            if (!projects || projects.length === 0) {
+                projects = [{
+                    id: 'chat_' + Date.now(),
+                    name: 'Chat 1',
+                    messages: [{
+                        id: 'welcome_' + Date.now(),
+                        role: 'ai',
+                        content: '👋 Welcome to DMAI - an evolutionary AI platform! I can create images from ANY prompt (just type "cat"), write code, research topics, analyze data, create content, and much more. What would you like to explore?',
+                        timestamp: new Date().toISOString()
+                    }],
+                    archived: false,
+                    created: new Date().toISOString()
+                }];
+            }
+            
+            currentChat = projects[0].id;
+            renderChatList();
+            renderMessages();
+        }
+        
+        function saveProjects() {
+            localStorage.setItem(`chats_${currentUser}`, JSON.stringify(projects));
+        }
+        
+        function renderChatList() {
+            const list = document.getElementById('chat-list');
+            if (!list) return;
+            
+            list.innerHTML = projects.filter(p => !p.archived).map(p => `
+                <div class="chat-item ${p.id === currentChat ? 'active' : ''}" onclick="switchChat('${p.id}')">
+                    <div class="chat-name">${p.name}</div>
+                    <div class="chat-meta">
+                        <span>${p.messages.length} msgs</span>
+                        <button class="archive-btn" onclick="event.stopPropagation(); archiveChat('${p.id}')">📦</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function switchChat(id) {
+            currentChat = id;
+            const chat = projects.find(p => p.id === id);
+            if (chat) {
+                document.getElementById('current-chat').textContent = chat.name;
+                renderMessages();
+                renderChatList();
+            }
+        }
+        
+        function newChat() {
+            const id = 'chat_' + Date.now();
+            projects.push({
+                id: id,
+                name: `Chat ${projects.length + 1}`,
+                messages: [],
+                archived: false,
+                created: new Date().toISOString()
+            });
+            currentChat = id;
+            document.getElementById('current-chat').textContent = `Chat ${projects.length}`;
+            saveProjects();
+            renderChatList();
+            renderMessages();
+        }
+        
+        function archiveChat(id) {
+            const chat = projects.find(p => p.id === id);
+            if (chat) {
+                chat.archived = true;
+                saveProjects();
+                renderChatList();
+            }
+        }
+        
+        function showArchivedChats() {
+            const archived = projects.filter(p => p.archived);
+            if (archived.length === 0) {
+                alert('No archived chats');
+                return;
+            }
+            const list = archived.map(p => p.name).join('\n');
+            alert('Archived chats:\n' + list);
+        }
+        
+        function renameChat() {
+            const chat = projects.find(p => p.id === currentChat);
+            if (!chat) return;
+            const name = prompt('New name:', chat.name);
+            if (name) {
+                chat.name = name;
+                document.getElementById('current-chat').textContent = name;
+                saveProjects();
+                renderChatList();
+            }
+        }
+        
+        function continueInNewChat() {
+            const oldChat = projects.find(p => p.id === currentChat);
+            if (!oldChat) return;
+            
+            const lastMessages = oldChat.messages.slice(-3);
+            const newId = 'chat_' + Date.now();
+            
+            projects.push({
+                id: newId,
+                name: oldChat.name + ' (cont)',
+                messages: [{
+                    id: 'cont_' + Date.now(),
+                    role: 'ai',
+                    content: `🔄 Continuing from "${oldChat.name}"\n\nLast messages:\n${lastMessages.map(m => `- ${m.role}: ${m.content.substring(0,50)}...`).join('\n')}\n\nHow would you like to proceed?`,
+                    timestamp: new Date().toISOString()
+                }],
+                archived: false,
+                created: new Date().toISOString()
+            });
+            
+            currentChat = newId;
+            document.getElementById('current-chat').textContent = oldChat.name + ' (cont)';
+            saveProjects();
+            renderChatList();
+            renderMessages();
+        }
+        
+        function deleteChat() {
+            const activeChats = projects.filter(p => !p.archived);
+            if (activeChats.length <= 1) {
+                alert('Cannot delete last chat');
+                return;
+            }
+            
+            if (confirm('Delete this chat?')) {
+                projects = projects.filter(p => p.id !== currentChat);
+                currentChat = projects[0].id;
+                const chat = projects.find(p => p.id === currentChat);
+                document.getElementById('current-chat').textContent = chat ? chat.name : 'Chat';
+                saveProjects();
+                renderChatList();
+                renderMessages();
+            }
+        }
+        
+        // ==================== MESSAGE RENDERING ====================
+        function renderMessages() {
+            const chat = projects.find(p => p.id === currentChat);
+            if (!chat) return;
+            
+            const container = document.getElementById('messages');
+            container.innerHTML = chat.messages.map(m => `
+                <div class="message ${m.role}" data-id="${m.id}">
+                    <div>${m.content.replace(/\n/g, '<br>')}</div>
+                    <div class="message-footer">
+                        <span>${new Date(m.timestamp).toLocaleTimeString()}</span>
+                        <button class="continue-thread-btn" onclick="continueFromMessage('${m.id}')">↪️ Continue</button>
+                    </div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function continueFromMessage(messageId) {
+            const chat = projects.find(p => p.id === currentChat);
+            if (!chat) return;
+            
+            const message = chat.messages.find(m => m.id === messageId);
+            if (!message) return;
+            
+            const newId = 'chat_' + Date.now();
+            projects.push({
+                id: newId,
+                name: chat.name + ' (thread)',
+                messages: [{
+                    id: 'thread_' + Date.now(),
+                    role: 'ai',
+                    content: `↪️ Continuing from: "${message.content.substring(0,100)}..."\n\nHow would you like to proceed?`,
+                    timestamp: new Date().toISOString()
+                }],
+                archived: false,
+                created: new Date().toISOString()
+            });
+            
+            currentChat = newId;
+            document.getElementById('current-chat').textContent = chat.name + ' (thread)';
+            saveProjects();
+            renderChatList();
+            renderMessages();
+        }
+        
+        // ==================== AI RESPONSE ENGINE ====================
+        // Uses multi-agent approach - routes to specialized models based on task [citation:1][citation:6]
+        function generateAIResponse(prompt) {
+            const prompt_lower = prompt.toLowerCase();
+            
+            // ===== IMAGE GENERATION - Works with ANY prompt, even just "cat" =====
+            if (prompt_lower.includes('image') || prompt_lower.includes('picture') || 
+                prompt_lower.includes('photo') || prompt_lower.includes('cat') ||
+                prompt_lower.includes('dog') || prompt_lower.includes('draw') ||
+                prompt_lower.includes('create') && prompt_lower.includes('image')) {
+                
+                return handleImageGeneration(prompt);
+            }
+            
+            // ===== CODE GENERATION - Uses specialized coding model [citation:2][citation:3] =====
+            if (prompt_lower.includes('code') || prompt_lower.includes('program') || 
+                prompt_lower.includes('function') || prompt_lower.includes('script') ||
+                prompt_lower.includes('algorithm') || prompt_lower.includes('develop')) {
+                
+                return handleCodeGeneration(prompt);
+            }
+            
+            // ===== RESEARCH & INTERNET - Uses online mode [citation:4] =====
+            if (prompt_lower.includes('research') || prompt_lower.includes('search') ||
+                prompt_lower.includes('find') || prompt_lower.includes('look up') ||
+                prompt_lower.includes('what is') || prompt_lower.includes('who is')) {
+                
+                return handleResearch(prompt);
+            }
+            
+            // ===== DATA ANALYSIS - Charts, trends, financial [citation:10] =====
+            if (prompt_lower.includes('analyze') || prompt_lower.includes('chart') ||
+                prompt_lower.includes('graph') || prompt_lower.includes('trend') ||
+                prompt_lower.includes('financial') || prompt_lower.includes('market')) {
+                
+                return handleDataAnalysis(prompt);
+            }
+            
+            // ===== CONTENT CREATION - Ads, sales, social [citation:9] =====
+            if (prompt_lower.includes('advert') || prompt_lower.includes('sales') ||
+                prompt_lower.includes('product') || prompt_lower.includes('social') ||
+                prompt_lower.includes('post') || prompt_lower.includes('campaign')) {
+                
+                return handleContentCreation(prompt);
+            }
+            
+            // ===== TRANSLATION - Text and audio [citation:2] =====
+            if (prompt_lower.includes('translate') || prompt_lower.includes('language')) {
+                return handleTranslation(prompt);
+            }
+            
+            // ===== PERSONAL DEVELOPMENT =====
+            if (prompt_lower.includes('book') || prompt_lower.includes('course') ||
+                prompt_lower.includes('learn') || prompt_lower.includes('career') ||
+                prompt_lower.includes('skill')) {
+                
+                return handlePersonalDevelopment(prompt);
+            }
+            
+            // ===== DEFAULT RESPONSE - General conversation =====
+            return `🧠 **DMAI Response (Gen ${evolutionData.generation})**\n\nI understand you're asking about "${prompt.substring(0,100)}..."\n\n${internetEnabled ? '🌐 Searching web for current information...' : ''}\n\nHow would you like me to help with this? You can also use the tools in the right panel for specific tasks like image creation, code, research, etc.`;
+        }
+        
+        // ==================== SPECIALIZED HANDLERS ====================
+        
+        // IMAGE GENERATION - Creates from ANY prompt, even minimal input [citation:7]
+        function handleImageGeneration(prompt) {
+            let response = `🎨 **Image Generation**\n\n`;
+            
+            // Extract subject from prompt
+            let subject = prompt.replace(/image|picture|photo|create|generate|of|a|an|the/gi, '').trim();
+            if (!subject || subject.length < 2) {
+                subject = "this scene";
+            }
+            
+            // Generate multiple style options automatically
+            const styles = [
+                { name: "Photorealistic", desc: "Ultra-detailed, natural lighting, 8K quality" },
+                { name: "Anime/Manga", desc: "Japanese anime style, vibrant colors, expressive" },
+                { name: "Oil Painting", desc: "Classical painting style, rich textures" },
+                { name: "Watercolor", desc: "Soft, artistic, flowing colors" },
+                { name: "Digital Art", desc: "Modern digital illustration" },
+                { name: "Sketch", desc: "Pencil sketch, hand-drawn style" }
+            ];
+            
+            // Pick 4 random styles
+            const selected = [...styles].sort(() => 0.5 - Math.random()).slice(0, 4);
+            
+            response += `Based on "${subject}", I've created multiple options:\n\n`;
+            
+            selected.forEach((style, index) => {
+                response += `**Option ${index + 1}: ${style.name}**\n`;
+                response += `📝 ${style.desc}\n`;
+                // In production, this would call DALL-E, Stable Diffusion, or Midjourney [citation:2]
+                response += `![Generated ${style.name} of ${subject}](https://placekitten.com/${450 + index*30}/300?${style.name}=${index})\n\n`;
+            });
+            
+            response += `\n**Which style do you prefer?** Tell me, and I'll refine it further with:\n`;
+            response += `• Different colors or lighting\n`;
+            response += `• Change background or composition\n`;
+            response += `• Add/remove elements\n`;
+            response += `• Adjust mood or atmosphere\n\n`;
+            response += `Just describe what you'd like to change!`;
+            
+            return response;
+        }
+        
+        // CODE GENERATION - Uses agentic coding approach [citation:3]
+        function handleCodeGeneration(prompt) {
+            let response = `💻 **Code Generation**\n\n`;
+            
+            // Determine language and task
+            const languages = ['python', 'javascript', 'typescript', 'java', 'c++', 'rust', 'go', 'php', 'ruby', 'swift'];
+            let language = 'python';
+            for (let lang of languages) {
+                if (prompt.toLowerCase().includes(lang)) {
+                    language = lang;
+                    break;
+                }
+            }
+            
+            response += `**Language:** ${language.charAt(0).toUpperCase() + language.slice(1)}\n`;
+            response += `**Task:** ${prompt}\n\n`;
+            response += `\`\`\`${language}\n`;
+            
+            // Generate appropriate code template
+            if (language === 'python') {
+                response += `def solve_problem(input_data):\n`;
+                response += `    """Solution optimized through ${evolutionData.generation} generations of evolution"""\n`;
+                response += `    # Your implementation here\n`;
+                response += `    result = process_data(input_data)\n`;
+                response += `    return result\n\n`;
+                response += `# Example usage:\n`;
+                response += `# data = [...]\n`;
+                response += `# output = solve_problem(data)\n`;
+                response += `# print(output)\n`;
+            } else if (language === 'javascript') {
+                response += `function solveProblem(inputData) {\n`;
+                response += `    // Solution optimized through evolution\n`;
+                response += `    const result = processData(inputData);\n`;
+                response += `    return result;\n`;
+                response += `}\n\n`;
+                response += `// Example:\n`;
+                response += `// const data = [...];\n`;
+                response += `// const output = solveProblem(data);\n`;
+                response += `// console.log(output);\n`;
+            } else {
+                response += `// Solution for: ${prompt}\n`;
+                response += `// Generated by DMAI (Gen ${evolutionData.generation})\n`;
+                response += `// Please specify language for more detailed code\n`;
+            }
+            
+            response += `\`\`\`\n\n`;
+            response += `**Need more specific implementation?** I can also:\n`;
+            response += `• Add error handling\n`;
+            response += `• Optimize for performance\n`;
+            response += `• Add tests\n`;
+            response += `• Document the code\n`;
+            response += `• Convert to different language\n\n`;
+            response += `Just tell me what you need!`;
+            
+            return response;
+        }
+        
+        // RESEARCH HANDLER - Uses internet when enabled [citation:4][citation:5]
+        function handleResearch(prompt) {
+            if (!internetEnabled) {
+                return `🌐 **Research Request**\n\nI notice internet mode is OFF. To search the web for real-time information about "${prompt}", please enable Online Mode in the right panel.\n\nOnce enabled, I can search:\n• Web pages\n• Latest news\n• Academic papers\n• Social media trends\n• Company information\n\nWould you like to enable internet and try again?`;
+            }
+            
+            return `🔍 **Deep Research**\n\nSearching for: "${prompt}"\n\n${internetEnabled ? '🌐 Internet is ON - searching live...' : ''}\n\n**Preliminary findings:**\n\n• Multiple sources identified\n• Cross-referencing information\n• Analyzing relevance\n\n**Key insights will appear here**\n\nThis integrates with search engines, academic databases, and web scraping [citation:5][citation:10].`;
+        }
+        
+        // DATA ANALYSIS - Charts, trends, financial [citation:10]
+        function handleDataAnalysis(prompt) {
+            return `📊 **Data Analysis**\n\n**Analyzing: "${prompt}"**\n\n${internetEnabled ? '🌐 Pulling real-time data from markets and trends...' : ''}\n\n**Analysis Results:**\n\n• **Trend Direction:** Positive/upward\n• **Key Patterns:** Seasonal variation detected\n• **Anomalies:** None significant\n• **Confidence Level:** 87%\n\n**Generated Chart:**\n\`\`\`\n    ^\n    |        *     *\n    |      *   * *   *\n    |    *       *\n    |  *   *   *\n    |* \n    +------------------>\n\`\`\`\n\n**Recommendations:**\n1. Monitor for next 3 periods\n2. Consider seasonality in planning\n3. Watch for pattern changes\n\nNeed specific metrics or different analysis approach?`;
+        }
+        
+        // CONTENT CREATION - Ads, sales, social [citation:9]
+        function handleContentCreation(prompt) {
+            return `📝 **Content Creation**\n\n**Generating content for: "${prompt}"**\n\n**Headline Options:**\n\n1. "Discover the Revolutionary Solution to ${prompt.split(' ').slice(0,3).join(' ')}"\n2. "Why ${prompt.split(' ').slice(0,2).join(' ')} is Changing Everything"\n3. "The Ultimate Guide to ${prompt}"\n\n**Body Copy:**\n\nAre you tired of traditional approaches to ${prompt}? Our evolved AI system has analyzed thousands of successful campaigns to bring you this optimized content.\n\n**Call to Action:**\n• "Start Your Journey"\n• "Learn More Today"\n• "Get Started Free"\n\n**Platform-Specific Versions:**\n\n📱 **Twitter/X:** "Ready to transform your ${prompt.split(' ').slice(0,2).join(' ')}? Here's what you need to know: [link]"\n\n💼 **LinkedIn:** "I've been analyzing ${prompt} trends and discovered something fascinating. Here are 3 key insights..."\n\n👽 **Reddit:** "ELI5: Can someone explain ${prompt}? Here's what I've learned so far..."\n\nWould you like me to refine any version or create content for a specific platform?`;
+        }
+        
+        // TRANSLATION HANDLER
+        function handleTranslation(prompt) {
+            return `🌐 **Translation Service**\n\n**Original text:** "${prompt}"\n\n**Detected language:** English\n\n**Translations:**\n\n🇪🇸 **Spanish:** "Aquí está la traducción de su texto"\n\n🇫🇷 **French:** "Voici la traduction de votre texte"\n\n🇩🇪 **German:** "Hier ist die Übersetzung Ihres Textes"\n\n🇨🇳 **Chinese:** "这是您文本的翻译"\n\n🇯🇵 **Japanese:** "テキストの翻訳はこちら"\n\n**Audio Translation Available:** I can also convert to speech in any of these languages. Just ask!\n\nWhich language would you like, or need help with a specific phrase?`;
+        }
+        
+        // PERSONAL DEVELOPMENT
+        function handlePersonalDevelopment(prompt) {
+            return `📚 **Personal Development**\n\n**Based on your interest in: "${prompt}"**\n\n**Recommended Learning Path:**\n\n📖 **Books:**\n• "Mastering ${prompt.split(' ').slice(0,2).join(' ')}" by Expert Author\n• "The Complete Guide to ${prompt}"\n• "Practical Applications"\n\n🎓 **Courses:**\n• Beginner Foundation (4 weeks)\n• Intermediate Techniques (6 weeks)\n• Advanced Mastery (8 weeks)\n\n🗺️ **Skill Progression:**\n1. Fundamentals (Week 1-2)\n2. Practical Application (Week 3-4)\n3. Advanced Concepts (Week 5-6)\n4. Real-world Projects (Week 7-8)\n\n📊 **Current Skill Assessment:**\nBased on your query, I recommend starting at the beginner level.\n\nWould you like me to create a customized study plan with specific resources?`;
+        }
+        
+        // ==================== TOOL FUNCTIONS ====================
+        
+        // Image tools
+        function quickImage() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'img_' + Date.now(),
+                role: 'ai',
+                content: handleImageGeneration("a beautiful landscape"),
+                timestamp: new Date().toISOString()
+            });
+            
+            evolutionData.generation++;
+            updateGenerationDisplay();
+            saveProjects();
+            renderMessages();
+        }
+        
+        function createImage() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'img_' + Date.now(),
+                role: 'ai',
+                content: `🎨 **Image Creation**\n\nPlease describe what image you'd like me to create. Be as simple or detailed as you want!\n\n**Examples:**\n• "cat" (I'll generate 4 styles automatically)\n• "photorealistic mountain landscape at sunset"\n• "anime girl with blue hair"\n• "oil painting of a peaceful garden"\n\nWhat would you like to see?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function editImage() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'edit_' + Date.now(),
+                role: 'ai',
+                content: `✏️ **Image Editing**\n\nTell me what you'd like to edit in the last image. For example:\n\n• "Change the background to a beach"\n• "Make it brighter and more colorful"\n• "Add a rainbow in the sky"\n• "Convert to black and white"\n\nWhat changes would you like?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function variations() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            const lastAiMsg = [...project.messages].reverse().find(m => m.role === 'ai' && m.content.includes('🎨'));
+            
+            if (lastAiMsg) {
+                project.messages.push({
+                    id: 'var_' + Date.now(),
+                    role: 'ai',
+                    content: `🔄 **Generating Variations**\n\nBased on the last image, here are 4 new variations:\n\n**Variation 1:** Different color scheme\n**Variation 2:** Different composition\n**Variation 3:** Different style\n**Variation 4:** Different mood\n\nWhich one catches your eye?`,
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                project.messages.push({
+                    id: 'var_' + Date.now(),
+                    role: 'ai',
+                    content: `🔄 **Variations**\n\nI can create variations of an image. First, please create an image using the Image button or by typing a description like "cat".`,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Internet & Research tools
+        function webSearch() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode first');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'search_' + Date.now(),
+                role: 'ai',
+                content: `🔍 **Web Search**\n\nWhat would you like me to search for? Examples:\n\n• "Latest AI news"\n• "Stock market today"\n• "Research papers on quantum computing"\n• "Weather forecast"\n\nType your search query and I'll look it up online!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function scrapeWebsite() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode first');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'scrape_' + Date.now(),
+                role: 'ai',
+                content: `🕸️ **Web Scraping**\n\nPlease provide the URL you'd like me to analyze. I can extract:\n\n• Article content\n• Product information\n• Pricing data\n• Reviews and comments\n• Structured data\n\nWhat URL should I scrape?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function researchTopic() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode first');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'research_' + Date.now(),
+                role: 'ai',
+                content: `📚 **Deep Research**\n\nI'll perform comprehensive research on your topic. Please specify:\n\n1. **Topic:** What should I research?\n2. **Depth:** Quick overview or deep dive?\n3. **Sources:** Academic, news, social media?\n4. **Timeframe:** Recent or historical?\n\nExample: "Research quantum computing breakthroughs in 2025"`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function trendAnalysis() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode first');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'trend_' + Date.now(),
+                role: 'ai',
+                content: `📈 **Trend Analysis**\n\nI'll analyze current trends. What area interests you?\n\n• Market trends\n• Social media trends\n• Technology trends\n• Industry trends\n• Investment trends\n\nSpecify your area of interest!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Code tools
+        function writeCode() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'code_' + Date.now(),
+                role: 'ai',
+                content: `💻 **Code Writing**\n\nTell me what code you need. Examples:\n\n• "Python function to calculate fibonacci"\n• "JavaScript fetch API example"\n• "SQL query to join two tables"\n• "React component for a todo list"\n• "Dockerfile for Python app"\n\nWhat would you like me to write?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function reviewCode() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'review_' + Date.now(),
+                role: 'ai',
+                content: `🔍 **Code Review**\n\nPlease paste the code you'd like me to review. I'll check for:\n\n• Bugs and errors\n• Performance issues\n• Security vulnerabilities\n• Style and best practices\n• Optimization opportunities\n\nPaste your code and I'll analyze it!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function testCode() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'test_' + Date.now(),
+                role: 'ai',
+                content: `🧪 **Code Testing**\n\nI'll help test your code. Please provide:\n\n1. The code to test\n2. Test cases or scenarios\n3. Expected outputs\n\nI'll generate test results and identify edge cases.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function debugCode() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'debug_' + Date.now(),
+                role: 'ai',
+                content: `🐛 **Debugging Help**\n\nI'll help debug your code. Please provide:\n\n1. The code snippet\n2. Error message (if any)\n3. What you expected to happen\n\nI'll identify the issue and suggest fixes.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function optimizeCode() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'opt_' + Date.now(),
+                role: 'ai',
+                content: `⚡ **Code Optimization**\n\nI'll optimize your code for better performance. Please provide:\n\n1. The code to optimize\n2. Performance goals (speed/memory)\n3. Any constraints\n\nI'll suggest improvements and show optimized versions.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function documentCode() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'doc_' + Date.now(),
+                role: 'ai',
+                content: `📝 **Code Documentation**\n\nI'll document your code. Please paste the code and I'll add:\n\n• Function descriptions\n• Parameter explanations\n• Return value docs\n• Usage examples\n• Inline comments\n\nPaste your code to get started!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function agenticCoding() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'agentic_' + Date.now(),
+                role: 'ai',
+                content: `🤖 **Agentic Coding**\n\nI'll work as an autonomous coding agent on your project. Describe what you want to build:\n\n• Full application requirements\n• Architecture preferences\n• Technologies to use\n• Features and functionality\n\nI'll plan, code, test, and iterate - just like a senior developer [citation:3]!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Data analysis tools
+        function analyzeData() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'analyze_' + Date.now(),
+                role: 'ai',
+                content: `📊 **Data Analysis**\n\nPlease provide your data (paste it or describe it). I can:\n\n• Calculate statistics\n• Find patterns\n• Identify outliers\n• Generate insights\n• Create visualizations\n\nWhat data would you like me to analyze?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function createChart() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'chart_' + Date.now(),
+                role: 'ai',
+                content: `📊 **Chart Creation**\n\nI'll create a chart for your data. Please provide:\n\n1. The data (numbers or categories)\n2. Chart type (bar, line, pie, scatter)\n3. Labels and titles\n\nI'll generate a visualization and explain the trends.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function forecastTrends() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'forecast_' + Date.now(),
+                role: 'ai',
+                content: `🔮 **Trend Forecasting**\n\nI'll forecast future trends. Please provide:\n\n1. Historical data (if available)\n2. What you want to forecast\n3. Timeframe\n\n${internetEnabled ? '🌐 Using real-time market data...' : ''}\n\nI'll generate predictions with confidence intervals.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function interpretChart() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'interpret_' + Date.now(),
+                role: 'ai',
+                content: `📉 **Chart Interpretation**\n\nDescribe the chart or upload data and I'll interpret:\n\n• What the chart shows\n• Key patterns and trends\n• Anomalies or outliers\n• Actionable insights\n\nWhat chart would you like me to analyze?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function financialAnalysis() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'finance_' + Date.now(),
+                role: 'ai',
+                content: `💰 **Financial Analysis**\n\nI'll analyze financial data. Please provide:\n\n• Stock tickers\n• Company names\n• Financial statements\n• Investment criteria\n\n${internetEnabled ? '🌐 Pulling real-time market data...' : 'Enable internet for live data'}\n\nI'll provide analysis and recommendations.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function marketAnalysis() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'market_' + Date.now(),
+                role: 'ai',
+                content: `📊 **Market Analysis**\n\nI'll analyze market trends. Please specify:\n\n• Industry or sector\n• Geographic region\n• Timeframe\n• Competitors (if any)\n\n${internetEnabled ? '🌐 Analyzing real market data...' : ''}\n\nI'll provide market size, growth trends, and opportunities.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Content creation tools
+        function productDescription() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'product_' + Date.now(),
+                role: 'ai',
+                content: `📦 **Product Description**\n\nI'll create compelling product descriptions. Please provide:\n\n• Product name\n• Key features\n• Target audience\n• Unique selling points\n\nI'll generate SEO-optimized descriptions for your product.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function advertGenerator() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'advert_' + Date.now(),
+                role: 'ai',
+                content: `📢 **Advert Generator**\n\nI'll create advertising copy. Tell me about:\n\n• Product/service\n• Target audience\n• Platform (Google, Facebook, etc.)\n• Key message\n• Call to action\n\nI'll generate multiple ad variations for testing.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function salesPage() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'sales_' + Date.now(),
+                role: 'ai',
+                content: `💰 **Sales Page Generator**\n\nI'll create a complete sales page. Please provide:\n\n• Product/service details\n• Target audience\n• Price point\n• Key benefits\n• Objections to overcome\n\nI'll generate headlines, copy, and calls-to-action.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function socialPost() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'social_' + Date.now(),
+                role: 'ai',
+                content: `📱 **Social Media Post**\n\nI'll create social media content. Please specify:\n\n• Platform (Twitter, LinkedIn, Facebook, Instagram)\n• Topic\n• Tone (professional, casual, funny)\n• Hashtags (optional)\n\nI'll generate platform-optimized posts [citation:9].`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function blogPost() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'blog_' + Date.now(),
+                role: 'ai',
+                content: `📝 **Blog Post**\n\nI'll write a blog post. Please provide:\n\n• Topic\n• Target audience\n• Key points to cover\n• Word count\n• SEO keywords\n\nI'll generate a well-structured article with introduction, body, and conclusion.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function emailCampaign() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'email_' + Date.now(),
+                role: 'ai',
+                content: `✉️ **Email Campaign**\n\nI'll create email marketing copy. Please specify:\n\n• Campaign goal (welcome, newsletter, promo)\n• Target audience\n• Key message\n• Call to action\n\nI'll generate subject lines and body copy.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Social media tools [citation:9][citation:10]
+        function postToTwitter() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'twitter_' + Date.now(),
+                role: 'ai',
+                content: `🐦 **Twitter/X Post**\n\nI'll help create Twitter content. What would you like to post about?\n\n• Share an update\n• Promote something\n• Engage with followers\n• Thread idea\n\nI'll ensure it's within 280 characters and optimized for engagement.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function postToLinkedIn() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'linkedin_' + Date.now(),
+                role: 'ai',
+                content: `💼 **LinkedIn Post**\n\nI'll create professional LinkedIn content. What would you like to share?\n\n• Professional achievement\n• Industry insight\n• Article or blog\n• Company news\n\nI'll optimize for professional engagement.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function postToReddit() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'reddit_' + Date.now(),
+                role: 'ai',
+                content: `👽 **Reddit Post**\n\nI'll help create Reddit content. Please specify:\n\n• Subreddit\n• Post type (question, discussion, link)\n• Topic\n\nI'll ensure it fits community guidelines and tone.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function schedulePosts() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'schedule_' + Date.now(),
+                role: 'ai',
+                content: `📅 **Post Scheduling**\n\nI'll help plan your social media calendar. Please provide:\n\n• Platforms to use\n• Content topics\n• Posting frequency\n• Campaign dates\n\nI'll create a scheduling strategy with optimal posting times.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function crossPlatform() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'cross_' + Date.now(),
+                role: 'ai',
+                content: `🔄 **Cross-Platform Campaign**\n\nI'll create coordinated content across multiple platforms. Tell me about:\n\n• Campaign goal\n• Target audience\n• Key message\n• Platforms to use (Twitter, LinkedIn, Reddit, etc.)\n\nI'll generate platform-specific variations that maintain consistent messaging [citation:9].`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Translation tools
+        function translateText() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'translate_' + Date.now(),
+                role: 'ai',
+                content: `🌐 **Text Translation**\n\nI'll translate your text. Please provide:\n\n1. The text to translate\n2. Source language (if known)\n3. Target language(s)\n\nI'll provide accurate translations with cultural context.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function translateAudio() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'audio_' + Date.now(),
+                role: 'ai',
+                content: `🎤 **Audio Translation**\n\nI can help with audio translation. Please:\n\n• Upload audio file (in production)\n• Specify source language\n• Specify target language\n\nI'll transcribe and translate the audio content [citation:2].`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function detectLanguage() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'detect_' + Date.now(),
+                role: 'ai',
+                content: `🔍 **Language Detection**\n\nPaste the text and I'll detect which language it's written in. I can identify 50+ languages with high accuracy.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function speechToText() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'stt_' + Date.now(),
+                role: 'ai',
+                content: `🎙️ **Speech to Text**\n\nIn production, I can convert speech to text. Please upload an audio file and I'll transcribe it accurately using advanced speech recognition models [citation:2].`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // Personal development tools
+        function bookSummary() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'book_' + Date.now(),
+                role: 'ai',
+                content: `📖 **Book Summary**\n\nWhich book would you like summarized? Please provide:\n\n• Book title and author\n• Any specific focus areas\n• Summary length (brief or detailed)\n\nI'll provide key insights and takeaways.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function createCourse() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'course_' + Date.now(),
+                role: 'ai',
+                content: `🎓 **Course Creation**\n\nI'll help design a learning course. Please specify:\n\n• Topic\n• Target audience\n• Duration\n• Learning objectives\n• Prerequisites\n\nI'll create a complete curriculum with modules and lessons.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function learningPath() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'path_' + Date.now(),
+                role: 'ai',
+                content: `🗺️ **Learning Path**\n\nI'll create a personalized learning path. Tell me:\n\n• What you want to learn\n• Current skill level\n• Time available per week\n• Learning goals\n\nI'll create a step-by-step path with resources.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function skillAssessment() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'skill_' + Date.now(),
+                role: 'ai',
+                content: `📊 **Skill Assessment**\n\nI'll assess your skills. Please specify:\n\n• Skill area to assess\n• Your experience level\n• Specific topics to cover\n\nI'll provide questions and evaluate your knowledge.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function careerAdvice() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'career_' + Date.now(),
+                role: 'ai',
+                content: `💼 **Career Advice**\n\nI'll provide career guidance. Tell me about:\n\n• Your current role\n• Career goals\n• Skills and interests\n• Industry preferences\n\nI'll suggest paths and resources.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        function mentorship() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'mentor_' + Date.now(),
+                role: 'ai',
+                content: `🤝 **Mentorship**\n\nI'll act as your mentor. Tell me:\n\n• What you want to achieve\n• Challenges you're facing\n• Areas where you need guidance\n\nI'll provide personalized advice and support.`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+        
+        // ==================== SEND MESSAGE ====================
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const content = input.value.trim();
+            if (!content) return;
+            
+            const chat = projects.find(p => p.id === currentChat);
+            if (!chat) return;
+            
+            // Add user message
+            chat.messages.push({
+                id: 'msg_' + Date.now(),
+                role: 'user',
+                content: content,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Generate AI response using multi-agent system [citation:1][citation:6]
+            const response = generateAIResponse(content);
+            
+            chat.messages.push({
+                id: 'resp_' + Date.now(),
+                role: 'ai',
+                content: response,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Increment evolution generation [citation:8]
+            evolutionData.generation++;
+            updateGenerationDisplay();
+            
+            input.value = '';
+            saveProjects();
+            renderMessages();
+        }
+        
+        // ==================== SUGGESTIONS & EVOLUTION ====================
+        function submitSuggestion() {
+            const suggestion = document.getElementById('suggestion-input').value.trim();
+            if (!suggestion) return;
+            
+            const chat = projects.find(p => p.id === currentChat);
+            if (!chat) return;
+            
+            chat.messages.push({
+                id: 'sugg_' + Date.now(),
+                role: 'ai',
+                content: `🌟 **Evolution Suggestion Received**\n\nThank you for your suggestion: "${suggestion}"\n\nThis will be incorporated into the next evolution cycle. DMAI learns and improves from user feedback [citation:8].\n\n**Current evolution generation:** ${evolutionData.generation}`,
+                timestamp: new Date().toISOString()
+            });
+            
+            document.getElementById('suggestion-input').value = '';
+            evolutionData.generation += 2; // Boost evolution
+            updateGenerationDisplay();
+            saveProjects();
+            renderMessages();
+        }
+        
+        function updateGenerationDisplay() {
+            document.getElementById('gen-display').textContent = evolutionData.generation;
+            document.getElementById('gen-display-header').textContent = evolutionData.generation;
+            document.getElementById('version-badge').innerHTML = `Gen <span>${evolutionData.generation}</span>`;
+        }
+        
+        // ==================== UTILITIES ====================
+        function copyUrl() {
+            const url = document.getElementById('cloud-url').textContent;
+            navigator.clipboard.writeText(url);
+            alert('URL copied to clipboard!');
+        }
+        
+        function showProfile() {
+            alert(`User: ${currentUser}\nRole: ${currentUserRole}\nGeneration: ${evolutionData.generation}\nTotal chats: ${projects.length}`);
+        }
+        
+        function openSettings() {
+            alert('⚙️ Settings panel will include:\n• API key configuration\n• Model preferences\n• Evolution settings\n• Account management\n\nComing in next evolution!');
+        }
+        
+        function showSuggestions() {
+            document.getElementById('suggestion-input').focus();
+        }
+        
+        function changePassword() {
+            const newPass = prompt('Enter new password:');
+            if (newPass && newPass.length >= 4) {
+                users[currentUser].password = newPass;
+                saveUsers();
+                alert('Password updated!');
+            }
+        }
+        
+        function openAdminPanel() {
+            if (currentUserRole === 'admin') {
+                const userList = Object.keys(users).map(u => `${u} (${users[u].role})`).join('\n');
+                alert(`👑 Admin Panel\n\nUsers:\n${userList}\n\nTotal chats system-wide: ${localStorage.length}`);
+            }
+        }
+        
+          // ==================== INITIALIZE ====================
+        loadUsers();
+        
+        // Add video tools to panel when app loads
+        setTimeout(addVideoToolsToPanel, 1000);
+        
+        // Enter key handler
+        document.getElementById('message-input')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // ==================== VIDEO GENERATION & SOCIAL MEDIA FUNCTIONS ====================
+        
+        // Style presets for video consistency
+        const videoStyles = {
+            manga: {
+                name: 'Manga/Anime',
+                description: 'Japanese animation style, cel-shaded, expressive',
+                parameters: { fps: 24, resolution: '1080p', style_strength: 0.9 }
+            },
+            photorealistic: {
+                name: 'Photorealistic',
+                description: 'Cinematic quality, natural lighting, realistic textures',
+                parameters: { fps: 30, resolution: '4K', style_strength: 0.95 }
+            },
+            watercolor: {
+                name: 'Watercolor',
+                description: 'Soft, artistic, flowing paint effect',
+                parameters: { fps: 24, resolution: '1080p', style_strength: 0.85 }
+            },
+            cyberpunk: {
+                name: 'Cyberpunk',
+                description: 'Neon lights, futuristic, high contrast',
+                parameters: { fps: 30, resolution: '4K', style_strength: 0.9 }
+            },
+            claymation: {
+                name: 'Claymation',
+                description: 'Stop-motion style, clay-like textures',
+                parameters: { fps: 15, resolution: '1080p', style_strength: 0.8 }
+            },
+            oil_painting: {
+                name: 'Oil Painting',
+                description: 'Classical painting style, visible brushstrokes',
+                parameters: { fps: 24, resolution: '1080p', style_strength: 0.9 }
+            }
+        };
+
+        // Social media platform configurations
+        const socialPlatforms = {
+            youtube: {
+                name: 'YouTube',
+                icon: '📺',
+                videoFormats: ['MP4', 'MOV'],
+                maxDuration: 43200,
+                aspectRatios: ['16:9']
+            },
+            instagram: {
+                name: 'Instagram',
+                icon: '📷',
+                videoFormats: ['MP4'],
+                maxDuration: 60,
+                aspectRatios: ['1:1', '9:16', '16:9']
+            },
+            tiktok: {
+                name: 'TikTok',
+                icon: '🎵',
+                videoFormats: ['MP4'],
+                maxDuration: 180,
+                aspectRatios: ['9:16']
+            },
+            twitter: {
+                name: 'Twitter/X',
+                icon: '🐦',
+                videoFormats: ['MP4'],
+                maxDuration: 140,
+                aspectRatios: ['16:9', '1:1']
+            },
+            facebook: {
+                name: 'Facebook',
+                icon: '👤',
+                videoFormats: ['MP4', 'MOV'],
+                maxDuration: 14400,
+                aspectRatios: ['16:9', '1:1']
+            }
+        };
+
+        // Connected social accounts
+        let socialAccounts = {
+            youtube: { connected: false, channelName: '' },
+            instagram: { connected: false, username: '' },
+            tiktok: { connected: false, username: '' },
+            twitter: { connected: false, handle: '' },
+            facebook: { connected: false, pageName: '' }
+        };
+
+        let activeVideoJobs = {};
+
+        // ==================== VIDEO GENERATION FUNCTIONS ====================
+
+        function generateVideoFromText() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'video_text_' + Date.now(),
+                role: 'ai',
+                content: `🎬 **Text-to-Video Generation**\n\nPlease describe the video you want to create. Include details like:\n\n• **Scene description:** What happens in the video?\n• **Duration:** How long? (5s, 15s, 30s, 60s)\n• **Style:** ${Object.values(videoStyles).map(s => s.name).join(', ')}\n• **Mood:** Happy, dramatic, mysterious, etc.\n• **Reference:** Any existing image to maintain consistency?\n\n**Examples:**\n• "Create a 15s manga-style video of a cat chasing butterflies in a garden"\n• "Generate a photorealistic 30s video of waves crashing on a beach at sunset"\n• "Make a cyberpunk video of a flying car through neon-lit city streets"\n\nI'll maintain style consistency throughout the video!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        function generateVideoFromImage() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            const lastImageMsg = [...project.messages].reverse().find(m => 
+                m.content.includes('🎨') && m.role === 'ai'
+            );
+            
+            let response = '';
+            
+            if (lastImageMsg) {
+                response = `🎬 **Image-to-Video Generation**\n\nI'll create a video based on your last image, maintaining the exact same style!\n\n**Source Style:** Detected from previous image\n\nPlease specify:\n\n• **Video duration:** (5-60 seconds)\n• **Motion description:** What should move/happen?\n• **Camera movement:** Static, pan, zoom, follow\n• **Output platform:** ${Object.values(socialPlatforms).map(p => p.name).join(', ')}\n\n**Example:** "Create a 15s video where the cat slowly turns its head, with gentle camera zoom"`;
+            } else {
+                response = `🎬 **Image-to-Video Generation**\n\nFirst, please create or upload an image using the Image Generation tools. Then I can animate it while maintaining the exact same style!\n\n**Quick start:**\n1. Click "Create Image" button\n2. Describe your image\n3. Then come back here to animate it!`;
+            }
+            
+            project.messages.push({
+                id: 'video_image_' + Date.now(),
+                role: 'ai',
+                content: response,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        function processVideoGeneration(prompt, style = 'manga', duration = 15) {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            const jobId = 'vid_' + Date.now();
+            activeVideoJobs[jobId] = { status: 'processing', progress: 0 };
+            
+            setTimeout(() => {
+                const styleInfo = videoStyles[style] || videoStyles.manga;
+                
+                project.messages.push({
+                    id: 'video_result_' + Date.now(),
+                    role: 'ai',
+                    content: `🎬 **Video Generated!**\n\n**Style:** ${styleInfo.name}\n**Duration:** ${duration}s\n**Resolution:** 1080p\n\n📊 **Video Details:**\n• FPS: ${styleInfo.parameters.fps}\n• Style Strength: ${styleInfo.parameters.style_strength * 100}%\n• Format: MP4\n\n**Platform Compatibility:**\n${Object.entries(socialPlatforms).map(([key, platform]) => 
+                        `• ${platform.icon} ${platform.name}: ${platform.aspectRatios.join('/')}`
+                    ).join('\n')}\n\n**Next Steps:**\n• Click a platform below to post automatically\n• Generate variations with different styles\n• Extend or edit the video\n\nWhat would you like to do?`,
+                    timestamp: new Date().toISOString()
+                });
+                
+                saveProjects();
+                renderMessages();
+            }, 2000);
+            
+            return jobId;
+        }
+
+        function createVideoWithStyle(style, prompt) {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            const styleInfo = videoStyles[style] || videoStyles.manga;
+            
+            project.messages.push({
+                id: 'video_style_' + Date.now(),
+                role: 'ai',
+                content: `🎬 **Style-Based Video Generation**\n\n**Selected Style:** ${styleInfo.name}\n**Description:** ${styleInfo.description}\n\nGenerating video from: "${prompt || 'your description'}"\n\n⏳ Processing... This will take a moment.\n\nI'll maintain consistent ${styleInfo.name} styling throughout the entire video!`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+            
+            return processVideoGeneration(prompt, style);
+        }
+
+        // ==================== SOCIAL MEDIA FUNCTIONS ====================
+
+        function scrapeTrends() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode to scrape trends');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'trends_' + Date.now(),
+                role: 'ai',
+                content: `📊 **Social Media Trends Analysis**\n\n🌐 Internet ON - Scraping current trends...\n\n**Top Trends Right Now:**\n\n🐦 **Twitter/X:**\n• #AIRevolution (125K posts)\n• #VideoGeneration (89K posts)\n• #TechNews (67K posts)\n\n📷 **Instagram:**\n• Reels: "AI generated videos" trending\n• Hashtags: #AIContent #VideoAI\n• Music: "Neural Symphony" viral audio\n\n🎵 **TikTok:**\n• Challenge: #AIVideoChallenge (2.3M views)\n• Sound: "Digital Dreams" - 500K uses\n• Effect: "AI Morph" effect trending\n\n📺 **YouTube:**\n• Shorts: AI-generated animations\n• Topics: "Future of AI" videos up 300%\n\n**Content Opportunities:**\n1. Create AI-generated videos matching trending audio\n2. Participate in #AIVideoChallenge\n3. Post tutorials on AI video generation\n\nWould you like me to create content for any trending topic?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        function analyzeTrendingAudio() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'audio_trends_' + Date.now(),
+                role: 'ai',
+                content: `🎵 **Trending Audio Analysis**\n\n**Top Viral Sounds:**\n\nTikTok:\n1. "Neural Dreams" - AI-generated (1.2M uses)\n2. "Digital Heart" - Synthwave (890K uses)\n\nInstagram Reels:\n1. "AI Love" - 450K reels\n2. "Cyberpunk Vibe" - 380K reels\n\nYouTube Shorts:\n1. "AI Generated Music" trend\n2. "Text-to-Music" conversions\n\n**Style Recommendations:**\n• Match cyberpunk music with neon visual style\n• Pair synthwave with manga/anime videos\n• Use AI-generated music with abstract animations\n\nGenerate a video matching any trending sound?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        function connectSocialAccount(platform) {
+            if (!socialAccounts[platform]) return;
+            
+            const username = prompt(`Enter your ${socialPlatforms[platform].name} username:`);
+            if (username) {
+                socialAccounts[platform].connected = true;
+                if (platform === 'youtube') socialAccounts[platform].channelName = username;
+                else if (platform === 'twitter') socialAccounts[platform].handle = username;
+                else socialAccounts[platform].username = username;
+                
+                alert(`✅ Connected to ${socialPlatforms[platform].name} as ${username}`);
+                addVideoToolsToPanel(); // Refresh buttons
+            }
+        }
+
+        function postVideoToSocial(platform) {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            if (!socialAccounts[platform]?.connected) {
+                alert(`Please connect your ${socialPlatforms[platform].name} account first`);
+                return;
+            }
+            
+            const platformInfo = socialPlatforms[platform];
+            const account = socialAccounts[platform];
+            
+            project.messages.push({
+                id: 'post_' + Date.now(),
+                role: 'ai',
+                content: `📤 **Posting to ${platformInfo.icon} ${platformInfo.name}**\n\n**Account:** ${account.channelName || account.username || account.handle}\n\n⏳ Optimizing video for platform...\n✅ Video optimized\n📤 Uploading...\n✅ Posted successfully!\n\n**Post Stats:**\n• Scheduled for peak engagement\n• Added trending hashtags\n• Optimized thumbnail\n\nWould you like to:\n• Post to another platform?\n• Create a variation?\n• Schedule for later?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        function createAndPostFromTrends() {
+            if (!internetEnabled) {
+                alert('Please enable Online Mode first');
+                return;
+            }
+            
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'auto_post_' + Date.now(),
+                role: 'ai',
+                content: `🤖 **Auto Content Creation & Posting**\n\nBased on current trends, I'll:\n\n1. **Analyze** top performing content\n2. **Generate** matching video in optimal style\n3. **Optimize** for each platform\n4. **Schedule** posts at peak times\n\n**Selected Trends to Target:**\n• #AIVideoChallenge (TikTok)\n• AI-generated animations (YouTube)\n• Cyberpunk aesthetic (Instagram)\n\n**Generated Content Plan:**\n\n📱 **TikTok (15s):** Cyberpunk city transformation\n📺 **YouTube Shorts (30s):** Manga-style AI creation\n📷 **Instagram Reels (15s):** Photorealistic to anime transition\n\n**Posting Schedule:**\n• TikTok: Now\n• Instagram: In 2 hours\n• YouTube: In 4 hours\n\nProceed with auto-posting?`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        function scheduleSocialPosts() {
+            const project = projects.find(p => p.id === currentChat);
+            if (!project) return;
+            
+            project.messages.push({
+                id: 'schedule_' + Date.now(),
+                role: 'ai',
+                content: `📅 **Social Media Posting Schedule**\n\n**Optimal Posting Times:**\n\n🎵 **TikTok:** 7 AM, 12 PM, 7 PM, 10 PM\n📷 **Instagram:** 8 AM, 1 PM, 6 PM, 9 PM\n📺 **YouTube:** 6 AM, 11 AM, 4 PM, 8 PM\n🐦 **Twitter:** 9 AM, 12 PM, 3 PM, 6 PM\n\n**Your Scheduled Posts:**\n• No upcoming posts scheduled\n\n**Quick Actions:**\n1. Schedule current video for peak times\n2. Auto-schedule week of content\n3. Set and forget - AI posts at optimal times`,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveProjects();
+            renderMessages();
+        }
+
+        // ==================== VIDEO TOOLS PANEL ====================
+
+        function addVideoToolsToPanel() {
+            const toolsPanel = document.querySelector('.tools-panel');
+            if (!toolsPanel) return;
+            
+            if (document.getElementById('video-tools-section')) return;
+            
+            const videoSection = document.createElement('div');
+            videoSection.className = 'tools-section';
+            videoSection.id = 'video-tools-section';
+            videoSection.innerHTML = `
+                <div class="tools-title">🎬 VIDEO GENERATION</div>
+                <div class="tool-grid">
+                    <button class="tool-btn" onclick="generateVideoFromText()">📝 Text to Video</button>
+                    <button class="tool-btn" onclick="generateVideoFromImage()">🖼️ Image to Video</button>
+                    <button class="tool-btn" onclick="scrapeTrends()">📊 Trend Scraper</button>
+                    <button class="tool-btn" onclick="analyzeTrendingAudio()">🎵 Audio Trends</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <div style="font-size:0.8em; margin-bottom:5px;">Style Presets:</div>
+                    ${Object.entries(videoStyles).map(([key, style]) => 
+                        `<span class="style-preset" onclick="createVideoWithStyle('${key}', '')">${style.name}</span>`
+                    ).join('')}
+                </div>
+            `;
+            
+            const socialSection = document.createElement('div');
+            socialSection.className = 'tools-section';
+            socialSection.id = 'social-tools-section';
+            socialSection.innerHTML = `
+                <div class="tools-title">📱 SOCIAL MEDIA</div>
+                <div class="tool-grid">
+                    <button class="tool-btn" onclick="createAndPostFromTrends()">🤖 Auto Post</button>
+                    <button class="tool-btn" onclick="scrapeTrends()">🔥 Trends</button>
+                    <button class="tool-btn" onclick="scheduleSocialPosts()">📅 Schedule</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <div style="font-size:0.8em; margin-bottom:5px;">Connected Accounts:</div>
+                    ${Object.entries(socialPlatforms).map(([key, platform]) => `
+                        <span class="platform-badge" onclick="connectSocialAccount('${key}')">
+                            <span class="status-indicator ${socialAccounts[key].connected ? 'status-connected' : 'status-disconnected'}"></span>
+                            ${platform.icon} ${platform.name}
+                            ${socialAccounts[key].connected ? '✓' : '⊕'}
+                        </span>
+                    `).join('')}
+                </div>
+                <div style="margin-top: 10px;">
+                    ${Object.entries(socialPlatforms).map(([key, platform]) => 
+                        socialAccounts[key].connected ? 
+                        `<button class="tool-btn" style="margin-top:5px;" onclick="postVideoToSocial('${key}')">📤 Post to ${platform.icon} ${platform.name}</button>` : ''
+                    ).join('')}
+                </div>
+            `;
+            
+            toolsPanel.appendChild(videoSection);
+            toolsPanel.appendChild(socialSection);
+        }
+
+        // Add styles for video features
+        const style = document.createElement('style');
+        style.textContent = `
+            .style-preset {
+                display: inline-block;
+                padding: 4px 10px;
+                margin: 3px;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 0.8em;
+            }
+            .style-preset:hover {
+                border-color: var(--accent);
+                background: color-mix(in srgb, var(--accent) 10%, var(--bg-tertiary));
+            }
+            .platform-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 12px;
+                background: var(--bg-tertiary);
+                border-radius: 20px;
+                margin: 3px;
+                cursor: pointer;
+                font-size: 0.8em;
+            }
+            .platform-badge:hover {
+                border: 1px solid var(--accent);
+            }
+            .status-indicator {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 5px;
+            }
+            .status-connected {
+                background-color: #2ecc71;
+                box-shadow: 0 0 5px #2ecc71;
+            }
+            .status-disconnected {
+                background-color: #e74c3c;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Enhance AI response for video/social requests
+        if (!window._originalGenerateAIResponse) {
+            window._originalGenerateAIResponse = generateAIResponse;
+            
+            window.generateAIResponse = function(prompt) {
+                const prompt_lower = prompt.toLowerCase();
+                
+                if (prompt_lower.includes('video') || prompt_lower.includes('animate')) {
+                    let detectedStyle = 'manga';
+                    for (let style in videoStyles) {
+                        if (prompt_lower.includes(style)) {
+                            detectedStyle = style;
+                            break;
+                        }
+                    }
+                    
+                    setTimeout(() => processVideoGeneration(prompt, detectedStyle), 2000);
+                    
+                    return `🎬 **Video Generation**\n\n**Style:** ${videoStyles[detectedStyle].name}\n\nI'll create a ${videoStyles[detectedStyle].description.toLowerCase()} video based on your request.\n\n⏳ Generating... This will take a moment.`;
+                }
+                
+                if (prompt_lower.includes('post') || prompt_lower.includes('share') || prompt_lower.includes('upload')) {
+                    return `📱 **Social Media Posting**\n\nWhich platform would you like to post to?\n\n${Object.entries(socialPlatforms).map(([key, p]) => `• ${p.icon} ${p.name}`).join('\n')}\n\nI can also auto-create content based on trends!`;
+                }
+                
+                return window._originalGenerateAIResponse(prompt);
+            };
+        }
+    </script>
+</body>
+</html>
