@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>DMAI - EVOLUTIONARY AI PLATFORM</title>
     <style>
         * {
@@ -58,6 +58,70 @@
             overflow: hidden;
         }
         
+        /* Mobile Responsive Fix */
+        @media (max-width: 768px) {
+            #app {
+                grid-template-columns: 1fr !important;
+                grid-template-rows: 60px 1fr 80px !important;
+                overflow-y: auto;
+            }
+            
+            .chat-list-panel, .tools-panel {
+                display: none;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                height: calc(100% - 140px);
+                z-index: 1000;
+                background: var(--bg-secondary);
+                overflow-y: auto;
+            }
+            
+            .chat-list-panel.active, .tools-panel.active {
+                display: block;
+            }
+            
+            .messages-container {
+                height: calc(100vh - 140px);
+                overflow-y: auto;
+                padding-bottom: 20px;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+            
+            .mobile-menu-bar {
+                display: flex !important;
+                position: fixed;
+                bottom: 80px;
+                left: 0;
+                width: 100%;
+                background: var(--bg-secondary);
+                border-top: 1px solid var(--border);
+                padding: 10px;
+                z-index: 100;
+            }
+            
+            .mobile-menu-btn {
+                flex: 1;
+                padding: 12px;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border);
+                color: var(--text-primary);
+                border-radius: 8px;
+                margin: 0 5px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+            
+            .mobile-menu-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+        }
+        
         #login-screen {
             position: fixed;
             top: 0;
@@ -78,6 +142,7 @@
             border: 1px solid var(--border);
             box-shadow: 0 10px 30px var(--shadow);
             width: 400px;
+            max-width: 90%;
         }
         
         .login-container h1 {
@@ -381,6 +446,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .chat-header h2 {
@@ -673,33 +740,9 @@
             font-size: 1.2em;
         }
         
-        .evolution-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8em;
-            box-shadow: 0 2px 10px var(--shadow);
-            z-index: 100;
-        }
-        
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--accent);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* Mobile Menu Bar - Hidden by default on desktop */
+        .mobile-menu-bar {
+            display: none;
         }
         
         @keyframes fadeInOut {
@@ -819,23 +862,35 @@
             <!-- Input Area -->
             <div class="input-area">
                 <div class="input-container">
-                    <textarea id="message-input" placeholder="Ask me anything... Your conversations guide evolution. Type 'cat' to see image generation!"></textarea>
+                    <textarea id="message-input" placeholder="Ask me anything... Your conversations guide evolution."></textarea>
                     <button class="send-btn" onclick="sendMessage()">➤</button>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Evolution Indicator -->
-    <div class="evolution-indicator">
-        <div class="spinner"></div>
-        <span>Cloud Evolution • Gen <span id="gen-display-header">?</span> • <span id="next-cycle">Next in 60m</span></span>
+    <!-- Mobile Menu Bar -->
+    <div class="mobile-menu-bar">
+        <button class="mobile-menu-btn" onclick="toggleMobilePanel('chats')">📁 Chats</button>
+        <button class="mobile-menu-btn" onclick="toggleMobilePanel('tools')">🛠️ Tools</button>
     </div>
 
     <script>
+        // Mobile panel toggle
+        function toggleMobilePanel(panel) {
+            const chatPanel = document.querySelector('.chat-list-panel');
+            const toolsPanel = document.querySelector('.tools-panel');
+            
+            if (panel === 'chats') {
+                chatPanel.classList.toggle('active');
+                toolsPanel.classList.remove('active');
+            } else {
+                toolsPanel.classList.toggle('active');
+                chatPanel.classList.remove('active');
+            }
+        }
+
         // ==================== REAL EVOLUTION DATA FETCHING ====================
-        // This connects to the cloud evolution engine - NOT a local counter
-        
         let evolutionData = {
             generation: 1,
             bestScore: 0,
@@ -843,7 +898,6 @@
             status: 'running'
         };
         
-        // Fetch real evolution stats from the API
         async function fetchEvolutionStats() {
             try {
                 const response = await fetch('/api/evolution-stats');
@@ -853,18 +907,15 @@
                     evolutionData.bestScore = data.bestScore || evolutionData.bestScore;
                     evolutionData.status = data.status || 'running';
                     
-                    // Update all displays
                     updateGenerationDisplay();
                     
-                    // Update status dot
                     const dot = document.getElementById('evolution-status-dot');
                     if (dot) {
                         dot.style.backgroundColor = evolutionData.status === 'running' ? 'var(--success)' : 'var(--warning)';
                     }
                 }
             } catch (error) {
-                console.log('Evolution API not available - using local display');
-                // Fallback to local counter for development
+                console.log('Evolution API not available');
                 if (!evolutionData.generation || evolutionData.generation === 1) {
                     evolutionData.generation = 266;
                     updateGenerationDisplay();
@@ -872,7 +923,6 @@
             }
         }
         
-        // Submit human guidance to evolution engine
         async function submitGuidanceToEngine(guidance) {
             try {
                 const response = await fetch('/api/submit-guidance', {
@@ -888,18 +938,12 @@
             }
         }
         
-        // Update all generation displays
         function updateGenerationDisplay() {
-            const displays = [
-                'gen-display',
-                'gen-display-header'
-            ];
-            
+            const displays = ['gen-display'];
             displays.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     let displayGen = evolutionData.generation;
-                    // Format large numbers (1.2k, 15k, etc.)
                     if (displayGen >= 10000) {
                         displayGen = (displayGen/1000).toFixed(1) + 'k';
                     } else if (displayGen >= 1000) {
@@ -909,7 +953,6 @@
                 }
             });
             
-            // Update cycle ticker
             const ticker = document.getElementById('cycle-ticker');
             if (ticker) {
                 const nextIn = Math.floor(evolutionData.nextCycleIn / 60);
@@ -917,7 +960,6 @@
             }
         }
         
-        // Fetch stats every 30 seconds
         setInterval(fetchEvolutionStats, 30000);
         
         // ==================== USER DATABASE ====================
@@ -962,7 +1004,7 @@
             const notification = document.createElement('div');
             notification.textContent = message;
             notification.style.position = 'fixed';
-            notification.style.bottom = '80px';
+            notification.style.bottom = '20px';
             notification.style.right = '20px';
             notification.style.background = 'var(--accent)';
             notification.style.color = 'white';
@@ -1007,6 +1049,34 @@
             }
         }
         
+        // Auto-login if previously logged in
+        function checkAutoLogin() {
+            const loggedIn = localStorage.getItem('dmai_logged_in');
+            if (loggedIn === 'true') {
+                const savedUser = localStorage.getItem('dmai_username');
+                const savedRole = localStorage.getItem('dmai_role');
+                if (savedUser && users[savedUser]) {
+                    currentUser = savedUser;
+                    currentUserRole = savedRole || users[savedUser].role;
+                    
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    document.getElementById('current-user').textContent = savedUser;
+                    document.getElementById('user-avatar').textContent = savedUser.substring(0,2).toUpperCase();
+                    
+                    if (currentUserRole === 'admin') {
+                        document.getElementById('admin-menu').style.display = 'block';
+                    }
+                    
+                    loadData();
+                    initializeToolsPanel();
+                    fetchEvolutionStats();
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         function login() {
             const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value;
@@ -1014,6 +1084,11 @@
             if (users[username] && users[username].password === password) {
                 currentUser = username;
                 currentUserRole = users[username].role;
+                
+                // Save login state
+                localStorage.setItem('dmai_logged_in', 'true');
+                localStorage.setItem('dmai_username', username);
+                localStorage.setItem('dmai_role', currentUserRole);
                 
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
@@ -1026,7 +1101,7 @@
                 
                 loadData();
                 initializeToolsPanel();
-                fetchEvolutionStats(); // Initial fetch
+                fetchEvolutionStats();
             } else {
                 document.getElementById('login-error').textContent = 'Invalid credentials';
             }
@@ -1056,6 +1131,11 @@
             currentUser = username;
             currentUserRole = 'user';
             
+            // Save login state
+            localStorage.setItem('dmai_logged_in', 'true');
+            localStorage.setItem('dmai_username', username);
+            localStorage.setItem('dmai_role', currentUserRole);
+            
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             document.getElementById('current-user').textContent = username;
@@ -1067,6 +1147,9 @@
         }
         
         function logout() {
+            localStorage.removeItem('dmai_logged_in');
+            localStorage.removeItem('dmai_username');
+            localStorage.removeItem('dmai_role');
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('main-app').style.display = 'none';
         }
@@ -1185,6 +1268,38 @@
         function toggleInternet() {
             internetEnabled = !internetEnabled;
             showNotification(`Internet ${internetEnabled ? 'ON' : 'OFF'}`);
+            initializeToolsPanel();
+        }
+        
+        // ==================== ADMIN KILL SWITCH ====================
+        function emergencyPause() {
+            if (currentUserRole !== 'admin') {
+                alert('Admin only');
+                return;
+            }
+            if (confirm('⚠️ PAUSE evolution? This can be resumed later.')) {
+                fetch('/api/pause-evolution', { method: 'POST' })
+                    .then(() => showNotification('⏸️ Evolution paused'))
+                    .catch(() => showNotification('⚠️ API not available'));
+            }
+        }
+        
+        function emergencyKill() {
+            if (currentUserRole !== 'admin') {
+                alert('Admin only');
+                return;
+            }
+            if (confirm('🚨⚠️🚨 THIS WILL STOP ALL EVOLUTION PERMANENTLY! Type "KILL" to confirm:')) {
+                const confirmText = prompt('Type "KILL" to confirm:');
+                if (confirmText === 'KILL') {
+                    fetch('/api/kill-system', { method: 'POST' })
+                        .then(() => {
+                            showNotification('⛔ System killed - restart required');
+                            setTimeout(logout, 3000);
+                        })
+                        .catch(() => showNotification('⚠️ API not available'));
+                }
+            }
         }
         
         // ==================== CHAT MANAGEMENT ====================
@@ -1203,7 +1318,7 @@
                     messages: [{
                         id: 'welcome_' + Date.now(),
                         role: 'ai',
-                        content: '👋 Welcome to DMAI! I\'m connected to a 24/7 evolution engine. Every hour, my code improves automatically. Try typing "cat" or use the tools!',
+                        content: '👋 Welcome to DMAI! I\'m connected to a 24/7 evolution engine. Every hour, my code improves automatically.',
                         timestamp: new Date().toISOString()
                     }],
                     archived: false,
@@ -1665,7 +1780,6 @@ ${chat.pinned ? '📌 Pinned' : ''}`);
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
             
-            // Add event listeners
             setTimeout(() => {
                 document.querySelectorAll('.archive-modal-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -1852,6 +1966,17 @@ ${chat.pinned ? '📌 Pinned' : ''}`);
                         <button class="tool-btn" onclick="careerAdvice()">💼 Career</button>
                     </div>
                 </div>
+                
+                <!-- ADMIN KILL SWITCH SECTION -->
+                ${currentUserRole === 'admin' ? `
+                <div class="tools-section" style="border-color: var(--danger);">
+                    <div class="tools-title" style="color: var(--danger);">🚨 EMERGENCY CONTROLS</div>
+                    <div class="action-buttons">
+                        <button class="action-btn danger" onclick="emergencyPause()" style="border-color: var(--danger);">⏸️ PAUSE EVOLUTION (Admin only)</button>
+                        <button class="action-btn danger" onclick="emergencyKill()" style="border-color: var(--danger);">⛔ KILL SYSTEM (Admin only)</button>
+                    </div>
+                </div>
+                ` : ''}
                 
                 <div class="tools-section">
                     <div class="tools-title">💡 SUGGEST</div>
@@ -2051,7 +2176,6 @@ ${chat.pinned ? '📌 Pinned' : ''}`);
             if (content.toLowerCase().includes('evolve') || 
                 content.toLowerCase().includes('improve') ||
                 content.toLowerCase().includes('make better')) {
-                // Submit to evolution engine
                 submitGuidanceToEngine(content);
             }
             
@@ -2092,7 +2216,6 @@ ${chat.pinned ? '📌 Pinned' : ''}`);
             const chat = projects.find(p => p.id === currentChat);
             if (!chat) return;
             
-            // Submit to evolution engine
             submitGuidanceToEngine(suggestion);
             
             chat.messages.push({
@@ -2116,6 +2239,12 @@ ${chat.pinned ? '📌 Pinned' : ''}`);
         
         // Initialize
         loadUsers();
+        
+        // Check auto-login
+        if (!checkAutoLogin()) {
+            // Show login screen if not auto-logged in
+            document.getElementById('login-screen').style.display = 'flex';
+        }
         
         document.getElementById('message-input')?.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
