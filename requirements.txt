@@ -3,3 +3,10 @@ requests
 numpy
 pillow
 gunicorn
+networkx>=2.6
+numpy>=1.21
+asyncio>=3.4
+psutil>=5.8.0
+
+# Required for Knowledge Graph
+networkx>=2.6
