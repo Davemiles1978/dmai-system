@@ -1,11 +1,149 @@
-# Large files
-*.zip
-*.tar.gz
-*.jar
-*.log
-*.pyc
+# Python
 __pycache__/
-venv/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Evolution data - now tracked (except large files)
+# shared_checkpoints/ is tracked, but exclude large binaries
+shared_checkpoints/large_files/
+shared_checkpoints/*.model
+shared_checkpoints/*.weights
+shared_checkpoints/*.h5
+shared_checkpoints/*.pth
+shared_checkpoints/*.pt
+shared_checkpoints/*.bin
+shared_checkpoints/temp/
+
+# User data - tracked, but exclude temporary files
+shared_data/backups/
+shared_data/checkpoints/
+shared_data/*.tmp
+shared_data/**/*.tmp
+# But track the actual user data
+!shared_data/users/
+!shared_data/users/*.json
+
+# Environment
 .env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-# Evolution data - tracked
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+instance/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Render specific
+render.yaml
+Dockerfile.render
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Keep these important files
+!shared_checkpoints/current_generation.txt
+!shared_checkpoints/best_scores.json
+!shared_checkpoints/*_summary.json
+!shared_data/users/*.json
