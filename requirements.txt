@@ -10,3 +10,6 @@ psutil>=5.8.0
 
 # Required for Knowledge Graph
 networkx>=2.6
+
+# Self-assessment requirements
+psutil>=5.8.0
