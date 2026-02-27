@@ -128,6 +128,8 @@ class AGIOrchestrator:
                 # Process evolution queue
                 while not self.evolution_queue.empty():
                     evolution_task = await self.evolution_queue.get()
+                    result = await self._process_evolution_task(evolution_task)
+                    self.evolution_queue.task_done()
                     await self._process_evolution_task(evolution_task)
                     
                 await asyncio.sleep(60)  # Check every minute

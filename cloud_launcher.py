@@ -136,3 +136,44 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"💥 Fatal error: {e}")
         sys.exit(1)
+
+    async def seed_if_needed(self):
+        """Seed knowledge graph if empty"""
+        try:
+            from knowledge_graph import KnowledgeGraph
+            kg = KnowledgeGraph()
+            if len(kg.graph.nodes) <= 1:  # Only root node
+                logger.info("🌱 Seeding knowledge graph with initial concepts...")
+                kg.add_concept("evolution", "core_process", {"description": "System evolution"})
+                kg.add_concept("mutation", "core_operation", {"description": "Code mutation"})
+                kg.add_concept("selection", "core_operation", {"description": "Fitness selection"})
+                kg.add_concept("capability", "core_concept", {"description": "System capability"})
+                kg.add_relationship("evolution", "mutation", "uses")
+                kg.add_relationship("evolution", "selection", "uses")
+                kg.add_relationship("mutation", "capability", "creates")
+                kg.save()
+                logger.info("✅ Knowledge graph seeded")
+        except Exception as e:
+            logger.error(f"Failed to seed knowledge graph: {e}")
+
+    async def initialize(self):
+        """Initialize the AGI launcher"""
+        logger.info("🚀 Initializing AGI Launcher...")
+        
+        # Seed knowledge graph if needed
+        await self.seed_if_needed()
+        
+        # Import here to catch import errors
+        from launch_agi import AGILauncher
+        
+        self.launcher = AGILauncher()
+        
+        # Override paths for persistent storage
+        if hasattr(self.launcher, 'orchestrator') and self.launcher.orchestrator:
+            self.launcher.orchestrator.base_path = self.data_path / 'shared_data' / 'agi_evolution'
+            self.launcher.orchestrator.checkpoint_path = self.data_path / 'shared_checkpoints'
+            logger.info(f"📁 Data path: {self.launcher.orchestrator.base_path}")
+            logger.info(f"📁 Checkpoint path: {self.launcher.orchestrator.checkpoint_path}")
+        
+        await self.launcher.initialize()
+        logger.info("✅ AGI Launcher initialized")
