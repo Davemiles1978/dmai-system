@@ -2,6 +2,7 @@
 """
 24/7/365 EVOLUTION ENGINE - Runs continuously in the cloud
 This is the REAL evolution system, not a UI counter
+Now with Git sync for cross-device persistence
 """
 
 import os
@@ -9,6 +10,7 @@ import json
 import time
 import random
 import shutil
+import subprocess
 from pathlib import Path
 from datetime import datetime
 import logging
@@ -25,20 +27,83 @@ logging.basicConfig(
 
 class EvolutionEngine:
     def __init__(self):
+        # Use git-tracked directory for checkpoints to sync across devices
         self.repos_path = Path("repos")
-        self.checkpoints_path = Path("checkpoints")
+        self.checkpoints_path = Path("shared_checkpoints")  # Changed from 'checkpoints'
         self.checkpoints_path.mkdir(exist_ok=True)
+        
+        # Ensure .gitignore allows this directory
+        self.setup_git_tracking()
         
         # Evolution state
         self.current_generation = self.load_generation()
         self.best_scores = self.load_best_scores()
         self.is_evolving = True
         self.cycle_interval = 3600  # 1 hour in seconds
+        self.last_git_sync = time.time()
+        self.git_sync_interval = 300  # Sync every 5 minutes
         
         logging.info(f"🚀 Evolution Engine Started - Generation {self.current_generation}")
     
+    def setup_git_tracking(self):
+        """Ensure shared_checkpoints is tracked by git (except large files)"""
+        gitignore_path = Path(".gitignore")
+        if gitignore_path.exists():
+            with open(gitignore_path, 'r') as f:
+                content = f.read()
+            
+            # Remove checkpoints/ from gitignore if present
+            if 'checkpoints/' in content:
+                content = content.replace('checkpoints/', '# checkpoints/ - now using shared_checkpoints')
+                with open(gitignore_path, 'w') as f:
+                    f.write(content)
+                logging.info("📝 Updated .gitignore to track evolution data")
+        
+        # Create .gitignore for shared_checkpoints to exclude large files only
+        checkpoint_gitignore = self.checkpoints_path / '.gitignore'
+        if not checkpoint_gitignore.exists():
+            with open(checkpoint_gitignore, 'w') as f:
+                f.write("""# Ignore large model files but track evolution progress
+*.pyc
+__pycache__/
+*.model
+*.weights
+*.h5
+*.pth
+large_files/
+temp/
+""")
+            logging.info("📝 Created gitignore for shared_checkpoints")
+    
+    def git_sync(self):
+        """Sync evolution data with GitHub"""
+        try:
+            # Check if we're in a git repo
+            result = subprocess.run(['git', 'status'], capture_output=True, text=True)
+            if result.returncode != 0:
+                return  # Not a git repo
+            
+            # Pull latest changes first
+            subprocess.run(['git', 'pull', 'origin', 'main'], capture_output=True)
+            
+            # Add shared_checkpoints changes
+            subprocess.run(['git', 'add', 'shared_checkpoints/'], capture_output=True)
+            
+            # Commit if there are changes
+            result = subprocess.run(['git', 'diff', '--staged', '--quiet'], capture_output=True)
+            if result.returncode != 0:  # There are changes
+                commit_msg = f"🤖 Evolution sync: Generation {self.current_generation}"
+                subprocess.run(['git', 'commit', '-m', commit_msg], capture_output=True)
+                subprocess.run(['git', 'push', 'origin', 'main'], capture_output=True)
+                logging.info(f"🔄 Synced generation {self.current_generation} to GitHub")
+            
+            self.last_git_sync = time.time()
+            
+        except Exception as e:
+            logging.error(f"Git sync failed: {e}")
+    
     def load_generation(self):
-        """Load the current generation number from disk"""
+        """Load the current generation number from disk (with git sync)"""
         gen_file = self.checkpoints_path / "current_generation.txt"
         if gen_file.exists():
             with open(gen_file, 'r') as f:
@@ -205,7 +270,7 @@ class EvolutionEngine:
                 'timestamp': datetime.now().isoformat()
             }
             
-            # Save best version separately
+            # Save best version separately in git-tracked location
             best_dir = self.checkpoints_path / 'best_versions' / repo_name
             best_dir.mkdir(parents=True, exist_ok=True)
             shutil.copy(filepath, best_dir / filepath.name)
@@ -306,19 +371,31 @@ class EvolutionEngine:
         logging.info(f"💾 Checkpoint saved: generation_{self.current_generation}")
     
     def run_forever(self):
-        """Run evolution cycles forever (24/7/365)"""
+        """Run evolution cycles forever (24/7/365) with Git sync"""
         logging.info("🌟 Starting 24/7/365 Evolution Engine")
         logging.info(f"⏰ Cycle interval: {self.cycle_interval} seconds")
+        logging.info(f"🔄 Git sync interval: {self.git_sync_interval} seconds")
         
         while self.is_evolving:
             try:
                 self.evolution_cycle()
+                
+                # Sync with Git after each cycle
+                self.git_sync()
+                
                 logging.info(f"⏰ Waiting {self.cycle_interval} seconds until next cycle...")
                 time.sleep(self.cycle_interval)
+                
+                # Also sync periodically during the wait
+                while time.time() - self.last_git_sync < self.cycle_interval:
+                    time.sleep(60)  # Check every minute
+                    if time.time() - self.last_git_sync > self.git_sync_interval:
+                        self.git_sync()
                 
             except KeyboardInterrupt:
                 logging.info("🛑 Evolution stopped by user")
                 self.save_checkpoint()
+                self.git_sync()  # Final sync
                 break
             except Exception as e:
                 logging.error(f"❌ Error in evolution cycle: {e}")

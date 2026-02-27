@@ -1,0 +1,146 @@
+{
+  "hooks": {
+    "score": 1.1418832233537628,
+    "file": "repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:33.985240"
+  },
+  "core": {
+    "score": 1.1196165877665394,
+    "file": "repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:33.982379"
+  },
+  "chatgpt": {
+    "score": 1.2450238540592509,
+    "file": "repos/reverse_engineered/chatgpt/chatgpt_base.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:33.987030"
+  },
+  "inference": {
+    "score": 1.264551587957205,
+    "file": "repos/deepseek-v3/DeepSeek-V3-main/inference/convert.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.971612"
+  },
+  "grok-1-main": {
+    "score": 1.0685787655543542,
+    "file": "repos/grok-1/grok-1-main/runners.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.974551"
+  },
+  "tests": {
+    "score": 1.2042029521466058,
+    "file": "repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/test_graph_builder.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:33.994868"
+  },
+  "src": {
+    "score": 1.1663045082084307,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/main.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.987775"
+  },
+  "config": {
+    "score": 1.0672197314423657,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/task_runner_config.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.989337"
+  },
+  "message_types": {
+    "score": 1.1329656305612985,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/runner.py",
+    "generation": 2,
+    "timestamp": "2026-02-25T13:14:34.667763"
+  },
+  "errors": {
+    "score": 1.1740964054024299,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:34.068994"
+  },
+  "unit": {
+    "score": 1.1733001640468723,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_executor.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:34.078537"
+  },
+  "integration": {
+    "score": 1.1350770235055574,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_health_check.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.999119"
+  },
+  "fixtures": {
+    "score": 1.1864787286590315,
+    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/local_task_broker.py",
+    "generation": 2,
+    "timestamp": "2026-02-25T13:14:34.678175"
+  },
+  "finetune": {
+    "score": 1.0514698873355384,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:34.083375"
+  },
+  "HumanEval": {
+    "score": 1.1195810424561303,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/eval_instruct.py",
+    "generation": 2,
+    "timestamp": "2026-02-25T13:14:34.680916"
+  },
+  "PAL-Math": {
+    "score": 1.089495231348556,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/run.py",
+    "generation": 2,
+    "timestamp": "2026-02-25T13:14:34.683594"
+  },
+  "MBPP": {
+    "score": 1.1579198543423277,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/mbpp.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:34.088112"
+  },
+  "human_eval": {
+    "score": 1.145753063909063,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/evaluation.py",
+    "generation": 1,
+    "timestamp": "2026-02-25T12:14:34.101710"
+  },
+  "utils": {
+    "score": 1.144550024081107,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/utils.py",
+    "generation": 2,
+    "timestamp": "2026-02-25T13:14:34.689132"
+  },
+  "reverse_engineered": {
+    "score": 1.1474189144223759,
+    "file": "repos/reverse_engineered/meta_evolver.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.967647"
+  },
+  "demo": {
+    "score": 1.119409542693926,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/demo/app.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:35.001943"
+  },
+  "LeetCode": {
+    "score": 1.094036578878238,
+    "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py",
+    "generation": 2,
+    "timestamp": "2026-02-25T13:14:34.681784"
+  },
+  "matchers": {
+    "score": 1.0904454049560302,
+    "file": "repos/claude-code/claude-code-main/plugins/hookify/matchers/__init__.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:34.964856"
+  },
+  "kent": {
+    "score": 1.051633609676108,
+    "file": "repos/n8n/n8n-master/packages/testing/containers/dockerfiles/kent/kent_cors.py",
+    "generation": 3,
+    "timestamp": "2026-02-25T14:14:35.001240"
+  }
+}
