@@ -1,0 +1,63 @@
+/* Desktop styles - screens larger than 768px */
+@media screen and (min-width: 769px) {
+    /* Move the button container to a better position */
+    .action-buttons,
+    div:has(> .chats-btn),
+    div:has(> .tools-btn) {
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        z-index: 1000 !important;
+        display: flex !important;
+        gap: 10px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    
+    /* Style the individual buttons */
+    .chats-btn, .tools-btn,
+    button:contains("Chats"),
+    button:contains("Tools") {
+        padding: 8px 16px !important;
+        border-radius: 20px !important;
+        font-size: 14px !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: transform 0.2s !important;
+    }
+    
+    .chats-btn:hover, .tools-btn:hover,
+    button:contains("Chats"):hover,
+    button:contains("Tools"):hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+}
+
+/* Mobile styles - keep as is */
+@media screen and (max-width: 768px) {
+    .action-buttons,
+    div:has(> .chats-btn),
+    div:has(> .tools-btn) {
+        position: sticky !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-around !important;
+        background: white !important;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1) !important;
+        z-index: 999 !important;
+    }
+    
+    .chats-btn, .tools-btn,
+    button:contains("Chats"),
+    button:contains("Tools") {
+        flex: 1 !important;
+        margin: 8px !important;
+        padding: 12px !important;
+        border-radius: 25px !important;
+        font-size: 16px !important;
+    }
+}
