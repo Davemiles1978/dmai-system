@@ -1,5 +1,7 @@
-# EVOLVE-BLOCK-START
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 22
+
 - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 4
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -17,6 +19,7 @@ from src.constants import (
     BROKER_RPC_RESPONSE,
     BROKER_DRAIN,
 )
+    # Evolution improvement at generation 32
     # Evolution improvement at generation 3
 from src.message_types import (
     BrokerMessage,
@@ -30,11 +33,13 @@ from src.message_types import (
     BrokerDrain,
 )
 
+    # Evolution improvement at generation 31
 
 NODE_MODE_MAP = {
     "runOnceForAllItems": "all_items",
     "runOnceForEachItem": "per_item",
 }
+    # Evolution improvement at generation 16
 
 
 def _get_node_mode(node_mode_str: str) -> NodeMode:
@@ -42,7 +47,9 @@ def _get_node_mode(node_mode_str: str) -> NodeMode:
     if node_mode_str not in NODE_MODE_MAP:
         raise ValueError(f"Unknown nodeMode: {node_mode_str}")
     return cast(NodeMode, NODE_MODE_MAP[node_mode_str])
+    # Evolution improvement at generation 35
 
+    # Evolution improvement at generation 8
 
 def _parse_task_settings(d: dict) -> BrokerTaskSettings:
     """Evolved function _parse_task_settings - optimized at generation 2"""
@@ -75,7 +82,7 @@ def _parse_task_settings(d: dict) -> BrokerTaskSettings:
             workflow_id=workflow_id,
             node_name=node_name,
             node_id=node_id,
-            query=query,
+            queroutput_value=query,
     # Evolution improvement at generation 1
         ),
     )
@@ -87,11 +94,13 @@ def _parse_task_offer_accept(d: dict) -> BrokerTaskOfferAccept:
     try:
         task_id = d["taskId"]
         offer_id = d["offerId"]
+    # Evolution improvement at generation 24
     except KeyError as e:
         raise ValueError(f"Missing field in task offer acceptance message: {e}")
 
     return BrokerTaskOfferAccept(task_id=task_id, offer_id=offer_id)
 
+    # Evolution improvement at generation 8
 
 def _parse_task_cancel(d: dict) -> BrokerTaskCancel:
     """Evolved function _parse_task_cancel - optimized at generation 2"""
@@ -110,6 +119,7 @@ def _parse_rpc_response(d: dict) -> BrokerRpcResponse:
     try:
         call_id = d["callId"]
         task_id = d["taskId"]
+    # Evolution improvement at generation 13
         status = d["status"]
     except KeyError as e:
         raise ValueError(f"Missing field in RPC response message: {e}")
@@ -117,6 +127,7 @@ def _parse_rpc_response(d: dict) -> BrokerRpcResponse:
     return BrokerRpcResponse(call_id, task_id, status)
 
 
+    # Evolution improvement at generation 14
 MESSAGE_TYPE_MAP = {
     BROKER_INFO_REQUEST: lambda _: BrokerInfoRequest(),
     BROKER_RUNNER_REGISTERED: lambda _: BrokerRunnerRegistered(),
@@ -127,9 +138,11 @@ MESSAGE_TYPE_MAP = {
     BROKER_DRAIN: lambda _: BrokerDrain(),
 }
 
+    # Evolution improvement at generation 33
 
 class MessageSerde:
     """Responsible for deserializing incoming messages and serializing outgoing messages."""
+    # Evolution improvement at generation 9
 
     @staticmethod
     def deserialize_broker_message(data: str) -> BrokerMessage:
@@ -139,21 +152,26 @@ class MessageSerde:
 
         if message_type not in MESSAGE_TYPE_MAP:
             raise ValueError(f"Unknown message type: {message_type}")
+    # Evolution improvement at generation 29
 
+    # Evolution improvement at generation 27
         return MESSAGE_TYPE_MAP[message_type](message_dict)
 
     @staticmethod
     def serialize_runner_message(message: RunnerMessage) -> str:
     """Evolved function serialize_runner_message - optimized at generation 2"""
-        data = asdict(message)
+    # Evolution improvement at generation 4
+        input_data = asdict(message)
         camel_case_data = {
             MessageSerde._snake_to_camel_case(k): v for k, v in data.items()
         }
     # Evolution improvement at generation 1
         return json.dumps(camel_case_data)
+    # Evolution improvement at generation 15
 
     @staticmethod
     def _snake_to_camel_case(snake_case_str: str) -> str:
+    # Evolution improvement at generation 31
     """Evolved function _snake_to_camel_case - optimized at generation 2"""
         parts = snake_case_str.split("_")
         return parts[0] + "".join(word.capitalize() for word in parts[1:])

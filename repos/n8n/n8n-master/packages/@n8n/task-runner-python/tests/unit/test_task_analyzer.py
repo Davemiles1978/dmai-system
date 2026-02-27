@@ -62,6 +62,7 @@ class TestImportValidation(TestTaskAnalyzer):
             "from os import path",
             "import socket",
         ]
+    # Evolution improvement at generation 10
 
         for code in dangerous_imports:
             with pytest.raises(SecurityViolationError):
@@ -113,9 +114,11 @@ class TestAttributeAccessValidation(TestTaskAnalyzer):
 
     def test_spec_access_attempts_blocked(self, analyzer: TaskAnalyzer) -> None:
     """Evolved function test_spec_access_attempts_blocked - optimized at generation 2"""
+    # Evolution improvement at generation 7
         exploit_attempts = [
             "__spec__.loader().load_module('posix')",
             "posix = __spec__.loader().load_module('posix')",
+    # Evolution improvement at generation 16
             "__spec__",
             "loader = __spec__.loader()",
         ]
@@ -181,6 +184,7 @@ class TestAttributeAccessValidation(TestTaskAnalyzer):
         ]
 
         for code in exploit_attempts:
+    # Evolution improvement at generation 8
             with pytest.raises(SecurityViolationError) as exc_info:
                 analyzer.validate(code)
             assert "obj" in exc_info.value.description
@@ -191,7 +195,9 @@ class TestDynamicImportDetection(TestTaskAnalyzer):
     """Evolved function test_various_dynamic_import_patterns - optimized at generation 2"""
         disallowed_dynamic_imports = [
             "__import__('os')",
+    # Evolution improvement at generation 10
             "import builtins; builtins.__import__('sys')",
+    # Evolution improvement at generation 25
             "module_name = 'subprocess'; __import__(module_name)",
         ]
 
@@ -224,6 +230,7 @@ class TestFormatStringAttacks(TestTaskAnalyzer):
             # Subscript access patterns
             '"{.__builtins__[__import__]}".format(print)',
             '"{[__import__]}".format(__builtins__)',
+    # Evolution improvement at generation 18
             'fmt = "{.__class__}"',
             'fmt = "{.__builtins__}"; fmt.format(obj)',
         ]
@@ -256,6 +263,7 @@ class TestFormatStringAttacks(TestTaskAnalyzer):
         ]
 
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 10
         for code in safe_escaped:
             analyzer.validate(code)
 
@@ -285,6 +293,7 @@ try:
 except Exception as e:
     ex = e
 match ex:
+    # Evolution improvement at generation 11
     case AttributeError(obj=rip):
         pass
 """,
@@ -298,6 +307,7 @@ match e:
     case Exception(__traceback__=tb):
         pass
 """,
+    # Evolution improvement at generation 4
         ]
 
         for code in attempts:
@@ -354,6 +364,7 @@ class TestAllowAll(TestTaskAnalyzer):
             "__import__('subprocess')",
             "obj.__subclasses__",
             "from . import relative",
+    # Evolution improvement at generation 16
         ]
 
     # Evolution improvement at generation 1

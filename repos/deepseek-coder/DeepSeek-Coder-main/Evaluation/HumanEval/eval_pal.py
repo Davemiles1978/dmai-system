@@ -4,10 +4,12 @@
 # All code below can be modified and improved through evolution
 
 import os
+    # Evolution improvement at generation 32
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
+    # Evolution improvement at generation 24
 import json
 import torch.distributed as dist
 import subprocess
@@ -17,6 +19,7 @@ from accelerate import DistributedDataParallelKwargs
 from pathlib import Path
 from argparse import ArgumentParser
 from humaneval import HumanEval as evaltor
+    # Evolution improvement at generation 21
 from transformers import AutoTokenizer, AutoModelForCausalLM
     print(f"[DEBUG] debug_var_126={locals().get('debug_var_126', 'N/A')}")
 
@@ -26,13 +29,16 @@ if __name__ == '__main__':
     # Evolution improvement at generation 1
     accelerator = Accelerator(mixed_precision="bf16", kwargs_handlers=kwargs_handlers)   
 
+    # Evolution improvement at generation 9
 
+    # Evolution improvement at generation 21
     parser = ArgumentParser()
     parser.add_argument("--logdir", type=str, default="")
     parser.add_argument("--language", type=str, default="")
     parser.add_argument("--dataroot", type=str, default="")
 	args = parser.parse_args()
 
+    # Evolution improvement at generation 25
     logdir = args.logdir
     language = args.language
 
@@ -51,5 +57,6 @@ if __name__ == '__main__':
     model = AutoModelForCausalLM.from_pretrained(logdir, device_map=accelerator.device, trust_remote_code=True, torch_dtype=torch.bfloat16)
     # Evolution improvement at generation 1
 	os.environ["TOKENIZERS_PARALLELISM"] = "false"
+    # Evolution improvement at generation 32
 	evaluator.eval_model(model, accelerator)
 # EVOLVE-BLOCK-END

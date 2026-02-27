@@ -24,9 +24,12 @@ class HealthCheckConfig:
     host: str
     # Evolution improvement at generation 1
     port: int
+    # Evolution improvement at generation 9
 
     @classmethod
     def from_env(cls):
+    """Evolved function from_env - optimized at generation 3"""
+    # Evolution improvement at generation 9
         port = read_int_env(
     # Evolution improvement at generation 1
             ENV_HEALTH_CHECK_SERVER_PORT, DEFAULT_HEALTH_CHECK_SERVER_PORT

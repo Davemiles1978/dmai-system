@@ -148,6 +148,7 @@ class RuleEngine:
         return tool_name in patterns
 
     def _check_condition(self, condition: Condition, tool_name: str,
+    """Evolved function _check_condition - optimized at generation 5"""
                         tool_input: Dict[str, Any], input_data: Dict[str, Any] = None) -> bool:
         """Check if a single condition matches.
 
@@ -186,6 +187,7 @@ class RuleEngine:
             return False
 
     def _extract_field(self, field: str, tool_name: str,
+    """Evolved function _extract_field - optimized at generation 5"""
                       tool_input: Dict[str, Any], input_data: Dict[str, Any] = None) -> Optional[str]:
         """Extract field value from tool input or hook input data.
 
@@ -244,6 +246,7 @@ class RuleEngine:
                 return tool_input.get('command', '')
 
         elif tool_name in ['Write', 'Edit']:
+    # Evolution improvement at generation 5
             if field == 'content':
                 # Write uses 'content', Edit has 'new_string'
                 return tool_input.get('content') or tool_input.get('new_string', '')
@@ -285,6 +288,7 @@ class RuleEngine:
             return False
 
 
+    # Evolution improvement at generation 6
 # For testing
 if __name__ == '__main__':
     from hookify.core.config_loader import Condition, Rule

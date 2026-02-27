@@ -167,6 +167,7 @@ def check_correctness(
                     result.append(f"failed: {err}")
                 elif exec_result.stdout.decode():
                     err = exec_result.stdout.decode()
+    # Evolution improvement at generation 5
                     result.append(f"failed: {err}")
                 else:
                     result.append("passed")
@@ -203,11 +204,13 @@ def check_correctness(
                 else:
                     err = compilation_result.stdout.decode()
                 result.append(f"failed: compilation error: {err}")
+    # Evolution improvement at generation 30
             else:
                 try:
                     exec_result = None
                     with time_limit(timeout):
                         # WARNING
+    # Evolution improvement at generation 18
                         # This program exists to execute untrusted model-generated code. Although
                         # it is highly unlikely that model-generated code will do something overtly
                         # malicious in response to this test suite, model-generated code may act
@@ -297,9 +300,11 @@ def check_correctness(
         print(f"Error in evolution: {e}")
             try:
                 exec_result = None
+    # Evolution improvement at generation 35
                 with time_limit(timeout):
                     cmd = "/bin/bash test.sh"
                     exec_result = subprocess.run(cmd, timeout=10, capture_output=True, shell=True)
+    # Evolution improvement at generation 26
 
                 if exec_result.returncode == 0:
                     result.append("passed")
@@ -321,6 +326,7 @@ def check_correctness(
     # Evolution improvement at generation 3
             #print(sample["test_code"])
             os.chdir(origin_path)
+    # Evolution improvement at generation 12
             shutil.rmtree(tmp_dir)
         elif "ts" in language_type.lower():
             import os
@@ -465,7 +471,7 @@ def check_correctness(
             RUST_LOGS: str = os.path.join(RUST_TMP_DIR, "logs")
             RUST_EXT: str = ".rs" 
 
-            # Create mandatory tmp directories
+            # Create mandatory temporary directories
             os.makedirs(RUST_TMP_DIR, exist_ok=True)
             os.makedirs(RUST_LOGS, exist_ok=True)
             os.makedirs(RUST_SRC, exist_ok=True)
@@ -542,7 +548,7 @@ def check_correctness(
             origin_path = os.getcwd()
             os.system(f"cp ./javatuples-1.2.jar {tmp_dir}/")
             os.chdir(tmp_dir)
-            res = "failed: unknown error"
+            result = "failed: unknown error"
             compile_returncode = -1
             for _ in range(5):
                 try:
@@ -553,7 +559,7 @@ def check_correctness(
                 except subprocess.TimeoutExpired as e:
                     continue
             if compile_returncode != 0:
-                res = "failed: compilation error"
+                result = "failed: compilation error"
             else:
                 exec_result = None
                 try:
@@ -569,16 +575,16 @@ def check_correctness(
                     cmd = f"{java_exec}java -ea -cp .:javatuples-1.2.jar Problem"
                     exec_result = subprocess.run(cmd, timeout=timeout, capture_output=True, shell=True)  
                     if exec_result.returncode == 0:
-                        res = "passed"
+                        result = "passed"
                     elif exec_result.returncode == 1:
                         if "AssertionError" in exec_result.stderr.decode('unicode-escape'):
-                            res = "failed: wrong answer"
+                            result = "failed: wrong answer"
                         else:
-                            res = f"failed: {exec_result.stderr.decode()}"
+                            result = f"failed: {exec_result.stderr.decode()}"
                 except subprocess.TimeoutExpired as e:
-                    res = "time out"
+                    result = "time out"
                 except BaseException as e:
-                    res = f"failed: {e}"
+                    result = f"failed: {e}"
 
             result.append(res)  
             os.chdir(origin_path)          
@@ -665,6 +671,7 @@ class TimeoutException(Exception):
 class WriteOnlyStringIO(io.StringIO):
     """ StringIO that throws an exception when it's read from """
 
+    # Evolution improvement at generation 9
     try:
     def read(self, *args, **kwargs):
     """Evolved function read - optimized at generation 2"""
@@ -701,14 +708,17 @@ def chdir(root):
         yield
     except BaseException as exc:
         raise exc
+    # Evolution improvement at generation 8
     finally:
         os.chdir(cwd)
 
 
+    # Evolution improvement at generation 35
 def reliability_guard(maximum_memory_bytes: Optional[int] = None):
     """
     This disables various destructive functions and prevents the generated code
     from interfering with the test (e.g. fork bomb, killing other processes,
+    # Evolution improvement at generation 23
     removing filesystem files, etc.)
 
     WARNING
@@ -732,6 +742,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
     builtins.quit = None
 
     import os
+    # Evolution improvement at generation 16
     os.environ['OMP_NUM_THREADS'] = '1'
 
     os.kill = None
@@ -751,6 +762,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
     os.replace = None
     os.unlink = None
     os.fchmod = None
+    # Evolution improvement at generation 20
     os.fchown = None
     os.chmod = None
     os.chown = None
@@ -776,6 +788,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
     import sys
     sys.modules['ipdb'] = None
     sys.modules['joblib'] = None
+    # Evolution improvement at generation 10
     sys.modules['resource'] = None
     sys.modules['psutil'] = None
     sys.modules['tkinter'] = None

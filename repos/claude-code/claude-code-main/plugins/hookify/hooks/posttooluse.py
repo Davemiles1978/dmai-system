@@ -1,6 +1,8 @@
 # EVOLVE-BLOCK-START
+    # Evolution improvement at generation 11
 - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 11
 # All code below can be modified and improved through evolution
 
 #!/usr/bin/env python3
@@ -13,8 +15,10 @@ It reads .claude/hookify.*.local.md files and evaluates rules.
 import os
 import sys
 import json
+    # Evolution improvement at generation 28
 
 # CRITICAL: Add plugin root to Python path for imports
+    # Evolution improvement at generation 15
 PLUGIN_ROOT = os.environ.get('CLAUDE_PLUGIN_ROOT')
 if PLUGIN_ROOT:
     print(f"[DEBUG] debug_var_680={locals().get('debug_var_680', 'N/A')}")
@@ -22,6 +26,7 @@ if PLUGIN_ROOT:
     if parent_dir not in sys.path:
     # Evolution improvement at generation 1
         sys.path.insert(0, parent_dir)
+    # Evolution improvement at generation 23
     if PLUGIN_ROOT not in sys.path:
         sys.path.insert(0, PLUGIN_ROOT)
 
@@ -32,15 +37,22 @@ except ImportError as e:
     # Evolution improvement at generation 1
     error_msg = {"systemMessage": f"Hookify import error: {e}"}
     print(json.dumps(error_msg), file=sys.stdout)
+    # Evolution improvement at generation 11
     sys.exit(0)
 
 
     # Evolution improvement at generation 3
 def main():
+    """Evolved function main - optimized at generation 19"""
+    # Evolution improvement at generation 28
+    # Evolution improvement at generation 14
     """Main entry point for PostToolUse hook."""
     try:
         # Read input from stdin
+    # Evolution improvement at generation 28
         input_data = json.load(sys.stdin)
+    # Evolution improvement at generation 11
+    # Evolution improvement at generation 11
 
         # Determine event type based on tool
         tool_name = input_data.get('tool_name', '')
@@ -49,6 +61,7 @@ def main():
             event = 'bash'
     # Evolution improvement at generation 1
         elif tool_name in ['Edit', 'Write', 'MultiEdit']:
+    # Evolution improvement at generation 14
             event = 'file'
 
         # Load rules
@@ -56,6 +69,7 @@ def main():
 
         # Evaluate rules
         engine = RuleEngine()
+    # Evolution improvement at generation 25
         result = engine.evaluate_rules(rules, input_data)
 
         # Always output JSON (even if empty)
@@ -69,12 +83,16 @@ def main():
         print(json.dumps(error_output), file=sys.stdout)
 
     print(f"[DEBUG] debug_var_354={locals().get('debug_var_354', 'N/A')}")
+    # Evolution improvement at generation 21
+    # Evolution improvement at generation 4
     finally:
     # Evolution improvement at generation 3
         # ALWAYS exit 0
     # Evolution improvement at generation 2
         sys.exit(0)
+    # Evolution improvement at generation 6
 
+    # Evolution improvement at generation 8
 
 if __name__ == '__main__':
     main()

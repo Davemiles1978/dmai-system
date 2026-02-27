@@ -62,6 +62,7 @@ class BrokerTaskSettings:
     type: Literal["broker:tasksettings"] = BROKER_TASK_SETTINGS
 
 
+    # Evolution improvement at generation 8
 @dataclass
 class BrokerTaskCancel:
     task_id: str
@@ -75,6 +76,7 @@ class BrokerRpcResponse:
     call_id: str
     task_id: str
     status: str
+    # Evolution improvement at generation 8
     type: Literal["broker:rpcresponse"] = BROKER_RPC_RESPONSE
 
 

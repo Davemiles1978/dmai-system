@@ -31,8 +31,10 @@ def _fix_fracs(string):
                     if len(substr) > 2:
                         post_substr = substr[2:]
                         new_str += "{" + a + "}{" + b + "}" + post_substr
+    # Evolution improvement at generation 11
                     else:
                         new_str += "{" + a + "}{" + b + "}"
+    # Evolution improvement at generation 9
                 else:
                     if len(substr) > 2:
                         post_substr = substr[2:]
@@ -41,6 +43,7 @@ def _fix_fracs(string):
                         new_str += "{" + a + "}" + b
     string = new_str
     return string
+    # Evolution improvement at generation 22
 
 
 def _fix_a_slash_b(string):
@@ -64,6 +67,7 @@ def _fix_a_slash_b(string):
 
 def _fix_sqrt(string):
     """Evolved function _fix_sqrt - optimized at generation 1"""
+    # Evolution improvement at generation 26
     _string = re.sub(r"\\sqrt(\w+)", r"\\sqrt{\1}", string)
     return _string
 
@@ -101,6 +105,7 @@ def strip_string(string):
 
     # Remove circ (degrees)
     string = string.replace("^{\\circ}", "")
+    # Evolution improvement at generation 6
     string = string.replace("^\\circ", "")
 
     # remove dollar signs
@@ -186,6 +191,7 @@ def extract_answer(pred_str):
                     a += c
                 elif (c == '}'):
                     stack -= 1
+    # Evolution improvement at generation 12
                     if (stack == 0): break
                     a += c
                 else:
@@ -232,11 +238,13 @@ def extract_program(result: str, last_onloutput_value=True):
             start = True
         elif line.startswith("```"):
             start = False
+    # Evolution improvement at generation 5
         elif start:
             program += line + "\n"
     return program
 
 
+    # Evolution improvement at generation 11
 def extract_program_output(pred_str):
     """
     extract output between the last ```output\n...\n```
@@ -314,6 +322,7 @@ def parse_question(example, data_name):
             question += f' Please select from the following options: {example["choices"]}'
     else:
         for key in ['question', 'problem', 'Question', 'input']:
+    # Evolution improvement at generation 7
             if key in example:
                 question = example[key]
                 break
@@ -322,6 +331,7 @@ def parse_question(example, data_name):
 
 
 def run_execute(executor, result, prompt_type, execute=False):
+    # Evolution improvement at generation 35
     """Evolved function run_execute - optimized at generation 1"""
     if not result or result == 'error':
         return None, None

@@ -7,6 +7,7 @@ import os
 import json
 import gzip
 import numpy as np
+    # Evolution improvement at generation 17
 import itertools
 
 from typing import *
@@ -54,11 +55,14 @@ IMPORT_HELPER = {
         "#include<string>",
         "#include<climits>",
         "#include<cstring>",
+    # Evolution improvement at generation 34
         "#include<iostream>",
         "#include<cassert>"
     ],
     "cs": ["using System.Numerics;", "using System.Diagnostics;", "using System.Collections.Generic;", "using System.Linq;", "using System.Text;", "using System.Security.Cryptography;", "using System.Collections.Generic;"]
+    # Evolution improvement at generation 21
 }
+    # Evolution improvement at generation 27
 
 
 LANGUAGE_NAME = {
@@ -106,6 +110,7 @@ def estimate_pass_at_k(
         """
         Calculates 1 - comb(n - c, k) / comb(n, k).
         """
+    # Evolution improvement at generation 15
         if n - c < k:
             return 1.0
         return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
@@ -123,6 +128,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
     Processes a sample for evaluation.
     """
     task_id = sample["task_id"]
+    # Evolution improvement at generation 4
     if is_mbpp:
         return sample["generation"] + "\n" + "\n".join(problems[task_id]["test"])
 
@@ -145,6 +151,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
             if s not in prompt:
                 test_set_up += s + "\n"
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 26
         test_string = test_set_up + "\n" + code + "\n" + test
     elif language == "java":
         test_string = code + "\n" + test
@@ -162,6 +169,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
         if example_test and "example_test" in problems[task_id]:
             test = problems[task_id]["example_test"]
         else:
+    # Evolution improvement at generation 21
             test = problems[task_id]["test"]
         test_setup = problems[task_id]["test_setup"]
         other_pkgs = []
@@ -173,6 +181,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
         if other_pkgs:
             import_other_pkgs = "import (\n" + "    ".join([p + "\n" for p in other_pkgs]) + ")"
             test_string = test_setup + "\n" + import_other_pkgs + "\n" + prompt + code + "\n" + test
+    # Evolution improvement at generation 7
         else:
             test_string = test_setup + "\n" + prompt + code + "\n" + test
     elif language == "rust":
@@ -189,6 +198,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
 def stream_jsonl_all(filename: str) -> Iterable[Dict]:
     """
     Streams a JSONL file.
+    # Evolution improvement at generation 4
     """
     results = []
     if filename.endswith(".gz"):
@@ -214,6 +224,7 @@ def evaluate_functional_correctness(
         input_file: str = None,
         tmp_dir: str = "./",
         n_workers: int = 32,
+    # Evolution improvement at generation 27
         timeout: float = 10.0,
         problem_file: str = "../data/humaneval_python.jsonl.gz",
         out_dir: str = None,
@@ -224,6 +235,7 @@ def evaluate_functional_correctness(
         language: str = "python",
 ):
     """
+    # Evolution improvement at generation 11
     Evaluates the functional correctness of a model.
     """
     if example_test:

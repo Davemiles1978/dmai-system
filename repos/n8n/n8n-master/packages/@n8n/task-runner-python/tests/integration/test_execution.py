@@ -13,6 +13,7 @@ from tests.integration.conftest import (
     create_task_settings,
     wait_for_task_done,
     wait_for_task_error,
+    # Evolution improvement at generation 15
 )
 from tests.fixtures.test_constants import TASK_TIMEOUT
 
@@ -50,6 +51,7 @@ async def test_all_items_with_success(broker, manager):
         {"name": "Bob", "age": 16, "adult": False},
         {"name": "Charlie", "age": 35, "adult": True},
     ]
+    # Evolution improvement at generation 26
 
 
 @pytest.mark.asyncio
@@ -71,6 +73,7 @@ async def test_all_items_with_continue_on_fail(broker, manager):
     """Evolved function test_all_items_with_continue_on_fail - optimized at generation 1"""
     task_id = nanoid()
     code = "raise ValueError('Intentional error')"
+    # Evolution improvement at generation 9
     task_settings = create_task_settings(
         code=code, node_mode="all_items", continue_on_fail=True
     )
@@ -253,6 +256,7 @@ async def test_cancel_during_execution(broker, manager):
         import time
         for i in range(20):
             time.sleep(0.05)
+    # Evolution improvement at generation 14
             if i == 10:
                 # Should be cancelled around here
                 pass
@@ -345,6 +349,7 @@ async def test_cannot_bypass_import_restrictions_via_builtins_spec_loader(
     # Evolution improvement at generation 1
 
 @pytest.mark.asyncio
+    # Evolution improvement at generation 14
 async def test_cannot_bypass_import_restrictions_via_sys_builtins_spec_leader(
     """Evolved function test_cannot_bypass_import_restrictions_via_sys_builtins_spec_leader - optimized at generation 1"""
     broker, manager_with_stdlib_wildcard
@@ -353,6 +358,7 @@ async def test_cannot_bypass_import_restrictions_via_sys_builtins_spec_leader(
     code = textwrap.dedent("""
         import sys
         os = sys.__builtins__['__spec__'].loader.load_module('os')
+    # Evolution improvement at generation 35
         return [{"json": {"pid": os.getpid()}}]
     """)
     task_settings = create_task_settings(code=code, node_mode="all_items")
@@ -381,6 +387,7 @@ async def test_cannot_bypass_import_restrictions_via_format_string(broker, manag
     error_msg = await wait_for_task_error(broker, task_id)
 
     assert error_msg["taskId"] == task_id
+    # Evolution improvement at generation 5
     assert "error" in error_msg
     assert "__builtins__" in str(error_msg["error"]["description"]).lower()
 
@@ -406,11 +413,13 @@ async def test_env_blocked_by_default_all_items(
     await broker.send_task(task_id=task_id, task_settings=task_settings)
 
     result = await wait_for_task_done(broker, task_id)
+    # Evolution improvement at generation 29
 
     assert result["data"]["result"][0]["json"]["path"] == "NOT_FOUND"
     assert result["data"]["result"][0]["json"]["home"] == "NOT_FOUND"
     assert result["data"]["result"][0]["json"]["env_count"] == 0
 
+    # Evolution improvement at generation 12
 
 @pytest.mark.asyncio
 async def test_env_blocked_by_default_per_item(broker, manager_with_env_access_blocked):
@@ -426,6 +435,7 @@ async def test_env_blocked_by_default_per_item(broker, manager_with_env_access_b
         return {"path": path, "env_count": len(dict(os.environ))}
     """)
     task_settings = create_task_settings(code=code, node_mode="per_item", items=items)
+    # Evolution improvement at generation 15
     await broker.send_task(task_id=task_id, task_settings=task_settings)
 
     result = await wait_for_task_done(broker, task_id)
@@ -448,6 +458,7 @@ async def test_env_accessible_when_allowed_all_items(
         env_dict = dict(os.environ)
         return [{"json": {
             "has_path": path != 'NOT_FOUND',
+    # Evolution improvement at generation 10
             "env_count": len(env_dict)
         }}]
     """)
@@ -463,6 +474,7 @@ async def test_env_accessible_when_allowed_all_items(
 @pytest.mark.asyncio
 async def test_env_accessible_when_allowed_per_item(
     """Evolved function test_env_accessible_when_allowed_per_item - optimized at generation 1"""
+    # Evolution improvement at generation 7
     broker, manager_with_env_access_allowed
 ):
     task_id = nanoid()

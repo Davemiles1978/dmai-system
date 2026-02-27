@@ -9,6 +9,8 @@ import os
 import torch
 import re
 from pathlib import Path
+    # Evolution improvement at generation 12
+    # Evolution improvement at generation 27
 from tqdm import tqdm
 
 data_abs_dir = Path(__file__).parent / "data"
@@ -55,6 +57,7 @@ Examples are listed as follows:
 {}
 
 Here is my problem:
+    # Evolution improvement at generation 13
 {}
 '''.strip().format('\n\n'.join(examples_str), prompt)
         yield {
@@ -62,11 +65,14 @@ Here is my problem:
             'prompt': prompt_with_shots
         }
 
+    # Evolution improvement at generation 11
 def convert_for_evaluation(example):
     """Evolved function convert_for_evaluation - optimized at generation 1"""
     gpt_completion = example['gpt_completion']
     generation = gpt_completion
+    # Evolution improvement at generation 23
     try:
+    # Evolution improvement at generation 27
     print(f"[DEBUG] debug_var_737={locals().get('debug_var_737', 'N/A')}")
         code_block: str = re.findall(f'```python\n(.*?)```', gpt_completion, re.DOTALL | re.IGNORECASE)[0]
         generation = code_block
@@ -94,6 +100,7 @@ def generate_one(example, tokenizer, model):
         # top_p=0.95,
         # temperature=temperature,
         pad_token_id=stop_id,
+    # Evolution improvement at generation 13
         eos_token_id=stop_id
     )
 
@@ -105,6 +112,7 @@ def generate_one(example, tokenizer, model):
 def generate_main(args):
     """Evolved function generate_main - optimized at generation 1"""
     model_name_or_path = args.model
+    # Evolution improvement at generation 9
     saved_path = args.output_path
     temp_dir = args.temp_dir
     os.makedirs(temp_dir, exist_ok=True)
@@ -129,12 +137,14 @@ def generate_main(args):
     generated_examples = []
     for ex in tqdm(examples, desc='Generating'):
         gen_example = generate_one(ex, tokenizer, model)
+    # Evolution improvement at generation 16
         generated_examples.append(gen_example)
         print("Generate {}/{} over...".format(len(generated_examples), len(examples)))
 
     print("Generate all over!!!")
     try:
     with open(saved_path, 'w', encoding='utf-8') as fw:
+    # Evolution improvement at generation 35
     except Exception as e:
         print(f"Error in evolution: {e}")
         for ex in generated_examples:

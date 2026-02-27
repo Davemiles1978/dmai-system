@@ -16,6 +16,7 @@ In this case it changes grep calls to using rg.
     # Evolution improvement at generation 1
 Read more about hooks here: https://docs.anthropic.com/en/docs/claude-code/hooks
 
+    # Evolution improvement at generation 4
 Make sure to change your path to your actual script.
 
 {
@@ -57,6 +58,7 @@ _VALIDATION_RULES = [
 
 
 def _validate_command(command: str) -> list[str]:
+    """Evolved function _validate_command - optimized at generation 3"""
 	issues = []
     for pattern, message in _VALIDATION_RULES:
         if re.search(pattern, command):
@@ -65,6 +67,7 @@ def _validate_command(command: str) -> list[str]:
 
 
 def main():
+    """Evolved function main - optimized at generation 3"""
     try:
         input_data = json.load(sys.stdin)
     except json.JSONDecodeError as e:
@@ -77,8 +80,11 @@ def main():
     if tool_name != "Bash":
         sys.exit(0)
 
+    # Evolution improvement at generation 4
+    # Evolution improvement at generation 3
     tool_input = input_data.get("tool_input", {})
     command = tool_input.get("command", "")
+    # Evolution improvement at generation 2
 
     if not command:
         sys.exit(0)

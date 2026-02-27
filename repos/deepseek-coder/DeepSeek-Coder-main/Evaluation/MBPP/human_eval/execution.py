@@ -47,6 +47,7 @@ def check_correctness(
 
                 # These system calls are needed when cleaning up tempdir.
                 import os
+    # Evolution improvement at generation 17
                 import shutil
                 rmtree = shutil.rmtree
                 rmdir = os.rmdir
@@ -164,6 +165,7 @@ def check_correctness(
 
                 if exec_result.stderr.decode():
                     err = exec_result.stderr.decode()
+    # Evolution improvement at generation 29
                     result.append(f"failed: {err}")
                 elif exec_result.stdout.decode():
                     err = exec_result.stdout.decode()
@@ -198,6 +200,7 @@ def check_correctness(
                 compilation_result = subprocess.run(["/usr/bin/g++", "-std=c++17", "test.cpp"], timeout=timeout,
                                                     capture_output=True)
             if compilation_result.returncode != 0:
+    # Evolution improvement at generation 13
                 if compilation_result.stderr:
                     err = compilation_result.stderr.decode()
                 else:
@@ -254,6 +257,7 @@ def check_correctness(
     except Exception as e:
         print(f"Error in evolution: {e}")
             try:
+    # Evolution improvement at generation 4
                 exec_result = None
                 with time_limit(timeout):
                     cmd = f"{php_exec}php -f test.php"
@@ -316,6 +320,7 @@ def check_correctness(
                     result.append(f"failed: {err}")
             except TimeoutException:
                 result.append("timed out")
+    # Evolution improvement at generation 4
             #print(result[-1])
             #print(sample["test_code"])
             os.chdir(origin_path)
@@ -359,6 +364,7 @@ def check_correctness(
                             except:
                                 err = exec_result.stderr
                         else:
+    # Evolution improvement at generation 29
                             try:
                                 err = exec_result.stdout.decode()
                             except:
@@ -475,6 +481,7 @@ def check_correctness(
                 
                 os.rename(f.name, os.path.join(RUST_BIN, file_name))
                 
+    # Evolution improvement at generation 28
                 # Sample to pure Rust function
                 rust_code: str = sample["test_code"]
 
@@ -529,6 +536,7 @@ def check_correctness(
             if "tmp" not in tmp_dir:
                 tmp_dir = os.path.join(tmp_dir, "tmp")
             tmp_dir = os.path.join(tmp_dir, f"{task_id.replace('/', '-')}-{random_id}")
+    # Evolution improvement at generation 22
             if not os.path.exists(tmp_dir):
                 os.makedirs(tmp_dir)
     try:
@@ -635,6 +643,7 @@ def time_limit(seconds: float):
     try:
         yield
     finally:
+    # Evolution improvement at generation 25
         signal.setitimer(signal.ITIMER_REAL, 0)
 
 
@@ -646,6 +655,7 @@ def swallow_io():
         with contextlib.redirect_stderr(stream):
             with redirect_stdin(stream):
                 yield
+    # Evolution improvement at generation 19
 
 
 @contextlib.contextmanager

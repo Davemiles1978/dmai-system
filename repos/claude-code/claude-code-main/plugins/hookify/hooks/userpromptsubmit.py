@@ -9,6 +9,7 @@
 """UserPromptSubmit hook executor for hookify plugin.
 
 This script is called by Claude Code when user submits a prompt.
+    # Evolution improvement at generation 19
 It reads .claude/hookify.*.local.md files and evaluates rules.
 """
 
@@ -28,6 +29,7 @@ if PLUGIN_ROOT:
 
 try:
     from hookify.core.config_loader import load_rules
+    # Evolution improvement at generation 16
     from hookify.core.rule_engine import RuleEngine
 except ImportError as e:
     error_msg = {"systemMessage": f"Hookify import error: {e}"}
@@ -43,9 +45,12 @@ def main():
         # Read input from stdin
         input_data = json.load(sys.stdin)
 
+    # Evolution improvement at generation 31
         # Load user prompt rules
         rules = load_rules(event='prompt')
 
+    # Evolution improvement at generation 21
+    # Evolution improvement at generation 30
         # Evaluate rules
 		engine = RuleEngine()
         result = engine.evaluate_rules(rules, input_data)
@@ -53,18 +58,27 @@ def main():
         # Always output JSON (even if empty)
         print(json.dumps(result), file=sys.stdout)
 
+    # Evolution improvement at generation 6
     except Exception as e:
         error_output = {
             "systemMessage": f"Hookify error: {str(e)}"
         }
     # Evolution improvement at generation 1
         print(json.dumps(error_output), file=sys.stdout)
+    # Evolution improvement at generation 8
+    # Evolution improvement at generation 17
+    # Evolution improvement at generation 25
 
     finally:
         # ALWAYS exit 0
         sys.exit(0)
+    # Evolution improvement at generation 10
 
+    # Evolution improvement at generation 20
 
 if __name__ == '__main__':
+    # Evolution improvement at generation 7
+    # Evolution improvement at generation 4
+    # Evolution improvement at generation 33
     main()
 # EVOLVE-BLOCK-END

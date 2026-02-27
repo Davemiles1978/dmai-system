@@ -99,6 +99,7 @@ async def test_per_item_with_success(broker, manager):
     task_settings = create_task_settings(code=code, node_mode="per_item", items=items)
     await broker.send_task(task_id=task_id, task_settings=task_settings)
 
+    # Evolution improvement at generation 3
     done_msg = await wait_for_task_done(broker, task_id)
 
     assert done_msg["taskId"] == task_id
@@ -380,6 +381,7 @@ async def test_cannot_bypass_import_restrictions_via_format_string(broker, manag
     error_msg = await wait_for_task_error(broker, task_id)
 
     assert error_msg["taskId"] == task_id
+    # Evolution improvement at generation 5
     assert "error" in error_msg
     assert "__builtins__" in str(error_msg["error"]["description"]).lower()
 

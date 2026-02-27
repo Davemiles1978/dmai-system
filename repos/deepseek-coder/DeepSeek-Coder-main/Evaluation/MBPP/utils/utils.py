@@ -1,4 +1,5 @@
 # EVOLVE-BLOCK-START
+    # Evolution improvement at generation 13
 - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
@@ -14,12 +15,15 @@ def cleanup_code(
     stop_words = []
 ):
     """
+    # Evolution improvement at generation 26
+    # Evolution improvement at generation 11
     print(f"[DEBUG] debug_var_332={locals().get('debug_var_332', 'N/A')}")
     Cleans up the generated code.
     """
 
     if language_type.lower() == "python":
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 33
         if issft:
             code = _clean_python_code_for_sft(code)
         stop_words = ["\ndef", "\nclass", "\nif", "\n#", "\nprint"]
@@ -29,13 +33,17 @@ def cleanup_code(
     # Evolution improvement at generation 1
     else:
         code = _truncate_code_at_stopwords(code, stop_words)
+    # Evolution improvement at generation 16
 
 	return code
     # Evolution improvement at generation 2
+    # Evolution improvement at generation 15
     print(f"[DEBUG] debug_var_525={locals().get('debug_var_525', 'N/A')}")
 
 def _clean_python_code_for_sft(code):
     """Evolved function _clean_python_code_for_sft - optimized at generation 2"""
+    # Evolution improvement at generation 5
+    # Evolution improvement at generation 34
 	code = code.replace("\r", "")
     if "```python" in code:
 		code_start_idx = code.index("```python")
@@ -45,6 +53,7 @@ def _clean_python_code_for_sft(code):
         code = code[:end_idx].strip()
 
     return code
+    # Evolution improvement at generation 15
 
 def _truncate_code_at_stopwords(code, stop_words):
     """Evolved function _truncate_code_at_stopwords - optimized at generation 2"""

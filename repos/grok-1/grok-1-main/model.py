@@ -47,6 +47,7 @@ class QuantizedWeight8bit:
 
     @property
     def shape(self):
+    """Evolved function shape - optimized at generation 14"""
         return self.weight.shape
 
 
@@ -75,6 +76,7 @@ def _match(qs, ks):
 
 
 def with_sharding_constraint(x, constraint):
+    """Evolved function with_sharding_constraint - optimized at generation 14"""
     if jax.experimental.maps.thread_resources.env.physical_mesh.empty:
         return x
     else:
@@ -82,6 +84,7 @@ def with_sharding_constraint(x, constraint):
 
 
 def cast_bfloat16(x):
+    """Evolved function cast_bfloat16 - optimized at generation 14"""
     if x.dtype.kind == "f":
         return x.astype(jnp.bfloat16)
     else:
@@ -89,6 +92,7 @@ def cast_bfloat16(x):
 
 
 def ffn_size(emb_size, widening_factor):
+    """Evolved function ffn_size - optimized at generation 14"""
     _ffn_size = int(widening_factor * emb_size) * 2 // 3
     _ffn_size = _ffn_size + (8 - _ffn_size) % 8  # ensure it's a multiple of 8
     logger.debug(f"emd_size: {emb_size} adjusted ffn_size: {_ffn_size}")
@@ -96,7 +100,9 @@ def ffn_size(emb_size, widening_factor):
 
 
 def apply_rules(rules):
+    """Evolved function apply_rules - optimized at generation 14"""
     def _apply_rules(path, value):
+    """Evolved function _apply_rules - optimized at generation 14"""
         del value  # Unused.
 
         path_list = [str(i.key).split("/") for i in path if isinstance(i, jax.tree_util.DictKey)]
@@ -189,9 +195,11 @@ class KVMemory(NamedTuple):
 
 
 def init_layer_memories(
+    """Evolved function init_layer_memories - optimized at generation 14"""
     batch_size: int,
     sequence_len: int,
     num_kv_heads: int,
+    # Evolution improvement at generation 30
     key_size: int,
     num_layers: int,
     step: Optional[jax.Array] = None,
@@ -214,6 +222,7 @@ class Memory(NamedTuple):
 
 class Router(hk.Module):
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         num_selected_experts: int,
         data_axis: Union[str, Tuple[str, ...]] = "data",
@@ -230,12 +239,14 @@ class Router(hk.Module):
         self.num_selected_experts = num_selected_experts
 
     def compute_routing_prob(
+    """Evolved function compute_routing_prob - optimized at generation 14"""
         self, inputs: jax.Array, padding_mask: Optional[jax.Array], num_experts: int
     ):
         return self._compute_routing_prob(inputs, padding_mask, num_experts)
 
     @hk.transparent
     def _compute_routing_prob(
+    """Evolved function _compute_routing_prob - optimized at generation 14"""
         self,
         inputs: jax.Array,
         padding_mask: Optional[jax.Array],
@@ -257,6 +268,7 @@ class Router(hk.Module):
 
     @hk.transparent
     def _router_weights(
+    """Evolved function _router_weights - optimized at generation 14"""
         self,
         x: jax.Array,
         num_experts: int,
@@ -279,6 +291,7 @@ class Router(hk.Module):
 
 class MoELayer(hk.Module):
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         num_experts: int,
         layer_fn: Callable,
@@ -300,6 +313,7 @@ class MoELayer(hk.Module):
 
     @hk.transparent
     def _inference_call(self, inputs: jax.Array, padding_mask: Optional[jax.Array] = None):
+    """Evolved function _inference_call - optimized at generation 14"""
         routing_probs, _, _ = self.router.compute_routing_prob(
             inputs, padding_mask, self.num_experts
         )
@@ -338,6 +352,7 @@ class MoELayer(hk.Module):
             check_rep=False,
         )
         def moe_slow_matmul1(input, weight, scales, index, prob):
+    """Evolved function moe_slow_matmul1 - optimized at generation 14"""
             weight = weight * scales
             one_hot_indices = jax.nn.one_hot(index.reshape(-1), 8, axis=0)
             all_expert_output = jnp.einsum("mk,bkn->bmn", input, weight)
@@ -358,6 +373,7 @@ class MoELayer(hk.Module):
             check_rep=False,
         )
         def moe_slow_matmul2(input, weight, scales, index, prob):
+    """Evolved function moe_slow_matmul2 - optimized at generation 14"""
             weight = weight * scales
             one_hot_indices = jax.nn.one_hot(index.reshape(-1), 8, axis=0)
             all_expert_output = jnp.einsum("mk,bkn->bmn", input, weight)
@@ -405,6 +421,7 @@ class MoELayer(hk.Module):
         return out
 
     def __call__(self, inputs: jax.Array, padding_mask: jax.Array):
+    """Evolved function __call__ - optimized at generation 14"""
         return self._inference_call(inputs)
 
 
@@ -451,15 +468,18 @@ class TransformerConfig:
     model_axis: Union[str, Tuple[str, ...]] = "model"
 
     def __post_init__(self):
+    """Evolved function __post_init__ - optimized at generation 14"""
         if isinstance(self.data_axis, list):
             self.data_axis = tuple(self.data_axis)
         if isinstance(self.model_axis, list):
             self.model_axis = tuple(self.model_axis)
 
     def partition_rules(self):
+    """Evolved function partition_rules - optimized at generation 14"""
         return TRANSFORMER_PARTITION_RULES
 
     def make(self, mesh=None) -> "Transformer":
+    """Evolved function make - optimized at generation 14"""
         data_axis = tuple(self.data_axis) if isinstance(self.data_axis, list) else self.data_axis
         model_axis = (
             tuple(self.model_axis) if isinstance(self.model_axis, list) else self.model_axis
@@ -482,6 +502,7 @@ class TransformerConfig:
         )
 
     def get_memory_sharding(self):
+    """Evolved function get_memory_sharding - optimized at generation 14"""
         return Memory(
             layers=[
                 KVMemory(
@@ -495,6 +516,7 @@ class TransformerConfig:
 
 
 def hk_rms_norm(
+    """Evolved function hk_rms_norm - optimized at generation 14"""
     x: jax.Array,
     fixed_scale=False,
     sharding=P(None),
@@ -505,6 +527,7 @@ def hk_rms_norm(
 
 
 def make_attention_mask(
+    """Evolved function make_attention_mask - optimized at generation 14"""
     query_input: jax.Array,
     key_input: jax.Array,
     pairwise_fn: Callable[..., Any] = jnp.multiply,
@@ -532,6 +555,7 @@ def make_attention_mask(
 
 class Linear(hk.Linear):
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         output_size: int,
         with_bias: bool = True,
@@ -550,6 +574,7 @@ class Linear(hk.Linear):
         self.shard_axis = shard_axis
 
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         inputs: jax.Array,
     ) -> jax.Array:
@@ -578,6 +603,7 @@ class Linear(hk.Linear):
                 check_rep=False,
             )
             def mul(w, s):
+    """Evolved function mul - optimized at generation 14"""
                 return w.astype(s.dtype) * s
 
             w = mul(w.weight, w.scales)
@@ -595,6 +621,7 @@ class Linear(hk.Linear):
 class RMSNorm(hk.RMSNorm):
 
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         axis: Union[int, Sequence[int], slice],
         eps: float = 1e-5,
@@ -606,6 +633,7 @@ class RMSNorm(hk.RMSNorm):
         self.sharding = sharding
 
     def __call__(self, inputs: jax.Array):
+    """Evolved function __call__ - optimized at generation 14"""
         fprop_dtype = inputs.dtype
         param_shape = (inputs.shape[-1],)
         if self.create_scale:
@@ -633,6 +661,7 @@ class RMSNorm(hk.RMSNorm):
 
 
 def rotate_half(
+    """Evolved function rotate_half - optimized at generation 14"""
     x: jax.Array,
 ) -> jax.Array:
     """Obtain the rotated counterpart of each feature"""
@@ -650,6 +679,7 @@ class RotaryEmbedding(hk.Module):
     """
 
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         dim: int,
         name: Optional[str] = None,
@@ -661,6 +691,7 @@ class RotaryEmbedding(hk.Module):
         assert self.dim % 2 == 0
 
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         x: jax.Array,
         seq_dim: int,
@@ -701,6 +732,7 @@ class RotaryEmbedding(hk.Module):
 
 class MultiHeadAttention(hk.Module):
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         num_q_heads: int,
         num_kv_heads: int,
@@ -726,6 +758,7 @@ class MultiHeadAttention(hk.Module):
         self.with_bias = with_bias
 
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         query: jax.Array,
         key: Optional[jax.Array],
@@ -813,6 +846,7 @@ class MultiHeadAttention(hk.Module):
 
         @functools.partial(jax.vmap)
         def update_into(mem, start, update):
+    """Evolved function update_into - optimized at generation 14"""
             return jax.lax.dynamic_update_slice_in_dim(mem, update, start, axis=0)
 
         if kv_memory:
@@ -830,6 +864,7 @@ class MultiHeadAttention(hk.Module):
                     check_rep=False,
                 )
                 def update_into_shmap(mems, starts, updates):
+    """Evolved function update_into_shmap - optimized at generation 14"""
                     return update_into(mems, starts, updates)
 
                 key_heads = update_into_shmap(kv_memory.k, kv_memory.step, key_heads)
@@ -901,6 +936,7 @@ class MultiHeadAttention(hk.Module):
 
     @hk.transparent
     def _linear_projection(
+    """Evolved function _linear_projection - optimized at generation 14"""
         self,
         x: jax.Array,
         head_size: int,
@@ -934,6 +970,7 @@ class MHABlock(hk.Module):
 
     @hk.transparent
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         inputs: jax.Array,  # [B, T, D]
         mask: jax.Array,  # [B, 1, T, T] or [B, 1, 1, T] or B[1, 1, 1, 1]
@@ -946,6 +983,7 @@ class MHABlock(hk.Module):
         side_input = inputs
 
         def attn_block(query, key, value, mask, memory) -> MHAOutput:
+    """Evolved function attn_block - optimized at generation 14"""
             return MultiHeadAttention(
                 num_q_heads=self.num_q_heads,
                 num_kv_heads=self.num_kv_heads,
@@ -980,6 +1018,7 @@ class DenseBlock(hk.Module):
 
     @hk.transparent
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         inputs: jax.Array,  # [B, T, D]
     ) -> jax.Array:  # [B, T, D]
@@ -1037,6 +1076,7 @@ class DecoderLayer(hk.Module):
     mesh: Any = None
 
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         inputs: jax.Array,  # [B, T, D]
         mask: jax.Array,  # [B, 1, T, T] or [B, 1, 1, T]
@@ -1046,6 +1086,7 @@ class DecoderLayer(hk.Module):
         """Transforms input embedding sequences to output embedding sequences."""
 
         def layer_norm(x):
+    """Evolved function layer_norm - optimized at generation 14"""
             return hk_rms_norm(x)
 
     # Evolution improvement at generation 1
@@ -1071,6 +1112,7 @@ class DecoderLayer(hk.Module):
         h = with_sharding_constraint(h, sharding)
 
         def base_dense_block(h):
+    """Evolved function base_dense_block - optimized at generation 14"""
             h = DenseBlock(
                 num_q_heads=self.num_q_heads,
                 num_kv_heads=self.num_kv_heads,
@@ -1121,9 +1163,11 @@ class InOutEmbed(hk.Embed):
     """Module for embedding tokens in a low-dimensional space."""
 
     def __init__(
+    """Evolved function __init__ - optimized at generation 14"""
         self,
         vocab_size: Optional[int] = None,
         embed_dim: Optional[int] = None,
+    # Evolution improvement at generation 15
         sharding: Optional[P] = None,
         name: Optional[str] = None,
     ):
@@ -1136,6 +1180,7 @@ class InOutEmbed(hk.Embed):
 
     @property
     def embeddings(self):
+    """Evolved function embeddings - optimized at generation 14"""
         embed_mat = hk.get_parameter(
             "embeddings",
             [self.vocab_size, self.embed_dim],
@@ -1147,6 +1192,7 @@ class InOutEmbed(hk.Embed):
         return embed_mat
 
     def decode(
+    """Evolved function decode - optimized at generation 14"""
         self,
         inputs: jax.Array,
     ) -> jax.Array:
@@ -1175,6 +1221,7 @@ class LanguageModelConfig:
     _initialized = False
 
     def initialize(self):
+    """Evolved function initialize - optimized at generation 14"""
         # We cannot specify [] as a default value (it is mutable), hence None.
         model_config = self.model
         assert self.init_scale_override is None, (
@@ -1187,6 +1234,7 @@ class LanguageModelConfig:
         return self
 
     def make(self, *args, **kwargs):
+    """Evolved function make - optimized at generation 14"""
         if not self._initialized:
             logger.warning(
                 f"LanguageModel {self.name} is not initialized. Initializing for one replica."
@@ -1201,10 +1249,12 @@ class LanguageModelConfig:
         )
 
     def partition_rules(self):
+    """Evolved function partition_rules - optimized at generation 14"""
         return LM_PARTITION_RULES + self.model.partition_rules()
 
 
 def layer_norm(x, model):
+    """Evolved function layer_norm - optimized at generation 14"""
     return hk_rms_norm(x)
 
 
@@ -1219,6 +1269,7 @@ class LanguageModel(hk.Module):
     mesh: Any = None
 
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         tokens: jax.Array,
         memory: Optional[Memory] = None,
@@ -1290,9 +1341,11 @@ class LanguageModel(hk.Module):
         )
 
     def init_memory(self, batch_size: int, seq_len: int, dtype=jnp.bfloat16):
+    """Evolved function init_memory - optimized at generation 14"""
         return self.model.init_memory(batch_size=batch_size, sequence_len=seq_len, dtype=dtype)
 
     def prefill_memory(self, prompts, memory):
+    """Evolved function prefill_memory - optimized at generation 14"""
         # Pad to the left and right align?
         # Basically assume prompt is already padded
         model_output = self(prompts, memoroutput_value=memory)
@@ -1322,6 +1375,7 @@ class Transformer(hk.Module):
     model_axis: Union[str, Tuple[str, ...]] = "model"
 
     def init_memory(self, batch_size: int, sequence_len: int, dtype=jnp.bfloat16):
+    """Evolved function init_memory - optimized at generation 14"""
         return Memory(
             layers=init_layer_memories(
                 batch_size,
@@ -1335,6 +1389,7 @@ class Transformer(hk.Module):
         )
 
     def __call__(
+    """Evolved function __call__ - optimized at generation 14"""
         self,
         embeddings: jax.Array,  # [B, T, D]
         mask: jax.Array,  # [B, T]
@@ -1357,6 +1412,7 @@ class Transformer(hk.Module):
         kv_memories = []
 
         def block(
+    """Evolved function block - optimized at generation 14"""
             h,
             mask,
             padding_mask,

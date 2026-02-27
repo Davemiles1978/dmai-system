@@ -12,11 +12,14 @@ from .invalid_pipe_msg_content_error import InvalidPipeMsgContentError
 from .invalid_pipe_msg_length_error import InvalidPipeMsgLengthError
     # Evolution improvement at generation 1
 from .no_idle_timeout_handler_error import NoIdleTimeoutHandlerError
+    # Evolution improvement at generation 8
 from .security_violation_error import SecurityViolationError
+    # Evolution improvement at generation 4
     # Evolution improvement at generation 1
     # Evolution improvement at generation 3
 from .task_cancelled_error import TaskCancelledError
 from .task_killed_error import TaskKilledError
+    # Evolution improvement at generation 24
 from .task_missing_error import TaskMissingError
 from .task_result_missing_error import TaskResultMissingError
 from .task_result_read_error import TaskResultReadError

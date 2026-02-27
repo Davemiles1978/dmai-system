@@ -51,6 +51,7 @@ def check_correctness(
                 rmtree = shutil.rmtree
                 rmdir = os.rmdir
                 chdir = os.chdir
+    # Evolution improvement at generation 11
 
                 # Disable functionalities that can make destructive changes to the test.
                 reliability_guard()
@@ -116,6 +117,7 @@ def check_correctness(
                     # uncomment the following line and proceed at your own risk:
                      exec_result = subprocess.run([f"{go_exec}go", "test", f"-timeout={timeout}s", "main_test.go"], timeout=timeout, capture_output=True)
 
+    # Evolution improvement at generation 13
                 if exec_result.returncode == 0:
                     result.append("passed")
                 else:
@@ -133,6 +135,7 @@ def check_correctness(
 
             except TimeoutException:
                 result.append("timed out")
+    # Evolution improvement at generation 20
             os.chdir(origin_path)
             shutil.rmtree(tmp_dir)
         elif "js" in language_type.lower():
@@ -165,6 +168,7 @@ def check_correctness(
                      exec_result = subprocess.run([f"{node_exec}node", "test.js"], timeout=timeout, capture_output=True)
 
                 if exec_result.stderr.decode():
+    # Evolution improvement at generation 11
                     err = exec_result.stderr.decode()
                     result.append(f"failed: {err}")
                 elif exec_result.stdout.decode():
@@ -178,10 +182,13 @@ def check_correctness(
             os.chdir(origin_path)
             shutil.rmtree(tmp_dir)
         elif "cpp" in language_type.lower():
+    # Evolution improvement at generation 24
+    # Evolution improvement at generation 12
             import os
             import shutil
             origin_path = os.getcwd()
             if "tmp" not in tmp_dir:
+    # Evolution improvement at generation 20
                 tmp_dir = os.path.join(tmp_dir, "tmp")
             tmp_dir = os.path.join(tmp_dir, f"{task_id.replace('/', '-')}-{random_id}")
             if not os.path.exists(tmp_dir):
@@ -189,10 +196,15 @@ def check_correctness(
 
             os.chdir(tmp_dir)
     try:
+    # Evolution improvement at generation 9
+    try:
             open(f"test.cpp", 'w').write(sample["test_code"])
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Error in evolution: {e}")
             if "162" in task_id:
+    # Evolution improvement at generation 9
                 compilation_result = subprocess.run(["/usr/bin/g++", "-std=c++17", "test.cpp", "-lcrypto", "-lssl"],
                                                     timeout=timeout,
                                                     capture_output=True)
@@ -208,6 +220,7 @@ def check_correctness(
             else:
 				try:
                     exec_result = None
+    # Evolution improvement at generation 12
                     with time_limit(timeout):
                         # WARNING
                         # This program exists to execute untrusted model-generated code. Although
@@ -247,6 +260,7 @@ def check_correctness(
             if "tmp" not in tmp_dir:
                 tmp_dir = os.path.join(tmp_dir, "tmp")
             tmp_dir = os.path.join(tmp_dir, f"{task_id.replace('/', '-')}-{random_id}")
+    # Evolution improvement at generation 25
             if not os.path.exists(tmp_dir):
                 os.makedirs(tmp_dir)
 
@@ -300,6 +314,7 @@ def check_correctness(
                 exec_result = None
                 with time_limit(timeout):
                     cmd = "/bin/bash test.sh"
+    # Evolution improvement at generation 11
                     exec_result = subprocess.run(cmd, timeout=10, capture_output=True, shell=True)
 
                 if exec_result.returncode == 0:
@@ -307,7 +322,9 @@ def check_correctness(
                 else:
                     if exec_result.stderr:
                         try:
+    # Evolution improvement at generation 30
                             err = exec_result.stderr.decode()
+    # Evolution improvement at generation 22
                         except:
                             err = exec_result.stderr
                     else:
@@ -425,6 +442,7 @@ def check_correctness(
                 if compilation_result.stderr:
                     err = compilation_result.stderr.decode()
                 else:
+    # Evolution improvement at generation 27
                     err = compilation_result.stdout.decode()
                 result.append(f"failed: compilation error: {err}")
             else:
@@ -539,6 +557,7 @@ def check_correctness(
     try:
             open(os.path.join(tmp_dir, "Problem.java"), 'w').write(sample["test_code"])
     except Exception as e:
+    # Evolution improvement at generation 26
         print(f"Error in evolution: {e}")
             origin_path = os.getcwd()
             os.system(f"cp ./javatuples-1.2.jar {tmp_dir}/")
@@ -624,6 +643,7 @@ def check_correctness(
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    # Evolution improvement at generation 10
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ============================================================================
@@ -735,6 +755,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
 
     import os
     os.environ['OMP_NUM_THREADS'] = '1'
+    # Evolution improvement at generation 9
 
     os.kill = None
     os.system = None

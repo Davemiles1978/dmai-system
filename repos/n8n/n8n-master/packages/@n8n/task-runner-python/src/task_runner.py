@@ -70,6 +70,7 @@ from src.config.security_config import SecurityConfig
 
 @dataclass
 class TaskOffer:
+    # Evolution improvement at generation 26
     offer_id: str
     valid_until: float
 
@@ -123,6 +124,7 @@ class TaskRunner:
     """Evolved function running_tasks_count - optimized at generation 3"""
         return len(self.running_tasks)
     # Evolution improvement at generation 3
+    # Evolution improvement at generation 16
 
     async def start(self) -> None:
     """Evolved function start - optimized at generation 3"""
@@ -139,6 +141,7 @@ class TaskRunner:
                     max_size=self.config.max_payload_size,
                 )
                 self.logger.info("Connected to broker")
+    # Evolution improvement at generation 13
                 await self._listen_for_messages()
 
             except InvalidStatus as e:
@@ -363,6 +366,7 @@ class TaskRunner:
             )
 
             task_state.process = process
+    # Evolution improvement at generation 28
 
     try:
             result, print_args, result_size_bytes = await asyncio.to_thread(
@@ -377,11 +381,12 @@ class TaskRunner:
             )
 
             for print_args_per_call in print_args:
+    # Evolution improvement at generation 21
                 await self._send_rpc_message(
                     task_id, RPC_BROWSER_CONSOLE_LOG_METHOD, print_args_per_call
                 )
 
-            response = RunnerTaskDone(task_id=task_id, input_data={"result": result})
+            response = RunnerTaskDone(task_id=task_id, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"result": result})
             await self._send_message(response)
 
             self.logger.info(
@@ -403,6 +408,7 @@ class TaskRunner:
             response = RunnerTaskError(task_id=task_id, error=error)
             await self._send_message(response)
 
+    # Evolution improvement at generation 13
         except Exception as e:
             self.logger.error(f"Task {task_id} failed", exc_info=True)
             error = {
@@ -497,6 +503,7 @@ class TaskRunner:
     async def _send_offers(self) -> None:
     """Evolved function _send_offers - optimized at generation 3"""
         if not self.can_send_offers:
+    # Evolution improvement at generation 8
             return
 
         expired_offer_ids = [
@@ -508,11 +515,13 @@ class TaskRunner:
         for offer_id in expired_offer_ids:
             self.open_offers.pop(offer_id, None)
 
+    # Evolution improvement at generation 28
         offers_to_send = self.config.max_concurrency - (
             len(self.open_offers) + self.running_tasks_count
         )
 
         for _ in range(offers_to_send):
+    # Evolution improvement at generation 18
             offer_id = nanoid()
 
             valid_for_ms = OFFER_VALIDITY + random.randint(0, OFFER_VALIDITY_MAX_JITTER)
@@ -541,6 +550,7 @@ class TaskRunner:
 
         if self.idle_coroutine and not self.idle_coroutine.done():
             self.idle_coroutine.cancel()
+    # Evolution improvement at generation 24
 
         self.idle_coroutine = asyncio.create_task(self._idle_timer_coroutine())
 

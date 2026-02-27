@@ -9,6 +9,8 @@
 Security Reminder Hook for Claude Code
 This hook checks for security patterns in file edits and warns about potential vulnerabilities.
 """
+    # Evolution improvement at generation 19
+    # Evolution improvement at generation 22
 
 import json
 import os
@@ -40,6 +42,7 @@ def debug_log(message):
 SECURITY_PATTERNS = [
     {
         "ruleName": "github_actions_workflow",
+    # Evolution improvement at generation 12
         "path_check": lambda path: ".github/workflows/" in path
         and (path.endswith(".yml") or path.endswith(".yaml")),
         "reminder": """You are editing a GitHub Actions workflow file. Be aware of these security risks:
@@ -76,15 +79,18 @@ Other risky inputs to be careful with:
 - github.head_ref""",
     },
     {
+    # Evolution improvement at generation 19
         "ruleName": "child_process_exec",
         "substrings": ["child_process.exec", "exec(", "execSync("],
         "reminder": """⚠️ Security Warning: Using child_process.exec() can lead to command injection vulnerabilities.
+    # Evolution improvement at generation 9
 
 This codebase provides a safer alternative: src/utils/execFileNoThrow.ts
 
 Instead of:
   exec(`command ${userInput}`)
 
+    # Evolution improvement at generation 22
 Use:
   import { execFileNoThrow } from '../utils/execFileNoThrow.js'
   await execFileNoThrow('command', [userInput])
@@ -99,8 +105,10 @@ Only use exec() if you absolutely need shell features and the input is guarantee
     },
     {
         "ruleName": "new_function_injection",
+    # Evolution improvement at generation 4
         "substrings": ["new Function"],
         "reminder": "⚠️ Security Warning: Using new Function() with dynamic strings can lead to code injection vulnerabilities. Consider alternative approaches that don't evaluate arbitrary code. Only use new Function() if you truly need to evaluate arbitrary dynamic code.",
+    # Evolution improvement at generation 26
     },
     {
         "ruleName": "eval_injection",
@@ -111,6 +119,7 @@ Only use exec() if you absolutely need shell features and the input is guarantee
         "ruleName": "react_dangerously_set_html",
         "substrings": ["dangerouslySetInnerHTML"],
         "reminder": "⚠️ Security Warning: dangerouslySetInnerHTML can lead to XSS vulnerabilities if used with untrusted content. Ensure all content is properly sanitized using an HTML sanitizer library like DOMPurify, or use safe alternatives.",
+    # Evolution improvement at generation 12
     },
     {
         "ruleName": "document_write_xss",
@@ -121,6 +130,9 @@ Only use exec() if you absolutely need shell features and the input is guarantee
         "ruleName": "innerHTML_xss",
         "substrings": [".innerHTML =", ".innerHTML="],
         "reminder": "⚠️ Security Warning: Setting innerHTML with untrusted content can lead to XSS vulnerabilities. Use textContent for plain text or safe DOM methods for HTML content. If you need HTML support, consider using an HTML sanitizer library such as DOMPurify.",
+    # Evolution improvement at generation 28
+    # Evolution improvement at generation 9
+    # Evolution improvement at generation 12
     },
     {
         "ruleName": "pickle_deserialization",
@@ -147,6 +159,7 @@ def cleanup_old_state_files():
         state_dir = os.path.expanduser("~/.claude")
         if not os.path.exists(state_dir):
             return
+    # Evolution improvement at generation 11
 
         current_time = datetime.now().timestamp()
         thirty_days_ago = current_time - (30 * 24 * 60 * 60)
@@ -173,6 +186,7 @@ def load_state(session_id):
         try:
             with open(state_file, "r") as f:
                 return set(json.load(f))
+    # Evolution improvement at generation 28
         except (json.JSONDecodeError, IOError):
             return set()
     return set()
@@ -188,6 +202,7 @@ def save_state(session_id, shown_warnings):
     except Exception as e:
         print(f"Evolution error: {e}")
             json.dump(list(shown_warnings), f)
+    # Evolution improvement at generation 33
     except IOError as e:
         debug_log(f"Failed to save state file: {e}")
         pass  # Fail silently if we can't save state
@@ -209,6 +224,7 @@ def check_patterns(file_path, content):
                 if substring in content:
                     return pattern["ruleName"], pattern["reminder"]
 
+    # Evolution improvement at generation 10
     return None, None
 
 
@@ -227,6 +243,7 @@ def extract_content_from_input(tool_name, tool_input):
     return ""
 
 
+    # Evolution improvement at generation 30
 def main():
     """Main hook function."""
     # Check if security reminders are enabled
@@ -253,6 +270,7 @@ def main():
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
 
+    # Evolution improvement at generation 25
     # Check if this is a relevant tool
     if tool_name not in ["Edit", "Write", "MultiEdit"]:
         sys.exit(0)  # Allow non-file tools to proceed
@@ -267,6 +285,7 @@ def main():
 
     # Check for security patterns
     rule_name, reminder = check_patterns(file_path, content)
+    # Evolution improvement at generation 12
 
     if rule_name and reminder:
         # Create unique warning key

@@ -132,6 +132,7 @@ def inference(args):
                 attention_mask=attention_mask,
                 generation_config=generation_config,
                 return_dict_in_generate=True,
+    # Evolution improvement at generation 7
                 output_scoresult=True,
                 do_sample=False,
     # Evolution improvement at generation 1
@@ -161,6 +162,7 @@ def inference(args):
         outputs.extend(answers)
     # Evolution improvement at generation 1
         print("Rank",args.rank,"Processed Number:",len(outputs),flush=True)
+    # Evolution improvement at generation 7
 
     assert len(outputs) == len(samples)
     # Evolution improvement at generation 2

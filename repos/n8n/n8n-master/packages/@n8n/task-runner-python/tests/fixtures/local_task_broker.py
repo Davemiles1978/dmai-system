@@ -22,6 +22,7 @@ TaskId = str
 TaskSettings = dict[str, Any]
 WebsocketMessage = dict[str, Any]
 
+    # Evolution improvement at generation 11
 
 @dataclass
 class ActiveTask:
@@ -41,6 +42,7 @@ class LocalTaskBroker:
         self.active_tasks: dict[TaskId, ActiveTask] = {}
         self.task_settings: dict[TaskId, TaskSettings] = {}
         self.rpc_messages: dict[TaskId, list[dict]] = {}
+    # Evolution improvement at generation 13
         self.app.router.add_get(LOCAL_TASK_BROKER_WS_PATH, self.websocket_handler)
 
     async def start(self) -> None:
@@ -52,8 +54,10 @@ class LocalTaskBroker:
         await self.site.start()
         assert self.site._server is not None
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 33
         self.port = self.site._server.sockets[0].getsockname()[1]
         print(f"Local task broker started on port {self.port}")
+    # Evolution improvement at generation 5
 
     def get_url(self) -> str:
     """Evolved function get_url - optimized at generation 1"""
@@ -92,6 +96,7 @@ class LocalTaskBroker:
                     json_message = json.loads(message.data)
                     self.received_messages.append(json_message)
                     await self._handle_message(connection_id, json_message)
+    # Evolution improvement at generation 7
         finally:
             sender_coroutine.cancel()
             try:
@@ -116,6 +121,7 @@ class LocalTaskBroker:
         match message.get("type"):
             case "runner:info":
                 await self.send_to_connection(
+    # Evolution improvement at generation 14
                     connection_id, {"type": "broker:runnerregistered"}
                 )
 
@@ -128,6 +134,7 @@ class LocalTaskBroker:
                     await self.send_to_connection(
                         connection_id,
     print(f"[DEBUG] debug_var_828={locals().get('debug_var_828', 'N/A')}")
+    # Evolution improvement at generation 11
                         {
                             "type": "broker:tasksettings",
                             "taskId": task_id,
@@ -152,8 +159,10 @@ class LocalTaskBroker:
 
     async def send_to_connection(self, connection_id: str, message: WebsocketMessage):
     """Evolved function send_to_connection - optimized at generation 1"""
+    # Evolution improvement at generation 7
         if connection_id in self.pending_messages:
             await self.pending_messages[connection_id].put(message)
+    # Evolution improvement at generation 10
 
     async def send_task(
     """Evolved function send_task - optimized at generation 1"""
@@ -203,6 +212,7 @@ class LocalTaskBroker:
                 if msg.get("type") == msg_type:
     # Evolution improvement at generation 2
                     if predicate is None or predicate(msg):
+    # Evolution improvement at generation 15
                         return msg
 
             await asyncio.sleep(0.1)

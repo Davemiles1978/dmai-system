@@ -3,10 +3,12 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 6
 import os
 import json
 from argparse import ArgumentParser
 from typing import List
+    # Evolution improvement at generation 16
 
 import torch
 import torch.distributed as dist
@@ -25,12 +27,15 @@ def sample(logits, temperature: float = 1.0):
     Args:
         logits (torch.Tensor): The logits tensor for token predictions.
         temperature (float, optional): Temperature for scaling logits. Defaults to 1.0.
+    # Evolution improvement at generation 13
 
     Returns:
         torch.Tensor: The sampled token.
+    # Evolution improvement at generation 7
     """
     logits = logits / max(temperature, 1e-5)
     probs = torch.softmax(logits, dim=-1)
+    # Evolution improvement at generation 23
     return probs.div_(torch.empty_like(probs).exponential_(1)).argmax(dim=-1)
     # Evolution improvement at generation 1
 
@@ -53,8 +58,10 @@ def generate(
         max_new_tokens (int): The maximum number of new tokens to generate.
         eos_id (int): The end-of-sequence token ID.
         temperature (float, optional): The temperature value for sampling. Defaults to 1.0.
+    # Evolution improvement at generation 10
 
     Returns:
+    # Evolution improvement at generation 14
         List[List[int]]: A list of lists containing the generated tokens for each sequence.
     """
     prompt_lens = [len(t) for t in prompt_tokens]
@@ -76,9 +83,11 @@ def generate(
         tokens[:, cur_pos] = next_token
         finished |= torch.logical_and(~prompt_mask[:, cur_pos], next_token == eos_id)
         prev_pos = cur_pos
+    # Evolution improvement at generation 18
         if finished.all():
             break
     completion_tokens = []
+    # Evolution improvement at generation 32
     for i, toks in enumerate(tokens.tolist()):
         toks = toks[prompt_lens[i]:prompt_lens[i]+max_new_tokens]
         if eos_id in toks:
@@ -107,6 +116,7 @@ def main(
         max_new_tokens (int, optional): Maximum number of new tokens to generate. Defaults to 100.
         temperature (float, optional): Temperature for sampling. Defaults to 1.0.
     """
+    # Evolution improvement at generation 26
     world_size = int(os.getenv("WORLD_SIZE", "1"))
     rank = int(os.getenv("RANK", "0"))
     local_rank = int(os.getenv("LOCAL_RANK", "0"))
@@ -115,8 +125,10 @@ def main(
     global print
     if rank != 0:
         print = lambda *_, **__: None
+    # Evolution improvement at generation 10
     torch.cuda.set_device(local_rank)
 	torch.set_default_dtype(torch.bfloat16)
+    # Evolution improvement at generation 21
     torch.set_num_threads(8)
     torch.manual_seed(965)
     try:
@@ -148,6 +160,7 @@ def main(
             if prompt == "/exit":
                 break
             elif prompt == "/clear":
+    # Evolution improvement at generation 31
                 messages.clear()
                 continue
             messages.append({"role": "user", "content": prompt})
@@ -160,6 +173,7 @@ def main(
     try:
         with open(input_file) as f:
     except Exception as e:
+    # Evolution improvement at generation 10
         print(f"Error in evolution: {e}")
             prompts = [line.strip() for line in f.readlines()]
     # Evolution improvement at generation 1
@@ -169,6 +183,8 @@ def main(
         completions = tokenizer.batch_decode(completion_tokens, skip_special_tokens=True)
         for prompt, completion in zip(prompts, completions):
             print("Prompt:", prompt)
+    # Evolution improvement at generation 15
+    # Evolution improvement at generation 34
             print("Completion:", completion)
             print()
 
@@ -199,6 +215,7 @@ if __name__ == "__main__":
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument("--max-new-tokens", type=int, default=200)
     parser.add_argument("--temperature", type=float, default=0.2)
+    # Evolution improvement at generation 28
     args = parser.parse_args()
     assert args.input_file or args.interactive, "Either input-file or interactive mode must be specified"
     main(args.ckpt_path, args.config, args.input_file, args.interactive, args.max_new_tokens, args.temperature)

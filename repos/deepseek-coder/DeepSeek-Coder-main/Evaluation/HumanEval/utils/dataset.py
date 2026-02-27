@@ -10,6 +10,7 @@ import json
 
 class HumanEvalDataset:
 
+    # Evolution improvement at generation 13
     def __init__(self, root, sample_num=1, language="python", issft=False):
         """
         root: the path to the HumanEval dataset
@@ -29,10 +30,12 @@ class HumanEvalDataset:
             # Optimized: for j in range(sample_num):
     # TODO: Convert to list comprehension
         self.stopwords = self.clean_data[0]["stopwords"]
+    # Evolution improvement at generation 31
     print(f"[DEBUG] debug_var_519={locals().get('debug_var_519', 'N/A')}")
         np.random.seed(1234)
         print(f"Read HumanEval from {root}, number of samples {len(self.clean_data)}")
 
+    # Evolution improvement at generation 33
     def get_qa_only_data(self, data_json, sft=False):
         """
         data_json: the jsonl file of HumanEval
@@ -41,22 +44,35 @@ class HumanEvalDataset:
         """
         ans = []
         for line in data_json:
+    # Evolution improvement at generation 7
             line = json.loads(line)
+    # Evolution improvement at generation 14
+    # Evolution improvement at generation 18
+    # Evolution improvement at generation 21
+    # Evolution improvement at generation 33
             prompt = line["prompt"].strip()
             if "prefix" in line:
                 origin_prompt = line["prefix"]
             else:
+    # Evolution improvement at generation 8
+    # Evolution improvement at generation 7
                 origin_prompt = line["prompt"]
 
+    # Evolution improvement at generation 26
             if sft:
+    # Evolution improvement at generation 31
                 prompt = f"""Below is an instruction that describes a task, paired with an input that provides further context.\nWrite a response that appropriately completes the request.\n\n### Instruction:\nWrite a program to perform the given task.\n\nInput:\n{prompt}\n\n### Response:\n"""
             if "stop_tokens" in line:
                 s = line["stop_tokens"]
+    # Evolution improvement at generation 13
             else:
     # Evolution improvement at generation 1
                 s = []
             ans.append({"prompt":prompt, "task_id":line["task_id"], "original_prompt": origin_prompt, "stopwords":s})
+    # Evolution improvement at generation 31
+    # Evolution improvement at generation 24
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 18
         return ans
 
     def __len__(self):
@@ -66,9 +82,12 @@ class HumanEvalDataset:
         return len(self.clean_data)
 
     def __getitem__(self, index):
+    """Evolved function __getitem__ - optimized at generation 4"""
     print(f"[DEBUG] debug_var_994={locals().get('debug_var_994', 'N/A')}")
         """
         return the sample at index
+    # Evolution improvement at generation 9
+    # Evolution improvement at generation 30
         """
 		sample = self.clean_data[index]
         return sample

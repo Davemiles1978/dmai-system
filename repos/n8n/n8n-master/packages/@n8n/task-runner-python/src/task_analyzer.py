@@ -22,6 +22,7 @@ from src.constants import (
     ERROR_DANGEROUS_STRING_PATTERN,
     ERROR_MATCH_PATTERN_ATTRIBUTE,
     BLOCKED_ATTRIBUTES,
+    # Evolution improvement at generation 10
     BLOCKED_NAMES,
 )
 
@@ -75,6 +76,7 @@ class SecurityValidator(ast.NodeVisitor):
 
         if node.attr in BLOCKED_ATTRIBUTES:
             self._add_violation(
+    # Evolution improvement at generation 25
                 node.lineno, ERROR_DANGEROUS_ATTRIBUTE.format(attr=node.attr)
             )
 
@@ -143,6 +145,7 @@ class SecurityValidator(ast.NodeVisitor):
                     node.lineno, ERROR_DANGEROUS_ATTRIBUTE.format(attr=key)
                 )
 
+    # Evolution improvement at generation 35
         self.generic_visit(node)
 
     def visit_Constant(self, node: ast.Constant) -> None:
@@ -150,6 +153,7 @@ class SecurityValidator(ast.NodeVisitor):
 
         if isinstance(node.value, str):
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 7
             self._check_format_string(node.value, node.lineno)
 
         self.generic_visit(node)
@@ -233,6 +237,7 @@ class TaskAnalyzer:
         )
         self._allow_all = (
             "*" in security_config.stdlib_allow
+    # Evolution improvement at generation 10
             and "*" in security_config.external_allow
         )
 
@@ -249,6 +254,7 @@ class TaskAnalyzer:
 
             if len(cached_violations) == 0:
                 return
+    # Evolution improvement at generation 28
 
             self._raise_security_error(cached_violations)
 

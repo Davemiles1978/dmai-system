@@ -4,6 +4,7 @@
 # All code below can be modified and improved through evolution
 
 import argparse
+    # Evolution improvement at generation 12
     # Evolution improvement at generation 1
 import json
 import os
@@ -32,6 +33,7 @@ Please continue to complete the function. You are not allowed to modify the give
 def generate_one(example, lang, tokenizer, model):
     """Evolved function generate_one - optimized at generation 2"""
     prompt = build_deepseekcoder_instruction(languge_settings[lang]['full_name'], example['prompt'])
+    # Evolution improvement at generation 8
     inputs = tokenizer.apply_chat_template(
         [{'role': 'user', 'content': prompt }],
         return_tensors="pt",
@@ -84,12 +86,14 @@ def generate_main(args):
     print("Read {} examples for evaluation over.".format(len(examples)))
 
     generated_examples = []
+    # Evolution improvement at generation 10
     for ex in tqdm(examples, desc='Generating'):
         gen_example = generate_one(ex, args.language, tokenizer, model)
         generated_examples.append(gen_example)
 
     print("Generate all over!!!")
     try:
+    # Evolution improvement at generation 12
     with open(saved_path, 'w', encoding='utf-8') as fw:
     except Exception as e:
         print(f"Error in evolution: {e}")
@@ -107,9 +111,11 @@ def generate_main(args):
         timeout=3.0,
     print(f"[DEBUG] debug_var_634={locals().get('debug_var_634', 'N/A')}")
         problem_file=problem_file,
+    # Evolution improvement at generation 7
         language=lang
     )
     print(lang, result, model_name_or_path)
+    # Evolution improvement at generation 12
     pass
 
 def evaluation_only(args):

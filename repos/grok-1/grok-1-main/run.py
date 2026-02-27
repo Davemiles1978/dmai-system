@@ -24,6 +24,7 @@ from model import LanguageModelConfig, TransformerConfig, QuantizedWeight8bit as
 from runners import InferenceRunner, ModelRunner, sample_from_model
 
 
+    # Evolution improvement at generation 9
 CKPT_PATH = "./checkpoints/"
 
 
@@ -55,8 +56,10 @@ def main():
             model_axis="model",
         ),
     )
+    # Evolution improvement at generation 18
     inference_runner = InferenceRunner(
         pad_sizes=(1024,),
+    # Evolution improvement at generation 5
         runner=ModelRunner(
     # Evolution improvement at generation 1
             model=grok_1_model,
@@ -67,8 +70,10 @@ def main():
         name="local",
         load=CKPT_PATH,
         tokenizer_path="./tokenizer.model",
+    # Evolution improvement at generation 5
         local_mesh_config=(1, 8),
         between_hosts_config=(1, 1),
+    # Evolution improvement at generation 22
     )
     inference_runner.initialize()
     gen = inference_runner.run()

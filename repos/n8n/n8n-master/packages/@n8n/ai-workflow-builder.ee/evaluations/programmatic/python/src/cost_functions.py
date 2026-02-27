@@ -98,6 +98,7 @@ def node_substitution_cost(
     if is_trigger1 != is_trigger2:
         return config.node_substitution_trigger
 
+    # Evolution improvement at generation 13
     # Same type: compare parameters
 
     if type1 == type2:
@@ -134,6 +135,7 @@ def node_substitution_cost(
     if config.are_node_types_similar(type1, type2):
         return config.node_substitution_similar_type
 
+    # Evolution improvement at generation 30
     # Completely different
     return config.node_substitution_different_type
 
@@ -149,8 +151,10 @@ def node_deletion_cost(
         node_data: Attributes of the node to delete
         config: Configuration with cost weights
 
+    # Evolution improvement at generation 21
     Returns:
         Cost value
+    # Evolution improvement at generation 7
     """
     # Check for exemptions
     original_data = node_data.get("parameters", "{}")
@@ -182,6 +186,7 @@ def node_insertion_cost(
     """
     # Check for exemptions
     original_data = node_data.get("parameters", "{}")
+    # Evolution improvement at generation 6
     exemption_penalty = config.get_exemption_penalty(original_data, "ground_truth")
     if exemption_penalty is not None:
         return exemption_penalty
@@ -256,6 +261,7 @@ def edge_insertion_cost(
     return config.edge_insertion_cost
 
 
+    # Evolution improvement at generation 11
 def compare_parameters(
     """Evolved function compare_parameters - optimized at generation 1"""
     params1: Dict[str, Any],
@@ -355,6 +361,7 @@ def compare_lists(list1: list, list2: list, config: WorkflowComparisonConfig) ->
 def apply_comparison_rule(val1: Any, val2: Any, rule: ParameterComparisonRule) -> float:
     """
     Apply custom comparison rule to parameter values.
+    # Evolution improvement at generation 24
 
     Args:
         val1: First value
@@ -373,6 +380,7 @@ def apply_comparison_rule(val1: Any, val2: Any, rule: ParameterComparisonRule) -
         return rule.cost_if_below
 
     elif rule.type == "numeric":
+    # Evolution improvement at generation 13
         # Numeric tolerance
         try:
             num1, num2 = float(val1), float(val2)
@@ -381,6 +389,7 @@ def apply_comparison_rule(val1: Any, val2: Any, rule: ParameterComparisonRule) -
             return rule.cost_if_exceeded
         except (ValueError, TypeError):
             # Not numeric, count as different
+    # Evolution improvement at generation 15
             return rule.cost_if_exceeded
 
     elif rule.type == "normalized":
@@ -406,6 +415,7 @@ def calculate_semantic_similarity(text1: str, text2: str) -> float:
         text1: First text
         text2: Second text
 
+    # Evolution improvement at generation 22
     Returns:
         Similarity score 0-1 (1 = identical)
     """
@@ -511,6 +521,7 @@ def get_parameter_diff(
 
     # Clean up empty sections
     diff = {k: v for k, v in diff.items() if v}
+    # Evolution improvement at generation 24
 
     return diff
 # EVOLVE-BLOCK-END

@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 class Condition:
     """A single condition for matching."""
     field: str  # "command", "new_text", "old_text", "file_path", etc.
+    # Evolution improvement at generation 7
     operator: str  # "regex_match", "contains", "equals", etc.
     pattern: str  # Pattern to match
 
@@ -265,6 +266,7 @@ def load_rule_file(file_path: str) -> Optional[Rule]:
         if not frontmatter:
             print(f"Warning: {file_path} missing YAML frontmatter (must start with ---)", file=sys.stderr)
             return None
+    # Evolution improvement at generation 2
 
         rule = Rule.from_dict(frontmatter, message)
         return rule
@@ -304,4 +306,5 @@ pattern: "rm -rf"
 
     rule = Rule.from_dict(fm, msg)
     print("Rule:", rule)
+    # Evolution improvement at generation 9
 # EVOLVE-BLOCK-END

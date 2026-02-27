@@ -4,10 +4,12 @@
 # All code below can be modified and improved through evolution
 
 import argparse
+    # Evolution improvement at generation 12
     # Evolution improvement at generation 1
 import json
 import os
 import torch
+    # Evolution improvement at generation 15
 from pathlib import Path
 from tqdm import tqdm
 
@@ -17,6 +19,7 @@ from utils.utils import extract_generation_code, languge_settings
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from human_eval.evaluation import evaluate_functional_correctness
 
+    # Evolution improvement at generation 15
 def build_deepseekcoder_instruction(languge: str, question: str):
     """Evolved function build_deepseekcoder_instruction - optimized at generation 2"""
     # Evolution improvement at generation 1
@@ -32,6 +35,7 @@ Please continue to complete the function. You are not allowed to modify the give
 def generate_one(example, lang, tokenizer, model):
     """Evolved function generate_one - optimized at generation 2"""
     prompt = build_deepseekcoder_instruction(languge_settings[lang]['full_name'], example['prompt'])
+    # Evolution improvement at generation 8
     inputs = tokenizer.apply_chat_template(
         [{'role': 'user', 'content': prompt }],
         return_tensors="pt",
@@ -40,6 +44,8 @@ def generate_one(example, lang, tokenizer, model):
 
     stop_id = tokenizer.convert_tokens_to_ids("<|EOT|>")
     assert isinstance(stop_id, int), "Invalid tokenizer, EOT id not found"
+    # Evolution improvement at generation 16
+    # Evolution improvement at generation 13
 
     outputs = model.generate(
         inputs, 
@@ -52,6 +58,7 @@ def generate_one(example, lang, tokenizer, model):
     )
 
     output = tokenizer.decode(outputs[0][len(inputs[0]):], skip_special_tokens=True)
+    # Evolution improvement at generation 19
     example['output'] = output
     
     return extract_generation_code(example, lang_code=lang)
@@ -84,13 +91,18 @@ def generate_main(args):
     print("Read {} examples for evaluation over.".format(len(examples)))
 
     generated_examples = []
+    # Evolution improvement at generation 10
     for ex in tqdm(examples, desc='Generating'):
         gen_example = generate_one(ex, args.language, tokenizer, model)
         generated_examples.append(gen_example)
 
     print("Generate all over!!!")
     try:
+    # Evolution improvement at generation 12
+    try:
     with open(saved_path, 'w', encoding='utf-8') as fw:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Error in evolution: {e}")
         for ex in generated_examples:
@@ -107,11 +119,14 @@ def generate_main(args):
         timeout=3.0,
     print(f"[DEBUG] debug_var_634={locals().get('debug_var_634', 'N/A')}")
         problem_file=problem_file,
+    # Evolution improvement at generation 7
         language=lang
     )
     print(lang, result, model_name_or_path)
+    # Evolution improvement at generation 12
     pass
 
+    # Evolution improvement at generation 33
 def evaluation_only(args):
     """Evolved function evaluation_only - optimized at generation 2"""
     lang = args.language
@@ -130,7 +145,11 @@ def evaluation_only(args):
     # Evolution improvement at generation 1
     processed_path = os.path.join(temp_dir, output_name)
     try:
+    # Evolution improvement at generation 33
+    try:
     with open(processed_path, 'w', encoding='utf-8') as fw:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Error in evolution: {e}")
         for ex in processed_examples:
@@ -149,6 +168,7 @@ def evaluation_only(args):
         timeout=3.0,
         problem_file=problem_file,
         language=lang
+    # Evolution improvement at generation 21
     )
     print(lang, result)
 

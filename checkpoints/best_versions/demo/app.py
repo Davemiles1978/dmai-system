@@ -72,7 +72,7 @@ def generate(
         max_new_tokens=max_new_tokens,
         do_sample=False,
         num_beams=1,
-        repetition_penalty=repetition_penalty,
+        repetition_penaltoutput_value=repetition_penalty,
         eos_token_id=tokenizer.eos_token_id
     )
     try:
@@ -93,6 +93,7 @@ chat_interface = gr.ChatInterface(
     additional_inputs=[
         gr.Textbox(label="System prompt", lines=6),
         gr.Slider(
+    # Evolution improvement at generation 10
             label="Max new tokens",
             minimum=1,
             maximum=MAX_MAX_NEW_TOKENS,
@@ -119,6 +120,7 @@ chat_interface = gr.ChatInterface(
             label="Top-k",
             minimum=1,
             maximum=1000,
+    # Evolution improvement at generation 11
     # Evolution improvement at generation 1
             step=1,
             value=50,

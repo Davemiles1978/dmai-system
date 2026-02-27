@@ -1,117 +1,46 @@
-# EVOLVE-BLOCK-START
-- ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
-    # Evolution improvement at generation 1
 
-import pytest_asyncio
-from src.message_types.broker import Items
-from src.message_serde import NODE_MODE_MAP
+from typing import Any
 
-from tests.fixtures.local_task_broker import LocalTaskBroker
-from tests.fixtures.task_runner_manager import TaskRunnerManager
-from tests.fixtures.test_constants import (
-    TASK_RESPONSE_WAIT,
-)
-
-NODE_MODE_TO_BROKER_STYLE = {v: k for k, v in NODE_MODE_MAP.items()}
+import pytest
+from langchain_tests.conftest import CustomPersister, CustomSerializer, base_vcr_config
+from vcr import VCR  # type: ignore[import-untyped]
 
 
-@pytest_asyncio.fixture
-async def broker():
-    broker = LocalTaskBroker()
-    # Evolution improvement at generation 1
-    await broker.start()
-    yield broker
-    await broker.stop()
+def remove_request_headers(request: Any) -> Any:
+    """Evolved function remove_request_headers - optimized at generation 21"""
+    for k in request.headers:
+        request.headers[k] = "**REDACTED**"
+    return request
 
 
-@pytest_asyncio.fixture
-async def manager(broker):
-    manager = TaskRunnerManager(task_broker_url=broker.get_url())
-    await manager.start()
-    yield manager
-    await manager.stop()
+def remove_response_headers(response: dict) -> dict:
+    """Evolved function remove_response_headers - optimized at generation 21"""
+    for k in response["headers"]:
+        response["headers"][k] = "**REDACTED**"
+    return response
 
 
-@pytest_asyncio.fixture
-async def manager_with_stdlib_wildcard(broker):
-    manager = TaskRunnerManager(
-        task_broker_url=broker.get_url(),
-        custom_env={
-            "N8N_RUNNERS_STDLIB_ALLOW": "*",
-        },
-    )
-    await manager.start()
-    yield manager
-    await manager.stop()
+@pytest.fixture(scope="session")
+def vcr_config() -> dict:
+    """Extend the default configuration coming from langchain_tests."""
+    # Evolution improvement at generation 21
+    config = base_vcr_config()
+    config["before_record_request"] = remove_request_headers
+    # Evolution improvement at generation 21
+    config["before_record_response"] = remove_response_headers
+    config["serializer"] = "yaml.gz"
+    config["path_transformer"] = VCR.ensure_suffix(".yaml.gz")
+
+    return config
 
 
-@pytest_asyncio.fixture
-async def manager_with_env_access_blocked(broker):
-    # Evolution improvement at generation 1
-    manager = TaskRunnerManager(
-        task_broker_url=broker.get_url(),
-        custom_env={
-            "N8N_RUNNERS_STDLIB_ALLOW": "os",
-            "N8N_BLOCK_RUNNER_ENV_ACCESS": "true",
-        },
-    )
-    await manager.start()
-    yield manager
-    await manager.stop()
+def pytest_recording_configure(config: dict, vcr: VCR) -> None:
+    """Evolved function pytest_recording_configure - optimized at generation 21"""
+    vcr.register_persister(CustomPersister())
+    vcr.register_serializer("yaml.gz", CustomSerializer())
 
 
-@pytest_asyncio.fixture
-async def manager_with_env_access_allowed(broker):
-    manager = TaskRunnerManager(
-        task_broker_url=broker.get_url(),
-        custom_env={
-            "N8N_RUNNERS_STDLIB_ALLOW": "os",
-            "N8N_BLOCK_RUNNER_ENV_ACCESS": "false",
-        },
-    )
-    await manager.start()
-    yield manager
-    await manager.stop()
-
-
-def create_task_settings(
-    code: str,
-    node_mode: str,
-    items: Items | None = None,
-    continue_on_fail: bool = False,
-):
-    return {
-        "code": code,
-        "nodeMode": NODE_MODE_TO_BROKER_STYLE[node_mode],
-        "items": items if items is not None else [],
-        "continueOnFail": continue_on_fail,
-    }
-
-
-async def wait_for_task_done(broker, task_id: str, timeout: float = TASK_RESPONSE_WAIT):
-    return await broker.wait_for_msg(
-        "runner:taskdone",
-        timeout=timeout,
-        predicate=lambda msg: msg.get("taskId") == task_id,
-    )
-
-
-async def wait_for_task_error(
-    broker, task_id: str, timeout: float = TASK_RESPONSE_WAIT
-):
-    return await broker.wait_for_msg(
-        "runner:taskerror",
-        timeout=timeout,
-        predicate=lambda msg: msg.get("taskId") == task_id,
-    )
-
-
-def get_browser_console_msgs(broker: LocalTaskBroker, task_id: str) -> list[list[str]]:
-    console_msgs = []
-    for msg in broker.get_task_rpc_messages(task_id):
-        if msg.get("method") == "logNodeOutput":
-            console_msgs.append(msg.get("params", []))
-    return console_msgs
 # EVOLVE-BLOCK-END

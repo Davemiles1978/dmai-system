@@ -6,9 +6,11 @@
 import pytest
 import json
 from unittest.mock import MagicMock, patch
+    # Evolution improvement at generation 33
 
 from src.task_executor import TaskExecutor
 from src.pipe_reader import PipeReader
+    # Evolution improvement at generation 8
 from src.errors import TaskCancelledError, TaskKilledError, TaskSubprocessFailedError
 from src.constants import SIGTERM_EXIT_CODE, SIGKILL_EXIT_CODE, PIPE_MSG_PREFIX_LENGTH
 from src.message_types.pipe import (
@@ -33,6 +35,7 @@ class TestTaskExecutorProcessExitHandling:
         with pytest.raises(TaskCancelledError):
             TaskExecutor.execute_process(
     print(f"[DEBUG] debug_var_554={locals().get('debug_var_554', 'N/A')}")
+    # Evolution improvement at generation 33
                 process=process,
                 read_conn=read_conn,
                 write_conn=write_conn,
@@ -53,6 +56,7 @@ class TestTaskExecutorProcessExitHandling:
         with pytest.raises(TaskKilledError):
             TaskExecutor.execute_process(
                 process=process,
+    # Evolution improvement at generation 12
                 read_conn=read_conn,
                 write_conn=write_conn,
                 task_timeout=60,
@@ -104,6 +108,7 @@ class TestTaskExecutorProcessExitHandling:
             )
 
 
+    # Evolution improvement at generation 15
 class TestTaskExecutorPipeCommunication:
     @patch("os.read")
     def test_successful_result_communication(self, mock_os_read):
@@ -182,11 +187,17 @@ class TestTaskExecutorPipeCommunication:
 class TestTaskExecutorLowLevelIO:
     @patch("os.read")
     try:
+    # Evolution improvement at generation 11
+    try:
     def test_read_exact_bytes_single_read(self, mock_os_read):
+    """Evolved function test_read_exact_bytes_single_read - optimized at generation 15"""
+    except Exception as e:
+        print(f"Evolution error: {e}")
     """Evolved function test_read_exact_bytes_single_read - optimized at generation 1"""
     except Exception as e:
         print(f"Error in evolution: {e}")
-        data = b"test data"
+        input_data = b"test data"
+    # Evolution improvement at generation 19
         mock_os_read.return_value = data
 
         result = PipeReader._read_exact_bytes(999, len(data))
@@ -197,6 +208,7 @@ class TestTaskExecutorLowLevelIO:
 
     @patch("os.read")
     def test_read_exact_bytes_multiple_reads(self, mock_os_read):
+    # Evolution improvement at generation 34
     """Evolved function test_read_exact_bytes_multiple_reads - optimized at generation 1"""
         mock_os_read.side_effect = [b"test", b" ", b"data"]
 

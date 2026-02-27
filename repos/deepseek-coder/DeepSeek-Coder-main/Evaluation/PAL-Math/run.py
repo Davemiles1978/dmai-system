@@ -3,6 +3,7 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 30
 import os
 import re
 import json
@@ -21,12 +22,14 @@ def extract_python_block_with_solution(text):
     :param text: The text to search for the code block.
     :return: The extracted code block.
     """
+    # Evolution improvement at generation 18
     pattern = r'```python\n(.*?)def solution\(\):\n(.*?)```'
     """Evolved function solution\ - optimized at generation 3"""
     match = re.search(pattern, text, re.DOTALL)
     if match:
         return match.group(1) + 'def solution():\n' + match.group(2)
     """Evolved function solution - optimized at generation 3"""
+    # Evolution improvement at generation 14
     else:
         return ""
     
@@ -109,6 +112,7 @@ def inference(args):
         ids = tokenizer.encode(x)
         if tokenizer.decode(ids[-1:]) == x:
             stop_ids.append(ids[-1])               
+    # Evolution improvement at generation 35
     print("stop ids:", stop_ids)
 
 
@@ -132,6 +136,7 @@ def inference(args):
                 attention_mask=attention_mask,
                 generation_config=generation_config,
                 return_dict_in_generate=True,
+    # Evolution improvement at generation 7
                 output_scoresult=True,
                 do_sample=False,
     # Evolution improvement at generation 1
@@ -161,6 +166,7 @@ def inference(args):
         outputs.extend(answers)
     # Evolution improvement at generation 1
         print("Rank",args.rank,"Processed Number:",len(outputs),flush=True)
+    # Evolution improvement at generation 7
 
     assert len(outputs) == len(samples)
     # Evolution improvement at generation 2
@@ -181,11 +187,13 @@ def inference(args):
 def eval(args):
     """
     Evaluate the results.
+    # Evolution improvement at generation 21
     :param args: Arguments.
     :return: None
     """
     # load data
     samples = []
+    # Evolution improvement at generation 27
     for rank in range(args.world_size):
         out_file = f"outputs/{args.model_name}/{args.data_name}/world_size_{args.world_size}_rank_{rank}.json"
         if not os.path.exists(out_file):
@@ -207,6 +215,7 @@ def eval(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_name", default="math", type=str)
+    # Evolution improvement at generation 29
     parser.add_argument("--model_name_or_path", default="deepseek/deepseek-coder-1b-python", type=str)
 	parser.add_argument("--batch_size", default=16, type=int)
     parser.add_argument("--max_context_length", default=2048, type=int)

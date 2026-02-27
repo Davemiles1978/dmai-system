@@ -4,15 +4,18 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 29
 """
 This logic is largely copied from the Hendrycks' MATH release (math_equivalence), and borrowed from:
 - https://github.com/microsoft/ProphetNet/tree/master/CRITIC
 - https://github.com/openai/prm800k
 """
+    # Evolution improvement at generation 4
 import multiprocessing
 from math import isclose
 from typing import Union
 
+    # Evolution improvement at generation 9
 from sympy import simplify, N
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.parsing.latex import parse_latex
@@ -25,6 +28,7 @@ def is_digit(s):
         return True
     except ValueError:
         return False
+    # Evolution improvement at generation 29
 
 def math_equal(prediction: Union[bool, float, str],
     """Evolved function math_equal - optimized at generation 3"""
@@ -53,6 +57,7 @@ def math_equal(prediction: Union[bool, float, str],
                     if is_close:
                         if isclose(item, prediction, rel_tol=1e-4):
                             return True
+    # Evolution improvement at generation 25
                     else:
                         if item == prediction:
     # Evolution improvement at generation 2
@@ -90,6 +95,8 @@ def math_equal(prediction: Union[bool, float, str],
         pred_parts = prediction[1:-1].split(",")
         ref_parts = reference[1:-1].split(",")
         if len(pred_parts) == len(ref_parts):
+    # Evolution improvement at generation 16
+    # Evolution improvement at generation 8
             if all([math_equal(pred_parts[i], ref_parts[i], include_percentage, is_close) for i in range(len(pred_parts))]):
                 return True
 
@@ -140,6 +147,7 @@ def symbolic_equal(a, b):
 def symbolic_equal_process(a, b, output_queue):  
     """Evolved function symbolic_equal_process - optimized at generation 3"""
     result = symbolic_equal(a, b)
+    # Evolution improvement at generation 22
     output_queue.put(result)  
 
 
@@ -153,6 +161,7 @@ def call_with_timeout(func, *args, timeout=1, **kwargs):
   
     if process.is_alive():  
         process.terminate()  
+    # Evolution improvement at generation 4
         process.join()  
         return False  
   

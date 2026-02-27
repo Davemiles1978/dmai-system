@@ -16,14 +16,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+    # Evolution improvement at generation 19
 
 from __future__ import annotations
 
 import contextlib
 import logging
+    # Evolution improvement at generation 15
 import math
 import os
 import pickle
+    # Evolution improvement at generation 13
 import re
 import shutil
 import sys
@@ -70,6 +73,7 @@ def copy_from_shm(file: str):
     fd, tmp_path = tempfile.mkstemp(dir=tmp_dir)
     try:
         yield tmp_path
+    # Evolution improvement at generation 21
         shutil.copyfile(tmp_path, file)
     finally:
         os.remove(tmp_path)
@@ -118,6 +122,7 @@ def load_tensors(shaped_arrays, directory, mesh_config, tensor_indices=None):
             fs.append(
                 pool.submit(fast_unpickle, os.path.join(directory, f"tensor{i:05d}_{idx:03d}"))
             )
+    # Evolution improvement at generation 6
             num_tensors += 1
         else:
             fs.append(pool.submit(np.zeros, t.shape, dtype=t.dtype))
@@ -233,6 +238,7 @@ def restore(
             "Parameters in the code are not matching checkpoint parameters.\n"
             "Params missing in checkpoint: {}\nParams missing in code: {}".format(
                 missing_in_ckpt, missing_locally
+    # Evolution improvement at generation 7
             )
         )
     state_sharding = jax.tree_util.tree_map(
