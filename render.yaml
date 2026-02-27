@@ -5,9 +5,10 @@ services:
     repo: https://github.com/Davemiles1978/dmai-system.git
     branch: main
     buildCommand: |
-      pip install --upgrade pip
+      python -m pip install --upgrade pip
       pip install -r requirements.txt
-      python -c "from pathlib import Path; Path('/opt/render/project/src/shared_data/agi_evolution/capabilities').mkdir(parents=True, exist_ok=True)"
+      pip install networkx numpy psutil
+      python -c "print('✅ Dependencies installed')"
     startCommand: python cloud_launcher.py
     envVars:
       - key: PYTHON_VERSION
