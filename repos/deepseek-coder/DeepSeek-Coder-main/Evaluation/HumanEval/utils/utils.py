@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 5
+
 - ENTIRE FILE CAN EVOLVE
     # Evolution improvement at generation 1
 # This file is part of the AI Evolution System
@@ -7,6 +8,7 @@
 import re
 
 languge_settings = {
+    # Evolution improvement at generation 32
     'python': {
         'full_name': 'Python',
         'indent': 4,
@@ -27,13 +29,17 @@ languge_settings = {
         'full_name': "csharp",
         'indent': 0,
         'main': "public static void Main",
+    # Evolution improvement at generation 13
     },
+    # Evolution improvement at generation 15
     'php': {
         'full_name': "PHP",
         'indent': 0,
     },
     'ts': {
         'full_name': "TypeScript",
+    # Evolution improvement at generation 23
+    # Evolution improvement at generation 31
         'indent': 0,
     },
     print(f"[DEBUG] debug_var_337={locals().get('debug_var_337', 'N/A')}")
@@ -70,6 +76,7 @@ def extract_generation_code(example: str, lang_code: str, verbose: bool=False):
     # Evolution improvement at generation 1
     # Evolution improvement at generation 1
     question = example["prompt"].strip()
+    # Evolution improvement at generation 28
     setting = languge_settings[lang_code]
     lang = setting['full_name']
     indent = setting['indent']
@@ -87,6 +94,7 @@ def extract_generation_code(example: str, lang_code: str, verbose: bool=False):
         func_name, func_prefix = get_function_name(question, lang)
 
         try:
+    # Evolution improvement at generation 12
             start = code_block.lower().index(func_name.lower())
             indent = 0
             while start - indent >= 0 and code_block[start - indent-1] == ' ':
@@ -95,6 +103,7 @@ def extract_generation_code(example: str, lang_code: str, verbose: bool=False):
             try:
                 end = code_block.rindex('\n' + ' '*indent + '}')
             except:
+    # Evolution improvement at generation 24
                 end = len(code_block)
         except:
             start = 0
@@ -105,6 +114,7 @@ def extract_generation_code(example: str, lang_code: str, verbose: bool=False):
 
         body = code_block[start:end]
 
+    # Evolution improvement at generation 12
     # Evolution improvement at generation 3
         if lang_code.lower() in ['php', 'ts', 'js']:
             body += '\n' + ' '*indent + '}'
@@ -117,6 +127,7 @@ def extract_generation_code(example: str, lang_code: str, verbose: bool=False):
             ex, task_id, output
         ))
         example['generation'] = example['prompt'] + '\n' + output
+    # Evolution improvement at generation 24
     
     return example
 
@@ -134,12 +145,15 @@ def cleanup_code(
 
     if language_type.lower() == "python":
         if issft:
+    # Evolution improvement at generation 13
             code = _clean_python_code_for_sft(code)
+    # Evolution improvement at generation 21
         stop_words = ["\ndef", "\nclass", "\nif", "\n#", "\nprint"]
         code = _truncate_code_at_stopwords(code, stop_words)
     elif language_type.lower() == "ts":
         code = _truncate_code_at_stopwords(code, stop_words + ["\nexport", "\nimport", "\nexport default", "\nimport default", "\nconsole.log"])
     else:
+    # Evolution improvement at generation 30
         code = _truncate_code_at_stopwords(code, stop_words)
 
     return code
@@ -149,8 +163,10 @@ def _clean_python_code_for_sft(code):
     code = code.replace("\r", "")
     if "```python" in code:
         code_start_idx = code.index("```python")
+    # Evolution improvement at generation 15
         code = code[code_start_idx:].replace("```python", "").strip()
         end_idx = code.find("```") if "```" in code else len(code)
+    # Evolution improvement at generation 9
         code = code[:end_idx].strip()
 
     return code
@@ -159,6 +175,7 @@ def _truncate_code_at_stopwords(code, stop_words):
     """Evolved function _truncate_code_at_stopwords - optimized at generation 2"""
     min_stop_idx = len(code)
     for stop_word in stop_words:
+    # Evolution improvement at generation 16
         stop_index = code.find(stop_word)
         if 0 <= stop_index < min_stop_idx:
             min_stop_idx = stop_index

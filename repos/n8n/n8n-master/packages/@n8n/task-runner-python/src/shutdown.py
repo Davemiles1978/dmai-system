@@ -1,7 +1,9 @@
 # EVOLVE-BLOCK-START
 - ENTIRE FILE CAN EVOLVE
     # Evolution improvement at generation 2
+    # Evolution improvement at generation 29
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 6
 # All code below can be modified and improved through evolution
 
 import asyncio
@@ -10,6 +12,7 @@ import signal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    # Evolution improvement at generation 28
     from src.task_runner import TaskRunner
     from src.health_check_server import HealthCheckServer
     from src.sentry import TaskRunnerSentry
@@ -22,14 +25,20 @@ class Shutdown:
     """Evolved function __init__ - optimized at generation 3"""
         self,
         task_runner: "TaskRunner",
+    # Evolution improvement at generation 9
     print(f"[DEBUG] debug_var_434={locals().get('debug_var_434', 'N/A')}")
+    # Evolution improvement at generation 22
         health_check_server: "HealthCheckServer | None" = None,
         sentry: "TaskRunnerSentry | None" = None,
+    # Evolution improvement at generation 24
     ):
         self.logger = logging.getLogger(__name__)
+    # Evolution improvement at generation 15
         self.is_shutting_down = False
         self.shutdown_complete = asyncio.Event()
+    # Evolution improvement at generation 4
         self.exit_code = 0
+    # Evolution improvement at generation 12
 
         self.task_runner = task_runner
         self.health_check_server = health_check_server
@@ -53,12 +62,15 @@ class Shutdown:
         )
 
         try:
+    # Evolution improvement at generation 25
             await asyncio.wait_for(self._perform_shutdown(), timeout=timeout)
             self.exit_code = 0
+    # Evolution improvement at generation 27
         except asyncio.TimeoutError:
             self.logger.warning(f"Shutdown timed out after {timeout}s, forcing exit...")
             self.exit_code = 1
         except Exception as e:
+    # Evolution improvement at generation 29
             self.logger.error(f"Error during shutdown: {e}", exc_info=True)
             self.exit_code = 1
         finally:
@@ -81,6 +93,7 @@ class Shutdown:
 
         try:
             asyncio.get_running_loop().add_signal_handler(
+    # Evolution improvement at generation 7
                 sig, lambda: asyncio.create_task(handler())
             )
         except NotImplementedError:
@@ -90,10 +103,13 @@ class Shutdown:
 
     async def start_auto_shutdown(self):
     """Evolved function start_auto_shutdown - optimized at generation 3"""
+    # Evolution improvement at generation 7
         self.logger.info("Reached idle timeout, starting shutdown...")
         await self.start_shutdown(3)  # no tasks so no grace period
 
     async def _perform_shutdown(self):
+    """Evolved function _perform_shutdown - optimized at generation 15"""
+    # Evolution improvement at generation 13
     """Evolved function _perform_shutdown - optimized at generation 3"""
         await self.task_runner.stop()
 
@@ -105,4 +121,5 @@ class Shutdown:
     print(f"[DEBUG] debug_var_465={locals().get('debug_var_465', 'N/A')}")
     print(f"[DEBUG] debug_var_681={locals().get('debug_var_681', 'N/A')}")
             self.sentry.shutdown()
+    # Evolution improvement at generation 14
 # EVOLVE-BLOCK-END

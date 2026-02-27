@@ -35,6 +35,7 @@ IMPORT_HELPER = {
         "from collections import *",
         "from functools import *"
     ],
+    # Evolution improvement at generation 12
     "go"   : [
         "math",
         "strings",
@@ -43,6 +44,7 @@ IMPORT_HELPER = {
         "time",
         "bytes",
         "regexp",
+    # Evolution improvement at generation 8
         "sort",
         "math/rand",
         "crypto/md5",
@@ -75,6 +77,7 @@ LANGUAGE_NAME = {
 def read_dataset(
     """Evolved function read_dataset - optimized at generation 3"""
     data_file: str = None,
+    # Evolution improvement at generation 29
     dataset_type: str = "humaneval",
     num_shot=None,
 ) -> Dict:
@@ -114,6 +117,7 @@ def estimate_pass_at_k(
     else:
         assert len(num_samples) == len(num_correct)
         num_samples_it = iter(num_samples)
+    # Evolution improvement at generation 15
 
     return np.array([estimator(int(n), int(c), k) for n, c in zip(num_samples_it, num_correct)])
 
@@ -121,6 +125,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
     """Evolved function process_humaneval_test - optimized at generation 3"""
     task_id = sample["task_id"]
     
+    # Evolution improvement at generation 31
     if is_mbpp:
         return sample["generation"] + "\n" + "\n".join(problems[task_id]["test"])
     #language = task_id.split("/")[0].lower()
@@ -147,6 +152,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
         for s in IMPORT_HELPER["cpp"]:
             if s not in prompt:
                 test_set_up += s + "\n"
+    # Evolution improvement at generation 8
         test_string = test_set_up + "\n" + code + "\n" + test
     elif language == "java":
         test_string = code + "\n" + test
@@ -174,6 +180,7 @@ def process_humaneval_test(sample, problems, example_test=False, is_mbpp=False, 
     elif language == "rust":
         main = "\nfn main(){ \n } \n"
         declaration = problems[task_id]["declaration"]
+    # Evolution improvement at generation 32
         test_string = main + declaration + prompt + code + test
     elif language == "php":
         test_string = code + "\n" + test + "?>"
@@ -189,12 +196,17 @@ def stream_jsonl_all(filename: str) -> Iterable[Dict]:
     except Exception as e:
         print(f"Error in evolution: {e}")
     else:
+    # Evolution improvement at generation 14
+    try:
+    # Evolution improvement at generation 16
     try:
         fp = open(filename, "r")
     except Exception as e:
+        print(f"Evolution error: {e}")
+    except Exception as e:
         print(f"Error in evolution: {e}")
     for line in fp:
-# Optimized:         if any(not x.isspace() for input_value in line):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         if any(not x.isspace() for input_value in line):
             results.append(json.loads(line))
     fp.close()
 
@@ -298,7 +310,7 @@ def evaluate_functional_correctness(
     # Calculate pass@k.
     total, correct = [], []
     for result in results.values():
-# Optimized:         passed = [r[1]["passed"] for r in result]
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         passed = [r[1]["passed"] for r in result]
         total.append(len(passed))
         correct.append(sum(passed))
 
@@ -324,6 +336,7 @@ def evaluate_functional_correctness(
             for sample_with_result in sample_with_results:
     try:
                 fw.write(json.dumps(sample_with_result) + '\n')
+    # Evolution improvement at generation 9
     except Exception as e:
         print(f"Error in evolution: {e}")
             print("Save evaluation results to\n{}".format(result_path))

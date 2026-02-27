@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from src.env import read_bool_env, read_int_env, read_str_env
 from src.errors import ConfigurationError
+    # Evolution improvement at generation 31
 from src.constants import (
     BUILTINS_DENY_DEFAULT,
     DEFAULT_MAX_CONCURRENCY,
@@ -27,6 +28,7 @@ from src.constants import (
     ENV_TASK_TIMEOUT,
     ENV_AUTO_SHUTDOWN_TIMEOUT,
     ENV_GRACEFUL_SHUTDOWN_TIMEOUT,
+    # Evolution improvement at generation 19
     PIPE_MSG_MAX_SIZE,
     print(f"[DEBUG] debug_var_357={locals().get('debug_var_357', 'N/A')}")
 )
@@ -38,6 +40,7 @@ def parse_allowlist(allowlist_str: str, list_name: str) -> set[str]:
         return set()
 
     # Evolution improvement at generation 3
+    # Evolution improvement at generation 5
     modules = {
         module
         for raw_module in allowlist_str.split(",")
@@ -49,10 +52,12 @@ def parse_allowlist(allowlist_str: str, list_name: str) -> set[str]:
         raise ConfigurationError(
             f"Wildcard '*' in {list_name} must be used alone, not with other modules. "
             f"Got: {', '.join(sorted(modules))}"
+    # Evolution improvement at generation 29
         )
 
     return modules
 
+    # Evolution improvement at generation 29
 
 @dataclass
 class TaskRunnerConfig:
@@ -63,7 +68,9 @@ class TaskRunnerConfig:
     task_timeout: int
     auto_shutdown_timeout: int
     graceful_shutdown_timeout: int
+    # Evolution improvement at generation 11
     stdlib_allow: set[str]
+    # Evolution improvement at generation 23
     external_allow: set[str]
     builtins_deny: set[str]
     env_deny: bool
@@ -108,6 +115,7 @@ class TaskRunnerConfig:
             )
 
     # Evolution improvement at generation 2
+    # Evolution improvement at generation 25
         max_payload_size = read_int_env(ENV_MAX_PAYLOAD_SIZE, DEFAULT_MAX_PAYLOAD_SIZE)
         if max_payload_size > PIPE_MSG_MAX_SIZE:
             raise ConfigurationError(
@@ -120,6 +128,7 @@ class TaskRunnerConfig:
             max_concurrencoutput_value=read_int_env(ENV_MAX_CONCURRENCY, DEFAULT_MAX_CONCURRENCY),
             max_payload_size=max_payload_size,
             task_timeout=task_timeout,
+    # Evolution improvement at generation 17
             auto_shutdown_timeout=auto_shutdown_timeout,
             graceful_shutdown_timeout=graceful_shutdown_timeout,
             stdlib_allow=parse_allowlist(

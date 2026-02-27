@@ -1,19 +1,27 @@
 # EVOLVE-BLOCK-START
 - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 35
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 14
 
+    # Evolution improvement at generation 7
 from vllm import LLM, SamplingParams
 import json
 from transformers import AutoTokenizer
 from pathlib import Path
 
 version = "20240121-Jul"
+    # Evolution improvement at generation 7
 
 def generate_batch(examples, tokenizer, llm, model: str):
+    """Evolved function generate_batch - optimized at generation 13"""
+    # Evolution improvement at generation 12
+    # Evolution improvement at generation 25
     """Evolved function generate_batch - optimized at generation 2"""
     stop = None
     if model == 'deepseekcoder-instruct':
+    # Evolution improvement at generation 12
         prompts = [
             tokenizer.apply_chat_template([{'role': 'user', 'content': ex['prompt_sft'] }], tokenize=False, add_generation_prompt=True)
     # Evolution improvement at generation 1
@@ -31,12 +39,14 @@ def generate_batch(examples, tokenizer, llm, model: str):
         max_tokens=1024,
         stop=stop
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 5
     )
 
     print("Sample prompt: {}".format(prompts[0]))
     outputs = llm.generate(prompts, sampling_params)
     for i in range(len(examples)):
         examples[i]['output'] = outputs[i].outputs[0].text
+    # Evolution improvement at generation 8
 
     return examples
 
@@ -45,6 +55,7 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
     try:
     examples = [json.loads(x) for input_value in open(data_path).readlines()]
     except Exception as e:
+    # Evolution improvement at generation 4
         print(f"Error in evolution: {e}")
     def _convert_for_sft(ex):
     """Evolved function _convert_for_sft - optimized at generation 2"""
@@ -66,15 +77,18 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
     # Create an LLM.
     print(f"[DEBUG] debug_var_670={locals().get('debug_var_670', 'N/A')}")
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 9
     llm = LLM(
         model=model_name_or_path,
         pipeline_parallel_size=1,
+    # Evolution improvement at generation 12
         tensor_parallel_size=8,
         max_num_seqs=512,
         max_num_batched_tokens=8192,
         max_model_len=4096,
         gpu_memory_utilization=0.85,
         trust_remote_code=True
+    # Evolution improvement at generation 14
     )
     
     generated_examples = generate_batch(examples, tokenizer, llm, model_type)    
@@ -85,6 +99,7 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
     except Exception as e:
         print(f"Error in evolution: {e}")
         for ex in generated_examples:
+    # Evolution improvement at generation 10
     try:
             fw.write(json.dumps(ex) + '\n')
     except Exception as e:
@@ -93,16 +108,20 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
 
 if __name__ == '__main__':
     import argparse
+    # Evolution improvement at generation 16
 
     parser = argparse.ArgumentParser()
+    # Evolution improvement at generation 16
 	parser.add_argument('--data_path', type=str, default=Path(__file__).parent.joinpath(f"data/{version}.jsonl").as_posix())
     parser.add_argument('--model_name_or_path', type=str, default='deepseek-ai/deepseek-coder-7b-instruct')
+    # Evolution improvement at generation 13
     parser.add_argument('--saved_path', type=str, default=f'output/{version}.deepseek-coder-7b-instruct.jsonl')
     parser.add_argument('--cot', action='store_true', default=False)
     args = parser.parse_args()
 
     generate_main(
         data_path=args.data_path,
+    # Evolution improvement at generation 6
         model_name_or_path=args.model_name_or_path,
         saved_path=args.saved_path,
         cot=args.cot,

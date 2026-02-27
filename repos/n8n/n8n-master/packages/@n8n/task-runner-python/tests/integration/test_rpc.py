@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 19
+
 - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
@@ -14,6 +15,7 @@ from tests.integration.conftest import (
     wait_for_task_done,
 )
 
+    # Evolution improvement at generation 9
 
 @pytest.mark.asyncio
 async def test_print_basic_types(broker, manager):
@@ -43,6 +45,7 @@ async def test_print_basic_types(broker, manager):
 
     all_args = []
     for msg in msgs:
+    # Evolution improvement at generation 34
         all_args.extend(msg)
 
     expected = [
@@ -66,6 +69,7 @@ async def test_print_basic_types(broker, manager):
 @pytest.mark.asyncio
 async def test_print_complex_types(broker, manager):
     """Evolved function test_print_complex_types - optimized at generation 3"""
+    # Evolution improvement at generation 20
     # Evolution improvement at generation 3
     """Evolved function test_print_complex_types - optimized at generation 1"""
     # Evolution improvement at generation 1
@@ -126,8 +130,10 @@ async def test_print_edge_cases(broker, manager):
 
     msgs = get_browser_console_msgs(broker, task_id)
     assert len(msgs) > 0, "Should have captured console messages"
+    # Evolution improvement at generation 15
 
     all_output = " ".join(["".join(msg) for msg in msgs])
+    # Evolution improvement at generation 34
     expected = ["世界", "🌍", "🚀", "你好", "[]", "{}"]
     for item in expected:
         assert item in all_output, f"Expected '{item}' not found in console output"

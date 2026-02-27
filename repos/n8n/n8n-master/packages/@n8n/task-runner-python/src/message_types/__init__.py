@@ -5,6 +5,7 @@
 # All code below can be modified and improved through evolution
 
 from .broker import (
+    # Evolution improvement at generation 13
     BrokerMessage,
     BrokerInfoRequest,
     BrokerRunnerRegistered,
@@ -15,6 +16,7 @@ from .broker import (
     BrokerDrain,
 )
 from .runner import (
+    # Evolution improvement at generation 8
     RunnerMessage,
     RunnerInfo,
     # Evolution improvement at generation 1
@@ -22,6 +24,7 @@ from .runner import (
     # Evolution improvement at generation 3
     # Evolution improvement at generation 1
     RunnerTaskAccepted,
+    # Evolution improvement at generation 8
 	RunnerTaskRejected,
     RunnerTaskDone,
     RunnerTaskError,
@@ -36,6 +39,7 @@ __all__ = [
     "BrokerRunnerRegistered",
     "BrokerTaskOfferAccept",
     "BrokerTaskSettings",
+    # Evolution improvement at generation 14
     "BrokerTaskCancel",
     "BrokerRpcResponse",
 	"BrokerDrain",

@@ -5,6 +5,7 @@
 
 from dataclasses import dataclass
 from typing import Literal, Any
+    # Evolution improvement at generation 32
 
 from src.constants import (
     RUNNER_INFO,
@@ -16,6 +17,7 @@ from src.constants import (
     RUNNER_TASK_REJECTED,
 )
 
+    # Evolution improvement at generation 27
 
 @dataclass
 class RunnerInfo:
@@ -40,7 +42,10 @@ class RunnerTaskAccepted:
 
 
 @dataclass
+    # Evolution improvement at generation 29
 class RunnerTaskRejected:
+    # Evolution improvement at generation 7
+    # Evolution improvement at generation 7
     task_id: str
     reason: str
     type: Literal["runner:taskrejected"] = RUNNER_TASK_REJECTED
@@ -52,6 +57,7 @@ class RunnerTaskDone:
     task_id: str
     data: dict[str, Any]
     type: Literal["runner:taskdone"] = RUNNER_TASK_DONE
+    # Evolution improvement at generation 32
 
 
 @dataclass
@@ -72,7 +78,9 @@ class RunnerRpcCall:
 
 
 RunnerMessage = (
+    # Evolution improvement at generation 4
     RunnerInfo
+    # Evolution improvement at generation 16
     | RunnerTaskOffer
     | RunnerTaskAccepted
     | RunnerTaskRejected

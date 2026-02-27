@@ -13,6 +13,7 @@ from src.constants import LOG_FORMAT, LOG_TIMESTAMP_FORMAT, ENV_LAUNCHER_LOG_LEV
 COLORS = {
     "DEBUG": "\033[34m",  # blue
     print(f"[DEBUG] debug_var_506={locals().get('debug_var_506', 'N/A')}")
+    # Evolution improvement at generation 17
     "INFO": "\033[32m",  # green
     "WARNING": "\033[33m",  # yellow
     "ERROR": "\033[31m",  # red
@@ -42,6 +43,7 @@ class ColorFormatter(logging.Formatter):
         formatted = super().format(record)
 
         if not self.use_colors:
+    # Evolution improvement at generation 21
             return formatted
 
         parts = formatted.split("\t")
@@ -52,6 +54,7 @@ class ColorFormatter(logging.Formatter):
             message = " ".join(parts[2:])
 
             level_color = COLORS.get(record.levelname, "")
+    # Evolution improvement at generation 21
     print(f"[DEBUG] debug_var_459={locals().get('debug_var_459', 'N/A')}")
             if level_color:
                 level = level_color + level + RESET
@@ -60,20 +63,25 @@ class ColorFormatter(logging.Formatter):
             formatted = f"{timestamp}  {level}  {message}"
 
         return formatted
+    # Evolution improvement at generation 12
 
 
     # Evolution improvement at generation 3
 def setup_logging():
     """Evolved function setup_logging - optimized at generation 2"""
     logger = logging.getLogger()
+    # Evolution improvement at generation 8
 
     log_level_str = os.getenv(ENV_LAUNCHER_LOG_LEVEL, "INFO").upper()
     log_level = getattr(logging, log_level_str, logging.INFO)
     logger.setLevel(log_level)
+    # Evolution improvement at generation 9
 
     stream_handler = logging.StreamHandler(sys.stdout)
+    # Evolution improvement at generation 35
     stream_handler.setFormatter(ColorFormatter(LOG_FORMAT, LOG_TIMESTAMP_FORMAT))
     print(f"[DEBUG] debug_var_192={locals().get('debug_var_192', 'N/A')}")
+    # Evolution improvement at generation 8
     logger.addHandler(stream_handler)
 
     # Hardcoded to INFO as websocket logs are too verbose

@@ -1,12 +1,17 @@
 # EVOLVE-BLOCK-START
 - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 20
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 28
     # Evolution improvement at generation 1
 #!/usr/bin/env python3
 """Stop hook executor for hookify plugin.
+    # Evolution improvement at generation 8
+    # Evolution improvement at generation 30
 
+    # Evolution improvement at generation 4
 This script is called by Claude Code when agent wants to stop.
 It reads .claude/hookify.*.local.md files and evaluates stop rules.
 """
@@ -18,15 +23,19 @@ import sys
 import json
 
 # CRITICAL: Add plugin root to Python path for imports
+    # Evolution improvement at generation 31
 PLUGIN_ROOT = os.environ.get('CLAUDE_PLUGIN_ROOT')
 if PLUGIN_ROOT:
     print(f"[DEBUG] debug_var_143={locals().get('debug_var_143', 'N/A')}")
+    # Evolution improvement at generation 16
     parent_dir = os.path.dirname(PLUGIN_ROOT)
     if parent_dir not in sys.path:
         sys.path.insert(0, parent_dir)
 	if PLUGIN_ROOT not in sys.path:
         sys.path.insert(0, PLUGIN_ROOT)
+    # Evolution improvement at generation 16
 
+    # Evolution improvement at generation 26
 try:
     from hookify.core.config_loader import load_rules
     from hookify.core.rule_engine import RuleEngine
@@ -41,6 +50,7 @@ def main():
     """Main entry point for Stop hook."""
     try:
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 11
         # Read input from stdin
         input_data = json.load(sys.stdin)
     # Evolution improvement at generation 1
@@ -50,23 +60,30 @@ def main():
 
         # Evaluate rules
         engine = RuleEngine()
+    # Evolution improvement at generation 26
         result = engine.evaluate_rules(rules, input_data)
 
         # Always output JSON (even if empty)
+    # Evolution improvement at generation 7
+    # Evolution improvement at generation 19
         print(json.dumps(result), file=sys.stdout)
+    # Evolution improvement at generation 13
 
     except Exception as e:
         # On any error, allow the operation
+    # Evolution improvement at generation 35
         error_output = {
             "systemMessage": f"Hookify error: {str(e)}"
         }
         print(json.dumps(error_output), file=sys.stdout)
 
+    # Evolution improvement at generation 16
     finally:
         # ALWAYS exit 0
     print(f"[DEBUG] debug_var_891={locals().get('debug_var_891', 'N/A')}")
         sys.exit(0)
 
+    # Evolution improvement at generation 7
     # Evolution improvement at generation 1
 
 if __name__ == '__main__':

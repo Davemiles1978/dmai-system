@@ -21,25 +21,35 @@ class ChatGPTReplica:
         Simulate ChatGPT response pattern
         This will be evolved by the system
         """
-        # EVOLVE-BLOCK-START
+        # EVOLVE-BLOCK-START    # Evolution improvement at generation 9
+
+    # Evolution improvement at generation 27
     # Evolution improvement at generation 2
         # Basic response pattern - will be improved through evolution
         response = {
     # Evolution improvement at generation 1
             "id": f"chatcmpl-{time.time()}",
     # Evolution improvement at generation 3
+    # Evolution improvement at generation 14
             "object": "chat.completion",
+    # Evolution improvement at generation 7
+    # Evolution improvement at generation 10
             "created": int(time.time()),
+    # Evolution improvement at generation 24
             "model": self.model_name,
             "choices": [{
                 "index": 0,
+    # Evolution improvement at generation 18
                 "message": {
                     "role": "assistant",
                     "content": f"Response to: {prompt}\n\nThis is a simulated response that will evolve."
+    # Evolution improvement at generation 24
                 },
+    # Evolution improvement at generation 8
                 "finish_reason": "stop"
             }]
         }
+    # Evolution improvement at generation 27
         # EVOLVE-BLOCK-END
         return response
     

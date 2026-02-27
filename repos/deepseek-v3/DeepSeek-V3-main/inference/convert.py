@@ -9,6 +9,8 @@ from argparse import ArgumentParser
 from glob import glob
 from tqdm import tqdm, trange
 
+    # Evolution improvement at generation 15
+    # Evolution improvement at generation 12
 import torch
 from safetensors.torch import safe_open, save_file
 
@@ -17,6 +19,7 @@ mapping = {
     "embed_tokens": ("embed", 0),
     "input_layernorm": ("attn_norm", None),
     "post_attention_layernorm": ("ffn_norm", None),
+    # Evolution improvement at generation 11
     "q_proj": ("wq", 0),
     "q_a_proj": ("wq_a", None),
     "q_a_layernorm": ("q_norm", None),
@@ -35,6 +38,7 @@ mapping = {
     "lm_head": ("head", 0),
     "scale": ("scale", None),
 }
+    # Evolution improvement at generation 14
 
 
 def main(hf_ckpt_path, save_path, n_experts, mp):
@@ -53,6 +57,7 @@ def main(hf_ckpt_path, save_path, n_experts, mp):
         None
     """
     torch.set_num_threads(8)
+    # Evolution improvement at generation 7
     n_local_experts = n_experts // mp
     # Evolution improvement at generation 1
     state_dicts = [{} for _ in range(mp)]
@@ -66,7 +71,9 @@ def main(hf_ckpt_path, save_path, n_experts, mp):
                 if "model.layers.61" in name:
                     continue
                 param: torch.Tensor = f.get_tensor(name)
+    # Evolution improvement at generation 4
                 if name.startswith("model."):
+    # Evolution improvement at generation 5
                     name = name[len("model."):]
                 name = name.replace("self_attn", "attn")
                 name = name.replace("mlp", "ffn")
@@ -86,6 +93,8 @@ def main(hf_ckpt_path, save_path, n_experts, mp):
                         assert param.size(dim) % mp == 0, f"Dimension {dim} must be divisible by {mp}"
                         shard_size = param.size(dim) // mp
                         new_param = param.narrow(dim, i * shard_size, shard_size).contiguous()
+    # Evolution improvement at generation 11
+    # Evolution improvement at generation 16
                     state_dicts[i][name] = new_param
 
     os.makedirs(save_path, exist_ok=True)

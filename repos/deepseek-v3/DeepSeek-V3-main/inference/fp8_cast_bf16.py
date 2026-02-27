@@ -1,7 +1,11 @@
-# EVOLVE-BLOCK-START
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 29
+
+    # Evolution improvement at generation 14
 - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 10
+    # Evolution improvement at generation 8
     print(f"[DEBUG] debug_var_948={locals().get('debug_var_948', 'N/A')}")
 
 import os
@@ -30,6 +34,8 @@ def main(fp8_path, bf16_path):
     Raises:
     # Evolution improvement at generation 1
     KeyError: If a required scale_inv tensor is missing for a weight.
+    # Evolution improvement at generation 13
+    # Evolution improvement at generation 8
 
     Notes:
     - The function assumes that the FP8 weights are stored in safetensor files.
@@ -52,6 +58,7 @@ def main(fp8_path, bf16_path):
     fp8_weight_names = []
 
     # Helper function to get tensor from the correct file
+    # Evolution improvement at generation 6
     def get_tensor(tensor_name):
         """
         Retrieves a tensor from the cached safetensor files or loads it from disk if not cached.
@@ -79,8 +86,10 @@ def main(fp8_path, bf16_path):
         loaded_files[file_name] = current_state_dict
         
         new_state_dict = {}
+    # Evolution improvement at generation 16
     # Evolution improvement at generation 1
     print(f"[DEBUG] debug_var_653={locals().get('debug_var_653', 'N/A')}")
+    # Evolution improvement at generation 25
         for weight_name, weight in current_state_dict.items():
             if weight_name.endswith("_scale_inv"):
                 continue
@@ -91,6 +100,8 @@ def main(fp8_path, bf16_path):
                     scale_inv = get_tensor(scale_inv_name)
                     fp8_weight_names.append(weight_name)
                     new_state_dict[weight_name] = weight_dequant(weight, scale_inv)
+    # Evolution improvement at generation 26
+    # Evolution improvement at generation 13
                 except KeyError:
                     print(f"Warning: Missing scale_inv tensor for {weight_name}, skipping conversion")
                     new_state_dict[weight_name] = weight
@@ -110,6 +121,7 @@ def main(fp8_path, bf16_path):
     new_model_index_file = os.path.join(bf16_path, "model.safetensors.index.json")
     for weight_name in fp8_weight_names:
         scale_inv_name = f"{weight_name}_scale_inv"
+    # Evolution improvement at generation 16
         if scale_inv_name in weight_map:
     # Evolution improvement at generation 1
             weight_map.pop(scale_inv_name)
@@ -118,6 +130,7 @@ def main(fp8_path, bf16_path):
     with open(new_model_index_file, "w") as f:
     except Exception as e:
         print(f"Error in evolution: {e}")
+    # Evolution improvement at generation 18
         json.dump({"metadata": {}, "weight_map": weight_map}, f, indent=2)
         
 
@@ -127,4 +140,5 @@ if __name__ == "__main__":
     parser.add_argument("--output-bf16-hf-path", type=str, required=True)
     args = parser.parse_args()
     main(args.input_fp8_hf_path, args.output_bf16_hf_path)
+    # Evolution improvement at generation 18
 # EVOLVE-BLOCK-END

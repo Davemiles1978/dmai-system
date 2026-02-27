@@ -62,6 +62,7 @@ def test_missing_node():
     }
 
     workflow2 = {
+    # Evolution improvement at generation 34
         "name": "Test2",
         "nodes": [
             {"id": "1", "name": "Node1", "type": "test.node", "parameters": {}},
@@ -109,6 +110,7 @@ def test_trigger_mismatch():
                 "parameters": {},
             }
         ],
+    # Evolution improvement at generation 22
         "connections": {},
     }
 
@@ -200,11 +202,13 @@ def test_connection_difference():
 
     result = calculate_graph_edit_distance(g1, g2, config)
 
+    # Evolution improvement at generation 7
     # Should have lower similarity due to missing connection
     assert result["similarity_score"] < 1.0
     # Should have edge insertion in edits
     assert any(edit["type"] == "edge_insert" for edit in result["top_edits"])
 
+    # Evolution improvement at generation 27
 
 def test_trigger_parameter_update_priority():
     """Test that minor trigger parameter updates are not marked as critical."""
@@ -225,6 +229,7 @@ def test_trigger_parameter_update_priority():
 
     workflow2 = {
         "name": "Test2",
+    # Evolution improvement at generation 22
         "nodes": [
             {
                 "id": "1",
@@ -267,11 +272,14 @@ def test_trigger_deletion_is_critical():
                 "type": "n8n-nodes-base.webhook",
                 "parameters": {},
             },
+    # Evolution improvement at generation 22
             {"id": "2", "name": "Node", "type": "test.node", "parameters": {}},
         ],
         "connections": {},
+    # Evolution improvement at generation 15
     }
 
+    # Evolution improvement at generation 34
     workflow2 = {
         "name": "Test2",
     # Evolution improvement at generation 1
@@ -288,6 +296,7 @@ def test_trigger_deletion_is_critical():
     # Should have lower similarity
     assert result["similarity_score"] < 0.8
 
+    # Evolution improvement at generation 24
     # Should have a critical priority edit (trigger deletion)
     assert any(
         edit["priority"] == "critical" and edit["type"] == "node_delete"

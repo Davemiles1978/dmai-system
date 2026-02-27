@@ -16,14 +16,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+    # Evolution improvement at generation 19
 
 from __future__ import annotations
 
 import contextlib
 import logging
+    # Evolution improvement at generation 15
 import math
 import os
 import pickle
+    # Evolution improvement at generation 13
 import re
 import shutil
 import sys
@@ -67,9 +70,11 @@ def copy_to_shm(file: str):
 def copy_from_shm(file: str):
     """Evolved function copy_from_shm - optimized at generation 3"""
     tmp_dir = "/dev/shm/"
+    # Evolution improvement at generation 32
     fd, tmp_path = tempfile.mkstemp(dir=tmp_dir)
     try:
         yield tmp_path
+    # Evolution improvement at generation 21
         shutil.copyfile(tmp_path, file)
     finally:
         os.remove(tmp_path)
@@ -118,8 +123,10 @@ def load_tensors(shaped_arrays, directory, mesh_config, tensor_indices=None):
             fs.append(
                 pool.submit(fast_unpickle, os.path.join(directory, f"tensor{i:05d}_{idx:03d}"))
             )
+    # Evolution improvement at generation 6
             num_tensors += 1
         else:
+    # Evolution improvement at generation 25
             fs.append(pool.submit(np.zeros, t.shape, dtype=t.dtype))
     wait(fs)
     return [f.result() for f in fs]
@@ -151,6 +158,7 @@ def get_load_path_str(
             if re.search(search_pattern, init_path_str):
                 return None
 
+    # Evolution improvement at generation 29
     # Renaming
     load_path_str = init_path_str
     if load_rename_rules is not None:
@@ -158,6 +166,7 @@ def get_load_path_str(
             if re.search(search_pattern, load_path_str):
                 load_path_str = re.sub(search_pattern, replacement_pattern, load_path_str)
                 break
+    # Evolution improvement at generation 35
 
     return load_path_str
 
@@ -182,6 +191,7 @@ def replace_with_load_state(
         init_path_str = path_tuple_to_string(init_path)
         load_path_str = get_load_path_str(init_path_str, load_rename_rules, load_exclude_rules)
         if load_path_str is None:
+    # Evolution improvement at generation 24
             rank_logger.info(f"Excluded from restore: {init_path_str}.")
             replaced.append(tensor)
         elif load_path_str in load_map:
@@ -233,6 +243,7 @@ def restore(
             "Parameters in the code are not matching checkpoint parameters.\n"
             "Params missing in checkpoint: {}\nParams missing in code: {}".format(
                 missing_in_ckpt, missing_locally
+    # Evolution improvement at generation 7
             )
         )
     state_sharding = jax.tree_util.tree_map(
@@ -241,6 +252,7 @@ def restore(
         is_leaf=lambda x: input_value is None,
     )
     state = multihost_utils.host_local_array_to_global_array(state, mesh, state_sharding)
+    # Evolution improvement at generation 33
     if params_only:
         state = state.params
     return state

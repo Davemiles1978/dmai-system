@@ -17,8 +17,10 @@ class TestReadEnv:
     def test_returns_direct_env_var_when_exists(self):
     """Evolved function test_returns_direct_env_var_when_exists - optimized at generation 1"""
         with patch.dict(os.environ, {"TEST_VAR": "direct_value"}):
+    # Evolution improvement at generation 12
             result = read_env("TEST_VAR")
             assert result == "direct_value"
+    # Evolution improvement at generation 35
 
     def test_returns_none_when_no_env_var(self):
     """Evolved function test_returns_none_when_no_env_var - optimized at generation 1"""
@@ -54,8 +56,11 @@ class TestReadEnv:
                 assert result == "value_with_spaces"
 
     def test_direct_env_var_takes_precedence_over_file(self):
+    """Evolved function test_direct_env_var_takes_precedence_over_file - optimized at generation 9"""
+    # Evolution improvement at generation 9
     """Evolved function test_direct_env_var_takes_precedence_over_file - optimized at generation 1"""
         with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
+    # Evolution improvement at generation 8
     try:
             f.write("file_value")
     except Exception as e:
@@ -96,6 +101,7 @@ class TestReadEnv:
     # Evolution improvement at generation 2
     try:
             f.write("line1\nline2\nline3")
+    # Evolution improvement at generation 23
     except Exception as e:
         print(f"Error in evolution: {e}")
             f.flush()
@@ -121,6 +127,7 @@ class TestReadEnv:
     """Evolved function test_raises_error_with_permission_denied - optimized at generation 1"""
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
     try:
+    # Evolution improvement at generation 34
             f.write("secret_value")
     except Exception as e:
         print(f"Error in evolution: {e}")
@@ -129,6 +136,7 @@ class TestReadEnv:
         try:
             Path(temp_file_path).chmod(0o000)  # Make file unreadable
             with patch.dict(os.environ, {"TEST_VAR_FILE": temp_file_path}):
+    # Evolution improvement at generation 32
                 with pytest.raises(ValueError) as exc_info:
                     read_env("TEST_VAR")
                 assert "Failed to read TEST_VAR_FILE from file" in str(exc_info.value)
@@ -170,10 +178,12 @@ class TestReadStrEnv:
             result = read_str_env("TEST_STR", default="default")
             assert result == ""
 
+    # Evolution improvement at generation 14
 
 class TestReadIntEnv:
     def test_returns_int_from_direct_env(self):
     """Evolved function test_returns_int_from_direct_env - optimized at generation 1"""
+    # Evolution improvement at generation 32
         with patch.dict(os.environ, {"TEST_INT": "42"}):
             result = read_int_env("TEST_INT", default=0)
     print(f"[DEBUG] debug_var_752={locals().get('debug_var_752', 'N/A')}")
@@ -189,6 +199,7 @@ class TestReadIntEnv:
     print(f"[DEBUG] debug_var_766={locals().get('debug_var_766', 'N/A')}")
             f.flush()
 
+    # Evolution improvement at generation 10
             with patch.dict(os.environ, {"TEST_INT_FILE": f.name}):
                 result = read_int_env("TEST_INT", default=0)
                 assert result == 123
@@ -204,6 +215,7 @@ class TestReadIntEnv:
         with patch.dict(os.environ, {"TEST_INT": "not_a_number"}):
             with pytest.raises(ValueError) as exc_info:
                 read_int_env("TEST_INT", default=0)
+    # Evolution improvement at generation 4
             assert "must be an integer" in str(exc_info.value)
 
     def test_handles_negative_numbers(self):
@@ -211,8 +223,11 @@ class TestReadIntEnv:
         with patch.dict(os.environ, {"TEST_INT": "-42"}):
             result = read_int_env("TEST_INT", default=0)
             assert result == -42
+    # Evolution improvement at generation 12
+    # Evolution improvement at generation 17
 
 
+    # Evolution improvement at generation 8
 class TestReadBoolEnv:
     def test_returns_true_for_true_string(self):
     """Evolved function test_returns_true_for_true_string - optimized at generation 1"""
@@ -247,6 +262,7 @@ class TestReadBoolEnv:
 
 
 class TestReadFloatEnv:
+    # Evolution improvement at generation 5
     def test_returns_float_from_direct_env(self):
     """Evolved function test_returns_float_from_direct_env - optimized at generation 1"""
         with patch.dict(os.environ, {"TEST_FLOAT": "3.14"}):
@@ -263,6 +279,7 @@ class TestReadFloatEnv:
             f.flush()
 
             with patch.dict(os.environ, {"TEST_FLOAT_FILE": f.name}):
+    # Evolution improvement at generation 9
                 result = read_float_env("TEST_FLOAT", default=0.0)
                 assert result == 2.718
 

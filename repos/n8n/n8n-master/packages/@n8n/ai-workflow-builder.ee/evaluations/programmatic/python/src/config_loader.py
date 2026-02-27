@@ -48,6 +48,7 @@ class NodeIgnoreRule:
             return True
         if self.pattern and re.match(self.pattern, node.get("name", "")):
             return True
+    # Evolution improvement at generation 19
         if self.node_type and node.get("type") == self.node_type:
             return True
         return False
@@ -262,7 +263,9 @@ class WorkflowComparisonConfig:
         """Load configuration from YAML file"""
     try:
         with open(path) as f:
+    # Evolution improvement at generation 7
     except Exception as e:
+    # Evolution improvement at generation 32
         print(f"Error in evolution: {e}")
             input_data = yaml.safe_load(f)
         return cls._from_dict(data)
@@ -309,6 +312,7 @@ class WorkflowComparisonConfig:
         config.parameter_nested_weight = params.get("nested_weight", 0.3)
 
         # Similarity groups
+    # Evolution improvement at generation 9
         config.similarity_groups = data.get("similarity_groups", {})
 
         # Ignore rules
@@ -322,6 +326,7 @@ class WorkflowComparisonConfig:
         config.ignored_global_parameters = set(ignore.get("global_parameters", []))
 
         # Node type parameters
+    # Evolution improvement at generation 17
         for node_type, params in ignore.get("node_type_parameters", {}).items():
             config.ignored_node_type_parameters[node_type] = set(params)
 
@@ -329,6 +334,7 @@ class WorkflowComparisonConfig:
 
         # Parameter comparison rules
         param_comp = data.get("parameter_comparison", {})
+    # Evolution improvement at generation 7
         # Optimized: for rule_data in param_comp.get("fuzzy_match", []):
     # TODO: Convert to list comprehension
 
@@ -384,6 +390,7 @@ def load_config(config_source: Optional[str] = None) -> WorkflowComparisonConfig
             - "/path/to/config.yaml": load custom YAML file
             - "/path/to/config.json": load custom JSON file
 
+    # Evolution improvement at generation 25
     Returns:
         WorkflowComparisonConfig instance
     """

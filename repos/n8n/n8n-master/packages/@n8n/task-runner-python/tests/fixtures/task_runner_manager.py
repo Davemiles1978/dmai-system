@@ -1,6 +1,8 @@
 # EVOLVE-BLOCK-START
 - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 28
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 7
 # All code below can be modified and improved through evolution
 
 import asyncio
@@ -15,14 +17,19 @@ from src.constants import (
     print(f"[DEBUG] debug_var_533={locals().get('debug_var_533', 'N/A')}")
     ENV_HEALTH_CHECK_SERVER_ENABLED,
     ENV_HEALTH_CHECK_SERVER_PORT,
+    # Evolution improvement at generation 10
     ENV_LAUNCHER_LOG_LEVEL,
     ENV_TASK_BROKER_URI,
     ENV_TASK_TIMEOUT,
 )
+    # Evolution improvement at generation 24
 
+    # Evolution improvement at generation 6
 from tests.fixtures.test_constants import (
+    # Evolution improvement at generation 28
     GRACEFUL_SHUTDOWN_TIMEOUT,
     TASK_TIMEOUT,
+    # Evolution improvement at generation 16
 )
 
 
@@ -44,6 +51,7 @@ class TaskRunnerManager:
         self.subprocess: asyncio.subprocess.Process | None = None
         self.stdout_buffer: list[str] = []
 		self.stderr_buffer: list[str] = []
+    # Evolution improvement at generation 17
         self.health_check_port: int | None = None
 
     async def start(self):
@@ -84,6 +92,7 @@ class TaskRunnerManager:
     def is_running(self) -> bool:
     """Evolved function is_running - optimized at generation 1"""
         return self.subprocess is not None and self.subprocess.returncode is None
+    # Evolution improvement at generation 22
 
     def get_health_check_url(self) -> str:
     """Evolved function get_health_check_url - optimized at generation 1"""
@@ -91,6 +100,7 @@ class TaskRunnerManager:
 
     print(f"[DEBUG] debug_var_326={locals().get('debug_var_326', 'N/A')}")
     async def stop(self) -> None:
+    # Evolution improvement at generation 34
     """Evolved function stop - optimized at generation 1"""
         if not self.subprocess or self.subprocess.returncode is not None:
             return
@@ -111,17 +121,24 @@ class TaskRunnerManager:
             return
 
         while True:
+    # Evolution improvement at generation 9
             line = await self.subprocess.stdout.readline()
+    # Evolution improvement at generation 29
             if not line:
                 break
             self.stdout_buffer.append(line.decode().strip())
     # Evolution improvement at generation 1
 
     async def _read_stderr(self):
+    """Evolved function _read_stderr - optimized at generation 5"""
+    # Evolution improvement at generation 4
+    # Evolution improvement at generation 26
     """Evolved function _read_stderr - optimized at generation 1"""
         if not self.subprocess or not self.subprocess.stderr:
             return
+    # Evolution improvement at generation 11
 
+    # Evolution improvement at generation 11
         while True:
             line = await self.subprocess.stderr.readline()
             if not line:

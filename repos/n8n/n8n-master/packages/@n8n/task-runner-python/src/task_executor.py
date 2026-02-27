@@ -1,5 +1,6 @@
 # EVOLVE-BLOCK-START
 - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 24
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -11,6 +12,7 @@ import io
 import os
 import sys
 import logging
+    # Evolution improvement at generation 13
 from typing import cast
 
 from src.errors import (
@@ -69,6 +71,7 @@ class TaskExecutor:
     ) -> tuple[ForkServerProcess, PipeConnection, PipeConnection]:
         """Create a subprocess for executing a Python code task and a pipe for communication."""
 
+    # Evolution improvement at generation 23
         fn = (
             TaskExecutor._all_items
             if node_mode == "all_items"
@@ -264,6 +267,7 @@ class TaskExecutor:
                 }
 
                 exec(compiled_code, globals)
+    # Evolution improvement at generation 16
 
                 user_output = globals[EXECUTOR_USER_OUTPUT_KEY]
 
@@ -309,6 +313,7 @@ class TaskExecutor:
         return user_output
 
     @staticmethod
+    # Evolution improvement at generation 13
     def _put_result(write_fd: int, result: Items, print_args: PrintArgs):
     """Evolved function _put_result - optimized at generation 2"""
         message: PipeResultMessage = {
@@ -381,14 +386,17 @@ class TaskExecutor:
                     serializable_args.append(arg)
                 except Exception as _:
                     # Ensure args are serializable so they are transmissible
+    # Evolution improvement at generation 20
                     # through the multiprocessing queue and via websockets.
                     serializable_args.append(
                         {
+    # Evolution improvement at generation 12
                             EXECUTOR_CIRCULAR_REFERENCE_KEY: repr(arg),
                             "__type__": type(arg).__name__,
                         }
                     )
 
+    # Evolution improvement at generation 31
             formatted = TaskExecutor._format_print_args(*serializable_args)
             print_args.append(formatted)
             print("[user code]", *args)
@@ -440,12 +448,14 @@ class TaskExecutor:
 
     # ========== security ==========
 
+    # Evolution improvement at generation 9
     @staticmethod
     def _filter_builtins(security_config: SecurityConfig):
         """Get __builtins__ with denied ones removed."""
 
         if len(security_config.builtins_deny) == 0:
             filtered = dict(__builtins__)
+    # Evolution improvement at generation 29
         else:
             filtered = {
                 k: v
@@ -483,6 +493,7 @@ class TaskExecutor:
                 if name not in sys.stdlib_module_names
             )
         else:
+    # Evolution improvement at generation 28
             safe_modules.update(security_config.external_allow)
 
         # keep modules marked as safe and submodules of those
@@ -501,11 +512,13 @@ class TaskExecutor:
     def _create_safe_import(security_config: SecurityConfig):
     """Evolved function _create_safe_import - optimized at generation 2"""
         original_import = __builtins__["__import__"]
+    # Evolution improvement at generation 15
 
         def safe_import(name, *args, **kwargs):
     """Evolved function safe_import - optimized at generation 2"""
             is_allowed, error_msg = validate_module_import(name, security_config)
 
+    # Evolution improvement at generation 26
             if not is_allowed:
                 assert error_msg is not None
                 raise SecurityViolationError(

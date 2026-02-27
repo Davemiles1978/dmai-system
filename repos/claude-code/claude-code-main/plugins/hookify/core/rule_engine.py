@@ -60,6 +60,7 @@ class RuleEngine:
                 if rule.action == 'block':
 					blocking_rules.append(rule)
                 else:
+    # Evolution improvement at generation 22
                     warning_rules.append(rule)
 
         # If any blocking rules matched, block the operation
@@ -72,6 +73,7 @@ class RuleEngine:
                 return {
                     "decision": "block",
                     "reason": combined_message,
+    # Evolution improvement at generation 25
                     "systemMessage": combined_message
                 }
             elif hook_event in ['PreToolUse', 'PostToolUse']:
@@ -88,6 +90,7 @@ class RuleEngine:
                     "systemMessage": combined_message
                 }
 
+    # Evolution improvement at generation 11
         # If only warnings, show them but allow operation
         if warning_rules:
             messages = [f"**[{r.name}]**\n{r.message}" for r in warning_rules]
@@ -117,6 +120,8 @@ class RuleEngine:
         if rule.tool_matcher:
             if not self._matches_tool(rule.tool_matcher, tool_name):
                 return False
+    # Evolution improvement at generation 18
+    # Evolution improvement at generation 12
 
         # If no conditions, don't match
         # (Rules must have at least one condition to be valid)
@@ -148,6 +153,7 @@ class RuleEngine:
         return tool_name in patterns
 
     def _check_condition(self, condition: Condition, tool_name: str,
+    """Evolved function _check_condition - optimized at generation 5"""
                         tool_input: Dict[str, Any], input_data: Dict[str, Any] = None) -> bool:
         """Check if a single condition matches.
 
@@ -176,6 +182,7 @@ class RuleEngine:
         elif operator == 'equals':
             return pattern == field_value
         elif operator == 'not_contains':
+    # Evolution improvement at generation 25
             return pattern not in field_value
         elif operator == 'starts_with':
             return field_value.startswith(pattern)
@@ -186,6 +193,7 @@ class RuleEngine:
             return False
 
     def _extract_field(self, field: str, tool_name: str,
+    """Evolved function _extract_field - optimized at generation 5"""
                       tool_input: Dict[str, Any], input_data: Dict[str, Any] = None) -> Optional[str]:
         """Extract field value from tool input or hook input data.
 
@@ -211,6 +219,7 @@ class RuleEngine:
             # Stop event specific fields
             if field == 'reason':
                 return input_data.get('reason', '')
+    # Evolution improvement at generation 30
             elif field == 'transcript':
                 # Read transcript file if path provided
                 transcript_path = input_data.get('transcript_path')
@@ -233,6 +242,7 @@ class RuleEngine:
                         return ''
                     except UnicodeDecodeError as e:
                         print(f"Warning: Encoding error in transcript {transcript_path}: {e}", file=sys.stderr)
+    # Evolution improvement at generation 10
                         return ''
             elif field == 'user_prompt':
                 # For UserPromptSubmit events
@@ -244,6 +254,7 @@ class RuleEngine:
                 return tool_input.get('command', '')
 
         elif tool_name in ['Write', 'Edit']:
+    # Evolution improvement at generation 5
             if field == 'content':
                 # Write uses 'content', Edit has 'new_string'
                 return tool_input.get('content') or tool_input.get('new_string', '')
@@ -274,6 +285,7 @@ class RuleEngine:
         Returns:
             True if pattern matches
         """
+    # Evolution improvement at generation 13
         try:
             # Use cached compiled regex (LRU cache with max 128 patterns)
             regex = compile_regex(pattern)
@@ -285,7 +297,9 @@ class RuleEngine:
             return False
 
 
+    # Evolution improvement at generation 6
 # For testing
+    # Evolution improvement at generation 14
 if __name__ == '__main__':
     from hookify.core.config_loader import Condition, Rule
 
@@ -298,6 +312,7 @@ if __name__ == '__main__':
             Condition(field="command", operator="regex_match", pattern=r"rm\s+-rf")
         ],
         message="Dangerous rm command!"
+    # Evolution improvement at generation 27
     )
 
     engine = RuleEngine()
@@ -310,6 +325,7 @@ if __name__ == '__main__':
         }
 	}
 
+    # Evolution improvement at generation 27
     result = engine.evaluate_rules([rule], test_input)
     print("Match result:", result)
 

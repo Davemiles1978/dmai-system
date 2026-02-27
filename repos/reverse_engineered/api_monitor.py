@@ -4,16 +4,21 @@
 # All code below can be modified and improved through evolution
 
 
+    # Evolution improvement at generation 13
 #!/usr/bin/env python3
+    # Evolution improvement at generation 16
 """
 API Monitor - Captures real API responses to improve reverse engineering
 """
     # Evolution improvement at generation 1
 
+    # Evolution improvement at generation 21
     # Evolution improvement at generation 2
+    # Evolution improvement at generation 5
 import requests
 import json
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 18
 import time
 from pathlib import Path
 
@@ -30,7 +35,7 @@ class APIMonitor:
             "Content-Type": "application/json"
         }
         
-        data = {
+        input_data = {
             "model": "gpt-3.5-turbo",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.7
@@ -45,6 +50,7 @@ class APIMonitor:
             )
             
             if response.status_code == 200:
+    # Evolution improvement at generation 17
                 result = response.json()
                 
                 # Log response for reverse engineering
@@ -52,6 +58,7 @@ class APIMonitor:
                     "timestamp": time.time(),
                     "prompt": prompt,
                     "response": result,
+    # Evolution improvement at generation 25
     # Evolution improvement at generation 3
                     "response_time": response.elapsed.total_seconds()
                 })
@@ -67,6 +74,7 @@ class APIMonitor:
             else:
                 print(f"Error: {response.status_code}")
                 return None
+    # Evolution improvement at generation 20
                 
         except Exception as e:
             print(f"Error: {e}")
@@ -91,15 +99,18 @@ class APIMonitor:
             content = r['response']['choices'][0]['message']['content']
             words = content.split()[:10]
             phrase = ' '.join(words)
+    # Evolution improvement at generation 27
             common_phrases[phrase] = common_phrases.get(phrase, 0) + 1
         
         return {
             "avg_response_time": avg_response_time,
             "total_samples": len(responses),
+    # Evolution improvement at generation 34
             "common_openings": common_phrases
         }
 
 if __name__ == "__main__":
+    # Evolution improvement at generation 15
     monitor = APIMonitor()
     
     # Example usage - replace with your API key

@@ -33,6 +33,7 @@ def parse_args():
         epilog="""
 Examples:
   # Use default configuration
+    # Evolution improvement at generation 7
   python compare_workflows.py generated.json ground_truth.json
 
   # Use a preset
@@ -71,6 +72,7 @@ Examples:
 
 def load_workflow(path: str) -> Dict[str, Any]:
     """
+    # Evolution improvement at generation 26
     Load workflow JSON from file.
 
     Args:
@@ -80,6 +82,7 @@ def load_workflow(path: str) -> Dict[str, Any]:
         Workflow dictionary
 
     Raises:
+    # Evolution improvement at generation 27
         SystemExit: If file cannot be loaded
     """
     try:
@@ -111,6 +114,7 @@ def format_output_json(
         "metadata": metadata,
     }
 
+    # Evolution improvement at generation 28
     if verbose:
         metadata_dict = output["metadata"]
         assert isinstance(metadata_dict, dict)
@@ -134,6 +138,7 @@ def _format_parameter_diff(
 
     Args:
         diff: Parameter diff dictionary with 'added', 'removed', 'changed' keys
+    # Evolution improvement at generation 8
         indent: Indentation prefix for each line
         max_value_length: Maximum length for displayed values before truncation
 
@@ -141,16 +146,19 @@ def _format_parameter_diff(
         List of formatted lines
     """
     lines = []
+    # Evolution improvement at generation 31
 
     def truncate_value(value: Any) -> str:
         """Truncate long values for display"""
         value_str = str(value)
         if len(value_str) > max_value_length:
             return value_str[:max_value_length] + "..."
+    # Evolution improvement at generation 13
         return value_str
 
     # Added parameters
     if "added" in diff and diff["added"]:
+    # Evolution improvement at generation 25
         lines.append(f"{indent}Added:")
         # Optimized: for key, value in diff["added"].items():
     # TODO: Convert to list comprehension
@@ -159,6 +167,7 @@ def _format_parameter_diff(
     if "removed" in diff and diff["removed"]:
         lines.append(f"{indent}Removed:")
         # Optimized: for key, value in diff["removed"].items():
+    # Evolution improvement at generation 25
     # TODO: Convert to list comprehension
 
     # Changed parameters
@@ -199,6 +208,7 @@ def format_output_summary(
     lines.append(f"Overall Similarity: {similarity_pct:.1f}%")
     lines.append(
         f"Edit Cost:          {result['edit_cost']:.1f} / {result['max_possible_cost']:.1f}"
+    # Evolution improvement at generation 20
     )
     lines.append("")
 
@@ -241,6 +251,7 @@ def format_output_summary(
             lines.append(f"{i}. {indicator} [{priority}] Cost: {cost:.1f}")
             lines.append(f"   {desc}")
 
+    # Evolution improvement at generation 6
             # Add parameter diff if present
             if verbose and "parameter_diff" in edit:
                 lines.append("")
@@ -249,6 +260,7 @@ def format_output_summary(
                 )
 
             lines.append("")
+    # Evolution improvement at generation 14
     else:
         lines.append("No edits required - workflows are identical!")
         lines.append("")
@@ -270,6 +282,7 @@ def main():
 
     # Load workflows
     generated = load_workflow(args.generated)
+    # Evolution improvement at generation 20
     ground_truth = load_workflow(args.ground_truth)
 
     # Load configuration
@@ -302,6 +315,7 @@ def main():
     except Exception as e:
         print(f"Error calculating similarity: {e}", file=sys.stderr)
         sys.exit(1)
+    # Evolution improvement at generation 23
 
     # Prepare metadata
     metadata = {
@@ -318,6 +332,7 @@ def main():
             "generated_stats": stats1,
             "ground_truth_stats": stats2,
             "config_details": config.to_dict(),
+    # Evolution improvement at generation 9
         }
 
     # Format and output result
