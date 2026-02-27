@@ -1,0 +1,243 @@
+{
+  "generation": 5,
+  "active_capabilities": [],
+  "current_goals": [
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:48:11.982057",
+      "id": "bb81af01"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:49:28.763228",
+      "id": "c1beb02f"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:59:47.029106",
+      "id": "e8dec75b"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:02:04.909712",
+      "id": "79ab7b3b"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:05:43.875634",
+      "id": "086daf94"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:08:11.497180",
+      "id": "dfdfe93c"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:13:55.793304",
+      "id": "a14e55df"
+    },
+    {
+      "description": "Improve capability synthesis\u6210\u529f\u7387",
+      "priority": 10,
+      "requires_evolution": true,
+      "context": {
+        "target": "synthesis_success_rate",
+        "threshold": 0.8
+      },
+      "submitted": "2026-02-27T16:41:24.472433",
+      "id": "d45dacd3"
+    },
+    {
+      "description": "Create meta-learning optimization capability",
+      "priority": 9,
+      "requires_evolution": true,
+      "context": {
+        "base_capabilities": [
+          "learning",
+          "optimization"
+        ]
+      },
+      "submitted": "2026-02-27T16:41:24.472592",
+      "id": "1f0dece6"
+    },
+    {
+      "description": "Implement self-healing prediction",
+      "priority": 8,
+      "requires_evolution": true,
+      "context": {
+        "type": "predictive_healing"
+      },
+      "submitted": "2026-02-27T16:41:24.472858",
+      "id": "96598aec"
+    },
+    {
+      "description": "Enhance data validation with AI",
+      "priority": 7,
+      "requires_evolution": true,
+      "context": {
+        "ai_enhanced": true
+      },
+      "submitted": "2026-02-27T16:41:24.472992",
+      "id": "63212261"
+    },
+    {
+      "description": "Improve capability synthesis\u6210\u529f\u7387",
+      "priority": 10,
+      "requires_evolution": true,
+      "context": {
+        "target": "synthesis_success_rate",
+        "threshold": 0.8
+      },
+      "submitted": "2026-02-27T16:46:07.223085",
+      "id": "6c06b948"
+    },
+    {
+      "description": "Create meta-learning optimization capability",
+      "priority": 9,
+      "requires_evolution": true,
+      "context": {
+        "base_capabilities": [
+          "learning",
+          "optimization"
+        ]
+      },
+      "submitted": "2026-02-27T16:46:07.223264",
+      "id": "f29fa507"
+    },
+    {
+      "description": "Implement self-healing prediction",
+      "priority": 8,
+      "requires_evolution": true,
+      "context": {
+        "type": "predictive_healing"
+      },
+      "submitted": "2026-02-27T16:46:07.223555",
+      "id": "7215222e"
+    },
+    {
+      "description": "Enhance data validation with AI",
+      "priority": 7,
+      "requires_evolution": true,
+      "context": {
+        "ai_enhanced": true
+      },
+      "submitted": "2026-02-27T16:46:07.223703",
+      "id": "97561253"
+    },
+    {
+      "description": "Improve capability synthesis\u6210\u529f\u7387",
+      "priority": 10,
+      "requires_evolution": true,
+      "context": {
+        "target": "synthesis_success_rate",
+        "threshold": 0.8
+      },
+      "submitted": "2026-02-27T16:53:08.566733",
+      "id": "43fcf2c4"
+    },
+    {
+      "description": "Create meta-learning optimization capability",
+      "priority": 9,
+      "requires_evolution": true,
+      "context": {
+        "base_capabilities": [
+          "learning",
+          "optimization"
+        ]
+      },
+      "submitted": "2026-02-27T16:53:08.566947",
+      "id": "87e462a3"
+    },
+    {
+      "description": "Implement self-healing prediction",
+      "priority": 8,
+      "requires_evolution": true,
+      "context": {
+        "type": "predictive_healing"
+      },
+      "submitted": "2026-02-27T16:53:08.567128",
+      "id": "223aabce"
+    },
+    {
+      "description": "Enhance data validation with AI",
+      "priority": 7,
+      "requires_evolution": true,
+      "context": {
+        "ai_enhanced": true
+      },
+      "submitted": "2026-02-27T16:53:08.567303",
+      "id": "1173c6d2"
+    },
+    {
+      "description": "Improve capability synthesis\u6210\u529f\u7387",
+      "priority": 10,
+      "requires_evolution": true,
+      "context": {
+        "target": "synthesis_success_rate",
+        "threshold": 0.8
+      },
+      "submitted": "2026-02-27T16:55:48.596128",
+      "id": "c4e5e447"
+    },
+    {
+      "description": "Create meta-learning optimization capability",
+      "priority": 9,
+      "requires_evolution": true,
+      "context": {
+        "base_capabilities": [
+          "learning",
+          "optimization"
+        ]
+      },
+      "submitted": "2026-02-27T16:55:48.596356",
+      "id": "6a9141f2"
+    },
+    {
+      "description": "Implement self-healing prediction",
+      "priority": 8,
+      "requires_evolution": true,
+      "context": {
+        "type": "predictive_healing"
+      },
+      "submitted": "2026-02-27T16:55:48.596558",
+      "id": "470735c8"
+    },
+    {
+      "description": "Enhance data validation with AI",
+      "priority": 7,
+      "requires_evolution": true,
+      "context": {
+        "ai_enhanced": true
+      },
+      "submitted": "2026-02-27T16:55:48.596762",
+      "id": "38b56330"
+    }
+  ],
+  "performance_metrics": {},
+  "learning_rate": 0.1,
+  "exploration_rate": 0.297,
+  "last_evolution": "2026-02-27T16:55:48.597121",
+  "health_status": "running"
+}
