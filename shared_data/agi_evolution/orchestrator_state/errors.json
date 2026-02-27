@@ -1,0 +1,68 @@
+[
+  {
+    "timestamp": "2026-02-27T15:48:11.982773",
+    "context": "evolution_step",
+    "error": "'MetaLearner' object has no attribute 'learn_from_evolution'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 200, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MetaLearner' object has no attribute 'learn_from_evolution'\n"
+  },
+  {
+    "timestamp": "2026-02-27T15:59:47.029985",
+    "context": "evolution_step",
+    "error": "'MetaLearner' object has no attribute 'learn_from_evolution'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 200, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MetaLearner' object has no attribute 'learn_from_evolution'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:02:04.910882",
+    "context": "evolution_step",
+    "error": "'MetaLearner' object has no attribute 'learn_from_evolution'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 200, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MetaLearner' object has no attribute 'learn_from_evolution'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:05:43.876357",
+    "context": "evolution_step",
+    "error": "'MetaLearner' object has no attribute 'learn_from_evolution'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 200, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MetaLearner' object has no attribute 'learn_from_evolution'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:08:11.498028",
+    "context": "evolution_step",
+    "error": "object dict can't be used in 'await' expression",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 200, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/meta_learner.py\", line 318, in learn_from_evolution\n    return await self.analyze_evolution_cycle(evolution_record)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: object dict can't be used in 'await' expression\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:41:24.473195",
+    "context": "evolution_loop",
+    "error": "unsupported operand type(s) for -: 'datetime.datetime' and 'str'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 127, in _evolution_loop\n    if await self._should_evolve():\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 144, in _should_evolve\n    time_since_evolution = (datetime.now() - self.state.last_evolution).seconds\n                            ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'str'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:46:07.224063",
+    "context": "evolution_loop",
+    "error": "unsupported operand type(s) for -: 'datetime.datetime' and 'str'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 127, in _evolution_loop\n    if await self._should_evolve():\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 144, in _should_evolve\n    time_since_evolution = (datetime.now() - self.state.last_evolution).seconds\n                            ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'str'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:53:08.567605",
+    "context": "evolution_step",
+    "error": "'MetaLearner' object has no attribute 'learn_from_evolution'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 204, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MetaLearner' object has no attribute 'learn_from_evolution'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:54:08.580294",
+    "context": "evolution_step",
+    "error": "'MetaLearner' object has no attribute 'learn_from_evolution'",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 204, in _perform_evolution_step\n    meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MetaLearner' object has no attribute 'learn_from_evolution'\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:54:08.597748",
+    "context": "evolution_loop",
+    "error": "cannot access local variable 'result' where it is not associated with a value",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 131, in _evolution_loop\n    await self._process_evolution_task(evolution_task)\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 336, in _process_evolution_task\n    task['result'] = result\n                     ^^^^^^\nUnboundLocalError: cannot access local variable 'result' where it is not associated with a value\n"
+  },
+  {
+    "timestamp": "2026-02-27T16:56:48.601988",
+    "context": "evolution_loop",
+    "error": "cannot access local variable 'result' where it is not associated with a value",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 131, in _evolution_loop\n    await self._process_evolution_task(evolution_task)\n  File \"/Users/davidmiles/Desktop/AI-Evolution-System/agi_orchestrator.py\", line 336, in _process_evolution_task\n    task['result'] = result\n                     ^^^^^^\nUnboundLocalError: cannot access local variable 'result' where it is not associated with a value\n"
+  }
+]
