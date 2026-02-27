@@ -1,15 +1,28 @@
 services:
-  - type: web
-    name: dmai
-    env: python
+  - type: worker
+    name: agi-evolution-system
+    runtime: python
+    repo: https://github.com/Davemiles1978/dmai-system.git
+    branch: main
     buildCommand: |
+      pip install --upgrade pip
       pip install -r requirements.txt
-      python mark_all_for_evolution.py
-    startCommand: |
-      python api_server.py &
-      python -m http.server 8080 --bind 0.0.0.0 --directory ui
+      python -c "from pathlib import Path; Path('/opt/render/project/src/shared_data/agi_evolution/capabilities').mkdir(parents=True, exist_ok=True)"
+    startCommand: python cloud_launcher.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: RENDER
+        value: true
+      - key: GENERATION_START
+        value: 5
+    disk:
+      name: agi-data
+      mountPath: /var/data
+      sizeGB: 10
     autoDeploy: true
     plan: free
+    healthCheckPath: /health
+    numInstances: 1
