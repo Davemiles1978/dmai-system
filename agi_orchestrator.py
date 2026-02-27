@@ -579,3 +579,78 @@ class AGIOrchestrator:
                 'capability_synthesizer': 'healthy'
             }
         }
+
+from self_assessment import SelfAssessment
+
+class AGIOrchestrator:
+    def __init__(self, base_path: str = "shared_data/agi_evolution"):
+        # ... existing code ...
+        
+        # Add self-assessment
+        self.self_assessment = SelfAssessment()
+        
+        # ... rest of init ...
+
+    async def _perform_evolution_step(self):
+        """Perform a single evolution step with self-assessment"""
+        print(f"\n🔄 Starting Evolution Step (Generation {self.state.generation})...")
+        
+        evolution_record = {
+            'timestamp': datetime.now().isoformat(),
+            'generation': self.state.generation,
+            'actions': []
+        }
+        
+        try:
+            # ... existing evolution code ...
+            
+            # 4. Update meta-learner
+            meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)
+            evolution_record['actions'].append({'type': 'meta_learning', 'result': meta_updates})
+            
+            # 5. Run self-assessment
+            assessment = self.self_assessment.generate_report(
+                knowledge_graph=self.knowledge_graph,
+                evolution_data=evolution_record
+            )
+            evolution_record['assessment'] = assessment
+            
+            # Log assessment summary
+            print(f"\n📊 Self-Assessment Summary:")
+            print(f"  Learning Quality: {assessment['summary']['learning_quality']}")
+            print(f"  Knowledge Maturity: {assessment['summary']['knowledge_maturity']}")
+            print(f"  System Health: {assessment['summary']['system_health']}")
+            
+            if assessment['recommendations']:
+                print(f"\n💡 Recommendations:")
+                for rec in assessment['recommendations']:
+                    print(f"  • {rec}")
+            
+            # 6. Update state based on assessment
+            self.state.learning_rate = self._adjust_learning_rate(assessment)
+            self.state.exploration_rate = self._adjust_exploration_rate(assessment)
+            
+            # ... rest of evolution step ...
+            
+        except Exception as e:
+            await self._handle_error("evolution_step", e)
+    
+    def _adjust_learning_rate(self, assessment=None):
+        """Adjust learning rate based on self-assessment"""
+        if assessment and assessment.get('learning_metrics'):
+            lm = assessment['learning_metrics']
+            if lm.get('improvement_rate', 0) > 0.7:
+                return min(0.3, self.state.learning_rate * 1.1)
+            elif lm.get('improvement_rate', 0) < 0.3:
+                return max(0.01, self.state.learning_rate * 0.9)
+        return self.state.learning_rate
+    
+    def _adjust_exploration_rate(self, assessment=None):
+        """Adjust exploration rate based on self-assessment"""
+        if assessment and assessment.get('learning_metrics'):
+            lm = assessment['learning_metrics']
+            if lm.get('stability_score', 0) > 0.8:
+                return max(0.05, self.state.exploration_rate * 0.95)
+            elif lm.get('stability_score', 0) < 0.3:
+                return min(0.5, self.state.exploration_rate * 1.1)
+        return max(0.05, 0.3 * (0.99 ** (self.state.generation - 4)))
