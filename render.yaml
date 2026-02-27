@@ -23,6 +23,5 @@ services:
       mountPath: /var/data
       sizeGB: 10
     autoDeploy: true
-    plan: free
-    healthCheckPath: /health
+    plan: starter
     numInstances: 1
