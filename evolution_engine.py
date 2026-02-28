@@ -540,3 +540,28 @@ button:hover, .btn:hover {
 '''
         content += mobile_fix
         return content
+
+    def get_ui_files(self):
+        """Get UI files that can be evolved"""
+        ui_files = []
+        ui_paths = [
+            'ui/ai_ui.html',
+            'static/css/',
+            'static/js/'
+        ]
+        
+        for path in ui_paths:
+            p = Path(path)
+            if p.is_dir():
+                ui_files.extend([str(f) for f in p.glob('*.*')])
+            elif p.exists():
+                ui_files.append(str(p))
+        
+        return ui_files
+    
+    def evolve_ui(self):
+        """Run UI evolution cycle"""
+        from ui_healer import UIHealer
+        healer = UIHealer()
+        healer.heal_ui()
+        return healer.issues_fixed
