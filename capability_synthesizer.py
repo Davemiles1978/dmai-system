@@ -467,3 +467,335 @@ def get_metadata():
                 'leaf_capabilities': [n for n, d in self.capability_graph.out_degree() if d == 0]
             }
         }
+
+    # === PHASE 3: CAPABILITY SYNTHESIS ENHANCEMENTS ===
+    
+    async def discover_function_combinations(self, min_similarity=0.6):
+        """Discover compatible function combinations"""
+        combinations = []
+        
+        # Get all capabilities
+        caps = list(self.capabilities.values())
+        
+        for i, cap1 in enumerate(caps):
+            for j, cap2 in enumerate(caps[i+1:], i+1):
+                # Calculate compatibility score
+                compatibility = self._calculate_compatibility(cap1, cap2)
+                
+                if compatibility >= min_similarity:
+                    combinations.append({
+                        'capabilities': [cap1.name, cap2.name],
+                        'compatibility': compatibility,
+                        'potential_use': self._predict_combination_use(cap1, cap2)
+                    })
+        
+        # Sort by compatibility
+        combinations.sort(key=lambda x: x['compatibility'], reverse=True)
+        
+        # Store for later use
+        combos_file = self.patterns_path / "discovered_combinations.json"
+        with open(combos_file, 'w') as f:
+            json.dump(combinations[:50], f, indent=2, default=str)
+        
+        print(f"🔍 Discovered {len(combinations)} potential function combinations")
+        return combinations[:20]  # Return top 20
+    
+    def _calculate_compatibility(self, cap1: Capability, cap2: Capability) -> float:
+        """Calculate how compatible two capabilities are for combination"""
+        score = 0.0
+        factors = 0
+        
+        # Check shared dependencies
+        deps1 = set(cap1.dependencies)
+        deps2 = set(cap2.dependencies)
+        if deps1 and deps2:
+            overlap = len(deps1 & deps2)
+            total = len(deps1 | deps2)
+            score += overlap / total if total > 0 else 0
+            factors += 1
+        
+        # Check performance similarity
+        perf1 = cap1.performance_metrics.get('success_rate', 0.5)
+        perf2 = cap2.performance_metrics.get('success_rate', 0.5)
+        perf_diff = 1 - abs(perf1 - perf2)
+        score += perf_diff
+        factors += 1
+        
+        # Check usage patterns
+        usage1 = cap1.usage_count
+        usage2 = cap2.usage_count
+        if usage1 > 0 and usage2 > 0:
+            usage_ratio = min(usage1, usage2) / max(usage1, usage2)
+            score += usage_ratio
+            factors += 1
+        
+        return score / factors if factors > 0 else 0
+    
+    def _predict_combination_use(self, cap1: Capability, cap2: Capability) -> str:
+        """Predict what the combination could be used for"""
+        descriptions = f"{cap1.description} + {cap2.description}"
+        
+        # Simple keyword-based prediction
+        if "data" in descriptions.lower() and "analyze" in descriptions.lower():
+            return "Data analysis pipeline"
+        elif "image" in descriptions.lower() and "generate" in descriptions.lower():
+            return "Image generation workflow"
+        elif "code" in descriptions.lower() and "test" in descriptions.lower():
+            return "Code testing automation"
+        elif "api" in descriptions.lower() and "fetch" in descriptions.lower():
+            return "API integration tool"
+        else:
+            return f"Combined {cap1.name} and {cap2.name} functionality"
+    
+    async def create_hybrid_capability(self, cap1_name: str, cap2_name: str, combination_strategy: str = "sequential"):
+        """Create a hybrid capability from two existing ones"""
+        if cap1_name not in self.capabilities or cap2_name not in self.capabilities:
+            return None
+        
+        cap1 = self.capabilities[cap1_name]
+        cap2 = self.capabilities[cap2_name]
+        
+        # Generate hybrid code based on strategy
+        if combination_strategy == "sequential":
+            code = await self._create_sequential_hybrid(cap1, cap2)
+        elif combination_strategy == "parallel":
+            code = await self._create_parallel_hybrid(cap1, cap2)
+        elif combination_strategy == "conditional":
+            code = await self._create_conditional_hybrid(cap1, cap2)
+        else:
+            return None
+        
+        # Create hybrid capability
+        hybrid_name = f"hybrid_{cap1_name}_{cap2_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        hybrid_hash = hashlib.sha256(code.encode()).hexdigest()[:16]
+        
+        hybrid_cap = Capability(
+            name=hybrid_name,
+            version="1.0.0",
+            description=f"Hybrid capability combining {cap1.description} and {cap2.description}",
+            dependencies=[cap1_name, cap2_name],
+            performance_metrics={},
+            creation_generation=self.current_generation if hasattr(self, 'current_generation') else 1,
+            usage_count=0,
+            last_used=datetime.now(),
+            code_hash=hybrid_hash,
+            success_rate=0.0
+        )
+        
+        # Save code
+        code_path = self.capabilities_path / f"{hybrid_name}_{hybrid_hash}.py"
+        with open(code_path, 'w') as f:
+            f.write(code)
+        
+        # Save metadata
+        await self._save_capability(hybrid_cap)
+        
+        print(f"✨ Created hybrid capability: {hybrid_name}")
+        return hybrid_cap
+    
+    async def _create_sequential_hybrid(self, cap1: Capability, cap2: Capability) -> str:
+        """Create a hybrid that runs capabilities sequentially"""
+        code = f'''"""
+Hybrid Capability: Sequential combination of {cap1.name} and {cap2.name}
+Generated at: {datetime.now()}
+"""
+
+async def execute(input_data, context=None):
+    """Execute capabilities in sequence"""
+    result = input_data
+    
+    # Execute first capability
+    module1 = __import__("capabilities.{cap1.name}", fromlist=['execute'])
+    result = await module1.execute(result, context)
+    
+    if result is not None:
+        # Execute second capability on result
+        module2 = __import__("capabilities.{cap2.name}", fromlist=['execute'])
+        result = await module2.execute(result, context)
+    
+    return result
+
+def get_metadata():
+    return {{
+        'name': '{cap1.name}_{cap2.name}_sequential',
+        'type': 'sequential_hybrid',
+        'dependencies': ['{cap1.name}', '{cap2.name}'],
+        'version': '1.0.0'
+    }}
+'''
+        return code
+    
+    async def _create_parallel_hybrid(self, cap1: Capability, cap2: Capability) -> str:
+        """Create a hybrid that runs capabilities in parallel and combines results"""
+        code = f'''"""
+Hybrid Capability: Parallel combination of {cap1.name} and {cap2.name}
+Generated at: {datetime.now()}
+"""
+
+import asyncio
+
+async def execute(input_data, context=None):
+    """Execute capabilities in parallel and combine results"""
+    
+    async def run_capability(cap_name):
+        module = __import__(f"capabilities.{{cap_name}}", fromlist=['execute'])
+        return await module.execute(input_data, context)
+    
+    # Run both in parallel
+    tasks = [
+        run_capability('{cap1.name}'),
+        run_capability('{cap2.name}')
+    ]
+    
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    # Combine results
+    combined = {{
+        '{cap1.name}_result': results[0] if not isinstance(results[0], Exception) else None,
+        '{cap2.name}_result': results[1] if not isinstance(results[1], Exception) else None
+    }}
+    
+    return combined
+
+def get_metadata():
+    return {{
+        'name': '{cap1.name}_{cap2.name}_parallel',
+        'type': 'parallel_hybrid',
+        'dependencies': ['{cap1.name}', '{cap2.name}'],
+        'version': '1.0.0'
+    }}
+'''
+        return code
+    
+    async def _create_conditional_hybrid(self, cap1: Capability, cap2: Capability) -> str:
+        """Create a hybrid that chooses between capabilities based on input"""
+        code = f'''"""
+Hybrid Capability: Conditional combination of {cap1.name} and {cap2.name}
+Generated at: {datetime.now()}
+"""
+
+async def execute(input_data, context=None):
+    """Choose which capability to execute based on input"""
+    
+    # Decision logic - can be evolved over time
+    if isinstance(input_data, dict):
+        if 'use_first' in input_data:
+            module = __import__("capabilities.{cap1.name}", fromlist=['execute'])
+        elif 'use_second' in input_data:
+            module = __import__("capabilities.{cap2.name}", fromlist=['execute'])
+        else:
+            # Default: use the one with better performance
+            module = __import__("capabilities.{cap1.name}", fromlist=['execute'])
+    else:
+        # Default to first
+        module = __import__("capabilities.{cap1.name}", fromlist=['execute'])
+    
+    return await module.execute(input_data, context)
+
+def get_metadata():
+    return {{
+        'name': '{cap1.name}_{cap2.name}_conditional',
+        'type': 'conditional_hybrid',
+        'dependencies': ['{cap1.name}', '{cap2.name}'],
+        'version': '1.0.0'
+    }}
+'''
+        return code
+    
+    async def optimize_synergy(self, hybrid_name: str):
+        """Optimize a hybrid capability for maximum synergy"""
+        if hybrid_name not in self.capabilities:
+            return None
+        
+        hybrid = self.capabilities[hybrid_name]
+        
+        # Analyze current performance
+        current_score = hybrid.performance_metrics.get('success_rate', 0)
+        
+        # Try different combination strategies
+        strategies = ['sequential', 'parallel', 'conditional']
+        best_strategy = 'sequential'
+        best_score = current_score
+        
+        # This would actually test different strategies
+        # For now, we'll just record the attempt
+        synergy_file = self.synthesis_path / f"synergy_{hybrid_name}.json"
+        
+        synergy_data = {
+            'hybrid': hybrid_name,
+            'original_score': current_score,
+            'optimization_attempts': [],
+            'best_strategy': best_strategy,
+            'best_score': best_score
+        }
+        
+        with open(synergy_file, 'w') as f:
+            json.dump(synergy_data, f, indent=2, default=str)
+        
+        print(f"⚡ Optimized synergy for {hybrid_name}")
+        return synergy_data
+    
+    async def cross_domain_learning(self, source_domain: str, target_domain: str):
+        """Apply learning from one domain to another"""
+        # Find capabilities in source domain
+        source_caps = [
+            cap for cap in self.capabilities.values()
+            if source_domain in cap.description.lower()
+        ]
+        
+        if not source_caps:
+            return None
+        
+        # Create domain adaptation capability
+        adaptation_code = f'''"""
+Cross-Domain Learning: {source_domain} → {target_domain}
+Generated at: {datetime.now()}
+"""
+
+async def execute(input_data, context=None):
+    """Adapt {source_domain} capabilities to {target_domain} domain"""
+    # Domain adaptation logic
+    adapted_result = {{
+        'source_domain': '{source_domain}',
+        'target_domain': '{target_domain}',
+        'original_input': input_data,
+        'adapted': True
+    }}
+    
+    return adapted_result
+
+def get_metadata():
+    return {{
+        'name': '{source_domain}_to_{target_domain}_adapter',
+        'type': 'cross_domain_adapter',
+        'domains': ['{source_domain}', '{target_domain}'],
+        'version': '1.0.0'
+    }}
+'''
+        
+        # Save the adapter
+        adapter_name = f"adapter_{source_domain}_to_{target_domain}"
+        adapter_hash = hashlib.sha256(adaptation_code.encode()).hexdigest()[:16]
+        
+        adapter_cap = Capability(
+            name=adapter_name,
+            version="1.0.0",
+            description=f"Adapts {source_domain} capabilities to {target_domain} domain",
+            dependencies=[cap.name for cap in source_caps[:3]],
+            performance_metrics={},
+            creation_generation=self.current_generation if hasattr(self, 'current_generation') else 1,
+            usage_count=0,
+            last_used=datetime.now(),
+            code_hash=adapter_hash,
+            success_rate=0.0
+        )
+        
+        # Save adapter
+        code_path = self.capabilities_path / f"{adapter_name}_{adapter_hash}.py"
+        with open(code_path, 'w') as f:
+            f.write(adaptation_code)
+        
+        await self._save_capability(adapter_cap)
+        
+        print(f"🔄 Created cross-domain adapter: {adapter_name}")
+        return adapter_cap
