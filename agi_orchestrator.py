@@ -654,3 +654,26 @@ class AGIOrchestrator:
             elif lm.get('stability_score', 0) < 0.3:
                 return min(0.5, self.state.exploration_rate * 1.1)
         return max(0.05, 0.3 * (0.99 ** (self.state.generation - 4)))
+
+    # Add start method (required for cloud_launcher)
+    async def start(self):
+        """Start the orchestrator - required for cloud deployment"""
+        print("🚀 Starting AGI Orchestrator via start() method")
+        
+        # Register with self-healer
+        self.self_healer.register_component("agi_orchestrator", self)
+        
+        # Load capabilities
+        await self._load_active_capabilities()
+        
+        # Start background tasks
+        asyncio.create_task(self._evolution_loop())
+        asyncio.create_task(self._health_monitor())
+        asyncio.create_task(self._goal_processor())
+        
+        # Update state
+        self.state.health_status = "running"
+        self._save_state()
+        
+        print(f"✅ AGI Orchestrator started at Generation {self.state.generation}")
+        return self
