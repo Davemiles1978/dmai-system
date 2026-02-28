@@ -14,6 +14,7 @@ from meta_learner import MetaLearner
 from self_healer import SelfHealer
 from data_validator import DataValidator
 from capability_synthesizer import CapabilitySynthesizer
+from self_assessment import SelfAssessment
 
 @dataclass
 class AGIState:
@@ -24,7 +25,7 @@ class AGIState:
     performance_metrics: Dict[str, float]
     learning_rate: float
     exploration_rate: float
-    last_evolution: str  # Changed to str for JSON serialization
+    last_evolution: str
     health_status: str
 
 class AGIOrchestrator:
@@ -46,6 +47,7 @@ class AGIOrchestrator:
         self.self_healer = SelfHealer()
         self.data_validator = DataValidator()
         self.capability_synthesizer = CapabilitySynthesizer()
+        self.self_assessment = SelfAssessment()
         
         # State management
         self.state = self._load_state()
@@ -73,7 +75,7 @@ class AGIOrchestrator:
         else:
             # Initialize new state
             return AGIState(
-                generation=4,  # Current generation from shared_checkpoints
+                generation=4,
                 active_capabilities=[],
                 current_goals=[],
                 performance_metrics={},
@@ -82,10 +84,10 @@ class AGIOrchestrator:
                 last_evolution=datetime.now().isoformat(),
                 health_status="initializing"
             )
-            
+    
     async def start(self):
-        """Start the AGI orchestrator"""
-        print("🚀 Starting AGI Orchestrator...")
+        """Start the orchestrator - required for cloud deployment"""
+        print("🚀 Starting AGI Orchestrator via start() method")
         
         # Register with self-healer
         self.self_healer.register_component("agi_orchestrator", self)
@@ -93,20 +95,18 @@ class AGIOrchestrator:
         # Load capabilities
         await self._load_active_capabilities()
         
-        # Start evolution loop
+        # Start background tasks
         asyncio.create_task(self._evolution_loop())
-        
-        # Start health monitoring
         asyncio.create_task(self._health_monitor())
-        
-        # Start goal processing
         asyncio.create_task(self._goal_processor())
         
+        # Update state
         self.state.health_status = "running"
         self._save_state()
         
         print(f"✅ AGI Orchestrator started at Generation {self.state.generation}")
-        
+        return self
+    
     async def _load_active_capabilities(self):
         """Load and cache active capabilities"""
         caps_dir = Path("shared_data/agi_evolution/capabilities")
@@ -116,31 +116,29 @@ class AGIOrchestrator:
                     cap_data = json.load(f)
                     if cap_data.get('name'):
                         self.state.active_capabilities.append(cap_data['name'])
-                        
+    
     async def _evolution_loop(self):
         """Main evolution loop for recursive self-improvement"""
         while True:
             try:
-                # Check if evolution is needed
                 if await self._should_evolve():
                     await self._perform_evolution_step()
                     
-                # Process evolution queue
                 while not self.evolution_queue.empty():
                     evolution_task = await self.evolution_queue.get()
                     result = await self._process_evolution_task(evolution_task)
                     self.evolution_queue.task_done()
-                    await self._process_evolution_task(evolution_task)
                     
-                await asyncio.sleep(60)  # Check every minute
+                await asyncio.sleep(60)
                 
+            except asyncio.CancelledError:
+                break
             except Exception as e:
                 await self._handle_error("evolution_loop", e)
-                await asyncio.sleep(300)  # Wait longer on error
-                
+                await asyncio.sleep(300)
+    
     async def _should_evolve(self) -> bool:
         """Determine if evolution should occur"""
-        # Check time since last evolution
         if isinstance(self.state.last_evolution, str):
             last_evo = datetime.fromisoformat(self.state.last_evolution)
         else:
@@ -148,23 +146,21 @@ class AGIOrchestrator:
             
         time_since_evolution = (datetime.now() - last_evo).seconds
         
-        if time_since_evolution < 3600:  # Minimum 1 hour between evolutions
+        if time_since_evolution < 3600:
             return False
             
-        # Check performance metrics
         if self.state.performance_metrics:
             avg_performance = sum(self.state.performance_metrics.values()) / len(self.state.performance_metrics)
-            if avg_performance < 0.7:  # Low performance triggers evolution
+            if avg_performance < 0.7:
                 return True
                 
-        # Check exploration rate
         if self.state.exploration_rate > 0.2:
             return True
             
         return False
-        
+    
     async def _perform_evolution_step(self):
-        """Perform a single evolution step"""
+        """Perform a single evolution step with self-assessment"""
         print(f"\n🔄 Starting Evolution Step (Generation {self.state.generation})...")
         
         evolution_record = {
@@ -183,7 +179,7 @@ class AGIOrchestrator:
             evolution_record['actions'].append({'type': 'opportunities', 'result': opportunities})
             
             # 3. Synthesize new capabilities
-            for opportunity in opportunities[:3]:  # Limit to top 3
+            for opportunity in opportunities[:3]:
                 new_capability = await self.capability_synthesizer.synthesize_new_capability(
                     goal=opportunity['goal'],
                     available_capabilities=self.state.active_capabilities,
@@ -196,30 +192,46 @@ class AGIOrchestrator:
                         'capability': new_capability.name
                     })
                     
-                    # Trigger event
                     await self._trigger_event('capability_synthesized', {
                         'capability': new_capability.name,
                         'generation': self.state.generation
                     })
-                    
+            
             # 4. Update meta-learner
             meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)
             evolution_record['actions'].append({'type': 'meta_learning', 'result': meta_updates})
             
-            # 5. Update state
+            # 5. Run self-assessment
+            assessment = self.self_assessment.generate_report(
+                knowledge_graph=self.knowledge_graph,
+                evolution_data=evolution_record
+            )
+            evolution_record['assessment'] = assessment
+            
+            print(f"\n📊 Self-Assessment Summary:")
+            print(f"  Learning Quality: {assessment['summary']['learning_quality']}")
+            print(f"  Knowledge Maturity: {assessment['summary']['knowledge_maturity']}")
+            print(f"  System Health: {assessment['summary']['system_health']}")
+            
+            if assessment['recommendations']:
+                print(f"\n💡 Recommendations:")
+                for rec in assessment['recommendations']:
+                    print(f"  • {rec}")
+            
+            # 6. Update state based on assessment
+            self.state.learning_rate = self._adjust_learning_rate(assessment)
+            self.state.exploration_rate = self._adjust_exploration_rate(assessment)
             self.state.generation += 1
             self.state.last_evolution = datetime.now().isoformat()
-            self.state.learning_rate = self._adjust_learning_rate()
-            self.state.exploration_rate = self._adjust_exploration_rate()
             
-            # 6. Create checkpoint
+            # 7. Create checkpoint
             checkpoint_id = await self._create_evolution_checkpoint(evolution_record)
             evolution_record['checkpoint'] = checkpoint_id
             
-            # 7. Save evolution record
+            # 8. Save evolution record
             await self._save_evolution_record(evolution_record)
             
-            # 8. Trigger event
+            # 9. Trigger event
             await self._trigger_event('evolution_step', {
                 'generation': self.state.generation,
                 'record': evolution_record
@@ -229,7 +241,7 @@ class AGIOrchestrator:
             
         except Exception as e:
             await self._handle_error("evolution_step", e)
-            
+    
     async def _analyze_capabilities(self) -> Dict[str, Any]:
         """Analyze current capability set"""
         analysis = {
@@ -239,22 +251,19 @@ class AGIOrchestrator:
             'gaps': []
         }
         
-        # Get performance metrics from knowledge graph
         for capability in self.state.active_capabilities:
             perf = await self._get_capability_performance(capability)
             if perf:
                 analysis['performance_by_capability'][capability] = perf
                 
-        # Identify capability gaps
         analysis['gaps'] = await self._identify_capability_gaps()
         
         return analysis
-        
+    
     async def _identify_improvements(self, analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Identify improvement opportunities"""
         opportunities = []
         
-        # Look for poorly performing capabilities
         for cap_name, perf in analysis.get('performance_by_capability', {}).items():
             if perf.get('success_rate', 1.0) < 0.6:
                 opportunities.append({
@@ -264,7 +273,6 @@ class AGIOrchestrator:
                     'context': {'current_performance': perf}
                 })
                 
-        # Look for capability gaps
         for gap in analysis.get('gaps', []):
             opportunities.append({
                 'type': 'fill_gap',
@@ -272,7 +280,6 @@ class AGIOrchestrator:
                 'context': gap.get('context', {})
             })
             
-        # Look for composition opportunities
         if len(self.state.active_capabilities) >= 3:
             opportunities.append({
                 'type': 'compose',
@@ -281,15 +288,13 @@ class AGIOrchestrator:
             })
             
         return opportunities
-        
+    
     async def _identify_capability_gaps(self) -> List[Dict[str, Any]]:
         """Identify missing capabilities"""
         gaps = []
         
-        # Get capability network
         network = self.capability_synthesizer.get_capability_network()
         
-        # Check for disconnected components
         if len(network.get('root_capabilities', [])) > 1:
             gaps.append({
                 'type': 'integration',
@@ -297,7 +302,6 @@ class AGIOrchestrator:
                 'context': {'roots': network['root_capabilities']}
             })
             
-        # Check for missing common patterns
         common_patterns = ['error_handling', 'validation', 'logging']
         for pattern in common_patterns:
             if not any(pattern in cap for cap in self.state.active_capabilities):
@@ -308,7 +312,7 @@ class AGIOrchestrator:
                 })
                 
         return gaps
-        
+    
     async def _process_evolution_task(self, task: Dict[str, Any]):
         """Process a specific evolution task"""
         task_type = task.get('type')
@@ -334,13 +338,11 @@ class AGIOrchestrator:
                 data=task.get('data', {})
             )
             
-        # Update task result
         task['result'] = result
         task['completed'] = datetime.now().isoformat()
-        
+    
     async def _get_capability_performance(self, capability: str) -> Dict[str, float]:
         """Get performance metrics for a capability"""
-        # Query knowledge graph for performance data
         perf_data = await self.knowledge_graph.query(
             f"MATCH (c:Capability {{name: '{capability}'}})-[:HAS_PERFORMANCE]->(p) RETURN p"
         )
@@ -348,61 +350,60 @@ class AGIOrchestrator:
         if perf_data:
             return perf_data[0].get('p', {})
         return {}
-        
-    def _adjust_learning_rate(self) -> float:
-        """Adjust learning rate based on evolution success"""
-        # Increase learning rate if evolution is successful
-        if hasattr(self, '_evolution_success_rate'):
-            if self._evolution_success_rate > 0.7:
+    
+    def _adjust_learning_rate(self, assessment=None) -> float:
+        """Adjust learning rate based on self-assessment"""
+        if assessment and assessment.get('learning_metrics'):
+            lm = assessment['learning_metrics']
+            if lm.get('improvement_rate', 0) > 0.7:
                 return min(0.3, self.state.learning_rate * 1.1)
-            else:
+            elif lm.get('improvement_rate', 0) < 0.3:
                 return max(0.01, self.state.learning_rate * 0.9)
         return self.state.learning_rate
-        
-    def _adjust_exploration_rate(self) -> float:
-        """Adjust exploration rate based on time"""
-        # Decrease exploration over time, but never to zero
-        time_factor = 0.99 ** (self.state.generation - 4)
-        return max(0.05, 0.3 * time_factor)
-        
+    
+    def _adjust_exploration_rate(self, assessment=None) -> float:
+        """Adjust exploration rate based on self-assessment"""
+        if assessment and assessment.get('learning_metrics'):
+            lm = assessment['learning_metrics']
+            if lm.get('stability_score', 0) > 0.8:
+                return max(0.05, self.state.exploration_rate * 0.95)
+            elif lm.get('stability_score', 0) < 0.3:
+                return min(0.5, self.state.exploration_rate * 1.1)
+        return max(0.05, 0.3 * (0.99 ** (self.state.generation - 4)))
+    
     async def _create_evolution_checkpoint(self, evolution_record: Dict[str, Any]) -> str:
         """Create a checkpoint after evolution"""
         checkpoint_id = f"gen_{self.state.generation}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         checkpoint_dir = self.checkpoint_path / checkpoint_id
         checkpoint_dir.mkdir(parents=True, exist_ok=True)
         
-        # Save evolution record
         with open(checkpoint_dir / "evolution_record.json", 'w') as f:
             json.dump(evolution_record, f, indent=2, default=str)
             
-        # Save current state
         with open(checkpoint_dir / "orchestrator_state.json", 'w') as f:
             json.dump(asdict(self.state), f, indent=2, default=str)
             
-        # Save capability network
         network = self.capability_synthesizer.get_capability_network()
         with open(checkpoint_dir / "capability_network.json", 'w') as f:
             json.dump(network, f, indent=2)
             
-        # Trigger event
         await self._trigger_event('checkpoint_created', {
             'checkpoint_id': checkpoint_id,
             'generation': self.state.generation
         })
         
         return checkpoint_id
-        
+    
     async def _save_evolution_record(self, record: Dict[str, Any]):
         """Save evolution record to history"""
         record_file = self.evolution_path / f"evolution_gen_{self.state.generation}.json"
         with open(record_file, 'w') as f:
             json.dump(record, f, indent=2, default=str)
-            
+    
     async def _health_monitor(self):
         """Monitor system health"""
         while True:
             try:
-                # Check component health
                 components_health = {
                     'knowledge_graph': self.knowledge_graph.is_healthy() if hasattr(self.knowledge_graph, 'is_healthy') else True,
                     'meta_learner': self.meta_learner.is_healthy() if hasattr(self.meta_learner, 'is_healthy') else True,
@@ -411,7 +412,6 @@ class AGIOrchestrator:
                     'capability_synthesizer': True
                 }
                 
-                # Update state
                 if all(components_health.values()):
                     self.state.health_status = "healthy"
                 else:
@@ -419,43 +419,38 @@ class AGIOrchestrator:
                     unhealthy = [k for k, v in components_health.items() if not v]
                     print(f"⚠️ Unhealthy components: {unhealthy}")
                     
-                # Save state
                 self._save_state()
-                
-                await asyncio.sleep(30)  # Check every 30 seconds
+                await asyncio.sleep(30)
                 
             except Exception as e:
                 print(f"Health monitor error: {e}")
                 await asyncio.sleep(60)
-                
+    
     async def _goal_processor(self):
         """Process and prioritize goals"""
         while True:
             try:
                 if self.state.current_goals:
-                    # Sort goals by priority
                     sorted_goals = sorted(
                         self.state.current_goals,
                         key=lambda g: g.get('priority', 0),
                         reverse=True
                     )
                     
-                    # Process top goal
                     top_goal = sorted_goals[0]
                     
-                    # Check if goal requires evolution
                     if top_goal.get('requires_evolution', False):
                         await self.evolution_queue.put({
                             'type': 'goal_driven_evolution',
                             'goal': top_goal
                         })
                         
-                await asyncio.sleep(10)  # Check every 10 seconds
+                await asyncio.sleep(10)
                 
             except Exception as e:
                 await self._handle_error("goal_processor", e)
                 await asyncio.sleep(30)
-                
+    
     async def submit_goal(self, goal: Dict[str, Any]):
         """Submit a new goal to the system"""
         goal['submitted'] = datetime.now().isoformat()
@@ -463,20 +458,14 @@ class AGIOrchestrator:
         
         self.state.current_goals.append(goal)
         self._save_state()
-        
         print(f"📋 New goal submitted: {goal.get('description', 'Unknown')}")
-        
-    async def execute_capability(self, 
-                                capability_name: str, 
-                                input_data: Any,
-                                context: Optional[Dict] = None) -> Any:
+    
+    async def execute_capability(self, capability_name: str, input_data: Any, context: Optional[Dict] = None) -> Any:
         """Execute a capability by name"""
         try:
-            # Check cache first
             if capability_name in self.capability_cache:
                 module = self.capability_cache[capability_name]
             else:
-                # Load capability module
                 cap_path = Path(f"shared_data/agi_evolution/capabilities/{capability_name}.py")
                 if not cap_path.exists():
                     raise ValueError(f"Capability {capability_name} not found")
@@ -486,26 +475,21 @@ class AGIOrchestrator:
                 spec.loader.exec_module(module)
                 self.capability_cache[capability_name] = module
                 
-            # Execute
             result = await module.execute(input_data, context)
-            
-            # Update metrics
             await self._update_capability_metrics(capability_name, success=True)
-            
             return result
             
         except Exception as e:
             await self._update_capability_metrics(capability_name, success=False)
             raise
-            
+    
     async def _update_capability_metrics(self, capability_name: str, success: bool):
         """Update capability performance metrics"""
-        # Update in knowledge graph
         await self.knowledge_graph.update_performance(
             capability_name,
             {'success': success, 'timestamp': datetime.now().isoformat()}
         )
-        
+    
     async def _handle_error(self, context: str, error: Exception):
         """Handle errors in the system"""
         error_info = {
@@ -517,7 +501,6 @@ class AGIOrchestrator:
         
         print(f"❌ Error in {context}: {error}")
         
-        # Log error
         error_file = self.state_path / "errors.json"
         errors = []
         if error_file.exists():
@@ -526,25 +509,22 @@ class AGIOrchestrator:
                 
         errors.append(error_info)
         
-        # Keep only last 100 errors
         if len(errors) > 100:
             errors = errors[-100:]
             
         with open(error_file, 'w') as f:
             json.dump(errors, f, indent=2)
             
-        # Trigger event
         await self._trigger_event('error_occurred', error_info)
         
-        # Attempt self-healing
         if hasattr(self.self_healer, 'heal_component'):
             await self.self_healer.heal_component(context, error_info)
-        
+    
     def on(self, event: str, handler: Callable):
         """Register event handler"""
         if event in self.event_handlers:
             self.event_handlers[event].append(handler)
-            
+    
     async def _trigger_event(self, event: str, data: Any):
         """Trigger an event"""
         if event in self.event_handlers:
@@ -556,13 +536,13 @@ class AGIOrchestrator:
                         handler(data)
                 except Exception as e:
                     print(f"Error in event handler for {event}: {e}")
-                    
+    
     def _save_state(self):
         """Save orchestrator state"""
         state_file = self.state_path / "current_state.json"
         with open(state_file, 'w') as f:
             json.dump(asdict(self.state), f, indent=2, default=str)
-            
+    
     def get_status(self) -> Dict[str, Any]:
         """Get current system status"""
         return {
@@ -579,101 +559,3 @@ class AGIOrchestrator:
                 'capability_synthesizer': 'healthy'
             }
         }
-
-from self_assessment import SelfAssessment
-
-class AGIOrchestrator:
-    def __init__(self, base_path: str = "shared_data/agi_evolution"):
-        # ... existing code ...
-        
-        # Add self-assessment
-        self.self_assessment = SelfAssessment()
-        
-        # ... rest of init ...
-
-    async def _perform_evolution_step(self):
-        """Perform a single evolution step with self-assessment"""
-        print(f"\n🔄 Starting Evolution Step (Generation {self.state.generation})...")
-        
-        evolution_record = {
-            'timestamp': datetime.now().isoformat(),
-            'generation': self.state.generation,
-            'actions': []
-        }
-        
-        try:
-            # ... existing evolution code ...
-            
-            # 4. Update meta-learner
-            meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)
-            evolution_record['actions'].append({'type': 'meta_learning', 'result': meta_updates})
-            
-            # 5. Run self-assessment
-            assessment = self.self_assessment.generate_report(
-                knowledge_graph=self.knowledge_graph,
-                evolution_data=evolution_record
-            )
-            evolution_record['assessment'] = assessment
-            
-            # Log assessment summary
-            print(f"\n📊 Self-Assessment Summary:")
-            print(f"  Learning Quality: {assessment['summary']['learning_quality']}")
-            print(f"  Knowledge Maturity: {assessment['summary']['knowledge_maturity']}")
-            print(f"  System Health: {assessment['summary']['system_health']}")
-            
-            if assessment['recommendations']:
-                print(f"\n💡 Recommendations:")
-                for rec in assessment['recommendations']:
-                    print(f"  • {rec}")
-            
-            # 6. Update state based on assessment
-            self.state.learning_rate = self._adjust_learning_rate(assessment)
-            self.state.exploration_rate = self._adjust_exploration_rate(assessment)
-            
-            # ... rest of evolution step ...
-            
-        except Exception as e:
-            await self._handle_error("evolution_step", e)
-    
-    def _adjust_learning_rate(self, assessment=None):
-        """Adjust learning rate based on self-assessment"""
-        if assessment and assessment.get('learning_metrics'):
-            lm = assessment['learning_metrics']
-            if lm.get('improvement_rate', 0) > 0.7:
-                return min(0.3, self.state.learning_rate * 1.1)
-            elif lm.get('improvement_rate', 0) < 0.3:
-                return max(0.01, self.state.learning_rate * 0.9)
-        return self.state.learning_rate
-    
-    def _adjust_exploration_rate(self, assessment=None):
-        """Adjust exploration rate based on self-assessment"""
-        if assessment and assessment.get('learning_metrics'):
-            lm = assessment['learning_metrics']
-            if lm.get('stability_score', 0) > 0.8:
-                return max(0.05, self.state.exploration_rate * 0.95)
-            elif lm.get('stability_score', 0) < 0.3:
-                return min(0.5, self.state.exploration_rate * 1.1)
-        return max(0.05, 0.3 * (0.99 ** (self.state.generation - 4)))
-
-    # Add start method (required for cloud_launcher)
-    async def start(self):
-        """Start the orchestrator - required for cloud deployment"""
-        print("🚀 Starting AGI Orchestrator via start() method")
-        
-        # Register with self-healer
-        self.self_healer.register_component("agi_orchestrator", self)
-        
-        # Load capabilities
-        await self._load_active_capabilities()
-        
-        # Start background tasks
-        asyncio.create_task(self._evolution_loop())
-        asyncio.create_task(self._health_monitor())
-        asyncio.create_task(self._goal_processor())
-        
-        # Update state
-        self.state.health_status = "running"
-        self._save_state()
-        
-        print(f"✅ AGI Orchestrator started at Generation {self.state.generation}")
-        return self
