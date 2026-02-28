@@ -868,16 +868,4 @@ class AGIOrchestrator:
         except Exception as e:
             await self._handle_error("evolution_step", e)
     
-    def __init__(self, base_path: str = "shared_data/agi_evolution"):
-        # ... existing init code ...
-        
-        # Add Phase 3 tracking
-        self.capability_synthesis_stats = {
-            'attempts': 0,
-            'successes': 0,
-            'total_capabilities': 0,
-            'hybrids_created': [],
-            'cross_domain_adapters': []
-        }
-        
-        # ... rest of init ...
+    
