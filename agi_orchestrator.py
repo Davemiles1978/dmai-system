@@ -559,3 +559,30 @@ class AGIOrchestrator:
                 'capability_synthesizer': 'healthy'
             }
         }
+
+    async def _evolution_loop(self):
+        """Main evolution loop for recursive self-improvement"""
+        while True:
+            try:
+                if await self._should_evolve():
+                    await self._perform_evolution_step()
+                    
+                while not self.evolution_queue.empty():
+                    evolution_task = await self.evolution_queue.get()
+                    # Initialize result variable
+                    result = None
+                    try:
+                        result = await self._process_evolution_task(evolution_task)
+                    except Exception as e:
+                        print(f"❌ Error processing task: {e}")
+                        result = {"error": str(e)}
+                    finally:
+                        self.evolution_queue.task_done()
+                    
+                await asyncio.sleep(60)
+                
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                await self._handle_error("evolution_loop", e)
+                await asyncio.sleep(300)
