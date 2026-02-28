@@ -126,10 +126,22 @@ class AGIOrchestrator:
                     
                 while not self.evolution_queue.empty():
                     evolution_task = await self.evolution_queue.get()
-                    result = await self._process_evolution_task(evolution_task)
-                    self.evolution_queue.task_done()
+                    result = None  # Initialize result
+                    try:
+                        result = await self._process_evolution_task(evolution_task)
+                    except Exception as e:
+                        print(f"❌ Error processing task: {e}")
+                        result = {"error": str(e)}
+                    finally:
+                        self.evolution_queue.task_done()
                     
                 await asyncio.sleep(60)
+                
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                await self._handle_error("evolution_loop", e)
+                await asyncio.sleep(300)await asyncio.sleep(60)
                 
             except asyncio.CancelledError:
                 break
