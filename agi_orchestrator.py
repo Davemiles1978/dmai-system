@@ -586,3 +586,156 @@ class AGIOrchestrator:
             except Exception as e:
                 await self._handle_error("evolution_loop", e)
                 await asyncio.sleep(300)
+
+    async def _apply_knowledge_gap_recommendations(self, gaps):
+        """Apply recommendations from knowledge gap analysis"""
+        for gap in gaps:
+            if gap['type'] == 'missing_core_concept':
+                for concept in gap['concepts']:
+                    print(f"➕ Adding missing core concept: {concept}")
+                    self.knowledge_graph.add_concept(concept, "core", {"auto_added": True})
+            
+            elif gap['type'] == 'isolated_concepts':
+                print(f"🔗 Connecting {gap['count']} isolated concepts")
+                # Logic to connect isolated nodes
+            
+            elif gap['type'] == 'low_utility_concepts' and gap['priority'] == 'low':
+                print(f"📌 Reviewing {gap['count']} low-utility concepts")
+
+    async def _auto_adjust_strategies(self, recommendations):
+        """Automatically adjust evolution strategies based on recommendations"""
+        for rec in recommendations:
+            if rec['priority'] == 'high':
+                if rec['area'] == 'mutation' and rec['action'] == 'increase_diversity':
+                    self.state.exploration_rate = min(0.5, self.state.exploration_rate * 1.2)
+                    print(f"🔄 Increased exploration rate to {self.state.exploration_rate:.2f}")
+                
+                elif rec['area'] == 'exploration' and rec['action'] == 'reduce_exploration_rate':
+                    self.state.exploration_rate = max(0.05, self.state.exploration_rate * 0.8)
+                    print(f"🔄 Reduced exploration rate to {self.state.exploration_rate:.2f}")
+            
+            elif rec['priority'] == 'medium' and rec['area'] == 'selection':
+                # Adjust selection pressure
+                print("🔄 Stabilizing selection pressure")
+                # Implementation would go here
+
+    async def _apply_knowledge_gap_recommendations(self, gaps):
+        """Apply recommendations from knowledge gap analysis"""
+        for gap in gaps:
+            if gap['type'] == 'missing_core_concept':
+                for concept in gap.get('concepts', []):
+                    print(f"➕ Adding missing core concept: {concept}")
+                    self.knowledge_graph.add_concept(concept, "core", {"auto_added": True, "added_at": datetime.now().isoformat()})
+            
+            elif gap['type'] == 'isolated_concepts':
+                print(f"🔗 Found {gap.get('count', 0)} isolated concepts - will connect in next evolution cycle")
+            
+            elif gap['type'] == 'low_utility_concepts':
+                print(f"📌 Found {gap.get('count', 0)} low-utility concepts - consider reviewing")
+
+    async def _auto_adjust_strategies(self, recommendations):
+        """Automatically adjust evolution strategies based on recommendations"""
+        for rec in recommendations:
+            if rec.get('priority') == 'high':
+                if rec.get('area') == 'mutation' and rec.get('action') == 'increase_diversity':
+                    self.state.exploration_rate = min(0.5, self.state.exploration_rate * 1.2)
+                    print(f"🔄 Increased exploration rate to {self.state.exploration_rate:.2f}")
+                
+                elif rec.get('area') == 'exploration' and rec.get('action') == 'reduce_exploration_rate':
+                    self.state.exploration_rate = max(0.05, self.state.exploration_rate * 0.8)
+                    print(f"🔄 Reduced exploration rate to {self.state.exploration_rate:.2f}")
+            
+            elif rec.get('priority') == 'medium' and rec.get('area') == 'selection':
+                print("🔄 Stabilizing selection pressure")
+
+    async def _perform_evolution_step(self):
+        """Perform a single evolution step with self-assessment and auto-adjustment"""
+        print(f"\n🔄 Starting Evolution Step (Generation {self.state.generation})...")
+        
+        evolution_record = {
+            'timestamp': datetime.now().isoformat(),
+            'generation': self.state.generation,
+            'actions': []
+        }
+        
+        try:
+            # 1. Analyze current capabilities
+            capability_analysis = await self._analyze_capabilities()
+            evolution_record['actions'].append({'type': 'analysis', 'result': capability_analysis})
+            
+            # 2. Identify improvement opportunities
+            opportunities = await self._identify_improvements(capability_analysis)
+            evolution_record['actions'].append({'type': 'opportunities', 'result': opportunities})
+            
+            # 3. Synthesize new capabilities
+            for opportunity in opportunities[:3]:
+                new_capability = await self.capability_synthesizer.synthesize_new_capability(
+                    goal=opportunity['goal'],
+                    available_capabilities=self.state.active_capabilities,
+                    context=opportunity.get('context', {})
+                )
+                
+                if new_capability:
+                    evolution_record['actions'].append({
+                        'type': 'synthesis',
+                        'capability': new_capability.name
+                    })
+                    
+                    await self._trigger_event('capability_synthesized', {
+                        'capability': new_capability.name,
+                        'generation': self.state.generation
+                    })
+            
+            # 4. Update meta-learner
+            meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)
+            evolution_record['actions'].append({'type': 'meta_learning', 'result': meta_updates})
+            
+            # 5. Run self-assessment
+            evolution_record['knowledge_graph'] = self.knowledge_graph
+            assessment = self.self_assessment.generate_report(
+                knowledge_graph=self.knowledge_graph,
+                evolution_data=evolution_record
+            )
+            evolution_record['assessment'] = assessment
+            
+            # 6. Apply recommendations automatically (NEW - Phase 2 completion)
+            if assessment.get('knowledge_gaps'):
+                await self._apply_knowledge_gap_recommendations(assessment['knowledge_gaps'])
+            
+            if assessment.get('recommendations'):
+                await self._auto_adjust_strategies(assessment['recommendations'])
+            
+            # Log assessment summary
+            print(f"\n📊 Self-Assessment Summary:")
+            print(f"  Learning Quality: {assessment['summary']['learning_quality']}")
+            print(f"  Knowledge Maturity: {assessment['summary']['knowledge_maturity']}")
+            print(f"  System Health: {assessment['summary']['system_health']}")
+            
+            if assessment.get('recommendations'):
+                print(f"\n💡 Auto-adjusted based on recommendations:")
+                for rec in assessment['recommendations']:
+                    print(f"  • {rec['area']}: {rec['action']}")
+            
+            # 7. Update state
+            self.state.learning_rate = self._adjust_learning_rate(assessment)
+            self.state.exploration_rate = self._adjust_exploration_rate(assessment)
+            self.state.generation += 1
+            self.state.last_evolution = datetime.now().isoformat()
+            
+            # 8. Create checkpoint
+            checkpoint_id = await self._create_evolution_checkpoint(evolution_record)
+            evolution_record['checkpoint'] = checkpoint_id
+            
+            # 9. Save evolution record
+            await self._save_evolution_record(evolution_record)
+            
+            # 10. Trigger event
+            await self._trigger_event('evolution_step', {
+                'generation': self.state.generation,
+                'record': evolution_record
+            })
+            
+            print(f"✅ Evolution Step Complete - Now at Generation {self.state.generation}")
+            
+        except Exception as e:
+            await self._handle_error("evolution_step", e)
