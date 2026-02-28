@@ -178,6 +178,25 @@ class AGILauncher:
         print(f"Uptime: {uptime}")
         print("✅ Shutdown complete")
         
+
+    async def _safe_start_orchestrator(self):
+        """Safely start orchestrator regardless of method name"""
+        if hasattr(self.orchestrator, "start"):
+            return await self.orchestrator.start()
+        elif hasattr(self.orchestrator, "run"):
+            print("⚠️ Using run() instead of start()")
+            return await self.orchestrator.run()
+        else:
+            for method_name in ["start", "run", "begin", "execute", "launch"]:
+                if hasattr(self.orchestrator, method_name):
+                    print(f"⚠️ Using {method_name}() as fallback")
+                    method = getattr(self.orchestrator, method_name)
+                    if asyncio.iscoroutinefunction(method):
+                        return await method()
+                    else:
+                        return method()
+            raise AttributeError("Orchestrator has no start/run method")
+
 async def main():
     """Main entry point"""
     launcher = AGILauncher()

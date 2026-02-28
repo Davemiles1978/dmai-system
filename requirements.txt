@@ -1,8 +1,8 @@
-flask
+flask==2.3.3
 requests
 numpy
 pillow
-gunicorn
+gunicorn==21.2.0
 networkx>=2.6
 numpy>=1.21
 asyncio>=3.4
