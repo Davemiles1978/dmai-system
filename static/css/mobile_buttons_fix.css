@@ -1,0 +1,81 @@
+/* Fix for mobile toggle buttons - make them small and positioned properly */
+
+/* Style both toggle buttons */
+.mobile-menu-btn {
+    display: block !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+    border-radius: 8px !important;
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+    cursor: pointer !important;
+    line-height: 40px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+}
+
+/* Desktop styles - hide them on desktop since we don't need them */
+@media screen and (min-width: 769px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+}
+
+/* Mobile styles - keep them but make them smaller and properly positioned */
+@media screen and (max-width: 768px) {
+    .mobile-menu-btn {
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 22px !important;
+        margin-right: 8px !important;
+    }
+    
+    /* Ensure they don't overlap with other elements */
+    .header {
+        padding: 0 8px !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    
+    .logo {
+        font-size: 1.2em !important;
+        flex: 1 !important;
+        margin-left: 4px !important;
+    }
+    
+    .header-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+    
+    /* Hide evolution badge on very small screens to save space */
+    @media (max-width: 480px) {
+        .evolution-badge {
+            display: none !important;
+        }
+        
+        .logo span:nth-child(2) {
+            display: none !important;
+        }
+        
+        .logo span:first-child {
+            font-size: 1.4em !important;
+        }
+    }
+}
+
+/* For landscape orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+    .mobile-menu-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 18px !important;
+        line-height: 36px !important;
+    }
+}
