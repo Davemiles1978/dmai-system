@@ -405,3 +405,138 @@ temp/
 if __name__ == "__main__":
     engine = EvolutionEngine()
     engine.run_forever()
+    def get_ui_evolvable_files(self):
+        """Get UI files that can be evolved"""
+        ui_files = []
+        
+        # HTML files
+        for html_file in Path('ui').glob('*.html'):
+            ui_files.append(str(html_file))
+            
+        # CSS files
+        for css_file in Path('static/css').glob('*.css'):
+            ui_files.append(str(css_file))
+            
+        # JS files
+        for js_file in Path('static/js').glob('*.js'):
+            ui_files.append(str(js_file))
+            
+        return ui_files
+    
+    def evolve_ui(self, file_path):
+        """Apply UI-specific mutations"""
+        content = Path(file_path).read_text()
+        
+        mutations = [
+            self._improve_responsive_design,
+            self._fix_button_styles,
+            self._improve_scroll_behavior,
+            self._optimize_mobile_view
+        ]
+        
+        for mutation in mutations:
+            content = mutation(content)
+            
+        return content
+    
+    def _improve_responsive_design(self, content):
+        """Add/improve responsive breakpoints"""
+        if '@media' not in content:
+            # Add basic responsive design
+            media_queries = '''
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    /* Mobile styles */
+    .header { height: 50px; }
+    .chat-list-panel { width: 100%; }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    /* Tablet styles */
+    .tools-panel { width: 250px; }
+}
+'''
+            content += media_queries
+        return content
+    
+    def _fix_button_styles(self, content):
+        """Ensure buttons are properly styled and clickable"""
+        if 'cursor: pointer' not in content:
+            button_fix = '''
+/* Ensure all buttons are clickable */
+button, .btn, [role="button"] {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+button:hover, .btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+'''
+            content += button_fix
+        return content
+    
+    def _improve_scroll_behavior(self, content):
+        """Fix scrolling issues"""
+        scroll_fix = '''
+/* Fix scrolling */
+.overflow-auto, .scrollable {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
+}
+'''
+        content += scroll_fix
+        return content
+    
+    def _optimize_mobile_view(self, content):
+        """Optimize for mobile devices"""
+        mobile_fix = '''
+/* Mobile optimizations */
+@media screen and (max-width: 768px) {
+    /* Ensure touch targets are large enough */
+    button, .btn, [role="button"], 
+    .clickable, .tool-btn, .chat-item {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        padding: 12px !important;
+    }
+    
+    /* Prevent text overflow */
+    h1, h2, h3, p, span {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    /* Improve touch scrolling */
+    .messages-container, .chat-list-panel, .tools-panel {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+}
+'''
+        content += mobile_fix
+        return content
