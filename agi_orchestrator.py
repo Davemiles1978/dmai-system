@@ -739,3 +739,145 @@ class AGIOrchestrator:
             
         except Exception as e:
             await self._handle_error("evolution_step", e)
+
+    # === PHASE 3: CAPABILITY SYNTHESIS ACTIVATION ===
+    
+    async def _run_capability_synthesis_cycle(self):
+        """Run a full capability synthesis cycle"""
+        print("\n🧬 Running Capability Synthesis Cycle...")
+        
+        # 1. Discover function combinations
+        combinations = await self.capability_synthesizer.discover_function_combinations()
+        
+        if combinations:
+            print(f"  📊 Found {len(combinations)} potential combinations")
+            
+            # 2. Create hybrid capabilities from top combinations
+            for combo in combinations[:3]:  # Try top 3
+                cap1, cap2 = combo['capabilities'][0], combo['capabilities'][1]
+                
+                # Try different strategies
+                for strategy in ['sequential', 'parallel', 'conditional']:
+                    hybrid = await self.capability_synthesizer.create_hybrid_capability(
+                        cap1, cap2, strategy
+                    )
+                    if hybrid:
+                        print(f"  ✨ Created hybrid: {hybrid.name} ({strategy})")
+                        
+                        # 3. Optimize synergy
+                        await self.capability_synthesizer.optimize_synergy(hybrid.name)
+                        
+                        # Add to active capabilities
+                        self.state.active_capabilities.append(hybrid.name)
+                        
+                        # Track for metrics
+                        self.capability_synthesis_stats['attempts'] += 1
+                        self.capability_synthesis_stats['successes'] += 1
+        
+        # 4. Cross-domain learning (if we have enough capabilities)
+        if len(self.state.active_capabilities) >= 5:
+            domains = ['data', 'image', 'code', 'api', 'analysis']
+            for i in range(len(domains)-1):
+                adapter = await self.capability_synthesizer.cross_domain_learning(
+                    domains[i], domains[i+1]
+                )
+                if adapter:
+                    print(f"  🔄 Created cross-domain adapter: {adapter.name}")
+        
+        # Update synthesis stats
+        self.capability_synthesis_stats['total_capabilities'] = len(self.state.active_capabilities)
+        
+        # Save stats
+        stats_file = self.base_path / "synthesis_stats.json"
+        with open(stats_file, 'w') as f:
+            json.dump(self.capability_synthesis_stats, f, indent=2)
+    
+    async def _perform_evolution_step(self):
+        """Perform a single evolution step with Phase 3 synthesis"""
+        print(f"\n🔄 Starting Evolution Step (Generation {self.state.generation})...")
+        
+        evolution_record = {
+            'timestamp': datetime.now().isoformat(),
+            'generation': self.state.generation,
+            'actions': []
+        }
+        
+        try:
+            # 1. Analyze current capabilities
+            capability_analysis = await self._analyze_capabilities()
+            evolution_record['actions'].append({'type': 'analysis', 'result': capability_analysis})
+            
+            # 2. Identify improvement opportunities
+            opportunities = await self._identify_improvements(capability_analysis)
+            evolution_record['actions'].append({'type': 'opportunities', 'result': opportunities})
+            
+            # 3. Synthesize new capabilities (original method)
+            for opportunity in opportunities[:2]:
+                new_capability = await self.capability_synthesizer.synthesize_new_capability(
+                    goal=opportunity['goal'],
+                    available_capabilities=self.state.active_capabilities,
+                    context=opportunity.get('context', {})
+                )
+                
+                if new_capability:
+                    evolution_record['actions'].append({
+                        'type': 'synthesis',
+                        'capability': new_capability.name
+                    })
+                    self.state.active_capabilities.append(new_capability.name)
+            
+            # 4. **NEW: Phase 3 Capability Synthesis Cycle**
+            if self.state.generation % 3 == 0:  # Run every 3 generations
+                await self._run_capability_synthesis_cycle()
+                evolution_record['actions'].append({'type': 'phase3_synthesis'})
+            
+            # 5. Update meta-learner
+            meta_updates = await self.meta_learner.learn_from_evolution(evolution_record)
+            evolution_record['actions'].append({'type': 'meta_learning', 'result': meta_updates})
+            
+            # 6. Run self-assessment
+            evolution_record['knowledge_graph'] = self.knowledge_graph
+            assessment = self.self_assessment.generate_report(
+                knowledge_graph=self.knowledge_graph,
+                evolution_data=evolution_record
+            )
+            evolution_record['assessment'] = assessment
+            
+            # 7. Apply recommendations
+            if assessment.get('knowledge_gaps'):
+                await self._apply_knowledge_gap_recommendations(assessment['knowledge_gaps'])
+            
+            if assessment.get('recommendations'):
+                await self._auto_adjust_strategies(assessment['recommendations'])
+            
+            # 8. Update state
+            self.state.learning_rate = self._adjust_learning_rate(assessment)
+            self.state.exploration_rate = self._adjust_exploration_rate(assessment)
+            self.state.generation += 1
+            self.state.last_evolution = datetime.now().isoformat()
+            
+            # 9. Create checkpoint
+            checkpoint_id = await self._create_evolution_checkpoint(evolution_record)
+            evolution_record['checkpoint'] = checkpoint_id
+            
+            # 10. Save evolution record
+            await self._save_evolution_record(evolution_record)
+            
+            print(f"✅ Evolution Step Complete - Now at Generation {self.state.generation}")
+            
+        except Exception as e:
+            await self._handle_error("evolution_step", e)
+    
+    def __init__(self, base_path: str = "shared_data/agi_evolution"):
+        # ... existing init code ...
+        
+        # Add Phase 3 tracking
+        self.capability_synthesis_stats = {
+            'attempts': 0,
+            'successes': 0,
+            'total_capabilities': 0,
+            'hybrids_created': [],
+            'cross_domain_adapters': []
+        }
+        
+        # ... rest of init ...
