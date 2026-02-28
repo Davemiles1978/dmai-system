@@ -1,0 +1,302 @@
+/* ==================== DESKTOP FIXES ==================== */
+@media screen and (min-width: 769px) {
+    /* Make right panel scrollable */
+    .tools-panel {
+        overflow-y: auto !important;
+        height: calc(100vh - 60px) !important;
+        padding-bottom: 80px !important;
+    }
+    
+    /* Fix admin controls position - move to dropdown */
+    .tools-section:has(.danger) {
+        margin-top: 20px !important;
+        border-top: 2px solid var(--danger) !important;
+    }
+    
+    /* Hide admin buttons from main panel */
+    .danger {
+        display: none !important;
+    }
+    
+    /* Fix user dropdown so it's clickable */
+    .user-menu {
+        position: relative !important;
+        z-index: 10000 !important;
+    }
+    
+    .dropdown-content {
+        position: absolute !important;
+        right: 0 !important;
+        top: 45px !important;
+        min-width: 200px !important;
+        background: var(--bg-secondary) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2) !important;
+        z-index: 10001 !important;
+    }
+    
+    /* Add admin controls to dropdown */
+    .dropdown-item.admin-section {
+        border-top: 2px solid var(--danger) !important;
+        margin-top: 8px !important;
+        padding-top: 12px !important;
+    }
+    
+    .dropdown-item.danger-item {
+        color: var(--danger) !important;
+        font-weight: bold !important;
+    }
+    
+    .dropdown-item.danger-item:hover {
+        background: var(--danger) !important;
+        color: white !important;
+    }
+    
+    /* Ensure dropdown items are clickable */
+    .dropdown-item {
+        padding: 12px 16px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+    }
+    
+    .dropdown-item:hover {
+        background: var(--bg-tertiary) !important;
+    }
+    
+    /* Fix tool buttons to be clickable */
+    .tool-btn, .style-preset, .platform-badge, .action-btn, .suggestion-btn {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1000 !important;
+    }
+    
+    .tool-btn:hover, .style-preset:hover, .platform-badge:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 8px var(--shadow) !important;
+    }
+    
+    /* Ensure main content is clickable */
+    .messages-container, .message, .chat-item, .send-btn, textarea {
+        pointer-events: auto !important;
+    }
+}
+
+/* ==================== MOBILE FIXES ==================== */
+@media screen and (max-width: 768px) {
+    /* Header fixes - make space for buttons */
+    .header {
+        height: 60px !important;
+        padding: 0 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: var(--bg-secondary) !important;
+        border-bottom: 1px solid var(--border) !important;
+        position: relative !important;
+        z-index: 1000 !important;
+    }
+    
+    /* Mobile menu buttons - icon sized */
+    .mobile-menu-btn {
+        display: flex !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        font-size: 24px !important;
+        border-radius: 8px !important;
+        background: var(--bg-tertiary) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-primary) !important;
+        cursor: pointer !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Logo area - compact */
+    .logo {
+        font-size: 1.2em !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex: 1 !important;
+        margin: 0 4px !important;
+    }
+    
+    .evolution-badge {
+        font-size: 0.7em !important;
+        padding: 2px 6px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Hide text on very small screens */
+    @media (max-width: 480px) {
+        .logo span:not(:first-child) {
+            display: none !important;
+        }
+        .evolution-badge {
+            display: none !important;
+        }
+        .user-menu-trigger span:not(.avatar) {
+            display: none !important;
+        }
+        .mobile-menu-btn {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 20px !important;
+        }
+    }
+    
+    /* User menu - compact */
+    .user-menu-trigger {
+        padding: 2px 4px !important;
+        gap: 2px !important;
+    }
+    
+    .avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+    }
+    
+    /* Fix input area - make it visible */
+    .input-area {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: var(--bg-secondary) !important;
+        border-top: 1px solid var(--border) !important;
+        padding: 8px 12px !important;
+        z-index: 1000 !important;
+        box-shadow: 0 -2px 10px var(--shadow) !important;
+    }
+    
+    .input-container {
+        display: flex !important;
+        gap: 8px !important;
+        align-items: center !important;
+    }
+    
+    textarea {
+        flex: 1 !important;
+        min-height: 44px !important;
+        max-height: 100px !important;
+        padding: 12px !important;
+        font-size: 16px !important;
+        border-radius: 22px !important;
+        background: var(--bg-tertiary) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-primary) !important;
+        resize: none !important;
+    }
+    
+    .send-btn {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        background: var(--accent) !important;
+        color: white !important;
+        border: none !important;
+        font-size: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        cursor: pointer !important;
+    }
+    
+    /* Make messages area scrollable with space for input */
+    .main-chat-panel {
+        height: calc(100vh - 60px - 70px) !important;
+        overflow-y: auto !important;
+        padding-bottom: 10px !important;
+    }
+    
+    .messages-container {
+        padding: 12px !important;
+    }
+    
+    /* Slide-out panels */
+    .chat-list-panel, .tools-panel {
+        position: fixed !important;
+        top: 60px !important;
+        bottom: 70px !important;
+        width: 85% !important;
+        max-width: 300px !important;
+        background: var(--bg-secondary) !important;
+        z-index: 1001 !important;
+        overflow-y: auto !important;
+        box-shadow: 2px 0 10px var(--shadow) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    .chat-list-panel {
+        left: 0 !important;
+        transform: translateX(-100%) !important;
+    }
+    
+    .tools-panel {
+        right: 0 !important;
+        transform: translateX(100%) !important;
+    }
+    
+    .chat-list-panel.open {
+        transform: translateX(0) !important;
+    }
+    
+    .tools-panel.open {
+        transform: translateX(0) !important;
+    }
+    
+    /* Mobile overlay */
+    .mobile-overlay {
+        position: fixed !important;
+        top: 60px !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 70px !important;
+        background: rgba(0,0,0,0.5) !important;
+        z-index: 1000 !important;
+        display: none !important;
+    }
+    
+    .mobile-overlay.visible {
+        display: block !important;
+    }
+    
+    /* Evolution indicator - reposition */
+    .evolution-indicator {
+        bottom: 80px !important;
+        right: 16px !important;
+        z-index: 1002 !important;
+    }
+}
+
+/* ==================== ADD ADMIN ITEMS TO DROPDOWN ==================== */
+#admin-menu-items {
+    display: none;
+}
+
+/* Common fixes for both */
+.tool-btn, .style-preset, .platform-badge, .action-btn, .suggestion-btn {
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+.tool-btn:active, .style-preset:active, .platform-badge:active {
+    transform: scale(0.98) !important;
+}
+
+/* Scrollbar styling */
+.tools-panel::-webkit-scrollbar, .chat-list-panel::-webkit-scrollbar, .messages-container::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.tools-panel::-webkit-scrollbar-thumb, .chat-list-panel::-webkit-scrollbar-thumb, .messages-container::-webkit-scrollbar-thumb {
+    background: var(--accent) !important;
+    border-radius: 3px !important;
+}
