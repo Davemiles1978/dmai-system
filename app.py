@@ -62,3 +62,8 @@ def serve_static(path):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
+
+@app.route('/evolution')
+def evolution_dashboard():
+    """Serve the evolution dashboard"""
+    return send_from_directory('templates', 'evolution_dashboard.html')
