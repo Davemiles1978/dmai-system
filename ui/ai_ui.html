@@ -598,6 +598,22 @@
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            width: 70%;
+            max-width: 800px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-container {
+                width: 100%;
+            }
         }
         
         .input-container {
@@ -862,9 +878,28 @@
                 padding: 12px;
             }
             
-            .input-area {
-                padding: 8px 12px;
+        .input-area {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            width: 70%;
+            max-width: 800px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-container {
+                width: 100%;
             }
+        }
             
             textarea {
                 min-height: 36px;
@@ -1287,9 +1322,99 @@ function newChat() {
 function showArchivedChats() {
     const archived = projects.filter(p => p.archived);
     if (archived.length === 0) {
-        alert('No archived chats');
+        alert("No archived chats");
         return;
     }
+    
+    // Create modal for archived chats
+    const modal = document.createElement("div");
+    modal.style.position = "fixed";
+    modal.style.top = "0";
+    modal.style.left = "0";
+    modal.style.width = "100%";
+    modal.style.height = "100%";
+    modal.style.background = "rgba(0,0,0,0.5)";
+    modal.style.zIndex = "10000";
+    modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
+    
+    const content = document.createElement("div");
+    content.style.background = "var(--bg-secondary)";
+    content.style.borderRadius = "12px";
+    content.style.padding = "20px";
+    content.style.width = "500px";
+    content.style.maxWidth = "90%";
+    content.style.maxHeight = "80vh";
+    content.style.overflowY = "auto";
+    content.style.border = "1px solid var(--border)";
+    
+    content.innerHTML = `<h3 style="margin-bottom: 16px;">📦 Archived Chats</h3>`;
+    
+    archived.forEach(chat => {
+        const chatDiv = document.createElement("div");
+        chatDiv.style.background = "var(--bg-tertiary)";
+        chatDiv.style.borderRadius = "8px";
+        chatDiv.style.padding = "12px";
+        chatDiv.style.marginBottom = "10px";
+        chatDiv.style.border = "1px solid var(--border)";
+        
+        chatDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong>${chat.name}</strong>
+                <span>${chat.messages.length} msgs</span>
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                <button class="restore-btn" data-id="${chat.id}" style="flex:1; padding:6px; background:var(--accent); color:white; border:none; border-radius:4px; cursor:pointer;">↩️ Restore</button>
+                <button class="delete-btn" data-id="${chat.id}" style="flex:1; padding:6px; background:var(--danger); color:white; border:none; border-radius:4px; cursor:pointer;">🗑️ Delete</button>
+            </div>
+        `;
+        content.appendChild(chatDiv);
+    });
+    
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "Close";
+    closeBtn.style.marginTop = "16px";
+    closeBtn.style.padding = "8px 16px";
+    closeBtn.style.background = "var(--bg-tertiary)";
+    closeBtn.style.border = "1px solid var(--border)";
+    closeBtn.style.borderRadius = "4px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.width = "100%";
+    closeBtn.onclick = () => document.body.removeChild(modal);
+    content.appendChild(closeBtn);
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // Add event listeners for restore/delete buttons
+    setTimeout(() => {
+        document.querySelectorAll(".restore-btn").forEach(btn => {
+            btn.onclick = () => {
+                const chatId = btn.dataset.id;
+                const chat = projects.find(p => p.id === chatId);
+                if (chat) {
+                    chat.archived = false;
+                    saveProjects();
+                    renderChatList();
+                    document.body.removeChild(modal);
+                }
+            };
+        });
+        
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.onclick = () => {
+                const chatId = btn.dataset.id;
+                if (confirm("Delete this chat permanently?")) {
+                    projects = projects.filter(p => p.id !== chatId);
+                    saveProjects();
+                    renderChatList();
+                    document.body.removeChild(modal);
+                }
+            };
+        });
+    }, 100);
+}
     
     let message = 'Archived chats:\n\n';
     archived.forEach(chat => {
