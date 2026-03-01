@@ -661,3 +661,31 @@ class AGIOrchestrator:
             await self._handle_error("evolution_step", e)
     
     
+
+    async def _should_evolve(self) -> bool:
+        """Determine if evolution should occur"""
+        if isinstance(self.state.last_evolution, str):
+            try:
+                last_evo = datetime.fromisoformat(self.state.last_evolution)
+            except:
+                last_evo = datetime.now()
+        else:
+            last_evo = self.state.last_evolution
+            
+        time_since_evolution = (datetime.now() - last_evo).seconds
+        
+        # Evolve every hour if conditions met
+        if time_since_evolution < 3600:
+            return False
+            
+        # Check performance metrics
+        if self.state.performance_metrics:
+            avg_performance = sum(self.state.performance_metrics.values()) / len(self.state.performance_metrics)
+            if avg_performance < 0.7:
+                return True
+                
+        # Check exploration rate
+        if self.state.exploration_rate > 0.2:
+            return True
+            
+        return False
