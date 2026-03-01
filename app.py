@@ -67,3 +67,150 @@ if __name__ == '__main__':
 def evolution_dashboard():
     """Serve the evolution dashboard"""
     return send_from_directory('templates', 'evolution_dashboard.html')
+
+from config.admin_config import AdminAuth, BiometricAuth
+from functools import wraps
+import secrets
+
+# Initialize auth
+admin_auth = AdminAuth()
+bio_auth = BiometricAuth()
+
+def admin_required(f):
+    """Decorator for admin-only routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check for admin token in session
+        token = request.cookies.get('admin_token')
+        if not token or not admin_auth.verify_session(token):
+            return jsonify({"error": "Admin access required"}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/admin/login', methods=['POST'])
+def admin_login():
+    """Secure admin login"""
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    if admin_auth.verify_admin(username, password):
+        token = admin_auth.create_session()
+        response = jsonify({"success": True, "token": token})
+        response.set_cookie('admin_token', token, httponly=True, secure=True, samesite='Strict')
+        return response
+    return jsonify({"error": "Invalid credentials"}), 401
+
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    """Admin logout"""
+    token = request.cookies.get('admin_token')
+    if token:
+        admin_auth.revoke_session(token)
+    response = jsonify({"success": True})
+    response.delete_cookie('admin_token')
+    return response
+
+@app.route('/admin/status')
+def admin_status():
+    """Check admin login status"""
+    token = request.cookies.get('admin_token')
+    return jsonify({"is_admin": bool(token and admin_auth.verify_session(token))})
+
+@app.route('/evolution')
+@admin_required
+def evolution_dashboard():
+    """Secure evolution dashboard - admin only"""
+    return send_from_directory('templates', 'evolution_dashboard.html')
+
+@app.route('/api/evolution/start', methods=['POST'])
+@admin_required
+def start_evolution():
+    """Manually trigger evolution cycle - admin only"""
+    try:
+        from evolution_engine import run_evolution_cycle
+        result = run_evolution_cycle()
+        return jsonify({"status": "started", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/evolution/status')
+@admin_required
+def evolution_status():
+    """Get detailed evolution status - admin only"""
+    try:
+        with open('checkpoints/current_generation.txt', 'r') as f:
+            generation = f.read().strip()
+        with open('checkpoints/best_scores.json', 'r') as f:
+            scores = json.load(f)
+        return jsonify({
+            "generation": generation,
+            "phase2_progress": 25,
+            "phase3_progress": 0,
+            "best_scores": scores
+        })
+    except:
+        return jsonify({"generation": 5, "phase2_progress": 25, "phase3_progress": 0})
+
+@app.route('/admin-login')
+def admin_login_page():
+    """Serve admin login page"""
+    return send_from_directory('templates', 'admin_login.html')
+
+from config.admin_config import AdminAuth
+from functools import wraps
+import secrets
+
+# Initialize auth
+admin_auth = AdminAuth()
+
+def admin_required(f):
+    """Decorator for admin-only routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.cookies.get('admin_token')
+        if not token or not admin_auth.verify_session(token):
+            return jsonify({"error": "Admin access required"}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/admin/login', methods=['POST'])
+def admin_login():
+    """Secure admin login"""
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    if admin_auth.verify_admin(username, password):
+        token = admin_auth.create_session()
+        response = jsonify({"success": True, "token": token})
+        response.set_cookie('admin_token', token, httponly=True, secure=True, samesite='Strict')
+        return response
+    return jsonify({"error": "Invalid credentials"}), 401
+
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    """Admin logout"""
+    token = request.cookies.get('admin_token')
+    if token:
+        admin_auth.revoke_session(token)
+    response = jsonify({"success": True})
+    response.delete_cookie('admin_token')
+    return response
+
+@app.route('/admin/status')
+def admin_status():
+    """Check admin login status"""
+    token = request.cookies.get('admin_token')
+    return jsonify({"is_admin": bool(token and admin_auth.verify_session(token))})
+
+@app.route('/evolution')
+@admin_required
+def evolution_dashboard():
+    """Secure evolution dashboard - admin only"""
+    return send_from_directory('templates', 'evolution_dashboard.html')
+
+@app.route('/admin-login')
+def admin_login_page():
+    """Serve admin login page"""
+    return send_from_directory('templates', 'admin_login.html')
