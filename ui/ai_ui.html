@@ -183,25 +183,15 @@
             height: 60px;
             flex-shrink: 0;
             z-index: 100;
+            position: relative;
         }
         
-        .logo {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        
-        .evolution-badge {
+        .gen-badge {
             background: var(--bg-tertiary);
             color: var(--text-secondary);
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.75em;
-            margin-left: 8px;
             border: 1px solid var(--border);
             display: inline-flex;
             align-items: center;
@@ -221,6 +211,18 @@
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
+        }
+        
+        .header-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent);
         }
         
         .header-right {
@@ -380,7 +382,7 @@
         }
         
         .message {
-            max-width: 85%;
+            max-width: 70%;
             padding: 12px 14px;
             border-radius: 12px;
             line-height: 1.5;
@@ -634,19 +636,6 @@
             justify-content: center;
         }
         
-        .spinner {
-            width: 14px;
-            height: 14px;
-            border: 2px solid var(--accent);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         /* Mobile Overlay */
         .mobile-overlay {
             display: none;
@@ -802,12 +791,8 @@
         }
         
         @media (max-width: 480px) {
-            .logo {
+            .header-center {
                 font-size: 1.1em;
-            }
-            
-            .evolution-badge {
-                display: none;
             }
             
             .user-menu-trigger span:not(.avatar) {
@@ -924,16 +909,18 @@
         <div id="app">
             <!-- Header -->
             <div class="header">
-                <button class="mobile-menu-btn" id="menuToggle" onclick="toggleChatList()">☰</button>
-                <div class="logo">
+                <div class="gen-badge" id="version-badge">
+                    Gen <span id="gen-display">?</span>
+                    <span class="evolution-status" id="evolution-status-dot"></span>
+                </div>
+                
+                <div class="header-center">
                     <span>🧬</span>
                     <span>DMAI</span>
-                    <span class="evolution-badge" id="version-badge">
-                        Gen <span id="gen-display">?</span>
-                        <span class="evolution-status" id="evolution-status-dot"></span>
-                    </span>
                 </div>
+                
                 <div class="header-right">
+                    <button class="mobile-menu-btn" id="menuToggle" onclick="toggleChatList()">☰</button>
                     <button class="mobile-menu-btn" id="toolsToggle" onclick="toggleToolsPanel()">🛠️</button>
                     <div class="user-menu">
                         <div class="user-menu-trigger">
@@ -1037,13 +1024,10 @@ async function fetchEvolutionStats() {
 
 // Update all generation displays
 function updateGenerationDisplay() {
-    const displays = ['gen-display', 'gen-indicator'];
-    displays.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.textContent = evolutionData.generation;
-        }
-    });
+    const el = document.getElementById('gen-display');
+    if (el) {
+        el.textContent = evolutionData.generation;
+    }
 }
 
 setInterval(fetchEvolutionStats, 30000);
@@ -1085,7 +1069,6 @@ function register() {
         return;
     }
     
-    // Simple registration
     alert('Registration successful! Please login.');
     switchLoginTab('login');
 }
@@ -1158,13 +1141,14 @@ function loadData() {
     }
     
     if (!projects || projects.length === 0) {
+        const welcomeId = 'chat_' + Date.now();
         projects = [{
-            id: 'chat_' + Date.now(),
-            name: 'Welcome Chat',
+            id: welcomeId,
+            name: 'Welcome',
             messages: [{
                 id: 'welcome_' + Date.now(),
                 role: 'ai',
-                content: 'Hi, I am DMAI. How can I help you today?',
+                content: 'Hello! I am DMAI. How can I help you today?',
                 timestamp: new Date().toISOString()
             }],
             archived: false,
@@ -1187,11 +1171,10 @@ function renderChatList() {
     if (!list) return;
     
     list.innerHTML = projects.filter(p => !p.archived).map(p => {
-        // Generate a preview from first message
         let preview = '';
         if (p.messages.length > 0) {
-            const firstMsg = p.messages[0].content;
-            preview = firstMsg.length > 30 ? firstMsg.substring(0, 30) + '...' : firstMsg;
+            const lastMsg = p.messages[p.messages.length - 1].content;
+            preview = lastMsg.length > 30 ? lastMsg.substring(0, 30) + '...' : lastMsg;
         }
         
         return `
@@ -1228,17 +1211,26 @@ function newChat() {
     const id = 'chat_' + Date.now();
     projects.push({
         id: id,
-        name: 'New Conversation',
+        name: 'New Chat',
         messages: [],
         archived: false,
         pinned: false,
         created: new Date().toISOString()
     });
     currentChat = id;
-    document.getElementById('current-chat').textContent = 'New Conversation';
+    document.getElementById('current-chat').textContent = 'New Chat';
     saveProjects();
     renderChatList();
     renderMessages();
+}
+
+function showArchivedChats() {
+    const archived = projects.filter(p => p.archived);
+    if (archived.length === 0) {
+        alert('No archived chats');
+        return;
+    }
+    alert(`Archived chats: ${archived.length}`);
 }
 
 function logout() {
@@ -1259,31 +1251,182 @@ function initializeToolsPanel() {
         <div class="tools-section">
             <div class="tools-title">🎨 IMAGES</div>
             <div class="tool-grid">
-                <button class="tool-btn" onclick="alert('Quick image generation would go here')">⚡ Quick</button>
-                <button class="tool-btn" onclick="alert('Create image tool')">🎨 Create</button>
-                <button class="tool-btn" onclick="alert('Edit image tool')">✏️ Edit</button>
-                <button class="tool-btn" onclick="alert('Variations tool')">🔄 Variations</button>
+                <button class="tool-btn" onclick="quickImage()">⚡ Quick</button>
+                <button class="tool-btn" onclick="createImage()">🎨 Create</button>
+                <button class="tool-btn" onclick="editImage()">✏️ Edit</button>
+                <button class="tool-btn" onclick="variations()">🔄 Variations</button>
             </div>
         </div>
         
         <div class="tools-section">
             <div class="tools-title">🎬 VIDEOS</div>
             <div class="tool-grid">
-                <button class="tool-btn" onclick="alert('Text to video tool')">📝 Text2Video</button>
-                <button class="tool-btn" onclick="alert('Image to video tool')">🖼️ Image2Video</button>
+                <button class="tool-btn" onclick="generateVideoFromText()">📝 Text2Video</button>
+                <button class="tool-btn" onclick="generateVideoFromImage()">🖼️ Image2Video</button>
             </div>
         </div>
         
         <div class="tools-section">
             <div class="tools-title">💻 CODE</div>
             <div class="tool-grid">
-                <button class="tool-btn" onclick="alert('Code writing tool')">✍️ Write</button>
-                <button class="tool-btn" onclick="alert('Code review tool')">🔍 Review</button>
-                <button class="tool-btn" onclick="alert('Code testing tool')">🧪 Test</button>
-                <button class="tool-btn" onclick="alert('Code debug tool')">🐛 Debug</button>
+                <button class="tool-btn" onclick="writeCode()">✍️ Write</button>
+                <button class="tool-btn" onclick="reviewCode()">🔍 Review</button>
+                <button class="tool-btn" onclick="testCode()">🧪 Test</button>
+                <button class="tool-btn" onclick="debugCode()">🐛 Debug</button>
             </div>
         </div>
     `;
+}
+
+// Tool functions
+function quickImage() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🎨 **Quick Image**\n\nHere's a quick generated image for you!`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function createImage() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🎨 **Image Creation**\n\nDescribe what image you'd like me to create.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function editImage() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `✏️ **Image Editing**\n\nTell me what you'd like to edit in the last image.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function variations() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🔄 **Variations**\n\nI'll create variations. What style would you like?`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function generateVideoFromText() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🎬 **Text to Video**\n\nDescribe the video you want to create.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function generateVideoFromImage() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🎬 **Image to Video**\n\nI'll animate your last image. Describe the movement.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function writeCode() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `💻 **Code Writing**\n\nWhat code would you like me to write?`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function reviewCode() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🔍 **Code Review**\n\nPaste the code you want me to review.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function testCode() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🧪 **Code Testing**\n\nProvide the code and test cases.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
+}
+
+function debugCode() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const response = `🐛 **Code Debug**\n\nPaste the code and describe the issue.`;
+    chat.messages.push({
+        id: 'tool_' + Date.now(),
+        role: 'ai',
+        content: response,
+        timestamp: new Date().toISOString()
+    });
+    saveProjects();
+    renderMessages();
 }
 
 // Check auto-login
@@ -1315,7 +1458,6 @@ function sendMessage() {
     const chat = projects.find(p => p.id === currentChat);
     if (!chat) return;
     
-    // Add user message
     chat.messages.push({
         id: 'msg_' + Date.now(),
         role: 'user',
@@ -1323,14 +1465,11 @@ function sendMessage() {
         timestamp: new Date().toISOString()
     });
     
-    // Generate AI response
     let response = '';
     const lower = content.toLowerCase();
     
-    if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
+    if (lower.includes('hello') || lower.includes('hi')) {
         response = 'Hello! How can I assist you today?';
-    } else if (lower.includes('image') || lower.includes('picture')) {
-        response = 'Try the image generation tools in the right panel!';
     } else {
         response = `I understand you're asking about "${content}". How can I help further?`;
     }
@@ -1342,13 +1481,11 @@ function sendMessage() {
         timestamp: new Date().toISOString()
     });
     
-    // Smart chat naming - rename based on first message if it's still default
-    if (chat.name === 'New Conversation' && chat.messages.length <= 2) {
-        // Extract key words from first message
-        const words = content.split(' ').filter(w => w.length > 3);
+    // Smart naming for new chats
+    if (chat.name === 'New Chat' && chat.messages.length <= 2) {
+        const words = content.split(' ').filter(w => w.length > 3).slice(0, 3);
         if (words.length > 0) {
-            // Use first few meaningful words as chat name
-            chat.name = words.slice(0, 3).join(' ') + '...';
+            chat.name = words.join(' ') + '...';
         } else {
             chat.name = content.substring(0, 20) + (content.length > 20 ? '...' : '');
         }
@@ -1360,6 +1497,13 @@ function sendMessage() {
     renderMessages();
     renderChatList();
 }
+
+// Placeholder functions
+function showProfile() { alert('Profile section coming soon'); }
+function openSettings() { alert('Settings coming soon'); }
+function showSuggestions() { document.querySelector('.suggestion-box textarea')?.focus(); }
+function changePassword() { alert('Password change coming soon'); }
+function openAdminPanel() { alert('Admin panel coming soon'); }
 
 // Start the app
 if (!checkAutoLogin()) {
