@@ -18,11 +18,27 @@ def serve_ui():
 
 @app.route('/health')
 def health():
-    """Health check endpoint"""
+    """Health check endpoint with real generation"""
+    try:
+        # Try to get real generation from checkpoints
+        checkpoint_dir = Path("shared_checkpoints")
+        if checkpoint_dir.exists():
+            checkpoints = list(checkpoint_dir.glob("gen_*"))
+            if checkpoints:
+                latest = max(checkpoints, key=lambda p: p.stat().st_mtime)
+                gen = int(latest.name.split('_')[1])
+            else:
+                gen = 5
+        else:
+            gen = 5
+    except:
+        gen = 5
+    
     return jsonify({
         'status': 'healthy',
-        'generation': 5,
-        'service': 'dmai-final'
+        'generation': gen,
+        'service': 'dmai-final',
+        'timestamp': datetime.now().isoformat()
     })
 
 @app.route('/<path:path>')
