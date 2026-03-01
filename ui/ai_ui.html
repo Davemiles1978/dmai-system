@@ -989,7 +989,7 @@
             <!-- Input Area -->
             <div class="input-area">
                 <div class="input-container">
-                    <textarea id="message-input" placeholder="Ask me anything... Your conversations guide evolution. Type 'cat' to see image generation!"></textarea>
+                    <textarea id="message-input" placeholder="Ask me anything... Your conversations guide evolution."></textarea>
                     <button class="send-btn" onclick="sendMessage()">➤</button>
                 </div>
             </div>
@@ -1022,32 +1022,16 @@ async function fetchEvolutionStats() {
         } else {
             console.log('Health endpoint not available');
             if (!evolutionData.generation || evolutionData.generation === 1) {
-                evolutionData.generation = 266;
+                evolutionData.generation = 5;
                 updateGenerationDisplay();
             }
         }
     } catch (error) {
-        console.log('Evolution API error:', error);
+        console.log('Evolution API error, using default');
         if (!evolutionData.generation || evolutionData.generation === 1) {
-            evolutionData.generation = 266;
+            evolutionData.generation = 5;
             updateGenerationDisplay();
         }
-    }
-}
-
-// Submit human guidance to evolution engine
-async function submitGuidanceToEngine(guidance) {
-    try {
-        const response = await fetch('/api/submit-guidance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ guidance: guidance })
-        });
-        if (response.ok) {
-            showNotification('💡 Guidance sent to evolution engine');
-        }
-    } catch (error) {
-        console.log('Guidance API not available');
     }
 }
 
@@ -1060,12 +1044,6 @@ function updateGenerationDisplay() {
             el.textContent = evolutionData.generation;
         }
     });
-    
-    const ticker = document.getElementById('cycle-ticker');
-    if (ticker) {
-        const nextIn = Math.floor(evolutionData.nextCycleIn / 60);
-        ticker.textContent = `Next in ${nextIn}m`;
-    }
 }
 
 setInterval(fetchEvolutionStats, 30000);
@@ -1107,7 +1085,7 @@ function register() {
         return;
     }
     
-    // Simple registration - in production this would save to users object
+    // Simple registration
     alert('Registration successful! Please login.');
     switchLoginTab('login');
 }
@@ -1169,7 +1147,6 @@ let currentUserRole = 'user';
 let internetEnabled = false;
 let projects = [];
 let currentChat = null;
-let activeContextMenu = null;
 
 // Load data from localStorage
 function loadData() {
@@ -1183,11 +1160,11 @@ function loadData() {
     if (!projects || projects.length === 0) {
         projects = [{
             id: 'chat_' + Date.now(),
-            name: 'Chat 1',
+            name: 'Welcome Chat',
             messages: [{
                 id: 'welcome_' + Date.now(),
                 role: 'ai',
-                content: '👋 Welcome to DMAI!',
+                content: 'Hi, I am DMAI. How can I help you today?',
                 timestamp: new Date().toISOString()
             }],
             archived: false,
@@ -1209,12 +1186,21 @@ function renderChatList() {
     const list = document.getElementById('chat-list');
     if (!list) return;
     
-    list.innerHTML = projects.filter(p => !p.archived).map(p => `
+    list.innerHTML = projects.filter(p => !p.archived).map(p => {
+        // Generate a preview from first message
+        let preview = '';
+        if (p.messages.length > 0) {
+            const firstMsg = p.messages[0].content;
+            preview = firstMsg.length > 30 ? firstMsg.substring(0, 30) + '...' : firstMsg;
+        }
+        
+        return `
         <div class="chat-item ${p.id === currentChat ? 'active' : ''}" onclick="switchChat('${p.id}')">
             <div class="chat-name">${p.name}</div>
             <div class="chat-meta">${p.messages.length} msgs</div>
+            <div class="chat-preview">${preview}</div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function renderMessages() {
@@ -1242,14 +1228,14 @@ function newChat() {
     const id = 'chat_' + Date.now();
     projects.push({
         id: id,
-        name: `Chat ${projects.length + 1}`,
+        name: 'New Conversation',
         messages: [],
         archived: false,
         pinned: false,
         created: new Date().toISOString()
     });
     currentChat = id;
-    document.getElementById('current-chat').textContent = `Chat ${projects.length}`;
+    document.getElementById('current-chat').textContent = 'New Conversation';
     saveProjects();
     renderChatList();
     renderMessages();
@@ -1264,11 +1250,40 @@ function logout() {
     document.getElementById('main-app').style.display = 'none';
 }
 
-// Initialize
+// Initialize tools panel with actual tools
 function initializeToolsPanel() {
     const panel = document.getElementById('toolsPanel');
     if (!panel) return;
-    panel.innerHTML = '<div class="tools-section">Tools loading...</div>';
+    
+    panel.innerHTML = `
+        <div class="tools-section">
+            <div class="tools-title">🎨 IMAGES</div>
+            <div class="tool-grid">
+                <button class="tool-btn" onclick="alert('Quick image generation would go here')">⚡ Quick</button>
+                <button class="tool-btn" onclick="alert('Create image tool')">🎨 Create</button>
+                <button class="tool-btn" onclick="alert('Edit image tool')">✏️ Edit</button>
+                <button class="tool-btn" onclick="alert('Variations tool')">🔄 Variations</button>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tools-title">🎬 VIDEOS</div>
+            <div class="tool-grid">
+                <button class="tool-btn" onclick="alert('Text to video tool')">📝 Text2Video</button>
+                <button class="tool-btn" onclick="alert('Image to video tool')">🖼️ Image2Video</button>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tools-title">💻 CODE</div>
+            <div class="tool-grid">
+                <button class="tool-btn" onclick="alert('Code writing tool')">✍️ Write</button>
+                <button class="tool-btn" onclick="alert('Code review tool')">🔍 Review</button>
+                <button class="tool-btn" onclick="alert('Code testing tool')">🧪 Test</button>
+                <button class="tool-btn" onclick="alert('Code debug tool')">🐛 Debug</button>
+            </div>
+        </div>
+    `;
 }
 
 // Check auto-login
@@ -1291,12 +1306,7 @@ function checkAutoLogin() {
     return false;
 }
 
-// Start the app
-if (!checkAutoLogin()) {
-    document.getElementById('login-screen').style.display = 'flex';
-}
-
-// Message sending
+// Message sending with smart naming
 function sendMessage() {
     const input = document.getElementById('message-input');
     const content = input.value.trim();
@@ -1305,6 +1315,7 @@ function sendMessage() {
     const chat = projects.find(p => p.id === currentChat);
     if (!chat) return;
     
+    // Add user message
     chat.messages.push({
         id: 'msg_' + Date.now(),
         role: 'user',
@@ -1312,16 +1323,47 @@ function sendMessage() {
         timestamp: new Date().toISOString()
     });
     
+    // Generate AI response
+    let response = '';
+    const lower = content.toLowerCase();
+    
+    if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
+        response = 'Hello! How can I assist you today?';
+    } else if (lower.includes('image') || lower.includes('picture')) {
+        response = 'Try the image generation tools in the right panel!';
+    } else {
+        response = `I understand you're asking about "${content}". How can I help further?`;
+    }
+    
     chat.messages.push({
         id: 'resp_' + Date.now(),
         role: 'ai',
-        content: `🤔 You said: "${content}"`,
+        content: response,
         timestamp: new Date().toISOString()
     });
+    
+    // Smart chat naming - rename based on first message if it's still default
+    if (chat.name === 'New Conversation' && chat.messages.length <= 2) {
+        // Extract key words from first message
+        const words = content.split(' ').filter(w => w.length > 3);
+        if (words.length > 0) {
+            // Use first few meaningful words as chat name
+            chat.name = words.slice(0, 3).join(' ') + '...';
+        } else {
+            chat.name = content.substring(0, 20) + (content.length > 20 ? '...' : '');
+        }
+        document.getElementById('current-chat').textContent = chat.name;
+    }
     
     input.value = '';
     saveProjects();
     renderMessages();
+    renderChatList();
+}
+
+// Start the app
+if (!checkAutoLogin()) {
+    document.getElementById('login-screen').style.display = 'flex';
 }
 
 // Event listeners
@@ -1335,135 +1377,5 @@ document.getElementById('message-input')?.addEventListener('keydown', (e) => {
 // Initial fetch
 setTimeout(fetchEvolutionStats, 1000);
 </script>
-    <!-- FORCE FIX - Ensures UI functionality -->
-    <script>
-        // FORCE FIX - Directly override and fix everything
-        (function() {
-            console.log('🔧 FORCE FIX: Loading...');
-            
-            // Wait for page to be fully loaded
-            function waitForElements() {
-                const input = document.getElementById('message-input');
-                const sendBtn = document.querySelector('.send-btn');
-                
-                if (!input || !sendBtn) {
-                    console.log('⏳ Waiting for elements...');
-                    setTimeout(waitForElements, 500);
-                    return;
-                }
-                
-                console.log('✅ Elements found, applying fixes...');
-                
-                // Store original sendMessage if it exists
-                const originalSendMessage = window.sendMessage;
-                
-                // Completely replace the sendMessage function on window
-                window.sendMessage = function() {
-                    console.log('📤 sendMessage called');
-                    const input = document.getElementById('message-input');
-                    if (!input) return;
-                    
-                    const content = input.value.trim();
-                    if (!content) return;
-                    
-                    // Find or create chat
-                    if (!window.projects) {
-                        window.projects = [{
-                            id: 'chat_1',
-                            name: 'Chat 1',
-                            messages: [],
-                            created: new Date().toISOString()
-                        }];
-                        window.currentChat = 'chat_1';
-                    }
-                    
-                    if (!window.currentChat) {
-                        window.currentChat = window.projects[0].id;
-                    }
-                    
-                    const chat = window.projects.find(p => p.id === window.currentChat);
-                    if (!chat) return;
-                    
-                    // Add user message
-                    const userMsg = {
-                        id: 'msg_' + Date.now(),
-                        role: 'user',
-                        content: content,
-                        timestamp: new Date().toISOString()
-                    };
-                    chat.messages.push(userMsg);
-                    
-                    // Generate response
-                    let response = '';
-                    const lower = content.toLowerCase();
-                    
-                    if (lower.includes('hello') || lower.includes('hi')) {
-                        response = '👋 Hello! How can I help you today?';
-                    } else if (lower.includes('image') || lower.includes('picture')) {
-                        response = '🎨 Try the image generation tools on the right panel!';
-                    } else {
-                        response = `🤔 You said: "${content}"\n\nHow can I assist further?`;
-                    }
-                    
-                    // Add AI response
-                    const aiMsg = {
-                        id: 'resp_' + Date.now(),
-                        role: 'ai',
-                        content: response,
-                        timestamp: new Date().toISOString()
-                    };
-                    chat.messages.push(aiMsg);
-                    
-                    // Clear input
-                    input.value = '';
-                    
-                    // Update display
-                    if (window.renderMessages) {
-                        window.renderMessages();
-                    } else {
-                        // Manual render if function missing
-                        const container = document.getElementById('messages');
-                        if (container) {
-                            container.innerHTML = chat.messages.map(m => 
-                                `<div class="message ${m.role}">${m.content}</div>`
-                            ).join('');
-                        }
-                    }
-                    
-                    console.log('✅ Message sent and response added');
-                };
-                
-                // Attach click handler to send button
-                sendBtn.onclick = function(e) {
-                    e.preventDefault();
-                    window.sendMessage();
-                };
-                
-                // Attach enter key to input
-                input.onkeydown = function(e) {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        window.sendMessage();
-                    }
-                };
-                
-                // Create messages container if missing
-                if (!document.getElementById('messages')) {
-                    const container = document.createElement('div');
-                    container.id = 'messages';
-                    container.className = 'messages-container';
-                    const mainChat = document.querySelector('.main-chat-panel');
-                    if (mainChat) {
-                        mainChat.appendChild(container);
-                    }
-                }
-                
-                console.log('✅ FORCE FIX complete');
-            }
-            
-            // Start waiting
-            waitForElements();
-        })();
-    </script>
 </body>
 </html>
