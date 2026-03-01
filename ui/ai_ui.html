@@ -1010,21 +1010,31 @@
         let toolsOpen = false;
         
         // Fetch real evolution stats from the API
-        async function fetchEvolutionStats() {
+async function fetchEvolutionStats() {
     try {
-        // Use the health endpoint which we know works
-        const response = await fetch('/health');
+        console.log("Fetching health data...");
+        const response = await fetch("/health");
         if (response.ok) {
             const data = await response.json();
+            console.log("Health data received:", data);
             evolutionData.generation = data.generation || evolutionData.generation;
-            evolutionData.status = 'running';
+            console.log("Setting generation to:", evolutionData.generation);
             
             updateGenerationDisplay();
             
-            const dot = document.getElementById('evolution-status-dot');
+            const dot = document.getElementById("evolution-status-dot");
             if (dot) {
-                dot.style.backgroundColor = 'var(--success)';
+                dot.style.backgroundColor = "var(--success)";
             }
+        }
+    } catch (error) {
+        console.log("Evolution API not available - using local display");
+        if (!evolutionData.generation || evolutionData.generation === 1) {
+            evolutionData.generation = 266;
+            updateGenerationDisplay();
+        }
+    }
+}
         } else {
             console.log('Health endpoint not available, using local display');
             if (!evolutionData.generation || evolutionData.generation === 1) {
@@ -1057,15 +1067,19 @@
         }
         
         // Update all generation displays
-        function updateGenerationDisplay() {
-            const displays = ['gen-display', 'gen-indicator'];
-            displays.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    let displayGen = evolutionData.generation;
-                    if (displayGen >= 10000) {
-                        displayGen = (displayGen/1000).toFixed(1) + 'k';
-                    } else if (displayGen >= 1000) {
+function updateGenerationDisplay() {
+    console.log("Updating display with generation:", evolutionData.generation);
+    const displays = ["gen-display", "gen-indicator"];
+    displays.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = evolutionData.generation;
+            console.log(`Updated ${id} to:`, evolutionData.generation);
+        } else {
+            console.log(`Element ${id} not found`);
+        }
+    });
+}
                         displayGen = (displayGen/1000).toFixed(1) + 'k';
                     }
                     el.textContent = displayGen;
