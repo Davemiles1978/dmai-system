@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Evolution Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e0e0e0; padding: 20px; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #fff; margin-bottom: 30px; background: linear-gradient(90deg, #6e8efb, #a777e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-card { background: rgba(20, 20, 30, 0.95); border: 1px solid #3a3a4f; border-radius: 12px; padding: 20px; }
+        .stat-card h3 { color: #888; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 36px; font-weight: bold; background: linear-gradient(90deg, #6e8efb, #a777e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { color: #e0e0e0; font-size: 14px; }
+        .progress-section { background: rgba(20, 20, 30, 0.95); border: 1px solid #3a3a4f; border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .progress-bar { height: 20px; background: #2a2a3a; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #6e8efb, #a777e3); border-radius: 10px; transition: width 0.3s ease; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .best-scores { background: rgba(20, 20, 30, 0.95); border: 1px solid #3a3a4f; border-radius: 12px; padding: 20px; margin: 20px 0; max-height: 400px; overflow-y: auto; }
+        .score-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #3a3a4f; }
+        .score-item:last-child { border-bottom: none; }
+        .score-name { color: #e0e0e0; }
+        .score-value { color: #6e8efb; font-weight: bold; }
+        .badge { background: #a777e3; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 DMAI Evolution Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Current Generation</h3>
+                <div class="stat-value" id="generation">5</div>
+                <div class="stat-label">Generation 5 active</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Repositories</h3>
+                <div class="stat-value" id="activeRepos">22</div>
+                <div class="stat-label">Being evolved</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Files</h3>
+                <div class="stat-value" id="totalFiles">5,661</div>
+                <div class="stat-label">In evolution system</div>
+            </div>
+            <div class="stat-card">
+                <h3>Best Score</h3>
+                <div class="stat-value" id="bestScore">1.26</div>
+                <div class="stat-label">DeepSeek-V3 inference</div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <h2>Phase Progress</h2>
+            <div class="progress-label">
+                <span>Phase 2: Self-Awareness</span>
+                <span id="phase2Percent">25%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="phase2Progress" style="width: 25%"></div>
+            </div>
+            <div class="progress-label" style="margin-top: 15px;">
+                <span>Phase 3: Capability Synthesis</span>
+                <span id="phase3Percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="phase3Progress" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="best-scores">
+            <h2>🏆 Best Scores by Category</h2>
+            <div id="scoresList"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateDashboard() {
+            fetch('/api/evolution-stats')
+                .then(r => r.json())
+                .then(data => {
+                    // Update basic stats
+                    document.getElementById('generation').textContent = data.generation || 5;
+                    document.getElementById('activeRepos').textContent = data.activeRepos || 22;
+                    document.getElementById('totalFiles').textContent = (data.totalFiles || 5661).toLocaleString();
+                    document.getElementById('bestScore').textContent = data.bestScore || 1.26;
+                    
+                    // Update best scores list
+                    const scoresList = document.getElementById('scoresList');
+                    if (data.bestScores) {
+                        scoresList.innerHTML = '';
+                        Object.entries(data.bestScores)
+                            .sort((a, b) => b[1].score - a[1].score)
+                            .slice(0, 10)
+                            .forEach(([category, score]) => {
+                                const item = document.createElement('div');
+                                item.className = 'score-item';
+                                item.innerHTML = `
+                                    <span class="score-name">
+                                        ${category}
+                                        <span class="badge">Gen ${score.generation}</span>
+                                    </span>
+                                    <span class="score-value">${score.score.toFixed(3)}</span>
+                                `;
+                                scoresList.appendChild(item);
+                            });
+                    }
+                    
+                    // Update phase progress based on generation
+                    const gen = parseInt(data.generation) || 5;
+                    const phase2Progress = Math.min(25 + (gen - 5) * 5, 100);
+                    const phase3Progress = Math.max(0, Math.min((gen - 10) * 10, 100));
+                    
+                    document.getElementById('phase2Progress').style.width = phase2Progress + '%';
+                    document.getElementById('phase2Percent').textContent = phase2Progress + '%';
+                    document.getElementById('phase3Progress').style.width = phase3Progress + '%';
+                    document.getElementById('phase3Percent').textContent = phase3Progress + '%';
+                })
+                .catch(err => console.error('Error updating dashboard:', err));
+        }
+
+        // Update immediately and then every 10 seconds
+        updateDashboard();
+        setInterval(updateDashboard, 10000);
+    </script>
+</body>
+</html>
