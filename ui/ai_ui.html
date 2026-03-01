@@ -409,6 +409,7 @@
             <div class="gen-badge">🔮 GEN <span id="genNumber">5</span></div>
             <div class="logo">DMAI</div>
             <div class="user-menu">
+            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
                 <span id="usernameDisplay">admin</span>
                 <button onclick="logout()" class="logout-btn">Logout</button>
             </div>
@@ -818,3 +819,10 @@
     </script>
 </body>
 </html>
+        // Add admin check in the header
+        <div class="user-menu">
+            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
+            <span id="usernameDisplay">admin</span>
+            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
