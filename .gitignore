@@ -1,195 +1,65 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
 
-# Evolution data - now tracked (except large files)
-# shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints is tracked, but exclude large binaries
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpointslarge_files/
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*.model
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*.weights
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*.h5
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*.pth
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*.pt
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*.bin
-shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpointstemp/
-
-# User data - tracked, but exclude temporary files
-shared_data/backups/
-shared_data/# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints
-shared_data/*.tmp
-shared_data/**/*.tmp
-# But track the actual user data
-!shared_data/users/
-!shared_data/users/*.json
-
-# Environment
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-pythonenv*
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
+# Evolution system - don't commit evolved files
+repos/
+checkpoints/generation_*/
+checkpoints/checkpoint_*/
+checkpoints/backups/
+agi/backups/
+agi/data/
+agi/health/
+agi/models/
+agi/test_results/
 
 # Logs and databases
 *.log
 *.sql
 *.sqlite
-instance/
+evolution.log
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# Render specific
-render.yaml
-Dockerfile.render
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# OS generated files
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Keep these important files
-!shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpointscurrent_generation.txt
-!shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpointsbest_scores.json
-!shared_# # # # # # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints - now using shared_checkpoints*_summary.json
-!shared_data/users/*.json
-# Render.com specific ignores
-/var/
-*.log
-*.pid
-*.sock
-evolution.log
-cloud_evolution.log
-
-# Keep these for deployment
-!render.yaml
-!render_start.sh
-!.env.render
-!cloud_launcher.py
-!health_check.py
-
-# Backups and temporary files
-AGI_BACKUP_*/
-backups/
+# Backup files
 *.backup
-*.back
 *.bak
-*.tmp
-*.temp
-*.log
-*.zip
-*.icns
-*.mobile_backup
-*.part
+*.backup2
+*.backup3
+*.bak2
+*.bak3
+*.syntax_backup
+*.final_backup
 
-# Checkpoint directories
-checkpoints/best_versions/
-checkpoints/generation_*/
-shared_data/checkpoints/
+# Local development
+.env
+.venv
+venv/
+ENV/
+env/
 
-# Python cache
-__pycache__/
-*.pyc
+# Project specific
+shared_checkpoints/current_generation.txt
+checkpoints/current_generation.txt
+checkpoints/best_scores.json
+next_chat_handover.sh
+PROJECT MASTER DASHBOARD.md
+test_evolution.py
+clean_evolution_loop.py
+quick_status.py
+dashboard.py
+product_creator.py
+static/img/dna-logo.ico
+static/js/force_fix.js
 
-# Local development files
-dmai-system-clean/
-copy_handoff.sh
-handoff_prompt.txt
-health_check_*.json
-fix_*.py
-agi_health_server.py
-check_status.py
+# Keep these files (they're our code)
+!app.py
+!evolution_engine.py
+!ui/ai_ui.html
+!templates/
+!config/
+!agi/self_healer.py
+!agi/knowledge_graph.py
