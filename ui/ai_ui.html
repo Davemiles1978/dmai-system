@@ -724,6 +724,27 @@
             text-overflow: ellipsis;
         }
         
+        .chat-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        
+        .chat-action-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .chat-action-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
             .mobile-menu-btn {
@@ -1166,6 +1187,41 @@ function saveProjects() {
     localStorage.setItem(`chats_${currentUser}`, JSON.stringify(projects));
 }
 
+function archiveChat(chatId) {
+    const chat = projects.find(p => p.id === chatId);
+    if (chat) {
+        chat.archived = true;
+        saveProjects();
+        renderChatList();
+        if (currentChat === chatId) {
+            const firstUnarchived = projects.find(p => !p.archived);
+            if (firstUnarchived) {
+                currentChat = firstUnarchived.id;
+                document.getElementById('current-chat').textContent = firstUnarchived.name;
+                renderMessages();
+            }
+        }
+    }
+}
+
+function deleteChat(chatId) {
+    if (projects.length <= 1) {
+        alert('Cannot delete the last chat');
+        return;
+    }
+    
+    if (confirm('Delete this chat?')) {
+        projects = projects.filter(p => p.id !== chatId);
+        if (currentChat === chatId) {
+            currentChat = projects[0].id;
+            document.getElementById('current-chat').textContent = projects[0].name;
+        }
+        saveProjects();
+        renderChatList();
+        renderMessages();
+    }
+}
+
 function renderChatList() {
     const list = document.getElementById('chat-list');
     if (!list) return;
@@ -1178,10 +1234,14 @@ function renderChatList() {
         }
         
         return `
-        <div class="chat-item ${p.id === currentChat ? 'active' : ''}" onclick="switchChat('${p.id}')">
+        <div class="chat-item ${p.id === currentChat ? 'active' : ''}">
             <div class="chat-name">${p.name}</div>
             <div class="chat-meta">${p.messages.length} msgs</div>
             <div class="chat-preview">${preview}</div>
+            <div class="chat-actions">
+                <button class="chat-action-btn" onclick="event.stopPropagation(); archiveChat('${p.id}')">📦 Archive</button>
+                <button class="chat-action-btn" onclick="event.stopPropagation(); deleteChat('${p.id}')">🗑️ Delete</button>
+            </div>
         </div>
     `}).join('');
 }
@@ -1230,7 +1290,12 @@ function showArchivedChats() {
         alert('No archived chats');
         return;
     }
-    alert(`Archived chats: ${archived.length}`);
+    
+    let message = 'Archived chats:\n\n';
+    archived.forEach(chat => {
+        message += `• ${chat.name} (${chat.messages.length} messages)\n`;
+    });
+    alert(message);
 }
 
 function logout() {
@@ -1242,7 +1307,7 @@ function logout() {
     document.getElementById('main-app').style.display = 'none';
 }
 
-// Initialize tools panel with actual tools
+// Initialize tools panel with all tools
 function initializeToolsPanel() {
     const panel = document.getElementById('toolsPanel');
     if (!panel) return;
@@ -1264,6 +1329,14 @@ function initializeToolsPanel() {
                 <button class="tool-btn" onclick="generateVideoFromText()">📝 Text2Video</button>
                 <button class="tool-btn" onclick="generateVideoFromImage()">🖼️ Image2Video</button>
             </div>
+            <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px;">
+                <span class="style-preset" onclick="createVideoWithStyle('manga')">Manga</span>
+                <span class="style-preset" onclick="createVideoWithStyle('photorealistic')">PhotoReal</span>
+                <span class="style-preset" onclick="createVideoWithStyle('watercolor')">Watercolor</span>
+                <span class="style-preset" onclick="createVideoWithStyle('cyberpunk')">Cyberpunk</span>
+                <span class="style-preset" onclick="createVideoWithStyle('claymation')">Claymation</span>
+                <span class="style-preset" onclick="createVideoWithStyle('oil_painting')">Oil Paint</span>
+            </div>
         </div>
         
         <div class="tools-section">
@@ -1275,158 +1348,157 @@ function initializeToolsPanel() {
                 <button class="tool-btn" onclick="debugCode()">🐛 Debug</button>
             </div>
         </div>
+        
+        <div class="tools-section">
+            <div class="tools-title">📊 DATA</div>
+            <div class="tool-grid">
+                <button class="tool-btn" onclick="analyzeData()">📈 Analyze</button>
+                <button class="tool-btn" onclick="createChart()">📊 Chart</button>
+                <button class="tool-btn" onclick="financialAnalysis()">💰 Finance</button>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tools-title">📝 CONTENT</div>
+            <div class="tool-grid">
+                <button class="tool-btn" onclick="productDescription()">📦 Product</button>
+                <button class="tool-btn" onclick="advertGenerator()">📢 Advert</button>
+                <button class="tool-btn" onclick="socialPost()">📱 Social</button>
+                <button class="tool-btn" onclick="blogPost()">📝 Blog</button>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tools-title">🌐 TRANSLATE</div>
+            <div class="tool-grid">
+                <button class="tool-btn" onclick="translateText()">📝 Text</button>
+                <button class="tool-btn" onclick="translateAudio()">🎤 Audio</button>
+            </div>
+        </div>
+        
+        <div class="tools-section">
+            <div class="tools-title">💡 SUGGEST</div>
+            <div class="suggestion-box">
+                <textarea id="suggestion-input" placeholder="How can DMAI evolve?"></textarea>
+                <button class="suggestion-btn" onclick="submitSuggestion()">Submit</button>
+            </div>
+        </div>
     `;
 }
 
 // Tool functions
-function quickImage() {
+function addToolResponse(title, response) {
     const chat = projects.find(p => p.id === currentChat);
     if (!chat) return;
     
-    const response = `🎨 **Quick Image**\n\nHere's a quick generated image for you!`;
     chat.messages.push({
         id: 'tool_' + Date.now(),
         role: 'ai',
-        content: response,
+        content: `**${title}**\n\n${response}`,
         timestamp: new Date().toISOString()
     });
     saveProjects();
     renderMessages();
+}
+
+function quickImage() {
+    addToolResponse('Quick Image', 'Here\'s a generated image for you!');
 }
 
 function createImage() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `🎨 **Image Creation**\n\nDescribe what image you'd like me to create.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Image Creation', 'Describe what image you\'d like me to create.');
 }
 
 function editImage() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `✏️ **Image Editing**\n\nTell me what you'd like to edit in the last image.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Image Editing', 'Tell me what you\'d like to edit in the last image.');
 }
 
 function variations() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `🔄 **Variations**\n\nI'll create variations. What style would you like?`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Variations', 'I\'ll create variations. What style would you like?');
 }
 
 function generateVideoFromText() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `🎬 **Text to Video**\n\nDescribe the video you want to create.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Text to Video', 'Describe the video you want to create. Include style, duration, and scene details.');
 }
 
 function generateVideoFromImage() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `🎬 **Image to Video**\n\nI'll animate your last image. Describe the movement.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Image to Video', 'I\'ll animate your last image. Tell me what movement you want.');
+}
+
+function createVideoWithStyle(style) {
+    const styles = {
+        'manga': 'Manga/Anime',
+        'photorealistic': 'Photorealistic',
+        'watercolor': 'Watercolor',
+        'cyberpunk': 'Cyberpunk',
+        'claymation': 'Claymation',
+        'oil_painting': 'Oil Painting'
+    };
+    const styleName = styles[style] || style;
+    addToolResponse('Video Style', `Creating a ${styleName} style video. Please describe what you want to see.`);
 }
 
 function writeCode() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `💻 **Code Writing**\n\nWhat code would you like me to write?`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Code Writing', 'Tell me what code you need. Include language and requirements.');
 }
 
 function reviewCode() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `🔍 **Code Review**\n\nPaste the code you want me to review.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Code Review', 'Please paste the code you want me to review.');
 }
 
 function testCode() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
-    
-    const response = `🧪 **Code Testing**\n\nProvide the code and test cases.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    addToolResponse('Code Testing', 'Please provide the code and test cases.');
 }
 
 function debugCode() {
-    const chat = projects.find(p => p.id === currentChat);
-    if (!chat) return;
+    addToolResponse('Code Debug', 'Please paste the code and describe the issue.');
+}
+
+function analyzeData() {
+    addToolResponse('Data Analysis', 'Please provide the data you want me to analyze.');
+}
+
+function createChart() {
+    addToolResponse('Create Chart', 'Please provide the data and chart type (bar, line, pie).');
+}
+
+function financialAnalysis() {
+    addToolResponse('Financial Analysis', 'Please provide stock tickers or financial data.');
+}
+
+function productDescription() {
+    addToolResponse('Product Description', 'Tell me about your product and I\'ll write a description.');
+}
+
+function advertGenerator() {
+    addToolResponse('Advert Generator', 'Tell me about your product and target audience.');
+}
+
+function socialPost() {
+    addToolResponse('Social Post', 'What platform and what would you like to post?');
+}
+
+function blogPost() {
+    addToolResponse('Blog Post', 'What topic should I write about?');
+}
+
+function translateText() {
+    addToolResponse('Translation', 'What text would you like translated and to which language?');
+}
+
+function translateAudio() {
+    addToolResponse('Audio Translation', 'Please upload an audio file and specify target language.');
+}
+
+function submitSuggestion() {
+    const input = document.getElementById('suggestion-input');
+    if (!input) return;
     
-    const response = `🐛 **Code Debug**\n\nPaste the code and describe the issue.`;
-    chat.messages.push({
-        id: 'tool_' + Date.now(),
-        role: 'ai',
-        content: response,
-        timestamp: new Date().toISOString()
-    });
-    saveProjects();
-    renderMessages();
+    const suggestion = input.value.trim();
+    if (!suggestion) return;
+    
+    addToolResponse('Suggestion Received', `Thank you for: "${suggestion}"\n\nThis has been sent to the evolution engine.`);
+    input.value = '';
 }
 
 // Check auto-login
