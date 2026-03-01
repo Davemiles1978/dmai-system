@@ -1019,16 +1019,18 @@ async function fetchEvolutionStats() {
             console.log("Health data received:", data);
             evolutionData.generation = data.generation || evolutionData.generation;
             console.log("Setting generation to:", evolutionData.generation);
-            
             updateGenerationDisplay();
-            
             const dot = document.getElementById("evolution-status-dot");
-            if (dot) {
-                dot.style.backgroundColor = "var(--success)";
+            if (dot) dot.style.backgroundColor = "var(--success)";
+        } else {
+            console.log("Health endpoint returned", response.status);
+            if (!evolutionData.generation || evolutionData.generation === 1) {
+                evolutionData.generation = 266;
+                updateGenerationDisplay();
             }
         }
     } catch (error) {
-        console.log("Evolution API not available - using local display");
+        console.log("Evolution API not available - using local display", error);
         if (!evolutionData.generation || evolutionData.generation === 1) {
             evolutionData.generation = 266;
             updateGenerationDisplay();
@@ -1040,22 +1042,6 @@ async function fetchEvolutionStats() {
             if (!evolutionData.generation || evolutionData.generation === 1) {
                 evolutionData.generation = 266;
                 updateGenerationDisplay();
-            }
-        }
-    } catch (error) {
-        console.log('Evolution API not available - using local display');
-        if (!evolutionData.generation || evolutionData.generation === 1) {
-            evolutionData.generation = 266;
-            updateGenerationDisplay();
-        }
-    }
-}
-        // Submit human guidance to evolution engine
-        async function submitGuidanceToEngine(guidance) {
-            try {
-                const response = await fetch('/api/submit-guidance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ guidance: guidance })
                 });
                 if (response.ok) {
