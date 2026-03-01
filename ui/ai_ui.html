@@ -997,1509 +997,344 @@
     </div>
     
     <script>
-        // ==================== REAL EVOLUTION DATA FETCHING ====================
-        let evolutionData = {
-            generation: 1,
-            bestScore: 0,
-            nextCycleIn: 3600,
-            status: 'running'
-        };
-        
-        // Mobile panel state
-        let chatListOpen = false;
-        let toolsOpen = false;
-        
-        // Fetch real evolution stats from the API
+// ==================== REAL EVOLUTION DATA FETCHING ====================
+let evolutionData = {
+    generation: 1,
+    bestScore: 0,
+    nextCycleIn: 3600,
+    status: 'running'
+};
+
+// Mobile panel state
+let chatListOpen = false;
+let toolsOpen = false;
+
+// Fetch real evolution stats from the API
 async function fetchEvolutionStats() {
     try {
-        console.log("Fetching health data...");
-        const response = await fetch("/health");
+        const response = await fetch('/health');
         if (response.ok) {
             const data = await response.json();
-            console.log("Health data received:", data);
             evolutionData.generation = data.generation || evolutionData.generation;
-            console.log("Setting generation to:", evolutionData.generation);
             updateGenerationDisplay();
-            const dot = document.getElementById("evolution-status-dot");
-            if (dot) dot.style.backgroundColor = "var(--success)";
+            const dot = document.getElementById('evolution-status-dot');
+            if (dot) dot.style.backgroundColor = 'var(--success)';
         } else {
-            console.log("Health endpoint returned", response.status);
+            console.log('Health endpoint not available');
             if (!evolutionData.generation || evolutionData.generation === 1) {
                 evolutionData.generation = 266;
                 updateGenerationDisplay();
             }
         }
     } catch (error) {
-        console.log("Evolution API not available - using local display", error);
+        console.log('Evolution API error:', error);
         if (!evolutionData.generation || evolutionData.generation === 1) {
             evolutionData.generation = 266;
             updateGenerationDisplay();
         }
     }
 }
-        } else {
-            console.log('Health endpoint not available, using local display');
-            if (!evolutionData.generation || evolutionData.generation === 1) {
-                evolutionData.generation = 266;
-                updateGenerationDisplay();
-                    body: JSON.stringify({ guidance: guidance })
-                });
-                if (response.ok) {
-                    showNotification('💡 Guidance sent to evolution engine');
-                }
-            } catch (error) {
-                console.log('Guidance API not available');
-            }
+
+// Submit human guidance to evolution engine
+async function submitGuidanceToEngine(guidance) {
+    try {
+        const response = await fetch('/api/submit-guidance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ guidance: guidance })
+        });
+        if (response.ok) {
+            showNotification('💡 Guidance sent to evolution engine');
         }
-        
-        // Update all generation displays
+    } catch (error) {
+        console.log('Guidance API not available');
+    }
+}
+
+// Update all generation displays
 function updateGenerationDisplay() {
-    console.log("Updating display with generation:", evolutionData.generation);
-    const displays = ["gen-display", "gen-indicator"];
+    const displays = ['gen-display', 'gen-indicator'];
     displays.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.textContent = evolutionData.generation;
-            console.log(`Updated ${id} to:`, evolutionData.generation);
-        } else {
-            console.log(`Element ${id} not found`);
         }
     });
+    
+    const ticker = document.getElementById('cycle-ticker');
+    if (ticker) {
+        const nextIn = Math.floor(evolutionData.nextCycleIn / 60);
+        ticker.textContent = `Next in ${nextIn}m`;
+    }
 }
-                        displayGen = (displayGen/1000).toFixed(1) + 'k';
-                    }
-                    el.textContent = displayGen;
-                }
-            });
-            
-            const ticker = document.getElementById('cycle-ticker');
-            if (ticker) {
-                const nextIn = Math.floor(evolutionData.nextCycleIn / 60);
-                ticker.textContent = `Next in ${nextIn}m`;
-            }
-        }
-        
-        setInterval(fetchEvolutionStats, 30000);
-        
-        // ==================== MOBILE FUNCTIONS ====================
-        function toggleChatList() {
-            const panel = document.getElementById('chatListPanel');
-            const overlay = document.getElementById('mobileOverlay');
-            const toolsPanel = document.getElementById('toolsPanel');
-            
-            if (toolsPanel.classList.contains('open')) {
-                toolsPanel.classList.remove('open');
-            }
-            
-            panel.classList.toggle('open');
-            overlay.classList.toggle('visible');
-            chatListOpen = panel.classList.contains('open');
-        }
-        
-        function toggleToolsPanel() {
-            const panel = document.getElementById('toolsPanel');
-            const overlay = document.getElementById('mobileOverlay');
-            const chatPanel = document.getElementById('chatListPanel');
-            
-            if (chatPanel.classList.contains('open')) {
-                chatPanel.classList.remove('open');
-            }
-            
-            panel.classList.toggle('open');
-            overlay.classList.toggle('visible');
-            toolsOpen = panel.classList.contains('open');
-        }
-        
-        function closeAllPanels() {
-            const chatPanel = document.getElementById('chatListPanel');
-            const toolsPanel = document.getElementById('toolsPanel');
-            const overlay = document.getElementById('mobileOverlay');
-            
-            chatPanel.classList.remove('open');
-            toolsPanel.classList.remove('open');
-            overlay.classList.remove('visible');
-            chatListOpen = false;
-            toolsOpen = false;
-        }
-        
-        // ==================== USER DATABASE ====================
-        let users = {
-            'david': { password: 'dmai2026', role: 'admin', email: '', apiKeys: {} }
-        };
-        
-        let currentUser = null;
-        let currentUserRole = 'user';
-        let internetEnabled = false;
-        let projects = [];
-        let currentChat = null;
-        let activeContextMenu = null;
-        
-        const videoStyles = {
-            manga: { name: 'Manga/Anime', description: 'Japanese animation style, cel-shaded, expressive', parameters: { fps: 24, resolution: '1080p', style_strength: 0.9 } },
-            photorealistic: { name: 'Photorealistic', description: 'Cinematic quality, natural lighting, realistic textures', parameters: { fps: 30, resolution: '4K', style_strength: 0.95 } },
-            watercolor: { name: 'Watercolor', description: 'Soft, artistic, flowing paint effect', parameters: { fps: 24, resolution: '1080p', style_strength: 0.85 } },
-            cyberpunk: { name: 'Cyberpunk', description: 'Neon lights, futuristic, high contrast', parameters: { fps: 30, resolution: '4K', style_strength: 0.9 } },
-            claymation: { name: 'Claymation', description: 'Stop-motion style, clay-like textures', parameters: { fps: 15, resolution: '1080p', style_strength: 0.8 } },
-            oil_painting: { name: 'Oil Painting', description: 'Classical painting style, visible brushstrokes', parameters: { fps: 24, resolution: '1080p', style_strength: 0.9 } }
-        };
 
-        const socialPlatforms = {
-            youtube: { name: 'YouTube', icon: '📺', videoFormats: ['MP4', 'MOV'], maxDuration: 43200, aspectRatios: ['16:9'] },
-            instagram: { name: 'Instagram', icon: '📷', videoFormats: ['MP4'], maxDuration: 60, aspectRatios: ['1:1', '9:16', '16:9'] },
-            tiktok: { name: 'TikTok', icon: '🎵', videoFormats: ['MP4'], maxDuration: 180, aspectRatios: ['9:16'] },
-            twitter: { name: 'Twitter/X', icon: '🐦', videoFormats: ['MP4'], maxDuration: 140, aspectRatios: ['16:9', '1:1'] },
-            facebook: { name: 'Facebook', icon: '👤', videoFormats: ['MP4', 'MOV'], maxDuration: 14400, aspectRatios: ['16:9', '1:1'] }
-        };
+setInterval(fetchEvolutionStats, 30000);
 
-        let socialAccounts = {
-            youtube: { connected: false, channelName: '' },
-            instagram: { connected: false, username: '' },
-            tiktok: { connected: false, username: '' },
-            twitter: { connected: false, handle: '' },
-            facebook: { connected: false, pageName: '' }
-        };
+// ==================== LOGIN FUNCTIONS ====================
+function login() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    
+    if (username === 'david' && password === 'dmai2026') {
+        localStorage.setItem('dmai_logged_in', 'true');
+        localStorage.setItem('dmai_username', username);
+        localStorage.setItem('dmai_last_active', Date.now().toString());
+        
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('current-user').textContent = username;
+        document.getElementById('user-avatar').textContent = username.substring(0,2).toUpperCase();
+        
+        loadData();
+        initializeToolsPanel();
+        fetchEvolutionStats();
+    } else {
+        document.getElementById('login-error').textContent = 'Invalid credentials';
+    }
+}
 
-        // ==================== UTILITY FUNCTIONS ====================
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.textContent = message;
-            notification.style.position = 'fixed';
-            notification.style.bottom = '80px';
-            notification.style.right = '20px';
-            notification.style.background = 'var(--accent)';
-            notification.style.color = 'white';
-            notification.style.padding = '10px 20px';
-            notification.style.borderRadius = '8px';
-            notification.style.boxShadow = '0 5px 20px var(--shadow)';
-            notification.style.zIndex = '10001';
-            notification.style.animation = 'fadeInOut 2s ease';
-            
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 2000);
-        }
+function register() {
+    const username = document.getElementById('reg-username').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    
+    if (!username || !password) {
+        document.getElementById('register-error').textContent = 'All fields required';
+        return;
+    }
+    if (password !== confirm) {
+        document.getElementById('register-error').textContent = 'Passwords do not match';
+        return;
+    }
+    
+    // Simple registration - in production this would save to users object
+    alert('Registration successful! Please login.');
+    switchLoginTab('login');
+}
 
-        function loadUsers() {
-            const saved = localStorage.getItem('dmai_users');
-            if (saved) {
-                try {
-                    users = JSON.parse(saved);
-                } catch (e) {}
-            }
-            if (!users['david']) {
-                users['david'] = { password: 'dmai2026', role: 'admin', email: '', apiKeys: {} };
-            }
-            saveUsers();
-        }
-        
-        function saveUsers() {
-            localStorage.setItem('dmai_users', JSON.stringify(users));
-        }
-        
-        // ==================== AUTO-LOGIN FUNCTIONS ====================
-        // Auto-login check with 1-week session
-        function checkAutoLogin() {
-            const loggedIn = localStorage.getItem('dmai_logged_in');
-            const lastActive = localStorage.getItem('dmai_last_active');
-            const savedUser = localStorage.getItem('dmai_username');
-            const savedRole = localStorage.getItem('dmai_role');
-            
-            // Check if session has expired (1 week)
-            if (lastActive) {
-                const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-                if (parseInt(lastActive) < oneWeekAgo) {
-                    // Session expired - clear login data
-                    localStorage.removeItem('dmai_logged_in');
-                    localStorage.removeItem('dmai_username');
-                    localStorage.removeItem('dmai_role');
-                    localStorage.removeItem('dmai_last_active');
-                    return false;
-                }
-            }
-            
-            if (loggedIn === 'true' && savedUser && users[savedUser]) {
-                currentUser = savedUser;
-                currentUserRole = savedRole || users[savedUser].role;
-                
-                // Update last active timestamp
-                localStorage.setItem('dmai_last_active', Date.now().toString());
-                
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('current-user').textContent = savedUser;
-                document.getElementById('user-avatar').textContent = savedUser.substring(0,2).toUpperCase();
-                
-                if (currentUserRole === 'admin') {
-                    document.getElementById('admin-menu').style.display = 'block';
-                }
-                
-                loadData();
-                initializeToolsPanel();
-                fetchEvolutionStats();
-                return true;
-            }
-            return false;
-        }
-        
-        // Track user activity to extend session
-        function updateLastActive() {
-            if (localStorage.getItem('dmai_logged_in') === 'true') {
-                localStorage.setItem('dmai_last_active', Date.now().toString());
-            }
-        }
-        
-        // ==================== LOGIN FUNCTIONS ====================
-        function switchLoginTab(tab) {
-            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.login-form').forEach(f => f.classList.add('hidden'));
-            
-            if (tab === 'login') {
-                document.querySelector('.login-tab').classList.add('active');
-                document.getElementById('login-form').classList.remove('hidden');
-            } else {
-                document.querySelectorAll('.login-tab')[1].classList.add('active');
-                document.getElementById('register-form').classList.remove('hidden');
-            }
-        }
-        
-        function login() {
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value;
-            
-            if (users[username] && users[username].password === password) {
-                currentUser = username;
-                currentUserRole = users[username].role;
-                
-                // Save login state with timestamp
-                localStorage.setItem('dmai_logged_in', 'true');
-                localStorage.setItem('dmai_username', username);
-                localStorage.setItem('dmai_role', currentUserRole);
-                localStorage.setItem('dmai_last_active', Date.now().toString());
-                
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('current-user').textContent = username;
-                document.getElementById('user-avatar').textContent = username.substring(0,2).toUpperCase();
-                
-                if (currentUserRole === 'admin') {
-                    document.getElementById('admin-menu').style.display = 'block';
-                }
-                
-                loadData();
-                initializeToolsPanel();
-                fetchEvolutionStats();
-            } else {
-                document.getElementById('login-error').textContent = 'Invalid credentials';
-            }
-        }
-        
-        function register() {
-            const username = document.getElementById('reg-username').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const confirm = document.getElementById('reg-confirm').value;
-            
-            if (!username || !password) {
-                document.getElementById('register-error').textContent = 'All fields required';
-                return;
-            }
-            if (password !== confirm) {
-                document.getElementById('register-error').textContent = 'Passwords do not match';
-                return;
-            }
-            if (users[username]) {
-                document.getElementById('register-error').textContent = 'Username exists';
-                return;
-            }
-            
-            users[username] = { password: password, role: 'user', email: '', apiKeys: {} };
-            saveUsers();
-            
-            currentUser = username;
-            currentUserRole = 'user';
-            
-            // Save login state
-            localStorage.setItem('dmai_logged_in', 'true');
-            localStorage.setItem('dmai_username', username);
-            localStorage.setItem('dmai_role', currentUserRole);
-            localStorage.setItem('dmai_last_active', Date.now().toString());
-            
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('current-user').textContent = username;
-            document.getElementById('user-avatar').textContent = username.substring(0,2).toUpperCase();
-            
-            loadData();
-            initializeToolsPanel();
-            fetchEvolutionStats();
-        }
-        
-        function logout() {
-            localStorage.removeItem('dmai_logged_in');
-            localStorage.removeItem('dmai_username');
-            localStorage.removeItem('dmai_role');
-            localStorage.removeItem('dmai_last_active');
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('main-app').style.display = 'none';
-        }
-        
-        function showProfile() {
-            alert(`👤 User: ${currentUser}\nRole: ${currentUserRole}\nGeneration: ${evolutionData.generation}\nTotal chats: ${projects.length}`);
-        }
-        
-        function openSettings() {
-            const settingsModal = document.createElement('div');
-            settingsModal.style.position = 'fixed';
-            settingsModal.style.top = '0';
-            settingsModal.style.left = '0';
-            settingsModal.style.width = '100%';
-            settingsModal.style.height = '100%';
-            settingsModal.style.background = 'rgba(0,0,0,0.5)';
-            settingsModal.style.zIndex = '10000';
-            settingsModal.style.display = 'flex';
-            settingsModal.style.alignItems = 'center';
-            settingsModal.style.justifyContent = 'center';
-            settingsModal.style.padding = '16px';
-            
-            const modalContent = document.createElement('div');
-            modalContent.style.background = 'var(--bg-secondary)';
-            modalContent.style.borderRadius = '12px';
-            modalContent.style.padding = '24px';
-            modalContent.style.width = '500px';
-            modalContent.style.maxWidth = '100%';
-            modalContent.style.border = '1px solid var(--border)';
-            
-            modalContent.innerHTML = `
-                <h2 style="color: var(--accent); margin-bottom: 20px;">⚙️ Settings</h2>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--text-secondary);">Theme</label>
-                    <select id="theme-select" style="width: 100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px; font-size: 16px;">
-                        <option value="auto">Auto (System)</option>
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                    </select>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--text-secondary);">Font Size</label>
-                    <select id="font-size" style="width: 100%; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 4px; font-size: 16px;">
-                        <option value="small">Small</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="large">Large</option>
-                    </select>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--text-secondary);">Internet Mode</label>
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <button onclick="toggleInternet()" style="padding: 10px 20px; background: ${internetEnabled ? 'var(--success)' : 'var(--bg-tertiary)'}; color: ${internetEnabled ? 'white' : 'var(--text-primary)'}; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
-                            ${internetEnabled ? '🌐 Online' : '📡 Offline'}
-                        </button>
-                        <span style="color: var(--text-secondary);">Current: ${internetEnabled ? 'Online' : 'Offline'}</span>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap;">
-                    <button onclick="saveSettings()" style="flex: 1; min-width: 120px; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Save Settings</button>
-                    <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement)" style="flex: 1; min-width: 120px; padding: 12px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 16px;">Cancel</button>
-                </div>
-            `;
-            
-            settingsModal.appendChild(modalContent);
-            document.body.appendChild(settingsModal);
-        }
-        
-        function saveSettings() {
-            const theme = document.getElementById('theme-select')?.value;
-            const fontSize = document.getElementById('font-size')?.value;
-            
-            if (theme) {
-                if (theme === 'light') {
-                    document.documentElement.style.setProperty('--bg-primary', '#f5f7fa');
-                    document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
-                } else if (theme === 'dark') {
-                    document.documentElement.style.setProperty('--bg-primary', '#1e2a3a');
-                    document.documentElement.style.setProperty('--bg-secondary', '#2c3e50');
-                }
-            }
-            
-            if (fontSize) {
-                const sizes = { small: '0.85em', medium: '1em', large: '1.15em' };
-                document.body.style.fontSize = sizes[fontSize];
-            }
-            
-            showNotification('✅ Settings saved');
-        }
-        
-        function showSuggestions() {
-            const textarea = document.querySelector('.suggestion-box textarea');
-            if (textarea) textarea.focus();
-        }
-        
-        function changePassword() {
-            const newPass = prompt('Enter new password:');
-            if (newPass && newPass.length >= 4) {
-                users[currentUser].password = newPass;
-                saveUsers();
-                showNotification('✅ Password updated');
-            }
-        }
-        
-        function openAdminPanel() {
-            if (currentUserRole !== 'admin') return;
-            
-            const userList = Object.entries(users).map(([name, data]) => 
-                `${name} (${data.role})`
-            ).join('\n');
-            
-            alert(`👑 Admin Panel\n\nUsers:\n${userList}\n\nCurrent Generation: ${evolutionData.generation}`);
-        }
-        
-        function toggleInternet() {
-            internetEnabled = !internetEnabled;
-            showNotification(`Internet ${internetEnabled ? 'ON' : 'OFF'}`);
-            initializeToolsPanel();
-        }
-        
-        // ==================== ADMIN KILL SWITCH ====================
-        function emergencyPause() {
-            if (currentUserRole !== 'admin') {
-                alert('Admin only');
-                return;
-            }
-            if (confirm('⚠️ PAUSE evolution? This can be resumed later.')) {
-                fetch('/api/pause-evolution', { method: 'POST' })
-                    .then(() => showNotification('⏸️ Evolution paused'))
-                    .catch(() => showNotification('⚠️ API not available'));
-            }
-        }
-        
-        function emergencyKill() {
-            if (currentUserRole !== 'admin') {
-                alert('Admin only');
-                return;
-            }
-            if (confirm('🚨⚠️🚨 THIS WILL STOP ALL EVOLUTION PERMANENTLY! Type "KILL" to confirm:')) {
-                const confirmText = prompt('Type "KILL" to confirm:');
-                if (confirmText === 'KILL') {
-                    fetch('/api/kill-system', { method: 'POST' })
-                        .then(() => {
-                            showNotification('⛔ System killed - restart required');
-                            setTimeout(logout, 3000);
-                        })
-                        .catch(() => showNotification('⚠️ API not available'));
-                }
-            }
-        }
-        
-        // ==================== CHAT MANAGEMENT ====================
-        function loadData() {
-            const saved = localStorage.getItem(`chats_${currentUser}`);
-            if (saved) {
-                try {
-                    projects = JSON.parse(saved);
-                } catch (e) {}
-            }
-            
-            if (!projects || projects.length === 0) {
-                projects = [{
-                    id: 'chat_' + Date.now(),
-                    name: 'Chat 1',
-                    messages: [{
-                        id: 'welcome_' + Date.now(),
-                        role: 'ai',
-                        content: '👋 Welcome to DMAI! I\'m connected to a 24/7 evolution engine. Every hour, my code improves automatically. Try typing "cat" or use the tools!',
-                        timestamp: new Date().toISOString()
-                    }],
-                    archived: false,
-                    pinned: false,
-                    created: new Date().toISOString()
-                }];
-            }
-            
-            projects.sort((a, b) => {
-                if (a.pinned && !b.pinned) return -1;
-                if (!a.pinned && b.pinned) return 1;
-                return 0;
-            });
-            
-            currentChat = projects[0].id;
-            renderChatList();
-            renderMessages();
-        }
-        
-        function saveProjects() {
-            localStorage.setItem(`chats_${currentUser}`, JSON.stringify(projects));
-        }
-        
-        function renderChatList() {
-            const list = document.getElementById('chat-list');
-            if (!list) return;
-            
-            list.innerHTML = projects.filter(p => !p.archived).map(p => {
-                let dateDisplay = '';
-                try {
-                    if (p.created) {
-                        const date = new Date(p.created);
-                        if (!isNaN(date.getTime())) {
-                            dateDisplay = date.toLocaleDateString();
-                        }
-                    }
-                } catch (e) {}
-                
-                return `
-                    <div class="chat-item ${p.id === currentChat ? 'active' : ''}" 
-                         onclick="switchChat('${p.id}')"
-                         oncontextmenu="showChatContextMenu(event, '${p.id}', '${p.name}')">
-                        <div class="chat-name">
-                            ${p.name} ${p.pinned ? '📌' : ''}
-                        </div>
-                        <div class="chat-meta">
-                            <span>${p.messages.length} msgs</span>
-                            <span class="chat-date">${dateDisplay}</span>
-                        </div>
-                        <div class="chat-preview">${p.messages.length > 0 ? p.messages[p.messages.length-1].content.substring(0, 30) + '...' : 'New chat'}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function showChatContextMenu(event, chatId, chatName) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            if (activeContextMenu) {
-                activeContextMenu.remove();
-            }
-            
-            const menu = document.createElement('div');
-            menu.className = 'chat-context-menu';
-            menu.style.position = 'fixed';
-            menu.style.left = Math.min(event.pageX, window.innerWidth - 200) + 'px';
-            menu.style.top = Math.min(event.pageY, window.innerHeight - 300) + 'px';
-            menu.style.background = 'var(--bg-secondary)';
-            menu.style.border = '1px solid var(--border)';
-            menu.style.borderRadius = '8px';
-            menu.style.minWidth = '180px';
-            menu.style.boxShadow = '0 5px 20px var(--shadow)';
-            menu.style.padding = '5px 0';
-            menu.style.zIndex = '10000';
-            menu.style.maxHeight = '80vh';
-            menu.style.overflowY = 'auto';
-            
-            const menuItems = [
-                { label: '✏️ Rename', action: () => renameChat(chatId) },
-                { label: '📦 Archive', action: () => archiveChat(chatId) },
-                { label: '📤 Extract to New', action: () => extractChat(chatId) },
-                { label: '📋 Export as JSON', action: () => exportChat(chatId) },
-                { label: '📄 Export as Text', action: () => exportChatAsText(chatId) },
-                { label: '⭐ Pin/Unpin', action: () => pinChat(chatId) },
-                { label: '📑 Duplicate', action: () => duplicateChat(chatId) },
-                { label: '📊 View Stats', action: () => viewChatStats(chatId) },
-                { label: '🗑️ Delete', action: () => deleteChat(chatId), danger: true }
-            ];
-            
-            menuItems.forEach(item => {
-                const menuItem = document.createElement('div');
-                menuItem.textContent = item.label;
-                menuItem.style.padding = '10px 15px';
-                menuItem.style.cursor = 'pointer';
-                menuItem.style.color = item.danger ? 'var(--danger)' : 'var(--text-primary)';
-                menuItem.style.borderBottom = '1px solid var(--border)';
-                menuItem.style.fontSize = '14px';
-                
-                menuItem.onmouseover = () => { menuItem.style.background = 'var(--bg-tertiary)'; };
-                menuItem.onmouseout = () => { menuItem.style.background = 'transparent'; };
-                menuItem.onclick = (e) => {
-                    e.stopPropagation();
-                    item.action();
-                    menu.remove();
-                    activeContextMenu = null;
-                };
-                
-                menu.appendChild(menuItem);
-            });
-            
-            document.body.appendChild(menu);
-            activeContextMenu = menu;
-            
-            setTimeout(() => {
-                document.addEventListener('click', function closeMenu(e) {
-                    if (!menu.contains(e.target)) {
-                        menu.remove();
-                        activeContextMenu = null;
-                        document.removeEventListener('click', closeMenu);
-                    }
-                });
-            }, 100);
-        }
-        
-        function switchChat(id) {
-            currentChat = id;
-            const chat = projects.find(p => p.id === id);
-            if (chat) {
-                document.getElementById('current-chat').textContent = chat.name;
-                renderMessages();
-                renderChatList();
-                
-                if (window.innerWidth <= 768) {
-                    closeAllPanels();
-                }
-            }
-        }
-        
-        function newChat() {
-            const id = 'chat_' + Date.now();
-            projects.push({
-                id: id,
-                name: `Chat ${projects.length + 1}`,
-                messages: [],
-                archived: false,
-                pinned: false,
-                created: new Date().toISOString()
-            });
-            currentChat = id;
-            document.getElementById('current-chat').textContent = `Chat ${projects.length}`;
-            saveProjects();
-            renderChatList();
-            renderMessages();
-            showNotification('✅ New chat created');
-            
-            if (window.innerWidth <= 768) {
-                closeAllPanels();
-            }
-        }
-        
-        function renameChat(chatId) {
-            const chat = projects.find(p => p.id === (chatId || currentChat));
-            if (!chat) return;
-            const name = prompt('Enter new chat name:', chat.name);
-            if (name && name.trim()) {
-                chat.name = name.trim();
-                if (chatId === currentChat) {
-                    document.getElementById('current-chat').textContent = name;
-                }
-                saveProjects();
-                renderChatList();
-                showNotification('✏️ Chat renamed');
-            }
-        }
-        
-        function archiveChat(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (chat) {
-                chat.archived = true;
-                saveProjects();
-                renderChatList();
-                if (currentChat === chatId) {
-                    const firstUnarchived = projects.find(p => !p.archived);
-                    if (firstUnarchived) {
-                        currentChat = firstUnarchived.id;
-                        document.getElementById('current-chat').textContent = firstUnarchived.name;
-                        renderMessages();
-                    }
-                }
-                showNotification('📦 Chat archived');
-            }
-        }
-        
-        function extractChat(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (!chat) return;
-            
-            const newId = 'chat_' + Date.now();
-            const newChat = {
-                id: newId,
-                name: chat.name + ' (extracted)',
-                messages: [...chat.messages.map(m => ({...m, id: 'copy_' + Date.now() + '_' + Math.random() }))],
-                archived: false,
-                pinned: false,
-                created: new Date().toISOString(),
-                extractedFrom: chatId
-            };
-            
-            projects.push(newChat);
-            saveProjects();
-            renderChatList();
-            showNotification('📤 Chat extracted');
-        }
-        
-        function exportChat(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (!chat) return;
-            
-            const dataStr = JSON.stringify(chat, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            const fileName = `chat_${chat.name}_${new Date().toISOString().slice(0,10)}.json`;
-            
-            const link = document.createElement('a');
-            link.href = dataUri;
-            link.download = fileName;
-            link.click();
-            
-            showNotification('📋 Chat exported as JSON');
-        }
-        
-        function exportChatAsText(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (!chat) return;
-            
-            let text = `CHAT: ${chat.name}\n`;
-            text += `Created: ${new Date(chat.created).toLocaleString()}\n`;
-            text += `Messages: ${chat.messages.length}\n`;
-            text += `${'='.repeat(50)}\n\n`;
-            
-            chat.messages.forEach(msg => {
-                text += `[${new Date(msg.timestamp).toLocaleString()}] ${msg.role.toUpperCase()}\n`;
-                text += `${msg.content}\n`;
-                text += `${'-'.repeat(30)}\n\n`;
-            });
-            
-            const dataUri = 'data:text/plain;charset=utf-8,'+ encodeURIComponent(text);
-            const fileName = `chat_${chat.name}_${new Date().toISOString().slice(0,10)}.txt`;
-            
-            const link = document.createElement('a');
-            link.href = dataUri;
-            link.download = fileName;
-            link.click();
-            
-            showNotification('📄 Chat exported as text');
-        }
-        
-        function pinChat(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (!chat) return;
-            
-            chat.pinned = !chat.pinned;
-            
-            projects.sort((a, b) => {
-                if (a.pinned && !b.pinned) return -1;
-                if (!a.pinned && b.pinned) return 1;
-                return 0;
-            });
-            
-            saveProjects();
-            renderChatList();
-            showNotification(chat.pinned ? '📌 Chat pinned' : '📍 Chat unpinned');
-        }
-        
-        function duplicateChat(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (!chat) return;
-            
-            const newId = 'chat_' + Date.now();
-            const newChat = {
-                id: newId,
-                name: chat.name + ' (copy)',
-                messages: [...chat.messages.map(m => ({...m, id: 'copy_' + Date.now() + '_' + Math.random() }))],
-                archived: false,
-                pinned: false,
-                created: new Date().toISOString()
-            };
-            
-            projects.push(newChat);
-            saveProjects();
-            renderChatList();
-            showNotification('📑 Chat duplicated');
-        }
-        
-        function viewChatStats(chatId) {
-            const chat = projects.find(p => p.id === chatId);
-            if (!chat) return;
-            
-            const userMsgs = chat.messages.filter(m => m.role === 'user').length;
-            const aiMsgs = chat.messages.filter(m => m.role === 'ai').length;
-            const totalChars = chat.messages.reduce((sum, m) => sum + m.content.length, 0);
-            const avgLength = Math.round(totalChars / chat.messages.length) || 0;
-            
-            let dateInfo = 'Unknown';
-            try {
-                if (chat.created) {
-                    const d = new Date(chat.created);
-                    if (!isNaN(d.getTime())) {
-                        dateInfo = d.toLocaleString();
-                    }
-                }
-            } catch (e) {}
-            
-            alert(`📊 Statistics for "${chat.name}"
+function switchLoginTab(tab) {
+    document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.login-form').forEach(f => f.classList.add('hidden'));
+    
+    if (tab === 'login') {
+        document.querySelector('.login-tab').classList.add('active');
+        document.getElementById('login-form').classList.remove('hidden');
+    } else {
+        document.querySelectorAll('.login-tab')[1].classList.add('active');
+        document.getElementById('register-form').classList.remove('hidden');
+    }
+}
 
-Messages: ${chat.messages.length}
-• User: ${userMsgs}
-• AI: ${aiMsgs}
+// ==================== MOBILE FUNCTIONS ====================
+function toggleChatList() {
+    const panel = document.getElementById('chatListPanel');
+    const overlay = document.getElementById('mobileOverlay');
+    const toolsPanel = document.getElementById('toolsPanel');
+    
+    if (toolsPanel.classList.contains('open')) {
+        toolsPanel.classList.remove('open');
+    }
+    
+    panel.classList.toggle('open');
+    overlay.classList.toggle('visible');
+}
 
-Content:
-• Total characters: ${totalChars}
-• Avg length: ${avgLength}
+function toggleToolsPanel() {
+    const panel = document.getElementById('toolsPanel');
+    const overlay = document.getElementById('mobileOverlay');
+    const chatPanel = document.getElementById('chatListPanel');
+    
+    if (chatPanel.classList.contains('open')) {
+        chatPanel.classList.remove('open');
+    }
+    
+    panel.classList.toggle('open');
+    overlay.classList.toggle('visible');
+}
 
-Created: ${dateInfo}
-${chat.pinned ? '📌 Pinned' : ''}`);
-        }
-        
-        function deleteChat(chatId) {
-            const id = chatId || currentChat;
-            const nonArchived = projects.filter(p => !p.archived);
-            if (nonArchived.length <= 1) {
-                alert('Cannot delete the last chat');
-                return;
-            }
-            
-            if (confirm('Delete this chat?')) {
-                projects = projects.filter(p => p.id !== id);
-                currentChat = projects[0].id;
-                const chat = projects.find(p => p.id === currentChat);
-                document.getElementById('current-chat').textContent = chat ? chat.name : 'Chat';
-                saveProjects();
-                renderChatList();
-                renderMessages();
-                showNotification('🗑️ Chat deleted');
-            }
-        }
-        
-        function showArchivedChats() {
-            const archived = projects.filter(p => p.archived);
-            
-            if (archived.length === 0) {
-                alert('No archived chats');
-                return;
-            }
-            
-            const overlay = document.createElement('div');
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.background = 'rgba(0,0,0,0.5)';
-            overlay.style.zIndex = '10000';
-            overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.padding = '16px';
-            
-            const modal = document.createElement('div');
-            modal.style.background = 'var(--bg-secondary)';
-            modal.style.borderRadius = '12px';
-            modal.style.padding = '20px';
-            modal.style.width = '600px';
-            modal.style.maxWidth = '100%';
-            modal.style.maxHeight = '80vh';
-            modal.style.overflowY = 'auto';
-            modal.style.border = '1px solid var(--border)';
-            
-            modal.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
-                    <h2 style="color: var(--accent); margin: 0; font-size: 1.3em;">📦 Archived Chats</h2>
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5em; cursor: pointer; padding: 0 8px;">✕</button>
-                </div>
-                <div id="archived-list"></div>
-            `;
-            
-            const listDiv = modal.querySelector('#archived-list');
-            
-            archived.forEach(chat => {
-                let dateDisplay = 'Unknown date';
-                try {
-                    if (chat.created) {
-                        const d = new Date(chat.created);
-                        if (!isNaN(d.getTime())) {
-                            dateDisplay = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
-                        }
-                    }
-                } catch (e) {}
-                
-                const item = document.createElement('div');
-                item.style.background = 'var(--bg-tertiary)';
-                item.style.borderRadius = '8px';
-                item.style.padding = '12px';
-                item.style.marginBottom = '10px';
-                item.style.border = '1px solid var(--border)';
-                
-                item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-                        <div style="font-weight: bold; color: var(--accent); font-size: 1em;">${chat.name}</div>
-                        <div style="font-size: 0.75em; color: var(--text-secondary);">${chat.messages.length} messages</div>
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                        <span style="background: var(--bg-secondary); padding: 3px 8px; border-radius: 12px; font-size: 0.7em;">📅 ${dateDisplay}</span>
-                        <span style="background: var(--bg-secondary); padding: 3px 8px; border-radius: 12px; font-size: 0.7em;">📝 Last: ${chat.messages.length > 0 ? new Date(chat.messages[chat.messages.length-1].timestamp).toLocaleDateString() : 'No messages'}</span>
-                    </div>
-                    <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
-                        <button class="archive-modal-btn" data-chat-id="${chat.id}" data-action="restore" style="flex: 1; min-width: 80px; padding: 8px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">↩️ Restore</button>
-                        <button class="archive-modal-btn" data-chat-id="${chat.id}" data-action="view" style="flex: 1; min-width: 80px; padding: 8px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.85em;">👁️ View</button>
-                        <button class="archive-modal-btn" data-chat-id="${chat.id}" data-action="delete" style="flex: 0.5; min-width: 60px; padding: 8px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">🗑️</button>
-                    </div>
-                `;
-                
-                listDiv.appendChild(item);
-            });
-            
-            const actionBar = document.createElement('div');
-            actionBar.style.display = 'flex';
-            actionBar.style.gap = '10px';
-            actionBar.style.marginTop = '20px';
-            actionBar.style.flexWrap = 'wrap';
-            
-            const restoreAllBtn = document.createElement('button');
-            restoreAllBtn.textContent = '↩️ Restore All';
-            restoreAllBtn.style.flex = '1';
-            restoreAllBtn.style.minWidth = '120px';
-            restoreAllBtn.style.padding = '10px';
-            restoreAllBtn.style.background = 'var(--accent)';
-            restoreAllBtn.style.color = 'white';
-            restoreAllBtn.style.border = 'none';
-            restoreAllBtn.style.borderRadius = '4px';
-            restoreAllBtn.style.cursor = 'pointer';
-            restoreAllBtn.style.fontSize = '0.9em';
-            restoreAllBtn.onclick = () => {
-                if (confirm(`Restore all ${archived.length} archived chats?`)) {
-                    projects.forEach(p => { if (p.archived) p.archived = false; });
-                    saveProjects();
-                    renderChatList();
-                    overlay.remove();
-                    showNotification(`✅ Restored ${archived.length} chats`);
-                }
-            };
-            
-            const deleteAllBtn = document.createElement('button');
-            deleteAllBtn.textContent = '🗑️ Delete All';
-            deleteAllBtn.style.flex = '1';
-            deleteAllBtn.style.minWidth = '120px';
-            deleteAllBtn.style.padding = '10px';
-            deleteAllBtn.style.background = 'var(--danger)';
-            deleteAllBtn.style.color = 'white';
-            deleteAllBtn.style.border = 'none';
-            deleteAllBtn.style.borderRadius = '4px';
-            deleteAllBtn.style.cursor = 'pointer';
-            deleteAllBtn.style.fontSize = '0.9em';
-            deleteAllBtn.onclick = () => {
-                if (confirm(`Permanently delete ALL ${archived.length} archived chats?`)) {
-                    projects = projects.filter(p => !p.archived);
-                    saveProjects();
-                    renderChatList();
-                    overlay.remove();
-                    showNotification(`🗑️ Deleted ${archived.length} chats`);
-                }
-            };
-            
-            actionBar.appendChild(restoreAllBtn);
-            actionBar.appendChild(deleteAllBtn);
-            modal.appendChild(actionBar);
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
-            
-            setTimeout(() => {
-                document.querySelectorAll('.archive-modal-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const chatId = this.dataset.chatId;
-                        const action = this.dataset.action;
-                        const chat = projects.find(p => p.id === chatId);
-                        
-                        if (!chat) return;
-                        
-                        if (action === 'restore') {
-                            chat.archived = false;
-                            saveProjects();
-                            renderChatList();
-                            overlay.remove();
-                            showNotification(`↩️ Restored "${chat.name}"`);
-                        } else if (action === 'view') {
-                            currentChat = chatId;
-                            renderMessages();
-                            document.getElementById('current-chat').textContent = chat.name;
-                            overlay.remove();
-                            showNotification(`👁️ Viewing archived chat "${chat.name}"`);
-                            
-                            if (window.innerWidth <= 768) {
-                                closeAllPanels();
-                            }
-                        } else if (action === 'delete') {
-                            if (confirm(`Delete "${chat.name}"?`)) {
-                                projects = projects.filter(p => p.id !== chatId);
-                                saveProjects();
-                                renderChatList();
-                                overlay.remove();
-                                showNotification(`🗑️ Deleted "${chat.name}"`);
-                            }
-                        }
-                    });
-                });
-            }, 100);
-        }
-        
-        function renderMessages() {
-            const chat = projects.find(p => p.id === currentChat);
-            if (!chat) return;
-            
-            const container = document.getElementById('messages');
-            container.innerHTML = chat.messages.map(m => `
-                <div class="message ${m.role}" data-id="${m.id}">
-                    <div>${m.content.replace(/\n/g, '<br>')}</div>
-                    <div class="message-footer">
-                        <span>${new Date(m.timestamp).toLocaleTimeString()}</span>
-                        <button class="continue-thread-btn" onclick="continueFromMessage('${m.id}')">↪️ Continue</button>
-                    </div>
-                </div>
-            `).join('');
-            container.scrollTop = container.scrollHeight;
-        }
-        
-        function continueFromMessage(messageId) {
-            const chat = projects.find(p => p.id === currentChat);
-            if (!chat) return;
-            
-            const message = chat.messages.find(m => m.id === messageId);
-            if (!message) return;
-            
-            const newId = 'chat_' + Date.now();
-            projects.push({
-                id: newId,
-                name: chat.name + ' (thread)',
-                messages: [{
-                    id: 'thread_' + Date.now(),
-                    role: 'ai',
-                    content: `↪️ Continuing from: "${message.content.substring(0,100)}..."\n\nHow would you like to proceed?`,
-                    timestamp: new Date().toISOString()
-                }],
-                archived: false,
-                pinned: false,
-                created: new Date().toISOString()
-            });
-            
-            currentChat = newId;
-            document.getElementById('current-chat').textContent = chat.name + ' (thread)';
-            saveProjects();
-            renderChatList();
-            renderMessages();
-            showNotification('↪️ New thread created');
-            
-            if (window.innerWidth <= 768) {
-                closeAllPanels();
-            }
-        }
-        
-        // ==================== TOOLS PANEL ====================
-        function initializeToolsPanel() {
-            const panel = document.getElementById('toolsPanel');
-            if (!panel) return;
-            
-            panel.innerHTML = `
-                <div class="tools-section">
-                    <div class="tools-title">🌐 INTERNET</div>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-                        <span style="font-size: 0.85em;">Mode:</span>
-                        <button onclick="toggleInternet()" style="padding: 6px 12px; background: ${internetEnabled ? 'var(--success)' : 'var(--bg-tertiary)'}; color: ${internetEnabled ? 'white' : 'var(--text-primary)'}; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.85em;">
-                            ${internetEnabled ? '🌐 Online' : '📡 Offline'}
-                        </button>
-                    </div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="webSearch()">🔍 Web Search</button>
-                        <button class="tool-btn" onclick="researchTopic()">📚 Research</button>
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">🎨 IMAGES</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="quickImage()">⚡ Quick Image</button>
-                        <button class="tool-btn" onclick="createImage()">🎨 Create</button>
-                        <button class="tool-btn" onclick="editImage()">✏️ Edit</button>
-                        <button class="tool-btn" onclick="variations()">🔄 Variations</button>
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">🎬 VIDEOS</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="generateVideoFromText()">📝 Text to Video</button>
-                        <button class="tool-btn" onclick="generateVideoFromImage()">🖼️ Image to Video</button>
-                    </div>
-                    <div style="margin-top: 10px; display: flex; flex-wrap: wrap;">
-                        ${Object.entries(videoStyles).map(([key, style]) => 
-                            `<span class="style-preset" onclick="createVideoWithStyle('${key}')">${style.name}</span>`
-                        ).join('')}
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">💻 CODE</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="writeCode()">✍️ Write</button>
-                        <button class="tool-btn" onclick="reviewCode()">🔍 Review</button>
-                        <button class="tool-btn" onclick="testCode()">🧪 Test</button>
-                        <button class="tool-btn" onclick="debugCode()">🐛 Debug</button>
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">📊 DATA</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="analyzeData()">📈 Analyze</button>
-                        <button class="tool-btn" onclick="createChart()">📊 Chart</button>
-                        <button class="tool-btn" onclick="financialAnalysis()">💰 Financial</button>
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">📝 CONTENT</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="productDescription()">📦 Product</button>
-                        <button class="tool-btn" onclick="advertGenerator()">📢 Advert</button>
-                        <button class="tool-btn" onclick="socialPost()">📱 Social</button>
-                        <button class="tool-btn" onclick="blogPost()">📝 Blog</button>
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">📱 SOCIAL</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="scrapeTrends()">📊 Trends</button>
-                        <button class="tool-btn" onclick="scheduleSocialPosts()">📅 Schedule</button>
-                    </div>
-                    <div style="margin-top: 10px; display: flex; flex-wrap: wrap;">
-                        ${Object.entries(socialPlatforms).map(([key, platform]) => `
-                            <span class="platform-badge" onclick="connectSocialAccount('${key}')">
-                                <span class="status-indicator ${socialAccounts[key].connected ? 'status-connected' : 'status-disconnected'}"></span>
-                                ${platform.icon} ${platform.name}
-                            </span>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">🌐 TRANSLATE</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="translateText()">📝 Text</button>
-                        <button class="tool-btn" onclick="translateAudio()">🎤 Audio</button>
-                    </div>
-                </div>
-                
-                <div class="tools-section">
-                    <div class="tools-title">📚 DEVELOPMENT</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn" onclick="bookSummary()">📖 Books</button>
-                        <button class="tool-btn" onclick="learningPath()">🗺️ Learning</button>
-                        <button class="tool-btn" onclick="careerAdvice()">💼 Career</button>
-                    </div>
-                </div>
-                
-                <!-- ADMIN KILL SWITCH SECTION -->
-                ${currentUserRole === 'admin' ? `
-                <div class="tools-section" style="border-color: var(--danger);">
-                    <div class="tools-title" style="color: var(--danger);">🚨 EMERGENCY CONTROLS</div>
-                    <div class="action-buttons">
-                        <button class="action-btn danger" onclick="emergencyPause()" style="border-color: var(--danger);">⏸️ PAUSE EVOLUTION (Admin only)</button>
-                        <button class="action-btn danger" onclick="emergencyKill()" style="border-color: var(--danger);">⛔ KILL SYSTEM (Admin only)</button>
-                    </div>
-                </div>
-                ` : ''}
-                
-                <div class="tools-section">
-                    <div class="tools-title">💡 SUGGEST</div>
-                    <div class="suggestion-box">
-                        <textarea id="suggestion-input" placeholder="How can DMAI evolve? (Your suggestions guide evolution)"></textarea>
-                        <button class="suggestion-btn" onclick="submitSuggestion()">Submit to Evolution Engine</button>
-                    </div>
-                </div>
-                
-                <div class="info-box">
-                    <div class="tools-title">🌐 ACCESS</div>
-                    <div class="info-row">
-                        <span class="url-display" id="cloud-url">https://dmai.onrender.com</span>
-                        <button class="copy-btn" onclick="copyUrl()">Copy</button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // ==================== TOOL FUNCTIONS ====================
-        function webSearch() {
-            if (!internetEnabled) {
-                alert('Please enable Internet mode first');
-                return;
-            }
-            addAIMessage('🔍 Web Search', 'What would you like me to search for?');
-        }
-        
-        function researchTopic() {
-            if (!internetEnabled) {
-                alert('Please enable Internet mode first');
-                return;
-            }
-            addAIMessage('📚 Research', 'What topic would you like me to research?');
-        }
-        
-        function quickImage() {
-            addAIMessage('🎨 Quick Image', handleImageGeneration('a beautiful landscape'));
-        }
-        
-        function createImage() {
-            addAIMessage('🎨 Image Creation', 'Please describe what image you\'d like me to create. Example: "a cat" or "photorealistic mountain sunset"');
-        }
-        
-        function editImage() {
-            addAIMessage('✏️ Image Editing', 'Tell me what you\'d like to edit in the last image. Example: "Make it brighter" or "Change the background"');
-        }
-        
-        function variations() {
-            addAIMessage('🔄 Variations', 'I\'ll create variations of the last image. What style would you like to see?');
-        }
-        
-        function generateVideoFromText() {
-            addAIMessage('🎬 Text to Video', 'Please describe the video you want to create. Include style, duration, and scene details.');
-        }
-        
-        function generateVideoFromImage() {
-            addAIMessage('🎬 Image to Video', 'I\'ll animate your last image. Tell me what movement you want.');
-        }
-        
-        function createVideoWithStyle(style) {
-            const styleInfo = videoStyles[style] || videoStyles.manga;
-            addAIMessage('🎬 Video Generation', `Creating a ${styleInfo.name} style video. Please describe what you want to see.`);
-        }
-        
-        function writeCode() {
-            addAIMessage('💻 Code Writing', 'Tell me what code you need. Include language and requirements.');
-        }
-        
-        function reviewCode() {
-            addAIMessage('🔍 Code Review', 'Please paste the code you want me to review.');
-        }
-        
-        function testCode() {
-            addAIMessage('🧪 Code Testing', 'Please provide the code and test cases.');
-        }
-        
-        function debugCode() {
-            addAIMessage('🐛 Debug Code', 'Please paste the code and describe the issue.');
-        }
-        
-        function analyzeData() {
-            addAIMessage('📊 Data Analysis', 'Please provide the data you want me to analyze.');
-        }
-        
-        function createChart() {
-            addAIMessage('📊 Create Chart', 'Please provide the data and chart type (bar, line, pie).');
-        }
-        
-        function financialAnalysis() {
-            addAIMessage('💰 Financial Analysis', 'Please provide stock tickers or financial data.');
-        }
-        
-        function productDescription() {
-            addAIMessage('📦 Product Description', 'Tell me about your product and I\'ll write a description.');
-        }
-        
-        function advertGenerator() {
-            addAIMessage('📢 Advert Generator', 'Tell me about your product and target audience.');
-        }
-        
-        function socialPost() {
-            addAIMessage('📱 Social Post', 'What platform and what would you like to post?');
-        }
-        
-        function blogPost() {
-            addAIMessage('📝 Blog Post', 'What topic should I write about?');
-        }
-        
-        function scrapeTrends() {
-            if (!internetEnabled) {
-                alert('Please enable Internet mode first');
-                return;
-            }
-            addAIMessage('📊 Trend Analysis', 'Analyzing current social media trends...\n\nTop trends:\n• #AIRevolution\n• #VideoGeneration\n• #TechNews\n\nCreate content for any of these?');
-        }
-        
-        function scheduleSocialPosts() {
-            addAIMessage('📅 Schedule', 'I can help schedule your posts. Best times:\n• TikTok: 7 AM, 7 PM\n• Instagram: 8 AM, 6 PM\n• YouTube: 11 AM, 4 PM');
-        }
-        
-        function connectSocialAccount(platform) {
-            const name = prompt(`Enter your ${socialPlatforms[platform].name} username:`);
-            if (name) {
-                socialAccounts[platform].connected = true;
-                if (platform === 'youtube') socialAccounts[platform].channelName = name;
-                else if (platform === 'twitter') socialAccounts[platform].handle = name;
-                else socialAccounts[platform].username = name;
-                
-                initializeToolsPanel();
-                showNotification(`✅ Connected to ${socialPlatforms[platform].name}`);
-            }
-        }
-        
-        function translateText() {
-            addAIMessage('🌐 Translation', 'What text would you like translated and to which language?');
-        }
-        
-        function translateAudio() {
-            addAIMessage('🎤 Audio Translation', 'Please upload an audio file and specify target language.');
-        }
-        
-        function bookSummary() {
-            addAIMessage('📖 Book Summary', 'Which book would you like summarized?');
-        }
-        
-        function learningPath() {
-            addAIMessage('🗺️ Learning Path', 'What skill would you like to learn?');
-        }
-        
-        function careerAdvice() {
-            addAIMessage('💼 Career Advice', 'Tell me about your career goals and I\'ll provide guidance.');
-        }
-        
-        function addAIMessage(title, content) {
-            const chat = projects.find(p => p.id === currentChat);
-            if (!chat) return;
-            
-            chat.messages.push({
-                id: 'tool_' + Date.now(),
+function closeAllPanels() {
+    const chatPanel = document.getElementById('chatListPanel');
+    const toolsPanel = document.getElementById('toolsPanel');
+    const overlay = document.getElementById('mobileOverlay');
+    
+    chatPanel.classList.remove('open');
+    toolsPanel.classList.remove('open');
+    overlay.classList.remove('visible');
+}
+
+// ==================== CHAT MANAGEMENT ====================
+let users = { 'david': { password: 'dmai2026', role: 'admin' } };
+let currentUser = null;
+let currentUserRole = 'user';
+let internetEnabled = false;
+let projects = [];
+let currentChat = null;
+let activeContextMenu = null;
+
+// Load data from localStorage
+function loadData() {
+    const saved = localStorage.getItem(`chats_${currentUser}`);
+    if (saved) {
+        try {
+            projects = JSON.parse(saved);
+        } catch (e) {}
+    }
+    
+    if (!projects || projects.length === 0) {
+        projects = [{
+            id: 'chat_' + Date.now(),
+            name: 'Chat 1',
+            messages: [{
+                id: 'welcome_' + Date.now(),
                 role: 'ai',
-                content: `**${title}**\n\n${content}`,
+                content: '👋 Welcome to DMAI!',
                 timestamp: new Date().toISOString()
-            });
-            
-            saveProjects();
-            renderMessages();
-            
-            if (window.innerWidth <= 768) {
-                closeAllPanels();
-            }
-        }
+            }],
+            archived: false,
+            pinned: false,
+            created: new Date().toISOString()
+        }];
+    }
+    
+    currentChat = projects[0].id;
+    renderChatList();
+    renderMessages();
+}
+
+function saveProjects() {
+    localStorage.setItem(`chats_${currentUser}`, JSON.stringify(projects));
+}
+
+function renderChatList() {
+    const list = document.getElementById('chat-list');
+    if (!list) return;
+    
+    list.innerHTML = projects.filter(p => !p.archived).map(p => `
+        <div class="chat-item ${p.id === currentChat ? 'active' : ''}" onclick="switchChat('${p.id}')">
+            <div class="chat-name">${p.name}</div>
+            <div class="chat-meta">${p.messages.length} msgs</div>
+        </div>
+    `).join('');
+}
+
+function renderMessages() {
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    const container = document.getElementById('messages');
+    container.innerHTML = chat.messages.map(m => `
+        <div class="message ${m.role}">${m.content}</div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+function switchChat(id) {
+    currentChat = id;
+    const chat = projects.find(p => p.id === id);
+    if (chat) {
+        document.getElementById('current-chat').textContent = chat.name;
+        renderMessages();
+        renderChatList();
+    }
+}
+
+function newChat() {
+    const id = 'chat_' + Date.now();
+    projects.push({
+        id: id,
+        name: `Chat ${projects.length + 1}`,
+        messages: [],
+        archived: false,
+        pinned: false,
+        created: new Date().toISOString()
+    });
+    currentChat = id;
+    document.getElementById('current-chat').textContent = `Chat ${projects.length}`;
+    saveProjects();
+    renderChatList();
+    renderMessages();
+}
+
+function logout() {
+    localStorage.removeItem('dmai_logged_in');
+    localStorage.removeItem('dmai_username');
+    localStorage.removeItem('dmai_role');
+    localStorage.removeItem('dmai_last_active');
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+}
+
+// Initialize
+function initializeToolsPanel() {
+    const panel = document.getElementById('toolsPanel');
+    if (!panel) return;
+    panel.innerHTML = '<div class="tools-section">Tools loading...</div>';
+}
+
+// Check auto-login
+function checkAutoLogin() {
+    const loggedIn = localStorage.getItem('dmai_logged_in');
+    const savedUser = localStorage.getItem('dmai_username');
+    
+    if (loggedIn === 'true' && savedUser) {
+        currentUser = savedUser;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('current-user').textContent = savedUser;
+        document.getElementById('user-avatar').textContent = savedUser.substring(0,2).toUpperCase();
         
-        function handleImageGeneration(prompt) {
-            let subject = prompt.replace(/image|picture|photo|create|generate|of|a|an|the/gi, '').trim() || 'this scene';
-            
-            return `**Image Generation**\n\nBased on "${subject}", I've created options:\n\n` +
-                   `**Option 1: Photorealistic**\n` +
-                   `![Generated 1](https://placekitten.com/400/300?image=1)\n\n` +
-                   `**Option 2: Anime Style**\n` +
-                   `![Generated 2](https://placekitten.com/401/300?image=2)\n\n` +
-                   `**Which style do you prefer?** Tell me and I'll refine it!`;
-        }
-        
-        function sendMessage() {
-            const input = document.getElementById('message-input');
-            const content = input.value.trim();
-            if (!content) return;
-            
-            const chat = projects.find(p => p.id === currentChat);
-            if (!chat) return;
-            
-            chat.messages.push({
-                id: 'msg_' + Date.now(),
-                role: 'user',
-                content: content,
-                timestamp: new Date().toISOString()
-            });
-            
-            if (content.toLowerCase().includes('evolve') || 
-                content.toLowerCase().includes('improve') ||
-                content.toLowerCase().includes('make better')) {
-                submitGuidanceToEngine(content);
-            }
-            
-            let response = '';
-            const lower = content.toLowerCase();
-            
-            if (lower.includes('cat') || lower.includes('image') || lower.includes('picture')) {
-                response = handleImageGeneration(content);
-            } else if (lower.includes('video') || lower.includes('animate')) {
-                response = `🎬 **Video Generation**\n\nI'll create a video based on "${content}".\n\nWhat style? (manga, photorealistic, cyberpunk)`;
-            } else if (lower.includes('code') || lower.includes('program')) {
-                response = `💻 **Code**\n\nHere's an example:\n\`\`\`python\nprint("Hello World")\n\`\`\`\n\nNeed something specific?`;
-            } else if (lower.includes('research') || lower.includes('search')) {
-                response = `🔍 **Research**\n\nI'll help research "${content}". ${internetEnabled ? '🌐 Searching...' : 'Enable internet for live search.'}`;
-            } else {
-                response = `🧠 **Response**\n\nI understand: "${content.substring(0,50)}..."\n\nHow can I help further?`;
-            }
-            
-            chat.messages.push({
-                id: 'resp_' + Date.now(),
-                role: 'ai',
-                content: response,
-                timestamp: new Date().toISOString()
-            });
-            
-            input.value = '';
-            saveProjects();
-            renderMessages();
-        }
-        
-        function submitSuggestion() {
-            const input = document.getElementById('suggestion-input');
-            if (!input) return;
-            
-            const suggestion = input.value.trim();
-            if (!suggestion) return;
-            
-            const chat = projects.find(p => p.id === currentChat);
-            if (!chat) return;
-            
-            submitGuidanceToEngine(suggestion);
-            
-            chat.messages.push({
-                id: 'sugg_' + Date.now(),
-                role: 'ai',
-                content: `🌟 **Suggestion Received**\n\nThank you for: "${suggestion}"\n\nThis has been sent to the 24/7 evolution engine and will influence cycle ${evolutionData.generation + 1}!`,
-                timestamp: new Date().toISOString()
-            });
-            
-            input.value = '';
-            saveProjects();
-            renderMessages();
-            showNotification('💡 Suggestion sent to evolution engine');
-        }
-        
-        function copyUrl() {
-            const url = 'https://dmai.onrender.com';
-            navigator.clipboard.writeText(url);
-            showNotification('✅ URL copied');
-        }
-        
-        // Initialize
-        loadUsers();
-        
-        // Track user activity to keep session alive
-        ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'].forEach(event => {
-            document.addEventListener(event, updateLastActive);
-        });
-        
-        // Check session every minute for auto-logout
-        setInterval(() => {
-            const loggedIn = localStorage.getItem('dmai_logged_in');
-            if (loggedIn === 'true') {
-                const lastActive = localStorage.getItem('dmai_last_active');
-                if (lastActive) {
-                    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-                    if (parseInt(lastActive) < oneWeekAgo) {
-                        logout();
-                        showNotification('Session expired - please login again');
-                    }
-                }
-            }
-        }, 60000);
-        
-        // Check auto-login first
-        if (!checkAutoLogin()) {
-            document.getElementById('login-screen').style.display = 'flex';
-        }
-        
-        document.getElementById('message-input')?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                closeAllPanels();
-            }
-        });
-        
-        // Initial fetch of evolution stats
-        setTimeout(fetchEvolutionStats, 1000);
-    </script>
+        loadData();
+        initializeToolsPanel();
+        fetchEvolutionStats();
+        return true;
+    }
+    return false;
+}
+
+// Start the app
+if (!checkAutoLogin()) {
+    document.getElementById('login-screen').style.display = 'flex';
+}
+
+// Message sending
+function sendMessage() {
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+    if (!content) return;
+    
+    const chat = projects.find(p => p.id === currentChat);
+    if (!chat) return;
+    
+    chat.messages.push({
+        id: 'msg_' + Date.now(),
+        role: 'user',
+        content: content,
+        timestamp: new Date().toISOString()
+    });
+    
+    chat.messages.push({
+        id: 'resp_' + Date.now(),
+        role: 'ai',
+        content: `🤔 You said: "${content}"`,
+        timestamp: new Date().toISOString()
+    });
+    
+    input.value = '';
+    saveProjects();
+    renderMessages();
+}
+
+// Event listeners
+document.getElementById('message-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// Initial fetch
+setTimeout(fetchEvolutionStats, 1000);
+</script>
     <!-- FORCE FIX - Ensures UI functionality -->
     <script>
         // FORCE FIX - Directly override and fix everything
