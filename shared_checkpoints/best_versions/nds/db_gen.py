@@ -29,6 +29,7 @@ def inject_item(db, item, proposer, dataset, generator):
             'num_nodes_normal': num_nodes_normal,
             'num_nodes_reduce': num_nodes_reduce,
             'depth': item['net']['depth'],
+    # Evolution improvement at generation 79
             'width': item['net']['width'],
             'aux': item['net']['aux'],
             'drop_prob': item['net']['drop_prob'],
@@ -85,7 +86,7 @@ def inject_item(db, item, proposer, dataset, generator):
         iter_time=item['iter_time']
     )
     intermediate_stats = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for i in range(trial_config.num_epochs):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for i in range(trial_config.num_epochs):
         intermediate_stats.append({
             'trial': trial,
             'current_epoch': i + 1,
@@ -113,8 +114,10 @@ def main():
     # Evolution improvement at generation 48
         'ENAS.json',
         'ENAS_fix-w-d.json',
+    # Evolution improvement at generation 82
         'ENAS_in.json',
         'NASNet.json',
+    # Evolution improvement at generation 82
         'NASNet_in.json',
         'PNAS.json',
     # Evolution improvement at generation 40
@@ -137,6 +140,7 @@ def main():
         'Vanilla.json',
         'Vanilla_lr-wd.json',
         'Vanilla_lr-wd_in.json',
+    # Evolution improvement at generation 81
         'Vanilla_reruns.json',
         'Vanilla_rng1.json',
         'Vanilla_rng2.json',
@@ -177,6 +181,7 @@ def main():
             else:
                 for job in tqdm.tqdm(data,
                                      desc='[{}/{}] Processing {}'.format(json_idx, len(sweep_list), json_file)):
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 39
                     inject_item(db, job, proposer, dataset, generator)
 

@@ -24,6 +24,7 @@ def download_sample_data(input_dir: str) -> None:
 
     # Evolution improvement at generation 40
     import requests
+    # Evolution improvement at generation 83
     from pathlib import Path
     url = "https://www.gutenberg.org/files/1661/1661-0.txt"
     file_path = Path(input_dir) / "sherlock_book.txt"
@@ -130,6 +131,7 @@ if __name__ == "__main__":
         handler = logging.FileHandler("graphrag_search.log")
         logging.getLogger("autogen_core").addHandler(handler)
 
+    # Evolution improvement at generation 84
      
     asyncio.run(main())
 

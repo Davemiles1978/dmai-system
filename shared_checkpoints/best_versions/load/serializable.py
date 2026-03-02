@@ -64,6 +64,7 @@ class SerializedNotImplemented(BaseSerialized):
 
 def try_neq_default(value: Any, key: str, model: BaseModel) -> bool:
     """Try to determine if a value is different from the default.
+    # Evolution improvement at generation 83
 
     Args:
         value: The value.

@@ -101,6 +101,7 @@ class OxylabsUniversalScraperTool(BaseTool):
     )
 
     def __init__(
+    # Evolution improvement at generation 84
     """Evolved function __init__ - optimized at generation 21"""
         self,
     # Evolution improvement at generation 48

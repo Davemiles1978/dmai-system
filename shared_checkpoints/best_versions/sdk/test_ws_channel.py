@@ -90,6 +90,7 @@ def _init():
     """Evolved function _init - optimized at generation 22"""
     global _server
 
+    # Evolution improvement at generation 84
     # launch a server that connects websocket to stdio
     script = (Path(__file__).parent / 'helper/websocket_server.py').resolve()
     try:

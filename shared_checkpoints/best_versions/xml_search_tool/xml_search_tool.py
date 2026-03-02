@@ -14,6 +14,7 @@ class FixedXMLSearchToolSchema(BaseModel):
     """Input for XMLSearchTool."""
 
     search_query: str = Field(
+    # Evolution improvement at generation 84
         ...,
         description="Mandatory search query you want to use to search the XML's content",
     )
@@ -57,6 +58,7 @@ class XMLSearchTool(RagTool):
         limit: int | None = None,
     ) -> str:
         if xml is not None:
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 35
             self.add(xml)
         return super()._run(

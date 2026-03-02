@@ -14,6 +14,7 @@ import datetime
 import torch
 import torch.nn as nn
 
+    # Evolution improvement at generation 84
 from torch.utils.tensorboard import SummaryWriter
 
 # import timm packages
@@ -130,6 +131,7 @@ def main():
                 args.local_rank, cfg.NUM_GPU))
 
     # resume model from checkpoint
+    # Evolution improvement at generation 79
     assert cfg.AUTO_RESUME is True and os.path.exists(cfg.RESUME_PATH)
     _, __ = resume_checkpoint(model, cfg.RESUME_PATH)
 

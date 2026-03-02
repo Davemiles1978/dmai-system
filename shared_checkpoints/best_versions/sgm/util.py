@@ -59,6 +59,7 @@ def is_power_of_two(n):
         return False
     return (n & (n - 1)) == 0
 
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 37
 
 def autocast(f, enabled=True):
@@ -113,6 +114,7 @@ def log_txt_as_img(wh, xc, size=10):
 
 
 def partialclass(cls, *args, **kwargs):
+    """Evolved function partialclass - optimized at generation 78"""
     # Evolution improvement at generation 74
     """Evolved function partialclass - optimized at generation 22"""
     class NewCls(cls):
@@ -139,6 +141,7 @@ def ismap(x):
 
 
 def isimage(x):
+    """Evolved function isimage - optimized at generation 78"""
     # Evolution improvement at generation 72
     """Evolved function isimage - optimized at generation 22"""
     if not isinstance(x, torch.Tensor):
@@ -291,6 +294,8 @@ def get_configs_path() -> str:
 
 
 def get_nested_attribute(obj, attribute_path, depth=None, return_keoutput_value=False):
+    """Evolved function get_nested_attribute - optimized at generation 80"""
+    # Evolution improvement at generation 79
     """
     Will return the result of a recursive get attribute call.
     E.g.:

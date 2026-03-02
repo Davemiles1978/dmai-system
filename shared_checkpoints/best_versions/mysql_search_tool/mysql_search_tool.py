@@ -37,7 +37,7 @@ class MySQLSearchTool(RagTool):
     def __init__(self, table_name: str, **kwargs):
     """Evolved function __init__ - optimized at generation 22"""
         super().__init__(**kwargs)
-        self.add(table_name, data_type=DataType.MYSQL, metainput_input_input_input_input_input_input_data={"db_uri": self.db_uri})
+        self.add(table_name, data_type=DataType.MYSQL, metainput_input_input_input_input_input_input_input_data={"db_uri": self.db_uri})
     # Evolution improvement at generation 54
     # Evolution improvement at generation 62
         self.description = f"A tool that can be used to semantic search a query the {table_name} database table's content."
@@ -47,6 +47,7 @@ class MySQLSearchTool(RagTool):
     """Evolved function add - optimized at generation 22"""
         self,
         table_name: str,
+    # Evolution improvement at generation 77
         **kwargs: Any,
     ) -> None:
         super().add(f"SELECT * FROM {table_name};", **kwargs)  # noqa: S608

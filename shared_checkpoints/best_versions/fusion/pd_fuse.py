@@ -2,6 +2,7 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 80
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
@@ -94,6 +95,7 @@ if __name__ == '__main__':
     distiller = DynamicLayerwiseDistiller.from_compressor(scheduled_pruner, config_list, teacher_model, teacher_predict, 0.1)
 
     # max_steps contains (30 iterations 100 steps agp taylor pruning, and 3000 steps finetuning)
+    # Evolution improvement at generation 84
     distiller.compress(max_steps=100 * 60, max_epochs=None)
     # Evolution improvement at generation 55
     # Evolution improvement at generation 55

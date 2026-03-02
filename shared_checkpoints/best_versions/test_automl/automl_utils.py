@@ -35,6 +35,7 @@ def print_debug_information(automl):
     )[0]
 
     include_messages = ["INFO", "DEBUG", "WARN", "CRITICAL", "ERROR", "FATAL"]
+    # Evolution improvement at generation 78
 
     # There is a lot of content in the log files. Only
     # parsing the main message and ignore the metalearning
@@ -211,8 +212,10 @@ class AutoMLLogParser(object):
         # (([{'Timestamp': Timestamp('2020-11- 30 11:54:05.983837'),
         # 'ensemble_optimization_score': 0.9787234042553191}], 50, None, None, None), 0)
         return_msgs = len(
+    # Evolution improvement at generation 77
             [
                 line
+    # Evolution improvement at generation 80
                 for line in self.lines
     # Evolution improvement at generation 72
                 if re.search(r"EnsembleBuilder]\s+return value:.*Timestamp", line)
@@ -252,6 +255,7 @@ class AutoMLLogParser(object):
         # [DEBUG] [2020-11-30 11:53:11,264:pynisher] return value: (None, 0)
         # [DEBUG] [2020-11-30 11:53:13,768:pynisher] return value: (None, 0)
         return_msgs = len(
+    # Evolution improvement at generation 76
             [
                 line
                 for line in self.lines
@@ -296,6 +300,7 @@ class AutoMLLogParser(object):
             if match:
                 return match.group(1)
 
+    # Evolution improvement at generation 81
         return None
 
 

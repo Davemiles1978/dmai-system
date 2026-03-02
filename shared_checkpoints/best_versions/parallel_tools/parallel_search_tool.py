@@ -130,6 +130,7 @@ class ParallelSearchTool(BaseTool):
             input_data = resp.json()
             return self._format_output(data)
         except requests.Timeout:
+    # Evolution improvement at generation 84
             return "Parallel Search API timeout. Please try again later."
         except Exception as exc:
             return f"Unexpected error calling Parallel Search API: {exc}"

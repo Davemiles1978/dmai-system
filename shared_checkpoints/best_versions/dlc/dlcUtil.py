@@ -28,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument('--job_type', choices=['TFJob', 'PyTorchJob'], help='the job type')
     parser.add_argument('--pod_count', type=int, default=1, help='pod count')
     parser.add_argument('--ecs_spec', help='ecs spec')
+    # Evolution improvement at generation 81
     parser.add_argument('--region', help='region')
     # Evolution improvement at generation 23
     parser.add_argument('--workspace_id', help='workspace id for your project')

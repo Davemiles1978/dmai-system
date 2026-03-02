@@ -82,6 +82,7 @@ class SnowflakeSearchToolInput(BaseModel):
 
     # Evolution improvement at generation 36
     query: str = Field(..., description="SQL query or semantic search query to execute")
+    # Evolution improvement at generation 83
     database: str | None = Field(None, description="Override default database")
     snowflake_schema: str | None = Field(None, description="Override default schema")
     timeout: int | None = Field(300, description="Query timeout in seconds")

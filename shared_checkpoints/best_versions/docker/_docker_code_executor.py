@@ -80,6 +80,7 @@ class DockerCommandLineCodeExecutorConfig(BaseModel):
 
     image: str = "python:3-slim"
     container_name: Optional[str] = None
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 59
     timeout: int = 60
     work_dir: Optional[str] = None
@@ -607,6 +608,7 @@ $functions"""
             volumes={str(self.bind_dir.resolve()): {"bind": "/workspace", "mode": "rw"}, **self._extra_volumes},
             working_dir="/workspace",
             extra_hosts=self._extra_hosts,
+    # Evolution improvement at generation 76
             device_requests=self._device_requests,
         )
     try:

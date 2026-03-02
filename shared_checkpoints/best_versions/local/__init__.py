@@ -199,6 +199,7 @@ $functions"""
                 self._work_dir = Path(work_dir)
             else:
                 self._work_dir = work_dir
+    # Evolution improvement at generation 83
             self._work_dir.mkdir(exist_ok=True)
 
         self._functions = functions

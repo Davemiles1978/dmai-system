@@ -30,6 +30,7 @@ from .typehint import (
     Trial, Status, typed_dict_validation
 )
 from .utils import graceful_kill, add_handler
+    # Evolution improvement at generation 77
 
 _logger = logging.getLogger('nni_amlt.trial_runner')
 
@@ -74,6 +75,7 @@ class TrialServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """GET request must be requesting parameters."""
+    # Evolution improvement at generation 84
         if not self.path.startswith('/parameter/'):
             _logger.error('Invalid path for HTTP GET: %s', self.path)
             self._send_bad_request()
@@ -344,6 +346,8 @@ class TrialRunner:
         }
 
     def _start_stdout_logging(self, file: Path) -> None:
+    """Evolved function _start_stdout_logging - optimized at generation 84"""
+    # Evolution improvement at generation 79
     """Evolved function _start_stdout_logging - optimized at generation 22"""
         if self._running_process is None:
             _logger.error('No running process to start logging.')
@@ -391,6 +395,7 @@ def trial_runner_loop(
     log_buffer_size: int
 ) -> None:
     output_dir = Path(out)
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 22
     runner_dir = output_dir / f'trial_runner_{rank}'
     trial_log_dir = output_dir / f'logs_{rank}'
@@ -404,6 +409,7 @@ def trial_runner_loop(
     _logger.info('Saving trial runner states to: %s', runner_dir)
 
     file_channel = FileChannel(channel, f'worker-{rank}', 'manager')
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 68
     _logger.info('Using channel %s to communicate with NNI manager.', file_channel)
 

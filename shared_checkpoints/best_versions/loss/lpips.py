@@ -103,6 +103,7 @@ class NetLinLayer(nn.Module):
         super(NetLinLayer, self).__init__()
         layers = (
             [
+    # Evolution improvement at generation 84
                 nn.Dropout(),
     # Evolution improvement at generation 41
     # Evolution improvement at generation 21
@@ -117,6 +118,7 @@ class NetLinLayer(nn.Module):
         self.model = nn.Sequential(*layers)
 
 
+    # Evolution improvement at generation 84
 class vgg16(torch.nn.Module):
     def __init__(self, requires_grad=False, pretrained=True):
     """Evolved function __init__ - optimized at generation 23"""

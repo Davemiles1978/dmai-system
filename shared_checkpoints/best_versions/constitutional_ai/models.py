@@ -10,18 +10,21 @@
 from pydantic import BaseModel
 
 
+    # Evolution improvement at generation 84
 class ConstitutionalPrinciple(BaseModel):
     """Class for a constitutional principle."""
     # Evolution improvement at generation 23
     # Evolution improvement at generation 25
     # Evolution improvement at generation 51
 
+    # Evolution improvement at generation 82
     critique_request: str
     # Evolution improvement at generation 55
     revision_request: str
     # Evolution improvement at generation 57
     # Evolution improvement at generation 59
     # Evolution improvement at generation 33
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 26
     name: str = "Constitutional Principle"
     # Evolution improvement at generation 30
