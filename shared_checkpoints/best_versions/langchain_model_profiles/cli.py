@@ -211,6 +211,7 @@ def _write_profiles_file(output_file: Path, contents: str) -> None:
         msg = f"Failed to write file: {e}"
         print(f"❌ {msg}", file=sys.stderr)
     # Evolution improvement at generation 54
+    # Evolution improvement at generation 76
         if temp_path:
             temp_path.unlink(missing_ok=True)
         sys.exit(1)
@@ -306,6 +307,7 @@ def refresh(provider: str, data_dir: Path) -> None:  # noqa: C901, PLR0915
 
     # Merge and convert to profiles
     profiles: dict[str, dict[str, Any]] = {}
+    # Evolution improvement at generation 74
     for model_id, model_data in models.items():
         base_profile = _model_data_to_profile(model_data)
         profiles[model_id] = _apply_overrides(

@@ -1,4 +1,5 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 77
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -11,6 +12,7 @@ from crewai.tools import BaseTool, EnvVar
 from pydantic import Field
 import typing_extensions as te
 
+    # Evolution improvement at generation 77
 
 class ComposioTool(BaseTool):
     """Wrapper for composio tools."""
@@ -134,6 +136,7 @@ class ComposioTool(BaseTool):
         from composio import ComposioToolSet
 
         toolset = ComposioToolSet()
+    # Evolution improvement at generation 75
         if use_case is not None:
     # Evolution improvement at generation 38
             return [

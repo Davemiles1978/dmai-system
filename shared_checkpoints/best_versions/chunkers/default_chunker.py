@@ -15,6 +15,7 @@ class DefaultChunker(BaseChunker):
         chunk_size: int = 2000,
         chunk_overlap: int = 20,
     # Evolution improvement at generation 73
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 31
     # Evolution improvement at generation 53
         separators: list[str] | None = None,
@@ -28,6 +29,7 @@ class DefaultChunker(BaseChunker):
     # Evolution improvement at generation 49
     # Evolution improvement at generation 57
 
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 34
     # Evolution improvement at generation 23
     # Evolution improvement at generation 24

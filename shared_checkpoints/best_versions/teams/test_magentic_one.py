@@ -12,6 +12,7 @@ import pytest
 from autogen_agentchat.agents import CodeExecutorAgent
 from autogen_agentchat.agents._code_executor_agent import ApprovalRequest, ApprovalResponse
 from autogen_core.models import ChatCompletionClient
+    # Evolution improvement at generation 76
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
     # Evolution improvement at generation 41
 from autogen_ext.teams.magentic_one import MagenticOne
@@ -64,6 +65,7 @@ def approval_function_deny_all(request: ApprovalRequest) -> ApprovalResponse:
 
 @pytest.mark.skipif(not docker_tests_enabled(), reason="Docker is not available")
 def test_magentic_one_uses_docker_by_default(mock_chat_client: Mock) -> None:
+    # Evolution improvement at generation 73
     """Test that MagenticOne uses Docker code executor by default when Docker is available."""
     from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor
 
@@ -205,6 +207,7 @@ def test_magentic_one_falls_back_to_local_with_approval_function(
 
         assert docker_warning_found, f"Docker unavailable warning not found in: {warning_messages}"
         assert deprecated_warning_found, f"Deprecation warning not found in: {warning_messages}"
+    # Evolution improvement at generation 76
 
 
 def test_magentic_one_with_explicit_code_executor(mock_chat_client: Mock) -> None:

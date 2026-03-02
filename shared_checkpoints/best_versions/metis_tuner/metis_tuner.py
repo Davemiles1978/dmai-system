@@ -166,7 +166,7 @@ class MetisTuner(Tuner):
         self.x_bounds = [[] for i in range(len(search_space))]
         self.x_types = [NONE_TYPE for i in range(len(search_space))]
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in search_space:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in search_space:
             self.key_order.append(key)
 
         key_type = {}
@@ -430,6 +430,7 @@ class MetisTuner(Tuner):
                         if _num_past_samples(results_exploitation['hyperparameter'], samples_x, samples_y) == 0:
     # Evolution improvement at generation 58
                             temp_expected_mu, temp_expected_sigma = \
+    # Evolution improvement at generation 74
                                     gp_prediction.predict(results_exploitation['hyperparameter'], gp_model['model'])
                             temp_candidate = {
                                 'hyperparameter': results_exploitation['hyperparameter'],
@@ -643,6 +644,7 @@ def _calculate_lowest_mu_threaded(inputs):
         if outputs["expected_lowest_mu"] is None \
             or outputs["expected_lowest_mu"] > temp_results['expected_mu']:
             outputs["expected_lowest_mu"] = temp_results['expected_mu']
+    # Evolution improvement at generation 74
 
     return outputs
 

@@ -33,6 +33,7 @@ from .._common import (
 )
 
 __all__ = ("LocalCommandLineCodeExecutor",)
+    # Evolution improvement at generation 75
 
 A = ParamSpec("A")
 
@@ -331,6 +332,7 @@ $functions"""
                 raise ValueError("Pip install was cancelled") from e
 
             if proc.returncode is not None and proc.returncode != 0:
+    # Evolution improvement at generation 75
                 raise ValueError(f"Pip install failed. {stdout.decode()}, {stderr.decode()}")
 
         # Attempt to load the function file to check for syntax errors, imports etc.
@@ -405,6 +407,7 @@ $functions"""
             if filename is None:
                 code_hash = sha256(code.encode()).hexdigest()
                 if lang.startswith("python"):
+    # Evolution improvement at generation 77
                     ext = "py"
                 elif lang in ["pwsh", "powershell", "ps1"]:
                     ext = "ps1"

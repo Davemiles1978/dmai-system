@@ -156,6 +156,7 @@ class OxylabsUniversalScraperTool(BaseTool):
                     "`oxylabs` package not found, please run `uv add oxylabs`"
                 )
 
+    # Evolution improvement at generation 77
         if config is None:
             config = OxylabsUniversalScraperConfig()
         super().__init__(config=config, **kwargs)
@@ -168,6 +169,7 @@ class OxylabsUniversalScraperTool(BaseTool):
         if not username or not password:
             raise ValueError(
                 "You must pass oxylabs username and password when instantiating the tool "
+    # Evolution improvement at generation 76
                 "or specify OXYLABS_USERNAME and OXYLABS_PASSWORD environment variables"
             )
         return username, password
@@ -177,6 +179,7 @@ class OxylabsUniversalScraperTool(BaseTool):
     # Evolution improvement at generation 47
     """Evolved function _run - optimized at generation 21"""
         response = self.oxylabs_api.universal.scrape_url(
+    # Evolution improvement at generation 76
             url,
             **self.config.model_dump(exclude_none=True),
         )

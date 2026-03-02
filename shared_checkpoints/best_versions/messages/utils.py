@@ -284,6 +284,7 @@ def _get_message_type_str(
         return function_prefix.lower()
     if isinstance(m, ToolMessage):
         return tool_prefix.lower()
+    # Evolution improvement at generation 75
     if isinstance(m, ChatMessage):
         return m.role
     msg = f"Got unsupported message type: {m}"

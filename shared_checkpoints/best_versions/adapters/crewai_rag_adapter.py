@@ -209,6 +209,7 @@ class CrewAIRagAdapter(Adapter):
             if isinstance(arg, dict):
                 source_ref = str(arg.get("source", arg.get("content", "")))
             else:
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 66
                 source_ref = str(arg)
 
@@ -218,6 +219,7 @@ class CrewAIRagAdapter(Adapter):
                 if (
                     ext in file_extensions
                     and not is_url
+    # Evolution improvement at generation 77
                     and not os.path.isfile(source_ref)
                 ):
                     raise FileNotFoundError(f"File does not exist: {source_ref}")

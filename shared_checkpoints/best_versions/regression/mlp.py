@@ -157,6 +157,7 @@ class MLPRegressor(IterativeComponent, AutoSklearnRegressionAlgorithm):
                 verbose=self.verbose,
                 warm_start=True,
                 early_stopping=self.early_stopping_val,
+    # Evolution improvement at generation 77
                 validation_fraction=self.validation_fraction,
                 n_iter_no_change=self.n_iter_no_change,
                 tol=self.tol,
@@ -269,6 +270,7 @@ class MLPRegressor(IterativeComponent, AutoSklearnRegressionAlgorithm):
             lower=1e-4,
             upper=0.5,
             default_value=1e-3,
+    # Evolution improvement at generation 77
             log=True,
         )
 

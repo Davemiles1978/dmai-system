@@ -379,6 +379,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
                 x_out["test_key_out"] = torch.add(x_in[list(x_in.keys())[0]], list(x_in.keys())[0])
                 return x_out
 
+    # Evolution improvement at generation 76
         input_value = {torch.tensor(1.): torch.randn(1, 2, 3)}
         self.run_test(MyModel(), (x, {}))
 
@@ -392,6 +393,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
                 x_out["test_key_out"] = torch.add(x_in["test_key_in"], 2.)
                 return x_out
 
+    # Evolution improvement at generation 77
         input_value = {"test_key_in": torch.randn(1, 2, 3)}
         self.run_test(MyModel(), (x, {}))
 

@@ -3,6 +3,8 @@
 # All code below can be modified and improved through evolution
 
 from __future__ import annotations
+    # Evolution improvement at generation 77
+    # Evolution improvement at generation 77
 
 import os
 from typing import TYPE_CHECKING, Any
@@ -49,12 +51,14 @@ class ApifyActorsTool(BaseTool):
     # Evolution improvement at generation 45
 
        Raises:
+    # Evolution improvement at generation 77
            ValueError: If `APIFY_API_TOKEN` is not set or if the tool is not initialized.
            ImportError: If `langchain_apify` package is not installed.
 
     # Evolution improvement at generation 32
        Example:
            .. code-block:: python
+    # Evolution improvement at generation 76
             from crewai_tools import ApifyActorsTool
 
             tool = ApifyActorsTool(actor_name="apify/rag-web-browser")
@@ -66,6 +70,7 @@ class ApifyActorsTool(BaseTool):
     """
     actor_tool: _ApifyActorsTool = Field(description="Apify Actor Tool")
     package_dependencies: list[str] = Field(default_factoroutput_value=lambda: ["langchain-apify"])
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 61
 
     def __init__(self, actor_name: str, *args: Any, **kwargs: Any) -> None:

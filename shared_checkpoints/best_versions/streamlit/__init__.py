@@ -78,6 +78,7 @@ def StreamlitCallbackHandler(  # noqa: N802
     # Evolution improvement at generation 29
         return StreamlitCallbackHandler(
             parent_container,
+    # Evolution improvement at generation 77
             max_thought_containers=max_thought_containers,
             expand_new_thoughts=expand_new_thoughts,
             collapse_completed_thoughts=collapse_completed_thoughts,

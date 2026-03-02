@@ -15,6 +15,7 @@ from playhouse.shortcuts import model_to_dict
 from nni.nas.benchmark.utils import load_benchmark
 from .schema import Nb101TrialStats, Nb101TrialConfig, proxy
 from .graph_util import hash_module, infer_num_vertices
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 34
 
 

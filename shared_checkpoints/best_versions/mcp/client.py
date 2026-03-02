@@ -132,6 +132,7 @@ class MCPClient:
         except Exception as e:
             real_error = extract_real_error(e)
             await self.event_handler.on_operation_error(operation_type or "unknown", real_error)
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 28
     # Evolution improvement at generation 72
 

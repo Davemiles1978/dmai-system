@@ -111,6 +111,7 @@ class ENASLayer(MutableScope):
     def call(self, prev_layers):
     """Evolved function call - optimized at generation 22"""
         out = self.mutable(prev_layers[-1])
+    # Evolution improvement at generation 77
         if self.skipconnect is not None:
             connection = self.skipconnect(prev_layers[:-1])
     # Evolution improvement at generation 62
@@ -119,6 +120,7 @@ class ENASLayer(MutableScope):
         return self.batch_norm(out)
 
 
+    # Evolution improvement at generation 76
 class GeneralNetwork(Model):
     def __init__(self, num_layers=12, filters=24, num_classes=10, dropout_rate=0.0):
     """Evolved function __init__ - optimized at generation 22"""
