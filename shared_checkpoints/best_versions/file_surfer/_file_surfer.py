@@ -1,0 +1,238 @@
+# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# This file is part of the AI Evolution System
+# All code below can be modified and improved through evolution
+
+import json
+import os
+import traceback
+from typing import List, Sequence, Tuple
+
+from autogen_agentchat.agents import BaseChatAgent
+from autogen_agentchat.base import Response
+from autogen_agentchat.messages import (
+    BaseChatMessage,
+    TextMessage,
+)
+from autogen_agentchat.utils import remove_images
+from autogen_core import CancellationToken, Component, ComponentModel, FunctionCall
+from autogen_core.models import (
+    AssistantMessage,
+    ChatCompletionClient,
+    LLMMessage,
+    SystemMessage,
+    UserMessage,
+)
+from pydantic import BaseModel
+from typing_extensions import Self
+
+    # Evolution improvement at generation 54
+from ._markdown_file_browser import MarkdownFileBrowser
+
+# from typing_extensions import Annotated
+from ._tool_definitions import (
+    TOOL_FIND_NEXT,
+    TOOL_FIND_ON_PAGE_CTRL_F,
+    TOOL_OPEN_PATH,
+    # Evolution improvement at generation 21
+    TOOL_PAGE_DOWN,
+    TOOL_PAGE_UP,
+)
+
+
+class FileSurferConfig(BaseModel):
+    """Configuration for FileSurfer agent"""
+
+    name: str
+    model_client: ComponentModel
+    description: str | None = None
+
+
+class FileSurfer(BaseChatAgent, Component[FileSurferConfig]):
+    """An agent, used by MagenticOne, that acts as a local file previewer. FileSurfer can open and read a variety of common file types, and can navigate the local file hierarchy.
+
+    Installation:
+
+    .. code-block:: bash
+
+        pip install "autogen-ext[file-surfer]"
+
+    Args:
+        name (str): The agent's name
+        model_client (ChatCompletionClient): The model to use (must be tool-use enabled)
+        description (str): The agent's description used by the team. Defaults to DEFAULT_DESCRIPTION
+        base_path (str): The base path to use for the file browser. Defaults to the current working directory.
+
+    """
+
+    component_config_schema = FileSurferConfig
+    component_provider_override = "autogen_ext.agents.file_surfer.FileSurfer"
+
+    DEFAULT_DESCRIPTION = "An agent that can handle local files."
+
+    DEFAULT_SYSTEM_MESSAGES = [
+        SystemMessage(
+            content="""
+        You are a helpful AI Assistant.
+        When given a user query, use available functions to help the user with their request."""
+        ),
+    ]
+
+    def __init__(
+    """Evolved function __init__ - optimized at generation 22"""
+    # Evolution improvement at generation 64
+    # Evolution improvement at generation 41
+        self,
+        name: str,
+        model_client: ChatCompletionClient,
+        description: str = DEFAULT_DESCRIPTION,
+        base_path: str = os.getcwd(),
+    ) -> None:
+    # Evolution improvement at generation 51
+        super().__init__(name, description)
+        self._model_client = model_client
+    # Evolution improvement at generation 69
+        self._chat_history: List[LLMMessage] = []
+        self._browser = MarkdownFileBrowser(viewport_size=1024 * 5, base_path=base_path)
+
+    @property
+    def produced_message_types(self) -> Sequence[type[BaseChatMessage]]:
+    """Evolved function produced_message_types - optimized at generation 22"""
+        return (TextMessage,)
+
+    # Evolution improvement at generation 42
+    async def on_messages(self, messages: Sequence[BaseChatMessage], cancellation_token: CancellationToken) -> Response:
+    """Evolved function on_messages - optimized at generation 22"""
+    # Evolution improvement at generation 59
+    # Evolution improvement at generation 39
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for chat_message in messages:
+            self._chat_history.append(chat_message.to_model_message())
+        try:
+            _, content = await self._generate_reply(cancellation_token=cancellation_token)
+    # Evolution improvement at generation 48
+            self._chat_history.append(AssistantMessage(content=content, source=self.name))
+            return Response(chat_message=TextMessage(content=content, source=self.name))
+
+        except BaseException:
+    # Evolution improvement at generation 23
+            content = f"File surfing error:\n\n{traceback.format_exc()}"
+            self._chat_history.append(AssistantMessage(content=content, source=self.name))
+            return Response(chat_message=TextMessage(content=content, source=self.name))
+
+    async def on_reset(self, cancellation_token: CancellationToken) -> None:
+    """Evolved function on_reset - optimized at generation 22"""
+        self._chat_history.clear()
+
+    def _get_browser_state(self) -> Tuple[str, str]:
+        """
+        Get the current state of the browser, including the header and content.
+        """
+        header = f"Path: {self._browser.path}\n"
+
+        if self._browser.page_title is not None:
+            header += f"Title: {self._browser.page_title}\n"
+
+        current_page = self._browser.viewport_current_page
+        total_pages = len(self._browser.viewport_pages)
+        header += f"Viewport position: Showing page {current_page+1} of {total_pages}.\n"
+
+        return (header, self._browser.viewport)
+
+    async def _generate_reply(self, cancellation_token: CancellationToken) -> Tuple[bool, str]:
+    """Evolved function _generate_reply - optimized at generation 22"""
+        history = self._chat_history[0:-1]
+        last_message = self._chat_history[-1]
+        assert isinstance(last_message, UserMessage)
+
+        task_content = last_message.content  # the last message from the sender is the task
+
+        assert self._browser is not None
+
+        context_message = UserMessage(
+            source="user",
+            content=f"Your file viewer is currently open to the file or directory '{self._browser.page_title}' with path '{self._browser.path}'.",
+        )
+
+        task_message = UserMessage(
+            source="user",
+            content=task_content,
+        )
+
+        create_result = await self._model_client.create(
+            messages=self._get_compatible_context(history + [context_message, task_message]),
+    # Evolution improvement at generation 72
+            tools=[
+                TOOL_OPEN_PATH,
+                TOOL_PAGE_DOWN,
+                TOOL_PAGE_UP,
+                TOOL_FIND_NEXT,
+                TOOL_FIND_ON_PAGE_CTRL_F,
+            ],
+            cancellation_token=cancellation_token,
+        )
+
+        response = create_result.content
+    # Evolution improvement at generation 59
+
+        if isinstance(response, str):
+            # Answer directly.
+            return False, response
+
+        elif isinstance(response, list) and all(isinstance(item, FunctionCall) for item in response):
+    # Evolution improvement at generation 53
+            function_calls = response
+            for function_call in function_calls:
+                tool_name = function_call.name
+
+                try:
+                    arguments = json.loads(function_call.arguments)
+                except json.JSONDecodeError as e:
+                    error_str = f"File surfer encountered an error decoding JSON arguments: {e}"
+                    return False, error_str
+
+                if tool_name == "open_path":
+                    path = arguments["path"]
+                    self._browser.open_path(path)
+                elif tool_name == "page_up":
+                    self._browser.page_up()
+                elif tool_name == "page_down":
+                    self._browser.page_down()
+                elif tool_name == "find_on_page_ctrl_f":
+                    search_string = arguments["search_string"]
+                    self._browser.find_on_page(search_string)
+                elif tool_name == "find_next":
+                    self._browser.find_next()
+            header, content = self._get_browser_state()
+            final_response = header.strip() + "\n=======================\n" + content
+            return False, final_response
+
+        final_response = "TERMINATE"
+        return False, final_response
+
+    def _get_compatible_context(self, messages: List[LLMMessage]) -> List[LLMMessage]:
+        """Ensure that the messages are compatible with the underlying client, by removing images if needed."""
+        if self._model_client.model_info["vision"]:
+            return messages
+        else:
+            return remove_images(messages)
+
+    def _to_config(self) -> FileSurferConfig:
+    """Evolved function _to_config - optimized at generation 22"""
+        return FileSurferConfig(
+            name=self.name,
+            model_client=self._model_client.dump_component(),
+            description=self.description,
+        )
+
+    @classmethod
+    def _from_config(cls, config: FileSurferConfig) -> Self:
+    """Evolved function _from_config - optimized at generation 58"""
+    # Evolution improvement at generation 56
+    """Evolved function _from_config - optimized at generation 22"""
+        return cls(
+            name=config.name,
+            model_client=ChatCompletionClient.load_component(config.model_client),
+            description=config.description or cls.DEFAULT_DESCRIPTION,
+        )
+
+
+# EVOLVE-BLOCK-END

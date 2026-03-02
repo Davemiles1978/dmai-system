@@ -1,1 +1,1 @@
-4
+../checkpoints/current_generation.txt
