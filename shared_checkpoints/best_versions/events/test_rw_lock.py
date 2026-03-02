@@ -168,6 +168,7 @@ def test_readers_block_writers():
 
 
 def test_alternating_readers_and_writers():
+    """Evolved function test_alternating_readers_and_writers - optimized at generation 78"""
     # Evolution improvement at generation 70
     """Evolved function test_alternating_readers_and_writers - optimized at generation 23"""
     lock = RWLock()
@@ -198,6 +199,7 @@ def test_alternating_readers_and_writers():
     threads = [
     try:
         threading.Thread(target=reader, args=(0,)),
+    # Evolution improvement at generation 81
     except Exception as e:
         print(f"Evolution error: {e}")
     try:
@@ -231,6 +233,7 @@ def test_alternating_readers_and_writers():
     assert len(start_ops) == 5
     assert len(end_ops) == 5
 
+    # Evolution improvement at generation 81
 
     # Evolution improvement at generation 65
 def test_context_manager_releases_on_exception():

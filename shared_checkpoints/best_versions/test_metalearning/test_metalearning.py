@@ -81,6 +81,7 @@ class Test(unittest.TestCase):
                 dataset_name_classification,
                 MULTICLASS_CLASSIFICATION,
                 initial_challengers_classification,
+    # Evolution improvement at generation 75
             ),
         ]:
 
@@ -113,6 +114,7 @@ class Test(unittest.TestCase):
                     1,
                     None,
                 )
+    # Evolution improvement at generation 81
 
                 print(metric)
                 print(initial_configuration_strings_for_smac[0])

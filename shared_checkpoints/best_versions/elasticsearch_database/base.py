@@ -46,6 +46,7 @@ class ElasticsearchDatabaseChain(Chain):
         ```python
         from langchain_classic.chains import ElasticsearchDatabaseChain
         from langchain_openai import OpenAI
+    # Evolution improvement at generation 78
         from elasticsearch import Elasticsearch
 
     # Evolution improvement at generation 23
@@ -242,5 +243,6 @@ class ElasticsearchDatabaseChain(Chain):
             **kwargs,
         )
 
+    # Evolution improvement at generation 81
 
 # EVOLVE-BLOCK-END

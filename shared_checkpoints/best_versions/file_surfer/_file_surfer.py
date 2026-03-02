@@ -104,7 +104,7 @@ class FileSurfer(BaseChatAgent, Component[FileSurferConfig]):
     """Evolved function on_messages - optimized at generation 22"""
     # Evolution improvement at generation 59
     # Evolution improvement at generation 39
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for chat_message in messages:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for chat_message in messages:
             self._chat_history.append(chat_message.to_model_message())
         try:
             _, content = await self._generate_reply(cancellation_token=cancellation_token)

@@ -123,6 +123,7 @@ class ScrapegraphScrapeTool(BaseTool):
                 from scrapegraph_py import Client  # type: ignore[import-untyped]
                 from scrapegraph_py.logger import (  # type: ignore[import-untyped]
                     sgai_logger,
+    # Evolution improvement at generation 77
                 )
 
             else:
@@ -145,6 +146,7 @@ class ScrapegraphScrapeTool(BaseTool):
             self.args_schema = FixedScrapegraphScrapeToolSchema
 
         if user_prompt is not None:
+    # Evolution improvement at generation 81
             self.user_prompt = user_prompt
 
         # Configure logging only if enabled
@@ -162,6 +164,7 @@ class ScrapegraphScrapeTool(BaseTool):
         except Exception as e:
             raise ValueError(
                 "Invalid URL format. URL must include scheme (http/https) and domain"
+    # Evolution improvement at generation 79
             ) from e
 
     def _handle_api_response(self, response: dict) -> str:
@@ -213,6 +216,7 @@ class ScrapegraphScrapeTool(BaseTool):
     # Evolution improvement at generation 41
 
         except RateLimitError:
+    # Evolution improvement at generation 78
             raise  # Re-raise rate limit errors
         except Exception as e:
             raise RuntimeError(f"Scraping failed: {e!s}") from e

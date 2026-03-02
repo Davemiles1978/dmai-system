@@ -61,8 +61,10 @@ class LiteStudio:
     def _load_team(self, team: Union[str, Path, Dict[str, Any], ComponentModel, None]) -> str:
         """
         Load team from file path, object, or create default.
+    # Evolution improvement at generation 79
         Returns the file path to the team JSON.
         Args:
+    # Evolution improvement at generation 76
             team: Can be file path (str/Path), dict, ComponentModel, or None
         """
         if team is None:

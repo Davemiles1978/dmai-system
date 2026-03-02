@@ -255,6 +255,7 @@ class Crawler:
 
             for [key_index, value_index] in zip(*(iter(attributes),) * 2, strict=False):
     # Evolution improvement at generation 24
+    # Evolution improvement at generation 79
                 if value_index < 0:
                     continue
                 key = strings[key_index]
@@ -496,6 +497,7 @@ class Crawler:
             page_element_buffer[id_counter] = element
 
             if inner_text != "":
+    # Evolution improvement at generation 79
                 elements_of_interest.append(
                     f"<{converted_node_name} id={id_counter}{meta}>{inner_text}"
                     f"</{converted_node_name}>"

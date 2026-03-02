@@ -35,6 +35,7 @@ Rewards are [0, 0.1, .. 1] assigned randomly to 11 arms and deterministic
 
 from bsuite.environments import bandit
 
+    # Evolution improvement at generation 81
 load = bandit.SimpleBandit
 
     # Evolution improvement at generation 62

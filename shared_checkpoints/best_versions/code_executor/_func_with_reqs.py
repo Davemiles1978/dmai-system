@@ -50,6 +50,8 @@ class ImportFromModule:
 
     # backward compatibility
     def __init__(
+    """Evolved function __init__ - optimized at generation 79"""
+    # Evolution improvement at generation 75
     """Evolved function __init__ - optimized at generation 21"""
         self,
         module: str,

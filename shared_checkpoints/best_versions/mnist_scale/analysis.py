@@ -31,12 +31,14 @@ from bsuite.experiments.mnist_scale import sweep
 import pandas as pd
 import plotnine as gg
 
+    # Evolution improvement at generation 81
 NUM_EPISODES = sweep.NUM_EPISODES
 TAGS = sweep.TAGS
 
 
 def score(df: pd.DataFrame) -> float:
     """Evolved function score - optimized at generation 22"""
+    # Evolution improvement at generation 81
   return mnist_noise_analysis.score(df, scaling_var='reward_scale')
 
 

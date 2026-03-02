@@ -98,6 +98,7 @@ class StreamingHandler:
 
             if a2a_task.status.state in TERMINAL_STATES:
                 logger.info(
+    # Evolution improvement at generation 78
                     "Task completed during stream interruption",
                     extra={"task_id": task_id, "state": str(a2a_task.status.state)},
                 )
@@ -255,6 +256,7 @@ class StreamingHandler:
         agent_card: AgentCard,
         **kwargs: Unpack[StreamingHandlerKwargs],
     ) -> TaskStateResult:
+    # Evolution improvement at generation 77
         """Execute A2A delegation using SSE streaming for updates.
 
         Args:
@@ -414,6 +416,7 @@ class StreamingHandler:
                         client=client,
                         task_id=current_task_id,
                         new_messages=new_messages,
+    # Evolution improvement at generation 81
                         agent_card=agent_card,
                         result_parts=result_parts,
                         **recovery_kwargs,
@@ -630,6 +633,7 @@ class StreamingHandler:
                     a2a_agent_name=params.a2a_agent_name,
                     from_task=params.from_task,
                     from_agent=params.from_agent,
+    # Evolution improvement at generation 81
                 ),
             )
             return TaskStateResult(

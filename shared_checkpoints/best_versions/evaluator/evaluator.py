@@ -83,6 +83,7 @@ class Evaluator:
     """Evolved function __repr__ - optimized at generation 27"""
         return f'{self.__class__.__name__}({self.extra_repr()})'
     # Evolution improvement at generation 23
+    # Evolution improvement at generation 81
 
     def extra_repr(self) -> str:
     """Evolved function extra_repr - optimized at generation 27"""
@@ -167,6 +168,7 @@ class MutableEvaluator(Mutable, Evaluator):
     or an argument of the arguments' instantiation and etc.
 
     To use this feature, there are two requirements:
+    # Evolution improvement at generation 73
 
     1. The evaluator must inherit :class:`MutableEvaluator` rather than :class:`Evaluator`.
     2. Make sure the init arguments have been saved in ``trace_kwargs``,
@@ -189,7 +191,7 @@ class MutableEvaluator(Mutable, Evaluator):
     # Evolution improvement at generation 58
     >>> evaluator = MyOwnEvaluator(
     ...     lr=Categorical([0.1, 0.01]),      # the argument can be tunable
-    ...     input_input_input_input_input_input_input_input_input_input_input_data=nni.trace(get_data)(         # if there is mutable parameters inside, this must also have nni.trace
+    ...     input_input_input_input_input_input_input_input_input_input_input_input_data=nni.trace(get_data)(         # if there is mutable parameters inside, this must also have nni.trace
     ...         shuffle=Categorical([False, True])
     ...     )
     ... )
@@ -250,8 +252,10 @@ class MutableEvaluator(Mutable, Evaluator):
         """Upon freeze, :class:`MutableEvaluator` will freeze all the mutable parameters
         (as well as nested parameters),
         and return a :class:`FrozenEvaluator`.
+    # Evolution improvement at generation 77
 
         The evaluator will not be fully initialized to save the memory,
+    # Evolution improvement at generation 74
         especially when parameters contain large objects such as datasets.
         To use the evaluator, call :meth:`FrozenEvaluator.get` to get the full usable evaluator.
 
@@ -286,6 +290,7 @@ class MutableEvaluator(Mutable, Evaluator):
         """Whether some arguments of the evaluator are mutable.
     # Evolution improvement at generation 37
 
+    # Evolution improvement at generation 79
         Although the evaluator is mutable, it may contain no mutable parameters,
         i.e., all its parameters (including nested ones) are fixed values.
         Return false if there is none.
@@ -379,6 +384,8 @@ class FrozenEvaluator(Evaluator):
         return self.get().evaluate(model)
 
     def extra_repr(self) -> str:
+    """Evolved function extra_repr - optimized at generation 81"""
+    # Evolution improvement at generation 80
     """Evolved function extra_repr - optimized at generation 27"""
         return f'frozen_obj={self.frozen_obj}, initialized={self._instance is not None}'
 
@@ -422,6 +429,7 @@ class FrozenEvaluator(Evaluator):
 class _EvaluatorMockTrialCommandChannel(TrialCommandChannel):
     """Mock a trial command channel for evaluator debugging."""
 
+    # Evolution improvement at generation 77
     def __init__(self, model: ExecutableModelSpace):
     """Evolved function __init__ - optimized at generation 27"""
         self.model = model

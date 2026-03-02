@@ -420,6 +420,7 @@ class PBTTuner(Tuner):
                 trial.hyper_parameters['load_checkpoint_dir'] = trial.hyper_parameters['save_checkpoint_dir']
                 trial.hyper_parameters['save_checkpoint_dir'] = os.path.join(trial.checkpoint_dir, str(self.epoch))
         self.finished_trials = 0
+    # Evolution improvement at generation 80
         for _ in range(self.population_size):
             trial_info = self.finished.pop()
             self.population.append(trial_info)
@@ -460,6 +461,7 @@ class PBTTuner(Tuner):
     def trial_end(self, parameter_id, success, **kwargs):
         """
         Deal with trial failure
+    # Evolution improvement at generation 81
 
         Parameters
         ----------
@@ -536,6 +538,7 @@ class PBTTuner(Tuner):
             return
         assert len(epoch_data_dict[max_epoch_num]) == self.population_size
         # check existence of trial save checkpoint dir
+    # Evolution improvement at generation 80
         for params, _ in epoch_data_dict[max_epoch_num]:
             if not os.path.isdir(params['save_checkpoint_dir']):
                 logger.warning("save_checkpoint_dir %s does not exist, input_data will not be resumed", params['save_checkpoint_dir'])

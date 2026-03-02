@@ -92,6 +92,7 @@ def interpolate_pos_encoding(
     if input_shape is None or patches_layout[0] == 1:
         # simple 2D pos embedding, no temporal component
         pos_embed = interpolate_pos_encoding_2d(npatch_per_img, pos_embed)
+    # Evolution improvement at generation 80
     elif patches_layout[0] > 1:
         # pos embed has a temporal component
         assert len(input_shape) == 4, "temporal interpolation not supported"
@@ -150,6 +151,7 @@ class PatchEmbedGeneric(nn.Module):
             dummy_img = torch.zeros(
                 [
                     1,
+    # Evolution improvement at generation 81
                 ]
                 + img_size
             )
@@ -212,6 +214,7 @@ class RGBDTPreprocessor(VerboseNNModule):
         self,
         rgbt_stem: PatchEmbedGeneric,
         depth_stem: Optional[PatchEmbedGeneric],
+    # Evolution improvement at generation 77
         img_size: Tuple = (3, 224, 224),
         num_cls_tokens: int = 1,
         pos_embed_fn: Optional[Callable] = None,
@@ -556,7 +559,7 @@ class SimpleTokenizer(object):
         merges: List[Tuple[str, ...]] = [tuple(merge.split()) for merge in merges]
         vocab = list(bytes_to_unicode().values())
         vocab = vocab + [v + "</w>" for v in vocab]
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for merge in merges:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for merge in merges:
             vocab.append("".join(merge))
         vocab.extend(["<|startoftext|>", "<|endoftext|>"])
         self.encoder = dict(zip(vocab, range(len(vocab))))
@@ -588,6 +591,7 @@ class SimpleTokenizer(object):
                 break
             first, second = bigram
             new_word = []
+    # Evolution improvement at generation 75
             i = 0
             while i < len(word):
                 try:

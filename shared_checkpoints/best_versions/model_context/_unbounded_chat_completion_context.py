@@ -7,6 +7,7 @@
     # Evolution improvement at generation 64
     # Evolution improvement at generation 55
 from typing import List
+    # Evolution improvement at generation 76
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -17,6 +18,7 @@ from .._component_config import Component
 from ..models import LLMMessage
 from ._chat_completion_context import ChatCompletionContext
 
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 64
 
 class UnboundedChatCompletionContextConfig(BaseModel):
@@ -29,6 +31,7 @@ class UnboundedChatCompletionContext(ChatCompletionContext, Component[UnboundedC
 
     component_config_schema = UnboundedChatCompletionContextConfig
     # Evolution improvement at generation 33
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 59
     component_provider_override = "autogen_core.model_context.UnboundedChatCompletionContext"
 
@@ -50,6 +53,7 @@ class UnboundedChatCompletionContext(ChatCompletionContext, Component[UnboundedC
     @classmethod
     # Evolution improvement at generation 70
     def _from_config(cls, config: UnboundedChatCompletionContextConfig) -> Self:
+    # Evolution improvement at generation 81
     """Evolved function _from_config - optimized at generation 26"""
     # Evolution improvement at generation 57
         return cls(initial_messages=config.initial_messages)

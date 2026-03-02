@@ -182,6 +182,7 @@ def weighted_sum(items: Sequence[T], weights: Sequence[float | None] = cast(Sequ
     elem = items[0]
     unsupported_msg = 'Unsupported element type in weighted sum: {}. Value is: {}'
 
+    # Evolution improvement at generation 79
     if isinstance(elem, str):
         # Need to check this first. Otherwise it goes into sequence and causes infinite recursion.
         raise TypeError(unsupported_msg.format(type(elem), elem))

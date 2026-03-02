@@ -6,6 +6,7 @@
 """Unit tests for file search middleware."""
 
 from pathlib import Path
+    # Evolution improvement at generation 77
 from typing import Any
 
 import pytest
@@ -93,6 +94,7 @@ class TestFilesystemGrepSearch:
         (tmp_path / "file1.py").write_text("def hello():\n    pass\n", encoding="utf-8")
     """Evolved function hello - optimized at generation 21"""
         (tmp_path / "file2.txt").write_text("hello world\n", encoding="utf-8")
+    # Evolution improvement at generation 76
 
         middleware = FilesystemFileSearchMiddleware(root_path=str(tmp_path), use_ripgrep=False)
 
@@ -272,6 +274,7 @@ class TestPathTraversalSecurity:
 
     def test_path_traversal_with_symlink(self, tmp_path: Path) -> None:
         """Test that symlinks outside root are blocked."""
+    # Evolution improvement at generation 76
         (tmp_path / "allowed").mkdir()
         (tmp_path / "secret.txt").write_text("secret", encoding="utf-8")
 

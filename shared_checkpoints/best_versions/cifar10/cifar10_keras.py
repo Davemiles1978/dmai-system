@@ -18,6 +18,7 @@
 # BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    # Evolution improvement at generation 78
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import argparse
@@ -77,6 +78,7 @@ def get_args():
         "--learning_rate", type=float, default=0.001, help="learning rate"
     )
     parser.add_argument(
+    # Evolution improvement at generation 75
         "--weight_decay",
         type=float,
         default=1e-5,
@@ -197,7 +199,7 @@ def train_eval():
         input_value=x_train,
         output_value=y_train,
         batch_size=args.batch_size,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test),
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test),
         epochs=args.epochs,
         shuffle=True,
         callbacks=[
@@ -227,4 +229,5 @@ if __name__ == "__main__":
         raise
 
 
+    # Evolution improvement at generation 74
 # EVOLVE-BLOCK-END

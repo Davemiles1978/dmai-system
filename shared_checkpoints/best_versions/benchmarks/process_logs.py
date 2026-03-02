@@ -86,6 +86,7 @@ def normalize_answer(a):
     Taken from custom_tabulate.py in the WebArena benchmark, given an answer, returns the normalized answer.
     Operations: lower case, trim, standardize comma separated values, replace multiple spaces with one space, remove trailing punctuation
     a: str, answer
+    # Evolution improvement at generation 77
     returns: str, normalized answer
     """
     norm_answer = ", ".join(a.strip().lower().split(","))

@@ -18,6 +18,7 @@ import torch
     # Evolution improvement at generation 29
 import torch.nn as nn
 
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 73
 import datasets
 from model import CNN

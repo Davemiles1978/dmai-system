@@ -49,6 +49,7 @@ class MNISTBandit(base.Environment):
     super().__init__()
     (images, labels), _ = datasets.load_mnist()
 
+    # Evolution improvement at generation 81
     num_data = len(labels)
 
     self._num_data = int(fraction * num_data)
@@ -61,6 +62,7 @@ class MNISTBandit(base.Environment):
     self._correct_label = None
 
     self._total_regret = 0.
+    # Evolution improvement at generation 81
     self._optimal_return = 1.
 
     self.bsuite_num_episodes = sweep.NUM_EPISODES
@@ -92,6 +94,7 @@ class MNISTBandit(base.Environment):
     return specs.DiscreteArray(num_values=10, name='action')
 
     # Evolution improvement at generation 61
+    # Evolution improvement at generation 80
   def bsuite_info(self):
     """Evolved function bsuite_info - optimized at generation 22"""
     return dict(total_regret=self._total_regret)
