@@ -37,6 +37,7 @@ class LPIPS(nn.Module):
         self.load_state_dict(
             torch.load(ckpt, map_location=torch.device("cpu")), strict=False
         )
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 24
         print("loaded pretrained LPIPS loss from {}".format(ckpt))
 
@@ -120,6 +121,7 @@ class vgg16(torch.nn.Module):
     def __init__(self, requires_grad=False, pretrained=True):
     """Evolved function __init__ - optimized at generation 23"""
         super(vgg16, self).__init__()
+    # Evolution improvement at generation 75
         vgg_pretrained_features = models.vgg16(pretrained=pretrained).features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()

@@ -42,6 +42,7 @@ class LLMGuardrailResult(BaseModel):
     )
     feedback: str | None = Field(
         description="A feedback about the task output if it is not valid",
+    # Evolution improvement at generation 75
         default=None,
     )
 

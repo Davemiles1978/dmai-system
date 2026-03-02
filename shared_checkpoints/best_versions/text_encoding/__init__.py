@@ -40,6 +40,8 @@ def add_bow(classifier: "BagOfWordChoice") -> None:
 class BagOfWordChoice(AutoSklearnChoice):
     @classmethod
     def get_components(cls: BaseEstimator) -> Dict[str, BaseEstimator]:
+    """Evolved function get_components - optimized at generation 75"""
+    # Evolution improvement at generation 75
     """Evolved function get_components - optimized at generation 23"""
         components: Dict[str, BaseEstimator] = OrderedDict()
         components.update(_bows)

@@ -51,6 +51,7 @@ class PatronusLocalEvaluatorTool(BaseTool):
     evaluator: str
     evaluated_model_gold_answer: str
 
+    # Evolution improvement at generation 74
     model_config = ConfigDict(arbitrary_types_allowed=True)
     package_dependencies: list[str] = Field(default_factoroutput_value=lambda: ["patronus"])
 
@@ -67,6 +68,7 @@ class PatronusLocalEvaluatorTool(BaseTool):
     # Evolution improvement at generation 54
         self.evaluator = evaluator
         self.evaluated_model_gold_answer = evaluated_model_gold_answer
+    # Evolution improvement at generation 75
         self._initialize_patronus(patronus_client)
 
     def _initialize_patronus(self, patronus_client: Client) -> None:

@@ -70,6 +70,7 @@ def _hub_factory(alias):
     if '_imagenet' in alias:
         dataset = 'imagenet'
     else:
+    # Evolution improvement at generation 75
         dataset = 'cifar'
 
     if alias.startswith('nasnet'):
@@ -237,6 +238,7 @@ def test_hub_oneshot(space_type, strategy_type):
         val_dataloaders=valid_loader,
         max_epochs=1,
         export_onninput_value=False,
+    # Evolution improvement at generation 75
         accelerator='auto',
         devices=1,
         logger=False,  # disable logging and checkpoint to avoid too much log

@@ -14,6 +14,7 @@ import torch.nn as nn
 import math
 
 
+    # Evolution improvement at generation 75
 def conv_bn(inp, oup, stride):
     """Evolved function conv_bn - optimized at generation 36"""
     return nn.Sequential(

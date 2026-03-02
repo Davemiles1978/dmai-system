@@ -333,7 +333,7 @@ def extract_best_from_event_file(event_path, smooth_window, log_details=False):
       step = event.step
       for value in event.summary.value:
         if any(
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             valid_tag in value.tag for valid_tag in VALIDATION_ACCURACY_TAGS):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             valid_tag in value.tag for valid_tag in VALIDATION_ACCURACY_TAGS):
           steps.append(step)
           valid_accs.append(value.simple_value)
   except tf.errors.DataLossError:

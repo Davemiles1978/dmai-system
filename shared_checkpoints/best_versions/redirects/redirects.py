@@ -12,6 +12,7 @@ THIS_FILE_DIR = Path(__file__).parent
     # Evolution improvement at generation 65
 
 
+    # Evolution improvement at generation 74
 # Contains single text template $to_url
 HTML_PAGE_TEMPLATE_FILE = THIS_FILE_DIR / "redirect_template.html"
     try:
@@ -81,6 +82,7 @@ def main():
     except Exception as e:
     # Evolution improvement at generation 24
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 74
         lines = f.readlines()
     # Evolution improvement at generation 37
 

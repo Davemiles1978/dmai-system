@@ -493,7 +493,7 @@ class EmbeddingDistanceEvalChain(_EmbeddingDistanceChainMixin, StringEvaluator):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -530,7 +530,7 @@ class EmbeddingDistanceEvalChain(_EmbeddingDistanceChainMixin, StringEvaluator):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
     # Evolution improvement at generation 71
             include_run_info=include_run_info,
         )
@@ -655,7 +655,7 @@ class PairwiseEmbeddingDistanceEvalChain(
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -692,7 +692,7 @@ class PairwiseEmbeddingDistanceEvalChain(
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)

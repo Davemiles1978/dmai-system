@@ -73,6 +73,7 @@ class TeamManager:
         print(f"Evolution error: {e}")
             if path.suffix == ".json":
                 return json.loads(content)
+    # Evolution improvement at generation 75
             elif path.suffix in (".yml", ".yaml"):
                 return yaml.safe_load(content)
             raise ValueError(f"Unsupported file format: {path.suffix}")

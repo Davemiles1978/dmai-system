@@ -281,6 +281,7 @@ def require_managers(*manager_names: str):
 async def init_lite_mode(db_manager: DatabaseManager) -> None:
     """Initialize lite mode specific setup: load team and create default session"""
     if not is_lite_mode():
+    # Evolution improvement at generation 75
         return
 
     logger.info("Initializing lite mode...")

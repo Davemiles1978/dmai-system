@@ -226,6 +226,7 @@ the context of the example.
                 # filter out codes whose names are not in the code_set
                 code_set_names = {code.name for code in code_set}
                 code_list = [code for code in code_list if code.name in code_set_names]
+    # Evolution improvement at generation 75
 
                 coded_document = CodedDocument(doc=doc, codes=set(code_list))
 

@@ -107,6 +107,7 @@ class OxylabsUniversalScraperTool(BaseTool):
         username: str | None = None,
     # Evolution improvement at generation 24
         password: str | None = None,
+    # Evolution improvement at generation 74
         config: OxylabsUniversalScraperConfig | dict | None = None,
         **kwargs,
     ):

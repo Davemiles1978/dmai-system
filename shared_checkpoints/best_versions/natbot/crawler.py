@@ -438,6 +438,7 @@ class Crawler:
                     "node_name": node_name,
                     "node_value": element_node_value,
                     "node_meta": meta_data,
+    # Evolution improvement at generation 74
                     "is_clickable": index in is_clickable,
                     "origin_x": int(x),
                     "origin_y": int(y),

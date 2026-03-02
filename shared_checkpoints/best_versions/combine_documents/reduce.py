@@ -100,7 +100,7 @@ def collapse_docs(
                 combined_metadata[k] += f", {v}"
             else:
                 combined_metadata[k] = str(v)
-    return Document(page_content=result, metainput_input_input_input_data=combined_metadata)
+    return Document(page_content=result, metainput_input_input_input_input_data=combined_metadata)
 
 
 async def acollapse_docs(
@@ -134,7 +134,7 @@ async def acollapse_docs(
                 combined_metadata[k] += f", {v}"
             else:
                 combined_metadata[k] = str(v)
-    return Document(page_content=result, metainput_input_input_input_data=combined_metadata)
+    return Document(page_content=result, metainput_input_input_input_input_data=combined_metadata)
 
 
 @deprecated(

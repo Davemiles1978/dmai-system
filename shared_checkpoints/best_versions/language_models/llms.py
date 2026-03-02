@@ -401,7 +401,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
                 stop=stop,
                 callbacks=config.get("callbacks"),
                 tags=config.get("tags"),
-                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
                 run_name=config.get("run_name"),
                 run_id=config.pop("run_id", None),
                 **kwargs,
@@ -426,7 +426,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
             stop=stop,
             callbacks=config.get("callbacks"),
             tags=config.get("tags"),
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
             run_name=config.get("run_name"),
             run_id=config.pop("run_id", None),
             **kwargs,
@@ -455,7 +455,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
                     [self._convert_input(input_) for input_ in inputs],
                     callbacks=[c.get("callbacks") for c in config],
                     tags=[c.get("tags") for c in config],
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=[c.get("metadata") for c in config],
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=[c.get("metadata") for c in config],
                     run_name=[c.get("run_name") for c in config],
                     **kwargs,
                 )
@@ -502,7 +502,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
                     [self._convert_input(input_) for input_ in inputs],
                     callbacks=[c.get("callbacks") for c in config],
                     tags=[c.get("tags") for c in config],
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=[c.get("metadata") for c in config],
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=[c.get("metadata") for c in config],
                     run_name=[c.get("run_name") for c in config],
                     **kwargs,
                 )
@@ -1388,7 +1388,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
             stop=stop,
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             **kwargs,
         )
         return result.generations[0][0].text

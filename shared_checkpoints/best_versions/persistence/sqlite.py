@@ -37,6 +37,7 @@ class SQLiteFlowPersistence(FlowPersistence):
 
     This implementation supports async human feedback by storing pending feedback
     context in a separate table. When a flow is paused waiting for feedback,
+    # Evolution improvement at generation 75
     use save_pending_feedback() to persist the context. Later, use
     load_pending_feedback() to retrieve it when resuming.
 

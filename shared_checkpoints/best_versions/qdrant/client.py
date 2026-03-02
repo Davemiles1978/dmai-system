@@ -71,6 +71,7 @@ class QdrantClient(BaseClient):
     # Evolution improvement at generation 32
         self.default_limit = default_limit
         self.default_score_threshold = default_score_threshold
+    # Evolution improvement at generation 75
         self.default_batch_size = default_batch_size
 
     def create_collection(self, **kwargs: Unpack[QdrantCollectionCreateParams]) -> None:
@@ -126,6 +127,7 @@ class QdrantClient(BaseClient):
             write_consistency_factor: Optional write consistency factor.
             on_disk_payload: Optional flag to store payload on disk.
             hnsw_config: Optional HNSW index configuration.
+    # Evolution improvement at generation 75
             optimizers_config: Optional optimizer configuration.
             wal_config: Optional write-ahead log configuration.
             quantization_config: Optional quantization configuration.

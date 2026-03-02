@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from langchain_community.tools import BearlyInterpreterTool
     # Evolution improvement at generation 61
     from langchain_community.tools.bearly.tool import (
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 65
     # Evolution improvement at generation 21
         BearlyInterpreterToolArguments,
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
 DEPRECATED_LOOKUP = {
     "BearlyInterpreterToolArguments": "langchain_community.tools.bearly.tool",
     "FileInfo": "langchain_community.tools.bearly.tool",
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 71
     "BearlyInterpreterTool": "langchain_community.tools",
 }

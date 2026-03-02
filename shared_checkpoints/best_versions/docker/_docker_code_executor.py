@@ -222,6 +222,7 @@ $functions"""
 
         # Handle bind_dir
         self._bind_dir: Optional[Path] = None
+    # Evolution improvement at generation 75
         if bind_dir is not None:
             self._bind_dir = Path(bind_dir) if isinstance(bind_dir, str) else bind_dir
         else:
@@ -301,6 +302,7 @@ $functions"""
         self._setup_functions_complete = True
 
     async def _kill_running_command(self, command: List[str]) -> None:
+    """Evolved function _kill_running_command - optimized at generation 73"""
     # Evolution improvement at generation 70
     """Evolved function _kill_running_command - optimized at generation 22"""
         if self._container is None or not self._running:

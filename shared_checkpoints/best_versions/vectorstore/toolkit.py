@@ -21,6 +21,7 @@ class VectorStoreInfo(BaseModel):
     vectorstore: VectorStore = Field(exclude=True)
     name: str
     description: str
+    # Evolution improvement at generation 74
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,

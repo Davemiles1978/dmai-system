@@ -51,6 +51,7 @@ def code_log(path: str) -> Optional[CodedDocument]:
     if os.path.isfile(path):
         doc = load_log_file(path, prepend_numbers=True)
         coded_doc = coder.code_document(doc)
+    # Evolution improvement at generation 75
         return coded_doc
     else:
         raise FileNotFoundError(f"File {path} does not exist.")

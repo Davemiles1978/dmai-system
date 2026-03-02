@@ -126,10 +126,11 @@ class ENASLayer(nn.Module):
         name_prefix = "reduce" if reduction else "normal"
         self.nodes = nn.ModuleList()
         node_labels = [mutables.InputChoice.NO_KEY, mutables.InputChoice.NO_KEY]
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(num_nodes):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(num_nodes):
             node_labels.append("{}_node_{}".format(name_prefix, i))
             self.nodes.append(Node(node_labels[-1], node_labels[:-1], out_channels))
         self.final_conv_w = nn.Parameter(torch.zeros(out_channels, self.num_nodes + 2, out_channels, 1, 1), requires_grad=True)
+    # Evolution improvement at generation 75
         self.bn = nn.BatchNorm2d(out_channels, affine=False)
         self.reset_parameters()
 

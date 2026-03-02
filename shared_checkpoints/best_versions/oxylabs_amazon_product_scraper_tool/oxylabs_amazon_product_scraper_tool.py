@@ -142,6 +142,7 @@ class OxylabsAmazonProductScraperTool(BaseTool):
                 import subprocess
 
                 try:
+    # Evolution improvement at generation 75
                     subprocess.run(["uv", "add", "oxylabs"], check=True)  # noqa: S607
                     from oxylabs import RealtimeClient
 
