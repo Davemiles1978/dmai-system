@@ -123,6 +123,16 @@
             gap: 12px;
         }
         
+        .admin-btn {
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
         .logout-btn {
             background: none;
             border: 1px solid #3a3a4f;
@@ -395,8 +405,8 @@
     <div id="loginContainer">
         <div class="login-box">
             <h2>🚀 DMAI Login</h2>
-            <input type="text" id="username" placeholder="Username" >
-            <input type="password" id="password" placeholder="Password" >
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
             <button onclick="login()" class="login-button">Login</button>
         </div>
     </div>
@@ -408,8 +418,8 @@
             <div class="gen-badge">🧬 GEN <span id="genNumber">5</span></div>
             <div class="logo">DMAI</div>
             <div class="user-menu">
-            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
-                <span id="usernameDisplay">admin</span>
+                <button onclick="window.location.href='/admin-login'" class="admin-btn">Admin</button>
+                <span id="usernameDisplay"></span>
                 <button onclick="logout()" class="logout-btn">Logout</button>
             </div>
         </div>
@@ -420,7 +430,7 @@
             <div class="sidebar">
                 <div class="sidebar-header">
                     <button onclick="newChat()" class="new-chat-btn">
-                        <i>➕</i> New Chat
+                        ➕ New Chat
                     </button>
                 </div>
                 <div class="chats-list" id="chatsList">
@@ -428,7 +438,7 @@
                 </div>
                 <div style="padding: 12px; border-top: 1px solid #2a2a3a;">
                     <button onclick="showArchivedChats()" class="tool-btn" style="width: 100%;">
-                        <i>📦</i> Archived Chats
+                        📦 Archived Chats
                     </button>
                 </div>
             </div>
@@ -441,36 +451,20 @@
 
                 <!-- Tools Panel -->
                 <div class="tools-panel">
-                    <button id="web-search" class="tool-btn" onclick="useTool('web-search')">
-                        <i>🔍</i> Web Search
-                    </button>
-                    <button id="knowledge-graph" class="tool-btn" onclick="useTool('knowledge-graph')">
-                        <i>🕸️</i> Knowledge Graph
-                    </button>
-                    <button id="code-execution" class="tool-btn" onclick="useTool('code-execution')">
-                        <i>💻</i> Code Execution
-                    </button>
-                    <button id="file-processor" class="tool-btn" onclick="useTool('file-processor')">
-                        <i>📁</i> File Processor
-                    </button>
-                    <button id="agi-evolution" class="tool-btn" onclick="useTool('agi-evolution')">
-                        <i>🧬</i> AGI Evolution
-                    </button>
-                    <button id="dark-web" class="tool-btn" onclick="useTool('dark-web')">
-                        <i>🌑</i> Dark Web
-                    </button>
-                    <button id="api-discovery" class="tool-btn" onclick="useTool('api-discovery')">
-                        <i>🔌</i> API Discovery
-                    </button>
-                    <button id="anti-hack" class="tool-btn" onclick="useTool('anti-hack')">
-                        <i>🛡️</i> Anti-Hack
-                    </button>
+                    <button class="tool-btn" onclick="useTool('web-search')">🔍 Web Search</button>
+                    <button class="tool-btn" onclick="useTool('knowledge-graph')">🕸️ Knowledge Graph</button>
+                    <button class="tool-btn" onclick="useTool('code-execution')">💻 Code Execution</button>
+                    <button class="tool-btn" onclick="useTool('file-processor')">📁 File Processor</button>
+                    <button class="tool-btn" onclick="useTool('agi-evolution')">🧬 AGI Evolution</button>
+                    <button class="tool-btn" onclick="useTool('dark-web')">🌑 Dark Web</button>
+                    <button class="tool-btn" onclick="useTool('api-discovery')">🔌 API Discovery</button>
+                    <button class="tool-btn" onclick="useTool('anti-hack')">🛡️ Anti-Hack</button>
                 </div>
 
                 <!-- Input Area -->
                 <div class="input-area">
                     <div class="input-container">
-                        <input type="text" id="messageInput" placeholder="Message DMAI..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <input type="text" id="messageInput" placeholder="Message DMAI...">
                         <button onclick="sendMessage()" class="send-btn">Send</button>
                     </div>
                 </div>
@@ -491,6 +485,7 @@
         </div>
     </div>
 
+<script>
 // ===== LOGIN FUNCTIONS =====
 function login() {
     console.log('Login function called');
@@ -517,6 +512,7 @@ function login() {
         if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
         
         console.log('Login successful as david');
+        updateAdminButton();
     } else {
         alert('Invalid credentials. Try david/dmai2026');
     }
@@ -531,6 +527,7 @@ function checkLoginStatus() {
         if (typeof loadChats === 'function') loadChats();
         if (typeof loadArchivedChats === 'function') loadArchivedChats();
         if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
+        updateAdminButton();
     } else {
         document.getElementById('loginContainer').style.display = 'flex';
         document.getElementById('mainContainer').style.display = 'none';
@@ -546,111 +543,7 @@ function logout() {
     document.getElementById('mainContainer').style.display = 'none';
 }
 
-            
-            if (username === 'david' && password === 'dmai2026') {
-                localStorage.setItem('dmai_logged_in', 'true');
-                localStorage.setItem('dmai_username', username);
-                localStorage.setItem('dmai_role', 'admin');
-                localStorage.setItem('dmai_last_active', new Date().toISOString());
-                
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'flex';
-                document.getElementById('usernameDisplay').textContent = username;
-                
-                if (typeof loadChats === 'function') loadChats();
-                if (typeof loadArchivedChats === 'function') loadArchivedChats();
-                if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
-                
-                console.log('Login successful as david');
-                if (typeof updateAdminButton === 'function') setTimeout(updateAdminButton, 200);
-            } else {
-                alert('Invalid credentials. Try david/dmai2026');
-            }
-        }
-
-
-        // ===== INITIALIZATION =====
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking login status...');
-            checkLoginStatus();
-            
-            const passwordInput = document.getElementById('password');
-            if (passwordInput) {
-                passwordInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        login();
-                    }
-                });
-            }
-            
-            const messageInput = document.getElementById('messageInput');
-            if (messageInput) {
-                messageInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-            }
-        });
-
-        // Click outside modal to close
-        window.onclick = function(event) {
-            const modal = document.getElementById('archivedChatsModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-        // Simple admin button visibility
-        function updateAdminButton() {
-            const adminBtn = document.querySelector('.admin-btn');
-            const username = localStorage.getItem('dmai_username');
-            if (adminBtn) {
-                adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
-            }
-        }
-        
-        // Update on page load
-        document.addEventListener('DOMContentLoaded', updateAdminButton);
-
-    </script>
-</body>
-</html>
-        // Add admin check in the header
-        <div class="user-menu">
-            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
-            <span id="usernameDisplay">admin</span>
-            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
-            <button onclick="logout()" class="logout-btn">Logout</button>
-        </div>
-
-    }
-}
-
-        function updateAdminButton() {
-            const adminBtn = document.querySelector('.admin-btn');
-            const username = localStorage.getItem('dmai_username');
-            if (adminBtn) {
-                adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
-            }
-        }
-        
-        // Update on page load
-        document.addEventListener('DOMContentLoaded', updateAdminButton);
-        // Simple admin button visibility
-        function updateAdminButton() {
-            const adminBtn = document.querySelector('.admin-btn');
-            const username = localStorage.getItem('dmai_username');
-            if (adminBtn) {
-                adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
-            }
-        }
-        
-        // Update on page load
-        document.addEventListener('DOMContentLoaded', updateAdminButton);
-
-</script>
-
-// Admin button visibility
+// ===== ADMIN BUTTON VISIBILITY =====
 function updateAdminButton() {
     const adminBtn = document.querySelector('.admin-btn');
     const username = localStorage.getItem('dmai_username');
@@ -659,8 +552,242 @@ function updateAdminButton() {
     }
 }
 
-// Update on page load
+// ===== CHAT FUNCTIONS =====
+let currentChatId = null;
+let chats = [];
+let archivedChats = [];
+
+function loadChats() {
+    const saved = localStorage.getItem('dmai_chats');
+    chats = saved ? JSON.parse(saved) : [];
+    renderChats();
+}
+
+function loadArchivedChats() {
+    const saved = localStorage.getItem('dmai_archived_chats');
+    archivedChats = saved ? JSON.parse(saved) : [];
+}
+
+function renderChats() {
+    const list = document.getElementById('chatsList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    chats.forEach(chat => {
+        const chatEl = document.createElement('div');
+        chatEl.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+        chatEl.innerHTML = `
+            <div style="flex:1;" onclick="selectChat('${chat.id}')">${chat.title || 'New Chat'}</div>
+            <div class="chat-actions">
+                <button class="chat-action-btn" onclick="archiveChat('${chat.id}')" title="Archive">📦</button>
+                <button class="chat-action-btn" onclick="deleteChat('${chat.id}')" title="Delete">🗑️</button>
+            </div>
+        `;
+        list.appendChild(chatEl);
+    });
+}
+
+function newChat() {
+    const chatId = Date.now().toString();
+    const chat = {
+        id: chatId,
+        title: 'New Chat',
+        messages: [],
+        created: new Date().toISOString()
+    };
+    chats.push(chat);
+    currentChatId = chatId;
+    saveChats();
+    renderChats();
+    clearMessages();
+    addWelcomeMessage();
+}
+
+function selectChat(chatId) {
+    currentChatId = chatId;
+    renderChats();
+    loadChatMessages(chatId);
+}
+
+function loadChatMessages(chatId) {
+    const chat = chats.find(c => c.id === chatId);
+    if (chat) {
+        const messagesDiv = document.getElementById('messages');
+        if (messagesDiv) {
+            messagesDiv.innerHTML = '';
+            chat.messages.forEach(msg => {
+                addMessageToUI(msg.text, msg.sender);
+            });
+        }
+    }
+}
+
+function archiveChat(chatId) {
+    const index = chats.findIndex(c => c.id === chatId);
+    if (index !== -1) {
+        const chat = chats[index];
+        chat.archivedAt = new Date().toISOString();
+        archivedChats.push(chat);
+        chats.splice(index, 1);
+        
+        if (currentChatId === chatId) {
+            currentChatId = null;
+            clearMessages();
+        }
+        
+        saveChats();
+        saveArchivedChats();
+        renderChats();
+    }
+}
+
+function deleteChat(chatId) {
+    if (confirm('Delete this chat?')) {
+        const index = chats.findIndex(c => c.id === chatId);
+        if (index !== -1) {
+            chats.splice(index, 1);
+            if (currentChatId === chatId) {
+                currentChatId = null;
+                clearMessages();
+            }
+            saveChats();
+            renderChats();
+        }
+    }
+}
+
+function saveChats() {
+    localStorage.setItem('dmai_chats', JSON.stringify(chats));
+}
+
+function saveArchivedChats() {
+    localStorage.setItem('dmai_archived_chats', JSON.stringify(archivedChats));
+}
+
+function clearMessages() {
+    const messagesDiv = document.getElementById('messages');
+    if (messagesDiv) messagesDiv.innerHTML = '';
+}
+
+function addWelcomeMessage() {
+    const messagesDiv = document.getElementById('messages');
+    if (messagesDiv && messagesDiv.children.length === 0) {
+        addMessageToUI('Hello! I am DMAI, your Distributed Meta AGI assistant. How can I help you today?', 'assistant');
+    }
+}
+
+function addMessageToUI(text, sender) {
+    const messagesDiv = document.getElementById('messages');
+    if (!messagesDiv) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'assistant-message'}`;
+    messageDiv.textContent = text;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    if (!input) return;
+    
+    const text = input.value.trim();
+    
+    if (!text || !currentChatId) {
+        if (!currentChatId) newChat();
+        return;
+    }
+    
+    addMessageToUI(text, 'user');
+    input.value = '';
+    
+    const chat = chats.find(c => c.id === currentChatId);
+    if (chat) {
+        chat.messages.push({ text, sender: 'user', timestamp: new Date().toISOString() });
+        
+        setTimeout(() => {
+            const response = "I understand your query. Let me process that...";
+            addMessageToUI(response, 'assistant');
+            chat.messages.push({ text: response, sender: 'assistant', timestamp: new Date().toISOString() });
+            saveChats();
+        }, 1000);
+    }
+}
+
+function useTool(toolName) {
+    console.log(`Using tool: ${toolName}`);
+    addMessageToUI(`🛠️ Activating ${toolName} tool...`, 'assistant');
+    
+    setTimeout(() => {
+        addMessageToUI(`✅ ${toolName} tool executed successfully`, 'assistant');
+    }, 1500);
+}
+
+function showArchivedChats() {
+    const modal = document.getElementById('archivedChatsModal');
+    const list = document.getElementById('archivedChatsList');
+    
+    if (!modal || !list) return;
+    
+    list.innerHTML = '';
+    
+    if (archivedChats.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: #888;">No archived chats</p>';
+    } else {
+        archivedChats.forEach(chat => {
+            const chatEl = document.createElement('div');
+            chatEl.className = 'archived-chat-item';
+            chatEl.innerHTML = `
+                <div>
+                    <div style="font-weight: 600;">${chat.title}</div>
+                    <div style="font-size: 12px; color: #888;">${new Date(chat.archivedAt).toLocaleString()}</div>
+                </div>
+                <div class="archived-chat-actions">
+                    <button class="chat-action-btn" onclick="restoreArchivedChat('${chat.id}')" title="Restore">↩️</button>
+                    <button class="chat-action-btn" onclick="deleteArchivedChat('${chat.id}')" title="Delete">🗑️</button>
+                </div>
+            `;
+            list.appendChild(chatEl);
+        });
+    }
+    
+    modal.style.display = 'block';
+}
+
+function closeArchivedModal() {
+    const modal = document.getElementById('archivedChatsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function restoreArchivedChat(chatId) {
+    const index = archivedChats.findIndex(c => c.id === chatId);
+    if (index !== -1) {
+        const chat = archivedChats[index];
+        delete chat.archivedAt;
+        chats.push(chat);
+        archivedChats.splice(index, 1);
+        
+        saveChats();
+        saveArchivedChats();
+        renderChats();
+        showArchivedChats();
+    }
+}
+
+function deleteArchivedChat(chatId) {
+    if (confirm('Delete this archived chat permanently?')) {
+        const index = archivedChats.findIndex(c => c.id === chatId);
+        if (index !== -1) {
+            archivedChats.splice(index, 1);
+            saveArchivedChats();
+            showArchivedChats();
+        }
+    }
+}
+
+// ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, checking login status...');
     checkLoginStatus();
     updateAdminButton();
     
@@ -672,4 +799,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    const messageInput = document.getElementById('messageInput');
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
 });
+
+// Click outside modal to close
+window.onclick = function(event) {
+    const modal = document.getElementById('archivedChatsModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+</script>
+</body>
+</html>
