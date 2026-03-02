@@ -395,10 +395,9 @@
     <div id="loginContainer">
         <div class="login-box">
             <h2>🚀 DMAI Login</h2>
-            <input type="text" id="username" placeholder="Username" value="admin">
-            <input type="password" id="password" placeholder="Password" value="password">
+            <input type="text" id="username" placeholder="Username" >
+            <input type="password" id="password" placeholder="Password" >
             <button onclick="login()" class="login-button">Login</button>
-            <p style="color: #888; margin-top: 10px; font-size: 12px;">Default: admin/password</p>
         </div>
     </div>
 
@@ -406,7 +405,7 @@
     <div id="mainContainer">
         <!-- Header -->
         <div class="header">
-            <div class="gen-badge">🔮 GEN <span id="genNumber">5</span></div>
+            <div class="gen-badge">🧬 GEN <span id="genNumber">5</span></div>
             <div class="logo">DMAI</div>
             <div class="user-menu">
             <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
@@ -492,45 +491,63 @@
         </div>
     </div>
 
-    <script>
-        // ===== LOGIN FUNCTIONS =====
-        function login() {
-            console.log('Login function called');
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            if (!username || !password) {
-                alert('Please enter username and password');
-                return;
-            }
-            
-    } else if (username === "david" && password === "dmai2026") {
-        localStorage.setItem("dmai_logged_in", "true");
-        localStorage.setItem("dmai_username", username);
-        localStorage.setItem("dmai_role", "user");
-        localStorage.setItem("dmai_last_active", new Date().toISOString());
-        document.getElementById("loginContainer").style.display = "none";
-        document.getElementById("mainContainer").style.display = "flex";
-        document.getElementById("usernameDisplay").textContent = username;
-        if (typeof loadChats === "function") loadChats();
-        if (typeof loadArchivedChats === "function") loadArchivedChats();
-        if (typeof addWelcomeMessage === "function") addWelcomeMessage();
-        console.log("Login successful as david");
+// ===== LOGIN FUNCTIONS =====
+function login() {
+    console.log('Login function called');
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+        alert('Please enter username and password');
+        return;
+    }
+    
+    if (username === 'david' && password === 'dmai2026') {
+        localStorage.setItem('dmai_logged_in', 'true');
+        localStorage.setItem('dmai_username', username);
+        localStorage.setItem('dmai_role', 'admin');
+        localStorage.setItem('dmai_last_active', new Date().toISOString());
+        
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'flex';
+        document.getElementById('usernameDisplay').textContent = username;
+        
+        if (typeof loadChats === 'function') loadChats();
+        if (typeof loadArchivedChats === 'function') loadArchivedChats();
+        if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
+        
+        console.log('Login successful as david');
+    } else {
+        alert('Invalid credentials. Try david/dmai2026');
+    }
+}
 
-    } else if (username === "david" && password === "dmai2026") {
-        localStorage.setItem("dmai_logged_in", "true");
-        localStorage.setItem("dmai_username", username);
-        localStorage.setItem("dmai_role", "user");
-        localStorage.setItem("dmai_last_active", new Date().toISOString());
-        document.getElementById("loginContainer").style.display = "none";
-        document.getElementById("mainContainer").style.display = "flex";
-        document.getElementById("usernameDisplay").textContent = username;
-        if (typeof loadChats === "function") loadChats();
-        if (typeof loadArchivedChats === "function") loadArchivedChats();
-        if (typeof addWelcomeMessage === "function") addWelcomeMessage();
-        console.log("Login successful as david");
+function checkLoginStatus() {
+    const isLoggedIn = localStorage.getItem('dmai_logged_in') === 'true';
+    if (isLoggedIn) {
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'flex';
+        document.getElementById('usernameDisplay').textContent = localStorage.getItem('dmai_username') || 'david';
+        if (typeof loadChats === 'function') loadChats();
+        if (typeof loadArchivedChats === 'function') loadArchivedChats();
+        if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
+    } else {
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('mainContainer').style.display = 'none';
+    }
+}
 
-            if (username === 'admin' && password === 'password') {
+function logout() {
+    localStorage.removeItem('dmai_logged_in');
+    localStorage.removeItem('dmai_username');
+    localStorage.removeItem('dmai_role');
+    localStorage.removeItem('dmai_last_active');
+    document.getElementById('loginContainer').style.display = 'flex';
+    document.getElementById('mainContainer').style.display = 'none';
+}
+
+            
+            if (username === 'david' && password === 'dmai2026') {
                 localStorage.setItem('dmai_logged_in', 'true');
                 localStorage.setItem('dmai_username', username);
                 localStorage.setItem('dmai_role', 'admin');
@@ -544,272 +561,13 @@
                 if (typeof loadArchivedChats === 'function') loadArchivedChats();
                 if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
                 
-                console.log('Login successful');
+                console.log('Login successful as david');
+                if (typeof updateAdminButton === 'function') setTimeout(updateAdminButton, 200);
             } else {
-                alert('Invalid credentials. Try admin/password');
+                alert('Invalid credentials. Try david/dmai2026');
             }
         }
 
-        function checkLoginStatus() {
-            const isLoggedIn = localStorage.getItem('dmai_logged_in') === 'true';
-            if (isLoggedIn) {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'flex';
-                document.getElementById('usernameDisplay').textContent = localStorage.getItem('dmai_username') || 'admin';
-                if (typeof loadChats === 'function') loadChats();
-                if (typeof loadArchivedChats === 'function') loadArchivedChats();
-                if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
-            } else {
-                document.getElementById('loginContainer').style.display = 'flex';
-                document.getElementById('mainContainer').style.display = 'none';
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('dmai_logged_in');
-            localStorage.removeItem('dmai_username');
-            localStorage.removeItem('dmai_role');
-            localStorage.removeItem('dmai_last_active');
-            document.getElementById('loginContainer').style.display = 'flex';
-            document.getElementById('mainContainer').style.display = 'none';
-        }
-
-        // ===== CHAT FUNCTIONS =====
-        let currentChatId = null;
-        let chats = [];
-        let archivedChats = [];
-
-        function loadChats() {
-            const saved = localStorage.getItem('dmai_chats');
-            chats = saved ? JSON.parse(saved) : [];
-            renderChats();
-        }
-
-        function loadArchivedChats() {
-            const saved = localStorage.getItem('dmai_archived_chats');
-            archivedChats = saved ? JSON.parse(saved) : [];
-        }
-
-        function renderChats() {
-            const list = document.getElementById('chatsList');
-            if (!list) return;
-            
-            list.innerHTML = '';
-            
-            chats.forEach(chat => {
-                const chatEl = document.createElement('div');
-                chatEl.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
-                chatEl.innerHTML = `
-                    <div style="flex:1;" onclick="selectChat('${chat.id}')">${chat.title || 'New Chat'}</div>
-                    <div class="chat-actions">
-                        <button class="chat-action-btn" onclick="archiveChat('${chat.id}')" title="Archive">📦</button>
-                        <button class="chat-action-btn" onclick="deleteChat('${chat.id}')" title="Delete">🗑️</button>
-                    </div>
-                `;
-                list.appendChild(chatEl);
-            });
-        }
-
-        function newChat() {
-            const chatId = Date.now().toString();
-            const chat = {
-                id: chatId,
-                title: 'New Chat',
-                messages: [],
-                created: new Date().toISOString()
-            };
-            chats.push(chat);
-            currentChatId = chatId;
-            saveChats();
-            renderChats();
-            clearMessages();
-            addWelcomeMessage();
-        }
-
-        function selectChat(chatId) {
-            currentChatId = chatId;
-            renderChats();
-            loadChatMessages(chatId);
-        }
-
-        function loadChatMessages(chatId) {
-            const chat = chats.find(c => c.id === chatId);
-            if (chat) {
-                const messagesDiv = document.getElementById('messages');
-                if (messagesDiv) {
-                    messagesDiv.innerHTML = '';
-                    chat.messages.forEach(msg => {
-                        addMessageToUI(msg.text, msg.sender);
-                    });
-                }
-            }
-        }
-
-        function archiveChat(chatId) {
-            const index = chats.findIndex(c => c.id === chatId);
-            if (index !== -1) {
-                const chat = chats[index];
-                chat.archivedAt = new Date().toISOString();
-                archivedChats.push(chat);
-                chats.splice(index, 1);
-                
-                if (currentChatId === chatId) {
-                    currentChatId = null;
-                    clearMessages();
-                }
-                
-                saveChats();
-                saveArchivedChats();
-                renderChats();
-            }
-        }
-
-        function deleteChat(chatId) {
-            if (confirm('Delete this chat?')) {
-                const index = chats.findIndex(c => c.id === chatId);
-                if (index !== -1) {
-                    chats.splice(index, 1);
-                    if (currentChatId === chatId) {
-                        currentChatId = null;
-                        clearMessages();
-                    }
-                    saveChats();
-                    renderChats();
-                }
-            }
-        }
-
-        function saveChats() {
-            localStorage.setItem('dmai_chats', JSON.stringify(chats));
-        }
-
-        function saveArchivedChats() {
-            localStorage.setItem('dmai_archived_chats', JSON.stringify(archivedChats));
-        }
-
-        function clearMessages() {
-            const messagesDiv = document.getElementById('messages');
-            if (messagesDiv) messagesDiv.innerHTML = '';
-        }
-
-        // ===== MESSAGE FUNCTIONS =====
-        function addWelcomeMessage() {
-            const messagesDiv = document.getElementById('messages');
-            if (messagesDiv && messagesDiv.children.length === 0) {
-                addMessageToUI('Hello! I am DMAI, your Distributed Meta AGI assistant. How can I help you today?', 'assistant');
-            }
-        }
-
-        function addMessageToUI(text, sender) {
-            const messagesDiv = document.getElementById('messages');
-            if (!messagesDiv) return;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'assistant-message'}`;
-            messageDiv.textContent = text;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            if (!input) return;
-            
-            const text = input.value.trim();
-            
-            if (!text || !currentChatId) {
-                if (!currentChatId) newChat();
-                return;
-            }
-            
-            addMessageToUI(text, 'user');
-            input.value = '';
-            
-            const chat = chats.find(c => c.id === currentChatId);
-            if (chat) {
-                chat.messages.push({ text, sender: 'user', timestamp: new Date().toISOString() });
-                
-                setTimeout(() => {
-                    const response = "I understand your query. Let me process that...";
-                    addMessageToUI(response, 'assistant');
-                    chat.messages.push({ text: response, sender: 'assistant', timestamp: new Date().toISOString() });
-                    saveChats();
-                }, 1000);
-            }
-        }
-
-        // ===== TOOL FUNCTIONS =====
-        function useTool(toolName) {
-            console.log(`Using tool: ${toolName}`);
-            addMessageToUI(`🛠️ Activating ${toolName} tool...`, 'assistant');
-            
-            setTimeout(() => {
-                addMessageToUI(`✅ ${toolName} tool executed successfully`, 'assistant');
-            }, 1500);
-        }
-
-        // ===== ARCHIVED MODAL FUNCTIONS =====
-        function showArchivedChats() {
-            const modal = document.getElementById('archivedChatsModal');
-            const list = document.getElementById('archivedChatsList');
-            
-            if (!modal || !list) return;
-            
-            list.innerHTML = '';
-            
-            if (archivedChats.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #888;">No archived chats</p>';
-            } else {
-                archivedChats.forEach(chat => {
-                    const chatEl = document.createElement('div');
-                    chatEl.className = 'archived-chat-item';
-                    chatEl.innerHTML = `
-                        <div>
-                            <div style="font-weight: 600;">${chat.title}</div>
-                            <div style="font-size: 12px; color: #888;">${new Date(chat.archivedAt).toLocaleString()}</div>
-                        </div>
-                        <div class="archived-chat-actions">
-                            <button class="chat-action-btn" onclick="restoreArchivedChat('${chat.id}')" title="Restore">↩️</button>
-                            <button class="chat-action-btn" onclick="deleteArchivedChat('${chat.id}')" title="Delete">🗑️</button>
-                        </div>
-                    `;
-                    list.appendChild(chatEl);
-                });
-            }
-            
-            modal.style.display = 'block';
-        }
-
-        function closeArchivedModal() {
-            const modal = document.getElementById('archivedChatsModal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        function restoreArchivedChat(chatId) {
-            const index = archivedChats.findIndex(c => c.id === chatId);
-            if (index !== -1) {
-                const chat = archivedChats[index];
-                delete chat.archivedAt;
-                chats.push(chat);
-                archivedChats.splice(index, 1);
-                
-                saveChats();
-                saveArchivedChats();
-                renderChats();
-                showArchivedChats();
-            }
-        }
-
-        function deleteArchivedChat(chatId) {
-            if (confirm('Delete this archived chat permanently?')) {
-                const index = archivedChats.findIndex(c => c.id === chatId);
-                if (index !== -1) {
-                    archivedChats.splice(index, 1);
-                    saveArchivedChats();
-                    showArchivedChats();
-                }
-            }
-        }
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', function() {
@@ -842,6 +600,18 @@
                 modal.style.display = 'none';
             }
         };
+        // Simple admin button visibility
+        function updateAdminButton() {
+            const adminBtn = document.querySelector('.admin-btn');
+            const username = localStorage.getItem('dmai_username');
+            if (adminBtn) {
+                adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
+            }
+        }
+        
+        // Update on page load
+        document.addEventListener('DOMContentLoaded', updateAdminButton);
+
     </script>
 </body>
 </html>
@@ -853,30 +623,53 @@
             <button onclick="logout()" class="logout-btn">Logout</button>
         </div>
 
-<script>
-// Update admin button visibility based on login
-function updateAdminButton() {
-    const adminBtn = document.querySelector('.admin-btn');
-    const username = localStorage.getItem('dmai_username');
-    
-    if (adminBtn) {
-        if (username === 'david') {
-            adminBtn.style.display = 'inline-block';
-        } else {
-            adminBtn.style.display = 'none';
-        }
     }
 }
 
-// Override login to update button
-const originalLogin = window.login;
-window.login = function() {
-    originalLogin();
-    setTimeout(updateAdminButton, 100);
+        function updateAdminButton() {
+            const adminBtn = document.querySelector('.admin-btn');
+            const username = localStorage.getItem('dmai_username');
+            if (adminBtn) {
+                adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
+            }
+        }
+        
+        // Update on page load
+        document.addEventListener('DOMContentLoaded', updateAdminButton);
+        // Simple admin button visibility
+        function updateAdminButton() {
+            const adminBtn = document.querySelector('.admin-btn');
+            const username = localStorage.getItem('dmai_username');
+            if (adminBtn) {
+                adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
+            }
+        }
+        
+        // Update on page load
+        document.addEventListener('DOMContentLoaded', updateAdminButton);
+
+</script>
+
+// Admin button visibility
+function updateAdminButton() {
+    const adminBtn = document.querySelector('.admin-btn');
+    const username = localStorage.getItem('dmai_username');
+    if (adminBtn) {
+        adminBtn.style.display = (username === 'david') ? 'inline-block' : 'none';
+    }
 }
 
 // Update on page load
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(updateAdminButton, 100);
+    checkLoginStatus();
+    updateAdminButton();
+    
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    }
 });
-</script>
