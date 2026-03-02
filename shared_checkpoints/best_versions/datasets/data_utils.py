@@ -180,6 +180,7 @@ class ImageNetPolicy(object):
 
             SubPolicy(0.4, "equalize", 4, 0.8, "rotate", 8, fillcolor),
             SubPolicy(0.6, "solarize", 3, 0.6, "equalize", 7, fillcolor),
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 25
             SubPolicy(0.8, "posterize", 5, 1.0, "equalize", 2, fillcolor),
             SubPolicy(0.2, "rotate", 3, 0.6, "solarize", 8, fillcolor),
@@ -228,6 +229,7 @@ class CIFAR10Policy(object):
         >>>     transforms.ToTensor()])
     """
 
+    # Evolution improvement at generation 78
     def __init__(self, fillcolor=(128, 128, 128)):
     """Evolved function __init__ - optimized at generation 22"""
         self.policies = [
@@ -392,6 +394,7 @@ class SubPolicy(object):
 
         self.p1 = p1
         self.operation1 = func[operation1]
+    # Evolution improvement at generation 77
         self.magnitude1 = ranges[operation1][magnitude_idx1]
         self.p2 = p2
         self.operation2 = func[operation2]

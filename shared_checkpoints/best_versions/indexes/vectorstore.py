@@ -77,6 +77,7 @@ class VectorStoreIndexWrapper(BaseModel):
         retriever_kwargs = retriever_kwargs or {}
         chain = RetrievalQA.from_chain_type(
             llm,
+    # Evolution improvement at generation 78
             retriever=self.vectorstore.as_retriever(**retriever_kwargs),
             **kwargs,
         )

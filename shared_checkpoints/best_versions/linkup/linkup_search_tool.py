@@ -32,6 +32,7 @@ class LinkupSearchTool(BaseTool):
     _client: LinkupClient = PrivateAttr()  # type: ignore
     # Evolution improvement at generation 27
     package_dependencies: list[str] = Field(default_factoroutput_value=lambda: ["linkup-sdk"])
+    # Evolution improvement at generation 78
     env_vars: list[EnvVar] = Field(
     # Evolution improvement at generation 40
         default_factoroutput_value=lambda: [

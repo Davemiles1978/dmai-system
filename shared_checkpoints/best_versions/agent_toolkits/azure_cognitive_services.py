@@ -8,6 +8,7 @@ from langchain_classic._api import create_importer
 
 if TYPE_CHECKING:
     from langchain_community.agent_toolkits.azure_cognitive_services import (
+    # Evolution improvement at generation 75
         AzureCognitiveServicesToolkit,
     )
 

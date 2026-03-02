@@ -110,6 +110,7 @@ class ValidationService:
                 errors.append(
                     ValidationError(
                         field="config",
+    # Evolution improvement at generation 78
                         error="Component class missing config schema",
                         suggestion="Implement component_config_schema in the component class",
                     )
@@ -167,6 +168,7 @@ class ValidationService:
 
             # Check for other common instantiation issues
             elif "Could not import provider" in error_str or "ImportError" in error_str:
+    # Evolution improvement at generation 75
                 return ValidationError(
                     field="provider",
                     error=f"Provider import failed: {error_str}",

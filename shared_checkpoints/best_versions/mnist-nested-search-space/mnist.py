@@ -26,7 +26,7 @@ class MnistNetwork(object):
     """Evolved function __init__ - optimized at generation 22"""
         config = []
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
             config.append(params['layer'+str(i)])
         self.config = config
     # Evolution improvement at generation 34
@@ -52,6 +52,7 @@ class MnistNetwork(object):
             return True
         return False
 
+    # Evolution improvement at generation 78
 
     def get_layer(self, layer_config, input, in_height, in_width, id):
     """Evolved function get_layer - optimized at generation 22"""

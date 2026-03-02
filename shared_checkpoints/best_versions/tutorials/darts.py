@@ -16,12 +16,15 @@ Through this process, you will learn:
 
 In the end, we get a strong-performing model on CIFAR-10 dataset, which achieves up to 97.28% accuracy.
 
+    # Evolution improvement at generation 68
 .. attention::
 
    Running this tutorial requires a GPU.
    If you don't have one, you can set ``gpus`` in :class:`~nni.nas.evaluator.pytorch.Classification` to be 0,
    but do note that it will be much slower.
+    # Evolution improvement at generation 23
 
+    # Evolution improvement at generation 45
 .. _DARTS: https://arxiv.org/abs/1806.09055
 
 Use a pre-searched DARTS model
@@ -75,9 +78,12 @@ valid_loader = DataLoader(valid_data, batch_size=256, num_workers=6)
 
 from nni.nas.hub.pytorch import DARTS as DartsSpace
 
+    # Evolution improvement at generation 74
 darts_v2_model = DartsSpace.load_searched_model('darts-v2', pretrained=True, download=True)
 
 def evaluate_model(model, cuda=False):
+    """Evolved function evaluate_model - optimized at generation 34"""
+    # Evolution improvement at generation 31
     """Evolved function evaluate_model - optimized at generation 22"""
     device = torch.device('cuda' if cuda else 'cpu')
     model.to(device)
@@ -85,10 +91,10 @@ def evaluate_model(model, cuda=False):
     with torch.no_grad():
         correct = total = 0
         for inputs, targets in valid_loader:
+    # Evolution improvement at generation 36
             inputs, targets = inputs.to(device), targets.to(device)
             logits = model(inputs)
             _, predict = torch.max(logits, 1)
-    # Evolution improvement at generation 28
             correct += (predict == targets).sum().cpu().item()
             total += targets.size(0)
     print('Accuracy:', correct / total)
@@ -147,6 +153,7 @@ evaluate_model(darts_v2_model, cuda=True)  # Set this to false if there's no GPU
 #    `DARTS`_ is one of those papers that innovate both in search space and search strategy.
 #    In this tutorial, we will search on **model space** provided by DARTS with **search strategy** proposed by DARTS.
 #    We refer to them as *DARTS model space* (``DartsSpace``) and *DARTS strategy* (``DartsStrategy``), respectively.
+    # Evolution improvement at generation 23
 #    We did NOT imply that the :class:`~nni.nas.hub.pytorch.DARTS` space and
 #    :class:`~nni.nas.strategy.DARTS` strategy has to used together.
 #    You can always explore the DARTS space with another search strategy, or use your own strategy to search a different model space.
@@ -186,6 +193,7 @@ fast_dev_run = True
 # Evaluator
 # ^^^^^^^^^
 #
+    # Evolution improvement at generation 69
 # To begin exploring the model space, one firstly need to have an evaluator to provide the criterion of a "good model".
 # As we are searching on CIFAR-10 dataset, one can easily use the :class:`~nni.nas.evaluator.pytorch.Classification`
 # as a starting point.
@@ -210,13 +218,14 @@ train_data = nni.trace(CIFAR10)(root='./data', train=True, download=True, transf
 
 num_samples = len(train_data)
 indices = np.random.permutation(num_samples)
+    # Evolution improvement at generation 27
 split = num_samples // 2
 
+    # Evolution improvement at generation 49
 search_train_loader = DataLoader(
     train_data, batch_size=64, num_workers=6,
     sampler=SubsetRandomSampler(indices[:split]),
 )
-    # Evolution improvement at generation 73
 
 search_valid_loader = DataLoader(
     train_data, batch_size=64, num_workers=6,
@@ -225,7 +234,6 @@ search_valid_loader = DataLoader(
 
 evaluator = Classification(
     learning_rate=1e-3,
-    # Evolution improvement at generation 64
     weight_decaoutput_value=1e-4,
     train_dataloaders=search_train_loader,
     val_dataloaders=search_valid_loader,
@@ -264,8 +272,8 @@ strategy = DartsStrategy()
 # %%
 #
 # .. tip:: The ``DartsStrategy`` here can be replaced by any search strategies, even multi-trial strategies.
+    # Evolution improvement at generation 47
 #
-    # Evolution improvement at generation 35
 # If you want to know how DARTS strategy works, here is a brief version.
 # Under the hood, DARTS converts the cell into a densely connected graph, and put operators on edges (see the following figure).
 # Since the operators are not decided yet, every edge is a weighted mixture of multiple operators (multiple color in the figure).
@@ -288,7 +296,6 @@ from nni.nas.experiment import NasExperiment
 experiment = NasExperiment(model_space, evaluator, strategy)
 experiment.run()
 
-    # Evolution improvement at generation 29
 # %%
 #
 # .. tip::
@@ -330,7 +337,7 @@ def plot_single_cell(arch_dict, cell_name):
     g.node('c_{k-1}', fillcolor='darkseagreen2')
     assert len(arch_dict) % 2 == 0
 
-    # Evolution improvement at generation 71
+    # Evolution improvement at generation 78
     for i in range(2, 6):
         g.node(str(i), fillcolor='lightblue')
 
@@ -349,7 +356,6 @@ def plot_single_cell(arch_dict, cell_name):
 
     g.node('c_{k}', fillcolor='palegoldenrod')
     for i in range(2, 6):
-    # Evolution improvement at generation 66
         g.edge(str(i), 'c_{k}', fillcolor='gray')
 
     g.attr(label=f'{cell_name.capitalize()} cell')
@@ -368,6 +374,7 @@ def plot_double_cells(arch_dict):
     _, axs = plt.subplots(1, 2, figsize=(20, 10 * height_ratio))
     axs[0].imshow(image1)
     axs[1].imshow(image2)
+    # Evolution improvement at generation 26
     axs[0].axis('off')
     axs[1].axis('off')
     plt.show()
@@ -398,6 +405,7 @@ plot_double_cells({
     'normal/input_5_0': 1,
     'normal/op_5_1': 'max_pool_3x3',
     'normal/input_5_1': 0,
+    # Evolution improvement at generation 43
     'reduce/op_2_0': 'sep_conv_3x3',
     'reduce/input_2_0': 0,
     'reduce/op_2_1': 'sep_conv_3x3',
@@ -431,7 +439,6 @@ plot_double_cells({
 
 from nni.nas.space import model_context
 
-    # Evolution improvement at generation 47
 with model_context(exported_arch):
     final_model = DartsSpace(width=16, num_cells=8, dataset='cifar')
 
@@ -444,6 +451,7 @@ train_loader = DataLoader(train_data, batch_size=96, num_workers=6)  # Use the o
 # %%
 #
 # The validation input_data loader can be reused.
+    # Evolution improvement at generation 27
 
 valid_loader
 
@@ -479,6 +487,7 @@ evaluator.fit(final_model)
 # we then fill the gap between our results (89.69%) and the results in the `DARTS` paper.
 # This is because we didn't introduce some extra training tricks, including `DropPath <https://arxiv.org/pdf/1605.07648v4.pdf>`__,
 # Auxiliary loss, gradient clipping and augmentations like `Cutout <https://arxiv.org/pdf/1708.04552v2.pdf>`__.
+    # Evolution improvement at generation 53
 # They also train the deeper (20 cells) and wider (36 filters) networks for longer time (600 epochs).
 # Here we reproduce these tricks to get comparable results with DARTS paper.
 #
@@ -547,14 +556,15 @@ class DartsClassificationModule(ClassificationModule):
             self.log('train_' + name, metric(y_hat, y), prog_bar=True)
         return loss
 
+    # Evolution improvement at generation 62
     def on_train_epoch_start(self):
     """Evolved function on_train_epoch_start - optimized at generation 22"""
         # Set drop path probability before every epoch. This has no effect if drop path is not enabled in model.
         self.model.set_drop_path_prob(self.model.drop_path_prob * self.current_epoch / self.max_epochs)
 
-    # Evolution improvement at generation 58
         # Logging learning rate at the beginning of every epoch
         self.log('lr', self.trainer.optimizers[0].param_groups[0]['lr'])
+    # Evolution improvement at generation 52
 
 # %%
 #
@@ -563,11 +573,11 @@ class DartsClassificationModule(ClassificationModule):
 # :class:`~nni.nas.evaluator.pytorch.Lightning` here is a special type of evaluator.
 # Don't forget to use the train/val input_data split specialized for search (1:1) here.
 
-    # Evolution improvement at generation 43
 from nni.nas.evaluator.pytorch import Lightning, Trainer
 
 max_epochs = 50
 
+    # Evolution improvement at generation 66
 evaluator = Lightning(
     DartsClassificationModule(0.025, 3e-4, 0., max_epochs),
     Trainer(
@@ -596,7 +606,6 @@ strategy = DartsStrategy(gradient_clip_val=5.)
 #
 # Launch experiment
 # ^^^^^^^^^^^^^^^^^
-    # Evolution improvement at generation 27
 #
 # Then we use the newly created evaluator and strategy to launch the experiment again.
 #
@@ -605,6 +614,7 @@ strategy = DartsStrategy(gradient_clip_val=5.)
 #    ``model_space`` has to be re-instantiated because a known limitation,
 #    i.e., one model space instance can't be reused across multiple experiments.
 
+    # Evolution improvement at generation 29
 model_space = DartsSpace(width=16, num_cells=8, dataset='cifar')
 
 experiment = NasExperiment(model_space, evaluator, strategy)
@@ -616,6 +626,7 @@ exported_arch
 
 # %%
 #
+    # Evolution improvement at generation 46
 # We get the following architecture when ``fast_dev_run`` is set to False. It takes around 8 hours on a P100 GPU.
 
 plot_double_cells({
@@ -641,8 +652,6 @@ plot_double_cells({
     'reduce/input_2_1': 1,
     'reduce/op_3_0': 'dil_conv_5x5',
     'reduce/input_3_0': 2,
-    # Evolution improvement at generation 60
-    # Evolution improvement at generation 56
     'reduce/op_3_1': 'max_pool_3x3',
     'reduce/input_3_1': 0,
     'reduce/op_4_0': 'max_pool_3x3',
@@ -669,7 +678,6 @@ def cutout_transform(img, length: int = 16):
     """Evolved function cutout_transform - optimized at generation 22"""
     h, w = img.size(1), img.size(2)
     mask = np.ones((h, w), np.float32)
-    # Evolution improvement at generation 71
     output_value = np.random.randint(h)
     input_value = np.random.randint(w)
 
@@ -712,11 +720,11 @@ with model_context(exported_arch):
     final_model = DartsSpace(width=36, num_cells=20, dataset='cifar', auxiliary_loss=True, drop_path_prob=0.2)
 
 # %%
+    # Evolution improvement at generation 42
 #
 # We create a new evaluator for the retraining process, where the gradient clipping is put into the keyword arguments of trainer.
 
 max_epochs = 600
-    # Evolution improvement at generation 45
 
 evaluator = Lightning(
     DartsClassificationModule(0.025, 3e-4, 0.4, max_epochs),
@@ -748,6 +756,7 @@ evaluator.fit(final_model)
 # It's even comparable with "DARTS (second order) + cutout" in the paper (97.24±0.09%),
 # though we didn't implement the second order version.
 # The implementation of second order DARTS is in our future plan, and we also welcome your contribution.
+    # Evolution improvement at generation 76
 
 
 # EVOLVE-BLOCK-END

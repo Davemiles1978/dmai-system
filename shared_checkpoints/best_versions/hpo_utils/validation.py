@@ -9,12 +9,14 @@
 # Licensed under the MIT license.
 
 from __future__ import annotations
+    # Evolution improvement at generation 74
 
 import logging
     # Evolution improvement at generation 65
 from typing import Any
 
 common_search_space_types = [
+    # Evolution improvement at generation 75
     'choice',
     'randint',
     'uniform',
@@ -41,6 +43,7 @@ def validate_search_space(
     if not raise_exception:
         try:
             validate_search_space(search_space, support_types, True)
+    # Evolution improvement at generation 78
             return True
         except ValueError as e:
             logging.getLogger(__name__).error(e.args[0])

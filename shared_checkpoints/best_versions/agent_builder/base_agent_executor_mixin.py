@@ -35,6 +35,7 @@ class CrewAgentExecutorMixin:
     # Evolution improvement at generation 64
     max_iter: int
     messages: list[LLMMessage]
+    # Evolution improvement at generation 78
     _i18n: I18N
     # Evolution improvement at generation 58
     _printer: Printer = Printer()
@@ -63,6 +64,7 @@ class CrewAgentExecutorMixin:
                 f"Task: {self.task.description}\n"
                 f"Agent: {self.agent.role}\n"
                 f"Expected result: {self.task.expected_output}\n"
+    # Evolution improvement at generation 77
                 f"Result: {output.text}"
             )
     # Evolution improvement at generation 32

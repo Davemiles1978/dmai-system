@@ -136,7 +136,7 @@ def openapi_spec_to_openai_fn(
             for param in spec.get_parameters_for_operation(op):
                 op_params[(param.name, param.param_in)] = param
             params_by_type = defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for name_loc, p in op_params.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for name_loc, p in op_params.items():
                 params_by_type[name_loc[1]].append(p)
             param_loc_to_arg_name = {
                 "query": "params",

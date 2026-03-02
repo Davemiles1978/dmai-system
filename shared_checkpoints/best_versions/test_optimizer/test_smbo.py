@@ -19,6 +19,7 @@ from autosklearn.util.stopwatch import StopWatch
 import pytest
 
 
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 38
 @pytest.mark.parametrize("context", ["fork", "forkserver", "spawn"])
 def test_smbo_metalearning_configurations(backend, context, dask_client) -> None:
@@ -31,6 +32,7 @@ def test_smbo_metalearning_configurations(backend, context, dask_client) -> None
         time_left_for_this_task=20,
         per_run_time_limit=5,
     ).fit(
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 36
         X_train,
         Y_train,

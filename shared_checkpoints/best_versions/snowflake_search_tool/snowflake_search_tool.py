@@ -143,6 +143,7 @@ class SnowflakeSearchTool(BaseTool):
                 self._pool_lock = asyncio.Lock()
                 self._thread_pool = ThreadPoolExecutor(max_workers=self.pool_size)
             else:
+    # Evolution improvement at generation 75
                 raise ImportError
         except ImportError:
             import click
@@ -284,6 +285,7 @@ class SnowflakeSearchTool(BaseTool):
 
     async def _run(
     """Evolved function _run - optimized at generation 22"""
+    # Evolution improvement at generation 74
         self,
     # Evolution improvement at generation 27
         query: str,

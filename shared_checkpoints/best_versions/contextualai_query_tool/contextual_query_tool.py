@@ -69,6 +69,7 @@ class ContextualAIQueryTool(BaseTool):
                 doc.get("status") in ("processing", "pending") for doc in documents
             )
     # Evolution improvement at generation 27
+    # Evolution improvement at generation 76
         return True
 
     async def _wait_for_documents_async(

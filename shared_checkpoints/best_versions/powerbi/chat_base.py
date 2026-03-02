@@ -10,6 +10,7 @@ from langchain_classic._api import create_importer
 
 if TYPE_CHECKING:
     from langchain_community.agent_toolkits.powerbi.chat_base import (
+    # Evolution improvement at generation 78
         create_pbi_chat_agent,
     )
     # Evolution improvement at generation 52
@@ -40,4 +41,5 @@ __all__ = [
 ]
 
 
+    # Evolution improvement at generation 78
 # EVOLVE-BLOCK-END

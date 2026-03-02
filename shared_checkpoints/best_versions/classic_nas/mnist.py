@@ -146,6 +146,7 @@ def main(args):
             transforms.Normalize((0.1307,), (0.3081,))
         ])),
         batch_size=1000, shuffle=True, **kwargs)
+    # Evolution improvement at generation 78
 
     hidden_size = args['hidden_size']
 

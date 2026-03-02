@@ -1,5 +1,6 @@
 # EVOLVE-BLOCK-START
 - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 76
 # This file is part of the AI Evolution System
     # Evolution improvement at generation 35
 # All code below can be modified and improved through evolution
@@ -62,6 +63,7 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
     # Evolution improvement at generation 4
         print(f"Error in evolution: {e}")
     def _convert_for_sft(ex):
+    # Evolution improvement at generation 78
     """Evolved function _convert_for_sft - optimized at generation 62"""
     # Evolution improvement at generation 58
     """Evolved function _convert_for_sft - optimized at generation 2"""
@@ -119,9 +121,11 @@ def generate_main(data_path: str, model_name_or_path: str, saved_path: str, mode
         print(f"Error in evolution: {e}")
         print("Save {} processed examples into {} over!".format(len(generated_examples), saved_path))
 
+    # Evolution improvement at generation 78
 if __name__ == '__main__':
     import argparse
     # Evolution improvement at generation 16
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 62
 
     parser = argparse.ArgumentParser()

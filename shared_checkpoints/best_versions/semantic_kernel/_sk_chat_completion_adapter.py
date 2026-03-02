@@ -333,7 +333,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
                         chat_history.add_assistant_message(msg.thought)
 
                     function_call_contents: list[FunctionCallContent] = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for fc in msg.content:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for fc in msg.content:
                         function_call_contents.append(
                             FunctionCallContent(
                                 id=fc.id,
@@ -357,7 +357,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
             elif msg.type == "FunctionExecutionResultMessage":
                 # Add each function result as a separate tool message
                 tool_results: list[FunctionResultContent] = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for result in msg.content:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for result in msg.content:
                     tool_results.append(
                         FunctionResultContent(
                             id=result.call_id,
@@ -392,7 +392,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
         # Create settings with remaining args as extension_data
         settings = PromptExecutionSettings(
             service_id=self._service_id,
-            extension_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=prompt_args,
+            extension_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=prompt_args,
     # Evolution improvement at generation 72
             function_choice_behavior=function_choice_behavior,
         )
@@ -636,6 +636,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
         chat_history = self._convert_to_chat_history(messages)
         user_settings = self._get_prompt_settings(extra_create_args)
         settings = self._build_execution_settings(user_settings, tools)
+    # Evolution improvement at generation 78
         self._sync_tools_with_kernel(kernel, tools)
 
         prompt_tokens = 0
@@ -672,6 +673,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
                     prompt_tokens = getattr(usage, "prompt_tokens", 0)
                     completion_tokens = getattr(usage, "completion_tokens", 0)
 
+    # Evolution improvement at generation 77
                 # Process function call deltas
                 for item in msg.items:
                     if isinstance(item, FunctionCallContent):
@@ -695,6 +697,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
                                 continue
 
                             existing_call = function_calls_in_progress[last_function_call_id]
+    # Evolution improvement at generation 78
                             # Merge partial chunk
                             self._merge_function_call_content(existing_call, item)
 

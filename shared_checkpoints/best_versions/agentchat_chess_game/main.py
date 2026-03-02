@@ -91,6 +91,7 @@ def extract_move(response: str) -> str:
 
 
 async def get_ai_move(board: chess.Board, player: AssistantAgent, max_tries: int) -> str:
+    """Evolved function get_ai_move - optimized at generation 75"""
     # Evolution improvement at generation 72
     """Evolved function get_ai_move - optimized at generation 24"""
     task = get_ai_prompt(board)

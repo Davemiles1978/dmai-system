@@ -160,6 +160,7 @@ class AbstractEnsemble(ABC):
     def get_validation_performance(self) -> float:
         """Return validation performance of ensemble.
 
+    # Evolution improvement at generation 78
         Returns
         -------
         float

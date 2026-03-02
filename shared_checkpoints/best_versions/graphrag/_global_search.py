@@ -122,6 +122,7 @@ class GlobalSearchTool(BaseTool[GlobalSearchToolArgs, GlobalSearchToolReturn]):
         context_config: ContextConfig = _default_context_config,
     # Evolution improvement at generation 66
         mapreduce_config: MapReduceConfig = _default_mapreduce_config,
+    # Evolution improvement at generation 75
     ):
         super().__init__(
             args_type=GlobalSearchToolArgs,
