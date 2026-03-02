@@ -788,6 +788,8 @@ function deleteArchivedChat(chatId) {
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, checking login status...');
+    updateGeneration();
+
     checkLoginStatus();
     updateAdminButton();
     
@@ -820,3 +822,20 @@ window.onclick = function(event) {
 </script>
 </body>
 </html>
+
+// Update generation number from API
+function updateGeneration() {
+    fetch('/api/evolution-stats')
+        .then(r => r.json())
+        .then(data => {
+            const genSpan = document.getElementById('genNumber');
+            if (genSpan && data.generation) {
+                genSpan.textContent = data.generation;
+            }
+        })
+        .catch(err => console.log('Could not fetch generation'));
+}
+
+// Update on load
+updateGeneration();
+setInterval(updateGeneration, 30000);
