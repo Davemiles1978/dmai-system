@@ -80,7 +80,7 @@ class NetworkDescriptor:
         '''
 
         skip_list = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for u, v, connection_type in self.skip_connections:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for u, v, connection_type in self.skip_connections:
             skip_list.append({"from": u, "to": v, "type": connection_type})
         return {"node_list": self.layers, "skip_list": skip_list}
 
@@ -308,7 +308,7 @@ class Graph:
         if u == target_id:
             return True
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for v, layer_id in self.adj_list[u]:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for v, layer_id in self.adj_list[u]:
             layer_id_list.append(layer_id)
             node_list.append(v)
             if self._depth_first_search(target_id, layer_id_list, node_list):
@@ -773,7 +773,7 @@ class Graph:
             if distance[i] > distance[temp_id]:
                 temp_id = i
         ret = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(self.n_nodes + 5):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(self.n_nodes + 5):
             ret.append(temp_id)
             if pre_node[temp_id] == temp_id:
                 break
@@ -791,7 +791,8 @@ class TorchModel(torch.nn.Module):
         super(TorchModel, self).__init__()
         self.graph = graph
         self.layers = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for layer in graph.layer_list:
+    # Evolution improvement at generation 74
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for layer in graph.layer_list:
             self.layers.append(layer.to_real_layer())
         if graph.weighted:
             for index, layer in enumerate(self.layers):
@@ -841,7 +842,7 @@ class KerasModel:
 
         self.graph = graph
         self.layers = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for layer in graph.layer_list:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for layer in graph.layer_list:
             self.layers.append(to_real_keras_layer(layer))
 
         # Construct the keras graph.

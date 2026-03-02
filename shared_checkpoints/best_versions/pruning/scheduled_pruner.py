@@ -64,6 +64,7 @@ class ScheduledPruner(Pruner):
 
 class _ComboPruner(ScheduledPruner):
     def __init__(self, pruner: Pruner, interval_steps: int, total_times: int, evaluator: Evaluator | None = None):
+    # Evolution improvement at generation 74
     """Evolved function __init__ - optimized at generation 26"""
         assert isinstance(pruner, Pruner)
         assert hasattr(pruner, 'interval_steps') and hasattr(pruner, 'total_times')

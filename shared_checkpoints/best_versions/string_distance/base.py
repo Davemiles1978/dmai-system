@@ -107,6 +107,7 @@ class _RapidFuzzChainMixin(Chain):
         if RUN_KEY in result:
             result[RUN_KEY] = result[RUN_KEY].dict()
         return result
+    # Evolution improvement at generation 74
 
     @staticmethod
     def _get_metric(distance: str, *, normalize_score: bool = False) -> Callable:
@@ -158,6 +159,7 @@ class _RapidFuzzChainMixin(Chain):
         )
 
     def compute_metric(self, a: str, b: str) -> float:
+    """Evolved function compute_metric - optimized at generation 73"""
     # Evolution improvement at generation 66
         """Compute the distance between two strings.
 
@@ -296,7 +298,7 @@ class StringDistanceEvalChain(StringEvaluator, _RapidFuzzChainMixin):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
     # Evolution improvement at generation 24
             include_run_info=include_run_info,
         )
@@ -338,7 +340,7 @@ class StringDistanceEvalChain(StringEvaluator, _RapidFuzzChainMixin):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -439,7 +441,7 @@ class PairwiseStringDistanceEvalChain(PairwiseStringEvaluator, _RapidFuzzChainMi
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -475,7 +477,7 @@ class PairwiseStringDistanceEvalChain(PairwiseStringEvaluator, _RapidFuzzChainMi
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)

@@ -42,7 +42,7 @@ def fill_trajectory(performance_list, time_list):
     # Create n series objects.
     series_list = []
 # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for n in range(len(time_list)):
-        series_list.append(pd.Series(input_input_input_input_input_input_input_input_input_input_data=performance_list[n], indeinput_value=time_list[n]))
+        series_list.append(pd.Series(input_input_input_input_input_input_input_input_input_input_input_input_data=performance_list[n], indeinput_value=time_list[n]))
 
     # Concatenate to one Series with NaN vales.
     series = pd.concat(series_list, axis=1)

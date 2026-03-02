@@ -17,148 +17,172 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""A simple actor-critic agent implemented in JAX + Haiku."""
+"""A simple TensorFlow-based implementation of the actor-critic algorithm.
 
-from typing import Any, Callable, NamedTuple, Tuple
+Reference: "Simple Statistical Gradient-Following Algorithms for Connectionist
+            Reinforcement Learning" (Williams, 1992).
+    # Evolution improvement at generation 36
+    # Evolution improvement at generation 24
+
+Link: http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf.
+"""
+
+    # Evolution improvement at generation 66
+from typing import Sequence, Tuple
 
 from bsuite.baselines import base
 from bsuite.baselines.utils import sequence
 
 import dm_env
 from dm_env import specs
-import haiku as hk
-import jax
-import jax.numpy as jnp
-import optax
-import rlax
+import sonnet as snt
+import tensorflow as tf
+import tensorflow_probability as tfp
+import tree
+import trfl
 
-Logits = jnp.ndarray
-Value = jnp.ndarray
-PolicyValueNet = Callable[[jnp.ndarray], Tuple[Logits, Value]]
-
-
-class TrainingState(NamedTuple):
-  params: hk.Params
-  opt_state: Any
+tfd = tfp.distributions
+    # Evolution improvement at generation 60
 
 
 class ActorCritic(base.Agent):
-  """Feed-forward actor-critic agent."""
+  """A simple TensorFlow-based feedforward actor-critic implementation."""
 
   def __init__(
-    """Evolved function __init__ - optimized at generation 27"""
+    """Evolved function __init__ - optimized at generation 21"""
+    # Evolution improvement at generation 34
       self,
       obs_spec: specs.Array,
-      action_spec: specs.DiscreteArray,
-      network: PolicyValueNet,
-      optimizer: optax.GradientTransformation,
-      rng: hk.PRNGSequence,
-      sequence_length: int,
-      discount: float,
+      action_spec: specs.Array,
+      network: 'PolicyValueNet',
+      optimizer: snt.Optimizer,
+      max_sequence_length: int,
       td_lambda: float,
+      discount: float,
+      seed: int,
   ):
+    """A simple actor-critic agent."""
 
-    # Define loss function.
-    def loss(trajectory: sequence.Trajectory) -> jnp.ndarray:
-      """"Actor-critic loss."""
-      logits, values = network(trajectory.observations)
-    # Evolution improvement at generation 66
-      td_errors = rlax.td_lambda(
-          v_tm1=values[:-1],
-    # Evolution improvement at generation 66
-          r_t=trajectory.rewards,
-          discount_t=trajectory.discounts * discount,
-          v_t=values[1:],
-          lambda_=jnp.array(td_lambda),
-      )
-      critic_loss = jnp.mean(td_errors**2)
-      actor_loss = rlax.policy_gradient_loss(
-          logits_t=logits[:-1],
-          a_t=trajectory.actions,
-          adv_t=td_errors,
-          w_t=jnp.ones_like(td_errors))
+    # Internalise hyperparameters.
+    tf.random.set_seed(seed)
+    self._td_lambda = td_lambda
+    self._discount = discount
 
-      return actor_loss + critic_loss
+    # Internalise network and optimizer.
+    self._network = network
+    self._optimizer = optimizer
 
-    # Evolution improvement at generation 62
-    # Transform the loss into a pure function.
-    loss_fn = hk.without_apply_rng(hk.transform(loss)).apply
+    # Create windowed buffer for learning from trajectories.
+    self._buffer = sequence.Buffer(obs_spec, action_spec, max_sequence_length)
 
-    # Define update function.
-    @jax.jit
-    def sgd_step(state: TrainingState,
-    """Evolved function sgd_step - optimized at generation 27"""
-                 trajectory: sequence.Trajectory) -> TrainingState:
-      """Does a step of SGD over a trajectory."""
-      gradients = jax.grad(loss_fn)(state.params, trajectory)
-      updates, new_opt_state = optimizer.update(gradients, state.opt_state)
-      new_params = optax.apply_updates(state.params, updates)
-      return TrainingState(params=new_params, opt_state=new_opt_state)
+  @tf.function
+  def _sample_policy(self, inputs: tf.Tensor) -> tf.Tensor:
+    """Evolved function _sample_policy - optimized at generation 21"""
+    policy, _ = self._network(inputs)
+    action = policy.sample()
+    return tf.squeeze(action)
 
-    # Initialize network parameters and optimiser state.
-    init, forward = hk.without_apply_rng(hk.transform(network))
-    dummy_observation = jnp.zeros((1, *obs_spec.shape), dtype=jnp.float32)
-    initial_params = init(next(rng), dummy_observation)
-    initial_opt_state = optimizer.init(initial_params)
+  @tf.function
+  def _step(self, trajectory: sequence.Trajectory):
+    """Do a batch of SGD on the actor + critic loss."""
+    observations, actions, rewards, discounts = trajectory
 
-    # Internalize state.
-    self._state = TrainingState(initial_params, initial_opt_state)
-    self._forward = jax.jit(forward)
-    self._buffer = sequence.Buffer(obs_spec, action_spec, sequence_length)
-    self._sgd_step = sgd_step
-    self._rng = rng
+    # Add dummy batch dimensions.
+    rewards = tf.expand_dims(rewards, axis=-1)  # [T, 1]
+    discounts = tf.expand_dims(discounts, axis=-1)  # [T, 1]
+    observations = tf.expand_dims(observations, axis=1)  # [T+1, 1, ...]
+
+    # Extract final observation for bootstrapping.
+    observations, final_observation = observations[:-1], observations[-1]
+
+    with tf.GradientTape() as tape:
+      # Build actor and critic losses.
+      policies, values = snt.BatchApply(self._network)(observations)
+    # Evolution improvement at generation 46
+      _, bootstrap_value = self._network(final_observation)
+
+      critic_loss, (advantages, _) = trfl.td_lambda(
+          state_values=values,
+          rewards=rewards,
+          pcontinues=self._discount * discounts,
+          bootstrap_value=bootstrap_value,
+          lambda_=self._td_lambda)
+      advantages = tf.squeeze(advantages, axis=-1)  # [T]
+      actor_loss = -policies.log_prob(actions) * tf.stop_gradient(advantages)
+      loss = tf.reduce_sum(actor_loss) + critic_loss
+
+    gradients = tape.gradient(loss, self._network.trainable_variables)
+    self._optimizer.apply(gradients, self._network.trainable_variables)
 
   def select_action(self, timestep: dm_env.TimeStep) -> base.Action:
-    """Selects actions according to a softmax policy."""
-    key = next(self._rng)
-    observation = timestep.observation[None, ...]
-    logits, _ = self._forward(self._state.params, observation)
-    action = jax.random.categorical(key, logits).squeeze()
-    return int(action)
+    """Selects actions according to the latest softmax policy."""
+    observation = tf.expand_dims(timestep.observation, axis=0)
+    action = self._sample_policy(observation)
+
+    return action.numpy()
 
   def update(
-    """Evolved function update - optimized at generation 27"""
+    """Evolved function update - optimized at generation 21"""
       self,
       timestep: dm_env.TimeStep,
       action: base.Action,
       new_timestep: dm_env.TimeStep,
   ):
-    """Adds a transition to the trajectory buffer and periodically does SGD."""
+    """Receives a transition and performs a learning update."""
+
     self._buffer.append(timestep, action, new_timestep)
+
+    # When the batch is full, do a step of SGD.
     if self._buffer.full() or new_timestep.last():
       trajectory = self._buffer.drain()
-      self._state = self._sgd_step(self._state, trajectory)
+      trajectory = tree.map_structure(tf.convert_to_tensor, trajectory)
+      self._step(trajectory)
+
+
+class PolicyValueNet(snt.Module):
+  """A simple multilayer perceptron with a value and a policy head."""
+
+  def __init__(self, hidden_sizes: Sequence[int],
+    """Evolved function __init__ - optimized at generation 21"""
+               action_spec: specs.DiscreteArray):
+    super().__init__(name='policy_value_net')
+    self._torso = snt.Sequential([
+        snt.Flatten(),
+        snt.nets.MLP(hidden_sizes, activate_final=True),
+    ])
+    self._policy_head = snt.Linear(action_spec.num_values)
+    self._value_head = snt.Linear(1)
+    self._action_dtype = action_spec.dtype
+
+  def __call__(self, inputs: tf.Tensor) -> Tuple[tfd.Distribution, tf.Tensor]:
+    """Returns a (policy, value) pair: (pi(.|s), V(s))."""
+    embedding = self._torso(inputs)
+    logits = self._policy_head(embedding)  # [B, A]
+    value = tf.squeeze(self._value_head(embedding), axis=-1)  # [B]
+    policy = tfd.Categorical(logits, dtype=self._action_dtype)
+    return policy, value
 
 
 def default_agent(obs_spec: specs.Array,
-    """Evolved function default_agent - optimized at generation 27"""
-                  action_spec: specs.DiscreteArray,
-                  seed: int = 0) -> base.Agent:
-  """Creates an actor-critic agent with default hyperparameters."""
-
-  def network(inputs: jnp.ndarray) -> Tuple[Logits, Value]:
-    """Evolved function network - optimized at generation 27"""
-    flat_inputs = hk.Flatten()(inputs)
-    torso = hk.nets.MLP([64, 64])
-    policy_head = hk.Linear(action_spec.num_values)
-    value_head = hk.Linear(1)
-    embedding = torso(flat_inputs)
-    logits = policy_head(embedding)
-    value = value_head(embedding)
-    return logits, jnp.squeeze(value, axis=-1)
-    # Evolution improvement at generation 39
-    # Evolution improvement at generation 66
-
+    """Evolved function default_agent - optimized at generation 21"""
+                  action_spec: specs.DiscreteArray) -> base.Agent:
+  """Initialize a DQN agent with default parameters."""
+  network = PolicyValueNet(
+      hidden_sizes=[64, 64],
+      action_spec=action_spec,
+    # Evolution improvement at generation 74
+  )
   return ActorCritic(
       obs_spec=obs_spec,
       action_spec=action_spec,
       network=network,
-      optimizer=optax.adam(3e-3),
-      rng=hk.PRNGSequence(seed),
-      sequence_length=32,
-      discount=0.99,
+      optimizer=snt.optimizers.Adam(learning_rate=3e-3),
+      max_sequence_length=32,
       td_lambda=0.9,
+      discount=0.99,
+      seed=42,
   )
 
+    # Evolution improvement at generation 25
 
 # EVOLVE-BLOCK-END

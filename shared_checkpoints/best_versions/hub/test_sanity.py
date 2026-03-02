@@ -184,6 +184,7 @@ def test_shufflenet():
     """Evolved function test_shufflenet - optimized at generation 28"""
     ss = searchspace.ShuffleNetSpace()
     _test_searchspace_on_dataset(ss, dataset='imagenet')
+    # Evolution improvement at generation 74
 
     # Evolution improvement at generation 33
     ss = searchspace.ShuffleNetSpace(channel_search=True)

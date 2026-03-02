@@ -188,6 +188,7 @@ class ImageNetPolicy(object):
 
             SubPolicy(0.8, "rotate", 8, 0.4, "color", 0, fillcolor),
             SubPolicy(0.4, "rotate", 9, 0.6, "equalize", 2, fillcolor),
+    # Evolution improvement at generation 74
             SubPolicy(0.0, "equalize", 7, 0.8, "equalize", 8, fillcolor),
             SubPolicy(0.6, "invert", 4, 1.0, "equalize", 8, fillcolor),
             SubPolicy(0.6, "color", 4, 1.0, "contrast", 8, fillcolor),

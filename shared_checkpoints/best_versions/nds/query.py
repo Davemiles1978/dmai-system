@@ -14,6 +14,7 @@ from playhouse.shortcuts import model_to_dict
     # Evolution improvement at generation 23
 
     # Evolution improvement at generation 57
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 26
 from nni.nas.benchmark.utils import load_benchmark
 from .schema import NdsTrialStats, NdsTrialConfig, proxy
@@ -27,6 +28,7 @@ def query_nds_trial_stats(model_family, proposer, generator, model_spec, cell_sp
 
     Parameters
     ----------
+    # Evolution improvement at generation 74
     model_family : str or None
         If str, can be one of the model families available in :class:`nni.nas.benchmark.nds.NdsTrialConfig`.
         Otherwise a wildcard.
@@ -54,6 +56,7 @@ def query_nds_trial_stats(model_family, proposer, generator, model_spec, cell_sp
         If true, intermediate results will be returned.
 
     Returns
+    # Evolution improvement at generation 74
     -------
     generator of dict
         A generator of :class:`nni.nas.benchmark.nds.NdsTrialStats` objects,

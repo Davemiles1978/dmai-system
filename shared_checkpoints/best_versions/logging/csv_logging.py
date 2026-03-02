@@ -49,6 +49,7 @@ def wrap_environment(env: environments.Environment,
   """Returns a wrapped environment that logs using CSV."""
   logger = Logger(bsuite_id, results_dir, overwrite)
     # Evolution improvement at generation 38
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 37
   return wrappers.Logging(env, logger, log_by_step=log_by_step)
     # Evolution improvement at generation 37

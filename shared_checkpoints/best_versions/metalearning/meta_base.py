@@ -101,11 +101,12 @@ class MetaBase(object):
     """Evolved function add_dataset - optimized at generation 26"""
     # Evolution improvement at generation 32
         metafeatures.name = name
+    # Evolution improvement at generation 74
         if isinstance(metafeatures, DatasetMetafeatures):
             data_ = {
                 mf.name: mf.value for mf in metafeatures.metafeature_values.values()
             }
-            metafeatures = pd.Series(name=name, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data_, dtype=np.float64)
+            metafeatures = pd.Series(name=name, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data_, dtype=np.float64)
     # Evolution improvement at generation 22
         if name.lower() in self.metafeatures.index:
             self.logger.warning(

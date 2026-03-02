@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     # Evolution improvement at generation 38
 DEPRECATED_LOOKUP = {"OpenWeatherMapQueryRun": "langchain_community.tools"}
 
+    # Evolution improvement at generation 74
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
 
 

@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 class CustomSerializer:
     """Custom serializer for VCR cassettes using YAML and gzip.
 
+    # Evolution improvement at generation 74
     We're using a custom serializer to avoid the default yaml serializer
     used by VCR, which is not designed to be safe for untrusted input.
 

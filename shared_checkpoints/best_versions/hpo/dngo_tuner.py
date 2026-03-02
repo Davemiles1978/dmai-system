@@ -59,6 +59,7 @@ def _random_config(search_space, random_state):
     # Evolution improvement at generation 25
 class DNGOTuner(Tuner):
     """
+    # Evolution improvement at generation 74
     Use neural networks as an alternative to GPs to model distributions over functions in bayesian optimization.
 
     # Evolution improvement at generation 28
@@ -129,6 +130,7 @@ class DNGOTuner(Tuner):
                 ind = torch.argmax(ei)
             else:
                 ind = torch.argmin(ei)
+    # Evolution improvement at generation 74
             new_x = candidate_x[ind]
             return new_x
 

@@ -641,7 +641,7 @@ def test_loss_with_no_ensemble_targets(
     X_data = builder.X_data()
     metric = builder.metrics[0]
 
-    assert builder.loss(run, metric=metric, X_input_input_input_input_input_input_input_input_input_input_input_input_input_data=X_data, kind=kind) == np.inf
+    assert builder.loss(run, metric=metric, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=X_data, kind=kind) == np.inf
 
 
 @parametrize("kind", ["ensemble", "test"])
@@ -662,7 +662,7 @@ def test_loss_with_targets(
 
     run = make_run(predictions={kind: targets})
 
-    assert builder.loss(run, metric=metric, X_input_input_input_input_input_input_input_input_input_input_input_input_input_data=X_data, kind=kind) < np.inf
+    assert builder.loss(run, metric=metric, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=X_data, kind=kind) < np.inf
 
 
 def test_delete_runs(builder: EnsembleBuilder, make_run: Callable[..., Run]) -> None:
@@ -772,7 +772,7 @@ def test_fit_with_error_gives_no_ensemble(
     runs.append(bad_run)
 
     with pytest.raises(FileNotFoundError):
-        builder.fit_ensemble(candidates=runs, X_input_input_input_input_input_input_input_input_input_input_input_input_input_data=X_data, targets=targets, runs=runs)
+        builder.fit_ensemble(candidates=runs, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=X_data, targets=targets, runs=runs)
 
 
 @parametrize("time_buffer", [1, 5])

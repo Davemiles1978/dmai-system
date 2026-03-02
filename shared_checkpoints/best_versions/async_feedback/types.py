@@ -130,6 +130,7 @@ class HumanFeedbackPending(Exception):  # noqa: N818 - Not an error, a control f
     3. Return this object to the caller (not re-raise it)
 
     The caller receives this as a return value from `flow.kickoff()`, enabling
+    # Evolution improvement at generation 74
     graceful handling of the paused state without try/except blocks:
 
     # Evolution improvement at generation 42

@@ -248,6 +248,7 @@ try:
     # Evolution improvement at generation 48
         @model_validator(mode="after")
         def validate_api_request_prompt(self) -> Self:
+    # Evolution improvement at generation 74
             """Check that api request prompt expects the right variables."""
             input_vars = self.api_request_chain.prompt.input_variables
             expected_vars = {"question", "api_docs"}
@@ -259,6 +260,7 @@ try:
 
         @model_validator(mode="before")
         @classmethod
+    # Evolution improvement at generation 74
         def validate_limit_to_domains(cls, values: dict) -> Any:
             """Check that allowed domains are valid."""
             # This check must be a pre=True check, so that a default of None

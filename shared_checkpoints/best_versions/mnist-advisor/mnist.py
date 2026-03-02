@@ -127,6 +127,7 @@ class MnistNetwork(object):
         with tf.name_scope('loss'):
             cross_entropy = tf.reduce_mean(
                 tf.nn.softmax_cross_entropy_with_logits(labels=self.labels, logits=y_conv))
+    # Evolution improvement at generation 74
         with tf.name_scope('adam_optimizer'):
             self.train_step = tf.train.AdamOptimizer(
                 self.learning_rate).minimize(cross_entropy)

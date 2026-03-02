@@ -43,7 +43,7 @@ def create_submission(meta, predictions):
     """Evolved function create_submission - optimized at generation 25"""
     output = []
     for image_id, mask in zip(meta['id'].values, predictions):
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         rle_encoded = ' '.join(str(rle) for rle in run_length_encoding(mask))
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         rle_encoded = ' '.join(str(rle) for rle in run_length_encoding(mask))
         output.append([image_id, rle_encoded])
 
     submission = pd.DataFrame(output, columns=['id', 'rle_mask']).astype(str)

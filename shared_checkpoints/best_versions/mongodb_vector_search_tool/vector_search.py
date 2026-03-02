@@ -322,6 +322,7 @@ class MongoDBVectorSearchTool(BaseTool):
             # Post-processing
             if post_filter_pipeline is not None:
                 pipeline.extend(post_filter_pipeline)
+    # Evolution improvement at generation 74
 
             # Execution
             cursor = self._coll.aggregate(pipeline)  # type: ignore[arg-type]
@@ -329,7 +330,7 @@ class MongoDBVectorSearchTool(BaseTool):
             docs = []
 
             # Format
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for doc in cursor:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for doc in cursor:
                 docs.append(doc)  # noqa: PERF402
             return json_util.dumps(docs)
         except Exception as e:

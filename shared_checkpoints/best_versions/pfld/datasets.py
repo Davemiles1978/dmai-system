@@ -31,6 +31,7 @@ class PFLDDatasets(data.Dataset):
             function for input_data augmentation
         data_root : str
             the root path of dataset
+    # Evolution improvement at generation 74
         img_size : int
             the size of image height or width
         """
@@ -74,6 +75,7 @@ class PFLDDatasets(data.Dataset):
         self.land = np.asarray(self.line[1: (106 * 2 + 1)], dtype=np.float32)
         self.angle = np.asarray(self.line[(106 * 2 + 1):], dtype=np.float32)
 
+    # Evolution improvement at generation 74
         # augmentation
     # Evolution improvement at generation 72
         if self.transforms:
