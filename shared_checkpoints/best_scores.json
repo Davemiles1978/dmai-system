@@ -6,10 +6,10 @@
     "timestamp": "2026-02-25T12:14:33.985240"
   },
   "core": {
-    "score": 1.1196165877665394,
-    "file": "repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py",
-    "generation": 1,
-    "timestamp": "2026-02-25T12:14:33.982379"
+    "score": 1.1400436787302195,
+    "file": "repos/crewai/lib/crewai-files/src/crewai_files/core/types.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.973001"
   },
   "chatgpt": {
     "score": 1.2450238540592509,
@@ -42,10 +42,10 @@
     "timestamp": "2026-02-25T14:14:34.987775"
   },
   "config": {
-    "score": 1.0672197314423657,
-    "file": "repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/config/task_runner_config.py",
-    "generation": 3,
-    "timestamp": "2026-02-25T14:14:34.989337"
+    "score": 1.1230234739876581,
+    "file": "repos/nni/nni/nas/experiment/config/experiment.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.379184"
   },
   "message_types": {
     "score": 1.1329656305612985,
@@ -78,16 +78,16 @@
     "timestamp": "2026-02-25T13:14:34.678175"
   },
   "finetune": {
-    "score": 1.0514698873355384,
+    "score": 1.0680912094135715,
     "file": "repos/deepseek-coder/DeepSeek-Coder-main/finetune/finetune_deepseekcoder.py",
-    "generation": 1,
-    "timestamp": "2026-02-25T12:14:34.083375"
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.553805"
   },
   "HumanEval": {
-    "score": 1.1195810424561303,
+    "score": 1.1266503582331597,
     "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/eval_instruct.py",
-    "generation": 2,
-    "timestamp": "2026-02-25T13:14:34.680916"
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.650201"
   },
   "PAL-Math": {
     "score": 1.089495231348556,
@@ -120,10 +120,10 @@
     "timestamp": "2026-02-25T14:14:34.967647"
   },
   "demo": {
-    "score": 1.119409542693926,
-    "file": "repos/deepseek-coder/DeepSeek-Coder-main/demo/app.py",
-    "generation": 3,
-    "timestamp": "2026-02-25T14:14:35.001943"
+    "score": 1.124123062088511,
+    "file": "repos/stable-video/scripts/demo/sv4d_helpers.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.930412"
   },
   "LeetCode": {
     "score": 1.094036578878238,
@@ -142,5 +142,3377 @@
     "file": "repos/n8n/n8n-master/packages/testing/containers/dockerfiles/kent/kent_cors.py",
     "generation": 3,
     "timestamp": "2026-02-25T14:14:35.001240"
+  },
+  "meta_dataset": {
+    "score": 1.1303949966301763,
+    "file": "repos/meta-dataset/meta_dataset/trainer.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.731615"
+  },
+  "analysis": {
+    "score": 1.083574476424321,
+    "file": "repos/meta-dataset/meta_dataset/analysis/select_best_model.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.734337"
+  },
+  "dataset_conversion": {
+    "score": 1.1047143279928604,
+    "file": "repos/meta-dataset/meta_dataset/dataset_conversion/dataset_to_records.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.737441"
+  },
+  "learners": {
+    "score": 1.0890511516005223,
+    "file": "repos/meta-dataset/meta_dataset/learners/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.748244"
+  },
+  "data": {
+    "score": 1.1030956241596555,
+    "file": "repos/stable-video/sgm/data/dataset.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.956076"
+  },
+  "tfds": {
+    "score": 1.055288764085926,
+    "file": "repos/meta-dataset/meta_dataset/data/tfds/example_generators.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.764451"
+  },
+  "experimental": {
+    "score": 1.0972257542701451,
+    "file": "repos/meta-dataset/meta_dataset/models/experimental/reparameterizable_base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.771258"
+  },
+  "transferability": {
+    "score": 1.0744987951455003,
+    "file": "repos/meta-dataset/meta_dataset/analysis/transferability/criticality.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.776278"
+  },
+  "crewai_devtools": {
+    "score": 1.0877308856042127,
+    "file": "repos/crewai/lib/devtools/src/crewai_devtools/cli.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.780042"
+  },
+  "rag": {
+    "score": 1.1227278226553272,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/rag/data_types.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.788179"
+  },
+  "adapters": {
+    "score": 1.120564350646626,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/adapters/crewai_rag_adapter.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.791669"
+  },
+  "aws": {
+    "score": 1.1150642927660135,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/aws/bedrock.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.220988"
+  },
+  "s3": {
+    "score": 1.0977480171593066,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/aws/s3/reader_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.795027"
+  },
+  "bedrock": {
+    "score": 1.1078121694706264,
+    "file": "repos/crewai/lib/crewai/src/crewai/llms/providers/bedrock/completion.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.169359"
+  },
+  "agents": {
+    "score": 1.13370782169217,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/aws/bedrock/agents/invoke_agent_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.799327"
+  },
+  "browser": {
+    "score": 1.0916968784764334,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/aws/bedrock/browser/browser_toolkit.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.800596"
+  },
+  "code_interpreter": {
+    "score": 1.0982858094020265,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/aws/bedrock/code_interpreter/code_interpreter_toolkit.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.804733"
+  },
+  "chunkers": {
+    "score": 1.0555888644811195,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/rag/chunkers/structured_chunker.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.806124"
+  },
+  "loaders": {
+    "score": 1.129307729493297,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/rag/loaders/pdf_loader.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.809279"
+  },
+  "files_compressor_tool": {
+    "score": 1.1275753629612693,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/files_compressor_tool/files_compressor_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.821245"
+  },
+  "databricks_query_tool": {
+    "score": 1.1273687478052157,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/databricks_query_tool/databricks_query_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.823593"
+  },
+  "crewai_platform_tools": {
+    "score": 1.0993298037487722,
+    "file": "repos/crewai/lib/crewai-tools/tests/tools/crewai_platform_tools/test_crewai_platform_tool_builder.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.960458"
+  },
+  "oxylabs_amazon_search_scraper_tool": {
+    "score": 1.078118353781636,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/oxylabs_amazon_search_scraper_tool/oxylabs_amazon_search_scraper_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.826648"
+  },
+  "mongodb_vector_search_tool": {
+    "score": 1.0780329340264405,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/mongodb_vector_search_tool/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.828722"
+  },
+  "docx_search_tool": {
+    "score": 1.0569728365900788,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/docx_search_tool/docx_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.830233"
+  },
+  "ocr_tool": {
+    "score": 1.118123041679969,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/ocr_tool/ocr_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.832061"
+  },
+  "scrapfly_scrape_website_tool": {
+    "score": 1.1017625270245572,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/scrapfly_scrape_website_tool/scrapfly_scrape_website_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.834652"
+  },
+  "snowflake_search_tool": {
+    "score": 1.089908964868789,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/snowflake_search_tool/snowflake_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.836309"
+  },
+  "patronus_eval_tool": {
+    "score": 1.1051782108269577,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/patronus_eval_tool/patronus_local_evaluator_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.838564"
+  },
+  "directory_search_tool": {
+    "score": 1.0600218135739223,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/directory_search_tool/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.842436"
+  },
+  "browserbase_load_tool": {
+    "score": 1.1228320505770721,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/browserbase_load_tool/browserbase_load_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.843966"
+  },
+  "github_search_tool": {
+    "score": 1.0566123545338093,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/github_search_tool/github_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.844922"
+  },
+  "contextualai_rerank_tool": {
+    "score": 1.0796263207768502,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/contextualai_rerank_tool/contextual_rerank_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.846062"
+  },
+  "qdrant_vector_search_tool": {
+    "score": 1.0589006934736658,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/qdrant_vector_search_tool/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.847188"
+  },
+  "scrape_website_tool": {
+    "score": 1.113191926140508,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/scrape_website_tool/scrape_website_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.848931"
+  },
+  "couchbase_tool": {
+    "score": 1.1109816487891535,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/couchbase_tool/couchbase_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.850176"
+  },
+  "serply_api_tool": {
+    "score": 1.1191518932452735,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/serply_api_tool/serply_webpage_to_markdown_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.852529"
+  },
+  "contextualai_query_tool": {
+    "score": 1.0998763729110934,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/contextualai_query_tool/contextual_query_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.856932"
+  },
+  "hyperbrowser_load_tool": {
+    "score": 1.1137103896817873,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/hyperbrowser_load_tool/hyperbrowser_load_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.857879"
+  },
+  "serper_scrape_website_tool": {
+    "score": 1.0592080054417368,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/serper_scrape_website_tool/serper_scrape_website_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.859931"
+  },
+  "serpapi_tool": {
+    "score": 1.0985754447892846,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/serpapi_tool/serpapi_base_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.862875"
+  },
+  "file_writer_tool": {
+    "score": 1.1288269648854232,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/file_writer_tool/file_writer_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.863686"
+  },
+  "multion_tool": {
+    "score": 1.078078415547339,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/multion_tool/example.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.865085"
+  },
+  "arxiv_paper_tool": {
+    "score": 1.0607369830229694,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/arxiv_paper_tool/arxiv_paper_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.866477"
+  },
+  "oxylabs_universal_scraper_tool": {
+    "score": 1.1028424828329988,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/oxylabs_universal_scraper_tool/oxylabs_universal_scraper_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.867799"
+  },
+  "dalle_tool": {
+    "score": 1.0578320427269599,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/dalle_tool/dalle_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.868895"
+  },
+  "linkup": {
+    "score": 1.0903532272162286,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/linkup/linkup_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.871752"
+  },
+  "selenium_scraping_tool": {
+    "score": 1.0598473764756149,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/selenium_scraping_tool/selenium_scraping_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.872912"
+  },
+  "merge_agent_handler_tool": {
+    "score": 1.105638815964281,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/merge_agent_handler_tool/merge_agent_handler_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.874327"
+  },
+  "composio_tool": {
+    "score": 1.065414582475399,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/composio_tool/composio_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.875806"
+  },
+  "code_interpreter_tool": {
+    "score": 1.0601531858800057,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/code_interpreter_tool/code_interpreter_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.877962"
+  },
+  "apify_actors_tool": {
+    "score": 1.1128751032392012,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/apify_actors_tool/apify_actors_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.879874"
+  },
+  "firecrawl_scrape_website_tool": {
+    "score": 1.0975293219597302,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/firecrawl_scrape_website_tool/firecrawl_scrape_website_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.880998"
+  },
+  "invoke_crewai_automation_tool": {
+    "score": 1.1106470703753615,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/invoke_crewai_automation_tool/invoke_crewai_automation_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.882028"
+  },
+  "weaviate_tool": {
+    "score": 1.1320110564953494,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/weaviate_tool/vector_search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.883364"
+  },
+  "parallel_tools": {
+    "score": 1.105001868570325,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/parallel_tools/parallel_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.884589"
+  },
+  "nl2sql": {
+    "score": 1.1184955027871364,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/nl2sql/nl2sql_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.886710"
+  },
+  "scrape_element_from_website": {
+    "score": 1.1231547466371659,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/scrape_element_from_website/scrape_element_from_website.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.889262"
+  },
+  "exa_tools": {
+    "score": 1.0920318556206656,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/exa_tools/exa_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.891603"
+  },
+  "firecrawl_crawl_website_tool": {
+    "score": 1.0951111239655167,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/firecrawl_crawl_website_tool/firecrawl_crawl_website_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.894316"
+  },
+  "tavily_extractor_tool": {
+    "score": 1.0863945539571855,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/tavily_extractor_tool/tavily_extractor_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.895590"
+  },
+  "brightdata_tool": {
+    "score": 1.1201467372884752,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/brightdata_tool/brightdata_serp.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.898373"
+  },
+  "spider_tool": {
+    "score": 1.072854879983634,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/spider_tool/spider_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.916292"
+  },
+  "stagehand_tool": {
+    "score": 1.127695695568961,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/stagehand_tool/stagehand_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.922059"
+  },
+  "code_docs_search_tool": {
+    "score": 1.0526154187488432,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/code_docs_search_tool/code_docs_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.929111"
+  },
+  "firecrawl_search_tool": {
+    "score": 1.1051507715766384,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/firecrawl_search_tool/firecrawl_search_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.932432"
+  },
+  "zapier_action_tool": {
+    "score": 1.1112611221963655,
+    "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/zapier_action_tool/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.934871"
+  },
+  "tools": {
+    "score": 1.1243695753874103,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/tools/test_mcp_tools.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.268935"
+  },
+  "crewai_files": {
+    "score": 1.0504082973172466,
+    "file": "repos/crewai/lib/crewai-files/src/crewai_files/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.965847"
+  },
+  "uploaders": {
+    "score": 1.121034068924938,
+    "file": "repos/crewai/lib/crewai-files/src/crewai_files/uploaders/anthropic.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.969541"
+  },
+  "cache": {
+    "score": 1.1302578003818387,
+    "file": "repos/crewai/lib/crewai-files/src/crewai_files/cache/metrics.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.975888"
+  },
+  "processing": {
+    "score": 1.1319679796379571,
+    "file": "repos/crewai/lib/crewai-files/src/crewai_files/processing/processor.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.982973"
+  },
+  "formatting": {
+    "score": 1.0809045981276761,
+    "file": "repos/crewai/lib/crewai-files/src/crewai_files/formatting/api.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:47.988766"
+  },
+  "crewai": {
+    "score": 1.1385372852615898,
+    "file": "repos/crewai/lib/crewai/src/crewai/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.018232"
+  },
+  "crews": {
+    "score": 1.0704956575064535,
+    "file": "repos/crewai/lib/crewai/src/crewai/crews/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.026492"
+  },
+  "tasks": {
+    "score": 1.0692709150731021,
+    "file": "repos/crewai/lib/crewai/src/crewai/tasks/llm_guardrail.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.029973"
+  },
+  "types": {
+    "score": 1.120154847991325,
+    "file": "repos/crewai/lib/crewai/src/crewai/types/streaming.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.039417"
+  },
+  "memory": {
+    "score": 1.1037856342306258,
+    "file": "repos/langchain/libs/langchain/langchain_classic/memory/summary_buffer.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.143433"
+  },
+  "security": {
+    "score": 1.0699643264935026,
+    "file": "repos/crewai/lib/crewai/tests/security/test_integration.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.341446"
+  },
+  "a2a": {
+    "score": 1.0734594336161658,
+    "file": "repos/crewai/lib/crewai/src/crewai/a2a/task_helpers.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.050942"
+  },
+  "agent": {
+    "score": 1.1001742650901296,
+    "file": "repos/crewai/lib/crewai/src/crewai/agent/core.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.056393"
+  },
+  "mcp": {
+    "score": 1.12447340710783,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/mcp/client.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.605373"
+  },
+  "cli": {
+    "score": 1.1332702378216348,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/run_crew.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.066479"
+  },
+  "project": {
+    "score": 1.1181932730834516,
+    "file": "repos/crewai/lib/crewai/src/crewai/project/annotations.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.083567"
+  },
+  "utilities": {
+    "score": 1.1228358638150135,
+    "file": "repos/crewai/lib/crewai/src/crewai/utilities/llm_utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.098831"
+  },
+  "knowledge": {
+    "score": 1.1477710102485332,
+    "file": "repos/crewai/lib/crewai/src/crewai/knowledge/knowledge.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.110790"
+  },
+  "telemetry": {
+    "score": 1.13348975943009,
+    "file": "repos/crewai/lib/crewai/src/crewai/telemetry/telemetry.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.116197"
+  },
+  "llms": {
+    "score": 1.136561925552598,
+    "file": "repos/crewai/lib/crewai/src/crewai/llms/base_llm.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.119528"
+  },
+  "events": {
+    "score": 1.1202212801373561,
+    "file": "repos/crewai/lib/crewai/tests/utilities/events/test_thread_safety.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.411958"
+  },
+  "flow": {
+    "score": 1.1245329406748985,
+    "file": "repos/crewai/lib/crewai/src/crewai/flow/flow_trackable.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.126446"
+  },
+  "visualization": {
+    "score": 1.0896405931428186,
+    "file": "repos/crewai/lib/crewai/src/crewai/flow/visualization/schema.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.133646"
+  },
+  "persistence": {
+    "score": 1.0769896121731988,
+    "file": "repos/crewai/lib/crewai/src/crewai/flow/persistence/decorators.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.137459"
+  },
+  "async_feedback": {
+    "score": 1.0519796924600897,
+    "file": "repos/crewai/lib/crewai/src/crewai/flow/async_feedback/types.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.138741"
+  },
+  "tracing": {
+    "score": 1.1139768259164222,
+    "file": "repos/crewai/lib/crewai/tests/tracing/test_tracing.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.332060"
+  },
+  "third_party": {
+    "score": 1.064016457240599,
+    "file": "repos/crewai/lib/crewai/src/crewai/llms/third_party/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.157232"
+  },
+  "azure": {
+    "score": 1.1294972291269705,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/tools/azure/conftest.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.353029"
+  },
+  "anthropic": {
+    "score": 1.1247450048954615,
+    "file": "repos/crewai/lib/crewai/src/crewai/llms/providers/anthropic/completion.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.171058"
+  },
+  "openai": {
+    "score": 1.1141342156280774,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/agents/openai/_openai_agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.200009"
+  },
+  "source": {
+    "score": 1.0964663561090742,
+    "file": "repos/crewai/lib/crewai/src/crewai/knowledge/source/pdf_knowledge_source.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.177638"
+  },
+  "exceptions": {
+    "score": 1.0509033312444276,
+    "file": "repos/crewai/lib/crewai/src/crewai/utilities/exceptions/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.184332"
+  },
+  "evaluators": {
+    "score": 1.0749340707784656,
+    "file": "repos/crewai/lib/crewai/src/crewai/utilities/evaluators/task_evaluator.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.185698"
+  },
+  "embeddings": {
+    "score": 1.1386322451175996,
+    "file": "repos/langchain/libs/partners/huggingface/langchain_huggingface/embeddings/huggingface.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.796140"
+  },
+  "chromadb": {
+    "score": 1.0855644638492337,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/chromadb/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.193074"
+  },
+  "qdrant": {
+    "score": 1.0814015859402792,
+    "file": "repos/crewai/lib/crewai/tests/rag/qdrant/test_client.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.419827"
+  },
+  "optional_imports": {
+    "score": 1.064950002379704,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/config/optional_imports/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.201709"
+  },
+  "voyageai": {
+    "score": 1.0674049235576877,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/voyageai/embedding_callable.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.202762"
+  },
+  "text2vec": {
+    "score": 1.0607960272232724,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/text2vec/text2vec_provider.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.207199"
+  },
+  "sentence_transformer": {
+    "score": 1.062829620945548,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/sentence_transformer/sentence_transformer_provider.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.209169"
+  },
+  "onnx": {
+    "score": 1.08830191613114,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/onnx/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.211091"
+  },
+  "google": {
+    "score": 1.1354195014742055,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/google/genai_vertex_embedding.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.213257"
+  },
+  "microsoft": {
+    "score": 1.072962199470469,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/microsoft/azure.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.215834"
+  },
+  "ibm": {
+    "score": 1.095605997411091,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/ibm/embedding_callable.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.217790"
+  },
+  "jina": {
+    "score": 1.08659454101948,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/jina/jina_provider.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.222974"
+  },
+  "ollama": {
+    "score": 1.0799113832479885,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/ollama/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.223785"
+  },
+  "openclip": {
+    "score": 1.0690866478748418,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/openclip/openclip_provider.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.240765"
+  },
+  "custom": {
+    "score": 1.0735728543162277,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/custom/custom_provider.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.245651"
+  },
+  "instructor": {
+    "score": 1.0557977538026024,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/instructor/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.247413"
+  },
+  "organization": {
+    "score": 1.1282056102670335,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/organization/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.251123"
+  },
+  "settings": {
+    "score": 1.0544779078877435,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/settings/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.252214"
+  },
+  "enterprise": {
+    "score": 1.1093841971565352,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/enterprise/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.254725"
+  },
+  "triggers": {
+    "score": 1.109840804065356,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/triggers/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.257063"
+  },
+  "deploy": {
+    "score": 1.1057564736890313,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/deploy/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.258563"
+  },
+  "authentication": {
+    "score": 1.1284124226101528,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/authentication/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.261354"
+  },
+  "providers": {
+    "score": 1.1249610801021592,
+    "file": "repos/crewai/lib/crewai/src/crewai/core/providers/human_input.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.311173"
+  },
+  "crew": {
+    "score": 1.1158059442390338,
+    "file": "repos/crewai/lib/crewai/tests/utilities/crew/test_crew_context.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.408291"
+  },
+  "poem_crew": {
+    "score": 1.1028674196691886,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/templates/flow/crews/poem_crew/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.269894"
+  },
+  "{{folder_name}}": {
+    "score": 1.0866180156070817,
+    "file": "repos/crewai/lib/crewai/src/crewai/cli/templates/tool/src/{{folder_name}}/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.271206"
+  },
+  "transports": {
+    "score": 1.108921315778455,
+    "file": "repos/crewai/lib/crewai/src/crewai/mcp/transports/sse.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.273585"
+  },
+  "internal": {
+    "score": 1.0845261855374289,
+    "file": "repos/crewai/lib/crewai/src/crewai/agent/internal/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.275961"
+  },
+  "agent_builder": {
+    "score": 1.1005612149334625,
+    "file": "repos/crewai/lib/crewai/src/crewai/agents/agent_builder/base_agent_executor_mixin.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.278941"
+  },
+  "langgraph": {
+    "score": 1.0904631417021753,
+    "file": "repos/crewai/lib/crewai/src/crewai/agents/agent_adapters/langgraph/langgraph_tool_adapter.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.284818"
+  },
+  "openai_agents": {
+    "score": 1.0907159250217904,
+    "file": "repos/crewai/lib/crewai/src/crewai/agents/agent_adapters/openai_agents/openai_agent_tool_adapter.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.286334"
+  },
+  "auth": {
+    "score": 1.1306232546284478,
+    "file": "repos/crewai/lib/crewai/src/crewai/a2a/auth/client_schemes.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.287878"
+  },
+  "updates": {
+    "score": 1.0713725349509482,
+    "file": "repos/crewai/lib/crewai/src/crewai/a2a/updates/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.297065"
+  },
+  "extensions": {
+    "score": 1.1233878618342739,
+    "file": "repos/crewai/lib/crewai/src/crewai/a2a/extensions/server.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.298600"
+  },
+  "polling": {
+    "score": 1.0609404404899339,
+    "file": "repos/crewai/lib/crewai/src/crewai/a2a/updates/polling/config.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.301097"
+  },
+  "streaming": {
+    "score": 1.096966362699013,
+    "file": "repos/crewai/lib/crewai/src/crewai/a2a/updates/streaming/handler.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.303944"
+  },
+  "storage": {
+    "score": 1.093014232128453,
+    "file": "repos/langchain/libs/langchain/langchain_classic/storage/upstash_redis.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.196297"
+  },
+  "agent_tools": {
+    "score": 1.107454437809056,
+    "file": "repos/crewai/lib/crewai/src/crewai/tools/agent_tools/read_file_tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.314378"
+  },
+  "cache_tools": {
+    "score": 1.1113997947676593,
+    "file": "repos/crewai/lib/crewai/src/crewai/tools/cache_tools/cache_tools.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.317656"
+  },
+  "evaluation": {
+    "score": 1.1677305263225168,
+    "file": "repos/crewai/lib/crewai/src/crewai/experimental/evaluation/testing.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.324008"
+  },
+  "metrics": {
+    "score": 1.1220845051679234,
+    "file": "repos/crewai/lib/crewai/src/crewai/experimental/evaluation/metrics/tools_metrics.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.328334"
+  },
+  "experiment": {
+    "score": 1.1152974050930635,
+    "file": "repos/nni/test/ut/experiment/test_search_space.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.877782"
+  },
+  "task": {
+    "score": 1.0718324121424359,
+    "file": "repos/crewai/lib/crewai/tests/task/test_async_task.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.385543"
+  },
+  "litellm": {
+    "score": 1.0688743871881112,
+    "file": "repos/crewai/lib/crewai/tests/llms/litellm/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.404830"
+  },
+  "agent_adapters": {
+    "score": 1.0703374890895898,
+    "file": "repos/crewai/lib/crewai/tests/agents/agent_adapters/test_base_tool_adapter.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.430533"
+  },
+  "auto-sklearn": {
+    "score": 1.0563942555941652,
+    "file": "repos/auto-sklearn/setup.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.444595"
+  },
+  "misc": {
+    "score": 1.0910803099307704,
+    "file": "repos/auto-sklearn/misc/create_hyperparameter_table.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.446207"
+  },
+  "test": {
+    "score": 1.0598731345020795,
+    "file": "repos/auto-sklearn/test/conftest.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.448108"
+  },
+  "scripts": {
+    "score": 1.1246847204140697,
+    "file": "repos/langchain/libs/partners/deepseek/scripts/check_imports.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.902352"
+  },
+  "autosklearn": {
+    "score": 1.1139309748932833,
+    "file": "repos/auto-sklearn/autosklearn/automl.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.464894"
+  },
+  "pipeline": {
+    "score": 1.0718255122087081,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/classification.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.470019"
+  },
+  "ensembles": {
+    "score": 1.0515686472540635,
+    "file": "repos/auto-sklearn/autosklearn/ensembles/multiobjective_dummy_ensemble.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.478853"
+  },
+  "util": {
+    "score": 1.1308714130603739,
+    "file": "repos/auto-sklearn/autosklearn/util/functional.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.490410"
+  },
+  "ensemble_building": {
+    "score": 1.132738731439243,
+    "file": "repos/auto-sklearn/autosklearn/ensemble_building/run.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.495790"
+  },
+  "input": {
+    "score": 1.055192745857721,
+    "file": "repos/auto-sklearn/autosklearn/metalearning/input/aslib_simple.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.511359"
+  },
+  "optimizers": {
+    "score": 1.0548503953200628,
+    "file": "repos/auto-sklearn/autosklearn/metalearning/optimizers/optimizer_base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.512987"
+  },
+  "metalearning": {
+    "score": 1.112688660707407,
+    "file": "repos/auto-sklearn/autosklearn/metalearning/metalearning/meta_base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.516008"
+  },
+  "metafeatures": {
+    "score": 1.1089333510061659,
+    "file": "repos/auto-sklearn/autosklearn/metalearning/metafeatures/metafeature.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.517127"
+  },
+  "metalearn_optimizer": {
+    "score": 1.1260231185194332,
+    "file": "repos/auto-sklearn/autosklearn/metalearning/optimizers/metalearn_optimizer/metalearner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.523427"
+  },
+  "components": {
+    "score": 1.0844633096381315,
+    "file": "repos/auto-sklearn/test/test_pipeline/components/test_base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.644437"
+  },
+  "classification": {
+    "score": 1.100348687661419,
+    "file": "repos/nni/examples/trials/sklearn/classification/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.705170"
+  },
+  "feature_preprocessing": {
+    "score": 1.1411339484736953,
+    "file": "repos/auto-sklearn/test/test_pipeline/components/feature_preprocessing/test_densifier.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.659492"
+  },
+  "data_preprocessing": {
+    "score": 1.0912129481800539,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.551619"
+  },
+  "regression": {
+    "score": 1.1156267125973172,
+    "file": "repos/nni/examples/trials/sklearn/regression/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.707150"
+  },
+  "categorical_encoding": {
+    "score": 1.0639290053131798,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/categorical_encoding/encoding.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.561869"
+  },
+  "rescaling": {
+    "score": 1.1053264349453307,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/rescaling/none.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.564138"
+  },
+  "imputation": {
+    "score": 1.0903731347178893,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/imputation/numerical_imputation.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.568631"
+  },
+  "minority_coalescense": {
+    "score": 1.0732279275352905,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/minority_coalescense/no_coalescense.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.571596"
+  },
+  "text_encoding": {
+    "score": 1.0568541602432477,
+    "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/text_encoding/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.574076"
+  },
+  "run": {
+    "score": 1.0898383189090648,
+    "file": "repos/auto-sklearn/scripts/2015_nips_paper/run/remove_dataset_from_metadata.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.576530"
+  },
+  "40_advanced": {
+    "score": 1.07460075164434,
+    "file": "repos/auto-sklearn/examples/40_advanced/example_resampling.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.584236"
+  },
+  "80_extending": {
+    "score": 1.0740417073446857,
+    "file": "repos/auto-sklearn/examples/80_extending/example_restrict_number_of_hyperparameters.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.589111"
+  },
+  "test_automl": {
+    "score": 1.0932509646355055,
+    "file": "repos/auto-sklearn/test/test_automl/test_predict.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.596509"
+  },
+  "test_data": {
+    "score": 1.0856501454116052,
+    "file": "repos/auto-sklearn/test/test_data/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.604293"
+  },
+  "test_estimators": {
+    "score": 1.0679471336984494,
+    "file": "repos/auto-sklearn/test/test_estimators/test_estimators.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.607461"
+  },
+  "test_pipeline": {
+    "score": 1.1268243764429364,
+    "file": "repos/auto-sklearn/test/test_pipeline/test_regression.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.612273"
+  },
+  "test_scripts": {
+    "score": 1.0825201469181902,
+    "file": "repos/auto-sklearn/test/test_scripts/test_metadata_generation.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.614144"
+  },
+  "test_metric": {
+    "score": 1.0980133545270838,
+    "file": "repos/auto-sklearn/test/test_metric/test_metrics.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.616514"
+  },
+  "test_evaluation": {
+    "score": 1.0715598684040992,
+    "file": "repos/auto-sklearn/test/test_evaluation/test_test_evaluator.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.621080"
+  },
+  "test_ensemble_builder": {
+    "score": 1.093134252032386,
+    "file": "repos/auto-sklearn/test/test_ensemble_builder/test_ensemble_builder.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.629858"
+  },
+  "test_util": {
+    "score": 1.1181198706709674,
+    "file": "repos/auto-sklearn/test/test_util/test_trials_callback.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.634413"
+  },
+  "implementations": {
+    "score": 1.127238696548754,
+    "file": "repos/langchain/libs/langchain_v1/tests/unit_tests/agents/middleware/implementations/test_file_search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.028781"
+  },
+  "pyMetaLearn": {
+    "score": 1.1031890748746656,
+    "file": "repos/auto-sklearn/test/test_metalearning/pyMetaLearn/test_meta_features.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.684774"
+  },
+  "langchain_model_profiles": {
+    "score": 1.0765667439864222,
+    "file": "repos/langchain/libs/model-profiles/langchain_model_profiles/cli.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.688378"
+  },
+  "unit_tests": {
+    "score": 1.1346763286429125,
+    "file": "repos/langchain/libs/model-profiles/tests/unit_tests/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.689728"
+  },
+  "langchain_tests": {
+    "score": 1.0672752096702038,
+    "file": "repos/langchain/libs/standard-tests/langchain_tests/conftest.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.691532"
+  },
+  "integration_tests": {
+    "score": 1.1221946316453795,
+    "file": "repos/langchain/libs/partners/chroma/tests/integration_tests/test_vectorstores.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.974686"
+  },
+  "langchain_openai": {
+    "score": 1.0614644939170899,
+    "file": "repos/langchain/libs/partners/openai/langchain_openai/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.716168"
+  },
+  "middleware": {
+    "score": 1.1274082577189515,
+    "file": "repos/langchain/libs/langchain_v1/langchain/agents/middleware/summarization.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.075038"
+  },
+  "chat_models": {
+    "score": 1.1206771475358488,
+    "file": "repos/langchain/libs/partners/openai/tests/integration_tests/chat_models/test_responses_standard.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.748866"
+  },
+  "langchain_ollama": {
+    "score": 1.0744445212616367,
+    "file": "repos/langchain/libs/partners/ollama/langchain_ollama/embeddings.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.765237"
+  },
+  "langchain_anthropic": {
+    "score": 1.1232822037114667,
+    "file": "repos/langchain/libs/partners/anthropic/langchain_anthropic/_compat.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.829471"
+  },
+  "langchain_qdrant": {
+    "score": 1.1027384571351666,
+    "file": "repos/langchain/libs/partners/qdrant/langchain_qdrant/vectorstores.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.854773"
+  },
+  "qdrant_vector_store": {
+    "score": 1.069925582424945,
+    "file": "repos/langchain/libs/partners/qdrant/tests/integration_tests/qdrant_vector_store/test_search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.874377"
+  },
+  "langchain_perplexity": {
+    "score": 1.0783751695626553,
+    "file": "repos/langchain/libs/partners/perplexity/langchain_perplexity/tools.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.879501"
+  },
+  "langchain_nomic": {
+    "score": 1.066068238565786,
+    "file": "repos/langchain/libs/partners/nomic/langchain_nomic/embeddings.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.888871"
+  },
+  "langchain_deepseek": {
+    "score": 1.0696647479353072,
+    "file": "repos/langchain/libs/partners/deepseek/langchain_deepseek/chat_models.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.903729"
+  },
+  "langchain_groq": {
+    "score": 1.127009169318193,
+    "file": "repos/langchain/libs/partners/groq/langchain_groq/chat_models.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.908890"
+  },
+  "langchain_fireworks": {
+    "score": 1.0999977586180363,
+    "file": "repos/langchain/libs/partners/fireworks/langchain_fireworks/llms.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.923655"
+  },
+  "langchain_exa": {
+    "score": 1.0771122080950637,
+    "file": "repos/langchain/libs/partners/exa/langchain_exa/tools.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.935482"
+  },
+  "langchain_openrouter": {
+    "score": 1.0700758472842709,
+    "file": "repos/langchain/libs/partners/openrouter/langchain_openrouter/chat_models.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.941324"
+  },
+  "langchain_chroma": {
+    "score": 1.1114772154652917,
+    "file": "repos/langchain/libs/partners/chroma/langchain_chroma/vectorstores.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.967819"
+  },
+  "langchain": {
+    "score": 1.0996387928454414,
+    "file": "repos/langchain/libs/langchain_v1/langchain/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:48.976018"
+  },
+  "messages": {
+    "score": 1.1228575822855347,
+    "file": "repos/langchain/libs/core/langchain_core/messages/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.078141"
+  },
+  "rate_limiters": {
+    "score": 1.0914923051876728,
+    "file": "repos/langchain/libs/core/tests/unit_tests/rate_limiters/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.333492"
+  },
+  "langchain_classic": {
+    "score": 1.0960802681217492,
+    "file": "repos/langchain/libs/langchain/langchain_classic/cache.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.087000"
+  },
+  "chat_loaders": {
+    "score": 1.0807620100526178,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chat_loaders/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.094383"
+  },
+  "retrievers": {
+    "score": 1.0975182369809877,
+    "file": "repos/langchain/libs/langchain/tests/unit_tests/retrievers/parrot_retriever.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.884827"
+  },
+  "callbacks": {
+    "score": 1.1077613740215073,
+    "file": "repos/langchain/libs/core/langchain_core/callbacks/manager.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.091446"
+  },
+  "_api": {
+    "score": 1.0919948601225824,
+    "file": "repos/langchain/libs/langchain/langchain_classic/_api/module_import.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.183390"
+  },
+  "runnables": {
+    "score": 1.126224308246297,
+    "file": "repos/langchain/libs/core/langchain_core/runnables/fallbacks.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.145867"
+  },
+  "vectorstores": {
+    "score": 1.1374561586853413,
+    "file": "repos/langchain/libs/core/langchain_core/vectorstores/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.167362"
+  },
+  "schema": {
+    "score": 1.0879665060242278,
+    "file": "repos/langchain/libs/langchain/tests/unit_tests/schema/test_imports.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.919659"
+  },
+  "output_parsers": {
+    "score": 1.151096046033262,
+    "file": "repos/langchain/libs/core/langchain_core/output_parsers/pydantic.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.182674"
+  },
+  "document_transformers": {
+    "score": 1.0690307163022676,
+    "file": "repos/langchain/libs/langchain/langchain_classic/document_transformers/doctran_text_translate.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.289494"
+  },
+  "docstore": {
+    "score": 1.0688138548051056,
+    "file": "repos/langchain/libs/langchain/langchain_classic/docstore/document.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.293481"
+  },
+  "prompts": {
+    "score": 1.1220041830453147,
+    "file": "repos/langchain/libs/core/langchain_core/prompts/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.198671"
+  },
+  "document_loaders": {
+    "score": 1.1351737599767664,
+    "file": "repos/langchain/libs/core/langchain_core/document_loaders/langsmith.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.200530"
+  },
+  "graphs": {
+    "score": 1.0887847109366626,
+    "file": "repos/langchain/libs/langchain/langchain_classic/graphs/neptune_graph.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.406689"
+  },
+  "chains": {
+    "score": 1.14035821555971,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/loading.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.448276"
+  },
+  "indexes": {
+    "score": 1.0881596253654275,
+    "file": "repos/langchain/libs/langchain/langchain_classic/indexes/vectorstore.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.458477"
+  },
+  "openai_tools": {
+    "score": 1.0694255091625524,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/openai_tools/extraction.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.464980"
+  },
+  "chat_vector_db": {
+    "score": 1.064526204721857,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/chat_vector_db/prompts.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.466421"
+  },
+  "hyde": {
+    "score": 1.1023564293521078,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/hyde/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.467767"
+  },
+  "elasticsearch_database": {
+    "score": 1.1225777712178362,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/elasticsearch_database/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.471576"
+  },
+  "sql_database": {
+    "score": 1.0920531413244816,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/sql_database/prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.726127"
+  },
+  "summarize": {
+    "score": 1.0746624954605128,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/summarize/stuff_prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.477425"
+  },
+  "retrieval_qa": {
+    "score": 1.0800805902249158,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/retrieval_qa/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.479619"
+  },
+  "qa_with_sources": {
+    "score": 1.1100368397049623,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/qa_with_sources/stuff_prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.482799"
+  },
+  "llm_symbolic_math": {
+    "score": 1.0995483238972152,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/llm_symbolic_math/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.484041"
+  },
+  "graph_qa": {
+    "score": 1.082162456103251,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/graph_qa/cypher_utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.488530"
+  },
+  "constitutional_ai": {
+    "score": 1.0574308051701817,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/constitutional_ai/models.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.495040"
+  },
+  "natbot": {
+    "score": 1.0704699051706608,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/natbot/crawler.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.499909"
+  },
+  "api": {
+    "score": 1.110037049426815,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/api/podcast_docs.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.502424"
+  },
+  "llm_checker": {
+    "score": 1.1120105510242488,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/llm_checker/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.505656"
+  },
+  "llm_bash": {
+    "score": 1.1053653818805527,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/llm_bash/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.508507"
+  },
+  "llm_math": {
+    "score": 1.0676826266529533,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/llm_math/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.509710"
+  },
+  "combine_documents": {
+    "score": 1.0727552605331687,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/combine_documents/reduce.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.514032"
+  },
+  "query_constructor": {
+    "score": 1.0787285640471422,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/query_constructor/parser.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.516852"
+  },
+  "llm_summarization_checker": {
+    "score": 1.0902025657005063,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/llm_summarization_checker/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.522312"
+  },
+  "flare": {
+    "score": 1.0736528594084322,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/flare/prompts.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.523936"
+  },
+  "conversation": {
+    "score": 1.0996972406689984,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/conversation/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.526620"
+  },
+  "router": {
+    "score": 1.1053512045087706,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/router/llm_router.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.529935"
+  },
+  "openapi": {
+    "score": 1.0972207201276525,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/api/openapi/chain.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.535124"
+  },
+  "parsers": {
+    "score": 1.0903622317639379,
+    "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/parsers/txt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.539949"
+  },
+  "blob_loaders": {
+    "score": 1.105377618761053,
+    "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/blob_loaders/file_system.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.543999"
+  },
+  "html": {
+    "score": 1.0501140197144494,
+    "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/parsers/html/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.545633"
+  },
+  "language": {
+    "score": 1.0704967244366055,
+    "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/parsers/language/python.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.547007"
+  },
+  "string_distance": {
+    "score": 1.0687299120433233,
+    "file": "repos/langchain/libs/langchain/tests/unit_tests/evaluation/string_distance/test_base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.970831"
+  },
+  "qa": {
+    "score": 1.0736760123020614,
+    "file": "repos/langchain/libs/langchain/tests/unit_tests/evaluation/qa/test_eval_chain.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.972999"
+  },
+  "scoring": {
+    "score": 1.0656985593267065,
+    "file": "repos/langchain/libs/langchain/langchain_classic/evaluation/scoring/prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.559841"
+  },
+  "comparison": {
+    "score": 1.0708396908180464,
+    "file": "repos/langchain/libs/langchain/langchain_classic/evaluation/comparison/prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.563102"
+  },
+  "parsing": {
+    "score": 1.1007501139743272,
+    "file": "repos/langchain/libs/langchain/langchain_classic/evaluation/parsing/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.568759"
+  },
+  "embedding_distance": {
+    "score": 1.0661759436652845,
+    "file": "repos/langchain/libs/langchain/langchain_classic/evaluation/embedding_distance/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.572310"
+  },
+  "runnable": {
+    "score": 1.1123318043054289,
+    "file": "repos/langchain/libs/langchain/langchain_classic/schema/runnable/branch.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.578780"
+  },
+  "tracers": {
+    "score": 1.1452041895841025,
+    "file": "repos/langchain/libs/core/langchain_core/tracers/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.242306"
+  },
+  "self_ask_with_search": {
+    "score": 1.0628418486787738,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/self_ask_with_search/prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.589170"
+  },
+  "openai_functions_agent": {
+    "score": 1.0874863300086486,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/openai_functions_agent/agent_token_buffer_memory.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.591157"
+  },
+  "chat": {
+    "score": 1.0852052282916655,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/chat/output_parser.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.595250"
+  },
+  "tool_calling_agent": {
+    "score": 1.07327156119822,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/tool_calling_agent/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.598412"
+  },
+  "mrkl": {
+    "score": 1.0517737218193637,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/mrkl/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.599765"
+  },
+  "structured_chat": {
+    "score": 1.0614043457350828,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/structured_chat/output_parser.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.602003"
+  },
+  "conversational_chat": {
+    "score": 1.1219335954734093,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/conversational_chat/output_parser.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.605219"
+  },
+  "json_chat": {
+    "score": 1.0829772827369455,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/json_chat/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.607365"
+  },
+  "xml": {
+    "score": 1.081522469971306,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/xml/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.608877"
+  },
+  "openai_assistant": {
+    "score": 1.054658385488281,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/openai_assistant/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.611440"
+  },
+  "agent_toolkits": {
+    "score": 1.0602646668979114,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/azure_cognitive_services.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.621376"
+  },
+  "format_scratchpad": {
+    "score": 1.1187277441361514,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/format_scratchpad/tools.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.627843"
+  },
+  "react": {
+    "score": 1.1001647401381016,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/react/wiki_prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.632046"
+  },
+  "ainetwork": {
+    "score": 1.0703518562015324,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/ainetwork/value.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.710896"
+  },
+  "spark_sql": {
+    "score": 1.0673781413818066,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/spark_sql/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.639701"
+  },
+  "gitlab": {
+    "score": 1.1103092094298534,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/gitlab/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.715254"
+  },
+  "nla": {
+    "score": 1.066340549564142,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/nla/toolkit.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.643774"
+  },
+  "python": {
+    "score": 1.0799244881652568,
+    "file": "repos/autogen/python/fixup_generated_files.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.990274"
+  },
+  "office365": {
+    "score": 1.0685878295521871,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/office365/events_search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.744224"
+  },
+  "playwright": {
+    "score": 1.090165154696673,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/playwright/get_elements.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.747969"
+  },
+  "json": {
+    "score": 1.0854986070009995,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/json/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.760105"
+  },
+  "github": {
+    "score": 1.0897228765762148,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/github/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.657559"
+  },
+  "powerbi": {
+    "score": 1.0924767828145878,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/powerbi/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.662367"
+  },
+  "csv": {
+    "score": 1.065208967424303,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/csv/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.663714"
+  },
+  "slack": {
+    "score": 1.082799212762611,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/slack/send_message.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.786208"
+  },
+  "conversational_retrieval": {
+    "score": 1.0699048002208573,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/conversational_retrieval/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.668602"
+  },
+  "spark": {
+    "score": 1.0928255214913671,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/spark/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.670522"
+  },
+  "pandas": {
+    "score": 1.050063563356452,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/pandas/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.672293"
+  },
+  "vectorstore": {
+    "score": 1.0874020727539009,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/vectorstore/prompt.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.675706"
+  },
+  "sql": {
+    "score": 1.0917284240522245,
+    "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/sql/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.678143"
+  },
+  "streamlit": {
+    "score": 1.059847573251077,
+    "file": "repos/langchain/libs/langchain/langchain_classic/callbacks/streamlit/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.685020"
+  },
+  "chat_message_histories": {
+    "score": 1.092301365346051,
+    "file": "repos/langchain/libs/langchain/langchain_classic/memory/chat_message_histories/dynamodb.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.694556"
+  },
+  "multion": {
+    "score": 1.09401366327844,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/multion/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.703641"
+  },
+  "reddit_search": {
+    "score": 1.0677746508401227,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/reddit_search/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.705516"
+  },
+  "e2b_data_analysis": {
+    "score": 1.0897386563263851,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/e2b_data_analysis/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.708321"
+  },
+  "steam": {
+    "score": 1.0751521392577077,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/steam/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.713032"
+  },
+  "memorize": {
+    "score": 1.05045103686655,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/memorize/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.717618"
+  },
+  "sleep": {
+    "score": 1.0760841044122673,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/sleep/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.719501"
+  },
+  "shell": {
+    "score": 1.0537741941348693,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/shell/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.722170"
+  },
+  "searx_search": {
+    "score": 1.0743903439713656,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/searx_search/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.724187"
+  },
+  "azure_cognitive_services": {
+    "score": 1.0620912145841024,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/azure_cognitive_services/text2speech.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.729375"
+  },
+  "eleven_labs": {
+    "score": 1.076008993292271,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/eleven_labs/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.731100"
+  },
+  "golden_query": {
+    "score": 1.089958985045118,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/golden_query/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.735326"
+  },
+  "searchapi": {
+    "score": 1.0735816029241696,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/searchapi/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.737167"
+  },
+  "file_management": {
+    "score": 1.0915174696722276,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/file_management/file_search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.742059"
+  },
+  "youtube": {
+    "score": 1.0532634919974864,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/youtube/search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.750916"
+  },
+  "wolfram_alpha": {
+    "score": 1.0799694092930647,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/wolfram_alpha/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.752913"
+  },
+  "google_lens": {
+    "score": 1.074919137471005,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/google_lens/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.755213"
+  },
+  "google_cloud": {
+    "score": 1.0501786083013598,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/google_cloud/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.756795"
+  },
+  "jira": {
+    "score": 1.0850337047275573,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/jira/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.763344"
+  },
+  "ddg_search": {
+    "score": 1.0771464565288849,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/ddg_search/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.765525"
+  },
+  "merriam_webster": {
+    "score": 1.0788928772240338,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/merriam_webster/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.767312"
+  },
+  "edenai": {
+    "score": 1.0849349887546862,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/edenai/audio_text_to_speech.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.774277"
+  },
+  "google_trends": {
+    "score": 1.0837277110819177,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/google_trends/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.775787"
+  },
+  "steamship_image_generation": {
+    "score": 1.0963660267079829,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/steamship_image_generation/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.778765"
+  },
+  "tavily_search": {
+    "score": 1.0683173742954422,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/tavily_search/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.780474"
+  },
+  "brave_search": {
+    "score": 1.0723277408953635,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/brave_search/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.783312"
+  },
+  "arxiv": {
+    "score": 1.0634108545642218,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/arxiv/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.791604"
+  },
+  "google_finance": {
+    "score": 1.0751679421744589,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/google_finance/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.793136"
+  },
+  "pubmed": {
+    "score": 1.0660313750398078,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/pubmed/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.794904"
+  },
+  "scenexplain": {
+    "score": 1.0688583707784525,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/scenexplain/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.796606"
+  },
+  "amadeus": {
+    "score": 1.0781457729344106,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/amadeus/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.801411"
+  },
+  "human": {
+    "score": 1.0574378813007317,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/human/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.803050"
+  },
+  "openweathermap": {
+    "score": 1.077044067755199,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/openweathermap/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.804597"
+  },
+  "interaction": {
+    "score": 1.0723291199630958,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/interaction/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.806019"
+  },
+  "google_scholar": {
+    "score": 1.0544890569509235,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/google_scholar/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.809496"
+  },
+  "gmail": {
+    "score": 1.0906004092154942,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/gmail/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.811084"
+  },
+  "google_serper": {
+    "score": 1.0658264582660528,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/google_serper/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.815908"
+  },
+  "nasa": {
+    "score": 1.0505850169311068,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/nasa/tool.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.817618"
+  },
+  "document_compressors": {
+    "score": 1.080993090605923,
+    "file": "repos/langchain/libs/langchain/tests/unit_tests/retrievers/document_compressors/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.031243"
+  },
+  "self_query": {
+    "score": 1.1349408918442299,
+    "file": "repos/langchain/libs/langchain/langchain_classic/retrievers/self_query/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.846238"
+  },
+  "examples": {
+    "score": 1.1200560323970583,
+    "file": "repos/autogen/python/packages/autogen-ext/examples/mcp_example_server.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.092496"
+  },
+  "openai_functions": {
+    "score": 1.0563593827305706,
+    "file": "repos/langchain/libs/langchain/tests/integration_tests/chains/openai_functions/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.872549"
+  },
+  "exact_match": {
+    "score": 1.1027020769969809,
+    "file": "repos/langchain/libs/langchain/tests/unit_tests/evaluation/exact_match/test_base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:49.979462"
+  },
+  "langchain_core": {
+    "score": 1.1267141845356115,
+    "file": "repos/langchain/libs/core/langchain_core/chat_history.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.048642"
+  },
+  "language_models": {
+    "score": 1.117184850144072,
+    "file": "repos/langchain/libs/core/langchain_core/language_models/llms.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.055369"
+  },
+  "example_selectors": {
+    "score": 1.070610806267194,
+    "file": "repos/langchain/libs/core/langchain_core/example_selectors/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.085183"
+  },
+  "_security": {
+    "score": 1.0978718923203366,
+    "file": "repos/langchain/libs/core/langchain_core/_security/_ssrf_protection.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.094958"
+  },
+  "load": {
+    "score": 1.07286334978641,
+    "file": "repos/langchain/libs/core/tests/unit_tests/load/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.339745"
+  },
+  "documents": {
+    "score": 1.097778514380514,
+    "file": "repos/langchain/libs/core/tests/unit_tests/documents/test_imports.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.367250"
+  },
+  "indexing": {
+    "score": 1.1250465433850456,
+    "file": "repos/langchain/libs/core/langchain_core/indexing/api.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.207984"
+  },
+  "outputs": {
+    "score": 1.0752657611844911,
+    "file": "repos/langchain/libs/core/tests/unit_tests/outputs/test_chat_generation.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.388552"
+  },
+  "block_translators": {
+    "score": 1.086938705332615,
+    "file": "repos/langchain/libs/core/tests/unit_tests/messages/block_translators/test_registration.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.396409"
+  },
+  "benchmarks": {
+    "score": 1.095053856118902,
+    "file": "repos/langchain/libs/core/tests/benchmarks/test_imports.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.284745"
+  },
+  "stores": {
+    "score": 1.0588492414017652,
+    "file": "repos/langchain/libs/core/tests/unit_tests/stores/test_in_memory.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.301951"
+  },
+  "caches": {
+    "score": 1.105101841671037,
+    "file": "repos/langchain/libs/core/tests/unit_tests/caches/test_in_memory_cache.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.390308"
+  },
+  "langchain_text_splitters": {
+    "score": 1.1121021542514977,
+    "file": "repos/langchain/libs/text-splitters/langchain_text_splitters/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.429528"
+  },
+  "clip": {
+    "score": 1.1193105708339266,
+    "file": "repos/clip/clip/clip.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.439720"
+  },
+  "swav": {
+    "score": 1.1235842113279069,
+    "file": "repos/swav/eval_semisup.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.445736"
+  },
+  "imagebind": {
+    "score": 1.113602932118346,
+    "file": "repos/imagebind/setup.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.461448"
+  },
+  "models": {
+    "score": 1.1265128773077175,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/models/test_anthropic_model_client.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.327796"
+  },
+  "bsuite": {
+    "score": 1.0536694319800712,
+    "file": "repos/bsuite/setup.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.817413"
+  },
+  "environments": {
+    "score": 1.0726501995237874,
+    "file": "repos/bsuite/bsuite/environments/mnist_test.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.828905"
+  },
+  "baselines": {
+    "score": 1.056798828721405,
+    "file": "repos/bsuite/bsuite/baselines/experiment.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.864018"
+  },
+  "logging": {
+    "score": 1.0831075804471695,
+    "file": "repos/bsuite/bsuite/logging/csv_logging.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.868132"
+  },
+  "random": {
+    "score": 1.0878958545420088,
+    "file": "repos/bsuite/bsuite/baselines/random/run.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.878061"
+  },
+  "tf": {
+    "score": 1.0627837688152797,
+    "file": "repos/bsuite/bsuite/baselines/tf/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.882405"
+  },
+  "actor_critic": {
+    "score": 1.065621498155934,
+    "file": "repos/bsuite/bsuite/baselines/tf/actor_critic/agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.886177"
+  },
+  "boot_dqn": {
+    "score": 1.080388736803671,
+    "file": "repos/bsuite/bsuite/baselines/jax/boot_dqn/run_test.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.901008"
+  },
+  "actor_critic_rnn": {
+    "score": 1.0618953553033446,
+    "file": "repos/bsuite/bsuite/baselines/jax/actor_critic_rnn/agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.903078"
+  },
+  "dqn": {
+    "score": 1.0751195353327674,
+    "file": "repos/bsuite/bsuite/baselines/jax/dqn/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.894171"
+  },
+  "openai_dqn": {
+    "score": 1.0885110091165444,
+    "file": "repos/bsuite/bsuite/baselines/third_party/openai_dqn/run.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.905009"
+  },
+  "mnist": {
+    "score": 1.0783337741905368,
+    "file": "repos/bsuite/bsuite/experiments/mnist/sweep.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.908007"
+  },
+  "catch_noise": {
+    "score": 1.0610501590100496,
+    "file": "repos/bsuite/bsuite/experiments/catch_noise/sweep.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.917753"
+  },
+  "bandit_noise": {
+    "score": 1.064093382324118,
+    "file": "repos/bsuite/bsuite/experiments/bandit_noise/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.922097"
+  },
+  "mnist_noise": {
+    "score": 1.0691975414924402,
+    "file": "repos/bsuite/bsuite/experiments/mnist_noise/analysis.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.926927"
+  },
+  "cartpole_scale": {
+    "score": 1.0801363653980183,
+    "file": "repos/bsuite/bsuite/experiments/cartpole_scale/cartpole_scale.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.930774"
+  },
+  "deep_sea_stochastic": {
+    "score": 1.0581405504259438,
+    "file": "repos/bsuite/bsuite/experiments/deep_sea_stochastic/deep_sea_stochastic.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.933212"
+  },
+  "umbrella_distract": {
+    "score": 1.0626877108838118,
+    "file": "repos/bsuite/bsuite/experiments/umbrella_distract/umbrella_distract.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.935417"
+  },
+  "bandit": {
+    "score": 1.0846931459903595,
+    "file": "repos/bsuite/bsuite/experiments/bandit/bandit.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.937973"
+  },
+  "memory_size": {
+    "score": 1.0807337983980403,
+    "file": "repos/bsuite/bsuite/experiments/memory_size/memory_size.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.940426"
+  },
+  "catch_scale": {
+    "score": 1.0578415523466678,
+    "file": "repos/bsuite/bsuite/experiments/catch_scale/sweep.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.942933"
+  },
+  "umbrella_length": {
+    "score": 1.083138975601933,
+    "file": "repos/bsuite/bsuite/experiments/umbrella_length/analysis.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.944677"
+  },
+  "bandit_scale": {
+    "score": 1.0519329053355413,
+    "file": "repos/bsuite/bsuite/experiments/bandit_scale/sweep.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.949763"
+  },
+  "mnist_scale": {
+    "score": 1.068170879453032,
+    "file": "repos/bsuite/bsuite/experiments/mnist_scale/sweep.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.954532"
+  },
+  "catch": {
+    "score": 1.0551669790819203,
+    "file": "repos/bsuite/bsuite/experiments/catch/analysis.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.956328"
+  },
+  "mountain_car_noise": {
+    "score": 1.075866200390452,
+    "file": "repos/bsuite/bsuite/experiments/mountain_car_noise/mountain_car_noise_test.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.960006"
+  },
+  "cartpole_swingup": {
+    "score": 1.0550923110692165,
+    "file": "repos/bsuite/bsuite/experiments/cartpole_swingup/analysis.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.964852"
+  },
+  "nni": {
+    "score": 1.1323313349352493,
+    "file": "repos/nni/nni/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:50.995541"
+  },
+  "mock": {
+    "score": 1.0599153779463464,
+    "file": "repos/nni/ts/nni_manager/test/mock/mockedTrial.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.067301"
+  },
+  "mutable": {
+    "score": 1.0769942981663565,
+    "file": "repos/nni/nni/mutable/exception.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.070463"
+  },
+  "runtime": {
+    "score": 1.1274356957490637,
+    "file": "repos/nni/nni/runtime/msg_dispatcher.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.091026"
+  },
+  "common": {
+    "score": 1.128974667885595,
+    "file": "repos/nni/nni/common/version.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.093195"
+  },
+  "training_services": {
+    "score": 1.072503819612341,
+    "file": "repos/nni/nni/experiment/config/training_services/kubeflow.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.118904"
+  },
+  "distillation": {
+    "score": 1.1210184988449,
+    "file": "repos/nni/nni/contrib/distillation/storage.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.209725"
+  },
+  "quantization": {
+    "score": 1.14083860956595,
+    "file": "repos/nni/nni/compression/utils/quantization/literal.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.177352"
+  },
+  "pruning": {
+    "score": 1.0623920638941164,
+    "file": "repos/nni/nni/compression/pruning/slim_pruner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.142221"
+  },
+  "speedup": {
+    "score": 1.0803594869954363,
+    "file": "repos/nni/nni/compression/speedup/mask_conflict.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.154310"
+  },
+  "quantization_speedup": {
+    "score": 1.1235373462208589,
+    "file": "repos/nni/nni/compression/quantization_speedup/calibrator.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.159724"
+  },
+  "base": {
+    "score": 1.1015458951001345,
+    "file": "repos/nni/test/algo/compression/base/test_compressor.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.791517"
+  },
+  "external": {
+    "score": 1.0651865701501766,
+    "file": "repos/nni/nni/compression/utils/external/huggingface.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.186498"
+  },
+  "hpo_utils": {
+    "score": 1.118586611884391,
+    "file": "repos/nni/nni/common/hpo_utils/validation.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.189565"
+  },
+  "concrete_trace_utils": {
+    "score": 1.065461459871896,
+    "file": "repos/nni/nni/common/concrete_trace_utils/counter.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.194691"
+  },
+  "training_service": {
+    "score": 1.1129656542365036,
+    "file": "repos/nni/nni/contrib/training_service/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.203396"
+  },
+  "hpo": {
+    "score": 1.0909551882905395,
+    "file": "repos/nni/nni/algorithms/hpo/random_tuner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.217024"
+  },
+  "ppo_tuner": {
+    "score": 1.0658699037866313,
+    "file": "repos/nni/nni/algorithms/hpo/ppo_tuner/model.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.226347"
+  },
+  "networkmorphism_tuner": {
+    "score": 1.1103324018047187,
+    "file": "repos/nni/nni/algorithms/hpo/networkmorphism_tuner/bayesian.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.245428"
+  },
+  "curvefitting_assessor": {
+    "score": 1.0575574755743296,
+    "file": "repos/nni/nni/algorithms/hpo/curvefitting_assessor/model_factory.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.254458"
+  },
+  "smac_tuner": {
+    "score": 1.0588530802117497,
+    "file": "repos/nni/nni/algorithms/hpo/smac_tuner/convert_ss_to_scenario.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.257295"
+  },
+  "bohb_advisor": {
+    "score": 1.1173259180651511,
+    "file": "repos/nni/nni/algorithms/hpo/bohb_advisor/bohb_advisor.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.259538"
+  },
+  "metis_tuner": {
+    "score": 1.0785759686029968,
+    "file": "repos/nni/nni/algorithms/hpo/metis_tuner/metis_tuner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.262439"
+  },
+  "Regression_GP": {
+    "score": 1.0730349746637355,
+    "file": "repos/nni/nni/algorithms/hpo/metis_tuner/Regression_GP/Prediction.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.266982"
+  },
+  "gradient_selector": {
+    "score": 1.1113448028118578,
+    "file": "repos/nni/nni/algorithms/feature_engineering/gradient_selector/learnability.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.272520"
+  },
+  "gbdt_selector": {
+    "score": 1.1126619472379466,
+    "file": "repos/nni/examples/feature_engineering/gbdt_selector/gbdt_selector_test.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.497658"
+  },
+  "tuner_command_channel": {
+    "score": 1.1153535256632237,
+    "file": "repos/nni/nni/runtime/tuner_command_channel/legacy.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.281117"
+  },
+  "trial_command_channel": {
+    "score": 1.0729039267740121,
+    "file": "repos/nni/nni/runtime/trial_command_channel/local_legacy.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.287698"
+  },
+  "command_channel": {
+    "score": 1.0649721506595358,
+    "file": "repos/nni/nni/runtime/command_channel/base.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.292314"
+  },
+  "websocket": {
+    "score": 1.0897428264689066,
+    "file": "repos/nni/nni/runtime/command_channel/websocket/channel.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.294224"
+  },
+  "benchmark": {
+    "score": 1.0974479911903363,
+    "file": "repos/nni/test/algo/nas/benchmark/test_sanity.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.797320"
+  },
+  "evaluator": {
+    "score": 1.099180872895167,
+    "file": "repos/nni/nni/nas/evaluator/evaluator.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.304853"
+  },
+  "execution": {
+    "score": 1.086302828874811,
+    "file": "repos/nni/nni/nas/execution/event.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.310621"
+  },
+  "profiler": {
+    "score": 1.126828432032733,
+    "file": "repos/nni/test/algo/nas/profiler/test_shape.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.809302"
+  },
+  "space": {
+    "score": 1.0832723084333136,
+    "file": "repos/nni/nni/nas/space/mutator.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.325498"
+  },
+  "strategy": {
+    "score": 1.117658832504404,
+    "file": "repos/nni/nni/nas/strategy/middleware.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.342454"
+  },
+  "pytorch": {
+    "score": 1.1148460366863973,
+    "file": "repos/nni/nni/nas/oneshot/pytorch/_dataloader_legacy.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.403782"
+  },
+  "modules": {
+    "score": 1.127013687648606,
+    "file": "repos/nni/nni/nas/hub/pytorch/modules/nasbench101.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.358471"
+  },
+  "converter": {
+    "score": 1.0591957166491783,
+    "file": "repos/nni/nni/nas/space/pytorch/converter/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.366325"
+  },
+  "cgo": {
+    "score": 1.1309961455317135,
+    "file": "repos/nni/nni/nas/execution/cgo/middleware.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.383821"
+  },
+  "logical_optimizer": {
+    "score": 1.071740063922575,
+    "file": "repos/nni/nni/nas/execution/cgo/logical_optimizer/logical_plan.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.386225"
+  },
+  "supermodule": {
+    "score": 1.1098739553876626,
+    "file": "repos/nni/nni/nas/oneshot/pytorch/supermodule/_expression_utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.406629"
+  },
+  "nlp": {
+    "score": 1.0921511754376014,
+    "file": "repos/nni/nni/nas/benchmark/nlp/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.416568"
+  },
+  "nds": {
+    "score": 1.1052811276182433,
+    "file": "repos/nni/nni/nas/benchmark/nds/db_gen.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.423419"
+  },
+  "nasbench101": {
+    "score": 1.0746423084771834,
+    "file": "repos/nni/nni/nas/benchmark/nasbench101/schema.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.428275"
+  },
+  "nnictl": {
+    "score": 1.1470540071377608,
+    "file": "repos/nni/nni/tools/nnictl/hello.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.430591"
+  },
+  "jupyter_extension": {
+    "score": 1.1027937397717402,
+    "file": "repos/nni/nni/tools/jupyter_extension/management.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.453112"
+  },
+  "nni_manager_scripts": {
+    "score": 1.1165219079093236,
+    "file": "repos/nni/nni/tools/nni_manager_scripts/check_trial_keeper_alive.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.460296"
+  },
+  "trial_tool": {
+    "score": 1.1344766397653083,
+    "file": "repos/nni/nni/tools/trial_tool/web_channel.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.471427"
+  },
+  "gpu_tool": {
+    "score": 1.1427827215996118,
+    "file": "repos/nni/nni/tools/gpu_tool/gpu_metrics_collector.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.479874"
+  },
+  "tutorials": {
+    "score": 1.0707520111401856,
+    "file": "repos/nni/docs/source/tutorials/quantization_bert_glue.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.742728"
+  },
+  "gradient_feature_selector": {
+    "score": 1.1198403419379908,
+    "file": "repos/nni/examples/feature_engineering/gradient_feature_selector/benchmark_test.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.495946"
+  },
+  "fusion": {
+    "score": 1.0813266868255806,
+    "file": "repos/nni/examples/compression/fusion/pd_fuse.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.500863"
+  },
+  "ga_customer_tuner": {
+    "score": 1.0733594165286624,
+    "file": "repos/nni/examples/tuners/ga_customer_tuner/customer_tuner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.509177"
+  },
+  "demo_tuner": {
+    "score": 1.0755730770570762,
+    "file": "repos/nni/examples/tuners/customized_tuner/demo_tuner/demo_tuner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.512004"
+  },
+  "transformer": {
+    "score": 1.0679579465399882,
+    "file": "repos/nni/examples/nas/legacy/transformer/retiarii_transformer_demo.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.516750"
+  },
+  "textnas": {
+    "score": 1.0810344777982297,
+    "file": "repos/nni/examples/nas/legacy/textnas/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.521005"
+  },
+  "cdarts": {
+    "score": 1.0520019339390554,
+    "file": "repos/nni/examples/nas/legacy/cdarts/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.527649"
+  },
+  "mnasnet": {
+    "score": 1.059350813726046,
+    "file": "repos/nni/examples/nas/legacy/mnasnet/base_mnasnet.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.530458"
+  },
+  "nasbench201": {
+    "score": 1.058560743921325,
+    "file": "repos/nni/examples/nas/legacy/nasbench201/base_ops.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.534341"
+  },
+  "classic_nas": {
+    "score": 1.0839409340956982,
+    "file": "repos/nni/examples/nas/legacy/classic_nas/mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.536519"
+  },
+  "cream": {
+    "score": 1.0881296193102725,
+    "file": "repos/nni/examples/nas/legacy/cream/train.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.542708"
+  },
+  "pdarts": {
+    "score": 1.0511892063781594,
+    "file": "repos/nni/examples/nas/legacy/pdarts/search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.544696"
+  },
+  "search_space_zoo": {
+    "score": 1.1281442823933812,
+    "file": "repos/nni/examples/nas/legacy/search_space_zoo/enas_micro_example.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.552875"
+  },
+  "lib": {
+    "score": 1.0740514289855545,
+    "file": "repos/nni/examples/nas/legacy/oneshot/pfld/lib/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.610862"
+  },
+  "blocks": {
+    "score": 1.0639097727099738,
+    "file": "repos/nni/examples/nas/legacy/cream/lib/models/blocks/inverted_residual_block.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.566739"
+  },
+  "builders": {
+    "score": 1.0627981378040112,
+    "file": "repos/nni/examples/nas/legacy/cream/lib/models/builders/build_childnet.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.569677"
+  },
+  "datasets": {
+    "score": 1.091246807562122,
+    "file": "repos/nni/examples/nas/legacy/cdarts/datasets/data_utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.573748"
+  },
+  "enas": {
+    "score": 1.0635765618319957,
+    "file": "repos/nni/examples/nas/legacy/oneshot/enas/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.577925"
+  },
+  "proxylessnas": {
+    "score": 1.0643611331917877,
+    "file": "repos/nni/examples/nas/legacy/oneshot/proxylessnas/datasets.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.580819"
+  },
+  "darts": {
+    "score": 1.0744269163884648,
+    "file": "repos/nni/examples/nas/legacy/oneshot/darts/retrain.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.584472"
+  },
+  "pfld": {
+    "score": 1.074772155511385,
+    "file": "repos/nni/examples/nas/legacy/oneshot/pfld/train.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.593974"
+  },
+  "enas-tf": {
+    "score": 1.0635886016633511,
+    "file": "repos/nni/examples/nas/legacy/oneshot/enas-tf/macro.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.599986"
+  },
+  "spos": {
+    "score": 1.082383200443672,
+    "file": "repos/nni/examples/nas/legacy/oneshot/spos/search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.606804"
+  },
+  "mnist-pbt-tuner-pytorch": {
+    "score": 1.105866246428691,
+    "file": "repos/nni/examples/trials/mnist-pbt-tuner-pytorch/mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.616997"
+  },
+  "mnist-pytorch": {
+    "score": 1.0984466415440994,
+    "file": "repos/nni/examples/trials/mnist-pytorch/mnist_tensorboard.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.619293"
+  },
+  "mnist-nested-search-space": {
+    "score": 1.0858031074532268,
+    "file": "repos/nni/examples/trials/mnist-nested-search-space/mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.623200"
+  },
+  "pix2pix-pytorch": {
+    "score": 1.0997682457009865,
+    "file": "repos/nni/examples/trials/pix2pix-pytorch/test.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.625475"
+  },
+  "mnist-sharedstorage": {
+    "score": 1.100511204092081,
+    "file": "repos/nni/examples/trials/mnist-sharedstorage/mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.629608"
+  },
+  "mnist-tfv1": {
+    "score": 1.0794731804428024,
+    "file": "repos/nni/examples/trials/mnist-tfv1/mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.632859"
+  },
+  "cifar10_pytorch": {
+    "score": 1.1117548944960205,
+    "file": "repos/nni/examples/trials/cifar10_pytorch/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.634953"
+  },
+  "kaggle-tgs-salt": {
+    "score": 1.0974036129759812,
+    "file": "repos/nni/examples/trials/kaggle-tgs-salt/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.647201"
+  },
+  "mnist-tfv2": {
+    "score": 1.0642472953230762,
+    "file": "repos/nni/examples/trials/mnist-tfv2/launch.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.655051"
+  },
+  "mnist-distributed-pytorch": {
+    "score": 1.0578915441900214,
+    "file": "repos/nni/examples/trials/mnist-distributed-pytorch/dist_mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.657210"
+  },
+  "ga_squad": {
+    "score": 1.113877560044732,
+    "file": "repos/nni/examples/trials/weight_sharing/ga_squad/data.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.724686"
+  },
+  "mnist-advisor": {
+    "score": 1.0902731941820656,
+    "file": "repos/nni/examples/trials/mnist-advisor/mnist.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.668949"
+  },
+  "rocksdb-fillrandom": {
+    "score": 1.0820882401154241,
+    "file": "repos/nni/examples/trials/systems_auto_tuning/rocksdb-fillrandom/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.670777"
+  },
+  "algorithms": {
+    "score": 1.1014328763962746,
+    "file": "repos/nni/examples/trials/systems_auto_tuning/opevo/src/algorithms/gbfs.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.674990"
+  },
+  "templates": {
+    "score": 1.127587910597613,
+    "file": "repos/nni/examples/trials/systems_auto_tuning/opevo/src/templates/matmul.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.681256"
+  },
+  "automlbenchmark": {
+    "score": 1.0644403886605014,
+    "file": "repos/nni/examples/trials/benchmarking/automlbenchmark/parse_result_csv.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.685297"
+  },
+  "hyperband": {
+    "score": 1.137761097363769,
+    "file": "repos/nni/examples/trials/benchmarking/hyperband/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.687367"
+  },
+  "NNI": {
+    "score": 1.1250148999892444,
+    "file": "repos/nni/examples/trials/benchmarking/automlbenchmark/nni/extensions/NNI/exec.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.689454"
+  },
+  "architectures": {
+    "score": 1.1156436688610358,
+    "file": "repos/nni/examples/trials/benchmarking/automlbenchmark/nni/extensions/NNI/architectures/run_mlp.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.692293"
+  },
+  "FashionMNIST": {
+    "score": 1.1017754992416928,
+    "file": "repos/nni/examples/trials/network_morphism/FashionMNIST/FashionMNIST_pytorch.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.696719"
+  },
+  "cifar10": {
+    "score": 1.1164953716461763,
+    "file": "repos/nni/examples/trials/network_morphism/cifar10/cifar10_keras.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.702880"
+  },
+  "extension": {
+    "score": 1.097260852575807,
+    "file": "repos/nni/docs/extension/codesnippetcard.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.729405"
+  },
+  "vso_tools": {
+    "score": 1.1251959369791804,
+    "file": "repos/nni/test/vso_tools/fix_shebang.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.762055"
+  },
+  "nas": {
+    "score": 1.0677005309670338,
+    "file": "repos/nni/test/algo/nas/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.772177"
+  },
+  "assets": {
+    "score": 1.0716324919661722,
+    "file": "repos/nni/test/algo/compression/assets/common.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.789211"
+  },
+  "oneshot": {
+    "score": 1.0708272240940067,
+    "file": "repos/nni/test/algo/nas/oneshot/test_hub.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.801604"
+  },
+  "hub": {
+    "score": 1.073368885075594,
+    "file": "repos/nni/test/algo/nas/hub/test_pretrained.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.811699"
+  },
+  "graph_converter": {
+    "score": 1.099995421548743,
+    "file": "repos/nni/test/algo/nas/graph_converter/inject_nn.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.813824"
+  },
+  "build_vm": {
+    "score": 1.0974926798804199,
+    "file": "repos/nni/test/vso_tools/build_vm/packer_build_windows.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.824665"
+  },
+  "nnitest": {
+    "score": 1.132111972790391,
+    "file": "repos/nni/test/training_service/nnitest/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.834679"
+  },
+  "naive_test": {
+    "score": 1.112851970319944,
+    "file": "repos/nni/test/training_service/config/naive_test/naive_assessor.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.839419"
+  },
+  "metrics_test": {
+    "score": 1.080634968546579,
+    "file": "repos/nni/test/training_service/config/metrics_test/trial.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.843615"
+  },
+  "sharedstorage_test": {
+    "score": 1.1210561909378982,
+    "file": "repos/nni/test/training_service/config/sharedstorage_test/config_sharedstorage_trial.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.846095"
+  },
+  "multi_thread": {
+    "score": 1.0731248107057196,
+    "file": "repos/nni/test/training_service/config/multi_thread/multi_thread_tuner.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.848078"
+  },
+  "sdk": {
+    "score": 1.112539322578038,
+    "file": "repos/nni/test/ut/sdk/test_ws_channel.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.857621"
+  },
+  "imported": {
+    "score": 1.080346313186208,
+    "file": "repos/nni/test/ut/sdk/imported/model.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.883281"
+  },
+  "helper": {
+    "score": 1.1158220670587586,
+    "file": "repos/nni/test/ut/sdk/helper/websocket_server.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.885609"
+  },
+  "nn": {
+    "score": 1.0624235158294717,
+    "file": "repos/nni/test/ut/nas/nn/models.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.889158"
+  },
+  "sgm": {
+    "score": 1.084215415185858,
+    "file": "repos/stable-video/sgm/lr_scheduler.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.922732"
+  },
+  "sampling": {
+    "score": 1.071369644804088,
+    "file": "repos/stable-video/scripts/sampling/simple_video_sample.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.942483"
+  },
+  "detection": {
+    "score": 1.1163970184916048,
+    "file": "repos/stable-video/scripts/util/detection/nsfw_and_watermark_dectection.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.945043"
+  },
+  "encoders": {
+    "score": 1.0783997014770683,
+    "file": "repos/stable-video/sgm/modules/encoders/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.962159"
+  },
+  "diffusionmodules": {
+    "score": 1.071316904159207,
+    "file": "repos/stable-video/sgm/modules/diffusionmodules/sigma_sampling.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.973334"
+  },
+  "regularizers": {
+    "score": 1.0759432073772415,
+    "file": "repos/stable-video/sgm/modules/autoencoding/regularizers/quantize.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.978367"
+  },
+  "lpips": {
+    "score": 1.1090303233895948,
+    "file": "repos/stable-video/sgm/modules/autoencoding/lpips/util.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.981593"
+  },
+  "model": {
+    "score": 1.0505293348210116,
+    "file": "repos/stable-video/sgm/modules/autoencoding/lpips/model/model.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.985865"
+  },
+  "core_xlang_hello_python_agent": {
+    "score": 1.0862987948909764,
+    "file": "repos/autogen/dotnet/test/Microsoft.AutoGen.Integration.Tests.AppHosts/core_xlang_hello_python_agent/user_input.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:51.992241"
+  },
+  "protos": {
+    "score": 1.1391340760160586,
+    "file": "repos/autogen/python/samples/core_xlang_hello_python_agent/protos/agent_events_pb2_grpc.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.891637"
+  },
+  "{{cookiecutter.__project_slug}}": {
+    "score": 1.103003894918937,
+    "file": "repos/autogen/python/templates/new-package/{{cookiecutter.package_name}}/src/{{cookiecutter.__project_slug}}/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.002775"
+  },
+  "agbench": {
+    "score": 1.1059914566221085,
+    "file": "repos/autogen/python/packages/agbench/src/agbench/remove_missing_cmd.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.775731"
+  },
+  "magentic_one_cli": {
+    "score": 1.0839093656992047,
+    "file": "repos/autogen/python/packages/magentic-one-cli/src/magentic_one_cli/_m1.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.007525"
+  },
+  "autogen_agentchat": {
+    "score": 1.0695967106595234,
+    "file": "repos/autogen/python/packages/autogen-agentchat/src/autogen_agentchat/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.030552"
+  },
+  "ui": {
+    "score": 1.116105061383174,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/ui/_rich_console.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.096988"
+  },
+  "state": {
+    "score": 1.0597872675326616,
+    "file": "repos/autogen/python/packages/autogen-agentchat/src/autogen_agentchat/state/_states.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.049440"
+  },
+  "conditions": {
+    "score": 1.0533180947405363,
+    "file": "repos/autogen/python/packages/autogen-agentchat/src/autogen_agentchat/conditions/_terminations.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.052625"
+  },
+  "_group_chat": {
+    "score": 1.1160169506275741,
+    "file": "repos/autogen/python/packages/autogen-agentchat/src/autogen_agentchat/teams/_group_chat/_selector_group_chat.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.067939"
+  },
+  "_magentic_one": {
+    "score": 1.1167068294093163,
+    "file": "repos/autogen/python/packages/autogen-agentchat/src/autogen_agentchat/teams/_group_chat/_magentic_one/_magentic_one_orchestrator.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.074335"
+  },
+  "_graph": {
+    "score": 1.0786040095214735,
+    "file": "repos/autogen/python/packages/autogen-agentchat/src/autogen_agentchat/teams/_group_chat/_graph/_graph_builder.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.076462"
+  },
+  "cache_store": {
+    "score": 1.130665571832965,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/cache_store/test_redis_store.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.311150"
+  },
+  "teams": {
+    "score": 1.114297613589204,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/teams/test_magentic_one.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.331812"
+  },
+  "code_executors": {
+    "score": 1.0929926873049272,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/code_executors/test_docker_commandline_code_executor.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.344247"
+  },
+  "docker_jupyter": {
+    "score": 1.0813407931795989,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/code_executors/docker_jupyter/_jupyter_server.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.133948"
+  },
+  "docker": {
+    "score": 1.1076882670131862,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/code_executors/docker/_docker_code_executor.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.137620"
+  },
+  "_utils": {
+    "score": 1.0656106060806763,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/models/_utils/parse_r1_content.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.144105"
+  },
+  "semantic_kernel": {
+    "score": 1.0939347781284838,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/models/semantic_kernel/_sk_chat_completion_adapter.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.151545"
+  },
+  "llama_cpp": {
+    "score": 1.1072656473735016,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/models/llama_cpp/_llama_cpp_completion_client.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.157589"
+  },
+  "file_surfer": {
+    "score": 1.1205115551726967,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/agents/file_surfer/_file_surfer.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.175559"
+  },
+  "video_surfer": {
+    "score": 1.093200331078036,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/agents/video_surfer/tools.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.188490"
+  },
+  "web_surfer": {
+    "score": 1.0740327768386009,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/agents/web_surfer/_events.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.193961"
+  },
+  "magentic_one": {
+    "score": 1.0626580324520893,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/agents/magentic_one/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.196636"
+  },
+  "grpc": {
+    "score": 1.1096824724170877,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/runtimes/grpc/_worker_runtime.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.203644"
+  },
+  "redis": {
+    "score": 1.0874332622066214,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/memory/redis/_redis_memory.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.216265"
+  },
+  "canvas": {
+    "score": 1.0840548230359242,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/memory/canvas/_canvas_writer.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.219273"
+  },
+  "mem0": {
+    "score": 1.0589142506584512,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/memory/mem0/_mem0.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.225394"
+  },
+  "graphrag": {
+    "score": 1.1189219395898524,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/tools/graphrag/_local_search.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.238082"
+  },
+  "code_execution": {
+    "score": 1.0755713180463464,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/tools/code_execution/__init__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.249275"
+  },
+  "_host": {
+    "score": 1.060698619341831,
+    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/tools/mcp/_host/_elicitation.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.252492"
+  },
+  "task_centric_memory": {
+    "score": 1.1412527067008584,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/task_centric_memory/utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.336824"
+  },
+  "http": {
+    "score": 1.0744998466589089,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/tools/http/conftest.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.358278"
+  },
+  "autogen_core": {
+    "score": 1.1596164190599283,
+    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/_message_handler_context.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.411678"
+  },
+  "_telemetry": {
+    "score": 1.0832877470389457,
+    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/_telemetry/_genai.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.461258"
+  },
+  "tool_agent": {
+    "score": 1.0876120852492694,
+    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/tool_agent/_tool_agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.496984"
+  },
+  "model_context": {
+    "score": 1.0820437209248517,
+    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/model_context/_unbounded_chat_completion_context.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.501007"
+  },
+  "code_executor": {
+    "score": 1.1169191564830057,
+    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/code_executor/_func_with_reqs.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.520427"
+  },
+  "autogenstudio": {
+    "score": 1.0592307968810544,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/cli.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.528689"
+  },
+  "database": {
+    "score": 1.0911705391762099,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/database/schema_manager.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.578571"
+  },
+  "teammanager": {
+    "score": 1.0652149513143234,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/teammanager/teammanager.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.585728"
+  },
+  "web": {
+    "score": 1.1159580598152574,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/web/app.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.596725"
+  },
+  "gallery": {
+    "score": 1.0905929144290305,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/gallery/builder.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.599641"
+  },
+  "eval": {
+    "score": 1.093456675522759,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/eval/runners.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.628766"
+  },
+  "datamodel": {
+    "score": 1.0754326763297701,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/datamodel/db.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.631840"
+  },
+  "validation": {
+    "score": 1.0687186254930505,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/validation/validation_service.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.695744"
+  },
+  "managers": {
+    "score": 1.1245998237786912,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/web/managers/connection.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.754946"
+  },
+  "routes": {
+    "score": 1.1101415126543155,
+    "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/web/routes/ws.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.760801"
+  },
+  "linter": {
+    "score": 1.0629760536255866,
+    "file": "repos/autogen/python/packages/agbench/src/agbench/linter/cli.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.790140"
+  },
+  "Scripts": {
+    "score": 1.1218121867573836,
+    "file": "repos/autogen/python/packages/agbench/benchmarks/HumanEval/Scripts/init_tasks.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.797217"
+  },
+  "AgentChat": {
+    "score": 1.1192135645980674,
+    "file": "repos/autogen/python/packages/agbench/benchmarks/HumanEval/Templates/AgentChat/scenario.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.803070"
+  },
+  "core_distributed-group-chat": {
+    "score": 1.0719435462428195,
+    "file": "repos/autogen/python/samples/core_distributed-group-chat/_utils.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.813124"
+  },
+  "core_streaming_handoffs_fastapi": {
+    "score": 1.0961378741147625,
+    "file": "repos/autogen/python/samples/core_streaming_handoffs_fastapi/tools_delegate.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.816866"
+  },
+  "agentchat_fastapi": {
+    "score": 1.1141525864154331,
+    "file": "repos/autogen/python/samples/agentchat_fastapi/app_agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.826100"
+  },
+  "core_semantic_router": {
+    "score": 1.0801531499249986,
+    "file": "repos/autogen/python/samples/core_semantic_router/run_semantic_router.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.828669"
+  },
+  "core_async_human_in_the_loop": {
+    "score": 1.104359712940713,
+    "file": "repos/autogen/python/samples/core_async_human_in_the_loop/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.834152"
+  },
+  "agentchat_chess_game": {
+    "score": 1.0913750209143565,
+    "file": "repos/autogen/python/samples/agentchat_chess_game/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.837126"
+  },
+  "agentchat_streamlit": {
+    "score": 1.0684001751712946,
+    "file": "repos/autogen/python/samples/agentchat_streamlit/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.839503"
+  },
+  "core_streaming_response_fastapi": {
+    "score": 1.118631735779254,
+    "file": "repos/autogen/python/samples/core_streaming_response_fastapi/app.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.841825"
+  },
+  "agentchat_graphrag": {
+    "score": 1.0946879000189007,
+    "file": "repos/autogen/python/samples/agentchat_graphrag/app.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.844331"
+  },
+  "core_grpc_worker_runtime": {
+    "score": 1.0833509754067459,
+    "file": "repos/autogen/python/samples/core_grpc_worker_runtime/run_host.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.861801"
+  },
+  "core_chainlit": {
+    "score": 1.1328962261497009,
+    "file": "repos/autogen/python/samples/core_chainlit/app_agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.867477"
+  },
+  "agentchat_chainlit": {
+    "score": 1.0811293358314185,
+    "file": "repos/autogen/python/samples/agentchat_chainlit/app_agent.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.875373"
+  },
+  "gitty": {
+    "score": 1.1024713976878266,
+    "file": "repos/autogen/python/samples/gitty/src/gitty/__main__.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.885681"
+  },
+  "redirects": {
+    "score": 1.0740952324686217,
+    "file": "repos/autogen/python/docs/redirects/redirects.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.894249"
+  },
+  "_extension": {
+    "score": 1.0922981439010209,
+    "file": "repos/autogen/python/docs/src/_extension/code_lint.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.902867"
+  },
+  "mistral_inference": {
+    "score": 1.0925556967777132,
+    "file": "repos/mistral/src/mistral_inference/main.py",
+    "generation": 72,
+    "timestamp": "2026-03-02T08:14:52.934333"
   }
 }

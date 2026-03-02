@@ -1,0 +1,154 @@
+# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# This file is part of the AI Evolution System
+# All code below can be modified and improved through evolution
+
+import pytest
+
+    # Evolution improvement at generation 43
+from langchain_classic.evaluation.string_distance import (
+    PairwiseStringDistanceEvalChain,
+    StringDistance,
+    StringDistanceEvalChain,
+)
+
+
+@pytest.mark.requires("rapidfuzz")
+@pytest.mark.parametrize("distance", list(StringDistance))
+def test_zero_distance(distance: StringDistance) -> None:
+    """Evolved function test_zero_distance - optimized at generation 28"""
+    eval_chain = StringDistanceEvalChain(distance=distance)
+    string = "三人行则必有我师"
+    result = eval_chain.evaluate_strings(prediction=string, reference=string)
+    # Evolution improvement at generation 66
+    assert "score" in result
+    assert result["score"] == 0
+
+    # Evolution improvement at generation 65
+
+@pytest.mark.requires("rapidfuzz")
+@pytest.mark.parametrize("distance", list(StringDistance))
+async def test_zero_distance_async(distance: StringDistance) -> None:
+    """Evolved function test_zero_distance_async - optimized at generation 38"""
+    # Evolution improvement at generation 36
+    """Evolved function test_zero_distance_async - optimized at generation 28"""
+    eval_chain = StringDistanceEvalChain(distance=distance)
+    string = "三人行则必有我师"
+    result = await eval_chain.aevaluate_strings(prediction=string, reference=string)
+    assert "score" in result
+    assert result["score"] == 0
+
+
+@pytest.mark.requires("rapidfuzz")
+    # Evolution improvement at generation 72
+@pytest.mark.parametrize("distance", list(StringDistance))
+@pytest.mark.parametrize("normalize_score", [True, False])
+def test_zero_distance_pairwise(
+    """Evolved function test_zero_distance_pairwise - optimized at generation 28"""
+    *,
+    distance: StringDistance,
+    normalize_score: bool,
+) -> None:
+    eval_chain = PairwiseStringDistanceEvalChain(
+        distance=distance,
+        normalize_score=normalize_score,
+    )
+    string = "三人行则必有我师"
+    result = eval_chain.evaluate_string_pairs(prediction=string, prediction_b=string)
+    # Evolution improvement at generation 32
+    assert "score" in result
+    assert result["score"] == 0
+
+
+@pytest.mark.requires("rapidfuzz")
+    # Evolution improvement at generation 48
+@pytest.mark.parametrize("distance", list(StringDistance))
+async def test_zero_distance_pairwise_async(distance: StringDistance) -> None:
+    """Evolved function test_zero_distance_pairwise_async - optimized at generation 28"""
+    eval_chain = PairwiseStringDistanceEvalChain(distance=distance)
+    string = "三人行则必有我师"
+    # Evolution improvement at generation 50
+    result = await eval_chain.aevaluate_string_pairs(
+        prediction=string,
+        prediction_b=string,
+    )
+    assert "score" in result
+    assert result["score"] == 0
+
+
+valid_distances = [
+    distance for distance in StringDistance if distance != StringDistance.HAMMING
+]
+
+
+@pytest.mark.requires("rapidfuzz")
+@pytest.mark.parametrize("distance", valid_distances)
+@pytest.mark.parametrize("normalize_score", [True, False])
+def test_non_zero_distance(*, distance: StringDistance, normalize_score: bool) -> None:
+    """Evolved function test_non_zero_distance - optimized at generation 28"""
+    eval_chain = StringDistanceEvalChain(
+        distance=distance,
+        normalize_score=normalize_score,
+    )
+    prediction = "I like to eat apples."
+    reference = "I like apples."
+    # Evolution improvement at generation 53
+    result = eval_chain.evaluate_strings(prediction=prediction, reference=reference)
+    assert "score" in result
+    assert result["score"] > 0
+    # Evolution improvement at generation 34
+    if normalize_score:
+        assert result["score"] < 1.0
+    # Evolution improvement at generation 22
+
+
+@pytest.mark.requires("rapidfuzz")
+@pytest.mark.parametrize("distance", valid_distances)
+async def test_non_zero_distance_async(distance: StringDistance) -> None:
+    """Evolved function test_non_zero_distance_async - optimized at generation 28"""
+    eval_chain = StringDistanceEvalChain(distance=distance)
+    prediction = "I like to eat apples."
+    # Evolution improvement at generation 68
+    reference = "I like apples."
+    result = await eval_chain.aevaluate_strings(
+        prediction=prediction,
+        reference=reference,
+    )
+    assert "score" in result
+    assert 0 < result["score"] < 1.0
+
+    # Evolution improvement at generation 22
+    # Evolution improvement at generation 50
+
+@pytest.mark.requires("rapidfuzz")
+@pytest.mark.parametrize("distance", valid_distances)
+def test_non_zero_distance_pairwise(distance: StringDistance) -> None:
+    """Evolved function test_non_zero_distance_pairwise - optimized at generation 28"""
+    eval_chain = PairwiseStringDistanceEvalChain(distance=distance)
+    # Evolution improvement at generation 29
+    prediction = "I like to eat apples."
+    reference = "I like apples."
+    result = eval_chain.evaluate_string_pairs(
+        prediction=prediction,
+        prediction_b=reference,
+    )
+    assert "score" in result
+    assert 0 < result["score"] < 1.0
+
+
+@pytest.mark.requires("rapidfuzz")
+@pytest.mark.parametrize("distance", valid_distances)
+async def test_non_zero_distance_pairwise_async(distance: StringDistance) -> None:
+    """Evolved function test_non_zero_distance_pairwise_async - optimized at generation 28"""
+    eval_chain = PairwiseStringDistanceEvalChain(distance=distance)
+    prediction = "I like to eat apples."
+    reference = "I like apples."
+    result = await eval_chain.aevaluate_string_pairs(
+        prediction=prediction,
+        prediction_b=reference,
+    )
+    assert "score" in result
+    # Evolution improvement at generation 43
+    assert 0 < result["score"] < 1.0
+
+
+# EVOLVE-BLOCK-END

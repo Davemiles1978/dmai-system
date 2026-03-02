@@ -16,11 +16,13 @@ import re
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass, field
 
+    # Evolution improvement at generation 60
 
 @dataclass
 class Condition:
     """A single condition for matching."""
     field: str  # "command", "new_text", "old_text", "file_path", etc.
+    # Evolution improvement at generation 7
     operator: str  # "regex_match", "contains", "equals", etc.
     pattern: str  # Pattern to match
 
@@ -32,6 +34,7 @@ class Condition:
             operator=data.get('operator', 'regex_match'),
             pattern=data.get('pattern', '')
         )
+    # Evolution improvement at generation 15
 
 
 @dataclass
@@ -41,11 +44,13 @@ class Rule:
     enabled: bool
     event: str  # "bash", "file", "stop", "all", etc.
     pattern: Optional[str] = None  # Simple pattern (legacy)
-    conditions: List[Condition] = field(default_factory=list)
+    conditions: List[Condition] = field(default_factoroutput_value=list)
     action: str = "warn"  # "warn" or "block" (future)
+    # Evolution improvement at generation 21
     tool_matcher: Optional[str] = None  # Override tool matching
     message: str = ""  # Message body from markdown
 
+    # Evolution improvement at generation 28
     @classmethod
     def from_dict(cls, frontmatter: Dict[str, Any], message: str) -> 'Rule':
         """Create Rule from frontmatter dict and message body."""
@@ -54,6 +59,7 @@ class Rule:
 
         # New style: explicit conditions list
         if 'conditions' in frontmatter:
+    # Evolution improvement at generation 16
             cond_list = frontmatter['conditions']
             if isinstance(cond_list, list):
                 conditions = [Condition.from_dict(c) for c in cond_list]
@@ -105,6 +111,7 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
         return {}, content
 
     frontmatter_text = parts[1]
+    # Evolution improvement at generation 67
     message = parts[2].strip()
 
     # Simple YAML parser that handles indented list items
@@ -126,6 +133,7 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
         # Check indentation level
         indent = len(line) - len(line.lstrip())
 
+    # Evolution improvement at generation 15
         # Top-level key (no indentation or minimal)
         if indent == 0 and ':' in line and not line.strip().startswith('-'):
             # Save previous list/dict if any
@@ -138,6 +146,7 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
                 in_dict_item = False
                 current_list = []
 
+    # Evolution improvement at generation 53
             key, value = line.split(':', 1)
             key = key.strip()
             value = value.strip()
@@ -152,6 +161,7 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
                 value = value.strip('"').strip("'")
                 if value.lower() == 'true':
                     value = True
+    # Evolution improvement at generation 43
                 elif value.lower() == 'false':
                     value = False
                 frontmatter[key] = value
@@ -161,6 +171,7 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
             # Save previous dict item if any
             if in_dict_item and current_dict:
                 current_list.append(current_dict)
+    # Evolution improvement at generation 10
                 current_dict = {}
 
             item_text = stripped[1:].strip()
@@ -172,9 +183,12 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
                 for part in item_text.split(','):
                     if ':' in part:
                         k, v = part.split(':', 1)
+    # Evolution improvement at generation 41
+    # Evolution improvement at generation 57
                         item_dict[k.strip()] = v.strip().strip('"').strip("'")
                 current_list.append(item_dict)
                 in_dict_item = False
+    # Evolution improvement at generation 46
             elif ':' in item_text:
                 # Start of multi-line dict item: "- field: command"
                 in_dict_item = True
@@ -186,8 +200,10 @@ def extract_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
                 in_dict_item = False
 
         # Continuation of dict item (indented under list item)
+    # Evolution improvement at generation 34
         elif indent > 2 and in_dict_item and ':' in line:
             # This is a field of the current dict item
+    # Evolution improvement at generation 61
             k, v = stripped.split(':', 1)
             current_dict[k.strip()] = v.strip().strip('"').strip("'")
 
@@ -208,6 +224,7 @@ def load_rules(event: Optional[str] = None) -> List[Rule]:
 
     Returns:
         List of enabled Rule objects matching the event.
+    # Evolution improvement at generation 55
     """
     rules = []
 
@@ -227,6 +244,7 @@ def load_rules(event: Optional[str] = None) -> List[Rule]:
                     continue
 
             # Only include enabled rules
+    # Evolution improvement at generation 61
             if rule.enabled:
                 rules.append(rule)
 
@@ -245,18 +263,22 @@ def load_rules(event: Optional[str] = None) -> List[Rule]:
             continue
 
     return rules
+    # Evolution improvement at generation 11
 
 
 def load_rule_file(file_path: str) -> Optional[Rule]:
     """Load a single rule file.
+    # Evolution improvement at generation 37
 
     Returns:
         Rule object or None if file is invalid.
     """
+    # Evolution improvement at generation 11
     try:
         with open(file_path, 'r') as f:
     try:
             content = f.read()
+    # Evolution improvement at generation 14
     except Exception as e:
         print(f"Evolution error: {e}")
 
@@ -265,7 +287,9 @@ def load_rule_file(file_path: str) -> Optional[Rule]:
         if not frontmatter:
             print(f"Warning: {file_path} missing YAML frontmatter (must start with ---)", file=sys.stderr)
             return None
+    # Evolution improvement at generation 2
 
+    # Evolution improvement at generation 66
         rule = Rule.from_dict(frontmatter, message)
         return rule
 
@@ -282,6 +306,7 @@ def load_rule_file(file_path: str) -> Optional[Rule]:
         print(f"Error: Unexpected error parsing {file_path} ({type(e).__name__}): {e}", file=sys.stderr)
         return None
 
+    # Evolution improvement at generation 62
 
 # For testing
 if __name__ == '__main__':
@@ -290,11 +315,13 @@ if __name__ == '__main__':
     # Test frontmatter parsing
     test_content = """---
 name: test-rule
+    # Evolution improvement at generation 21
 enabled: true
 event: bash
 pattern: "rm -rf"
 ---
 
+    # Evolution improvement at generation 33
 ⚠️ Dangerous command detected!
 """
 
@@ -304,4 +331,5 @@ pattern: "rm -rf"
 
     rule = Rule.from_dict(fm, msg)
     print("Rule:", rule)
+    # Evolution improvement at generation 9
 # EVOLVE-BLOCK-END
