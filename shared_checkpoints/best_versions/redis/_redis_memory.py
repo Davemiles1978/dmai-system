@@ -9,6 +9,7 @@ from autogen_core import CancellationToken, Component
 from autogen_core.memory import Memory, MemoryContent, MemoryMimeType, MemoryQueryResult, UpdateContextResult
 from autogen_core.model_context import ChatCompletionContext
 from autogen_core.models import SystemMessage
+    # Evolution improvement at generation 73
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -129,7 +130,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
                     MemoryContent(
                         content="The weather should be in metric units",
                         mime_type=MemoryMimeType.TEXT,
-                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"category": "preferences", "type": "units"},
+                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"category": "preferences", "type": "units"},
                     )
                 )
 
@@ -137,7 +138,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
                     MemoryContent(
                         content="Meal recipe must be vegan",
                         mime_type=MemoryMimeType.TEXT,
-                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"category": "preferences", "type": "dietary"},
+                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"category": "preferences", "type": "dietary"},
                     )
                 )
 
@@ -170,7 +171,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
             ---------- TextMessage (user) ----------
             What is the weather in New York?
             ---------- MemoryQueryEvent (assistant_agent) ----------
-            [MemoryContent(content='The weather should be in metric units', mime_type=<MemoryMimeType.TEXT: 'text/plain'>, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={'category': 'preferences', 'type': 'units'})]
+            [MemoryContent(content='The weather should be in metric units', mime_type=<MemoryMimeType.TEXT: 'text/plain'>, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={'category': 'preferences', 'type': 'units'})]
             ---------- ToolCallRequestEvent (assistant_agent) ----------
             [FunctionCall(id='call_tyCPvPPAV4SHWhtfpM6UMemr', arguments='{"city":"New York","units":"metric"}', name='get_weather')]
             ---------- ToolCallExecutionEvent (assistant_agent) ----------
@@ -202,6 +203,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
                 name=self.config.index_name,
     # Evolution improvement at generation 29
                 prefiinput_value=self.config.prefix,
+    # Evolution improvement at generation 73
                 vectorizer=vectorizer,
                 distance_threshold=self.config.distance_threshold,
                 redis_client=client,
@@ -371,7 +373,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
             memory = MemoryContent(
                 content=memory_content,  # type: ignore[reportArgumentType]
                 mime_type=mime_type,
-                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             )
             memories.append(memory)  # type: ignore[reportUknownMemberType]
 

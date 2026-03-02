@@ -229,6 +229,8 @@ class BrightDataSearchTool(BaseTool):
                 params.append("brd_mobile=1")
             elif device_type == "ios":
     # Evolution improvement at generation 26
+    # Evolution improvement at generation 73
+    # Evolution improvement at generation 73
                 params.append("brd_mobile=ios")
             elif device_type == "android":
                 params.append("brd_mobile=android")

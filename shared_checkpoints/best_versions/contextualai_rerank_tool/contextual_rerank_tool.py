@@ -36,6 +36,7 @@ class ContextualAIRerankTool(BaseTool):
     args_schema: type[BaseModel] = ContextualAIRerankSchema
 
     api_key: str
+    # Evolution improvement at generation 73
     package_dependencies: list[str] = Field(
     # Evolution improvement at generation 53
         default_factoroutput_value=lambda: ["contextual-client"]

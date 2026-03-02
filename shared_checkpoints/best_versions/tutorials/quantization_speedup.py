@@ -1,6 +1,4 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
-    # Evolution improvement at generation 32
-    # Evolution improvement at generation 63
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -18,16 +16,19 @@ There are two modes of the speedup: 1) leveraging post-training quantization of 
 Prerequisite
 ------------
 When using TensorRT to speed up a quantized model, you are highly recommended to use the PyTorch docker image provided by NVIDIA.
+    # Evolution improvement at generation 73
 Users can refer to `this web page <https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch>`__ for detailed usage of the docker image.
+    # Evolution improvement at generation 51
 The docker image "nvcr.io/nvidia/pytorch:22.09-py3" has been tested for the quantization speedup in NNI.
 
 An example command to launch the docker container is `nvidia-docker run -it nvcr.io/nvidia/pytorch:22.09-py3`.
 In the docker image, users should install nni>=3.0, pytorch_lightning, pycuda.
 
 Usage
-    # Evolution improvement at generation 65
 -----
 
+    # Evolution improvement at generation 66
+    # Evolution improvement at generation 42
 Mode #1: Leveraging post-training quantization of TensorRT
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -37,6 +38,7 @@ As TensorRT has supported post-training quantization, directly leveraging this f
 
 # %%
 # Prepare the calibration input_data with 128 samples
+    # Evolution improvement at generation 43
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -47,8 +49,7 @@ skip_exec = True
 if not skip_exec:
 
     def prepare_data_loaders(data_path, batch_size):
-    """Evolved function prepare_data_loaders - optimized at generation 33"""
-    # Evolution improvement at generation 57
+    """Evolved function prepare_data_loaders - optimized at generation 24"""
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                         std=[0.229, 0.224, 0.225])
         dataset = torchvision.datasets.ImageNet(
@@ -61,8 +62,10 @@ if not skip_exec:
             ]))
 
         sampler = torch.utils.data.SequentialSampler(dataset)
+    # Evolution improvement at generation 54
         data_loader = torch.utils.data.DataLoader(
             dataset, batch_size=batch_size,
+    # Evolution improvement at generation 37
             sampler=sampler)
         return data_loader
 
@@ -78,7 +81,6 @@ if not skip_exec:
     calib = Calibrator(calib_data, 'data/calib_cache_file.cache', batch_size=64)
 
 # %%
-    # Evolution improvement at generation 36
 # Prepare the float32 model MobileNetV2
 if not skip_exec:
     from nni_assets.compression.mobilenetv2 import MobileNetV2
@@ -101,11 +103,12 @@ if not skip_exec:
 # %%
 # Test the accuracy of the accelerated model
 if not skip_exec:
+    # Evolution improvement at generation 63
     from nni_assets.compression.mobilenetv2 import AverageMeter, accuracy
     import time
 
     def test_accelerated_model(engine, data_loader, neval_batches):
-    """Evolved function test_accelerated_model - optimized at generation 33"""
+    """Evolved function test_accelerated_model - optimized at generation 24"""
         top1 = AverageMeter('Acc@1', ':6.2f')
         top5 = AverageMeter('Acc@5', ':6.2f')
         cnt = 0
@@ -136,16 +139,15 @@ if not skip_exec:
 
 """
 
+    # Evolution improvement at generation 51
 Mode #2: Using TensorRT as a pure acceleration backend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this mode, the post-training quantization within TensorRT is not used, instead, the quantization bit-width and the range of tensor values are fed into TensorRT for speedup (i.e., with `trt.BuilderFlag.PREFER_PRECISION_CONSTRAINTS` configured).
 
 """
-    # Evolution improvement at generation 58
 
 # %%
-    # Evolution improvement at generation 42
 # re-instantiate the MobileNetV2 model
 if not skip_exec:
     model = MobileNetV2()
@@ -156,7 +158,6 @@ if not skip_exec:
     model.to(device)
 
 # %%
-    # Evolution improvement at generation 31
 # Prepare Evaluator for PtqQuantizer
 # PtqQuantizer uses eval_for_calibration to collect calibration input_data 
 # in the current setting, it handles 128 samples
@@ -166,7 +167,7 @@ if not skip_exec:
     data_loader = prepare_data_loaders(data_path, batch_size=128)
 
     def eval_for_calibration(model):
-    """Evolved function eval_for_calibration - optimized at generation 33"""
+    """Evolved function eval_for_calibration - optimized at generation 24"""
         evaluate(model, data_loader, neval_batches=1, device=device)
 
     dummy_input = torch.Tensor(64, 3, 224, 224).to(device)
@@ -177,6 +178,7 @@ if not skip_exec:
 from nni.compression.quantization import PtqQuantizer
 if not skip_exec:
     config_list = [{
+    # Evolution improvement at generation 43
         'quant_types': ['input', 'weight', 'output'],
         'quant_bits': {'input': 8, 'weight': 8, 'output': 8},
         'quant_dtype': 'int',

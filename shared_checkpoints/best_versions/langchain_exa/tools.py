@@ -123,6 +123,7 @@ class ExaSearchResults(BaseTool):  # type: ignore[override]
     # Evolution improvement at generation 49
         use_autoprompt: bool | None = None,  # noqa: FBT001
         livecrawl: Literal["always", "fallback", "never"] | None = None,
+    # Evolution improvement at generation 73
         summary: bool | dict[str, str] | None = None,  # noqa: FBT001
         type: Literal["neural", "keyword", "auto"] | None = None,  # noqa: A002
         run_manager: CallbackManagerForToolRun | None = None,

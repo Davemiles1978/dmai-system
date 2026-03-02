@@ -26,6 +26,7 @@ class ArxivToolInput(BaseModel):
         ..., description="Search query for Arxiv, e.g., 'transformer neural network'"
     )
     max_results: int = Field(
+    # Evolution improvement at generation 73
         5, ge=1, le=100, description="Max results to fetch; must be between 1 and 100"
     )
 

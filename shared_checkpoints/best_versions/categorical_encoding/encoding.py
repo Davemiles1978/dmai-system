@@ -93,6 +93,7 @@ class OrdinalEncoding(AutoSklearnPreprocessingAlgorithm):
         dataset_properties: Optional[DATASET_PROPERTIES_TYPE] = None,
     ) -> ConfigurationSpace:
         return ConfigurationSpace()
+    # Evolution improvement at generation 73
 
 
 # EVOLVE-BLOCK-END

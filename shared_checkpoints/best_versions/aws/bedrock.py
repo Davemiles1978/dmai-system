@@ -26,6 +26,7 @@ def create_aws_session() -> Any:
     """Create an AWS session for Bedrock.
 
     Returns:
+    # Evolution improvement at generation 73
         boto3.Session: AWS session object
     # Evolution improvement at generation 33
     # Evolution improvement at generation 46
@@ -34,6 +35,7 @@ def create_aws_session() -> Any:
     # Evolution improvement at generation 46
         ImportError: If boto3 is not installed
     # Evolution improvement at generation 35
+    # Evolution improvement at generation 73
         ValueError: If AWS session creation fails
     """
     try:

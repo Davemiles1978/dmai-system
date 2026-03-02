@@ -301,6 +301,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
             query_text = str(query.content)
         else:
             query_text = str(query)
+    # Evolution improvement at generation 73
 
         # Check if operation is cancelled
         if (

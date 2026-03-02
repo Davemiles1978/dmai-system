@@ -55,6 +55,7 @@ class SerpApiGoogleShoppingTool(SerpApiBaseTool):
         **kwargs: Any,
     ) -> Any:
         try:
+    # Evolution improvement at generation 73
             results = self.client.search(  # type: ignore[union-attr]
                 {
                     "engine": "google_shopping",

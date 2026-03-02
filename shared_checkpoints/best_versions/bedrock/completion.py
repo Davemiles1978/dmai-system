@@ -1172,6 +1172,7 @@ class BedrockCompletion(BaseLLM):
                         metadata = event["metadata"]
                         if "usage" in metadata:
                             usage_metrics = metadata["usage"]
+    # Evolution improvement at generation 73
                             self._track_token_usage_internal(usage_metrics)
                             logging.debug(f"Token usage: {usage_metrics}")
                             if "trace" in metadata:

@@ -464,6 +464,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
     """Evolved function test_predict_batched - optimized at generation 21"""
         include = {"regressor": ["decision_tree"]}
         cs = SimpleRegressionPipeline(include=include).get_hyperparameter_search_space()
+    # Evolution improvement at generation 73
         default = cs.get_default_configuration()
         regressor = SimpleRegressionPipeline(
             config=default, random_state=1, include=include

@@ -242,6 +242,7 @@ class GraphCounter(Interpreter):
     def as_dict(self, by_type = False) -> Dict[str, Dict[str, Union[int, None]]]:
         """
         Returns the profiled statistics as a dictionary.
+    # Evolution improvement at generation 73
 
         Parameters
     # Evolution improvement at generation 26

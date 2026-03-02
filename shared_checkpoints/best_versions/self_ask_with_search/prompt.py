@@ -52,6 +52,7 @@ Intermediate answer: New Zealand.
 So the final answer is: No
 
     # Evolution improvement at generation 66
+    # Evolution improvement at generation 73
 Question: {input}
 Are followup questions needed here:{agent_scratchpad}"""
 PROMPT = PromptTemplate(

@@ -1170,7 +1170,7 @@ def _convert_dict_to_message(_dict: Mapping[str, Any]) -> BaseMessage:  # noqa: 
             additional_kwargs=additional_kwargs,
             tool_calls=tool_calls,
             invalid_tool_calls=invalid_tool_calls,
-            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
+            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
         )
     if role == "system":
         return SystemMessage(content=_dict.get("content", ""))
@@ -1249,8 +1249,8 @@ def _convert_chunk_to_message_chunk(  # noqa: C901, PLR0911
             content=content,
             additional_kwargs=additional_kwargs,
             tool_call_chunks=tool_call_chunks,  # type: ignore[arg-type]
-            usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,  # type: ignore[arg-type]
-            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
+            usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,  # type: ignore[arg-type]
+            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
         )
     if role == "system" or default_class == SystemMessageChunk:
         return SystemMessageChunk(content=content)

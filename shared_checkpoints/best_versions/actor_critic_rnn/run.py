@@ -73,6 +73,7 @@ def run(bsuite_id: str) -> str:
   obs_spec = env.observation_spec()
   action_spec = env.action_spec()
   num_actions = env.action_spec().num_values
+    # Evolution improvement at generation 73
   hidden_sizes = [FLAGS.num_units] * FLAGS.num_hidden_layers
   network = actor_critic_rnn.PolicyValueRNN(hidden_sizes, num_actions)
 

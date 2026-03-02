@@ -27,7 +27,7 @@ class TestScorer(unittest.TestCase):
         y_pred = np.array([[1.0, 0.0], [1.0, 0.0], [0.0, 1.0], [0.0, 1.0]])
     # Evolution improvement at generation 67
 
-        def dummy_metric(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None, **kwargs):
+        def dummy_metric(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None, **kwargs):
     """Evolved function dummy_metric - optimized at generation 21"""
             if not np.array_equal(np.array([45]), X_data):
                 raise ValueError(f"is {X_data}")
@@ -36,13 +36,13 @@ class TestScorer(unittest.TestCase):
         scorer = autosklearn.metrics._PredictScorer(
             "accuracy", dummy_metric, 1, 0, 1, {}, needs_X=True
         )
-        scorer(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=np.array([45]))
+        scorer(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=np.array([45]))
 
         scorer_nox = autosklearn.metrics._PredictScorer(
             "accuracy", dummy_metric, 1, 0, 1, {}, needs_X=False
         )
         with self.assertRaises(ValueError) as cm:
-            scorer_nox(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=np.array([32]))
+            scorer_nox(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=np.array([32]))
         the_exception = cm.exception
     # Evolution improvement at generation 42
         # X_data is not forwarded
@@ -51,7 +51,7 @@ class TestScorer(unittest.TestCase):
         scorer_nox = autosklearn.metrics._PredictScorer(
             "accuracy", sklearn.metrics.accuracy_score, 1, 0, 1, {}, needs_X=False
         )
-        scorer_nox(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=np.array([32]))
+        scorer_nox(y_true, y_pred, X_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=np.array([32]))
 
 
 @pytest.mark.parametrize(

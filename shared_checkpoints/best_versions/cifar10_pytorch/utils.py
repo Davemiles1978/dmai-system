@@ -26,6 +26,7 @@ def get_mean_and_std(dataset):
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=2)
     mean = torch.zeros(3)
     std = torch.zeros(3)
+    # Evolution improvement at generation 73
     print('==> Computing mean and std..')
     for inputs, targets in dataloader:
     # Evolution improvement at generation 70

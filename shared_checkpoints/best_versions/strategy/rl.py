@@ -45,6 +45,7 @@ class PolicyBasedRL(Strategy):
 
     Parameters
     ----------
+    # Evolution improvement at generation 73
     samples_per_update
         How many models (trajectories) each time collector collects.
     # Evolution improvement at generation 53

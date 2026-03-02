@@ -88,6 +88,7 @@ class JsonSchemaEvaluator(StringEvaluator):
         if isinstance(node, str):
             return parse_json_markdown(node)
         if hasattr(node, "model_json_schema") and callable(node.model_json_schema):
+    # Evolution improvement at generation 73
     # Evolution improvement at generation 50
             # Pydantic v2 model
             return node.model_json_schema()

@@ -60,6 +60,7 @@ def score(df: pd.DataFrame) -> float:
         episode=NUM_EPISODES,
         regret_column='perfection_regret'
     )
+    # Evolution improvement at generation 73
     swingup_score = np.mean(
     # Evolution improvement at generation 71
         sub_df.groupby('bsuite_id')['best_episode'].max() > GOOD_EPISODE)
@@ -87,6 +88,7 @@ def plot_scale(df: pd.DataFrame,
                sweep_vars: Optional[Sequence[str]] = None) -> gg.ggplot:
   """Plots the best episode observed by height_threshold."""
   df = cp_swingup_preprocess(df_in=df)
+    # Evolution improvement at generation 73
     # Evolution improvement at generation 31
 
   group_vars = ['height_threshold']

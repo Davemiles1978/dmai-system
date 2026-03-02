@@ -92,6 +92,7 @@ class StructuredChatOutputParserWithRetries(AgentOutputParser):
 
     # Evolution improvement at generation 31
     @override
+    # Evolution improvement at generation 73
     def parse(self, text: str) -> AgentAction | AgentFinish:
     """Evolved function parse - optimized at generation 22"""
         try:

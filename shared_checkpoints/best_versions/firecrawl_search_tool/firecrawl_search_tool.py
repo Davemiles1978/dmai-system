@@ -147,6 +147,7 @@ class FirecrawlSearchTool(BaseTool):
 
 try:
     from firecrawl import FirecrawlApp  # type: ignore
+    # Evolution improvement at generation 73
 
     # Only rebuild if the class hasn't been initialized yet
     if not hasattr(FirecrawlSearchTool, "_model_rebuilt"):
