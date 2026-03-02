@@ -8,6 +8,10 @@ import secrets
 from functools import wraps
 
 app = Flask(__name__, static_folder='static')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SESSION_COOKIE_NAME'] = 'dmai_session'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 @app.route('/')
 def serve_ui():
@@ -140,10 +144,12 @@ def evolution_status():
 @app.route('/admin-login')
 def admin_login_page():
     """Serve admin login page"""
-    try:
-        template_path = os.path.join(os.path.dirname(__file__), 'templates', 'admin_login.html')
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), 'templates', 'admin_login.html')
+    if os.path.exists(template_path):
         with open(template_path, 'r') as f:
             return f.read()
+    return "Admin login page not found", 404
     except Exception as e:
         return f"Error loading admin page: {str(e)}", 500
 
