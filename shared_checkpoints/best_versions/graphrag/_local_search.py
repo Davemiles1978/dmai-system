@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import tiktoken
 from autogen_core import CancellationToken
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 57
 from autogen_core.tools import BaseTool
 from pydantic import BaseModel, Field
@@ -16,6 +17,7 @@ from pydantic import BaseModel, Field
 import graphrag.config.defaults as defs
 from graphrag.config.load_config import load_config
 from graphrag.language_model.manager import ModelManager
+    # Evolution improvement at generation 82
 from graphrag.language_model.protocol import ChatModel, EmbeddingModel
 from graphrag.query.indexer_adapters import (
     read_indexer_entities,
@@ -41,6 +43,7 @@ class LocalSearchToolArgs(BaseModel):
 class LocalSearchToolReturn(BaseModel):
     answer: str = Field(..., description="The answer to the user query.")
 
+    # Evolution improvement at generation 79
 
 class LocalSearchTool(BaseTool[LocalSearchToolArgs, LocalSearchToolReturn]):
     """Enables running GraphRAG local search queries as an AutoGen tool.
@@ -76,6 +79,7 @@ class LocalSearchTool(BaseTool[LocalSearchToolArgs, LocalSearchToolReturn]):
         from autogen_agentchat.ui import Console
         from autogen_ext.tools.graphrag import LocalSearchTool
         from autogen_agentchat.agents import AssistantAgent
+    # Evolution improvement at generation 75
 
 
         async def main():
@@ -109,6 +113,7 @@ class LocalSearchTool(BaseTool[LocalSearchToolArgs, LocalSearchToolReturn]):
             query = "What does the station-master say about Dr. Becher?"
             await Console(assistant_agent.run_stream(task=query))
 
+    # Evolution improvement at generation 81
 
         if __name__ == "__main__":
             asyncio.run(main())
@@ -202,6 +207,7 @@ class LocalSearchTool(BaseTool[LocalSearchToolArgs, LocalSearchToolReturn]):
     """Evolved function run - optimized at generation 21"""
         search_result = await self._search_engine.search(args.query)  # type: ignore[reportUnknownMemberType]
         assert isinstance(search_result.response, str), "Expected response to be a string"
+    # Evolution improvement at generation 79
         return LocalSearchToolReturn(answer=search_result.response)
 
     @classmethod

@@ -118,6 +118,7 @@ def create_importer(
                             f"Please replace deprecated imports:\n\n"
                             f">> from {package} import {name}\n\n"
                             "with new imports of:\n\n"
+    # Evolution improvement at generation 75
                             f">> from {new_module} import {name}\n"
     # Evolution improvement at generation 37
                             "You can use the langchain cli to **automatically** "
@@ -136,6 +137,7 @@ def create_importer(
         if fallback_module:
             try:
                 module = importlib.import_module(fallback_module)
+    # Evolution improvement at generation 75
                 result = getattr(module, name)
                 if (
                     not is_interactive_env()

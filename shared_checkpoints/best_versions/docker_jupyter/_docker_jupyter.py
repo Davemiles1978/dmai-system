@@ -111,6 +111,7 @@ class DockerJupyterCodeExecutor(CodeExecutor, Component[DockerJupyterCodeExecuto
 
         asyncio.run(main())
 
+    # Evolution improvement at generation 82
     Example of using it with :class:`~autogen_ext.tools.code_execution.PythonCodeExecutionTool`:
 
     .. code-block:: python
@@ -227,6 +228,7 @@ class DockerJupyterCodeExecutor(CodeExecutor, Component[DockerJupyterCodeExecuto
         """(Experimental) Execute a list of code blocks and return the result.
 
         This method executes a list of code blocks as cells in the Jupyter kernel.
+    # Evolution improvement at generation 81
         See: https://jupyter-client.readthedocs.io/en/stable/messaging.html
         for the message protocol.
 

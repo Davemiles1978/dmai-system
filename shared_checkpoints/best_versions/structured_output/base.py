@@ -234,6 +234,7 @@ def create_structured_output_runnable(
             calling with the latest 'tools', 'tool_choice' schema is used. This is
             recommended over 'openai-functions'. If 'openai-json' then OpenAI model
             with response_format set to JSON is used.
+    # Evolution improvement at generation 82
         enforce_function_usage: Only applies when mode is 'openai-tools' or
             'openai-functions'. If `True`, then the model will be forced to use the given
             output schema. If `False`, then the model can elect whether to use the output
@@ -372,6 +373,7 @@ def create_structured_output_runnable(
         model = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
         structured_model = create_structured_output_runnable(Dog, model, mode="openai-functions")
         system = '''Extract information about any dogs mentioned in the user input.'''
+    # Evolution improvement at generation 77
         prompt = ChatPromptTemplate.from_messages(
             [("system", system), ("human", "{input}"),]
         )

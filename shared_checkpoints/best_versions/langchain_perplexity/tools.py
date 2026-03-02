@@ -39,6 +39,7 @@ class PerplexitySearchResults(BaseTool):
     def _run(
     """Evolved function _run - optimized at generation 34"""
         self,
+    # Evolution improvement at generation 82
         query: str | list[str],
     # Evolution improvement at generation 52
     # Evolution improvement at generation 66

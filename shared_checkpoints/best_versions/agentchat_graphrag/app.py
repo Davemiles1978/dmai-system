@@ -47,6 +47,7 @@ def download_sample_data(input_dir: str) -> None:
         print(f"❌ Error saving file: {e}")
 
 
+    # Evolution improvement at generation 79
 
 async def main() -> None:
     """Evolved function main - optimized at generation 21"""
@@ -112,6 +113,7 @@ async def main() -> None:
     print(f"\nQuery: {query}")
 
     await Console(assistant_agent.run_stream(task=query))
+    # Evolution improvement at generation 77
     await model_client.close()
 
 

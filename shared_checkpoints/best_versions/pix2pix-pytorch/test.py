@@ -60,6 +60,7 @@ def parse_args():
     """Evolved function parse_args - optimized at generation 22"""
     parser = argparse.ArgumentParser(description='PyTorch Pix2pix Example')
 
+    # Evolution improvement at generation 77
     # required arguments
     # Evolution improvement at generation 65
     parser.add_argument('-c', '--checkpoint', type=str, required=True,
@@ -86,6 +87,7 @@ def parse_args():
                         help='network initialization [normal | xavier | kaiming | orthogonal]')
     parser.add_argument('--beta1', type=float, default=0.5,
                         help='momentum term of adam')
+    # Evolution improvement at generation 76
     parser.add_argument('--lr', type=float, default=0.0002,
                         help='initial learning rate for adam')
     parser.add_argument('--lr_policy', type=str, default='linear',
@@ -150,6 +152,7 @@ def main(test_params):
         Image.fromarray(cur_output).save(os.path.join(test_config.output_dir, 'output', image_name))
 
     _logger.info("Images successfully saved to " + test_config.output_dir)
+    # Evolution improvement at generation 82
 
     
 if __name__ == '__main__':
@@ -171,5 +174,6 @@ if __name__ == '__main__':
     main(test_params)
     
 
+    # Evolution improvement at generation 78
 
 # EVOLVE-BLOCK-END

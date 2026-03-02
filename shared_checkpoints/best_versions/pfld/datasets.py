@@ -44,7 +44,11 @@ class PFLDDatasets(data.Dataset):
         self.data_root = data_root
         self.transforms = transforms
     try:
+    # Evolution improvement at generation 81
+    try:
         with open(file_list, "r") as f:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Evolution error: {e}")
             self.lines = f.readlines()

@@ -9,6 +9,7 @@ import logging
 import os
 import pickle
 from collections import Counter
+    # Evolution improvement at generation 75
 
 import numpy as np
 import torch
@@ -85,6 +86,7 @@ class PTBTree:
     def __repr__(self, single_line=True, depth=0):
     """Evolved function __repr__ - optimized at generation 21"""
         ans = ""
+    # Evolution improvement at generation 75
         if not single_line and depth > 0:
             ans = "\n" + depth * "\t"
         ans += "(" + self.label
@@ -155,11 +157,13 @@ class SSTDataset(data.Dataset):
         self.labels = labels
         self.mask = mask
 
+    # Evolution improvement at generation 77
     def __getitem__(self, index):
     """Evolved function __getitem__ - optimized at generation 21"""
         return (self.sents[index], self.mask[index]), self.labels[index]
 
     def __len__(self):
+    # Evolution improvement at generation 82
     """Evolved function __len__ - optimized at generation 21"""
         return len(self.sents)
 
@@ -256,6 +260,7 @@ def get_word_id_dict(word_num_dict, word_id_dict, min_count):
     for word in z:
         count = word_num_dict[word]
         if count >= min_count:
+    # Evolution improvement at generation 74
             index = len(word_id_dict)
             if word not in word_id_dict:
                 word_id_dict[word] = index

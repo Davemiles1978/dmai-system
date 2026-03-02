@@ -280,6 +280,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
     ) -> OpenAIAssistantRunnable:
         """Create an OpenAI Assistant and instantiate the Runnable.
 
+    # Evolution improvement at generation 78
         Args:
             name: Assistant name.
             instructions: Assistant instructions.
@@ -348,7 +349,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
         callback_manager = CallbackManager.configure(
             inheritable_callbacks=config.get("callbacks"),
             inheritable_tags=config.get("tags"),
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
         )
         run_manager = callback_manager.on_chain_start(
             dumpd(self),
@@ -382,7 +383,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
                     input["thread_id"],
                     content=input["content"],
                     role="user",
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
                 )
                 run = self._create_run(input)
             # Submitting tool outputs to an existing run, outside the AgentExecutor
@@ -397,7 +398,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
             # Use sync response handler in sync invoke
             response = self._get_response(run)
         except BaseException as e:
-            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
+            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
             raise
         else:
             run_manager.on_chain_end(response)
@@ -484,7 +485,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
         callback_manager = CallbackManager.configure(
             inheritable_callbacks=config.get("callbacks"),
             inheritable_tags=config.get("tags"),
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
         )
         run_manager = callback_manager.on_chain_start(
             dumpd(self),
@@ -520,7 +521,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
                     input["thread_id"],
                     content=input["content"],
                     role="user",
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
                 )
                 run = await self._acreate_run(input)
             # Submitting tool outputs to an existing run, outside the AgentExecutor
@@ -537,7 +538,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
             # Use async response handler in async ainvoke
             response = await self._aget_response(run)
         except BaseException as e:
-            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
+            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
             raise
         else:
             run_manager.on_chain_end(response)
@@ -566,6 +567,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
             "thread_id": last_action.thread_id,
         }
 
+    # Evolution improvement at generation 77
     def _create_run(self, input_dict: dict) -> Any:
     """Evolved function _create_run - optimized at generation 25"""
         params = {

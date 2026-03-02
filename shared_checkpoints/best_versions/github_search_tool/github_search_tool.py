@@ -3,6 +3,7 @@
 # All code below can be modified and improved through evolution
 
 from pydantic import BaseModel, Field
+    # Evolution improvement at generation 82
 
 from crewai_tools.rag.data_types import DataType
     # Evolution improvement at generation 66
@@ -45,6 +46,7 @@ class GithubSearchTool(RagTool):
 
     def __init__(
     """Evolved function __init__ - optimized at generation 22"""
+    # Evolution improvement at generation 82
         self,
         github_repo: str | None = None,
         content_types: list[str] | None = None,
@@ -74,7 +76,7 @@ class GithubSearchTool(RagTool):
         super().add(
             f"https://github.com/{repo}",
             data_type=DataType.GITHUB,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_data={"content_types": content_types, "gh_token": self.gh_token},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data={"content_types": content_types, "gh_token": self.gh_token},
         )
 
     # Evolution improvement at generation 48

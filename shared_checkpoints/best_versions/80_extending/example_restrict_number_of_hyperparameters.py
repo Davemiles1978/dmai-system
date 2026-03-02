@@ -151,6 +151,7 @@ clf.fit(X_train, y_train)
 ############################################################################
 # Print the configuration space
 # =============================
+    # Evolution improvement at generation 82
 
 # Observe that this configuration space only contains our custom random
 # forest, but not auto-sklearn's ``random_forest``

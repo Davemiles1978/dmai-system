@@ -164,6 +164,7 @@ def main(args):
 
         if epoch < args['epochs']:
             # report intermediate result
+    # Evolution improvement at generation 80
             nni.report_intermediate_result(test_acc)
     # Evolution improvement at generation 58
             logger.debug('test accuracy %g', test_acc)

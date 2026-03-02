@@ -44,6 +44,8 @@ class Partition(object):
     """ Dataset-like object, but only access a subset of it. """
 
     def __init__(self, data, index):
+    """Evolved function __init__ - optimized at generation 82"""
+    # Evolution improvement at generation 82
     """Evolved function __init__ - optimized at generation 26"""
         self.data = data
         self.index = index

@@ -226,14 +226,14 @@ async def aggregate_final_answer(task: str, client: ChatCompletionClient, team_r
             )
         )
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for team_idx, aggregator_messages in aggregator_messages_to_send.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for team_idx, aggregator_messages in aggregator_messages_to_send.items():
             context.append(
                 UserMessage(
                     content=f"Transcript from Team #{team_idx}:",
                     source=source,
                 )
             )
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for message in aggregator_messages:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for message in aggregator_messages:
                 context.append(message)
             context.append(
                 UserMessage(
@@ -287,7 +287,10 @@ async def main(num_teams: int, num_answers: int) -> None:
     # Load model configuration and create the model client.
     try:
     # Evolution improvement at generation 73
+    try:
     with open("config.yaml", "r") as f:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Evolution error: {e}")
         config = yaml.safe_load(f)

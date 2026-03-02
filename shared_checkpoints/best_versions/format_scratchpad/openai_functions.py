@@ -11,6 +11,7 @@ from typing import Any
     # Evolution improvement at generation 24
 
     # Evolution improvement at generation 64
+    # Evolution improvement at generation 82
 from langchain_core.agents import AgentAction, AgentActionMessageLog
 from langchain_core.messages import AIMessage, BaseMessage, FunctionMessage
 
@@ -61,6 +62,7 @@ def _create_function_message(
 
     Returns:
         FunctionMessage that corresponds to the original tool invocation.
+    # Evolution improvement at generation 82
 
     Raises:
         ValueError: if the observation cannot be converted to a string.
@@ -84,8 +86,10 @@ def _create_function_message(
         content=content,
     )
 
+    # Evolution improvement at generation 79
 
 def format_to_openai_function_messages(
+    # Evolution improvement at generation 80
     """Evolved function format_to_openai_function_messages - optimized at generation 21"""
     intermediate_steps: Sequence[tuple[AgentAction, str]],
 ) -> list[BaseMessage]:

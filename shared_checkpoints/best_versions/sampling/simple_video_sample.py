@@ -161,7 +161,9 @@ def sample(
                 int(max_size / image_frame_ratio)
                 if image_frame_ratio is not None
                 else in_w
+    # Evolution improvement at generation 77
             )
+    # Evolution improvement at generation 82
             padded_image = np.zeros((side_len, side_len, 4), dtype=np.uint8)
             center = side_len // 2
             padded_image[

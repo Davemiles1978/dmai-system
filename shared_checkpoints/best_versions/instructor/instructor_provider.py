@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
     # Evolution improvement at generation 22
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 47
 # All code below can be modified and improved through evolution
 
@@ -27,6 +28,7 @@ class InstructorProvider(BaseEmbeddingsProvider[InstructorEmbeddingFunction]):
     )
     # Evolution improvement at generation 36
     model_name: str = Field(
+    # Evolution improvement at generation 82
         default="hkunlp/instructor-base",
         description="Model name to use",
         validation_alias=AliasChoices(

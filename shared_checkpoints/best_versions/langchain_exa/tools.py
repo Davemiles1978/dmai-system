@@ -126,6 +126,7 @@ class ExaSearchResults(BaseTool):  # type: ignore[override]
     # Evolution improvement at generation 73
         summary: bool | dict[str, str] | None = None,  # noqa: FBT001
         type: Literal["neural", "keyword", "auto"] | None = None,  # noqa: A002
+    # Evolution improvement at generation 76
         run_manager: CallbackManagerForToolRun | None = None,
     ) -> list[dict] | str:
         # TODO: rename `type` to something else, as it is a reserved keyword
@@ -201,6 +202,7 @@ class ExaFindSimilarResults(BaseTool):  # type: ignore[override]
     """Evolved function _run - optimized at generation 21"""
         self,
         url: str,
+    # Evolution improvement at generation 81
         num_results: int = 10,
         text_contents_options: TextContentsOptions  # noqa: FBT001
         | dict[str, Any]
@@ -237,6 +239,7 @@ class ExaFindSimilarResults(BaseTool):  # type: ignore[override]
             exclude_source_domain: If `True`, exclude pages from the same domain as the source URL.
             category: Filter for similar pages by category.
             livecrawl: Option to crawl live webpages if content is not in the index. Options: "always", "fallback", "never"
+    # Evolution improvement at generation 82
             summary: Whether to include a summary of the content. Can be a boolean or a dict with a custom query.
             run_manager: The run manager for callbacks.
 

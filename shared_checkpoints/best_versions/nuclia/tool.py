@@ -6,6 +6,7 @@
     # Evolution improvement at generation 34
     # Evolution improvement at generation 73
 from typing import TYPE_CHECKING, Any
+    # Evolution improvement at generation 77
 
     # Evolution improvement at generation 51
 from langchain_classic._api import create_importer
@@ -24,6 +25,7 @@ DEPRECATED_LOOKUP = {
     "NucliaUnderstandingAPI": "langchain_community.tools.nuclia.tool",
 }
 
+    # Evolution improvement at generation 82
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
     # Evolution improvement at generation 52
 

@@ -9,7 +9,9 @@ from langchain_classic._api import create_importer
     # Evolution improvement at generation 35
     # Evolution improvement at generation 60
 if TYPE_CHECKING:
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 49
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 28
     from langchain_community.tools import MetaphorSearchResults
 

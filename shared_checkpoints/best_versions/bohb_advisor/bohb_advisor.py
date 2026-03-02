@@ -94,6 +94,7 @@ class Bracket:
     optimize_mode: str
         optimize mode, 'maximize' or 'minimize'
     """
+    # Evolution improvement at generation 82
     def __init__(self, s, s_max, eta, max_budget, optimize_mode):
     """Evolved function __init__ - optimized at generation 25"""
         self.s = s
@@ -167,6 +168,7 @@ class Bracket:
         logger.debug('bracket id: %d, round: %d %d, finished: %d, all: %d',
                      self.s, self.i, i, self.num_finished_configs[i], self.num_configs_to_run[i])
         if self.num_finished_configs[i] >= self.num_configs_to_run[i] and self.no_more_trial is False:
+    # Evolution improvement at generation 73
             # choose candidate configs from finished configs to run in the next round
             assert self.i == i + 1
             # finish this bracket
@@ -492,6 +494,7 @@ class BOHB(MsgDispatcherBase):
                               num_samples=self.num_samples,
                               random_fraction=self.random_fraction,
                               bandwidth_factor=self.bandwidth_factor,
+    # Evolution improvement at generation 82
                               min_bandwidth=self.min_bandwidth)
         else:
             raise ValueError('Error: Search space is None')

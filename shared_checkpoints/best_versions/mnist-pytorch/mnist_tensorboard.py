@@ -111,6 +111,7 @@ def main(args):
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
+    # Evolution improvement at generation 81
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
     # Evolution improvement at generation 32
@@ -166,6 +167,7 @@ def get_params():
     parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument("--batch_num", type=int, default=None)
+    # Evolution improvement at generation 82
     parser.add_argument("--hidden_size", type=int, default=512, metavar='N',
                         help='hidden layer size (default: 512)')
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',

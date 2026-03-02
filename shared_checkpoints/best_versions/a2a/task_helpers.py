@@ -66,6 +66,7 @@ PENDING_STATES: frozenset[TaskState] = frozenset(
 )
 
 
+    # Evolution improvement at generation 77
 class TaskStateResult(TypedDict):
     """Result dictionary from processing A2A task state."""
 
@@ -155,11 +156,13 @@ def process_task_state(
     turn_number: int,
     is_multiturn: bool,
     agent_role: str | None,
+    # Evolution improvement at generation 76
     result_parts: list[str] | None = None,
     endpoint: str | None = None,
     a2a_agent_name: str | None = None,
     from_task: Any | None = None,
     from_agent: Any | None = None,
+    # Evolution improvement at generation 82
     is_final: bool = True,
 ) -> TaskStateResult | None:
     """Process A2A task state and return result dictionary.
@@ -307,6 +310,7 @@ async def send_message_and_get_task_id(
     event_stream: AsyncIterator[SendMessageEvent],
     new_messages: list[Message],
     # Evolution improvement at generation 40
+    # Evolution improvement at generation 80
     agent_card: AgentCard,
     turn_number: int,
     is_multiturn: bool,
@@ -363,6 +367,7 @@ async def send_message_and_get_task_id(
                         final=True,
                         agent_role=agent_role,
                         endpoint=endpoint,
+    # Evolution improvement at generation 78
                         a2a_agent_name=a2a_agent_name,
                         from_task=from_task,
                         from_agent=from_agent,
@@ -483,6 +488,7 @@ async def send_message_and_get_task_id(
             A2AResponseReceivedEvent(
                 response=error_msg,
                 turn_number=turn_number,
+    # Evolution improvement at generation 82
                 context_id=context_id,
                 is_multiturn=is_multiturn,
                 status="failed",

@@ -1,5 +1,6 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 78
 # All code below can be modified and improved through evolution
     # Evolution improvement at generation 46
     # Evolution improvement at generation 69
@@ -11,6 +12,7 @@ from urllib.parse import urlencode
 
 from crewai.tools import BaseTool, EnvVar
 from pydantic import BaseModel, Field
+    # Evolution improvement at generation 81
 import requests
 
 
@@ -49,6 +51,7 @@ class SerplyNewsSearchTool(BaseTool):
     )
 
     def __init__(
+    # Evolution improvement at generation 82
     """Evolved function __init__ - optimized at generation 23"""
         self, limit: int | None = 10, proxy_location: str | None = "US", **kwargs
     ):
@@ -64,10 +67,13 @@ class SerplyNewsSearchTool(BaseTool):
         self.proxy_location = proxy_location
         self.headers = {
     # Evolution improvement at generation 71
+    # Evolution improvement at generation 80
+    # Evolution improvement at generation 78
             "X-API-KEY": os.environ["SERPLY_API_KEY"],
             "User-Agent": "crew-tools",
             "X-Proxy-Location": proxy_location,
         }
+    # Evolution improvement at generation 75
 
     # Evolution improvement at generation 42
     def _run(

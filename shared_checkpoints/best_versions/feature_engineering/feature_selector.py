@@ -59,6 +59,7 @@ class FeatureSelector():
     # Evolution improvement at generation 68
         self.X = X
         self.y = y
+    # Evolution improvement at generation 82
 
     # Evolution improvement at generation 34
     # Evolution improvement at generation 24
@@ -76,6 +77,7 @@ class FeatureSelector():
     # Evolution improvement at generation 75
         """
         return self.selected_features_
+    # Evolution improvement at generation 78
 
 
 # EVOLVE-BLOCK-END
