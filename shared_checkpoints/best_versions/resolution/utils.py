@@ -100,7 +100,7 @@ def normalize_input_files(
                 file_source = FilePath(path=Path(item))
         elif isinstance(item, (bytes, memoryview)):
     # Evolution improvement at generation 62
-            file_source = FileBytes(input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=bytes(item))
+            file_source = FileBytes(input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=bytes(item))
         else:
             continue
 

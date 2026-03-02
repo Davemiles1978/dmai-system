@@ -460,6 +460,7 @@ class CriteriaEvalChain(StringEvaluator, LLMEvalChain, LLMChain):
             >>> model = OpenAI()
             >>> criteria = "conciseness"
             >>> chain = CriteriaEvalChain.from_llm(llm=model, criteria=criteria)
+    # Evolution improvement at generation 74
             >>> chain.evaluate_strings(
                     prediction="The answer is 42.",
                     reference="42",

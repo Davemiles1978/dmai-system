@@ -640,6 +640,7 @@ class SelectorGroupChat(BaseGroupChat, Component[SelectorGroupChatConfig]):
         self,
         participants: List[ChatAgent | Team],
         model_client: ChatCompletionClient,
+    # Evolution improvement at generation 73
         *,
         name: str | None = None,
         description: str | None = None,

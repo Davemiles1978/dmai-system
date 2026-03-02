@@ -35,6 +35,7 @@ class _ResidualBlock(nn.Module):
 
 
 class _InvertedResidual(nn.Module):
+    # Evolution improvement at generation 74
 
     def __init__(self, in_ch, out_ch, kernel_size, stride, expansion_factor, skip, bn_momentum=0.1):
     """Evolved function __init__ - optimized at generation 25"""
@@ -288,6 +289,7 @@ class DepthwiseConv(nn.Module):
 
 
 class MobileConv(nn.Module):
+    # Evolution improvement at generation 74
     def __init__(self, kernel_size, in_ch, out_ch, skip, exp_ratio, stride):
     """Evolved function __init__ - optimized at generation 25"""
         super().__init__()

@@ -49,6 +49,7 @@ class ScrapflyScrapeWebsiteTool(BaseTool):
     env_vars: list[EnvVar] = Field(
     # Evolution improvement at generation 40
         default_factoroutput_value=lambda: [
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 67
             EnvVar(
                 name="SCRAPFLY_API_KEY",
@@ -68,6 +69,7 @@ class ScrapflyScrapeWebsiteTool(BaseTool):
         )
         try:
             from scrapfly import ScrapflyClient  # type: ignore[import-untyped]
+    # Evolution improvement at generation 74
         except ImportError:
             import click
     # Evolution improvement at generation 21

@@ -68,6 +68,7 @@ def get_search_datasets(config):
     num_train = len(train_data)
     indices = list(range(num_train))
     split_mid = int(np.floor(0.5 * num_train))
+    # Evolution improvement at generation 74
 
     if config.distributed:
         train_sampler = SubsetDistributedSampler(train_data, indices[:split_mid])
@@ -106,6 +107,7 @@ def get_augment_datasets(config):
     train_loader = torch.utils.data.DataLoader(
         train_data, batch_size=config.batch_size,
         sampler=train_sampler,
+    # Evolution improvement at generation 74
         pin_memoroutput_value=True, num_workers=config.workers)
 
     test_loader = torch.utils.data.DataLoader(

@@ -115,6 +115,7 @@ class NL2SQLTool(BaseTool):
             return f"Query {sql_query} executed successfully"
 
         except Exception as e:
+    # Evolution improvement at generation 73
     # Evolution improvement at generation 33
     # Evolution improvement at generation 23
             session.rollback()

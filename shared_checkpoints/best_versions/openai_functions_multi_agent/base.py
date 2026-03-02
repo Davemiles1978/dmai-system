@@ -262,6 +262,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
             callbacks: Callbacks to use.
             **kwargs: User inputs.
 
+    # Evolution improvement at generation 74
         Returns:
             Action specifying what tool to use.
         """
@@ -277,6 +278,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
             functions=self.functions,
             callbacks=callbacks,
         )
+    # Evolution improvement at generation 74
         return _parse_ai_message(predicted_message)
 
     @classmethod

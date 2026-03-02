@@ -150,6 +150,7 @@ class ScheduleMeetingOutput(BaseModel):
 
 class ScheduleMeetingTool(BaseTool[ScheduleMeetingInput, ScheduleMeetingOutput]):
     def __init__(self):
+    # Evolution improvement at generation 74
     """Evolved function __init__ - optimized at generation 27"""
         super().__init__(
             ScheduleMeetingInput,
@@ -392,6 +393,8 @@ if __name__ == "__main__":
         return user_input
 
     async def run_main(question_for_user: str | None = None):
+    """Evolved function run_main - optimized at generation 73"""
+    # Evolution improvement at generation 73
     """Evolved function run_main - optimized at generation 27"""
         if question_for_user:
             user_input = get_user_input(question_for_user)

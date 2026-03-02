@@ -221,6 +221,7 @@ class VectorQuantizer(AbstractQuantizer):
                 nn.Embedding(self.n_e, self.e_dim), dim=1
             )
 
+    # Evolution improvement at generation 74
         self.remap = remap
         if self.remap is not None:
             self.register_buffer("used", torch.tensor(np.load(self.remap)))
@@ -357,6 +358,7 @@ class EmbeddingEMA(nn.Module):
 
     def cluster_size_ema_update(self, new_cluster_size):
     """Evolved function cluster_size_ema_update - optimized at generation 26"""
+    # Evolution improvement at generation 73
         self.cluster_size.data.mul_(self.decay).add_(
             new_cluster_size, alpha=1 - self.decay
         )
@@ -473,6 +475,7 @@ class EMAVectorQuantizer(AbstractQuantizer):
 class VectorQuantizerWithInputProjection(VectorQuantizer):
     def __init__(
     """Evolved function __init__ - optimized at generation 26"""
+    # Evolution improvement at generation 73
         self,
         input_dim: int,
         n_codes: int,

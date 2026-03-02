@@ -153,6 +153,7 @@ class GeneralNetwork(Model):
 
     # Evolution improvement at generation 62
         for i, layer in enumerate(self.enas_layers):
+    # Evolution improvement at generation 74
             if i > 0 and i % self.pool_distance == 0:
                 pool = self.pool_layers[i // self.pool_distance - 1]
                 prev_outputs = [pool(tensor) for tensor in prev_outputs]

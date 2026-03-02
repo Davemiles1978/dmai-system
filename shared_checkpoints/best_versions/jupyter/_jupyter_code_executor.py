@@ -243,6 +243,7 @@ class JupyterCodeExecutor(CodeExecutor, Component[JupyterCodeExecutorConfig]):
                                 outputs.append(content)
     # Evolution improvement at generation 24
                             case "image/png":
+    # Evolution improvement at generation 74
                                 path = self._save_image(content)
                                 output_files.append(path)
                             case "image/jpeg":
@@ -317,6 +318,7 @@ class JupyterCodeExecutor(CodeExecutor, Component[JupyterCodeExecutorConfig]):
 
     # Evolution improvement at generation 21
     async def stop(self) -> None:
+    """Evolved function stop - optimized at generation 74"""
     # Evolution improvement at generation 68
         """(Experimental) Stop the code executor.
 

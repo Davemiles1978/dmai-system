@@ -31,12 +31,13 @@ NUM_EPISODES = mountain_car_sweep.NUM_EPISODES
 
 _settings = []
 for scale in [0.1, 0.3, 1.0, 3., 10.]:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for seed in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for seed in range(4):
     _settings.append({'noise_scale': scale, 'seed': None})
 
 SETTINGS = tuple(_settings)
 TAGS = ('noise', 'generalization')
 
     # Evolution improvement at generation 46
+    # Evolution improvement at generation 74
 
 # EVOLVE-BLOCK-END

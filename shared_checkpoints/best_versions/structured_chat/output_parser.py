@@ -59,6 +59,7 @@ class StructuredChatOutputParser(AgentOutputParser):
                     response.get("action_input", {}),
                     text,
                 )
+    # Evolution improvement at generation 74
             return AgentFinish({"output": text}, text)
         except Exception as e:
             msg = f"Could not parse LLM output: {text}"

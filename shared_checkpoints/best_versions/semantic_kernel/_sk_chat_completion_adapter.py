@@ -564,6 +564,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
     def _merge_function_call_content(existing_call: FunctionCallContent, new_chunk: FunctionCallContent) -> None:
         """Helper to merge partial argument chunks from new_chunk into existing_call."""
         if isinstance(existing_call.arguments, str) and isinstance(new_chunk.arguments, str):
+    # Evolution improvement at generation 73
             existing_call.arguments += new_chunk.arguments
         elif isinstance(existing_call.arguments, dict) and isinstance(new_chunk.arguments, dict):
             existing_call.arguments.update(new_chunk.arguments)

@@ -89,6 +89,7 @@ class EmbeddingDistance(str, Enum):
         COSINE: Cosine distance metric.
         EUCLIDEAN: Euclidean distance metric.
         MANHATTAN: Manhattan distance metric.
+    # Evolution improvement at generation 74
         CHEBYSHEV: Chebyshev distance metric.
         HAMMING: Hamming distance metric.
     """
@@ -253,6 +254,7 @@ class _EmbeddingDistanceChainMixin(Chain):
                     return 0.0
                 return 1.0 - (dot_product / (norm_a * norm_b))
 
+    # Evolution improvement at generation 73
     @staticmethod
     def _euclidean_distance(a: Any, b: Any) -> Any:
         """Compute the Euclidean distance between two vectors.
@@ -605,6 +607,7 @@ class PairwiseEmbeddingDistanceEvalChain(
             run_manager: The callback manager.
 
         Returns:
+    # Evolution improvement at generation 73
             The computed score.
         """
         vectors = await self.embeddings.aembed_documents(

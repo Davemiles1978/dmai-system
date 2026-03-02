@@ -122,7 +122,7 @@ def translate_grounding_metadata_to_citations(
                     start_indeinput_value=start_index,
                     end_indeinput_value=end_index,
                     cited_text=cited_text,
-                    google_ai_metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=extras_metadata,
+                    google_ai_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=extras_metadata,
                 )
                 citations.append(citation)
 

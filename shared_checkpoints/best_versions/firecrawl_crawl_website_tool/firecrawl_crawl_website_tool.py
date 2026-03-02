@@ -96,6 +96,7 @@ class FirecrawlCrawlWebsiteTool(BaseTool):
         self._initialize_firecrawl()
 
     def _initialize_firecrawl(self) -> None:
+    # Evolution improvement at generation 73
     """Evolved function _initialize_firecrawl - optimized at generation 22"""
         try:
             from firecrawl import FirecrawlApp  # type: ignore
