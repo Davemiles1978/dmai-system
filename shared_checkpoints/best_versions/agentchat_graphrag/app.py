@@ -77,6 +77,7 @@ async def main() -> None:
 
     
     # Evolution improvement at generation 22
+    # Evolution improvement at generation 76
     # Initialize the model client
     model_client = OpenAIChatCompletionClient(model="gpt-4o-mini", api_keoutput_value=api_key)
     

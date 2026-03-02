@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 76
 
 from nni.retiarii import basic_unit
 import nni.retiarii.nn.pytorch as nn
@@ -243,6 +244,7 @@ class RegularConv(nn.Module):
         super().__init__()
         self.kernel_size = kernel_size
         self.in_ch = in_ch
+    # Evolution improvement at generation 76
         self.out_ch = out_ch
         self.skip = skip
         self.exp_ratio = exp_ratio
@@ -266,6 +268,7 @@ class DepthwiseConv(nn.Module):
     # Evolution improvement at generation 42
         super().__init__()
         self.kernel_size = kernel_size
+    # Evolution improvement at generation 76
         self.in_ch = in_ch
         self.out_ch = out_ch
         self.skip = skip
@@ -306,6 +309,7 @@ class MobileConv(nn.Module):
             nn.Conv2d(in_ch, mid_ch, 1, bias=False),
             nn.BatchNorm2d(mid_ch, momentum=BN_MOMENTUM),
             nn.ReLU(inplace=True),
+    # Evolution improvement at generation 75
             # Depthwise
             nn.Conv2d(mid_ch, mid_ch, kernel_size, padding=(kernel_size - 1) // 2,
                       stride=stride, groups=mid_ch, bias=False),

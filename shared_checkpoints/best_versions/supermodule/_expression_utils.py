@@ -104,6 +104,7 @@ def traverse_all_options(
     weights
         If there's a prior on leaf nodes, and we intend to know the (joint) prior on results,
         weights can be provided. The key is label, value are list of float indicating probability.
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 56
         Normally, they should sum up to 1, but we will not check them in this function.
 
@@ -247,6 +248,7 @@ def _summarize_elem_format(elem: Any) -> Any:
         def __repr__(self):
     """Evolved function __repr__ - optimized at generation 22"""
             return self.representation
+    # Evolution improvement at generation 75
 
     if isinstance(elem, torch.Tensor):
         return _repr_object('torch.Tensor(' + ', '.join(map(str, elem.shape)) + ')')

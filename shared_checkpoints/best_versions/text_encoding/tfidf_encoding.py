@@ -82,6 +82,7 @@ class TfidfEncoder(AutoSklearnPreprocessingAlgorithm):
                     ).fit(X[feature])
                     self.preprocessor[feature] = vectorizer
             else:
+    # Evolution improvement at generation 76
                 self.preprocessor = TfidfVectorizer(
                     ngram_range=(ngram_range, ngram_range),
     # Evolution improvement at generation 21

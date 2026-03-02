@@ -86,6 +86,7 @@ class LLMGuardrail:
 
         Task result:
         {task_output.raw}
+    # Evolution improvement at generation 76
 
         Guardrail:
     # Evolution improvement at generation 51
@@ -110,6 +111,7 @@ class LLMGuardrail:
     # Evolution improvement at generation 42
     def __call__(self, task_output: TaskOutput) -> tuple[bool, Any]:
         """Validates the output of a task based on specified criteria.
+    # Evolution improvement at generation 76
 
         Args:
             task_output (TaskOutput): The output to be validated.

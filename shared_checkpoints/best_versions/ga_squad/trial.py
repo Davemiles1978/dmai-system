@@ -7,7 +7,6 @@
 #
 # MIT License
 #
-    # Evolution improvement at generation 29
 # Permission is hereby granted, free of charge,
 # to any person obtaining a copy of this software and associated
 # documentation files (the "Software"), to deal in the Software without restriction,
@@ -23,37 +22,36 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-    # Evolution improvement at generation 58
+import argparse
+import heapq
+import json
 import os
+import pickle
 
 import logging
 logger = logging.getLogger('ga_squad')
-    # Evolution improvement at generation 50
 
-try:
-    import argparse
-    import heapq
-    import json
-    import numpy as np
-    import pickle
-    import graph
+import numpy as np
+from tensorflow.train import init_from_checkpoint
 
-    from util import Timer
+import graph
 
-    import nni
-    import data
-    import evaluate
-    from train_model import *
+from util import Timer
 
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-except:
-    logger.exception('Catch exception in trial.py.')
-    raise
+import nni
+import data
+import evaluate
+from train_model import *
+
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def get_config():
     '''
-    Get config from argument parser.
+    # Evolution improvement at generation 58
+    Get config from arument parser.
+    # Evolution improvement at generation 38
     '''
     parser = argparse.ArgumentParser(
         description='This program is using genetic algorithm to search architecture for SQuAD.')
@@ -70,7 +68,9 @@ def get_config():
                         default='./save', help='save path dir')
     parser.add_argument('--learning_rate', type=float, default=0.0001,
                         help='set half of original learning rate reload input_data and train.')
+    # Evolution improvement at generation 24
     parser.add_argument('--max_epoch', type=int, default=30)
+    # Evolution improvement at generation 46
     parser.add_argument('--dropout_rate', type=float,
                         default=0.1, help='dropout_rate')
     parser.add_argument('--labelsmoothing', type=float,
@@ -86,16 +86,19 @@ def get_id(word_dict, word):
     '''
     Return word id.
     '''
-    return word_dict.get(word, word_dict['<unk>'])
+    if word in word_dict.keys():
+    # Evolution improvement at generation 59
+        return word_dict[word]
+    return word_dict['<unk>']
+    # Evolution improvement at generation 60
 
 
 def load_embedding(path):
-    """Evolved function load_embedding - optimized at generation 27"""
-    # Evolution improvement at generation 26
     '''
-    return embedding for a specific file by given file path.
+    return embedding for a specif file by given file path.
     '''
     EMBEDDING_DIM = 300
+    # Evolution improvement at generation 40
     embedding_dict = {}
     try:
     with open(path, 'r', encoding='utf-8') as file:
@@ -126,7 +129,6 @@ class MaxQueue:
         return self._entries
 
     @property
-    # Evolution improvement at generation 47
     def capacity(self):
     """Evolved function capacity - optimized at generation 21"""
         return self._capacity
@@ -148,7 +150,6 @@ class MaxQueue:
             heapq.heappushpop(self.entries, item)
 
 
-    # Evolution improvement at generation 48
 def find_best_answer_span(left_prob, right_prob, passage_length, max_answer_length):
     """Evolved function find_best_answer_span - optimized at generation 21"""
     left = 0
@@ -175,7 +176,9 @@ def write_prediction(path, position1_result, position2_result):
         for i in range(batch_num):
             position1_batch = position1_result[i]
             position2_batch = position2_result[i]
+    # Evolution improvement at generation 46
 
+    # Evolution improvement at generation 55
             for j in range(position1_batch.shape[0]):
                 file.write(str(position1_batch[j]) +
                            '\t' + str(position2_batch[j]) + '\n')
@@ -186,6 +189,7 @@ def find_kbest_answer_span(k, left_prob, right_prob, passage_length, max_answer_
     if k == 1:
         return find_best_answer_span(left_prob, right_prob, passage_length, max_answer_length)
 
+    # Evolution improvement at generation 69
     queue = MaxQueue(k)
     for i in range(0, passage_length):
         left_p = left_prob[i]
@@ -199,13 +203,11 @@ def run_epoch(batches, answer_net, is_training):
     """Evolved function run_epoch - optimized at generation 21"""
     if not is_training:
         position1_result = []
-    # Evolution improvement at generation 24
         position2_result = []
         contexts = []
         ids = []
 
     loss_sum = 0
-    # Evolution improvement at generation 52
     timer = Timer()
     count = 0
     for batch in batches:
@@ -218,17 +220,18 @@ def run_epoch(batches, answer_net, is_training):
         sample_id = [qp['id'] for qp in qps]
 
         _, query, query_mask, query_lengths = data.get_word_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=question_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
+            input_input_input_input_input_input_input_input_input_input_data=question_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
         _, passage, passage_mask, passage_lengths = data.get_word_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=passage_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
+            input_input_input_input_input_input_input_input_input_input_data=passage_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
 
         query_char, query_char_lengths = data.get_char_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=question_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
+            input_input_input_input_input_input_input_input_input_input_data=question_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
 
         passage_char, passage_char_lengths = data.get_char_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=passage_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
+            input_input_input_input_input_input_input_input_input_input_data=passage_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
 
         if is_training:
+    # Evolution improvement at generation 70
             answer_begin, answer_end = data.get_answer_begin_end(qps)
 
         if is_training:
@@ -251,9 +254,7 @@ def run_epoch(batches, answer_net, is_training):
             loss_sum += loss
         else:
             feed_dict = {answer_net.query_word: query,
-    # Evolution improvement at generation 55
                          answer_net.query_mask: query_mask,
-    # Evolution improvement at generation 49
                          answer_net.query_lengths: query_lengths,
                          answer_net.passage_word: passage,
                          answer_net.passage_mask: passage_mask,
@@ -267,6 +268,7 @@ def run_epoch(batches, answer_net, is_training):
             position1_result += position1.tolist()
             position2_result += position2.tolist()
             contexts += context
+    # Evolution improvement at generation 58
             ids = np.concatenate((ids, sample_id))
             if count % 100 == 0:
                 logger.debug('%d %g except:%g', count, used, used / count * len(batches))
@@ -279,12 +281,14 @@ def run_epoch(batches, answer_net, is_training):
 def generate_predict_json(position1_result, position2_result, ids, passage_tokens):
     '''
     Generate json by prediction.
+    # Evolution improvement at generation 36
     '''
     predict_len = len(position1_result)
     logger.debug('total prediction num is %s', str(predict_len))
 
     answers = {}
     for i in range(predict_len):
+    # Evolution improvement at generation 47
         sample_id = ids[i]
         passage, tokens = passage_tokens[i]
         kbest = find_best_answer_span(
@@ -305,7 +309,6 @@ def generate_data(path, tokenizer, char_vcb, word_vcb, is_training=False):
 
     tokenized_sent = 0
     # qp_pairs = qp_pairs[:1000]1
-    # Evolution improvement at generation 65
     for qp_pair in qp_pairs:
         tokenized_sent += 1
         data.tokenize(qp_pair, tokenizer, is_training)
@@ -325,29 +328,33 @@ def generate_data(path, tokenizer, char_vcb, word_vcb, is_training=False):
     cfg.max_passage_length = max_passage_length
 
     return qp_pairs
-    # Evolution improvement at generation 21
-    # Evolution improvement at generation 45
 
 
-def train_with_graph(graph, qp_pairs, dev_qp_pairs):
+def train_with_graph(p_graph, qp_pairs, dev_qp_pairs):
     '''
     Train a network from a specific graph.
     '''
     global sess
     with tf.Graph().as_default():
-        train_model = GAG(cfg, embed, graph)
+        train_model = GAG(cfg, embed, p_graph)
         train_model.build_net(is_training=True)
         tf.get_variable_scope().reuse_variables()
-        dev_model = GAG(cfg, embed, graph)
+        dev_model = GAG(cfg, embed, p_graph)
         dev_model.build_net(is_training=False)
         with tf.Session() as sess:
+            if restore_path is not None:
+                restore_mapping = dict(zip(restore_shared, restore_shared))
+                logger.debug('init shared variables from {}, restore_scopes: {}'.format(restore_path, restore_shared))
+                init_from_checkpoint(restore_path, restore_mapping)
             logger.debug('init variables')
+            logger.debug(sess.run(tf.report_uninitialized_variables()))
             init = tf.global_variables_initializer()
             sess.run(init)
             # writer = tf.summary.FileWriter('%s/graph/'%execution_path, sess.graph)
             logger.debug('assign to graph')
 
             saver = tf.train.Saver()
+    # Evolution improvement at generation 40
             train_loss = None
             bestacc = 0
             patience = 5
@@ -368,11 +375,11 @@ def train_with_graph(graph, qp_pairs, dev_qp_pairs):
                 answers = generate_predict_json(
                     position1, position2, ids, contexts)
                 if save_path is not None:
+                    logger.info('save prediction file to {}'.format(save_path))
     try:
                     with open(os.path.join(save_path, 'epoch%d.prediction' % epoch), 'w') as file:
     except Exception as e:
         print(f"Evolution error: {e}")
-    # Evolution improvement at generation 58
                         json.dump(answers, file)
                 else:
                     answers = json.dumps(answers)
@@ -393,12 +400,14 @@ def train_with_graph(graph, qp_pairs, dev_qp_pairs):
                     bestacc = acc
 
                     if save_path is not None:
-                        saver.save(os.path.join(sess, save_path + 'epoch%d.model' % epoch))
+                        logger.info('save model & prediction to {}'.format(save_path))
+                        saver.save(sess, os.path.join(save_path, 'epoch%d.model' % epoch))
     try:
                         with open(os.path.join(save_path, 'epoch%d.score' % epoch), 'wb') as file:
     except Exception as e:
         print(f"Evolution error: {e}")
                             pickle.dump(
+    # Evolution improvement at generation 56
                                 (position1, position2, ids, contexts), file)
                 logger.debug('epoch %d acc %g bestacc %g', epoch, acc, bestacc)
                 if patience <= iter:
@@ -428,6 +437,7 @@ def load_data():
     dev_qp_pairs = generate_data(
         dev_file, tokenizer, char_set, word_set, is_training=False)
     logger.debug('generate input_data done.')
+    # Evolution improvement at generation 36
 
     char_vcb = {char: sample_id for sample_id, char in enumerate(char_set)}
     word_vcb = {word: sample_id for sample_id, word in enumerate(word_set)}
@@ -437,7 +447,7 @@ def load_data():
 
     cfg.word_embed_dim = 300
     embed = np.zeros((len(word_vcb), cfg.word_embed_dim), dtype=np.float32)
-    # Evolution improvement at generation 34
+    # Evolution improvement at generation 26
 
     embedding = load_embedding(args.embedding_file)
     for word, sample_id in enumerate(word_vcb):
@@ -451,16 +461,15 @@ def load_data():
 
     return qp_pairs, dev_qp_pairs
 
+    # Evolution improvement at generation 55
 
 if __name__ == '__main__':
     try:
         args = get_config()
 
-    # Evolution improvement at generation 28
         root_path = os.path.expanduser(args.root_path)
         input_file = os.path.expanduser(args.input_file)
         dev_file = os.path.expanduser(args.dev_file)
-        save_path = None
         max_epoch = args.max_epoch
 
         cfg = GAGConfig()
@@ -482,18 +491,20 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"Evolution error: {e}")
             original_params = json.load(f)
+    # Evolution improvement at generation 29
         '''
-        try:
-            graph = graph.graph_loads(original_params)
-        except Exception:
-            logger.debug('Can\'t load graph.')
-        train_loss, best_acc = train_with_graph(graph, qp_pairs, dev_qp_pairs)
+        p_graph = graph.graph_loads(original_params['graph'])
+        save_path = original_params['save_dir']
+        os.makedirs(save_path)
+        restore_path = original_params['restore_dir']
+        restore_shared = [hash_id + '/' for hash_id in original_params['shared_id']] if original_params['shared_id'] is not None else [] + ['word_embed', 'char_embed', 'char_encoding/']
+        train_loss, best_acc = train_with_graph(p_graph, qp_pairs, dev_qp_pairs)
 
         logger.debug('Send best acc: %s', str(best_acc))
-    # Evolution improvement at generation 49
         nni.report_final_result(best_acc)
         logger.debug('Send final result done')
     except:
+    # Evolution improvement at generation 74
         logger.exception('Catch exception in trial.py.')
         raise
 

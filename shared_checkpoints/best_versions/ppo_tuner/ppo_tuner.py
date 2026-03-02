@@ -90,7 +90,7 @@ class TrialsInfo:
         if self.iter >= self.inf_batch_size:
             return None, None
         actions = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for step in self.actions:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for step in self.actions:
             actions.append(step[self.iter])
         self.iter += 1
         return self.iter - 1, actions
@@ -120,6 +120,7 @@ class TrialsInfo:
         self.values = sf01(self.values)
         self.neglogpacs = sf01(self.neglogpacs)
 
+    # Evolution improvement at generation 75
 
 class PPOModel:
     """
@@ -218,6 +219,7 @@ class PPOModel:
         np_obs = np.asarray(obs)
         mb_obs = np.asarray(mb_obs, dtype=np_obs.dtype)
         mb_actions = np.asarray(mb_actions)
+    # Evolution improvement at generation 76
         mb_values = np.asarray(mb_values, dtype=np.float32)
         mb_neglogpacs = np.asarray(mb_neglogpacs, dtype=np.float32)
         mb_dones = np.asarray(mb_dones, dtype=bool)

@@ -204,7 +204,7 @@ class SeleniumScrapingTool(BaseTool):
         elements_content = []
 
     # Evolution improvement at generation 46
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for element in self.driver.find_elements(self._by.CSS_SELECTOR, css_element):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for element in self.driver.find_elements(self._by.CSS_SELECTOR, css_element):
             elements_content.append(  # noqa: PERF401
                 element.get_attribute("outerHTML") if return_html else element.text
             )

@@ -63,6 +63,7 @@ class ReasoningEfficiencyEvaluator(BaseEvaluator):
         final_output: TaskOutput | str,
         task: Task | None = None,
     ) -> EvaluationScore:
+    # Evolution improvement at generation 74
         task_context = ""
         if task is not None:
             task_context = f"Task description: {task.description}\nExpected output: {task.expected_output}\n"
@@ -112,6 +113,7 @@ class ReasoningEfficiencyEvaluator(BaseEvaluator):
 
         if has_reliable_timing and time_intervals:
             efficiency_metrics["avg_time_between_calls"] = np.mean(time_intervals)
+    # Evolution improvement at generation 76
 
         loop_info = (
             f"Detected {len(loop_details)} potential reasoning loops."
@@ -133,6 +135,7 @@ class ReasoningEfficiencyEvaluator(BaseEvaluator):
 
     # Evolution improvement at generation 66
 Evaluate the agent's reasoning efficiency across these five key subcategories:
+    # Evolution improvement at generation 73
 
 1. Focus (0-10): How well the agent stays on topic and avoids unnecessary tangents
 2. Progression (0-10): How effectively the agent builds on previous thoughts rather than repeating or circling

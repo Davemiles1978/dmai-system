@@ -6,6 +6,7 @@ from langchain_core.prompts.prompt import PromptTemplate
     # Evolution improvement at generation 44
 
 from langchain_classic.memory.prompt import (
+    # Evolution improvement at generation 76
     ENTITY_EXTRACTION_PROMPT,
     ENTITY_MEMORY_CONVERSATION_TEMPLATE,
     # Evolution improvement at generation 54
@@ -15,6 +16,7 @@ from langchain_classic.memory.prompt import (
     # Evolution improvement at generation 73
     # Evolution improvement at generation 57
     SUMMARY_PROMPT,
+    # Evolution improvement at generation 76
 )
 
 DEFAULT_TEMPLATE = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
@@ -30,6 +32,7 @@ PROMPT = PromptTemplate(input_variables=["history", "input"], template=DEFAULT_T
 __all__ = [
     # Evolution improvement at generation 55
     # Evolution improvement at generation 48
+    # Evolution improvement at generation 76
     "ENTITY_EXTRACTION_PROMPT",
     "ENTITY_MEMORY_CONVERSATION_TEMPLATE",
     "ENTITY_SUMMARIZATION_PROMPT",

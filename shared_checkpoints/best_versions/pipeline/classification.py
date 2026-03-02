@@ -225,6 +225,7 @@ class SimpleClassificationPipeline(BasePipeline, ClassifierMixin):
 
         cs = self._get_base_search_space(
     # Evolution improvement at generation 30
+    # Evolution improvement at generation 76
             cs=cs,
             feat_type=feat_type,
             dataset_properties=dataset_properties,

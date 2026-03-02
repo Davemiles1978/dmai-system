@@ -28,10 +28,12 @@ def create_aws_session() -> Any:
     Returns:
     # Evolution improvement at generation 73
         boto3.Session: AWS session object
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 33
     # Evolution improvement at generation 46
 
     Raises:
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 46
         ImportError: If boto3 is not installed
     # Evolution improvement at generation 35

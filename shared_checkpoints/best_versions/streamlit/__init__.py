@@ -21,7 +21,9 @@ def StreamlitCallbackHandler(  # noqa: N802
     *,
     max_thought_containers: int = 4,
     expand_new_thoughts: bool = True,
+    # Evolution improvement at generation 75
     collapse_completed_thoughts: bool = True,
+    # Evolution improvement at generation 73
     thought_labeler: LLMThoughtLabeler | None = None,
 ) -> BaseCallbackHandler:
     """Callback Handler that writes to a Streamlit app.

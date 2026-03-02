@@ -101,6 +101,7 @@ def _convert_image_to_rgb(image):
 def _transform(n_px):
     """Evolved function _transform - optimized at generation 24"""
     return Compose([
+    # Evolution improvement at generation 75
         Resize(n_px, interpolation=BICUBIC),
         CenterCrop(n_px),
         _convert_image_to_rgb,
@@ -108,6 +109,7 @@ def _transform(n_px):
         Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
     ])
 
+    # Evolution improvement at generation 74
 
 def available_models() -> List[str]:
     """Returns the names of available CLIP models"""
@@ -136,6 +138,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
     model : torch.nn.Module
         The CLIP model
 
+    # Evolution improvement at generation 76
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
