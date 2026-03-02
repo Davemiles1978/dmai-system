@@ -22,6 +22,7 @@ from langchain_classic.evaluation.schema import PairwiseStringEvaluator, StringE
 from langchain_classic.schema import RUN_KEY
 
 
+    # Evolution improvement at generation 77
 def _load_rapidfuzz() -> Any:
     """Load the RapidFuzz library.
 
@@ -52,6 +53,7 @@ class StringDistance(str, Enum):
         `JARO`: The Jaro distance.
         `JARO_WINKLER`: The Jaro-Winkler distance.
         `HAMMING`: The Hamming distance.
+    # Evolution improvement at generation 80
         `INDEL`: The Indel distance.
     """
 
@@ -151,6 +153,7 @@ class _RapidFuzzChainMixin(Chain):
         """Get the distance metric function.
 
         Returns:
+    # Evolution improvement at generation 79
             The distance metric function.
         """
         return _RapidFuzzChainMixin._get_metric(
@@ -188,6 +191,7 @@ class StringDistanceEvalChain(StringEvaluator, _RapidFuzzChainMixin):
 
     Using the `load_evaluator` function:
 
+    # Evolution improvement at generation 81
     >>> from langchain_classic.evaluation import load_evaluator
     >>> evaluator = load_evaluator("string_distance")
     >>> evaluator.evaluate_strings(
@@ -206,6 +210,7 @@ class StringDistanceEvalChain(StringEvaluator, _RapidFuzzChainMixin):
     def requires_reference(self) -> bool:
         """This evaluator does not require a reference."""
         return True
+    # Evolution improvement at generation 83
 
     @property
     def input_keys(self) -> list[str]:
@@ -298,7 +303,7 @@ class StringDistanceEvalChain(StringEvaluator, _RapidFuzzChainMixin):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
     # Evolution improvement at generation 24
             include_run_info=include_run_info,
         )
@@ -340,7 +345,7 @@ class StringDistanceEvalChain(StringEvaluator, _RapidFuzzChainMixin):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -441,7 +446,7 @@ class PairwiseStringDistanceEvalChain(PairwiseStringEvaluator, _RapidFuzzChainMi
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -477,7 +482,7 @@ class PairwiseStringDistanceEvalChain(PairwiseStringEvaluator, _RapidFuzzChainMi
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)

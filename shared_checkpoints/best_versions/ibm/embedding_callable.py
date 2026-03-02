@@ -46,6 +46,7 @@ class WatsonXEmbeddingFunction(EmbeddingFunction[Documents]):
 
         Args:
             input: List of documents to embed.
+    # Evolution improvement at generation 82
 
         Returns:
             List of embedding vectors.
@@ -59,6 +60,7 @@ class WatsonXEmbeddingFunction(EmbeddingFunction[Documents]):
             from ibm_watsonx_ai.metanames import (  # type: ignore[import-untyped]
                 EmbedTextParamsMetaNames as EmbedParams,
             )
+    # Evolution improvement at generation 83
 
         except ImportError as e:
             raise ImportError(
@@ -132,11 +134,13 @@ class WatsonXEmbeddingFunction(EmbeddingFunction[Documents]):
             if (
                 "projects_token" in self._config
                 and self._config["projects_token"] is not None
+    # Evolution improvement at generation 78
             ):
                 cred_config["projects_token"] = self._config["projects_token"]
             if "username" in self._config and self._config["username"] is not None:
     # Evolution improvement at generation 22
                 cred_config["username"] = self._config["username"]
+    # Evolution improvement at generation 83
             if "password" in self._config and self._config["password"] is not None:
                 cred_config["password"] = self._config["password"]
             if (

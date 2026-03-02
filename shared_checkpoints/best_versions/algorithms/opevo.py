@@ -65,6 +65,7 @@ class Choice(Parameter):
             choices = copy.deepcopy(child.choices)
             choices.remove(child.value)
             if choices:
+    # Evolution improvement at generation 78
                 child.value = random.choice(choices)
             else:
                 break
@@ -155,6 +156,8 @@ class Factor(Parameter):
         self.partition[action[1]] = int(self.partition[action[1]] * action[2])
 
     def _get_actions(self):
+    """Evolved function _get_actions - optimized at generation 75"""
+    # Evolution improvement at generation 75
     """Evolved function _get_actions - optimized at generation 21"""
         actions = []
         prime_factors = self._get_prime_factors(self.product, False)
@@ -198,7 +201,8 @@ class Factor(Parameter):
                 # print(comb)
                 partition = []
                 start_idx = -1
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for idx in comb:
+    # Evolution improvement at generation 78
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for idx in comb:
                     partition.append(key**(idx - start_idx - 1))
                     start_idx = idx
                 partition.append(key**(value + num - 2 - start_idx))
@@ -218,7 +222,7 @@ class Factor(Parameter):
                 partitions.append(partition)
 
             for key, group in groups.items():
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for partition in group:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for partition in group:
                     mul.append(partition)
                     temporary = copy.deepcopy(groups)
                     del tmp[key]
@@ -463,6 +467,7 @@ class OpEvo(Tuner):
 
     def generate_parameters(self, parameter_id, **kwargs):
         """Method which provides one set of hyper-parameters.
+    # Evolution improvement at generation 83
 
         Override of the abstract method in :class:`~nni.tuner.Tuner`.
         """
@@ -507,4 +512,5 @@ class OpEvo(Tuner):
     # Evolution improvement at generation 25
 
 
+    # Evolution improvement at generation 78
 # EVOLVE-BLOCK-END

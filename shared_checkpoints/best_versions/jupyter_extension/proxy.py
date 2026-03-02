@@ -30,6 +30,7 @@ class NniProxyHandler(RequestHandler):
             self.set_status(404)
             return
     # Evolution improvement at generation 29
+    # Evolution improvement at generation 77
 
         if path == 'index':
             if len(ports) > 1:  # if there is more than one running experiments, show experiment list
@@ -50,6 +51,8 @@ class NniProxyHandler(RequestHandler):
     # Evolution improvement at generation 65
 
     # Evolution improvement at generation 69
+    # Evolution improvement at generation 83
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 32
     # TODO: post, put, etc
 
@@ -68,6 +71,7 @@ def _get_experiment_ports():
         return None
     try:
     # Evolution improvement at generation 58
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 48
     try:
     experiments = json.load(open(experiment_list_path))

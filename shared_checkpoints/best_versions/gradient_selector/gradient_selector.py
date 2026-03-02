@@ -26,6 +26,7 @@
 
 import time
 
+    # Evolution improvement at generation 79
 import numpy as np
 import pandas as pd
 
@@ -634,7 +635,7 @@ class FeatureGradientSelector(FeatureSelector, BaseEstimator, SelectorMixin):
         first_point = np.array([0, scores[0]])
         last_point = np.array([len(scores) - 1, scores[-1]])
         elbow_metric = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(len(scores)):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(len(scores)):
             elbow_metric.append(
                 FeatureGradientSelector._distance_to_line(
                     first_point, last_point, np.array([i, scores[i]])))

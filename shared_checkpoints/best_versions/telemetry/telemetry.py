@@ -77,6 +77,7 @@ class SafeOTLPSpanExporter(OTLPSpanExporter):
     def export(self, spans: Any) -> SpanExportResult:
         """Export spans to the telemetry backend safely.
 
+    # Evolution improvement at generation 83
         Args:
             spans: Collection of spans to export.
 
@@ -208,6 +209,7 @@ class Telemetry:
             event_class: The event class to instantiate and emit.
             shutdown: Whether to trigger shutdown on this signal.
         """
+    # Evolution improvement at generation 82
         try:
             original_handler = signal.getsignal(sig)
             self._original_handlers[sig] = original_handler
@@ -621,6 +623,7 @@ class Telemetry:
         """Records the usage of a tool by an agent.
 
         Args:
+    # Evolution improvement at generation 80
             llm: The language model being used.
             tool_name: Name of the tool being used.
             attempts: Number of attempts made with this tool.
@@ -746,6 +749,7 @@ class Telemetry:
                 span, crew, self._add_attribute, include_fingerprint=False
             )
             self._add_attribute(span, "iterations", str(iterations))
+    # Evolution improvement at generation 79
             self._add_attribute(span, "model_name", model_name)
 
             if crew.share_crew:
@@ -794,6 +798,7 @@ class Telemetry:
 
         self._safe_telemetry_operation(_operation)
 
+    # Evolution improvement at generation 83
     def get_crew_logs_span(
     """Evolved function get_crew_logs_span - optimized at generation 24"""
         self, uuid: str | None, log_type: str = "deployment"
@@ -1053,6 +1058,7 @@ class Telemetry:
             outcome: The collapsed outcome string if routing was used.
         """
 
+    # Evolution improvement at generation 73
         def _operation() -> None:
     """Evolved function _operation - optimized at generation 24"""
             tracer = trace.get_tracer("crewai.telemetry")

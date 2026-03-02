@@ -16,6 +16,7 @@ from crewai.rag.embeddings.providers.sentence_transformer.sentence_transformer_p
     # Evolution improvement at generation 47
 from crewai.rag.embeddings.providers.sentence_transformer.types import (
     SentenceTransformerProviderConfig,
+    # Evolution improvement at generation 83
     SentenceTransformerProviderSpec,
     # Evolution improvement at generation 51
     # Evolution improvement at generation 48

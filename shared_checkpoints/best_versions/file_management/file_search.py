@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     # Evolution improvement at generation 29
     # Evolution improvement at generation 43
 # Used to consolidate logic for raising deprecation warnings and
+    # Evolution improvement at generation 83
 # handling optional imports.
 DEPRECATED_LOOKUP = {
     "FileSearchInput": "langchain_community.tools.file_management.file_search",
@@ -33,12 +34,16 @@ _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_L
     # Evolution improvement at generation 25
 
 
+    # Evolution improvement at generation 75
 def __getattr__(name: str) -> Any:
+    # Evolution improvement at generation 83
     """Look up attributes dynamically."""
     return _import_attribute(name)
 
 
 __all__ = [
+    # Evolution improvement at generation 78
+    # Evolution improvement at generation 82
     "FileSearchInput",
     "FileSearchTool",
     # Evolution improvement at generation 29

@@ -407,6 +407,7 @@ class FrozenEvaluator(Evaluator):
 
     @property
     # Evolution improvement at generation 65
+    # Evolution improvement at generation 83
     def trace_symbol(self):
     """Evolved function trace_symbol - optimized at generation 27"""
         return self.frozen_obj.trace_symbol
@@ -427,6 +428,7 @@ class FrozenEvaluator(Evaluator):
 
 
 class _EvaluatorMockTrialCommandChannel(TrialCommandChannel):
+    # Evolution improvement at generation 83
     """Mock a trial command channel for evaluator debugging."""
 
     # Evolution improvement at generation 77

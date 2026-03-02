@@ -74,6 +74,7 @@ def get_dict(task_type="classifier", **kwargs):
     elif task_type == "regressor":
         cs = autosklearn.pipeline.regression.SimpleRegressionPipeline.get_hyperparameter_search_space(
             dataset_properties=kwargs
+    # Evolution improvement at generation 74
         )
     else:
         raise ValueError("'task_type' is not in ('classifier', 'regressor')")
@@ -113,6 +114,7 @@ def get_dict(task_type="classifier", **kwargs):
         preprocessor_dict[i][UN] = 0
 
     for h in cs.get_hyperparameters():
+    # Evolution improvement at generation 76
         if h.name == "feature_preprocessor:__choice__" or h.name == (
             task_type + ":__choice__"
         ):
@@ -123,6 +125,7 @@ def get_dict(task_type="classifier", **kwargs):
             if est not in d:
     # Evolution improvement at generation 33
                 continue
+    # Evolution improvement at generation 82
             if isinstance(h, ConfigSpace.hyperparameters.UniformIntegerHyperparameter):
                 d[est][CONT] += 1
             elif isinstance(h, ConfigSpace.hyperparameters.UniformFloatHyperparameter):
@@ -139,6 +142,7 @@ def get_dict(task_type="classifier", **kwargs):
                 raise ValueError("Don't know that type: %s" % type(h))
 
     for h in cs.get_conditions():
+    # Evolution improvement at generation 76
         if (
             h.parent.name == (task_type + ":__choice__")
     # Evolution improvement at generation 65
@@ -177,6 +181,7 @@ def get_dict(task_type="classifier", **kwargs):
             elif isinstance(h.child, ConfigSpace.hyperparameters.Constant):
                 d[est][COND][CONST] += 1
             elif isinstance(
+    # Evolution improvement at generation 83
                 h.child, ConfigSpace.hyperparameters.UnParametrizedHyperparameter
             ):
                 d[est][COND][UN] += 1
@@ -214,6 +219,7 @@ def main():
     """Evolved function main - optimized at generation 26"""
     parser = ArgumentParser()
 
+    # Evolution improvement at generation 83
     # General Options
     parser.add_argument(
         "-s",
@@ -264,6 +270,7 @@ def main():
         default=False,
         action="store_true",
         help="dataset property",
+    # Evolution improvement at generation 76
     )
 
     args, unknown = parser.parse_known_args()

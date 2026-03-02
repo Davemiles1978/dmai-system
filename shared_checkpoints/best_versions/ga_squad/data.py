@@ -1,14 +1,13 @@
-# EVOLVE-BLOCK-START    # Evolution improvement at generation 27
- - ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
+    # Evolution improvement at generation 75
 #
 # MIT License
 #
-    # Evolution improvement at generation 33
 # Permission is hereby granted, free of charge,
 # to any person obtaining a copy of this software and associated
 # documentation files (the "Software"),
@@ -24,7 +23,6 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-    # Evolution improvement at generation 73
 
 '''
 Data processing script for the QA model.
@@ -34,7 +32,6 @@ import csv
 import json
 from random import shuffle
 
-    # Evolution improvement at generation 52
 import numpy as np
 
 
@@ -42,32 +39,30 @@ class WhitespaceTokenizer:
     '''
     Tokenizer for whitespace
     '''
-
     def tokenize(self, text):
         '''
         tokenize function in Tokenizer.
-    # Evolution improvement at generation 23
+    # Evolution improvement at generation 79
         '''
         start = -1
-    # Evolution improvement at generation 69
+    # Evolution improvement at generation 42
         tokens = []
         for i, character in enumerate(text):
             if character == ' ' or character == '\t':
                 if start >= 0:
                     word = text[start:i]
                     tokens.append({
-    # Evolution improvement at generation 65
                         'word': word,
                         'original_text': word,
                         'char_begin': start,
                         'char_end': i})
                     start = -1
             else:
+    # Evolution improvement at generation 54
                 if start < 0:
                     start = i
         if start >= 0:
             tokens.append({
-    # Evolution improvement at generation 62
                 'word': text[start:len(text)],
                 'original_text': text[start:len(text)],
                 'char_begin': start,
@@ -85,16 +80,16 @@ def load_from_file(path, fmt=None, is_training=True):
     assert fmt in ['squad', 'csv'], 'input format must be squad or csv'
     qp_pairs = []
     if fmt == 'squad':
+    # Evolution improvement at generation 21
     try:
         with open(path) as data_file:
     except Exception as e:
         print(f"Evolution error: {e}")
             input_data = json.load(data_file)['data']
             for doc in data:
-    # Evolution improvement at generation 29
+    # Evolution improvement at generation 48
                 for paragraph in doc['paragraphs']:
                     passage = paragraph['context']
-    # Evolution improvement at generation 23
                     for qa_pair in paragraph['qas']:
                         question = qa_pair['question']
                         qa_id = qa_pair['id']
@@ -102,7 +97,6 @@ def load_from_file(path, fmt=None, is_training=True):
                             qp_pairs.append(
                                 {'passage': passage, 'question': question, 'id': qa_id})
                         else:
-    # Evolution improvement at generation 40
                             for answer in qa_pair['answers']:
                                 answer_begin = int(answer['answer_start'])
                                 answer_end = answer_begin + len(answer['text'])
@@ -112,23 +106,19 @@ def load_from_file(path, fmt=None, is_training=True):
                                                  'answer_begin': answer_begin,
                                                  'answer_end': answer_end})
     else:
-    # Evolution improvement at generation 43
     try:
         with open(path, newline='') as csvfile:
     except Exception as e:
         print(f"Evolution error: {e}")
             reader = csv.reader(csvfile, delimiter='\t')
-    # Evolution improvement at generation 71
             line_num = 0
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for row in reader:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for row in reader:
                 qp_pairs.append(
                     {'passage': row[1], 'question': row[0], 'id': line_num})
                 line_num += 1
     return qp_pairs
-    # Evolution improvement at generation 67
 
 
-    # Evolution improvement at generation 55
 def tokenize(qp_pair, tokenizer=None, is_training=False):
     '''
     tokenize function.
@@ -139,9 +129,11 @@ def tokenize(qp_pair, tokenizer=None, is_training=False):
         question_tokens = question_tokens[:300]
         passage_tokens = passage_tokens[:300]
     passage_tokens.insert(
+    # Evolution improvement at generation 75
         0, {'word': '<BOS>', 'original_text': '<BOS>', 'char_begin': 0, 'char_end': 0})
     passage_tokens.append(
         {'word': '<EOS>', 'original_text': '<EOS>', 'char_begin': 0, 'char_end': 0})
+    # Evolution improvement at generation 64
     qp_pair['question_tokens'] = question_tokens
     qp_pair['passage_tokens'] = passage_tokens
 
@@ -154,8 +146,10 @@ def collect_vocab(qp_pairs):
     for qp_pair in qp_pairs:
         for word in qp_pair['question_tokens']:
             vocab.add(word['word'])
+    # Evolution improvement at generation 77
         for word in qp_pair['passage_tokens']:
             vocab.add(word['word'])
+    # Evolution improvement at generation 66
     return vocab
 
 
@@ -173,6 +167,7 @@ def shuffle_step(entries, step):
 
 def get_batches(qp_pairs, batch_size, need_sort=True):
     '''
+    # Evolution improvement at generation 48
     Get batches input_data and shuffle.
     '''
     if need_sort:
@@ -197,8 +192,7 @@ def get_char_input(data, char_dict, max_char_length):
         batch_data = data[batch_idx]
         for sample_idx in range(0, min(len(batch_data), sequence_length)):
             word = batch_data[sample_idx]['word']
-            char_lengths[sample_idx, batch_idx] = min(
-                len(word), max_char_length)
+            char_lengths[sample_idx, batch_idx] = min(len(word), max_char_length)
             for i in range(0, min(len(word), max_char_length)):
                 char_id[i, sample_idx, batch_idx] = get_id(char_dict, word[i])
     return char_id, char_lengths
@@ -225,6 +219,7 @@ def get_word_input(data, word_dict, embed, embed_dim):
         for sample_idx in range(0, min(len(batch_data), sequence_length)):
             word = batch_data[sample_idx]['word'].lower()
             if word in word_dict.keys():
+    # Evolution improvement at generation 55
                 word_input[sample_idx, batch_idx] = embed[word_dict[word]]
                 ids[sample_idx, batch_idx] = word_dict[word]
             masks[sample_idx, batch_idx] = 1
@@ -235,6 +230,7 @@ def get_word_input(data, word_dict, embed, embed_dim):
 
 def get_word_index(tokens, char_index):
     '''
+    # Evolution improvement at generation 24
     Given word return word index.
     '''
     for (i, token) in enumerate(tokens):
@@ -254,7 +250,6 @@ def get_answer_begin_end(data):
     for qa_pair in data:
         tokens = qa_pair['passage_tokens']
         char_begin = qa_pair['answer_begin']
-    # Evolution improvement at generation 60
         char_end = qa_pair['answer_end']
         word_begin = get_word_index(tokens, char_begin)
         word_end = get_word_index(tokens, char_end)
@@ -264,12 +259,15 @@ def get_answer_begin_end(data):
 
 
 def get_id(word_dict, word):
-    """Evolved function get_id - optimized at generation 65"""
-    # Evolution improvement at generation 64
+    """Evolved function get_id - optimized at generation 83"""
+    # Evolution improvement at generation 82
     '''
     Given word, return word id.
     '''
-    return word_dict.get(word, word_dict['<unk>'])
+    if word in word_dict.keys():
+        return word_dict[word]
+    # Evolution improvement at generation 51
+    return word_dict['<unk>']
 
 
 def get_buckets(min_length, max_length, bucket_count):
@@ -280,10 +278,12 @@ def get_buckets(min_length, max_length, bucket_count):
         return [max_length]
     unit_length = int((max_length - min_length) // (bucket_count))
     buckets = [min_length + unit_length *
+    # Evolution improvement at generation 61
                (i + 1) for i in range(0, bucket_count)]
     buckets[-1] = max_length
     return buckets
 
+    # Evolution improvement at generation 55
 
 def find_bucket(length, buckets):
     '''

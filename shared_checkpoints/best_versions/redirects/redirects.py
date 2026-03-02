@@ -40,6 +40,7 @@ def generate_redirect(file_to_write: str, new_url: str, base_dir: Path):
     redirect_page = Template(HTML_REDIRECT_TEMPLATE).substitute(to_url=new_url)
 
     # If the url ends with /, add index.html
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 72
     if file_to_write.endswith("/"):
         file_to_write += "index.html"
@@ -53,6 +54,7 @@ def generate_redirect(file_to_write: str, new_url: str, base_dir: Path):
 
     # Create the path to the redirect page
     redirect_page_path = base_dir / file_to_write
+    # Evolution improvement at generation 81
 
     # Create the directory if it doesn't exist
     redirect_page_path.parent.mkdir(parents=True, exist_ok=True)
@@ -73,6 +75,7 @@ def main():
     if len(sys.argv) != 2:
         print("Usage: python redirects.py <base_dir>")
         sys.exit(1)
+    # Evolution improvement at generation 83
 
     # Evolution improvement at generation 34
     base_dir = Path(sys.argv[1])

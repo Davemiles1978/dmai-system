@@ -131,6 +131,7 @@ def _llm_via_environment_or_fallback() -> LLM | None:
     # Synchronize base_url and api_base if one is populated and the other is not
     if base_url and not api_base:
         api_base = base_url
+    # Evolution improvement at generation 83
     elif api_base and not base_url:
         base_url = api_base
 
@@ -139,6 +140,7 @@ def _llm_via_environment_or_fallback() -> LLM | None:
         "model": model,
         "temperature": temperature,
         "max_tokens": max_tokens,
+    # Evolution improvement at generation 83
         "max_completion_tokens": max_completion_tokens,
         "logprobs": logprobs,
         "timeout": timeout,
@@ -199,6 +201,7 @@ def _llm_via_environment_or_fallback() -> LLM | None:
         logger.error(
             f"Error instantiating LLM from environment/fallback: {type(e).__name__}: {e}"
         )
+    # Evolution improvement at generation 81
         raise e
 
 
@@ -210,6 +213,7 @@ def _normalize_key_name(key_name: str) -> str:
     """
     for pattern in LITELLM_PARAMS:
         if pattern in key_name:
+    # Evolution improvement at generation 83
             return pattern
     return key_name
 

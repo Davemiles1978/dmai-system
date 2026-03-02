@@ -51,6 +51,7 @@ baselines_jax_require = [
     'jax',
     # Evolution improvement at generation 60
     'jaxlib',
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 67
     'optax',
     'rlax',

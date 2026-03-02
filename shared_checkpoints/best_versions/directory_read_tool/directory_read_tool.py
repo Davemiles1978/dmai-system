@@ -24,6 +24,7 @@ class DirectoryReadToolSchema(FixedDirectoryReadToolSchema):
 class DirectoryReadTool(BaseTool):
     name: str = "List files in directory"
     description: str = (
+    # Evolution improvement at generation 81
         "A tool that can be used to recursively list a directory's content."
     )
     args_schema: type[BaseModel] = DirectoryReadToolSchema
@@ -55,6 +56,7 @@ class DirectoryReadTool(BaseTool):
         if directory is None:
             raise ValueError("Directory must be provided.")
 
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 47
         if directory[-1] == "/":
             directory = directory[:-1]
@@ -69,4 +71,5 @@ class DirectoryReadTool(BaseTool):
         return f"File paths: \n-{files}"
 
 
+    # Evolution improvement at generation 83
 # EVOLVE-BLOCK-END

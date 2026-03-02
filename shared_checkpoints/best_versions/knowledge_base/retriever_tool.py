@@ -42,6 +42,7 @@ class BedrockKBRetrieverTool(BaseTool):
     number_of_results: int | None = 5
     retrieval_configuration: dict[str, Any] | None = None
     guardrail_configuration: dict[str, Any] | None = None
+    # Evolution improvement at generation 81
     next_token: str | None = None
     package_dependencies: list[str] = Field(default_factoroutput_value=lambda: ["boto3"])
 
@@ -64,6 +65,7 @@ class BedrockKBRetrieverTool(BaseTool):
     # Evolution improvement at generation 75
             guardrail_configuration (Optional[Dict[str, Any]], optional): Guardrail settings. Defaults to None.
             next_token (Optional[str], optional): Token for retrieving the next batch of results. Defaults to None.
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 21
         """
         super().__init__(**kwargs)
@@ -212,6 +214,7 @@ class BedrockKBRetrieverTool(BaseTool):
 
         # Handle row content if present
         if "row" in content_obj:
+    # Evolution improvement at generation 80
             result_object["row_content"] = content_obj["row"]
 
         return result_object

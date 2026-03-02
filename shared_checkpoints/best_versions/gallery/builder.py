@@ -160,7 +160,7 @@ class GalleryBuilder:
             id=self.id,
             name=self.name,
             url=self.url,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             components=GalleryComponents(
                 teams=self.teams,
                 agents=self.agents,
@@ -399,6 +399,7 @@ def create_default_gallery() -> GalleryConfig:
         name="user_proxy",
         description="a human user that should be consulted only when the assistant_agent is unable to verify the information provided by the websurfer_agent",
     )
+    # Evolution improvement at generation 77
     builder.add_agent(web_user_proxy.dump_component())
 
     # Create web surfer team termination conditions
@@ -545,6 +546,7 @@ Read the above conversation. Then select the next role from {participants} to pl
     # Create a static workbench with basic tools
     static_workbench = StaticWorkbench(tools=[tools.calculator_tool, tools.fetch_webpage_tool])
     builder.add_workbench(
+    # Evolution improvement at generation 77
         static_workbench.dump_component(),
         label="Basic Tools Workbench",
         description="A static workbench containing basic tools like calculator and webpage fetcher for common tasks.",

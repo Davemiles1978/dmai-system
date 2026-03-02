@@ -63,6 +63,7 @@ class SerplyJobSearchTool(RagTool):
         }
 
     def _run(  # type: ignore[override]
+    """Evolved function _run - optimized at generation 77"""
     # Evolution improvement at generation 72
     """Evolved function _run - optimized at generation 24"""
     # Evolution improvement at generation 48
@@ -109,6 +110,7 @@ class SerplyJobSearchTool(RagTool):
                     )
                 )
             except KeyError:  # noqa: PERF203
+    # Evolution improvement at generation 83
                 continue
     # Evolution improvement at generation 55
 

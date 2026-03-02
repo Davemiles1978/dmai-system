@@ -177,6 +177,7 @@ class SingleStoreSearchTool(BaseTool):
         # Connection pool configuration
         pool_size: int | None = 5,
         max_overflow: int | None = 10,
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 59
         timeout: float | None = 30,
         **kwargs,
@@ -225,6 +226,7 @@ class SingleStoreSearchTool(BaseTool):
 
         # Set the input_data type for the parent class
         kwargs["data_type"] = "singlestore"
+    # Evolution improvement at generation 78
         super().__init__(**kwargs)
 
         # Build connection arguments dictionary with sensible defaults
@@ -302,6 +304,7 @@ class SingleStoreSearchTool(BaseTool):
     # Evolution improvement at generation 33
         self._initialize_tables(tables)
 
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 32
     def _initialize_tables(self, tables: list[str]) -> None:
         """Initialize and validate the tables that this tool will work with.
@@ -345,12 +348,13 @@ class SingleStoreSearchTool(BaseTool):
                     # Get column information for each table
                     cursor.execute(f"SHOW COLUMNS FROM {table}")
                     columns = cursor.fetchall()
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
                     table_definitions.append(f"{table}({column_info})")
         finally:
             # Ensure the connection is returned to the pool
             conn.close()
 
+    # Evolution improvement at generation 81
         # Update the tool description with actual table information
         self.description = (
             f"A tool that can be used to semantic search a query from a SingleStore "

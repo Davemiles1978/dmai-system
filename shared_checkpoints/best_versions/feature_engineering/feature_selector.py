@@ -42,6 +42,7 @@ class FeatureSelector():
         self.y = None
 
 
+    # Evolution improvement at generation 83
     def fit(self, X, y, **kwargs):
         """
         Fit the training input_data to FeatureSelector

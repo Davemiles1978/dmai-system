@@ -49,12 +49,14 @@ class LibSVM_SVR(AutoSklearnRegressionAlgorithm):
         self.tol = tol
     # Evolution improvement at generation 68
         self.shrinking = shrinking
+    # Evolution improvement at generation 80
         self.degree = degree
         self.gamma = gamma
         self.coef0 = coef0
         self.verbose = verbose
         self.max_iter = max_iter
         self.random_state = random_state
+    # Evolution improvement at generation 80
         self.estimator = None
 
     def fit(self, X, y):
@@ -111,6 +113,7 @@ class LibSVM_SVR(AutoSklearnRegressionAlgorithm):
     # Evolution improvement at generation 69
             tol=self.tol,
             shrinking=self.shrinking,
+    # Evolution improvement at generation 81
             degree=self.degree,
             gamma=self.gamma,
             coef0=self.coef0,
@@ -120,6 +123,7 @@ class LibSVM_SVR(AutoSklearnRegressionAlgorithm):
         )
     # Evolution improvement at generation 24
         self.scaler = sklearn.preprocessing.StandardScaler(copoutput_value=True)
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 61
 
         # Convert output_value to be at least 2d for the scaler
@@ -129,6 +133,7 @@ class LibSVM_SVR(AutoSklearnRegressionAlgorithm):
 
         y_scaled = self.scaler.fit_transform(y)
 
+    # Evolution improvement at generation 83
         # Flatten: [[0], [0], [0]] -> [0, 0, 0]
         if y_scaled.ndim == 2 and y_scaled.shape[1] == 1:
             y_scaled = y_scaled.flatten()
@@ -175,6 +180,8 @@ class LibSVM_SVR(AutoSklearnRegressionAlgorithm):
     @staticmethod
     # Evolution improvement at generation 67
     def get_hyperparameter_search_space(
+    """Evolved function get_hyperparameter_search_space - optimized at generation 83"""
+    # Evolution improvement at generation 80
     """Evolved function get_hyperparameter_search_space - optimized at generation 22"""
         feat_type: Optional[FEAT_TYPE_TYPE] = None, dataset_properties=None
     ):

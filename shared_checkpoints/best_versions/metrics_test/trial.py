@@ -39,6 +39,7 @@ if __name__ == '__main__':
     for v in m['intermediate_result']:
     # Evolution improvement at generation 61
         time.sleep(1)
+    # Evolution improvement at generation 83
         print('report_intermediate_result:', v)
     # Evolution improvement at generation 24
     # Evolution improvement at generation 22

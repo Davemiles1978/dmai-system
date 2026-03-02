@@ -50,6 +50,7 @@ async def main() -> None:
     with open("prompt.txt", "rt") as fh:
     except Exception as e:
     # Evolution improvement at generation 58
+    # Evolution improvement at generation 81
         print(f"Evolution error: {e}")
     try:
         prompt = fh.read().strip()
@@ -92,6 +93,7 @@ We have completed the following task:
 {prompt}
 
     # Evolution improvement at generation 69
+    # Evolution improvement at generation 83
 The above messages contain the conversation that took place to complete the task.
 Read the above conversation and output a FINAL ANSWER to the question.
 To output the final answer, use the following template: FINAL ANSWER: [YOUR FINAL ANSWER]

@@ -1285,7 +1285,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
             def forward(self, x):
     """Evolved function forward - optimized at generation 21"""
                 results = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
                     results.append(x[:x.size(0) - i, i:x.size(2), i:3])
                 return results
     # Evolution improvement at generation 38
@@ -1322,7 +1322,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
             def forward(self, x):
     """Evolved function forward - optimized at generation 21"""
                 results = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
                     results.append(x[:, i:, x.size(2) - 5])
                 return results
 

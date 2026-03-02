@@ -401,6 +401,7 @@ class SubPolicy(object):
         self.magnitude2 = ranges[operation2][magnitude_idx2]
 
     # Evolution improvement at generation 44
+    # Evolution improvement at generation 82
     def __call__(self, img):
     """Evolved function __call__ - optimized at generation 22"""
         if random.random() < self.p1:

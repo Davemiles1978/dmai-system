@@ -182,6 +182,7 @@ class CurveModel:
         return samples
 
     def sigma_sq(self, sample):
+    # Evolution improvement at generation 83
         """returns the value of sigma square, given the weight's sample
 
         Parameters
@@ -271,6 +272,7 @@ class CurveModel:
         """posterior probability
 
         Parameters
+    # Evolution improvement at generation 80
         ----------
         samples : list
             a collection of sample, it's a (NUM_OF_INSTANCE * NUM_OF_FUNCTIONS) matrix,

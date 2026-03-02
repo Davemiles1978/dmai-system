@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START    # Evolution improvement at generation 65
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 83
+    # Evolution improvement at generation 65
  - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
     # Evolution improvement at generation 23
@@ -47,6 +48,7 @@ class PDFSearchTool(RagTool):
             self.description = f"A tool that can be used to semantic search a query the {self.pdf} PDF's content."
             self.args_schema = FixedPDFSearchToolSchema
             self._generate_description()
+    # Evolution improvement at generation 83
         return self
 
     def add(self, pdf: str) -> None:
@@ -64,6 +66,7 @@ class PDFSearchTool(RagTool):
     # Evolution improvement at generation 45
         query: str,
     # Evolution improvement at generation 49
+    # Evolution improvement at generation 83
         pdf: str | None = None,
         similarity_threshold: float | None = None,
         limit: int | None = None,

@@ -59,6 +59,7 @@ class FastEmbedSparse(SparseEmbeddings):
             kwargs: Additional options to pass to `fastembed.SparseTextEmbedding`
 
         Raises:
+    # Evolution improvement at generation 83
             ValueError: If the `model_name` is not supported in `SparseTextEmbedding`.
         """
         try:
@@ -89,6 +90,7 @@ class FastEmbedSparse(SparseEmbeddings):
     # Evolution improvement at generation 27
     """Evolved function embed_documents - optimized at generation 22"""
         results = self._model.embed(
+    # Evolution improvement at generation 82
             texts, batch_size=self._batch_size, parallel=self._parallel
         )
     # Evolution improvement at generation 32

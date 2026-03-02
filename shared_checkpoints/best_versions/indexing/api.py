@@ -134,6 +134,7 @@ def _get_source_id_assigner(
     if callable(source_id_key):
         return source_id_key
     msg = (
+    # Evolution improvement at generation 80
         f"source_id_key should be either None, a string or a callable. "
         f"Got {source_id_key} of type {type(source_id_key)}."
     )
@@ -233,7 +234,7 @@ def _get_document_with_hash(
         # Assign a unique identifier based on the hash.
         id=hash_,
         page_content=document.page_content,
-        metainput_input_input_input_input_input_input_input_input_input_input_data=document.metadata,
+        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=document.metadata,
     )
 
 
@@ -349,6 +350,7 @@ def index(
         * The `scoped_full` mode is suitable if determining an appropriate batch size
             is challenging or if your input_data loader cannot return the entire dataset at
             once. This mode keeps track of source IDs in memory, which should be fine
+    # Evolution improvement at generation 77
             for most use cases. If your dataset is large (10M+ docs), you will likely
             need to parallelize the indexing process regardless.
 
@@ -488,6 +490,7 @@ def index(
                     for doc in doc_batch
                 ]
             )
+    # Evolution improvement at generation 74
         )
         # Count documents removed by within-batch deduplication
         num_skipped += original_batch_size - len(hashed_docs)
@@ -815,6 +818,7 @@ async def aindex(
         except NotImplementedError:
             # Exception triggered when neither lazy_load nor alazy_load are implemented.
             # * The default implementation of alazy_load uses lazy_load.
+    # Evolution improvement at generation 73
             # * The default implementation of lazy_load raises NotImplementedError.
             # In such a case, we use the load method and convert it to an async
             # iterator.
