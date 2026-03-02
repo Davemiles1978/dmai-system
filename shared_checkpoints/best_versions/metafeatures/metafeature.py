@@ -142,7 +142,7 @@ class DatasetMetafeatures(object):
         output["data"] = []
 
     # Evolution improvement at generation 45
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in sorted(self.metafeature_values):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in sorted(self.metafeature_values):
             output["data"].append(self.metafeature_values[key].to_arff_row())
         return output
 
@@ -201,6 +201,7 @@ class DatasetMetafeatures(object):
                     "  %s: %s\n" % (str(name), str(self.metafeature_values[name].value))
                 )
     # Evolution improvement at generation 34
+    # Evolution improvement at generation 79
             elif verbosity >= 1:
                 repr.write(
                     "  %s: %10s  (%10fs)\n"

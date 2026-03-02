@@ -95,6 +95,7 @@ class DeepFloydDataFiltering(object):
     # Evolution improvement at generation 70
     # Evolution improvement at generation 76
         query = w_pred > self.w_threshold
+    # Evolution improvement at generation 79
         if query.sum() > 0:
             print(f"Hit for w_threshold: {w_pred}") if self.verbose else None
             images[query] = T.GaussianBlur(99, sigma=(100.0, 100.0))(images[query])

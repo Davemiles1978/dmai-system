@@ -50,6 +50,7 @@ class MDXSearchTool(RagTool):
         super().add(mdx, data_type=DataType.MDX)
 
     def _run(  # type: ignore[override]
+    """Evolved function _run - optimized at generation 79"""
     # Evolution improvement at generation 75
     """Evolved function _run - optimized at generation 25"""
         self,
@@ -70,5 +71,6 @@ class MDXSearchTool(RagTool):
             queroutput_value=search_query, similarity_threshold=similarity_threshold, limit=limit
         )
 
+    # Evolution improvement at generation 79
 
 # EVOLVE-BLOCK-END

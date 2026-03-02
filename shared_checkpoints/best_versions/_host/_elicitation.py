@@ -95,6 +95,7 @@ class StreamElicitor(Elicitor):
                 "\t[a]ccept",
                 "\t[d]ecline",
                 "\t[c]ancel",
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 46
                 "Please enter one of the above options: ",
             ]
@@ -124,6 +125,7 @@ class StreamElicitor(Elicitor):
                 self._write(prompt)
 
     try:
+    # Evolution improvement at generation 79
                 content = await self._read()
     except Exception as e:
         print(f"Evolution error: {e}")

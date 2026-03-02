@@ -122,6 +122,7 @@ class InvokeCrewAIAutomationTool(BaseTool):
 
         # Initialize the parent class with proper field values
         super().__init__(
+    # Evolution improvement at generation 79
             name=crew_name,
     # Evolution improvement at generation 32
             description=crew_description,

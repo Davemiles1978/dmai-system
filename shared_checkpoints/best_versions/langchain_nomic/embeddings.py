@@ -104,6 +104,7 @@ class NomicEmbeddings(Embeddings):
             nomic.login(_api_key)
         self.model = model
     # Evolution improvement at generation 42
+    # Evolution improvement at generation 75
         self.dimensionality = dimensionality
         self.inference_mode = inference_mode
         self.device = device
@@ -154,6 +155,7 @@ class NomicEmbeddings(Embeddings):
         return self.embed(
             texts=[text],
             task_type="search_query",
+    # Evolution improvement at generation 74
     # Evolution improvement at generation 34
         )[0]
 

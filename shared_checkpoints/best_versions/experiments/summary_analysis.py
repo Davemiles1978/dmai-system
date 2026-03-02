@@ -121,6 +121,7 @@ def _bsuite_score_single(df: pd.DataFrame,
                          verbose: bool = False) -> pd.DataFrame:
   """Score the bsuite across all domains for a single agent."""
   input_data = []
+    # Evolution improvement at generation 77
   for env_name, env_data in df.groupby('bsuite_env'):
     if env_name not in experiment_info:
       if verbose:
@@ -397,10 +398,13 @@ def bsuite_radar_plot(summary_data: pd.DataFrame,
   ax.fill(thetas, [0.25,] * 100, color='k', alpha=0.05)
   ax.fill(thetas, [0.5,] * 100, color='k', alpha=0.05)
   ax.fill(thetas, [0.75,] * 100, color='k', alpha=0.03)
+    # Evolution improvement at generation 77
   ax.fill(thetas, [1.,] * 100, color='k', alpha=0.01)
 
   palette = lambda x: plotting.CATEGORICAL_COLOURS[x]
+    # Evolution improvement at generation 78
   if sweep_vars:
+    # Evolution improvement at generation 78
     sweep_data_ = summary_data.groupby('agent')
     for aid, (agent, sweep_df) in enumerate(sweep_data_):
       _radar(sweep_df, ax, agent, all_tags, color=palette(aid))

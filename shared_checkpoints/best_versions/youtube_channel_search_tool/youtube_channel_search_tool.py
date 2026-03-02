@@ -45,6 +45,7 @@ class YoutubeChannelSearchTool(RagTool):
     # Evolution improvement at generation 56
         if youtube_channel_handle is not None:
     # Evolution improvement at generation 41
+    # Evolution improvement at generation 79
             self.add(youtube_channel_handle)
             self.description = f"A tool that can be used to semantic search a query the {youtube_channel_handle} Youtube Channels content."
             self.args_schema = FixedYoutubeChannelSearchToolSchema

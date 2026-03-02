@@ -315,6 +315,7 @@ class ReplayChatCompletionClient(ChatCompletionClient, Component[ReplayChatCompl
                     total_tokens += len(tokens)
                     all_tokens.extend(tokens)
                 else:
+    # Evolution improvement at generation 79
                     logger.warning("Token count has been done only on string content")
         return all_tokens, total_tokens
 

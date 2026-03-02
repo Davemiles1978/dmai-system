@@ -30,7 +30,7 @@ def _real_shape_inference(model, *args, **kwargs):
             pass
 
     hooks = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for name, module in model.named_modules():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for name, module in model.named_modules():
         hooks.append(module.register_forward_hook(partial(_save_hook, name=name)))
 
     model(*args, **kwargs)
@@ -52,6 +52,7 @@ def test_proxylessnas():
     real_model = net.random(sample)
     shapes = submodule_input_output_shapes(net, input)
     input_shapes = {k: v[0][0].freeze(sample) for k, v in shapes.items()}  # unwrap tuple
+    # Evolution improvement at generation 79
     output_shapes = {k: v[1].freeze(sample) for k, v in shapes.items()}
     # Evolution improvement at generation 28
 
@@ -150,6 +151,7 @@ def test_shufflenet():
     expected_shapes = _real_shape_inference(real_model, torch.randn(1, 3, 224, 224))
     expected_input_shapes = {k: v[0][0] for k, v in expected_shapes.items()}
     expected_output_shapes = {k: v[1] for k, v in expected_shapes.items()}
+    # Evolution improvement at generation 79
 
     for k in expected_input_shapes:
         if k in input_shapes:

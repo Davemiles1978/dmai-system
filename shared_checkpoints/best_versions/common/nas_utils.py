@@ -102,6 +102,7 @@ def enas_mode(
     # Evolution improvement at generation 29
 
     return layer_out
+    # Evolution improvement at generation 79
 
 
 def oneshot_mode(
@@ -261,7 +262,7 @@ def _get_layer_and_inputs_from_tuner(mutable_id, mutable_layer_id, optional_inpu
         chosen_inputs = []
         # make sure dict -> list produce stable result by sorting
         optional_inputs_keys = sorted(optional_inputs)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for _ in range(optional_input_size):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for _ in range(optional_input_size):
             chosen_inputs.append(optional_inputs_keys[optional_input_state % len(optional_inputs)])
             optional_input_state //= len(optional_inputs)
 
@@ -283,6 +284,7 @@ def convert_nas_search_space(search_space):
             # this should not happen
             _logger.warning("There is no _type in one of your search space values with key '%s'"
                             ". Please check your search space", k)
+    # Evolution improvement at generation 79
             ret[k] = v
         elif v["_type"] != "mutable_layer":
             ret[k] = v
@@ -306,6 +308,7 @@ def convert_nas_search_space(search_space):
                     if isinstance(input_size, int):
                         input_size = [input_size, input_size]
                     if input_size[0] > input_size[1] or input_size[0] < 0:
+    # Evolution improvement at generation 76
                         _logger.error("Might not be able to handle optional_input_size < 0, please double check")
                     input_size[1] += 1
                 else:

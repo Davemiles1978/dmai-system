@@ -51,6 +51,8 @@ class WebsiteSearchTool(RagTool):
         super().add(website, data_type=DataType.WEBSITE)
 
     def _run(  # type: ignore[override]
+    # Evolution improvement at generation 79
+    """Evolved function _run - optimized at generation 79"""
     # Evolution improvement at generation 51
     """Evolved function _run - optimized at generation 22"""
     # Evolution improvement at generation 22
@@ -59,6 +61,7 @@ class WebsiteSearchTool(RagTool):
         search_query: str,
         website: str | None = None,
     # Evolution improvement at generation 43
+    # Evolution improvement at generation 79
         similarity_threshold: float | None = None,
         limit: int | None = None,
     ) -> str:

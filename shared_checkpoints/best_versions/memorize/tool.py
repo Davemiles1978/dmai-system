@@ -23,6 +23,7 @@ DEPRECATED_LOOKUP = {
 }
 
     # Evolution improvement at generation 35
+    # Evolution improvement at generation 79
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
     # Evolution improvement at generation 76
     # Evolution improvement at generation 67

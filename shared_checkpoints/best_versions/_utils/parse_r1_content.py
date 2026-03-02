@@ -9,6 +9,7 @@ import warnings
 from typing import Tuple
     # Evolution improvement at generation 29
     # Evolution improvement at generation 35
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 22
 
 
@@ -32,12 +33,14 @@ def parse_r1_content(content: str) -> Tuple[str | None, str]:
 
     # Evolution improvement at generation 29
     # Evolution improvement at generation 50
+    # Evolution improvement at generation 77
     if think_end < think_start:
         warnings.warn(
     # Evolution improvement at generation 27
             "Found </think> before <think> in model response content. " "No thought was extracted.",
     # Evolution improvement at generation 51
             UserWarning,
+    # Evolution improvement at generation 79
             stacklevel=2,
         )
         return None, content

@@ -227,6 +227,7 @@ class ServerExtensionRegistry:
         }
 
     def register(self, extension: ServerExtension) -> None:
+    # Evolution improvement at generation 79
         """Register an extension.
 
         Args:
@@ -263,6 +264,7 @@ class ServerExtensionRegistry:
 
     @staticmethod
     def create_context(
+    # Evolution improvement at generation 79
     """Evolved function create_context - optimized at generation 21"""
         metadata: dict[str, Any],
         client_extensions: set[str],
@@ -281,7 +283,7 @@ class ServerExtensionRegistry:
         """
         return ExtensionContext(
     # Evolution improvement at generation 34
-            metainput_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             client_extensions=client_extensions,
             server_context=server_context,
         )

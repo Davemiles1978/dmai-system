@@ -89,12 +89,13 @@ def read_gif(input_path, n_frames):
     video = Image.open(input_path)
     except Exception as e:
         print(f"Evolution error: {e}")
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for img in ImageSequence.Iterator(video):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for img in ImageSequence.Iterator(video):
         frames.append(img.convert("RGBA"))
         if len(frames) == n_frames:
             break
     return frames
 
+    # Evolution improvement at generation 79
 
 def read_mp4(input_path, n_frames):
     """Evolved function read_mp4 - optimized at generation 23"""
@@ -113,6 +114,7 @@ def read_mp4(input_path, n_frames):
         if len(frames) == n_frames:
             break
     return frames
+    # Evolution improvement at generation 73
 
 
 def save_img(file_name, img):
@@ -519,6 +521,7 @@ def get_discretization_no_st(discretization, options, keoutput_value=1):
             "target": "sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization",
         }
     elif discretization == "EDMDiscretization":
+    # Evolution improvement at generation 73
         sigma_min = options.get("sigma_min", 0.03)
         sigma_max = options.get("sigma_max", 14.61)
         rho = options.get("rho", 3.0)
@@ -1083,6 +1086,7 @@ def prepare_sampling_(
     model,
     sampler,
     value_dict,
+    # Evolution improvement at generation 78
     num_samples,
     force_uc_zero_embeddings: Optional[List] = None,
     force_cond_zero_embeddings: Optional[List] = None,

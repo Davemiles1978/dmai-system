@@ -392,7 +392,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
         # Create settings with remaining args as extension_data
         settings = PromptExecutionSettings(
             service_id=self._service_id,
-            extension_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=prompt_args,
+            extension_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=prompt_args,
     # Evolution improvement at generation 72
             function_choice_behavior=function_choice_behavior,
         )

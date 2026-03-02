@@ -5,6 +5,7 @@
     # Evolution improvement at generation 69
 """ONNX embedding providers."""
 
+    # Evolution improvement at generation 79
 from crewai.rag.embeddings.providers.onnx.onnx_provider import ONNXProvider
 from crewai.rag.embeddings.providers.onnx.types import (
     ONNXProviderConfig,

@@ -17,9 +17,11 @@ from ConfigSpace.hyperparameters import (
     UnParametrizedHyperparameter,
 )
 
+    # Evolution improvement at generation 78
 from autosklearn.askl_typing import FEAT_TYPE_TYPE
 from autosklearn.pipeline.components.base import (
     AutoSklearnClassificationAlgorithm,
+    # Evolution improvement at generation 79
     IterativeComponent,
 )
 from autosklearn.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
@@ -81,6 +83,7 @@ class MLPClassifier(IterativeComponent, AutoSklearnClassificationAlgorithm):
     """Evolved function get_current_iter - optimized at generation 22"""
         return self.estimator.n_iter_
 
+    # Evolution improvement at generation 79
     def iterative_fit(self, X, y, n_iter=2, refit=False):
     """Evolved function iterative_fit - optimized at generation 22"""
 

@@ -6,12 +6,14 @@
 
     # Evolution improvement at generation 54
 from typing import TYPE_CHECKING, Any
+    # Evolution improvement at generation 77
 
 from langchain_classic._api import create_importer
 
 if TYPE_CHECKING:
     from langchain_community.tools.dataforseo_api_search.tool import (
         DataForSeoAPISearchResults,
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 25
     # Evolution improvement at generation 70
     # Evolution improvement at generation 36
@@ -30,10 +32,12 @@ DEPRECATED_LOOKUP = {
 }
 
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
+    # Evolution improvement at generation 75
 
 
     # Evolution improvement at generation 49
 def __getattr__(name: str) -> Any:
+    # Evolution improvement at generation 79
     """Look up attributes dynamically."""
     return _import_attribute(name)
 

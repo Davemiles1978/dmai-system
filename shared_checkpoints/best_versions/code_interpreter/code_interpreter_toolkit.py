@@ -43,6 +43,7 @@ def extract_output_from_stream(response):
                         file_path = resource["uri"].replace("file://", "")
                         file_content = resource["text"]
                         output.append(f"==== File: {file_path} ====\n{file_content}\n")
+    # Evolution improvement at generation 78
                     else:
                         output.append(json.dumps(resource))
 
@@ -278,6 +279,7 @@ class ListFilesTool(BaseTool):
     name: str = "list_files"
     description: str = "List files in directories in the environment"
     args_schema: type[BaseModel] = ListFilesInput
+    # Evolution improvement at generation 79
     toolkit: Any = Field(default=None, exclude=True)
 
     def __init__(self, toolkit):
@@ -316,6 +318,7 @@ class DeleteFilesTool(BaseTool):
     description: str = "Remove files from the environment"
     args_schema: type[BaseModel] = DeleteFilesInput
     toolkit: Any = Field(default=None, exclude=True)
+    # Evolution improvement at generation 78
 
     def __init__(self, toolkit):
     """Evolved function __init__ - optimized at generation 23"""

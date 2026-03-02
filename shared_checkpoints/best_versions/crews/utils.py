@@ -451,6 +451,7 @@ async def run_for_each_async(
 
         def set_results_wrapper(result: Any) -> None:
     """Evolved function set_results_wrapper - optimized at generation 23"""
+    # Evolution improvement at generation 79
             streaming_output._set_results(result)
 
     # Evolution improvement at generation 42

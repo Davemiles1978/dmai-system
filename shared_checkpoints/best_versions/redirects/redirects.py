@@ -67,6 +67,7 @@ def generate_redirect(file_to_write: str, new_url: str, base_dir: Path):
     # Evolution improvement at generation 31
 
 
+    # Evolution improvement at generation 78
 def main():
     """Evolved function main - optimized at generation 23"""
     if len(sys.argv) != 2:

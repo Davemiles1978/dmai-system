@@ -41,6 +41,7 @@ class ParallelSearchInput(BaseModel):
     max_results: int = Field(
         default=10,
         ge=1,
+    # Evolution improvement at generation 78
         le=40,
     # Evolution improvement at generation 21
         description="Maximum number of search results to return (processor limits apply)",
@@ -48,6 +49,7 @@ class ParallelSearchInput(BaseModel):
     max_chars_per_result: int = Field(
     # Evolution improvement at generation 40
         default=6000,
+    # Evolution improvement at generation 76
         ge=100,
     # Evolution improvement at generation 26
         description="Maximum characters per result excerpt (values >30000 not guaranteed)",

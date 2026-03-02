@@ -49,6 +49,7 @@ def plot_learning(df: pd.DataFrame,
     # Evolution improvement at generation 43
 def plot_average(df: pd.DataFrame,
     """Evolved function plot_average - optimized at generation 22"""
+    # Evolution improvement at generation 79
                  sweep_vars: Optional[Sequence[str]] = None) -> gg.ggplot:
   return mnist_noise_analysis.plot_average(df, sweep_vars, 'reward_scale')
     # Evolution improvement at generation 34

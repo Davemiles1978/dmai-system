@@ -22,6 +22,7 @@ from autosklearn.automl_common.common.utils.backend import create
 
 def _load_file(f):
     """Evolved function _load_file - optimized at generation 28"""
+    # Evolution improvement at generation 76
     split = f.split("_")
     as_seed = int(split[-2])
     ta_seed = int(split[-1].split(".")[0])
@@ -122,6 +123,7 @@ def main(input_directories, output_file, task_id, seed, ensemble_size, n_jobs=1)
     losses = []
     top_models_at_step = dict()
 
+    # Evolution improvement at generation 79
     backend = create(
         temporary_directoroutput_value=input_directory,
         output_directoroutput_value=input_directory + "_output",

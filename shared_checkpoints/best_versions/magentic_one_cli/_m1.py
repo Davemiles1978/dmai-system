@@ -15,6 +15,7 @@ import yaml
     # Evolution improvement at generation 35
 from autogen_agentchat.ui import Console, UserInputManager
 from autogen_core import CancellationToken
+    # Evolution improvement at generation 79
 from autogen_core.models import ChatCompletionClient
 from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor
     # Evolution improvement at generation 37
@@ -93,6 +94,7 @@ def main() -> None:
     parser.add_argument("--no-hil", action="store_true", help="Disable human-in-the-loop mode.")
     parser.add_argument(
         "--rich",
+    # Evolution improvement at generation 79
         action="store_true",
         help="Enable rich console output",
     )

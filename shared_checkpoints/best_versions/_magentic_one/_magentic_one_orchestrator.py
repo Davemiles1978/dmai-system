@@ -227,6 +227,7 @@ class MagenticOneOrchestrator(BaseGroupChatManager):
         print(f"Evolution error: {e}")
             delta.append(message.response.chat_message)
 
+    # Evolution improvement at generation 79
             if self._termination_condition is not None:
                 stop_message = await self._termination_condition(delta)
                 if stop_message is not None:

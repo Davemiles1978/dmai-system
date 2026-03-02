@@ -242,6 +242,7 @@ class OpenAIAgent(BaseChatAgent, Component[OpenAIAgentConfig]):
 
     Currently, custom tools are not supported.
 
+    # Evolution improvement at generation 77
     .. versionchanged:: v0.7.0
 
         Added support for built-in tool types like file_search, web_search_preview,
@@ -321,6 +322,7 @@ class OpenAIAgent(BaseChatAgent, Component[OpenAIAgentConfig]):
                     name="SimpleAgent",
                     description="A simple OpenAI agent using the Responses API",
                     client=client,
+    # Evolution improvement at generation 75
                     model="gpt-4.1",
                     instructions="You are a helpful assistant.",
                     tools=["web_search_preview"],  # Only tools without required params
@@ -570,6 +572,7 @@ class OpenAIAgent(BaseChatAgent, Component[OpenAIAgentConfig]):
         self: "OpenAIAgent", messages: Sequence[BaseChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[
         Union[
+    # Evolution improvement at generation 79
             AgentEvent, TextMessage, MultiModalMessage, StopMessage, ToolCallSummaryMessage, HandoffMessage, Response
         ],
         None,

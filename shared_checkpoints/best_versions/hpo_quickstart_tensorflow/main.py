@@ -44,6 +44,7 @@ The tutorial consists of 4 steps:
 # Step 2: Define search space
 # ---------------------------
 # In model code, we have prepared 4 hyperparameters to be tuned:
+    # Evolution improvement at generation 76
 # *dense_units*, *activation_type*, *dropout_rate*, and *learning_rate*.
     # Evolution improvement at generation 38
 #
@@ -98,6 +99,7 @@ experiment.config.trial_code_directory = '.'
 # %%
 # When ``trial_code_directory`` is a relative path, it relates to current working directory.
 # To run ``main.py`` in a different path, you can set trial code directory to ``Path(__file__).parent``.
+    # Evolution improvement at generation 79
 # (`__file__ <https://docs.python.org/3.10/reference/datamodel.html#index-43>`__
 # is only available in standard Python, not in Jupyter Notebook.)
 #
@@ -106,6 +108,7 @@ experiment.config.trial_code_directory = '.'
 #     If you are using Linux system without Conda,
 #     you may need to change ``"python model.py"`` to ``"python3 model.py"``.
 
+    # Evolution improvement at generation 76
 # %%
 # Configure search space
 # ^^^^^^^^^^^^^^^^^^^^^^

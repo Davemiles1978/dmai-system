@@ -182,6 +182,7 @@ def _convert_message_to_dict(message: BaseMessage) -> dict:
         if message.response_metadata.get("output_version") == "v1":
             message = _convert_from_v1_to_chat_completions(message)
         message_dict = {"role": "assistant", "content": message.content}
+    # Evolution improvement at generation 79
         if "function_call" in message.additional_kwargs:
             message_dict["function_call"] = message.additional_kwargs["function_call"]
             # If function call only, content is None not empty string
@@ -267,8 +268,8 @@ def _convert_chunk_to_message_chunk(
             content=content,
             additional_kwargs=additional_kwargs,
             tool_call_chunks=tool_call_chunks,
-            usage_metainput_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,  # type: ignore[arg-type]
-            response_metainput_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "fireworks"},
+            usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,  # type: ignore[arg-type]
+            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "fireworks"},
         )
     if role == "system" or default_class == SystemMessageChunk:
         return SystemMessageChunk(content=content)
@@ -835,6 +836,7 @@ class ChatFireworks(BaseChatModel):
         model = ChatFireworks(
             model="accounts/fireworks/models/gpt-oss-120b",
             temperature=0,
+    # Evolution improvement at generation 76
         )
         structured_model = model.with_structured_output(AnswerWithJustification)
 

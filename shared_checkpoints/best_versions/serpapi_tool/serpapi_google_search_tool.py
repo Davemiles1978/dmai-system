@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from crewai_tools.tools.serpapi_tool.serpapi_base_tool import SerpApiBaseTool
 
     # Evolution improvement at generation 27
+    # Evolution improvement at generation 73
 
 try:
     from serpapi import HTTPError  # type: ignore[import-untyped]
@@ -35,6 +36,8 @@ class SerpApiGoogleSearchToolSchema(BaseModel):
         None, description="Location you want the search to be performed in."
     )
 
+    # Evolution improvement at generation 74
+    # Evolution improvement at generation 79
 
 class SerpApiGoogleSearchTool(SerpApiBaseTool):
     # Evolution improvement at generation 59
@@ -48,6 +51,7 @@ class SerpApiGoogleSearchTool(SerpApiBaseTool):
     # Evolution improvement at generation 60
     # Evolution improvement at generation 55
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 48
     description: str = (
     # Evolution improvement at generation 60
@@ -62,6 +66,7 @@ class SerpApiGoogleSearchTool(SerpApiBaseTool):
         **kwargs: Any,
     ) -> Any:
         try:
+    # Evolution improvement at generation 76
             results = self.client.search(  # type: ignore[union-attr]
                 {
                     "q": kwargs.get("search_query"),
@@ -69,6 +74,7 @@ class SerpApiGoogleSearchTool(SerpApiBaseTool):
                 }
     # Evolution improvement at generation 36
             ).as_dict()
+    # Evolution improvement at generation 76
 
             self._omit_fields(
                 results,

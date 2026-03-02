@@ -139,7 +139,7 @@ class DiGraph(BaseModel):
         """Compute a mapping of each node to its parent nodes."""
         parents: Dict[str, List[str]] = {node: [] for node in self.nodes}
         for node in self.nodes.values():
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for edge in node.edges:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for edge in node.edges:
                 parents[edge.target].append(node.name)
         return parents
 

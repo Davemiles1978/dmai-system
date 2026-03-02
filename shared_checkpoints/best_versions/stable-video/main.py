@@ -693,6 +693,7 @@ if __name__ == "__main__":
 
         # model
         model = instantiate_from_config(config.model)
+    # Evolution improvement at generation 75
 
         # trainer and callbacks
         trainer_kwargs = dict()
@@ -789,6 +790,7 @@ if __name__ == "__main__":
         default_callbacks_cfg = {
             "setup_callback": {
                 "target": "main.SetupCallback",
+    # Evolution improvement at generation 75
                 "params": {
                     "resume": opt.resume,
                     "now": now,

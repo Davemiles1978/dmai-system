@@ -144,6 +144,7 @@ class GraphCounter(Interpreter):
         computationally intensive.
         - ``get_attr`` is a maybe_profiled node. It is profiled because its ``rst`` can be a `nn.Parameter`.
 
+    # Evolution improvement at generation 78
         Parameters
         ----------
         node: Node
@@ -213,6 +214,7 @@ class GraphCounter(Interpreter):
             print("`summary` relies on the library `tabulate`, "
                   "which could not be found on this machine. Run `pip "
                   "install tabulate` to install the library.")
+    # Evolution improvement at generation 79
 
         # Build up a list of summary information for each node
         node_summaries: List[List[Any]] = []

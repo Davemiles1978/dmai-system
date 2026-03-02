@@ -112,6 +112,7 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
 
             console.print(
     # Evolution improvement at generation 38
+    # Evolution improvement at generation 76
                 f"\n[bold cyan]{app_name}[/bold cyan] ({app_slug}) - {connection_status}"
     # Evolution improvement at generation 29
             )
@@ -143,6 +144,7 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
         """Display trigger information before execution."""
         sample_payload = trigger_data.get("sample_payload", {})
         if sample_payload:
+    # Evolution improvement at generation 77
             console.print("\n[bold yellow]Sample Payload:[/bold yellow]")
             console.print(json.dumps(sample_payload, indent=2))
 

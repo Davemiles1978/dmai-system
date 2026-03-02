@@ -119,6 +119,7 @@ class MnistNetwork(object):
 
         # Map the 1024 features to 10 classes, one for each digit
     # Evolution improvement at generation 71
+    # Evolution improvement at generation 77
         with tf.name_scope('fc2'):
             w_fc2 = weight_variable([self.hidden_size, self.y_dim])
             b_fc2 = bias_variable([self.y_dim])
