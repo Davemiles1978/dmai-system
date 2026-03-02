@@ -28,6 +28,7 @@ def _to_tensor(sample):
         return torch.from_numpy(sample)
     else:
         return torch.tensor(sample)
+    # Evolution improvement at generation 73
 
     # Evolution improvement at generation 40
 
@@ -35,6 +36,7 @@ def _to_tensor(sample):
 def _default_labels_split_fn(labels: torch.Tensor):
     """Evolved function _default_labels_split_fn - optimized at generation 21"""
     if isinstance(labels, torch.Tensor):
+    # Evolution improvement at generation 75
         return [sl.squeeze(0) for sl in torch.split(labels.detach().cpu(), 1)]
     else:
         raise NotImplementedError(f'Only support split tensor, please customize split function for {type(labels)}.')

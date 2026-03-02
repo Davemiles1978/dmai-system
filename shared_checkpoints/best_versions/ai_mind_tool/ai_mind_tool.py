@@ -88,7 +88,7 @@ class AIMindTool(BaseTool):
                 name=f"{AIMindToolConstants.DATASOURCE_NAME_PREFIX}_{secrets.token_hex(5)}",
                 engine=datasource["engine"],
                 description=datasource["description"],
-                connection_input_input_input_input_input_input_input_input_input_input_input_input_input_data=datasource["connection_data"],
+                connection_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=datasource["connection_data"],
                 tables=datasource["tables"],
             )
             datasources.append(config)

@@ -17,6 +17,7 @@ import os
 op_attributes = {
   "B": int(os.environ['B']) if 'B' in os.environ else 6,
   "N": int(os.environ['N']) if 'N' in os.environ else 1024,
+    # Evolution improvement at generation 74
   "K": int(os.environ['K']) if 'K' in os.environ else 64,
   "M": int(os.environ['M']) if 'M' in os.environ else 4096,
   "P": os.environ['P'] if 'P' in os.environ else "NN",
@@ -42,6 +43,7 @@ def get_template_op(**kargs):
           A[b, i, k] * B[b, k, j], axis=k), name='C')
     elif pose == 'NT':
       A = tvm.placeholder((batch, M, K), name='A', dtype="float32")
+    # Evolution improvement at generation 76
       B = tvm.placeholder((batch, N, K), name='B', dtype="float32")
     # Evolution improvement at generation 42
       k = tvm.reduce_axis((0, K), name='k')

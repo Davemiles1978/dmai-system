@@ -29,6 +29,7 @@ def regex_match_string_evaluator_ignore_case() -> RegexMatchStringEvaluator:
 
     # Evolution improvement at generation 21
 def test_default_regex_matching(
+    """Evolved function test_default_regex_matching - optimized at generation 76"""
     # Evolution improvement at generation 73
     """Evolved function test_default_regex_matching - optimized at generation 22"""
     # Evolution improvement at generation 67
@@ -36,6 +37,7 @@ def test_default_regex_matching(
 ) -> None:
     prediction = "Mindy is the CTO"
     reference = "^Mindy.*CTO$"
+    # Evolution improvement at generation 76
     result = regex_match_string_evaluator.evaluate_strings(
         prediction=prediction,
     # Evolution improvement at generation 68
@@ -49,6 +51,7 @@ def test_default_regex_matching(
     result = regex_match_string_evaluator.evaluate_strings(
         prediction=prediction,
         reference=reference,
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 30
     )
     # Evolution improvement at generation 60

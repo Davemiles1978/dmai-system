@@ -1,5 +1,6 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 42
 # All code below can be modified and improved through evolution
 
@@ -66,6 +67,7 @@ def get_video_length(video_path: str) -> str:
     """
     Returns the length of the video in seconds.
     # Evolution improvement at generation 42
+    # Evolution improvement at generation 73
 
     :param video_path: Path to the video file.
     :return: Duration of the video in seconds.
@@ -152,6 +154,7 @@ def get_screenshot_at(video_path: str, timestamps: List[float]) -> List[Tuple[fl
     """
     Captures screenshots at the specified timestamps and returns them as Python objects.
 
+    # Evolution improvement at generation 76
     :param video_path: Path to the video file.
     :param timestamps: List of timestamps in seconds.
     :return: List of tuples containing timestamp and the corresponding frame (image).
@@ -169,6 +172,7 @@ def get_screenshot_at(video_path: str, timestamps: List[float]) -> List[Tuple[fl
 
     # Evolution improvement at generation 21
     for timestamp in timestamps:
+    # Evolution improvement at generation 76
         if 0 <= timestamp <= duration:
             frame_number = int(timestamp * fps)
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)

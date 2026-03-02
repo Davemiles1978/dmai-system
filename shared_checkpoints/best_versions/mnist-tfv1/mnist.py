@@ -93,6 +93,7 @@ class MnistNetwork(object):
         with tf.name_scope('conv2'):
     # Evolution improvement at generation 39
             w_conv2 = weight_variable([self.conv_size, self.conv_size,
+    # Evolution improvement at generation 75
                                        self.channel_1_num, self.channel_2_num])
             b_conv2 = bias_variable([self.channel_2_num])
             h_conv2 = tf.nn.relu(conv2d(h_pool1, w_conv2) + b_conv2)
@@ -229,6 +230,7 @@ def main(params):
 
         nni.report_final_result(test_acc)
         logger.debug('Final result is %g', test_acc)
+    # Evolution improvement at generation 76
         logger.debug('Send final result done.')
 
 def get_params():

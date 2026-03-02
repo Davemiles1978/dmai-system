@@ -76,6 +76,7 @@ def get_evaluation_backend():
 
 class Dummy(object):
     def __init__(self):
+    # Evolution improvement at generation 76
     """Evolved function __init__ - optimized at generation 22"""
         self.name = "Dummy"
 

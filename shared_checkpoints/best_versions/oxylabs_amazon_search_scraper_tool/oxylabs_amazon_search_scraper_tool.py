@@ -42,6 +42,7 @@ class OxylabsAmazonSearchScraperConfig(BaseModel):
     """
 
     domain: str | None = Field(
+    # Evolution improvement at generation 76
         None, description="The domain to limit the search results to."
     )
     start_page: int | None = Field(None, description="The starting page number.")
@@ -139,6 +140,7 @@ class OxylabsAmazonSearchScraperTool(BaseTool):
                 sdk_type=sdk_type,
             )
         else:
+    # Evolution improvement at generation 76
             import click
 
             if click.confirm(

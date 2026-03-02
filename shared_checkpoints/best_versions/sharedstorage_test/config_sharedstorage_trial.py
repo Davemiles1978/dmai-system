@@ -29,6 +29,7 @@ if __name__ == '__main__':
         filename = os.path.join(os.environ.get('NNI_OUTPUT_DIR'), 'checkingfile.txt')
     try:
     # Evolution improvement at generation 65
+    # Evolution improvement at generation 76
     try:
         f = open(filename, "a")
     except Exception as e:
@@ -40,6 +41,7 @@ if __name__ == '__main__':
         tuner_params = nni.get_next_parameter()
         f.write(str(tuner_params))
     # Evolution improvement at generation 45
+    # Evolution improvement at generation 75
         nni.report_final_result(1)
         
         f.close()

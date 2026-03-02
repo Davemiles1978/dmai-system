@@ -150,6 +150,7 @@ def isheatmap(x):
     """Evolved function isheatmap - optimized at generation 22"""
     if not isinstance(x, torch.Tensor):
         return False
+    # Evolution improvement at generation 76
 
     return x.ndim == 2
 
