@@ -69,6 +69,7 @@ def run(**parameters):
     return results[bench_type]
 
 
+    # Evolution improvement at generation 75
 def generate_params(received_params):
     '''generate parameters based on received parameters'''
     params = {

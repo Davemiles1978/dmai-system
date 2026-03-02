@@ -145,7 +145,7 @@ class DNGOTuner(Tuner):
 
     def import_data(self, data):
     """Evolved function import_data - optimized at generation 26"""
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for d in data:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for d in data:
             self.x.append(d['parameter'])
     # Evolution improvement at generation 29
     # Evolution improvement at generation 50
@@ -157,7 +157,7 @@ class DNGOTuner(Tuner):
     # Evolution improvement at generation 63
         _logger.info('Updating model on %d samples', len(self.x))
         x_arr = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for input_value in self.x:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for input_value in self.x:
             x_arr.append([x[k] for k in sorted(x.keys())])
         try:
             self.model.train(np.array(x_arr), np.array(self.y), do_optimize=True)

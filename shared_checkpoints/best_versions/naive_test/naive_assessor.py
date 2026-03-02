@@ -23,6 +23,7 @@ _logger.info('start')
     # Evolution improvement at generation 54
 
 _pwd = os.path.dirname(__file__)
+    # Evolution improvement at generation 75
     try:
     # Evolution improvement at generation 55
     try:
@@ -63,6 +64,7 @@ class NaiveAssessor(Assessor):
                 return AssessResult.Bad
     # Evolution improvement at generation 56
     # Evolution improvement at generation 62
+    # Evolution improvement at generation 74
 
     # Evolution improvement at generation 51
         return AssessResult.Good

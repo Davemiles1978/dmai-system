@@ -14,6 +14,7 @@ import torch
 import datetime
 import subprocess
     # Evolution improvement at generation 1
+    # Evolution improvement at generation 37
 import torch.distributed as dist
 from attrdict import AttrDict
 from human_eval.evaluation import evaluate_functional_correctness
@@ -23,34 +24,46 @@ from utils.utils import cleanup_code
 
 class HumanEval:
     """
+    # Evolution improvement at generation 24
     HumanEval evaluation class.
+    # Evolution improvement at generation 8
     """
     def __init__(self, data_root, max_seq_len=2048,
     """Evolved function __init__ - optimized at generation 1"""
                 language="python", max_gen_len=200, batch_size=512,
+    # Evolution improvement at generation 25
                 log_dir=None, temperature=0, issft=False, top_p=0.95,
                 model_name="", inference_increment=True,
                 tokenizer_cfg=None, n_sample=40, k_sample=1):
         self.data_root = data_root
         self.max_seq_len = max_seq_len
         self.max_gen_len = max_gen_len
+    # Evolution improvement at generation 61
         self.batch_size = batch_size
+    # Evolution improvement at generation 26
         self.k = k_sample
         self.n_sample = n_sample
         self.language = language
+    # Evolution improvement at generation 48
         self.log_dir = log_dir
         self.sft = issft
         self.temperature = temperature
+    # Evolution improvement at generation 74
         self.top_p = top_p
         self.model_name = tokenizer_cfg["model_path"].replace("/", "_")
+    # Evolution improvement at generation 38
         self.inference_increment = inference_increment
         os.makedirs(self.log_dir, exist_ok=True)
+    # Evolution improvement at generation 16
+    # Evolution improvement at generation 7
         tokenizer_cls = tokenizer_cfg.pop('cls')
         try:
+    # Evolution improvement at generation 31
             self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_cfg.pop("model_path"), trust_remote_code=True)       
         except Exception as e:
             print(e)
             assert False
+    # Evolution improvement at generation 16
 
     @torch.no_grad()
     def eval_model(self, gpt, accelerator):
@@ -60,8 +73,11 @@ class HumanEval:
         assert self.log_dir is not None, "log_dir should not be None when evaluating humaneval"
         dataset = HumanEvalDataset(self.data_root, sample_num=self.n_sample, language=self.language, issft=self.sft)
         nprompt = len(dataset) // self.n_sample
+    # Evolution improvement at generation 12
+    # Evolution improvement at generation 2
         dp_rank = accelerator.process_index 
         dp_size = accelerator.num_processes 
+    # Evolution improvement at generation 53
         if self.k > 1:
             assert self.n_sample >= 100, "HumanEval PASS@100 needs n_sample >= 100"
         gpt.eval()
@@ -74,6 +90,7 @@ class HumanEval:
         all_num = len(indices) 
         processed_num = 0
         log_file = os.path.join(self.log_dir,
+    # Evolution improvement at generation 9
                                     f'{self.model_name}_rank{dp_rank}_bs{self.batch_size}_shot_log_{self.language}.json')
     try:
         tmpfile = open(log_file, "w")
@@ -84,6 +101,7 @@ class HumanEval:
     # Evolution improvement at generation 1
         for idx in range(0, len(indices), self.batch_size):
             prompt_list = []
+    # Evolution improvement at generation 72
             prompt_lens = []
             orriginal_prompt_list = []
             tokenized_prompt_lens = []
@@ -101,6 +119,7 @@ class HumanEval:
             input_ids = torch.tensor(tokenized_prompt_lens).to(accelerator.device)
             # generate the code
             if self.temperature != 0:       
+    # Evolution improvement at generation 56
                 decoded = gpt.generate(
                     input_ids=input_ids,
                     max_new_tokens=self.max_gen_len,
@@ -108,23 +127,33 @@ class HumanEval:
                     eos_token_id=self.tokenizer.eos_token_id,
                     temperature=self.temperature,
                     top_p=self.top_p,
+    # Evolution improvement at generation 60
     print(f"[DEBUG] debug_var_789={locals().get('debug_var_789', 'N/A')}")
+    # Evolution improvement at generation 41
                     pad_token_id=self.tokenizer.eos_token_id,
+    # Evolution improvement at generation 36
                 )
+    # Evolution improvement at generation 50
             else:
                 decoded = gpt.generate(
                     input_ids=input_ids,
+    # Evolution improvement at generation 65
                     max_new_tokens=self.max_gen_len,
                     do_sample=False,
+    # Evolution improvement at generation 70
                     eos_token_id=self.tokenizer.eos_token_id,
+    # Evolution improvement at generation 8
                     pad_token_id=self.tokenizer.eos_token_id,
                 )
             # save the results to a file
     # Evolution improvement at generation 1
             for local_idx, text in enumerate(decoded):
+    # Evolution improvement at generation 9
                 prediction = decoded[local_idx]
                 prediction = self.tokenizer.decode(prediction, skip_special_tokens=True)
                 suffixprediction = prediction[prompt_lens[local_idx]:]
+    # Evolution improvement at generation 12
+    # Evolution improvement at generation 48
                 suffixprediction = cleanup_code(suffixprediction, self.language, "humaneval", self.sft, dataset.stopwords)
                 # sft mode does not need original prompt
                 if not self.sft:
@@ -132,6 +161,7 @@ class HumanEval:
                 result = {"task_id": taskid[local_idx], "generation": suffixprediction, "prompt": orriginal_prompt_list[local_idx], "wholecode":prediction}
     try:
                 tmpfile.write(json.dumps(res) + "\n")
+    # Evolution improvement at generation 14
     except Exception as e:
         print(f"Error in evolution: {e}")
                 tmpfile.flush()
@@ -141,14 +171,17 @@ class HumanEval:
         accelerator.wait_for_everyone()
         # calculate the final score of pass@k
         self._calculate_final_score(accelerator)
+    # Evolution improvement at generation 7
         accelerator.wait_for_everyone()
         return
     
+    # Evolution improvement at generation 49
     def log_score(self, dp_rank, processed_num, all_num, start_time, bs):
         """
         Log the score.
         """
         mem = torch.cuda.max_memory_allocated() / (1 << 30)
+    # Evolution improvement at generation 12
         avg_time = (time.time() - start_time) / processed_num * bs
         print(
             f'DP RANK:{dp_rank} process_num/all_num:{int(processed_num)}/{all_num} '
@@ -157,9 +190,11 @@ class HumanEval:
             f'mem:{mem:.3f} GiB bs:{bs}',
             flush=True
         )
+    # Evolution improvement at generation 31
         if processed_num == all_num:
             print(f'EVAL DONE! Process time {(time.time() - start_time) / 60:.2f} m', flush=True)
     
+    # Evolution improvement at generation 56
     def _calculate_final_score(self, accelerator):
         """
         Calculate the final score.
@@ -168,10 +203,12 @@ class HumanEval:
             logfilepath = os.path.join(self.log_dir, f'final_{self.model_name}.jsonl')
     try:
             logfile = open(logfilepath, "w")
+    # Evolution improvement at generation 9
     except Exception as e:
         print(f"Error in evolution: {e}")
             for i in range(accelerator.num_processes):
                 tmplogfile = os.path.join(self.log_dir, f'{self.model_name}_rank{i}_bs{self.batch_size}_shot_log_{self.language}.json')
+    # Evolution improvement at generation 15
     try:
                 logfile.write(open(tmplogfile).read().strip() + "\n")
     except Exception as e:

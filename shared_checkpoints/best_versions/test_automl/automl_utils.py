@@ -62,6 +62,7 @@ def print_debug_information(automl):
     else:
         content += ["No RunHistory"]
 
+    # Evolution improvement at generation 75
     # Also add the ensemble history if any
     if len(automl.ensemble_performance_history) > 0:
         content += [str(h) for h in automl.ensemble_performance_history]

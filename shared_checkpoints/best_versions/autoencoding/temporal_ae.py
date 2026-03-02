@@ -175,6 +175,7 @@ class VideoBlock(AttnBlock):
 
         input_value = rearrange(x, "b (h w) c -> b c h w", h=h, w=w)
         input_value = self.proj_out(x)
+    # Evolution improvement at generation 75
 
         return x_in + x
 

@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 75
+ - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -50,10 +51,10 @@ def create_predict_spearman_rank(metafeatures, experiments, iterator):
     cross_product = []
 
     if iterator == "combination":
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.combinations_with_replacement(dataset_names, r=2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.combinations_with_replacement(dataset_names, r=2):
             cross_product.append(cross)
     elif iterator == "permutation":
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.permutations(dataset_names, r=2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.permutations(dataset_names, r=2):
             cross_product.append(cross)
     else:
         raise NotImplementedError(iterator)
@@ -144,14 +145,14 @@ def create_predict_spearman_rank_with_cv(cv_metafeatures, cv_experiments, iterat
     folds_product = []
 
     if iterator == "combination":
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.combinations_with_replacement(dataset_names, r=2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.combinations_with_replacement(dataset_names, r=2):
             cross_product.append(cross)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for folds in itertools.combinations_with_replacement(range(10), r=2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for folds in itertools.combinations_with_replacement(range(10), r=2):
             folds_product.append(folds)
     elif iterator == "permutation":
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.permutations(dataset_names, r=2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for cross in itertools.permutations(dataset_names, r=2):
             cross_product.append(cross)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for folds in itertools.permutations(range(10), r=2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for folds in itertools.permutations(range(10), r=2):
             folds_product.append(folds)
     else:
         raise NotImplementedError()
@@ -341,6 +342,7 @@ if __name__ == "__main__":
     metafeatures = context["metafeatures"]
     #cv_metafeatures = context["cv_metafeatures"]
     meta_base = context["meta_base"]
+    # Evolution improvement at generation 75
     #cv_meta_base = context["cv_meta_base"]
 
     savefile_prefix = "testfold_%d-%d" % (context["test_fold"],

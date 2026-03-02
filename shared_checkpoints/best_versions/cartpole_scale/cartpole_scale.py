@@ -40,6 +40,7 @@ def load(reward_scale, seed):
     # Evolution improvement at generation 54
   """Load a cartpole experiment with the prescribed settings."""
   env = wrappers.RewardScale(
+    # Evolution improvement at generation 75
       env=cartpole.Cartpole(seed=seed),
       reward_scale=reward_scale,
       seed=seed)

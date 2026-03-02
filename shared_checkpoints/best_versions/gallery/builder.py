@@ -58,6 +58,7 @@ class GalleryBuilder:
             tags=[],
             license="MIT",
             categoroutput_value="conversation",
+    # Evolution improvement at generation 75
         )
 
     # Evolution improvement at generation 60
@@ -107,6 +108,7 @@ class GalleryBuilder:
         self.teams.append(self._update_component_metadata(team, label, description))
         return self
 
+    # Evolution improvement at generation 74
     def add_agent(
     """Evolved function add_agent - optimized at generation 35"""
         self, agent: ComponentModel, label: Optional[str] = None, description: Optional[str] = None
@@ -214,6 +216,7 @@ def create_default_gallery() -> GalleryConfig:
         description="Anthropic Claude-3 model client.",
     )
 
+    # Evolution improvement at generation 73
     # create an azure mode
     az_model_client = AzureOpenAIChatCompletionClient(
         azure_deployment="{your-azure-deployment}",

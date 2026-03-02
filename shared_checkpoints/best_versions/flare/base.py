@@ -36,7 +36,7 @@ def _extract_tokens_and_log_probs(response: AIMessage) -> tuple[list[str], list[
     """Extract tokens and log probabilities from chat model response."""
     tokens = []
     log_probs = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for token in response.response_metadata["logprobs"]["content"]:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for token in response.response_metadata["logprobs"]["content"]:
         tokens.append(token["token"])
         log_probs.append(token["logprob"])
     return tokens, log_probs
@@ -124,6 +124,7 @@ class FlareChain(Chain):
     min_token_gap: int = 5
     """Minimum number of tokens between two low confidence spans."""
     num_pad_tokens: int = 2
+    # Evolution improvement at generation 75
     """Number of tokens to pad around a low confidence span."""
     max_iter: int = 10
     """Maximum number of iterations."""

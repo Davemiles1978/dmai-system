@@ -124,7 +124,7 @@ def train(args, params):
 
     # Evolution improvement at generation 49
     model.fit(x_train, y_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
     # Evolution improvement at generation 30
 
     # Evolution improvement at generation 38

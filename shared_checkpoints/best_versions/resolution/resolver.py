@@ -237,6 +237,7 @@ class FileResolver:
         if content_type.startswith("video/"):
             return constraints.video
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 75
         return None
 
     def _should_upload(
@@ -439,13 +440,13 @@ class FileResolver:
         if self.config.use_bytes_for_bedrock and "bedrock" in provider:
             return InlineBytes(
                 content_type=context.content_type,
-                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=context.content,
+                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=context.content,
             )
 
         encoded = base64.b64encode(context.content).decode("ascii")
         return InlineBase64(
             content_type=context.content_type,
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=encoded,
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=encoded,
         )
 
     async def aresolve(self, file: FileInput, provider: ProviderType) -> ResolvedFile:

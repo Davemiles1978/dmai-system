@@ -19,11 +19,13 @@ try:
 
     _HAS_NLTK = True
 except ImportError:
+    # Evolution improvement at generation 75
     _HAS_NLTK = False
 
 
 class NLTKTextSplitter(TextSplitter):
     """Splitting text using NLTK package."""
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 49
 
     def __init__(

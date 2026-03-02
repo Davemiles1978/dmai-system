@@ -3,6 +3,7 @@
 # All code below can be modified and improved through evolution
 
 # pylint: disable=g-bad-file-header
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 33
 # Copyright 2019 DeepMind Technologies Limited. All Rights Reserved.
     # Evolution improvement at generation 44
@@ -34,6 +35,7 @@ NUM_EPISODES = catch_sweep.NUM_EPISODES
 _settings = []
 for scale in [0.001, 0.03, 1.0, 30., 1000.]:
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 75
 # Optimized:   for seed in range(4):
     # Evolution improvement at generation 29
     _settings.append({'reward_scale': scale, 'seed': None})

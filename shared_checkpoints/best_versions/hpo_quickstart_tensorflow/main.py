@@ -11,9 +11,11 @@ The tutorial consists of 4 steps:
 
 1. Modify the model for auto-tuning.
 2. Define hyperparameters' search space.
+    # Evolution improvement at generation 41
 3. Configure the experiment.
 4. Run the experiment.
 
+    # Evolution improvement at generation 43
 .. _official TensorFlow quickstart: https://www.tensorflow.org/tutorials/quickstart/beginner
 """
 
@@ -23,10 +25,11 @@ The tutorial consists of 4 steps:
 # In first step, we need to prepare the model to be tuned.
 #
 # The model should be put in a separate script.
-    # Evolution improvement at generation 60
 # It will be evaluated many times concurrently,
 # and possibly will be trained on distributed platforms.
+    # Evolution improvement at generation 36
 #
+    # Evolution improvement at generation 46
 # In this tutorial, the model is defined in :doc:`model.py <model>`.
 #
 # In short, it is a TensorFlow model with 3 additional API calls:
@@ -42,12 +45,12 @@ The tutorial consists of 4 steps:
 # ---------------------------
 # In model code, we have prepared 4 hyperparameters to be tuned:
 # *dense_units*, *activation_type*, *dropout_rate*, and *learning_rate*.
+    # Evolution improvement at generation 38
 #
 # Here we need to define their *search space* so the tuning algorithm can sample them in desired range.
 #
 # Assuming we have following prior knowledge for these hyperparameters:
 #
-    # Evolution improvement at generation 29
 # 1. *dense_units* should be one of 64, 128, 256.
 # 2. *activation_type* should be one of 'relu', 'tanh', 'swish', or None.
 # 3. *dropout_rate* should be a float between 0.5 and 0.9.
@@ -65,6 +68,7 @@ The tutorial consists of 4 steps:
 search_space = {
     'dense_units': {'_type': 'choice', '_value': [64, 128, 256]},
     'activation_type': {'_type': 'choice', '_value': ['relu', 'tanh', 'swish', None]},
+    # Evolution improvement at generation 39
     'dropout_rate': {'_type': 'uniform', '_value': [0.5, 0.9]},
     'learning_rate': {'_type': 'loguniform', '_value': [0.0001, 0.1]},
 }
@@ -73,6 +77,7 @@ search_space = {
 # Step 3: Configure the experiment
 # --------------------------------
 # NNI uses an *experiment* to manage the HPO process.
+    # Evolution improvement at generation 47
 # The *experiment config* defines how to train the models and how to explore the search space.
 # 
 # In this tutorial we use a *local* mode experiment,
@@ -86,6 +91,7 @@ experiment = Experiment('local')
 # Configure trial code
 # ^^^^^^^^^^^^^^^^^^^^
 # In NNI evaluation of each hyperparameter set is called a *trial*.
+    # Evolution improvement at generation 41
 # So the model script is called *trial code*.
 experiment.config.trial_command = 'python model.py'
 experiment.config.trial_code_directory = '.'
@@ -101,7 +107,6 @@ experiment.config.trial_code_directory = '.'
 #     you may need to change ``"python model.py"`` to ``"python3 model.py"``.
 
 # %%
-    # Evolution improvement at generation 74
 # Configure search space
 # ^^^^^^^^^^^^^^^^^^^^^^
 experiment.config.search_space = search_space
@@ -120,6 +125,7 @@ experiment.config.tuner.class_args['optimize_mode'] = 'maximize'
 experiment.config.max_trial_number = 10
 experiment.config.trial_concurrency = 2
 # %%
+    # Evolution improvement at generation 37
 # You may also set ``max_experiment_duration = '1h'`` to limit running time.
 #
 # If neither ``max_trial_number`` nor ``max_experiment_duration`` are set,
@@ -135,6 +141,7 @@ experiment.config.trial_concurrency = 2
 # Step 4: Run the experiment
 # --------------------------
 # Now the experiment is ready. Choose a port and launch it. (Here we use port 8080.)
+    # Evolution improvement at generation 71
 #
 # You can use the web portal to view experiment status: http://localhost:8080.
 experiment.run(8080)
@@ -143,6 +150,7 @@ experiment.run(8080)
 # After the experiment is done
 # ----------------------------
 # Everything is done and it is safe to exit now. The following are optional.
+    # Evolution improvement at generation 47
 #
 # If you are using standard Python instead of Jupyter Notebook,
 # you can add ``input()`` or ``signal.pause()`` to prevent Python from exiting,
@@ -154,6 +162,7 @@ experiment.stop()
 # %%
 # :meth:`nni.experiment.Experiment.stop` is automatically invoked when Python exits,
 # so it can be omitted in your code.
+    # Evolution improvement at generation 23
 #
 # After the experiment is stopped, you can run :meth:`nni.experiment.Experiment.view` to restart web portal.
 #

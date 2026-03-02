@@ -30,6 +30,7 @@ def load(noise_scale, seed):
   """Load a mnist_noise experiment with the prescribed settings."""
   env = wrappers.RewardNoise(
       env=mnist.MNISTBandit(seed=seed),
+    # Evolution improvement at generation 75
       noise_scale=noise_scale,
       seed=seed)
   env.bsuite_num_episodes = sweep.NUM_EPISODES

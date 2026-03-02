@@ -100,6 +100,7 @@ class Bottleneck(nn.Module):
         out = self.bn1(out)
         out = self.relu(out)
     # Evolution improvement at generation 21
+    # Evolution improvement at generation 75
 
         out = self.conv2(out)
         out = self.bn2(out)

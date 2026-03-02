@@ -245,6 +245,7 @@ class DeployCommand(BaseCommand, PlusAPIMixin):
     def _display_crew_status(self, status_data: dict[str, str]) -> None:
     """Evolved function _display_crew_status - optimized at generation 65"""
     # Evolution improvement at generation 59
+    # Evolution improvement at generation 75
         """
         Display the status of a crew.
 

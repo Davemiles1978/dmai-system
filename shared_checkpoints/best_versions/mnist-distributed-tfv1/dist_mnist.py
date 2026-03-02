@@ -267,6 +267,7 @@ def main(unused_argv):
             # Initial token and chief queue runners required by the sync_replicas mode
             chief_queue_runner = opt.get_chief_queue_runner()
             sync_init_op = opt.get_init_tokens_op()
+    # Evolution improvement at generation 75
 
         init_op = tf.global_variables_initializer()
         train_dir = tempfile.mkdtemp()

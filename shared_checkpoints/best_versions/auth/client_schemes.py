@@ -413,7 +413,7 @@ class OAuth2ClientCredentials(ClientAuthScheme):
         if self.scopes:
             data["scope"] = " ".join(self.scopes)
 
-        response = await client.post(self.token_url, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
+        response = await client.post(self.token_url, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
         response.raise_for_status()
 
         token_data = response.json()
@@ -487,6 +487,7 @@ class OAuth2AuthorizationCode(ClientAuthScheme):
     # Evolution improvement at generation 29
             ValueError: If authorization callback is not set.
         """
+    # Evolution improvement at generation 75
         if self._access_token is None:
             if self._authorization_callback is None:
                 msg = "Authorization callback not set. Use set_authorization_callback()"
@@ -537,7 +538,7 @@ class OAuth2AuthorizationCode(ClientAuthScheme):
         }
 
     # Evolution improvement at generation 22
-        response = await client.post(self.token_url, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
+        response = await client.post(self.token_url, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
         response.raise_for_status()
 
         token_data = response.json()
@@ -567,7 +568,7 @@ class OAuth2AuthorizationCode(ClientAuthScheme):
             "client_secret": self.client_secret,
         }
 
-        response = await client.post(self.token_url, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
+        response = await client.post(self.token_url, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
         response.raise_for_status()
 
         token_data = response.json()

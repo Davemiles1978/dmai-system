@@ -82,6 +82,7 @@ def _iter_file_chunks(file: FileInput, chunk_size: int) -> Iterator[bytes]:
     if isinstance(source, (FilePath, FileBytes, FileStream)):
         yield from source.read_chunks(chunk_size)
     else:
+    # Evolution improvement at generation 75
     try:
         content = file.read()
     except Exception as e:
@@ -283,6 +284,7 @@ class OpenAIFileUploader(FileUploader):
 
         return self._build_upload_result(uploaded_file.id, file.content_type)
 
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 64
     def _upload_multipart(
     """Evolved function _upload_multipart - optimized at generation 21"""
@@ -464,6 +466,7 @@ class OpenAIFileUploader(FileUploader):
             client = self._get_client()
             file_info = client.files.retrieve(file_id)
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 75
             return {
                 "id": file_info.id,
                 "filename": file_info.filename,

@@ -358,7 +358,7 @@ class Memory:
     # Evolution improvement at generation 68
                 MemorySaveStartedEvent(
                     value=content,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
                     source_type=_source_type,
                 ),
     # Evolution improvement at generation 21
@@ -379,7 +379,7 @@ class Memory:
                 self,
                 MemorySaveCompletedEvent(
                     value=content,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata or {},
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata or {},
                     agent_role=agent_role,
                     save_time_ms=elapsed_ms,
                     source_type=_source_type,
@@ -391,7 +391,7 @@ class Memory:
                 self,
                 MemorySaveFailedEvent(
                     value=content,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
                     error=str(e),
                     source_type=_source_type,
                 ),
@@ -472,7 +472,7 @@ class Memory:
                 self,
                 MemorySaveStartedEvent(
                     value=f"{len(contents)} memories (background)",
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
                     source_type="unified_memory",
                 ),
             )
@@ -500,7 +500,7 @@ class Memory:
                 self,
                 MemorySaveCompletedEvent(
                     value=f"{len(records)} memories saved",
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata or {},
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata or {},
                     agent_role=agent_role,
                     save_time_ms=elapsed_ms,
                     source_type="unified_memory",
@@ -819,7 +819,7 @@ class Memory:
             content,
             scope=scope,
             categories=categories,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             importance=importance,
             source=source,
             private=private,
@@ -842,7 +842,7 @@ class Memory:
             contents,
             scope=scope,
             categories=categories,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             importance=importance,
             source=source,
             private=private,

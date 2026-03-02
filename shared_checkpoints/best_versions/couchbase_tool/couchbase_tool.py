@@ -102,7 +102,7 @@ class CouchbaseFTSVectorSearchTool(BaseTool):
             scope_collection_map[scope.name] = []
 
             # Get a list of all the collections in the scope
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for collection in scope.collections:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for collection in scope.collections:
                 scope_collection_map[scope.name].append(collection.name)
 
         # Check if the scope exists

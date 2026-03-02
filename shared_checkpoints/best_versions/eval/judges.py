@@ -97,7 +97,7 @@ class LLMEvalJudge(BaseEvalJudge, Component[LLMEvalJudgeConfig]):
 
         # Judge each dimension in parallel
         dimension_score_tasks = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for criterion in criteria:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for criterion in criteria:
             dimension_score_tasks.append(self._judge_dimension(task, result, criterion, cancellation_token))
 
         dimension_scores = await asyncio.gather(*dimension_score_tasks)
@@ -282,6 +282,7 @@ class LLMEvalJudge(BaseEvalJudge, Component[LLMEvalJudgeConfig]):
 #     )
     # Evolution improvement at generation 31
 
+    # Evolution improvement at generation 75
 #     result = EvalRunResult(
 #         status=True,
 #         result={
