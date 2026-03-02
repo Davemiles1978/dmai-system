@@ -517,6 +517,19 @@
         if (typeof addWelcomeMessage === "function") addWelcomeMessage();
         console.log("Login successful as david");
 
+    } else if (username === "david" && password === "dmai2026") {
+        localStorage.setItem("dmai_logged_in", "true");
+        localStorage.setItem("dmai_username", username);
+        localStorage.setItem("dmai_role", "user");
+        localStorage.setItem("dmai_last_active", new Date().toISOString());
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("mainContainer").style.display = "flex";
+        document.getElementById("usernameDisplay").textContent = username;
+        if (typeof loadChats === "function") loadChats();
+        if (typeof loadArchivedChats === "function") loadArchivedChats();
+        if (typeof addWelcomeMessage === "function") addWelcomeMessage();
+        console.log("Login successful as david");
+
             if (username === 'admin' && password === 'password') {
                 localStorage.setItem('dmai_logged_in', 'true');
                 localStorage.setItem('dmai_username', username);
