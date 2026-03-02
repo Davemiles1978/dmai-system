@@ -1,7 +1,11 @@
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, send_from_directory, jsonify, request, send_file
 from datetime import datetime, timedelta
 import os
 import json
+import hashlib
+import hmac
+import secrets
+from functools import wraps
 
 app = Flask(__name__, static_folder='static')
 
@@ -33,11 +37,6 @@ def serve_static(path):
     return send_from_directory('static', path)
 
 # Admin authentication
-from functools import wraps
-import secrets
-import hashlib
-import hmac
-
 class AdminAuth:
     def __init__(self):
         self.admin_id = "david"
@@ -138,53 +137,19 @@ def evolution_status():
     except:
         return jsonify({"generation": 5, "phase2_progress": 25, "phase3_progress": 0})
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000, debug=False)
-
-@app.route('/api/evolution-stats')
-def evolution_stats():
-    """Get evolution statistics for dashboard"""
-    try:
-        with open('checkpoints/current_generation.txt', 'r') as f:
-            generation = f.read().strip()
-        
-        # Get basic stats
-        stats = {
-            "generation": generation,
-            "activeRepos": 22,
-            "totalFiles": 5661,
-            "bestScore": 1.26,
-            "bestScores": {}
-        }
-        
-        # Try to load best scores if they exist
-        try:
-            with open('checkpoints/best_scores.json', 'r') as f:
-                stats["bestScores"] = json.load(f)
-        except:
-            pass
-            
-        return jsonify(stats)
-    except Exception as e:
-            return f.read()
-    except Exception as e:
-        return f"Error loading login page: {str(e)}", 500
-
-
-    """Serve admin login page"""
-    try:
-        with open('templates/admin_login.html', 'r') as f:
-            return f.read()
-    except Exception as e:
-        return f"Error loading login page: {str(e)}", 500
-
-
 @app.route('/admin-login')
 def admin_login_page():
     """Serve admin login page"""
     try:
-        with open('templates/admin_login.html', 'r') as f:
+        template_path = os.path.join(os.path.dirname(__file__), 'templates', 'admin_login.html')
+        with open(template_path, 'r') as f:
             return f.read()
     except Exception as e:
-        return f"Error loading login page: {str(e)}", 500
+        return f"Error loading admin page: {str(e)}", 500
+
+@app.route('/test')
+def test():
+    return "Test route works!"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
