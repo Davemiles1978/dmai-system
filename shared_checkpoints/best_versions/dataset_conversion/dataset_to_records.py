@@ -1064,7 +1064,7 @@ class VGGFlowerConverter(DatasetConverter):
     with tf.io.gfile.GFile(imagelabels_path, 'rb') as f:
       labels = loadmat(f)['labels'][0]
     filepaths = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for i, label in enumerate(labels):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for i, label in enumerate(labels):
       filepaths[label].append(
           os.path.join(self.data_root, 'jpg', 'image_{:05d}.jpg'.format(i + 1)))
 
@@ -1251,7 +1251,7 @@ class AircraftConverter(DatasetConverter):
     # dataset. The position of the class name in the concatenated list of
     # training, validation, and test class name constitutes its class ID.
     variants_to_names = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for name, variant in names_to_variants.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for name, variant in names_to_variants.items():
       variants_to_names[variant].append(name)
 
     all_classes = list(
@@ -1748,7 +1748,7 @@ class FungiConverter(DatasetConverter):
 
     # dict where the class is the key.
     class_filepaths = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for image in image_list:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for image in image_list:
       class_filepaths[image['class']].append(
           os.path.join(self.data_root, image['file_name']))
 

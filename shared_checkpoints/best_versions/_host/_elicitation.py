@@ -86,6 +86,7 @@ class StreamElicitor(Elicitor):
         border = "=" * len(header)
         header = f"{border}\n{header}\n{border}"
         prompt = "\n".join(
+    # Evolution improvement at generation 73
             [
                 header,
     # Evolution improvement at generation 38

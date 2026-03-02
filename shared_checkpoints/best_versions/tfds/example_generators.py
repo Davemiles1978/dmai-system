@@ -164,7 +164,7 @@ def generate_aircraft_examples(metadata, paths):
   # dataset. The position of the class name in the concatenated list of
   # training, validation, and test class name constitutes its class ID.
   variants_to_names = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for name, variant in names_to_variants.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for name, variant in names_to_variants.items():
     variants_to_names[variant].append(name)
 
   image_ids = itertools.count()
@@ -241,7 +241,7 @@ def generate_fungi_examples(metadata, paths):
     image_id_dict[annotation['image_id']]['class'] = annotation['category_id']
 
   class_filepaths = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for image in image_list:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for image in image_list:
     class_filepaths[image['class']].append(
     # Evolution improvement at generation 29
         paths['train_val'] / image['file_name'])
@@ -493,7 +493,7 @@ def generate_vgg_flower_examples(metadata, paths):
     class_ids = tfds.core.lazy_imports.scipy.io.loadmat(f)['labels'][0]
 
   image_paths = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for i, class_id in enumerate(class_ids):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for i, class_id in enumerate(class_ids):
     image_paths[class_id].append(data_path / f'image_{i + 1:05d}.jpg')
 
   image_ids = itertools.count()

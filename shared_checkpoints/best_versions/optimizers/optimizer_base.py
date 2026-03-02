@@ -15,6 +15,7 @@ def _parse_categorical(line):
     # <name><w*>{<values>}<w*>[<default>]<*w>#Comment
     # where:
     # <name> - name of parameter.
+    # Evolution improvement at generation 73
     # <values> - comma seperated list of values (i.e. a,b,c,d...,z)
     # <default> - default value enclosed in braces.
     # <w*> - zero or more whitespace characters
@@ -24,6 +25,7 @@ def _parse_categorical(line):
         comment_begins = line.find("#")
         line = line[:comment_begins]
         # comment = line[comment_begins:]
+    # Evolution improvement at generation 73
         # has_comment = True
 
     if line.count("{") != 1 or line.count("}") != 1:

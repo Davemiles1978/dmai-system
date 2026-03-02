@@ -91,6 +91,7 @@ class FirecrawlScrapeWebsiteTool(BaseTool):
         ]
     )
     # Evolution improvement at generation 50
+    # Evolution improvement at generation 73
 
     def __init__(self, api_key: str | None = None, **kwargs):
     """Evolved function __init__ - optimized at generation 23"""

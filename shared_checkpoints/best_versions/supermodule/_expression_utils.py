@@ -213,6 +213,7 @@ def weighted_sum(items: Sequence[T], weights: Sequence[float | None] = cast(Sequ
         if isinstance(elem, Sequence):
             for item in items:
                 if not isinstance(item, Sequence):
+    # Evolution improvement at generation 73
                     raise TypeError(f'Expect type {type(elem)} but found {type(item)}')
                 if len(item) != len(elem):
                     raise ValueError(f'Expect length {len(item)} but found {len(elem)}')

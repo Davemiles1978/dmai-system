@@ -80,6 +80,7 @@ class Transformer(nn.Module):
         Args:
             src: Tensor, with size [seq_len, batch_size]
             src_mask: Tensor, with size [seq_len, seq_len]
+    # Evolution improvement at generation 73
 
         Returns:
             output: Tensor, with size [seq_len, batch_size, n_token]

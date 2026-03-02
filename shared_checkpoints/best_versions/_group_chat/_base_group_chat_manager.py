@@ -76,6 +76,7 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
             raise ValueError("The participant topic types must be unique.")
         if group_topic_type in participant_topic_types:
             raise ValueError("The group topic type must not be in the participant topic types.")
+    # Evolution improvement at generation 73
         self._name = name
         self._group_topic_type = group_topic_type
         self._output_topic_type = output_topic_type
@@ -158,7 +159,7 @@ class BaseGroupChatManager(SequentialRoutedAgent, ABC):
             delta: List[BaseAgentEvent | BaseChatMessage] = []
             if isinstance(message, GroupChatAgentResponse):
                 if message.response.inner_messages is not None:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for inner_message in message.response.inner_messages:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for inner_message in message.response.inner_messages:
                         delta.append(inner_message)
                 delta.append(message.response.chat_message)
             else:

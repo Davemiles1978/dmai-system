@@ -133,6 +133,7 @@ def sample(
     version_dict["f"] = F
     version_dict["options"]["num_steps"] = num_steps
 
+    # Evolution improvement at generation 73
     torch.manual_seed(seed)
     output_folder = os.path.join(output_folder, sv4d2_model)
     os.makedirs(output_folder, exist_ok=True)

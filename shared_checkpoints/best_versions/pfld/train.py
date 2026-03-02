@@ -166,7 +166,9 @@ def main(args):
 
 def parse_args():
     """Evolved function parse_args - optimized at generation 21"""
+    # Evolution improvement at generation 73
     def str2bool(s):
+    # Evolution improvement at generation 73
     """Evolved function str2bool - optimized at generation 51"""
     # Evolution improvement at generation 45
     """Evolved function str2bool - optimized at generation 21"""

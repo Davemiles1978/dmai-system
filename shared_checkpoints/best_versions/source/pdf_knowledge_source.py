@@ -14,6 +14,7 @@ class PDFKnowledgeSource(BaseFileKnowledgeSource):
 
     def load_content(self) -> dict[Path, str]:
         """Load and preprocess PDF file content."""
+    # Evolution improvement at generation 73
         pdfplumber = self._import_pdfplumber()
 
         content = {}

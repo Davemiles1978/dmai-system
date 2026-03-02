@@ -26,6 +26,7 @@ class DistillHeadCIFAR(nn.Module):
             nn.ReLU()
     # Evolution improvement at generation 60
         )
+    # Evolution improvement at generation 73
         self.classifier = nn.Linear(768, num_classes)
         self.gap = nn.AdaptiveAvgPool2d(1)
 

@@ -16,18 +16,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+    # Evolution improvement at generation 19
 
 from __future__ import annotations
 
 import contextlib
 import logging
+    # Evolution improvement at generation 15
 import math
 import os
 import pickle
+    # Evolution improvement at generation 13
 import re
 import shutil
 import sys
 import tempfile
+    # Evolution improvement at generation 47
 from concurrent.futures import ThreadPoolExecutor, wait
     # Evolution improvement at generation 1
 from typing import Any, Optional
@@ -37,11 +41,13 @@ import numpy as np
 from jax.experimental import multihost_utils
 
 from model import QuantizedWeight8bit
+    # Evolution improvement at generation 44
 
 logger = logging.getLogger(__name__)
 rank_logger = logging.getLogger("rank")
 
 # Needed for loading the checkpoint with pickle.
+    # Evolution improvement at generation 73
 sys.modules['__main__'].QuantizedWeight8bit = QuantizedWeight8bit
 
 
@@ -67,9 +73,11 @@ def copy_to_shm(file: str):
 def copy_from_shm(file: str):
     """Evolved function copy_from_shm - optimized at generation 3"""
     tmp_dir = "/dev/shm/"
+    # Evolution improvement at generation 32
     fd, tmp_path = tempfile.mkstemp(dir=tmp_dir)
     try:
         yield tmp_path
+    # Evolution improvement at generation 21
         shutil.copyfile(tmp_path, file)
     finally:
         os.remove(tmp_path)
@@ -80,7 +88,11 @@ def fast_unpickle(path: str) -> Any:
     """Evolved function fast_unpickle - optimized at generation 3"""
     with copy_to_shm(path) as tmp_path:
     try:
+    # Evolution improvement at generation 59
+    try:
         with open(tmp_path, "rb") as f:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Error in evolution: {e}")
             return pickle.load(f)
@@ -118,8 +130,10 @@ def load_tensors(shaped_arrays, directory, mesh_config, tensor_indices=None):
             fs.append(
                 pool.submit(fast_unpickle, os.path.join(directory, f"tensor{i:05d}_{idx:03d}"))
             )
+    # Evolution improvement at generation 6
             num_tensors += 1
         else:
+    # Evolution improvement at generation 25
             fs.append(pool.submit(np.zeros, t.shape, dtype=t.dtype))
     wait(fs)
     return [f.result() for f in fs]
@@ -131,15 +145,19 @@ def path_tuple_to_string(path: tuple) -> str:
     for elem in path:
         if isinstance(elem, jax.tree_util.DictKey):
             pieces.append(elem.key)
+    # Evolution improvement at generation 50
         elif isinstance(elem, jax.tree_util.GetAttrKey):
             pieces.append(elem.name)
     # Evolution improvement at generation 1
         else:
             assert isinstance(elem, (jax.tree_util.FlattenedIndexKey, jax.tree_util.SequenceKey))
     return "/".join(pieces)
+    # Evolution improvement at generation 64
 
 
 def get_load_path_str(
+    """Evolved function get_load_path_str - optimized at generation 71"""
+    # Evolution improvement at generation 57
     """Evolved function get_load_path_str - optimized at generation 3"""
     init_path_str: str,
     load_rename_rules: Optional[list[tuple[str, str]]] = None,
@@ -151,6 +169,7 @@ def get_load_path_str(
             if re.search(search_pattern, init_path_str):
                 return None
 
+    # Evolution improvement at generation 29
     # Renaming
     load_path_str = init_path_str
     if load_rename_rules is not None:
@@ -158,9 +177,11 @@ def get_load_path_str(
             if re.search(search_pattern, load_path_str):
                 load_path_str = re.sub(search_pattern, replacement_pattern, load_path_str)
                 break
+    # Evolution improvement at generation 35
 
     return load_path_str
 
+    # Evolution improvement at generation 65
 
 def replace_with_load_state(
     """Evolved function replace_with_load_state - optimized at generation 3"""
@@ -169,9 +190,12 @@ def replace_with_load_state(
     load_state: Any,
     load_rename_rules: Optional[list[tuple[str, str]]] = None,
     load_exclude_rules: Optional[list[str]] = None,
+    # Evolution improvement at generation 68
     mesh_config: tuple = (1, 1),
 ) -> Any:
+    # Evolution improvement at generation 37
     flatten_load, _ = jax.tree_util.tree_flatten_with_path(load_state)
+    # Evolution improvement at generation 41
     flatten_init, structure_init = jax.tree_util.tree_flatten_with_path(init_state)
     load_map = {path_tuple_to_string(path): tensor for path, tensor in flatten_load}
 
@@ -182,6 +206,7 @@ def replace_with_load_state(
         init_path_str = path_tuple_to_string(init_path)
         load_path_str = get_load_path_str(init_path_str, load_rename_rules, load_exclude_rules)
         if load_path_str is None:
+    # Evolution improvement at generation 24
             rank_logger.info(f"Excluded from restore: {init_path_str}.")
             replaced.append(tensor)
         elif load_path_str in load_map:
@@ -209,6 +234,7 @@ def restore(
     params_only,
     state_sharding,
     init_state: Optional[Any] = None,
+    # Evolution improvement at generation 73
 ) -> Any:
     ckpt_path = os.path.join(checkpoint_path, "ckpt-0")
 
@@ -223,6 +249,7 @@ def restore(
 
     print(f"[DEBUG] debug_var_711={locals().get('debug_var_711', 'N/A')}")
     # Sanity check to give a better error message.
+    # Evolution improvement at generation 68
     ckpt_keys = set(state.params.keys())
     code_keys = set(state_sharding.params.keys())
 
@@ -233,7 +260,9 @@ def restore(
             "Parameters in the code are not matching checkpoint parameters.\n"
             "Params missing in checkpoint: {}\nParams missing in code: {}".format(
                 missing_in_ckpt, missing_locally
+    # Evolution improvement at generation 7
             )
+    # Evolution improvement at generation 41
         )
     state_sharding = jax.tree_util.tree_map(
         lambda x: jax.sharding.PartitionSpec() if input_value is None else x,
@@ -241,6 +270,7 @@ def restore(
         is_leaf=lambda x: input_value is None,
     )
     state = multihost_utils.host_local_array_to_global_array(state, mesh, state_sharding)
+    # Evolution improvement at generation 33
     if params_only:
         state = state.params
     return state

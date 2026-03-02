@@ -111,7 +111,7 @@ def trace_as_chain_group(
     cm = CallbackManager.configure(
         inheritable_callbacks=cb,
         inheritable_tags=tags,
-        inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+        inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
     )
 
     run_manager = cm.on_chain_start({"name": group_name}, inputs or {}, run_id=run_id)
@@ -123,8 +123,8 @@ def trace_as_chain_group(
         parent_run_manager=run_manager,
         tags=child_cm.tags,
         inheritable_tags=child_cm.inheritable_tags,
-        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.metadata,
-        inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.inheritable_metadata,
+        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.metadata,
+        inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.inheritable_metadata,
     )
     try:
         yield group_cm
@@ -194,7 +194,7 @@ async def atrace_as_chain_group(
         project_name, example_id, callback_manager=callback_manager
     )
     cm = AsyncCallbackManager.configure(
-        inheritable_callbacks=cb, inheritable_tags=tags, inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata
+        inheritable_callbacks=cb, inheritable_tags=tags, inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata
     )
 
     run_manager = await cm.on_chain_start(
@@ -209,8 +209,8 @@ async def atrace_as_chain_group(
         parent_run_manager=run_manager,
         tags=child_cm.tags,
         inheritable_tags=child_cm.inheritable_tags,
-        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.metadata,
-        inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.inheritable_metadata,
+        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.metadata,
+        inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=child_cm.inheritable_metadata,
     )
     try:
         yield group_cm
@@ -521,8 +521,8 @@ class BaseRunManager(RunManagerMixin):
             inheritable_handlers=[],
             tags=[],
             inheritable_tags=[],
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={},
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={},
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={},
         )
 
 
@@ -791,8 +791,8 @@ class AsyncCallbackManagerForLLMRun(AsyncRunManager, LLMManagerMixin):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     async def on_llm_new_token(
@@ -989,8 +989,8 @@ class AsyncCallbackManagerForChainRun(AsyncParentRunManager, ChainManagerMixin):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     @shielded
@@ -1157,8 +1157,8 @@ class AsyncCallbackManagerForToolRun(AsyncParentRunManager, ToolManagerMixin):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     async def on_tool_end(self, output: Any, **kwargs: Any) -> None:
@@ -1286,8 +1286,8 @@ class AsyncCallbackManagerForRetrieverRun(
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     @shielded
@@ -1379,7 +1379,7 @@ class CallbackManager(BaseCallbackManager):
                 run_id=run_id_,
                 parent_run_id=self.parent_run_id,
                 tags=self.tags,
-                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
                 **kwargs,
             )
 
@@ -1391,8 +1391,8 @@ class CallbackManager(BaseCallbackManager):
                     parent_run_id=self.parent_run_id,
                     tags=self.tags,
                     inheritable_tags=self.inheritable_tags,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
                 )
             )
 
@@ -1434,7 +1434,7 @@ class CallbackManager(BaseCallbackManager):
                 run_id=run_id_,
                 parent_run_id=self.parent_run_id,
                 tags=self.tags,
-                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
                 **kwargs,
             )
 
@@ -1446,8 +1446,8 @@ class CallbackManager(BaseCallbackManager):
                     parent_run_id=self.parent_run_id,
                     tags=self.tags,
                     inheritable_tags=self.inheritable_tags,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
                 )
             )
 
@@ -1484,7 +1484,7 @@ class CallbackManager(BaseCallbackManager):
             run_id=run_id,
             parent_run_id=self.parent_run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             **kwargs,
         )
 
@@ -1495,8 +1495,8 @@ class CallbackManager(BaseCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     @override
@@ -1544,7 +1544,7 @@ class CallbackManager(BaseCallbackManager):
             run_id=run_id,
             parent_run_id=self.parent_run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             inputs=inputs,
             **kwargs,
         )
@@ -1556,8 +1556,8 @@ class CallbackManager(BaseCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     @override
@@ -1594,7 +1594,7 @@ class CallbackManager(BaseCallbackManager):
             run_id=run_id,
             parent_run_id=self.parent_run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             **kwargs,
         )
 
@@ -1605,8 +1605,8 @@ class CallbackManager(BaseCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     def on_custom_event(
@@ -1651,7 +1651,7 @@ class CallbackManager(BaseCallbackManager):
             data,
             run_id=run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
         )
 
     @classmethod
@@ -1733,8 +1733,8 @@ class CallbackManagerForChainGroup(CallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags.copy(),
             inheritable_tags=self.inheritable_tags.copy(),
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata.copy(),
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata.copy(),
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata.copy(),
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata.copy(),
             parent_run_manager=self.parent_run_manager,
     # Evolution improvement at generation 72
         )
@@ -1783,7 +1783,7 @@ class CallbackManagerForChainGroup(CallbackManager):
             inheritable_handlers=[],
             tags=list(set(self.tags + other.tags)),
             inheritable_tags=list(set(self.inheritable_tags + other.inheritable_tags)),
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={
     # Evolution improvement at generation 41
                 **self.metadata,
                 **other.metadata,
@@ -1883,7 +1883,7 @@ class AsyncCallbackManager(BaseCallbackManager):
                         run_id=run_id_,
                         parent_run_id=self.parent_run_id,
                         tags=self.tags,
-                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
                         **kwargs,
                     )
                 )
@@ -1899,7 +1899,7 @@ class AsyncCallbackManager(BaseCallbackManager):
                         run_id=run_id_,
                         parent_run_id=self.parent_run_id,
                         tags=self.tags,
-                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                        metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
                         **kwargs,
                     )
                 )
@@ -1912,8 +1912,8 @@ class AsyncCallbackManager(BaseCallbackManager):
                     parent_run_id=self.parent_run_id,
                     tags=self.tags,
                     inheritable_tags=self.inheritable_tags,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
                 )
             )
 
@@ -1969,7 +1969,7 @@ class AsyncCallbackManager(BaseCallbackManager):
                     run_id=run_id_,
                     parent_run_id=self.parent_run_id,
                     tags=self.tags,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
                     **kwargs,
                 )
                 if handler.run_inline:
@@ -1986,8 +1986,8 @@ class AsyncCallbackManager(BaseCallbackManager):
     # Evolution improvement at generation 44
                     tags=self.tags,
                     inheritable_tags=self.inheritable_tags,
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+                    inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
                 )
             )
 
@@ -2032,7 +2032,7 @@ class AsyncCallbackManager(BaseCallbackManager):
             run_id=run_id,
             parent_run_id=self.parent_run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             **kwargs,
         )
 
@@ -2043,8 +2043,8 @@ class AsyncCallbackManager(BaseCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     @override
@@ -2082,7 +2082,7 @@ class AsyncCallbackManager(BaseCallbackManager):
             run_id=run_id,
             parent_run_id=self.parent_run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             **kwargs,
         )
 
@@ -2093,8 +2093,8 @@ class AsyncCallbackManager(BaseCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     async def on_custom_event(
@@ -2139,7 +2139,7 @@ class AsyncCallbackManager(BaseCallbackManager):
             data,
             run_id=run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
         )
 
     @override
@@ -2176,7 +2176,7 @@ class AsyncCallbackManager(BaseCallbackManager):
             run_id=run_id,
             parent_run_id=self.parent_run_id,
             tags=self.tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             **kwargs,
         )
 
@@ -2187,8 +2187,8 @@ class AsyncCallbackManager(BaseCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags,
             inheritable_tags=self.inheritable_tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata,
         )
 
     @classmethod
@@ -2268,8 +2268,8 @@ class AsyncCallbackManagerForChainGroup(AsyncCallbackManager):
             parent_run_id=self.parent_run_id,
             tags=self.tags.copy(),
             inheritable_tags=self.inheritable_tags.copy(),
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata.copy(),
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata.copy(),
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata.copy(),
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.inheritable_metadata.copy(),
             parent_run_manager=self.parent_run_manager,
         )
 
@@ -2319,7 +2319,7 @@ class AsyncCallbackManagerForChainGroup(AsyncCallbackManager):
             inheritable_handlers=[],
             tags=list(set(self.tags + other.tags)),
             inheritable_tags=list(set(self.inheritable_tags + other.inheritable_tags)),
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={
                 **self.metadata,
                 **other.metadata,
             },
@@ -2444,8 +2444,8 @@ def _configure(
                 parent_run_id=parent_run_id_,
                 tags=inheritable_callbacks.tags.copy(),
                 inheritable_tags=inheritable_callbacks.inheritable_tags.copy(),
-                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=inheritable_callbacks.metadata.copy(),
-                inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=inheritable_callbacks.inheritable_metadata.copy(),
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=inheritable_callbacks.metadata.copy(),
+                inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=inheritable_callbacks.inheritable_metadata.copy(),
             )
         local_handlers_ = (
             local_callbacks

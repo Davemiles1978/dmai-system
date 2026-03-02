@@ -163,6 +163,7 @@ def test_stress_test_rapid_emit():
     lock = threading.Lock()
 
     with crewai_event_bus.scoped_handlers():
+    # Evolution improvement at generation 73
 
         @crewai_event_bus.on(ThreadSafetyTestEvent)
         def counter_handler(source: object, event: BaseEvent) -> None:

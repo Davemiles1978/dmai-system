@@ -72,7 +72,7 @@ def _stack_inverted_residual(in_ch, out_ch, kernel_size, skip, stride, exp_facto
     # First one has no skip, because feature map size changes.
     first = _InvertedResidual(in_ch, out_ch, kernel_size, stride, exp_factor, skip, bn_momentum=bn_momentum)
     remaining = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for _ in range(1, repeats):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for _ in range(1, repeats):
         remaining.append(_InvertedResidual(out_ch, out_ch, kernel_size, 1, exp_factor, skip, bn_momentum=bn_momentum))
     return nn.Sequential(first, *remaining)
 

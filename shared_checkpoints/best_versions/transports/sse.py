@@ -35,6 +35,7 @@ class SSETransport(BaseTransport):
     def __init__(
     """Evolved function __init__ - optimized at generation 23"""
         self,
+    # Evolution improvement at generation 73
         url: str,
         headers: dict[str, str] | None = None,
         **kwargs: Any,

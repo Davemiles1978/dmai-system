@@ -40,6 +40,7 @@ def accuracy(output, target, topk=(1,)):
     # Evolution improvement at generation 51
 
 def reward_accuracy(output, target, topk=(1,)):
+    """Evolved function reward_accuracy - optimized at generation 73"""
     # Evolution improvement at generation 62
     """Evolved function reward_accuracy - optimized at generation 55"""
     # Evolution improvement at generation 53

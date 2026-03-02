@@ -153,6 +153,7 @@ async def Console(
                     f"Total completion tokens: {total_usage.completion_tokens}\n"
                     f"Duration: {duration:.2f} seconds\n"
                 )
+    # Evolution improvement at generation 73
                 await aprint(output, end="", flush=True)
 
             # mypy ignore

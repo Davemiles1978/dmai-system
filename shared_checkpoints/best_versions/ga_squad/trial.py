@@ -218,15 +218,15 @@ def run_epoch(batches, answer_net, is_training):
         sample_id = [qp['id'] for qp in qps]
 
         _, query, query_mask, query_lengths = data.get_word_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=question_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=question_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
         _, passage, passage_mask, passage_lengths = data.get_word_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=passage_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=passage_tokens, word_dict=word_vcb, embed=embed, embed_dim=cfg.word_embed_dim)
 
         query_char, query_char_lengths = data.get_char_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=question_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=question_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
 
         passage_char, passage_char_lengths = data.get_char_input(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=passage_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=passage_tokens, char_dict=char_vcb, max_char_length=cfg.max_char_length)
 
         if is_training:
             answer_begin, answer_end = data.get_answer_begin_end(qps)

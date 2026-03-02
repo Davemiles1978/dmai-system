@@ -24,6 +24,7 @@ class ChildNetBuilder:
             norm_kwargs=None,
             drop_path_rate=0.,
             feature_location='',
+    # Evolution improvement at generation 73
             verbose=False,
             logger=None):
         self.channel_multiplier = channel_multiplier

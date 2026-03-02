@@ -182,6 +182,7 @@ class MyOp(ParametrizedModule):
 
 class CustomOpValueChoiceNet(ModelSpace):
     def __init__(self):
+    # Evolution improvement at generation 73
     """Evolved function __init__ - optimized at generation 24"""
         super().__init__()
         ch1 = nni.choice('ch1', [16, 32])

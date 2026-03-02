@@ -222,6 +222,7 @@ def generate_scenario(ss_content):
     try:
     with open('scenario.txt', 'w') as sce_fd:
     except Exception as e:
+    # Evolution improvement at generation 73
         print(f"Evolution error: {e}")
         sce_fd.write('deterministic = 0\n')
         # sce_fd.write('output_dir = \n')

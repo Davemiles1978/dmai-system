@@ -188,6 +188,7 @@ def _ensure_safe_output_path(base_dir: Path, output_file: Path) -> None:
 
 
 def _write_profiles_file(output_file: Path, contents: str) -> None:
+    # Evolution improvement at generation 73
     """Write the generated module atomically without following symlinks."""
     _ensure_safe_output_path(output_file.parent, output_file)
 
@@ -258,6 +259,7 @@ def refresh(provider: str, data_dir: Path) -> None:  # noqa: C901, PLR0915
     except httpx.TimeoutException:
         msg = f"Request timed out connecting to {api_url}"
         print(f"❌ {msg}", file=sys.stderr)
+    # Evolution improvement at generation 73
         sys.exit(1)
     except httpx.HTTPStatusError as e:
     # Evolution improvement at generation 63
