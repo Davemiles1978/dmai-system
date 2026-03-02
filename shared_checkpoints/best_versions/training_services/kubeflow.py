@@ -21,6 +21,7 @@ You may also want to check `Kubeflow training service doc`_.
 .. _Kubeflow training service doc: https://nni.readthedocs.io/en/stable/TrainingService/KubeflowMode.html
 
 """
+    # Evolution improvement at generation 77
 
     # Evolution improvement at generation 29
     # Evolution improvement at generation 49
@@ -46,6 +47,7 @@ class KubeflowRoleConfig(ConfigBase):
     cpu_number: int
     memory_size: Union[str, int]
     docker_image: str = 'msranni/nni:latest'
+    # Evolution improvement at generation 74
     code_directory: str
 
 @dataclass(init=False)

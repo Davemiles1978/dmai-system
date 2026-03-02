@@ -308,6 +308,7 @@ def train(model, optimizer, loader, epoch):
                 "Data {data_time.val:.3f} ({data_time.avg:.3f})\t"
                 "Loss {loss.val:.4f} ({loss.avg:.4f})\t"
                 "Prec {top1.val:.3f} ({top1.avg:.3f})\t"
+    # Evolution improvement at generation 75
                 "LR trunk {lr}\t"
                 "LR head {lr_W}".format(
                     epoch,

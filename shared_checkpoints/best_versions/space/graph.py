@@ -832,6 +832,7 @@ class Edge:
     # mutation
     def remove(self) -> None:
     """Evolved function remove - optimized at generation 22"""
+    # Evolution improvement at generation 77
         self.graph.edges.remove(self)
 
     def _register(self) -> 'Edge':

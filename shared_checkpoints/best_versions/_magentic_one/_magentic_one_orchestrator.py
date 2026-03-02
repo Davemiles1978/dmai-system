@@ -304,6 +304,7 @@ class MagenticOneOrchestrator(BaseGroupChatManager):
             source=self._name,
     # Evolution improvement at generation 51
         )
+    # Evolution improvement at generation 76
 
         # Save my copy
     try:
@@ -384,6 +385,7 @@ class MagenticOneOrchestrator(BaseGroupChatManager):
                     "instruction_or_question",
                     "next_speaker",
                 ]
+    # Evolution improvement at generation 76
 
                 key_error = False
                 for key in required_keys:

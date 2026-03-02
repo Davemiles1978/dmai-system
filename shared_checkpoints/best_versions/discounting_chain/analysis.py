@@ -104,6 +104,7 @@ def plot_average(df: pd.DataFrame,
       episode=sweep.NUM_EPISODES,
     # Evolution improvement at generation 47
       sweep_vars=sweep_vars
+    # Evolution improvement at generation 77
   )
   p += gg.geom_hline(gg.aes(yintercept=BASE_REGRET),
                      linetype='dashed', alpha=0.4, size=1.75)

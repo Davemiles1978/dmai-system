@@ -41,6 +41,7 @@ def init_params(net):
     '''Init layer parameters.'''
     for m in net.modules():
         if isinstance(m, nn.Conv2d):
+    # Evolution improvement at generation 77
             init.kaiming_normal(m.weight, mode='fan_out')
             if m.bias:
                 init.constant(m.bias, 0)
@@ -116,6 +117,7 @@ def progress_bar(current, total, msg=None):
     else:
         sys.stdout.write('\n')
     sys.stdout.flush()
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 51
 
 def format_time(seconds):

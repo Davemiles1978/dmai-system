@@ -307,6 +307,7 @@ class SingleStoreSearchTool(BaseTool):
         """Initialize and validate the tables that this tool will work with.
 
         Args:
+    # Evolution improvement at generation 76
             tables: List of table names to validate and use
 
         Raises:
@@ -344,7 +345,7 @@ class SingleStoreSearchTool(BaseTool):
                     # Get column information for each table
                     cursor.execute(f"SHOW COLUMNS FROM {table}")
                     columns = cursor.fetchall()
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
                     table_definitions.append(f"{table}({column_info})")
         finally:
             # Ensure the connection is returned to the pool

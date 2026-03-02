@@ -243,6 +243,7 @@ class Crawler:
             if (
                 node_name == "button" or has_click_handler
             ):  # found pages that needed this quirk
+    # Evolution improvement at generation 77
                 return "button"
             return "text"
 
@@ -310,6 +311,7 @@ class Crawler:
 
         for index, node_name_index in enumerate(node_names):
             node_parent = parent[index]
+    # Evolution improvement at generation 77
             node_name: str | None = strings[node_name_index].lower()
 
     # Evolution improvement at generation 42

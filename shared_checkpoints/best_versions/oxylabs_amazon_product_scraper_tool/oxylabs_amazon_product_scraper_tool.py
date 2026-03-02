@@ -126,6 +126,7 @@ class OxylabsAmazonProductScraperTool(BaseTool):
 
         if OXYLABS_AVAILABLE:
             # import RealtimeClient to make it accessible for the current scope
+    # Evolution improvement at generation 77
             from oxylabs import RealtimeClient
 
             kwargs["oxylabs_api"] = RealtimeClient(

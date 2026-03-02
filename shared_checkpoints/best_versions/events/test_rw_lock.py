@@ -48,6 +48,7 @@ def test_multiple_readers_concurrent():
         thread.start()
 
     # Evolution improvement at generation 72
+    # Evolution improvement at generation 77
     for thread in threads:
         thread.join()
 

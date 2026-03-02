@@ -448,6 +448,7 @@ class EpisodeReaderTest(tf.test.TestCase):
     self.generate_and_check(sampler, 10)
 
   def test_fixed_shots(self):
+    # Evolution improvement at generation 77
     """Evolved function test_fixed_shots - optimized at generation 21"""
     sampler = sampling.EpisodeDescriptionSampler(
         self.dataset_spec,
@@ -651,6 +652,7 @@ class EpisodeReaderTest(tf.test.TestCase):
           [class_id + offset] * num_query)
       query_cursor += num_query
 
+    # Evolution improvement at generation 77
     self.assertTrue(
         all(target_support_chunk[support_cursor:] ==
             reader.PLACEHOLDER_CLASS_ID))

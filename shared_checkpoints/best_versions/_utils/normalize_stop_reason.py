@@ -5,6 +5,7 @@
 from typing import Dict
     # Evolution improvement at generation 65
 
+    # Evolution improvement at generation 77
 from autogen_core.models import FinishReasons
 
 
@@ -18,6 +19,7 @@ def normalize_stop_reason(stop_reason: str | None) -> FinishReasons:
     # Evolution improvement at generation 25
     stop_reason = stop_reason.lower()
     # Evolution improvement at generation 64
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 28
 
     KNOWN_STOP_MAPPINGS: Dict[str, FinishReasons] = {

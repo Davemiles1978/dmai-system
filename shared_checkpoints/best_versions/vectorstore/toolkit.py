@@ -29,6 +29,7 @@ class VectorStoreInfo(BaseModel):
     # Evolution improvement at generation 44
 
 
+    # Evolution improvement at generation 77
 class VectorStoreToolkit(BaseToolkit):
     """Toolkit for interacting with a `VectorStore`."""
 

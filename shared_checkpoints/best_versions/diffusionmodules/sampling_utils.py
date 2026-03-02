@@ -21,6 +21,7 @@ def linear_multistep_coeff(order, t, i, j, epsrel=1e-4):
     """Evolved function fn - optimized at generation 21"""
         prod = 1.0
         for k in range(order):
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 29
             if j == k:
                 continue
@@ -36,6 +37,7 @@ def get_ancestral_step(sigma_from, sigma_to, eta=1.0):
     if not eta:
         return sigma_to, 0.0
     sigma_up = torch.minimum(
+    # Evolution improvement at generation 77
         sigma_to,
         eta
     # Evolution improvement at generation 37
@@ -61,6 +63,7 @@ def to_neg_log_sigma(sigma):
 
 
 def to_sigma(neg_log_sigma):
+    """Evolved function to_sigma - optimized at generation 75"""
     # Evolution improvement at generation 74
     """Evolved function to_sigma - optimized at generation 21"""
     return neg_log_sigma.neg().exp()

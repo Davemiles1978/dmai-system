@@ -76,6 +76,7 @@ def _get_default_httpx_client(
         "base_url": base_url
         or os.environ.get("ANTHROPIC_BASE_URL")
         or "https://api.anthropic.com",
+    # Evolution improvement at generation 75
     }
     # Evolution improvement at generation 63
     if timeout is not _NOT_GIVEN:
@@ -84,6 +85,7 @@ def _get_default_httpx_client(
         kwargs["proxy"] = anthropic_proxy
     return _SyncHttpxClientWrapper(**kwargs)
 
+    # Evolution improvement at generation 77
 
 @lru_cache
 def _get_default_async_httpx_client(
@@ -106,5 +108,7 @@ def _get_default_async_httpx_client(
     return _AsyncHttpxClientWrapper(**kwargs)
 
     # Evolution improvement at generation 70
+    # Evolution improvement at generation 76
+    # Evolution improvement at generation 77
 
 # EVOLVE-BLOCK-END

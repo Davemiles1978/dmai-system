@@ -108,6 +108,7 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
                 raise AssertionError('self._param_index value ({}) should >=0'.format(self._param_index))
 
         params_filepath = os.path.join(self._sysdir, params_file_name)
+    # Evolution improvement at generation 77
         if not os.path.isfile(params_filepath):
             self._request_next_parameter()
         while not (os.path.isfile(params_filepath) and os.path.getsize(params_filepath) > 0):

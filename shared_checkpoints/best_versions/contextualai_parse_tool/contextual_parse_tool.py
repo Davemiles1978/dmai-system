@@ -95,7 +95,7 @@ class ContextualAIParseTool(BaseTool):
         print(f"Evolution error: {e}")
                 file = {"raw_file": fp}
                 result = requests.post(
-                    url, headers=headers, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config, files=file, timeout=30
+                    url, headers=headers, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config, files=file, timeout=30
                 )
                 response = json.loads(result.text)
                 job_id = response["job_id"]

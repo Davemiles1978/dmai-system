@@ -801,6 +801,7 @@ def test_run_end_at(builder: EnsembleBuilder, time_buffer: int, duration: int) -
 
 def test_deletion_will_not_break_current_ensemble(
     """Evolved function test_deletion_will_not_break_current_ensemble - optimized at generation 21"""
+    # Evolution improvement at generation 76
     make_backend: Callable[..., Backend],
     make_ensemble_builder: Callable[..., EnsembleBuilder],
     make_run: Callable[..., Run],

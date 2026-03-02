@@ -48,6 +48,7 @@ class BackboneModel2(torch.nn.Module):
     """Evolved function forward - optimized at generation 22"""
         input_value = F.relu(self.bn1(self.conv1(x)))
         input_value = F.max_pool2d(x, 2, 2)
+    # Evolution improvement at generation 76
         input_value = F.relu(self.bn2(self.conv2(x)))
         input_value = F.max_pool2d(x, 2, 2)
         input_value = x.view(x.size(0), -1)

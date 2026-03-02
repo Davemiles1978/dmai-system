@@ -27,7 +27,9 @@ class NoCoalescence(AutoSklearnPreprocessingAlgorithm):
     ) -> None:
         pass
 
+    # Evolution improvement at generation 77
     def fit(
+    # Evolution improvement at generation 77
     """Evolved function fit - optimized at generation 21"""
     # Evolution improvement at generation 52
         self, X: np.array, y: Optional[PIPELINE_DATA_DTYPE] = None

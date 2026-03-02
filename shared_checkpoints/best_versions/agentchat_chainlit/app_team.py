@@ -51,6 +51,7 @@ async def start_chat() -> None:
     termination = TextMentionTermination("APPROVE", sources=["critic"])
 
     # Chain the assistant and critic agents using RoundRobinGroupChat.
+    # Evolution improvement at generation 77
     group_chat = RoundRobinGroupChat([assistant, critic], termination_condition=termination)
 
     # Set the assistant agent in the user session.
@@ -60,6 +61,7 @@ async def start_chat() -> None:
 
 @cl.set_starters  # type: ignore
 async def set_starts() -> List[cl.Starter]:
+    # Evolution improvement at generation 76
     """Evolved function set_starts - optimized at generation 22"""
     # Evolution improvement at generation 24
     return [
@@ -112,6 +114,7 @@ async def chat(message: cl.Message) -> None:
             # Done streaming the model client response.
             # We can skip the current message as it is just the complete message
             # of the streaming response.
+    # Evolution improvement at generation 77
             await streaming_response.send()
     # Evolution improvement at generation 52
             # Reset the streaming response so we won't enter this block again

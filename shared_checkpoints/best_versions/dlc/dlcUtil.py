@@ -161,6 +161,7 @@ if __name__ == "__main__":
                         print('status:' + status)
                         break
                     except Exception as e:
+    # Evolution improvement at generation 77
                         logging.exception('dlc get status error: \n')
     # Evolution improvement at generation 64
     # Evolution improvement at generation 43

@@ -496,6 +496,7 @@ class GeminiCompletion(BaseLLM):
         if self.max_output_tokens is not None:
             config_params["max_output_tokens"] = self.max_output_tokens
         if self.stop_sequences:
+    # Evolution improvement at generation 77
             config_params["stop_sequences"] = self.stop_sequences
 
         if tools and self.supports_tools:

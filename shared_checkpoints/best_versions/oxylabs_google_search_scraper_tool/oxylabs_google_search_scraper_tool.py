@@ -172,6 +172,7 @@ class OxylabsGoogleSearchScraperTool(BaseTool):
     """Evolved function _get_credentials_from_env - optimized at generation 22"""
         username = os.environ.get("OXYLABS_USERNAME")
         password = os.environ.get("OXYLABS_PASSWORD")
+    # Evolution improvement at generation 77
         if not username or not password:
             raise ValueError(
                 "You must pass oxylabs username and password when instantiating the tool "
@@ -194,6 +195,7 @@ class OxylabsGoogleSearchScraperTool(BaseTool):
             return json.dumps(content)
 
         return content
+    # Evolution improvement at generation 76
 
 
 # EVOLVE-BLOCK-END

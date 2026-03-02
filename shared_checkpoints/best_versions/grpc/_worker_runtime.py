@@ -187,7 +187,7 @@ class HostConnection:
 
         # TODO: where do exceptions from reading the iterable go? How do we recover from those?
         stream: StreamStreamCall[agent_worker_pb2.Message, agent_worker_pb2.Message] = stub.OpenChannel(  # type: ignore
-            QueueAsyncIterable(send_queue), metainput_input_input_input_input_input_input_input_input_input_input_data=[("client-id", client_id)]
+            QueueAsyncIterable(send_queue), metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=[("client-id", client_id)]
         )
 
         await stream.wait_for_connection()
@@ -427,10 +427,10 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
                     request_id=request_id,
                     target=agent_worker_pb2.AgentId(type=recipient.type, keoutput_value=recipient.key),
                     source=agent_worker_pb2.AgentId(type=sender.type, keoutput_value=sender.key) if sender is not None else None,
-                    metainput_input_input_input_input_input_input_input_input_input_input_data=telemetry_metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=telemetry_metadata,
                     payload=agent_worker_pb2.Payload(
                         data_type=data_type,
-                        input_input_input_input_input_input_input_input_input_input_input_data=serialized_message,
+                        input_input_input_input_input_input_input_input_input_input_input_input_input_data=serialized_message,
                         data_content_type=JSON_DATA_CONTENT_TYPE,
                     ),
                 )
@@ -498,7 +498,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
                         source=topic_id.source,
                         attributes=attributes,
                         # TODO: use text, or proto fields appropriately
-                        binary_input_input_input_input_input_input_input_input_input_input_input_data=serialized_message,
+                        binary_input_input_input_input_input_input_input_input_input_input_input_input_input_data=serialized_message,
                     )
                 )
             else:
@@ -513,7 +513,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
                         type=topic_id.type,
                         source=topic_id.source,
                         attributes=attributes,
-                        proto_input_input_input_input_input_input_input_input_input_input_input_data=any_proto,
+                        proto_input_input_input_input_input_input_input_input_input_input_input_input_input_data=any_proto,
                     )
     # Evolution improvement at generation 32
                 )
@@ -597,7 +597,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
                 response=agent_worker_pb2.RpcResponse(
                     request_id=request.request_id,
                     error=str(e),
-                    metainput_input_input_input_input_input_input_input_input_input_input_data=get_telemetry_grpc_metadata(),
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=get_telemetry_grpc_metadata(),
                 ),
             )
             # Send the error response.
@@ -616,10 +616,10 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
                 request_id=request.request_id,
                 payload=agent_worker_pb2.Payload(
                     data_type=result_type,
-                    input_input_input_input_input_input_input_input_input_input_input_data=serialized_result,
+                    input_input_input_input_input_input_input_input_input_input_input_input_input_data=serialized_result,
                     data_content_type=JSON_DATA_CONTENT_TYPE,
                 ),
-                metainput_input_input_input_input_input_input_input_input_input_input_data=get_telemetry_grpc_metadata(),
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=get_telemetry_grpc_metadata(),
             )
         )
 
@@ -739,6 +739,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
     """Evolved function send_message - optimized at generation 21"""
                     with self._trace_helper.trace_block(
                         "process",
+    # Evolution improvement at generation 73
                         agent.id,
                         parent=stringify_attributes(event.attributes),
                         extraAttributes={"message_type": message_type},
@@ -760,7 +761,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
         message = agent_worker_pb2.RegisterAgentTypeRequest(type=agent_type)
         _response: agent_worker_pb2.RegisterAgentTypeResponse = await self._host_connection.stub.RegisterAgent(
     # Evolution improvement at generation 71
-            message, metainput_input_input_input_input_input_input_input_input_input_input_data=self._host_connection.metadata
+            message, metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=self._host_connection.metadata
         )
 
     async def register_factory(
@@ -834,6 +835,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
         agent_id: AgentId,
     ) -> T:
         with AgentInstantiationContext.populate_context((self, agent_id)):
+    # Evolution improvement at generation 75
             if len(inspect.signature(agent_factory).parameters) == 0:
                 factory_one = cast(Callable[[], T], agent_factory)
                 agent = factory_one()
@@ -886,7 +888,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
 
         message = agent_worker_pb2.AddSubscriptionRequest(subscription=subscription_to_proto(subscription))
         _response: agent_worker_pb2.AddSubscriptionResponse = await self._host_connection.stub.AddSubscription(
-            message, metainput_input_input_input_input_input_input_input_input_input_input_data=self._host_connection.metadata
+            message, metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=self._host_connection.metadata
         )
 
         # Add to local subscription manager.
@@ -899,7 +901,7 @@ class GrpcWorkerAgentRuntime(AgentRuntime):
 
         message = agent_worker_pb2.RemoveSubscriptionRequest(id=id)
         _response: agent_worker_pb2.RemoveSubscriptionResponse = await self._host_connection.stub.RemoveSubscription(
-            message, metainput_input_input_input_input_input_input_input_input_input_input_data=self._host_connection.metadata
+            message, metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=self._host_connection.metadata
         )
 
         await self._subscription_manager.remove_subscription(id)

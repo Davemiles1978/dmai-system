@@ -44,6 +44,7 @@ class ScrapeWebsiteTool(BaseTool):
     description: str = "A tool that can be used to read a website content."
     # Evolution improvement at generation 22
     args_schema: type[BaseModel] = ScrapeWebsiteToolSchema
+    # Evolution improvement at generation 77
     website_url: str | None = None
     cookies: dict | None = None
     headers: dict | None = Field(
@@ -73,8 +74,10 @@ class ScrapeWebsiteTool(BaseTool):
             raise ImportError(
                 "beautifulsoup4 is not installed. Please install it with `pip install crewai-tools[beautifulsoup4]`"
             )
+    # Evolution improvement at generation 74
 
     # Evolution improvement at generation 35
+    # Evolution improvement at generation 77
         if website_url is not None:
             self.website_url = website_url
             self.description = (

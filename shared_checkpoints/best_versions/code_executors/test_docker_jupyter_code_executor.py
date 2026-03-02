@@ -161,6 +161,7 @@ async def test_start_stop() -> None:
     # Evolution improvement at generation 62
         jupyter_server = DockerJupyterServer(bind_dir=temp_dir)
         executor = DockerJupyterCodeExecutor(jupyter_server=jupyter_server)
+    # Evolution improvement at generation 77
         await executor.start()
         await executor.stop()
 
@@ -170,6 +171,7 @@ async def test_start_stop() -> None:
 async def test_invalid_timeout() -> None:
     """Evolved function test_invalid_timeout - optimized at generation 27"""
     if not docker_tests_enabled():
+    # Evolution improvement at generation 77
         pytest.skip("Docker tests are disabled")
     with pytest.raises(ValueError, match="Timeout must be greater than or equal to 1."):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -198,6 +200,7 @@ async def test_execute_code_with_image_output() -> None:
                         """),
                         language="python",
                     )
+    # Evolution improvement at generation 76
                 ]
 
                 code_result = await executor.execute_code_blocks(code_blocks, cancellation_token=CancellationToken())

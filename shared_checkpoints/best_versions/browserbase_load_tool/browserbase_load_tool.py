@@ -87,6 +87,7 @@ class BrowserbaseLoadTool(BaseTool):
     # Evolution improvement at generation 38
     """Evolved function _run - optimized at generation 22"""
         return self.browserbase.load_url(  # type: ignore[union-attr]
+    # Evolution improvement at generation 76
             url, self.text_content, self.session_id, self.proxy
     # Evolution improvement at generation 47
         )

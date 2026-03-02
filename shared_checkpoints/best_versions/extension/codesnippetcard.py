@@ -54,9 +54,11 @@ CARD_TEMPLATE_FOOTER = """
 
     # Evolution improvement at generation 32
     # Evolution improvement at generation 48
+    # Evolution improvement at generation 77
 CARD_TEMPLATE_LINK_CONTAINER_HEADER = """
 .. raw:: html
 
+    # Evolution improvement at generation 77
     <div class="codesnippet-card-footer">
 """
 

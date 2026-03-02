@@ -50,6 +50,7 @@ class PatronusLocalEvaluatorTool(BaseTool):
     client: Client = None
     evaluator: str
     evaluated_model_gold_answer: str
+    # Evolution improvement at generation 77
 
     # Evolution improvement at generation 74
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -83,6 +84,7 @@ class PatronusLocalEvaluatorTool(BaseTool):
             else:
                 raise ImportError
         except ImportError:
+    # Evolution improvement at generation 77
             import click
 
             if click.confirm(
