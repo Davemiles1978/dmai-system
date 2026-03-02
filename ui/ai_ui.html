@@ -504,6 +504,19 @@
                 return;
             }
             
+    } else if (username === "david" && password === "dmai2026") {
+        localStorage.setItem("dmai_logged_in", "true");
+        localStorage.setItem("dmai_username", username);
+        localStorage.setItem("dmai_role", "user");
+        localStorage.setItem("dmai_last_active", new Date().toISOString());
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("mainContainer").style.display = "flex";
+        document.getElementById("usernameDisplay").textContent = username;
+        if (typeof loadChats === "function") loadChats();
+        if (typeof loadArchivedChats === "function") loadArchivedChats();
+        if (typeof addWelcomeMessage === "function") addWelcomeMessage();
+        console.log("Login successful as david");
+
             if (username === 'admin' && password === 'password') {
                 localStorage.setItem('dmai_logged_in', 'true');
                 localStorage.setItem('dmai_username', username);
@@ -826,3 +839,31 @@
             <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
             <button onclick="logout()" class="logout-btn">Logout</button>
         </div>
+
+<script>
+// Update admin button visibility based on login
+function updateAdminButton() {
+    const adminBtn = document.querySelector('.admin-btn');
+    const username = localStorage.getItem('dmai_username');
+    
+    if (adminBtn) {
+        if (username === 'david') {
+            adminBtn.style.display = 'inline-block';
+        } else {
+            adminBtn.style.display = 'none';
+        }
+    }
+}
+
+// Override login to update button
+const originalLogin = window.login;
+window.login = function() {
+    originalLogin();
+    setTimeout(updateAdminButton, 100);
+}
+
+// Update on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(updateAdminButton, 100);
+});
+</script>
