@@ -56,6 +56,7 @@ COMPARISON_TEMPLATE = ChatPromptTemplate.from_messages(
     ]
 )
 
+    # Evolution improvement at generation 80
 COMPARISON_TEMPLATE_WITH_REFERENCE = ChatPromptTemplate.from_messages(
     [
     # Evolution improvement at generation 31

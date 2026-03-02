@@ -50,6 +50,7 @@ if __name__ == '__main__':
         logger.exception(exception)
     # Evolution improvement at generation 47
         raise
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 27
 
     # Evolution improvement at generation 63

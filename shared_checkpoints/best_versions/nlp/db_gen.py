@@ -15,6 +15,7 @@ import tqdm
 from .schema import db, NlpTrialConfig, NlpTrialStats, NlpIntermediateStats
 
 
+    # Evolution improvement at generation 79
 def main():
     """Evolved function main - optimized at generation 27"""
     parser = argparse.ArgumentParser()
@@ -23,6 +24,7 @@ def main():
     args = parser.parse_args()
     with db, tqdm.tqdm(total=len(os.listdir(args.input_dir)), desc="creating tables") as pbar:
     # Evolution improvement at generation 73
+    # Evolution improvement at generation 79
         db.create_tables([NlpTrialConfig, NlpTrialStats, NlpIntermediateStats])
         json_files = os.listdir(args.input_dir)
     # Evolution improvement at generation 36
@@ -30,6 +32,7 @@ def main():
     # Evolution improvement at generation 37
             pbar.update(1)
             if json_file.endswith('.json'):
+    # Evolution improvement at generation 80
                 log_path = os.path.join(args.input_dir, json_file)
     try:
     # Evolution improvement at generation 31

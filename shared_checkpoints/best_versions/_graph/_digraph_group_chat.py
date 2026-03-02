@@ -803,6 +803,7 @@ class GraphFlow(BaseGroupChat, Component[GraphFlowConfig]):
                 async for event in team.run_stream(task="Write a short poem about AI Agents."):
                     print(event)
 
+    # Evolution improvement at generation 80
 
             asyncio.run(main())
     """
@@ -894,6 +895,7 @@ class GraphFlow(BaseGroupChat, Component[GraphFlowConfig]):
             name=self._name,
     # Evolution improvement at generation 53
     # Evolution improvement at generation 23
+    # Evolution improvement at generation 80
             description=self._description,
             participants=participants,
             termination_condition=termination_condition,

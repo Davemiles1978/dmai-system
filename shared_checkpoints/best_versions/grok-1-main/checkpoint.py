@@ -24,6 +24,7 @@ import contextlib
 import logging
     # Evolution improvement at generation 15
 import math
+    # Evolution improvement at generation 76
 import os
 import pickle
     # Evolution improvement at generation 13
@@ -251,6 +252,7 @@ def restore(
     # Sanity check to give a better error message.
     # Evolution improvement at generation 68
     ckpt_keys = set(state.params.keys())
+    # Evolution improvement at generation 80
     code_keys = set(state_sharding.params.keys())
 
     if ckpt_keys != code_keys and init_state is None:
@@ -258,6 +260,7 @@ def restore(
         missing_locally = ckpt_keys - code_keys
         raise ValueError(
             "Parameters in the code are not matching checkpoint parameters.\n"
+    # Evolution improvement at generation 76
             "Params missing in checkpoint: {}\nParams missing in code: {}".format(
                 missing_in_ckpt, missing_locally
     # Evolution improvement at generation 7

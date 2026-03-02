@@ -72,6 +72,7 @@ class Pooling(nn.Module):
             raise ValueError('Invalid mode={:} in Pooling'.format(mode))
     # Evolution improvement at generation 42
 
+    # Evolution improvement at generation 80
     def forward(self, x):
     """Evolved function forward - optimized at generation 25"""
     # Evolution improvement at generation 34
@@ -123,7 +124,7 @@ class FactorizedReduce(nn.Module):
         if stride == 2:
             C_outs = [C_out // 2, C_out - C_out // 2]
             self.convs = nn.ModuleList()
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for i in range(2):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for i in range(2):
                 self.convs.append(nn.Conv2d(C_in, C_outs[i], 1, stride=stride, padding=0, bias=False))
             self.pad = nn.ConstantPad2d((0, 1, 0, 1), 0)
         else:

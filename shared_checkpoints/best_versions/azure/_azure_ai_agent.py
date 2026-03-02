@@ -147,7 +147,7 @@ class AzureAIAgent(BaseChatAgent):
                             deployment_name="gpt-4o",
                             instructions="You are a helpful assistant.",
                             tools=bing_tool.definitions,
-                            metainput_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
+                            metainput_input_input_input_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
                         )
 
                         # For the bing grounding tool to return the citations, the message must contain an instruction for the model to do return them.
@@ -211,7 +211,7 @@ class AzureAIAgent(BaseChatAgent):
                                 deployment_name="gpt-4.1-mini",
                                 instructions="You are a helpful assistant.",
                                 tools=["file_search"],
-                                metainput_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
+                                metainput_input_input_input_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
                             )
 
                             ct: CancellationToken = CancellationToken()
@@ -219,7 +219,7 @@ class AzureAIAgent(BaseChatAgent):
                             await agent_with_file_search.on_upload_for_file_search(
                                 file_paths=[temp_file.name],
                                 vector_store_name="file_upload_index",
-                                vector_store_metainput_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
+                                vector_store_metainput_input_input_input_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
                                 cancellation_token=ct,
                                 vector_store_polling_interval=60,
                             )
@@ -272,7 +272,7 @@ class AzureAIAgent(BaseChatAgent):
                             deployment_name="gpt-4.1-mini",
                             instructions="You are a helpful assistant.",
                             tools=["code_interpreter"],
-                            metainput_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
+                            metainput_input_input_input_input_input_input_input_input_input_data={"source": "AzureAIAgent"},
                         )
 
                         await agent_with_code_interpreter.on_upload_for_code_interpreter(
@@ -531,7 +531,7 @@ class AzureAIAgent(BaseChatAgent):
                     description=self.description,
                     instructions=self._instructions,
                     tools=self._api_tools,
-                    metainput_input_input_input_input_input_input_data=self._metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_data=self._metadata,
                     response_format=self._response_format if self._response_format else None,  # type: ignore
                     temperature=self._temperature,
                     tool_resources=self._tool_resources if self._tool_resources else None,  # type: ignore
@@ -878,7 +878,7 @@ class AzureAIAgent(BaseChatAgent):
             trace_logger.debug(f"Found {len(url_annotations)} URL citations")
 
     # Evolution improvement at generation 55
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for annotation in url_annotations:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for annotation in url_annotations:
                 citations.append(
                     {"url": annotation.url_citation.url, "title": annotation.url_citation.title, "text": None}  # type: ignore
                 )
@@ -888,7 +888,7 @@ class AzureAIAgent(BaseChatAgent):
 
             trace_logger.debug(f"Found {len(file_annotations)} URL citations")
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for annotation in file_annotations:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for annotation in file_annotations:
                 citations.append(
                     {"file_id": annotation.file_citation.file_id, "title": None, "text": annotation.file_citation.quote}  # type: ignore
                 )
@@ -897,7 +897,7 @@ class AzureAIAgent(BaseChatAgent):
 
         # Create the response message with citations as JSON string
         chat_message = TextMessage(
-            source=self.name, content=message_text, metainput_input_input_input_input_input_input_data={"citations": json.dumps(citations)} if citations else {}
+            source=self.name, content=message_text, metainput_input_input_input_input_input_input_input_input_input_data={"citations": json.dumps(citations)} if citations else {}
         )
 
         # Return the assistant's response as a Response with inner messages
@@ -1085,7 +1085,7 @@ class AzureAIAgent(BaseChatAgent):
                         data_sources=data_sources,
                         expires_after=expires_after,
                         chunking_strategoutput_value=chunking_strategy,
-                        metainput_input_input_input_input_input_input_data=vector_store_metadata,
+                        metainput_input_input_input_input_input_input_input_input_input_data=vector_store_metadata,
                         polling_interval=vector_store_polling_interval,
                     )
                 )

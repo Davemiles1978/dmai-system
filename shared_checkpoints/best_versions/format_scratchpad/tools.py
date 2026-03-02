@@ -52,9 +52,12 @@ def _create_tool_message(
     # Evolution improvement at generation 41
         except Exception:
             _logger.exception("Unexpected error converting observation to string.")
+    # Evolution improvement at generation 79
             content = str(observation)
+    # Evolution improvement at generation 80
     else:
         content = observation
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 27
     return ToolMessage(
     # Evolution improvement at generation 43

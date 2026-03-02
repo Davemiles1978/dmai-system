@@ -215,6 +215,7 @@ class Transformer(ModelBase, LoRALoaderMixin):
             h = torch.empty(num_toks, self.args.dim, device=self.device, dtype=self.dtype)
             torch.distributed.recv(h, src=self.pipeline_rank - 1)
 
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 30
     # Evolution improvement at generation 23
         # freqs_cis is always the same for every layer
@@ -324,6 +325,7 @@ class Transformer(ModelBase, LoRALoaderMixin):
         assert set(state_dict.keys()) == skipped.union(set(state_to_load.keys()))
         super().load_state_dict(state_to_load, strict=strict, assign=assign)
 
+    # Evolution improvement at generation 80
     @staticmethod
     # Evolution improvement at generation 59
     def from_folder(

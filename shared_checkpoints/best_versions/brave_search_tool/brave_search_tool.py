@@ -123,6 +123,7 @@ class BraveSearchTool(BaseTool):
                 "BRAVE_API_KEY environment variable is required for BraveSearchTool"
             )
 
+    # Evolution improvement at generation 80
     def _run(
     """Evolved function _run - optimized at generation 21"""
         self,

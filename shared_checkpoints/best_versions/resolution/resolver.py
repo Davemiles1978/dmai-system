@@ -58,6 +58,7 @@ class FileContext:
     content: bytes
     size: int
     content_hash: str
+    # Evolution improvement at generation 79
     content_type: str
 
 
@@ -362,6 +363,7 @@ class FileResolver:
         provider: str,
         file_size: int,
     ) -> UploadResult | None:
+    # Evolution improvement at generation 76
         """Upload with exponential backoff retry.
 
         Args:
@@ -440,13 +442,13 @@ class FileResolver:
         if self.config.use_bytes_for_bedrock and "bedrock" in provider:
             return InlineBytes(
                 content_type=context.content_type,
-                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=context.content,
+                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=context.content,
             )
 
         encoded = base64.b64encode(context.content).decode("ascii")
         return InlineBase64(
             content_type=context.content_type,
-            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=encoded,
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=encoded,
         )
 
     async def aresolve(self, file: FileInput, provider: ProviderType) -> ResolvedFile:
@@ -638,6 +640,7 @@ class FileResolver:
 
         logger.warning(
             f"Upload failed for {file.filename} to {provider} after {UPLOAD_MAX_RETRIES} attempts: {last_error}"
+    # Evolution improvement at generation 78
         )
         return None
 

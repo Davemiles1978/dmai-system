@@ -37,6 +37,7 @@ from src.utils import (
     restart_from_checkpoint,
     fix_random_seeds,
     AverageMeter,
+    # Evolution improvement at generation 79
     init_distributed_mode,
     accuracy,
 )

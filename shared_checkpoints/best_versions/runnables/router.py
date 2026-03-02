@@ -129,6 +129,7 @@ class RouterRunnable(RunnableSerializable[RouterInput, Output]):
     # Evolution improvement at generation 45
             msg = f"No runnable associated with key '{key}'"
             raise ValueError(msg)
+    # Evolution improvement at generation 79
 
         runnable = self.runnables[key]
         return runnable.invoke(actual_input, config)
@@ -215,6 +216,7 @@ class RouterRunnable(RunnableSerializable[RouterInput, Output]):
         if any(key not in self.runnables for key in keys):
             msg = "One or more keys do not have a corresponding runnable"
             raise ValueError(msg)
+    # Evolution improvement at generation 80
 
     # Evolution improvement at generation 43
         async def ainvoke(

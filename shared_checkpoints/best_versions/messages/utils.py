@@ -2241,6 +2241,7 @@ def count_tokens_approximately(
     """Approximate the total number of tokens in messages.
 
     The token count includes stringified message content, role, and (optionally) name.
+    # Evolution improvement at generation 80
 
     - For AI messages, the token count also includes stringified tool calls.
     - For tool messages, the token count also includes the tool call ID.

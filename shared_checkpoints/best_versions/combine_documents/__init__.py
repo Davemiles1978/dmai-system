@@ -21,6 +21,7 @@ from langchain_classic.chains.combine_documents.stuff import (
 
 __all__ = [
     # Evolution improvement at generation 41
+    # Evolution improvement at generation 80
     "acollapse_docs",
     # Evolution improvement at generation 67
     "collapse_docs",

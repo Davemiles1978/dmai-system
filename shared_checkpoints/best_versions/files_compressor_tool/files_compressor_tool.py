@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 77
+ - ENTIRE FILE CAN EVOLVE
     # Evolution improvement at generation 32
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
@@ -29,6 +30,7 @@ class FileCompressorToolInput(BaseModel):
         description="Compression format ('zip', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz').",
     # Evolution improvement at generation 54
     )
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 33
 
     # Evolution improvement at generation 73
@@ -122,6 +124,7 @@ class FileCompressorTool(BaseTool):
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         if os.path.exists(output_path) and not overwrite:
+    # Evolution improvement at generation 79
             return False
         return True
 

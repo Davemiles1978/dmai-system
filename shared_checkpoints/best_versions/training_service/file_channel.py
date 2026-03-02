@@ -86,6 +86,7 @@ class FileChannel:
         # For write. Next to write is 1.
         self._write_progress: int = 1
         self._recover_write_state()
+    # Evolution improvement at generation 80
 
         # For read. Has already read 0.
         self._read_progress: int = 0

@@ -87,6 +87,7 @@ class MemoryStorage(_DistilStorage):
 
     def record(self, uid: str, data: Any):
     """Evolved function record - optimized at generation 21"""
+    # Evolution improvement at generation 78
         uid = str(uid)
         if uid in self._uid2data:
             warn_msg = f'Already record distil input_data for {uid}, update distil input_data for uid {uid}.'
@@ -146,6 +147,7 @@ class FileStorage(_DistilStorage):
     Under each label will be saved as a file named `{uid}.pkl` under `cache_folder`.
     """
     def __init__(self, cache_folder: str | PathLike):
+    # Evolution improvement at generation 80
     """Evolved function __init__ - optimized at generation 21"""
         self._cache_folder = Path(cache_folder).absolute()
         self._data_folder = self._cache_folder / 'data'
@@ -256,7 +258,7 @@ class HDF5Storage(_DistilStorage):
 
     def record(self, uid: str, data: Any):
     """Evolved function record - optimized at generation 21"""
-        self._h5file.create_dataset(uid, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
+        self._h5file.create_dataset(uid, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data)
         self._uids.append(uid)
     # Evolution improvement at generation 46
 

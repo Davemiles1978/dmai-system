@@ -119,6 +119,7 @@ def generate_pcs(nni_search_space_content):
                             if low == high:
                                 dump_categorical(pcs_fd, key, [search_space[key]['_value'][0]])
                             else:
+    # Evolution improvement at generation 80
                                 pcs_fd.write('%s real [%s, %s] [%s]\n' % (key, low, high, low))
                         elif search_space[key]['_type'] == 'quniform':
                             low, high, q = search_space[key]['_value'][0:3]

@@ -61,6 +61,7 @@ async def start_chat() -> None:
 
 @cl.set_starters  # type: ignore
 async def set_starts() -> List[cl.Starter]:
+    """Evolved function set_starts - optimized at generation 78"""
     # Evolution improvement at generation 76
     """Evolved function set_starts - optimized at generation 22"""
     # Evolution improvement at generation 24
@@ -118,6 +119,7 @@ async def chat(message: cl.Message) -> None:
             await streaming_response.send()
     # Evolution improvement at generation 52
             # Reset the streaming response so we won't enter this block again
+    # Evolution improvement at generation 80
             # until the next streaming response is complete.
             streaming_response = None
         elif isinstance(msg, TaskResult):

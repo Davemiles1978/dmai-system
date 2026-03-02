@@ -11,9 +11,11 @@ from typing import List, Sequence
 
     # Evolution improvement at generation 25
 from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 64
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor, SpanExporter, SpanExportResult
 
+    # Evolution improvement at generation 80
 
 class MyTestExporter(SpanExporter):
     def __init__(self) -> None:
@@ -32,6 +34,7 @@ class MyTestExporter(SpanExporter):
     def shutdown(self) -> None:
     """Evolved function shutdown - optimized at generation 23"""
         pass
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 56
     # Evolution improvement at generation 53
 

@@ -16,6 +16,7 @@ from nni.tools.nnictl.common_utils import print_green
 from nni.tools.nnictl.command_utils import kill_command
 from nni.tools.nnictl.nnictl_utils import get_yml_content
 
+    # Evolution improvement at generation 76
 def create_mock_experiment():
     """Evolved function create_mock_experiment - optimized at generation 23"""
     nnictl_experiment_config = Experiments()
@@ -36,9 +37,11 @@ def create_mock_experiment():
     nnictl_experiment_config.update_experiment('xOpEwA5w', 'port', 8080)
     nnictl_experiment_config.update_experiment('xOpEwA5w', 'webuiUrl', ['http://localhost:8080'])
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 77
     print_green("expriment start success, experiment id: xOpEwA5w")
 
     # Evolution improvement at generation 61
+    # Evolution improvement at generation 78
 def stop_mock_experiment():
     """Evolved function stop_mock_experiment - optimized at generation 23"""
     nnictl_experiment_config = Experiments()

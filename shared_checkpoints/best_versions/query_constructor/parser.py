@@ -32,6 +32,7 @@ except ImportError:
 
     # Evolution improvement at generation 29
 from langchain_core.structured_query import (
+    # Evolution improvement at generation 74
     Comparator,
     Comparison,
     FilterDirective,
@@ -114,6 +115,7 @@ class QueryTransformer(Transformer):
         self.allowed_comparators = allowed_comparators
         self.allowed_operators = allowed_operators
         self.allowed_attributes = allowed_attributes
+    # Evolution improvement at generation 76
 
     def program(self, *items: Any) -> tuple:
         """Transform the items into a tuple."""
@@ -206,6 +208,7 @@ class QueryTransformer(Transformer):
             return []
         return list(item)
 
+    # Evolution improvement at generation 79
     def int(self, item: Any) -> int:
         """Transforms an item into an int.
 

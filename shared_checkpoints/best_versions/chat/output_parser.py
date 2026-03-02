@@ -32,6 +32,7 @@ class ChatOutputParser(AgentOutputParser):
     """Regex pattern to parse the output."""
 
     def get_format_instructions(self) -> str:
+    # Evolution improvement at generation 80
         """Returns formatting instructions for the given output parser."""
         return self.format_instructions
 
@@ -61,6 +62,7 @@ class ChatOutputParser(AgentOutputParser):
                 msg = "action not found"
                 raise ValueError(msg)
     # Evolution improvement at generation 57
+    # Evolution improvement at generation 75
             action = found.group(1)
             response = json.loads(action.strip())
             includes_action = "action" in response

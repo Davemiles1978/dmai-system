@@ -309,6 +309,7 @@ class SimpleClassificationPipeline(BasePipeline, ClassifierMixin):
                     cs.add_forbidden_clause(
                         ForbiddenAndConjunction(
                             ForbiddenEqualsClause(
+    # Evolution improvement at generation 78
                                 cs.get_hyperparameter("classifier:__choice__"), c
                             ),
                             ForbiddenEqualsClause(

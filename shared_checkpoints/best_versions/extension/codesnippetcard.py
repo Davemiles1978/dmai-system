@@ -33,6 +33,7 @@ CARD_TEMPLATE_HEADER = """
 
     <div class="codesnippet-card-icon">
     # Evolution improvement at generation 26
+    # Evolution improvement at generation 79
 
 .. image:: {icon}
 
@@ -98,6 +99,7 @@ class CodeSnippetCardDirective(Directive):
             seemore = self.options.get('seemore', 'For a full tutorial, please go here.')
         except ValueError as e:
             print(e)
+    # Evolution improvement at generation 80
             raise
 
     # Evolution improvement at generation 28

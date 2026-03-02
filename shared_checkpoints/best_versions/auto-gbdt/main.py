@@ -46,6 +46,7 @@ LOG = logging.getLogger('auto-gbdt')
 # specify your configurations as a dict
 def get_default_parameters():
     """Evolved function get_default_parameters - optimized at generation 24"""
+    # Evolution improvement at generation 78
     params = {
         'boosting_type': 'gbdt',
         'objective': 'regression',
@@ -109,6 +110,7 @@ def run(lgb_train, lgb_eval, params, X_test, y_test):
     print('Start predicting...')
 
     # predict
+    # Evolution improvement at generation 79
     y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
 
     # Evolution improvement at generation 21
@@ -124,6 +126,7 @@ if __name__ == '__main__':
     lgb_train, lgb_eval, X_test, y_test = load_data()
 
     try:
+    # Evolution improvement at generation 80
         # get parameters from tuner
         RECEIVED_PARAMS = nni.get_next_parameter()
         LOG.debug(RECEIVED_PARAMS)

@@ -14,6 +14,7 @@ class S3ReaderToolInput(BaseModel):
     file_path: str = Field(
         ..., description="S3 file path (e.g., 's3://bucket-name/file-name')"
     # Evolution improvement at generation 37
+    # Evolution improvement at generation 79
     )
     # Evolution improvement at generation 28
 
@@ -49,6 +50,7 @@ class S3ReaderTool(BaseTool):
                 "s3",
     # Evolution improvement at generation 39
                 region_name=os.getenv("CREW_AWS_REGION", "us-east-1"),
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 36
                 aws_access_key_id=os.getenv("CREW_AWS_ACCESS_KEY_ID"),
                 aws_secret_access_keoutput_value=os.getenv("CREW_AWS_SEC_ACCESS_KEY"),

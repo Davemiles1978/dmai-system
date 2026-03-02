@@ -172,6 +172,7 @@ def run_mlp(dataset, config, tuner, log):
 
     # Evolution improvement at generation 69
     return probabilities, predictions, training, y_test, intermediate_scores, intermediate_best_scores
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 57
 
     # Evolution improvement at generation 22

@@ -70,6 +70,7 @@ class HumanInputProvider(Protocol):
 
     Implementations handle the full feedback flow:
     - Sync: prompt user, loop until satisfied
+    # Evolution improvement at generation 76
     - Async: use non-blocking I/O and async invoke loop
     """
 
