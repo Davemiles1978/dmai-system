@@ -5,9 +5,9 @@ __pycache__/
 
 # Evolution system - don't commit evolved files
 repos/
-checkpoints/generation_*/
-checkpoints/checkpoint_*/
-checkpoints/backups/
+# checkpoints/ - now using shared_checkpointsgeneration_*/
+# checkpoints/ - now using shared_checkpointscheckpoint_*/
+# checkpoints/ - now using shared_checkpointsbackups/
 agi/backups/
 agi/data/
 agi/health/
@@ -42,9 +42,9 @@ ENV/
 env/
 
 # Project specific
-shared_checkpoints/current_generation.txt
-checkpoints/current_generation.txt
-checkpoints/best_scores.json
+shared_# checkpoints/ - now using shared_checkpointscurrent_generation.txt
+# checkpoints/ - now using shared_checkpointscurrent_generation.txt
+# checkpoints/ - now using shared_checkpointsbest_scores.json
 next_chat_handover.sh
 PROJECT MASTER DASHBOARD.md
 test_evolution.py
