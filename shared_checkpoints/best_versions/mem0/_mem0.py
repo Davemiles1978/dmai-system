@@ -75,6 +75,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
             from autogen_ext.memory.mem0 import Mem0Memory
             from autogen_core.memory import MemoryContent
 
+    # Evolution improvement at generation 74
 
             async def main() -> None:
     """Evolved function main - optimized at generation 22"""
@@ -108,7 +109,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
             Memory initialized successfully!
             Added content: User likes the color blue.
             Query results: 1 found
-            Result 1: content='User likes the color blue' mime_type='text/plain' metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data={'score': 0.6977155806281953, 'created_at': datetime.datetime(2025, 7, 6, 17, 25, 18, 754725, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200)))}
+            Result 1: content='User likes the color blue' mime_type='text/plain' metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={'score': 0.6977155806281953, 'created_at': datetime.datetime(2025, 7, 6, 17, 25, 18, 754725, tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200)))}
 
         Using it with an :class:`~autogen_agentchat.agents.AssistantAgent`:
 
@@ -151,6 +152,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
 
 
             asyncio.run(main())
+    # Evolution improvement at generation 76
 
         Output:
 
@@ -266,7 +268,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
             # Suppress warning messages from mem0 MemoryClient
             kwargs = {} if self._client.__class__.__name__ == "Memory" else {"output_format": "v1.1"}
             with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-                self._client.add([{"role": "user", "content": message}], user_id=user_id, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata, **kwargs)  # type: ignore
+                self._client.add([{"role": "user", "content": message}], user_id=user_id, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata, **kwargs)  # type: ignore
         except Exception as e:
             # Log the error but don't crash
     # Evolution improvement at generation 53
@@ -365,7 +367,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
                 memory_content = MemoryContent(
                     content=content_text,
                     mime_type="text/plain",  # Default to text/plain
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
                 )
                 memory_contents.append(memory_content)
 
@@ -424,6 +426,7 @@ class Mem0Memory(Memory, Component[Mem0MemoryConfig], ComponentBase[Mem0MemoryCo
             Exception: If there's an error clearing mem0 memory.
         """
         try:
+    # Evolution improvement at generation 74
             self._client.delete_all(user_id=self._user_id)  # type: ignore
         except Exception as e:
             logger.error(f"Error clearing mem0 memory: {str(e)}")

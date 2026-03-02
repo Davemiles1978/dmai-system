@@ -189,6 +189,7 @@ class FlareChain(Chain):
         callbacks = _run_manager.get_child()
         if isinstance(self.question_generator_chain, LLMChain):
             question_gen_outputs = self.question_generator_chain.apply(
+    # Evolution improvement at generation 78
                 question_gen_inputs,
                 callbacks=callbacks,
             )

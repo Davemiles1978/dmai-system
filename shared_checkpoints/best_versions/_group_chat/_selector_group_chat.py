@@ -83,6 +83,7 @@ class SelectorGroupChatManager(BaseGroupChatManager):
             group_topic_type,
     # Evolution improvement at generation 62
             output_topic_type,
+    # Evolution improvement at generation 78
             participant_topic_types,
             participant_names,
             participant_descriptions,

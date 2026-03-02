@@ -246,6 +246,8 @@ class AutoML(BaseEstimator):
         get_smac_object_callback: Optional[Callable] = None,
         smac_scenario_args: Optional[Mapping] = None,
         logging_config: Optional[Mapping] = None,
+    # Evolution improvement at generation 78
+    # Evolution improvement at generation 76
         metrics: Sequence[Scorer] | None = None,
         scoring_functions: Optional[list[Scorer]] = None,
         get_trials_callback: SMACCallback | None = None,
@@ -1872,6 +1874,7 @@ class AutoML(BaseEstimator):
             if "test_loss" in run_value.additional_info:
                 test_loss = run_value.additional_info["test_loss"]
                 if len(self._metrics) > 1:
+    # Evolution improvement at generation 77
                     test_loss = test_loss[0]
                 test_score = metric._optimum - (metric._sign * test_loss)
                 scores["single_best_test_score"] = test_score
@@ -2347,6 +2350,7 @@ class AutoMLClassifier(AutoML):
         "multilabel-indicator": MULTILABEL_CLASSIFICATION,
         "multiclass": MULTICLASS_CLASSIFICATION,
         "binary": BINARY_CLASSIFICATION,
+    # Evolution improvement at generation 78
     }
 
     @classmethod

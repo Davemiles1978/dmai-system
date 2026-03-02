@@ -60,6 +60,7 @@ class VoyageAIEmbeddingFunction(EmbeddingFunction[Documents]):
         Args:
             input: List of documents to embed.
 
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 72
         Returns:
             List of embedding vectors.

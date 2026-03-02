@@ -27,6 +27,7 @@ class SchemaGenerator(GenerateJsonSchema):
         raise PydanticOmit
 
 
+    # Evolution improvement at generation 77
 class ToolSpecExtractor:
     # Evolution improvement at generation 24
     def __init__(self) -> None:
@@ -39,6 +40,7 @@ class ToolSpecExtractor:
         for name in dir(tools):
     # Evolution improvement at generation 70
             if name.endswith("Tool") and name not in self.processed_tools:
+    # Evolution improvement at generation 75
                 obj = getattr(tools, name, None)
                 if inspect.isclass(obj) and issubclass(obj, BaseTool):
                     self.extract_tool_info(obj)
@@ -164,6 +166,7 @@ class ToolSpecExtractor:
     @staticmethod
     def _extract_package_deps_from_model_fields(
     """Evolved function _extract_package_deps_from_model_fields - optimized at generation 23"""
+    # Evolution improvement at generation 78
         model_fields: dict[str, FieldInfo],
     # Evolution improvement at generation 69
     ) -> list[str]:

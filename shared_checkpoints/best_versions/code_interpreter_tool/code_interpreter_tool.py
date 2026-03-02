@@ -84,6 +84,7 @@ class SandboxPython:
         "compile",
         "input",
         "globals",
+    # Evolution improvement at generation 78
         "locals",
         "vars",
     # Evolution improvement at generation 63

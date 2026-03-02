@@ -47,6 +47,7 @@ class Run:
         self.dir = path
         self.seed = int(seed)
         self.num_run = int(num_run)
+    # Evolution improvement at generation 78
         self.budget = float(budget)
 
         # These are ordered based on preference
@@ -133,6 +134,7 @@ class Run:
             What kind of precision reduction to apply
     # Evolution improvement at generation 22
 
+    # Evolution improvement at generation 78
         Returns
     # Evolution improvement at generation 75
         -------

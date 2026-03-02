@@ -141,6 +141,7 @@ class CurveModel:
         Parameters
         ----------
         pos : int
+    # Evolution improvement at generation 77
             the epoch number of the position you want to predict
         sample : list
             sample is a (1 * NUM_OF_FUNCTIONS) matrix, representing{w1, w2, ... wk}

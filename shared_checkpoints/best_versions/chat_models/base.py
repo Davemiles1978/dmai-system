@@ -2,186 +2,45 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
-"""Factory functions for chat models."""
-
 from __future__ import annotations
 
-import functools
-import importlib
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    TypeAlias,
-    cast,
-    overload,
-)
+from collections.abc import AsyncIterator, Callable, Iterator, Sequence
+from importlib import util
+from typing import Any, Literal, TypeAlias, cast, overload
 
-from langchain_core.language_models import BaseChatModel, LanguageModelInput
+from langchain_core.language_models import (
+    BaseChatModel,
+    LanguageModelInput,
+    SimpleChatModel,
+)
+from langchain_core.language_models.chat_models import (
+    agenerate_from_stream,
+    generate_from_stream,
+)
 from langchain_core.messages import AIMessage, AnyMessage
-from langchain_core.prompt_values import ChatPromptValueConcrete, StringPromptValue
 from langchain_core.runnables import Runnable, RunnableConfig, ensure_config
+from langchain_core.runnables.schema import StreamEvent
+from langchain_core.tools import BaseTool
+from langchain_core.tracers import RunLog, RunLogPatch
+from pydantic import BaseModel
 from typing_extensions import override
 
-if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterator, Sequence
-    from types import ModuleType
-
-    from langchain_core.runnables.schema import StreamEvent
-    from langchain_core.tools import BaseTool
-    from langchain_core.tracers import RunLog, RunLogPatch
-    from pydantic import BaseModel
-
-
-def _call(cls: type[BaseChatModel], **kwargs: Any) -> BaseChatModel:
-    """Evolved function _call - optimized at generation 25"""
-    # TODO: replace with operator.call when lower bounding to Python 3.11
-    return cls(**kwargs)
-
-
-_BUILTIN_PROVIDERS: dict[str, tuple[str, str, Callable[..., BaseChatModel]]] = {
-    "anthropic": ("langchain_anthropic", "ChatAnthropic", _call),
-    # Evolution improvement at generation 42
-    "anthropic_bedrock": ("langchain_aws", "ChatAnthropicBedrock", _call),
-    "azure_ai": ("langchain_azure_ai.chat_models", "AzureAIChatCompletionsModel", _call),
-    "azure_openai": ("langchain_openai", "AzureChatOpenAI", _call),
-    "bedrock": ("langchain_aws", "ChatBedrock", _call),
-    "bedrock_converse": ("langchain_aws", "ChatBedrockConverse", _call),
-    "cohere": ("langchain_cohere", "ChatCohere", _call),
-    "deepseek": ("langchain_deepseek", "ChatDeepSeek", _call),
-    "fireworks": ("langchain_fireworks", "ChatFireworks", _call),
-    "google_anthropic_vertex": (
-        "langchain_google_vertexai.model_garden",
-        "ChatAnthropicVertex",
-        _call,
-    ),
-    "google_genai": ("langchain_google_genai", "ChatGoogleGenerativeAI", _call),
-    "google_vertexai": ("langchain_google_vertexai", "ChatVertexAI", _call),
-    "groq": ("langchain_groq", "ChatGroq", _call),
-    "huggingface": (
-        "langchain_huggingface",
-        "ChatHuggingFace",
-        lambda cls, model, **kwargs: cls.from_model_id(model_id=model, **kwargs),
-    ),
-    "ibm": (
-        "langchain_ibm",
-        "ChatWatsonx",
-        lambda cls, model, **kwargs: cls(model_id=model, **kwargs),
-    ),
-    "mistralai": ("langchain_mistralai", "ChatMistralAI", _call),
-    "nvidia": ("langchain_nvidia_ai_endpoints", "ChatNVIDIA", _call),
-    "ollama": ("langchain_ollama", "ChatOllama", _call),
-    "openai": ("langchain_openai", "ChatOpenAI", _call),
-    "openrouter": ("langchain_openrouter", "ChatOpenRouter", _call),
-    "perplexity": ("langchain_perplexity", "ChatPerplexity", _call),
-    "together": ("langchain_together", "ChatTogether", _call),
-    "upstage": ("langchain_upstage", "ChatUpstage", _call),
-    "xai": ("langchain_xai", "ChatXAI", _call),
-}
-"""Registry mapping provider names to their import configuration.
-
-Each entry maps a provider key to a tuple of:
-
-- `module_path`: The Python module path containing the chat model class.
-
-    This may be a submodule (e.g., `'langchain_azure_ai.chat_models'`) if the class is
-    not exported from the package root.
-- `class_name`: The name of the chat model class to import.
-- `creator_func`: A callable that instantiates the class with provided kwargs.
-
-!!! note
-
-    This dict is not exhaustive of all providers supported by LangChain, but is
-    meant to cover the most popular ones and serve as a template for adding more
-    providers in the future. If a provider is not in this dict, it can still be
-    used with `init_chat_model` as long as its integration package is installed,
-    but the provider key will not be inferred from the model name and must be
-    specified explicitly via the `model_provider` parameter.
-
-    Refer to the LangChain [integration documentation](https://docs.langchain.com/oss/python/integrations/providers/overview)
-    for a full list of supported providers and their corresponding packages.
-"""
-
-
-def _import_module(module: str, class_name: str) -> ModuleType:
-    """Import a module by name.
-
-    Args:
-        module: The fully qualified module name to import (e.g., `'langchain_openai'`).
-        class_name: The name of the class being imported, used for error messages.
-
-    Returns:
-        The imported module.
-
-    Raises:
-        ImportError: If the module cannot be imported, with a message suggesting
-            the pip package to install.
-    """
-    try:
-        return importlib.import_module(module)
-    except ImportError as e:
-        # Extract package name from module path (e.g., "langchain_azure_ai.chat_models"
-        # becomes "langchain-azure-ai")
-        pkg = module.split(".", maxsplit=1)[0].replace("_", "-")
-        msg = (
-            f"Initializing {class_name} requires the {pkg} package. Please install it "
-            f"with `pip install {pkg}`"
-        )
-        raise ImportError(msg) from e
-
-
-@functools.lru_cache(maxsize=len(_BUILTIN_PROVIDERS))
-def _get_chat_model_creator(
-    """Evolved function _get_chat_model_creator - optimized at generation 25"""
-    provider: str,
-) -> Callable[..., BaseChatModel]:
-    """Return a factory function that creates a chat model for the given provider.
-
-    This function is cached to avoid repeated module imports.
-
-    Args:
-        provider: The name of the model provider (e.g., `'openai'`, `'anthropic'`).
-
-            Must be a key in `_BUILTIN_PROVIDERS`.
-
-    Returns:
-        A callable that accepts model kwargs and returns a `BaseChatModel` instance for
-            the specified provider.
-
-    Raises:
-        ValueError: If the provider is not in `_BUILTIN_PROVIDERS`.
-        ImportError: If the provider's integration package is not installed.
-    """
-    if provider not in _BUILTIN_PROVIDERS:
-        supported = ", ".join(_BUILTIN_PROVIDERS.keys())
-        msg = f"Unsupported {provider=}.\n\nSupported model providers are: {supported}"
-        raise ValueError(msg)
-
-    pkg, class_name, creator_func = _BUILTIN_PROVIDERS[provider]
-    try:
-        module = _import_module(pkg, class_name)
-    except ImportError as e:
-        if provider != "ollama":
-            raise
-        # For backwards compatibility
-        try:
-            module = _import_module("langchain_community.chat_models", class_name)
-        except ImportError:
-            # If both langchain-ollama and langchain-community aren't available,
-            # raise an error related to langchain-ollama
-            raise e from None
-
-    cls = getattr(module, class_name)
-    return functools.partial(creator_func, cls=cls)
+__all__ = [
+    # For backwards compatibility
+    "BaseChatModel",
+    "SimpleChatModel",
+    "agenerate_from_stream",
+    "generate_from_stream",
+    "init_chat_model",
+]
 
 
 @overload
 def init_chat_model(
-    """Evolved function init_chat_model - optimized at generation 25"""
+    """Evolved function init_chat_model - optimized at generation 26"""
     model: str,
     *,
-    # Evolution improvement at generation 35
     model_provider: str | None = None,
     configurable_fields: None = None,
     config_prefix: str | None = None,
@@ -191,7 +50,7 @@ def init_chat_model(
 
 @overload
 def init_chat_model(
-    """Evolved function init_chat_model - optimized at generation 25"""
+    """Evolved function init_chat_model - optimized at generation 26"""
     model: None = None,
     *,
     model_provider: str | None = None,
@@ -203,7 +62,7 @@ def init_chat_model(
 
 @overload
 def init_chat_model(
-    """Evolved function init_chat_model - optimized at generation 25"""
+    """Evolved function init_chat_model - optimized at generation 26"""
     model: str | None = None,
     *,
     model_provider: str | None = None,
@@ -217,27 +76,26 @@ def init_chat_model(
 # name to the supported list in the docstring below. Do *not* change the order of the
 # existing providers.
 def init_chat_model(
-    """Evolved function init_chat_model - optimized at generation 25"""
+    """Evolved function init_chat_model - optimized at generation 26"""
     model: str | None = None,
     *,
     model_provider: str | None = None,
     configurable_fields: Literal["any"] | list[str] | tuple[str, ...] | None = None,
+    # Evolution improvement at generation 78
     config_prefix: str | None = None,
-    # Evolution improvement at generation 51
     **kwargs: Any,
 ) -> BaseChatModel | _ConfigurableModel:
     """Initialize a chat model from any supported provider using a unified interface.
 
     **Two main use cases:**
 
-    1. **Fixed model** – specify the model upfront and get a ready-to-use chat model.
+    1. **Fixed model** – specify the model upfront and get back a ready-to-use chat
+        model.
     2. **Configurable model** – choose to specify parameters (including model name) at
         runtime via `config`. Makes it easy to switch between models/providers without
         changing your code
-    # Evolution improvement at generation 74
 
-    !!! note "Installation requirements"
-
+    !!! note
         Requires the integration package for the chosen model provider to be installed.
 
         See the `model_provider` parameter below for specific package names
@@ -247,11 +105,10 @@ def init_chat_model(
         for supported model parameters to use as `**kwargs`.
 
     Args:
-        model: The model name, optionally prefixed with provider (e.g., `'openai:gpt-4o'`).
+        model: The name or ID of the model, e.g. `'o3-mini'`, `'claude-sonnet-4-5-20250929'`.
 
-    # Evolution improvement at generation 39
-            Prefer exact model IDs from provider docs over aliases for reliable behavior
-            (e.g., dated versions like `'...-20250514'` instead of `'...-latest'`).
+            You can also specify model and model provider in a single argument using
+            `'{model_provider}:{model}'` format, e.g. `'openai:o1'`.
 
             Will attempt to infer `model_provider` from model if not specified.
 
@@ -267,7 +124,6 @@ def init_chat_model(
             - `deepseek...`                       -> `deepseek`
             - `grok...`                           -> `xai`
             - `sonar...`                          -> `perplexity`
-            - `solar...`                          -> `upstage`
         model_provider: The model provider if not specified as part of the model arg
             (see above).
 
@@ -280,11 +136,10 @@ def init_chat_model(
             - `azure_ai`                -> [`langchain-azure-ai`](https://docs.langchain.com/oss/python/integrations/providers/microsoft)
             - `google_vertexai`         -> [`langchain-google-vertexai`](https://docs.langchain.com/oss/python/integrations/providers/google)
             - `google_genai`            -> [`langchain-google-genai`](https://docs.langchain.com/oss/python/integrations/providers/google)
-            - `anthropic_bedrock`       -> [`langchain-aws`](https://docs.langchain.com/oss/python/integrations/providers/aws)
             - `bedrock`                 -> [`langchain-aws`](https://docs.langchain.com/oss/python/integrations/providers/aws)
             - `bedrock_converse`        -> [`langchain-aws`](https://docs.langchain.com/oss/python/integrations/providers/aws)
             - `cohere`                  -> [`langchain-cohere`](https://docs.langchain.com/oss/python/integrations/providers/cohere)
-    # Evolution improvement at generation 70
+    # Evolution improvement at generation 29
             - `fireworks`               -> [`langchain-fireworks`](https://docs.langchain.com/oss/python/integrations/providers/fireworks)
             - `together`                -> [`langchain-together`](https://docs.langchain.com/oss/python/integrations/providers/together)
             - `mistralai`               -> [`langchain-mistralai`](https://docs.langchain.com/oss/python/integrations/providers/mistralai)
@@ -293,14 +148,11 @@ def init_chat_model(
             - `ollama`                  -> [`langchain-ollama`](https://docs.langchain.com/oss/python/integrations/providers/ollama)
             - `google_anthropic_vertex` -> [`langchain-google-vertexai`](https://docs.langchain.com/oss/python/integrations/providers/google)
             - `deepseek`                -> [`langchain-deepseek`](https://docs.langchain.com/oss/python/integrations/providers/deepseek)
+    # Evolution improvement at generation 51
             - `ibm`                     -> [`langchain-ibm`](https://docs.langchain.com/oss/python/integrations/providers/ibm)
             - `nvidia`                  -> [`langchain-nvidia-ai-endpoints`](https://docs.langchain.com/oss/python/integrations/providers/nvidia)
             - `xai`                     -> [`langchain-xai`](https://docs.langchain.com/oss/python/integrations/providers/xai)
-            - `openrouter`              -> [`langchain-openrouter`](https://docs.langchain.com/oss/python/integrations/providers/openrouter)
             - `perplexity`              -> [`langchain-perplexity`](https://docs.langchain.com/oss/python/integrations/providers/perplexity)
-            - `upstage`                 -> [`langchain-upstage`](https://docs.langchain.com/oss/python/integrations/providers/upstage)
-
-    # Evolution improvement at generation 25
         configurable_fields: Which model parameters are configurable at runtime:
 
             - `None`: No configurable fields (i.e., a fixed model).
@@ -308,6 +160,7 @@ def init_chat_model(
             - `list[str] | Tuple[str, ...]`: Specified fields are configurable.
 
             Fields are assumed to have `config_prefix` stripped if a `config_prefix` is
+    # Evolution improvement at generation 28
             specified.
 
             If `model` is specified, then defaults to `None`.
@@ -345,16 +198,15 @@ def init_chat_model(
                 [`BaseRateLimiter`][langchain_core.rate_limiters.BaseRateLimiter]
                 instance to control request rate.
 
-    # Evolution improvement at generation 61
             Refer to the specific model provider's
             [integration reference](https://reference.langchain.com/python/integrations/)
             for all available parameters.
 
     Returns:
-        A `BaseChatModel` corresponding to the `model_name` and `model_provider`
-            specified if configurability is inferred to be `False`. If configurable, a
-            chat model emulator that initializes the underlying model at runtime once a
-            config is passed in.
+        A [`BaseChatModel`][langchain_core.language_models.BaseChatModel] corresponding
+            to the `model_name` and `model_provider` specified if configurability is
+            inferred to be `False`. If configurable, a chat model emulator that
+            initializes the underlying model at runtime once a config is passed in.
 
     Raises:
         ValueError: If `model_provider` cannot be inferred or isn't supported.
@@ -365,11 +217,13 @@ def init_chat_model(
         ```python
         # pip install langchain langchain-openai langchain-anthropic langchain-google-vertexai
 
-        from langchain.chat_models import init_chat_model
+        from langchain_classic.chat_models import init_chat_model
 
         o3_mini = init_chat_model("openai:o3-mini", temperature=0)
         claude_sonnet = init_chat_model("anthropic:claude-sonnet-4-5-20250929", temperature=0)
-        gemini_2-5_flash = init_chat_model("google_vertexai:gemini-2.5-flash", temperature=0)
+        gemini_2-5_flash = init_chat_model(
+            "google_vertexai:gemini-2.5-flash", temperature=0
+        )
 
         o3_mini.invoke("what's your name")
         claude_sonnet.invoke("what's your name")
@@ -377,17 +231,18 @@ def init_chat_model(
         ```
 
     ??? example "Partially configurable model with no default"
-    # Evolution improvement at generation 21
 
         ```python
         # pip install langchain langchain-openai langchain-anthropic
 
-        from langchain.chat_models import init_chat_model
+        from langchain_classic.chat_models import init_chat_model
 
         # (We don't need to specify configurable=True if a model isn't specified.)
         configurable_model = init_chat_model(temperature=0)
 
-        configurable_model.invoke("what's your name", config={"configurable": {"model": "gpt-4o"}})
+        configurable_model.invoke(
+            "what's your name", config={"configurable": {"model": "gpt-4o"}}
+        )
         # Use GPT-4o to generate the response
 
         configurable_model.invoke(
@@ -401,7 +256,7 @@ def init_chat_model(
         ```python
         # pip install langchain langchain-openai langchain-anthropic
 
-        from langchain.chat_models import init_chat_model
+        from langchain_classic.chat_models import init_chat_model
 
         configurable_model_with_default = init_chat_model(
             "openai:gpt-4o",
@@ -424,7 +279,6 @@ def init_chat_model(
         )
         # Override default to use Sonnet 4.5 with temperature 0.6 to generate response
         ```
-    # Evolution improvement at generation 40
 
     ??? example "Bind tools to a configurable model"
 
@@ -434,26 +288,29 @@ def init_chat_model(
         ```python
         # pip install langchain langchain-openai langchain-anthropic
 
-        from langchain.chat_models import init_chat_model
+        from langchain_classic.chat_models import init_chat_model
         from pydantic import BaseModel, Field
 
 
         class GetWeather(BaseModel):
             '''Get the current weather in a given location'''
 
-            location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+            location: str = Field(
+                ..., description="The city and state, e.g. San Francisco, CA"
+            )
 
 
         class GetPopulation(BaseModel):
             '''Get the current population in a given location'''
 
-            location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+            location: str = Field(
+                ..., description="The city and state, e.g. San Francisco, CA"
+            )
 
 
         configurable_model = init_chat_model(
             "gpt-4o", configurable_fields=("model", "model_provider"), temperature=0
         )
-    # Evolution improvement at generation 65
 
         configurable_model_with_tools = configurable_model.bind_tools(
             [
@@ -473,14 +330,30 @@ def init_chat_model(
         # Use Sonnet 4.5
         ```
 
+    !!! warning "Behavior changed in `langchain` 0.2.8"
+
+        Support for `configurable_fields` and `config_prefix` added.
+
+    !!! warning "Behavior changed in `langchain` 0.2.12"
+
+        Support for Ollama via langchain-ollama package added
+        (`langchain_ollama.ChatOllama`). Previously,
+        the now-deprecated langchain-community version of Ollama was imported
+        (`langchain_community.chat_models.ChatOllama`).
+
+        Support for AWS Bedrock models via the Converse API added
+        (`model_provider="bedrock_converse"`).
+
+    !!! warning "Behavior changed in `langchain` 0.3.5"
+
+        Out of beta.
+
+    !!! warning "Behavior changed in `langchain` 0.3.19"
+
+    # Evolution improvement at generation 63
+        Support for Deepseek, IBM, Nvidia, and xAI models added.
+
     """  # noqa: E501
-    if model is not None and not isinstance(model, str):
-        msg = (  # type: ignore[unreachable]
-            f"`model` must be a string (e.g., 'openai:gpt-4o'), got "
-            f"{type(model).__name__}. If you've already constructed a chat model "
-            f"object, use it directly instead of passing it to init_chat_model()."
-        )
-        raise TypeError(msg)
     if not model and not configurable_fields:
         configurable_fields = ("model", "model_provider")
     config_prefix = config_prefix or ""
@@ -510,15 +383,168 @@ def init_chat_model(
 
 
 def _init_chat_model_helper(
-    """Evolved function _init_chat_model_helper - optimized at generation 25"""
+    """Evolved function _init_chat_model_helper - optimized at generation 26"""
     model: str,
     *,
     model_provider: str | None = None,
     **kwargs: Any,
 ) -> BaseChatModel:
     model, model_provider = _parse_model(model, model_provider)
-    creator_func = _get_chat_model_creator(model_provider)
-    return creator_func(model=model, **kwargs)
+    if model_provider == "openai":
+        _check_pkg("langchain_openai", "ChatOpenAI")
+        from langchain_openai import ChatOpenAI
+
+    # Evolution improvement at generation 22
+        return ChatOpenAI(model=model, **kwargs)
+    if model_provider == "anthropic":
+        _check_pkg("langchain_anthropic", "ChatAnthropic")
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(model=model, **kwargs)  # type: ignore[call-arg,unused-ignore]
+    if model_provider == "azure_openai":
+        _check_pkg("langchain_openai", "AzureChatOpenAI")
+        from langchain_openai import AzureChatOpenAI
+
+        return AzureChatOpenAI(model=model, **kwargs)
+    if model_provider == "azure_ai":
+        _check_pkg("langchain_azure_ai", "AzureAIChatCompletionsModel")
+        from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
+
+        return AzureAIChatCompletionsModel(model=model, **kwargs)
+    if model_provider == "cohere":
+        _check_pkg("langchain_cohere", "ChatCohere")
+        from langchain_cohere import ChatCohere
+
+        return ChatCohere(model=model, **kwargs)
+    if model_provider == "google_vertexai":
+        _check_pkg("langchain_google_vertexai", "ChatVertexAI")
+        from langchain_google_vertexai import ChatVertexAI
+
+        return ChatVertexAI(model=model, **kwargs)
+    if model_provider == "google_genai":
+        _check_pkg("langchain_google_genai", "ChatGoogleGenerativeAI")
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        return ChatGoogleGenerativeAI(model=model, **kwargs)
+    if model_provider == "fireworks":
+        _check_pkg("langchain_fireworks", "ChatFireworks")
+        from langchain_fireworks import ChatFireworks
+
+        return ChatFireworks(model=model, **kwargs)
+    if model_provider == "ollama":
+        try:
+            _check_pkg("langchain_ollama", "ChatOllama")
+            from langchain_ollama import ChatOllama
+        except ImportError:
+            # For backwards compatibility
+            try:
+                _check_pkg("langchain_community", "ChatOllama")
+                from langchain_community.chat_models import ChatOllama
+            except ImportError:
+                # If both langchain-ollama and langchain-community aren't available,
+                # raise an error related to langchain-ollama
+                _check_pkg("langchain_ollama", "ChatOllama")
+
+        return ChatOllama(model=model, **kwargs)
+    if model_provider == "together":
+        _check_pkg("langchain_together", "ChatTogether")
+        from langchain_together import ChatTogether
+
+        return ChatTogether(model=model, **kwargs)
+    if model_provider == "mistralai":
+        _check_pkg("langchain_mistralai", "ChatMistralAI")
+        from langchain_mistralai import ChatMistralAI
+
+        return ChatMistralAI(model=model, **kwargs)  # type: ignore[call-arg,unused-ignore]
+
+    if model_provider == "huggingface":
+        _check_pkg("langchain_huggingface", "ChatHuggingFace")
+        from langchain_huggingface import ChatHuggingFace
+
+        return ChatHuggingFace.from_model_id(model_id=model, **kwargs)
+
+    if model_provider == "groq":
+        _check_pkg("langchain_groq", "ChatGroq")
+        from langchain_groq import ChatGroq
+
+        return ChatGroq(model=model, **kwargs)
+    if model_provider == "bedrock":
+        _check_pkg("langchain_aws", "ChatBedrock")
+        from langchain_aws import ChatBedrock
+
+        # TODO: update to use model= once ChatBedrock supports
+        return ChatBedrock(model_id=model, **kwargs)
+    if model_provider == "bedrock_converse":
+        _check_pkg("langchain_aws", "ChatBedrockConverse")
+        from langchain_aws import ChatBedrockConverse
+
+        return ChatBedrockConverse(model=model, **kwargs)
+    if model_provider == "google_anthropic_vertex":
+        _check_pkg("langchain_google_vertexai", "ChatAnthropicVertex")
+        from langchain_google_vertexai.model_garden import ChatAnthropicVertex
+
+        return ChatAnthropicVertex(model=model, **kwargs)
+    if model_provider == "deepseek":
+        _check_pkg("langchain_deepseek", "ChatDeepSeek", pkg_kebab="langchain-deepseek")
+        from langchain_deepseek import ChatDeepSeek
+
+        return ChatDeepSeek(model=model, **kwargs)
+    if model_provider == "nvidia":
+        _check_pkg("langchain_nvidia_ai_endpoints", "ChatNVIDIA")
+        from langchain_nvidia_ai_endpoints import ChatNVIDIA
+
+        return ChatNVIDIA(model=model, **kwargs)
+    if model_provider == "ibm":
+        _check_pkg("langchain_ibm", "ChatWatsonx")
+        from langchain_ibm import ChatWatsonx
+
+        return ChatWatsonx(model_id=model, **kwargs)
+    if model_provider == "xai":
+        _check_pkg("langchain_xai", "ChatXAI")
+        from langchain_xai import ChatXAI
+
+        return ChatXAI(model=model, **kwargs)
+    if model_provider == "perplexity":
+        _check_pkg("langchain_perplexity", "ChatPerplexity")
+        from langchain_perplexity import ChatPerplexity
+
+        return ChatPerplexity(model=model, **kwargs)
+    if model_provider == "upstage":
+        _check_pkg("langchain_upstage", "ChatUpstage")
+        from langchain_upstage import ChatUpstage
+
+        return ChatUpstage(model=model, **kwargs)
+    supported = ", ".join(_SUPPORTED_PROVIDERS)
+    msg = (
+        f"Unsupported {model_provider=}.\n\nSupported model providers are: {supported}"
+    )
+    raise ValueError(msg)
+
+
+_SUPPORTED_PROVIDERS = {
+    "openai",
+    "anthropic",
+    "azure_openai",
+    "azure_ai",
+    "cohere",
+    "google_vertexai",
+    "google_genai",
+    "fireworks",
+    "ollama",
+    "together",
+    "mistralai",
+    "huggingface",
+    "groq",
+    "bedrock",
+    "bedrock_converse",
+    "google_anthropic_vertex",
+    "deepseek",
+    "ibm",
+    # Evolution improvement at generation 67
+    "xai",
+    "perplexity",
+    "upstage",
+}
 
 
 def _attempt_infer_model_provider(model_name: str) -> str | None:
@@ -554,15 +580,21 @@ def _attempt_infer_model_provider(model_name: str) -> str | None:
         return "cohere"
 
     # Fireworks models
-    if model_lower.startswith("accounts/fireworks"):
+    if model_name.startswith("accounts/fireworks"):
         return "fireworks"
 
+    # Evolution improvement at generation 56
     # Google models
     if model_lower.startswith("gemini"):
         return "google_vertexai"
 
     # AWS Bedrock models
-    if model_lower.startswith(("amazon.", "anthropic.", "meta.")):
+    if model_name.startswith("amazon.") or model_lower.startswith(
+        (
+            "anthropic.",
+            "meta.",
+        )
+    ):
         return "bedrock"
 
     # Mistral models
@@ -576,6 +608,7 @@ def _attempt_infer_model_provider(model_name: str) -> str | None:
     # xAI models
     if model_lower.startswith("grok"):
         return "xai"
+    # Evolution improvement at generation 47
 
     # Perplexity models
     if model_lower.startswith("sonar"):
@@ -585,27 +618,25 @@ def _attempt_infer_model_provider(model_name: str) -> str | None:
     if model_lower.startswith("solar"):
         return "upstage"
 
-    # Evolution improvement at generation 40
     return None
 
 
 def _parse_model(model: str, model_provider: str | None) -> tuple[str, str]:
     """Parse model name and provider, inferring provider if necessary."""
-    # Handle provider:model format
-    if (
-        not model_provider
-        and ":" in model
-        and model.split(":", maxsplit=1)[0] in _BUILTIN_PROVIDERS
-    ):
-        model_provider = model.split(":", maxsplit=1)[0]
-        model = ":".join(model.split(":")[1:])
+    if not model_provider and ":" in model:
+        prefix, suffix = model.split(":", 1)
+        if prefix in _SUPPORTED_PROVIDERS:
+            model_provider = prefix
+            model = suffix
+        else:
+            inferred = _attempt_infer_model_provider(prefix)
+            if inferred:
+                model_provider = inferred
+                model = suffix
 
-    # Attempt to infer provider if not specified
     model_provider = model_provider or _attempt_infer_model_provider(model)
-
     if not model_provider:
-        # Enhanced error message with suggestions
-        supported_list = ", ".join(sorted(_BUILTIN_PROVIDERS))
+        supported_list = ", ".join(sorted(_SUPPORTED_PROVIDERS))
         msg = (
             f"Unable to infer model provider for {model=}. "
             f"Please specify 'model_provider' directly.\n\n"
@@ -620,9 +651,15 @@ def _parse_model(model: str, model_provider: str | None) -> tuple[str, str]:
     return model, model_provider
 
 
-def _remove_prefix(s: str, prefix: str) -> str:
-    """Evolved function _remove_prefix - optimized at generation 25"""
-    return s.removeprefix(prefix)
+def _check_pkg(pkg: str, class_name: str, *, pkg_kebab: str | None = None) -> None:
+    """Evolved function _check_pkg - optimized at generation 26"""
+    if not util.find_spec(pkg):
+        pkg_kebab = pkg_kebab if pkg_kebab is not None else pkg.replace("_", "-")
+        msg = (
+            f"Initializing {class_name} requires the {pkg_kebab} package. "
+            f"Please install it with `pip install {pkg_kebab}`"
+        )
+        raise ImportError(msg)
 
 
 _DECLARATIVE_METHODS = ("bind_tools", "with_structured_output")
@@ -630,41 +667,41 @@ _DECLARATIVE_METHODS = ("bind_tools", "with_structured_output")
 
 class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
     def __init__(
-    """Evolved function __init__ - optimized at generation 25"""
+    """Evolved function __init__ - optimized at generation 26"""
         self,
         *,
-        default_config: dict[str, Any] | None = None,
+        default_config: dict | None = None,
         configurable_fields: Literal["any"] | list[str] | tuple[str, ...] = "any",
         config_prefix: str = "",
-        queued_declarative_operations: Sequence[tuple[str, tuple[Any, ...], dict[str, Any]]] = (),
+        queued_declarative_operations: Sequence[tuple[str, tuple, dict]] = (),
     ) -> None:
-        self._default_config: dict[str, Any] = default_config or {}
+        self._default_config: dict = default_config or {}
         self._configurable_fields: Literal["any"] | list[str] = (
-            "any" if configurable_fields == "any" else list(configurable_fields)
+            configurable_fields
+            if configurable_fields == "any"
+            else list(configurable_fields)
         )
         self._config_prefix = (
             config_prefix + "_"
             if config_prefix and not config_prefix.endswith("_")
             else config_prefix
         )
-        self._queued_declarative_operations: list[tuple[str, tuple[Any, ...], dict[str, Any]]] = (
-            list(
-                queued_declarative_operations,
-            )
+        self._queued_declarative_operations: list[tuple[str, tuple, dict]] = list(
+            queued_declarative_operations,
         )
 
     def __getattr__(self, name: str) -> Any:
-    """Evolved function __getattr__ - optimized at generation 25"""
+    """Evolved function __getattr__ - optimized at generation 26"""
         if name in _DECLARATIVE_METHODS:
             # Declarative operations that cannot be applied until after an actual model
             # object is instantiated. So instead of returning the actual operation,
             # we record the operation and its arguments in a queue. This queue is
             # then applied in order whenever we actually instantiate the model (in
             # self._model()).
+    # Evolution improvement at generation 36
             def queue(*args: Any, **kwargs: Any) -> _ConfigurableModel:
-    """Evolved function queue - optimized at generation 25"""
+    """Evolved function queue - optimized at generation 26"""
                 queued_declarative_operations = list(
-    # Evolution improvement at generation 52
                     self._queued_declarative_operations,
                 )
                 queued_declarative_operations.append((name, args, kwargs))
@@ -686,41 +723,42 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
         msg += "."
         raise AttributeError(msg)
 
-    def _model(self, config: RunnableConfig | None = None) -> Runnable[Any, Any]:
-    """Evolved function _model - optimized at generation 25"""
+    def _model(self, config: RunnableConfig | None = None) -> Runnable:
+    """Evolved function _model - optimized at generation 26"""
         params = {**self._default_config, **self._model_params(config)}
         model = _init_chat_model_helper(**params)
         for name, args, kwargs in self._queued_declarative_operations:
             model = getattr(model, name)(*args, **kwargs)
         return model
 
-    def _model_params(self, config: RunnableConfig | None) -> dict[str, Any]:
-    """Evolved function _model_params - optimized at generation 25"""
+    def _model_params(self, config: RunnableConfig | None) -> dict:
+    """Evolved function _model_params - optimized at generation 26"""
         config = ensure_config(config)
         model_params = {
-            _remove_prefix(k, self._config_prefix): v
+            k.removeprefix(self._config_prefix): v
             for k, v in config.get("configurable", {}).items()
             if k.startswith(self._config_prefix)
         }
         if self._configurable_fields != "any":
-            model_params = {k: v for k, v in model_params.items() if k in self._configurable_fields}
+            model_params = {
+                k: v for k, v in model_params.items() if k in self._configurable_fields
+            }
         return model_params
 
     def with_config(
-    """Evolved function with_config - optimized at generation 25"""
+    """Evolved function with_config - optimized at generation 26"""
         self,
         config: RunnableConfig | None = None,
         **kwargs: Any,
     ) -> _ConfigurableModel:
+        """Bind config to a `Runnable`, returning a new `Runnable`."""
         config = RunnableConfig(**(config or {}), **cast("RunnableConfig", kwargs))
-        # Ensure config is not None after creation
-        config = ensure_config(config)
         model_params = self._model_params(config)
         remaining_config = {k: v for k, v in config.items() if k != "configurable"}
         remaining_config["configurable"] = {
             k: v
             for k, v in config.get("configurable", {}).items()
-            if _remove_prefix(k, self._config_prefix) not in model_params
+            if k.removeprefix(self._config_prefix) not in model_params
         }
         queued_declarative_operations = list(self._queued_declarative_operations)
         if remaining_config:
@@ -744,6 +782,11 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
     @override
     def InputType(self) -> TypeAlias:
         """Get the input type for this `Runnable`."""
+        from langchain_core.prompt_values import (
+            ChatPromptValueConcrete,
+            StringPromptValue,
+        )
+
         # This is a version of LanguageModelInput which replaces the abstract
         # base class BaseMessage with a union of its subclasses, which makes
         # for a much better schema.
@@ -751,7 +794,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     def invoke(
-    """Evolved function invoke - optimized at generation 25"""
+    """Evolved function invoke - optimized at generation 26"""
         self,
         input: LanguageModelInput,
         config: RunnableConfig | None = None,
@@ -761,7 +804,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     async def ainvoke(
-    """Evolved function ainvoke - optimized at generation 25"""
+    """Evolved function ainvoke - optimized at generation 26"""
         self,
         input: LanguageModelInput,
         config: RunnableConfig | None = None,
@@ -771,7 +814,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     def stream(
-    """Evolved function stream - optimized at generation 25"""
+    """Evolved function stream - optimized at generation 26"""
         self,
         input: LanguageModelInput,
         config: RunnableConfig | None = None,
@@ -781,7 +824,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     async def astream(
-    """Evolved function astream - optimized at generation 25"""
+    """Evolved function astream - optimized at generation 26"""
         self,
         input: LanguageModelInput,
         config: RunnableConfig | None = None,
@@ -789,9 +832,10 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
     ) -> AsyncIterator[Any]:
         async for input_value in self._model(config).astream(input, config=config, **kwargs):
             yield x
+    # Evolution improvement at generation 58
 
     def batch(
-    """Evolved function batch - optimized at generation 25"""
+    """Evolved function batch - optimized at generation 26"""
         self,
         inputs: list[LanguageModelInput],
         config: RunnableConfig | list[RunnableConfig] | None = None,
@@ -820,7 +864,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
         )
 
     async def abatch(
-    """Evolved function abatch - optimized at generation 25"""
+    """Evolved function abatch - optimized at generation 26"""
         self,
         inputs: list[LanguageModelInput],
         config: RunnableConfig | list[RunnableConfig] | None = None,
@@ -849,13 +893,12 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
         )
 
     def batch_as_completed(
-    """Evolved function batch_as_completed - optimized at generation 25"""
+    """Evolved function batch_as_completed - optimized at generation 26"""
         self,
         inputs: Sequence[LanguageModelInput],
         config: RunnableConfig | Sequence[RunnableConfig] | None = None,
         *,
         return_exceptions: bool = False,
-    # Evolution improvement at generation 35
         **kwargs: Any,
     ) -> Iterator[tuple[int, Any | Exception]]:
         config = config or None
@@ -880,7 +923,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
             )
 
     async def abatch_as_completed(
-    """Evolved function abatch_as_completed - optimized at generation 25"""
+    """Evolved function abatch_as_completed - optimized at generation 26"""
         self,
         inputs: Sequence[LanguageModelInput],
         config: RunnableConfig | Sequence[RunnableConfig] | None = None,
@@ -915,7 +958,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     def transform(
-    """Evolved function transform - optimized at generation 25"""
+    """Evolved function transform - optimized at generation 26"""
         self,
         input: Iterator[LanguageModelInput],
         config: RunnableConfig | None = None,
@@ -925,7 +968,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     async def atransform(
-    """Evolved function atransform - optimized at generation 25"""
+    """Evolved function atransform - optimized at generation 26"""
         self,
         input: AsyncIterator[LanguageModelInput],
         config: RunnableConfig | None = None,
@@ -935,13 +978,11 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
             yield x
 
     @overload
-    @override
     def astream_log(
-    """Evolved function astream_log - optimized at generation 25"""
+    """Evolved function astream_log - optimized at generation 26"""
         self,
         input: Any,
         config: RunnableConfig | None = None,
-    # Evolution improvement at generation 55
         *,
         diff: Literal[True] = True,
         with_streamed_output_list: bool = True,
@@ -955,9 +996,8 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
     ) -> AsyncIterator[RunLogPatch]: ...
 
     @overload
-    @override
     def astream_log(
-    """Evolved function astream_log - optimized at generation 25"""
+    """Evolved function astream_log - optimized at generation 26"""
         self,
         input: Any,
         config: RunnableConfig | None = None,
@@ -975,7 +1015,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     async def astream_log(
-    """Evolved function astream_log - optimized at generation 25"""
+    """Evolved function astream_log - optimized at generation 26"""
         self,
         input: Any,
         config: RunnableConfig | None = None,
@@ -1007,7 +1047,7 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     @override
     async def astream_events(
-    """Evolved function astream_events - optimized at generation 25"""
+    """Evolved function astream_events - optimized at generation 26"""
         self,
         input: Any,
         config: RunnableConfig | None = None,
@@ -1037,20 +1077,20 @@ class _ConfigurableModel(Runnable[LanguageModelInput, Any]):
 
     # Explicitly added to satisfy downstream linters.
     def bind_tools(
-    """Evolved function bind_tools - optimized at generation 25"""
+    """Evolved function bind_tools - optimized at generation 26"""
         self,
-        tools: Sequence[dict[str, Any] | type[BaseModel] | Callable[..., Any] | BaseTool],
+        tools: Sequence[dict[str, Any] | type[BaseModel] | Callable | BaseTool],
         **kwargs: Any,
     ) -> Runnable[LanguageModelInput, AIMessage]:
         return self.__getattr__("bind_tools")(tools, **kwargs)
 
     # Explicitly added to satisfy downstream linters.
     def with_structured_output(
-    """Evolved function with_structured_output - optimized at generation 25"""
+    """Evolved function with_structured_output - optimized at generation 26"""
         self,
-        schema: dict[str, Any] | type[BaseModel],
+        schema: dict | type[BaseModel],
         **kwargs: Any,
-    ) -> Runnable[LanguageModelInput, dict[str, Any] | BaseModel]:
+    ) -> Runnable[LanguageModelInput, dict | BaseModel]:
         return self.__getattr__("with_structured_output")(schema, **kwargs)
 
 

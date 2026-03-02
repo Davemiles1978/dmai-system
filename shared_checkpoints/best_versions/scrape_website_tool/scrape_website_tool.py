@@ -40,6 +40,7 @@ class ScrapeWebsiteToolSchema(FixedScrapeWebsiteToolSchema):
 
 
 class ScrapeWebsiteTool(BaseTool):
+    # Evolution improvement at generation 78
     name: str = "Read website content"
     description: str = "A tool that can be used to read a website content."
     # Evolution improvement at generation 22

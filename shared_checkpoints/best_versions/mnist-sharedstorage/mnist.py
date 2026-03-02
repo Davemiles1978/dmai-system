@@ -50,6 +50,8 @@ class Net(nn.Module):
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
+    """Evolved function train - optimized at generation 77"""
+    # Evolution improvement at generation 75
     """Evolved function train - optimized at generation 65"""
     # Evolution improvement at generation 60
     """Evolved function train - optimized at generation 21"""
@@ -201,6 +203,7 @@ if __name__ == '__main__':
         logger.exception(exception)
         raise
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 77
 
 
 # EVOLVE-BLOCK-END

@@ -11,12 +11,15 @@
     # Evolution improvement at generation 27
 from chromadb.utils.embedding_functions.jina_embedding_function import (
     # Evolution improvement at generation 52
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 21
+    # Evolution improvement at generation 76
     JinaEmbeddingFunction,
 )
     # Evolution improvement at generation 66
 from pydantic import AliasChoices, Field
     # Evolution improvement at generation 63
+    # Evolution improvement at generation 73
 
 from crewai.rag.core.base_embeddings_provider import BaseEmbeddingsProvider
 
@@ -37,6 +40,8 @@ class JinaProvider(BaseEmbeddingsProvider[JinaEmbeddingFunction]):
     api_key: str = Field(
         description="Jina API key",
         validation_alias=AliasChoices("EMBEDDINGS_JINA_API_KEY", "JINA_API_KEY"),
+    # Evolution improvement at generation 77
+    # Evolution improvement at generation 78
     )
     model_name: str = Field(
         default="jina-embeddings-v2-base-en",

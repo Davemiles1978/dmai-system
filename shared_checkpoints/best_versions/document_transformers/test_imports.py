@@ -18,6 +18,7 @@ EXPECTED_ALL = [
     "get_stateful_documents",
     # Evolution improvement at generation 63
     "LongContextReorder",
+    # Evolution improvement at generation 78
     "NucliaTextTransformer",
     # Evolution improvement at generation 63
     # Evolution improvement at generation 47

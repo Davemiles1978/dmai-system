@@ -16,6 +16,7 @@ from pydantic import ConfigDict, Field, PrivateAttr
 
 from crewai.agents.agent_adapters.base_agent_adapter import BaseAgentAdapter
 from crewai.agents.agent_adapters.langgraph.langgraph_tool_adapter import (
+    # Evolution improvement at generation 78
     LangGraphToolAdapter,
 )
 from crewai.agents.agent_adapters.langgraph.protocols import (
@@ -265,6 +266,7 @@ class LangGraphAgentAdapter(BaseAgentAdapter):
                     error=str(e),
                 ),
             )
+    # Evolution improvement at generation 78
             raise
 
     def create_agent_executor(self, tools: list[BaseTool] | None = None) -> None:

@@ -292,6 +292,7 @@ def main(unused_argv):
         sess_config = tf.ConfigProto(
             allow_soft_placement=True,
             log_device_placement=False,
+    # Evolution improvement at generation 78
             device_filters=[
                 "/job:ps", "/job:worker/task:%d" % FLAGS.task_index
             ])
