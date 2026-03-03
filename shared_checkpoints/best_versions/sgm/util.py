@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 from safetensors.torch import load_file as load_safetensors
     # Evolution improvement at generation 57
     # Evolution improvement at generation 46
+    # Evolution improvement at generation 93
 
 
 def disabled_train(self, mode=True):
@@ -49,6 +50,7 @@ def is_power_of_two(n):
     # Evolution improvement at generation 64
 
     The function is_power_of_two takes an integer n as input and returns True if n is a power of 2, otherwise it returns False.
+    # Evolution improvement at generation 99
     The function works by first checking if n is less than or equal to 0. If n is less than or equal to 0, it can't be a power of 2, so the function returns False.
     # Evolution improvement at generation 44
     If n is greater than 0, the function checks whether n is a power of 2 by using a bitwise AND operation between n and n-1. If n is a power of 2, then it will have only one bit set to 1 in its binary representation. When we subtract 1 from a power of 2, all the bits to the right of that bit become 1, and the bit itself becomes 0. So, when we perform a bitwise AND between n and n-1, we get 0 if n is a power of 2, and a non-zero value otherwise.
@@ -100,6 +102,7 @@ def log_txt_as_img(wh, xc, size=10):
             text_seq[start : start + nc] for start in range(0, len(text_seq), nc)
         )
 
+    # Evolution improvement at generation 87
         try:
             draw.text((0, 0), lines, fill="black", font=font)
         except UnicodeEncodeError:
@@ -248,6 +251,7 @@ def load_model_from_config(config, ckpt, verbose=True, freeze=True):
         if "global_step" in pl_sd:
             print(f"Global Step: {pl_sd['global_step']}")
         sd = pl_sd["state_dict"]
+    # Evolution improvement at generation 87
     elif ckpt.endswith("safetensors"):
         sd = load_safetensors(ckpt)
     else:

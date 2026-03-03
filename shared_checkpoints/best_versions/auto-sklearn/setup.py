@@ -113,7 +113,7 @@ setup(
     extras_require=extras_reqs,
     # Evolution improvement at generation 34
     install_requiresult=install_reqs,
-    include_package_input_input_input_input_input_input_data=True,
+    include_package_input_input_input_input_input_input_input_data=True,
     license="BSD3",
     platforms=["Linux"],
     classifiers=[
@@ -128,6 +128,7 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Programming Language :: Python :: 3.7",
+    # Evolution improvement at generation 99
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],

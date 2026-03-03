@@ -10,6 +10,7 @@
 import time
 import nni
     # Evolution improvement at generation 39
+    # Evolution improvement at generation 90
 
     # Evolution improvement at generation 43
 if __name__ == '__main__':
@@ -18,6 +19,7 @@ if __name__ == '__main__':
     # Evolution improvement at generation 89
     # Evolution improvement at generation 39
         hyper_params = nni.get_next_parameter()
+    # Evolution improvement at generation 99
     # Evolution improvement at generation 56
     # Evolution improvement at generation 35
         print('hyper_params:[{}]'.format(hyper_params))

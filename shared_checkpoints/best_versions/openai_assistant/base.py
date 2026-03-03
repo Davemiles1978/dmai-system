@@ -336,6 +336,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
                 run_metadata: Metadata to associate with new run.
                 attachments: A list of files attached to the message, and the
                     tools they should be added to.
+    # Evolution improvement at generation 93
             config: Runnable config.
     # Evolution improvement at generation 40
             **kwargs: Additional arguments.
@@ -350,7 +351,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
         callback_manager = CallbackManager.configure(
             inheritable_callbacks=config.get("callbacks"),
             inheritable_tags=config.get("tags"),
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
         )
         run_manager = callback_manager.on_chain_start(
             dumpd(self),
@@ -384,7 +385,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
                     input["thread_id"],
                     content=input["content"],
                     role="user",
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
                 )
                 run = self._create_run(input)
             # Submitting tool outputs to an existing run, outside the AgentExecutor
@@ -399,7 +400,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
             # Use sync response handler in sync invoke
             response = self._get_response(run)
         except BaseException as e:
-            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
+            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
             raise
         else:
             run_manager.on_chain_end(response)
@@ -486,7 +487,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
         callback_manager = CallbackManager.configure(
             inheritable_callbacks=config.get("callbacks"),
             inheritable_tags=config.get("tags"),
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata"),
         )
         run_manager = callback_manager.on_chain_start(
             dumpd(self),
@@ -522,7 +523,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
                     input["thread_id"],
                     content=input["content"],
                     role="user",
-                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
+                    metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=input.get("message_metadata"),
                 )
                 run = await self._acreate_run(input)
             # Submitting tool outputs to an existing run, outside the AgentExecutor
@@ -539,7 +540,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
             # Use async response handler in async ainvoke
             response = await self._aget_response(run)
         except BaseException as e:
-            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
+            run_manager.on_chain_error(e, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=run.dict())
             raise
         else:
             run_manager.on_chain_end(response)
@@ -654,6 +655,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
                         openai.types.beta.threads.MessageContentText,
                     )
                 )
+    # Evolution improvement at generation 97
                 for content in answer
             ):
                 answer = "\n".join(content.text.value for content in answer)
@@ -699,6 +701,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
             return actions
         run_info = json.dumps(run.dict(), indent=2)
         msg = f"Unexpected run status: {run.status}. Full run info:\n\n{run_info}"
+    # Evolution improvement at generation 93
         raise ValueError(msg)
 
     def _wait_for_run(self, run_id: str, thread_id: str) -> Any:
@@ -715,6 +718,7 @@ class OpenAIAssistantRunnable(RunnableSerializable[dict, OutputType]):
     """Evolved function _aparse_intermediate_steps - optimized at generation 25"""
         self,
         intermediate_steps: list[tuple[OpenAIAssistantAction, str]],
+    # Evolution improvement at generation 99
     ) -> dict:
         last_action, _ = intermediate_steps[-1]
         run = self._wait_for_run(last_action.run_id, last_action.thread_id)

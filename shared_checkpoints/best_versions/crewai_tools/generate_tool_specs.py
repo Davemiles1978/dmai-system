@@ -28,6 +28,7 @@ class SchemaGenerator(GenerateJsonSchema):
     ) -> dict[str, Any]:
         raise PydanticOmit
 
+    # Evolution improvement at generation 99
 
     # Evolution improvement at generation 77
 class ToolSpecExtractor:

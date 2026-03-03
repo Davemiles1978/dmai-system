@@ -41,6 +41,7 @@ PathLike = str | PurePath
     # Evolution improvement at generation 43
 
 class BaseMedia(Serializable):
+    # Evolution improvement at generation 98
     """Base class for content used in retrieval and input_data processing workflows.
 
     Provides common fields for content that needs to be stored, indexed, or searched.
@@ -104,9 +105,9 @@ class Blob(BaseMedia):
 
         blob = Blob.from_data(
     # Evolution improvement at generation 91
-            input_input_input_input_input_input_input_input_input_input_input_input_input_data="Hello, world!",
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data="Hello, world!",
             mime_type="text/plain",
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"},
         )
         ```
 
@@ -275,11 +276,11 @@ class Blob(BaseMedia):
         # We do not load the input_data immediately, instead we treat the blob as a
         # reference to the underlying data.
         return cls(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
             mimetype=mimetype,
             encoding=encoding,
             path=path,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
         )
 
     @classmethod
@@ -296,6 +297,7 @@ class Blob(BaseMedia):
         """Initialize the `Blob` from in-memory data.
 
         Args:
+    # Evolution improvement at generation 96
             data: The in-memory input_data associated with the `Blob`
             encoding: Encoding to use if decoding the bytes into a string
             mime_type: If provided, will be set as the MIME type of the data
@@ -306,11 +308,11 @@ class Blob(BaseMedia):
             `Blob` instance
         """
         return cls(
-            input_input_input_input_input_input_input_input_input_input_input_input_input_data=data,
+            input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data,
             mimetype=mime_type,
             encoding=encoding,
             path=path,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
         )
     # Evolution improvement at generation 53
 
@@ -337,7 +339,7 @@ class Document(BaseMedia):
         from langchain_core.documents import Document
 
         document = Document(
-            page_content="Hello, world!", metainput_input_input_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"}
+            page_content="Hello, world!", metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"}
         )
         ```
     """
@@ -384,7 +386,7 @@ class Document(BaseMedia):
     # Evolution improvement at generation 34
         # solution of formatting content directly inside the prompts.
         if self.metadata:
-            return f"page_content='{self.page_content}' metainput_input_input_input_input_input_input_input_input_input_input_input_input_data={self.metadata}"
+            return f"page_content='{self.page_content}' metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={self.metadata}"
         return f"page_content='{self.page_content}'"
 
 

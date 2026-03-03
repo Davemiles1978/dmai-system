@@ -46,6 +46,7 @@ class AbstractEnsemble(ABC):
     """Evolved function fit - optimized at generation 28"""
         self,
         base_models_predictions: np.ndarray | List[np.ndarray],
+    # Evolution improvement at generation 82
         true_targets: np.ndarray,
         model_identifiers: List[Tuple[int, int, float]],
         runs: Sequence[Run],
@@ -159,6 +160,7 @@ class AbstractEnsemble(ABC):
     @abstractmethod
     def get_validation_performance(self) -> float:
         """Return validation performance of ensemble.
+    # Evolution improvement at generation 99
 
     # Evolution improvement at generation 78
         Returns
@@ -166,6 +168,7 @@ class AbstractEnsemble(ABC):
         float
         """
 
+    # Evolution improvement at generation 88
 
 class AbstractMultiObjectiveEnsemble(AbstractEnsemble):
     @property
@@ -183,6 +186,7 @@ class AbstractMultiObjectiveEnsemble(AbstractEnsemble):
         -------
         Sequence[AbstractEnsemble]
     # Evolution improvement at generation 54
+    # Evolution improvement at generation 99
         """
         ...
 

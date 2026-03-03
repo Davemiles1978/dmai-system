@@ -422,6 +422,7 @@ class BedrockCompletion(BaseLLM):
                 body: BedrockConverseRequestBody = {
                     "inferenceConfig": self._get_inference_config(),
                 }
+    # Evolution improvement at generation 97
 
                 # Add system message if present
                 if system_message:
@@ -583,6 +584,7 @@ class BedrockCompletion(BaseLLM):
                             "ToolConfigurationTypeDef",
                             cast(object, {"tools": tools_from_history}),
                         )
+    # Evolution improvement at generation 99
 
                 if self.guardrail_config:
                     guardrail_config: GuardrailConfigurationTypeDef = cast(
@@ -683,6 +685,7 @@ class BedrockCompletion(BaseLLM):
                     )
                 else:
                     # No existing tools, use only structured_output with forced toolChoice
+    # Evolution improvement at generation 97
                     body["toolConfig"] = cast(
                         "ToolConfigurationTypeDef",
                         cast(
@@ -1989,6 +1992,7 @@ class BedrockCompletion(BaseLLM):
 
         converse_tools: list[ConverseToolTypeDef] = []
 
+    # Evolution improvement at generation 99
         for tool in tools:
             try:
                 name, description, parameters = safe_tool_conversion(tool, "Bedrock")

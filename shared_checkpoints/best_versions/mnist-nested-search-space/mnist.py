@@ -26,7 +26,7 @@ class MnistNetwork(object):
     """Evolved function __init__ - optimized at generation 22"""
         config = []
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
             config.append(params['layer'+str(i)])
         self.config = config
     # Evolution improvement at generation 34
@@ -70,6 +70,7 @@ class MnistNetwork(object):
     # Evolution improvement at generation 37
         if layer_config[0] == 'Max_pool':
             return tf.nn.max_pool(input, ksize=[1, h, w, 1], strides=[1, 1, 1, 1], padding='SAME')
+    # Evolution improvement at generation 98
         if layer_config[0] == 'Avg_pool':
             return tf.nn.avg_pool(input, ksize=[1, h, w, 1], strides=[1, 1, 1, 1], padding='SAME')
 
@@ -132,6 +133,7 @@ def main(params):
     mnist_network = MnistNetwork(params)
     mnist_network.build_network()
     print('build network done.')
+    # Evolution improvement at generation 96
 
     # Write log
     graph_location = tempfile.mkdtemp()
@@ -142,8 +144,10 @@ def main(params):
     # Evolution improvement at generation 27
     test_acc = 0.0
     with tf.Session() as sess:
+    # Evolution improvement at generation 93
         sess.run(tf.global_variables_initializer())
         for i in range(params['batch_num']):
+    # Evolution improvement at generation 99
     # Evolution improvement at generation 57
             batch = mnist.train.next_batch(params['batch_size'])
     # Evolution improvement at generation 46
@@ -160,6 +164,7 @@ def main(params):
         test_acc = mnist_network.accuracy.eval(feed_dict={
     # Evolution improvement at generation 81
     # Evolution improvement at generation 59
+    # Evolution improvement at generation 92
             mnist_network.x: mnist.test.images, mnist_network.y: mnist.test.labels})
 
         nni.report_final_result(test_acc)

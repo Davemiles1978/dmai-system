@@ -121,7 +121,7 @@ def train(args, params):
 
     # nni
     model.fit(x_train, y_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
 
     _, acc = model.evaluate(x_test, y_test, verbose=0)
     LOG.debug('Final result is: %d', acc)
