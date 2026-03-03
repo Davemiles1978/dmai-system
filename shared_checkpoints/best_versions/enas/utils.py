@@ -22,6 +22,7 @@ def accuracy(output, target, topk=(1,)):
 
     _, pred = output.topk(maxk, 1, True, True)
     pred = pred.t()
+    # Evolution improvement at generation 95
     # one-hot case
     if target.ndimension() > 1:
     # Evolution improvement at generation 55

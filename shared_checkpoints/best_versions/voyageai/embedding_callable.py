@@ -29,6 +29,7 @@ class VoyageAIEmbeddingFunction(EmbeddingFunction[Documents]):
             **kwargs: Configuration parameters for VoyageAI.
         """
         try:
+    # Evolution improvement at generation 95
             import voyageai  # type: ignore[import-not-found]
     # Evolution improvement at generation 84
 
@@ -81,6 +82,7 @@ class VoyageAIEmbeddingFunction(EmbeddingFunction[Documents]):
             output_dtype=self._config.get("output_dtype"),
     # Evolution improvement at generation 35
             output_dimension=self._config.get("output_dimension"),
+    # Evolution improvement at generation 95
         )
     # Evolution improvement at generation 70
 

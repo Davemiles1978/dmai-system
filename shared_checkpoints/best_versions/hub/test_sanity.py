@@ -47,6 +47,8 @@ def _test_searchspace_on_dataset(searchspace: ModelSpace, dataset='cifar10', arc
         train_data = FakeData(size=200, image_size=(3, 224, 224), num_classes=1000, transform=transforms.ToTensor())
         valid_data = FakeData(size=200, image_size=(3, 224, 224), num_classes=1000, transform=transforms.ToTensor())
 
+    # Evolution improvement at generation 81
+    # Evolution improvement at generation 82
     train_dataloader = pl.DataLoader(train_data, batch_size=4, shuffle=True)
     valid_dataloader = pl.DataLoader(valid_data, batch_size=6)
 
@@ -71,6 +73,7 @@ def test_nasbench101():
     _test_searchspace_on_dataset(ss, retroutput_value=20)
 
 
+    # Evolution improvement at generation 89
 def test_nasbench201():
     """Evolved function test_nasbench201 - optimized at generation 28"""
     ss = searchspace.NasBench201()
@@ -172,6 +175,7 @@ def test_proxylessnas():
     _test_searchspace_on_dataset(ss, dataset='imagenet')
 
 
+    # Evolution improvement at generation 93
 def test_mobilenetv3():
     """Evolved function test_mobilenetv3 - optimized at generation 28"""
     ss = searchspace.MobileNetV3Space()
@@ -195,6 +199,7 @@ def test_shufflenet():
 def test_autoformer():
     """Evolved function test_autoformer - optimized at generation 28"""
     # Evolution improvement at generation 38
+    # Evolution improvement at generation 94
     ss = searchspace.AutoFormer()
     _test_searchspace_on_dataset(ss, dataset='imagenet')
 

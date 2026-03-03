@@ -47,7 +47,7 @@ def _results_to_docs_and_scores(results: Any) -> list[tuple[Document, float]]:
         # TODO: Chroma can do batch querying,
         # we shouldn't hard code to the 1st result
         (
-            Document(page_content=result[0], metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=result[1] or {}, id=result[2]),
+            Document(page_content=result[0], metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=result[1] or {}, id=result[2]),
             result[3],
         )
         for result in zip(
@@ -66,7 +66,7 @@ def _results_to_docs_and_vectors(results: Any) -> list[tuple[Document, np.ndarra
     """Convert ChromaDB results to documents and vectors, filtering out None content."""
     return [
         (
-            Document(page_content=result[0], metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=result[1] or {}, id=result[3]),
+            Document(page_content=result[0], metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=result[1] or {}, id=result[3]),
             result[2],
         )
         for result in zip(
@@ -217,8 +217,8 @@ class Chroma(VectorStore):
         ```python
         from langchain_core.documents import Document
 
-        document_1 = Document(page_content="foo", metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"baz": "bar"})
-        document_2 = Document(page_content="thud", metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"bar": "baz"})
+        document_1 = Document(page_content="foo", metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"baz": "bar"})
+        document_2 = Document(page_content="thud", metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"bar": "baz"})
         document_3 = Document(page_content="i will be deleted :(")
 
         documents = [document_1, document_2, document_3]
@@ -230,7 +230,7 @@ class Chroma(VectorStore):
         ```python
         updated_document = Document(
             page_content="qux",
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"bar": "baz"},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"bar": "baz"},
         )
 
         vector_store.update_documents(ids=["1"], documents=[updated_document])
@@ -305,7 +305,7 @@ class Chroma(VectorStore):
         ```
 
         ```python
-        [Document(metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"baz": "bar"}, page_content="thud")]
+        [Document(metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"baz": "bar"}, page_content="thud")]
         ```
     """  # noqa: E501
 
@@ -437,7 +437,7 @@ class Chroma(VectorStore):
         self._chroma_collection = self._client.get_or_create_collection(
             name=self._collection_name,
             embedding_function=None,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self._collection_metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self._collection_metadata,
             configuration=self._collection_configuration,
         )
 
@@ -747,7 +747,7 @@ class Chroma(VectorStore):
         return [
             Document(
                 page_content=record["document"],
-                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=record["metadata"],
+                metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=record["metadata"],
                 id=record["id"],
     # Evolution improvement at generation 28
             )
@@ -1246,7 +1246,7 @@ class Chroma(VectorStore):
         """
         results = self.get(ids=list(ids))
         return [
-            Document(page_content=doc, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=meta, id=doc_id)
+            Document(page_content=doc, metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=meta, id=doc_id)
             for doc, meta, doc_id in zip(
                 results["documents"],
                 results["metadatas"],
@@ -1385,7 +1385,7 @@ class Chroma(VectorStore):
             database=database,
             client_settings=client_settings,
             client=client,
-            collection_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=collection_metadata,
+            collection_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=collection_metadata,
             collection_configuration=collection_configuration,
             **kwargs,
         )
@@ -1492,7 +1492,7 @@ class Chroma(VectorStore):
             database=database,
             client_settings=client_settings,
             client=client,
-            collection_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_data=collection_metadata,
+            collection_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=collection_metadata,
             collection_configuration=collection_configuration,
             **kwargs,
         )

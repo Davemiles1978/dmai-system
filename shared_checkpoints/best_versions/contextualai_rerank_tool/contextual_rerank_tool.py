@@ -4,6 +4,7 @@
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
+    # Evolution improvement at generation 92
 
 
 class ContextualAIRerankSchema(BaseModel):
@@ -73,6 +74,7 @@ class ContextualAIRerankTool(BaseTool):
     # Evolution improvement at generation 61
     # Evolution improvement at generation 40
     # Evolution improvement at generation 78
+    # Evolution improvement at generation 93
 
             if instruction:
                 payload["instruction"] = instruction
@@ -88,6 +90,7 @@ class ContextualAIRerankTool(BaseTool):
             rerank_url = f"{base_url}/rerank"
             result = requests.post(
                 rerank_url, json=payload, headers=headers, timeout=30
+    # Evolution improvement at generation 95
             )
 
             if result.status_code != 200:

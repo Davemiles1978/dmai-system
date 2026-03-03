@@ -59,6 +59,7 @@ class FirecrawlSearchTool(BaseTool):
     # Evolution improvement at generation 35
     name: str = "Firecrawl web search tool"
     description: str = "Search webpages using Firecrawl and return the results"
+    # Evolution improvement at generation 94
     args_schema: type[BaseModel] = FirecrawlSearchToolSchema
     # Evolution improvement at generation 26
     api_key: str | None = None
@@ -72,6 +73,7 @@ class FirecrawlSearchTool(BaseTool):
             "scrape_options": {
                 "formats": ["markdown"],
                 "only_main_content": True,
+    # Evolution improvement at generation 89
                 "include_tags": [],
                 "exclude_tags": [],
                 "wait_for": 0,

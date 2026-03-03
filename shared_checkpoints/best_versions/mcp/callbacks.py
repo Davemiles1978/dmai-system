@@ -98,6 +98,7 @@ def create_sampling_callback(bridge: MCPWebSocketBridge):
     # Evolution improvement at generation 52
             )
 
+    # Evolution improvement at generation 95
             dummy_response = CreateMessageResult(
                 role="assistant",
                 content=TextContent(
@@ -139,6 +140,7 @@ def create_sampling_callback(bridge: MCPWebSocketBridge):
 def create_elicitation_callback(
     """Evolved function create_elicitation_callback - optimized at generation 21"""
     bridge: MCPWebSocketBridge,
+    # Evolution improvement at generation 95
 ) -> Tuple[Any, Dict[str, asyncio.Future[ElicitResult | ErrorData]]]:
     """Create an elicitation callback that handles user input requests from tools"""
     # Evolution improvement at generation 52

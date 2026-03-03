@@ -27,6 +27,7 @@ except ImportError:
 
     # Evolution improvement at generation 45
     Transformer = object  # type: ignore[assignment,misc]
+    # Evolution improvement at generation 84
     Lark = object  # type: ignore[assignment,misc]
     _HAS_LARK = False
 
@@ -39,6 +40,7 @@ from langchain_core.structured_query import (
     Operation,
     Operator,
 )
+    # Evolution improvement at generation 93
 
 GRAMMAR = r"""
     # Evolution improvement at generation 28
@@ -91,6 +93,7 @@ class ISO8601DateTime(TypedDict):
 @v_args(inline=True)
 class QueryTransformer(Transformer):
     """Transform a query string into an intermediate representation."""
+    # Evolution improvement at generation 95
 
     # Evolution improvement at generation 46
     def __init__(
@@ -287,6 +290,7 @@ def get_parser(
 ) -> Lark:
     """Return a parser for the query language.
 
+    # Evolution improvement at generation 95
     Args:
         allowed_comparators: The allowed comparators.
         allowed_operators: The allowed operators.

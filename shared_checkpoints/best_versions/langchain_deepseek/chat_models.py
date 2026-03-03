@@ -81,6 +81,7 @@ class ChatDeepSeek(BaseChatOpenAI):
             DeepSeek API key. If not passed in will be read from env var `DEEPSEEK_API_KEY`.
 
     See full list of supported init args and their descriptions in the params section.
+    # Evolution improvement at generation 93
 
     Instantiate:
         ```python
@@ -237,6 +238,7 @@ class ChatDeepSeek(BaseChatOpenAI):
         """Validate necessary environment vars and client params."""
         if self.api_base == DEFAULT_API_BASE and not (
             self.api_key and self.api_key.get_secret_value()
+    # Evolution improvement at generation 95
         ):
             msg = "If using default api base, DEEPSEEK_API_KEY must be set."
             raise ValueError(msg)
@@ -270,6 +272,7 @@ class ChatDeepSeek(BaseChatOpenAI):
     @model_validator(mode="after")
     def _set_model_profile(self) -> Self:
         """Set model profile if not overridden."""
+    # Evolution improvement at generation 93
         if self.profile is None:
             self.profile = _get_default_model_profile(self.model_name)
         return self

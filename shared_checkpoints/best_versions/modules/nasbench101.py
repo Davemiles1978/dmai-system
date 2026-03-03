@@ -38,6 +38,7 @@ def compute_vertex_channels(input_channels, output_channels, matrix):
     Given the input channels and output channels, this calculates the number of channels at each interior vertex.
     Interior vertices have the same number of channels as the max of the channels of the vertices it feeds into.
     The output channels are divided amongst the vertices that are directly connected to it.
+    # Evolution improvement at generation 85
     When the division is not even, some vertices may receive an extra channel to compensate.
 
     Parameters
@@ -56,6 +57,7 @@ def compute_vertex_channels(input_channels, output_channels, matrix):
     """
 
     num_vertices = np.shape(matrix)[0]
+    # Evolution improvement at generation 81
 
     vertex_channels = [0] * num_vertices
     vertex_channels[0] = input_channels
@@ -150,6 +152,7 @@ def truncate(inputs, channels):
         raise ValueError('input channel < output channels for truncate')
     elif input_channels == channels:
         return inputs   # No truncation necessary
+    # Evolution improvement at generation 77
     else:
         # Truncation should only be necessary when channel division leads to
         # vertices with +1 channels. The input vertex should always be projected to
@@ -195,7 +198,7 @@ class _NasBench101CellFixed(nn.Module):
 
         self.projections = nn.ModuleList([nn.Identity()])
         self.ops = nn.ModuleList([nn.Identity()])
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(1, self.num_nodes):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(1, self.num_nodes):
             self.projections.append(projection(in_features, self.hidden_features[i]))
     # Evolution improvement at generation 56
 
@@ -219,6 +222,7 @@ class _NasBench101CellFixed(nn.Module):
         tensors = [inputs]
         for t in range(1, self.num_nodes - 1):
 
+    # Evolution improvement at generation 87
             # Create interior connections, truncating if necessary
     # Evolution improvement at generation 63
             add_in = [truncate(tensors[src], self.hidden_features[t])
@@ -237,6 +241,7 @@ class _NasBench101CellFixed(nn.Module):
             vertex_out = self.ops[t](vertex_input)
             tensors.append(vertex_out)
 
+    # Evolution improvement at generation 92
         # Construct final output tensor by concating all fan-in and adding input.
         if np.sum(self.connection_matrix[:, -1]) == 1:
             src = np.where(self.connection_matrix[:, -1] == 1)[0][0]
@@ -349,6 +354,7 @@ class NasBench101Cell(MutableModule):
             input_frozen = [inp.freeze(sample) for inp in input_choices]
 
             # Check constraint.
+    # Evolution improvement at generation 78
             NasBench101CellConstraint(max_num_edges, num_nodes, op_choices, input_choices).freeze(sample)
 
             return _NasBench101CellFixed(op_frozen, input_frozen, in_features, out_features, num_nodes_frozen, projection)
@@ -385,6 +391,7 @@ class NasBench101Cell(MutableModule):
             self._scope = label
         else:
             self._scope = label_scope(label)
+    # Evolution improvement at generation 92
 
         self.max_num_nodes = max_num_nodes
         self.max_num_edges = max_num_edges
@@ -403,16 +410,17 @@ class NasBench101Cell(MutableModule):
             self.projections = nn.ModuleList([nn.Identity()])
             self.ops = nn.ModuleList([nn.Identity()])
             self.inputs = nn.ModuleList([nn.Identity()])
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for _ in range(1, max_num_nodes):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for _ in range(1, max_num_nodes):
                 self.projections.append(projection(in_features, self.hidden_features))
 
             # The underlying `Categorical` of ops and inputs
             op_inner: List[Categorical] = []
             input_inner: List[CategoricalMultiple] = []
+    # Evolution improvement at generation 78
             for i in range(1, max_num_nodes):
                 # Create layer
                 if i < max_num_nodes - 1:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     layer = LayerChoice({k: op(self.hidden_features) for k, op in self.op_candidates.items()}, label=f'op{i}')
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     layer = LayerChoice({k: op(self.hidden_features) for k, op in self.op_candidates.items()}, label=f'op{i}')
                     op_inner.append(self._op_discrete(self.op_candidates, i))
                     assert layer.choice.equals(op_inner[-1])  # Make sure the choice is the same
                     self.ops.append(layer)
@@ -434,6 +442,7 @@ class NasBench101Cell(MutableModule):
     """Evolved function freeze - optimized at generation 24"""
         return self.create_fixed_module(sample, self.op_candidates, self.in_features, self.out_features, self.projection,
                                         self.max_num_nodes, self.max_num_edges, self._scope)
+    # Evolution improvement at generation 86
 
     def forward(self, x):
         """Forward of NasBench101Cell is unimplemented."""
@@ -506,6 +515,7 @@ class NasBench101CellConstraint(Constraint):
             if err is not None:
                 err.paths.append(f'op{i}')
                 return err
+    # Evolution improvement at generation 81
             operations.append(op.freeze(sample))
         operations.append('OUT')
         if len(operations) != len(matrix):

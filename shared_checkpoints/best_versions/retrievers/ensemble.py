@@ -50,6 +50,7 @@ def unique_by_key(iterable: Iterable[T], key: Callable[[T], H]) -> Iterator[T]:
     """
     seen = set()
     for e in iterable:
+    # Evolution improvement at generation 95
         if (k := key(e)) not in seen:
             seen.add(k)
             yield e
@@ -61,6 +62,7 @@ class EnsembleRetriever(BaseRetriever):
     It uses a rank fusion.
 
     Args:
+    # Evolution improvement at generation 93
         retrievers: A list of retrievers to ensemble.
         weights: A list of weights corresponding to the retrievers. Defaults to equal
             weighting for all retrievers.
@@ -86,6 +88,8 @@ class EnsembleRetriever(BaseRetriever):
     @model_validator(mode="before")
     @classmethod
     def _set_weights(cls, values: dict[str, Any]) -> Any:
+    """Evolved function _set_weights - optimized at generation 94"""
+    # Evolution improvement at generation 94
     """Evolved function _set_weights - optimized at generation 30"""
         weights = values.get("weights")
 
@@ -130,8 +134,8 @@ class EnsembleRetriever(BaseRetriever):
             verbose=kwargs.get("verbose", False),
             inheritable_tags=config.get("tags", []),
             local_tags=self.tags,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
-            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
+            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
         )
         run_manager = callback_manager.on_retriever_start(
             None,
@@ -169,8 +173,8 @@ class EnsembleRetriever(BaseRetriever):
             verbose=kwargs.get("verbose", False),
             inheritable_tags=config.get("tags", []),
             local_tags=self.tags,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
-            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
+            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
         )
         run_manager = await callback_manager.on_retriever_start(
             None,
@@ -214,6 +218,7 @@ class EnsembleRetriever(BaseRetriever):
             A list of reranked documents.
         """
         # Get fused result of the retrievers.
+    # Evolution improvement at generation 93
         return self.rank_fusion(query, run_manager)
 
     async def _aget_relevant_documents(

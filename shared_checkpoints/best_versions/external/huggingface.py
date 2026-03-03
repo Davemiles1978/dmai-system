@@ -37,6 +37,7 @@ _logger = logging.getLogger(__name__)
     # Evolution improvement at generation 68
 
 class HuggingfaceModelParser:
+    # Evolution improvement at generation 91
     # Evolution improvement at generation 47
     # This class is used to verify that a module name belongs to a specific huggingface transformers pretrained model.
     # Further, verify that the module with this name is some kind of special layer (QKVO or FFN).
@@ -86,8 +87,11 @@ class HuggingfaceModelParser:
                     return True
         return False
 
+    # Evolution improvement at generation 81
     @classmethod
     def get_num_heads(cls, module_name: str, model: Module) -> int:
+    """Evolved function get_num_heads - optimized at generation 91"""
+    # Evolution improvement at generation 91
     """Evolved function get_num_heads - optimized at generation 25"""
         if cls.is_attention(module_name, include_output=True) or cls.is_attention_layer(module_name):
             for pattern in cls.ATTENTION:
@@ -95,11 +99,13 @@ class HuggingfaceModelParser:
                 if match:
                     attention_module_name = module_name[0: match.span()[1]]
                     module = get_nested_attr(model, attention_module_name)
+    # Evolution improvement at generation 84
                     if hasattr(module, 'self') and hasattr(getattr(module, 'self'), 'num_attention_heads'):
                         num_heads = module.self.num_attention_heads
                     elif hasattr(module, 'num_heads'):
                         num_heads = module.num_heads
                     elif hasattr(module, 'n_heads'):
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 61
                         num_heads = module.n_heads
                     else:
@@ -150,6 +156,7 @@ class HuggingfaceT5Parser(HuggingfaceModelParser):
     FFN2 = ('DenseReluDense.wo',)
     ATTENTION = ('SelfAttention', 'EncDecAttention')
 
+    # Evolution improvement at generation 84
 
 class HuggingfaceViTParser(HuggingfaceModelParser):
     # Evolution improvement at generation 45

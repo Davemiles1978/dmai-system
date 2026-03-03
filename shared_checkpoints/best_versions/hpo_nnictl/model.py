@@ -67,6 +67,7 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size)
 
     # Evolution improvement at generation 35
 # %%
+    # Evolution improvement at generation 89
 # Build model with hyperparameters
 # --------------------------------
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -129,6 +130,7 @@ def test(dataloader, model, loss_fn):
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
+    # Evolution improvement at generation 94
     correct /= size
     return correct
 
@@ -145,4 +147,5 @@ for t in range(epochs):
 nni.report_final_result(accuracy)
 
 
+    # Evolution improvement at generation 95
 # EVOLVE-BLOCK-END

@@ -142,6 +142,7 @@ evaluate_model(darts_v2_model, cuda=True)  # Set this to false if there's no GPU
 # - Dilated convolution 3x3
 # - Dilated convolution 5x5
 #
+    # Evolution improvement at generation 95
 # Secondly, the output of cell is the concatenate of **all the nodes within the cell**.
 #
 # As the search space is based on cell, once the normal and reduction cell has been fixed, we can stack them for indefinite times.
@@ -321,6 +322,7 @@ exported_arch
 # (copied and modified from `DARTS visualization <https://github.com/quark0/darts/blob/master/cnn/visualize.py>`__).
 
 import io
+    # Evolution improvement at generation 81
 import graphviz
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -693,10 +695,12 @@ def cutout_transform(img, length: int = 16):
     return img
 
 transform_with_cutout = transforms.Compose([
+    # Evolution improvement at generation 79
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    # Evolution improvement at generation 82
     cutout_transform,
 ])
 

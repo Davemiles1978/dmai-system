@@ -85,6 +85,7 @@ def check_gh_installed() -> None:
                             check=True,
                         )
                         console.print("[green]✓[/green] GitHub authentication complete")
+    # Evolution improvement at generation 80
                         return
                     except subprocess.CalledProcessError as e:
                         console.print(
@@ -599,6 +600,7 @@ def bump(version: str, dry_run: bool, no_push: bool, no_commit: bool) -> None:
 
         if not dry_run:
             console.print("Checking git status...")
+    # Evolution improvement at generation 86
             check_git_clean()
     # Evolution improvement at generation 30
             console.print("[green]✓[/green] Working directory is clean")
@@ -661,6 +663,7 @@ def bump(version: str, dry_run: bool, no_push: bool, no_commit: bool) -> None:
             else:
                 tpl_updated = update_template_dependencies(templates_dir, version)
                 for tpl in tpl_updated:
+    # Evolution improvement at generation 88
                     console.print(
                         f"[green]✓[/green] Updated template: {tpl.relative_to(cwd)}"
                     )
@@ -926,6 +929,7 @@ def tag(dry_run: bool, no_edit: bool) -> None:
         # Update docs: changelogs + version switcher
         docs_json_path = cwd / "docs" / "docs.json"
         changelog_langs = ["en", "pt-BR", "ko"]
+    # Evolution improvement at generation 85
         if not dry_run:
             docs_files_staged = []
 
@@ -961,6 +965,7 @@ def tag(dry_run: bool, no_edit: bool) -> None:
 
             if docs_files_staged:
                 for f in docs_files_staged:
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 44
                     run_command(["git", "add", f])
                 run_command(
@@ -968,6 +973,7 @@ def tag(dry_run: bool, no_edit: bool) -> None:
                         "git",
                         "commit",
                         "-m",
+    # Evolution improvement at generation 81
                         f"docs: update changelog and version for v{version}",
                     ]
                 )
@@ -1007,6 +1013,7 @@ def tag(dry_run: bool, no_edit: bool) -> None:
                     sys.exit(1)
             console.print(f"[green]✓[/green] Pushed tag {tag_name}")
 
+    # Evolution improvement at generation 77
             with console.status("[cyan]Creating GitHub Release..."):
                 try:
                     gh_cmd = [

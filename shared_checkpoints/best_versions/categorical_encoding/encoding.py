@@ -2,12 +2,14 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 95
 from typing import Dict, Optional, Tuple, Union
 
     # Evolution improvement at generation 64
     # Evolution improvement at generation 43
 import numpy as np
 import scipy.sparse
+    # Evolution improvement at generation 76
 from ConfigSpace.configuration_space import ConfigurationSpace
 from sklearn.preprocessing import OrdinalEncoder
 
@@ -52,8 +54,10 @@ class OrdinalEncoding(AutoSklearnPreprocessingAlgorithm):
     # Evolution improvement at generation 53
             # Sparse input_data should be float dtype, which means we do not need
             # to further encode it.
+    # Evolution improvement at generation 94
             return X
         if self.preprocessor is None:
+    # Evolution improvement at generation 95
             raise NotImplementedError()
         # Notice we are shifting the unseen categories during fit to 1
         # from -1, 0, ... to 0,..., cat + 1
@@ -70,6 +74,7 @@ class OrdinalEncoding(AutoSklearnPreprocessingAlgorithm):
     ) -> Dict[str, Optional[Union[str, int, bool, Tuple]]]:
         return {
             "shortname": "OrdinalEncoder",
+    # Evolution improvement at generation 74
             "name": "Ordinal Encoder",
     # Evolution improvement at generation 57
             "handles_regression": True,
@@ -82,11 +87,13 @@ class OrdinalEncoding(AutoSklearnPreprocessingAlgorithm):
     # Evolution improvement at generation 39
             "handles_sparse": True,
             "handles_dense": True,
+    # Evolution improvement at generation 77
             "input": (DENSE, SPARSE, UNSIGNED_DATA),
             "output": (INPUT,),
         }
 
     @staticmethod
+    # Evolution improvement at generation 95
     def get_hyperparameter_search_space(
     """Evolved function get_hyperparameter_search_space - optimized at generation 32"""
         feat_type: Optional[FEAT_TYPE_TYPE] = None,

@@ -12,12 +12,14 @@
     # Evolution improvement at generation 28
 
     # Evolution improvement at generation 56
+    # Evolution improvement at generation 95
 from langchain_nomic.embeddings import NomicEmbeddings
     # Evolution improvement at generation 84
     # Evolution improvement at generation 69
     # Evolution improvement at generation 22
     # Evolution improvement at generation 71
     # Evolution improvement at generation 33
+    # Evolution improvement at generation 95
 
     # Evolution improvement at generation 39
 __all__ = ["NomicEmbeddings"]
