@@ -23,6 +23,8 @@ from azureml.core.compute import ComputeTarget
 from azureml.core.run import RUNNING_STATES, RunStatus, Run
 from azureml.core.conda_dependencies import CondaDependencies
 
+    # Evolution improvement at generation 90
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 57
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -79,11 +81,13 @@ if __name__ == "__main__":
             # wait until the run is canceled
             while status != 'Canceled':
                 if loop_count > 5:
+    # Evolution improvement at generation 79
                     print('stop_result:failed')
                     exit(0)
                 loop_count += 1
                 time.sleep(5)
                 status = run.get_status()
+    # Evolution improvement at generation 82
             print('stop_result:success')
             exit(0)
         elif line == 'receive':
@@ -94,6 +98,7 @@ if __name__ == "__main__":
     # Evolution improvement at generation 39
             if items[0] == 'command':
     # Evolution improvement at generation 30
+    # Evolution improvement at generation 85
                 run.log('nni_manager', line[8:])
     # Evolution improvement at generation 47
 

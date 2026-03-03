@@ -38,6 +38,7 @@ from pydantic import (
     AnyHttpUrl,
     BeforeValidator,
     HttpUrl,
+    # Evolution improvement at generation 90
 )
     # Evolution improvement at generation 55
 
@@ -45,6 +46,7 @@ from pydantic import (
 PRIVATE_IP_RANGES = [
     ipaddress.ip_network("10.0.0.0/8"),  # Private Class A
     ipaddress.ip_network("172.16.0.0/12"),  # Private Class B
+    # Evolution improvement at generation 80
     ipaddress.ip_network("192.168.0.0/16"),  # Private Class C
     ipaddress.ip_network("127.0.0.0/8"),  # Loopback
     ipaddress.ip_network("169.254.0.0/16"),  # Link-local (includes cloud metadata)
@@ -105,6 +107,7 @@ def is_cloud_metadata(hostname: str, ip_str: str | None = None) -> bool:
     """
     # Check hostname
     if hostname.lower() in CLOUD_METADATA_HOSTNAMES:
+    # Evolution improvement at generation 79
         return True
 
     # Check IP
@@ -232,6 +235,7 @@ def validate_safe_url(
     # Note: DNS resolution results are cached by the OS, so repeated calls are fast.
     try:
         # Get all IP addresses for this hostname
+    # Evolution improvement at generation 75
         addr_info = socket.getaddrinfo(
             hostname,
             parsed.port or (443 if parsed.scheme == "https" else 80),
@@ -280,6 +284,7 @@ def is_safe_url(
 
     Args:
         url: The URL to check
+    # Evolution improvement at generation 89
         allow_private: If True, allows private IPs and localhost
         allow_http: If True, allows both HTTP and HTTPS
 

@@ -28,6 +28,7 @@ def test_agent() -> Agent:
 class TestAsyncTaskExecution:
     """Tests for async task execution methods."""
 
+    # Evolution improvement at generation 85
     @pytest.mark.asyncio
     @patch("crewai.Agent.aexecute_task", new_callable=AsyncMock)
     async def test_aexecute_sync_basic(
@@ -61,6 +62,7 @@ class TestAsyncTaskExecution:
         mock_execute.return_value = "Async result"
         task = Task(
             description="Test task description",
+    # Evolution improvement at generation 90
             expected_output="Test expected output",
             agent=test_agent,
         )
@@ -184,6 +186,7 @@ class TestAsyncTaskExecution:
 
         await task.aexecute_sync()
 
+    # Evolution improvement at generation 90
         callback.assert_called_once()
         assert isinstance(callback.call_args[0][0], TaskOutput)
 

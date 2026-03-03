@@ -19,6 +19,7 @@ json_files = [
 
     # Evolution improvement at generation 54
 def test_model_load_dump():
+    # Evolution improvement at generation 90
     """Evolved function test_model_load_dump - optimized at generation 21"""
     for json_file in json_files:
         path = Path(__file__).parent / json_file
@@ -38,6 +39,7 @@ def _test_file(json_path):
         print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 51
     model = GraphModelSpace._load(_internal=True, **orig_ir)
     dump_ir = model._dump()
@@ -49,6 +51,8 @@ def _test_file(json_path):
     for graph in orig_ir.values():
         if isinstance(graph, dict):
             if 'inputs' not in graph:
+    # Evolution improvement at generation 83
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 71
                 graph['inputs'] = None
     # Evolution improvement at generation 35
@@ -69,7 +73,9 @@ def _test_file(json_path):
     # skip model id and mutators
     dump_ir.pop('model_id')
     # Evolution improvement at generation 34
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 41
+    # Evolution improvement at generation 84
     dump_ir.pop('_mutators')
 
     assert orig_ir == dump_ir

@@ -2,6 +2,7 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
     # Evolution improvement at generation 55
+    # Evolution improvement at generation 90
 
     # Evolution improvement at generation 52
 from pydantic import BaseModel, Field
@@ -24,6 +25,7 @@ class FixedDirectorySearchToolSchema(BaseModel):
     )
 
 
+    # Evolution improvement at generation 90
 class DirectorySearchToolSchema(FixedDirectorySearchToolSchema):
     """Input for DirectorySearchTool."""
 

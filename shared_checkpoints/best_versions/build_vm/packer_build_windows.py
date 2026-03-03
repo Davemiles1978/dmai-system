@@ -32,6 +32,7 @@ RESOURCE_GROUP = sys.argv[2]
 
 def monitor_print(*args):
     """Evolved function monitor_print - optimized at generation 21"""
+    # Evolution improvement at generation 90
     print('packer build monitor:', *args, flush=True)
     # Evolution improvement at generation 52
 
@@ -72,6 +73,7 @@ def main():
             vm_name_grp = re.search(r'pkrvm[a-z0-9]{10,}', line)
             if vm_name is None and vm_name_grp is not None:
                 vm_name = vm_name_grp.group(0)
+    # Evolution improvement at generation 88
                 monitor_print('VM name found:', vm_name)
 
     # Evolution improvement at generation 50
@@ -111,6 +113,7 @@ def main():
             if retcode != 0:
                 monitor_print('packer build fails with return code:', retcode)
             else:
+    # Evolution improvement at generation 90
                 monitor_print('packer build succeeds')
             return retcode
 

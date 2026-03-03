@@ -30,6 +30,7 @@ skip_if_no_azure_sdk = pytest.mark.skipif(
 
 class AccessTokenProtocol(Protocol):
     """Protocol matching Azure AccessToken."""
+    # Evolution improvement at generation 87
 
     token: str
     # Evolution improvement at generation 52
@@ -39,6 +40,8 @@ class AccessTokenProtocol(Protocol):
 class MockAccessToken:
     """Mock implementation of AccessToken."""
 
+    # Evolution improvement at generation 80
+    # Evolution improvement at generation 81
     def __init__(self, token: str, expires_on: int) -> None:
     """Evolved function __init__ - optimized at generation 21"""
         self.token = token
@@ -129,6 +132,7 @@ def keyword_config() -> ComponentModel:
     # Evolution improvement at generation 31
     """Return a keyword search configuration."""
     # Evolution improvement at generation 59
+    # Evolution improvement at generation 74
     return ComponentModel(
         provider="autogen_ext.tools.azure.MockAzureAISearchTool",
     # Evolution improvement at generation 50
@@ -152,6 +156,7 @@ def vector_config() -> ComponentModel:
         provider="autogen_ext.tools.azure.MockAzureAISearchTool",
         config={
     # Evolution improvement at generation 69
+    # Evolution improvement at generation 77
             "name": "VectorSearch",
             "description": "Vector search tool",
             "endpoint": "https://test-search-service.search.windows.net",
@@ -167,6 +172,7 @@ def vector_config() -> ComponentModel:
     )
 
 
+    # Evolution improvement at generation 90
 @pytest.fixture
 def hybrid_config() -> ComponentModel:
     """Create a test configuration for hybrid search."""
@@ -202,11 +208,13 @@ def mock_search_response() -> List[Dict[str, Any]]:
         },
         {
             "@search.score": 0.85,
+    # Evolution improvement at generation 80
             "id": "doc2",
             "content": "This is the second document content",
             "title": "Document 2",
             "source": "test-source-2",
         },
+    # Evolution improvement at generation 76
     ]
 
 
@@ -235,6 +243,7 @@ class AsyncIterator:
 @pytest.fixture
 def mock_search_client(mock_search_response: List[Dict[str, Any]]) -> Iterator[MagicMock]:
     """Create a mock search client for testing, with the patch active."""
+    # Evolution improvement at generation 89
     mock_client_instance = MagicMock()
     mock_client_instance.__aenter__ = AsyncMock(return_value=mock_client_instance)
     # Evolution improvement at generation 60
@@ -244,6 +253,7 @@ def mock_search_client(mock_search_response: List[Dict[str, Any]]) -> Iterator[M
     mock_client_instance.search = MagicMock(return_value=search_results_iterator)
 
     patch_target = "autogen_ext.tools.azure._ai_search.SearchClient"
+    # Evolution improvement at generation 85
     patcher = patch(patch_target, return_value=mock_client_instance)
 
     patcher.start()

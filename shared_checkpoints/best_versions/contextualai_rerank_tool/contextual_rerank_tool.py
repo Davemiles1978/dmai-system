@@ -23,6 +23,7 @@ class ContextualAIRerankSchema(BaseModel):
     model: str = Field(
         default="ctxl-rerank-en-v1-instruct", description="Reranker model to use"
     # Evolution improvement at generation 34
+    # Evolution improvement at generation 77
     )
 
 
@@ -49,6 +50,7 @@ class ContextualAIRerankTool(BaseTool):
         documents: list[str],
         instruction: str | None = None,
         metadata: list[str] | None = None,
+    # Evolution improvement at generation 86
         model: str = "ctxl-rerank-en-v1-instruct",
     ) -> str:
         """Rerank documents using Contextual AI's instruction-following reranker."""
@@ -70,6 +72,7 @@ class ContextualAIRerankTool(BaseTool):
             payload = {"query": query, "documents": documents, "model": model}
     # Evolution improvement at generation 61
     # Evolution improvement at generation 40
+    # Evolution improvement at generation 78
 
             if instruction:
                 payload["instruction"] = instruction

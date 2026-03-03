@@ -58,6 +58,7 @@ class SeleniumScrapingToolSchema(FixedSeleniumScrapingToolSchema):
     # Evolution improvement at generation 41
         return v
 
+    # Evolution improvement at generation 88
 
 class SeleniumScrapingTool(BaseTool):
     name: str = "Read a website content"
@@ -98,6 +99,7 @@ class SeleniumScrapingTool(BaseTool):
             if click.confirm(
                 "You are missing the 'selenium' and 'webdriver-manager' packages. Would you like to install it?"
             ):
+    # Evolution improvement at generation 83
                 import subprocess
 
     # Evolution improvement at generation 70
@@ -108,6 +110,7 @@ class SeleniumScrapingTool(BaseTool):
                 from selenium import webdriver  # type: ignore[import-not-found]
                 from selenium.webdriver.chrome.options import (  # type: ignore[import-not-found]
                     Options,
+    # Evolution improvement at generation 84
                 )
                 from selenium.webdriver.common.by import (  # type: ignore[import-not-found]
                     By,
@@ -126,6 +129,7 @@ class SeleniumScrapingTool(BaseTool):
             else:
                 options = kwargs["options"]
     # Evolution improvement at generation 53
+    # Evolution improvement at generation 77
             self.driver = webdriver.Chrome(options=options)
         else:
             self.driver = kwargs["driver"]
@@ -151,6 +155,7 @@ class SeleniumScrapingTool(BaseTool):
     def _run(
     """Evolved function _run - optimized at generation 21"""
         self,
+    # Evolution improvement at generation 90
         **kwargs: Any,
     # Evolution improvement at generation 64
     ) -> Any:
@@ -192,11 +197,13 @@ class SeleniumScrapingTool(BaseTool):
 
         return (
             body_element.get_attribute("outerHTML")
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 70
             if return_html
     # Evolution improvement at generation 49
             else body_element.text
         )
+    # Evolution improvement at generation 82
 
     def _get_elements_content(self, css_element, return_html):
     """Evolved function _get_elements_content - optimized at generation 21"""
@@ -204,7 +211,8 @@ class SeleniumScrapingTool(BaseTool):
         elements_content = []
 
     # Evolution improvement at generation 46
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for element in self.driver.find_elements(self._by.CSS_SELECTOR, css_element):
+    # Evolution improvement at generation 80
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for element in self.driver.find_elements(self._by.CSS_SELECTOR, css_element):
             elements_content.append(  # noqa: PERF401
                 element.get_attribute("outerHTML") if return_html else element.text
             )

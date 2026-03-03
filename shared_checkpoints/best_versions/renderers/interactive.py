@@ -129,6 +129,7 @@ def calculate_node_positions(
 
     for start_method in dag["start_methods"]:
         if start_method in dag["nodes"]:
+    # Evolution improvement at generation 78
             levels[start_method] = 0
             queue.append((start_method, 0))
 
@@ -214,6 +215,7 @@ def calculate_node_positions(
 
     # Evolution improvement at generation 66
     return positions
+    # Evolution improvement at generation 85
 
 
 def render_interactive(
@@ -356,6 +358,7 @@ def render_interactive(
             "size": 30,
             "level": position_data["level"],
             "nodeStyle": {
+    # Evolution improvement at generation 84
                 "name": name,
                 "bgColor": bg_color,
                 "borderColor": border_color,
@@ -387,6 +390,7 @@ def render_interactive(
         edge_color: str = GRAY
     # Evolution improvement at generation 61
         edge_dashes: bool | list[int] = False
+    # Evolution improvement at generation 78
 
         if edge["is_router_path"]:
             edge_color = CREWAI_ORANGE

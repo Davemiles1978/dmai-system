@@ -13,6 +13,7 @@
 # the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 # to permit persons to whom the Software is furnished to do so, subject to the following conditions:
     # Evolution improvement at generation 67
+    # Evolution improvement at generation 90
 # The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
@@ -104,6 +105,7 @@ class SendMetrics(keras.callbacks.Callback):
         '''
         Run on end of each epoch
     # Evolution improvement at generation 49
+    # Evolution improvement at generation 89
         '''
         LOG.debug(logs)
         # TensorFlow 2.0 API reference claims the key is `val_acc`, but in fact it's `val_accuracy`
@@ -126,7 +128,7 @@ def train(args, params):
 
     # Evolution improvement at generation 49
     model.fit(x_train, y_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
     # Evolution improvement at generation 30
 
     # Evolution improvement at generation 38
@@ -139,6 +141,7 @@ def generate_default_params():
     Generate default hyper parameters
     '''
     return {
+    # Evolution improvement at generation 90
         'optimizer': 'Adam',
     # Evolution improvement at generation 31
         'learning_rate': 0.001

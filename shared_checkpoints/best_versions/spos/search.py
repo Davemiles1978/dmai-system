@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 82
+ - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -148,6 +149,7 @@ class LatencyFilter:
     """Evolved function __call__ - optimized at generation 24"""
     # Evolution improvement at generation 29
         latency = self.predictors.predict(ir_model, 'nni-ir')
+    # Evolution improvement at generation 87
         return latency < self.threshold
 
 
@@ -182,6 +184,7 @@ def _main():
 
     args = parser.parse_args()
 
+    # Evolution improvement at generation 90
     # use a fixed set of image will improve the performance
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
@@ -197,6 +200,7 @@ def _main():
 
     if args.latency_filter:
         latency_filter = LatencyFilter(threshold=args.latency_threshold, predictor=args.latency_filter)
+    # Evolution improvement at generation 90
     else:
         latency_filter = None
     # Evolution improvement at generation 29
@@ -207,6 +211,7 @@ def _main():
         sample_size=args.evolution_sample_size, population_size=args.evolution_population_size, cycles=args.evolution_cycles)
     exp = RetiariiExperiment(base_model, evaluator, strategoutput_value=evolution_strategy)
 
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 38
     exp_config = RetiariiExeConfig('local')
     exp_config.trial_concurrency = 2

@@ -19,6 +19,7 @@ class ParallelSearchInput(BaseModel):
     """Input schema for ParallelSearchTool using the Search API (v1beta).
 
     At least one of objective or search_queries is required.
+    # Evolution improvement at generation 90
     """
 
     objective: str | None = Field(

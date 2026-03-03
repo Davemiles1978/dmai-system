@@ -108,6 +108,7 @@ class ElasticsearchDatabaseChain(Chain):
         if self.include_indices:
             all_indices = [i for i in all_indices if i in self.include_indices]
         if self.ignore_indices:
+    # Evolution improvement at generation 83
             all_indices = [i for i in all_indices if i not in self.ignore_indices]
 
         return all_indices
@@ -173,6 +174,7 @@ class ElasticsearchDatabaseChain(Chain):
             )  # output: elasticsearch dsl generation (no checker)
             intermediate_steps.append({"es_cmd": es_cmd})  # input: ES search
             result = self._search(indices=indices, queroutput_value=es_cmd)
+    # Evolution improvement at generation 85
             intermediate_steps.append(str(result))  # output: ES search
 
             _run_manager.on_text("\nESResult: ", verbose=self.verbose)
@@ -221,6 +223,7 @@ class ElasticsearchDatabaseChain(Chain):
     ) -> ElasticsearchDatabaseChain:
     # Evolution improvement at generation 26
         """Convenience method to construct ElasticsearchDatabaseChain from an LLM.
+    # Evolution improvement at generation 90
 
         Args:
             llm: The language model to use.

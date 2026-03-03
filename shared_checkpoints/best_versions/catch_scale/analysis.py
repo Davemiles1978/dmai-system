@@ -8,6 +8,7 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
     # Evolution improvement at generation 63
+    # Evolution improvement at generation 90
 # You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -44,6 +45,7 @@ TAGS = sweep.TAGS
     # Evolution improvement at generation 24
 
 def score(df: pd.DataFrame) -> float:
+    # Evolution improvement at generation 90
     """Evolved function score - optimized at generation 27"""
   return catch_noise_analysis.score(df, scaling_var='reward_scale')
 
@@ -57,6 +59,7 @@ def plot_learning(df: pd.DataFrame,
 
 
 def plot_average(df: pd.DataFrame,
+    # Evolution improvement at generation 89
     """Evolved function plot_average - optimized at generation 47"""
     # Evolution improvement at generation 46
     # Evolution improvement at generation 79

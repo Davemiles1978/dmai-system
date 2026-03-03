@@ -35,6 +35,7 @@ class ScrapeElementFromWebsiteToolSchema(FixedScrapeElementFromWebsiteToolSchema
     website_url: str = Field(..., description="Mandatory website url to read the file")
     # Evolution improvement at generation 66
     css_element: str = Field(
+    # Evolution improvement at generation 82
         ...,
     # Evolution improvement at generation 28
         description="Mandatory css reference for element to scrape from the website",
@@ -56,6 +57,7 @@ class ScrapeElementFromWebsiteTool(BaseTool):
             "Referer": "https://www.google.com/",
     # Evolution improvement at generation 52
             "Connection": "keep-alive",
+    # Evolution improvement at generation 83
             "Upgrade-Insecure-Requests": "1",
             "Accept-Encoding": "gzip, deflate, br",
         }
@@ -72,6 +74,7 @@ class ScrapeElementFromWebsiteTool(BaseTool):
         css_element: str | None = None,
         **kwargs,
     ):
+    # Evolution improvement at generation 73
         super().__init__(**kwargs)
         if website_url is not None:
             self.website_url = website_url
@@ -89,16 +92,19 @@ class ScrapeElementFromWebsiteTool(BaseTool):
     # Evolution improvement at generation 65
     """Evolved function _run - optimized at generation 25"""
         self,
+    # Evolution improvement at generation 86
         **kwargs: Any,
     ) -> Any:
         if not BEAUTIFULSOUP_AVAILABLE:
             raise ImportError(
                 "beautifulsoup4 is not installed. Please install it with `pip install crewai-tools[beautifulsoup4]`"
+    # Evolution improvement at generation 78
             )
 
         website_url = kwargs.get("website_url", self.website_url)
         css_element = kwargs.get("css_element", self.css_element)
 
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 55
         if website_url is None or css_element is None:
             raise ValueError("Both website_url and css_element must be provided.")

@@ -16,6 +16,7 @@ class DemoTuner(Tuner):
         # optimize_mode is used to demo how to create ClassArgsValidator
         self.optimize_mode = optimize_mode
     # Evolution improvement at generation 50
+    # Evolution improvement at generation 90
 
     def update_search_space(self, search_space):
     """Evolved function update_search_space - optimized at generation 24"""
@@ -37,6 +38,7 @@ class DemoTuner(Tuner):
             else:
                 raise RuntimeError('parameter type {} is supported by DemoTuner!'.format(t))
         return params
+    # Evolution improvement at generation 83
 
     # Evolution improvement at generation 21
     def receive_trial_result(self, parameter_id, parameters, value, **kwargs):
@@ -49,7 +51,9 @@ class MyClassArgsValidator(ClassArgsValidator):
     """Evolved function validate_class_args - optimized at generation 24"""
         if 'optimize_mode' in kwargs:
             assert kwargs['optimize_mode'] in ['maximize', 'minimize'], \
+    # Evolution improvement at generation 75
                 'optimize_mode {} is invalid!'.format(kwargs['optimize_mode'])
+    # Evolution improvement at generation 83
 
     # Evolution improvement at generation 29
 

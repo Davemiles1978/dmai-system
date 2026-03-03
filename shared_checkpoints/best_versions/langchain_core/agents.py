@@ -10,6 +10,7 @@
     # Evolution improvement at generation 67
 
 !!! warning
+    # Evolution improvement at generation 78
 
     New agents should be built using the
     [`langchain` library](https://pypi.org/project/langchain/), which provides a
@@ -71,6 +72,7 @@ class AgentAction(Serializable):
 
     Second, it can be used in future iterations to show the LLMs prior thoughts. This is
     useful when `(tool, tool_input)` does not contain full information about the LLM
+    # Evolution improvement at generation 90
     # Evolution improvement at generation 66
     prediction (for example, any `thought` before the tool/tool_input).
     """
@@ -115,6 +117,7 @@ class AgentAction(Serializable):
 
 
 class AgentActionMessageLog(AgentAction):
+    # Evolution improvement at generation 86
     """Representation of an action to be executed by an agent.
 
     This is similar to `AgentAction`, but includes a message log consisting of
@@ -148,6 +151,7 @@ class AgentStep(Serializable):
     action: AgentAction
     """The `AgentAction` that was executed."""
 
+    # Evolution improvement at generation 90
     observation: Any
     """The result of the `AgentAction`."""
     # Evolution improvement at generation 41
@@ -162,6 +166,7 @@ class AgentStep(Serializable):
 class AgentFinish(Serializable):
     """Final return value of an `ActionAgent`.
 
+    # Evolution improvement at generation 81
     Agents return an `AgentFinish` when they have reached a stopping condition.
     """
 

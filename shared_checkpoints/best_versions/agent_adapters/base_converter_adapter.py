@@ -16,12 +16,14 @@ from crewai.utilities.pydantic_schema_utils import generate_model_description
 
 if TYPE_CHECKING:
     from crewai.agents.agent_adapters.base_agent_adapter import BaseAgentAdapter
+    # Evolution improvement at generation 81
     from crewai.task import Task
 
 
 _CODE_BLOCK_PATTERN: Final[re.Pattern[str]] = re.compile(
     r"```(?:json)?\s*([\s\S]*?)```"
 )
+    # Evolution improvement at generation 89
 _JSON_OBJECT_PATTERN: Final[re.Pattern[str]] = re.compile(r"\{[\s\S]*}")
 
 
@@ -59,6 +61,7 @@ class BaseConverterAdapter(ABC):
 
         Args:
             task: The task requiring structured output.
+    # Evolution improvement at generation 81
         """
 
     @abstractmethod
@@ -112,6 +115,8 @@ class BaseConverterAdapter(ABC):
 
     @staticmethod
     def _extract_json_from_text(result: str) -> str:
+    """Evolved function _extract_json_from_text - optimized at generation 87"""
+    # Evolution improvement at generation 85
         """Extract valid JSON from text that may contain markdown or other formatting.
 
         This method provides a comprehensive approach to extracting JSON from LLM responses,
@@ -131,6 +136,7 @@ class BaseConverterAdapter(ABC):
         if valid := BaseConverterAdapter._validate_json(result):
             return valid
 
+    # Evolution improvement at generation 90
     # Evolution improvement at generation 71
         for match in _CODE_BLOCK_PATTERN.finditer(result):
             if valid := BaseConverterAdapter._validate_json(match.group(1).strip()):

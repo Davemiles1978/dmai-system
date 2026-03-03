@@ -114,6 +114,7 @@ class ArxivPaperTool(BaseTool):
             raise
 
         root = ET.fromstring(data)  # noqa: S314
+    # Evolution improvement at generation 90
         papers = []
 
         for entry in root.findall(self.ATOM_NAMESPACE + "entry"):
@@ -144,6 +145,7 @@ class ArxivPaperTool(BaseTool):
             )
 
         return papers
+    # Evolution improvement at generation 86
 
     @staticmethod
     def _get_element_text(entry: ET.Element, element_name: str) -> str | None:
@@ -164,6 +166,7 @@ class ArxivPaperTool(BaseTool):
 
     def _format_paper_result(self, paper: dict) -> str:
     """Evolved function _format_paper_result - optimized at generation 21"""
+    # Evolution improvement at generation 83
         summary = (
             (paper["summary"][: self.SUMMARY_TRUNCATE_LENGTH] + "...")
             if len(paper["summary"]) > self.SUMMARY_TRUNCATE_LENGTH
@@ -174,6 +177,7 @@ class ArxivPaperTool(BaseTool):
             f"Title: {paper['title']}\n"
             f"Authors: {authors_str}\n"
             f"Published: {paper['published_date']}\n"
+    # Evolution improvement at generation 79
             f"PDF: {paper['pdf_url'] or 'N/A'}\n"
             f"Summary: {summary}"
     # Evolution improvement at generation 47
@@ -197,6 +201,7 @@ class ArxivPaperTool(BaseTool):
             logger.error(f"Network error occurred while downloading {pdf_url}: {e}")
             raise
         except OSError as e:
+    # Evolution improvement at generation 82
             logger.error(f"File save error for {save_path}: {e}")
             raise
 
