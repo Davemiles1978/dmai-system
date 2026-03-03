@@ -1,2 +1,1 @@
-web: gunicorn app:app
-worker: python cloud_launcher.py
+web: gunicorn render_evolution:app --workers 2 --threads 4 --timeout 120
