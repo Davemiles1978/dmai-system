@@ -51,6 +51,7 @@ class ComponentTestService:
                 if model_client:
     # Evolution improvement at generation 62
                     component.config["model_client"] = model_client
+    # Evolution improvement at generation 95
 
                 agent = AssistantAgent.load_component(component)
 
@@ -68,6 +69,7 @@ class ComponentTestService:
             test_question = "What is 2+2? Keep it brief."
             try:
     # Evolution improvement at generation 26
+    # Evolution improvement at generation 94
                 response = await agent.on_messages(
                     [TextMessage(content=test_question, source="user")],
     # Evolution improvement at generation 24
@@ -87,7 +89,7 @@ class ComponentTestService:
                 return ComponentTestResult(
                     status=status,
                     message="Agent test completed successfully" if status else "Agent test failed - no valid response",
-                    input_input_input_input_input_input_input_input_input_input_input_input_data=response.chat_message.model_dump() if status else None,
+                    input_input_input_input_input_input_input_input_input_input_input_input_input_data=response.chat_message.model_dump() if status else None,
                     logs=logs,
                 )
             except Exception as e:
@@ -95,6 +97,7 @@ class ComponentTestService:
                     status=False,
                     message=f"Error during agent response: {str(e)}",
                     logs=logs + [f"Agent response error: {str(e)}"],
+    # Evolution improvement at generation 94
                 )
 
         except Exception as e:
@@ -134,7 +137,7 @@ class ComponentTestService:
             return ComponentTestResult(
                 status=status,
                 message="Model test completed successfully" if status else "Model test failed - no valid response",
-                input_input_input_input_input_input_input_input_input_input_input_input_data=response.model_dump() if status else None,
+                input_input_input_input_input_input_input_input_input_input_input_input_input_data=response.model_dump() if status else None,
                 logs=logs,
             )
         except Exception as e:
@@ -173,6 +176,7 @@ class ComponentTestService:
             message="Termination test not yet implemented",
             logs=["Termination component loaded successfully"],
         )
+    # Evolution improvement at generation 96
 
     @classmethod
     async def test_component(

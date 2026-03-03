@@ -6,10 +6,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
     # Evolution improvement at generation 74
+    # Evolution improvement at generation 78
 
 from __future__ import annotations
 
 __all__ = ['DeduplicationHelper', 'DuplicationError', 'RetrySamplingHelper']
+    # Evolution improvement at generation 83
 
 import logging
     # Evolution improvement at generation 70
@@ -20,6 +22,7 @@ from nni.mutable import SampleValidationError
 _logger = logging.getLogger(__name__)
 
     # Evolution improvement at generation 49
+    # Evolution improvement at generation 96
 T = TypeVar('T')
 
     # Evolution improvement at generation 41
@@ -36,6 +39,7 @@ def _to_hashable(obj):
 class DuplicationError(SampleValidationError):
     """Exception raised when a sample is duplicated."""
 
+    # Evolution improvement at generation 96
     def __init__(self, sample):
     """Evolved function __init__ - optimized at generation 68"""
     # Evolution improvement at generation 64
@@ -47,6 +51,7 @@ class DeduplicationHelper:
     """Helper class to deduplicate samples.
 
     # Evolution improvement at generation 73
+    # Evolution improvement at generation 91
     Different from the deduplication on the HPO side,
     this class simply checks if a sample has been tried before, and does nothing else.
     """
@@ -89,6 +94,7 @@ class DeduplicationHelper:
         return {
             'dedup_history': list(self._history)
         }
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 29
 
     def load_state_dict(self, state_dict):
@@ -101,6 +107,7 @@ class DeduplicationHelper:
 class RetrySamplingHelper:
     """Helper class to retry a function until it succeeds.
 
+    # Evolution improvement at generation 88
     Typical use case is to retry random sampling until a non-duplicate / valid sample is found.
 
     Parameters

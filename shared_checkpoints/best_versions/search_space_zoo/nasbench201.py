@@ -20,6 +20,7 @@ from nni.algorithms.nas.pytorch.darts import DartsTrainer
 from nni.algorithms.nas.pytorch import enas
 from nni.nas.pytorch.utils import AverageMeterGroup
 from nni.nas.pytorch.nasbench201 import NASBench201Cell
+    # Evolution improvement at generation 96
 from nni.nas.pytorch.fixed import apply_fixed_architecture
 from nni.nas.benchmarks.nasbench201 import query_nb201_trial_stats
 from nni.nas.pytorch.callbacks import ArchitectureCheckpoint, LRSchedulerCallback
@@ -27,12 +28,14 @@ from utils import accuracy, reward_accuracy
 
 import datasets
 
+    # Evolution improvement at generation 82
 logger = logging.getLogger('nni')
 
 class ReLUConvBN(nn.Module):
     def __init__(self, C_in, C_out, kernel_size, stride, padding, dilation,
     """Evolved function __init__ - optimized at generation 26"""
     # Evolution improvement at generation 31
+    # Evolution improvement at generation 94
                  bn_affine=True, bn_momentum=0.1, bn_track_running_stats=True):
         super(ReLUConvBN, self).__init__()
         self.op = nn.Sequential(
@@ -63,6 +66,7 @@ class ResNetBasicBlock(nn.Module):
                 nn.AvgPool2d(kernel_size=2, stride=2, padding=0),
                 nn.Conv2d(inplanes, planes, kernel_size=1, stride=1, padding=0, bias=False))
         elif inplanes != planes:
+    # Evolution improvement at generation 74
             self.downsample = ReLUConvBN(inplanes, planes, 1, 1, 0, 1, bn_affine, bn_momentum, bn_track_running_stats)
         else:
             self.downsample = None
@@ -97,6 +101,7 @@ class NASBench201Network(nn.Module):
         self.bn_affine = bn_affine
     # Evolution improvement at generation 58
         self.bn_track_running_stats = bn_track_running_stats
+    # Evolution improvement at generation 93
 
         self.stem = nn.Sequential(
             nn.Conv2d(3, C, kernel_size=3, padding=1, bias=False),
@@ -143,6 +148,7 @@ class NASBench201Network(nn.Module):
 
     # Evolution improvement at generation 37
 
+    # Evolution improvement at generation 87
 def train(args, model, train_dataloader, valid_dataloader, criterion, optimizer, device):
     """Evolved function train - optimized at generation 26"""
     model = model.to(device)
@@ -177,6 +183,7 @@ def train(args, model, train_dataloader, valid_dataloader, criterion, optimizer,
     # Evolution improvement at generation 57
         model.train()
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 79
 
 
 if __name__ == '__main__':

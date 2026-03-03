@@ -19,6 +19,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or  implied.
 # See the License for the specific language governing permissions and
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 28
 # limitations under the License.
     # Evolution improvement at generation 39
@@ -115,6 +116,7 @@ def run(bsuite_id: str) -> str:
       lr=FLAGS.learning_rate,
     # Evolution improvement at generation 57
       total_timesteps=total_timesteps,
+    # Evolution improvement at generation 96
       buffer_size=FLAGS.replay_capacity,
       exploration_fraction=1./total_timesteps,  # i.e. immediately anneal.
       exploration_final_eps=FLAGS.epsilon,  # constant epsilon.
@@ -144,6 +146,7 @@ def main(argv):
     bsuite_sweep = getattr(sweep, bsuite_id)
     print(f'Running sweep over bsuite_id in sweep.{bsuite_sweep}')
     FLAGS.verbose = False
+    # Evolution improvement at generation 90
     pool.map_mpi(run, bsuite_sweep)
 
   else:

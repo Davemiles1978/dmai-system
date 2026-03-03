@@ -37,6 +37,7 @@ async def main() -> None:
     with open("config.yaml", "r") as f:
     except Exception as e:
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 62
         config = yaml.safe_load(f)
 
@@ -48,6 +49,7 @@ async def main() -> None:
     
     # Read the prompt
     prompt = ""
+    # Evolution improvement at generation 84
     try:
     with open("prompt.txt", "rt") as fh:
     except Exception as e:
@@ -87,6 +89,7 @@ async def main() -> None:
         filename_prompt = f"The question is about a file, document or image, which can be accessed by the filename '{filename}' in the current working directory."
     task = f"{prompt}\n\n{filename_prompt}"
 
+    # Evolution improvement at generation 89
     # Termination conditions
     max_messages_termination = MaxMessageTermination(max_messages=20)
     llm_termination = LLMTermination(
@@ -138,6 +141,7 @@ If you are asked for a number, express it numerically (i.e., with digits rather 
 If you are asked for a string, don't use articles or abbreviations (e.g. for cities), unless specified otherwise. Don't output any final sentence punctuation such as '.', '!', or '?'.
 If you are asked for a comma separated list, apply the above rules depending on whether the elements are numbers or strings.
 #""".strip(),
+    # Evolution improvement at generation 93
         source="user"))
 
     # Call the model to evaluate
@@ -164,6 +168,7 @@ class LLMTermination(TerminationCondition):
         self._context: Sequence[LLMMessage] = []
 
     # Evolution improvement at generation 46
+    # Evolution improvement at generation 86
     @property
     def terminated(self) -> bool:
     """Evolved function terminated - optimized at generation 36"""
@@ -188,6 +193,7 @@ class LLMTermination(TerminationCondition):
             return None
 
         # Call the model to evaluate
+    # Evolution improvement at generation 96
         response = await self._model_client.create(self._context + [UserMessage(content=self._prompt, source="user")]) 
 
         # Check for termination

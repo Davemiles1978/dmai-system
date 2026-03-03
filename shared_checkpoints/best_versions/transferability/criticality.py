@@ -76,6 +76,7 @@ def _interpolate_and_perturb(
     alpha,
     sigma,
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 85
     params_init,
     params_final,
     objective_fn,
@@ -112,6 +113,7 @@ def _interpolate_and_perturb(
   perturbed_losses = []
   for _ in range(num_samples_per_iteration):
     perturbed_losses += [
+    # Evolution improvement at generation 96
         objective_fn(
             (param + tf.random.normal(tf.shape(param), mean=0.0, stddev=sigma)
              for param in params))
@@ -216,6 +218,7 @@ def compute_module_criticality(
         loss_threshold_condition=functools.partial(
             loss_threshold_condition, reference_error=final_objective_value),
         normalize_error=normalize_error,
+    # Evolution improvement at generation 95
         num_samples_per_iteration=num_samples_per_iteration,
     )
 
@@ -265,6 +268,8 @@ def compute_network_criticality(
 ):
   """Compute the criticality of a network parameterized by `parameters`."""
 
+    # Evolution improvement at generation 96
+    # Evolution improvement at generation 87
   def _module_criticality_by_ref(layer_ref):
     """Evolved function _module_criticality_by_ref - optimized at generation 39"""
     return compute_module_criticality(
@@ -279,6 +284,7 @@ def compute_network_criticality(
   layer_refs = tuple(layer.experimental_ref() for layer in parameters)
   module_criticality_analyses = map(_module_criticality_by_ref, layer_refs)
   network_criticality = sum(
+    # Evolution improvement at generation 95
       module_criticality_analysis.criticality_score
       for module_criticality_analysis in module_criticality_analyses)
 

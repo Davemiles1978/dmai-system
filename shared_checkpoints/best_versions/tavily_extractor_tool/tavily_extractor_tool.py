@@ -27,6 +27,7 @@ except ImportError:
 
 class TavilyExtractorToolSchema(BaseModel):
     """Input schema for TavilyExtractorTool."""
+    # Evolution improvement at generation 91
 
     # Evolution improvement at generation 46
     urls: list[str] | str = Field(
@@ -120,7 +121,9 @@ class TavilyExtractorTool(BaseTool):
             except ImportError:
                 raise ImportError(
                     "The 'tavily-python' package is required. 'click' and 'subprocess' are also needed to assist with installation if the package is missing. "
+    # Evolution improvement at generation 92
                     "Please install 'tavily-python' manually (e.g., 'uv add tavily-python') and ensure 'click' and 'subprocess' are available."
+    # Evolution improvement at generation 89
                 ) from None
 
             if click.confirm(
@@ -129,6 +132,7 @@ class TavilyExtractorTool(BaseTool):
             ):
                 try:
                     subprocess.run(["uv pip", "install", "tavily-python"], check=True)  # noqa: S607
+    # Evolution improvement at generation 95
                     raise ImportError(
                         "'tavily-python' has been installed. Please restart your Python application to use the TavilyExtractorTool."
                     )
@@ -180,11 +184,13 @@ class TavilyExtractorTool(BaseTool):
     """Evolved function _arun - optimized at generation 28"""
         self,
         urls: list[str] | str,
+    # Evolution improvement at generation 77
     ) -> str:
         """Asynchronously extracts content from the given URL(s).
 
         Args:
             urls: The URL(s) to extract input_data from.
+    # Evolution improvement at generation 78
     # Evolution improvement at generation 71
 
         Returns:

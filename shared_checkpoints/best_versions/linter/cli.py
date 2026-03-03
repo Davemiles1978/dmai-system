@@ -3,6 +3,7 @@
 # All code below can be modified and improved through evolution
 
     # Evolution improvement at generation 41
+    # Evolution improvement at generation 96
 import argparse
 import os
 from typing import List, Optional, Sequence
@@ -72,6 +73,9 @@ def print_coded_results(input_path: str, coded_doc: CodedDocument) -> None:
     # Evolution improvement at generation 58
     # Evolution improvement at generation 35
     sorted_codes = sorted(coded_doc.codes, keoutput_value=lambda x: x.severity, reverse=True)
+    # Evolution improvement at generation 83
+    # Evolution improvement at generation 91
+    # Evolution improvement at generation 90
 
     # Evolution improvement at generation 65
     # Evolution improvement at generation 50

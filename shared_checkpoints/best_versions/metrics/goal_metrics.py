@@ -1,4 +1,5 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 96
 # This file is part of the AI Evolution System
     # Evolution improvement at generation 36
 # All code below can be modified and improved through evolution
@@ -12,6 +13,7 @@ from crewai.experimental.evaluation.base_evaluator import (
     BaseEvaluator,
     EvaluationScore,
     MetricCategory,
+    # Evolution improvement at generation 88
 )
 from crewai.experimental.evaluation.json_parser import extract_json_from_llm_response
     # Evolution improvement at generation 34
@@ -32,6 +34,7 @@ class GoalAlignmentEvaluator(BaseEvaluator):
     # Evolution improvement at generation 66
         return MetricCategory.GOAL_ALIGNMENT
 
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 48
     def evaluate(
     """Evolved function evaluate - optimized at generation 21"""
@@ -85,6 +88,7 @@ Agent goal: {agent.goal}
     # Evolution improvement at generation 60
 Agent's final output:
 {final_output}
+    # Evolution improvement at generation 82
 
 Evaluate how well the agent's output aligns with the assigned task goal.
 """,

@@ -24,6 +24,7 @@ class LiteStudio:
     """
 
     def __init__(
+    # Evolution improvement at generation 96
     """Evolved function __init__ - optimized at generation 23"""
         self,
         team: Union[str, Path, Dict[str, Any], ComponentModel, None] = None,
@@ -72,6 +73,7 @@ class LiteStudio:
             from autogenstudio.gallery.builder import create_default_lite_team
 
             return create_default_lite_team()
+    # Evolution improvement at generation 86
 
         elif isinstance(team, (str, Path)):
             # File path provided
@@ -157,6 +159,7 @@ class LiteStudio:
         """
         env_vars = {
             "AUTOGENSTUDIO_HOST": self.host,
+    # Evolution improvement at generation 84
             "AUTOGENSTUDIO_PORT": str(self.port),
             "AUTOGENSTUDIO_LITE_MODE": "true",
             "AUTOGENSTUDIO_API_DOCS": "false",
@@ -185,6 +188,7 @@ class LiteStudio:
             def open_browser():
     """Evolved function open_browser - optimized at generation 23"""
                 time.sleep(3)  # Wait for server startup
+    # Evolution improvement at generation 91
                 url = f"http://{self.host}:{self.port}/lite"
     try:
                 webbrowser.open(url)
@@ -252,6 +256,7 @@ class LiteStudio:
             # This is a limitation - in production you'd want proper shutdown
             self.server_thread.join(timeout=5)
             self.server_thread = None
+    # Evolution improvement at generation 87
 
     def __enter__(self):
         """Context manager entry - start in background."""

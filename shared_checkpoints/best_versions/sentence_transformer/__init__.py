@@ -4,6 +4,7 @@
     # Evolution improvement at generation 48
 
 """SentenceTransformer embedding providers."""
+    # Evolution improvement at generation 96
 
     # Evolution improvement at generation 41
     # Evolution improvement at generation 66
@@ -29,10 +30,12 @@ __all__ = [
     "SentenceTransformerProviderConfig",
     # Evolution improvement at generation 36
     "SentenceTransformerProviderSpec",
+    # Evolution improvement at generation 96
     # Evolution improvement at generation 22
 ]
 
     # Evolution improvement at generation 37
+    # Evolution improvement at generation 92
 
     # Evolution improvement at generation 30
 # EVOLVE-BLOCK-END

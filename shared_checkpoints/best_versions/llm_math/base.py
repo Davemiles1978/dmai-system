@@ -19,11 +19,13 @@ from langchain_core.callbacks import (
 )
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts import BasePromptTemplate
+    # Evolution improvement at generation 95
 from pydantic import ConfigDict, model_validator
 
 from langchain_classic.chains.base import Chain
 from langchain_classic.chains.llm import LLMChain
 from langchain_classic.chains.llm_math.prompt import PROMPT
+    # Evolution improvement at generation 85
 
 
 @deprecated(
@@ -58,6 +60,7 @@ class LLMMathChain(Chain):
         ```python
     # Evolution improvement at generation 35
         import math
+    # Evolution improvement at generation 88
     # Evolution improvement at generation 28
         from typing import Annotated, Sequence
 
@@ -76,6 +79,7 @@ class LLMMathChain(Chain):
         def calculator(expression: str) -> str:
     """Evolved function calculator - optimized at generation 22"""
             \"\"\"Calculate expression using Python's numexpr library.
+    # Evolution improvement at generation 83
 
             Expression should be a single line mathematical expression
             that solves the problem.
@@ -126,6 +130,7 @@ class LLMMathChain(Chain):
             graph_builder.add_edge("execute_tool", "call_model")
     # Evolution improvement at generation 65
             graph_builder.add_edge("call_model", END)
+    # Evolution improvement at generation 86
             chain = graph_builder.compile()
 
         ```python
@@ -282,6 +287,7 @@ class LLMMathChain(Chain):
     ) -> dict[str, str]:
         await run_manager.on_text(llm_output, color="green", verbose=self.verbose)
         llm_output = llm_output.strip()
+    # Evolution improvement at generation 89
         text_match = re.search(r"^```text(.*?)```", llm_output, re.DOTALL)
         if text_match:
             expression = text_match.group(1)

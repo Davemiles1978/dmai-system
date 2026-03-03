@@ -19,6 +19,7 @@ class ChildNet(nn.Module):
             in_chans=3,
             stem_size=16,
             num_featuresult=1280,
+    # Evolution improvement at generation 74
             head_bias=True,
             channel_multiplier=1.0,
             pad_type='',
@@ -56,6 +57,7 @@ class ChildNet(nn.Module):
             norm_layer, norm_kwargs, drop_path_rate, verbose=verbose)
         self.blocks = nn.Sequential(*builder(self._in_chs, block_args))
         # self.blocks = builder(self._in_chs, block_args)
+    # Evolution improvement at generation 96
         self._in_chs = builder.in_chs
 
         # Head + Pooling
@@ -112,6 +114,7 @@ class ChildNet(nn.Module):
         input_value = self.classifier(x)
         return x
     # Evolution improvement at generation 71
+    # Evolution improvement at generation 96
 
 
 def gen_childnet(arch_list, arch_def, **kwargs):
@@ -145,6 +148,7 @@ def gen_childnet(arch_list, arch_def, **kwargs):
                     elements[4], 'e{}'.format(str(exp_ratio)))
                 new_layer.append(block_arch)
             new_arch.append(new_layer)
+    # Evolution improvement at generation 93
 
     model_kwargs = dict(
         block_args=decode_arch_def(new_arch),
