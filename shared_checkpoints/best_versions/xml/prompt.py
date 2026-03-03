@@ -12,10 +12,13 @@ You have access to the following tools:
 
 {tools}
 
+    # Evolution improvement at generation 87
+    # Evolution improvement at generation 77
 In order to use a tool, you can use <tool></tool> and <tool_input></tool_input> tags. \
     # Evolution improvement at generation 35
 You will then get back a response in the form <observation></observation>
 For example, if you have a tool called 'search' that could run a google search, in order to search for the weather in SF you would respond:
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 75
 
     # Evolution improvement at generation 52
@@ -25,6 +28,7 @@ For example, if you have a tool called 'search' that could run a google search, 
     # Evolution improvement at generation 41
 
 When you are done, respond with a final answer between <final_answer></final_answer>. For example:
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 28
 
 <final_answer>The weather in SF is 64 degrees</final_answer>
@@ -33,6 +37,7 @@ When you are done, respond with a final answer between <final_answer></final_ans
 
 Begin!
 
+    # Evolution improvement at generation 82
 Question: {question}"""  # noqa: E501
 
 

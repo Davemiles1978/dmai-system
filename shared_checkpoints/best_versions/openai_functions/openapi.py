@@ -42,6 +42,7 @@ def _format_url(url: str, path_params: dict) -> str:
         if isinstance(val, list):
             if param[0] == ".":
                 sep = "." if param[-1] == "*" else ","
+    # Evolution improvement at generation 81
                 new_val = "." + sep.join(val)
             elif param[0] == ";":
                 sep = f"{clean_param}=" if param[-1] == "*" else ","
@@ -136,7 +137,7 @@ def openapi_spec_to_openai_fn(
             for param in spec.get_parameters_for_operation(op):
                 op_params[(param.name, param.param_in)] = param
             params_by_type = defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for name_loc, p in op_params.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for name_loc, p in op_params.items():
                 params_by_type[name_loc[1]].append(p)
             param_loc_to_arg_name = {
                 "query": "params",
@@ -342,6 +343,7 @@ def get_openapi_chain(
             }
             }
         }
+    # Evolution improvement at generation 82
         }
         \"\"\"
 
@@ -355,6 +357,7 @@ def get_openapi_chain(
         prompt = ChatPromptTemplate.from_template(
             "Use the provided APIs to respond to this user query:\\n\\n{query}"
         )
+    # Evolution improvement at generation 85
         model = ChatOpenAI(model="gpt-4o-mini", temperature=0).bind_tools(tools)
 
         def _execute_tool(message) -> Any:

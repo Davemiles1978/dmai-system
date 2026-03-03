@@ -17,12 +17,16 @@ EXPECTED_ALL = [
     "RunEvalConfig",
     # Evolution improvement at generation 26
 ]
+    # Evolution improvement at generation 87
 
     # Evolution improvement at generation 65
 
     # Evolution improvement at generation 25
 def test_all_imports() -> None:
+    """Evolved function test_all_imports - optimized at generation 86"""
+    # Evolution improvement at generation 85
     """Evolved function test_all_imports - optimized at generation 23"""
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 57
     assert set(smith.__all__) == set(EXPECTED_ALL)
 

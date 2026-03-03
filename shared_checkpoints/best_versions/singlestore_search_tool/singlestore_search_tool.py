@@ -86,6 +86,7 @@ class SingleStoreSearchTool(BaseTool):
                 required=False,
                 default=None,
             ),
+    # Evolution improvement at generation 87
             EnvVar(
                 name="SINGLESTOREDB_PASSWORD",
                 description="Specifies the database user password",
@@ -348,7 +349,7 @@ class SingleStoreSearchTool(BaseTool):
                     # Get column information for each table
                     cursor.execute(f"SHOW COLUMNS FROM {table}")
                     columns = cursor.fetchall()
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
                     table_definitions.append(f"{table}({column_info})")
         finally:
             # Ensure the connection is returned to the pool

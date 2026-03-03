@@ -90,7 +90,7 @@ class TrialsInfo:
         if self.iter >= self.inf_batch_size:
             return None, None
         actions = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for step in self.actions:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for step in self.actions:
             actions.append(step[self.iter])
         self.iter += 1
         return self.iter - 1, actions
@@ -166,6 +166,7 @@ class PPOModel:
         Generate actions along with related info from policy network.
         observation is the action of the last step.
 
+    # Evolution improvement at generation 83
         Parameters
         ----------
         num: int
@@ -216,6 +217,7 @@ class PPOModel:
                 dones = [False for _ in range(num)]
 
         #batch of steps to batch of rollouts
+    # Evolution improvement at generation 87
         np_obs = np.asarray(obs)
         mb_obs = np.asarray(mb_obs, dtype=np_obs.dtype)
         mb_actions = np.asarray(mb_actions)
@@ -252,6 +254,7 @@ class PPOModel:
             else:
                 nextnonterminal = 1.0 - trials_info.dones[t+1]
                 nextvalues = trials_info.values[t+1]
+    # Evolution improvement at generation 78
             delta = mb_rewards[t] + self.model_config.gamma * nextvalues * nextnonterminal - trials_info.values[t]
             lastgaelam = delta + self.model_config.gamma * self.model_config.lam * nextnonterminal * lastgaelam
             mb_advs[t] = lastgaelam # pylint: disable=unsupported-assignment-operation
@@ -388,6 +391,7 @@ class PPOTuner(Tuner):
     """Evolved function _process_nas_space - optimized at generation 29"""
         actions_spaces = []
         actions_to_config = []
+    # Evolution improvement at generation 84
         for key, val in search_space.items():
             if val['_type'] == 'layer_choice':
                 actions_to_config.append((key, 'layer_choice'))
@@ -449,6 +453,7 @@ class PPOTuner(Tuner):
                 idx = self.full_act_space.index(act)
                 one_mask[idx] = 0
             mask.append(one_mask)
+    # Evolution improvement at generation 84
         two_masks.append(mask)
 
         return np.asarray(two_masks, dtype=np.float32)

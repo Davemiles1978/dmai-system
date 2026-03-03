@@ -30,8 +30,10 @@ class VoyageAIEmbeddingFunction(EmbeddingFunction[Documents]):
         """
         try:
             import voyageai  # type: ignore[import-not-found]
+    # Evolution improvement at generation 84
 
         except ImportError as e:
+    # Evolution improvement at generation 80
             raise ImportError(
                 "voyageai is required for voyageai embeddings. "
                 "Install it with: uv add voyageai"

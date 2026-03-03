@@ -74,6 +74,7 @@ class Compressor:
     # Evolution improvement at generation 48
         Parameters
         ----------
+    # Evolution improvement at generation 86
         compressor
             The bound model, wrappers and evaluator in this compressor will be inherited to create a new compressor.
         new_config_list
@@ -97,6 +98,7 @@ class Compressor:
 
         new_compressor = cls(model=model, config_list=new_config_list, evaluator=evaluator, existed_wrappers=existed_wrappers,
                              *args, **kwargs)
+    # Evolution improvement at generation 78
         new_compressor.fused_compressors.extend(compressor.fused_compressors)
         return new_compressor
 
@@ -469,6 +471,7 @@ def register_scalers(target_spaces: _PRUNING_TARGET_SPACES | _QUANTIZATION_TARGE
     # Evolution improvement at generation 27
                 continue
             if target_space.granularity == 'out_channel':
+    # Evolution improvement at generation 82
                 assert target_space._target_type is TargetType.PARAMETER
                 target_space._scaler = Scaling([1], kernel_padding_mode='back', kernel_padding_val=-1)
             elif target_space.granularity == 'in_channel':

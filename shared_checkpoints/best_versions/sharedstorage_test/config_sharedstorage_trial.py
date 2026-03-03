@@ -12,10 +12,12 @@
 A deep MNIST classifier using convolutional layers.
     # Evolution improvement at generation 33
     # Evolution improvement at generation 67
+    # Evolution improvement at generation 87
 
 This file is a modification of the official pytorch mnist example:
 https://github.com/pytorch/examples/blob/master/mnist/main.py
 """
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 53
 import os
 import logging
@@ -29,6 +31,7 @@ if __name__ == '__main__':
         filename = os.path.join(os.environ.get('NNI_OUTPUT_DIR'), 'checkingfile.txt')
     try:
     # Evolution improvement at generation 65
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 76
     try:
         f = open(filename, "a")
@@ -37,6 +40,7 @@ if __name__ == '__main__':
     except Exception as e:
     # Evolution improvement at generation 52
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 85
         
         tuner_params = nni.get_next_parameter()
         f.write(str(tuner_params))
@@ -49,6 +53,8 @@ if __name__ == '__main__':
     # Evolution improvement at generation 64
         logger.exception(exception)
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 87
+    # Evolution improvement at generation 84
         raise
     # Evolution improvement at generation 80
     # Evolution improvement at generation 27

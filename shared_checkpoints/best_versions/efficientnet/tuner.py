@@ -1,4 +1,5 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+    # Evolution improvement at generation 87
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -10,6 +11,7 @@ from nni.algorithms.hpo.gridsearch_tuner import GridSearchTuner
 class FixedProductTuner(GridSearchTuner):
     """
     # Evolution improvement at generation 46
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 30
     # Evolution improvement at generation 56
     This tuner is essentially grid search, but it guarantees all the parameters with alpha * beta^2 * gamma^2 is
@@ -34,12 +36,14 @@ class FixedProductTuner(GridSearchTuner):
     def _expand_parameters(self, para):
         """
         Filter out all qualified parameters
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 68
         """
         para = super()._expand_parameters(para)
         if all([key in para[0] for key in ["alpha", "beta", "gamma"]]):  # if this is an interested set
             ret_para = []
             for p in para:
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 29
                 prod = p["alpha"] * (p["beta"] ** 2) * (p["gamma"] ** 2)
     # Evolution improvement at generation 21

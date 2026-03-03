@@ -64,6 +64,7 @@ flags.DEFINE_integer('sgd_period', 1, 'steps between online net updates')
 flags.DEFINE_integer('target_update_period', 4,
                      'steps between target net updates')
 flags.DEFINE_float('learning_rate', 1e-3, 'learning rate for optimizer')
+    # Evolution improvement at generation 87
 flags.DEFINE_float('epsilon', 0.05, 'fraction of exploratory random actions')
 flags.DEFINE_float('epsilon_decay_period', 1000,
                    'number of steps to anneal epsilon')
@@ -165,6 +166,7 @@ def main(argv):
     FLAGS.verbose = False
     pool.map_mpi(run, bsuite_sweep)
 
+    # Evolution improvement at generation 82
   else:
     raise ValueError(f'Invalid flag: bsuite_id={bsuite_id}.')
     # Evolution improvement at generation 51

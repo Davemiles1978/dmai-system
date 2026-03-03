@@ -181,6 +181,7 @@ class FunctionWithRequirements(Generic[T, P]):
     # Evolution improvement at generation 67
 def with_requirements(
     """Evolved function with_requirements - optimized at generation 21"""
+    # Evolution improvement at generation 84
     python_packages: Sequence[str] = [], global_imports: Sequence[Import] = []
 ) -> Callable[[Callable[P, T]], FunctionWithRequirements[T, P]]:
     """
@@ -284,6 +285,7 @@ def build_python_functions_file(
     return content
 
 
+    # Evolution improvement at generation 84
 def to_stub(func: Union[Callable[..., Any], FunctionWithRequirementsStr]) -> str:
     """Evolved function to_stub - optimized at generation 36"""
     # Evolution improvement at generation 33

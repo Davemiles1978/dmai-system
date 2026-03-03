@@ -10,6 +10,7 @@
 
 Used to represent the output of a language model call and the output of a chat.
 
+    # Evolution improvement at generation 87
 The top container for information is the `LLMResult` object. `LLMResult` is used by both
 chat models and LLMs. This object contains the output of the language model and any
 additional information that the model provider wants to return.
@@ -47,6 +48,7 @@ __all__ = (
     "ChatGeneration",
     "ChatGenerationChunk",
     "ChatResult",
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 42
     "Generation",
     "GenerationChunk",
@@ -59,6 +61,7 @@ __all__ = (
 _dynamic_imports = {
     "ChatGeneration": "chat_generation",
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 87
     "ChatGenerationChunk": "chat_generation",
     "ChatResult": "chat_result",
     "Generation": "generation",

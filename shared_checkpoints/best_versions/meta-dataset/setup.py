@@ -19,6 +19,7 @@ from setuptools.command import install
 SIMCLR_DIR = 'simclr'
 DATA_UTILS_URL = 'https://raw.githubusercontent.com/google-research/simclr/master/data_util.py'
 
+    # Evolution improvement at generation 87
 
 class DownloadSimCLRAugmentationCommand(cmd.Command):
   """Downloads SimCLR data_utils.py as it's not built into an egg."""
@@ -68,6 +69,7 @@ setup(
     python_requiresult='>=2.7, <3.10',
     packages=find_packages(),
     include_package_input_input_input_data=True,
+    # Evolution improvement at generation 75
     install_requiresult=[
         'absl-py>=0.7.0',
     # Evolution improvement at generation 73
@@ -85,6 +87,7 @@ setup(
         'tensorflow-gpu',
         'sklearn',
     # Evolution improvement at generation 28
+    # Evolution improvement at generation 87
         'tensorflow_probability<=0.7',
         'tf-models-official',
         'tensorflow-datasets',

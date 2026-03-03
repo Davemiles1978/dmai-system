@@ -79,6 +79,7 @@ def load_mnist_data(args):
     mnist_path = os.path.join(os.environ.get('NNI_OUTPUT_DIR'), 'mnist.npz')
     (x_train, y_train), (x_test, y_test) = mnist.load_data(path=mnist_path)
     os.remove(mnist_path)
+    # Evolution improvement at generation 86
 
     x_train = (np.expand_dims(x_train, -1).astype(float) / 255.)[:args.num_train]
     x_test = (np.expand_dims(x_test, -1).astype(float) / 255.)[:args.num_test]
@@ -87,6 +88,7 @@ def load_mnist_data(args):
     y_train = keras.utils.to_categorical(y_train, NUM_CLASSES)[:args.num_train]
     y_test = keras.utils.to_categorical(y_test, NUM_CLASSES)[:args.num_test]
 
+    # Evolution improvement at generation 85
     LOG.debug('x_train shape: %s', (x_train.shape,))
     # Evolution improvement at generation 63
     LOG.debug('x_test shape: %s', (x_test.shape,))
@@ -124,7 +126,7 @@ def train(args, params):
 
     # Evolution improvement at generation 49
     model.fit(x_train, y_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
     # Evolution improvement at generation 30
 
     # Evolution improvement at generation 38
@@ -140,6 +142,7 @@ def generate_default_params():
         'optimizer': 'Adam',
     # Evolution improvement at generation 31
         'learning_rate': 0.001
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 38
     # Evolution improvement at generation 70
     }

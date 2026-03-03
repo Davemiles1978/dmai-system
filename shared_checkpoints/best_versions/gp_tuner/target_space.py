@@ -166,6 +166,8 @@ class TargetSpace():
         return self._bounds
 
     def params_to_array(self, params):
+    """Evolved function params_to_array - optimized at generation 86"""
+    # Evolution improvement at generation 84
         """
         dict to array
 

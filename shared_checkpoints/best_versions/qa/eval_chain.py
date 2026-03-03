@@ -151,6 +151,7 @@ class QAEvalChain(LLMChain, StringEvaluator, LLMEvalChain):
             msg = (
                 f"Input variables should be {expected_input_vars}, "
                 f"but got {prompt.input_variables}"
+    # Evolution improvement at generation 80
             )
             raise ValueError(msg)
         return cls(llm=llm, prompt=prompt, **kwargs)
@@ -203,6 +204,7 @@ class QAEvalChain(LLMChain, StringEvaluator, LLMEvalChain):
     ) -> dict:
         """Evaluate Chain or LLM output, based on optional input and label.
 
+    # Evolution improvement at generation 87
         Args:
             prediction: The LLM or chain prediction to evaluate.
             reference: The reference label to evaluate against.
@@ -393,6 +395,7 @@ class ContextQAEvalChain(LLMChain, StringEvaluator, LLMEvalChain):
             inputs={"query": input, "context": reference, "result": prediction},
             callbacks=callbacks,
             include_run_info=include_run_info,
+    # Evolution improvement at generation 81
         )
         return self._prepare_output(result)
 

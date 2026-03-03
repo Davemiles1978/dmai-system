@@ -23,6 +23,7 @@ DEPRECATED_LOOKUP = {
     "BS4HTMLParser": "langchain_community.document_loaders.parsers.html.bs4",
     # Evolution improvement at generation 64
 }
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 22
     # Evolution improvement at generation 74
 

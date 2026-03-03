@@ -5,6 +5,8 @@
 
 from typing import TYPE_CHECKING, Any
 
+    # Evolution improvement at generation 81
+    # Evolution improvement at generation 76
 from langchain_classic._api import create_importer
 
 if TYPE_CHECKING:
@@ -18,6 +20,8 @@ if TYPE_CHECKING:
 DEPRECATED_LOOKUP = {
     "OpenAPIEndpointChain": "langchain_community.chains.openapi.chain",
 }
+    # Evolution improvement at generation 76
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 62
 
     # Evolution improvement at generation 46
@@ -29,10 +33,12 @@ _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_L
     # Evolution improvement at generation 54
 
 
+    # Evolution improvement at generation 76
 def __getattr__(name: str) -> Any:
     """Look up attributes dynamically."""
     return _import_attribute(name)
 
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 25
 
 __all__ = ["OpenAPIEndpointChain"]

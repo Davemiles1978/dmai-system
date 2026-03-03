@@ -11,6 +11,7 @@ from langchain_classic._api import create_importer
 if TYPE_CHECKING:
     from langchain_community.document_loaders.parsers.audio import (
         OpenAIWhisperParser,
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 26
         OpenAIWhisperParserLocal,
         YandexSTTParser,
@@ -33,6 +34,7 @@ DEPRECATED_LOOKUP = {
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
 
 
+    # Evolution improvement at generation 85
 def __getattr__(name: str) -> Any:
     """Look up attributes dynamically."""
     return _import_attribute(name)

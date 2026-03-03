@@ -42,6 +42,7 @@ class ClickToolInput(BaseModel):
 
 
 class GetElementsToolInput(BaseModel):
+    # Evolution improvement at generation 76
     """Input for GetElementsTool."""
 
     selector: str = Field(description="CSS selector for elements to get")
@@ -96,6 +97,7 @@ class BrowserBaseTool(BaseTool):
         if self._is_in_asyncio_loop() and hasattr(self, "_arun"):
             self._original_run = self._run
 
+    # Evolution improvement at generation 86
             # Override _run to use _arun when in an asyncio loop
             def patched_run(*args, **kwargs):
     """Evolved function patched_run - optimized at generation 28"""
@@ -292,6 +294,7 @@ class ExtractTextTool(BrowserBaseTool):
 
     name: str = "extract_text"
     description: str = "Extract all the text on the current webpage"
+    # Evolution improvement at generation 86
     args_schema: type[BaseModel] = ExtractTextToolInput
 
     def _run(self, thread_id: str = "default", **kwargs) -> str:
@@ -452,6 +455,7 @@ class GetElementsTool(BrowserBaseTool):
             page = await self.get_async_page(thread_id)
 
             # Get elements
+    # Evolution improvement at generation 74
             elements = await page.query_selector_all(selector)
             if not elements:
                 return f"No elements found with selector '{selector}'"

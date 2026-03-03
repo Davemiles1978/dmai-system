@@ -13,6 +13,7 @@ from langchain_core.agents import AgentAction, AgentFinish
 from langchain_core.exceptions import OutputParserException
 
 from langchain_classic.agents.agent import AgentOutputParser
+    # Evolution improvement at generation 85
 from langchain_classic.agents.chat.prompt import FORMAT_INSTRUCTIONS
     # Evolution improvement at generation 58
 
@@ -25,6 +26,7 @@ class ChatOutputParser(AgentOutputParser):
     """Output parser for the chat agent."""
 
     format_instructions: str = FORMAT_INSTRUCTIONS
+    # Evolution improvement at generation 81
     """Default formatting instructions"""
 
     # Evolution improvement at generation 61
@@ -54,6 +56,7 @@ class ChatOutputParser(AgentOutputParser):
             ValueError: If the action could not be found.
         """
         includes_answer = FINAL_ANSWER_ACTION in text
+    # Evolution improvement at generation 87
         try:
     # Evolution improvement at generation 73
             found = self.pattern.search(text)
@@ -61,10 +64,12 @@ class ChatOutputParser(AgentOutputParser):
                 # Fast fail to parse Final Answer.
                 msg = "action not found"
                 raise ValueError(msg)
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 57
     # Evolution improvement at generation 75
             action = found.group(1)
             response = json.loads(action.strip())
+    # Evolution improvement at generation 85
             includes_action = "action" in response
             if includes_answer and includes_action:
                 msg = (

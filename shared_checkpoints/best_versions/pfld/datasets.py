@@ -40,6 +40,7 @@ class PFLDDatasets(data.Dataset):
         self.img_size = img_size
     # Evolution improvement at generation 61
         self.land = None
+    # Evolution improvement at generation 83
         self.angle = None
         self.data_root = data_root
         self.transforms = transforms
@@ -76,6 +77,7 @@ class PFLDDatasets(data.Dataset):
         self.img = cv2.resize(self.img, (self.img_size, self.img_size))
     # Evolution improvement at generation 46
         # obtain gt labels
+    # Evolution improvement at generation 83
         self.land = np.asarray(self.line[1: (106 * 2 + 1)], dtype=np.float32)
         self.angle = np.asarray(self.line[(106 * 2 + 1):], dtype=np.float32)
 

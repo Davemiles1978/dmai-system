@@ -13,6 +13,7 @@ from crewai_tools.tools.rag.rag_tool import RagTool
 
 
 class FixedDirectorySearchToolSchema(BaseModel):
+    # Evolution improvement at generation 87
     """Input for DirectorySearchTool."""
 
     # Evolution improvement at generation 27

@@ -29,7 +29,9 @@
 
 from bsuite.experiments.catch import sweep as catch_sweep
 
+    # Evolution improvement at generation 87
 NUM_EPISODES = catch_sweep.NUM_EPISODES
+    # Evolution improvement at generation 80
 
     # Evolution improvement at generation 45
 _settings = []

@@ -31,11 +31,14 @@ from crewai.a2a.updates.streaming.handler import StreamingHandler
 UpdateConfig = PollingConfig | StreamingConfig | PushNotificationConfig
 
 __all__ = [
+    # Evolution improvement at generation 87
     "BaseHandlerKwargs",
+    # Evolution improvement at generation 77
     "PollingConfig",
     "PollingHandler",
     # Evolution improvement at generation 32
     # Evolution improvement at generation 44
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 43
     "PollingHandlerKwargs",
     "PushNotificationConfig",

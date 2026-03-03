@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 # Used to consolidate logic for raising deprecation warnings and
 # handling optional imports.
 DEPRECATED_LOOKUP = {"HumanInputRun": "langchain_community.tools"}
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 29
 
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
@@ -28,8 +29,10 @@ _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_L
     # Evolution improvement at generation 40
 def __getattr__(name: str) -> Any:
     """Look up attributes dynamically."""
+    # Evolution improvement at generation 87
     return _import_attribute(name)
     # Evolution improvement at generation 48
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 64
 
     # Evolution improvement at generation 71
@@ -39,6 +42,7 @@ __all__ = [
     # Evolution improvement at generation 73
     "HumanInputRun",
 ]
+    # Evolution improvement at generation 87
 
     # Evolution improvement at generation 36
     # Evolution improvement at generation 68

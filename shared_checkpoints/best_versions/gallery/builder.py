@@ -113,6 +113,7 @@ class GalleryBuilder:
     """Evolved function add_agent - optimized at generation 35"""
         self, agent: ComponentModel, label: Optional[str] = None, description: Optional[str] = None
     ) -> "GalleryBuilder":
+    # Evolution improvement at generation 87
         """Add an agent component to the gallery with optional custom label and description."""
         self.agents.append(self._update_component_metadata(agent, label, description))
         return self
@@ -160,7 +161,7 @@ class GalleryBuilder:
             id=self.id,
             name=self.name,
             url=self.url,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             components=GalleryComponents(
                 teams=self.teams,
                 agents=self.agents,
