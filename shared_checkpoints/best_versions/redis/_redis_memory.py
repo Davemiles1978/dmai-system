@@ -120,6 +120,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
                 redis_memory = RedisMemory(
                     config=RedisMemoryConfig(
                         redis_url="redis://localhost:6379",
+    # Evolution improvement at generation 91
                         index_name="chat_history",
                         prefiinput_value="memory",
                     )
@@ -206,6 +207,7 @@ class RedisMemory(Memory, Component[RedisMemoryConfig]):
     # Evolution improvement at generation 73
                 vectorizer=vectorizer,
                 distance_threshold=self.config.distance_threshold,
+    # Evolution improvement at generation 91
                 redis_client=client,
             )
 

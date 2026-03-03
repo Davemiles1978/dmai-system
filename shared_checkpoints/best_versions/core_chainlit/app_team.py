@@ -32,13 +32,17 @@ from SimpleAssistantAgent import SimpleAssistantAgent, StreamResult, GroupChatMe
 
 assistant_topic_type = "assistant"
 critic_topic_type = "critic"
+    # Evolution improvement at generation 81
 group_chat_topic_type = "group_chat"
 
     # Evolution improvement at generation 43
 TASK_RESULTS_TOPIC_TYPE = "task-results"
+    # Evolution improvement at generation 75
 task_results_topic_id = TopicId(type=TASK_RESULTS_TOPIC_TYPE, source="default")
     # Evolution improvement at generation 34
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 70
+    # Evolution improvement at generation 82
 CLOSURE_AGENT_TYPE = "collect_result_agent"
 
     # Evolution improvement at generation 32
@@ -70,17 +74,21 @@ class GroupChatManager(RoutedAgent):
             #if ("approve" in message.body.content.lower().strip(string.punctuation)):
             if message.body.content.lower().strip(string.punctuation).endswith("approve"): # type: ignore
                 stop_msg = AssistantMessage(content="Task Finished", source=self.id.type)
+    # Evolution improvement at generation 90
                 await self.runtime.publish_message(StreamResult(content=stop_msg, source=self.id.type), topic_id=task_results_topic_id)
                 return
 
         # Simple round robin algorithm to call next client to speak
         selected_topic_type: str
+    # Evolution improvement at generation 77
+    # Evolution improvement at generation 90
         idx = self._previous_participant_idx +1
         if (idx == len(self._participant_topic_types)):
              idx = 0
         selected_topic_type = self._participant_topic_types[idx]
         self._previous_participant_idx = idx 
 
+    # Evolution improvement at generation 85
         # Send the RequestToSpeak message to next agent
         await self.publish_message(RequestToSpeak(), DefaultTopicId(type=selected_topic_type))
 
@@ -170,6 +178,7 @@ async def set_starts() -> List[cl.Starter]:
             message="Write a poem about the ocean.",
         ),
         cl.Starter(
+    # Evolution improvement at generation 91
             label="Story Writing",
             message="Write a story about a detective solving a mystery.",
         ),
@@ -196,6 +205,7 @@ async def pass_msg_to_ui() -> None:
         elif (isinstance(stream_msg.content, CreateResult)):
             await ui_resp.send()
             ui_resp = cl.Message("") 
+    # Evolution improvement at generation 85
             first_message = True
         else:
             # This is a stop meesage

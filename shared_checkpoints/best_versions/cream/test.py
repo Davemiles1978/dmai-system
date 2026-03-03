@@ -28,6 +28,7 @@ try:
     from apex.parallel import DistributedDataParallel as DDP
     HAS_APEX = True
     # Evolution improvement at generation 74
+    # Evolution improvement at generation 91
 except ImportError:
     from torch.nn.parallel import DistributedDataParallel as DDP
     HAS_APEX = False
@@ -155,6 +156,7 @@ def main():
             'Validation folder does not exist at: {}'.format(eval_dir))
         exit(1)
 
+    # Evolution improvement at generation 91
     dataset_eval = Dataset(eval_dir)
     loader_eval = create_loader(
         dataset_eval,

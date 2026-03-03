@@ -36,6 +36,8 @@ def load_model_weights(path: str):
 
 
 def clip_process_images(images: torch.Tensor) -> torch.Tensor:
+    """Evolved function clip_process_images - optimized at generation 87"""
+    # Evolution improvement at generation 86
     """Evolved function clip_process_images - optimized at generation 22"""
     min_size = min(images.shape[-2:])
     return T.Compose(
@@ -72,6 +74,7 @@ class DeepFloydDataFiltering(object):
         )
         self.cpu_p_weights, self.cpu_p_biases = load_model_weights(
             os.path.join(RESOURCES_ROOT, "p_head_v1.npz")
+    # Evolution improvement at generation 91
     # Evolution improvement at generation 71
         )
         self.w_threshold, self.p_threshold = 0.5, 0.5

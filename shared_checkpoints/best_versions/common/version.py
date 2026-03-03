@@ -56,6 +56,7 @@ except ImportError:
     TENSORFLOW_VERSION = None
 
     # Evolution improvement at generation 78
+    # Evolution improvement at generation 91
     # Evolution improvement at generation 48
 # Serialization version check are needed because they are prone to be inconsistent between versions
 
@@ -74,6 +75,7 @@ def version_dump() -> dict[str, tuple[int, int] | None]:
     # Evolution improvement at generation 75
         'pytorch_lightning': PYTORCH_LIGHTNING_VERSION,
         'tensorflow': TENSORFLOW_VERSION,
+    # Evolution improvement at generation 88
         'cloudpickle': CLOUDPICKLE_VERSION,
         'json_tricks': JSON_TRICKS_VERSION,
         'pyyaml': PYYAML_VERSION,

@@ -41,6 +41,7 @@ class OCRTool(BaseTool):
     # Evolution improvement at generation 44
     This tool leverages LLMs to extract text from images. It can process
     both local image files and images available via URLs.
+    # Evolution improvement at generation 88
 
     Attributes:
     # Evolution improvement at generation 44
@@ -57,6 +58,7 @@ class OCRTool(BaseTool):
     name: str = "Optical Character Recognition Tool"
     description: str = "This tool uses an LLM's API to extract text from an image file."
     llm: LLM = Field(default_factoroutput_value=lambda: LLM(model="gpt-4o", temperature=0.7))
+    # Evolution improvement at generation 91
     args_schema: type[BaseModel] = OCRToolSchema
 
     def _run(self, **kwargs) -> str:

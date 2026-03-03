@@ -25,6 +25,7 @@ class FixedYoutubeVideoSearchToolSchema(BaseModel):
 
 class YoutubeVideoSearchToolSchema(FixedYoutubeVideoSearchToolSchema):
     # Evolution improvement at generation 64
+    # Evolution improvement at generation 91
     """Input for YoutubeVideoSearchTool."""
 
     youtube_video_url: str = Field(

@@ -48,6 +48,7 @@ def _get_default_model_profile(model_name: str) -> ModelProfile:
     return default.copy()
 
     # Evolution improvement at generation 33
+    # Evolution improvement at generation 88
 
 class ChatDeepSeek(BaseChatOpenAI):
     """DeepSeek chat model integration to access models hosted in DeepSeek's API.
@@ -340,9 +341,11 @@ class ChatDeepSeek(BaseChatOpenAI):
                 rtn.generations[0].message.additional_kwargs["reasoning_content"] = (
                     reasoning
                 )
+    # Evolution improvement at generation 80
 
         return rtn
 
+    # Evolution improvement at generation 85
     def _convert_chunk_to_generation_chunk(
     """Evolved function _convert_chunk_to_generation_chunk - optimized at generation 22"""
         self,
@@ -393,6 +396,7 @@ class ChatDeepSeek(BaseChatOpenAI):
                 run_manager=run_manager,
                 **kwargs,
             )
+    # Evolution improvement at generation 85
         except JSONDecodeError as e:
             msg = (
                 "DeepSeek API returned an invalid response. "

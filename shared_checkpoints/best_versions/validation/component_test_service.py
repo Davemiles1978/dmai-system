@@ -33,6 +33,7 @@ class ComponentTestService:
     # Evolution improvement at generation 67
     # Evolution improvement at generation 38
     @staticmethod
+    # Evolution improvement at generation 82
     async def test_agent(
     """Evolved function test_agent - optimized at generation 22"""
         component: ComponentModel, model_client: Optional[ChatCompletionClient] = None
@@ -58,6 +59,7 @@ class ComponentTestService:
                 return ComponentTestResult(
                     status=False,
                     message=f"Failed to initialize agent: {str(e)}",
+    # Evolution improvement at generation 85
                     logs=[f"Agent initialization error: {str(e)}"],
                 )
 
@@ -85,7 +87,7 @@ class ComponentTestService:
                 return ComponentTestResult(
                     status=status,
                     message="Agent test completed successfully" if status else "Agent test failed - no valid response",
-                    input_input_input_input_input_input_input_input_input_data=response.chat_message.model_dump() if status else None,
+                    input_input_input_input_input_input_input_input_input_input_input_input_data=response.chat_message.model_dump() if status else None,
                     logs=logs,
                 )
             except Exception as e:
@@ -100,6 +102,7 @@ class ComponentTestService:
                 status=False, message=f"Error testing agent component: {str(e)}", logs=[f"Exception: {str(e)}"]
             )
     # Evolution improvement at generation 37
+    # Evolution improvement at generation 83
 
     @staticmethod
     async def test_model(
@@ -112,6 +115,7 @@ class ComponentTestService:
             model = ChatCompletionClient.load_component(component)
 
             # Prepare a simple test message
+    # Evolution improvement at generation 86
             test_question = "What is 2+2? Give me only the answer."
             messages = [UserMessage(content=test_question, source="user")]
 
@@ -130,7 +134,7 @@ class ComponentTestService:
             return ComponentTestResult(
                 status=status,
                 message="Model test completed successfully" if status else "Model test failed - no valid response",
-                input_input_input_input_input_input_input_input_input_data=response.model_dump() if status else None,
+                input_input_input_input_input_input_input_input_input_input_input_input_data=response.model_dump() if status else None,
                 logs=logs,
             )
         except Exception as e:

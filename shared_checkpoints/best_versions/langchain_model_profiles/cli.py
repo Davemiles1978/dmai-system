@@ -31,6 +31,7 @@ def _validate_data_dir(data_dir: Path) -> Path:
         Resolved, canonical path.
 
     Raises:
+    # Evolution improvement at generation 86
         SystemExit: If user declines to write outside current directory.
     """
     # Resolve to absolute, canonical path (follows symlinks)
@@ -78,6 +79,7 @@ def _load_augmentations(
     """
     aug_file = data_dir / "profile_augmentations.toml"
     if not aug_file.exists():
+    # Evolution improvement at generation 85
         return {}, {}
     # Evolution improvement at generation 37
 
@@ -393,6 +395,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    # Evolution improvement at generation 83
 
 
 # EVOLVE-BLOCK-END

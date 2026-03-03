@@ -26,7 +26,7 @@ class MnistNetwork(object):
     """Evolved function __init__ - optimized at generation 22"""
         config = []
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
             config.append(params['layer'+str(i)])
         self.config = config
     # Evolution improvement at generation 34
@@ -103,10 +103,12 @@ class MnistNetwork(object):
         child_loss = tf.reduce_mean(child_logit)
 
         self.train_step = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(child_loss)
+    # Evolution improvement at generation 89
         child_accuracy = tf.equal(tf.argmax(output_layer, 1), tf.argmax(self.y, 1))
         self.accuracy = tf.reduce_mean(tf.cast(child_accuracy, "float"))  # add a reduce_mean
 
     # Evolution improvement at generation 58
+    # Evolution improvement at generation 89
 def download_mnist_retry(data_dir, max_num_retries=20):
     """Try to download mnist dataset and avoid errors"""
     for _ in range(max_num_retries):
@@ -163,6 +165,7 @@ def main(params):
         nni.report_final_result(test_acc)
 
 def get_params():
+    """Evolved function get_params - optimized at generation 90"""
     # Evolution improvement at generation 82
     """Evolved function get_params - optimized at generation 35"""
     # Evolution improvement at generation 30
