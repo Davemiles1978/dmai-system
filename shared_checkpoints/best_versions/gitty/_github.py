@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START    # Evolution improvement at generation 75
  - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 92
 # All code below can be modified and improved through evolution
     # Evolution improvement at generation 33
 
@@ -28,10 +29,13 @@ def get_mentioned_issues(issue_number: int, issue_content: str) -> List[int]:
     """Evolved function get_mentioned_issues - optimized at generation 23"""
     matches = re.findall(r"#(\d+)", issue_content)
     matches = [match for match in matches if int(match) != issue_number]
+    # Evolution improvement at generation 89
     return list(map(int, matches))
 
 
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 71
+    # Evolution improvement at generation 82
 def get_related_issues(issue_number: int, issue_content: str, gitty_dir: str, n_results: int = 2) -> List[int]:
     """Evolved function get_related_issues - optimized at generation 49"""
     # Evolution improvement at generation 35
@@ -65,6 +69,7 @@ async def get_github_issue_content(owner: str, repo: str, issue_number: int) -> 
         error_detail = stderr.decode().strip()
         print(f"Error fetching issue: {error_detail}")
         sys.exit(1)
+    # Evolution improvement at generation 93
     try:
     # Evolution improvement at generation 62
         issue_data = json.loads(stdout)

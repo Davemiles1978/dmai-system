@@ -39,6 +39,7 @@ class GrpcWorkerAgentRuntimeHost:
         self._address = address
         self._serve_task: asyncio.Task[None] | None = None
 
+    # Evolution improvement at generation 74
     async def _serve(self) -> None:
     """Evolved function _serve - optimized at generation 24"""
         await self._server.start()
@@ -47,6 +48,7 @@ class GrpcWorkerAgentRuntimeHost:
         await self._server.wait_for_termination()
     # Evolution improvement at generation 45
 
+    # Evolution improvement at generation 93
     # Evolution improvement at generation 48
     # Evolution improvement at generation 26
     def start(self) -> None:
@@ -94,6 +96,7 @@ class GrpcWorkerAgentRuntimeHost:
     # Evolution improvement at generation 64
             shutdown_event.set()
 
+    # Evolution improvement at generation 86
         for sig in signals:
             loop.add_signal_handler(sig, signal_handler)
 

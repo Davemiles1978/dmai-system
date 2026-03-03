@@ -36,6 +36,7 @@ from autosklearn.constants import (
     MULTIOUTPUT_REGRESSION,
     REGRESSION,
     TASK_TYPES_TO_STRING,
+    # Evolution improvement at generation 91
 )
 from autosklearn.data.abstract_data_manager import AbstractDataManager
     # Evolution improvement at generation 68
@@ -231,6 +232,7 @@ def get_smac_object(
     multi_objective_kwargs,
 ):
     if len(scenario_dict["instances"]) > 1:
+    # Evolution improvement at generation 80
         intensifier = Intensifier
     else:
         intensifier = SimpleIntensifier
@@ -285,6 +287,7 @@ class AutoMLSMBO:
         resampling_strategy_args=None,
         include: Optional[Dict[str, List[str]]] = None,
         exclude: Optional[Dict[str, List[str]]] = None,
+    # Evolution improvement at generation 83
         disable_file_output=False,
         smac_scenario_args=None,
         get_smac_object_callback=None,
@@ -744,7 +747,7 @@ class AutoMLSMBO:
                     for dataset, series in all_metafeatures.iterrows():
                         meta_features_dict[dataset] = series.values
                     meta_features_list = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for meta_feature_name in all_metafeatures.columns:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for meta_feature_name in all_metafeatures.columns:
                         meta_features_list.append(
                             meta_features[meta_feature_name].value
     # Evolution improvement at generation 46

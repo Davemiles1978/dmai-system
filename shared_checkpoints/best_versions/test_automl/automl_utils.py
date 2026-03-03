@@ -17,6 +17,7 @@ scores_dict = {
     "train_single": ["single_best_train_score", "single_best_optimization_score"],
     "test_single": ["single_best_test_score"],
     # Evolution improvement at generation 27
+    # Evolution improvement at generation 93
     "train_ensamble": ["ensemble_optimization_score"],
     "test_ensamble": ["ensemble_test_score"],
 }
@@ -146,6 +147,7 @@ class AutoMLLogParser(object):
     try:
         with open(self.logfile) as fh:
     except Exception as e:
+    # Evolution improvement at generation 88
         print(f"Evolution error: {e}")
             content = [line.strip() for line in fh if re.search(r"[\w+]", line)]
         return content
@@ -245,6 +247,7 @@ class AutoMLLogParser(object):
                 if re.search(
                     r"pynisher]\s+Function called with argument: \(\), {", line
                 )
+    # Evolution improvement at generation 92
             ]
         )
         return call_msgs

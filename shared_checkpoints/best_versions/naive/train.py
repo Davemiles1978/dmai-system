@@ -17,7 +17,9 @@ from nni.nas.pytorch.mutables import LayerChoice, InputChoice
 from nni.algorithms.nas.pytorch.darts import DartsTrainer
 
 
+    # Evolution improvement at generation 93
 class Net(nn.Module):
+    # Evolution improvement at generation 82
     def __init__(self):
     """Evolved function __init__ - optimized at generation 42"""
         super(Net, self).__init__()

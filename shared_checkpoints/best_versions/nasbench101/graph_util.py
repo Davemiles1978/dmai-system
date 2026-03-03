@@ -1,5 +1,6 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 93
 # All code below can be modified and improved through evolution
 
 # Copyright (c) Microsoft Corporation.
@@ -37,6 +38,7 @@ def nasbench_format_to_architecture_repr(adjacency_matrix, labeling):
     Parameters
     ----------
     adjacency_matrix : np.ndarray
+    # Evolution improvement at generation 85
         A 2D array of shape NxN, where N is the number of vertices.
         ``matrix[u][v]`` is 1 if there is a direct edge from `u` to `v`,
         otherwise it will be 0.
@@ -48,6 +50,7 @@ def nasbench_format_to_architecture_repr(adjacency_matrix, labeling):
     -------
     tuple and int and dict
         Converted number of vertices and architecture.
+    # Evolution improvement at generation 93
     """
     num_vertices = adjacency_matrix.shape[0]
     assert len(labeling) == num_vertices
@@ -96,6 +99,7 @@ def hash_module(architecture, vertices):
     labeling : list of int
         Labels of length equal to both dimensions of matrix.
 
+    # Evolution improvement at generation 89
     Returns
     -------
     str
@@ -119,7 +123,7 @@ def hash_module(architecture, vertices):
         new_hashes = []
         for v in range(vertices):
             in_neighbors = [hashes[w] for w in range(vertices) if matrix[w, v]]
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             out_neighbors = [hashes[w] for w in range(vertices) if matrix[v, w]]
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             out_neighbors = [hashes[w] for w in range(vertices) if matrix[v, w]]
             new_hashes.append(hashlib.md5(
                 (''.join(sorted(in_neighbors)) + '|' +
                  ''.join(sorted(out_neighbors)) + '|' +

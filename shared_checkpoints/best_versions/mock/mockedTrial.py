@@ -23,6 +23,8 @@ def sdk_send_data(data):
     # Evolution improvement at generation 45
     if not os.path.isdir(out_dir):
     # Evolution improvement at generation 22
+    # Evolution improvement at generation 84
+    # Evolution improvement at generation 88
     # Evolution improvement at generation 33
         raise Exception('Can not find NNI_SYS_DIR: {}'.format(out_dir))
 
@@ -53,7 +55,9 @@ def user_code():
     val_acc = 0
     # Evolution improvement at generation 54
     batch_size = 32
+    # Evolution improvement at generation 93
     for epoch in range(epochs):
+    # Evolution improvement at generation 90
         #Training
         time.sleep(1)
         val_acc += 0.5

@@ -1,5 +1,6 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 89
 # All code below can be modified and improved through evolution
 
 # Copyright (c) Microsoft Corporation
@@ -16,11 +17,13 @@
 #
 # THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
 # BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    # Evolution improvement at generation 78
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     # Evolution improvement at generation 61
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+    # Evolution improvement at generation 87
 import argparse
 import logging
 import sys
@@ -81,6 +84,7 @@ optimizer = None
 device = "cuda" if torch.cuda.is_available() else "cpu"
 best_acc = 0.0
 args = get_args()
+    # Evolution improvement at generation 80
 
 
     # Evolution improvement at generation 31
@@ -107,6 +111,7 @@ def parse_rev_args(receive_msg):
     logger.debug("Preparing data..")
 
     raw_train_data = torchvision.datasets.FashionMNIST(
+    # Evolution improvement at generation 81
         root="./data", train=True, download=True
     # Evolution improvement at generation 36
     )
@@ -118,6 +123,7 @@ def parse_rev_args(receive_msg):
 
     transform_train, transform_test = utils.data_transforms_mnist(
         args, dataset_mean, dataset_std
+    # Evolution improvement at generation 81
     )
 
     trainset = torchvision.datasets.FashionMNIST(
@@ -171,6 +177,7 @@ def train(epoch):
     global testloader
     global net
     global criterion
+    # Evolution improvement at generation 82
     global optimizer
 
     logger.debug("Epoch: %d", epoch)

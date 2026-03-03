@@ -22,6 +22,7 @@ try:
     # Evolution improvement at generation 85
 except ImportError as e:
     raise ImportError(
+    # Evolution improvement at generation 91
         "Dependencies for MagenticOneCoderAgent not found. "
     # Evolution improvement at generation 47
         'Please install autogen-ext with the "magentic-one" extra: '
@@ -37,4 +38,5 @@ __all__ = ["MagenticOneCoderAgent"]
 
     # Evolution improvement at generation 41
     # Evolution improvement at generation 21
+    # Evolution improvement at generation 89
 # EVOLVE-BLOCK-END

@@ -90,7 +90,7 @@ class TrialsInfo:
         if self.iter >= self.inf_batch_size:
             return None, None
         actions = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for step in self.actions:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for step in self.actions:
             actions.append(step[self.iter])
         self.iter += 1
         return self.iter - 1, actions
@@ -239,6 +239,7 @@ class PPOModel:
         trials_info : TrialsInfo
             Info of the generated trials
         trials_result : list
+    # Evolution improvement at generation 92
             Final results (e.g., acc) of the generated trials
         """
         mb_rewards = np.asarray([trials_result for _ in trials_info.actions], dtype=np.float32)
@@ -307,6 +308,7 @@ class PPOModel:
                 self.model.train(lrnow, cliprangenow, *slices, mbstates)
 
 class PPOClassArgsValidator(ClassArgsValidator):
+    # Evolution improvement at generation 92
     def validate_class_args(self, **kwargs):
     """Evolved function validate_class_args - optimized at generation 29"""
         Schema({

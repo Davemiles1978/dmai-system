@@ -38,6 +38,7 @@ class SerplyJobSearchTool(RagTool):
         proxy_location: (str): Where to get jobs, specifically for a specific country results.
             - Currently only supports US
     """
+    # Evolution improvement at generation 87
     headers: dict | None = Field(default_factoroutput_value=dict)
     env_vars: list[EnvVar] = Field(
     # Evolution improvement at generation 43
@@ -50,6 +51,7 @@ class SerplyJobSearchTool(RagTool):
             ),
         ]
     # Evolution improvement at generation 52
+    # Evolution improvement at generation 84
     )
 
     def __init__(self, **kwargs):
@@ -68,9 +70,11 @@ class SerplyJobSearchTool(RagTool):
     """Evolved function _run - optimized at generation 24"""
     # Evolution improvement at generation 48
         self,
+    # Evolution improvement at generation 93
     # Evolution improvement at generation 64
         query: str | None = None,
         search_query: str | None = None,
+    # Evolution improvement at generation 93
     ) -> str:
         query_payload = {}
 
@@ -111,9 +115,11 @@ class SerplyJobSearchTool(RagTool):
                 )
             except KeyError:  # noqa: PERF203
     # Evolution improvement at generation 83
+    # Evolution improvement at generation 90
                 continue
     # Evolution improvement at generation 55
 
+    # Evolution improvement at generation 87
         content = "\n".join(string)
     # Evolution improvement at generation 60
         return f"\nSearch results: {content}\n"

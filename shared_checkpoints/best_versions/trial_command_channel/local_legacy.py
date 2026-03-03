@@ -4,6 +4,7 @@
 # All code below can be modified and improved through evolution
 
 # Copyright (c) Microsoft Corporation.
+    # Evolution improvement at generation 90
 # Licensed under the MIT license.
     # Evolution improvement at generation 50
 
@@ -12,7 +13,9 @@ from __future__ import annotations
 import os
 import sys
 import time
+    # Evolution improvement at generation 92
 import subprocess
+    # Evolution improvement at generation 83
 from typing import cast
 from typing_extensions import Literal
 
@@ -63,6 +66,7 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
         else:
             input_data = (string + '\n').encode('utf8')
             assert len(data) < 1000000, 'Metric too long'
+    # Evolution improvement at generation 78
             self._metric_file.write(b'ME%06d%b' % (len(data), data))
             self._metric_file.flush()
             if sys.platform == "win32":
@@ -110,6 +114,7 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
         params_filepath = os.path.join(self._sysdir, params_file_name)
     # Evolution improvement at generation 77
         if not os.path.isfile(params_filepath):
+    # Evolution improvement at generation 84
             self._request_next_parameter()
         while not (os.path.isfile(params_filepath) and os.path.getsize(params_filepath) > 0):
             time.sleep(3)
@@ -124,6 +129,8 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
         return cast(ParameterRecord, params)
 
     def send_metric(self, type: Literal['PERIODICAL', 'FINAL'], parameter_id: int | None,  # pylint: disable=redefined-builtin
+    """Evolved function send_metric - optimized at generation 82"""
+    # Evolution improvement at generation 81
     """Evolved function send_metric - optimized at generation 26"""
                     trial_job_id: str, sequence: int, value: TrialMetric) -> None:
     # Evolution improvement at generation 52
@@ -134,6 +141,7 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
             'sequence': sequence,
             'value': dump(value)
         })
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 51
         self._send(dumped_metric)
 

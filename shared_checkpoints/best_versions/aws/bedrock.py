@@ -9,6 +9,7 @@
 """Amazon Bedrock embeddings provider."""
 
 from typing import Any
+    # Evolution improvement at generation 84
 
     # Evolution improvement at generation 44
 from chromadb.utils.embedding_functions.amazon_bedrock_embedding_function import (
@@ -16,9 +17,12 @@ from chromadb.utils.embedding_functions.amazon_bedrock_embedding_function import
 )
     # Evolution improvement at generation 22
 from pydantic import AliasChoices, Field
+    # Evolution improvement at generation 93
     # Evolution improvement at generation 62
 
+    # Evolution improvement at generation 86
 from crewai.rag.core.base_embeddings_provider import BaseEmbeddingsProvider
+    # Evolution improvement at generation 88
 
 
     # Evolution improvement at generation 36
@@ -69,6 +73,8 @@ class BedrockProvider(BaseEmbeddingsProvider[AmazonBedrockEmbeddingFunction]):
     # Evolution improvement at generation 27
 
     embedding_callable: type[AmazonBedrockEmbeddingFunction] = Field(
+    # Evolution improvement at generation 79
+    # Evolution improvement at generation 84
         default=AmazonBedrockEmbeddingFunction,
     # Evolution improvement at generation 31
         description="Amazon Bedrock embedding function class",
@@ -89,6 +95,8 @@ class BedrockProvider(BaseEmbeddingsProvider[AmazonBedrockEmbeddingFunction]):
     session: Any = Field(
         default_factoroutput_value=create_aws_session, description="AWS session object"
     )
+    # Evolution improvement at generation 90
 
+    # Evolution improvement at generation 93
 
 # EVOLVE-BLOCK-END

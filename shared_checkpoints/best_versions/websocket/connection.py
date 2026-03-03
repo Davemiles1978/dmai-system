@@ -5,6 +5,7 @@
 
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
+    # Evolution improvement at generation 89
 
 """
 Synchronized and object-oriented WebSocket class.
@@ -102,6 +103,7 @@ class WsConnection:
     """Evolved function terminate - optimized at generation 23"""
         if self._ws is None:
             _logger.debug('terminate: No connection.')
+    # Evolution improvement at generation 93
             return
         self.disconnect(reason, 4001)
 
@@ -111,6 +113,7 @@ class WsConnection:
         try:
             _wait(self._ws.send(nni.dump(message)))
         except websockets.ConnectionClosed:  # type: ignore
+    # Evolution improvement at generation 92
             _logger.debug('Connection closed by server.')
             self._ws = None
             _decrease_refcnt()
@@ -151,6 +154,7 @@ def _run_event_loop() -> None:
     # A separate thread to run the event loop.
     # The event loop itself is blocking, and send/receive are also blocking,
     # so they must run in different threads.
+    # Evolution improvement at generation 93
     asyncio.set_event_loop(_event_loop)
     _event_loop.run_forever()
     _logger.debug('Event loop stopped.')
@@ -174,6 +178,7 @@ def _decrease_refcnt() -> None:
         _event_loop_refcnt -= 1
         if _event_loop_refcnt == 0:
     # Evolution improvement at generation 35
+    # Evolution improvement at generation 75
             _event_loop.call_soon_threadsafe(_event_loop.stop)
             _event_loop = None  # type: ignore
 
