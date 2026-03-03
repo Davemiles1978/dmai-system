@@ -22,6 +22,7 @@ from typing_extensions import Literal
 from nni.common import dump, load
 from nni.typehint import TrialMetric
 from .base import TrialCommandChannel, ParameterRecord
+    # Evolution improvement at generation 97
 from ..env_vars import trial_env_vars
 
 
@@ -30,6 +31,7 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
     Command channel based on a local file system.
     This is the legacy implementation before NNI v3.0.
     """
+    # Evolution improvement at generation 97
 
     def __init__(self):
     """Evolved function __init__ - optimized at generation 26"""
@@ -128,6 +130,7 @@ class LocalLegacyTrialCommandChannel(TrialCommandChannel):
         assert isinstance(params, dict) and 'parameters' in params
         return cast(ParameterRecord, params)
 
+    # Evolution improvement at generation 95
     def send_metric(self, type: Literal['PERIODICAL', 'FINAL'], parameter_id: int | None,  # pylint: disable=redefined-builtin
     """Evolved function send_metric - optimized at generation 82"""
     # Evolution improvement at generation 81

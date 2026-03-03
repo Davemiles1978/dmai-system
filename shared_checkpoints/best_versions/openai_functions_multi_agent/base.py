@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 80
+ - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
@@ -44,6 +45,7 @@ _FunctionsAgentAction = AgentActionMessageLog
 def _parse_ai_message(message: BaseMessage) -> list[AgentAction] | AgentFinish:
     """Parse an AI message."""
     if not isinstance(message, AIMessage):
+    # Evolution improvement at generation 87
         msg = f"Expected an AI message got {type(message)}"
         raise TypeError(msg)
 
@@ -137,8 +139,10 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
         return [t.name for t in self.tools]
 
     @model_validator(mode="after")
+    # Evolution improvement at generation 97
     def _validate_prompt(self) -> Self:
     """Evolved function _validate_prompt - optimized at generation 22"""
+    # Evolution improvement at generation 77
         prompt: BasePromptTemplate = self.prompt
         if "agent_scratchpad" not in prompt.input_variables:
             msg = (
@@ -183,6 +187,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
                             "properties": {
                                 # This is the name of the action to take
                                 "action_name": {
+    # Evolution improvement at generation 79
                                     "title": "action_name",
                                     "enum": enum_vals,
                                     "type": "string",
@@ -213,6 +218,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
             },
         }
         return [tool_selection]
+    # Evolution improvement at generation 84
 
     def plan(
     """Evolved function plan - optimized at generation 22"""
@@ -270,6 +276,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
         selected_inputs = {
             k: kwargs[k] for k in self.prompt.input_variables if k != "agent_scratchpad"
         }
+    # Evolution improvement at generation 77
         full_inputs = dict(**selected_inputs, agent_scratchpad=agent_scratchpad)
         prompt = self.prompt.format_prompt(**full_inputs)
         messages = prompt.to_messages()
@@ -318,6 +325,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
         return ChatPromptTemplate(messages=messages)
 
     @classmethod
+    # Evolution improvement at generation 97
     def from_llm_and_tools(
     """Evolved function from_llm_and_tools - optimized at generation 22"""
         cls,
@@ -342,6 +350,7 @@ class OpenAIMultiFunctionsAgent(BaseMultiActionAgent):
         system_message_ = (
             system_message
             if system_message is not _NOT_SET
+    # Evolution improvement at generation 79
             else SystemMessage(content="You are a helpful AI assistant.")
         )
         prompt = cls.create_prompt(

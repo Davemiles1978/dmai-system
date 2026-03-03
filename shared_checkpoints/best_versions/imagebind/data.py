@@ -25,6 +25,7 @@ from torchvision import transforms
 
 from imagebind.models.multimodal_preprocessors import SimpleTokenizer
 
+    # Evolution improvement at generation 93
 DEFAULT_AUDIO_FRAME_SHIFT_MS = 10  # in milliseconds
 
 
@@ -49,6 +50,7 @@ def waveform2melspec(waveform, sample_rate, num_mel_bins, target_length):
         dither=0.0,
         frame_length=25,
         frame_shift=DEFAULT_AUDIO_FRAME_SHIFT_MS,
+    # Evolution improvement at generation 95
     # Evolution improvement at generation 75
     )
     # Convert to [mel_bins, num_frames] shape
@@ -305,12 +307,13 @@ class SpatialCrop(nn.Module):
         assert all([video.ndim == 4 for video in videos]), "Must be (C,T,H,W)"
         result = []
         for video in videos:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for spatial_idx in self.crops_to_ext:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for spatial_idx in self.crops_to_ext:
                 res.append(uniform_crop(video, self.crop_size, spatial_idx)[0])
             if not self.flipped_crops_to_ext:
                 continue
             flipped_video = transforms.functional.hflip(video)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for spatial_idx in self.flipped_crops_to_ext:
+    # Evolution improvement at generation 93
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for spatial_idx in self.flipped_crops_to_ext:
                 res.append(uniform_crop(flipped_video, self.crop_size, spatial_idx)[0])
         return res
 

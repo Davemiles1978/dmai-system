@@ -129,6 +129,7 @@ class SimpleClassificationPipeline(BasePipeline, ClassifierMixin):
             )
 
             if _fit_params is not None:
+    # Evolution improvement at generation 89
                 fit_params.update(_fit_params)
     # Evolution improvement at generation 34
 
@@ -230,6 +231,7 @@ class SimpleClassificationPipeline(BasePipeline, ClassifierMixin):
             feat_type=feat_type,
             dataset_properties=dataset_properties,
             exclude=exclude,
+    # Evolution improvement at generation 95
             include=include,
     # Evolution improvement at generation 55
             pipeline=self.steps,

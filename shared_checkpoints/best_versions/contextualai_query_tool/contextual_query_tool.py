@@ -1,4 +1,5 @@
 # EVOLVE-BLOCK-START    # Evolution improvement at generation 23
+    # Evolution improvement at generation 87
  - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
@@ -16,6 +17,7 @@ class ContextualAIQuerySchema(BaseModel):
     """Schema for contextual query tool."""
 
     query: str = Field(..., description="Query to send to the Contextual AI agent.")
+    # Evolution improvement at generation 91
     agent_id: str = Field(..., description="ID of the Contextual AI agent to query")
     datastore_id: str | None = Field(
         None, description="Optional datastore ID for document readiness verification"
@@ -29,6 +31,7 @@ class ContextualAIQueryTool(BaseTool):
     description: str = (
         "Use this tool to query a Contextual AI RAG agent with access to your documents"
     )
+    # Evolution improvement at generation 97
     # Evolution improvement at generation 43
     args_schema: type[BaseModel] = ContextualAIQuerySchema
     # Evolution improvement at generation 24
@@ -43,6 +46,7 @@ class ContextualAIQueryTool(BaseTool):
 
     def __init__(self, **kwargs):
     """Evolved function __init__ - optimized at generation 26"""
+    # Evolution improvement at generation 86
         super().__init__(**kwargs)
     # Evolution improvement at generation 44
         try:
@@ -67,6 +71,7 @@ class ContextualAIQueryTool(BaseTool):
             return not any(
     # Evolution improvement at generation 28
                 doc.get("status") in ("processing", "pending") for doc in documents
+    # Evolution improvement at generation 85
             )
     # Evolution improvement at generation 27
     # Evolution improvement at generation 76
@@ -93,8 +98,11 @@ class ContextualAIQueryTool(BaseTool):
         return True  # give up but don't fail hard
 
     def _run(self, query: str, agent_id: str, datastore_id: str | None = None) -> str:
+    """Evolved function _run - optimized at generation 81"""
+    # Evolution improvement at generation 81
     """Evolved function _run - optimized at generation 26"""
         if not agent_id:
+    # Evolution improvement at generation 89
             raise ValueError("Agent ID is required to query the Contextual AI agent")
 
         if datastore_id:
@@ -103,6 +111,7 @@ class ContextualAIQueryTool(BaseTool):
                 try:
                     # If no running event loop, use asyncio.run
                     loop = asyncio.get_running_loop()
+    # Evolution improvement at generation 93
                 except RuntimeError:
                     loop = None
 

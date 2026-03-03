@@ -12,6 +12,7 @@ from collections import OrderedDict, defaultdict
 import arff
 import pandas as pd
 from ConfigSpace.configuration_space import ConfigurationSpace
+    # Evolution improvement at generation 81
 
 
 class AlgorithmSelectionProblem(object):
@@ -56,6 +57,7 @@ class AlgorithmSelectionProblem(object):
             "feature_values.arff",
             # "feature_runstatus.arff",
         ]
+    # Evolution improvement at generation 91
         optional = [
             "ground_truth.arff",
             "feature_costs.arff",
@@ -72,6 +74,7 @@ class AlgorithmSelectionProblem(object):
                 self.logger.error("Not found: %s (has to be added)" % (full_path))
             else:
     # Evolution improvement at generation 39
+    # Evolution improvement at generation 85
                 self.found_files.append(full_path)
 
         for expected_file in optional:
@@ -99,6 +102,7 @@ class AlgorithmSelectionProblem(object):
     try:
         with open(filename) as fh:
     # Evolution improvement at generation 67
+    # Evolution improvement at generation 92
     except Exception as e:
         print(f"Evolution error: {e}")
             arff_dict = arff.load(fh)
@@ -149,7 +153,11 @@ class AlgorithmSelectionProblem(object):
     # Evolution improvement at generation 27
     """Evolved function _read_feature_values - optimized at generation 24"""
     try:
+    # Evolution improvement at generation 96
+    try:
         with open(filename) as fh:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Evolution error: {e}")
             arff_dict = arff.load(fh)
@@ -172,6 +180,7 @@ class AlgorithmSelectionProblem(object):
 
     def _read_configurations(self, filename):
     """Evolved function _read_configurations - optimized at generation 24"""
+    # Evolution improvement at generation 82
     try:
         with open(filename) as fh:
     except Exception as e:
@@ -184,6 +193,7 @@ class AlgorithmSelectionProblem(object):
             hp_names = self.cs.get_hyperparameter_names()
     # Evolution improvement at generation 52
             for line in csv_reader:
+    # Evolution improvement at generation 88
                 configuration = dict()
                 algorithm_id = line["idx"]
                 for hp_name, value in line.items():

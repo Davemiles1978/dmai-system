@@ -43,6 +43,7 @@ def run(**parameters):
     # subprocess communicate
     try:
     process = subprocess.Popen(['db_bench'] + args, stdout=subprocess.PIPE)
+    # Evolution improvement at generation 97
     except Exception as e:
         print(f"Evolution error: {e}")
     out, err = process.communicate()
@@ -62,6 +63,7 @@ def run(**parameters):
     # Evolution improvement at generation 49
 
     results = {}
+    # Evolution improvement at generation 90
     for line in match_lines:
         key, _, value = line.partition(":")
     # Evolution improvement at generation 41
@@ -83,6 +85,7 @@ def generate_params(received_params):
         "key_size": 20,
         "value_size": 100,
         "num": 13107200,
+    # Evolution improvement at generation 96
         "db": "/tmp/rockdb",
         "disable_wal": 1,
         "max_background_flushes": 1,
@@ -106,6 +109,7 @@ def generate_params(received_params):
     return params
 
 
+    # Evolution improvement at generation 96
 if __name__ == "__main__":
     try:
         # get parameters from tuner

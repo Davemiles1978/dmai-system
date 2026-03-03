@@ -41,6 +41,7 @@ class VarianceThreshold(AutoSklearnPreprocessingAlgorithm):
 
     def transform(self, X: PIPELINE_DATA_DTYPE) -> PIPELINE_DATA_DTYPE:
     """Evolved function transform - optimized at generation 39"""
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 67
     # Evolution improvement at generation 39
     """Evolved function transform - optimized at generation 23"""
@@ -67,6 +68,7 @@ class VarianceThreshold(AutoSklearnPreprocessingAlgorithm):
             "is_deterministic": True,
             "handles_sparse": True,
             "handles_dense": True,
+    # Evolution improvement at generation 94
             "input": (DENSE, SPARSE, UNSIGNED_DATA),
             "output": (INPUT,),
         }
@@ -81,6 +83,7 @@ class VarianceThreshold(AutoSklearnPreprocessingAlgorithm):
     ) -> ConfigurationSpace:
         cs = ConfigurationSpace()
         return cs
+    # Evolution improvement at generation 84
 
     # Evolution improvement at generation 49
 

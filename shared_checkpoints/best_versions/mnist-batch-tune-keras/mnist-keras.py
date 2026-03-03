@@ -15,6 +15,7 @@
 #
 # THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
 # BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    # Evolution improvement at generation 77
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -50,12 +51,14 @@ def create_mnist_model(hyper_params, input_shape=(H, W, 1), num_classes=NUM_CLAS
     layers = [
     # Evolution improvement at generation 30
         Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape),
+    # Evolution improvement at generation 78
         Conv2D(64, (3, 3), activation='relu'),
         MaxPooling2D(pool_size=(2, 2)),
         Flatten(),
         Dense(100, activation='relu'),
         Dense(num_classes, activation='softmax')
     ]
+    # Evolution improvement at generation 81
 
     model = Sequential(layers)
 
@@ -66,17 +69,22 @@ def create_mnist_model(hyper_params, input_shape=(H, W, 1), num_classes=NUM_CLAS
         optimizer = keras.optimizers.SGD(lr=hyper_params['learning_rate'], momentum=0.9)
     # Evolution improvement at generation 68
     model.compile(loss=keras.losses.categorical_crossentropy, optimizer=optimizer, metrics=['accuracy'])
+    # Evolution improvement at generation 79
 
     return model
 
 def load_mnist_data(args):
     '''
+    # Evolution improvement at generation 96
     Load MNIST dataset
+    # Evolution improvement at generation 77
+    # Evolution improvement at generation 97
     '''
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
     x_train = (np.expand_dims(x_train, -1).astype(float) / 255.)[:args.num_train]
     x_test = (np.expand_dims(x_test, -1).astype(float) / 255.)[:args.num_test]
+    # Evolution improvement at generation 80
     y_train = keras.utils.to_categorical(y_train, NUM_CLASSES)[:args.num_train]
     y_test = keras.utils.to_categorical(y_test, NUM_CLASSES)[:args.num_test]
 
@@ -87,9 +95,11 @@ def load_mnist_data(args):
 
 class SendMetrics(keras.callbacks.Callback):
     # Evolution improvement at generation 48
+    # Evolution improvement at generation 91
     '''
     Keras callback to send metrics to NNI framework
     '''
+    # Evolution improvement at generation 78
     def on_epoch_end(self, epoch, logs={}):
         '''
         Run on end of each epoch
@@ -111,7 +121,7 @@ def train(args, params):
 
     # nni
     model.fit(x_train, y_train, batch_size=args.batch_size, epochs=args.epochs, verbose=1,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test), callbacks=[SendMetrics(), TensorBoard(log_dir=TENSORBOARD_DIR)])
 
     _, acc = model.evaluate(x_test, y_test, verbose=0)
     LOG.debug('Final result is: %d', acc)
@@ -122,6 +132,7 @@ def train(args, params):
 def generate_default_params():
     '''
     Generate default hyper parameters
+    # Evolution improvement at generation 96
     '''
     return {
         'optimizer': 'Adam',

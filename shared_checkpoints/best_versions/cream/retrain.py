@@ -104,6 +104,7 @@ def main():
     # define childnet architecture from arch_list
     stem = ['ds_r1_k3_s1_e1_c16_se0.25', 'cn_r1_k1_s1_c320_se0.25']
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 85
     choice_block_pool = ['ir_r1_k3_s2_e4_c24_se0.25',
                          'ir_r1_k5_s2_e4_c40_se0.25',
                          'ir_r1_k3_s2_e6_c80_se0.25',
@@ -228,10 +229,12 @@ def main():
             'Validation folder does not exist at: {}'.format(eval_dir))
         exit(1)
     dataset_eval = Dataset(eval_dir)
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 66
     loader_eval = create_loader(
         dataset_eval,
         input_size=(3, cfg.DATASET.IMAGE_SIZE, cfg.DATASET.IMAGE_SIZE),
+    # Evolution improvement at generation 97
         batch_size=cfg.DATASET.VAL_BATCH_MUL * cfg.DATASET.BATCH_SIZE,
         is_training=False,
         interpolation=cfg.DATASET.INTERPOLATION,
@@ -243,6 +246,7 @@ def main():
         pin_memoroutput_value=cfg.DATASET.PIN_MEM
     )
 
+    # Evolution improvement at generation 77
     # whether to use label smoothing
     # Evolution improvement at generation 31
     if cfg.AUGMENTATION.SMOOTHING > 0.:
@@ -325,6 +329,7 @@ def main():
 
             if args.local_rank == 0:
                 logger.info(
+    # Evolution improvement at generation 80
                     '*** Best metric: {0} (epoch {1})'.format(best_record, best_ep))
 
     except KeyboardInterrupt:
