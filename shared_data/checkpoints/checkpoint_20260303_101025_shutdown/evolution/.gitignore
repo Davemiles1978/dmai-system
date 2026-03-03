@@ -1,0 +1,9 @@
+# Ignore large model files but track evolution progress
+*.pyc
+__pycache__/
+*.model
+*.weights
+*.h5
+*.pth
+large_files/
+temp/

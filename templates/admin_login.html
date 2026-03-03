@@ -62,21 +62,43 @@
             margin-top: 10px;
             text-align: center;
         }
+        .links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .links a {
+            color: #6e8efb;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h1>🔐 DMAI Admin Access</h1>
-        <input type="text" id="username" placeholder="Username" value="davidmiles1978">
+        <input type="text" id="username" placeholder="Username" value="Baphomet_78">
         <input type="password" id="password" placeholder="Password">
         <button onclick="adminLogin()">Login</button>
         <div class="error" id="error"></div>
+        <div class="links">
+            <a href="/biometric-login">🔑 Biometric Login</a>
+            <a href="/forgot-password">Forgot Password?</a>
+        </div>
     </div>
 
     <script>
         async function adminLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                document.getElementById('error').textContent = 'Please enter username and password';
+                return;
+            }
             
             try {
                 const response = await fetch('/admin/login', {
@@ -85,25 +107,22 @@
                     body: JSON.stringify({username, password})
                 });
                 
+                if (response.status === 401) {
+                    document.getElementById('error').textContent = 'Invalid credentials';
+                    return;
+                }
+                
                 const data = await response.json();
                 if (data.success) {
                     window.location.href = '/evolution';
                 } else {
-                    document.getElementById('error').textContent = 'Invalid credentials';
+                    document.getElementById('error').textContent = data.message || 'Invalid credentials';
                 }
             } catch (error) {
                 document.getElementById('error').textContent = 'Login failed';
+                console.error(error);
             }
         }
-        
-        // Check if already logged in
-        fetch('/admin/status')
-            .then(r => r.json())
-            .then(data => {
-                if (data.is_admin) {
-                    window.location.href = '/evolution';
-                }
-            });
     </script>
 </body>
 </html>

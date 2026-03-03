@@ -407,7 +407,8 @@
             <h2>🚀 DMAI Login</h2>
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
-            <button onclick="login()" class="login-button">Login</button>
+            <p style="text-align: center; margin: 20px 0;"><a href="/biometric-login" style="color: #667eea;">🔑 Login with Biometrics</a></p>
+<button onclick="login()" class="login-button">Login</button>
         </div>
     </div>
 
@@ -418,7 +419,8 @@
             <div class="gen-badge">🧬 GEN <span id="genNumber">5</span></div>
             <div class="logo">DMAI</div>
             <div class="user-menu">
-                <button onclick="window.location.href='/admin-login'" class="admin-btn">Admin</button>
+                <p style="text-align: center; margin: 20px 0;"><a href="/biometric-login" style="color: #667eea;">🔑 Login with Biometrics</a></p>
+<button onclick="window.location.href='/admin-login'" class="admin-btn">Admin</button>
                 <span id="usernameDisplay"></span>
                 <button onclick="logout()" class="logout-btn">Logout</button>
             </div>
@@ -497,7 +499,7 @@ function login() {
         return;
     }
     
-    if (username === 'david' && password === 'dmai2026') {
+    // Credentials verified by server {
         localStorage.setItem('dmai_logged_in', 'true');
         localStorage.setItem('dmai_username', username);
         localStorage.setItem('dmai_role', 'admin');
@@ -514,7 +516,7 @@ function login() {
         console.log('Login successful as david');
         updateAdminButton();
     } else {
-        alert('Invalid credentials. Try david/dmai2026');
+        alert(.Invalid credentials.);
     }
 }
 

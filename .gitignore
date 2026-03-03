@@ -1,65 +1,56 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Evolution system - don't commit evolved files
-repos/
-# checkpoints/ - now using shared_checkpointsgeneration_*/
-# checkpoints/ - now using shared_checkpointscheckpoint_*/
-# checkpoints/ - now using shared_checkpointsbackups/
-agi/backups/
-agi/data/
-agi/health/
-agi/models/
-agi/test_results/
-
-# Logs and databases
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 *.log
-*.sql
-*.sqlite
-evolution.log
+
+# Large files that shouldn't be in git
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.mp4
+*.mov
+*.avi
+*.iso
+*.dmg
+
+# Checkpoints (these are huge - you might want to exclude them)
+checkpoints/generation_*/
+shared_checkpoints/generation_*/
+shared_data/checkpoints/
+
+# Keep these patterns if needed, but exclude the large binary files
+!checkpoints/*/repos/*/*.md
+!checkpoints/*/repos/*/*.txt
+!checkpoints/*/repos/*/*.py
+!checkpoints/*/repos/*/*.js
+!checkpoints/*/repos/*/*.json
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Backup files
-*.backup
-*.bak
-*.backup2
-*.backup3
-*.bak2
-*.bak3
-*.syntax_backup
-*.final_backup
-
-# Local development
-.env
-.venv
-venv/
-ENV/
-env/
-
-# Project specific
-shared_# checkpoints/ - now using shared_checkpointscurrent_generation.txt
-# checkpoints/ - now using shared_checkpointscurrent_generation.txt
-# checkpoints/ - now using shared_checkpointsbest_scores.json
-next_chat_handover.sh
-PROJECT MASTER DASHBOARD.md
-test_evolution.py
-clean_evolution_loop.py
-quick_status.py
-dashboard.py
-product_creator.py
-static/img/dna-logo.ico
-static/js/force_fix.js
-
-# Keep these files (they're our code)
-!app.py
-!evolution_engine.py
-!ui/ai_ui.html
-!templates/
-!config/
-!agi/self_healer.py
-!agi/knowledge_graph.py
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

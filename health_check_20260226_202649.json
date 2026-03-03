@@ -1,0 +1,208 @@
+{
+  "timestamp": "2026-02-26T20:26:42.704169",
+  "status": "GOOD",
+  "checks": [
+    {
+      "name": "File: Main UI",
+      "status": "PASS",
+      "message": "ai_ui.html found",
+      "details": {
+        "path": "ai_ui.html"
+      }
+    },
+    {
+      "name": "File: Evolution Engine",
+      "status": "PASS",
+      "message": "evolution_engine.py found",
+      "details": {
+        "path": "evolution_engine.py"
+      }
+    },
+    {
+      "name": "File: API Server",
+      "status": "PASS",
+      "message": "api_server.py found",
+      "details": {
+        "path": "api_server.py"
+      }
+    },
+    {
+      "name": "File: Flask App",
+      "status": "PASS",
+      "message": "app_with_api.py found",
+      "details": {
+        "path": "app_with_api.py"
+      }
+    },
+    {
+      "name": "File: Requirements",
+      "status": "PASS",
+      "message": "requirements.txt found",
+      "details": {
+        "path": "requirements.txt"
+      }
+    },
+    {
+      "name": "File: Cleanup Script",
+      "status": "PASS",
+      "message": "cleanup_versions.py found",
+      "details": {
+        "path": "cleanup_versions.py"
+      }
+    },
+    {
+      "name": "Directory: Repositories",
+      "status": "PASS",
+      "message": "Repositories directory found",
+      "details": {
+        "path": "repos"
+      }
+    },
+    {
+      "name": "Directory: Checkpoints",
+      "status": "PASS",
+      "message": "Checkpoints directory found",
+      "details": {
+        "path": "checkpoints"
+      }
+    },
+    {
+      "name": "Directory: Logs",
+      "status": "PASS",
+      "message": "Logs directory found",
+      "details": {
+        "path": "logs"
+      }
+    },
+    {
+      "name": "Directory: UI Files",
+      "status": "PASS",
+      "message": "UI Files directory found",
+      "details": {
+        "path": "ui"
+      }
+    },
+    {
+      "name": "Process: evolution_engine.py",
+      "status": "PASS",
+      "message": "evolution_engine.py is running",
+      "details": {
+        "running": true,
+        "port": null,
+        "port_open": null
+      }
+    },
+    {
+      "name": "Process: api_server.py",
+      "status": "PASS",
+      "message": "api_server.py is running on port 8889 (listening)",
+      "details": {
+        "running": true,
+        "port": 8889,
+        "port_open": true
+      }
+    },
+    {
+      "name": "API: Render Evolution Stats",
+      "status": "PASS",
+      "message": "Render Evolution Stats API returned 200",
+      "details": {
+        "url": "https://dmai-final.onrender.com/api/evolution-stats",
+        "status_code": 200,
+        "response": {
+          "bestScore": 1.26,
+          "generation": 5,
+          "status": "running"
+        }
+      }
+    },
+    {
+      "name": "API: Render Main UI",
+      "status": "PASS",
+      "message": "Render Main UI API returned 200",
+      "details": {
+        "url": "https://dmai-final.onrender.com/",
+        "status_code": 200,
+        "response": {
+          "note": "non-JSON response"
+        }
+      }
+    },
+    {
+      "name": "API: Local Evolution Stats",
+      "status": "PASS",
+      "message": "Local Evolution Stats API returned 200",
+      "details": {
+        "url": "http://localhost:8889/api/evolution-stats",
+        "status_code": 200,
+        "response": {
+          "generation": 26,
+          "bestScore": 1.7067877301830017,
+          "repos": 19,
+          "status": "running"
+        }
+      }
+    },
+    {
+      "name": "Git Status",
+      "status": "WARN",
+      "message": "903 uncommitted changes",
+      "details": {
+        "modified_files": 903,
+        "details": [
+          "M .DS_Store",
+          " M checkpoints/best_scores.json",
+          " M checkpoints/best_versions/HumanEval/eval_instruct.py",
+          " M checkpoints/best_versions/HumanEval/humaneval.py",
+          " M checkpoints/best_versions/PAL-Math/run.py"
+        ]
+      }
+    },
+    {
+      "name": "Disk: checkpoints",
+      "status": "PASS",
+      "message": "checkpoints size: 1686.32 MB",
+      "details": {
+        "size_mb": 1686.32
+      }
+    },
+    {
+      "name": "Disk: repos",
+      "status": "PASS",
+      "message": "repos size: 1846.08 MB",
+      "details": {
+        "size_mb": 1846.08
+      }
+    },
+    {
+      "name": "Disk: logs",
+      "status": "PASS",
+      "message": "logs size: 2.14 MB",
+      "details": {
+        "size_mb": 2.14
+      }
+    },
+    {
+      "name": "Cron Job",
+      "status": "PASS",
+      "message": "Cleanup cron job installed",
+      "details": {
+        "crontab": "0 2 * * 0 cd /Users/davidmiles/Desktop/AI-Evolution-System && /usr/bin/python3 cleanup_versions.py >> /tmp/cleanup.log 2>&10 2 * * 0 cd /Users/davidmiles/Desktop/AI-Evolution-System && /usr/bin/python3 cleanup_versions.py >> /tmp/cleanup.log 2>&1"
+      }
+    },
+    {
+      "name": "Evolution Progress",
+      "status": "PASS",
+      "message": "Evolution at generation 26",
+      "details": {
+        "generation": 26
+      }
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "passed": 20,
+    "failed": 0,
+    "warnings": 1
+  }
+}

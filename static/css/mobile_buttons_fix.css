@@ -79,3 +79,29 @@
         line-height: 36px !important;
     }
 }
+
+/* Auto-fixed: Scrolling issues */
+.messages-container, .chat-list-panel, .tools-panel {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: 100% !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent) !important;
+    border-radius: 4px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light) !important;
+}

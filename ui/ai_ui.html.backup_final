@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAI - Distributed Meta AGI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Login Container */
+        #loginContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2f 100%);
+        }
+        
+        .login-box {
+            background: rgba(30, 30, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #3a3a4f;
+            border-radius: 12px;
+            padding: 40px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .login-box h2 {
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 24px;
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #3a3a4f;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .login-box input:focus {
+            outline: none;
+            border-color: #6e8efb;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Main Container */
+        #mainContainer {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a3a;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .gen-badge {
+            background: linear-gradient(90deg, #6e8efb20, #a777e320);
+            border: 1px solid #6e8efb40;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #a777e3;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: 1px solid #3a3a4f;
+            color: #e0e0e0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: #ff444420;
+            border-color: #ff4444;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 15, 20, 0.95);
+            border-right: 1px solid #2a2a3a;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #2a2a3a;
+        }
+        
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .chats-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        
+        .chat-item {
+            padding: 12px;
+            margin: 4px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-item:hover {
+            background: rgba(110, 142, 251, 0.1);
+            border-color: #6e8efb;
+        }
+        
+        .chat-item.active {
+            background: rgba(110, 142, 251, 0.15);
+            border-color: #6e8efb;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 12px;
+        }
+        
+        .chat-action-btn:hover {
+            color: #fff;
+        }
+        
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(10, 10, 15, 0.95);
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .message {
+            max-width: 70%;
+            margin: 16px auto;
+            padding: 12px 18px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .assistant-message {
+            background: rgba(40, 40, 50, 0.8);
+            border: 1px solid #3a3a4f;
+            margin-right: auto;
+        }
+        
+        /* Tools Panel */
+        .tools-panel {
+            display: flex;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(20, 20, 30, 0.95);
+            border-top: 1px solid #2a2a3a;
+            flex-wrap: wrap;
+        }
+        
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #3a3a4f;
+            color: #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .tool-btn:hover {
+            background: linear-gradient(90deg, #6e8efb20, #a777e320);
+            border-color: #6e8efb;
+            transform: translateY(-1px);
+        }
+        
+        .tool-btn i {
+            font-size: 14px;
+        }
+        
+        /* Input Area */
+        .input-area {
+            padding: 20px 24px;
+            background: rgba(20, 20, 30, 0.95);
+            border-top: 1px solid #2a2a3a;
+        }
+        
+        .input-container {
+            max-width: 70%;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            background: rgba(30, 30, 40, 0.8);
+            border: 1px solid #3a3a4f;
+            border-radius: 12px;
+            padding: 4px 4px 4px 16px;
+        }
+        
+        .input-container input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 14px;
+            padding: 12px 0;
+        }
+        
+        .input-container input:focus {
+            outline: none;
+        }
+        
+        .send-btn {
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 8px 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a2a;
+            border: 1px solid #3a3a4f;
+            border-radius: 12px;
+            padding: 24px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3a3a4f;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .archived-chat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 4px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #3a3a4f;
+            border-radius: 8px;
+        }
+        
+        .archived-chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div id="loginContainer">
+        <div class="login-box">
+            <h2>🚀 DMAI Login</h2>
+            <input type="text" id="username" placeholder="Username" value="admin">
+            <input type="password" id="password" placeholder="Password" value="password">
+            <button onclick="login()" class="login-button">Login</button>
+            <p style="color: #888; margin-top: 10px; font-size: 12px;">Default: admin/password</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="mainContainer">
+        <!-- Header -->
+        <div class="header">
+            <div class="gen-badge">🔮 GEN <span id="genNumber">5</span></div>
+            <div class="logo">DMAI</div>
+            <div class="user-menu">
+            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
+                <span id="usernameDisplay">admin</span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <button onclick="newChat()" class="new-chat-btn">
+                        <i>➕</i> New Chat
+                    </button>
+                </div>
+                <div class="chats-list" id="chatsList">
+                    <!-- Chats will be loaded here -->
+                </div>
+                <div style="padding: 12px; border-top: 1px solid #2a2a3a;">
+                    <button onclick="showArchivedChats()" class="tool-btn" style="width: 100%;">
+                        <i>📦</i> Archived Chats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <div class="messages-container" id="messages">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <!-- Tools Panel -->
+                <div class="tools-panel">
+                    <button id="web-search" class="tool-btn" onclick="useTool('web-search')">
+                        <i>🔍</i> Web Search
+                    </button>
+                    <button id="knowledge-graph" class="tool-btn" onclick="useTool('knowledge-graph')">
+                        <i>🕸️</i> Knowledge Graph
+                    </button>
+                    <button id="code-execution" class="tool-btn" onclick="useTool('code-execution')">
+                        <i>💻</i> Code Execution
+                    </button>
+                    <button id="file-processor" class="tool-btn" onclick="useTool('file-processor')">
+                        <i>📁</i> File Processor
+                    </button>
+                    <button id="agi-evolution" class="tool-btn" onclick="useTool('agi-evolution')">
+                        <i>🧬</i> AGI Evolution
+                    </button>
+                    <button id="dark-web" class="tool-btn" onclick="useTool('dark-web')">
+                        <i>🌑</i> Dark Web
+                    </button>
+                    <button id="api-discovery" class="tool-btn" onclick="useTool('api-discovery')">
+                        <i>🔌</i> API Discovery
+                    </button>
+                    <button id="anti-hack" class="tool-btn" onclick="useTool('anti-hack')">
+                        <i>🛡️</i> Anti-Hack
+                    </button>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-container">
+                        <input type="text" id="messageInput" placeholder="Message DMAI..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button onclick="sendMessage()" class="send-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archived Chats Modal -->
+    <div id="archivedChatsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📦 Archived Chats</h2>
+                <button onclick="closeArchivedModal()" class="close-modal">&times;</button>
+            </div>
+            <div id="archivedChatsList">
+                <!-- Archived chats will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== LOGIN FUNCTIONS =====
+        function login() {
+            console.log('Login function called');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('Please enter username and password');
+                return;
+            }
+            
+    } else if (username === "david" && password === "dmai2026") {
+        localStorage.setItem("dmai_logged_in", "true");
+        localStorage.setItem("dmai_username", username);
+        localStorage.setItem("dmai_role", "user");
+        localStorage.setItem("dmai_last_active", new Date().toISOString());
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("mainContainer").style.display = "flex";
+        document.getElementById("usernameDisplay").textContent = username;
+        if (typeof loadChats === "function") loadChats();
+        if (typeof loadArchivedChats === "function") loadArchivedChats();
+        if (typeof addWelcomeMessage === "function") addWelcomeMessage();
+        console.log("Login successful as david");
+
+    } else if (username === "david" && password === "dmai2026") {
+        localStorage.setItem("dmai_logged_in", "true");
+        localStorage.setItem("dmai_username", username);
+        localStorage.setItem("dmai_role", "user");
+        localStorage.setItem("dmai_last_active", new Date().toISOString());
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("mainContainer").style.display = "flex";
+        document.getElementById("usernameDisplay").textContent = username;
+        if (typeof loadChats === "function") loadChats();
+        if (typeof loadArchivedChats === "function") loadArchivedChats();
+        if (typeof addWelcomeMessage === "function") addWelcomeMessage();
+        console.log("Login successful as david");
+
+            if (username === 'admin' && password === 'password') {
+                localStorage.setItem('dmai_logged_in', 'true');
+                localStorage.setItem('dmai_username', username);
+                localStorage.setItem('dmai_role', 'admin');
+                localStorage.setItem('dmai_last_active', new Date().toISOString());
+                
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'flex';
+                document.getElementById('usernameDisplay').textContent = username;
+                
+                if (typeof loadChats === 'function') loadChats();
+                if (typeof loadArchivedChats === 'function') loadArchivedChats();
+                if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
+                
+                console.log('Login successful');
+            } else {
+                alert('Invalid credentials. Try admin/password');
+            }
+        }
+
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('dmai_logged_in') === 'true';
+            if (isLoggedIn) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'flex';
+                document.getElementById('usernameDisplay').textContent = localStorage.getItem('dmai_username') || 'admin';
+                if (typeof loadChats === 'function') loadChats();
+                if (typeof loadArchivedChats === 'function') loadArchivedChats();
+                if (typeof addWelcomeMessage === 'function') addWelcomeMessage();
+            } else {
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('mainContainer').style.display = 'none';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('dmai_logged_in');
+            localStorage.removeItem('dmai_username');
+            localStorage.removeItem('dmai_role');
+            localStorage.removeItem('dmai_last_active');
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+        }
+
+        // ===== CHAT FUNCTIONS =====
+        let currentChatId = null;
+        let chats = [];
+        let archivedChats = [];
+
+        function loadChats() {
+            const saved = localStorage.getItem('dmai_chats');
+            chats = saved ? JSON.parse(saved) : [];
+            renderChats();
+        }
+
+        function loadArchivedChats() {
+            const saved = localStorage.getItem('dmai_archived_chats');
+            archivedChats = saved ? JSON.parse(saved) : [];
+        }
+
+        function renderChats() {
+            const list = document.getElementById('chatsList');
+            if (!list) return;
+            
+            list.innerHTML = '';
+            
+            chats.forEach(chat => {
+                const chatEl = document.createElement('div');
+                chatEl.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                chatEl.innerHTML = `
+                    <div style="flex:1;" onclick="selectChat('${chat.id}')">${chat.title || 'New Chat'}</div>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" onclick="archiveChat('${chat.id}')" title="Archive">📦</button>
+                        <button class="chat-action-btn" onclick="deleteChat('${chat.id}')" title="Delete">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(chatEl);
+            });
+        }
+
+        function newChat() {
+            const chatId = Date.now().toString();
+            const chat = {
+                id: chatId,
+                title: 'New Chat',
+                messages: [],
+                created: new Date().toISOString()
+            };
+            chats.push(chat);
+            currentChatId = chatId;
+            saveChats();
+            renderChats();
+            clearMessages();
+            addWelcomeMessage();
+        }
+
+        function selectChat(chatId) {
+            currentChatId = chatId;
+            renderChats();
+            loadChatMessages(chatId);
+        }
+
+        function loadChatMessages(chatId) {
+            const chat = chats.find(c => c.id === chatId);
+            if (chat) {
+                const messagesDiv = document.getElementById('messages');
+                if (messagesDiv) {
+                    messagesDiv.innerHTML = '';
+                    chat.messages.forEach(msg => {
+                        addMessageToUI(msg.text, msg.sender);
+                    });
+                }
+            }
+        }
+
+        function archiveChat(chatId) {
+            const index = chats.findIndex(c => c.id === chatId);
+            if (index !== -1) {
+                const chat = chats[index];
+                chat.archivedAt = new Date().toISOString();
+                archivedChats.push(chat);
+                chats.splice(index, 1);
+                
+                if (currentChatId === chatId) {
+                    currentChatId = null;
+                    clearMessages();
+                }
+                
+                saveChats();
+                saveArchivedChats();
+                renderChats();
+            }
+        }
+
+        function deleteChat(chatId) {
+            if (confirm('Delete this chat?')) {
+                const index = chats.findIndex(c => c.id === chatId);
+                if (index !== -1) {
+                    chats.splice(index, 1);
+                    if (currentChatId === chatId) {
+                        currentChatId = null;
+                        clearMessages();
+                    }
+                    saveChats();
+                    renderChats();
+                }
+            }
+        }
+
+        function saveChats() {
+            localStorage.setItem('dmai_chats', JSON.stringify(chats));
+        }
+
+        function saveArchivedChats() {
+            localStorage.setItem('dmai_archived_chats', JSON.stringify(archivedChats));
+        }
+
+        function clearMessages() {
+            const messagesDiv = document.getElementById('messages');
+            if (messagesDiv) messagesDiv.innerHTML = '';
+        }
+
+        // ===== MESSAGE FUNCTIONS =====
+        function addWelcomeMessage() {
+            const messagesDiv = document.getElementById('messages');
+            if (messagesDiv && messagesDiv.children.length === 0) {
+                addMessageToUI('Hello! I am DMAI, your Distributed Meta AGI assistant. How can I help you today?', 'assistant');
+            }
+        }
+
+        function addMessageToUI(text, sender) {
+            const messagesDiv = document.getElementById('messages');
+            if (!messagesDiv) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'assistant-message'}`;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            if (!input) return;
+            
+            const text = input.value.trim();
+            
+            if (!text || !currentChatId) {
+                if (!currentChatId) newChat();
+                return;
+            }
+            
+            addMessageToUI(text, 'user');
+            input.value = '';
+            
+            const chat = chats.find(c => c.id === currentChatId);
+            if (chat) {
+                chat.messages.push({ text, sender: 'user', timestamp: new Date().toISOString() });
+                
+                setTimeout(() => {
+                    const response = "I understand your query. Let me process that...";
+                    addMessageToUI(response, 'assistant');
+                    chat.messages.push({ text: response, sender: 'assistant', timestamp: new Date().toISOString() });
+                    saveChats();
+                }, 1000);
+            }
+        }
+
+        // ===== TOOL FUNCTIONS =====
+        function useTool(toolName) {
+            console.log(`Using tool: ${toolName}`);
+            addMessageToUI(`🛠️ Activating ${toolName} tool...`, 'assistant');
+            
+            setTimeout(() => {
+                addMessageToUI(`✅ ${toolName} tool executed successfully`, 'assistant');
+            }, 1500);
+        }
+
+        // ===== ARCHIVED MODAL FUNCTIONS =====
+        function showArchivedChats() {
+            const modal = document.getElementById('archivedChatsModal');
+            const list = document.getElementById('archivedChatsList');
+            
+            if (!modal || !list) return;
+            
+            list.innerHTML = '';
+            
+            if (archivedChats.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #888;">No archived chats</p>';
+            } else {
+                archivedChats.forEach(chat => {
+                    const chatEl = document.createElement('div');
+                    chatEl.className = 'archived-chat-item';
+                    chatEl.innerHTML = `
+                        <div>
+                            <div style="font-weight: 600;">${chat.title}</div>
+                            <div style="font-size: 12px; color: #888;">${new Date(chat.archivedAt).toLocaleString()}</div>
+                        </div>
+                        <div class="archived-chat-actions">
+                            <button class="chat-action-btn" onclick="restoreArchivedChat('${chat.id}')" title="Restore">↩️</button>
+                            <button class="chat-action-btn" onclick="deleteArchivedChat('${chat.id}')" title="Delete">🗑️</button>
+                        </div>
+                    `;
+                    list.appendChild(chatEl);
+                });
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeArchivedModal() {
+            const modal = document.getElementById('archivedChatsModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function restoreArchivedChat(chatId) {
+            const index = archivedChats.findIndex(c => c.id === chatId);
+            if (index !== -1) {
+                const chat = archivedChats[index];
+                delete chat.archivedAt;
+                chats.push(chat);
+                archivedChats.splice(index, 1);
+                
+                saveChats();
+                saveArchivedChats();
+                renderChats();
+                showArchivedChats();
+            }
+        }
+
+        function deleteArchivedChat(chatId) {
+            if (confirm('Delete this archived chat permanently?')) {
+                const index = archivedChats.findIndex(c => c.id === chatId);
+                if (index !== -1) {
+                    archivedChats.splice(index, 1);
+                    saveArchivedChats();
+                    showArchivedChats();
+                }
+            }
+        }
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, checking login status...');
+            checkLoginStatus();
+            
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        login();
+                    }
+                });
+            }
+            
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+        });
+
+        // Click outside modal to close
+        window.onclick = function(event) {
+            const modal = document.getElementById('archivedChatsModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>
+        // Add admin check in the header
+        <div class="user-menu">
+            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
+            <span id="usernameDisplay">admin</span>
+            <button onclick="window.location.href='/admin-login'" class="admin-btn" style="background: linear-gradient(90deg, #6e8efb, #a777e3); border: none; color: white; padding: 6px 12px; border-radius: 6px; margin-right: 10px; cursor: pointer;">Admin</button>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+
+<script>
+// Update admin button visibility based on login
+function updateAdminButton() {
+    const adminBtn = document.querySelector('.admin-btn');
+    const username = localStorage.getItem('dmai_username');
+    
+    if (adminBtn) {
+        if (username === 'david') {
+            adminBtn.style.display = 'inline-block';
+        } else {
+            adminBtn.style.display = 'none';
+        }
+    }
+}
+
+// Override login to update button
+const originalLogin = window.login;
+window.login = function() {
+    originalLogin();
+    setTimeout(updateAdminButton, 100);
+}
+
+// Update on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(updateAdminButton, 100);
+});
+</script>

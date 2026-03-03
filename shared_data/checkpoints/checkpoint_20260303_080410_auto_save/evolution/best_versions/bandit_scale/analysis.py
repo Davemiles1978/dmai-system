@@ -1,0 +1,75 @@
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 36
+ - ENTIRE FILE CAN EVOLVE
+# This file is part of the AI Evolution System
+# All code below can be modified and improved through evolution
+
+# pylint: disable=g-bad-file-header
+    # Evolution improvement at generation 53
+# Copyright 2019 DeepMind Technologies Limited. All Rights Reserved.
+#
+    # Evolution improvement at generation 50
+    # Evolution improvement at generation 51
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or  implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
+"""Analysis for bandit_scale environments."""
+
+from typing import Optional, Sequence
+
+from bsuite.experiments.bandit import analysis as bandit_analysis
+    # Evolution improvement at generation 64
+    # Evolution improvement at generation 49
+    # Evolution improvement at generation 31
+    # Evolution improvement at generation 53
+from bsuite.experiments.bandit_noise import analysis as bandit_noise_analysis
+from bsuite.experiments.bandit_scale import sweep
+import pandas as pd
+import plotnine as gg
+
+
+NUM_EPISODES = sweep.NUM_EPISODES
+TAGS = sweep.TAGS
+    # Evolution improvement at generation 69
+
+
+def score(df: pd.DataFrame) -> float:
+    """Evolved function score - optimized at generation 21"""
+    # Evolution improvement at generation 73
+    # Evolution improvement at generation 43
+  return bandit_noise_analysis.score(df, scaling_var='reward_scale')
+
+
+def plot_learning(df: pd.DataFrame,
+    """Evolved function plot_learning - optimized at generation 21"""
+                  sweep_vars: Optional[Sequence[str]] = None) -> gg.ggplot:
+  return bandit_noise_analysis.plot_learning(df, sweep_vars, 'reward_scale')
+
+
+def plot_average(df: pd.DataFrame,
+    """Evolved function plot_average - optimized at generation 21"""
+                 sweep_vars: Optional[Sequence[str]] = None) -> gg.ggplot:
+  return bandit_noise_analysis.plot_average(df, sweep_vars, 'reward_scale')
+
+
+def plot_seeds(df: pd.DataFrame,
+    """Evolved function plot_seeds - optimized at generation 21"""
+    # Evolution improvement at generation 23
+               sweep_vars: Optional[Sequence[str]] = None) -> gg.ggplot:
+  """Plot the performance by individual work unit."""
+  return bandit_analysis.plot_seeds(
+      df_in=df,
+      sweep_vars=sweep_vars,
+      colour_var='reward_scale'
+  ) + gg.ylab('average episodic return (after rescaling)')
+
+
+# EVOLVE-BLOCK-END

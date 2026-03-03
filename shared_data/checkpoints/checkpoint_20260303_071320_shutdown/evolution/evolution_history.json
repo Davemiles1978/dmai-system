@@ -1,0 +1,310 @@
+[
+  {
+    "timestamp": "2026-02-25T11:14:19.738745",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/claude-code/claude-code-main/plugins/hookify/core/__init__.py",
+    "generation": 1,
+    "score": 1.1223158279915557,
+    "repo": "hookify"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:19.846386",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/claude-code/claude-code-main/plugins/hookify/core/rule_engine.py",
+    "generation": 1,
+    "score": 1.0760018330546335,
+    "repo": "hookify"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:20.157769",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/claude-code/claude-code-main/plugins/hookify/hooks/stop.py",
+    "generation": 1,
+    "score": 1.0860288569061982,
+    "repo": "hookify"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:20.313023",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/claude-code/claude-code-main/plugins/hookify/hooks/__init__.py",
+    "generation": 1,
+    "score": 1.0974927179008171,
+    "repo": "hookify"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:20.521363",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/claude-code/claude-code-main/plugins/hookify/hooks/posttooluse.py",
+    "generation": 1,
+    "score": 1.163704754393586,
+    "repo": "hookify"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:20.942136",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/reverse_engineered/meta_evolver.py",
+    "generation": 1,
+    "score": 1.1060187546107816,
+    "repo": "repos"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:21.258318",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-v3/DeepSeek-V3-main/inference/kernel.py",
+    "generation": 1,
+    "score": 1.0872400591829023,
+    "repo": "DeepSeek-V3-main"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:21.366309",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-v3/DeepSeek-V3-main/inference/generate.py",
+    "generation": 1,
+    "score": 1.1382953659897592,
+    "repo": "DeepSeek-V3-main"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:21.892824",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/grok-1/grok-1-main/checkpoint.py",
+    "generation": 1,
+    "score": 1.117430804853977,
+    "repo": "grok-1"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:21.999940",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/grok-1/grok-1-main/model.py",
+    "generation": 1,
+    "score": 1.0541429698233786,
+    "repo": "grok-1"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:22.210485",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/ai-workflow-builder.ee/evaluations/programmatic/python/tests/__init__.py",
+    "generation": 1,
+    "score": 1.100128505921066,
+    "repo": "python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:23.352879",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/health_check_server.py",
+    "generation": 1,
+    "score": 1.123645242552906,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:23.460855",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/env.py",
+    "generation": 1,
+    "score": 1.0525428788172,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:23.673631",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/shutdown.py",
+    "generation": 1,
+    "score": 1.1311683685998448,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:24.192920",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/pipe_reader.py",
+    "generation": 1,
+    "score": 1.1777602272532737,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:24.296312",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/task_executor.py",
+    "generation": 1,
+    "score": 1.1242527147746282,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:24.505190",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/task_state.py",
+    "generation": 1,
+    "score": 1.1423983894020715,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:24.612658",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/sentry.py",
+    "generation": 1,
+    "score": 1.0876171457385522,
+    "repo": "task-runner-python"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:25.472065",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/runner.py",
+    "generation": 1,
+    "score": 1.0712442687955932,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:25.687453",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/message_types/broker.py",
+    "generation": 1,
+    "score": 1.0608905289988075,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:25.898147",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/websocket_connection_error.py",
+    "generation": 1,
+    "score": 1.114936756193459,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:26.004927",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/task_runtime_error.py",
+    "generation": 1,
+    "score": 1.0754322151357367,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:26.221713",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/security_violation_error.py",
+    "generation": 1,
+    "score": 1.0657161324777018,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:26.957699",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/task_cancelled_error.py",
+    "generation": 1,
+    "score": 1.0883835352623168,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:27.279397",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/src/errors/invalid_pipe_msg_content_error.py",
+    "generation": 1,
+    "score": 1.096699821692964,
+    "repo": "src"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:27.490196",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_task_analyzer.py",
+    "generation": 1,
+    "score": 1.0981851032735073,
+    "repo": "tests"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:27.701515",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/unit/test_sentry.py",
+    "generation": 1,
+    "score": 1.1410540792271335,
+    "repo": "tests"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:28.017946",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/conftest.py",
+    "generation": 1,
+    "score": 1.0897820195559036,
+    "repo": "tests"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:28.129964",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/integration/test_health_check.py",
+    "generation": 1,
+    "score": 1.0612097590551022,
+    "repo": "tests"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:28.551349",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/task_runner_manager.py",
+    "generation": 1,
+    "score": 1.0761775944047596,
+    "repo": "tests"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:28.657451",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/n8n/n8n-master/packages/@n8n/task-runner-python/tests/fixtures/test_constants.py",
+    "generation": 1,
+    "score": 1.054805459155325,
+    "repo": "tests"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:29.386850",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/evaluate_leetcode.py",
+    "generation": 1,
+    "score": 1.1384119025615205,
+    "repo": "Evaluation"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:29.490862",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/vllm_inference.py",
+    "generation": 1,
+    "score": 1.1444530004071987,
+    "repo": "Evaluation"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:29.913685",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/eval_instruct.py",
+    "generation": 1,
+    "score": 1.0589469174222557,
+    "repo": "Evaluation"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:30.131756",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/human_eval/evaluation.py",
+    "generation": 1,
+    "score": 1.0647781290682419,
+    "repo": "MBPP"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:30.242099",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/human_eval/evaluate_functional_correctness.py",
+    "generation": 1,
+    "score": 1.0518245261098627,
+    "repo": "MBPP"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:30.672162",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/MBPP/utils/utils.py",
+    "generation": 1,
+    "score": 1.0600512061186316,
+    "repo": "MBPP"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:30.780745",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/utils/python_executor.py",
+    "generation": 1,
+    "score": 1.0938291587442923,
+    "repo": "PAL-Math"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:30.989855",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/PAL-Math/utils/parser.py",
+    "generation": 1,
+    "score": 1.0929836949351759,
+    "repo": "PAL-Math"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:31.400951",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/LeetCode/human_eval/data.py",
+    "generation": 1,
+    "score": 1.0964563856543108,
+    "repo": "LeetCode"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:31.508029",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/execution.py",
+    "generation": 1,
+    "score": 1.0539480199885665,
+    "repo": "HumanEval"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:31.821502",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/human_eval/__init__.py",
+    "generation": 1,
+    "score": 1.0660117891350103,
+    "repo": "HumanEval"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:32.039397",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/utils/dataset.py",
+    "generation": 1,
+    "score": 1.1191125637921409,
+    "repo": "HumanEval"
+  },
+  {
+    "timestamp": "2026-02-25T11:14:32.142516",
+    "file": "/Users/davidmiles/Desktop/AI-Evolution-System/repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/utils/utils.py",
+    "generation": 1,
+    "score": 1.1355319098022707,
+    "repo": "HumanEval"
+  }
+]

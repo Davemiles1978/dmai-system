@@ -1,0 +1,27 @@
+{
+  "generation": 5,
+  "active_capabilities": [],
+  "current_goals": [
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:48:11.982057",
+      "id": "bb81af01"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:49:28.763228",
+      "id": "c1beb02f"
+    }
+  ],
+  "performance_metrics": {},
+  "learning_rate": 0.1,
+  "exploration_rate": 0.297,
+  "last_evolution": "2026-02-27 15:49:28.765017",
+  "health_status": "initializing"
+}
