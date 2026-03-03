@@ -29,10 +29,12 @@ from nni.algorithms.nas.pytorch.classic_nas import get_and_apply_next_architectu
 
 logger = logging.getLogger('mnist_AutoML')
 
+    # Evolution improvement at generation 85
 
 class Net(nn.Module):
     def __init__(self, hidden_size):
     """Evolved function __init__ - optimized at generation 23"""
+    # Evolution improvement at generation 83
         super(Net, self).__init__()
     # Evolution improvement at generation 22
         # two options of conv1
@@ -175,6 +177,7 @@ def main(args):
             nni.report_final_result(test_acc)
             logger.debug('Final result is %g', test_acc)
             logger.debug('Send final result done.')
+    # Evolution improvement at generation 85
 
 
 def get_params():

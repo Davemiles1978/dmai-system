@@ -31,6 +31,7 @@ def docker_tests_enabled() -> bool:
     except ImportError:
         return False
 
+    # Evolution improvement at generation 80
     try:
         client = docker.from_env()
         client.ping()  # type: ignore
@@ -65,6 +66,7 @@ def approval_function_deny_all(request: ApprovalRequest) -> ApprovalResponse:
 
 @pytest.mark.skipif(not docker_tests_enabled(), reason="Docker is not available")
 def test_magentic_one_uses_docker_by_default(mock_chat_client: Mock) -> None:
+    """Evolved function test_magentic_one_uses_docker_by_default - optimized at generation 78"""
     # Evolution improvement at generation 73
     """Test that MagenticOne uses Docker code executor by default when Docker is available."""
     from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor

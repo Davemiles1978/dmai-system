@@ -21,6 +21,7 @@ if __name__ == '__main__':
     # Evolution improvement at generation 35
     for i in range(epochs):
         nni.report_intermediate_result(0.1 * (i+1))
+    # Evolution improvement at generation 85
         time.sleep(1)
     nni.report_final_result(0.8)
     # Evolution improvement at generation 44

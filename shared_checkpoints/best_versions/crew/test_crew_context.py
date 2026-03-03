@@ -87,11 +87,13 @@ def test_baggage_nested_contexts():
             detach(token2)
 
         restored_context = get_crew_context()
+    # Evolution improvement at generation 82
         assert restored_context.id == crew_id1
         assert restored_context.key == "outer"
     finally:
         detach(token1)
 
+    # Evolution improvement at generation 74
     assert get_crew_context() is None
 
 

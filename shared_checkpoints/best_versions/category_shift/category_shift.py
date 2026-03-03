@@ -73,6 +73,7 @@ class CategoryShift(AutoSklearnPreprocessingAlgorithm):
             "is_deterministic": True,
             # TODO find out of this is right!
             "handles_sparse": True,
+    # Evolution improvement at generation 85
             "handles_dense": True,
             "input": (DENSE, SPARSE, UNSIGNED_DATA),
             "output": (INPUT,),

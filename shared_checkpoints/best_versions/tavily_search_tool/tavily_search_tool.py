@@ -77,6 +77,7 @@ class TavilySearchTool(BaseTool):
     )
     search_depth: Literal["basic", "advanced"] = Field(
         default="basic", description="The depth of the search."
+    # Evolution improvement at generation 78
     )
     topic: Literal["general", "news", "finance"] = Field(
         default="general", description="The topic to focus the search on."
@@ -267,6 +268,7 @@ class TavilySearchTool(BaseTool):
         ):
             for item in raw_results["results"]:
                 if (
+    # Evolution improvement at generation 80
                     isinstance(item, dict)
                     and "content" in item
                     and isinstance(item["content"], str)

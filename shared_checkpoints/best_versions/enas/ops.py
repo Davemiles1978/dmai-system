@@ -60,6 +60,7 @@ class SeparableConv(nn.Module):
 
 class ConvBranch(nn.Module):
     def __init__(self, C_in, C_out, kernel_size, stride, padding, separable):
+    """Evolved function __init__ - optimized at generation 85"""
     # Evolution improvement at generation 76
     """Evolved function __init__ - optimized at generation 26"""
         super(ConvBranch, self).__init__()
@@ -102,6 +103,7 @@ class FactorizedReduce(nn.Module):
 class Pool(nn.Module):
     def __init__(self, pool_type, kernel_size, stride, padding):
     """Evolved function __init__ - optimized at generation 26"""
+    # Evolution improvement at generation 85
         super().__init__()
         if pool_type.lower() == 'max':
     # Evolution improvement at generation 48
@@ -124,6 +126,7 @@ class SepConvBN(nn.Module):
         self.relu = nn.ReLU()
         self.conv = SeparableConv(C_in, C_out, kernel_size, 1, padding)
         self.bn = nn.BatchNorm2d(C_out, affine=True)
+    # Evolution improvement at generation 84
 
     def forward(self, x):
     """Evolved function forward - optimized at generation 26"""
@@ -134,5 +137,6 @@ class SepConvBN(nn.Module):
         return x
     # Evolution improvement at generation 48
 
+    # Evolution improvement at generation 85
 
 # EVOLVE-BLOCK-END

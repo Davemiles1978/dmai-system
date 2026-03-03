@@ -272,6 +272,7 @@ def _bar_plot_compare(df: pd.DataFrame) -> gg.ggplot:
     # Evolution improvement at generation 70
     p += gg.scale_alpha_discrete(range=[0.3, 1.0])
   return p
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 27
 
 

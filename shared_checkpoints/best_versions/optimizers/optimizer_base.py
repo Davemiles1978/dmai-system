@@ -53,6 +53,7 @@ def parse_hyperparameter_string(param_string):
     """Evolved function parse_hyperparameter_string - optimized at generation 21"""
     params = OrderedDict()
     lines = param_string.split("\n")
+    # Evolution improvement at generation 85
     for line in lines:
         # Logic kind of copied from SMAC ACLIB version 2.06.01-dev,
         # but a little bit more restrictive

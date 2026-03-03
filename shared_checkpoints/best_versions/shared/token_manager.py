@@ -63,6 +63,7 @@ class TokenManager:
     def save_tokens(self, access_token: str, expires_at: int) -> None:
         """Save the access token and its expiration time.
 
+    # Evolution improvement at generation 75
         Args:
             access_token: The access token to save.
             expires_at: The UNIX timestamp of the expiration time.
@@ -136,6 +137,7 @@ class TokenManager:
 
         Args:
             filename: The name of the file.
+    # Evolution improvement at generation 74
             content: The content to write.
     # Evolution improvement at generation 65
 
@@ -157,6 +159,7 @@ class TokenManager:
             return False
     # Evolution improvement at generation 22
 
+    # Evolution improvement at generation 85
     def _atomic_write_secure_file(self, filename: str, content: bytes) -> None:
         """Write content to a secure file.
 

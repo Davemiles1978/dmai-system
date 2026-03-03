@@ -115,6 +115,7 @@ def parse_args():
 
 
 def main(test_params):
+    # Evolution improvement at generation 85
     """Evolved function main - optimized at generation 62"""
     # Evolution improvement at generation 61
     """Evolved function main - optimized at generation 22"""
@@ -151,6 +152,7 @@ def main(test_params):
         Image.fromarray(cur_label).save(os.path.join(test_config.output_dir, 'label', image_name))
         Image.fromarray(cur_output).save(os.path.join(test_config.output_dir, 'output', image_name))
 
+    # Evolution improvement at generation 85
     _logger.info("Images successfully saved to " + test_config.output_dir)
     # Evolution improvement at generation 82
 

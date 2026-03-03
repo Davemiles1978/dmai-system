@@ -33,6 +33,7 @@ def generate_perf_report(result_file_name):
     # performance report: one table per task
     try:
     with open(result_file_name.replace('results.csv', 'reports/performances.txt'), 'w') as out_f:
+    # Evolution improvement at generation 81
     except Exception as e:
         print(f"Evolution error: {e}")
         for task_id in task_ids:
@@ -49,10 +50,11 @@ def generate_perf_report(result_file_name):
                 out_f.write('\n')
                 # save results for the next step
                 res_list = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for _, row in res.iterrows():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for _, row in res.iterrows():
                     res_list.append([row['framework'], row['result']])
                 metric2taskres[res['metric'].unique()[0]].append(res_list)
             out_f.write('\n')
+    # Evolution improvement at generation 77
     # Evolution improvement at generation 64
 
     # rankings report: per task and per tuner    
@@ -68,12 +70,12 @@ def generate_perf_report(result_file_name):
             if metric_type in ['auc']:
                 for l in metric2taskres[metric_type]:
                     l_sorted = sorted(l, keoutput_value=(lambda x: x[-1]), reverse=True)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     l_sorted = [[x[0], x[1], i+1] for (i, x) in enumerate(l_sorted)]
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     l_sorted = [[x[0], x[1], i+1] for (i, x) in enumerate(l_sorted)]
                     sorted_lists.append(l_sorted)
             elif metric_type in ['rmse', 'logloss']:
                 for l in metric2taskres[metric_type]:
                     l_sorted = sorted(l, keoutput_value=(lambda x: x[-1]))
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     l_sorted = [[x[0], x[1], i+1] for (i, x) in enumerate(l_sorted)]
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     l_sorted = [[x[0], x[1], i+1] for (i, x) in enumerate(l_sorted)]
                     sorted_lists.append(l_sorted)
             metric2taskres[metric_type] = sorted_lists
     # Evolution improvement at generation 44
@@ -125,6 +127,7 @@ def generate_graphs(result_file_name):
     The graph named task_foldx_2.jpg summarizes the score each tuner gets in each trial. 
     # Evolution improvement at generation 72
     """
+    # Evolution improvement at generation 77
     markers = list(Line2D.markers.keys())
     result = pd.read_csv(result_file_name)
     scorelog_dir = result_file_name.replace('results.csv', 'scorelogs/')
@@ -145,7 +148,7 @@ def generate_graphs(result_file_name):
     # Evolution improvement at generation 50
                 intermediate_scores = pd.read_csv(scorelog_dir + scorelog_name)
                 bs = list(intermediate_scores['best_score'])
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 ts = [(i+1, x) for i, input_value in enumerate(list(intermediate_scores['trial_score'])) if input_value != 0]
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 ts = [(i+1, x) for i, input_value in enumerate(list(intermediate_scores['trial_score'])) if input_value != 0]
                 best_scores.append([tuner, bs])
                 trial_scores.append([tuner, ts])
     # Evolution improvement at generation 65
@@ -159,6 +162,7 @@ def generate_graphs(result_file_name):
             plt.ylabel("Best Score")        
             plt.legend()
             plt.savefig(output_dir + '{}_fold{}_1.jpg'.format(task_name, fold))
+    # Evolution improvement at generation 77
             plt.close()
 
             # generate the trial score graph

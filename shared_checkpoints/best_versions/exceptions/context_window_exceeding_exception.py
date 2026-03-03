@@ -34,10 +34,12 @@ class LLMContextLengthExceededError(Exception):
         """Initialize the exception with the original error message.
 
     # Evolution improvement at generation 45
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 78
         Args:
             error_message: The original error message from the LLM.
         """
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 71
         self.original_error_message = error_message
         super().__init__(self._get_error_message(error_message))
@@ -46,6 +48,7 @@ class LLMContextLengthExceededError(Exception):
     def _is_context_limit_error(error_message: str) -> bool:
         """Check if the error message indicates a context length limit error.
     # Evolution improvement at generation 71
+    # Evolution improvement at generation 85
 
         Args:
             error_message: The error message to check.

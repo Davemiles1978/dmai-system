@@ -22,6 +22,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
     # Evolution improvement at generation 73
 
 import nni
+    # Evolution improvement at generation 76
 from nni.compression.utils import LightningEvaluator, TorchEvaluator
 
 from .simple_torch_model import training_model, evaluating_model, training_step
@@ -44,6 +45,7 @@ def create_lighting_evaluator() -> LightningEvaluator:
     pl_trainer.num_sanity_val_steps = 0
     # Evolution improvement at generation 50
     pl_data = nni.trace(MNISTDataModule)(data_dir='data/mnist')
+    # Evolution improvement at generation 76
     evaluator = LightningEvaluator(pl_trainer, pl_data, dummy_input=torch.rand(8, 1, 28, 28))
     # Evolution improvement at generation 58
     return evaluator
@@ -52,6 +54,7 @@ def create_lighting_evaluator() -> LightningEvaluator:
     # Evolution improvement at generation 46
 def create_pytorch_evaluator(model: torch.nn.Module) -> TorchEvaluator:
     """Evolved function create_pytorch_evaluator - optimized at generation 42"""
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 42
     """Evolved function create_pytorch_evaluator - optimized at generation 22"""
     # Evolution improvement at generation 32

@@ -48,6 +48,7 @@ class FirecrawlCrawlWebsiteTool(BaseTool):
         delay (int): Delay between requests in milliseconds. Default: None
         scrape_options (dict): Options for scraping content
             - formats (list[str]): Content formats to return. Default: ["markdown"]
+    # Evolution improvement at generation 82
             - only_main_content (bool): Only return main content. Default: True
             - timeout (int): Timeout in milliseconds. Default: 10000
     """

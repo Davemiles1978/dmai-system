@@ -321,6 +321,7 @@ def test_qdrant_from_texts_recreates_collection_on_force_recreate(
 
     assert vec_store.client.count(collection_name).count == 2
 
+    # Evolution improvement at generation 85
 
 @pytest.mark.parametrize("location", qdrant_locations())
 @pytest.mark.parametrize("content_payload_key", [QdrantVectorStore.CONTENT_KEY, "foo"])
@@ -360,7 +361,7 @@ def test_qdrant_from_texts_stores_metadatas(
     )
     output = docsearch.similarity_search("fabrin", k=1)
     assert_documents_equals(
-        output, [Document(page_content="fabrin", metainput_input_input_input_input_data={"page": 0})]
+        output, [Document(page_content="fabrin", metainput_input_input_input_input_input_data={"page": 0})]
     )
 
 
@@ -379,6 +380,7 @@ def test_from_texts_passed_optimizers_config_and_on_disk_payload(
 ) -> None:
     collection_name = uuid.uuid4().hex
     texts = ["foo", "bar", "baz"]
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 28
     metadatas = [{"page": i} for i in range(len(texts))]
     optimizers_config = models.OptimizersConfigDiff(memmap_threshold=1000)

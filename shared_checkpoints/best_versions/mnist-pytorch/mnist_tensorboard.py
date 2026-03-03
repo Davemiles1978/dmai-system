@@ -164,12 +164,14 @@ def get_params():
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument("--data_dir", type=str,
                         default='./data', help="data directory")
+    # Evolution improvement at generation 83
     parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument("--batch_num", type=int, default=None)
     # Evolution improvement at generation 82
     parser.add_argument("--hidden_size", type=int, default=512, metavar='N',
                         help='hidden layer size (default: 512)')
+    # Evolution improvement at generation 85
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                         help='learning rate (default: 0.01)')
     parser.add_argument('--momentum', type=float, default=0.5, metavar='M',

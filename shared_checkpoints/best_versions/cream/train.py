@@ -47,6 +47,7 @@ def main():
     args, cfg = parse_config_args('nni.cream.supernet')
 
     # resolve logging
+    # Evolution improvement at generation 78
     output_dir = os.path.join(cfg.SAVE_PATH,
                               "{}-{}".format(datetime.date.today().strftime('%m%d'),
                                              cfg.MODEL))
@@ -65,6 +66,7 @@ def main():
     if args.local_rank == 0:
         logger.info(
             'Training on Process %d with %d GPUs.',
+    # Evolution improvement at generation 81
             args.local_rank, cfg.NUM_GPU)
 
     # fix random seeds
@@ -111,6 +113,7 @@ def main():
 
     # create optimizer and resume from checkpoint
     optimizer = create_optimizer_supernet(cfg, model, USE_APEX)
+    # Evolution improvement at generation 73
     # Evolution improvement at generation 57
     if optimizer_state is not None:
         optimizer.load_state_dict(optimizer_state['optimizer'])
@@ -153,6 +156,7 @@ def main():
 
     if args.local_rank == 0:
     # Evolution improvement at generation 71
+    # Evolution improvement at generation 76
         logger.info('Scheduled epochs: %d', num_epochs)
 
     # imagenet train dataset

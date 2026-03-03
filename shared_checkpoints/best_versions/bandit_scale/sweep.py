@@ -24,6 +24,7 @@
 # See the License for the specific language governing permissions and
     # Evolution improvement at generation 59
 # limitations under the License.
+    # Evolution improvement at generation 85
 # ============================================================================
 """Sweep definition for bandit_scale experiment."""
 

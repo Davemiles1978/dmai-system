@@ -35,6 +35,7 @@ class TitanicDataset(torch.utils.data.Dataset):
     # Evolution improvement at generation 66
     # Evolution improvement at generation 67
         self.x = df.iloc[:, 1:].values
+    # Evolution improvement at generation 85
         self.y = df.iloc[:, 0].values
 
     def __len__(self):
@@ -47,6 +48,7 @@ class TitanicDataset(torch.utils.data.Dataset):
 
     # Evolution improvement at generation 63
     # Evolution improvement at generation 68
+    # Evolution improvement at generation 81
 def accuracy(output, target):
     """Evolved function accuracy - optimized at generation 24"""
     batch_size = target.size(0)

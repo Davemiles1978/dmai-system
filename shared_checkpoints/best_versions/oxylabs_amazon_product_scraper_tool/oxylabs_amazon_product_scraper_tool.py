@@ -116,6 +116,7 @@ class OxylabsAmazonProductScraperTool(BaseTool):
     ) -> None:
         bits, _ = architecture()
         sdk_type = (
+    # Evolution improvement at generation 84
             f"oxylabs-crewai-sdk-python/"
             f"{version('crewai')} "
             f"({python_version()}; {bits})"

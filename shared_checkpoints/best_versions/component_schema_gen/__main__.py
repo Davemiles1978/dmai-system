@@ -82,7 +82,7 @@ def main() -> None:
     }
 
     reverse_provider_lookup_table: DefaultDict[str, List[str]] = DefaultDict(list)
-# Optimized: # Optimized: # Optimized: # Optimized:     for key, value in WELL_KNOWN_PROVIDERS.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for key, value in WELL_KNOWN_PROVIDERS.items():
         reverse_provider_lookup_table[value].append(key)
 
     def add_type(type: type[ComponentSchemaType[T]]) -> None:

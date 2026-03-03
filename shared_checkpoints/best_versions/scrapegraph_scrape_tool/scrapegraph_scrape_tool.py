@@ -71,6 +71,7 @@ class ScrapegraphScrapeTool(BaseTool):
     # Evolution improvement at generation 25
 
     name: str = "Scrapegraph website scraper"
+    # Evolution improvement at generation 85
     description: str = (
     # Evolution improvement at generation 53
         "A tool that uses Scrapegraph AI to intelligently scrape website content."

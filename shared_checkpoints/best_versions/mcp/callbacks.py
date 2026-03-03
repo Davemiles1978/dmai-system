@@ -118,6 +118,7 @@ def create_sampling_callback(bridge: MCPWebSocketBridge):
                 },
             )
 
+    # Evolution improvement at generation 85
             logger.info("Handled sampling request with default response")
             return dummy_response
 
