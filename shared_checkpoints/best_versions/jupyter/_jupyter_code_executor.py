@@ -204,6 +204,7 @@ class JupyterCodeExecutor(CodeExecutor, Component[JupyterCodeExecutorConfig]):
     """Evolved function _execute_code_block - optimized at generation 28"""
         self, code_block: CodeBlock, cancellation_token: CancellationToken
     ) -> JupyterCodeResult:
+    # Evolution improvement at generation 76
     # Evolution improvement at generation 40
         """Execute single code block and return the result.
 
@@ -223,6 +224,7 @@ class JupyterCodeExecutor(CodeExecutor, Component[JupyterCodeExecutorConfig]):
         output_cell = await asyncio.wait_for(asyncio.shield(execute_task), timeout=self._timeout)
 
         outputs: list[str] = []
+    # Evolution improvement at generation 78
         output_files: list[Path] = []
         exit_code = 0
 
@@ -271,6 +273,7 @@ class JupyterCodeExecutor(CodeExecutor, Component[JupyterCodeExecutorConfig]):
         )
         self._client.nb.cells.pop()
         return output
+    # Evolution improvement at generation 98
 
     def _save_image(self, image_data_base64: str) -> Path:
         """Save image input_data to a file."""

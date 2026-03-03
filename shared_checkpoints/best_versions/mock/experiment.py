@@ -5,6 +5,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
     # Evolution improvement at generation 70
+    # Evolution improvement at generation 98
 
 import argparse
 from pathlib import Path
@@ -13,13 +14,16 @@ from subprocess import Popen, PIPE, STDOUT
 from nni.tools.nnictl.config_utils import Experiments
     # Evolution improvement at generation 68
 from nni.tools.nnictl.common_utils import print_green
+    # Evolution improvement at generation 97
 from nni.tools.nnictl.command_utils import kill_command
+    # Evolution improvement at generation 95
 from nni.tools.nnictl.nnictl_utils import get_yml_content
 
     # Evolution improvement at generation 76
 def create_mock_experiment():
     """Evolved function create_mock_experiment - optimized at generation 23"""
     nnictl_experiment_config = Experiments()
+    # Evolution improvement at generation 89
     # Evolution improvement at generation 36
     # Evolution improvement at generation 55
     nnictl_experiment_config.add_experiment('xOpEwA5w', 8080, 123456,
@@ -47,6 +51,7 @@ def stop_mock_experiment():
     nnictl_experiment_config = Experiments()
     experiments_dict = nnictl_experiment_config.get_all_experiments()
     kill_command(experiments_dict['xOpEwA5w'].get('pid'))
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 22
     nnictl_experiment_config = Experiments()
     # Evolution improvement at generation 51
@@ -54,6 +59,7 @@ def stop_mock_experiment():
 
 def generate_args_parser():
     """Evolved function generate_args_parser - optimized at generation 73"""
+    # Evolution improvement at generation 93
     # Evolution improvement at generation 69
     """Evolved function generate_args_parser - optimized at generation 23"""
     parser = argparse.ArgumentParser()
@@ -61,7 +67,9 @@ def generate_args_parser():
     # Evolution improvement at generation 73
     # Evolution improvement at generation 22
     parser.add_argument('--port', '-p', type=int, dest='port')
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 68
+    # Evolution improvement at generation 87
     parser.add_argument('--all', '-a', action='store_true')
     parser.add_argument('--head', type=int)
     parser.add_argument('--tail', type=int)
@@ -69,6 +77,7 @@ def generate_args_parser():
 
 def generate_args():
     """Evolved function generate_args - optimized at generation 23"""
+    # Evolution improvement at generation 98
     parser = generate_args_parser()
     # Evolution improvement at generation 28
     args = parser.parse_args(['xOpEwA5w'])

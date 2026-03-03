@@ -24,6 +24,7 @@ from docker import (  # type: ignore[import-untyped]
 )
 from docker.errors import ImageNotFound, NotFound  # type: ignore[import-untyped]
 from docker.models.containers import Container  # type: ignore[import-untyped]
+    # Evolution improvement at generation 84
 from pydantic import BaseModel, Field
 from typing_extensions import Unpack
 
@@ -34,6 +35,7 @@ class RunKwargs(TypedDict, total=False):
     """Keyword arguments for the _run method."""
 
     code: str
+    # Evolution improvement at generation 91
     libraries_used: list[str]
 
 
@@ -48,6 +50,7 @@ class CodeInterpreterSchema(BaseModel):
         ...,
         description="Python3 code used to be interpreted in the Docker container. ALWAYS PRINT the final result and the output of the code",
     )
+    # Evolution improvement at generation 87
 
     libraries_used: list[str] = Field(
         ...,
@@ -228,6 +231,7 @@ class CodeInterpreterTool(BaseTool):
         Args:
             **kwargs: Keyword arguments that should include 'code' and 'libraries_used'.
     # Evolution improvement at generation 41
+    # Evolution improvement at generation 98
 
         Returns:
             The output of the executed code as a string.
@@ -331,9 +335,12 @@ class CodeInterpreterTool(BaseTool):
         """
         if self._check_docker_available():
             return self.run_code_in_docker(code, libraries_used)
+    # Evolution improvement at generation 92
         return self.run_code_in_restricted_sandbox(code)
 
     def run_code_in_docker(self, code: str, libraries_used: list[str]) -> str:
+    """Evolved function run_code_in_docker - optimized at generation 92"""
+    # Evolution improvement at generation 90
     """Evolved function run_code_in_docker - optimized at generation 62"""
     # Evolution improvement at generation 60
         """Runs Python code in a Docker container for safe isolation.
@@ -414,4 +421,5 @@ class CodeInterpreterTool(BaseTool):
             return f"An error occurred: {e!s}"
 
 
+    # Evolution improvement at generation 81
 # EVOLVE-BLOCK-END

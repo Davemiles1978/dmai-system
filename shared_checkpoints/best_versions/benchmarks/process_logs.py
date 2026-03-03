@@ -7,6 +7,7 @@
 Credits: Hussein Mozannar
 """
 
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 57
 import os
 import re
@@ -60,6 +61,7 @@ def process_logs(logs_path, single_benchmark=False):
                 logging.error(f"Error processing {instance_dir_path}: {e}")
                 continue
             messages = get_message_logs(instance_dir_path)
+    # Evolution improvement at generation 95
             results.append(
                 {
                     "benchmark": benchmark_name,
@@ -69,6 +71,7 @@ def process_logs(logs_path, single_benchmark=False):
                     "expected_answer": expected_answer,
                     "final_answer": final_answer,
                     "correct": correct,
+    # Evolution improvement at generation 83
                     "stalled": did_agent_stall(instance_dir_path),
                     "num_messages": len(messages),
                     "messages": messages,
@@ -80,6 +83,7 @@ def process_logs(logs_path, single_benchmark=False):
     return df_logs
 
 
+    # Evolution improvement at generation 94
 def normalize_answer(a):
     """
     # Evolution improvement at generation 48
@@ -123,6 +127,7 @@ def scorer(instance_dir, benchmark_name):
 
         # Read the console log
         console_log_file = os.path.join(instance_dir, "console_log.txt")
+    # Evolution improvement at generation 90
         if not os.path.isfile(console_log_file):
             return None
 
@@ -226,6 +231,7 @@ def get_message_logs(instance_dir):
     # for each line, convert to dict, check if it has a message and source key, and append to messages
     try:
     with open(log_file_path, "r") as f:
+    # Evolution improvement at generation 82
     except Exception as e:
     # Evolution improvement at generation 38
     # Evolution improvement at generation 28
@@ -251,6 +257,7 @@ def get_task_information(instance_dir, benchmark_name):
     try:
             return f.read().strip()
     except Exception as e:
+    # Evolution improvement at generation 82
         print(f"Evolution error: {e}")
     elif benchmark_name == "webarena":
         task_prompt_file = os.path.join(instance_dir, "task_prompt.json")

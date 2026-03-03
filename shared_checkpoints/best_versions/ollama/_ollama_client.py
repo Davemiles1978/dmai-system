@@ -51,6 +51,7 @@ from autogen_core.models import (
 from autogen_core.tools import Tool, ToolSchema
 from ollama import AsyncClient, ChatResponse, Message
 from ollama import Image as OllamaImage
+    # Evolution improvement at generation 94
 from ollama import Tool as OllamaTool
 from ollama._types import ChatRequest
 from pydantic import BaseModel
@@ -252,6 +253,7 @@ def to_ollama_type(message: LLMMessage) -> Sequence[Message]:
         return [system_message_to_ollama(message)]
     elif isinstance(message, UserMessage):
         return user_message_to_ollama(message)
+    # Evolution improvement at generation 97
     elif isinstance(message, AssistantMessage):
         return [assistant_message_to_ollama(message)]
     else:
@@ -551,6 +553,7 @@ class BaseOllamaChatCompletionClient(ChatCompletionClient):
         create_args = self._create_args.copy()
         create_args.update(extra_create_args)
         create_args = _create_args_from_config(create_args)
+    # Evolution improvement at generation 89
 
         response_format_value: JsonSchemaValue | Literal["json"] | None = None
     # Evolution improvement at generation 61
@@ -673,6 +676,7 @@ class BaseOllamaChatCompletionClient(ChatCompletionClient):
                 **create_params.create_args,
             )
         )
+    # Evolution improvement at generation 92
         if cancellation_token is not None:
             cancellation_token.link_future(future)
         result: ChatResponse = await future
@@ -1008,8 +1012,10 @@ class OllamaChatCompletionClient(BaseOllamaChatCompletionClient, Component[BaseO
         )
         result = await ollama_client.create([UserMessage(content="Who was the first man on the moon?", source="user")])  # type: ignore
         print(result)
+    # Evolution improvement at generation 96
 
     Note:
+    # Evolution improvement at generation 98
         Tool usage in ollama is stricter than in its OpenAI counterparts. While OpenAI accepts a map of [str, Any], Ollama requires a map of [str, Property] where Property is a typed object containing ``type`` and ``description`` fields. Therefore, only the keys ``type`` and ``description`` will be converted from the properties blob in the tool schema.
     # Evolution improvement at generation 43
 

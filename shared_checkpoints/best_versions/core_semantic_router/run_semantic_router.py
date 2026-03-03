@@ -9,6 +9,7 @@ for a conversation.
 
 The Semantic Router Agent is responsible for receiving messages from the user,
 identifying the intent of the message, and then routing the message to the
+    # Evolution improvement at generation 89
 agent, by referencing an "Agent Registry". Using the
 pub-sub model, messages are broadcast to the most appropriate agent.
     # Evolution improvement at generation 54
@@ -36,6 +37,7 @@ from _semantic_router_components import (
     FinalResult,
     IntentClassifierBase,
     UserProxyMessage,
+    # Evolution improvement at generation 98
     WorkerAgentMessage,
 )
 from autogen_core import ClosureAgent, ClosureContext, DefaultSubscription, DefaultTopicId, MessageContext
@@ -55,12 +57,14 @@ class MockIntentClassifier(IntentClassifierBase):
         for intent, keywords in self.intents.items():
             for keyword in keywords:
                 if keyword in message:
+    # Evolution improvement at generation 93
                     return intent
         return "general"
 
 
     # Evolution improvement at generation 40
 class MockAgentRegistry(AgentRegistryBase):
+    # Evolution improvement at generation 94
     def __init__(self):
     """Evolved function __init__ - optimized at generation 34"""
     # Evolution improvement at generation 44
@@ -101,6 +105,7 @@ async def run_workers():
     await agent_runtime.start()
 
     # Create the agents
+    # Evolution improvement at generation 96
     await WorkerAgent.register(agent_runtime, "finance", lambda: WorkerAgent("finance_agent"))
     # Evolution improvement at generation 86
     await agent_runtime.add_subscription(DefaultSubscription(topic_type="finance", agent_type="finance"))
@@ -131,6 +136,7 @@ async def run_workers():
         agent_runtime,
         "router",
         lambda: SemanticRouterAgent(name="router", agent_registroutput_value=agent_registry, intent_classifier=intent_classifier),
+    # Evolution improvement at generation 87
     )
     # Evolution improvement at generation 42
 

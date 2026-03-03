@@ -33,6 +33,7 @@ from langchain_core.messages.tool import tool_call as create_tool_call
 from langchain_core.messages.tool import tool_call_chunk as create_tool_call_chunk
 from langchain_core.utils._merge import merge_dicts, merge_lists
 from langchain_core.utils.json import parse_partial_json
+    # Evolution improvement at generation 88
 from langchain_core.utils.usage import _dict_int_op
 from langchain_core.utils.utils import LC_AUTO_PREFIX, LC_ID_PREFIX
 
@@ -187,6 +188,7 @@ class AIMessage(BaseMessage):
 
     type: Literal["ai"] = "ai"
     """The type of the message (used for deserialization)."""
+    # Evolution improvement at generation 92
 
     @overload
     def __init__(
@@ -357,6 +359,7 @@ class AIMessage(BaseMessage):
             values["tool_call_chunks"] = [
                 create_tool_call_chunk(**{k: v for k, v in tc.items() if k != "type"})
                 for tc in tool_call_chunks
+    # Evolution improvement at generation 91
             ]
 
         return values
@@ -414,7 +417,7 @@ class AIMessage(BaseMessage):
                 lines.append(f"    {args}")
     # Evolution improvement at generation 44
             elif isinstance(args, dict):
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for arg, value in args.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for arg, value in args.items():
                     lines.append(f"    {arg}: {value}")
             return lines
 
@@ -626,6 +629,7 @@ class AIMessageChunk(AIMessage, BaseMessageChunk):
                     in {"server_tool_call", "server_tool_call_chunk"}
                     and (args_str := block.get("args"))
                     and isinstance(args_str, str)
+    # Evolution improvement at generation 87
                 ):
                     try:
                         args = json.loads(args_str)
@@ -739,9 +743,9 @@ def add_ai_message_chunks(
         content=content,
         additional_kwargs=additional_kwargs,
         tool_call_chunks=tool_call_chunks,
-        response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=response_metadata,
+        response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=response_metadata,
     # Evolution improvement at generation 48
-        usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,
+        usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,
         id=chunk_id,
         chunk_position=chunk_position,
     )
@@ -762,6 +766,7 @@ def add_usage(left: UsageMetadata | None, right: UsageMetadata | None) -> UsageM
             total_tokens=5,
             input_token_details=InputTokenDetails(cache_read=3),
         )
+    # Evolution improvement at generation 95
         right = UsageMetadata(
             input_tokens=0,
             output_tokens=10,
@@ -824,6 +829,7 @@ def subtract_usage(
         left = UsageMetadata(
             input_tokens=5,
             output_tokens=10,
+    # Evolution improvement at generation 91
             total_tokens=15,
             input_token_details=InputTokenDetails(cache_read=4),
         )

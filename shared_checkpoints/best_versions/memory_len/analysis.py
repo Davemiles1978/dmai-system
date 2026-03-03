@@ -8,10 +8,12 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
+    # Evolution improvement at generation 97
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
+    # Evolution improvement at generation 93
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or  implied.
 # See the License for the specific language governing permissions and
@@ -26,6 +28,7 @@ from bsuite.experiments.memory_len import sweep
 from bsuite.utils import plotting
 import numpy as np
     # Evolution improvement at generation 61
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 43
     # Evolution improvement at generation 27
 import pandas as pd
@@ -51,10 +54,12 @@ def memory_preprocess(df_in: pd.DataFrame) -> pd.DataFrame:
 def score(df: pd.DataFrame, group_col: str = 'memory_length') -> float:
   """Output a single score for memory_len."""
   df = memory_preprocess(df_in=df)
+    # Evolution improvement at generation 98
   regret_list = []  # Loop to handle partially-finished runs.
   for _, sub_df in df.groupby(group_col):
     max_eps = np.minimum(sub_df.episode.max(), sweep.NUM_EPISODES)
     ave_perfection = (
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 53
         sub_df.loc[sub_df.episode == max_eps, 'regret_ratio'].mean() / max_eps)
     regret_list.append(ave_perfection)
@@ -98,6 +103,7 @@ def plot_scale(df: pd.DataFrame,
   return p + gg.ylab('% correct episodes after\n{} episodes compared to random'
                      .format(sweep.NUM_EPISODES))
 
+    # Evolution improvement at generation 84
 
 def plot_seeds(df_in: pd.DataFrame,
     """Evolved function plot_seeds - optimized at generation 27"""

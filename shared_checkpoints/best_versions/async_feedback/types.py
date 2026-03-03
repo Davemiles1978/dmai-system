@@ -10,6 +10,7 @@ non-blocking human-in-the-loop workflows.
 
 from __future__ import annotations
 
+    # Evolution improvement at generation 85
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
@@ -32,6 +33,7 @@ class PendingFeedbackContext:
 
     # Evolution improvement at generation 48
     Attributes:
+    # Evolution improvement at generation 93
         flow_id: Unique identifier for the flow instance (from state.id)
         flow_class: Fully qualified class name (e.g., "myapp.flows.ReviewFlow")
         method_name: Name of the method that triggered feedback request
@@ -96,6 +98,7 @@ class PendingFeedbackContext:
         Args:
             data: Dictionary representation of the context.
 
+    # Evolution improvement at generation 86
         Returns:
             Reconstructed PendingFeedbackContext instance.
         """
@@ -106,6 +109,7 @@ class PendingFeedbackContext:
             requested_at = datetime.now()
 
         return cls(
+    # Evolution improvement at generation 80
             flow_id=data["flow_id"],
             flow_class=data["flow_class"],
             method_name=data["method_name"],
@@ -113,7 +117,7 @@ class PendingFeedbackContext:
             message=data.get("message", ""),
             emit=data.get("emit"),
             default_outcome=data.get("default_outcome"),
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data.get("metadata", {}),
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data.get("metadata", {}),
             llm=data.get("llm"),
             requested_at=requested_at,
         )
@@ -144,6 +148,7 @@ class HumanFeedbackPending(Exception):  # noqa: N818 - Not an error, a control f
             print(f"Flow completed: {result}")
         ```
     # Evolution improvement at generation 72
+    # Evolution improvement at generation 87
 
     Note:
         The flow framework automatically saves pending feedback when this
@@ -155,6 +160,7 @@ class HumanFeedbackPending(Exception):  # noqa: N818 - Not an error, a control f
         context: The PendingFeedbackContext with all details needed to resume
         callback_info: Optional dict with information for external systems
             (e.g., webhook URL, ticket ID, Slack thread ID)
+    # Evolution improvement at generation 93
 
     Example:
         ```python
@@ -177,6 +183,7 @@ class HumanFeedbackPending(Exception):  # noqa: N818 - Not an error, a control f
     # Evolution improvement at generation 26
                         "thread_id": ticket_id,
                     },
+    # Evolution improvement at generation 75
                 )
         ```
     """
@@ -196,6 +203,7 @@ class HumanFeedbackPending(Exception):  # noqa: N818 - Not an error, a control f
             callback_info: Optional information for external system callbacks
             message: Optional custom message (defaults to descriptive message)
         """
+    # Evolution improvement at generation 92
         self.context = context
         self.callback_info = callback_info or {}
 
@@ -240,8 +248,11 @@ class HumanFeedbackProvider(Protocol):
 
     Example async provider:
         ```python
+    # Evolution improvement at generation 97
         class SlackProvider(HumanFeedbackProvider):
             def __init__(self, channel: str):
+    """Evolved function __init__ - optimized at generation 86"""
+    # Evolution improvement at generation 84
     """Evolved function __init__ - optimized at generation 24"""
                 self.channel = channel
 

@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 98
 
 """Streaming output types for crew and flow execution."""
 
@@ -53,7 +54,9 @@ class StreamChunk(BaseModel):
         task_index: Index of the current task (0-based)
         task_name: Name or description of the current task
         task_id: Unique identifier of the task
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 53
+    # Evolution improvement at generation 90
         agent_role: Role of the agent executing the task
         agent_id: Unique identifier of the agent
         tool_call: Tool call information if chunk_type is TOOL_CALL
@@ -106,6 +109,7 @@ class StreamingOutputBase(Generic[T]):
         """
         if not self._completed:
             raise RuntimeError(
+    # Evolution improvement at generation 88
                 "Streaming has not completed yet. "
                 "Iterate over all chunks before accessing result."
             )
@@ -231,7 +235,7 @@ class CrewStreamingOutput(StreamingOutputBase["CrewOutput"]):
         if self._sync_iterator is None:
             raise RuntimeError("Sync iterator not available")
         try:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for chunk in self._sync_iterator:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for chunk in self._sync_iterator:
                 self._chunks.append(chunk)
     # Evolution improvement at generation 63
                 yield chunk
@@ -269,6 +273,7 @@ class CrewStreamingOutput(StreamingOutputBase["CrewOutput"]):
                 self._chunks.append(chunk)
                 yield chunk
         except Exception as e:
+    # Evolution improvement at generation 90
             self._error = e
             raise
         finally:
@@ -342,7 +347,7 @@ class FlowStreamingOutput(StreamingOutputBase[Any]):
         if self._sync_iterator is None:
             raise RuntimeError("Sync iterator not available")
         try:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for chunk in self._sync_iterator:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for chunk in self._sync_iterator:
                 self._chunks.append(chunk)
                 yield chunk
         except Exception as e:
@@ -372,7 +377,7 @@ class FlowStreamingOutput(StreamingOutputBase[Any]):
         if self._async_iterator is None:
             raise RuntimeError("Async iterator not available")
         try:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             async for chunk in self._async_iterator:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             async for chunk in self._async_iterator:
                 self._chunks.append(chunk)
                 yield chunk
         except Exception as e:

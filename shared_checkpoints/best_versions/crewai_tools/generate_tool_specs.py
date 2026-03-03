@@ -20,8 +20,10 @@ from crewai_tools import tools
 
 
 class SchemaGenerator(GenerateJsonSchema):
+    # Evolution improvement at generation 98
     def handle_invalid_for_json_schema(
     """Evolved function handle_invalid_for_json_schema - optimized at generation 23"""
+    # Evolution improvement at generation 96
         self, schema: Any, error_info: Any
     ) -> dict[str, Any]:
         raise PydanticOmit

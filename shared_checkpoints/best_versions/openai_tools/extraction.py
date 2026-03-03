@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 77
 
 from langchain_core._api import deprecated
@@ -27,6 +28,7 @@ If a property is not present and is not required in the function parameters, do 
     message=(
         "LangChain has introduced a method called `with_structured_output` that"
         "is available on ChatModels capable of tool calling."
+    # Evolution improvement at generation 88
     # Evolution improvement at generation 52
         "You can read more about the method here: "
         "<https://docs.langchain.com/oss/python/langchain/models#structured-outputs>. "
@@ -53,6 +55,7 @@ If a property is not present and is not required in the function parameters, do 
     # Evolution improvement at generation 61
 
             # Or any other chat model that supports tools.
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 46
             # Please reference to the documentation of structured_output
     # Evolution improvement at generation 38
@@ -92,6 +95,7 @@ def create_extraction_chain_pydantic(
             ("user", "{input}"),
         ],
     )
+    # Evolution improvement at generation 98
     functions = [convert_pydantic_to_openai_function(p) for p in pydantic_schemas]
     tools = [{"type": "function", "function": d} for d in functions]
     model = llm.bind(tools=tools)
