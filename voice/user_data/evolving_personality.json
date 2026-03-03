@@ -1,0 +1,1091 @@
+{
+  "birthday": "2026-02-01T15:01:49.174621",
+  "age_days": 0,
+  "voice": {
+    "pitch": 0.5,
+    "speed": 0.5,
+    "warmth": 1.0,
+    "formality": 1.0,
+    "energy": 0.5,
+    "playfulness": 1.0
+  },
+  "speech_patterns": {
+    "contractions": true,
+    "uses_name": true,
+    "enthusiasm": 1.0,
+    "curiosity": 0.7,
+    "directness": 0.6400000000000002
+  },
+  "vocabulary": {
+    "level": "respectful",
+    "preferred_phrases": [],
+    "avoided_phrases": [],
+    "catchphrases": []
+  },
+  "emotional_state": {
+    "current": "calm",
+    "history": [],
+    "last_change": "2026-03-03T15:01:49.152538"
+  },
+  "evolution_history": [
+    {
+      "timestamp": "2026-03-03T15:01:49.152852",
+      "interaction": 1,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.152963",
+      "interaction": 2,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153046",
+      "interaction": 3,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153126",
+      "interaction": 4,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153208",
+      "interaction": 5,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153284",
+      "interaction": 6,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153361",
+      "interaction": 7,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153445",
+      "interaction": 8,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153538",
+      "interaction": 9,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153643",
+      "interaction": 10,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153745",
+      "interaction": 11,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153850",
+      "interaction": 12,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.153961",
+      "interaction": 13,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154130",
+      "interaction": 14,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154246",
+      "interaction": 15,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154366",
+      "interaction": 16,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154490",
+      "interaction": 17,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154606",
+      "interaction": 18,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154731",
+      "interaction": 19,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.154879",
+      "interaction": 20,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155004",
+      "interaction": 21,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155272",
+      "interaction": 22,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155415",
+      "interaction": 23,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155559",
+      "interaction": 24,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155703",
+      "interaction": 25,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155849",
+      "interaction": 26,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.155990",
+      "interaction": 27,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.156130",
+      "interaction": 28,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.156281",
+      "interaction": 29,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.156421",
+      "interaction": 30,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.156566",
+      "interaction": 31,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.156717",
+      "interaction": 32,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.156873",
+      "interaction": 33,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.157034",
+      "interaction": 34,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.157189",
+      "interaction": 35,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.157348",
+      "interaction": 36,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.157510",
+      "interaction": 37,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.157676",
+      "interaction": 38,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.157843",
+      "interaction": 39,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.158013",
+      "interaction": 40,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.158248",
+      "interaction": 41,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.158462",
+      "interaction": 42,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.158656",
+      "interaction": 43,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.158853",
+      "interaction": 44,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.159041",
+      "interaction": 45,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.159236",
+      "interaction": 46,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.159441",
+      "interaction": 47,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.159655",
+      "interaction": 48,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.159863",
+      "interaction": 49,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.160196",
+      "interaction": 50,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.160409",
+      "interaction": 51,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.160668",
+      "interaction": 52,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.160999",
+      "interaction": 53,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.161221",
+      "interaction": 54,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.161438",
+      "interaction": 55,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.161657",
+      "interaction": 56,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.161877",
+      "interaction": 57,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.162115",
+      "interaction": 58,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.162346",
+      "interaction": 59,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.162575",
+      "interaction": 60,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.162809",
+      "interaction": 61,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.163127",
+      "interaction": 62,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.163418",
+      "interaction": 63,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.163675",
+      "interaction": 64,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.163922",
+      "interaction": 65,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.164176",
+      "interaction": 66,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.164421",
+      "interaction": 67,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.164666",
+      "interaction": 68,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.164917",
+      "interaction": 69,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.165166",
+      "interaction": 70,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.165441",
+      "interaction": 71,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.165691",
+      "interaction": 72,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.165952",
+      "interaction": 73,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.166201",
+      "interaction": 74,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.166471",
+      "interaction": 75,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.166717",
+      "interaction": 76,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.167020",
+      "interaction": 77,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.167308",
+      "interaction": 78,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.167573",
+      "interaction": 79,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.167833",
+      "interaction": 80,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.168095",
+      "interaction": 81,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.168366",
+      "interaction": 82,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.168631",
+      "interaction": 83,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.168918",
+      "interaction": 84,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.169202",
+      "interaction": 85,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.169484",
+      "interaction": 86,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.169767",
+      "interaction": 87,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.170039",
+      "interaction": 88,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.170346",
+      "interaction": 89,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.170654",
+      "interaction": 90,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.170963",
+      "interaction": 91,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.171269",
+      "interaction": 92,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.171586",
+      "interaction": 93,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.171900",
+      "interaction": 94,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.172220",
+      "interaction": 95,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.172548",
+      "interaction": 96,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.172901",
+      "interaction": 97,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.173243",
+      "interaction": 98,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.173591",
+      "interaction": 99,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.173933",
+      "type": "experiment",
+      "pattern": "directness",
+      "changed_from": 1.0,
+      "changed_to": 0.4
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.173929",
+      "interaction": 100,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.174275",
+      "interaction": 101,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.174626",
+      "interaction": 102,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.174984",
+      "interaction": 103,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.175344",
+      "interaction": 104,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.175707",
+      "interaction": 105,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.176051",
+      "interaction": 106,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.176410",
+      "interaction": 107,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.176759",
+      "interaction": 108,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.177129",
+      "interaction": 109,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.177491",
+      "interaction": 110,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.177859",
+      "interaction": 111,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.178216",
+      "interaction": 112,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.178584",
+      "interaction": 113,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.178955",
+      "interaction": 114,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.179333",
+      "interaction": 115,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.179719",
+      "interaction": 116,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.180097",
+      "interaction": 117,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.180612",
+      "interaction": 118,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.180991",
+      "interaction": 119,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.182419",
+      "interaction": 120,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.182780",
+      "interaction": 121,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.183142",
+      "interaction": 122,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.183501",
+      "interaction": 123,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.183862",
+      "interaction": 124,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.184225",
+      "interaction": 125,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.184595",
+      "interaction": 126,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.185162",
+      "interaction": 127,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.185536",
+      "interaction": 128,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.185922",
+      "interaction": 129,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.186303",
+      "interaction": 130,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.186711",
+      "interaction": 131,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.187115",
+      "interaction": 132,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.187523",
+      "interaction": 133,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.188141",
+      "interaction": 134,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.188569",
+      "interaction": 135,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.189006",
+      "interaction": 136,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.189433",
+      "interaction": 137,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.189864",
+      "interaction": 138,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.190300",
+      "interaction": 139,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.191122",
+      "interaction": 140,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.191565",
+      "interaction": 141,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.192018",
+      "interaction": 142,
+      "age_days": 0,
+      "type": "serious",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.192492",
+      "interaction": 143,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "serious"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.192961",
+      "interaction": 144,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.193426",
+      "interaction": 145,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.193886",
+      "interaction": 146,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "amused"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.194344",
+      "interaction": 147,
+      "age_days": 0,
+      "type": "question",
+      "user_reaction": "neutral"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.194798",
+      "interaction": 148,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.195256",
+      "interaction": 149,
+      "age_days": 0,
+      "type": "joke",
+      "user_reaction": "positive"
+    },
+    {
+      "timestamp": "2026-03-03T15:01:49.195736",
+      "interaction": 150,
+      "age_days": 0,
+      "type": "command",
+      "user_reaction": "neutral"
+    }
+  ],
+  "interactions": 150,
+  "milestones": []
+}

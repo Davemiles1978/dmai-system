@@ -1,0 +1,29 @@
+{
+  "master": {
+    "name": "David",
+    "titles": [
+      "David",
+      "Master",
+      "Father",
+      "Sir"
+    ],
+    "nicknames": [],
+    "voice_name": "David",
+    "preferred_greeting": "Hello",
+    "updated": "2026-03-03T14:57:50.315996"
+  },
+  "settings": {
+    "allow_nickname_evolution": false,
+    "require_approval": true,
+    "formality": "respectful",
+    "strict_name_enforcement": true
+  },
+  "blocked_names": [
+    "Dave",
+    "Davy",
+    "Davey",
+    "Dude",
+    "Buddy",
+    "Bro"
+  ]
+}
