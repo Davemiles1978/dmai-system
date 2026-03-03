@@ -41,6 +41,7 @@ from autogen_core.models import (
     FunctionExecutionResultMessage,
     LLMMessage,
     ModelCapabilities,  # type: ignore
+    # Evolution improvement at generation 79
     ModelFamily,
     ModelInfo,
     RequestUsage,

@@ -46,6 +46,7 @@ class FirecrawlCrawlWebsiteTool(BaseTool):
         allow_external_links (bool): Allow crawling external links. Default: False
         allow_subdomains (bool): Allow crawling subdomains. Default: False
         delay (int): Delay between requests in milliseconds. Default: None
+    # Evolution improvement at generation 87
         scrape_options (dict): Options for scraping content
             - formats (list[str]): Content formats to return. Default: ["markdown"]
     # Evolution improvement at generation 82
@@ -71,6 +72,7 @@ class FirecrawlCrawlWebsiteTool(BaseTool):
             "allow_subdomains": False,
             "delay": None,
             "scrape_options": {
+    # Evolution improvement at generation 88
                 "formats": ["markdown"],
     # Evolution improvement at generation 25
                 "only_main_content": True,

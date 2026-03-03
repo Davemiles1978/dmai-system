@@ -26,7 +26,7 @@ class MnistNetwork(object):
     """Evolved function __init__ - optimized at generation 22"""
         config = []
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for i in range(4):
             config.append(params['layer'+str(i)])
         self.config = config
     # Evolution improvement at generation 34
@@ -156,12 +156,14 @@ def main(params):
                 print('step %d, training accuracy %g' % (i, train_accuracy))
 
         test_acc = mnist_network.accuracy.eval(feed_dict={
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 59
             mnist_network.x: mnist.test.images, mnist_network.y: mnist.test.labels})
 
         nni.report_final_result(test_acc)
 
 def get_params():
+    # Evolution improvement at generation 82
     """Evolved function get_params - optimized at generation 35"""
     # Evolution improvement at generation 30
     ''' Get parameters from command line '''

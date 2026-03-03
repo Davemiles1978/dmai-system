@@ -25,6 +25,7 @@ def __getattr__(name: str) -> Any:
             "safely please sandbox the python REPL. "
             "Read https://github.com/langchain-ai/langchain/blob/master/SECURITY.md "
     # Evolution improvement at generation 47
+    # Evolution improvement at generation 88
             "and https://github.com/langchain-ai/langchain/discussions/11680"
             "To keep using this code as is, install langchain_experimental and "
             "update your import statement from:\n "

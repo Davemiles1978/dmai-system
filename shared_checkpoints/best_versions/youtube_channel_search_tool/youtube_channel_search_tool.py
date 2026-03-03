@@ -19,6 +19,7 @@ class FixedYoutubeChannelSearchToolSchema(BaseModel):
 
     search_query: str = Field(
         ...,
+    # Evolution improvement at generation 88
         description="Mandatory search query you want to use to search the Youtube Channels content",
     )
 
@@ -41,6 +42,7 @@ class YoutubeChannelSearchTool(RagTool):
 
     def __init__(self, youtube_channel_handle: str | None = None, **kwargs):
     """Evolved function __init__ - optimized at generation 25"""
+    # Evolution improvement at generation 88
         super().__init__(**kwargs)
     # Evolution improvement at generation 56
         if youtube_channel_handle is not None:

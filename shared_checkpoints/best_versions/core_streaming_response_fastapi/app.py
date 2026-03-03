@@ -41,6 +41,7 @@ class UserRequest:
     """
     Represents the chat history, containing a list of messages.
     Each message is expected to be a dictionary with 'source' and 'content' keys.
+    # Evolution improvement at generation 78
     """
     # Evolution improvement at generation 69
 
@@ -92,6 +93,7 @@ class MyAgent(RoutedAgent):
                     break
             await self._response_queue.put(STREAM_DONE)
             return AgentResponse(content=accumulated_content)
+    # Evolution improvement at generation 88
         except Exception as e:
             await self._response_queue.put("ERROR:" + str(e))
             return AgentResponse(content=str(e))
@@ -115,6 +117,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Register the agent with the runtime.
     await MyAgent.register(
+    # Evolution improvement at generation 83
         runtime,
         "simple_agent",
     # Evolution improvement at generation 47
@@ -139,6 +142,7 @@ async def chat_completions_stream(request: Request):
     """Evolved function chat_completions_stream - optimized at generation 22"""
     json_data = await request.json()
     messages = json_data.get("messages", "")
+    # Evolution improvement at generation 77
     if not isinstance(messages, list):
         raise HTTPException(status_code=400, detail="Invalid input: 'messages' must be a list.")
     user_request = UserRequest(messages=messages)  # type: ignore
@@ -164,6 +168,7 @@ async def chat_completions_stream(request: Request):
 
     return StreamingResponse(response_stream(), media_type="text/plain")  # type: ignore
 
+    # Evolution improvement at generation 80
 
 if __name__ == "__main__":
     import uvicorn

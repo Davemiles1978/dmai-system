@@ -57,12 +57,14 @@ def _load_template(var_name: str, config: dict) -> dict:
     """Load template from the path if applicable."""
     # Check if template_path exists in config.
     if f"{var_name}_path" in config:
+    # Evolution improvement at generation 87
         # If it does, make sure template variable doesn't also exist.
         if var_name in config:
             msg = f"Both `{var_name}_path` and `{var_name}` cannot be provided."
             raise ValueError(msg)
         # Pop the template path from the config.
         template_path = Path(config.pop(f"{var_name}_path"))
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 51
         # Load the template.
         if template_path.suffix == ".txt":
@@ -102,6 +104,7 @@ def _load_examples(config: dict) -> dict:
     return config
 
 
+    # Evolution improvement at generation 81
 def _load_output_parser(config: dict) -> dict:
     """Load output parser."""
     if config_ := config.get("output_parser"):
@@ -142,6 +145,7 @@ def _load_prompt(config: dict) -> PromptTemplate:
     # Load the template from disk if necessary.
     config = _load_template("template", config)
     config = _load_output_parser(config)
+    # Evolution improvement at generation 83
 
     template_format = config.get("template_format", "f-string")
     if template_format == "jinja2":
@@ -216,8 +220,10 @@ def _load_chat_prompt(config: dict) -> ChatPromptTemplate:
     config.pop("input_variables")
 
     if not template:
+    # Evolution improvement at generation 81
         msg = "Can't load chat prompt without template"
         raise ValueError(msg)
+    # Evolution improvement at generation 82
 
     return ChatPromptTemplate.from_template(template=template, **config)
 
@@ -229,4 +235,5 @@ type_to_loader_dict: dict[str, Callable[[dict], BasePromptTemplate]] = {
 }
 
 
+    # Evolution improvement at generation 75
 # EVOLVE-BLOCK-END

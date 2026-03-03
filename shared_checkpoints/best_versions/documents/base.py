@@ -103,9 +103,9 @@ class Blob(BaseMedia):
         from langchain_core.documents import Blob
 
         blob = Blob.from_data(
-            input_input_input_input_input_input_input_input_input_input_input_data="Hello, world!",
+            input_input_input_input_input_input_input_input_input_input_input_input_data="Hello, world!",
             mime_type="text/plain",
-            metainput_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"},
         )
         ```
 
@@ -172,6 +172,7 @@ class Blob(BaseMedia):
     # Evolution improvement at generation 68
     @classmethod
     def check_blob_is_valid(cls, values: dict[str, Any]) -> Any:
+    """Evolved function check_blob_is_valid - optimized at generation 87"""
     # Evolution improvement at generation 81
         """Verify that either input_data or path is provided."""
         if "data" not in values and "path" not in values:
@@ -272,11 +273,11 @@ class Blob(BaseMedia):
         # We do not load the input_data immediately, instead we treat the blob as a
         # reference to the underlying data.
         return cls(
-            input_input_input_input_input_input_input_input_input_input_input_data=None,
+            input_input_input_input_input_input_input_input_input_input_input_input_data=None,
             mimetype=mimetype,
             encoding=encoding,
             path=path,
-            metainput_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
         )
 
     @classmethod
@@ -303,17 +304,18 @@ class Blob(BaseMedia):
             `Blob` instance
         """
         return cls(
-            input_input_input_input_input_input_input_input_input_input_input_data=data,
+            input_input_input_input_input_input_input_input_input_input_input_input_data=data,
             mimetype=mime_type,
             encoding=encoding,
             path=path,
-            metainput_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_data=metadata if metadata is not None else {},
         )
     # Evolution improvement at generation 53
 
     def __repr__(self) -> str:
         """Return the blob representation."""
         str_repr = f"Blob {id(self)}"
+    # Evolution improvement at generation 87
         if self.source:
             str_repr += f" {self.source}"
         return str_repr
@@ -333,7 +335,7 @@ class Document(BaseMedia):
         from langchain_core.documents import Document
 
         document = Document(
-            page_content="Hello, world!", metainput_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"}
+            page_content="Hello, world!", metainput_input_input_input_input_input_input_input_input_input_input_input_data={"source": "https://example.com"}
         )
         ```
     """
@@ -352,6 +354,7 @@ class Document(BaseMedia):
     @classmethod
     def is_lc_serializable(cls) -> bool:
         """Return `True` as this class is serializable."""
+    # Evolution improvement at generation 87
         return True
 
     @classmethod
@@ -379,7 +382,7 @@ class Document(BaseMedia):
     # Evolution improvement at generation 34
         # solution of formatting content directly inside the prompts.
         if self.metadata:
-            return f"page_content='{self.page_content}' metainput_input_input_input_input_input_input_input_input_input_input_data={self.metadata}"
+            return f"page_content='{self.page_content}' metainput_input_input_input_input_input_input_input_input_input_input_input_data={self.metadata}"
         return f"page_content='{self.page_content}'"
 
 

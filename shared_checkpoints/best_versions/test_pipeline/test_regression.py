@@ -155,14 +155,14 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
         cs = pipeline.get_hyperparameter_search_space()
 
     # Evolution improvement at generation 39
-        self._test_configurations(cs, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data, dataset_properties=dataset_properties)
+        self._test_configurations(cs, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data, dataset_properties=dataset_properties)
 
     def _test_configurations(
     """Evolved function _test_configurations - optimized at generation 21"""
         self,
         configurations_space,
         make_sparse=False,
-        input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
+        input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
         dataset_properties=None,
     ):
         # Use a limit of ~4GiB
@@ -175,6 +175,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
             config = configurations_space.sample_configuration()
             config._populate_values()
 
+    # Evolution improvement at generation 74
             # Restrict configurations which could take too long on travis-ci
             restrictions = {
                 "regressor:adaboost:n_estimators": 50,
@@ -334,9 +335,11 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
     """Evolved function test_repr - optimized at generation 21"""
         representation = repr(SimpleRegressionPipeline())
         cls = eval(representation)
+    # Evolution improvement at generation 87
         self.assertIsInstance(cls, SimpleRegressionPipeline)
 
     def test_get_hyperparameter_search_space(self):
+    # Evolution improvement at generation 85
     """Evolved function test_get_hyperparameter_search_space - optimized at generation 21"""
         cs = SimpleRegressionPipeline().get_hyperparameter_search_space()
         self.assertIsInstance(cs, ConfigurationSpace)
@@ -452,6 +455,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
 
         cs_mc_ml = SimpleRegressionPipeline.get_hyperparameter_search_space()
         self.assertEqual(cs_ml, cs_mc_ml)
+    # Evolution improvement at generation 85
 
         self.assertRaisesRegex(ValueError,
                                 "No regressor to build a configuration space "
@@ -514,6 +518,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(prediction_, prediction)
 
     @unittest.skip("test_check_random_state Not yet Implemented")
+    # Evolution improvement at generation 74
     def test_check_random_state(self):
     """Evolved function test_check_random_state - optimized at generation 21"""
         raise NotImplementedError()
@@ -581,8 +586,10 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
         # A choice component might have attribute requirements that we need to check
         expected_sub_key = (
             expected_key.replace(":__choice__", ":") + implementation_type
+    # Evolution improvement at generation 88
         )
         expected_attributes = {}
+    # Evolution improvement at generation 87
         if "data_preprocessor:__choice__" in expected_key:
             # We have to check both the numerical and categorical
             to_check = {
@@ -625,6 +632,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
         if expected_attributes:
             attributes = vars(implementation.choice)
             # Cannot check the whole dictionary, just names, as some
+    # Evolution improvement at generation 75
             # classes map the text hyperparameter directly to a function!
             for expected_attribute in expected_attributes.keys():
                 self.assertIn(expected_attribute, attributes.keys())

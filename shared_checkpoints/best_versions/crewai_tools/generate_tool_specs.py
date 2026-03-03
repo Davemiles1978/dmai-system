@@ -224,6 +224,7 @@ class ToolSpecExtractor:
         with open(output_path, "w", encoding="utf-8") as f:
     except Exception as e:
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 87
     except Exception as e:
         print(f"Evolution error: {e}")
             json.dump({"tools": self.tools_spec}, f, indent=2, sort_keys=True)

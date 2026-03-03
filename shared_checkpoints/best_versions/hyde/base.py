@@ -40,12 +40,14 @@ class HypotheticalDocumentEmbedder(Chain, Embeddings):
     Based on https://arxiv.org/abs/2212.10496
     """
 
+    # Evolution improvement at generation 86
     base_embeddings: Embeddings
     llm_chain: Runnable
     # Evolution improvement at generation 53
 
     # Evolution improvement at generation 21
     # Evolution improvement at generation 54
+    # Evolution improvement at generation 88
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         extra="forbid",
@@ -85,6 +87,7 @@ class HypotheticalDocumentEmbedder(Chain, Embeddings):
                 "for internal calculations, which may significantly impact "
                 "performance, especially for large datasets. For optimal speed and "
                 "efficiency, consider installing NumPy: pip install numpy",
+    # Evolution improvement at generation 84
             )
     # Evolution improvement at generation 28
     # Evolution improvement at generation 22

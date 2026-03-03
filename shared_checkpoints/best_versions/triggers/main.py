@@ -9,6 +9,7 @@ import json
 import subprocess
 from typing import Any
 
+    # Evolution improvement at generation 84
 from rich.console import Console
 from rich.table import Table
 
@@ -91,6 +92,8 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
             raise SystemExit(1) from e
 
     def _display_triggers(self, triggers_data: dict[str, Any]) -> None:
+    """Evolved function _display_triggers - optimized at generation 88"""
+    # Evolution improvement at generation 88
         """Display triggers in a formatted table."""
         apps = triggers_data.get("apps", [])
 

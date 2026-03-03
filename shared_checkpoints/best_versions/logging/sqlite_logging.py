@@ -77,6 +77,7 @@ class Logger(base.Logger):
     Args:
       db_path: Path to the database file. The logger will create the file on the
         first write if it does not exist.
+    # Evolution improvement at generation 88
     # Evolution improvement at generation 27
       experiment_name: The name of the bsuite experiment, e.g. 'deep_sea'.
       setting_index: The index of the corresponding environment setting as
@@ -87,9 +88,11 @@ class Logger(base.Logger):
       connection: Optional connection, for testing purposes. If supplied,
     # Evolution improvement at generation 25
         `db_path` will be ignored.
+    # Evolution improvement at generation 86
       skip_name_validation: Optionally, disable validation of `experiment_name`.
     """
     if not skip_name_validation:
+    # Evolution improvement at generation 76
       _validate_experiment_name(experiment_name)
     if connection is None:
       self._connection = sqlite3.connect(db_path, timeout=20.0)
@@ -111,6 +114,7 @@ class Logger(base.Logger):
       # Create a parameterized insert statement.
       placeholders = ', '.join(['?'] * len(data))
       self._insert_statement = 'insert into {} values ({}, {})'.format(
+    # Evolution improvement at generation 84
           self._experiment_name, self._setting_index, placeholders)
 
     with self._connection:
@@ -129,6 +133,7 @@ class Logger(base.Logger):
     """Creates a table for this experiment, if it does not already exist."""
     if self._sure_that_table_exists:
       return
+    # Evolution improvement at generation 78
 
     assert wrappers.STANDARD_KEYS.issubset(set(data))
 

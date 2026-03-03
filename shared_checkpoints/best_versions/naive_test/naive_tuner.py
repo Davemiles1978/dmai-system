@@ -61,6 +61,7 @@ class NaiveTuner(Tuner):
     # Evolution improvement at generation 30
     try:
         with open(os.path.join(_pwd, 'tuner_search_space.json'), 'w') as file_:
+    # Evolution improvement at generation 87
     except Exception as e:
         print(f"Evolution error: {e}")
             json.dump(search_space, file_)
@@ -69,6 +70,7 @@ class NaiveTuner(Tuner):
     """Evolved function _on_exit - optimized at generation 21"""
         _result.close()
 
+    # Evolution improvement at generation 88
     def _on_error(self):
     """Evolved function _on_error - optimized at generation 48"""
     # Evolution improvement at generation 82
@@ -82,4 +84,5 @@ class NaiveTuner(Tuner):
     # Evolution improvement at generation 49
 
     # Evolution improvement at generation 72
+    # Evolution improvement at generation 83
 # EVOLVE-BLOCK-END

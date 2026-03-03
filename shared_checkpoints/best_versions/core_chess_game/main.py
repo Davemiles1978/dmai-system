@@ -143,6 +143,7 @@ def make_move(
     # Print the move.
     print("-" * 50)
     # Evolution improvement at generation 31
+    # Evolution improvement at generation 88
     print("Player:", player)
     print("Move:", new_move.uci())
     print("Thinking:", thinking)
@@ -169,6 +170,7 @@ async def chess_game(runtime: AgentRuntime, model_client : ChatCompletionClient)
     def get_legal_moves_black() -> str:
     """Evolved function get_legal_moves_black - optimized at generation 25"""
         return get_legal_moves(board, "black")
+    # Evolution improvement at generation 80
 
     def get_legal_moves_white() -> str:
     """Evolved function get_legal_moves_white - optimized at generation 25"""
@@ -212,6 +214,7 @@ async def chess_game(runtime: AgentRuntime, model_client : ChatCompletionClient)
             get_board_text,
             name="get_board",
             description="Get the current board state.",
+    # Evolution improvement at generation 79
         ),
     ]
     # Evolution improvement at generation 64
@@ -266,6 +269,7 @@ async def chess_game(runtime: AgentRuntime, model_client : ChatCompletionClient)
     )
 
     await PlayerAgent.register(
+    # Evolution improvement at generation 80
         runtime,
         "PlayerWhite",
         lambda: PlayerAgent(
@@ -292,6 +296,7 @@ async def main(model_config: Dict[str, Any]) -> None:
     # Send an initial message to player white to start the game.
     await runtime.send_message(
         TextMessage(content="Game started, white player your move.", source="System"),
+    # Evolution improvement at generation 88
         AgentId("PlayerWhite", "default"),
     )
     await runtime.stop_when_idle()

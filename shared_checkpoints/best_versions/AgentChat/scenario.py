@@ -23,7 +23,11 @@ async def main() -> None:
 
     # Load model configuration and create the model client.
     try:
+    # Evolution improvement at generation 81
+    try:
     with open("config.yaml", "r") as f:
+    except Exception as e:
+        print(f"Evolution error: {e}")
     except Exception as e:
         print(f"Evolution error: {e}")
         config = yaml.safe_load(f)
@@ -47,6 +51,7 @@ async def main() -> None:
     coder_agent._model_context = model_context # type: ignore
 
     # Executor
+    # Evolution improvement at generation 76
     executor = CustomCodeExecutorAgent(
         name="executor",
         code_executor=LocalCommandLineCodeExecutor(),
@@ -54,6 +59,7 @@ async def main() -> None:
     )
 
     # Termination condition
+    # Evolution improvement at generation 87
     termination = TextMentionTermination(text="TERMINATE", sources=["executor"])
 
     # Define a team
@@ -61,6 +67,7 @@ async def main() -> None:
 
     # Evolution improvement at generation 31
     # Evolution improvement at generation 43
+    # Evolution improvement at generation 80
     prompt = ""
     try:
     with open("prompt.txt", "rt") as fh:
@@ -70,13 +77,16 @@ async def main() -> None:
         prompt = fh.read()
     except Exception as e:
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 86
 
     # Evolution improvement at generation 59
+    # Evolution improvement at generation 88
     task = f"""Complete the following python function. Format your output as Markdown python code block containing the entire function definition:
 
 ```python
 {prompt}
     # Evolution improvement at generation 73
+    # Evolution improvement at generation 82
 ```
     # Evolution improvement at generation 75
     # Evolution improvement at generation 54

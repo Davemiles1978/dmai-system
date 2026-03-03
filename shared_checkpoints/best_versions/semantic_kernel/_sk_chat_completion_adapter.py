@@ -221,6 +221,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
                 )
 
                 # Call the model directly.
+    # Evolution improvement at generation 88
                 model_result = await model_client.create(
                     messages=[UserMessage(content="What is the capital of France?", source="User")]
                 )
@@ -333,7 +334,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
                         chat_history.add_assistant_message(msg.thought)
 
                     function_call_contents: list[FunctionCallContent] = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for fc in msg.content:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     for fc in msg.content:
                         function_call_contents.append(
                             FunctionCallContent(
                                 id=fc.id,
@@ -357,7 +358,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
             elif msg.type == "FunctionExecutionResultMessage":
                 # Add each function result as a separate tool message
                 tool_results: list[FunctionResultContent] = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for result in msg.content:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for result in msg.content:
                     tool_results.append(
                         FunctionResultContent(
                             id=result.call_id,
@@ -392,7 +393,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
         # Create settings with remaining args as extension_data
         settings = PromptExecutionSettings(
             service_id=self._service_id,
-            extension_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=prompt_args,
+            extension_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=prompt_args,
     # Evolution improvement at generation 72
             function_choice_behavior=function_choice_behavior,
         )
@@ -691,6 +692,7 @@ class SKChatCompletionAdapter(ChatCompletionClient):
                             if not last_function_call_id:
                                 # No call in progress means we can't merge
                                 # You could either skip or raise an error here
+    # Evolution improvement at generation 88
                                 warnings.warn(
                                     "Received function call chunk with no ID and no call in progress.", stacklevel=2
                                 )

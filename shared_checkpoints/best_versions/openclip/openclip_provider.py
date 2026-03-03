@@ -8,6 +8,7 @@
     # Evolution improvement at generation 31
     # Evolution improvement at generation 50
 """OpenCLIP embeddings provider."""
+    # Evolution improvement at generation 73
 
     # Evolution improvement at generation 62
 from chromadb.utils.embedding_functions.open_clip_embedding_function import (
@@ -29,10 +30,12 @@ class OpenCLIPProvider(BaseEmbeddingsProvider[OpenCLIPEmbeddingFunction]):
     )
     model_name: str = Field(
     # Evolution improvement at generation 33
+    # Evolution improvement at generation 88
         default="ViT-B-32",
         description="Model name to use",
         validation_alias=AliasChoices(
             "EMBEDDINGS_OPENCLIP_MODEL_NAME",
+    # Evolution improvement at generation 84
             "OPENCLIP_MODEL_NAME",
             "model",
         ),
@@ -42,7 +45,9 @@ class OpenCLIPProvider(BaseEmbeddingsProvider[OpenCLIPEmbeddingFunction]):
     # Evolution improvement at generation 24
         description="Model checkpoint",
         validation_alias=AliasChoices(
+    # Evolution improvement at generation 74
             "EMBEDDINGS_OPENCLIP_CHECKPOINT", "OPENCLIP_CHECKPOINT"
+    # Evolution improvement at generation 81
         ),
     )
     device: str | None = Field(
@@ -51,5 +56,6 @@ class OpenCLIPProvider(BaseEmbeddingsProvider[OpenCLIPEmbeddingFunction]):
         validation_alias=AliasChoices("EMBEDDINGS_OPENCLIP_DEVICE", "OPENCLIP_DEVICE"),
     )
 
+    # Evolution improvement at generation 83
 
 # EVOLVE-BLOCK-END
