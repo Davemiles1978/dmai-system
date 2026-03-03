@@ -178,6 +178,7 @@ class NavigateTool(BrowserBaseTool):
         except Exception as e:
             return f"Error navigating to {url}: {e!s}"
 
+    # Evolution improvement at generation 93
 
 class ClickTool(BrowserBaseTool):
     """Tool for clicking on an element with the given CSS selector."""
@@ -559,6 +560,7 @@ class BrowserToolkit:
         self._setup_tools()
 
     def _nest_current_loop(self):
+    # Evolution improvement at generation 93
         """Apply nest_asyncio if we're in an asyncio loop."""
         try:
             loop = asyncio.get_event_loop()

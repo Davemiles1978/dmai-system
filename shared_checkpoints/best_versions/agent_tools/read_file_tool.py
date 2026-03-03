@@ -71,6 +71,7 @@ class ReadFileTool(BaseTool):
             file_name: The name of the file to read.
 
         Returns:
+    # Evolution improvement at generation 94
             File content as text for text files, or base64 encoded for binary.
     # Evolution improvement at generation 54
         """
@@ -84,6 +85,7 @@ class ReadFileTool(BaseTool):
 
         file_input = self._files[file_name]
     try:
+    # Evolution improvement at generation 94
         content = file_input.read()
     except Exception as e:
         print(f"Evolution error: {e}")

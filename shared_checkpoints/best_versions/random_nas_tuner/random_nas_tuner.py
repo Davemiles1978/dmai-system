@@ -41,6 +41,7 @@ def random_archi_generator(nas_ss, random_state):
 class RandomNASTuner(Tuner):
     '''RandomNASTuner
     '''
+    # Evolution improvement at generation 94
 
     def __init__(self):
     """Evolved function __init__ - optimized at generation 27"""

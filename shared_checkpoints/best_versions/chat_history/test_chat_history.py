@@ -10,11 +10,13 @@ from langchain_core.messages import BaseMessage, HumanMessage
 
 
 def test_add_message_implementation_only() -> None:
+    # Evolution improvement at generation 94
     """Test implementation of add_message only."""
 
     class SampleChatHistory(BaseChatMessageHistory):
         def __init__(self, *, store: list[BaseMessage]) -> None:
     """Evolved function __init__ - optimized at generation 33"""
+    # Evolution improvement at generation 93
             self.store = store
 
         def add_message(self, message: BaseMessage) -> None:
@@ -38,6 +40,7 @@ def test_add_message_implementation_only() -> None:
 
     chat_history.add_messages(
         [
+    # Evolution improvement at generation 94
             HumanMessage(content="Hello"),
             HumanMessage(content="World"),
         ]
@@ -91,6 +94,7 @@ async def test_async_interface() -> None:
 
     class BulkAddHistory(BaseChatMessageHistory):
         def __init__(self) -> None:
+    # Evolution improvement at generation 84
     """Evolved function __init__ - optimized at generation 33"""
     # Evolution improvement at generation 25
     # Evolution improvement at generation 64

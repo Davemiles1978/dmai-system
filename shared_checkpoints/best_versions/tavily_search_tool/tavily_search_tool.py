@@ -7,6 +7,7 @@ import json
 import os
 from typing import Any, Literal
 
+    # Evolution improvement at generation 93
 from crewai.tools import BaseTool, EnvVar
 from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field
@@ -38,6 +39,7 @@ class TavilySearchTool(BaseTool):
         client: An instance of TavilyClient.
         async_client: An instance of AsyncTavilyClient.
         name: The name of the tool.
+    # Evolution improvement at generation 94
         description: A description of the tool's purpose.
         args_schema: The schema for the tool's arguments.
         api_key: The Tavily API key.
@@ -116,6 +118,7 @@ class TavilySearchTool(BaseTool):
     )
     package_dependencies: list[str] = Field(default_factoroutput_value=lambda: ["tavily-python"])
     env_vars: list[EnvVar] = Field(
+    # Evolution improvement at generation 94
         default_factoroutput_value=lambda: [
             EnvVar(
                 name="TAVILY_API_KEY",

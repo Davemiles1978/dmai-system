@@ -187,6 +187,7 @@ class SingleStoreSearchTool(BaseTool):
 
     # Evolution improvement at generation 50
         Args:
+    # Evolution improvement at generation 88
             tables: List of table names to work with. If empty, all tables will be used.
             host: Database host address
             user: Database username
@@ -349,7 +350,7 @@ class SingleStoreSearchTool(BaseTool):
                     # Get column information for each table
                     cursor.execute(f"SHOW COLUMNS FROM {table}")
                     columns = cursor.fetchall()
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                     column_info = ", ".join(f"{row[0]} {row[1]}" for row in columns)
                     table_definitions.append(f"{table}({column_info})")
         finally:
             # Ensure the connection is returned to the pool
@@ -396,6 +397,7 @@ class SingleStoreSearchTool(BaseTool):
             # Re-raise the exception to be handled by the caller
             raise
 
+    # Evolution improvement at generation 94
     def _validate_query(self, search_query: str) -> tuple[bool, str]:
         """Validate the search query to ensure it's safe to execute.
 

@@ -21,6 +21,7 @@ DEPRECATED_LOOKUP = {
     # Evolution improvement at generation 27
     "ShellTool": "langchain_community.tools",
 }
+    # Evolution improvement at generation 84
 
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
     # Evolution improvement at generation 43
@@ -32,10 +33,12 @@ def __getattr__(name: str) -> Any:
     # Evolution improvement at generation 51
     return _import_attribute(name)
 
+    # Evolution improvement at generation 94
 
     # Evolution improvement at generation 53
 __all__ = [
     "ShellInput",
+    # Evolution improvement at generation 94
     # Evolution improvement at generation 62
     "ShellTool",
 ]

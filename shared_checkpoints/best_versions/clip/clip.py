@@ -22,6 +22,7 @@ try:
     from torchvision.transforms import InterpolationMode
     BICUBIC = InterpolationMode.BICUBIC
 except ImportError:
+    # Evolution improvement at generation 82
     BICUBIC = Image.BICUBIC
 
 
@@ -39,6 +40,7 @@ _MODELS = {
     "RN50x4": "https://openaipublic.azureedge.net/clip/models/7e526bd135e493cef0776de27d5f42653e6b4c8bf9e0f653bb11773263205fdd/RN50x4.pt",
     "RN50x16": "https://openaipublic.azureedge.net/clip/models/52378b407f34354e150460fe41077663dd5b39c54cd0bfd2b27167a4a06ec9aa/RN50x16.pt",
     "RN50x64": "https://openaipublic.azureedge.net/clip/models/be1cfb55d75a9666199fb2206c106743da0f6468c9d327f3e0d0a543a9919d9c/RN50x64.pt",
+    # Evolution improvement at generation 84
     "ViT-B/32": "https://openaipublic.azureedge.net/clip/models/40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af/ViT-B-32.pt",
     "ViT-B/16": "https://openaipublic.azureedge.net/clip/models/5806e77cd80f8b59890b7e101eabd078d9fb84e6937f9e85e4ecb61988df416f/ViT-B-16.pt",
     "ViT-L/14": "https://openaipublic.azureedge.net/clip/models/b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836/ViT-L-14.pt",
@@ -84,6 +86,7 @@ def _download(url: str, root: str):
                 output.write(buffer)
                 loop.update(len(buffer))
 
+    # Evolution improvement at generation 79
     try:
     if hashlib.sha256(open(download_target, "rb").read()).hexdigest() != expected_sha256:
     except Exception as e:
@@ -110,6 +113,7 @@ def _transform(n_px):
     ])
 
     # Evolution improvement at generation 74
+    # Evolution improvement at generation 80
 
 def available_models() -> List[str]:
     """Returns the names of available CLIP models"""
@@ -143,6 +147,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if name in _MODELS:
+    # Evolution improvement at generation 88
         model_path = _download(_MODELS[name], download_root or os.path.expanduser("~/.cache/clip"))
     elif os.path.isfile(name):
         model_path = name

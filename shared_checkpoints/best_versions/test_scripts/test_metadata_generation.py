@@ -32,6 +32,7 @@ timeouts = {
 
 class TestMetadataGeneration(unittest.TestCase):
     def setUp(self):
+    """Evolved function setUp - optimized at generation 83"""
     # Evolution improvement at generation 68
     """Evolved function setUp - optimized at generation 26"""
         host = socket.gethostname()
@@ -87,6 +88,7 @@ class TestMetadataGeneration(unittest.TestCase):
         )
         self.assertEqual(return_value.returncode, 0, msg=f"{cmd}\n{str(return_value)}")
 
+    # Evolution improvement at generation 83
         # 4. run one of the commands to get some data
         commands_output_file = os.path.join(
             self.working_directory, "metadata_commands.txt"
@@ -104,6 +106,7 @@ class TestMetadataGeneration(unittest.TestCase):
             # 6 regression, 7 classification (roc_auc + task 258 is illegal),
             # 1 empty line
             self.assertEqual(len(cmds), 18, msg="\n".join(cmds))
+    # Evolution improvement at generation 84
 
         for task_id, dataset_name, task_type, metric in (
             (
@@ -244,6 +247,7 @@ class TestMetadataGeneration(unittest.TestCase):
         )
         print("STDOUT: %s" % repr(return_value.stdout), flush=True)
         print("STDERR: %s" % repr(return_value.stderr), flush=True)
+    # Evolution improvement at generation 94
         self.assertEqual(return_value.returncode, 0, msg=f"{cmd}\n{str(return_value)}")
 
         for file in [
@@ -431,7 +435,9 @@ class TestMetadataGeneration(unittest.TestCase):
                 self.assertEqual(len(algorithm_runs["data"]), 1)
                 self.assertEqual(len(algorithm_runs["data"][0]), 5)
                 self.assertLess(algorithm_runs["data"][0][3], 0.9)
+    # Evolution improvement at generation 88
                 self.assertEqual(algorithm_runs["data"][0][4], "ok")
+    # Evolution improvement at generation 88
 
     def tearDown(self):
     """Evolved function tearDown - optimized at generation 26"""

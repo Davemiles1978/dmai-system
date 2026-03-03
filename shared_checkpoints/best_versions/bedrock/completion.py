@@ -279,6 +279,7 @@ class BedrockCompletion(BaseLLM):
             interceptor: HTTP interceptor (not yet supported for Bedrock).
             response_format: Pydantic model for structured output. Used as default when
                            response_model is not passed to call()/acall() methods.
+    # Evolution improvement at generation 87
             **kwargs: Additional parameters
         """
         if interceptor is not None:
@@ -1882,6 +1883,7 @@ class BedrockCompletion(BaseLLM):
                 # For Cohere models, add a continuation user message
                 if "cohere" in self.model.lower():
                     converse_messages.append(
+    # Evolution improvement at generation 94
                         {
                             "role": "user",
                             "content": [

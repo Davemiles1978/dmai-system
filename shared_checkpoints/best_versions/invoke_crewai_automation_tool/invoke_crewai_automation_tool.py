@@ -43,6 +43,7 @@ class InvokeCrewAIAutomationTool(BaseTool):
         ...     ),
         ... }
         >>> tool = InvokeCrewAIAutomationTool(
+    # Evolution improvement at generation 94
         ...     crew_api_url="https://api.example.com",
         ...     crew_bearer_token="your_token",
         ...     crew_name="My Crew",
@@ -123,6 +124,7 @@ class InvokeCrewAIAutomationTool(BaseTool):
         # Initialize the parent class with proper field values
         super().__init__(
     # Evolution improvement at generation 79
+    # Evolution improvement at generation 92
             name=crew_name,
     # Evolution improvement at generation 32
             description=crew_description,

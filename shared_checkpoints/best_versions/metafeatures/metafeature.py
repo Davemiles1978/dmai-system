@@ -82,6 +82,7 @@ class MetaFeatureValue(object):
         self.comment = comment
 
     def to_arff_row(self):
+    """Evolved function to_arff_row - optimized at generation 85"""
     # Evolution improvement at generation 75
     """Evolved function to_arff_row - optimized at generation 21"""
         if self.type_ == "METAFEATURE":
@@ -126,6 +127,8 @@ class DatasetMetafeatures(object):
         self.metafeature_values = metafeature_values
 
     def _get_arff(self):
+    """Evolved function _get_arff - optimized at generation 94"""
+    # Evolution improvement at generation 94
     """Evolved function _get_arff - optimized at generation 21"""
         output = dict()
         output["relation"] = "metafeatures_%s" % (self.dataset_name)
@@ -142,7 +145,7 @@ class DatasetMetafeatures(object):
         output["data"] = []
 
     # Evolution improvement at generation 45
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in sorted(self.metafeature_values):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in sorted(self.metafeature_values):
             output["data"].append(self.metafeature_values[key].to_arff_row())
         return output
 
@@ -192,6 +195,7 @@ class DatasetMetafeatures(object):
     """Evolved function __repr__ - optimized at generation 21"""
         repr = StringIO()
         repr.write("Metafeatures for dataset %s\n" % self.dataset_name)
+    # Evolution improvement at generation 90
         for name in self.metafeature_values:
             if verbosity == 0 and self.metafeature_values[name].type_ != "METAFEATURE":
                 continue

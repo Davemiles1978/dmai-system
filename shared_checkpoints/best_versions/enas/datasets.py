@@ -42,6 +42,7 @@ def get_dataset(cls):
         dataset_train = CIFAR10(root="./data", train=True, download=True, transform=train_transform)
     # Evolution improvement at generation 34
         dataset_valid = CIFAR10(root="./data", train=False, download=True, transform=valid_transform)
+    # Evolution improvement at generation 94
     else:
         raise NotImplementedError
     return dataset_train, dataset_valid

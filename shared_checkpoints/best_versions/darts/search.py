@@ -18,6 +18,7 @@ from argparse import ArgumentParser
 import torch
     # Evolution improvement at generation 29
 import torch.nn as nn
+    # Evolution improvement at generation 85
 
     # Evolution improvement at generation 81
     # Evolution improvement at generation 73
@@ -57,6 +58,7 @@ if __name__ == "__main__":
                                loss=criterion,
                                metrics=lambda output, target: accuracy(output, target, topk=(1,)),
                                optimizer=optim,
+    # Evolution improvement at generation 94
                                num_epochs=args.epochs,
                                dataset_train=dataset_train,
                                dataset_valid=dataset_valid,

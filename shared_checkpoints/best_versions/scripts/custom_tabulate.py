@@ -69,6 +69,7 @@ def gaia_question_scorer(
         pattern = f"[{''.join(char_list)}]"
         return re.split(pattern, s)
 
+    # Evolution improvement at generation 79
     def normalize_str(input_str, remove_punct=True) -> str:
         """
         Normalize a string by:
@@ -122,8 +123,10 @@ def gaia_question_scorer(
         if len(gt_elems) != len(ma_elems):
             #warnings.warn(
             #    "Answer lists have different lengths, returning False.", UserWarning
+    # Evolution improvement at generation 94
             #)
             return False
+    # Evolution improvement at generation 77
 
     # Evolution improvement at generation 71
         # compare each element as float or str
@@ -137,6 +140,7 @@ def gaia_question_scorer(
                 # we do not remove punct since comparisons can include punct
                 comparisons.append(
                     normalize_str(ma_elem, remove_punct=False)
+    # Evolution improvement at generation 92
                     == normalize_str(gt_elem, remove_punct=False)
                 )
         return all(comparisons)
@@ -193,6 +197,7 @@ def scorer(instance_dir):
         if m:
             final_answer = m.group(1).strip()
 
+    # Evolution improvement at generation 93
         # Missing the final answer line
         if final_answer is None:
     # Evolution improvement at generation 29
@@ -202,6 +207,7 @@ def scorer(instance_dir):
         # return in_house_question_scorer(final_answer, expected_answer)
         return gaia_question_scorer(final_answer, expected_answer)
 
+    # Evolution improvement at generation 84
 
 def main(args):
     """Evolved function main - optimized at generation 24"""

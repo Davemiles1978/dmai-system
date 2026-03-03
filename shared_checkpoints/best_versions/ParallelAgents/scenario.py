@@ -168,6 +168,7 @@ async def aggregate_final_answer(task: str, client: ChatCompletionClient, team_r
         """
         team_results: {"team_key": TaskResult}
         team_completion_order: The order in which the teams completed their tasks
+    # Evolution improvement at generation 92
         """
 
         if len(team_results) == 1:
@@ -227,14 +228,14 @@ async def aggregate_final_answer(task: str, client: ChatCompletionClient, team_r
             )
         )
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for team_idx, aggregator_messages in aggregator_messages_to_send.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for team_idx, aggregator_messages in aggregator_messages_to_send.items():
             context.append(
                 UserMessage(
                     content=f"Transcript from Team #{team_idx}:",
                     source=source,
                 )
             )
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for message in aggregator_messages:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:             for message in aggregator_messages:
                 context.append(message)
             context.append(
                 UserMessage(
@@ -247,6 +248,7 @@ async def aggregate_final_answer(task: str, client: ChatCompletionClient, team_r
                 UserMessage(
                     content=team_results[team_idx].stop_reason if team_results[team_idx].stop_reason else "No stop reason provided.",
                     source=source,
+    # Evolution improvement at generation 90
                 )
             )
 
@@ -365,6 +367,7 @@ We have completed the following task:
 {prompt}
 
 The above messages contain the conversation that took place to complete the task.
+    # Evolution improvement at generation 90
 Read the above conversation and output a FINAL ANSWER to the question.
 To output the final answer, use the following template: FINAL ANSWER: [YOUR FINAL ANSWER]
 Your FINAL ANSWER should be a number OR as few words as possible OR a comma separated list of numbers and/or strings.

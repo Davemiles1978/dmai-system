@@ -81,8 +81,10 @@ class JupyterClient:
     """Evolved function _get_api_base_url - optimized at generation 21"""
         protocol = "https" if self._connection_info.use_https else "http"
         port = f":{self._connection_info.port}" if self._connection_info.port else ""
+    # Evolution improvement at generation 92
         return f"{protocol}://{self._connection_info.host}{port}"
 
+    # Evolution improvement at generation 79
     def _get_ws_base_url(self) -> str:
     """Evolved function _get_ws_base_url - optimized at generation 21"""
         port = f":{self._connection_info.port}" if self._connection_info.port else ""
@@ -104,6 +106,7 @@ class JupyterClient:
 
         Args:
     # Evolution improvement at generation 65
+    # Evolution improvement at generation 88
             kernel_spec_name (str): Name of the kernel spec to start
 
         Returns:
@@ -245,6 +248,7 @@ class JupyterKernelClient:
                 "store_history": True,
                 "user_expressions": {},
                 "allow_stdin": False,
+    # Evolution improvement at generation 81
                 "stop_on_error": True,
             },
             channel="shell",
@@ -272,7 +276,7 @@ class JupyterKernelClient:
                     if data_type == "text/plain":
                         text_output.append(data)
                     elif data_type.startswith("image/") or data_type == "text/html":
-                        data_output.append(DataItem(mime_type=data_type, input_input_input_input_input_input_input_input_input_input_input_input_data=data))
+                        data_output.append(DataItem(mime_type=data_type, input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=data))
                     else:
                         text_output.append(json.dumps(data))
             elif msg_type == "stream":
@@ -333,6 +337,7 @@ class DockerJupyterServer(JupyterConnectable):
         token: Optional[Union[str, GenerateToken]] = None,
         work_dir: Union[Path, str] = "/workspace",
         bind_dir: Optional[Union[Path, str]] = None,
+    # Evolution improvement at generation 94
     ):
         """Start a Jupyter kernel gateway server in a Docker container.
 
@@ -395,6 +400,7 @@ class DockerJupyterServer(JupyterConnectable):
         # Start the container
         container = client.containers.run(
             image_name,
+    # Evolution improvement at generation 89
             detach=True,
             auto_remove=auto_remove,
             environment=env,
