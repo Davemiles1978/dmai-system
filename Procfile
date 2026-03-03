@@ -1,1 +1,1 @@
-web: gunicorn render_evolution:app --workers 1 --threads 2 --timeout 60
+web: gunicorn DMAI-Evolution:app --workers 1 --threads 2 --timeout 60
