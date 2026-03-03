@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-02-27T13:37:28.317160",
+  "status": "degraded",
+  "components": {
+    "evolution_engine": "error",
+    "knowledge_graph": "present",
+    "meta_learner": "present",
+    "shared_checkpoints": "missing",
+    "user_data": "missing"
+  },
+  "issues": [
+    "evolution_engine: No module named 'evolution_engine'",
+    "shared_checkpoints is missing",
+    "user_data is missing"
+  ],
+  "warnings": []
+}

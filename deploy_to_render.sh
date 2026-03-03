@@ -1,46 +1,23 @@
 #!/bin/bash
-# DEPLOY TO RENDER.COM - FREE, EASY, WORKS FROM ANY DEVICE
-
-echo "🚀 Deploying DMAI to Render.com (FREE forever)"
-echo "=============================================="
-
-# Create render.yaml configuration
-cat > render.yaml << 'EOF'
-services:
-  - type: web
-    name: dmai
-    env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      python mark_all_for_evolution.py
-    startCommand: |
-      python api_server.py &
-      python -m http.server 8080 --bind 0.0.0.0 --directory ui
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-    autoDeploy: true
-    plan: free
-EOF
-
-# Create requirements.txt if it doesn't exist
-cat > requirements.txt << 'EOF'
-flask
-requests
-numpy
-EOF
-
+echo "🚀 Deploying DMAI Evolution to Render"
+echo "========================================"
 echo ""
-echo "✅ Render.com config created!"
+echo "Step 1: Push code to GitHub"
+git add render_evolution.py render_requirements.txt Procfile
+git commit -m "Add Render evolution service"
+git push
 echo ""
-echo "📋 NEXT STEPS:"
-echo "1. Go to https://render.com"
-echo "2. Click 'New +' → 'Web Service'"
-echo "3. Connect your GitHub or upload this folder"
-echo "4. Choose 'Free' plan"
-echo "5. Click 'Create Web Service'"
+echo "Step 2: Go to https://dashboard.render.com"
+echo "Step 3: Click 'New +' → 'Web Service'"
+echo "Step 4: Connect your GitHub repository"
+echo "Step 5: Use these settings:"
+echo "   • Name: dmai-evolution"
+echo "   • Environment: Python 3"
+echo "   • Build Command: pip install -r render_requirements.txt"
+echo "   • Start Command: gunicorn render_evolution:app"
+echo "   • Instance Type: Free"
 echo ""
-echo "🌐 AFTER DEPLOYMENT, YOU'LL GET A URL LIKE:"
-echo "   https://dmai.onrender.com"
+echo "Step 6: After deployment, your URL will be:"
+echo "   https://dmai-evolution.onrender.com"
 echo ""
-echo "📱 ACCESS FROM ANY DEVICE USING THAT URL!"
+echo "Step 7: Run ./cron_setup.sh for cron-job.org instructions"

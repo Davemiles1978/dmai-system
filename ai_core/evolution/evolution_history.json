@@ -1,0 +1,195 @@
+[
+  {
+    "generation": 1,
+    "timestamp": "2026-02-25T11:14:27.279397",
+    "improvements": [],
+    "score": 1.096699821692964,
+    "success": true,
+    "best_score": 1.096699821692964
+  },
+  {
+    "generation": 2,
+    "timestamp": "2026-02-25T11:14:27.490196",
+    "improvements": [],
+    "score": 1.0981851032735073,
+    "success": true,
+    "best_score": 1.0981851032735073
+  },
+  {
+    "generation": 3,
+    "timestamp": "2026-02-25T11:14:27.701515",
+    "improvements": [],
+    "score": 1.1410540792271335,
+    "success": true,
+    "best_score": 1.1410540792271335
+  },
+  {
+    "generation": 4,
+    "timestamp": "2026-02-25T11:14:28.017946",
+    "improvements": [],
+    "score": 1.0897820195559036,
+    "success": true,
+    "best_score": 1.1410540792271335
+  },
+  {
+    "generation": 5,
+    "timestamp": "2026-02-25T11:14:28.129964",
+    "improvements": [],
+    "score": 1.0612097590551022,
+    "success": true,
+    "best_score": 1.1410540792271335
+  },
+  {
+    "generation": 6,
+    "timestamp": "2026-02-25T11:14:28.551349",
+    "improvements": [],
+    "score": 1.0761775944047596,
+    "success": true,
+    "best_score": 1.1410540792271335
+  },
+  {
+    "generation": 7,
+    "timestamp": "2026-02-25T11:14:28.657451",
+    "improvements": [],
+    "score": 1.054805459155325,
+    "success": true,
+    "best_score": 1.1410540792271335
+  },
+  {
+    "generation": 8,
+    "timestamp": "2026-02-25T11:14:29.386850",
+    "improvements": [],
+    "score": 1.1384119025615205,
+    "success": true,
+    "best_score": 1.1410540792271335
+  },
+  {
+    "generation": 9,
+    "timestamp": "2026-02-25T11:14:29.490862",
+    "improvements": [],
+    "score": 1.1444530004071987,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 10,
+    "timestamp": "2026-02-25T11:14:29.913685",
+    "improvements": [],
+    "score": 1.0589469174222557,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 11,
+    "timestamp": "2026-02-25T11:14:30.131756",
+    "improvements": [],
+    "score": 1.0647781290682419,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 12,
+    "timestamp": "2026-02-25T11:14:30.242099",
+    "improvements": [],
+    "score": 1.0518245261098627,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 13,
+    "timestamp": "2026-02-25T11:14:30.672162",
+    "improvements": [],
+    "score": 1.0600512061186316,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 14,
+    "timestamp": "2026-02-25T11:14:30.780745",
+    "improvements": [],
+    "score": 1.0938291587442923,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 15,
+    "timestamp": "2026-02-25T11:14:30.989855",
+    "improvements": [],
+    "score": 1.0929836949351759,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 16,
+    "timestamp": "2026-02-25T11:14:31.400951",
+    "improvements": [],
+    "score": 1.0964563856543108,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 17,
+    "timestamp": "2026-02-25T11:14:31.508029",
+    "improvements": [],
+    "score": 1.0539480199885665,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 18,
+    "timestamp": "2026-02-25T11:14:31.821502",
+    "improvements": [],
+    "score": 1.0660117891350103,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 19,
+    "timestamp": "2026-02-25T11:14:32.039397",
+    "improvements": [],
+    "score": 1.1191125637921409,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 20,
+    "timestamp": "2026-02-25T11:14:32.142516",
+    "improvements": [],
+    "score": 1.1355319098022707,
+    "success": true,
+    "best_score": 1.1444530004071987
+  },
+  {
+    "generation": 21,
+    "timestamp": "2026-03-03T17:14:52.215702",
+    "improvements": [
+      {
+        "area": "low_reasoning",
+        "name": "Enhanced Reasoning",
+        "description": "Implement chain-of-thought reasoning",
+        "expected_improvement": 0.2,
+        "type": "algorithm",
+        "confidence": 0.8943090784452299
+      },
+      {
+        "area": "low_planning",
+        "name": "Improve low_planning",
+        "description": "Generic improvement for low_planning",
+        "expected_improvement": 0.1,
+        "type": "general",
+        "confidence": 0.673006390258663
+      },
+      {
+        "area": "low_memory",
+        "name": "Memory Expansion",
+        "description": "Add vector database for long-term memory",
+        "expected_improvement": 0.25,
+        "type": "architecture",
+        "confidence": 0.7605757074292728
+      }
+    ],
+    "score": 1.0,
+    "success": false,
+    "best_score": 1.1444530004071987
+  }
+]

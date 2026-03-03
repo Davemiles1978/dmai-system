@@ -1,0 +1,180 @@
+{
+  "nodes": [
+    {
+      "id": "2541cf9ff349",
+      "name": "evolution_engine",
+      "type": "module",
+      "created": "2026-02-27T13:12:47.498423",
+      "last_accessed": "2026-02-27T13:12:47.498426",
+      "access_count": 0,
+      "metadata": {
+        "language": "python",
+        "purpose": "core"
+      }
+    },
+    {
+      "id": "d8fd1d848efa",
+      "name": "mutation_strategy",
+      "type": "class",
+      "created": "2026-02-27T13:12:47.498436",
+      "last_accessed": "2026-02-27T13:12:47.498437",
+      "access_count": 0,
+      "metadata": {
+        "type": "genetic"
+      }
+    },
+    {
+      "id": "0c28de07cb2b",
+      "name": "fitness_function",
+      "type": "function",
+      "created": "2026-02-27T13:12:47.498442",
+      "last_accessed": "2026-02-27T13:12:47.498442",
+      "access_count": 0,
+      "metadata": {
+        "metric": "performance"
+      }
+    },
+    {
+      "id": "b7937b0b7718",
+      "name": "evolution",
+      "type": "core_process",
+      "created": "2026-02-27T19:51:44.465138",
+      "last_accessed": "2026-02-27T19:51:44.465141",
+      "access_count": 0,
+      "metadata": {
+        "description": "System evolution"
+      }
+    },
+    {
+      "id": "4aebb4a00447",
+      "name": "mutation",
+      "type": "core_operation",
+      "created": "2026-02-27T19:51:44.465151",
+      "last_accessed": "2026-02-27T19:51:44.465153",
+      "access_count": 0,
+      "metadata": {
+        "description": "Code mutation"
+      }
+    },
+    {
+      "id": "37b0174febd4",
+      "name": "selection",
+      "type": "core_operation",
+      "created": "2026-02-27T19:51:44.465158",
+      "last_accessed": "2026-02-27T19:51:44.465159",
+      "access_count": 0,
+      "metadata": {
+        "description": "Fitness selection"
+      }
+    },
+    {
+      "id": "0431139c659d",
+      "name": "capability",
+      "type": "core_concept",
+      "created": "2026-02-27T19:51:44.465162",
+      "last_accessed": "2026-02-27T19:51:44.465163",
+      "access_count": 0,
+      "metadata": {
+        "description": "System capability"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "2541cf9ff349",
+      "to": "d8fd1d848efa",
+      "type": "uses",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:12:47.498447",
+      "metadata": {}
+    },
+    {
+      "from": "2541cf9ff349",
+      "to": "d8fd1d848efa",
+      "type": "uses",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:21:34.773613",
+      "metadata": {}
+    },
+    {
+      "from": "2541cf9ff349",
+      "to": "d8fd1d848efa",
+      "type": "uses",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:28:24.462498",
+      "metadata": {}
+    },
+    {
+      "from": "2541cf9ff349",
+      "to": "0c28de07cb2b",
+      "type": "depends_on",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:12:47.498452",
+      "metadata": {}
+    },
+    {
+      "from": "2541cf9ff349",
+      "to": "0c28de07cb2b",
+      "type": "depends_on",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:21:34.773623",
+      "metadata": {}
+    },
+    {
+      "from": "2541cf9ff349",
+      "to": "0c28de07cb2b",
+      "type": "depends_on",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:28:24.462508",
+      "metadata": {}
+    },
+    {
+      "from": "d8fd1d848efa",
+      "to": "0c28de07cb2b",
+      "type": "evaluated_by",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:12:47.498456",
+      "metadata": {}
+    },
+    {
+      "from": "d8fd1d848efa",
+      "to": "0c28de07cb2b",
+      "type": "evaluated_by",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:21:34.773627",
+      "metadata": {}
+    },
+    {
+      "from": "d8fd1d848efa",
+      "to": "0c28de07cb2b",
+      "type": "evaluated_by",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T13:28:24.462512",
+      "metadata": {}
+    },
+    {
+      "from": "b7937b0b7718",
+      "to": "4aebb4a00447",
+      "type": "uses",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T19:51:44.465167",
+      "metadata": {}
+    },
+    {
+      "from": "b7937b0b7718",
+      "to": "37b0174febd4",
+      "type": "uses",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T19:51:44.465171",
+      "metadata": {}
+    },
+    {
+      "from": "4aebb4a00447",
+      "to": "0431139c659d",
+      "type": "creates",
+      "weight": 1.0,
+      "timestamp": "2026-02-27T19:51:44.465174",
+      "metadata": {}
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "successful_mutations": [],
+  "failed_mutations": [],
+  "effective_combinations": [],
+  "learning_rates": [],
+  "pattern_clusters": {},
+  "gen_1": {
+    "patterns": {
+      "mutation": {
+        "add_comment": {
+          "success_rate": 1.0,
+          "avg_improvement": 0.1,
+          "total_applications": 1
+        },
+        "optimize_loop": {
+          "success_rate": 0.0,
+          "avg_improvement": -0.05,
+          "total_applications": 1
+        },
+        "add_error_handling": {
+          "success_rate": 1.0,
+          "avg_improvement": 0.15,
+          "total_applications": 1
+        }
+      },
+      "combination": {
+        "successful_combinations": [
+          {
+            "functions": [
+              "add_comment",
+              "add_error_handling"
+            ],
+            "result_score": 1.2,
+            "context": {}
+          }
+        ],
+        "total_attempted": 1,
+        "success_rate": 1.0
+      },
+      "pruning": {
+        "most_removed": [
+          [
+            "redundant_code",
+            1
+          ],
+          [
+            "dead_code",
+            1
+          ]
+        ],
+        "total_pruned": 2
+      },
+      "expansion": {
+        "new_capabilities": [
+          {
+            "capability": "error_recovery",
+            "based_on": [
+              "error_handling"
+            ],
+            "success": true
+          }
+        ],
+        "total_added": 1
+      }
+    },
+    "timestamp": "2026-02-27T13:30:20.897763",
+    "metadata": {
+      "files_processed": 100,
+      "improvements": 45,
+      "success_rate": 0.45
+    }
+  },
+  "gen_2": {
+    "patterns": {
+      "mutation": {
+        "add_comment": {
+          "success_rate": 1.0,
+          "avg_improvement": 0.12,
+          "total_applications": 1
+        },
+        "optimize_loop": {
+          "success_rate": 1.0,
+          "avg_improvement": 0.08,
+          "total_applications": 1
+        },
+        "refactor_names": {
+          "success_rate": 1.0,
+          "avg_improvement": 0.05,
+          "total_applications": 1
+        }
+      },
+      "combination": {
+        "successful_combinations": [
+          {
+            "functions": [
+              "optimize_loop",
+              "refactor_names"
+            ],
+            "result_score": 1.15,
+            "context": {}
+          }
+        ],
+        "total_attempted": 1,
+        "success_rate": 1.0
+      },
+      "pruning": {
+        "most_removed": [
+          [
+            "duplicate_code",
+            1
+          ]
+        ],
+        "total_pruned": 1
+      },
+      "expansion": {
+        "new_capabilities": [
+          {
+            "capability": "auto_optimizer",
+            "based_on": [
+              "optimize_loop"
+            ],
+            "success": true
+          }
+        ],
+        "total_added": 1
+      }
+    },
+    "timestamp": "2026-02-27T13:30:20.897855",
+    "metadata": {
+      "files_processed": 120,
+      "improvements": 65,
+      "success_rate": 0.54
+    }
+  }
+}

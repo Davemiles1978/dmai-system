@@ -1,0 +1,60 @@
+{
+  "capabilities": {
+    "reasoning": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    },
+    "planning": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    },
+    "memory": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    },
+    "learning": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    },
+    "creation": {
+      "level": 0.11,
+      "experience": 1,
+      "last_used": "2026-03-03T16:26:47.556529",
+      "enabled": true
+    },
+    "analysis": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    },
+    "communication": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    },
+    "self_improvement": {
+      "level": 0.1,
+      "experience": 0,
+      "last_used": null,
+      "enabled": true
+    }
+  },
+  "knowledge": {
+    "facts": {},
+    "learned": [],
+    "connections": [],
+    "last_updated": "2026-03-03T16:26:47.555657"
+  },
+  "last_active": "2026-03-03T16:26:47.556531",
+  "evolution_count": 0
+}

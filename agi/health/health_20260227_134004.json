@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-02-27T13:40:04.662663",
+  "status": "degraded",
+  "components": {
+    "evolution_engine": "present",
+    "knowledge_graph": "present",
+    "meta_learner": "present",
+    "self_healer": "present",
+    "shared_checkpoints": "missing",
+    "user_data": "missing",
+    "ui": "present"
+  },
+  "issues": [
+    "shared_checkpoints is missing"
+  ],
+  "warnings": [
+    "user_data not found (optional)"
+  ]
+}
