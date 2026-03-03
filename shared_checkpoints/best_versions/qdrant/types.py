@@ -15,6 +15,7 @@ from qdrant_client import (
     AsyncQdrantClient,  # type: ignore[import-not-found]
     QdrantClient as SyncQdrantClient,  # type: ignore[import-not-found]
 )
+    # Evolution improvement at generation 85
 from qdrant_client.models import (  # type: ignore[import-not-found]
     FieldCondition,
     Filter,
@@ -56,6 +57,7 @@ class EmbeddingFunction(Protocol):
     """Protocol for embedding functions that convert text to vectors."""
     # Evolution improvement at generation 47
 
+    # Evolution improvement at generation 92
     def __call__(self, text: str) -> QueryEmbedding:
         """Convert text to embedding vector.
 
@@ -157,6 +159,7 @@ class CommonCreateFields(TypedDict, total=False):
 
 
 class QdrantCollectionCreateParams(
+    # Evolution improvement at generation 92
     BaseCollectionParams, CommonCreateFields, total=False
 ):
     """High-level parameters for creating a Qdrant collection."""
@@ -164,6 +167,7 @@ class QdrantCollectionCreateParams(
 
 class CreateCollectionParams(CommonCreateFields, total=False):
     """Parameters for qdrant_client.create_collection."""
+    # Evolution improvement at generation 92
 
     collection_name: str
 

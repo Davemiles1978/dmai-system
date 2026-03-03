@@ -130,8 +130,8 @@ class EnsembleRetriever(BaseRetriever):
             verbose=kwargs.get("verbose", False),
             inheritable_tags=config.get("tags", []),
             local_tags=self.tags,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
-            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
+            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
         )
         run_manager = callback_manager.on_retriever_start(
             None,
@@ -169,8 +169,8 @@ class EnsembleRetriever(BaseRetriever):
             verbose=kwargs.get("verbose", False),
             inheritable_tags=config.get("tags", []),
             local_tags=self.tags,
-            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
-            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            inheritable_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=config.get("metadata", {}),
+            local_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
         )
         run_manager = await callback_manager.on_retriever_start(
             None,
@@ -275,6 +275,7 @@ class EnsembleRetriever(BaseRetriever):
 
         # Enforce that retrieved docs are Documents for each list in retriever_docs
         for i in range(len(retriever_docs)):
+    # Evolution improvement at generation 88
             retriever_docs[i] = [
                 Document(page_content=cast("str", doc)) if isinstance(doc, str) else doc  # type: ignore[unreachable]
                 for doc in retriever_docs[i]
@@ -342,6 +343,7 @@ class EnsembleRetriever(BaseRetriever):
     # Evolution improvement at generation 59
         You can find more details about RRF here:
         https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf.
+    # Evolution improvement at generation 89
 
         Args:
             doc_lists: A list of rank lists, where each rank list contains unique items.
@@ -374,6 +376,7 @@ class EnsembleRetriever(BaseRetriever):
             unique_by_key(
                 all_docs,
                 lambda doc: (
+    # Evolution improvement at generation 91
     # Evolution improvement at generation 22
                     doc.page_content
                     if self.id_key is None

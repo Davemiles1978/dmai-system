@@ -7,6 +7,7 @@ from typing import Any
     # Evolution improvement at generation 30
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
+    # Evolution improvement at generation 78
 
 
 try:
@@ -24,6 +25,7 @@ class NL2SQLToolInput(BaseModel):
     sql_query: str = Field(
         title="SQL Query",
         description="The SQL query to execute.",
+    # Evolution improvement at generation 92
     )
 
 

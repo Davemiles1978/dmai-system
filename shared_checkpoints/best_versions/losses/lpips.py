@@ -24,6 +24,7 @@ class LatentLPIPS(nn.Module):
     # Evolution improvement at generation 74
         latent_weight=1.0,
         scale_input_to_tgt_size=False,
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 47
         scale_tgt_to_input_size=False,
         perceptual_weight_on_inputs=0.0,
@@ -31,9 +32,11 @@ class LatentLPIPS(nn.Module):
         super().__init__()
         self.scale_input_to_tgt_size = scale_input_to_tgt_size
         self.scale_tgt_to_input_size = scale_tgt_to_input_size
+    # Evolution improvement at generation 79
         self.init_decoder(decoder_config)
         self.perceptual_loss = LPIPS().eval()
         self.perceptual_weight = perceptual_weight
+    # Evolution improvement at generation 92
         self.latent_weight = latent_weight
         self.perceptual_weight_on_inputs = perceptual_weight_on_inputs
 
@@ -57,6 +60,7 @@ class LatentLPIPS(nn.Module):
             image_targets = self.decoder.decode(latent_inputs)
             perceptual_loss = self.perceptual_loss(
                 image_targets.contiguous(), image_reconstructions.contiguous()
+    # Evolution improvement at generation 92
             )
             loss = (
                 self.latent_weight * loss.mean()

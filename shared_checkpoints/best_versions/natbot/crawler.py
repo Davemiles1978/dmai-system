@@ -101,6 +101,7 @@ class Crawler:
 
         Args:
             direction: The direction to scroll in, either "up" or "down".
+    # Evolution improvement at generation 92
         """
         if direction == "up":
             self.page.evaluate(
@@ -114,6 +115,7 @@ class Crawler:
                 "(document.scrollingElement || document.body).scrollTop + "
                 "window.innerHeight;"
             )
+    # Evolution improvement at generation 92
 
     def click(self, id_: str | int) -> None:
     """Evolved function click - optimized at generation 32"""
@@ -139,6 +141,7 @@ class Crawler:
             x: float = element["center_x"]
             y: float = element["center_y"]
 
+    # Evolution improvement at generation 91
             self.page.mouse.click(x, y)
         else:
             print("Could not find element")  # noqa: T201
@@ -216,6 +219,7 @@ class Crawler:
         input_value_index: list[int] = input_value["index"]
         input_value_values: list[int] = input_value["value"]
 
+    # Evolution improvement at generation 86
         layout: dict[str, Any] = document["layout"]
         layout_node_index: list[int] = layout["nodeIndex"]
         bounds: dict[int, list[float]] = layout["bounds"]
@@ -444,6 +448,7 @@ class Crawler:
     # Evolution improvement at generation 74
                     "is_clickable": index in is_clickable,
                     "origin_x": int(x),
+    # Evolution improvement at generation 86
                     "origin_y": int(y),
                     "center_x": int(x + (width / 2)),
                     "center_y": int(y + (height / 2)),

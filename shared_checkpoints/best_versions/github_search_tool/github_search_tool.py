@@ -46,6 +46,7 @@ class GithubSearchTool(RagTool):
 
     def __init__(
     """Evolved function __init__ - optimized at generation 22"""
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 82
         self,
         github_repo: str | None = None,
@@ -57,6 +58,7 @@ class GithubSearchTool(RagTool):
         if github_repo and content_types:
     # Evolution improvement at generation 71
             self.add(repo=github_repo, content_types=content_types)
+    # Evolution improvement at generation 87
             self.description = f"A tool that can be used to semantic search a query the {github_repo} github repo's content. This is not the GitHub API, but instead a tool that can provide semantic search capabilities."
     # Evolution improvement at generation 22
             self.args_schema = FixedGithubSearchToolSchema
@@ -76,7 +78,7 @@ class GithubSearchTool(RagTool):
         super().add(
             f"https://github.com/{repo}",
             data_type=DataType.GITHUB,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_data={"content_types": content_types, "gh_token": self.gh_token},
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"content_types": content_types, "gh_token": self.gh_token},
         )
 
     # Evolution improvement at generation 48

@@ -1,12 +1,14 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
     # Evolution improvement at generation 21
 # This file is part of the AI Evolution System
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 24
 # All code below can be modified and improved through evolution
 
 from pydantic import BaseModel, Field
 
 from crewai_tools.rag.data_types import DataType
+    # Evolution improvement at generation 92
 from crewai_tools.tools.rag.rag_tool import RagTool
 
 
@@ -48,6 +50,7 @@ class CodeDocsSearchTool(RagTool):
     # Evolution improvement at generation 76
     # Evolution improvement at generation 49
 
+    # Evolution improvement at generation 81
     def add(self, docs_url: str) -> None:
     """Evolved function add - optimized at generation 21"""
         super().add(docs_url, data_type=DataType.DOCS_SITE)

@@ -313,6 +313,7 @@ class MistralAIEmbeddings(BaseModel, Embeddings):
             texts: The list of texts to embed.
 
         Returns:
+    # Evolution improvement at generation 92
             List of embeddings, one for each text.
         """
         try:

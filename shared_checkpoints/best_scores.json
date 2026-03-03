@@ -288,10 +288,10 @@
     "timestamp": "2026-03-02T10:15:18.831397"
   },
   "docx_search_tool": {
-    "score": 1.0888833618645846,
+    "score": 1.0889473968235388,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/docx_search_tool/docx_search_tool.py",
-    "generation": 86,
-    "timestamp": "2026-03-03T07:19:09.333538"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.244717"
   },
   "ocr_tool": {
     "score": 1.1323305420798249,
@@ -330,10 +330,10 @@
     "timestamp": "2026-03-03T10:20:01.657012"
   },
   "github_search_tool": {
-    "score": 1.0871295983864513,
+    "score": 1.0895916144080073,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/github_search_tool/github_search_tool.py",
-    "generation": 82,
-    "timestamp": "2026-03-02T19:16:58.938705"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.274819"
   },
   "contextualai_rerank_tool": {
     "score": 1.1223716449216152,
@@ -378,10 +378,10 @@
     "timestamp": "2026-03-02T08:14:47.857879"
   },
   "serper_scrape_website_tool": {
-    "score": 1.1280038262590324,
+    "score": 1.1347650060367884,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/serper_scrape_website_tool/serper_scrape_website_tool.py",
-    "generation": 85,
-    "timestamp": "2026-03-03T06:18:51.026702"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.297873"
   },
   "serpapi_tool": {
     "score": 1.1428035921797444,
@@ -480,16 +480,16 @@
     "timestamp": "2026-03-03T11:20:20.532044"
   },
   "nl2sql": {
-    "score": 1.1247129297219405,
+    "score": 1.1353111393431599,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/nl2sql/nl2sql_tool.py",
-    "generation": 74,
-    "timestamp": "2026-03-02T10:15:18.952015"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.360661"
   },
   "scrape_element_from_website": {
-    "score": 1.1250678939538377,
+    "score": 1.142133904564618,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/scrape_element_from_website/scrape_element_from_website.py",
-    "generation": 90,
-    "timestamp": "2026-03-03T11:20:20.547491"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.364150"
   },
   "exa_tools": {
     "score": 1.1239750815840974,
@@ -528,10 +528,10 @@
     "timestamp": "2026-03-02T08:14:47.922059"
   },
   "code_docs_search_tool": {
-    "score": 1.0757143076491062,
+    "score": 1.104243050736926,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/code_docs_search_tool/code_docs_search_tool.py",
-    "generation": 76,
-    "timestamp": "2026-03-02T12:15:52.334601"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.394941"
   },
   "firecrawl_search_tool": {
     "score": 1.1203742908215446,
@@ -720,10 +720,10 @@
     "timestamp": "2026-03-03T11:20:26.836252"
   },
   "anthropic": {
-    "score": 1.1247450048954615,
+    "score": 1.12527653215054,
     "file": "repos/crewai/lib/crewai/src/crewai/llms/providers/anthropic/completion.py",
-    "generation": 72,
-    "timestamp": "2026-03-02T08:14:48.171058"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.934431"
   },
   "openai": {
     "score": 1.1289619147999903,
@@ -762,10 +762,10 @@
     "timestamp": "2026-03-03T07:19:10.059491"
   },
   "qdrant": {
-    "score": 1.098843252889324,
+    "score": 1.1011685751578564,
     "file": "repos/crewai/lib/crewai/src/crewai/rag/qdrant/types.py",
-    "generation": 84,
-    "timestamp": "2026-03-02T21:17:36.707806"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.998806"
   },
   "optional_imports": {
     "score": 1.0976543215264891,
@@ -828,10 +828,10 @@
     "timestamp": "2026-03-03T09:19:50.150323"
   },
   "openclip": {
-    "score": 1.0863281483586147,
+    "score": 1.089788579658226,
     "file": "repos/crewai/lib/crewai/src/crewai/rag/embeddings/providers/openclip/openclip_provider.py",
-    "generation": 88,
-    "timestamp": "2026-03-03T09:19:44.671330"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:14.045467"
   },
   "custom": {
     "score": 1.1170331926484254,
@@ -1386,16 +1386,16 @@
     "timestamp": "2026-03-03T08:19:28.648867"
   },
   "chat_loaders": {
-    "score": 1.1104050856074685,
-    "file": "repos/langchain/libs/langchain/langchain_classic/chat_loaders/base.py",
-    "generation": 86,
-    "timestamp": "2026-03-03T07:19:11.532945"
+    "score": 1.1111854242711268,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chat_loaders/telegram.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:15.605746"
   },
   "retrievers": {
-    "score": 1.120303976000528,
-    "file": "repos/langchain/libs/langchain/langchain_classic/retrievers/milvus.py",
-    "generation": 89,
-    "timestamp": "2026-03-03T10:20:04.335596"
+    "score": 1.1209643369434443,
+    "file": "repos/langchain/libs/langchain/langchain_classic/retrievers/ensemble.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:15.653497"
   },
   "callbacks": {
     "score": 1.1490195119331714,
@@ -1506,10 +1506,10 @@
     "timestamp": "2026-03-02T08:14:49.726127"
   },
   "summarize": {
-    "score": 1.1337992962393968,
-    "file": "repos/langchain/libs/langchain/langchain_classic/chains/summarize/stuff_prompt.py",
-    "generation": 73,
-    "timestamp": "2026-03-02T09:15:06.225304"
+    "score": 1.1458685724927593,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/summarize/map_reduce_prompt.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.480343"
   },
   "retrieval_qa": {
     "score": 1.1421719764231681,
@@ -1542,10 +1542,10 @@
     "timestamp": "2026-03-03T07:19:12.314287"
   },
   "natbot": {
-    "score": 1.1280113143978412,
+    "score": 1.1358596912920884,
     "file": "repos/langchain/libs/langchain/langchain_classic/chains/natbot/crawler.py",
-    "generation": 81,
-    "timestamp": "2026-03-02T17:17:35.190590"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.534199"
   },
   "api": {
     "score": 1.1571548475817657,
@@ -1614,10 +1614,10 @@
     "timestamp": "2026-03-03T12:20:59.400947"
   },
   "parsers": {
-    "score": 1.094541285404573,
-    "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/parsers/audio.py",
-    "generation": 87,
-    "timestamp": "2026-03-03T08:19:29.503637"
+    "score": 1.100568186098192,
+    "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/parsers/docai.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.612742"
   },
   "blob_loaders": {
     "score": 1.105377618761053,
@@ -1626,10 +1626,10 @@
     "timestamp": "2026-03-02T08:14:49.543999"
   },
   "html": {
-    "score": 1.086197875490548,
+    "score": 1.0871397163881842,
     "file": "repos/langchain/libs/langchain/langchain_classic/document_loaders/parsers/html/bs4.py",
-    "generation": 87,
-    "timestamp": "2026-03-03T08:19:29.509280"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.629323"
   },
   "language": {
     "score": 1.1051324160130216,
@@ -1728,10 +1728,10 @@
     "timestamp": "2026-03-02T08:14:49.605219"
   },
   "json_chat": {
-    "score": 1.0845277080836593,
+    "score": 1.0924275006727235,
     "file": "repos/langchain/libs/langchain/langchain_classic/agents/json_chat/prompt.py",
-    "generation": 90,
-    "timestamp": "2026-03-03T11:20:23.639872"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.825270"
   },
   "xml": {
     "score": 1.092503992029808,
@@ -1740,10 +1740,10 @@
     "timestamp": "2026-03-03T08:19:29.610231"
   },
   "openai_assistant": {
-    "score": 1.1169419570023662,
+    "score": 1.1249962862425418,
     "file": "repos/langchain/libs/langchain/langchain_classic/agents/openai_assistant/base.py",
-    "generation": 83,
-    "timestamp": "2026-03-02T20:17:21.268545"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.835548"
   },
   "agent_toolkits": {
     "score": 1.0946516369638764,
@@ -1824,10 +1824,10 @@
     "timestamp": "2026-03-02T14:16:28.331962"
   },
   "csv": {
-    "score": 1.097055625289927,
+    "score": 1.1096349918321493,
     "file": "repos/langchain/libs/langchain/langchain_classic/agents/agent_toolkits/csv/__init__.py",
-    "generation": 90,
-    "timestamp": "2026-03-03T11:20:23.719847"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.964247"
   },
   "slack": {
     "score": 1.1045589683313541,
@@ -2160,10 +2160,10 @@
     "timestamp": "2026-03-02T21:17:40.200736"
   },
   "documents": {
-    "score": 1.1209131449456369,
+    "score": 1.121896292826415,
     "file": "repos/langchain/libs/core/langchain_core/documents/base.py",
-    "generation": 88,
-    "timestamp": "2026-03-03T09:19:47.939228"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:17.707996"
   },
   "indexing": {
     "score": 1.1286348780447057,
@@ -2220,10 +2220,10 @@
     "timestamp": "2026-03-02T16:17:01.916799"
   },
   "imagebind": {
-    "score": 1.113602932118346,
-    "file": "repos/imagebind/setup.py",
-    "generation": 72,
-    "timestamp": "2026-03-02T08:14:50.461448"
+    "score": 1.120302382897225,
+    "file": "repos/imagebind/imagebind/data.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:18.045536"
   },
   "models": {
     "score": 1.1369115925453015,
@@ -2274,10 +2274,10 @@
     "timestamp": "2026-03-02T16:17:02.167391"
   },
   "boot_dqn": {
-    "score": 1.0924819707436977,
+    "score": 1.1046901083915908,
     "file": "repos/bsuite/bsuite/baselines/tf/boot_dqn/__init__.py",
-    "generation": 73,
-    "timestamp": "2026-03-02T09:15:07.676397"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:18.250645"
   },
   "actor_critic_rnn": {
     "score": 1.1149718884065651,
@@ -2376,10 +2376,10 @@
     "timestamp": "2026-03-03T12:21:00.951967"
   },
   "catch": {
-    "score": 1.0899811743268928,
+    "score": 1.0900025901902006,
     "file": "repos/bsuite/bsuite/experiments/catch/sweep.py",
-    "generation": 76,
-    "timestamp": "2026-03-02T12:15:57.231338"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:18.381896"
   },
   "mountain_car_noise": {
     "score": 1.088462146161871,
@@ -2454,10 +2454,10 @@
     "timestamp": "2026-03-02T10:15:23.512789"
   },
   "quantization_speedup": {
-    "score": 1.1370112850510443,
-    "file": "repos/nni/nni/compression/quantization_speedup/__init__.py",
-    "generation": 81,
-    "timestamp": "2026-03-02T17:17:37.146668"
+    "score": 1.1527199344879369,
+    "file": "repos/nni/nni/compression/quantization_speedup/calibrator.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:18.569686"
   },
   "base": {
     "score": 1.122232827007554,
@@ -2538,10 +2538,10 @@
     "timestamp": "2026-03-02T14:16:30.078710"
   },
   "gradient_selector": {
-    "score": 1.123609865141188,
-    "file": "repos/nni/nni/algorithms/feature_engineering/gradient_selector/fginitialize.py",
-    "generation": 88,
-    "timestamp": "2026-03-03T09:19:48.946348"
+    "score": 1.1252896113273883,
+    "file": "repos/nni/nni/algorithms/feature_engineering/gradient_selector/gradient_selector.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:18.710781"
   },
   "gbdt_selector": {
     "score": 1.1126619472379466,
@@ -2778,10 +2778,10 @@
     "timestamp": "2026-03-02T08:14:51.552875"
   },
   "lib": {
-    "score": 1.0881808037318201,
-    "file": "repos/nni/examples/nas/legacy/oneshot/pfld/lib/supernet.py",
-    "generation": 77,
-    "timestamp": "2026-03-02T13:16:15.103311"
+    "score": 1.0892334338371388,
+    "file": "repos/nni/examples/nas/legacy/oneshot/pfld/lib/utils.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:19.137824"
   },
   "blocks": {
     "score": 1.096392861065505,
@@ -3306,10 +3306,10 @@
     "timestamp": "2026-03-02T08:14:52.336824"
   },
   "http": {
-    "score": 1.089281108542993,
-    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/tools/http/_http_tool.py",
-    "generation": 82,
-    "timestamp": "2026-03-02T19:17:07.013197"
+    "score": 1.0979972011179526,
+    "file": "repos/autogen/python/packages/autogen-ext/tests/tools/http/test_http_tool.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:19.966628"
   },
   "autogen_core": {
     "score": 1.1596164190599283,
@@ -3456,10 +3456,10 @@
     "timestamp": "2026-03-02T15:16:48.261827"
   },
   "agentchat_streamlit": {
-    "score": 1.1227595434550615,
+    "score": 1.1280045707254513,
     "file": "repos/autogen/python/samples/agentchat_streamlit/agent.py",
-    "generation": 76,
-    "timestamp": "2026-03-02T12:15:59.205456"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:20.302019"
   },
   "core_streaming_response_fastapi": {
     "score": 1.1358987154563012,
@@ -3486,10 +3486,10 @@
     "timestamp": "2026-03-03T12:21:02.957744"
   },
   "agentchat_chainlit": {
-    "score": 1.1328960416803824,
-    "file": "repos/autogen/python/samples/agentchat_chainlit/app_team.py",
-    "generation": 80,
-    "timestamp": "2026-03-02T16:17:04.406304"
+    "score": 1.1346533606215798,
+    "file": "repos/autogen/python/samples/agentchat_chainlit/app_agent.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:20.329775"
   },
   "gitty": {
     "score": 1.134799101890642,
@@ -3546,10 +3546,10 @@
     "timestamp": "2026-03-02T12:15:52.177301"
   },
   "ai_mind_tool": {
-    "score": 1.100191195411174,
+    "score": 1.1121633639892445,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/ai_mind_tool/ai_mind_tool.py",
-    "generation": 76,
-    "timestamp": "2026-03-02T12:15:52.264429"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.335527"
   },
   "txt_search_tool": {
     "score": 1.086223600587415,
@@ -3690,10 +3690,10 @@
     "timestamp": "2026-03-02T15:16:43.330480"
   },
   "langchain_mistralai": {
-    "score": 1.1241505307028372,
+    "score": 1.1291012406733087,
     "file": "repos/langchain/libs/partners/mistralai/langchain_mistralai/embeddings.py",
-    "generation": 84,
-    "timestamp": "2026-03-02T21:17:38.148605"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:15.361607"
   },
   "middleware_typing": {
     "score": 1.0827118987948412,
@@ -3984,10 +3984,10 @@
     "timestamp": "2026-03-02T09:15:08.899512"
   },
   "local": {
-    "score": 1.1267607010628293,
+    "score": 1.1298622888680967,
     "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/code_executors/local/__init__.py",
-    "generation": 84,
-    "timestamp": "2026-03-02T21:17:42.212458"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:19.754790"
   },
   "jupyter": {
     "score": 1.0818400187004358,
@@ -4026,10 +4026,10 @@
     "timestamp": "2026-03-03T09:19:50.724128"
   },
   "knowledge_base": {
-    "score": 1.1247423239856342,
+    "score": 1.1285057824768272,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/aws/bedrock/knowledge_base/retriever_tool.py",
-    "generation": 83,
-    "timestamp": "2026-03-02T20:17:17.935694"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.181680"
   },
   "contextualai_parse_tool": {
     "score": 1.1182484190709405,
@@ -4068,10 +4068,10 @@
     "timestamp": "2026-03-02T12:15:52.337671"
   },
   "oxylabs_google_search_scraper_tool": {
-    "score": 1.114273685553603,
+    "score": 1.135716651278316,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/oxylabs_google_search_scraper_tool/oxylabs_google_search_scraper_tool.py",
-    "generation": 85,
-    "timestamp": "2026-03-03T06:18:51.139824"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:13.404253"
   },
   "gemini": {
     "score": 1.1297763780597037,
@@ -4176,10 +4176,10 @@
     "timestamp": "2026-03-02T13:16:15.617650"
   },
   "losses": {
-    "score": 1.1027303185867157,
+    "score": 1.1030916192372042,
     "file": "repos/stable-video/sgm/modules/autoencoding/losses/lpips.py",
-    "generation": 74,
-    "timestamp": "2026-03-02T10:15:24.699373"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:19.589056"
   },
   "loss": {
     "score": 1.107300333565717,
@@ -4242,10 +4242,10 @@
     "timestamp": "2026-03-02T20:17:18.199355"
   },
   "question_answering": {
-    "score": 1.1033165577369448,
-    "file": "repos/langchain/libs/langchain/langchain_classic/chains/question_answering/map_reduce_prompt.py",
-    "generation": 81,
-    "timestamp": "2026-03-02T17:17:35.126950"
+    "score": 1.1243859082348078,
+    "file": "repos/langchain/libs/langchain/langchain_classic/chains/question_answering/map_rerank_prompt.py",
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:16.387914"
   },
   "requests": {
     "score": 1.092658688412379,
@@ -4368,10 +4368,10 @@
     "timestamp": "2026-03-02T14:16:26.474917"
   },
   "variance_threshold": {
-    "score": 1.071111581635814,
+    "score": 1.0731404182084832,
     "file": "repos/auto-sklearn/autosklearn/pipeline/components/data_preprocessing/variance_threshold/__init__.py",
-    "generation": 82,
-    "timestamp": "2026-03-02T19:17:00.438797"
+    "generation": 92,
+    "timestamp": "2026-03-03T13:21:14.681475"
   },
   "run_evaluators": {
     "score": 1.0812628106083717,

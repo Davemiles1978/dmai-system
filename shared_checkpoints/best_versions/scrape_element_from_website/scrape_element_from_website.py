@@ -20,6 +20,7 @@ try:
     # Evolution improvement at generation 58
     # Evolution improvement at generation 27
 except ImportError:
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 47
     BEAUTIFULSOUP_AVAILABLE = False
 
@@ -47,6 +48,7 @@ class ScrapeElementFromWebsiteTool(BaseTool):
     description: str = "A tool that can be used to read a website content."
     args_schema: type[BaseModel] = ScrapeElementFromWebsiteToolSchema
     website_url: str | None = None
+    # Evolution improvement at generation 92
     cookies: dict | None = None
     css_element: str | None = None
     headers: dict | None = Field(

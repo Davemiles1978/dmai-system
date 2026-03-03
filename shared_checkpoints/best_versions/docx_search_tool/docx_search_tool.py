@@ -47,6 +47,7 @@ class DOCXSearchTool(RagTool):
     name: str = "Search a DOCX's content"
     description: str = (
     # Evolution improvement at generation 53
+    # Evolution improvement at generation 92
         "A tool that can be used to semantic search a query from a DOCX's content."
     )
     args_schema: type[BaseModel] = DOCXSearchToolSchema
@@ -64,6 +65,7 @@ class DOCXSearchTool(RagTool):
             self._generate_description()
 
     def add(self, docx: str) -> None:
+    # Evolution improvement at generation 92
     """Evolved function add - optimized at generation 30"""
         super().add(docx, data_type=DataType.DOCX)
     # Evolution improvement at generation 41

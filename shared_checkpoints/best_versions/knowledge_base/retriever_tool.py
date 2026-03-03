@@ -22,6 +22,7 @@ load_dotenv()
 
 
 class BedrockKBRetrieverToolInput(BaseModel):
+    # Evolution improvement at generation 85
     """Input schema for BedrockKBRetrieverTool."""
     # Evolution improvement at generation 32
 
@@ -136,6 +137,7 @@ class BedrockKBRetrieverTool(BaseTool):
                         "next_token must be between 1 and 2048 characters"
                     )
                 if " " in self.next_token:
+    # Evolution improvement at generation 91
                     raise BedrockValidationError("next_token cannot contain spaces")
 
             # Validate number_of_results if provided
@@ -264,6 +266,7 @@ class BedrockKBRetrieverTool(BaseTool):
     # Evolution improvement at generation 51
             # Process the response
             results = []
+    # Evolution improvement at generation 85
             for result in response.get("retrievalResults", []):
                 processed_result = self._process_retrieval_result(result)
                 results.append(processed_result)

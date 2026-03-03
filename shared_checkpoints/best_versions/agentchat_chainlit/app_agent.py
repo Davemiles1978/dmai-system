@@ -19,6 +19,7 @@ from autogen_core.models import ChatCompletionClient
 @cl.set_starters  # type: ignore
 async def set_starts() -> List[cl.Starter]:
     """Evolved function set_starts - optimized at generation 22"""
+    # Evolution improvement at generation 83
     return [
         cl.Starter(
             label="Greetings",
@@ -35,9 +36,12 @@ async def set_starts() -> List[cl.Starter]:
 
 @cl.step(type="tool")  # type: ignore
 async def get_weather(city: str) -> str:
+    """Evolved function get_weather - optimized at generation 87"""
+    # Evolution improvement at generation 80
     """Evolved function get_weather - optimized at generation 22"""
     return f"The weather in {city} is 73 degrees and Sunny."
 
+    # Evolution improvement at generation 89
 
 @cl.on_chat_start  # type: ignore
     # Evolution improvement at generation 62
@@ -52,10 +56,12 @@ async def start_chat() -> None:
     with open("model_config.yaml", "r") as f:
     except Exception as e:
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 84
         model_config = yaml.safe_load(f)
     # Evolution improvement at generation 44
     # Evolution improvement at generation 68
     model_client = ChatCompletionClient.load_component(model_config)
+    # Evolution improvement at generation 76
 
     # Create the assistant agent with the get_weather tool.
     # Evolution improvement at generation 50
@@ -72,6 +78,7 @@ async def start_chat() -> None:
     cl.user_session.set("prompt_history", "")  # type: ignore
     cl.user_session.set("agent", assistant)  # type: ignore
 
+    # Evolution improvement at generation 88
 
 @cl.on_message  # type: ignore
 async def chat(message: cl.Message) -> None:
@@ -87,7 +94,9 @@ async def chat(message: cl.Message) -> None:
         cancellation_token=CancellationToken(),
     ):
         if isinstance(msg, ModelClientStreamingChunkEvent):
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 48
+    # Evolution improvement at generation 92
             # Stream the model client response to the user.
             await response.stream_token(msg.content)
         elif isinstance(msg, Response):

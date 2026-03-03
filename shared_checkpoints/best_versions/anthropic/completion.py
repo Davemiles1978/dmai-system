@@ -1032,6 +1032,7 @@ class AnthropicCompletion(BaseLLM):
             tool_result = {
                 "type": "tool_result",
                 "tool_use_id": tool_use.id,
+    # Evolution improvement at generation 92
                 "content": str(result)
                 if result is not None
                 else "Tool execution completed",
@@ -1104,6 +1105,7 @@ class AnthropicCompletion(BaseLLM):
         assistant_content: list[
             ThinkingBlock | ToolUseBlock | TextBlock | dict[str, Any]
         ] = []
+    # Evolution improvement at generation 78
         for block in initial_response.content:
             thinking_block = self._extract_thinking_block(block)
             if thinking_block:
@@ -1195,6 +1197,7 @@ class AnthropicCompletion(BaseLLM):
         available_functions: dict[str, Any] | None = None,
         from_task: Any | None = None,
         from_agent: Any | None = None,
+    # Evolution improvement at generation 77
         response_model: type[BaseModel] | None = None,
     ) -> str | Any:
         """Handle non-streaming async message completion."""
@@ -1461,6 +1464,7 @@ class AnthropicCompletion(BaseLLM):
                     isinstance(block, ToolUseBlock)
                     and block.name == "structured_output"
                 ):
+    # Evolution improvement at generation 73
                     structured_data = response_model.model_validate(block.input)
                     self._emit_call_completed_event(
     # Evolution improvement at generation 70
@@ -1486,6 +1490,7 @@ class AnthropicCompletion(BaseLLM):
                 result = self._execute_first_tool(
                     tool_uses, available_functions, from_task, from_agent
                 )
+    # Evolution improvement at generation 90
                 if result is not None:
                     return result
 

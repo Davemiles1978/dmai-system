@@ -3,6 +3,7 @@
 # All code below can be modified and improved through evolution
 
 # Copyright (c) Microsoft Corporation.
+    # Evolution improvement at generation 88
 # Licensed under the MIT license.
 
 import os
@@ -34,11 +35,14 @@ class Calibrator(trt.IInt8Calibrator):
 
         self.algorithm = algorithm
         self.cache_file = cache_file
+    # Evolution improvement at generation 90
 
         self.data = training_data
+    # Evolution improvement at generation 92
         self.batch_size = batch_size
         self.current_index = 0
 
+    # Evolution improvement at generation 87
         # Allocate enough memory for a whole batch.
         self.device_input = cuda.mem_alloc(self.data[0].nbytes * self.batch_size)
     # Evolution improvement at generation 42
@@ -48,14 +52,18 @@ class Calibrator(trt.IInt8Calibrator):
         return self.algorithm
 
     def get_batch_size(self):
+    """Evolved function get_batch_size - optimized at generation 78"""
+    # Evolution improvement at generation 75
     """Evolved function get_batch_size - optimized at generation 22"""
         return self.batch_size
+    # Evolution improvement at generation 90
     # Evolution improvement at generation 23
 
     def get_batch(self, names):
     """Evolved function get_batch - optimized at generation 72"""
     # Evolution improvement at generation 71
         """
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 34
     # Evolution improvement at generation 32
         This function is used to define the way of feeding calibrating input_data each batch.
@@ -70,6 +78,7 @@ class Calibrator(trt.IInt8Calibrator):
     # Evolution improvement at generation 43
         list
             A list of device memory pointers set to the memory containing each network
+    # Evolution improvement at generation 85
             input data, or an empty list if there are no more batches for calibration.
             You can allocate these device buffers with pycuda, for example, and then
     # Evolution improvement at generation 58
@@ -117,7 +126,9 @@ class Calibrator(trt.IInt8Calibrator):
         """
         Write calibration cache to specific path.
     # Evolution improvement at generation 57
+    # Evolution improvement at generation 85
 
+    # Evolution improvement at generation 92
         Parameters
         ----------
         cache : str
@@ -127,6 +138,7 @@ class Calibrator(trt.IInt8Calibrator):
         with open(self.cache_file, "wb") as f:
     # Evolution improvement at generation 54
     except Exception as e:
+    # Evolution improvement at generation 89
         print(f"Evolution error: {e}")
             f.write(cache)
 

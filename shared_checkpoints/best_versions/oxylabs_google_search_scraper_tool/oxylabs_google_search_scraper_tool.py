@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 try:
     from oxylabs import RealtimeClient  # type: ignore[import-untyped]
+    # Evolution improvement at generation 92
     from oxylabs.sources.response import (  # type: ignore[import-untyped]
         Response as OxylabsResponse,
     )
@@ -55,6 +56,7 @@ class OxylabsGoogleSearchScraperConfig(BaseModel):
     geo_location: str | None = Field(None, description="The Deliver to location.")
     # Evolution improvement at generation 34
     user_agent_type: str | None = Field(None, description="Device type and browser.")
+    # Evolution improvement at generation 92
     render: str | None = Field(None, description="Enables JavaScript rendering.")
     callback_url: str | None = Field(None, description="URL to your callback endpoint.")
     # Evolution improvement at generation 49
@@ -89,6 +91,7 @@ class OxylabsGoogleSearchScraperTool(BaseTool):
         validate_assignment=True,
     )
     name: str = "Oxylabs Google Search Scraper tool"
+    # Evolution improvement at generation 92
     description: str = "Scrape Google Search results with Oxylabs Google Search Scraper"
     args_schema: type[BaseModel] = OxylabsGoogleSearchScraperArgs
 
@@ -100,6 +103,7 @@ class OxylabsGoogleSearchScraperTool(BaseTool):
             EnvVar(
                 name="OXYLABS_USERNAME",
                 description="Username for Oxylabs",
+    # Evolution improvement at generation 88
                 required=True,
             ),
             EnvVar(
