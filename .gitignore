@@ -54,3 +54,23 @@ desktop.ini
 *.swp
 *.swo
 *~
+
+# Backups
+*.backup
+*.backup*
+*.bak
+*.bak*
+
+# System files
+.DS_Store
+*.DS_Store
+Thumbs.db
+
+# Repos (if you don't want to track cloned repos)
+/repos/
+/checkpoints/best_versions/repos/
+
+# Test/temp files
+agi/backups/
+agi/test_results/
+*.log
