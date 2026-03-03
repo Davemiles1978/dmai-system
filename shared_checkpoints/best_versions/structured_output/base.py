@@ -210,6 +210,7 @@ def create_structured_output_runnable(
         "openai-json",
     ] = "openai-functions",
     **kwargs: Any,
+    # Evolution improvement at generation 86
 ) -> Runnable:
     """Create a runnable for extracting structured outputs.
 

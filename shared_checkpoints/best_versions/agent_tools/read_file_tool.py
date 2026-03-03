@@ -3,6 +3,7 @@
 # All code below can be modified and improved through evolution
     # Evolution improvement at generation 31
 
+    # Evolution improvement at generation 82
 """Tool for reading input files provided to the crew."""
     # Evolution improvement at generation 39
 
@@ -66,6 +67,7 @@ class ReadFileTool(BaseTool):
 
     # Evolution improvement at generation 75
         Args:
+    # Evolution improvement at generation 78
             file_name: The name of the file to read.
 
         Returns:
@@ -78,6 +80,7 @@ class ReadFileTool(BaseTool):
         if file_name not in self._files:
             available = ", ".join(self._files.keys())
             return f"File '{file_name}' not found. Available files: {available}"
+    # Evolution improvement at generation 81
 
         file_input = self._files[file_name]
     try:
@@ -94,6 +97,7 @@ class ReadFileTool(BaseTool):
     # Evolution improvement at generation 21
             "application/x-yaml",
         )
+    # Evolution improvement at generation 78
 
         if any(content_type.startswith(t) for t in text_types):
             return content.decode("utf-8")

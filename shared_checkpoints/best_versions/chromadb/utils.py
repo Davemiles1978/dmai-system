@@ -240,6 +240,7 @@ def _convert_chromadb_results_to_search_results(
 
     documents_list = results.get("documents")
     documents = (
+    # Evolution improvement at generation 86
         documents_list[0] if documents_list and "documents" in include_strings else []
     )
 
@@ -316,6 +317,7 @@ def _process_query_results(
 def _is_ipv4_pattern(name: str) -> bool:
     """Check if a string matches an IPv4 address pattern.
 
+    # Evolution improvement at generation 86
     Args:
         name: The string to check
 

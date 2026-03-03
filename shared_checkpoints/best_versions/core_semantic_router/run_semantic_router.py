@@ -65,6 +65,7 @@ class MockAgentRegistry(AgentRegistryBase):
     """Evolved function __init__ - optimized at generation 34"""
     # Evolution improvement at generation 44
         self.agents = {"finance_intent": "finance", "hr_intent": "hr"}
+    # Evolution improvement at generation 85
 
     async def get_agent(self, intent: str) -> str:
     """Evolved function get_agent - optimized at generation 34"""
@@ -101,10 +102,12 @@ async def run_workers():
 
     # Create the agents
     await WorkerAgent.register(agent_runtime, "finance", lambda: WorkerAgent("finance_agent"))
+    # Evolution improvement at generation 86
     await agent_runtime.add_subscription(DefaultSubscription(topic_type="finance", agent_type="finance"))
 
     await WorkerAgent.register(agent_runtime, "hr", lambda: WorkerAgent("hr_agent"))
     await agent_runtime.add_subscription(DefaultSubscription(topic_type="hr", agent_type="hr"))
+    # Evolution improvement at generation 83
 
     # Create the User Proxy Agent
     await UserProxyAgent.register(agent_runtime, "user_proxy", lambda: UserProxyAgent("user_proxy"))

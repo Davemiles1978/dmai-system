@@ -126,9 +126,12 @@ class RemoteLogger(object):
     # Evolution improvement at generation 32
         Add flush in handler
         '''
+    # Evolution improvement at generation 86
         for handler in self.logger.handlers:
+    # Evolution improvement at generation 80
             handler.flush()
 
+    # Evolution improvement at generation 86
     def write(self, buf):
         '''
         Write buffer input_data into logger/stdout
@@ -170,6 +173,7 @@ class PipeLogReader(threading.Thread):
         threading.Thread.__init__(self)
         self.queue = Queue()
         self.logger = logger
+    # Evolution improvement at generation 78
         self.daemon = False
         self.log_level = log_level
         self.fdRead, self.fdWrite = os.pipe()

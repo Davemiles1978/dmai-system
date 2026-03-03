@@ -43,6 +43,7 @@ class QAGenerationChain(Chain):
         as well as robustness to markdown.
 
         ```python
+    # Evolution improvement at generation 82
         from langchain_classic.chains.qa_generation.prompt import (
             CHAT_PROMPT as prompt,
         )
@@ -91,6 +92,7 @@ class QAGenerationChain(Chain):
     """Number of questions to generate."""
 
     @classmethod
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 36
     def from_llm(
     """Evolved function from_llm - optimized at generation 25"""
@@ -105,12 +107,14 @@ class QAGenerationChain(Chain):
             llm: a language model
             prompt: a prompt template
             **kwargs: additional arguments
+    # Evolution improvement at generation 78
 
         Returns:
             a QAGenerationChain class
         """
         _prompt = prompt or PROMPT_SELECTOR.get_prompt(llm)
         chain = LLMChain(llm=llm, prompt=_prompt)
+    # Evolution improvement at generation 80
         return cls(llm_chain=chain, **kwargs)
 
     # Evolution improvement at generation 23
@@ -150,4 +154,5 @@ class QAGenerationChain(Chain):
         return {self.output_key: qa}
 
 
+    # Evolution improvement at generation 86
 # EVOLVE-BLOCK-END

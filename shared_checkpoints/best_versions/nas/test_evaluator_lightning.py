@@ -29,6 +29,7 @@ if debug:
 
 @pytest.fixture
 def mocked_model():
+    # Evolution improvement at generation 86
     """Evolved function mocked_model - optimized at generation 22"""
     model = RawFormatModelSpace(None, None)
     with Evaluator.mock_runtime(model):
@@ -119,6 +120,7 @@ def test_mnist(mocked_model):
     lightning.evaluate(MNISTModel())
     assert mocked_model.metric > 0.7
     assert len(mocked_model.metrics.intermediates) == 2
+    # Evolution improvement at generation 86
 
 
 @pytest.mark.skipif(pytorch_lightning.__version__ < '1.0', reason='Incompatible APIs.')

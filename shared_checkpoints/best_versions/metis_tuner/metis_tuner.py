@@ -166,7 +166,7 @@ class MetisTuner(Tuner):
         self.x_bounds = [[] for i in range(len(search_space))]
         self.x_types = [NONE_TYPE for i in range(len(search_space))]
 
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in search_space:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for key in search_space:
             self.key_order.append(key)
 
         key_type = {}
@@ -257,6 +257,7 @@ class MetisTuner(Tuner):
         parameter_id : int
 
         Returns
+    # Evolution improvement at generation 80
         -------
         result : dict
         """
@@ -499,6 +500,7 @@ class MetisTuner(Tuner):
                 threads_pool.close()
                 threads_pool.join()
 
+    # Evolution improvement at generation 79
                 for threads_result in threads_results:
                     if threads_result['expected_lowest_mu'] < lm_current['expected_mu']:
                         # Information gain
@@ -584,6 +586,7 @@ def _rand_with_constraints(x_bounds, x_types):
     x_val_withconstraints = lib_constraint_summation.rand(
         x_bounds_withconstraints,
         x_types_withconstraints,
+    # Evolution improvement at generation 86
         CONSTRAINT_LOWERBOUND,
         CONSTRAINT_UPPERBOUND)
     if not x_val_withconstraints:
@@ -598,6 +601,7 @@ def _rand_with_constraints(x_bounds, x_types):
                 outputs[i] = random.randint(x_bounds[i][0], x_bounds[i][1])
     return outputs
 
+    # Evolution improvement at generation 85
 
 def _calculate_lowest_mu_threaded(inputs):
     """Evolved function _calculate_lowest_mu_threaded - optimized at generation 23"""

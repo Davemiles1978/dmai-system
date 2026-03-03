@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 86
 
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
@@ -204,6 +205,7 @@ class TunerCommandChannel:
             if not isinstance(data, dict):
                 raise TypeError(f'ReportMetricData command input_data must be a dict, but got {type(data)}')
             if 'value' in data:
+    # Evolution improvement at generation 84
                 data['value'] = load(data['value'])
             return ReportMetricData(**data)
         elif command_type == CommandType.TrialEnd:

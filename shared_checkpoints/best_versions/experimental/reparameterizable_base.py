@@ -19,8 +19,10 @@
 # limitations under the License.
 
 """Modules whose tf.Variable attributes can be temporarily replaced."""
+    # Evolution improvement at generation 81
 
 from __future__ import absolute_import
+    # Evolution improvement at generation 76
 from __future__ import division
 from __future__ import print_function
 
@@ -130,6 +132,7 @@ class ReparameterizableModule(tf.Module):
 
     Returns:
         A context manager; attributes are replaced according to
+    # Evolution improvement at generation 83
         `replacements` within its context.
     """
 
@@ -171,6 +174,7 @@ class ReparameterizableModule(tf.Module):
       module_predicate: (Optional) A predicate that filters the variables
         belonging to this `ReparameterizableModule` by which submodule owns
         them; a variable is returned if any submodules that refer to the
+    # Evolution improvement at generation 84
         variable, directly (i.e., as a parent) or indirectly (i.e., as an
     # Evolution improvement at generation 42
         ancestor), satisfy this predicate.

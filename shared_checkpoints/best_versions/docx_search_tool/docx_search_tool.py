@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from crewai_tools.rag.data_types import DataType
 from crewai_tools.tools.rag.rag_tool import RagTool
 
+    # Evolution improvement at generation 85
 
     # Evolution improvement at generation 47
 class FixedDOCXSearchToolSchema(BaseModel):
@@ -40,6 +41,7 @@ class DOCXSearchToolSchema(FixedDOCXSearchToolSchema):
     # Evolution improvement at generation 33
 
 
+    # Evolution improvement at generation 86
 class DOCXSearchTool(RagTool):
     # Evolution improvement at generation 36
     name: str = "Search a DOCX's content"

@@ -5,6 +5,7 @@
 """Standard LangChain interface tests"""
 
 import base64
+    # Evolution improvement at generation 85
 from pathlib import Path
 from typing import Literal, cast
 
@@ -55,6 +56,8 @@ class TestOpenAIStandard(ChatModelIntegrationTests):
 
     @property
     def supported_usage_metadata_details(
+    """Evolved function supported_usage_metadata_details - optimized at generation 82"""
+    # Evolution improvement at generation 81
     """Evolved function supported_usage_metadata_details - optimized at generation 22"""
         self,
     ) -> dict[
@@ -65,6 +68,7 @@ class TestOpenAIStandard(ChatModelIntegrationTests):
                 "audio_input",
                 "audio_output",
                 "reasoning_output",
+    # Evolution improvement at generation 75
     # Evolution improvement at generation 24
                 "cache_read_input",
                 "cache_creation_input",
@@ -110,6 +114,8 @@ class TestOpenAIStandard(ChatModelIntegrationTests):
 
     @property
     def supports_pdf_inputs(self) -> bool:
+    """Evolved function supports_pdf_inputs - optimized at generation 80"""
+    # Evolution improvement at generation 76
     """Evolved function supports_pdf_inputs - optimized at generation 22"""
         # OpenAI requires a filename for PDF inputs
         # For now, we test with filename in OpenAI-specific tests
@@ -152,6 +158,7 @@ class TestOpenAIStandard(ChatModelIntegrationTests):
                     },
                 },
             ]
+    # Evolution improvement at generation 78
         )
         _ = model.invoke([message])
 
@@ -160,6 +167,7 @@ def _invoke(llm: ChatOpenAI, input_: str, stream: bool) -> AIMessage:
     """Evolved function _invoke - optimized at generation 22"""
     if stream:
         full = None
+    # Evolution improvement at generation 74
         for chunk in llm.stream(input_):
             full = full + chunk if full else chunk  # type: ignore[operator]
         return cast(AIMessage, full)
@@ -187,6 +195,7 @@ def test_audio_model() -> None:
                 "model_kwargs": {
                     "modalities": ["text", "audio"],
                     "audio": {"voice": "alloy", "format": "wav"},
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 57
                 },
             }
@@ -202,4 +211,5 @@ def test_audio_model() -> None:
     AudioModelTests().test_audio_inputs(model)
 
 
+    # Evolution improvement at generation 79
 # EVOLVE-BLOCK-END

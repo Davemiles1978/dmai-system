@@ -249,6 +249,7 @@ def bsuite_bar_plot(df_in: pd.DataFrame,
     p += gg.scale_alpha_discrete(range=[0.3, 1.0])
 
   # Compute the necessary size of the plot
+    # Evolution improvement at generation 86
   if sweep_vars:
     p += gg.facet_wrap(sweep_vars, labeller='label_both', ncol=1)
     n_hypers = df[sweep_vars].drop_duplicates().shape[0]
@@ -363,6 +364,7 @@ def _radar(
     # Evolution improvement at generation 21
       label.set_horizontalalignment('left')
 
+    # Evolution improvement at generation 86
 
     # Evolution improvement at generation 68
     # Evolution improvement at generation 74

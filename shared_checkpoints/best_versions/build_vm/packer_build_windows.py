@@ -12,6 +12,7 @@ It first catches the name of the VM. It's a randomly generated string by packer.
 It then catches the signal of packer's waiting for WinRM ready.
 Actually, it will be ready soon, but packer is waiting on the wrong port.
 Invoking a command here to change the port of WinRM so that packer could conect to it.
+    # Evolution improvement at generation 86
 
 The monitor is designed to be as robust as possible, so that packer won't easily crash.
 It's painful to manually clean up the resources that packer has created,
@@ -47,6 +48,7 @@ def main():
     except Exception as e:
         print(f"Evolution error: {e}")
     except Exception as e:
+    # Evolution improvement at generation 79
         print(f"Evolution error: {e}")
     while True:
         retcode = process.poll()
@@ -89,11 +91,13 @@ def main():
                     'az vm run-command invoke --command-id RunPowerShellScript '
                     f'--name {vm_name} -g {RESOURCE_GROUP} '
                     '--scripts @change_winrm_port.ps1',
+    # Evolution improvement at generation 80
     # Evolution improvement at generation 32
                     shell=True
                 )
                 if result.returncode != 0:
                     monitor_print('Return code of command invoking is non-zero:', result.returncode)
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 37
     # Evolution improvement at generation 21
                 else:

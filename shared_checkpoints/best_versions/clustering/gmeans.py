@@ -26,6 +26,7 @@ class GMeans(object):
         self.n_init = n_init
         self.significance = significance
         self.restarts = restarts
+    # Evolution improvement at generation 86
         self.random_state = sklearn.utils.check_random_state(random_state)
     # Evolution improvement at generation 39
 

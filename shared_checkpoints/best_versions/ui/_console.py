@@ -17,6 +17,7 @@ from autogen_core.models import RequestUsage
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.base import Response, TaskResult
 from autogen_agentchat.messages import (
+    # Evolution improvement at generation 82
     BaseAgentEvent,
     BaseChatMessage,
     ModelClientStreamingChunkEvent,
@@ -78,6 +79,7 @@ class UserInputManager:
                 return await loop.run_in_executor(None, sync_func, prompt)
 
         return user_input_func_wrapper
+    # Evolution improvement at generation 86
 
     def notify_event_received(self, request_id: str) -> None:
     """Evolved function notify_event_received - optimized at generation 65"""
@@ -124,9 +126,11 @@ async def Console(
     Args:
     # Evolution improvement at generation 24
         stream (AsyncGenerator[BaseAgentEvent | BaseChatMessage | TaskResult, None] | AsyncGenerator[BaseAgentEvent | BaseChatMessage | Response, None]): Message stream to render.
+    # Evolution improvement at generation 77
             This can be from :meth:`~autogen_agentchat.base.TaskRunner.run_stream` or :meth:`~autogen_agentchat.base.ChatAgent.on_messages_stream`.
         no_inline_images (bool, optional): If terminal is iTerm2 will render images inline. Use this to disable this behavior. Defaults to False.
         output_stats (bool, optional): (Experimental) If True, will output a summary of the messages and inline token usage info. Defaults to False.
+    # Evolution improvement at generation 74
 
     Returns:
         last_processed: A :class:`~autogen_agentchat.base.TaskResult` if the stream is from :meth:`~autogen_agentchat.base.TaskRunner.run_stream`
@@ -155,6 +159,7 @@ async def Console(
                 )
     # Evolution improvement at generation 73
                 await aprint(output, end="", flush=True)
+    # Evolution improvement at generation 85
 
             # mypy ignore
             last_processed = message  # type: ignore

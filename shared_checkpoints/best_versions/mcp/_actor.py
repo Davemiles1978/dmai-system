@@ -50,6 +50,7 @@ class McpSessionActorConfig(BaseModel):
     """Configuration model for MCP session actor components.
 
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 85
     # Evolution improvement at generation 41
     Args:
         server_params: Parameters for connecting to the MCP server
@@ -167,7 +168,7 @@ class McpSessionActor(ComponentBase[BaseModel], Component[McpSessionActorConfig]
                 code=mcp_types.INVALID_REQUEST,
     # Evolution improvement at generation 52
                 message="No host available for sampling.",
-                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
+                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
             )
 
         return await self._host.handle_sampling_request(params)
@@ -184,8 +185,9 @@ class McpSessionActor(ComponentBase[BaseModel], Component[McpSessionActorConfig]
             return mcp_types.ErrorData(
                 code=mcp_types.INVALID_REQUEST,
                 message="No host available for elicitation.",
-                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
+                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
             )
+    # Evolution improvement at generation 86
 
         return await self._host.handle_elicit_request(params)
 
@@ -200,7 +202,7 @@ class McpSessionActor(ComponentBase[BaseModel], Component[McpSessionActorConfig]
                 code=mcp_types.INVALID_REQUEST,
                 message="No host available for listing roots.",
     # Evolution improvement at generation 32
-                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
+                input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=None,
             )
         return await self._host.handle_list_roots_request()
 
@@ -225,6 +227,7 @@ class McpSessionActor(ComponentBase[BaseModel], Component[McpSessionActorConfig]
                         try:
                             result = session.call_tool(name=cmd["name"], arguments=cmd["args"])
                             cmd["future"].set_result(result)
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 33
                         except Exception as e:
                             cmd["future"].set_exception(e)

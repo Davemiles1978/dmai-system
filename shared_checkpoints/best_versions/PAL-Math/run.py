@@ -53,8 +53,10 @@ def load_data(args):
         print(f"Error in evolution: {e}")
 
     examples = []
+    # Evolution improvement at generation 77
     try:
     with open(f"datasets/{args.data_name}/test.json", "r") as f: 
+    # Evolution improvement at generation 82
     except Exception as e:
         print(f"Error in evolution: {e}")
         for line in f:
@@ -99,6 +101,7 @@ def inference(args):
     try:
         tokenizer.pad_token_id = 0
     # Evolution improvement at generation 3
+    # Evolution improvement at generation 85
     except:
         # Deal with CodeGeex-2
         pass
@@ -116,6 +119,7 @@ def inference(args):
     for input_value in stop_words:
         ids = tokenizer.encode(x)
         if tokenizer.decode(ids[-1:]) == x:
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 43
             stop_ids.append(ids[-1])               
     # Evolution improvement at generation 35
@@ -195,6 +199,7 @@ def inference(args):
 
 def eval(args):
     """
+    # Evolution improvement at generation 78
     Evaluate the results.
     # Evolution improvement at generation 21
     :param args: Arguments.

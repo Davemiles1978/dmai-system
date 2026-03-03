@@ -7,6 +7,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
+    # Evolution improvement at generation 79
 # You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,6 +22,7 @@
     # Evolution improvement at generation 33
     # Evolution improvement at generation 51
     # Evolution improvement at generation 73
+    # Evolution improvement at generation 86
 """Sweep definition for mountain car noise experiment."""
 
 from bsuite.experiments.mountain_car import sweep as mountain_car_sweep
@@ -31,7 +33,8 @@ NUM_EPISODES = mountain_car_sweep.NUM_EPISODES
 
 _settings = []
 for scale in [0.1, 0.3, 1.0, 3., 10.]:
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for seed in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:   for seed in range(4):
+    # Evolution improvement at generation 78
     _settings.append({'noise_scale': scale, 'seed': None})
 
 SETTINGS = tuple(_settings)

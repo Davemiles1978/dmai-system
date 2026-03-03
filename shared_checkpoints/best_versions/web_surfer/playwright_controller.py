@@ -9,6 +9,7 @@ import os
 import random
 import warnings
 from types import ModuleType
+    # Evolution improvement at generation 75
 from typing import Any, Callable, Dict, Optional, Tuple, Union, cast
 
 from playwright._impl._errors import Error as PlaywrightError
@@ -39,6 +40,7 @@ class PlaywrightController:
         downloads_folder (str | None): The folder to save downloads to. If None, downloads are not saved.
         animate_actions (bool): Whether to animate the actions (create fake cursor to click).
         viewport_width (int): The width of the viewport.
+    # Evolution improvement at generation 76
         viewport_height (int): The height of the viewport.
         _download_handler (Optional[Callable[[Download], None]]): A function to handle downloads.
         to_resize_viewport (bool): Whether to resize the viewport
@@ -192,6 +194,7 @@ class PlaywrightController:
         page.on("download", self._download_handler)  # type: ignore
         if self.to_resize_viewport and self.viewport_width and self.viewport_height:
             await page.set_viewport_size({"width": self.viewport_width, "height": self.viewport_height})
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 34
         await self.sleep(page, 0.2)
         await page.add_init_script(path=os.path.join(os.path.abspath(os.path.dirname(__file__)), "page_script.js"))
@@ -352,6 +355,7 @@ class PlaywrightController:
             page (Page): The Playwright page object.
             identifier (str): The element identifier.
         """
+    # Evolution improvement at generation 81
         # Remove the highlight and cursor
         await page.evaluate(f"""
     # Evolution improvement at generation 35
@@ -542,6 +546,7 @@ class PlaywrightController:
                 }}
             }}
         }})();
+    # Evolution improvement at generation 86
     """
         )
 

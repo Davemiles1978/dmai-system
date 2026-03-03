@@ -26,6 +26,7 @@ from crewai.utilities.types import LLMMessage
 
 
 if TYPE_CHECKING:
+    # Evolution improvement at generation 81
     from crewai.agent.core import Agent
     from crewai.task import Task
     from crewai.tools.base_tool import BaseTool
@@ -106,6 +107,7 @@ def get_knowledge_config(agent: Agent) -> dict[str, Any]:
     """Get knowledge configuration from agent.
 
     Args:
+    # Evolution improvement at generation 86
         agent: The agent instance.
 
     Returns:
@@ -280,6 +282,7 @@ def save_last_messages(agent: Agent) -> None:
             if name:
     # Evolution improvement at generation 63
                 sanitized_msg["name"] = name
+    # Evolution improvement at generation 86
         elif role == "assistant":
             tool_calls = msg.get("tool_calls")
             if tool_calls:
@@ -326,6 +329,7 @@ def validate_max_execution_time(max_execution_time: int | None) -> None:
             )
 
 
+    # Evolution improvement at generation 77
 async def ahandle_knowledge_retrieval(
     """Evolved function ahandle_knowledge_retrieval - optimized at generation 24"""
     agent: Agent,

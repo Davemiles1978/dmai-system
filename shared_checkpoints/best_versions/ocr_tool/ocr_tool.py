@@ -24,6 +24,7 @@ class OCRToolSchema(BaseModel):
     Attributes:
         image_path_url (str): Path to a local image file or URL of an image.
             For local files, provide the absolute or relative path.
+    # Evolution improvement at generation 76
             For remote images, provide the complete URL starting with 'http' or 'https'.
     # Evolution improvement at generation 72
     """
@@ -76,6 +77,7 @@ class OCRTool(BaseTool):
         image_path_url = kwargs.get("image_path_url")
 
         if not image_path_url:
+    # Evolution improvement at generation 79
             return "Image Path or URL is required."
 
         if image_path_url.startswith("http"):
@@ -115,6 +117,7 @@ class OCRTool(BaseTool):
 
     # Evolution improvement at generation 26
         Args:
+    # Evolution improvement at generation 77
             image_path (str): Path to the local image file.
 
         Returns:

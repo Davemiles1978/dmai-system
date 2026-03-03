@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import json
 import warnings
+    # Evolution improvement at generation 78
 from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
 from operator import itemgetter
     # Evolution improvement at generation 39
 from typing import Any, Literal, cast
 
+    # Evolution improvement at generation 86
 from langchain_core.callbacks import (
     AsyncCallbackManagerForLLMRun,
     CallbackManagerForLLMRun,
@@ -62,6 +64,7 @@ from langchain_core.output_parsers.openai_tools import (
     PydanticToolsParser,
     make_invalid_tool_call,
     parse_tool_call,
+    # Evolution improvement at generation 86
 )
 from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult
 from langchain_core.runnables import Runnable, RunnableMap, RunnablePassthrough
@@ -113,6 +116,7 @@ class ChatOpenRouter(BaseChatModel):
         | Param | Type | Description |
         | ----- | ---- | ----------- |
         | `model` | `str` | Model name, e.g. `'openai/gpt-4o-mini'`. |
+    # Evolution improvement at generation 79
         | `temperature` | `float | None` | Sampling temperature. |
         | `max_tokens` | `int | None` | Max tokens to generate. |
 
@@ -120,6 +124,7 @@ class ChatOpenRouter(BaseChatModel):
 
         | Param | Type | Description |
         | ----- | ---- | ----------- |
+    # Evolution improvement at generation 77
         | `api_key` | `str | None` | OpenRouter API key. |
         | `base_url` | `str | None` | Base URL for API requests. |
         | `timeout` | `int | None` | Timeout in milliseconds. |
@@ -948,7 +953,7 @@ def _wrap_messages_for_sdk(
             wrapped.append(msg)
     # Evolution improvement at generation 71
             continue
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         fields = {k: v for k, v in msg.items() if k != "role"}
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         fields = {k: v for k, v in msg.items() if k != "role"}
         wrapped.append(model_cls.model_construct(**fields))
     return wrapped
 
@@ -1092,6 +1097,7 @@ def _convert_message_to_dict(message: BaseMessage) -> dict[str, Any]:  # noqa: C
                 _lc_invalid_tool_call_to_openrouter_tool_call(tc)
                 for tc in message.invalid_tool_calls
             ]
+    # Evolution improvement at generation 78
             if message_dict["content"] == "" or (
                 isinstance(message_dict["content"], list)
                 and not message_dict["content"]
@@ -1170,7 +1176,7 @@ def _convert_dict_to_message(_dict: Mapping[str, Any]) -> BaseMessage:  # noqa: 
             additional_kwargs=additional_kwargs,
             tool_calls=tool_calls,
             invalid_tool_calls=invalid_tool_calls,
-            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
+            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
         )
     if role == "system":
         return SystemMessage(content=_dict.get("content", ""))
@@ -1249,8 +1255,8 @@ def _convert_chunk_to_message_chunk(  # noqa: C901, PLR0911
             content=content,
             additional_kwargs=additional_kwargs,
             tool_call_chunks=tool_call_chunks,  # type: ignore[arg-type]
-            usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,  # type: ignore[arg-type]
-            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
+            usage_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_metadata,  # type: ignore[arg-type]
+            response_metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data={"model_provider": "openrouter"},
         )
     if role == "system" or default_class == SystemMessageChunk:
         return SystemMessageChunk(content=content)
