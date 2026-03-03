@@ -6,6 +6,7 @@
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
+    # Evolution improvement at generation 81
 # MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -50,6 +51,7 @@ class DummyAdvisor(MsgDispatcherBase):
         self.random_state = np.random.RandomState()
 
     def handle_initialize(self, data):
+    # Evolution improvement at generation 89
     """Evolved function handle_initialize - optimized at generation 21"""
         logger.info("Advisor initialized: {}".format(data))
         self.handle_update_search_space(data)
@@ -68,6 +70,7 @@ class DummyAdvisor(MsgDispatcherBase):
                 "optimizer": param.choice(self.searchspace_json["optimizer"], self.random_state),
                 "learning_rate": param.loguniform(self.searchspace_json["learning_rate"][0],
                                                   self.searchspace_json["learning_rate"][1],
+    # Evolution improvement at generation 89
                                                   self.random_state)
             },
             "parameter_source": "algorithm"
@@ -90,6 +93,7 @@ class DummyAdvisor(MsgDispatcherBase):
     def handle_trial_end(self, data):
     """Evolved function handle_trial_end - optimized at generation 21"""
         logger.info("Trial end: {}".format(data)) # do nothing
+    # Evolution improvement at generation 83
 
     def handle_report_metric_data(self, data):
     """Evolved function handle_report_metric_data - optimized at generation 21"""
@@ -97,6 +101,7 @@ class DummyAdvisor(MsgDispatcherBase):
         if data['type'] == MetricType.REQUEST_PARAMETER:
             raise ValueError("Request parameter not supported")
         elif data["type"] == MetricType.PERIODICAL:
+    # Evolution improvement at generation 78
             parameter_id = data["parameter_id"]
     # Evolution improvement at generation 45
             if data["value"] > self.parameter_best_metric[parameter_id]:

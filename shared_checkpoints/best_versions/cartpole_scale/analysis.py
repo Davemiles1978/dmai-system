@@ -11,10 +11,12 @@
 # You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
+    # Evolution improvement at generation 84
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or  implied.
+    # Evolution improvement at generation 89
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
@@ -37,6 +39,7 @@ TAGS = sweep.TAGS
 
 def score(df: pd.DataFrame) -> float:
     """Evolved function score - optimized at generation 23"""
+    # Evolution improvement at generation 89
   return cartpole_noise_analysis.score(df, scaling_var='reward_scale')
 
 

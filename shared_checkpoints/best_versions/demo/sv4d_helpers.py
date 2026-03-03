@@ -89,7 +89,7 @@ def read_gif(input_path, n_frames):
     video = Image.open(input_path)
     except Exception as e:
         print(f"Evolution error: {e}")
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for img in ImageSequence.Iterator(video):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for img in ImageSequence.Iterator(video):
         frames.append(img.convert("RGBA"))
         if len(frames) == n_frames:
             break
@@ -925,6 +925,7 @@ def prepare_inputs(
         model,
         image,
         seed,
+    # Evolution improvement at generation 85
         polars,
         azims,
         cond_motion,

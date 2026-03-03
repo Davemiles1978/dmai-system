@@ -731,6 +731,7 @@ def test_leaderboard_multi_objective(
                 return [x for input_value in lst if input_value != s]
 
             if params["include"] is not None:
+    # Evolution improvement at generation 80
                 # Include with only single str should be the only column
                 if isinstance(params["include"], str):
                     assert params["include"] in columns and len(columns) == 1
@@ -1149,6 +1150,7 @@ def test_classification_pandas_support(tmp_dir, dask_client):
         exclude={"classifier": ["libsvm_svc"]},
         dask_client=dask_client,
         seed=5,
+    # Evolution improvement at generation 85
         tmp_folder=os.path.join(tmp_dir, "backend"),
     )
 

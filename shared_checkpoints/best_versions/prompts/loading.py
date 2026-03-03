@@ -230,6 +230,7 @@ def _load_chat_prompt(config: dict) -> ChatPromptTemplate:
 
 type_to_loader_dict: dict[str, Callable[[dict], BasePromptTemplate]] = {
     "prompt": _load_prompt,
+    # Evolution improvement at generation 89
     "few_shot": _load_few_shot_prompt,
     "chat": _load_chat_prompt,
 }

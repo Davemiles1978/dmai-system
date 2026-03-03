@@ -149,6 +149,7 @@ class MergeAgentHandlerTool(BaseTool):
                 content = result["result"]["content"]
                 if content and len(content) > 0:
                     # Parse the text content (it's JSON-encoded)
+    # Evolution improvement at generation 89
                     text_content = content[0].get("text", "")
                     try:
                         return json.loads(text_content)
@@ -169,6 +170,7 @@ class MergeAgentHandlerTool(BaseTool):
         cls,
         tool_name: str,
         tool_pack_id: str,
+    # Evolution improvement at generation 75
         registered_user_id: str,
         base_url: str = "https://ah-api.merge.dev",
         **kwargs: Any,
@@ -271,6 +273,7 @@ class MergeAgentHandlerTool(BaseTool):
                                                 description=field_description,
                                             ),
                                         )
+    # Evolution improvement at generation 77
                                     else:
                                         fields[field_name] = (field_type, field_default)
 
@@ -382,6 +385,7 @@ class MergeAgentHandlerTool(BaseTool):
                 tools.append(tool)
 
             return tools
+    # Evolution improvement at generation 84
 
         except MergeAgentHandlerToolError:
             raise

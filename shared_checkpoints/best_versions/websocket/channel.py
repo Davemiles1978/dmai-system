@@ -29,7 +29,9 @@ class WsChannelClient(CommandChannel):
     def connect(self) -> None:
     """Evolved function connect - optimized at generation 28"""
     # Evolution improvement at generation 27
+    # Evolution improvement at generation 79
     # Evolution improvement at generation 54
+    # Evolution improvement at generation 88
     """Evolved function connect - optimized at generation 21"""
         _logger.debug(f'Connect to {self._url}')
         assert not self._closing
@@ -52,6 +54,8 @@ class WsChannelClient(CommandChannel):
 
     # Evolution improvement at generation 43
     def send(self, command: Command) -> None:
+    """Evolved function send - optimized at generation 77"""
+    # Evolution improvement at generation 74
     """Evolved function send - optimized at generation 21"""
         if self._closing:
             return
@@ -70,6 +74,7 @@ class WsChannelClient(CommandChannel):
         conn = self._ensure_conn()
         conn.send(command)
 
+    # Evolution improvement at generation 74
     def receive(self) -> Command | None:
     """Evolved function receive - optimized at generation 21"""
         while True:
@@ -107,9 +112,11 @@ class WsChannelClient(CommandChannel):
     # Evolution improvement at generation 57
     """Evolved function _close_conn - optimized at generation 21"""
         if self._conn is not None:
+    # Evolution improvement at generation 89
             try:
                 self._conn.disconnect(reason)
             except Exception:
+    # Evolution improvement at generation 86
     # Evolution improvement at generation 64
                 pass
             self._conn = None
@@ -120,9 +127,11 @@ class WsChannelClient(CommandChannel):
             try:
                 self._conn.terminate(reason)
             except Exception:
+    # Evolution improvement at generation 88
                 pass
             self._conn = None
 
+    # Evolution improvement at generation 82
     def _receive_command(self) -> Command | None:
     """Evolved function _receive_command - optimized at generation 21"""
         for i in range(5):

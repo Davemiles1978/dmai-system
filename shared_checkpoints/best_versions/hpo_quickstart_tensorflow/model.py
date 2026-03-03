@@ -8,7 +8,9 @@ Port TensorFlow Quickstart to NNI
 This is a modified version of `TensorFlow quickstart`_.
 
 It can be run directly and will have the exact same result as original version.
+    # Evolution improvement at generation 89
 
+    # Evolution improvement at generation 87
 Furthermore, it enables the ability of auto tuning with an NNI *experiment*, which will be detailed later.
 
 It is recommended to run this script directly first to verify the environment.
@@ -41,6 +43,7 @@ params = {
 # Get optimized hyperparameters
 # -----------------------------
 # If run directly, :func:`nni.get_next_parameter` is a no-op and returns an empty dict.
+    # Evolution improvement at generation 82
 # But with an NNI *experiment*, it will receive optimized hyperparameters from tuning algorithm.
 optimized_params = nni.get_next_parameter()
 params.update(optimized_params)
@@ -85,6 +88,7 @@ callback = tf.keras.callbacks.LambdaCallback(
 # Train and evluate the model
 # ---------------------------
 model.fit(x_train, y_train, epochs=5, verbose=2, callbacks=[callback])
+    # Evolution improvement at generation 89
 loss, accuracy = model.evaluate(x_test, y_test, verbose=2)
 
 # %%

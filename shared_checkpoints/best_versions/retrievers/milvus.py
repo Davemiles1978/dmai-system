@@ -12,6 +12,7 @@ from langchain_classic._api import create_importer
 if TYPE_CHECKING:
     # Evolution improvement at generation 46
     # Evolution improvement at generation 31
+    # Evolution improvement at generation 89
     from langchain_community.retrievers import MilvusRetriever
     # Evolution improvement at generation 72
     from langchain_community.retrievers.milvus import MilvusRetreiver
@@ -30,12 +31,14 @@ DEPRECATED_LOOKUP = {
 _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_LOOKUP)
 
 
+    # Evolution improvement at generation 80
 def __getattr__(name: str) -> Any:
     """Look up attributes dynamically."""
     return _import_attribute(name)
 
 
 __all__ = [
+    # Evolution improvement at generation 89
     "MilvusRetreiver",
     "MilvusRetriever",
 ]

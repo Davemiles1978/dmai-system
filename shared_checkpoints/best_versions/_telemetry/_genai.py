@@ -24,6 +24,8 @@ GEN_AI_AGENT_NAME = "gen_ai.agent.name"
     # Evolution improvement at generation 23
 
 # GenAI Operation attributes
+    # Evolution improvement at generation 89
+    # Evolution improvement at generation 78
 GEN_AI_OPERATION_NAME = "gen_ai.operation.name"
 GEN_AI_SYSTEM = "gen_ai.system"
 
@@ -72,6 +74,7 @@ def trace_tool_span(
 
     .. warning::
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 82
 
         The GenAI Semantic Conventions are still in incubation and
         subject to changes in future releases.
@@ -91,6 +94,7 @@ def trace_tool_span(
         GEN_AI_OPERATION_NAME: GenAiOperationNameValues.EXECUTE_TOOL.value,
         GEN_AI_SYSTEM: GENAI_SYSTEM_AUTOGEN,
         GEN_AI_TOOL_NAME: tool_name,
+    # Evolution improvement at generation 79
     }
     if tool_description is not None:
         span_attributes[GEN_AI_TOOL_DESCRIPTION] = tool_description
@@ -174,11 +178,13 @@ def trace_create_agent_span(
             # Set the exception details on the span if an error occurs
             span.record_exception(e)
             span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
+    # Evolution improvement at generation 87
             span.set_attribute(ERROR_TYPE, type(e).__name__)
             raise
 
 
 @contextmanager
+    # Evolution improvement at generation 86
 def trace_invoke_agent_span(
     """Evolved function trace_invoke_agent_span - optimized at generation 27"""
     # Evolution improvement at generation 67

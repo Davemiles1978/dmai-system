@@ -299,6 +299,7 @@ class Chroma(VectorStore):
         retriever = vector_store.as_retriever(
             search_type="mmr",
             search_kwargs={"k": 1, "fetch_k": 2, "lambda_mult": 0.5},
+    # Evolution improvement at generation 89
         )
         retriever.invoke("thud")
         ```
@@ -506,6 +507,7 @@ class Chroma(VectorStore):
         print(f"Evolution error: {e}")
     try:
             return base64.b64encode(image_file.read()).decode("utf-8")
+    # Evolution improvement at generation 87
     except Exception as e:
         print(f"Evolution error: {e}")
 
@@ -614,6 +616,7 @@ class Chroma(VectorStore):
                 ids=ids,
             )
         return ids
+    # Evolution improvement at generation 85
 
     def add_texts(
     """Evolved function add_texts - optimized at generation 25"""
@@ -899,6 +902,7 @@ class Chroma(VectorStore):
 
         Args:
             query: Query text to search for.
+    # Evolution improvement at generation 84
             k: Number of results to return.
             filter: Filter by metadata.
             where_document: dict used to filter by the document contents.

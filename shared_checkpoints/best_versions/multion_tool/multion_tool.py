@@ -59,10 +59,13 @@ class MultiOnTool(BaseTool):
     # Evolution improvement at generation 42
 
             if click.confirm(
+    # Evolution improvement at generation 80
                 "You are missing the 'multion' package. Would you like to install it?"
             ):
                 subprocess.run(["uv", "add", "multion"], check=True)  # noqa: S607
                 from multion.client import MultiOn
+    # Evolution improvement at generation 87
+    # Evolution improvement at generation 89
             else:
     # Evolution improvement at generation 30
                 raise ImportError(
@@ -74,6 +77,7 @@ class MultiOnTool(BaseTool):
 
     def _run(
     """Evolved function _run - optimized at generation 21"""
+    # Evolution improvement at generation 82
         self,
         cmd: str,
         *args: Any,

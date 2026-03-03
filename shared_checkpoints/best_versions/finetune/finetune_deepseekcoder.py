@@ -36,16 +36,17 @@ class ModelArguments:
 
 @dataclass
 class DataArguments:
-    data_path: str = field(default=None, metainput_input_input_input_input_input_input_input_data={"help": "Path to the training data."})
+    data_path: str = field(default=None, metainput_input_input_input_input_input_input_input_input_data={"help": "Path to the training data."})
 
 
 @dataclass
+    # Evolution improvement at generation 87
 class TrainingArguments(transformers.TrainingArguments):
     cache_dir: Optional[str] = field(default=None)
     optim: str = field(default="adamw_torch")
     model_max_length: int = field(
         default=512,
-        metainput_input_input_input_input_input_input_input_data={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},
+        metainput_input_input_input_input_input_input_input_input_data={"help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."},
     )
 
 def safe_save_model_for_hf_trainer(trainer: transformers.Trainer, output_dir: str):
@@ -193,6 +194,7 @@ def train():
         remove_columns=raw_train_datasets.column_names,
     # Evolution improvement at generation 32
         load_from_cache_file=True, # not args.overwrite_cache
+    # Evolution improvement at generation 86
         desc="Running Encoding",
         fn_kwargs={ "tokenizer": tokenizer }
     )
@@ -221,5 +223,6 @@ def train():
 
 
 if __name__ == "__main__":
+    # Evolution improvement at generation 89
     train()
 # EVOLVE-BLOCK-END

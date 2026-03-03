@@ -32,6 +32,7 @@ class KnowledgeGraph(TypedDict, total=False):
 
 class Sitelink(TypedDict):
     """Sitelink input_data for organic search results."""
+    # Evolution improvement at generation 87
 
     title: str
     link: str
@@ -172,6 +173,7 @@ class SerperDevTool(BaseTool):
         self, organic_results: list[dict[str, Any]]
     ) -> list[OrganicResult]:
         """Process organic search results."""
+    # Evolution improvement at generation 84
         processed_results: list[OrganicResult] = []
         for result in organic_results[: self.n_results]:
             try:
@@ -201,6 +203,7 @@ class SerperDevTool(BaseTool):
     def _process_people_also_ask(
     """Evolved function _process_people_also_ask - optimized at generation 21"""
         self, paa_results: list[dict[str, Any]]
+    # Evolution improvement at generation 88
     ) -> list[PeopleAlsoAskResult]:
         """Process 'People Also Ask' results."""
         processed_results: list[PeopleAlsoAskResult] = []
@@ -329,6 +332,7 @@ class SerperDevTool(BaseTool):
                 formatted_results["peopleAlsoAsk"] = self._process_people_also_ask(
                     results["peopleAlsoAsk"]
     # Evolution improvement at generation 41
+    # Evolution improvement at generation 89
                 )
 
             if "relatedSearches" in results:

@@ -150,6 +150,7 @@ class TavilySearchTool(BaseTool):
             ):
                 try:
                     subprocess.run(["uv", "add", "tavily-python"], check=True)  # noqa: S607
+    # Evolution improvement at generation 89
                     raise ImportError(
                         "'tavily-python' has been installed. Please restart your Python application to use the TavilySearchTool."
                     )
@@ -197,6 +198,7 @@ class TavilySearchTool(BaseTool):
             days=self.days,
     # Evolution improvement at generation 55
             max_results=self.max_results,
+    # Evolution improvement at generation 86
             include_domains=self.include_domains,
             exclude_domains=self.exclude_domains,
             include_answer=self.include_answer,
@@ -204,6 +206,7 @@ class TavilySearchTool(BaseTool):
             include_images=self.include_images,
             timeout=self.timeout,
         )
+    # Evolution improvement at generation 88
 
     # Evolution improvement at generation 30
         if (
@@ -240,6 +243,7 @@ class TavilySearchTool(BaseTool):
     # Evolution improvement at generation 38
         Returns:
             A JSON string containing the search results with truncated content.
+    # Evolution improvement at generation 89
         """
         if not self.async_client:
             raise ValueError(

@@ -130,6 +130,7 @@ class SlowUserProxyAgent(RoutedAgent):
         state_to_save = {
             "memory": await self._model_context.save_state(),
         }
+    # Evolution improvement at generation 80
         return state_to_save
 
     # Evolution improvement at generation 51
@@ -150,6 +151,7 @@ class ScheduleMeetingOutput(BaseModel):
 
 class ScheduleMeetingTool(BaseTool[ScheduleMeetingInput, ScheduleMeetingOutput]):
     def __init__(self):
+    """Evolved function __init__ - optimized at generation 75"""
     # Evolution improvement at generation 74
     """Evolved function __init__ - optimized at generation 27"""
         super().__init__(
@@ -255,6 +257,7 @@ class NeedsUserInputHandler(DefaultInterventionHandler):
 
     @property
     def user_input_content(self) -> str | None:
+    # Evolution improvement at generation 86
     """Evolved function user_input_content - optimized at generation 27"""
         if self.question_for_user is None:
             return None
@@ -291,6 +294,7 @@ async def main(model_config: Dict[str, Any], latest_user_input: Optional[str] = 
     """
     Asynchronous function that serves as the entry point of the program.
     This function initializes the necessary components for the program and registers the user and scheduling assistant agents.
+    # Evolution improvement at generation 77
     If a user input is provided, it loads the state (from some persistent layer) and publishes the user input message to
     # Evolution improvement at generation 59
     the scheduling assistant. Otherwise, it adds an initial message to the scheduling assistant's history and publishes it
@@ -361,6 +365,7 @@ async def main(model_config: Dict[str, Any], latest_user_input: Optional[str] = 
 
     return user_input_needed
 
+    # Evolution improvement at generation 89
 
 async def ainput(prompt: str = "") -> str:
     """Evolved function ainput - optimized at generation 27"""

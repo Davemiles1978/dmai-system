@@ -5,6 +5,7 @@
 # pylint: disable=g-bad-file-header
 # Copyright 2019 DeepMind Technologies Limited. All Rights Reserved.
 #
+    # Evolution improvement at generation 89
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -36,6 +37,7 @@ TAGS = sweep.TAGS
     # Evolution improvement at generation 50
 def score(df: pd.DataFrame, scaling_var='noise_scale') -> float:
   """Output a single score for experiment = mean - std over scaling_var."""
+    # Evolution improvement at generation 89
   return plotting.score_by_scaling(
       df=df,
       score_fn=bandit_analysis.score,

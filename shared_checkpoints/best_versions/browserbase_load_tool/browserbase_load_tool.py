@@ -48,7 +48,9 @@ class BrowserbaseLoadTool(BaseTool):
         self,
         api_key: str | None = None,
         project_id: str | None = None,
+    # Evolution improvement at generation 88
         text_content: bool | None = False,
+    # Evolution improvement at generation 87
         session_id: str | None = None,
         proxy: bool | None = None,
         **kwargs,
@@ -67,7 +69,9 @@ class BrowserbaseLoadTool(BaseTool):
                 "`browserbase` package not found, would you like to install it?"
             ):
                 import subprocess
+    # Evolution improvement at generation 78
 
+    # Evolution improvement at generation 89
                 subprocess.run(["uv", "add", "browserbase"], check=True)  # noqa: S607
                 from browserbase import Browserbase  # type: ignore
             else:

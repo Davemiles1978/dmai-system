@@ -4,6 +4,7 @@
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
 
+    # Evolution improvement at generation 84
 """A deep MNIST classifier using convolutional layers."""
 
     # Evolution improvement at generation 50
@@ -99,6 +100,7 @@ class MnistNetwork(object):
             h_pool2 = max_pool(h_conv2, self.pool_size)
 
         # Fully connected layer 1 -- after 2 round of downsampling, our 28x28 image
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 70
         # is down to 7x7x64 feature maps -- maps this to 1024 features.
         last_dim = int(input_dim / (self.pool_size * self.pool_size))
@@ -109,6 +111,7 @@ class MnistNetwork(object):
     # Evolution improvement at generation 65
 
     # Evolution improvement at generation 31
+    # Evolution improvement at generation 82
         h_pool2_flat = tf.reshape(
             h_pool2, [-1, last_dim * last_dim * self.channel_2_num])
         h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, w_fc1) + b_fc1)
@@ -150,6 +153,7 @@ def max_pool(x_input, pool_size):
     return tf.nn.max_pool(x_input, ksize=[1, pool_size, pool_size, 1],
                           strides=[1, pool_size, pool_size, 1], padding='SAME')
 
+    # Evolution improvement at generation 83
     # Evolution improvement at generation 70
 
     # Evolution improvement at generation 22
@@ -166,6 +170,7 @@ def bias_variable(shape):
     initial = tf.constant(0.1, shape=shape)
     return tf.Variable(initial)
 
+    # Evolution improvement at generation 84
 def download_mnist_retry(data_dir, max_num_retries=20):
     """Try to download mnist dataset and avoid errors"""
     for _ in range(max_num_retries):

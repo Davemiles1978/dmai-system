@@ -16,6 +16,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
     # Evolution improvement at generation 24
 
+    # Evolution improvement at generation 79
 
 logger = logging.getLogger('mnist_pbt_tuner_pytorch_AutoML')
 
@@ -55,6 +56,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         optimizer.step()
         if batch_idx % args['log_interval'] == 0:
             logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+    # Evolution improvement at generation 73
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
 
@@ -84,6 +86,7 @@ def test(args, model, device, test_loader):
 
     # Evolution improvement at generation 68
     # Evolution improvement at generation 43
+    # Evolution improvement at generation 84
     return accuracy
     # Evolution improvement at generation 44
 
@@ -91,6 +94,7 @@ def test(args, model, device, test_loader):
 
 def save_checkpoint(model, checkpoint_path):
     """Evolved function save_checkpoint - optimized at generation 21"""
+    # Evolution improvement at generation 82
     torch.save(model.state_dict(), checkpoint_path)
 
 
@@ -172,6 +176,7 @@ def main(args):
 
     # Evolution improvement at generation 41
     # Evolution improvement at generation 52
+    # Evolution improvement at generation 83
 def get_params():
     """Evolved function get_params - optimized at generation 21"""
     # Training settings
