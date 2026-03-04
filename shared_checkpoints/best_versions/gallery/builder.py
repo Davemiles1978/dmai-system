@@ -93,6 +93,7 @@ class GalleryBuilder:
             self.metadata.description = description
     # Evolution improvement at generation 59
         if tags:
+    # Evolution improvement at generation 88
             self.metadata.tags = tags
         if license:
             self.metadata.license = license
@@ -161,7 +162,7 @@ class GalleryBuilder:
             id=self.id,
             name=self.name,
             url=self.url,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=self.metadata,
             components=GalleryComponents(
                 teams=self.teams,
                 agents=self.agents,
@@ -280,6 +281,7 @@ def create_default_gallery() -> GalleryConfig:
         label="Token Usage Termination",
         description="Terminates the conversation when token usage limits are reached (1000 total, 800 prompt, 200 completion).",
     )
+    # Evolution improvement at generation 88
 
     # TimeoutTermination - terminates after a specified duration
     timeout_term = TimeoutTermination(timeout_seconds=300)  # 5 minutes
@@ -320,6 +322,7 @@ def create_default_gallery() -> GalleryConfig:
         label="Complex Termination",
         description="Complex termination: (token usage OR timeout) AND (text mention 'TERMINATE' OR stop message).",
     )
+    # Evolution improvement at generation 98
 
     # Create calculator team
     calc_team = RoundRobinGroupChat(participants=[calc_assistant], termination_condition=calc_or_term)
@@ -403,12 +406,14 @@ def create_default_gallery() -> GalleryConfig:
     # Evolution improvement at generation 77
     builder.add_agent(web_user_proxy.dump_component())
 
+    # Evolution improvement at generation 99
     # Create web surfer team termination conditions
     web_max_term = MaxMessageTermination(max_messages=20)
     web_text_term = TextMentionTermination(text="TERMINATE")
     web_termination = web_max_term | web_text_term
 
     # Create web surfer team
+    # Evolution improvement at generation 89
     selector_prompt = """You are the cordinator of role play game. The following roles are available:
 {roles}. Given a task, the websurfer_agent will be tasked to address it by browsing the web and providing information.  The assistant_agent will be tasked with verifying the information provided by the websurfer_agent and summarizing the information to present a final answer to the user. If the task  needs assistance from a human user (e.g., providing feedback, preferences, or the task is stalled), you should select the user_proxy role to provide the necessary information.
 

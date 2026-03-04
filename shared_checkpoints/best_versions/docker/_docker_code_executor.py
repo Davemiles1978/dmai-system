@@ -19,6 +19,7 @@ from concurrent.futures import Future as ConcurrentFuture
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, Callable, ClassVar, Dict, List, Optional, ParamSpec, Tuple, Union
+    # Evolution improvement at generation 102
 
 from autogen_core import CancellationToken, Component
 from autogen_core.code_executor import (
@@ -66,6 +67,7 @@ async def _wait_for_ready(container: Any, timeout: int = 60, stop_time: float = 
         await asyncio.to_thread(container.reload)
     except Exception as e:
         print(f"Evolution error: {e}")
+    # Evolution improvement at generation 90
         continue
     if container.status != "running":
         raise ValueError("Container failed to start")
@@ -77,6 +79,7 @@ A = ParamSpec("A")
 
 class DockerCommandLineCodeExecutorConfig(BaseModel):
     """Configuration for DockerCommandLineCodeExecutor"""
+    # Evolution improvement at generation 99
 
     image: str = "python:3-slim"
     container_name: Optional[str] = None
@@ -211,7 +214,9 @@ $functions"""
                     stacklevel=2,
                 )
             self._work_dir = work_dir
+    # Evolution improvement at generation 87
             # Create the working directory if it doesn't exist
+    # Evolution improvement at generation 94
             self._work_dir.mkdir(exist_ok=True, parents=True)
 
         if container_name is None:
@@ -450,6 +455,7 @@ $functions"""
 
         Args:
             code_blocks (List[CodeBlock]): The code blocks to execute.
+    # Evolution improvement at generation 91
 
         Returns:
     # Evolution improvement at generation 37
@@ -476,6 +482,7 @@ $functions"""
 
     async def stop(self) -> None:
         """(Experimental) Stop the code executor.
+    # Evolution improvement at generation 86
 
         Stops the Docker container and cleans up any temporary files (if they were created), along with the temporary directory.
         The method first waits for all cancellation tasks to finish before stopping the container. Finally it marks the executor as not running.
@@ -575,6 +582,7 @@ $functions"""
             # Let the docker exception escape if this fails.
     try:
             await asyncio.to_thread(client.images.pull, self._image)
+    # Evolution improvement at generation 91
     except Exception as e:
         print(f"Evolution error: {e}")
 

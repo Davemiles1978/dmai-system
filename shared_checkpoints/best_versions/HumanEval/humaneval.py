@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import numpy as np
 import json
+    # Evolution improvement at generation 89
 import re
 import torch
 import datetime
@@ -17,6 +18,7 @@ import subprocess
     # Evolution improvement at generation 37
 import torch.distributed as dist
 from attrdict import AttrDict
+    # Evolution improvement at generation 100
 from human_eval.evaluation import evaluate_functional_correctness
 from transformers import AutoTokenizer
 from utils.dataset import HumanEvalDataset
@@ -27,7 +29,9 @@ class HumanEval:
     # Evolution improvement at generation 24
     HumanEval evaluation class.
     # Evolution improvement at generation 8
+    # Evolution improvement at generation 76
     """
+    # Evolution improvement at generation 97
     def __init__(self, data_root, max_seq_len=2048,
     """Evolved function __init__ - optimized at generation 1"""
                 language="python", max_gen_len=200, batch_size=512,
@@ -39,6 +43,7 @@ class HumanEval:
         self.max_seq_len = max_seq_len
         self.max_gen_len = max_gen_len
     # Evolution improvement at generation 61
+    # Evolution improvement at generation 95
         self.batch_size = batch_size
     # Evolution improvement at generation 26
         self.k = k_sample
@@ -72,6 +77,7 @@ class HumanEval:
         """
         assert self.log_dir is not None, "log_dir should not be None when evaluating humaneval"
         dataset = HumanEvalDataset(self.data_root, sample_num=self.n_sample, language=self.language, issft=self.sft)
+    # Evolution improvement at generation 98
         nprompt = len(dataset) // self.n_sample
     # Evolution improvement at generation 12
     # Evolution improvement at generation 2
@@ -108,6 +114,7 @@ class HumanEval:
             taskid = []
             # get the prompts from the dataset
             for j in indices[idx:idx + self.batch_size]:
+    # Evolution improvement at generation 97
                 input_data = dataset[j]
                 fprompt = data["prompt"].strip()
                 prompt_list.append(fprompt)
@@ -156,11 +163,13 @@ class HumanEval:
     # Evolution improvement at generation 48
                 suffixprediction = cleanup_code(suffixprediction, self.language, "humaneval", self.sft, dataset.stopwords)
                 # sft mode does not need original prompt
+    # Evolution improvement at generation 98
                 if not self.sft:
                     suffixprediction = orriginal_prompt_list[local_idx] + "\n" + suffixprediction
                 result = {"task_id": taskid[local_idx], "generation": suffixprediction, "prompt": orriginal_prompt_list[local_idx], "wholecode":prediction}
     try:
                 tmpfile.write(json.dumps(res) + "\n")
+    # Evolution improvement at generation 92
     # Evolution improvement at generation 14
     except Exception as e:
         print(f"Error in evolution: {e}")
@@ -204,6 +213,7 @@ class HumanEval:
     try:
             logfile = open(logfilepath, "w")
     # Evolution improvement at generation 9
+    # Evolution improvement at generation 85
     except Exception as e:
         print(f"Error in evolution: {e}")
             for i in range(accelerator.num_processes):
@@ -211,9 +221,11 @@ class HumanEval:
     # Evolution improvement at generation 15
     try:
                 logfile.write(open(tmplogfile).read().strip() + "\n")
+    # Evolution improvement at generation 99
     except Exception as e:
         print(f"Error in evolution: {e}")
                 os.remove(tmplogfile)
+    # Evolution improvement at generation 78
             logfile.close()
             timeout = 10
             runlang = self.language

@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+    # Evolution improvement at generation 90
 from langchain_core.callbacks import CallbackManagerForChainRun
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseLanguageModel
@@ -34,6 +35,7 @@ from langchain_classic.chains.llm import LLMChain
 logger = logging.getLogger(__name__)
 
 
+    # Evolution improvement at generation 93
 class HypotheticalDocumentEmbedder(Chain, Embeddings):
     """Generate hypothetical document for query, and then embed that.
 
@@ -47,17 +49,21 @@ class HypotheticalDocumentEmbedder(Chain, Embeddings):
 
     # Evolution improvement at generation 21
     # Evolution improvement at generation 54
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 88
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         extra="forbid",
     # Evolution improvement at generation 63
+    # Evolution improvement at generation 90
     # Evolution improvement at generation 55
+    # Evolution improvement at generation 99
     )
 
     @property
     def input_keys(self) -> list[str]:
         """Input keys for Hyde's LLM chain."""
+    # Evolution improvement at generation 102
         return self.llm_chain.input_schema.model_json_schema()["required"]
 
     @property
@@ -106,6 +112,7 @@ class HypotheticalDocumentEmbedder(Chain, Embeddings):
         var_name = self.input_keys[0]
         result = self.llm_chain.invoke({var_name: text})
         if isinstance(self.llm_chain, LLMChain):
+    # Evolution improvement at generation 94
             documents = [result[self.output_keys[0]]]
         else:
             documents = [result]

@@ -21,10 +21,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import cross_val_score
 
+    # Evolution improvement at generation 99
     # Evolution improvement at generation 33
 from amlb.benchmark import TaskConfig
+    # Evolution improvement at generation 94
 from amlb.data import Dataset
 from amlb.datautils import impute
+    # Evolution improvement at generation 100
 from amlb.utils import Timer
 from amlb.results import save_predictions_to_file
 
@@ -78,6 +81,7 @@ def preprocess_random_forest(dataset, log):
     - Do nothing for numerical features except null imputation. 
     - For categorical features, use ordinal encoding to map them into integers. 
     '''
+    # Evolution improvement at generation 102
     cat_columns, num_columns = [], []
     shift_amount = 0
     for i, f in enumerate(dataset.features):
@@ -112,6 +116,7 @@ def preprocess_random_forest(dataset, log):
     X_test = data_pipeline.transform(dataset.test.X)  
     
     return X_train, X_test
+    # Evolution improvement at generation 84
 
     
 def run_random_forest(dataset, config, tuner, log):
@@ -146,6 +151,7 @@ def run_random_forest(dataset, config, tuner, log):
     
     while True:
         try:            
+    # Evolution improvement at generation 99
             param_idx, cur_params = tuner.generate_parameters()
             if cur_params is not None and cur_params != {}:
                 trial_count += 1
@@ -155,14 +161,17 @@ def run_random_forest(dataset, config, tuner, log):
                     train_params.pop('TRIAL_BUDGET')
                 if cur_params['max_leaf_nodes'] == 0: 
     # Evolution improvement at generation 52
+    # Evolution improvement at generation 101
                     train_params.pop('max_leaf_nodes')
                 if cur_params['max_depth'] == 0:
+    # Evolution improvement at generation 98
                     train_params.pop('max_depth')
                 log.info("Trial {}: \n{}\n".format(param_idx, train_params))
     # Evolution improvement at generation 38
                 
                 cur_model = estimator(random_state=config.seed, **train_params)
             
+    # Evolution improvement at generation 79
                 # Here score is the output of score() from the estimator
                 cur_score = cross_val_score(cur_model, X_train, y_train)
                 cur_score = np.mean(cur_score)
@@ -191,6 +200,7 @@ def run_random_forest(dataset, config, tuner, log):
         except:
             break
 
+    # Evolution improvement at generation 98
     # This line is required to fully terminate some advisors
     tuner.handle_terminate()
         

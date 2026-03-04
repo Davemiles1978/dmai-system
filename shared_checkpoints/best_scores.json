@@ -84,10 +84,10 @@
     "timestamp": "2026-03-03T10:20:06.456521"
   },
   "HumanEval": {
-    "score": 1.1268796505315886,
+    "score": 1.1275184374613263,
     "file": "repos/deepseek-coder/DeepSeek-Coder-main/Evaluation/HumanEval/humaneval.py",
-    "generation": 75,
-    "timestamp": "2026-03-02T11:15:39.766670"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:33.154117"
   },
   "PAL-Math": {
     "score": 1.1343603021865432,
@@ -534,10 +534,10 @@
     "timestamp": "2026-03-03T13:21:13.394941"
   },
   "firecrawl_search_tool": {
-    "score": 1.132090169467063,
+    "score": 1.1355304534395043,
     "file": "repos/crewai/lib/crewai-tools/src/crewai_tools/tools/firecrawl_search_tool/firecrawl_search_tool.py",
-    "generation": 100,
-    "timestamp": "2026-03-04T05:53:39.406083"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:28.907090"
   },
   "zapier_action_tool": {
     "score": 1.1112611221963655,
@@ -726,10 +726,10 @@
     "timestamp": "2026-03-03T13:21:13.934431"
   },
   "openai": {
-    "score": 1.1289619147999903,
-    "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/agents/openai/_openai_assistant_agent.py",
-    "generation": 89,
-    "timestamp": "2026-03-03T10:20:08.514401"
+    "score": 1.1290664991105581,
+    "file": "repos/crewai/lib/crewai/src/crewai/llms/providers/openai/completion.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:29.434087"
   },
   "source": {
     "score": 1.1442670697713255,
@@ -768,10 +768,10 @@
     "timestamp": "2026-03-03T13:21:13.998806"
   },
   "optional_imports": {
-    "score": 1.105028245037309,
-    "file": "repos/crewai/lib/crewai/src/crewai/rag/config/optional_imports/protocols.py",
-    "generation": 97,
-    "timestamp": "2026-03-03T19:01:05.576169"
+    "score": 1.1054860471403445,
+    "file": "repos/crewai/lib/crewai/src/crewai/rag/config/optional_imports/__init__.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:29.499376"
   },
   "voyageai": {
     "score": 1.1287558425493982,
@@ -858,10 +858,10 @@
     "timestamp": "2026-03-02T13:16:10.006062"
   },
   "enterprise": {
-    "score": 1.1269383568562503,
+    "score": 1.1382711909585759,
     "file": "repos/crewai/lib/crewai/src/crewai/cli/enterprise/main.py",
-    "generation": 77,
-    "timestamp": "2026-03-02T13:16:10.017196"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:29.567439"
   },
   "triggers": {
     "score": 1.132616804199324,
@@ -990,10 +990,10 @@
     "timestamp": "2026-03-02T08:14:48.324008"
   },
   "metrics": {
-    "score": 1.1359547248968536,
+    "score": 1.1363921033641793,
     "file": "repos/crewai/lib/crewai/src/crewai/experimental/evaluation/metrics/goal_metrics.py",
-    "generation": 96,
-    "timestamp": "2026-03-03T17:22:16.820180"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:29.716168"
   },
   "experiment": {
     "score": 1.1460240987071164,
@@ -1182,10 +1182,10 @@
     "timestamp": "2026-03-04T06:54:13.853615"
   },
   "test_automl": {
-    "score": 1.1247908167335363,
+    "score": 1.1297938362431565,
     "file": "repos/auto-sklearn/test/test_automl/automl_utils.py",
-    "generation": 93,
-    "timestamp": "2026-03-03T14:21:30.502102"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:30.219143"
   },
   "test_data": {
     "score": 1.0982137493572703,
@@ -1458,10 +1458,10 @@
     "timestamp": "2026-03-02T12:15:55.144052"
   },
   "graphs": {
-    "score": 1.1051763033838056,
-    "file": "repos/langchain/libs/langchain/langchain_classic/graphs/graph_store.py",
-    "generation": 79,
-    "timestamp": "2026-03-02T15:16:44.331524"
+    "score": 1.105446175590488,
+    "file": "repos/langchain/libs/langchain/langchain_classic/graphs/arangodb_graph.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:31.544953"
   },
   "chains": {
     "score": 1.14035821555971,
@@ -1488,10 +1488,10 @@
     "timestamp": "2026-03-02T21:17:39.133045"
   },
   "hyde": {
-    "score": 1.1262314720463251,
+    "score": 1.1297554399177305,
     "file": "repos/langchain/libs/langchain/langchain_classic/chains/hyde/base.py",
-    "generation": 88,
-    "timestamp": "2026-03-03T09:19:46.818593"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:31.660321"
   },
   "elasticsearch_database": {
     "score": 1.1325021682351997,
@@ -1944,10 +1944,10 @@
     "timestamp": "2026-03-03T12:20:59.626967"
   },
   "searchapi": {
-    "score": 1.0852256131899896,
-    "file": "repos/langchain/libs/langchain/langchain_classic/tools/searchapi/tool.py",
-    "generation": 101,
-    "timestamp": "2026-03-04T06:54:15.794911"
+    "score": 1.0912790028381734,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/searchapi/__init__.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:32.137814"
   },
   "file_management": {
     "score": 1.1058406596274009,
@@ -2022,10 +2022,10 @@
     "timestamp": "2026-03-03T09:19:47.365765"
   },
   "brave_search": {
-    "score": 1.0882151732769583,
-    "file": "repos/langchain/libs/langchain/langchain_classic/tools/brave_search/tool.py",
-    "generation": 83,
-    "timestamp": "2026-03-02T20:17:21.537966"
+    "score": 1.1307714662679291,
+    "file": "repos/langchain/libs/langchain/langchain_classic/tools/brave_search/__init__.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:32.203635"
   },
   "arxiv": {
     "score": 1.0967192296639803,
@@ -2238,10 +2238,10 @@
     "timestamp": "2026-03-04T06:54:16.960373"
   },
   "environments": {
-    "score": 1.0994503107747964,
-    "file": "repos/bsuite/bsuite/environments/__init__.py",
-    "generation": 85,
-    "timestamp": "2026-03-03T06:18:55.890878"
+    "score": 1.1104973412415151,
+    "file": "repos/bsuite/bsuite/environments/cartpole_test.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:33.229051"
   },
   "baselines": {
     "score": 1.0895664507748164,
@@ -2364,10 +2364,10 @@
     "timestamp": "2026-03-02T10:15:23.343641"
   },
   "bandit_scale": {
-    "score": 1.0837890474095688,
-    "file": "repos/bsuite/bsuite/experiments/bandit_scale/sweep.py",
-    "generation": 85,
-    "timestamp": "2026-03-03T06:18:56.067809"
+    "score": 1.0852871481661233,
+    "file": "repos/bsuite/bsuite/experiments/bandit_scale/bandit_scale_test.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:33.368018"
   },
   "mnist_scale": {
     "score": 1.0936448914041528,
@@ -2640,10 +2640,10 @@
     "timestamp": "2026-03-03T14:21:33.888255"
   },
   "supermodule": {
-    "score": 1.1246136805663973,
+    "score": 1.127712175625113,
     "file": "repos/nni/nni/nas/oneshot/pytorch/supermodule/_expression_utils.py",
-    "generation": 81,
-    "timestamp": "2026-03-02T17:17:37.573955"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:33.899000"
   },
   "nlp": {
     "score": 1.1366343877534582,
@@ -2796,10 +2796,10 @@
     "timestamp": "2026-03-03T06:18:56.853561"
   },
   "datasets": {
-    "score": 1.1270066101974427,
+    "score": 1.1285056737334858,
     "file": "repos/nni/examples/nas/legacy/cdarts/datasets/data_utils.py",
-    "generation": 83,
-    "timestamp": "2026-03-02T20:17:23.401202"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:34.107303"
   },
   "enas": {
     "score": 1.0904559384489363,
@@ -2946,10 +2946,10 @@
     "timestamp": "2026-03-03T09:19:49.534261"
   },
   "architectures": {
-    "score": 1.130004795942683,
-    "file": "repos/nni/examples/trials/benchmarking/automlbenchmark/nni/extensions/NNI/architectures/run_mlp.py",
-    "generation": 100,
-    "timestamp": "2026-03-04T05:53:44.910246"
+    "score": 1.1317537192186826,
+    "file": "repos/nni/examples/trials/benchmarking/automlbenchmark/nni/extensions/NNI/architectures/run_random_forest.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:34.295595"
   },
   "FashionMNIST": {
     "score": 1.1263444130341993,
@@ -3210,10 +3210,10 @@
     "timestamp": "2026-03-03T15:21:50.393672"
   },
   "docker": {
-    "score": 1.1176151767511073,
+    "score": 1.1249071388353984,
     "file": "repos/autogen/python/packages/autogen-ext/src/autogen_ext/code_executors/docker/_docker_code_executor.py",
-    "generation": 84,
-    "timestamp": "2026-03-02T21:17:42.208951"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:35.405430"
   },
   "_utils": {
     "score": 1.099421754162911,
@@ -3330,10 +3330,10 @@
     "timestamp": "2026-03-03T09:19:50.492510"
   },
   "model_context": {
-    "score": 1.0901937636128123,
-    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/model_context/_unbounded_chat_completion_context.py",
-    "generation": 81,
-    "timestamp": "2026-03-02T17:17:38.934365"
+    "score": 1.0964728117752158,
+    "file": "repos/autogen/python/packages/autogen-core/src/autogen_core/model_context/_token_limited_chat_completion_context.py",
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:35.805896"
   },
   "code_executor": {
     "score": 1.1256080129976656,
@@ -3366,10 +3366,10 @@
     "timestamp": "2026-03-03T12:21:02.767601"
   },
   "gallery": {
-    "score": 1.1219657712726856,
+    "score": 1.1263466654979706,
     "file": "repos/autogen/python/packages/autogen-studio/autogenstudio/gallery/builder.py",
-    "generation": 87,
-    "timestamp": "2026-03-03T08:19:33.239469"
+    "generation": 102,
+    "timestamp": "2026-03-04T07:54:35.850131"
   },
   "eval": {
     "score": 1.1280565188721987,

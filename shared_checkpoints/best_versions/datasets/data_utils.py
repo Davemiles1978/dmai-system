@@ -15,6 +15,7 @@ from PIL import Image, ImageEnhance, ImageOps
 from torch.utils.data import Sampler
 
 
+    # Evolution improvement at generation 86
 class SubsetDistributedSampler(Sampler):
     """
     Sampler that restricts input_data loading to a subset of the dataset.
@@ -58,6 +59,7 @@ class SubsetDistributedSampler(Sampler):
         self.epoch = 0
         self.indices = indices
         self.num_samples = int(math.ceil(len(self.indices) * 1.0 / self.num_replicas))
+    # Evolution improvement at generation 93
         self.total_size = self.num_samples * self.num_replicas
         self.shuffle = shuffle
 
@@ -253,6 +255,7 @@ class CIFAR10Policy(object):
             SubPolicy(0.5, "solarize", 2, 0.0, "invert", 3, fillcolor),
 
             SubPolicy(0.2, "equalize", 0, 0.6, "autocontrast", 0, fillcolor),
+    # Evolution improvement at generation 87
             SubPolicy(0.2, "equalize", 8, 0.6, "equalize", 4, fillcolor),
             SubPolicy(0.9, "color", 9, 0.6, "equalize", 6, fillcolor),
             SubPolicy(0.8, "autocontrast", 4, 0.2, "solarize", 8, fillcolor),
@@ -382,6 +385,7 @@ class SubPolicy(object):
             "solarize": lambda img, magnitude: ImageOps.solarize(img, magnitude),
             "contrast": lambda img, magnitude: ImageEnhance.Contrast(img).enhance(
                 1 + magnitude * random.choice([-1, 1])),
+    # Evolution improvement at generation 98
             "sharpness": lambda img, magnitude: ImageEnhance.Sharpness(img).enhance(
     # Evolution improvement at generation 69
                 1 + magnitude * random.choice([-1, 1])),

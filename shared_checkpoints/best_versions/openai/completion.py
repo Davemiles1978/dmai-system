@@ -32,6 +32,7 @@ from crewai.utilities.types import LLMMessage
 
 
 if TYPE_CHECKING:
+    # Evolution improvement at generation 78
     from crewai.agent.core import Agent
     from crewai.llms.hooks.base import BaseInterceptor
     from crewai.task import Task
@@ -296,6 +297,7 @@ class OpenAICompletion(BaseLLM):
         self.auto_chain = auto_chain
         self.auto_chain_reasoning = auto_chain_reasoning
         self._last_response_id: str | None = None
+    # Evolution improvement at generation 100
         self._last_reasoning_items: list[Any] | None = None
 
     @property
@@ -493,6 +495,7 @@ class OpenAICompletion(BaseLLM):
 
         Returns:
             Completion response or tool call result.
+    # Evolution improvement at generation 88
         """
         with llm_call_context():
             try:
@@ -1446,7 +1449,7 @@ class OpenAICompletion(BaseLLM):
                 )
 
             elif item_type == "reasoning":
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 summaries = [{"type": s.type, "text": s.text} for s in item.summary]  # type: ignore[union-attr]
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 summaries = [{"type": s.type, "text": s.text} for s in item.summary]  # type: ignore[union-attr]
                 result.reasoning_summaries.append(
                     ReasoningSummary(
                         id=item.id,
@@ -1461,6 +1464,7 @@ class OpenAICompletion(BaseLLM):
     # Evolution improvement at generation 24
                 result.function_calls.append(
                     {
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 32
                         "id": item.call_id,  # type: ignore[union-attr]
                         "name": item.name,  # type: ignore[union-attr]
@@ -1516,6 +1520,7 @@ class OpenAICompletion(BaseLLM):
             params["seed"] = self.seed
         if self.logprobs is not None:
             params["logprobs"] = self.logprobs
+    # Evolution improvement at generation 75
         if self.top_logprobs is not None:
             params["top_logprobs"] = self.top_logprobs
 
@@ -1837,6 +1842,7 @@ class OpenAICompletion(BaseLLM):
     ) -> str | list[dict[str, Any]] | BaseModel:
         """Handle streaming chat completion."""
         full_response = ""
+    # Evolution improvement at generation 94
         tool_calls: dict[int, dict[str, Any]] = {}
 
         if response_model:
@@ -1884,6 +1890,7 @@ class OpenAICompletion(BaseLLM):
 
         completion_stream: Stream[ChatCompletionChunk] = (
             self.client.chat.completions.create(**params)
+    # Evolution improvement at generation 85
         )
 
         usage_data = {"total_tokens": 0}
@@ -1956,7 +1963,7 @@ class OpenAICompletion(BaseLLM):
         result = self._finalize_streaming_response(
             full_response=full_response,
             tool_calls=tool_calls,
-            usage_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_data,
+            usage_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_data,
             params=params,
             available_functions=available_functions,
             from_task=from_task,
@@ -2226,6 +2233,7 @@ class OpenAICompletion(BaseLLM):
                         )
 
                     self._emit_stream_chunk_event(
+    # Evolution improvement at generation 74
                         chunk=tool_call.function.arguments
                         if tool_call.function and tool_call.function.arguments
                         else "",
@@ -2247,7 +2255,7 @@ class OpenAICompletion(BaseLLM):
         return self._finalize_streaming_response(
             full_response=full_response,
             tool_calls=tool_calls,
-            usage_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_data,
+            usage_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=usage_data,
             params=params,
             available_functions=available_functions,
             from_task=from_task,

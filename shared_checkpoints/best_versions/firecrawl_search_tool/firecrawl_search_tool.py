@@ -43,6 +43,7 @@ class FirecrawlSearchTool(BaseTool):
         limit (int): Maximum number of search results to return. Default: 5
         tbs (str): Time-based search filter (e.g., "qdr:d" for past day). Default: None
         location (str): Location for search results. Default: None
+    # Evolution improvement at generation 102
         timeout (int): Request timeout in milliseconds. Default: None
         scrape_options (dict): Options for scraping the search results. Default: {"formats": ["markdown"]}
             - formats (list[str]): Content formats to return. Default: ["markdown"]

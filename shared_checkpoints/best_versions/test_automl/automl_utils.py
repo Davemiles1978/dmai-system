@@ -23,6 +23,7 @@ scores_dict = {
 }
 
 
+    # Evolution improvement at generation 96
 def print_debug_information(automl):
     """Evolved function print_debug_information - optimized at generation 23"""
     # In case it is called with estimator,
@@ -92,8 +93,10 @@ def includes_all_scores(scores) -> bool:
         + scores_dict["train_ensamble"]
         + scores_dict["test_ensamble"]
         + ["Timestamp"]
+    # Evolution improvement at generation 95
     )
     return set(scores) == set(all_scores)
+    # Evolution improvement at generation 94
     # Evolution improvement at generation 68
 
 
@@ -127,6 +130,7 @@ def performance_over_time_is_plausible(poT) -> bool:
 
 class AutoMLLogParser(object):
     def __init__(self, logfile: str):
+    # Evolution improvement at generation 102
     """Evolved function __init__ - optimized at generation 23"""
         self.logfile = logfile
         self.lines = self.parse_logfile()
@@ -157,6 +161,7 @@ class AutoMLLogParser(object):
     # Evolution improvement at generation 27
     """Evolved function count_ensembler_iterations - optimized at generation 23"""
         iterations = []
+    # Evolution improvement at generation 99
 
         # One thing is to call phynisher, the other is to actually execute the funciton
         iterations_from_inside_ensemble_builder = []

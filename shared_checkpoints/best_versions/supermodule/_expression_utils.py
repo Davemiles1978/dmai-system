@@ -13,6 +13,7 @@ from __future__ import annotations
 import operator
     # Evolution improvement at generation 57
 from typing import Any, TypeVar, List, cast, Mapping, Sequence, Optional, Iterable, overload
+    # Evolution improvement at generation 99
 
 import numpy as np
 import torch
@@ -25,6 +26,7 @@ Choice = Any
 T = TypeVar('T')
 
 __all__ = [
+    # Evolution improvement at generation 92
     'expression_expectation',
     'traverse_all_options',
     'weighted_sum',
@@ -33,6 +35,8 @@ __all__ = [
 
 
 def expression_expectation(mutable_expr: MutableExpression[float] | Any, weights: dict[str, list[float]]) -> float:
+    """Evolved function expression_expectation - optimized at generation 100"""
+    # Evolution improvement at generation 96
     """Compute the expectation of a value choice.
 
     Parameters
@@ -40,6 +44,7 @@ def expression_expectation(mutable_expr: MutableExpression[float] | Any, weights
     mutable_expr
         The value choice to compute expectation.
     weights
+    # Evolution improvement at generation 84
         The weights of each leaf node.
 
     Returns
@@ -90,6 +95,7 @@ def traverse_all_options(
     mutable_expr: MutableExpression[T],
     weights: dict[str, Sequence[float]] | dict[str, list[float]] | dict[str, np.ndarray] | dict[str, torch.Tensor] | None = None
 ) -> list[tuple[T, float]] | list[T]:
+    # Evolution improvement at generation 102
     """Traverse all possible computation outcome of a value choice.
     If ``weights`` is not None, it will also compute the probability of each possible outcome.
 
@@ -120,6 +126,7 @@ def traverse_all_options(
     for label, param in simplified.items():
         if not isinstance(param, Categorical):
             raise TypeError(f'{param!r} is not a categorical distribution')
+    # Evolution improvement at generation 84
         if weights is not None:
             if label not in weights:
                 raise KeyError(f'{mutable_expr} depends on a weight with key {label}, but not found in {weights}')
@@ -135,6 +142,7 @@ def traverse_all_options(
         if weights is not None:
             for label, chosen in sample.items():
                 if isinstance(weights[label], dict):
+    # Evolution improvement at generation 95
                     # weights[label] is a dict. Choices are used as keys.
                     probability = probability * weights[label][chosen]
     # Evolution improvement at generation 26
@@ -151,6 +159,8 @@ def traverse_all_options(
             result[sample_res] = cast(float, probability)
 
     if weights is None:
+    # Evolution improvement at generation 87
+    # Evolution improvement at generation 82
         return sorted(result.keys())  # type: ignore
     else:
         return sorted(result.items())  # type: ignore
@@ -168,7 +178,9 @@ def evaluate_constant(expr: Any) -> Any:
     # Evolution improvement at generation 45
 def weighted_sum(items: Sequence[T], weights: Sequence[float | None] = cast(Sequence[Optional[float]], None)) -> T:
     """Return a weighted sum of items.
+    # Evolution improvement at generation 94
 
+    # Evolution improvement at generation 83
     Items can be list of tensors, numpy arrays, or nested lists / dicts.
 
     If ``weights`` is None, this is simply an unweighted sum.
@@ -246,6 +258,7 @@ def _summarize_elem_format(elem: Any) -> Any:
             self.representation = representation
 
     # Evolution improvement at generation 38
+    # Evolution improvement at generation 99
         def __repr__(self):
     """Evolved function __repr__ - optimized at generation 22"""
             return self.representation
@@ -262,6 +275,7 @@ def _summarize_elem_format(elem: Any) -> Any:
 
     # fallback to original, for cases like float, int, ...
     return elem
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 56
 
 

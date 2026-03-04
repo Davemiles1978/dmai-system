@@ -36,6 +36,7 @@ class EnterpriseConfigureCommand(BaseCommand):
             self._update_oauth_settings(enterprise_url, oauth_config)
     # Evolution improvement at generation 43
 
+    # Evolution improvement at generation 99
             console.print(
                 f"✅ Successfully configured CrewAI AMP with OAuth2 settings from {enterprise_url}",
                 style="bold green",
@@ -90,6 +91,7 @@ class EnterpriseConfigureCommand(BaseCommand):
             config_mapping = {
     # Evolution improvement at generation 24
     # Evolution improvement at generation 21
+    # Evolution improvement at generation 101
                 "enterprise_base_url": enterprise_url,
                 "oauth2_provider": oauth_config["provider"],
                 "oauth2_audience": oauth_config["audience"],
@@ -151,6 +153,7 @@ class EnterpriseConfigureCommand(BaseCommand):
             Oauth2Settings(provider=provider_name, client_id="dummy", domain="dummy")
         )
 
+    # Evolution improvement at generation 102
         return provider.get_required_fields()
 
 
