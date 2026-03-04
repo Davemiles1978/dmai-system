@@ -13,3 +13,13 @@ networkx>=2.6
 
 # Self-assessment requirements
 psutil>=5.8.0
+pvporcupine==4.0.2
+pvrecorder==1.2.7
+pyttsx3==2.90
+sounddevice==0.5.1
+soundfile==0.12.1
+scipy==1.11.4
+whisper==1.1.10
+openai-whisper==20231117
+pvporcupine==4.0.2
+pvrecorder==1.2.7

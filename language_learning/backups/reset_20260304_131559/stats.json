@@ -1,0 +1,29 @@
+{
+  "total_phrases_heard": 288,
+  "unique_words": 962,
+  "common_words": {
+    "i": 147,
+    "the": 142,
+    "it": 116,
+    "to": 97,
+    "you": 94,
+    "s": 81,
+    "a": 73,
+    "that": 61,
+    "and": 59,
+    "of": 58,
+    "is": 56,
+    "m": 50,
+    "in": 42,
+    "t": 38,
+    "do": 31,
+    "not": 30,
+    "we": 29,
+    "know": 29,
+    "this": 28,
+    "be": 27
+  },
+  "learning_rate": 4.059071729957806,
+  "english_phrases": 237,
+  "non_english_phrases": 48
+}

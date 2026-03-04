@@ -26,3 +26,20 @@ fi
 
 echo ""
 echo "==================================="
+
+# Language Learning Stats
+if [ -f "language_learning/data/stats.json" ]; then
+    echo ""
+    echo "📚 LANGUAGE LEARNING:"
+    python -c "
+import json
+try:
+    with open('language_learning/data/stats.json', 'r') as f:
+        s = json.load(f)
+    print(f'   Vocabulary: {s.get(\"unique_words\", 0)} words')
+    print(f'   Phrases heard: {s.get(\"english_phrases\", 0)}')
+    print(f'   Non-English rejected: {s.get(\"non_english_phrases\", 0)}')
+except:
+    print('   No language data yet')
+"
+fi

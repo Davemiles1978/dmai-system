@@ -1,0 +1,29 @@
+{
+  "total_phrases_heard": 1355,
+  "unique_words": 14416,
+  "common_words": {
+    "the": 27470,
+    "and": 15760,
+    "of": 14881,
+    "to": 13282,
+    "a": 11193,
+    "i": 10792,
+    "in": 8036,
+    "that": 6078,
+    "it": 5873,
+    "was": 5572,
+    "is": 5234,
+    "he": 4765,
+    "his": 4489,
+    "you": 4416,
+    "my": 4038,
+    "with": 3880,
+    "for": 3700,
+    "as": 3690,
+    "but": 3570,
+    "not": 3379
+  },
+  "learning_rate": 11.123456790123457,
+  "english_phrases": 1296,
+  "non_english_phrases": 56
+}
