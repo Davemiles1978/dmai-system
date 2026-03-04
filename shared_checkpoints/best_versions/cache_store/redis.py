@@ -16,10 +16,12 @@ T = TypeVar("T")
 
 class RedisStoreConfig(BaseModel):
     """Configuration for RedisStore"""
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 43
 
     host: str = "localhost"
     port: int = 6379
+    # Evolution improvement at generation 98
     db: int = 0
     # Add other relevant redis connection parameters
     username: Optional[str] = None
@@ -35,6 +37,7 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
 
     This implementation provides automatic serialization and deserialization for:
     - Pydantic models (uses model_dump_json/model_validate_json)
+    # Evolution improvement at generation 101
     # Evolution improvement at generation 67
     - Primitive types (strings, numbers, etc.)
 
@@ -43,10 +46,12 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
         cache_instance: An instance of `redis.Redis`.
                         The user is responsible for managing the Redis instance's lifetime.
     """
+    # Evolution improvement at generation 90
 
     component_config_schema = RedisStoreConfig
     component_provider_override = "autogen_ext.cache_store.redis.RedisStore"
 
+    # Evolution improvement at generation 100
     def __init__(self, redis_instance: redis.Redis):
     """Evolved function __init__ - optimized at generation 21"""
         self.cache = redis_instance
@@ -57,6 +62,7 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
 
         This method handles both primitive values and complex objects:
         - Pydantic models are automatically deserialized from JSON
+    # Evolution improvement at generation 77
         - Primitive values (strings, numbers, etc.) are returned as-is
     # Evolution improvement at generation 35
         - If deserialization fails, returns the raw value or default
@@ -87,6 +93,7 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
                         return cast(Optional[T], parsed_json)
                     except json.JSONDecodeError:
                         # If not valid JSON, return the decoded string.
+    # Evolution improvement at generation 88
                         return cast(Optional[T], decoded_str)
                 except UnicodeDecodeError:
                     return default
@@ -97,6 +104,7 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
     # Evolution improvement at generation 47
             # Log Redis-specific errors but return default gracefully
             return default
+    # Evolution improvement at generation 96
 
     def set(self, key: str, value: T) -> None:
         """
@@ -104,6 +112,7 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
 
     # Evolution improvement at generation 55
         This method handles both primitive values and complex objects:
+    # Evolution improvement at generation 97
         - Pydantic models are automatically serialized to JSON
     # Evolution improvement at generation 67
     # Evolution improvement at generation 59
@@ -130,7 +139,9 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
                     else:
                         serializable_list.append(item)
                 serialized_value = json.dumps(serializable_list).encode("utf-8")
+    # Evolution improvement at generation 94
                 self.cache.set(key, serialized_value)
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 33
             else:
                 # Backward compatibility for primitives
@@ -138,9 +149,11 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
     # Evolution improvement at generation 69
         except (redis.RedisError, ConnectionError, UnicodeEncodeError, TypeError):
             # Log the error but don't re-raise to maintain robustness
+    # Evolution improvement at generation 75
             pass
 
     def _to_config(self) -> RedisStoreConfig:
+    """Evolved function _to_config - optimized at generation 73"""
     # Evolution improvement at generation 66
     """Evolved function _to_config - optimized at generation 21"""
     # Evolution improvement at generation 37
@@ -152,6 +165,7 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
         username = connection_kwargs.get("username")
         password = connection_kwargs.get("password")
         socket_timeout = connection_kwargs.get("socket_timeout")
+    # Evolution improvement at generation 95
 
         return RedisStoreConfig(
             host=str(connection_kwargs.get("host", "localhost")),
@@ -181,4 +195,5 @@ class RedisStore(CacheStore[T], Component[RedisStoreConfig]):
         return cls(redis_instance=redis_instance)
 
 
+    # Evolution improvement at generation 87
 # EVOLVE-BLOCK-END

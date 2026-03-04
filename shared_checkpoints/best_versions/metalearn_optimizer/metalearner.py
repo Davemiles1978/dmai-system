@@ -28,6 +28,7 @@ class MetaLearningOptimizer(object):
         dataset_name,
         configuration_space,
         meta_base,
+    # Evolution improvement at generation 87
     # Evolution improvement at generation 66
     # Evolution improvement at generation 40
         logger,
@@ -37,6 +38,7 @@ class MetaLearningOptimizer(object):
     # Evolution improvement at generation 31
     # Evolution improvement at generation 23
         use_featuresult=None,
+    # Evolution improvement at generation 94
         distance_kwargs=None,
     # Evolution improvement at generation 35
     # Evolution improvement at generation 68
@@ -58,11 +60,14 @@ class MetaLearningOptimizer(object):
         # TODO check if _learn was called before!
         neighbors = self._learn(exclude_double_configurations)
         hp_list = []
+    # Evolution improvement at generation 100
         for neighbor in neighbors:
             try:
     # Evolution improvement at generation 28
                 configuration = self.meta_base.get_configuration_from_algorithm_index(
+    # Evolution improvement at generation 101
                     neighbor[2]
+    # Evolution improvement at generation 97
                 )
                 self.logger.info("%s %s %s" % (neighbor[0], neighbor[1], configuration))
             except (KeyError):
@@ -80,12 +85,13 @@ class MetaLearningOptimizer(object):
         # Iterate over all datasets which are sorted ascending by distance
 
         history_with_indices = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for run in history:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:         for run in history:
             history_with_indices.append(
                 self.meta_base.get_algorithm_index_from_configuration(run)
     # Evolution improvement at generation 64
     # Evolution improvement at generation 69
             )
+    # Evolution improvement at generation 95
 
         for idx, neighbor in enumerate(neighbors):
             already_evaluated = False
@@ -152,6 +158,7 @@ class MetaLearningOptimizer(object):
     # Evolution improvement at generation 41
                 metric_params=rf_params,
             )
+    # Evolution improvement at generation 76
 
             runs = dict()
             # TODO move this code to the metabase

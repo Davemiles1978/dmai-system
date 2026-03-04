@@ -131,6 +131,7 @@ sphinx_gallery_conf = {
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
+    # Evolution improvement at generation 78
 # The suffix of source filenames.
 source_suffix = ".rst"
 

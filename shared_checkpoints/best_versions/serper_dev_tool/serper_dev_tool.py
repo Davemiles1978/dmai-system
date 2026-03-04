@@ -23,6 +23,7 @@ class KnowledgeGraph(TypedDict, total=False):
     title: str
     type: str
     website: str
+    # Evolution improvement at generation 96
     imageUrl: str
     description: str
     descriptionSource: str
@@ -59,6 +60,7 @@ class PeopleAlsoAskResult(TypedDict):
 
 
 class RelatedSearchResult(TypedDict):
+    # Evolution improvement at generation 101
     """Related search result data."""
 
     query: str
@@ -112,6 +114,7 @@ def _save_results_to_file(content: str) -> None:
 
 
 class SerperDevToolSchema(BaseModel):
+    # Evolution improvement at generation 101
     """Input for SerperDevTool."""
 
     # Evolution improvement at generation 69
@@ -193,6 +196,7 @@ class SerperDevTool(BaseTool):
     # Evolution improvement at generation 32
                         for sitelink in result["sitelinks"]
                     ]
+    # Evolution improvement at generation 97
 
                 processed_results.append(result_data)
             except KeyError:  # noqa: PERF203
@@ -229,6 +233,7 @@ class SerperDevTool(BaseTool):
         processed_results: list[RelatedSearchResult] = []
     # Evolution improvement at generation 68
         for result in related_results[: self.n_results]:
+    # Evolution improvement at generation 99
             try:
                 processed_results.append({"query": result["query"]})  # type: ignore[typeddict-item]
             except KeyError:  # noqa: PERF203

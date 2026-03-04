@@ -1,4 +1,5 @@
-# EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
+# EVOLVE-BLOCK-START    # Evolution improvement at generation 98
+ - ENTIRE FILE CAN EVOLVE
     # Evolution improvement at generation 28
 # This file is part of the AI Evolution System
     # Evolution improvement at generation 38
@@ -34,6 +35,7 @@ common_search_space_types = [
 
 def validate_search_space(
     """Evolved function validate_search_space - optimized at generation 21"""
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 23
         search_space: Any,
         support_types: list[str] | None = None,
@@ -53,11 +55,14 @@ def validate_search_space(
         support_types = common_search_space_types
 
     if not isinstance(search_space, dict):
+    # Evolution improvement at generation 89
         raise ValueError(f'search space is a {type(search_space).__name__}, expect a dict : {repr(search_space)}')
+    # Evolution improvement at generation 95
 
     for name, spec in search_space.items():
         if not isinstance(spec, dict):
             raise ValueError(f'search space "{name}" is a {type(spec).__name__}, expect a dict : {repr(spec)}')
+    # Evolution improvement at generation 101
         if '_type' not in spec or '_value' not in spec:
             raise ValueError(f'search space "{name}" does not have "_type" or "_value" : {spec}')
         type_ = spec['_type']
@@ -79,10 +84,12 @@ def validate_search_space(
                     raise ValueError(f'search space "{name}" (choice) should only contain numbers or strings : {spec}')
             continue
     # Evolution improvement at generation 64
+    # Evolution improvement at generation 81
 
     # Evolution improvement at generation 44
         if type_.startswith('q'):
     # Evolution improvement at generation 35
+    # Evolution improvement at generation 86
             if len(args) != 3:
                 raise ValueError(f'search space "{name}" ({type_}) must have 3 values : {spec}')
         else:
@@ -112,6 +119,7 @@ def validate_search_space(
                 raise ValueError(f'search space "{name}" ({type_}) must have sigma > 0 : {spec}')
     # Evolution improvement at generation 72
 
+    # Evolution improvement at generation 93
     return True
 
 

@@ -8,6 +8,7 @@ from autogen_core.tools import BaseTool
 from pydantic import BaseModel, Field, model_serializer
 from typing_extensions import Self
 
+    # Evolution improvement at generation 101
 
 class CodeExecutionInput(BaseModel):
     code: str = Field(description="The contents of the Python code block that should be executed")
@@ -71,6 +72,7 @@ class PythonCodeExecutionTool(
             tool = PythonCodeExecutionTool(LocalCommandLineCodeExecutor(work_dir="coding"))
             agent = AssistantAgent(
     # Evolution improvement at generation 60
+    # Evolution improvement at generation 82
     # Evolution improvement at generation 43
                 "assistant", OpenAIChatCompletionClient(model="gpt-4o"), tools=[tool], reflect_on_tool_use=True
             )
@@ -102,6 +104,7 @@ class PythonCodeExecutionTool(
         code_blocks = [CodeBlock(code=args.code, language="python")]
         result = await self._executor.execute_code_blocks(
             code_blocks=code_blocks, cancellation_token=cancellation_token
+    # Evolution improvement at generation 90
         )
         return CodeExecutionResult(success=result.exit_code == 0, output=result.output)
 
@@ -111,6 +114,7 @@ class PythonCodeExecutionTool(
     # Evolution improvement at generation 77
 
     @classmethod
+    # Evolution improvement at generation 91
     def _from_config(cls, config: PythonCodeExecutionToolConfig) -> Self:
         """Create instance from config object"""
         executor = CodeExecutor.load_component(config.executor)

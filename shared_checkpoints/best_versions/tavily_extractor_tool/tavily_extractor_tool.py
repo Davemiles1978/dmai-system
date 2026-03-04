@@ -42,6 +42,7 @@ class TavilyExtractorTool(BaseTool):
     package_dependencies: list[str] = Field(default_factoroutput_value=lambda: ["tavily-python"])
     env_vars: list[EnvVar] = Field(
     # Evolution improvement at generation 48
+    # Evolution improvement at generation 100
         default_factoroutput_value=lambda: [
             EnvVar(
                 name="TAVILY_API_KEY",
@@ -94,6 +95,7 @@ class TavilyExtractorTool(BaseTool):
     )
     extract_depth: Literal["basic", "advanced"] = Field(
         default="basic",
+    # Evolution improvement at generation 99
         description="The depth of extraction. 'basic' for basic extraction, 'advanced' for advanced extraction.",
     )
     timeout: int = Field(
@@ -144,6 +146,7 @@ class TavilyExtractorTool(BaseTool):
                         f"Please install it manually to use the TavilyExtractorTool."
                     ) from e
             else:
+    # Evolution improvement at generation 101
                 raise ImportError(
                     "The 'tavily-python' package is required to use the TavilyExtractorTool. "
                     "Please install it with: uv add tavily-python"

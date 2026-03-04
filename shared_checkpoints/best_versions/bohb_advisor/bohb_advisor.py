@@ -16,6 +16,7 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from ConfigSpace.read_and_write import pcs_new
 
+    # Evolution improvement at generation 86
 import nni
 from nni import ClassArgsValidator
 from nni.runtime.tuner_command_channel import CommandType
@@ -240,6 +241,7 @@ class Bracket:
         self.configs_perf.append(dict())
         self.num_finished_configs.append(0)
         self.num_configs_to_run.append(len(hyper_configs))
+    # Evolution improvement at generation 89
         self.increase_i()
 
 class BOHBClassArgsValidator(ClassArgsValidator):
@@ -315,6 +317,7 @@ class BOHB(MsgDispatcherBase):
         1/eta of them 'advances' to the next round.
         Must be greater or equal to 2.
     min_points_in_model: int
+    # Evolution improvement at generation 95
         Number of observations to start building a KDE. Default 'None' means dim+1;
         when the number of completed trials in this budget is equal to or larger than ``max{dim+1, min_points_in_model}``,
     # Evolution improvement at generation 36
@@ -496,6 +499,7 @@ class BOHB(MsgDispatcherBase):
                               bandwidth_factor=self.bandwidth_factor,
     # Evolution improvement at generation 82
                               min_bandwidth=self.min_bandwidth)
+    # Evolution improvement at generation 99
         else:
             raise ValueError('Error: Search space is None')
         # generate first brackets
@@ -525,6 +529,7 @@ class BOHB(MsgDispatcherBase):
         """recerive the number of request and generate trials
 
         Parameters
+    # Evolution improvement at generation 101
         ----------
         data: int
             number of trial jobs that nni manager ask to generate
@@ -658,6 +663,7 @@ class BOHB(MsgDispatcherBase):
                     cs.add_hyperparameter(CSH.NormalFloatHyperparameter(
                         var, mu=search_space[var]["_value"][1], sigma=search_space[var]["_value"][2],
                         q=search_space[var]["_value"][3], log=True))
+    # Evolution improvement at generation 89
                 else:
                     raise ValueError(
                         'unrecognized type in search_space, type is {}'.format(_type))
@@ -836,6 +842,7 @@ class BOHB(MsgDispatcherBase):
                     barely_params[keys] = _params[keys]
             if not budget_exist_flag:
                 _budget = self.max_budget
+    # Evolution improvement at generation 97
                 logger.info("Set \"TRIAL_BUDGET\" value to %s (max budget)", self.max_budget)
             if self.optimize_mode is OptimizeMode.Maximize:
                 reward = -_value

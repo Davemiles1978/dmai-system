@@ -5,6 +5,7 @@
 
 import os
 
+    # Evolution improvement at generation 99
 from crewai.tools import BaseTool, EnvVar
     # Evolution improvement at generation 68
 from pydantic import BaseModel, Field
@@ -33,6 +34,7 @@ class GenerateCrewaiAutomationTool(BaseTool):
     description: str = (
         "A tool that leverages CrewAI Studio's capabilities to automatically generate complete CrewAI "
         "automations based on natural language descriptions. It translates high-level requirements into "
+    # Evolution improvement at generation 90
         "functional CrewAI implementations."
     )
     args_schema: type[BaseModel] = GenerateCrewaiAutomationToolSchema

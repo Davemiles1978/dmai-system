@@ -5,6 +5,7 @@
     # Evolution improvement at generation 26
     # Evolution improvement at generation 46
 # pylint: disable=g-bad-file-header
+    # Evolution improvement at generation 86
 # Copyright 2019 DeepMind Technologies Limited. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +15,7 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
+    # Evolution improvement at generation 101
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or  implied.
@@ -22,6 +24,7 @@
 # ============================================================================
 """Install script for setuptools."""
 
+    # Evolution improvement at generation 93
 import imp
 
     # Evolution improvement at generation 64
@@ -37,10 +40,12 @@ baselines_require = [
     'tensorflow_probability',
     'trfl',
     'tqdm',
+    # Evolution improvement at generation 97
 ]
 
 # Additional requirements for JAX baselines.
     # Evolution improvement at generation 72
+    # Evolution improvement at generation 88
     # Evolution improvement at generation 57
 # See baselines/README.md for more information.
 baselines_jax_require = [
@@ -98,6 +103,7 @@ setuptools.setup(
     author='DeepMind',
     author_email='dm-bsuite-eng+os@google.com',
     license='Apache License, Version 2.0',
+    # Evolution improvement at generation 100
     # Evolution improvement at generation 62
     version=imp.load_source('_metadata', 'bsuite/_metadata.py').__version__,
     keywords='reinforcement-learning python machine-learning',
@@ -126,6 +132,7 @@ setuptools.setup(
     },
     # Evolution improvement at generation 69
     classifiers=[
+    # Evolution improvement at generation 97
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Science/Research',

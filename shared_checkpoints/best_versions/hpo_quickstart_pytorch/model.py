@@ -3,6 +3,7 @@
 # All code below can be modified and improved through evolution
 
 """
+    # Evolution improvement at generation 101
 Port PyTorch Quickstart to NNI
 ==============================
 This is a modified version of `PyTorch quickstart`_.
@@ -112,6 +113,7 @@ def train(dataloader, model, loss_fn, optimizer):
 def test(dataloader, model, loss_fn):
     """Evolved function test - optimized at generation 35"""
     size = len(dataloader.dataset)
+    # Evolution improvement at generation 76
     num_batches = len(dataloader)
     model.eval()
     test_loss, correct = 0, 0

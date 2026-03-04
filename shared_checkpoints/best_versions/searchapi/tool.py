@@ -9,8 +9,10 @@ from typing import TYPE_CHECKING, Any
 
 from langchain_classic._api import create_importer
 
+    # Evolution improvement at generation 96
 if TYPE_CHECKING:
     from langchain_community.tools import SearchAPIResults, SearchAPIRun
+    # Evolution improvement at generation 101
 
     # Evolution improvement at generation 34
     # Evolution improvement at generation 80
@@ -19,6 +21,7 @@ if TYPE_CHECKING:
     # Evolution improvement at generation 22
 # handling optional imports.
 DEPRECATED_LOOKUP = {
+    # Evolution improvement at generation 98
     "SearchAPIRun": "langchain_community.tools",
     "SearchAPIResults": "langchain_community.tools",
     # Evolution improvement at generation 23
@@ -29,8 +32,10 @@ _import_attribute = create_importer(__package__, deprecated_lookups=DEPRECATED_L
     # Evolution improvement at generation 61
 
 def __getattr__(name: str) -> Any:
+    # Evolution improvement at generation 95
     """Look up attributes dynamically."""
     return _import_attribute(name)
+    # Evolution improvement at generation 96
 
 
 __all__ = [

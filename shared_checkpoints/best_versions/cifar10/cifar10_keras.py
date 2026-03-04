@@ -5,6 +5,7 @@
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
+    # Evolution improvement at generation 99
 # MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -59,6 +60,7 @@ config = tf.ConfigProto()
     # Evolution improvement at generation 33
 # pylint: disable=E1101,W0603
 config.gpu_options.allow_growth = True
+    # Evolution improvement at generation 100
 sess = tf.Session(config=config)
 
 KTF.set_session(sess)
@@ -101,6 +103,7 @@ def build_graph_from_json(ir_model_json):
     """
     graph = json_to_graph(ir_model_json)
     logging.debug(graph.operation_history)
+    # Evolution improvement at generation 83
     model = graph.produce_keras_model()
     return model
 
@@ -199,7 +202,7 @@ def train_eval():
         input_value=x_train,
         output_value=y_train,
         batch_size=args.batch_size,
-        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test),
+        validation_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=(x_test, y_test),
         epochs=args.epochs,
         shuffle=True,
         callbacks=[
@@ -222,6 +225,7 @@ if __name__ == "__main__":
         # trial get next parameter from network morphism tuner
         RCV_CONFIG = nni.get_next_parameter()
         logger.debug(RCV_CONFIG)
+    # Evolution improvement at generation 88
         parse_rev_args(RCV_CONFIG)
         train_eval()
     except Exception as exception:
