@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Render cloud service for DMAI evolution - Ultra lightweight for Starter tier"""
+"""DMAI Evolution Service for Render - Standalone"""
 import os
-import json
 import logging
 from datetime import datetime
 from flask import Flask, jsonify
@@ -10,7 +9,6 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Simple in-memory state
 evolution_state = {
     "generation": 23,
     "best_score": 1.1444530004071987,
@@ -51,14 +49,12 @@ def status():
 
 @app.route('/evolve')
 def evolve():
-    """Trigger evolution cycle"""
     evolution_state["generation"] += 1
     evolution_state["last_evolution"] = {
         "timestamp": datetime.now().isoformat(),
         "improvements": ["Runtime optimization", "Memory management"],
         "new_generation": evolution_state["generation"]
     }
-    
     return jsonify({
         "success": True,
         "service": "dmai-final",

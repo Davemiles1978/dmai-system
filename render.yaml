@@ -26,3 +26,19 @@ services:
     autoDeploy: true
     plan: starter
     numInstances: 1
+
+  # NEW: Cloud Evolution Web Service (24/7/365)
+  - type: web
+    name: dmai-cloud-evolution
+    runtime: python
+    repo: https://github.com/Davemiles1978/dmai-system.git
+    branch: main
+    rootDir: cloud_evolution
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn cloud_evolve:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    plan: free
+    autoDeploy: true

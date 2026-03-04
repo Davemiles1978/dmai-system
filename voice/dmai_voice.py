@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Main DMAI voice interface with real speech recognition"""
+"""Main DMAI voice interface with real speech"""
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import time
 import logging
 import sounddevice as sd
 import numpy as np
 from voice.wake.wake_detector import WakeWordDetector
-from voice.commands.command_processor import CommandProcessor
+from voice.commands.enhanced_processor import EnhancedCommandProcessor
 from voice.auth.voice_auth import VoiceAuth
 from voice.speech_to_text import SpeechToText
+from voice.speaker import DMASpeaker
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,22 +22,21 @@ class DMAIVoice:
     
     def __init__(self, whisper_model="base"):
         self.wake_detector = WakeWordDetector()
-        self.processor = CommandProcessor()
+        self.processor = EnhancedCommandProcessor()
         self.auth = VoiceAuth()
         self.stt = SpeechToText(model_size=whisper_model)
-        self.listening = False
+        self.speaker = DMASpeaker()
         self.sample_rate = 16000
         
     def on_wake_word(self):
         """Called when wake word detected"""
-        print("\n🔊 DMAI: Yes, I'm listening...")
+        self.speaker.speak("Yes, I'm listening...")
         self.listen_for_command()
     
     def listen_for_command(self, timeout=5):
-        """Listen for command after wake word using real STT"""
-        print("🎤 Speak your command...")
+        """Listen for command after wake word"""
+        print("🎤 Listening...")
         
-        # Record command
         recording = sd.rec(int(timeout * self.sample_rate), 
                           samplerate=self.sample_rate, 
                           channels=1, 
@@ -45,11 +45,11 @@ class DMAIVoice:
         
         print("🧠 Processing...")
         
-        # Verify it's you (voice biometrics)
+        # Verify it's you
         is_you, confidence = self.auth.verify(recording.flatten(), self.sample_rate)
         
         if not is_you:
-            print(f"⚠️  Voice not recognized (confidence: {confidence:.1%}). Please enroll first.")
+            self.speaker.speak("I didn't recognize that voice. Please enroll first.")
             return
         
         # Convert speech to text
@@ -57,7 +57,7 @@ class DMAIVoice:
         text = self.stt.transcribe(recording.flatten(), self.sample_rate)
         
         if not text:
-            print("🤖 DMAI: Sorry, I didn't catch that. Could you repeat?")
+            self.speaker.speak("Sorry, I didn't catch that. Could you repeat?")
             return
         
         print(f"You said: \"{text}\"")
@@ -66,41 +66,35 @@ class DMAIVoice:
         command = self.processor.process(text)
         response = self.processor.generate_response(command)
         
-        print(f"\n🤖 DMAI: {response}")
+        # Speak the response
+        self.speaker.speak(response)
         
         # Check if more info needed
         needs_more, question = self.processor.needs_more_info(command)
         if needs_more:
-            print(f"🤖 DMAI: {question}")
-            # Here we could listen again for clarification
+            self.speaker.speak(question)
     
     def run(self):
         """Start DMAI voice interface"""
         print("\n" + "="*50)
         print("🎙️  DMAI VOICE INTERFACE")
         print("="*50)
-        print("\nInitializing...")
         
-        # Check if master is enrolled
         if 'master' not in self.auth.voiceprints:
-            print("\n⚠️  No voice enrolled yet.")
-            print("Please run: python voice/enroll_master.py")
-            print("(Do this when you're alone for security)")
+            print("\n⚠️  No voice enrolled.")
+            print("Run: python voice/enroll_master.py")
             return
         
-        print("\n✅ Voice enrolled. Ready to listen.")
-        print(f"✅ Using Whisper model: {self.stt.model_size}")
-        print("\nSay 'Hey DMAI' when you need me.")
-        print("Press Ctrl+C to exit.\n")
+        self.speaker.speak("I'm ready. Say Jarvis when you need me.")
+        print("\nSay 'Jarvis' (Ctrl+C to exit)\n")
         
-        # Start wake word detection
         self.wake_detector.start(callback=self.on_wake_word)
 
 if __name__ == "__main__":
-    # You can change model: "tiny" (fastest) to "large" (most accurate)
     dmai = DMAIVoice(whisper_model="base")
     try:
         dmai.run()
     except KeyboardInterrupt:
-        print("\n\nDMAI shutting down...")
+        print("\n\nShutting down...")
         dmai.wake_detector.cleanup()
+        dmai.speaker.shutdown()

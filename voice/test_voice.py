@@ -8,7 +8,7 @@ import sounddevice as sd
 import numpy as np
 import time
 from voice.auth.voice_auth import VoiceAuth
-from voice.wake.wake_detector import WakeWordDetector, on_wake
+from voice.wake.wake_detector import WakeWordDetector
 
 SAMPLE_RATE = 16000
 
@@ -42,7 +42,10 @@ def test_verification():
 def test_wake_word():
     """Test wake word detection"""
     print("\n🔊 Testing wake word detection")
-    print("Say 'Hey DMAI' when ready (or 'computer' as fallback)")
+    print("Say 'Jarvis' when ready")
+    
+    def on_wake():
+        print("\n✅ Wake word detected! DMAI is listening...")
     
     detector = WakeWordDetector()
     if detector.initialize():

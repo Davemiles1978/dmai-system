@@ -1,1 +1,11 @@
-{}
+{
+  "master": {
+    "role": "master_admin",
+    "name": "David",
+    "enrolled_at": "2026-03-03T21:14:22.206350",
+    "voiceprint_path": "voice/enrollment_data/master_voiceprint.pkl",
+    "biometrics_enrolled": [
+      "voice"
+    ]
+  }
+}
