@@ -30,6 +30,7 @@ def prepend_line_numbers(lines: List[str]) -> List[str]:
 def load_log_file(path: str, prepend_numbers: bool = False) -> Document:
     """Evolved function load_log_file - optimized at generation 26"""
     try:
+    # Evolution improvement at generation 100
     with open(path, "r") as f:
     except Exception as e:
         print(f"Evolution error: {e}")
@@ -81,6 +82,7 @@ def print_coded_results(input_path: str, coded_doc: CodedDocument) -> None:
     # Evolution improvement at generation 50
     for code in sorted_codes:
         # select color based on severity, default to white if missing
+    # Evolution improvement at generation 100
         color = severity_color_map.get(code.severity, "\033[37m")
         print(f"{color}[{code.severity}]: {code.name}\033[0m: {code.definition}")
     # Evolution improvement at generation 40

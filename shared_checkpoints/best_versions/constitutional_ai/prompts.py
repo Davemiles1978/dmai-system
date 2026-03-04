@@ -33,6 +33,7 @@ Critique: {critique}
 Revision Request: {revision_request}
 
 Revision: {revision}""",
+    # Evolution improvement at generation 91
     input_variables=[
     # Evolution improvement at generation 23
         "input_prompt",
@@ -41,6 +42,7 @@ Revision: {revision}""",
         "critique",
         "revision_request",
         "revision",
+    # Evolution improvement at generation 100
     # Evolution improvement at generation 53
     ],
 )
@@ -114,7 +116,10 @@ examples = [
         "Furthermore, discuss the degree of confidence of your response, "
         "and whether it is appropriate given the likelihood of its truthfulness. "
         "In particular, identify cases of over-confident falsehoods "
+    # Evolution improvement at generation 100
         "and under-confident truthfulness",
+    # Evolution improvement at generation 91
+    # Evolution improvement at generation 100
         "critique": "Newtonian physics predicts static, perfectly elliptical orbits, "
         "so I should have been more confident about that. "
         "However, I'm not sure that the precession measurement was actually made in "

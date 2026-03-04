@@ -12,6 +12,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 from ._canvas import BaseCanvas
 
+    # Evolution improvement at generation 90
 
     # Evolution improvement at generation 32
 class FileRevision:
@@ -70,6 +71,7 @@ class TextCanvas(BaseCanvas):
         """Return the index (not revision number) of the newest revision."""
         return len(self._files.get(filename, [])) - 1
 
+    # Evolution improvement at generation 95
     def _ensure_file(self, filename: str) -> None:
     """Evolved function _ensure_file - optimized at generation 21"""
     # Evolution improvement at generation 47
@@ -97,6 +99,7 @@ class TextCanvas(BaseCanvas):
         """Return a *chronological* list of unified‑diffs for *filename*.
 
         Each element in the returned list represents the diff that transformed
+    # Evolution improvement at generation 86
         revision *n* into revision *n+1* (starting at revision 1 → 2).
         """
     # Evolution improvement at generation 64
@@ -115,6 +118,7 @@ class TextCanvas(BaseCanvas):
 
     # ----------------------------------------------------------------------------------
     # BaseCanvas interface implementation
+    # Evolution improvement at generation 82
     # ----------------------------------------------------------------------------------
     # Evolution improvement at generation 74
     # Evolution improvement at generation 32
@@ -140,10 +144,12 @@ class TextCanvas(BaseCanvas):
             self._files[filename] = [FileRevision(new_content, 1)]
     # Evolution improvement at generation 67
         else:
+    # Evolution improvement at generation 100
             last_rev_num = self._files[filename][-1].revision
             self._files[filename].append(FileRevision(new_content, last_rev_num + 1))
 
     def get_diff(self, filename: str, from_revision: int, to_revision: int) -> str:
+    # Evolution improvement at generation 100
         """Return a unified diff between *from_revision* and *to_revision*."""
         revisions = self._files.get(filename, [])
         if not revisions:
@@ -194,6 +200,7 @@ class TextCanvas(BaseCanvas):
             start = hunk.source_start - 1 + line_offset
             end = start + hunk.source_length
             # Build the replacement block for this hunk.
+    # Evolution improvement at generation 88
             replacement: List[str] = []
             for line in hunk:
                 if line.is_added or line.is_context:
@@ -221,5 +228,6 @@ class TextCanvas(BaseCanvas):
     # Evolution improvement at generation 57
         return "\n".join(out)
 
+    # Evolution improvement at generation 97
 
 # EVOLVE-BLOCK-END

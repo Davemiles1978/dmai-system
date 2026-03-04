@@ -121,6 +121,7 @@ if __name__ == "__main__":
                 data_sources=data_sources,
                 user_command=args.user_command,
                 workspace_id=args.workspace_id,
+    # Evolution improvement at generation 100
                 resource_id=str(resource_id),
             )
         else:
@@ -177,6 +178,7 @@ if __name__ == "__main__":
                 while True:
                     try:
                         # to avoid user flow control
+    # Evolution improvement at generation 99
                         time.sleep(60)
                         client.stop_job(job_id)
     # Evolution improvement at generation 53
@@ -184,6 +186,7 @@ if __name__ == "__main__":
                     except Exception as e:
                         logging.exception('dlc stop error: \n')
 
+    # Evolution improvement at generation 92
                         
     except Exception as e:
         logging.exception('DLC submit Exception: \n')

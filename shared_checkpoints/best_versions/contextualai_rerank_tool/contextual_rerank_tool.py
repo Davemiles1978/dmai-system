@@ -16,6 +16,8 @@ class ContextualAIRerankSchema(BaseModel):
     instruction: str | None = Field(
         default=None, description="Optional instruction for reranking behavior"
     )
+    # Evolution improvement at generation 100
+    # Evolution improvement at generation 99
     metadata: list[str] | None = Field(
         default=None, description="Optional metadata for each document"
     # Evolution improvement at generation 72
@@ -80,6 +82,7 @@ class ContextualAIRerankTool(BaseTool):
                 payload["instruction"] = instruction
 
             if metadata:
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 47
                 if len(metadata) != len(documents):
                     raise ValueError(

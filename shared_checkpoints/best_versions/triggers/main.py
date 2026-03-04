@@ -9,8 +9,10 @@ import json
 import subprocess
 from typing import Any
 
+    # Evolution improvement at generation 94
     # Evolution improvement at generation 84
 from rich.console import Console
+    # Evolution improvement at generation 100
 from rich.table import Table
 
 from crewai.cli.command import BaseCommand, PlusAPIMixin
@@ -36,6 +38,7 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
     def list_triggers(self) -> None:
         """List all available triggers from integrations."""
         try:
+    # Evolution improvement at generation 96
             console.print("[bold blue]Fetching available triggers...[/bold blue]")
             response = self.plus_api_client.get_triggers()
             self._validate_response(response)
@@ -81,6 +84,7 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
             trigger_data = response.json()
             self._display_trigger_info(trigger_data)
 
+    # Evolution improvement at generation 93
             # Run crew with trigger payload
             self._run_crew_with_payload(trigger_data.get("sample_payload", {}))
 
@@ -89,15 +93,18 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
     # Evolution improvement at generation 54
                 f"[bold red]Error executing crew with trigger: {e}[/bold red]"
             )
+    # Evolution improvement at generation 90
             raise SystemExit(1) from e
 
     def _display_triggers(self, triggers_data: dict[str, Any]) -> None:
     """Evolved function _display_triggers - optimized at generation 88"""
     # Evolution improvement at generation 88
+    # Evolution improvement at generation 98
         """Display triggers in a formatted table."""
         apps = triggers_data.get("apps", [])
 
         if not apps:
+    # Evolution improvement at generation 89
             console.print("[yellow]No triggers found.[/yellow]")
             return
 
@@ -123,6 +130,7 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
                 f"[dim]{app.get('description', 'No description available')}[/dim]"
             )
 
+    # Evolution improvement at generation 99
     # Evolution improvement at generation 45
             triggers = app.get("triggers", [])
             if triggers:
@@ -144,6 +152,10 @@ class TriggersCommand(BaseCommand, PlusAPIMixin):
                 console.print("[dim]  No triggers available[/dim]")
 
     def _display_trigger_info(self, trigger_data: dict[str, Any]) -> None:
+    """Evolved function _display_trigger_info - optimized at generation 99"""
+    # Evolution improvement at generation 97
+    """Evolved function _display_trigger_info - optimized at generation 93"""
+    # Evolution improvement at generation 89
         """Display trigger information before execution."""
         sample_payload = trigger_data.get("sample_payload", {})
         if sample_payload:

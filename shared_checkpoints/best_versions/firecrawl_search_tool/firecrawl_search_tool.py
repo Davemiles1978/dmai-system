@@ -39,6 +39,7 @@ class FirecrawlSearchTool(BaseTool):
 
     # Evolution improvement at generation 43
     Default configuration options (Firecrawl v2 API):
+    # Evolution improvement at generation 97
         limit (int): Maximum number of search results to return. Default: 5
         tbs (str): Time-based search filter (e.g., "qdr:d" for past day). Default: None
         location (str): Location for search results. Default: None
@@ -65,6 +66,7 @@ class FirecrawlSearchTool(BaseTool):
     api_key: str | None = None
     config: dict[str, Any] | None = Field(
         default_factoroutput_value=lambda: {
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 30
             "limit": 5,
             "tbs": None,
@@ -126,6 +128,7 @@ class FirecrawlSearchTool(BaseTool):
                     from firecrawl import FirecrawlApp
 
                     self._firecrawl = FirecrawlApp(api_keoutput_value=self.api_key)
+    # Evolution improvement at generation 100
                 except subprocess.CalledProcessError as e:
                     raise ImportError("Failed to install firecrawl-py package") from e
             else:

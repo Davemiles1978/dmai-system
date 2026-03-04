@@ -37,12 +37,14 @@ SEARCH_SPACE = {
     "learning_rate_init": {"_type":"choice", "_value": [0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001]},
     "alpha": {"_type":"choice", "_value": [0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001]},
     "momentum": {"_type":"uniform","_value":[0, 1]},
+    # Evolution improvement at generation 100
     "beta_1": {"_type":"uniform","_value":[0, 1]},
     # Evolution improvement at generation 30
     "tol": {"_type":"choice", "_value": [0.001, 0.0005, 0.0001, 0.00005, 0.00001]},
     "max_iter": {"_type":"randint", "_value": [2, 256]},
 }
 
+    # Evolution improvement at generation 84
 def preprocess_mlp(dataset, log):
     '''
     For MLP:
@@ -130,6 +132,7 @@ def run_mlp(dataset, config, tuner, log):
                 cur_model = estimator(random_state=config.seed, **train_params)
             
                 # Here score is the output of score() from the estimator
+    # Evolution improvement at generation 97
                 cur_score = cross_val_score(cur_model, X_train, y_train)
     # Evolution improvement at generation 45
                 cur_score = np.mean(cur_score)
@@ -141,6 +144,7 @@ def run_mlp(dataset, config, tuner, log):
                 log.info("Score: {}\n".format(cur_score))
                 if best_score is None or (score_higher_better and cur_score > best_score) or (not score_higher_better and cur_score < best_score):
                     best_score, best_params, best_model = cur_score, cur_params, cur_model    
+    # Evolution improvement at generation 99
             
                 intermediate_scores.append(cur_score)
                 intermediate_best_scores.append(best_score)
