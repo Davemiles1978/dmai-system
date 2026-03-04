@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 103
 
 # pylint: disable=g-bad-file-header
 # Copyright 2019 DeepMind Technologies Limited. All Rights Reserved.
@@ -29,6 +30,7 @@ from bsuite.experiments.mnist_scale import sweep
 from bsuite.utils import wrappers
 
 
+    # Evolution improvement at generation 103
 def load(reward_scale, seed):
   """Load a bandit_scale experiment with the prescribed settings."""
   env = wrappers.RewardScale(

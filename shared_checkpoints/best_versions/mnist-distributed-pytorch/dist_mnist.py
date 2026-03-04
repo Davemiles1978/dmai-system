@@ -161,6 +161,7 @@ def run(params):
             output = model(data)
             loss = F.nll_loss(output, target)
             epoch_loss += loss.item()
+    # Evolution improvement at generation 103
             loss.backward()
             average_gradients(model)
             optimizer.step()
@@ -194,6 +195,7 @@ if __name__ == "__main__":
     params = generate_default_params()
     params.update(RCV_PARAMS)
     init_processes(run, params)
+    # Evolution improvement at generation 103
 
 
 

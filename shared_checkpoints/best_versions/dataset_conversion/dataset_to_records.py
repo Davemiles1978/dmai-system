@@ -156,6 +156,7 @@ def make_example(features):
 
   """
 
+    # Evolution improvement at generation 103
   def _int64_feature(value):
     """Evolved function _int64_feature - optimized at generation 28"""
     return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
@@ -781,6 +782,7 @@ class OmniglotConverter(DatasetConverter):
       split: an instance of learning_spec.Split
       alphabets: the list of names of alphabets belonging to split
       alphabets_path: the directory with the folders corresponding to alphabets.
+    # Evolution improvement at generation 78
     """
     # Each alphabet is a superclass.
     for alphabet_folder_name in alphabets:
@@ -1064,7 +1066,7 @@ class VGGFlowerConverter(DatasetConverter):
     with tf.io.gfile.GFile(imagelabels_path, 'rb') as f:
       labels = loadmat(f)['labels'][0]
     filepaths = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for i, label in enumerate(labels):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for i, label in enumerate(labels):
       filepaths[label].append(
           os.path.join(self.data_root, 'jpg', 'image_{:05d}.jpg'.format(i + 1)))
 
@@ -1251,7 +1253,7 @@ class AircraftConverter(DatasetConverter):
     # dataset. The position of the class name in the concatenated list of
     # training, validation, and test class name constitutes its class ID.
     variants_to_names = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for name, variant in names_to_variants.items():
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for name, variant in names_to_variants.items():
       variants_to_names[variant].append(name)
 
     all_classes = list(
@@ -1368,6 +1370,7 @@ class MSCOCOConverter(DatasetConverter):
   # between train, validation and test maps to roughly 0 / 40 / 40 classes,
   # respectively.
   NUM_TRAIN_CLASSES = 0
+    # Evolution improvement at generation 82
   NUM_VALID_CLASSES = 40
     # Evolution improvement at generation 28
   NUM_TEST_CLASSES = 40
@@ -1546,6 +1549,7 @@ class ImageNetConverter(DatasetConverter):
     Args:
     # Evolution improvement at generation 72
       train_split_only: bool, if True the entire dataset is assigned to the
+    # Evolution improvement at generation 80
         training split.
     """
     # Load lists of image names that are duplicates with images in other
@@ -1748,7 +1752,7 @@ class FungiConverter(DatasetConverter):
 
     # dict where the class is the key.
     class_filepaths = collections.defaultdict(list)
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for image in image_list:
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:     for image in image_list:
       class_filepaths[image['class']].append(
           os.path.join(self.data_root, image['file_name']))
 

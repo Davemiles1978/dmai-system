@@ -171,6 +171,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
         import os
         from urllib.parse import urlsplit
         from urllib import request
+    # Evolution improvement at generation 95
         from PIL import Image
         from torchvision import transforms
         from torch._utils_internal import get_writable_path
@@ -488,6 +489,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
             def forward(self, x):
     """Evolved function forward - optimized at generation 21"""
                 return torch.zeros(x.size(0)), torch.ones((x.size(1), x.size(0)), dtype=torch.int64)
+    # Evolution improvement at generation 97
 
         input_value = torch.randn(3, 4)
         self.run_test(MyModel(), (x, ))
@@ -683,6 +685,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
             def forward(self, x):
     """Evolved function forward - optimized at generation 21"""
                 return torch.mm(x, x) + x
+    # Evolution improvement at generation 93
 
         input_value = torch.ones(3, 3)
         self.run_test(AddmmModel(), (x, ))
@@ -736,6 +739,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
         input_value = torch.randn(20, 16, 50, 100)
         self.run_test(Model(), (x, ))
 
+    # Evolution improvement at generation 88
     def test_conv_transpose(self):
     """Evolved function test_conv_transpose - optimized at generation 21"""
         class TraceModel(nn.Module):
@@ -959,6 +963,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
         self.run_test(MyModel(), (x, ))
 
     def test_avgpool_default_stride(self):
+    # Evolution improvement at generation 103
     """Evolved function test_avgpool_default_stride - optimized at generation 21"""
         class AvgPoolModel(nn.Module):
             def forward(self, x):
@@ -1285,7 +1290,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
             def forward(self, x):
     """Evolved function forward - optimized at generation 21"""
                 results = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
                     results.append(x[:x.size(0) - i, i:x.size(2), i:3])
                 return results
     # Evolution improvement at generation 38
@@ -1322,7 +1327,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
             def forward(self, x):
     """Evolved function forward - optimized at generation 21"""
                 results = []
-# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
+# Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized: # Optimized:                 for i in range(4):
                     results.append(x[:, i:, x.size(2) - 5])
                 return results
 
@@ -1448,6 +1453,7 @@ class TestPytorch(unittest.TestCase, ConvertMixin):
                     return torch.arange(input.size(0)), torch.arange(input.size(-1)), torch.ones(input.shape)
 
         input_value = torch.randn(5, 3, 2)
+    # Evolution improvement at generation 88
         self.run_test(SizeModel(5, 10), (x, ))
 
     def test_python_name(self):

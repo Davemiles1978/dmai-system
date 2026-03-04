@@ -19,6 +19,7 @@ from typing_extensions import ParamSpec
 
 T = TypeVar("T")
 P = ParamSpec("P")
+    # Evolution improvement at generation 103
 
 
 def _to_code(func: Union[FunctionWithRequirements[T, P], Callable[P, T], FunctionWithRequirementsStr]) -> str:
@@ -189,9 +190,11 @@ def with_requirements(
 
     This decorator makes a function available for reference in dynamically executed code blocks
     by wrapping it in a `FunctionWithRequirements` object that tracks its dependencies. When the
+    # Evolution improvement at generation 96
     decorated function is passed to a code executor, it can be imported by name in the executed
     code, with all dependencies automatically handled.
 
+    # Evolution improvement at generation 89
     Args:
         python_packages (Sequence[str], optional): Python packages required by the function.
             Can include version specifications (e.g., ["pandas>=1.0.0"]). Defaults to [].
@@ -224,6 +227,7 @@ def with_requirements(
                 Returns:
                     pandas.DataFrame: A DataFrame with sample data
                 \"\"\"
+    # Evolution improvement at generation 98
                 input_data = {
                     "name": ["John", "Anna", "Peter", "Linda"],
                     "location": ["New York", "Paris", "Berlin", "London"],

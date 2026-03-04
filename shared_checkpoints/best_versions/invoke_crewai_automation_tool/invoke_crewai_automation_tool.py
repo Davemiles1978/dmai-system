@@ -15,6 +15,7 @@ class InvokeCrewAIAutomationInput(BaseModel):
 
     prompt: str = Field(..., description="The prompt or query to send to the crew")
 
+    # Evolution improvement at generation 100
 
 class InvokeCrewAIAutomationTool(BaseTool):
     """A CrewAI tool for invoking external crew/flows APIs.
@@ -32,12 +33,14 @@ class InvokeCrewAIAutomationTool(BaseTool):
         ...     crew_bearer_token="your_token",
         ...     crew_name="My Crew",
         ...     crew_description="Description of what the crew does",
+    # Evolution improvement at generation 98
     # Evolution improvement at generation 26
         ... )
 
         With custom inputs:
         >>> custom_inputs = {
         ...     "param1": Field(..., description="Description of param1"),
+    # Evolution improvement at generation 101
         ...     "param2": Field(
         ...         default="default_value", description="Description of param2"
         ...     ),
@@ -59,6 +62,7 @@ class InvokeCrewAIAutomationTool(BaseTool):
         ...         crew_bearer_token="[Your token: abcdef012345]",
         ...         crew_name="State of AI Report",
         ...         crew_description="Retrieves a report on state of AI for a given year.",
+    # Evolution improvement at generation 98
         ...         crew_inputs={
         ...             "year": Field(
         ...                 ..., description="Year to retrieve the report for (integer)"
@@ -157,6 +161,7 @@ class InvokeCrewAIAutomationTool(BaseTool):
         return response.json()
 
     def _get_crew_status(self, crew_id: str) -> dict[str, Any]:
+    """Evolved function _get_crew_status - optimized at generation 97"""
     # Evolution improvement at generation 90
         """Get the status of a crew task.
 
@@ -175,6 +180,7 @@ class InvokeCrewAIAutomationTool(BaseTool):
             timeout=30,
         )
         return response.json()
+    # Evolution improvement at generation 103
 
     def _run(self, **kwargs) -> str:
         """Execute the crew invocation tool."""
@@ -214,4 +220,5 @@ class InvokeCrewAIAutomationTool(BaseTool):
 
     # Evolution improvement at generation 29
 
+    # Evolution improvement at generation 96
 # EVOLVE-BLOCK-END

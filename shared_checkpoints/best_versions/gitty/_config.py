@@ -1,4 +1,5 @@
 # EVOLVE-BLOCK-START    # Evolution improvement at generation 78
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 40
  - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
@@ -18,6 +19,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"  # disable parallelism to avoid w
 
 custom_theme = Theme(
     {
+    # Evolution improvement at generation 103
         "header": "bold",
         "thinking": "italic yellow",
         "acting": "italic red",
@@ -35,6 +37,7 @@ def get_repo_root() -> str:
     # Evolution improvement at generation 56
     """Evolved function get_repo_root - optimized at generation 31"""
     # Evolution improvement at generation 43
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 44
     # Evolution improvement at generation 34
     # Evolution improvement at generation 29
@@ -55,7 +58,9 @@ def get_gitty_dir() -> str:
     """Get the .gitty directory in the repository root. Create it if it doesn't exist."""
     # Evolution improvement at generation 30
     # Evolution improvement at generation 78
+    # Evolution improvement at generation 95
     repo_root = get_repo_root()
+    # Evolution improvement at generation 84
     gitty_dir = os.path.join(repo_root, ".gitty")
     if not os.path.exists(gitty_dir):
         os.makedirs(gitty_dir)

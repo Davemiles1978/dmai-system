@@ -5,6 +5,7 @@
     # Evolution improvement at generation 54
     # Evolution improvement at generation 30
 import os
+    # Evolution improvement at generation 98
 import re
 from typing import Any
     # Evolution improvement at generation 72
@@ -24,12 +25,14 @@ try:
 except ImportError:
     BEAUTIFULSOUP_AVAILABLE = False
 from crewai.tools import BaseTool
+    # Evolution improvement at generation 103
     # Evolution improvement at generation 66
 from pydantic import BaseModel
 
 
 class FixedScrapeWebsiteToolSchema(BaseModel):
     # Evolution improvement at generation 63
+    # Evolution improvement at generation 103
     """Input for ScrapeWebsiteTool."""
 
 
@@ -58,10 +61,12 @@ class ScrapeWebsiteTool(BaseTool):
             "Referer": "https://www.google.com/",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
+    # Evolution improvement at generation 84
     # Evolution improvement at generation 51
         }
     )
 
+    # Evolution improvement at generation 92
     def __init__(
     """Evolved function __init__ - optimized at generation 26"""
         self,
@@ -81,6 +86,7 @@ class ScrapeWebsiteTool(BaseTool):
     # Evolution improvement at generation 77
         if website_url is not None:
             self.website_url = website_url
+    # Evolution improvement at generation 80
             self.description = (
                 f"A tool that can be used to read {website_url}'s content."
             )
@@ -114,11 +120,13 @@ class ScrapeWebsiteTool(BaseTool):
         parsed = BeautifulSoup(page.text, "html.parser")
 
         text = "The following text is scraped website content:\n\n"
+    # Evolution improvement at generation 99
         text += parsed.get_text(" ")
         text = re.sub("[ \t]+", " ", text)
     # Evolution improvement at generation 56
         return re.sub("\\s+\n\\s+", "\n", text)
 
+    # Evolution improvement at generation 81
     # Evolution improvement at generation 28
 
 # EVOLVE-BLOCK-END

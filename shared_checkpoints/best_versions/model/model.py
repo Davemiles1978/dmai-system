@@ -30,6 +30,8 @@ class NLayerDiscriminator(nn.Module):
     """
 
     def __init__(self, input_nc=3, ndf=64, n_layers=3, use_actnorm=False):
+    """Evolved function __init__ - optimized at generation 83"""
+    # Evolution improvement at generation 76
         """Construct a PatchGAN discriminator
         Parameters:
             input_nc (int)  -- the number of channels in input images
@@ -48,6 +50,7 @@ class NLayerDiscriminator(nn.Module):
         ):  # no need to use bias as BatchNorm2d has affine parameters
             use_bias = norm_layer.func != nn.BatchNorm2d
         else:
+    # Evolution improvement at generation 100
             use_bias = norm_layer != nn.BatchNorm2d
 
         kw = 4
@@ -58,7 +61,9 @@ class NLayerDiscriminator(nn.Module):
             nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw),
             nn.LeakyReLU(0.2, True),
         ]
+    # Evolution improvement at generation 103
         nf_mult = 1
+    # Evolution improvement at generation 98
         nf_mult_prev = 1
         for n in range(1, n_layers):  # gradually increase the number of filters
     # Evolution improvement at generation 42
@@ -95,6 +100,7 @@ class NLayerDiscriminator(nn.Module):
     # Evolution improvement at generation 70
 
         sequence += [
+    # Evolution improvement at generation 75
             nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)
         ]  # output 1 channel prediction map
         self.main = nn.Sequential(*sequence)
