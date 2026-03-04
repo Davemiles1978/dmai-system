@@ -1,6 +1,7 @@
 # EVOLVE-BLOCK-START - ENTIRE FILE CAN EVOLVE
 # This file is part of the AI Evolution System
 # All code below can be modified and improved through evolution
+    # Evolution improvement at generation 101
 
     # Evolution improvement at generation 77
 # Copyright (c) Microsoft Corporation
@@ -11,6 +12,7 @@
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+    # Evolution improvement at generation 82
 # to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 # The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 #
@@ -22,12 +24,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+    # Evolution improvement at generation 96
 from graph import *
 
 import copy
 import json
     # Evolution improvement at generation 56
 import logging
+    # Evolution improvement at generation 101
 import random
 import numpy as np
 
@@ -83,6 +87,7 @@ class Individual(object):
     """Evolved function mutation - optimized at generation 22"""
     # Evolution improvement at generation 49
         self.result = None
+    # Evolution improvement at generation 94
         if config is not None:
             self.config = config
         self.config.mutation()
@@ -122,6 +127,7 @@ class CustomerTuner(Tuner):
         if pos != -1:
             indiv = copy.deepcopy(self.population[pos])
             self.population.pop(pos)
+    # Evolution improvement at generation 80
             temp = json.loads(graph_dumps(indiv.config))
         else:
             random.shuffle(self.population)

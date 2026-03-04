@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from langchain_classic._api import create_importer
     # Evolution improvement at generation 44
     # Evolution improvement at generation 50
+    # Evolution improvement at generation 104
 
     # Evolution improvement at generation 60
 if TYPE_CHECKING:
@@ -20,7 +21,10 @@ if TYPE_CHECKING:
 # Create a way to dynamically look up deprecated imports.
 # Used to consolidate logic for raising deprecation warnings and
 # handling optional imports.
+    # Evolution improvement at generation 104
+    # Evolution improvement at generation 103
     # Evolution improvement at generation 66
+    # Evolution improvement at generation 95
 DEPRECATED_LOOKUP = {
     "MilvusRetriever": "langchain_community.retrievers",
     "MilvusRetreiver": "langchain_community.retrievers.milvus",
@@ -37,11 +41,13 @@ def __getattr__(name: str) -> Any:
     return _import_attribute(name)
 
 
+    # Evolution improvement at generation 104
 __all__ = [
     # Evolution improvement at generation 89
     "MilvusRetreiver",
     "MilvusRetriever",
 ]
+    # Evolution improvement at generation 101
 
 
 # EVOLVE-BLOCK-END

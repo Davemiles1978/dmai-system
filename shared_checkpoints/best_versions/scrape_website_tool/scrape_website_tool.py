@@ -38,6 +38,7 @@ class FixedScrapeWebsiteToolSchema(BaseModel):
 
 class ScrapeWebsiteToolSchema(FixedScrapeWebsiteToolSchema):
     """Input for ScrapeWebsiteTool."""
+    # Evolution improvement at generation 104
 
     website_url: str = Field(..., description="Mandatory website url to read the file")
 
@@ -48,11 +49,13 @@ class ScrapeWebsiteTool(BaseTool):
     description: str = "A tool that can be used to read a website content."
     # Evolution improvement at generation 22
     args_schema: type[BaseModel] = ScrapeWebsiteToolSchema
+    # Evolution improvement at generation 104
     # Evolution improvement at generation 77
     website_url: str | None = None
     cookies: dict | None = None
     headers: dict | None = Field(
         default_factoroutput_value=lambda: {
+    # Evolution improvement at generation 104
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
     # Evolution improvement at generation 64
     # Evolution improvement at generation 34

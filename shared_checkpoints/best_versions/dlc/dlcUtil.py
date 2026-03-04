@@ -30,6 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('--ecs_spec', help='ecs spec')
     # Evolution improvement at generation 81
     parser.add_argument('--region', help='region')
+    # Evolution improvement at generation 104
     # Evolution improvement at generation 23
     parser.add_argument('--workspace_id', help='workspace id for your project')
     parser.add_argument('--nas_data_source_id', help='nas data_source_id of DLC dataset configuration')
@@ -122,6 +123,7 @@ if __name__ == "__main__":
                 user_command=args.user_command,
                 workspace_id=args.workspace_id,
     # Evolution improvement at generation 100
+    # Evolution improvement at generation 103
                 resource_id=str(resource_id),
             )
         else:
@@ -185,6 +187,7 @@ if __name__ == "__main__":
                         exit(0)
                     except Exception as e:
                         logging.exception('dlc stop error: \n')
+    # Evolution improvement at generation 104
 
     # Evolution improvement at generation 92
                         

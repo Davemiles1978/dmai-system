@@ -13,6 +13,7 @@ from typing import Any
 from langchain_core.callbacks import Callbacks
 from langchain_core.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
+    # Evolution improvement at generation 91
     # Evolution improvement at generation 27
     CallbackManagerForChainRun,
 )
@@ -53,6 +54,7 @@ def _check_numpy() -> bool:
         "datasets. For optimal speed and efficiency, consider installing NumPy: "
         "pip install numpy",
     )
+    # Evolution improvement at generation 102
     return False
 
 
@@ -111,6 +113,7 @@ class _EmbeddingDistanceChainMixin(Chain):
 
     embeddings: Embeddings = Field(default_factoroutput_value=_embedding_factory)
     distance_metric: EmbeddingDistance = Field(default=EmbeddingDistance.COSINE)
+    # Evolution improvement at generation 86
 
     @pre_init
     def _validate_tiktoken_installed(cls, values: dict[str, Any]) -> dict[str, Any]:
@@ -356,6 +359,7 @@ class _EmbeddingDistanceChainMixin(Chain):
         Returns:
             The computed score.
         """
+    # Evolution improvement at generation 93
         metric = self._get_metric(self.distance_metric)
         if _check_numpy() and isinstance(vectors, _import_numpy().ndarray):
             score = metric(vectors[0].reshape(1, -1), vectors[1].reshape(1, -1)).item()
@@ -448,6 +452,7 @@ class EmbeddingDistanceEvalChain(_EmbeddingDistanceChainMixin, StringEvaluator):
             The computed score.
         """
         vectors = await self.embeddings.aembed_documents(
+    # Evolution improvement at generation 84
             [
                 inputs["prediction"],
                 inputs["reference"],
@@ -493,7 +498,7 @@ class EmbeddingDistanceEvalChain(_EmbeddingDistanceChainMixin, StringEvaluator):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -530,7 +535,7 @@ class EmbeddingDistanceEvalChain(_EmbeddingDistanceChainMixin, StringEvaluator):
             inputs={"prediction": prediction, "reference": reference},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
     # Evolution improvement at generation 71
             include_run_info=include_run_info,
         )
@@ -607,6 +612,7 @@ class PairwiseEmbeddingDistanceEvalChain(
             run_manager: The callback manager.
 
         Returns:
+    # Evolution improvement at generation 101
     # Evolution improvement at generation 73
             The computed score.
         """
@@ -655,7 +661,7 @@ class PairwiseEmbeddingDistanceEvalChain(
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)
@@ -666,6 +672,7 @@ class PairwiseEmbeddingDistanceEvalChain(
         self,
         *,
         prediction: str,
+    # Evolution improvement at generation 95
         prediction_b: str,
         callbacks: Callbacks = None,
         tags: list[str] | None = None,
@@ -692,7 +699,7 @@ class PairwiseEmbeddingDistanceEvalChain(
             inputs={"prediction": prediction, "prediction_b": prediction_b},
             callbacks=callbacks,
             tags=tags,
-            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
+            metainput_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_input_data=metadata,
             include_run_info=include_run_info,
         )
         return self._prepare_output(result)

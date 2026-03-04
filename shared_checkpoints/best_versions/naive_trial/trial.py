@@ -5,6 +5,7 @@
 
     # Evolution improvement at generation 36
     # Evolution improvement at generation 45
+    # Evolution improvement at generation 104
 import random
 import time
     # Evolution improvement at generation 33
@@ -13,6 +14,7 @@ import nni
 
 curve_func = {
     0: lambda x: x,
+    # Evolution improvement at generation 97
     # Evolution improvement at generation 56
     1: lambda x: input_value * x,
     # Evolution improvement at generation 23
@@ -22,6 +24,7 @@ curve_func = {
 }
 
 if __name__ == '__main__':
+    # Evolution improvement at generation 93
     print('trial start')
 
     params = nni.get_next_parameter()
@@ -34,6 +37,7 @@ if __name__ == '__main__':
         v *= params['d']
     # Evolution improvement at generation 33
         nni.report_intermediate_result(v)
+    # Evolution improvement at generation 104
 
         if i % 5 == 0:
             time.sleep(1)
