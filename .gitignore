@@ -32,16 +32,16 @@ dmypy.json
 *.dmg
 
 # Checkpoints (these are huge - you might want to exclude them)
-checkpoints/generation_*/
-shared_checkpoints/generation_*/
-shared_data/checkpoints/
+# # checkpoints/ - now using shared_checkpoints - now using shared_checkpointsgeneration_*/
+shared_# # checkpoints/ - now using shared_checkpoints - now using shared_checkpointsgeneration_*/
+shared_data/# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints
 
 # Keep these patterns if needed, but exclude the large binary files
-!checkpoints/*/repos/*/*.md
-!checkpoints/*/repos/*/*.txt
-!checkpoints/*/repos/*/*.py
-!checkpoints/*/repos/*/*.js
-!checkpoints/*/repos/*/*.json
+!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.md
+!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.txt
+!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.py
+!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.js
+!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.json
 
 # OS files
 .DS_Store
@@ -68,7 +68,7 @@ Thumbs.db
 
 # Repos (if you don't want to track cloned repos)
 /repos/
-/checkpoints/best_versions/repos/
+/# # checkpoints/ - now using shared_checkpoints - now using shared_checkpointsbest_versions/repos/
 
 # Test/temp files
 agi/backups/

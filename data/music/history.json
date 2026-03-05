@@ -1,0 +1,62 @@
+[
+  {
+    "timestamp": "2026-03-04T21:10:56.088530",
+    "artist": "Kraftwerk",
+    "track": null,
+    "rating": 5.217164402425654
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.088930",
+    "artist": "Aretha Franklin",
+    "track": null,
+    "rating": 7.235555360046199
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.089254",
+    "artist": "Nina Simone",
+    "track": null,
+    "rating": 4.299045763072485
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.089576",
+    "artist": "Daft Punk",
+    "track": null,
+    "rating": 6.4208491370307
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.089887",
+    "artist": "Miles Davis",
+    "track": null,
+    "rating": 7.361232398303344
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.090202",
+    "artist": "The Beatles",
+    "track": null,
+    "rating": 6.075068782396185
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.090530",
+    "artist": "Radiohead",
+    "track": null,
+    "rating": 6.255767387643643
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.090867",
+    "artist": "Bach",
+    "track": null,
+    "rating": 6.925661295463465
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.091237",
+    "artist": "Bob Marley",
+    "track": null,
+    "rating": 5.899473068735792
+  },
+  {
+    "timestamp": "2026-03-04T21:10:56.091582",
+    "artist": "Kendrick Lamar",
+    "track": null,
+    "rating": 4.318328930340256
+  }
+]

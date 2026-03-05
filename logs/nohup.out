@@ -1,0 +1,18 @@
+2026-03-05 13:15:08,931 - CORE - INFO - ============================================================
+2026-03-05 13:15:08,931 - CORE - INFO - DMAI CORE INITIALIZED
+2026-03-05 13:15:08,931 - CORE - INFO - ============================================================
+2026-03-05 13:15:08,931 - CORE - INFO - Starting voice service...
+2026-03-05 13:15:08,934 - CORE - INFO - voice started (PID: 42987)
+2026-03-05 13:15:08,934 - CORE - INFO - Starting web_researcher service...
+2026-03-05 13:15:08,936 - CORE - INFO - web_researcher started (PID: 42988)
+2026-03-05 13:15:08,937 - CORE - INFO - Starting dark_researcher service...
+2026-03-05 13:15:08,938 - CORE - INFO - dark_researcher started (PID: 42989)
+2026-03-05 13:15:08,938 - CORE - INFO - Starting book_reader service...
+2026-03-05 13:15:08,940 - CORE - INFO - book_reader started (PID: 42990)
+2026-03-05 13:15:08,940 - CORE - INFO - Starting evolution service...
+2026-03-05 13:15:08,942 - CORE - INFO - evolution started (PID: 42991)
+2026-03-05 13:19:39,025 - CORE - INFO - Vocabulary: 14531 words
+2026-03-05 13:24:39,101 - CORE - INFO - Vocabulary: 14529 words
+2026-03-05 13:29:39,239 - CORE - INFO - Vocabulary: 14522 words
+2026-03-05 13:34:39,404 - CORE - INFO - Vocabulary: 14529 words
+2026-03-05 13:39:39,518 - CORE - INFO - Vocabulary: 14522 words

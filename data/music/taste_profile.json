@@ -1,0 +1,97 @@
+{
+  "electronic": {
+    "affinity": 0.5163801353945635,
+    "exposure": 2,
+    "artists": [
+      "Kraftwerk",
+      "Daft Punk"
+    ]
+  },
+  "soul": {
+    "affinity": 0.5153460112311868,
+    "exposure": 2,
+    "artists": [
+      "Aretha Franklin",
+      "Nina Simone"
+    ]
+  },
+  "r&b": {
+    "affinity": 0.522355553600462,
+    "exposure": 1,
+    "artists": [
+      "Aretha Franklin"
+    ]
+  },
+  "jazz": {
+    "affinity": 0.5166027816137583,
+    "exposure": 2,
+    "artists": [
+      "Nina Simone",
+      "Miles Davis"
+    ]
+  },
+  "blues": {
+    "affinity": 0.49299045763072485,
+    "exposure": 1,
+    "artists": [
+      "Nina Simone"
+    ]
+  },
+  "house": {
+    "affinity": 0.514208491370307,
+    "exposure": 1,
+    "artists": [
+      "Daft Punk"
+    ]
+  },
+  "rock": {
+    "affinity": 0.5233083617003983,
+    "exposure": 2,
+    "artists": [
+      "The Beatles",
+      "Radiohead"
+    ]
+  },
+  "pop": {
+    "affinity": 0.5107506878239618,
+    "exposure": 1,
+    "artists": [
+      "The Beatles"
+    ]
+  },
+  "alternative": {
+    "affinity": 0.5125576738764365,
+    "exposure": 1,
+    "artists": [
+      "Radiohead"
+    ]
+  },
+  "classical": {
+    "affinity": 0.5192566129546347,
+    "exposure": 1,
+    "artists": [
+      "Bach"
+    ]
+  },
+  "baroque": {
+    "affinity": 0.5192566129546347,
+    "exposure": 1,
+    "artists": [
+      "Bach"
+    ]
+  },
+  "reggae": {
+    "affinity": 0.5089947306873579,
+    "exposure": 1,
+    "artists": [
+      "Bob Marley"
+    ]
+  },
+  "hip-hop": {
+    "affinity": 0.49318328930340255,
+    "exposure": 1,
+    "artists": [
+      "Kendrick Lamar"
+    ]
+  }
+}

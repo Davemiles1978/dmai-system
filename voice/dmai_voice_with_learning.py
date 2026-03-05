@@ -42,6 +42,10 @@ class DMAIVoiceWithLearning:
         self.internet_thread.start()
         
     def get_true_vocabulary(self):
+        # Add caching
+        cache_key = f'get_true_vocabulary_'
+        if hasattr(self, '_cache') and cache_key in self._cache:
+            return self._cache[cache_key]
         try:
             vocab_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 
                                       'language_learning', 'data', 'vocabulary.json')

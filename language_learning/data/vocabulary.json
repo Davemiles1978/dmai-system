@@ -1,14 +1,14 @@
 {
   "hello": {
     "first_heard": "2026-03-04T08:18:51.766750",
-    "count": 2,
+    "count": 3,
     "sources": [
       "ambient"
     ]
   },
   "there": {
     "first_heard": "2026-03-04T08:18:51.766759",
-    "count": 1499,
+    "count": 1508,
     "sources": [
       "ambient",
       "wikipedia",
@@ -17,26 +17,28 @@
   },
   "how": {
     "first_heard": "2026-03-04T08:18:51.766761",
-    "count": 706,
+    "count": 749,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "are": {
     "first_heard": "2026-03-04T08:18:51.766762",
-    "count": 1621,
+    "count": 1960,
     "sources": [
       "ambient",
       "wikipedia",
       "pratchett",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "you": {
     "first_heard": "2026-03-04T08:18:51.766763",
-    "count": 4416,
+    "count": 4461,
     "sources": [
       "ambient",
       "book"
@@ -44,7 +46,7 @@
   },
   "today": {
     "first_heard": "2026-03-04T08:18:51.766763",
-    "count": 13,
+    "count": 14,
     "sources": [
       "ambient",
       "book"
@@ -52,7 +54,7 @@
   },
   "i": {
     "first_heard": "2026-03-04T08:18:51.767573",
-    "count": 10792,
+    "count": 10915,
     "sources": [
       "ambient",
       "arxiv",
@@ -70,15 +72,16 @@
   },
   "learning": {
     "first_heard": "2026-03-04T08:18:51.767577",
-    "count": 21,
+    "count": 252,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "new": {
     "first_heard": "2026-03-04T08:18:51.767577",
-    "count": 261,
+    "count": 282,
     "sources": [
       "ambient",
       "wikipedia",
@@ -89,7 +92,7 @@
   },
   "words": {
     "first_heard": "2026-03-04T08:18:51.767578",
-    "count": 208,
+    "count": 209,
     "sources": [
       "ambient",
       "book"
@@ -97,15 +100,16 @@
   },
   "every": {
     "first_heard": "2026-03-04T08:18:51.767579",
-    "count": 442,
+    "count": 464,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "day": {
     "first_heard": "2026-03-04T08:18:51.767580",
-    "count": 508,
+    "count": 515,
     "sources": [
       "ambient",
       "pratchett",
@@ -121,7 +125,7 @@
   },
   "is": {
     "first_heard": "2026-03-04T08:18:51.767862",
-    "count": 5234,
+    "count": 6910,
     "sources": [
       "ambient",
       "wikipedia",
@@ -140,10 +144,11 @@
   },
   "more": {
     "first_heard": "2026-03-04T08:18:51.767863",
-    "count": 1005,
+    "count": 1095,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "intelligent": {
@@ -156,7 +161,7 @@
   },
   "the": {
     "first_heard": "bootstrap",
-    "count": 27470,
+    "count": 30771,
     "sources": [
       "initialization",
       "ambient",
@@ -171,16 +176,17 @@
   },
   "be": {
     "first_heard": "bootstrap",
-    "count": 2720,
+    "count": 2754,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "to": {
     "first_heard": "bootstrap",
-    "count": 13282,
+    "count": 14039,
     "sources": [
       "initialization",
       "ambient",
@@ -194,7 +200,7 @@
   },
   "of": {
     "first_heard": "bootstrap",
-    "count": 14881,
+    "count": 16161,
     "sources": [
       "initialization",
       "ambient",
@@ -209,7 +215,7 @@
   },
   "and": {
     "first_heard": "bootstrap",
-    "count": 15760,
+    "count": 16514,
     "sources": [
       "initialization",
       "ambient",
@@ -223,7 +229,7 @@
   },
   "a": {
     "first_heard": "bootstrap",
-    "count": 11193,
+    "count": 12461,
     "sources": [
       "initialization",
       "ambient",
@@ -232,12 +238,13 @@
       "academic",
       "pratchett",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "in": {
     "first_heard": "bootstrap",
-    "count": 8036,
+    "count": 8740,
     "sources": [
       "initialization",
       "ambient",
@@ -252,37 +259,40 @@
   },
   "that": {
     "first_heard": "bootstrap",
-    "count": 6078,
+    "count": 6330,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "have": {
     "first_heard": "bootstrap",
-    "count": 2449,
+    "count": 2489,
     "sources": [
       "initialization",
       "ambient",
       "news",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "it": {
     "first_heard": "bootstrap",
-    "count": 5873,
+    "count": 5976,
     "sources": [
       "initialization",
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "for": {
     "first_heard": "bootstrap",
-    "count": 3700,
+    "count": 4104,
     "sources": [
       "initialization",
       "ambient",
@@ -295,7 +305,7 @@
   },
   "not": {
     "first_heard": "bootstrap",
-    "count": 3379,
+    "count": 3402,
     "sources": [
       "initialization",
       "ambient",
@@ -305,7 +315,7 @@
   },
   "on": {
     "first_heard": "bootstrap",
-    "count": 2904,
+    "count": 3323,
     "sources": [
       "initialization",
       "ambient",
@@ -317,7 +327,7 @@
   },
   "with": {
     "first_heard": "bootstrap",
-    "count": 3880,
+    "count": 4096,
     "sources": [
       "initialization",
       "ambient",
@@ -329,7 +339,7 @@
   },
   "he": {
     "first_heard": "bootstrap",
-    "count": 4765,
+    "count": 4783,
     "sources": [
       "initialization",
       "ambient",
@@ -339,17 +349,18 @@
   },
   "as": {
     "first_heard": "bootstrap",
-    "count": 3690,
+    "count": 3798,
     "sources": [
       "initialization",
       "ambient",
       "wikipedia",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "do": {
     "first_heard": "bootstrap",
-    "count": 1088,
+    "count": 1102,
     "sources": [
       "initialization",
       "ambient",
@@ -358,17 +369,18 @@
   },
   "at": {
     "first_heard": "bootstrap",
-    "count": 2841,
+    "count": 2928,
     "sources": [
       "initialization",
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "this": {
     "first_heard": "bootstrap",
-    "count": 2561,
+    "count": 2955,
     "sources": [
       "initialization",
       "ambient",
@@ -379,18 +391,19 @@
   },
   "but": {
     "first_heard": "bootstrap",
-    "count": 3570,
+    "count": 3611,
     "sources": [
       "initialization",
       "ambient",
       "news",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "his": {
     "first_heard": "bootstrap",
-    "count": 4489,
+    "count": 4528,
     "sources": [
       "initialization",
       "ambient",
@@ -401,41 +414,44 @@
   },
   "by": {
     "first_heard": "bootstrap",
-    "count": 2434,
+    "count": 2809,
     "sources": [
       "initialization",
       "ambient",
       "pratchett",
       "book",
-      "news"
+      "news",
+      "arxiv"
     ]
   },
   "from": {
     "first_heard": "bootstrap",
-    "count": 2332,
+    "count": 2708,
     "sources": [
       "initialization",
       "ambient",
       "news",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "they": {
     "first_heard": "bootstrap",
-    "count": 1505,
+    "count": 1568,
     "sources": [
       "initialization",
       "ambient",
       "wikipedia",
       "reddit",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "we": {
     "first_heard": "bootstrap",
-    "count": 1303,
+    "count": 1669,
     "sources": [
       "initialization",
       "ambient",
@@ -446,7 +462,7 @@
   },
   "say": {
     "first_heard": "bootstrap",
-    "count": 484,
+    "count": 486,
     "sources": [
       "initialization",
       "ambient",
@@ -455,7 +471,7 @@
   },
   "her": {
     "first_heard": "bootstrap",
-    "count": 3203,
+    "count": 3205,
     "sources": [
       "initialization",
       "ambient",
@@ -464,7 +480,7 @@
   },
   "she": {
     "first_heard": "bootstrap",
-    "count": 3095,
+    "count": 3102,
     "sources": [
       "initialization",
       "ambient",
@@ -474,7 +490,7 @@
   },
   "or": {
     "first_heard": "bootstrap",
-    "count": 1166,
+    "count": 1171,
     "sources": [
       "initialization",
       "ambient",
@@ -483,17 +499,18 @@
   },
   "an": {
     "first_heard": "bootstrap",
-    "count": 1312,
+    "count": 1435,
     "sources": [
       "initialization",
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "will": {
     "first_heard": "bootstrap",
-    "count": 1061,
+    "count": 1088,
     "sources": [
       "initialization",
       "ambient",
@@ -503,7 +520,7 @@
   },
   "my": {
     "first_heard": "bootstrap",
-    "count": 4038,
+    "count": 4045,
     "sources": [
       "initialization",
       "ambient",
@@ -512,16 +529,17 @@
   },
   "one": {
     "first_heard": "bootstrap",
-    "count": 1463,
+    "count": 1485,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "all": {
     "first_heard": "bootstrap",
-    "count": 2202,
+    "count": 2213,
     "sources": [
       "initialization",
       "ambient",
@@ -533,7 +551,7 @@
   },
   "would": {
     "first_heard": "bootstrap",
-    "count": 1252,
+    "count": 1255,
     "sources": [
       "initialization",
       "ambient",
@@ -542,7 +560,7 @@
   },
   "their": {
     "first_heard": "bootstrap",
-    "count": 1008,
+    "count": 1015,
     "sources": [
       "initialization",
       "ambient",
@@ -553,7 +571,7 @@
   },
   "what": {
     "first_heard": "bootstrap",
-    "count": 1444,
+    "count": 1466,
     "sources": [
       "initialization",
       "ambient",
@@ -563,7 +581,7 @@
   },
   "so": {
     "first_heard": "bootstrap",
-    "count": 1835,
+    "count": 1855,
     "sources": [
       "initialization",
       "ambient",
@@ -574,7 +592,7 @@
   },
   "up": {
     "first_heard": "bootstrap",
-    "count": 936,
+    "count": 953,
     "sources": [
       "initialization",
       "ambient",
@@ -584,20 +602,22 @@
   },
   "out": {
     "first_heard": "bootstrap",
-    "count": 981,
+    "count": 1009,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "if": {
     "first_heard": "bootstrap",
-    "count": 1225,
+    "count": 1254,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "about": {
@@ -611,7 +631,7 @@
   },
   "who": {
     "first_heard": "bootstrap",
-    "count": 1438,
+    "count": 1687,
     "sources": [
       "initialization",
       "ambient",
@@ -621,7 +641,7 @@
   },
   "get": {
     "first_heard": "bootstrap",
-    "count": 263,
+    "count": 265,
     "sources": [
       "initialization",
       "ambient",
@@ -630,7 +650,7 @@
   },
   "which": {
     "first_heard": "bootstrap",
-    "count": 2339,
+    "count": 2381,
     "sources": [
       "initialization",
       "ambient",
@@ -641,7 +661,7 @@
   },
   "go": {
     "first_heard": "bootstrap",
-    "count": 401,
+    "count": 407,
     "sources": [
       "initialization",
       "ambient",
@@ -650,7 +670,7 @@
   },
   "me": {
     "first_heard": "bootstrap",
-    "count": 2577,
+    "count": 2586,
     "sources": [
       "initialization",
       "ambient",
@@ -659,11 +679,12 @@
   },
   "when": {
     "first_heard": "bootstrap",
-    "count": 1425,
+    "count": 1469,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "make": {
@@ -677,18 +698,19 @@
   },
   "can": {
     "first_heard": "bootstrap",
-    "count": 766,
+    "count": 815,
     "sources": [
       "initialization",
       "ambient",
       "news",
       "reddit",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "like": {
     "first_heard": "bootstrap",
-    "count": 842,
+    "count": 874,
     "sources": [
       "initialization",
       "ambient",
@@ -698,17 +720,18 @@
   },
   "time": {
     "first_heard": "bootstrap",
-    "count": 749,
+    "count": 798,
     "sources": [
       "initialization",
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "no": {
     "first_heard": "bootstrap",
-    "count": 1563,
+    "count": 1576,
     "sources": [
       "initialization",
       "ambient",
@@ -719,7 +742,7 @@
   },
   "just": {
     "first_heard": "bootstrap",
-    "count": 409,
+    "count": 432,
     "sources": [
       "initialization",
       "ambient",
@@ -729,7 +752,7 @@
   },
   "him": {
     "first_heard": "bootstrap",
-    "count": 1995,
+    "count": 1998,
     "sources": [
       "initialization",
       "ambient",
@@ -738,7 +761,7 @@
   },
   "know": {
     "first_heard": "bootstrap",
-    "count": 653,
+    "count": 661,
     "sources": [
       "initialization",
       "ambient",
@@ -747,17 +770,18 @@
   },
   "take": {
     "first_heard": "bootstrap",
-    "count": 309,
+    "count": 334,
     "sources": [
       "initialization",
       "ambient",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "people": {
     "first_heard": "bootstrap",
-    "count": 156,
+    "count": 161,
     "sources": [
       "initialization",
       "ambient",
@@ -766,7 +790,7 @@
   },
   "into": {
     "first_heard": "bootstrap",
-    "count": 881,
+    "count": 902,
     "sources": [
       "initialization",
       "ambient",
@@ -776,7 +800,7 @@
   },
   "year": {
     "first_heard": "bootstrap",
-    "count": 82,
+    "count": 88,
     "sources": [
       "initialization",
       "ambient",
@@ -786,7 +810,7 @@
   },
   "your": {
     "first_heard": "bootstrap",
-    "count": 1237,
+    "count": 1243,
     "sources": [
       "initialization",
       "ambient",
@@ -796,7 +820,7 @@
   },
   "good": {
     "first_heard": "bootstrap",
-    "count": 535,
+    "count": 542,
     "sources": [
       "initialization",
       "ambient",
@@ -806,7 +830,7 @@
   },
   "some": {
     "first_heard": "bootstrap",
-    "count": 991,
+    "count": 998,
     "sources": [
       "initialization",
       "ambient",
@@ -817,15 +841,17 @@
   },
   "could": {
     "first_heard": "bootstrap",
-    "count": 1184,
+    "count": 1207,
     "sources": [
       "initialization",
-      "book"
+      "book",
+      "arxiv",
+      "ambient"
     ]
   },
   "them": {
     "first_heard": "bootstrap",
-    "count": 1122,
+    "count": 1129,
     "sources": [
       "initialization",
       "ambient",
@@ -836,7 +862,7 @@
   },
   "see": {
     "first_heard": "bootstrap",
-    "count": 700,
+    "count": 704,
     "sources": [
       "initialization",
       "ambient",
@@ -845,7 +871,7 @@
   },
   "other": {
     "first_heard": "bootstrap",
-    "count": 728,
+    "count": 730,
     "sources": [
       "initialization",
       "ambient",
@@ -855,25 +881,27 @@
   },
   "than": {
     "first_heard": "bootstrap",
-    "count": 763,
+    "count": 847,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "then": {
     "first_heard": "bootstrap",
-    "count": 1040,
+    "count": 1086,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "now": {
     "first_heard": "bootstrap",
-    "count": 937,
+    "count": 942,
     "sources": [
       "initialization",
       "ambient",
@@ -892,7 +920,7 @@
   },
   "only": {
     "first_heard": "bootstrap",
-    "count": 726,
+    "count": 727,
     "sources": [
       "initialization",
       "ambient",
@@ -901,7 +929,7 @@
   },
   "come": {
     "first_heard": "bootstrap",
-    "count": 481,
+    "count": 485,
     "sources": [
       "initialization",
       "ambient",
@@ -910,27 +938,29 @@
   },
   "its": {
     "first_heard": "bootstrap",
-    "count": 832,
+    "count": 1164,
     "sources": [
       "initialization",
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "over": {
     "first_heard": "bootstrap",
-    "count": 688,
+    "count": 733,
     "sources": [
       "initialization",
       "ambient",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "think": {
     "first_heard": "bootstrap",
-    "count": 562,
+    "count": 573,
     "sources": [
       "initialization",
       "ambient",
@@ -939,16 +969,17 @@
   },
   "also": {
     "first_heard": "bootstrap",
-    "count": 217,
+    "count": 239,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "back": {
     "first_heard": "bootstrap",
-    "count": 652,
+    "count": 900,
     "sources": [
       "initialization",
       "ambient",
@@ -958,7 +989,7 @@
   },
   "after": {
     "first_heard": "bootstrap",
-    "count": 568,
+    "count": 574,
     "sources": [
       "initialization",
       "ambient",
@@ -970,17 +1001,18 @@
   },
   "use": {
     "first_heard": "bootstrap",
-    "count": 144,
+    "count": 165,
     "sources": [
       "initialization",
       "ambient",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "two": {
     "first_heard": "bootstrap",
-    "count": 601,
+    "count": 643,
     "sources": [
       "initialization",
       "ambient",
@@ -990,38 +1022,43 @@
   },
   "our": {
     "first_heard": "bootstrap",
-    "count": 511,
+    "count": 574,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "work": {
     "first_heard": "bootstrap",
-    "count": 134,
+    "count": 177,
     "sources": [
       "initialization",
-      "book"
+      "book",
+      "arxiv",
+      "ambient"
     ]
   },
   "first": {
     "first_heard": "bootstrap",
-    "count": 666,
+    "count": 712,
     "sources": [
       "initialization",
       "ambient",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "well": {
     "first_heard": "bootstrap",
-    "count": 691,
+    "count": 756,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "way": {
@@ -1035,16 +1072,17 @@
   },
   "even": {
     "first_heard": "bootstrap",
-    "count": 358,
+    "count": 402,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "want": {
     "first_heard": "bootstrap",
-    "count": 144,
+    "count": 153,
     "sources": [
       "initialization",
       "ambient",
@@ -1055,7 +1093,7 @@
   },
   "because": {
     "first_heard": "bootstrap",
-    "count": 177,
+    "count": 182,
     "sources": [
       "initialization",
       "ambient",
@@ -1065,25 +1103,27 @@
   },
   "any": {
     "first_heard": "bootstrap",
-    "count": 655,
+    "count": 677,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "these": {
     "first_heard": "bootstrap",
-    "count": 552,
+    "count": 618,
     "sources": [
       "initialization",
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "give": {
     "first_heard": "bootstrap",
-    "count": 211,
+    "count": 213,
     "sources": [
       "initialization",
       "ambient",
@@ -1092,7 +1132,7 @@
   },
   "most": {
     "first_heard": "bootstrap",
-    "count": 525,
+    "count": 527,
     "sources": [
       "initialization",
       "ambient",
@@ -1101,7 +1141,7 @@
   },
   "us": {
     "first_heard": "bootstrap",
-    "count": 605,
+    "count": 607,
     "sources": [
       "initialization",
       "ambient",
@@ -1144,7 +1184,7 @@
   },
   "m": {
     "first_heard": "2026-03-04T08:30:51.139575",
-    "count": 247,
+    "count": 271,
     "sources": [
       "ambient",
       "book"
@@ -1176,7 +1216,7 @@
   },
   "already": {
     "first_heard": "2026-03-04T08:30:51.139607",
-    "count": 131,
+    "count": 133,
     "sources": [
       "ambient",
       "book"
@@ -1184,7 +1224,7 @@
   },
   "had": {
     "first_heard": "2026-03-04T08:30:51.139608",
-    "count": 3165,
+    "count": 3166,
     "sources": [
       "ambient",
       "book"
@@ -1231,7 +1271,7 @@
   },
   "dog": {
     "first_heard": "2026-03-04T08:30:51.139614",
-    "count": 48,
+    "count": 66,
     "sources": [
       "ambient",
       "pratchett",
@@ -1249,7 +1289,7 @@
   },
   "sorry": {
     "first_heard": "2026-03-04T08:31:15.531038",
-    "count": 44,
+    "count": 45,
     "sources": [
       "ambient",
       "book"
@@ -1257,7 +1297,7 @@
   },
   "keep": {
     "first_heard": "2026-03-04T08:31:15.531077",
-    "count": 102,
+    "count": 105,
     "sources": [
       "ambient",
       "book"
@@ -1265,7 +1305,7 @@
   },
   "ready": {
     "first_heard": "2026-03-04T08:33:13.844745",
-    "count": 95,
+    "count": 104,
     "sources": [
       "ambient",
       "pratchett",
@@ -1274,21 +1314,21 @@
   },
   "currently": {
     "first_heard": "2026-03-04T08:33:13.844765",
-    "count": 4,
+    "count": 6,
     "sources": [
       "ambient"
     ]
   },
   "jarvis": {
     "first_heard": "2026-03-04T08:33:13.844769",
-    "count": 3,
+    "count": 4,
     "sources": [
       "ambient"
     ]
   },
   "need": {
     "first_heard": "2026-03-04T08:33:13.844772",
-    "count": 59,
+    "count": 61,
     "sources": [
       "ambient",
       "academic",
@@ -1304,7 +1344,7 @@
   },
   "voice": {
     "first_heard": "2026-03-04T08:33:36.253146",
-    "count": 204,
+    "count": 206,
     "sources": [
       "ambient",
       "book"
@@ -1312,7 +1352,7 @@
   },
   "fucking": {
     "first_heard": "2026-03-04T08:33:36.253148",
-    "count": 16,
+    "count": 18,
     "sources": [
       "ambient"
     ]
@@ -1334,10 +1374,11 @@
   },
   "hope": {
     "first_heard": "2026-03-04T08:35:09.308749",
-    "count": 212,
+    "count": 234,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "gonna": {
@@ -1349,10 +1390,11 @@
   },
   "close": {
     "first_heard": "2026-03-04T08:35:32.529619",
-    "count": 95,
+    "count": 116,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "terminal": {
@@ -1372,7 +1414,7 @@
   },
   "sure": {
     "first_heard": "2026-03-04T08:37:03.768322",
-    "count": 221,
+    "count": 223,
     "sources": [
       "ambient",
       "book"
@@ -1380,7 +1422,7 @@
   },
   "thing": {
     "first_heard": "2026-03-04T08:37:03.768339",
-    "count": 262,
+    "count": 266,
     "sources": [
       "ambient",
       "book"
@@ -1396,7 +1438,7 @@
   },
   "let": {
     "first_heard": "2026-03-04T08:37:50.618953",
-    "count": 289,
+    "count": 295,
     "sources": [
       "ambient",
       "book"
@@ -1404,18 +1446,19 @@
   },
   "s": {
     "first_heard": "2026-03-04T08:37:50.618971",
-    "count": 2626,
+    "count": 3008,
     "sources": [
       "ambient",
       "news",
       "reddit",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "another": {
     "first_heard": "2026-03-04T08:37:50.618977",
-    "count": 240,
+    "count": 246,
     "sources": [
       "ambient",
       "pratchett",
@@ -1424,10 +1467,11 @@
   },
   "both": {
     "first_heard": "2026-03-04T08:37:50.618979",
-    "count": 182,
+    "count": 266,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "explain": {
@@ -1448,7 +1492,7 @@
   },
   "nobody": {
     "first_heard": "2026-03-04T08:38:36.257646",
-    "count": 36,
+    "count": 37,
     "sources": [
       "ambient",
       "book"
@@ -1456,7 +1500,7 @@
   },
   "said": {
     "first_heard": "2026-03-04T08:38:36.257670",
-    "count": 2106,
+    "count": 2108,
     "sources": [
       "ambient",
       "book"
@@ -1534,7 +1578,7 @@
   },
   "four": {
     "first_heard": "2026-03-04T08:45:59.523857",
-    "count": 479,
+    "count": 732,
     "sources": [
       "ambient",
       "pratchett",
@@ -1566,7 +1610,7 @@
   },
   "still": {
     "first_heard": "2026-03-04T08:45:59.523865",
-    "count": 324,
+    "count": 325,
     "sources": [
       "ambient",
       "book"
@@ -1582,7 +1626,7 @@
   },
   "very": {
     "first_heard": "2026-03-04T08:46:20.560453",
-    "count": 1410,
+    "count": 1411,
     "sources": [
       "ambient",
       "book"
@@ -1613,7 +1657,7 @@
   },
   "here": {
     "first_heard": "2026-03-04T08:46:20.560480",
-    "count": 489,
+    "count": 494,
     "sources": [
       "ambient",
       "book"
@@ -1637,7 +1681,7 @@
   },
   "don": {
     "first_heard": "2026-03-04T08:46:46.325078",
-    "count": 256,
+    "count": 270,
     "sources": [
       "ambient",
       "pratchett",
@@ -1646,7 +1690,7 @@
   },
   "t": {
     "first_heard": "2026-03-04T08:46:46.325079",
-    "count": 789,
+    "count": 807,
     "sources": [
       "ambient",
       "reddit",
@@ -1664,7 +1708,7 @@
   },
   "question": {
     "first_heard": "2026-03-04T08:46:46.325088",
-    "count": 122,
+    "count": 123,
     "sources": [
       "ambient",
       "book"
@@ -1703,7 +1747,7 @@
   },
   "information": {
     "first_heard": "2026-03-04T08:46:46.325097",
-    "count": 426,
+    "count": 468,
     "sources": [
       "ambient",
       "arxiv",
@@ -1734,7 +1778,7 @@
   },
   "re": {
     "first_heard": "2026-03-04T08:47:06.736964",
-    "count": 119,
+    "count": 132,
     "sources": [
       "ambient",
       "pratchett",
@@ -1758,14 +1802,14 @@
   },
   "anyway": {
     "first_heard": "2026-03-04T08:47:06.737001",
-    "count": 3,
+    "count": 4,
     "sources": [
       "ambient"
     ]
   },
   "got": {
     "first_heard": "2026-03-04T08:47:06.737003",
-    "count": 210,
+    "count": 214,
     "sources": [
       "ambient",
       "book"
@@ -1819,7 +1863,7 @@
   },
   "hell": {
     "first_heard": "2026-03-04T08:47:30.310095",
-    "count": 28,
+    "count": 29,
     "sources": [
       "ambient",
       "book"
@@ -1835,7 +1879,7 @@
   },
   "off": {
     "first_heard": "2026-03-04T08:47:30.310119",
-    "count": 389,
+    "count": 390,
     "sources": [
       "ambient",
       "news",
@@ -1859,7 +1903,7 @@
   },
   "fuck": {
     "first_heard": "2026-03-04T08:47:53.886329",
-    "count": 6,
+    "count": 8,
     "sources": [
       "ambient"
     ]
@@ -1874,7 +1918,7 @@
   },
   "where": {
     "first_heard": "2026-03-04T08:48:16.604144",
-    "count": 383,
+    "count": 384,
     "sources": [
       "ambient",
       "wikipedia",
@@ -1883,7 +1927,7 @@
   },
   "did": {
     "first_heard": "2026-03-04T08:48:16.604163",
-    "count": 765,
+    "count": 766,
     "sources": [
       "ambient",
       "book"
@@ -1912,7 +1956,7 @@
   },
   "yeah": {
     "first_heard": "2026-03-04T08:50:12.529721",
-    "count": 18,
+    "count": 36,
     "sources": [
       "ambient"
     ]
@@ -1935,7 +1979,7 @@
   },
   "dark": {
     "first_heard": "2026-03-04T08:50:58.943545",
-    "count": 117,
+    "count": 118,
     "sources": [
       "ambient",
       "book"
@@ -2014,16 +2058,17 @@
   },
   "world": {
     "first_heard": "2026-03-04T08:52:32.730106",
-    "count": 288,
+    "count": 327,
     "sources": [
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "meeting": {
     "first_heard": "2026-03-04T08:55:14.317511",
-    "count": 36,
+    "count": 37,
     "sources": [
       "ambient",
       "book"
@@ -2031,7 +2076,7 @@
   },
   "moment": {
     "first_heard": "2026-03-04T08:55:14.317531",
-    "count": 206,
+    "count": 209,
     "sources": [
       "ambient",
       "book"
@@ -2039,7 +2084,7 @@
   },
   "arms": {
     "first_heard": "2026-03-04T08:55:14.317537",
-    "count": 58,
+    "count": 64,
     "sources": [
       "ambient",
       "pratchett",
@@ -2055,7 +2100,7 @@
   },
   "mean": {
     "first_heard": "2026-03-04T08:55:37.570870",
-    "count": 141,
+    "count": 147,
     "sources": [
       "ambient",
       "book"
@@ -2095,7 +2140,7 @@
   },
   "knows": {
     "first_heard": "2026-03-04T08:55:37.570926",
-    "count": 55,
+    "count": 61,
     "sources": [
       "ambient",
       "pratchett",
@@ -2112,7 +2157,7 @@
   },
   "english": {
     "first_heard": "2026-03-04T08:56:00.646012",
-    "count": 53,
+    "count": 59,
     "sources": [
       "ambient",
       "pratchett",
@@ -2121,10 +2166,11 @@
   },
   "language": {
     "first_heard": "2026-03-04T08:56:00.646035",
-    "count": 53,
+    "count": 74,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "filters": {
@@ -2152,15 +2198,16 @@
   },
   "better": {
     "first_heard": "2026-03-04T08:56:00.646042",
-    "count": 246,
+    "count": 267,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "goes": {
     "first_heard": "2026-03-04T08:56:00.646050",
-    "count": 49,
+    "count": 51,
     "sources": [
       "ambient",
       "book"
@@ -2168,7 +2215,7 @@
   },
   "second": {
     "first_heard": "2026-03-04T08:56:23.955447",
-    "count": 94,
+    "count": 95,
     "sources": [
       "ambient",
       "book"
@@ -2176,18 +2223,20 @@
   },
   "much": {
     "first_heard": "2026-03-04T08:56:23.955484",
-    "count": 699,
+    "count": 720,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "should": {
     "first_heard": "2026-03-04T08:57:10.643443",
-    "count": 692,
+    "count": 714,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "turn": {
@@ -2200,7 +2249,7 @@
   },
   "light": {
     "first_heard": "2026-03-04T08:57:10.643470",
-    "count": 179,
+    "count": 185,
     "sources": [
       "ambient",
       "pratchett",
@@ -2224,7 +2273,7 @@
   },
   "was": {
     "first_heard": "2026-03-04T08:58:46.124084",
-    "count": 5572,
+    "count": 5576,
     "sources": [
       "ambient",
       "book"
@@ -2280,7 +2329,7 @@
   },
   "really": {
     "first_heard": "2026-03-04T09:02:13.922331",
-    "count": 185,
+    "count": 186,
     "sources": [
       "ambient",
       "book"
@@ -2296,7 +2345,7 @@
   },
   "going": {
     "first_heard": "2026-03-04T09:02:13.922355",
-    "count": 231,
+    "count": 259,
     "sources": [
       "ambient",
       "pratchett",
@@ -2313,7 +2362,7 @@
   },
   "okay": {
     "first_heard": "2026-03-04T09:03:21.523052",
-    "count": 9,
+    "count": 19,
     "sources": [
       "ambient"
     ]
@@ -2336,7 +2385,7 @@
   },
   "exactly": {
     "first_heard": "2026-03-04T09:05:40.569049",
-    "count": 69,
+    "count": 70,
     "sources": [
       "ambient",
       "book"
@@ -2361,7 +2410,7 @@
   },
   "stage": {
     "first_heard": "2026-03-04T09:05:40.569054",
-    "count": 23,
+    "count": 24,
     "sources": [
       "ambient",
       "book"
@@ -2369,7 +2418,7 @@
   },
   "yes": {
     "first_heard": "2026-03-04T09:06:03.873311",
-    "count": 240,
+    "count": 245,
     "sources": [
       "ambient",
       "book"
@@ -2377,7 +2426,7 @@
   },
   "ve": {
     "first_heard": "2026-03-04T09:06:03.873374",
-    "count": 125,
+    "count": 126,
     "sources": [
       "ambient",
       "book"
@@ -2385,7 +2434,7 @@
   },
   "always": {
     "first_heard": "2026-03-04T09:06:03.873376",
-    "count": 274,
+    "count": 277,
     "sources": [
       "ambient",
       "book"
@@ -2456,7 +2505,7 @@
   },
   "move": {
     "first_heard": "2026-03-04T09:17:17.439989",
-    "count": 23,
+    "count": 25,
     "sources": [
       "ambient",
       "book"
@@ -2472,7 +2521,7 @@
   },
   "next": {
     "first_heard": "2026-03-04T09:17:17.439993",
-    "count": 206,
+    "count": 212,
     "sources": [
       "ambient",
       "pratchett",
@@ -2505,7 +2554,7 @@
   },
   "old": {
     "first_heard": "2026-03-04T09:17:40.430785",
-    "count": 428,
+    "count": 434,
     "sources": [
       "ambient",
       "pratchett",
@@ -2530,7 +2579,7 @@
   },
   "saying": {
     "first_heard": "2026-03-04T09:17:40.430789",
-    "count": 95,
+    "count": 96,
     "sources": [
       "ambient",
       "book"
@@ -2561,11 +2610,12 @@
   },
   "has": {
     "first_heard": "2026-03-04T09:18:03.470754",
-    "count": 999,
+    "count": 1344,
     "sources": [
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "physical": {
@@ -2578,7 +2628,7 @@
   },
   "city": {
     "first_heard": "2026-03-04T09:18:03.470761",
-    "count": 703,
+    "count": 1197,
     "sources": [
       "ambient",
       "pratchett",
@@ -2587,7 +2637,7 @@
   },
   "place": {
     "first_heard": "2026-03-04T09:18:03.470765",
-    "count": 233,
+    "count": 234,
     "sources": [
       "ambient",
       "book"
@@ -2611,7 +2661,7 @@
   },
   "ll": {
     "first_heard": "2026-03-04T09:18:49.829522",
-    "count": 220,
+    "count": 223,
     "sources": [
       "ambient",
       "book"
@@ -2619,7 +2669,7 @@
   },
   "last": {
     "first_heard": "2026-03-04T09:18:49.829524",
-    "count": 400,
+    "count": 419,
     "sources": [
       "ambient",
       "pratchett",
@@ -2636,7 +2686,7 @@
   },
   "put": {
     "first_heard": "2026-03-04T09:18:49.829526",
-    "count": 208,
+    "count": 212,
     "sources": [
       "ambient",
       "book"
@@ -2644,10 +2694,11 @@
   },
   "able": {
     "first_heard": "2026-03-04T09:18:49.829529",
-    "count": 94,
+    "count": 118,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "weighed": {
@@ -2676,7 +2727,7 @@
   },
   "feel": {
     "first_heard": "2026-03-04T09:19:17.702784",
-    "count": 130,
+    "count": 131,
     "sources": [
       "ambient",
       "book"
@@ -2684,7 +2735,7 @@
   },
   "small": {
     "first_heard": "2026-03-04T09:19:17.702790",
-    "count": 188,
+    "count": 196,
     "sources": [
       "ambient",
       "wikipedia",
@@ -2702,7 +2753,7 @@
   },
   "looks": {
     "first_heard": "2026-03-04T09:19:17.702793",
-    "count": 49,
+    "count": 50,
     "sources": [
       "ambient",
       "book"
@@ -2786,10 +2837,11 @@
   },
   "travel": {
     "first_heard": "2026-03-04T09:21:32.363937",
-    "count": 19,
+    "count": 40,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "chaos": {
@@ -2825,7 +2877,7 @@
   },
   "coming": {
     "first_heard": "2026-03-04T09:22:18.663181",
-    "count": 119,
+    "count": 132,
     "sources": [
       "ambient",
       "pratchett",
@@ -2834,10 +2886,11 @@
   },
   "why": {
     "first_heard": "2026-03-04T09:22:18.663182",
-    "count": 299,
+    "count": 327,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "targeting": {
@@ -2897,7 +2950,7 @@
   },
   "doing": {
     "first_heard": "2026-03-04T09:23:05.215974",
-    "count": 72,
+    "count": 82,
     "sources": [
       "ambient",
       "book"
@@ -2945,7 +2998,7 @@
   },
   "lot": {
     "first_heard": "2026-03-04T09:23:28.255513",
-    "count": 23,
+    "count": 24,
     "sources": [
       "ambient",
       "book"
@@ -2969,7 +3022,7 @@
   },
   "doesn": {
     "first_heard": "2026-03-04T09:23:28.255522",
-    "count": 38,
+    "count": 40,
     "sources": [
       "ambient",
       "book"
@@ -2985,15 +3038,16 @@
   },
   "key": {
     "first_heard": "2026-03-04T09:23:51.606792",
-    "count": 43,
+    "count": 64,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "death": {
     "first_heard": "2026-03-04T09:23:51.606859",
-    "count": 477,
+    "count": 730,
     "sources": [
       "ambient",
       "pratchett",
@@ -3064,10 +3118,11 @@
   },
   "attack": {
     "first_heard": "2026-03-04T09:24:37.918892",
-    "count": 11,
+    "count": 53,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "changing": {
@@ -3104,7 +3159,7 @@
   },
   "guards": {
     "first_heard": "2026-03-04T09:25:01.181227",
-    "count": 17,
+    "count": 29,
     "sources": [
       "ambient",
       "pratchett"
@@ -3159,11 +3214,12 @@
   },
   "power": {
     "first_heard": "2026-03-04T09:25:24.419815",
-    "count": 96,
+    "count": 165,
     "sources": [
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "rather": {
@@ -3192,11 +3248,12 @@
   },
   "control": {
     "first_heard": "2026-03-04T09:25:24.419823",
-    "count": 14,
+    "count": 98,
     "sources": [
       "ambient",
       "academic",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "military": {
@@ -3223,7 +3280,7 @@
   },
   "bill": {
     "first_heard": "2026-03-04T09:25:47.541289",
-    "count": 49,
+    "count": 50,
     "sources": [
       "ambient",
       "book"
@@ -3253,7 +3310,7 @@
   },
   "before": {
     "first_heard": "2026-03-04T09:25:47.541307",
-    "count": 703,
+    "count": 704,
     "sources": [
       "ambient",
       "book"
@@ -3322,10 +3379,11 @@
   },
   "exposed": {
     "first_heard": "2026-03-04T09:26:11.071670",
-    "count": 15,
+    "count": 36,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "rooftop": {
@@ -3411,7 +3469,7 @@
   },
   "live": {
     "first_heard": "2026-03-04T09:26:33.992536",
-    "count": 93,
+    "count": 94,
     "sources": [
       "ambient",
       "book"
@@ -3419,7 +3477,7 @@
   },
   "board": {
     "first_heard": "2026-03-04T09:26:57.296209",
-    "count": 143,
+    "count": 144,
     "sources": [
       "ambient",
       "news",
@@ -3451,9 +3509,10 @@
   },
   "areas": {
     "first_heard": "2026-03-04T09:26:57.296282",
-    "count": 1,
+    "count": 22,
     "sources": [
-      "ambient"
+      "ambient",
+      "arxiv"
     ]
   },
   "country": {
@@ -3481,7 +3540,7 @@
   },
   "right": {
     "first_heard": "2026-03-04T09:26:57.296307",
-    "count": 270,
+    "count": 275,
     "sources": [
       "ambient",
       "book"
@@ -3489,7 +3548,7 @@
   },
   "side": {
     "first_heard": "2026-03-04T09:26:57.296309",
-    "count": 240,
+    "count": 241,
     "sources": [
       "ambient",
       "book"
@@ -3497,10 +3556,11 @@
   },
   "paper": {
     "first_heard": "2026-03-04T09:26:57.296313",
-    "count": 91,
+    "count": 133,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "bench": {
@@ -3544,10 +3604,11 @@
   },
   "area": {
     "first_heard": "2026-03-04T09:27:20.559178",
-    "count": 7,
+    "count": 28,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "starts": {
@@ -3559,10 +3620,11 @@
   },
   "understanding": {
     "first_heard": "2026-03-04T09:27:20.559181",
-    "count": 34,
+    "count": 55,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "cars": {
@@ -3606,21 +3668,23 @@
   },
   "been": {
     "first_heard": "2026-03-04T09:28:06.965709",
-    "count": 1195,
+    "count": 1253,
     "sources": [
       "ambient",
       "news",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "three": {
     "first_heard": "2026-03-04T09:28:06.965710",
-    "count": 265,
+    "count": 286,
     "sources": [
       "ambient",
       "wikipedia",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "casualties": {
@@ -3671,7 +3735,7 @@
   },
   "nothing": {
     "first_heard": "2026-03-04T09:28:53.324886",
-    "count": 481,
+    "count": 482,
     "sources": [
       "ambient",
       "book"
@@ -3679,7 +3743,7 @@
   },
   "earlier": {
     "first_heard": "2026-03-04T09:28:53.325505",
-    "count": 19,
+    "count": 21,
     "sources": [
       "ambient",
       "book"
@@ -3828,9 +3892,10 @@
   },
   "potential": {
     "first_heard": "2026-03-04T09:30:02.937741",
-    "count": 1,
+    "count": 22,
     "sources": [
-      "ambient"
+      "ambient",
+      "arxiv"
     ]
   },
   "americans": {
@@ -3953,7 +4018,7 @@
   },
   "ever": {
     "first_heard": "2026-03-04T09:32:45.547475",
-    "count": 382,
+    "count": 383,
     "sources": [
       "ambient",
       "book"
@@ -3961,7 +4026,7 @@
   },
   "flying": {
     "first_heard": "2026-03-04T09:32:45.547491",
-    "count": 25,
+    "count": 26,
     "sources": [
       "ambient",
       "book"
@@ -3969,7 +4034,7 @@
   },
   "feet": {
     "first_heard": "2026-03-04T09:32:45.547493",
-    "count": 463,
+    "count": 716,
     "sources": [
       "ambient",
       "pratchett",
@@ -3986,7 +4051,7 @@
   },
   "bit": {
     "first_heard": "2026-03-04T09:32:45.547496",
-    "count": 70,
+    "count": 74,
     "sources": [
       "ambient",
       "book"
@@ -4002,7 +4067,7 @@
   },
   "young": {
     "first_heard": "2026-03-04T09:33:08.761044",
-    "count": 377,
+    "count": 383,
     "sources": [
       "ambient",
       "pratchett",
@@ -4018,10 +4083,11 @@
   },
   "best": {
     "first_heard": "2026-03-04T09:33:08.761094",
-    "count": 133,
+    "count": 154,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "level": {
@@ -4042,11 +4108,12 @@
   },
   "higher": {
     "first_heard": "2026-03-04T09:33:08.761107",
-    "count": 92,
+    "count": 134,
     "sources": [
       "ambient",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "izambiles": {
@@ -4065,7 +4132,7 @@
   },
   "models": {
     "first_heard": "2026-03-04T09:34:20.412169",
-    "count": 196,
+    "count": 238,
     "sources": [
       "ambient",
       "arxiv"
@@ -4118,7 +4185,7 @@
   },
   "never": {
     "first_heard": "2026-03-04T09:35:53.332218",
-    "count": 621,
+    "count": 627,
     "sources": [
       "ambient",
       "book"
@@ -4180,7 +4247,7 @@
   },
   "find": {
     "first_heard": "2026-03-04T09:36:37.472998",
-    "count": 238,
+    "count": 239,
     "sources": [
       "ambient",
       "book"
@@ -4235,7 +4302,7 @@
   },
   "job": {
     "first_heard": "2026-03-04T09:37:25.412592",
-    "count": 7,
+    "count": 8,
     "sources": [
       "ambient",
       "book"
@@ -4266,10 +4333,11 @@
   },
   "too": {
     "first_heard": "2026-03-04T09:39:45.063534",
-    "count": 359,
+    "count": 382,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "crimson": {
@@ -4282,7 +4350,7 @@
   },
   "thank": {
     "first_heard": "2026-03-04T09:40:29.554226",
-    "count": 68,
+    "count": 71,
     "sources": [
       "ambient",
       "book"
@@ -4298,7 +4366,7 @@
   },
   "trouble": {
     "first_heard": "2026-03-04T09:41:17.270503",
-    "count": 43,
+    "count": 44,
     "sources": [
       "ambient",
       "book"
@@ -4322,7 +4390,7 @@
   },
   "oh": {
     "first_heard": "2026-03-04T09:41:17.270517",
-    "count": 300,
+    "count": 301,
     "sources": [
       "ambient",
       "book"
@@ -4330,10 +4398,11 @@
   },
   "far": {
     "first_heard": "2026-03-04T09:41:17.270520",
-    "count": 223,
+    "count": 265,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "laughing": {
@@ -4346,7 +4415,7 @@
   },
   "try": {
     "first_heard": "2026-03-04T09:41:17.270534",
-    "count": 84,
+    "count": 90,
     "sources": [
       "ambient",
       "pratchett",
@@ -4370,7 +4439,7 @@
   },
   "phone": {
     "first_heard": "2026-03-04T09:41:17.270538",
-    "count": 1,
+    "count": 4,
     "sources": [
       "ambient"
     ]
@@ -4391,7 +4460,7 @@
   },
   "bad": {
     "first_heard": "2026-03-04T09:46:41.067456",
-    "count": 51,
+    "count": 54,
     "sources": [
       "ambient",
       "book"
@@ -4399,7 +4468,7 @@
   },
   "d": {
     "first_heard": "2026-03-04T09:47:52.797177",
-    "count": 94,
+    "count": 95,
     "sources": [
       "ambient",
       "book"
@@ -4454,7 +4523,7 @@
   },
   "internet": {
     "first_heard": "2026-03-04T09:49:46.491623",
-    "count": 2,
+    "count": 4,
     "sources": [
       "ambient"
     ]
@@ -4468,10 +4537,11 @@
   },
   "set": {
     "first_heard": "2026-03-04T09:50:09.789258",
-    "count": 129,
+    "count": 192,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "scary": {
@@ -4507,14 +4577,14 @@
   },
   "definitely": {
     "first_heard": "2026-03-04T09:51:42.715383",
-    "count": 1,
+    "count": 2,
     "sources": [
       "ambient"
     ]
   },
   "planning": {
     "first_heard": "2026-03-04T09:51:42.715444",
-    "count": 6,
+    "count": 7,
     "sources": [
       "ambient",
       "book"
@@ -4522,7 +4592,7 @@
   },
   "full": {
     "first_heard": "2026-03-04T09:51:42.715461",
-    "count": 451,
+    "count": 704,
     "sources": [
       "ambient",
       "pratchett",
@@ -4547,10 +4617,11 @@
   },
   "diving": {
     "first_heard": "2026-03-04T09:51:42.715470",
-    "count": 3,
+    "count": 24,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "gasses": {
@@ -4585,7 +4656,7 @@
   },
   "food": {
     "first_heard": "2026-03-04T09:52:05.839675",
-    "count": 48,
+    "count": 50,
     "sources": [
       "ambient",
       "book"
@@ -4601,7 +4672,7 @@
   },
   "moving": {
     "first_heard": "2026-03-04T09:52:05.839678",
-    "count": 39,
+    "count": 45,
     "sources": [
       "ambient",
       "pratchett",
@@ -4610,11 +4681,12 @@
   },
   "little": {
     "first_heard": "2026-03-04T09:52:31.004856",
-    "count": 947,
+    "count": 972,
     "sources": [
       "ambient",
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "ham": {
@@ -4657,10 +4729,11 @@
   },
   "setting": {
     "first_heard": "2026-03-04T09:54:48.531471",
-    "count": 17,
+    "count": 59,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "najleps": {
@@ -4680,7 +4753,7 @@
   },
   "white": {
     "first_heard": "2026-03-04T09:55:13.511222",
-    "count": 133,
+    "count": 135,
     "sources": [
       "ambient",
       "book"
@@ -4702,7 +4775,7 @@
   },
   "ok": {
     "first_heard": "2026-03-04T09:55:36.579505",
-    "count": 2,
+    "count": 3,
     "sources": [
       "ambient"
     ]
@@ -4717,7 +4790,7 @@
   },
   "wait": {
     "first_heard": "2026-03-04T09:56:00.152530",
-    "count": 45,
+    "count": 46,
     "sources": [
       "ambient",
       "book"
@@ -4733,7 +4806,7 @@
   },
   "during": {
     "first_heard": "2026-03-04T09:56:00.152593",
-    "count": 150,
+    "count": 151,
     "sources": [
       "ambient",
       "wikipedia",
@@ -4829,7 +4902,7 @@
   },
   "hot": {
     "first_heard": "2026-03-04T10:01:23.575225",
-    "count": 45,
+    "count": 52,
     "sources": [
       "ambient",
       "book"
@@ -4881,7 +4954,7 @@
   },
   "again": {
     "first_heard": "2026-03-04T10:31:12.373734",
-    "count": 553,
+    "count": 554,
     "sources": [
       "ambient",
       "book"
@@ -4905,7 +4978,7 @@
   },
   "guys": {
     "first_heard": "2026-03-04T10:46:17.717783",
-    "count": 1,
+    "count": 2,
     "sources": [
       "ambient"
     ]
@@ -4927,7 +5000,7 @@
   },
   "device": {
     "first_heard": "2026-03-04T10:47:27.291754",
-    "count": 14,
+    "count": 20,
     "sources": [
       "ambient",
       "pratchett",
@@ -4958,7 +5031,7 @@
   },
   "name": {
     "first_heard": "2026-03-04T10:48:13.939681",
-    "count": 153,
+    "count": 154,
     "sources": [
       "ambient",
       "book"
@@ -4980,10 +5053,11 @@
   },
   "real": {
     "first_heard": "2026-03-04T10:48:13.939811",
-    "count": 65,
+    "count": 108,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "annoyed": {
@@ -5012,10 +5086,11 @@
   },
   "using": {
     "first_heard": "2026-03-04T10:48:38.017179",
-    "count": 21,
+    "count": 84,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "command": {
@@ -5051,7 +5126,7 @@
   },
   "started": {
     "first_heard": "2026-03-04T10:52:28.948466",
-    "count": 53,
+    "count": 56,
     "sources": [
       "ambient",
       "book"
@@ -5074,18 +5149,20 @@
   },
   "different": {
     "first_heard": "2026-03-04T10:54:01.534923",
-    "count": 105,
+    "count": 147,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "approach": {
     "first_heard": "2026-03-04T10:54:01.534928",
-    "count": 25,
+    "count": 151,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tour": {
@@ -5098,7 +5175,7 @@
   },
   "else": {
     "first_heard": "2026-03-04T10:54:24.879111",
-    "count": 130,
+    "count": 131,
     "sources": [
       "ambient",
       "book"
@@ -5115,7 +5192,7 @@
   },
   "making": {
     "first_heard": "2026-03-04T10:57:07.150615",
-    "count": 105,
+    "count": 111,
     "sources": [
       "ambient",
       "pratchett",
@@ -5154,7 +5231,7 @@
   },
   "figure": {
     "first_heard": "2026-03-04T11:00:12.888869",
-    "count": 63,
+    "count": 64,
     "sources": [
       "ambient",
       "book"
@@ -5177,7 +5254,7 @@
   },
   "money": {
     "first_heard": "2026-03-04T11:15:20.329067",
-    "count": 81,
+    "count": 87,
     "sources": [
       "ambient",
       "pratchett",
@@ -5194,7 +5271,7 @@
   },
   "check": {
     "first_heard": "2026-03-04T11:21:07.577761",
-    "count": 7,
+    "count": 8,
     "sources": [
       "ambient",
       "book"
@@ -5202,10 +5279,11 @@
   },
   "deep": {
     "first_heard": "2026-03-04T11:21:07.577776",
-    "count": 115,
+    "count": 220,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "red": {
@@ -5235,10 +5313,11 @@
   },
   "works": {
     "first_heard": "2026-03-04T11:30:01.128484",
-    "count": 29,
+    "count": 50,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "folders": {
@@ -5250,7 +5329,7 @@
   },
   "vocabulary": {
     "first_heard": "2026-03-04T11:30:01.128628",
-    "count": 329,
+    "count": 576,
     "sources": [
       "ambient",
       "pratchett"
@@ -5258,7 +5337,7 @@
   },
   "massive": {
     "first_heard": "2026-03-04T11:30:01.128629",
-    "count": 7,
+    "count": 8,
     "sources": [
       "ambient",
       "book"
@@ -5336,7 +5415,7 @@
   },
   "please": {
     "first_heard": "2026-03-04T11:32:20.147156",
-    "count": 73,
+    "count": 74,
     "sources": [
       "ambient",
       "book"
@@ -5344,10 +5423,11 @@
   },
   "show": {
     "first_heard": "2026-03-04T11:32:20.147161",
-    "count": 54,
+    "count": 97,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "smoke": {
@@ -5383,7 +5463,7 @@
   },
   "things": {
     "first_heard": "2026-03-04T11:32:20.147172",
-    "count": 229,
+    "count": 230,
     "sources": [
       "ambient",
       "book"
@@ -5432,7 +5512,7 @@
   },
   "man": {
     "first_heard": "2026-03-04T11:34:16.273839",
-    "count": 947,
+    "count": 954,
     "sources": [
       "ambient",
       "pratchett",
@@ -5441,7 +5521,7 @@
   },
   "heard": {
     "first_heard": "2026-03-04T11:34:16.273864",
-    "count": 331,
+    "count": 332,
     "sources": [
       "ambient",
       "book"
@@ -5526,7 +5606,7 @@
   },
   "being": {
     "first_heard": "2026-03-04T11:36:13.238149",
-    "count": 558,
+    "count": 560,
     "sources": [
       "ambient",
       "news",
@@ -5590,7 +5670,7 @@
   },
   "orange": {
     "first_heard": "2026-03-04T11:37:21.549132",
-    "count": 25,
+    "count": 27,
     "sources": [
       "ambient",
       "book"
@@ -5622,7 +5702,7 @@
   },
   "stop": {
     "first_heard": "2026-03-04T11:37:21.549848",
-    "count": 57,
+    "count": 64,
     "sources": [
       "ambient",
       "pratchett",
@@ -5631,7 +5711,7 @@
   },
   "looking": {
     "first_heard": "2026-03-04T11:37:21.549850",
-    "count": 215,
+    "count": 222,
     "sources": [
       "ambient",
       "pratchett",
@@ -5647,7 +5727,7 @@
   },
   "something": {
     "first_heard": "2026-03-04T11:38:07.980533",
-    "count": 262,
+    "count": 266,
     "sources": [
       "ambient",
       "book"
@@ -5693,10 +5773,11 @@
   },
   "while": {
     "first_heard": "2026-03-04T11:38:07.980613",
-    "count": 327,
+    "count": 348,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "painting": {
@@ -5709,7 +5790,7 @@
   },
   "stay": {
     "first_heard": "2026-03-04T11:40:05.306308",
-    "count": 64,
+    "count": 66,
     "sources": [
       "ambient",
       "book"
@@ -5739,7 +5820,7 @@
   },
   "free": {
     "first_heard": "2026-03-04T11:40:05.306415",
-    "count": 61,
+    "count": 67,
     "sources": [
       "ambient",
       "pratchett",
@@ -5748,7 +5829,7 @@
   },
   "stuff": {
     "first_heard": "2026-03-04T11:40:05.306417",
-    "count": 23,
+    "count": 24,
     "sources": [
       "ambient",
       "book"
@@ -5756,7 +5837,7 @@
   },
   "war": {
     "first_heard": "2026-03-04T11:40:05.306418",
-    "count": 93,
+    "count": 99,
     "sources": [
       "ambient",
       "news",
@@ -5812,10 +5893,11 @@
   },
   "improving": {
     "first_heard": "2026-03-04T11:40:50.243782",
-    "count": 3,
+    "count": 45,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "essentially": {
@@ -5828,7 +5910,7 @@
   },
   "pick": {
     "first_heard": "2026-03-04T11:40:50.243788",
-    "count": 9,
+    "count": 11,
     "sources": [
       "ambient",
       "book"
@@ -5836,10 +5918,11 @@
   },
   "those": {
     "first_heard": "2026-03-04T11:40:50.243789",
-    "count": 400,
+    "count": 421,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "strips": {
@@ -5868,7 +5951,7 @@
   },
   "terry": {
     "first_heard": "2026-03-04T11:42:46.148875",
-    "count": 649,
+    "count": 1143,
     "sources": [
       "ambient",
       "pratchett"
@@ -5897,7 +5980,7 @@
   },
   "baby": {
     "first_heard": "2026-03-04T11:42:46.148935",
-    "count": 47,
+    "count": 53,
     "sources": [
       "ambient",
       "pratchett",
@@ -5923,7 +6006,7 @@
   },
   "eat": {
     "first_heard": "2026-03-04T11:43:56.003111",
-    "count": 53,
+    "count": 55,
     "sources": [
       "ambient",
       "reddit",
@@ -5940,7 +6023,7 @@
   },
   "through": {
     "first_heard": "2026-03-04T11:43:56.003153",
-    "count": 275,
+    "count": 282,
     "sources": [
       "ambient",
       "pratchett",
@@ -6124,7 +6207,7 @@
   },
   "rules": {
     "first_heard": "2026-03-04T11:48:11.745543",
-    "count": 335,
+    "count": 582,
     "sources": [
       "ambient",
       "pratchett",
@@ -6227,7 +6310,7 @@
   },
   "made": {
     "first_heard": "2026-03-04T11:48:59.060313",
-    "count": 481,
+    "count": 483,
     "sources": [
       "ambient",
       "book"
@@ -6261,7 +6344,7 @@
   },
   "weekend": {
     "first_heard": "2026-03-04T11:48:59.060338",
-    "count": 1,
+    "count": 2,
     "sources": [
       "ambient"
     ]
@@ -6469,7 +6552,7 @@
   },
   "watching": {
     "first_heard": "2026-03-04T11:50:53.900305",
-    "count": 41,
+    "count": 42,
     "sources": [
       "ambient",
       "book"
@@ -6477,7 +6560,7 @@
   },
   "important": {
     "first_heard": "2026-03-04T11:50:53.900346",
-    "count": 53,
+    "count": 54,
     "sources": [
       "ambient",
       "book"
@@ -6517,7 +6600,7 @@
   },
   "mind": {
     "first_heard": "2026-03-04T11:51:44.891095",
-    "count": 275,
+    "count": 277,
     "sources": [
       "ambient",
       "book"
@@ -6534,11 +6617,12 @@
   },
   "end": {
     "first_heard": "2026-03-04T11:51:44.891112",
-    "count": 189,
+    "count": 250,
     "sources": [
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "deserve": {
@@ -6551,23 +6635,25 @@
   },
   "previous": {
     "first_heard": "2026-03-04T11:51:44.891126",
-    "count": 39,
+    "count": 60,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "video": {
     "first_heard": "2026-03-04T11:51:44.891128",
-    "count": 2,
+    "count": 86,
     "sources": [
       "ambient",
-      "reddit"
+      "reddit",
+      "arxiv"
     ]
   },
   "alright": {
     "first_heard": "2026-03-04T11:52:49.773872",
-    "count": 4,
+    "count": 8,
     "sources": [
       "ambient"
     ]
@@ -6648,10 +6734,11 @@
   },
   "together": {
     "first_heard": "2026-03-04T11:55:12.102424",
-    "count": 133,
+    "count": 154,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "andedons": {
@@ -6686,7 +6773,7 @@
   },
   "click": {
     "first_heard": "2026-03-04T11:56:44.431486",
-    "count": 2,
+    "count": 3,
     "sources": [
       "ambient"
     ]
@@ -6700,7 +6787,7 @@
   },
   "request": {
     "first_heard": "2026-03-04T11:56:44.431600",
-    "count": 30,
+    "count": 31,
     "sources": [
       "ambient",
       "book"
@@ -6716,7 +6803,7 @@
   },
   "fact": {
     "first_heard": "2026-03-04T11:57:28.200912",
-    "count": 103,
+    "count": 109,
     "sources": [
       "ambient",
       "pratchett",
@@ -6809,7 +6896,7 @@
   },
   "night": {
     "first_heard": "2026-03-04T11:58:14.727690",
-    "count": 337,
+    "count": 343,
     "sources": [
       "ambient",
       "pratchett",
@@ -6849,15 +6936,16 @@
   },
   "state": {
     "first_heard": "2026-03-04T11:58:37.842533",
-    "count": 73,
+    "count": 157,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "book": {
     "first_heard": "2026-03-04T11:58:37.842554",
-    "count": 119,
+    "count": 125,
     "sources": [
       "ambient",
       "pratchett",
@@ -6945,7 +7033,7 @@
   },
   "thief": {
     "first_heard": "2026-03-04T11:59:03.089275",
-    "count": 11,
+    "count": 17,
     "sources": [
       "ambient",
       "pratchett",
@@ -7021,7 +7109,7 @@
   },
   "months": {
     "first_heard": "2026-03-04T12:00:33.766803",
-    "count": 77,
+    "count": 78,
     "sources": [
       "ambient",
       "book"
@@ -7037,7 +7125,7 @@
   },
   "strange": {
     "first_heard": "2026-03-04T12:00:33.766846",
-    "count": 148,
+    "count": 154,
     "sources": [
       "ambient",
       "pratchett",
@@ -7112,15 +7200,16 @@
   },
   "account": {
     "first_heard": "2026-03-04T12:01:20.057659",
-    "count": 107,
+    "count": 128,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "same": {
     "first_heard": "2026-03-04T12:01:20.057719",
-    "count": 351,
+    "count": 353,
     "sources": [
       "ambient",
       "book"
@@ -7161,7 +7250,7 @@
   },
   "order": {
     "first_heard": "2026-03-04T12:01:20.057735",
-    "count": 75,
+    "count": 76,
     "sources": [
       "ambient",
       "book"
@@ -7169,7 +7258,7 @@
   },
   "issue": {
     "first_heard": "2026-03-04T12:01:20.057737",
-    "count": 5,
+    "count": 6,
     "sources": [
       "ambient",
       "book"
@@ -7461,7 +7550,7 @@
   },
   "yep": {
     "first_heard": "2026-03-04T12:29:13.360438",
-    "count": 1,
+    "count": 2,
     "sources": [
       "ambient"
     ]
@@ -7499,7 +7588,7 @@
   },
   "friends": {
     "first_heard": "2026-03-04T12:30:22.023854",
-    "count": 160,
+    "count": 172,
     "sources": [
       "ambient",
       "reddit",
@@ -7539,9 +7628,10 @@
   },
   "automatically": {
     "first_heard": "2026-03-04T12:31:55.044799",
-    "count": 1,
+    "count": 22,
     "sources": [
-      "ambient"
+      "ambient",
+      "arxiv"
     ]
   },
   "bio": {
@@ -7561,10 +7651,11 @@
   },
   "practice": {
     "first_heard": "2026-03-04T12:31:55.044850",
-    "count": 19,
+    "count": 40,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "shoes": {
@@ -7584,7 +7675,7 @@
   },
   "actually": {
     "first_heard": "2026-03-04T12:32:17.015842",
-    "count": 22,
+    "count": 24,
     "sources": [
       "ambient",
       "book"
@@ -7592,7 +7683,7 @@
   },
   "everybody": {
     "first_heard": "2026-03-04T12:33:08.093018",
-    "count": 79,
+    "count": 80,
     "sources": [
       "ambient",
       "book"
@@ -7622,16 +7713,17 @@
   },
   "great": {
     "first_heard": "2026-03-04T12:33:08.093088",
-    "count": 801,
+    "count": 1069,
     "sources": [
       "ambient",
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "taking": {
     "first_heard": "2026-03-04T12:33:26.538985",
-    "count": 85,
+    "count": 87,
     "sources": [
       "ambient",
       "book"
@@ -7646,7 +7738,7 @@
   },
   "shall": {
     "first_heard": "2026-03-04T12:36:35.872016",
-    "count": 506,
+    "count": 513,
     "sources": [
       "ambient",
       "pratchett",
@@ -7655,7 +7747,7 @@
   },
   "play": {
     "first_heard": "2026-03-04T12:36:35.872166",
-    "count": 63,
+    "count": 69,
     "sources": [
       "ambient",
       "pratchett",
@@ -7748,10 +7840,11 @@
   },
   "seen": {
     "first_heard": "2026-03-04T12:47:22.859512",
-    "count": 241,
+    "count": 263,
     "sources": [
       "ambient",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "filling": {
@@ -7764,7 +7857,7 @@
   },
   "blue": {
     "first_heard": "2026-03-04T12:49:18.649947",
-    "count": 375,
+    "count": 622,
     "sources": [
       "ambient",
       "pratchett",
@@ -7858,7 +7951,7 @@
   },
   "either": {
     "first_heard": "2026-03-04T13:11:23.923131",
-    "count": 145,
+    "count": 151,
     "sources": [
       "ambient",
       "pratchett",
@@ -7882,7 +7975,7 @@
   },
   "late": {
     "first_heard": "2026-03-04T13:24:55.828545",
-    "count": 93,
+    "count": 94,
     "sources": [
       "ambient",
       "book"
@@ -7890,7 +7983,7 @@
   },
   "watch": {
     "first_heard": "2026-03-04T13:24:55.828987",
-    "count": 437,
+    "count": 691,
     "sources": [
       "ambient",
       "pratchett",
@@ -7915,14 +8008,14 @@
   },
   "visa": {
     "first_heard": "2026-03-04T13:26:50.453334",
-    "count": 1,
+    "count": 2,
     "sources": [
       "ambient"
     ]
   },
   "telling": {
     "first_heard": "2026-03-04T13:26:50.453336",
-    "count": 35,
+    "count": 36,
     "sources": [
       "ambient",
       "book"
@@ -7938,7 +8031,7 @@
   },
   "cigarettes": {
     "first_heard": "2026-03-04T13:27:36.499283",
-    "count": 3,
+    "count": 4,
     "sources": [
       "ambient",
       "book"
@@ -7977,7 +8070,7 @@
   },
   "love": {
     "first_heard": "2026-03-04T13:28:23.561061",
-    "count": 525,
+    "count": 772,
     "sources": [
       "ambient",
       "pratchett",
@@ -8003,7 +8096,7 @@
   },
   "god": {
     "first_heard": "2026-03-04T13:28:46.131820",
-    "count": 187,
+    "count": 188,
     "sources": [
       "ambient",
       "book"
@@ -8011,7 +8104,7 @@
   },
   "many": {
     "first_heard": "2026-03-04T13:28:46.131852",
-    "count": 686,
+    "count": 934,
     "sources": [
       "ambient",
       "wikipedia",
@@ -8092,10 +8185,11 @@
   },
   "may": {
     "first_heard": "2026-03-04T13:34:07.154923",
-    "count": 692,
+    "count": 713,
     "sources": [
       "news",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "drag": {
@@ -8221,10 +8315,11 @@
   },
   "family": {
     "first_heard": "2026-03-04T13:34:10.378162",
-    "count": 191,
+    "count": 192,
     "sources": [
       "wikipedia",
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "rutaceae": {
@@ -8236,7 +8331,7 @@
   },
   "known": {
     "first_heard": "2026-03-04T13:34:10.378164",
-    "count": 441,
+    "count": 688,
     "sources": [
       "wikipedia",
       "pratchett",
@@ -8384,10 +8479,11 @@
   },
   "western": {
     "first_heard": "2026-03-04T13:34:10.378191",
-    "count": 5,
+    "count": 6,
     "sources": [
       "wikipedia",
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "burger": {
@@ -8414,10 +8510,11 @@
   },
   "takes": {
     "first_heard": "2026-03-04T13:34:13.038891",
-    "count": 31,
+    "count": 52,
     "sources": [
       "reddit",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "bite": {
@@ -8551,10 +8648,11 @@
   },
   "traffic": {
     "first_heard": "2026-03-04T13:34:13.075303",
-    "count": 3,
+    "count": 192,
     "sources": [
       "reddit",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "foundations": {
@@ -8598,7 +8696,7 @@
   },
   "ai": {
     "first_heard": "2026-03-04T13:34:15.862241",
-    "count": 330,
+    "count": 351,
     "sources": [
       "academic",
       "arxiv"
@@ -8606,18 +8704,21 @@
   },
   "case": {
     "first_heard": "2026-03-04T13:34:15.862245",
-    "count": 197,
+    "count": 219,
     "sources": [
       "academic",
-      "book"
+      "book",
+      "arxiv",
+      "ambient"
     ]
   },
   "study": {
     "first_heard": "2026-03-04T13:34:15.862246",
-    "count": 75,
+    "count": 117,
     "sources": [
       "academic",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "openai": {
@@ -8683,7 +8784,7 @@
   },
   "human": {
     "first_heard": "2026-03-04T13:34:15.880072",
-    "count": 184,
+    "count": 268,
     "sources": [
       "academic",
       "arxiv",
@@ -8707,10 +8808,11 @@
   },
   "system": {
     "first_heard": "2026-03-04T13:34:15.880082",
-    "count": 11,
+    "count": 95,
     "sources": [
       "academic",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "development": {
@@ -8777,22 +8879,23 @@
   },
   "agents": {
     "first_heard": "2026-03-04T13:34:19.347550",
-    "count": 5,
+    "count": 26,
     "sources": [
       "github",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "omens": {
     "first_heard": "2026-03-04T13:35:35.315811",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "nice": {
     "first_heard": "2026-03-04T13:35:35.315875",
-    "count": 42,
+    "count": 54,
     "sources": [
       "pratchett",
       "book"
@@ -8800,7 +8903,7 @@
   },
   "accurate": {
     "first_heard": "2026-03-04T13:35:35.315879",
-    "count": 18,
+    "count": 30,
     "sources": [
       "pratchett",
       "book"
@@ -8808,35 +8911,35 @@
   },
   "prophecies": {
     "first_heard": "2026-03-04T13:35:35.315880",
-    "count": 24,
+    "count": 42,
     "sources": [
       "pratchett"
     ]
   },
   "agnes": {
     "first_heard": "2026-03-04T13:35:35.315882",
-    "count": 24,
+    "count": 42,
     "sources": [
       "pratchett"
     ]
   },
   "nutter": {
     "first_heard": "2026-03-04T13:35:35.315883",
-    "count": 24,
+    "count": 42,
     "sources": [
       "pratchett"
     ]
   },
   "witch": {
     "first_heard": "2026-03-04T13:35:35.315884",
-    "count": 340,
+    "count": 599,
     "sources": [
       "pratchett"
     ]
   },
   "according": {
     "first_heard": "2026-03-04T13:35:35.315885",
-    "count": 30,
+    "count": 36,
     "sources": [
       "pratchett",
       "book"
@@ -8844,7 +8947,7 @@
   },
   "saturday": {
     "first_heard": "2026-03-04T13:35:35.315902",
-    "count": 54,
+    "count": 66,
     "sources": [
       "pratchett",
       "book"
@@ -8852,7 +8955,7 @@
   },
   "tea": {
     "first_heard": "2026-03-04T13:35:35.315913",
-    "count": 58,
+    "count": 64,
     "sources": [
       "pratchett",
       "book"
@@ -8860,14 +8963,14 @@
   },
   "aziraphale": {
     "first_heard": "2026-03-04T13:35:35.315915",
-    "count": 16,
+    "count": 28,
     "sources": [
       "pratchett"
     ]
   },
   "angel": {
     "first_heard": "2026-03-04T13:35:35.315916",
-    "count": 70,
+    "count": 76,
     "sources": [
       "pratchett",
       "book"
@@ -8875,29 +8978,31 @@
   },
   "crowley": {
     "first_heard": "2026-03-04T13:35:35.315917",
-    "count": 16,
+    "count": 28,
     "sources": [
       "pratchett"
     ]
   },
   "demon": {
     "first_heard": "2026-03-04T13:35:35.315918",
-    "count": 8,
+    "count": 15,
     "sources": [
-      "pratchett"
+      "pratchett",
+      "ambient"
     ]
   },
   "grown": {
     "first_heard": "2026-03-04T13:35:35.315920",
-    "count": 38,
+    "count": 45,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "accustomed": {
     "first_heard": "2026-03-04T13:35:35.315921",
-    "count": 34,
+    "count": 40,
     "sources": [
       "pratchett",
       "book"
@@ -8905,7 +9010,7 @@
   },
   "comfortable": {
     "first_heard": "2026-03-04T13:35:35.315922",
-    "count": 38,
+    "count": 44,
     "sources": [
       "pratchett",
       "book"
@@ -8913,14 +9018,14 @@
   },
   "existences": {
     "first_heard": "2026-03-04T13:35:35.315923",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "earth": {
     "first_heard": "2026-03-04T13:35:35.315924",
-    "count": 108,
+    "count": 114,
     "sources": [
       "pratchett",
       "book"
@@ -8928,7 +9033,7 @@
   },
   "forward": {
     "first_heard": "2026-03-04T13:35:35.315926",
-    "count": 72,
+    "count": 78,
     "sources": [
       "pratchett",
       "book"
@@ -8936,14 +9041,14 @@
   },
   "apocalypse": {
     "first_heard": "2026-03-04T13:35:35.315928",
-    "count": 16,
+    "count": 28,
     "sources": [
       "pratchett"
     ]
   },
   "decide": {
     "first_heard": "2026-03-04T13:35:35.315930",
-    "count": 26,
+    "count": 32,
     "sources": [
       "pratchett",
       "book"
@@ -8951,7 +9056,7 @@
   },
   "meanwhile": {
     "first_heard": "2026-03-04T13:35:35.315932",
-    "count": 40,
+    "count": 46,
     "sources": [
       "pratchett",
       "book"
@@ -8959,14 +9064,14 @@
   },
   "antichrist": {
     "first_heard": "2026-03-04T13:35:35.315933",
-    "count": 16,
+    "count": 28,
     "sources": [
       "pratchett"
     ]
   },
   "born": {
     "first_heard": "2026-03-04T13:35:35.315935",
-    "count": 44,
+    "count": 50,
     "sources": [
       "pratchett",
       "book"
@@ -8974,7 +9079,7 @@
   },
   "mix": {
     "first_heard": "2026-03-04T13:35:35.315938",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -8982,7 +9087,7 @@
   },
   "hospital": {
     "first_heard": "2026-03-04T13:35:35.315939",
-    "count": 12,
+    "count": 18,
     "sources": [
       "pratchett",
       "book"
@@ -8990,14 +9095,14 @@
   },
   "swapped": {
     "first_heard": "2026-03-04T13:35:35.315941",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "growing": {
     "first_heard": "2026-03-04T13:35:35.315943",
-    "count": 36,
+    "count": 42,
     "sources": [
       "pratchett",
       "book"
@@ -9005,7 +9110,7 @@
   },
   "peaceful": {
     "first_heard": "2026-03-04T13:35:35.315945",
-    "count": 24,
+    "count": 30,
     "sources": [
       "pratchett",
       "book"
@@ -9013,7 +9118,7 @@
   },
   "village": {
     "first_heard": "2026-03-04T13:35:35.315946",
-    "count": 34,
+    "count": 40,
     "sources": [
       "pratchett",
       "book"
@@ -9021,7 +9126,7 @@
   },
   "unaware": {
     "first_heard": "2026-03-04T13:35:35.315947",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9029,7 +9134,7 @@
   },
   "destiny": {
     "first_heard": "2026-03-04T13:35:35.315948",
-    "count": 18,
+    "count": 24,
     "sources": [
       "pratchett",
       "book"
@@ -9037,7 +9142,7 @@
   },
   "adam": {
     "first_heard": "2026-03-04T13:35:35.315949",
-    "count": 32,
+    "count": 50,
     "sources": [
       "pratchett",
       "book"
@@ -9045,7 +9150,7 @@
   },
   "wants": {
     "first_heard": "2026-03-04T13:35:35.315951",
-    "count": 42,
+    "count": 54,
     "sources": [
       "pratchett",
       "book"
@@ -9053,7 +9158,7 @@
   },
   "powers": {
     "first_heard": "2026-03-04T13:35:35.315954",
-    "count": 46,
+    "count": 52,
     "sources": [
       "pratchett",
       "book"
@@ -9061,14 +9166,14 @@
   },
   "manifesting": {
     "first_heard": "2026-03-04T13:35:35.315956",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "ways": {
     "first_heard": "2026-03-04T13:35:35.315957",
-    "count": 46,
+    "count": 52,
     "sources": [
       "pratchett",
       "book"
@@ -9076,14 +9181,14 @@
   },
   "horsemen": {
     "first_heard": "2026-03-04T13:35:35.315959",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "gathering": {
     "first_heard": "2026-03-04T13:35:35.315960",
-    "count": 16,
+    "count": 22,
     "sources": [
       "pratchett",
       "book"
@@ -9091,7 +9196,7 @@
   },
   "famine": {
     "first_heard": "2026-03-04T13:35:35.315962",
-    "count": 14,
+    "count": 20,
     "sources": [
       "pratchett",
       "book"
@@ -9099,14 +9204,14 @@
   },
   "pollution": {
     "first_heard": "2026-03-04T13:35:35.315962",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "ride": {
     "first_heard": "2026-03-04T13:35:35.315964",
-    "count": 12,
+    "count": 18,
     "sources": [
       "pratchett",
       "book"
@@ -9114,21 +9219,21 @@
   },
   "anathema": {
     "first_heard": "2026-03-04T13:35:35.315965",
-    "count": 16,
+    "count": 28,
     "sources": [
       "pratchett"
     ]
   },
   "descendant": {
     "first_heard": "2026-03-04T13:35:35.315966",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "inherited": {
     "first_heard": "2026-03-04T13:35:35.315968",
-    "count": 14,
+    "count": 20,
     "sources": [
       "pratchett",
       "book"
@@ -9136,7 +9241,7 @@
   },
   "prophet": {
     "first_heard": "2026-03-04T13:35:35.315969",
-    "count": 22,
+    "count": 28,
     "sources": [
       "pratchett",
       "book"
@@ -9144,7 +9249,7 @@
   },
   "tries": {
     "first_heard": "2026-03-04T13:35:35.315972",
-    "count": 12,
+    "count": 18,
     "sources": [
       "pratchett",
       "book"
@@ -9152,7 +9257,7 @@
   },
   "prevent": {
     "first_heard": "2026-03-04T13:35:35.315973",
-    "count": 38,
+    "count": 44,
     "sources": [
       "pratchett",
       "book"
@@ -9160,7 +9265,7 @@
   },
   "newton": {
     "first_heard": "2026-03-04T13:35:35.315974",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9168,28 +9273,28 @@
   },
   "pulsifer": {
     "first_heard": "2026-03-04T13:35:35.315975",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "witchfinder": {
     "first_heard": "2026-03-04T13:35:35.315976",
-    "count": 16,
+    "count": 28,
     "sources": [
       "pratchett"
     ]
   },
   "trainee": {
     "first_heard": "2026-03-04T13:35:35.315977",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "joins": {
     "first_heard": "2026-03-04T13:35:35.315977",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9197,7 +9302,7 @@
   },
   "forces": {
     "first_heard": "2026-03-04T13:35:35.315978",
-    "count": 14,
+    "count": 20,
     "sources": [
       "pratchett",
       "book"
@@ -9205,21 +9310,21 @@
   },
   "shadwell": {
     "first_heard": "2026-03-04T13:35:35.315979",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "sergeant": {
     "first_heard": "2026-03-04T13:35:35.315981",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "salary": {
     "first_heard": "2026-03-04T13:35:35.315982",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9227,7 +9332,7 @@
   },
   "madame": {
     "first_heard": "2026-03-04T13:35:35.315983",
-    "count": 18,
+    "count": 24,
     "sources": [
       "pratchett",
       "book"
@@ -9235,14 +9340,14 @@
   },
   "tracy": {
     "first_heard": "2026-03-04T13:35:35.315984",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "medium": {
     "first_heard": "2026-03-04T13:35:35.315985",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9250,7 +9355,7 @@
   },
   "helps": {
     "first_heard": "2026-03-04T13:35:35.315986",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9258,14 +9363,14 @@
   },
   "psychic": {
     "first_heard": "2026-03-04T13:35:35.315987",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "aspects": {
     "first_heard": "2026-03-04T13:35:35.315988",
-    "count": 73,
+    "count": 79,
     "sources": [
       "pratchett",
       "arxiv"
@@ -9273,15 +9378,16 @@
   },
   "include": {
     "first_heard": "2026-03-04T13:35:35.315989",
-    "count": 10,
+    "count": 37,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "pepper": {
     "first_heard": "2026-03-04T13:35:35.315990",
-    "count": 28,
+    "count": 34,
     "sources": [
       "pratchett",
       "book"
@@ -9289,73 +9395,76 @@
   },
   "wensleydale": {
     "first_heard": "2026-03-04T13:35:35.315991",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "brian": {
     "first_heard": "2026-03-04T13:35:35.315992",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "builds": {
     "first_heard": "2026-03-04T13:35:35.315996",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "inevitable": {
     "first_heard": "2026-03-04T13:35:35.315997",
-    "count": 12,
+    "count": 39,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "confrontation": {
     "first_heard": "2026-03-04T13:35:35.315998",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "airbase": {
     "first_heard": "2026-03-04T13:35:35.315999",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "lower": {
     "first_heard": "2026-03-04T13:35:35.316000",
-    "count": 28,
+    "count": 55,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tadfield": {
     "first_heard": "2026-03-04T13:35:35.316001",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "succeed": {
     "first_heard": "2026-03-04T13:35:35.316003",
-    "count": 28,
+    "count": 55,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "save": {
     "first_heard": "2026-03-04T13:35:35.316004",
-    "count": 76,
+    "count": 82,
     "sources": [
       "pratchett",
       "book"
@@ -9363,7 +9472,7 @@
   },
   "answer": {
     "first_heard": "2026-03-04T13:35:35.316006",
-    "count": 154,
+    "count": 160,
     "sources": [
       "pratchett",
       "book"
@@ -9371,14 +9480,15 @@
   },
   "involves": {
     "first_heard": "2026-03-04T13:35:35.316007",
-    "count": 8,
+    "count": 35,
     "sources": [
-      "pratchett"
+      "pratchett",
+      "arxiv"
     ]
   },
   "boy": {
     "first_heard": "2026-03-04T13:35:35.316008",
-    "count": 68,
+    "count": 74,
     "sources": [
       "pratchett",
       "book"
@@ -9386,7 +9496,7 @@
   },
   "belief": {
     "first_heard": "2026-03-04T13:35:35.316010",
-    "count": 22,
+    "count": 28,
     "sources": [
       "pratchett",
       "book"
@@ -9394,7 +9504,7 @@
   },
   "possibly": {
     "first_heard": "2026-03-04T13:35:35.316011",
-    "count": 36,
+    "count": 42,
     "sources": [
       "pratchett",
       "book"
@@ -9402,7 +9512,7 @@
   },
   "burning": {
     "first_heard": "2026-03-04T13:35:35.316012",
-    "count": 24,
+    "count": 30,
     "sources": [
       "pratchett",
       "book"
@@ -9410,7 +9520,7 @@
   },
   "telephone": {
     "first_heard": "2026-03-04T13:35:35.316012",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -9418,7 +9528,7 @@
   },
   "sanitisers": {
     "first_heard": "2026-03-04T13:35:35.316013",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
@@ -9564,7 +9674,7 @@
   },
   "sample": {
     "first_heard": "2026-03-04T13:36:37.930539",
-    "count": 326,
+    "count": 573,
     "sources": [
       "pratchett",
       "book"
@@ -9572,7 +9682,7 @@
   },
   "colour": {
     "first_heard": "2026-03-04T13:36:37.930563",
-    "count": 52,
+    "count": 58,
     "sources": [
       "pratchett",
       "book"
@@ -9580,7 +9690,7 @@
   },
   "magic": {
     "first_heard": "2026-03-04T13:36:37.930571",
-    "count": 18,
+    "count": 24,
     "sources": [
       "pratchett",
       "book"
@@ -9588,14 +9698,14 @@
   },
   "pratchett": {
     "first_heard": "2026-03-04T13:36:37.930598",
-    "count": 648,
+    "count": 1142,
     "sources": [
       "pratchett"
     ]
   },
   "writing": {
     "first_heard": "2026-03-04T13:36:37.930612",
-    "count": 368,
+    "count": 615,
     "sources": [
       "pratchett",
       "book"
@@ -9603,7 +9713,7 @@
   },
   "humor": {
     "first_heard": "2026-03-04T13:36:37.930712",
-    "count": 326,
+    "count": 573,
     "sources": [
       "pratchett",
       "book"
@@ -9611,7 +9721,7 @@
   },
   "satire": {
     "first_heard": "2026-03-04T13:36:37.930716",
-    "count": 328,
+    "count": 575,
     "sources": [
       "pratchett",
       "book"
@@ -9619,7 +9729,7 @@
   },
   "unique": {
     "first_heard": "2026-03-04T13:36:37.930728",
-    "count": 332,
+    "count": 579,
     "sources": [
       "pratchett",
       "book"
@@ -9627,7 +9737,7 @@
   },
   "speaks": {
     "first_heard": "2026-03-04T13:36:37.930750",
-    "count": 334,
+    "count": 581,
     "sources": [
       "pratchett",
       "book"
@@ -9635,14 +9745,14 @@
   },
   "capitals": {
     "first_heard": "2026-03-04T13:36:37.930753",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "luggage": {
     "first_heard": "2026-03-04T13:36:37.930755",
-    "count": 328,
+    "count": 575,
     "sources": [
       "pratchett",
       "book"
@@ -9650,21 +9760,21 @@
   },
   "granny": {
     "first_heard": "2026-03-04T13:36:37.930768",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "weatherwax": {
     "first_heard": "2026-03-04T13:36:37.930773",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "powerful": {
     "first_heard": "2026-03-04T13:36:37.930776",
-    "count": 342,
+    "count": 589,
     "sources": [
       "pratchett",
       "book"
@@ -9672,7 +9782,7 @@
   },
   "sam": {
     "first_heard": "2026-03-04T13:36:37.930779",
-    "count": 328,
+    "count": 575,
     "sources": [
       "pratchett",
       "book"
@@ -9680,14 +9790,14 @@
   },
   "vimes": {
     "first_heard": "2026-03-04T13:36:37.930781",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "commander": {
     "first_heard": "2026-03-04T13:36:37.930783",
-    "count": 330,
+    "count": 577,
     "sources": [
       "pratchett",
       "book"
@@ -9695,21 +9805,21 @@
   },
   "ankh": {
     "first_heard": "2026-03-04T13:36:37.930790",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "morpork": {
     "first_heard": "2026-03-04T13:36:37.930800",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "unseen": {
     "first_heard": "2026-03-04T13:36:37.930804",
-    "count": 342,
+    "count": 595,
     "sources": [
       "pratchett",
       "book"
@@ -9717,7 +9827,7 @@
   },
   "university": {
     "first_heard": "2026-03-04T13:36:37.930815",
-    "count": 340,
+    "count": 587,
     "sources": [
       "pratchett",
       "book"
@@ -9725,35 +9835,35 @@
   },
   "wizards": {
     "first_heard": "2026-03-04T13:36:37.930822",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "nac": {
     "first_heard": "2026-03-04T13:36:37.930824",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "mac": {
     "first_heard": "2026-03-04T13:36:37.930857",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "feegle": {
     "first_heard": "2026-03-04T13:36:37.930864",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "tiny": {
     "first_heard": "2026-03-04T13:36:37.930869",
-    "count": 336,
+    "count": 583,
     "sources": [
       "pratchett",
       "book"
@@ -9761,7 +9871,7 @@
   },
   "men": {
     "first_heard": "2026-03-04T13:36:37.930872",
-    "count": 588,
+    "count": 847,
     "sources": [
       "pratchett",
       "book"
@@ -9769,7 +9879,7 @@
   },
   "fight": {
     "first_heard": "2026-03-04T13:36:37.930881",
-    "count": 338,
+    "count": 585,
     "sources": [
       "pratchett",
       "book"
@@ -9777,7 +9887,7 @@
   },
   "lord": {
     "first_heard": "2026-03-04T13:36:37.930887",
-    "count": 364,
+    "count": 611,
     "sources": [
       "pratchett",
       "book"
@@ -9785,28 +9895,28 @@
   },
   "vetinari": {
     "first_heard": "2026-03-04T13:36:37.930889",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "cmot": {
     "first_heard": "2026-03-04T13:36:37.930894",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "dibbler": {
     "first_heard": "2026-03-04T13:36:37.930896",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "sells": {
     "first_heard": "2026-03-04T13:36:37.930898",
-    "count": 326,
+    "count": 573,
     "sources": [
       "pratchett",
       "book"
@@ -9814,21 +9924,21 @@
   },
   "sausages": {
     "first_heard": "2026-03-04T13:36:37.930899",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "discworld": {
     "first_heard": "2026-03-04T13:36:37.930902",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "carried": {
     "first_heard": "2026-03-04T13:36:37.930904",
-    "count": 384,
+    "count": 631,
     "sources": [
       "pratchett",
       "book"
@@ -9836,21 +9946,21 @@
   },
   "elephants": {
     "first_heard": "2026-03-04T13:36:37.930913",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "tuin": {
     "first_heard": "2026-03-04T13:36:37.930924",
-    "count": 324,
+    "count": 571,
     "sources": [
       "pratchett"
     ]
   },
   "turtle": {
     "first_heard": "2026-03-04T13:36:37.930926",
-    "count": 442,
+    "count": 689,
     "sources": [
       "pratchett",
       "book"
@@ -9887,7 +9997,7 @@
   },
   "generative": {
     "first_heard": "2026-03-04T13:36:40.240594",
-    "count": 260,
+    "count": 281,
     "sources": [
       "arxiv"
     ]
@@ -9901,7 +10011,7 @@
   },
   "systems": {
     "first_heard": "2026-03-04T13:36:40.240606",
-    "count": 69,
+    "count": 111,
     "sources": [
       "arxiv",
       "book"
@@ -9925,7 +10035,7 @@
   },
   "large": {
     "first_heard": "2026-03-04T13:36:40.240616",
-    "count": 275,
+    "count": 317,
     "sources": [
       "arxiv",
       "book",
@@ -9943,7 +10053,7 @@
   },
   "training": {
     "first_heard": "2026-03-04T13:36:40.240619",
-    "count": 65,
+    "count": 149,
     "sources": [
       "arxiv"
     ]
@@ -9958,7 +10068,7 @@
   },
   "data": {
     "first_heard": "2026-03-04T13:36:40.240624",
-    "count": 71,
+    "count": 155,
     "sources": [
       "arxiv",
       "book"
@@ -9966,7 +10076,7 @@
   },
   "modeling": {
     "first_heard": "2026-03-04T13:36:40.240626",
-    "count": 65,
+    "count": 86,
     "sources": [
       "arxiv"
     ]
@@ -9981,7 +10091,7 @@
   },
   "produce": {
     "first_heard": "2026-03-04T13:36:40.240633",
-    "count": 79,
+    "count": 100,
     "sources": [
       "arxiv",
       "book"
@@ -9989,7 +10099,7 @@
   },
   "high": {
     "first_heard": "2026-03-04T13:36:40.240636",
-    "count": 219,
+    "count": 240,
     "sources": [
       "arxiv",
       "book"
@@ -10052,10 +10162,11 @@
   },
   "introduce": {
     "first_heard": "2026-03-04T13:36:40.240738",
-    "count": 91,
+    "count": 134,
     "sources": [
       "arxiv",
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "details": {
@@ -10113,7 +10224,7 @@
   },
   "addressing": {
     "first_heard": "2026-03-04T13:36:40.240772",
-    "count": 71,
+    "count": 92,
     "sources": [
       "arxiv",
       "book"
@@ -10128,7 +10239,7 @@
   },
   "directly": {
     "first_heard": "2026-03-04T13:36:40.240777",
-    "count": 97,
+    "count": 139,
     "sources": [
       "arxiv",
       "book"
@@ -10180,7 +10291,7 @@
   },
   "ability": {
     "first_heard": "2026-03-04T13:36:40.240793",
-    "count": 71,
+    "count": 92,
     "sources": [
       "arxiv",
       "book"
@@ -10202,7 +10313,7 @@
   },
   "existing": {
     "first_heard": "2026-03-04T13:36:40.240800",
-    "count": 69,
+    "count": 90,
     "sources": [
       "arxiv",
       "book"
@@ -10210,7 +10321,7 @@
   },
   "providing": {
     "first_heard": "2026-03-04T13:36:40.240802",
-    "count": 71,
+    "count": 92,
     "sources": [
       "arxiv",
       "book"
@@ -10233,7 +10344,7 @@
   },
   "issues": {
     "first_heard": "2026-03-04T13:36:40.240826",
-    "count": 71,
+    "count": 92,
     "sources": [
       "arxiv",
       "book"
@@ -10241,7 +10352,7 @@
   },
   "model": {
     "first_heard": "2026-03-04T13:36:40.240832",
-    "count": 71,
+    "count": 92,
     "sources": [
       "arxiv",
       "book"
@@ -10317,7 +10428,7 @@
   },
   "including": {
     "first_heard": "2026-03-04T13:36:40.240868",
-    "count": 77,
+    "count": 98,
     "sources": [
       "arxiv",
       "book"
@@ -10333,7 +10444,7 @@
   },
   "fantastic": {
     "first_heard": "2026-03-04T13:37:40.752512",
-    "count": 24,
+    "count": 30,
     "sources": [
       "pratchett",
       "book"
@@ -10341,7 +10452,7 @@
   },
   "equal": {
     "first_heard": "2026-03-04T13:38:43.370093",
-    "count": 48,
+    "count": 54,
     "sources": [
       "pratchett",
       "book"
@@ -10349,7 +10460,7 @@
   },
   "rites": {
     "first_heard": "2026-03-04T13:38:43.370116",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -10357,28 +10468,28 @@
   },
   "mort": {
     "first_heard": "2026-03-04T13:39:45.651063",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "sourcery": {
     "first_heard": "2026-03-04T13:40:47.819749",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "wyrd": {
     "first_heard": "2026-03-04T13:41:50.652192",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "sisters": {
     "first_heard": "2026-03-04T13:41:50.652217",
-    "count": 94,
+    "count": 100,
     "sources": [
       "pratchett",
       "book"
@@ -10386,7 +10497,7 @@
   },
   "pyramids": {
     "first_heard": "2026-03-04T13:42:53.434259",
-    "count": 12,
+    "count": 18,
     "sources": [
       "pratchett",
       "book"
@@ -10394,14 +10505,14 @@
   },
   "eric": {
     "first_heard": "2026-03-04T13:44:59.231691",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "pictures": {
     "first_heard": "2026-03-04T13:46:01.625526",
-    "count": 28,
+    "count": 34,
     "sources": [
       "pratchett",
       "book"
@@ -10409,21 +10520,21 @@
   },
   "reaper": {
     "first_heard": "2026-03-04T13:47:04.428838",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "witches": {
     "first_heard": "2026-03-04T13:48:06.923888",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "abroad": {
     "first_heard": "2026-03-04T13:48:06.923906",
-    "count": 18,
+    "count": 24,
     "sources": [
       "pratchett",
       "book"
@@ -10431,7 +10542,7 @@
   },
   "gods": {
     "first_heard": "2026-03-04T13:49:09.649170",
-    "count": 16,
+    "count": 22,
     "sources": [
       "pratchett",
       "book"
@@ -10439,7 +10550,7 @@
   },
   "lords": {
     "first_heard": "2026-03-04T13:50:12.427219",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -10447,7 +10558,7 @@
   },
   "ladies": {
     "first_heard": "2026-03-04T13:50:12.427249",
-    "count": 122,
+    "count": 128,
     "sources": [
       "pratchett",
       "book"
@@ -10455,15 +10566,16 @@
   },
   "soul": {
     "first_heard": "2026-03-04T13:52:17.980455",
-    "count": 118,
+    "count": 125,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "music": {
     "first_heard": "2026-03-04T13:52:17.980480",
-    "count": 42,
+    "count": 48,
     "sources": [
       "pratchett",
       "book"
@@ -10471,7 +10583,7 @@
   },
   "interesting": {
     "first_heard": "2026-03-04T13:53:20.773243",
-    "count": 60,
+    "count": 66,
     "sources": [
       "pratchett",
       "book"
@@ -10479,22 +10591,23 @@
   },
   "times": {
     "first_heard": "2026-03-04T13:53:20.773285",
-    "count": 94,
+    "count": 142,
     "sources": [
       "pratchett",
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "maskerade": {
     "first_heard": "2026-03-04T13:54:23.053137",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "clay": {
     "first_heard": "2026-03-04T13:55:25.932352",
-    "count": 34,
+    "count": 40,
     "sources": [
       "pratchett",
       "book"
@@ -10502,21 +10615,21 @@
   },
   "hogfather": {
     "first_heard": "2026-03-04T13:56:28.558154",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "jingo": {
     "first_heard": "2026-03-04T13:57:30.928503",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "continent": {
     "first_heard": "2026-03-04T13:58:33.636786",
-    "count": 14,
+    "count": 20,
     "sources": [
       "pratchett",
       "book"
@@ -10524,21 +10637,21 @@
   },
   "carpe": {
     "first_heard": "2026-03-04T13:59:35.948276",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "jugulum": {
     "first_heard": "2026-03-04T13:59:35.948292",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "fifth": {
     "first_heard": "2026-03-04T14:00:38.802564",
-    "count": 16,
+    "count": 22,
     "sources": [
       "pratchett",
       "book"
@@ -10546,7 +10659,7 @@
   },
   "elephant": {
     "first_heard": "2026-03-04T14:00:38.802579",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -10554,7 +10667,7 @@
   },
   "truth": {
     "first_heard": "2026-03-04T14:01:41.735746",
-    "count": 64,
+    "count": 70,
     "sources": [
       "pratchett",
       "book"
@@ -10562,7 +10675,7 @@
   },
   "hero": {
     "first_heard": "2026-03-04T14:03:47.354503",
-    "count": 16,
+    "count": 22,
     "sources": [
       "pratchett",
       "book"
@@ -10570,7 +10683,7 @@
   },
   "amazing": {
     "first_heard": "2026-03-04T14:04:50.139281",
-    "count": 12,
+    "count": 18,
     "sources": [
       "pratchett",
       "book"
@@ -10578,14 +10691,14 @@
   },
   "maurice": {
     "first_heard": "2026-03-04T14:04:50.139334",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "wee": {
     "first_heard": "2026-03-04T14:06:55.251420",
-    "count": 10,
+    "count": 16,
     "sources": [
       "pratchett",
       "book"
@@ -10593,7 +10706,7 @@
   },
   "monstrous": {
     "first_heard": "2026-03-04T14:07:57.830545",
-    "count": 22,
+    "count": 28,
     "sources": [
       "pratchett",
       "book"
@@ -10601,7 +10714,7 @@
   },
   "regiment": {
     "first_heard": "2026-03-04T14:07:57.830564",
-    "count": 14,
+    "count": 20,
     "sources": [
       "pratchett",
       "book"
@@ -10609,7 +10722,7 @@
   },
   "hat": {
     "first_heard": "2026-03-04T14:09:00.204856",
-    "count": 72,
+    "count": 78,
     "sources": [
       "pratchett",
       "book"
@@ -10617,7 +10730,7 @@
   },
   "sky": {
     "first_heard": "2026-03-04T14:09:00.204932",
-    "count": 42,
+    "count": 48,
     "sources": [
       "pratchett",
       "book"
@@ -10625,35 +10738,35 @@
   },
   "postal": {
     "first_heard": "2026-03-04T14:10:02.689108",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "thud": {
     "first_heard": "2026-03-04T14:11:05.012686",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "wintersmith": {
     "first_heard": "2026-03-04T14:12:07.585649",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "academicals": {
     "first_heard": "2026-03-04T14:14:13.675339",
-    "count": 8,
+    "count": 14,
     "sources": [
       "pratchett"
     ]
   },
   "wear": {
     "first_heard": "2026-03-04T14:15:15.896960",
-    "count": 25,
+    "count": 32,
     "sources": [
       "pratchett",
       "book"
@@ -10661,7 +10774,7 @@
   },
   "midnight": {
     "first_heard": "2026-03-04T14:15:15.896982",
-    "count": 27,
+    "count": 34,
     "sources": [
       "pratchett",
       "book"
@@ -10669,7 +10782,7 @@
   },
   "snuff": {
     "first_heard": "2026-03-04T14:16:18.362717",
-    "count": 15,
+    "count": 21,
     "sources": [
       "pratchett",
       "book"
@@ -10677,7 +10790,7 @@
   },
   "raising": {
     "first_heard": "2026-03-04T14:17:20.603489",
-    "count": 17,
+    "count": 23,
     "sources": [
       "pratchett",
       "book"
@@ -10685,7 +10798,7 @@
   },
   "steam": {
     "first_heard": "2026-03-04T14:17:20.603510",
-    "count": 13,
+    "count": 19,
     "sources": [
       "pratchett",
       "book"
@@ -10693,7 +10806,7 @@
   },
   "shepherd": {
     "first_heard": "2026-03-04T14:18:22.735257",
-    "count": 19,
+    "count": 25,
     "sources": [
       "pratchett",
       "book"
@@ -10701,7 +10814,7 @@
   },
   "crown": {
     "first_heard": "2026-03-04T14:18:22.735280",
-    "count": 29,
+    "count": 35,
     "sources": [
       "pratchett",
       "book"
@@ -10751,9 +10864,10 @@
   },
   "road": {
     "first_heard": "2026-03-04T14:19:27.362398",
-    "count": 40,
+    "count": 61,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "ruskin": {
@@ -11066,9 +11180,10 @@
   },
   "others": {
     "first_heard": "2026-03-04T14:19:27.362828",
-    "count": 132,
+    "count": 133,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "loved": {
@@ -11087,9 +11202,10 @@
   },
   "felt": {
     "first_heard": "2026-03-04T14:19:27.362832",
-    "count": 278,
+    "count": 279,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "proper": {
@@ -11115,9 +11231,10 @@
   },
   "yet": {
     "first_heard": "2026-03-04T14:19:27.362838",
-    "count": 506,
+    "count": 508,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "unusually": {
@@ -11486,9 +11603,10 @@
   },
   "took": {
     "first_heard": "2026-03-04T14:19:27.362931",
-    "count": 268,
+    "count": 269,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "fanny": {
@@ -11703,9 +11821,10 @@
   },
   "present": {
     "first_heard": "2026-03-04T14:19:27.362965",
-    "count": 172,
+    "count": 214,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "vulgar": {
@@ -11766,9 +11885,10 @@
   },
   "possible": {
     "first_heard": "2026-03-04T14:19:27.362985",
-    "count": 116,
+    "count": 137,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "vulgarity": {
@@ -11780,9 +11900,10 @@
   },
   "larger": {
     "first_heard": "2026-03-04T14:19:27.362987",
-    "count": 32,
+    "count": 53,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "varied": {
@@ -11808,9 +11929,10 @@
   },
   "general": {
     "first_heard": "2026-03-04T14:19:27.362995",
-    "count": 92,
+    "count": 113,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "peculiar": {
@@ -11829,16 +11951,18 @@
   },
   "dialogue": {
     "first_heard": "2026-03-04T14:19:27.362998",
-    "count": 6,
+    "count": 90,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "such": {
     "first_heard": "2026-03-04T14:19:27.362998",
-    "count": 774,
+    "count": 795,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "figures": {
@@ -11864,9 +11988,10 @@
   },
   "cannot": {
     "first_heard": "2026-03-04T14:19:27.363002",
-    "count": 218,
+    "count": 219,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "unite": {
@@ -11885,9 +12010,11 @@
   },
   "hand": {
     "first_heard": "2026-03-04T14:19:27.363005",
-    "count": 308,
+    "count": 331,
     "sources": [
-      "book"
+      "book",
+      "arxiv",
+      "ambient"
     ]
   },
   "declare": {
@@ -11927,9 +12054,10 @@
   },
   "space": {
     "first_heard": "2026-03-04T14:19:27.363021",
-    "count": 22,
+    "count": 43,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "permitted": {
@@ -11941,9 +12069,10 @@
   },
   "propose": {
     "first_heard": "2026-03-04T14:19:27.363023",
-    "count": 16,
+    "count": 58,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "necessary": {
@@ -11976,9 +12105,10 @@
   },
   "twenty": {
     "first_heard": "2026-03-04T14:19:27.363032",
-    "count": 66,
+    "count": 67,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "revised": {
@@ -12081,16 +12211,18 @@
   },
   "point": {
     "first_heard": "2026-03-04T14:19:27.363049",
-    "count": 132,
+    "count": 174,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "construction": {
     "first_heard": "2026-03-04T14:19:27.363050",
-    "count": 10,
+    "count": 31,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "possesses": {
@@ -12116,9 +12248,10 @@
   },
   "regular": {
     "first_heard": "2026-03-04T14:19:27.363055",
-    "count": 24,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "fielding": {
@@ -12158,9 +12291,11 @@
   },
   "without": {
     "first_heard": "2026-03-04T14:19:27.363061",
-    "count": 358,
+    "count": 380,
     "sources": [
-      "book"
+      "book",
+      "arxiv",
+      "ambient"
     ]
   },
   "loss": {
@@ -12207,9 +12342,10 @@
   },
   "de": {
     "first_heard": "2026-03-04T14:19:27.363068",
-    "count": 70,
+    "count": 71,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "connects": {
@@ -12361,9 +12497,10 @@
   },
   "business": {
     "first_heard": "2026-03-04T14:19:27.363091",
-    "count": 174,
+    "count": 175,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "transactions": {
@@ -12410,9 +12547,10 @@
   },
   "feature": {
     "first_heard": "2026-03-04T14:19:27.363100",
-    "count": 10,
+    "count": 31,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "otherwise": {
@@ -12459,9 +12597,10 @@
   },
   "display": {
     "first_heard": "2026-03-04T14:19:27.363109",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "incomparable": {
@@ -12508,9 +12647,10 @@
   },
   "natural": {
     "first_heard": "2026-03-04T14:19:27.363118",
-    "count": 92,
+    "count": 113,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "occasions": {
@@ -12550,9 +12690,10 @@
   },
   "given": {
     "first_heard": "2026-03-04T14:19:27.363124",
-    "count": 126,
+    "count": 147,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "awkwardness": {
@@ -12662,9 +12803,10 @@
   },
   "prove": {
     "first_heard": "2026-03-04T14:19:27.363160",
-    "count": 24,
+    "count": 45,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "startling": {
@@ -12774,9 +12916,10 @@
   },
   "thought": {
     "first_heard": "2026-03-04T14:19:27.363180",
-    "count": 512,
+    "count": 513,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "doubtless": {
@@ -12928,9 +13071,10 @@
   },
   "novel": {
     "first_heard": "2026-03-04T14:19:27.376866",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "excelled": {
@@ -13033,9 +13177,10 @@
   },
   "shown": {
     "first_heard": "2026-03-04T14:19:27.376887",
-    "count": 30,
+    "count": 51,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "contain": {
@@ -13089,9 +13234,10 @@
   },
   "instance": {
     "first_heard": "2026-03-04T14:19:27.376905",
-    "count": 24,
+    "count": 66,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "characteristics": {
@@ -13159,9 +13305,10 @@
   },
   "whole": {
     "first_heard": "2026-03-04T14:19:27.376923",
-    "count": 210,
+    "count": 211,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "addison": {
@@ -13439,9 +13586,10 @@
   },
   "practical": {
     "first_heard": "2026-03-04T14:19:27.376971",
-    "count": 20,
+    "count": 41,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "jokes": {
@@ -13551,9 +13699,10 @@
   },
   "further": {
     "first_heard": "2026-03-04T14:19:27.376989",
-    "count": 48,
+    "count": 69,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "lady": {
@@ -13684,9 +13833,10 @@
   },
   "marry": {
     "first_heard": "2026-03-04T14:19:27.377012",
-    "count": 38,
+    "count": 42,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "shapely": {
@@ -13817,9 +13967,10 @@
   },
   "word": {
     "first_heard": "2026-03-04T14:19:27.377034",
-    "count": 162,
+    "count": 164,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "cynical": {
@@ -13838,9 +13989,10 @@
   },
   "especially": {
     "first_heard": "2026-03-04T14:19:27.377038",
-    "count": 66,
+    "count": 87,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "gratuitous": {
@@ -13859,16 +14011,18 @@
   },
   "original": {
     "first_heard": "2026-03-04T14:19:27.377041",
-    "count": 24,
+    "count": 45,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "applied": {
     "first_heard": "2026-03-04T14:19:27.377042",
-    "count": 28,
+    "count": 49,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "rough": {
@@ -13964,9 +14118,10 @@
   },
   "care": {
     "first_heard": "2026-03-04T14:19:27.377060",
-    "count": 84,
+    "count": 85,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "paradise": {
@@ -14041,16 +14196,18 @@
   },
   "art": {
     "first_heard": "2026-03-04T14:19:27.377083",
-    "count": 44,
+    "count": 86,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "generally": {
     "first_heard": "2026-03-04T14:19:27.377084",
-    "count": 58,
+    "count": 79,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "goldwin": {
@@ -14076,9 +14233,10 @@
   },
   "observed": {
     "first_heard": "2026-03-04T14:19:27.377087",
-    "count": 84,
+    "count": 105,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "metaphor": {
@@ -14153,9 +14311,10 @@
   },
   "comparison": {
     "first_heard": "2026-03-04T14:19:27.377098",
-    "count": 18,
+    "count": 39,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "miniature": {
@@ -14370,9 +14529,10 @@
   },
   "remember": {
     "first_heard": "2026-03-04T14:19:27.377145",
-    "count": 122,
+    "count": 123,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "anybody": {
@@ -14496,9 +14656,10 @@
   },
   "went": {
     "first_heard": "2026-03-04T14:19:27.377165",
-    "count": 334,
+    "count": 335,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "frost": {
@@ -14538,9 +14699,10 @@
   },
   "studies": {
     "first_heard": "2026-03-04T14:19:27.393618",
-    "count": 28,
+    "count": 49,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "limits": {
@@ -14608,9 +14770,10 @@
   },
   "knew": {
     "first_heard": "2026-03-04T14:19:27.393641",
-    "count": 170,
+    "count": 171,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "humanity": {
@@ -14622,9 +14785,10 @@
   },
   "head": {
     "first_heard": "2026-03-04T14:19:27.393645",
-    "count": 366,
+    "count": 367,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "mistake": {
@@ -14727,9 +14891,10 @@
   },
   "giving": {
     "first_heard": "2026-03-04T14:19:27.393669",
-    "count": 34,
+    "count": 35,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "impression": {
@@ -14811,9 +14976,10 @@
   },
   "picture": {
     "first_heard": "2026-03-04T14:19:27.393683",
-    "count": 46,
+    "count": 49,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "superfluous": {
@@ -14853,9 +15019,10 @@
   },
   "each": {
     "first_heard": "2026-03-04T14:19:27.393697",
-    "count": 180,
+    "count": 181,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "taller": {
@@ -15021,9 +15188,10 @@
   },
   "impossible": {
     "first_heard": "2026-03-04T14:19:27.393737",
-    "count": 78,
+    "count": 99,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "non": {
@@ -15231,9 +15399,10 @@
   },
   "actions": {
     "first_heard": "2026-03-04T14:19:27.393786",
-    "count": 14,
+    "count": 35,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "greatness": {
@@ -15609,9 +15778,10 @@
   },
   "former": {
     "first_heard": "2026-03-04T14:19:27.393873",
-    "count": 46,
+    "count": 67,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "maunders": {
@@ -15728,9 +15898,10 @@
   },
   "result": {
     "first_heard": "2026-03-04T14:19:27.393894",
-    "count": 36,
+    "count": 57,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "readers": {
@@ -15791,9 +15962,10 @@
   },
   "detailed": {
     "first_heard": "2026-03-04T14:19:27.410490",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "dwelling": {
@@ -15910,9 +16082,10 @@
   },
   "less": {
     "first_heard": "2026-03-04T14:19:27.410521",
-    "count": 146,
+    "count": 167,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "pains": {
@@ -16414,9 +16587,10 @@
   },
   "simple": {
     "first_heard": "2026-03-04T14:19:27.410630",
-    "count": 66,
+    "count": 87,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "enters": {
@@ -16456,9 +16630,10 @@
   },
   "extremely": {
     "first_heard": "2026-03-04T14:19:27.410641",
-    "count": 40,
+    "count": 61,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "probable": {
@@ -16750,9 +16925,10 @@
   },
   "explained": {
     "first_heard": "2026-03-04T14:19:27.410705",
-    "count": 28,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "belongs": {
@@ -16883,9 +17059,10 @@
   },
   "strong": {
     "first_heard": "2026-03-04T14:19:27.410729",
-    "count": 74,
+    "count": 116,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "minded": {
@@ -17296,9 +17473,10 @@
   },
   "ones": {
     "first_heard": "2026-03-04T14:19:27.427052",
-    "count": 30,
+    "count": 51,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "fascinating": {
@@ -17338,9 +17516,10 @@
   },
   "choose": {
     "first_heard": "2026-03-04T14:19:27.427069",
-    "count": 32,
+    "count": 53,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "impudent": {
@@ -17485,9 +17664,10 @@
   },
   "reason": {
     "first_heard": "2026-03-04T14:19:27.427113",
-    "count": 118,
+    "count": 120,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "sad": {
@@ -17548,9 +17728,10 @@
   },
   "help": {
     "first_heard": "2026-03-04T14:19:27.427134",
-    "count": 122,
+    "count": 123,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "chronological": {
@@ -17786,9 +17967,10 @@
   },
   "note": {
     "first_heard": "2026-03-04T14:19:27.427183",
-    "count": 62,
+    "count": 63,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "cheerful": {
@@ -17821,9 +18003,10 @@
   },
   "screen": {
     "first_heard": "2026-03-04T14:19:27.427188",
-    "count": 8,
+    "count": 10,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "youngest": {
@@ -17989,9 +18172,10 @@
   },
   "spoke": {
     "first_heard": "2026-03-04T14:19:27.427224",
-    "count": 116,
+    "count": 117,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "low": {
@@ -18031,9 +18215,10 @@
   },
   "conversation": {
     "first_heard": "2026-03-04T14:19:27.427232",
-    "count": 118,
+    "count": 139,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "treasure": {
@@ -18052,9 +18237,10 @@
   },
   "failed": {
     "first_heard": "2026-03-04T14:19:27.427237",
-    "count": 24,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "inform": {
@@ -18304,9 +18490,10 @@
   },
   "welcome": {
     "first_heard": "2026-03-04T14:19:27.427283",
-    "count": 22,
+    "count": 24,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "affair": {
@@ -18346,9 +18533,10 @@
   },
   "happened": {
     "first_heard": "2026-03-04T14:19:27.427293",
-    "count": 72,
+    "count": 73,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "round": {
@@ -18661,9 +18849,10 @@
   },
   "design": {
     "first_heard": "2026-03-04T14:19:27.444965",
-    "count": 30,
+    "count": 51,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "settling": {
@@ -18682,9 +18871,10 @@
   },
   "talk": {
     "first_heard": "2026-03-04T14:19:27.444968",
-    "count": 102,
+    "count": 104,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "therefore": {
@@ -18990,9 +19180,10 @@
   },
   "insufficient": {
     "first_heard": "2026-03-04T14:19:27.445082",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "develope": {
@@ -19054,9 +19245,10 @@
   },
   "r": {
     "first_heard": "2026-03-04T14:19:27.445098",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "rs": {
@@ -19068,9 +19260,10 @@
   },
   "ii": {
     "first_heard": "2026-03-04T14:19:27.445101",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "among": {
@@ -19117,9 +19310,10 @@
   },
   "paid": {
     "first_heard": "2026-03-04T14:19:27.445112",
-    "count": 44,
+    "count": 47,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "disclosed": {
@@ -19265,9 +19459,10 @@
   },
   "reply": {
     "first_heard": "2026-03-04T14:19:27.459353",
-    "count": 50,
+    "count": 51,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "began": {
@@ -19454,9 +19649,10 @@
   },
   "office": {
     "first_heard": "2026-03-04T14:19:27.459404",
-    "count": 46,
+    "count": 48,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "stared": {
@@ -19601,9 +19797,10 @@
   },
   "expected": {
     "first_heard": "2026-03-04T14:19:27.459449",
-    "count": 56,
+    "count": 77,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "persuade": {
@@ -19979,9 +20176,10 @@
   },
   "window": {
     "first_heard": "2026-03-04T14:19:27.459559",
-    "count": 110,
+    "count": 111,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "wore": {
@@ -20294,9 +20492,10 @@
   },
   "tide": {
     "first_heard": "2026-03-04T14:19:27.479517",
-    "count": 26,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "popularity": {
@@ -20378,9 +20577,10 @@
   },
   "talked": {
     "first_heard": "2026-03-04T14:19:27.479538",
-    "count": 34,
+    "count": 35,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "amiable": {
@@ -20511,9 +20711,10 @@
   },
   "yourself": {
     "first_heard": "2026-03-04T14:19:27.479596",
-    "count": 156,
+    "count": 157,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "detest": {
@@ -20553,9 +20754,10 @@
   },
   "met": {
     "first_heard": "2026-03-04T14:19:27.479612",
-    "count": 98,
+    "count": 99,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "uncommonly": {
@@ -20805,9 +21007,10 @@
   },
   "asked": {
     "first_heard": "2026-03-04T14:19:27.494909",
-    "count": 180,
+    "count": 182,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "vexed": {
@@ -20868,9 +21071,10 @@
   },
   "o": {
     "first_heard": "2026-03-04T14:19:27.494938",
-    "count": 96,
+    "count": 97,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "sprained": {
@@ -21106,9 +21310,10 @@
   },
   "surprise": {
     "first_heard": "2026-03-04T14:19:27.495014",
-    "count": 64,
+    "count": 65,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "seeing": {
@@ -21120,9 +21325,10 @@
   },
   "thanks": {
     "first_heard": "2026-03-04T14:19:27.495021",
-    "count": 22,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "gallantry": {
@@ -21498,16 +21704,18 @@
   },
   "home": {
     "first_heard": "2026-03-04T14:19:27.510257",
-    "count": 184,
+    "count": 185,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "suited": {
     "first_heard": "2026-03-04T14:19:27.510259",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tempted": {
@@ -21596,9 +21804,10 @@
   },
   "offer": {
     "first_heard": "2026-03-04T14:19:27.510284",
-    "count": 48,
+    "count": 90,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "appeared": {
@@ -21652,9 +21861,10 @@
   },
   "greatly": {
     "first_heard": "2026-03-04T14:19:27.510304",
-    "count": 44,
+    "count": 65,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "wherever": {
@@ -22079,9 +22289,10 @@
   },
   "treatment": {
     "first_heard": "2026-03-04T14:19:27.527141",
-    "count": 14,
+    "count": 15,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "misfortune": {
@@ -22093,9 +22304,10 @@
   },
   "ma": {
     "first_heard": "2026-03-04T14:19:27.527155",
-    "count": 16,
+    "count": 17,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "remarkably": {
@@ -22730,9 +22942,10 @@
   },
   "success": {
     "first_heard": "2026-03-04T14:19:27.550245",
-    "count": 48,
+    "count": 90,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "happiness": {
@@ -22758,9 +22971,10 @@
   },
   "marriage": {
     "first_heard": "2026-03-04T14:19:27.550254",
-    "count": 66,
+    "count": 67,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "dispositions": {
@@ -22877,9 +23091,10 @@
   },
   "face": {
     "first_heard": "2026-03-04T14:19:27.550298",
-    "count": 246,
+    "count": 247,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "rendered": {
@@ -22989,9 +23204,10 @@
   },
   "begin": {
     "first_heard": "2026-03-04T14:19:27.550343",
-    "count": 58,
+    "count": 59,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "approaching": {
@@ -23171,9 +23387,10 @@
   },
   "performance": {
     "first_heard": "2026-03-04T14:19:27.550400",
-    "count": 10,
+    "count": 115,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "eagerly": {
@@ -23206,9 +23423,10 @@
   },
   "application": {
     "first_heard": "2026-03-04T14:19:27.566473",
-    "count": 24,
+    "count": 45,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "pedantic": {
@@ -23395,9 +23613,10 @@
   },
   "avoid": {
     "first_heard": "2026-03-04T14:19:27.566557",
-    "count": 32,
+    "count": 53,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "bowed": {
@@ -23647,9 +23866,10 @@
   },
   "wrong": {
     "first_heard": "2026-03-04T14:19:27.566654",
-    "count": 40,
+    "count": 41,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "agreeably": {
@@ -24319,9 +24539,10 @@
   },
   "wanted": {
     "first_heard": "2026-03-04T14:19:27.665264",
-    "count": 38,
+    "count": 39,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "farm": {
@@ -25082,9 +25303,10 @@
   },
   "past": {
     "first_heard": "2026-03-04T14:19:27.682713",
-    "count": 60,
+    "count": 81,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "summoned": {
@@ -25622,9 +25844,10 @@
   },
   "sell": {
     "first_heard": "2026-03-04T14:19:27.719187",
-    "count": 22,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "possibilities": {
@@ -25636,9 +25859,10 @@
   },
   "imitation": {
     "first_heard": "2026-03-04T14:19:27.719193",
-    "count": 6,
+    "count": 48,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "laying": {
@@ -25720,9 +25944,10 @@
   },
   "cover": {
     "first_heard": "2026-03-04T14:19:27.719235",
-    "count": 12,
+    "count": 54,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "screens": {
@@ -26336,9 +26561,10 @@
   },
   "resolve": {
     "first_heard": "2026-03-04T14:19:27.736075",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "pitiful": {
@@ -26735,9 +26961,10 @@
   },
   "signal": {
     "first_heard": "2026-03-04T14:19:27.753294",
-    "count": 14,
+    "count": 35,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "whispering": {
@@ -26980,9 +27207,10 @@
   },
   "fast": {
     "first_heard": "2026-03-04T14:19:27.753418",
-    "count": 32,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "odious": {
@@ -27085,9 +27313,10 @@
   },
   "leaves": {
     "first_heard": "2026-03-04T14:19:27.770712",
-    "count": 56,
+    "count": 57,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "blots": {
@@ -27365,9 +27594,10 @@
   },
   "representation": {
     "first_heard": "2026-03-04T14:19:27.770827",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "delay": {
@@ -27407,9 +27637,10 @@
   },
   "waiting": {
     "first_heard": "2026-03-04T14:19:27.770848",
-    "count": 56,
+    "count": 57,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "arguments": {
@@ -27505,9 +27736,10 @@
   },
   "size": {
     "first_heard": "2026-03-04T14:19:27.770880",
-    "count": 42,
+    "count": 84,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "deference": {
@@ -27631,9 +27863,10 @@
   },
   "sang": {
     "first_heard": "2026-03-04T14:19:27.788085",
-    "count": 14,
+    "count": 15,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "lay": {
@@ -28009,9 +28242,10 @@
   },
   "couple": {
     "first_heard": "2026-03-04T14:19:27.788245",
-    "count": 18,
+    "count": 19,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "xi": {
@@ -28044,9 +28278,10 @@
   },
   "accuracy": {
     "first_heard": "2026-03-04T14:19:27.788262",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "relate": {
@@ -28177,9 +28412,10 @@
   },
   "sleep": {
     "first_heard": "2026-03-04T14:19:27.814352",
-    "count": 96,
+    "count": 98,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "principally": {
@@ -28219,9 +28455,10 @@
   },
   "chosen": {
     "first_heard": "2026-03-04T14:19:27.814372",
-    "count": 16,
+    "count": 37,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "volume": {
@@ -28324,16 +28561,18 @@
   },
   "process": {
     "first_heard": "2026-03-04T14:19:27.814416",
-    "count": 12,
+    "count": 54,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "aimed": {
     "first_heard": "2026-03-04T14:19:27.814427",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "inflexibly": {
@@ -28422,9 +28661,10 @@
   },
   "joining": {
     "first_heard": "2026-03-04T14:19:27.814456",
-    "count": 4,
+    "count": 5,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "interfere": {
@@ -28471,9 +28711,10 @@
   },
   "method": {
     "first_heard": "2026-03-04T14:19:27.814475",
-    "count": 16,
+    "count": 121,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "confidence": {
@@ -28863,9 +29104,10 @@
   },
   "proposed": {
     "first_heard": "2026-03-04T14:19:27.838957",
-    "count": 12,
+    "count": 75,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "jealousy": {
@@ -28919,9 +29161,10 @@
   },
   "careful": {
     "first_heard": "2026-03-04T14:19:27.838980",
-    "count": 26,
+    "count": 28,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "sign": {
@@ -29024,9 +29267,10 @@
   },
   "circle": {
     "first_heard": "2026-03-04T14:19:27.856445",
-    "count": 14,
+    "count": 15,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "bass": {
@@ -29094,9 +29338,10 @@
   },
   "fish": {
     "first_heard": "2026-03-04T14:19:27.856495",
-    "count": 68,
+    "count": 89,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "ring": {
@@ -29143,9 +29388,10 @@
   },
   "hardest": {
     "first_heard": "2026-03-04T14:19:27.856524",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "attempted": {
@@ -29878,9 +30124,10 @@
   },
   "future": {
     "first_heard": "2026-03-04T14:19:27.874245",
-    "count": 50,
+    "count": 71,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "begged": {
@@ -30011,9 +30258,10 @@
   },
   "experienced": {
     "first_heard": "2026-03-04T14:19:27.896317",
-    "count": 32,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "graciously": {
@@ -30109,9 +30357,10 @@
   },
   "suggest": {
     "first_heard": "2026-03-04T14:19:27.896365",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "shelves": {
@@ -30438,9 +30687,10 @@
   },
   "produced": {
     "first_heard": "2026-03-04T14:19:27.896500",
-    "count": 44,
+    "count": 65,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "beholding": {
@@ -30704,9 +30954,10 @@
   },
   "useful": {
     "first_heard": "2026-03-04T14:19:27.915291",
-    "count": 28,
+    "count": 49,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "subjection": {
@@ -31201,9 +31452,10 @@
   },
   "minute": {
     "first_heard": "2026-03-04T14:19:27.933724",
-    "count": 70,
+    "count": 72,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "bows": {
@@ -31691,9 +31943,10 @@
   },
   "finally": {
     "first_heard": "2026-03-04T14:19:27.952965",
-    "count": 40,
+    "count": 41,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "fell": {
@@ -31803,9 +32056,10 @@
   },
   "improve": {
     "first_heard": "2026-03-04T14:19:27.953004",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "compliance": {
@@ -31866,9 +32120,10 @@
   },
   "willing": {
     "first_heard": "2026-03-04T14:19:27.953031",
-    "count": 12,
+    "count": 13,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "dared": {
@@ -31915,9 +32170,10 @@
   },
   "capable": {
     "first_heard": "2026-03-04T14:19:27.953058",
-    "count": 40,
+    "count": 61,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "infancy": {
@@ -32041,16 +32297,18 @@
   },
   "usage": {
     "first_heard": "2026-03-04T14:19:27.978956",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "painful": {
     "first_heard": "2026-03-04T14:19:27.978958",
-    "count": 18,
+    "count": 19,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "breathed": {
@@ -32104,9 +32362,10 @@
   },
   "increase": {
     "first_heard": "2026-03-04T14:19:27.978987",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "topics": {
@@ -32132,9 +32391,10 @@
   },
   "enter": {
     "first_heard": "2026-03-04T14:19:27.979007",
-    "count": 48,
+    "count": 49,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "procured": {
@@ -32195,9 +32455,10 @@
   },
   "provide": {
     "first_heard": "2026-03-04T14:19:27.979045",
-    "count": 8,
+    "count": 71,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "amply": {
@@ -32741,9 +33002,10 @@
   },
   "players": {
     "first_heard": "2026-03-04T14:19:27.999272",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "gathered": {
@@ -32895,9 +33157,10 @@
   },
   "everyone": {
     "first_heard": "2026-03-04T14:19:28.030148",
-    "count": 14,
+    "count": 16,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "class": {
@@ -32923,9 +33186,10 @@
   },
   "won": {
     "first_heard": "2026-03-04T14:19:28.030193",
-    "count": 94,
+    "count": 95,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "losses": {
@@ -32993,9 +33257,10 @@
   },
   "accident": {
     "first_heard": "2026-03-04T14:19:28.030232",
-    "count": 24,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "deceived": {
@@ -33952,9 +34217,10 @@
   },
   "compare": {
     "first_heard": "2026-03-04T14:19:28.096943",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "occupies": {
@@ -34337,9 +34603,10 @@
   },
   "regulate": {
     "first_heard": "2026-03-04T14:19:28.117131",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "clergy": {
@@ -34547,9 +34814,10 @@
   },
   "points": {
     "first_heard": "2026-03-04T14:19:28.137860",
-    "count": 36,
+    "count": 57,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "gratulation": {
@@ -34813,9 +35081,10 @@
   },
   "compatible": {
     "first_heard": "2026-03-04T14:19:28.138060",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "devoting": {
@@ -35121,9 +35390,10 @@
   },
   "declaration": {
     "first_heard": "2026-03-04T14:19:28.159430",
-    "count": 8,
+    "count": 9,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "diffidence": {
@@ -35268,16 +35538,18 @@
   },
   "reasons": {
     "first_heard": "2026-03-04T14:19:28.179429",
-    "count": 20,
+    "count": 41,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "selecting": {
     "first_heard": "2026-03-04T14:19:28.179433",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "thirdly": {
@@ -37046,9 +37318,10 @@
   },
   "hoping": {
     "first_heard": "2026-03-04T14:19:28.321017",
-    "count": 12,
+    "count": 13,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "speedy": {
@@ -37179,9 +37452,10 @@
   },
   "offers": {
     "first_heard": "2026-03-04T14:19:28.342395",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "sacrificed": {
@@ -37613,9 +37887,10 @@
   },
   "lover": {
     "first_heard": "2026-03-04T14:19:28.364141",
-    "count": 18,
+    "count": 20,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "recurring": {
@@ -37963,9 +38238,10 @@
   },
   "instances": {
     "first_heard": "2026-03-04T14:19:28.394821",
-    "count": 10,
+    "count": 31,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "unaccountable": {
@@ -38642,9 +38918,10 @@
   },
   "task": {
     "first_heard": "2026-03-04T14:20:37.367119",
-    "count": 28,
+    "count": 70,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "welfare": {
@@ -38880,9 +39157,10 @@
   },
   "sea": {
     "first_heard": "2026-03-04T14:20:37.367348",
-    "count": 264,
+    "count": 265,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "wafted": {
@@ -39293,9 +39571,10 @@
   },
   "volumes": {
     "first_heard": "2026-03-04T14:20:37.367544",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "familiarity": {
@@ -40056,9 +40335,10 @@
   },
   "professional": {
     "first_heard": "2026-03-04T14:20:37.399829",
-    "count": 12,
+    "count": 13,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "prejudices": {
@@ -40644,9 +40924,10 @@
   },
   "explore": {
     "first_heard": "2026-03-04T14:20:37.426688",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "dearer": {
@@ -40700,9 +40981,10 @@
   },
   "support": {
     "first_heard": "2026-03-04T14:20:37.426707",
-    "count": 18,
+    "count": 19,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "robert": {
@@ -40882,9 +41164,10 @@
   },
   "record": {
     "first_heard": "2026-03-04T14:20:37.426765",
-    "count": 16,
+    "count": 17,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "adieu": {
@@ -41421,9 +41704,10 @@
   },
   "cabin": {
     "first_heard": "2026-03-04T14:20:37.453064",
-    "count": 60,
+    "count": 61,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "fainted": {
@@ -41596,9 +41880,10 @@
   },
   "vehicle": {
     "first_heard": "2026-03-04T14:20:37.453154",
-    "count": 2,
+    "count": 65,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "assumed": {
@@ -41834,9 +42119,10 @@
   },
   "measures": {
     "first_heard": "2026-03-04T14:20:37.479987",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "evinced": {
@@ -41848,9 +42134,10 @@
   },
   "utterance": {
     "first_heard": "2026-03-04T14:20:37.479994",
-    "count": 6,
+    "count": 48,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "fervour": {
@@ -41932,9 +42219,10 @@
   },
   "race": {
     "first_heard": "2026-03-04T14:20:37.480017",
-    "count": 24,
+    "count": 26,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "suppress": {
@@ -42002,9 +42290,10 @@
   },
   "reveal": {
     "first_heard": "2026-03-04T14:20:37.480043",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tale": {
@@ -42380,9 +42669,10 @@
   },
   "evidence": {
     "first_heard": "2026-03-04T14:20:37.505696",
-    "count": 52,
+    "count": 73,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "endure": {
@@ -42597,9 +42887,10 @@
   },
   "illustrate": {
     "first_heard": "2026-03-04T14:20:37.505800",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "refrain": {
@@ -42940,9 +43231,10 @@
   },
   "protection": {
     "first_heard": "2026-03-04T14:20:37.531461",
-    "count": 10,
+    "count": 52,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "closer": {
@@ -43759,9 +44051,10 @@
   },
   "literally": {
     "first_heard": "2026-03-04T14:20:37.558302",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "protect": {
@@ -44004,9 +44297,10 @@
   },
   "shore": {
     "first_heard": "2026-03-04T14:20:37.558393",
-    "count": 44,
+    "count": 45,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "league": {
@@ -44606,9 +44900,10 @@
   },
   "demonstrate": {
     "first_heard": "2026-03-04T14:20:37.587620",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "dawn": {
@@ -44823,9 +45118,10 @@
   },
   "uses": {
     "first_heard": "2026-03-04T14:20:37.587718",
-    "count": 14,
+    "count": 56,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "philosopher": {
@@ -45138,9 +45434,10 @@
   },
   "contradictory": {
     "first_heard": "2026-03-04T14:20:37.615664",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "theories": {
@@ -46272,9 +46569,10 @@
   },
   "results": {
     "first_heard": "2026-03-04T14:20:37.694545",
-    "count": 18,
+    "count": 102,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "accounted": {
@@ -46503,9 +46801,10 @@
   },
   "experiments": {
     "first_heard": "2026-03-04T14:20:37.694654",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "teachers": {
@@ -47532,9 +47831,10 @@
   },
   "complex": {
     "first_heard": "2026-03-04T14:20:37.754492",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "materials": {
@@ -47595,9 +47895,10 @@
   },
   "complexity": {
     "first_heard": "2026-03-04T14:20:37.754520",
-    "count": 2,
+    "count": 44,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "impracticability": {
@@ -47819,9 +48120,10 @@
   },
   "collected": {
     "first_heard": "2026-03-04T14:20:37.784671",
-    "count": 22,
+    "count": 64,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "bones": {
@@ -47847,9 +48149,10 @@
   },
   "tremendous": {
     "first_heard": "2026-03-04T14:20:37.784677",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "cell": {
@@ -48190,9 +48493,10 @@
   },
   "slavery": {
     "first_heard": "2026-03-04T14:20:37.784852",
-    "count": 8,
+    "count": 9,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "mines": {
@@ -49660,9 +49964,10 @@
   },
   "gesture": {
     "first_heard": "2026-03-04T14:20:37.911735",
-    "count": 6,
+    "count": 7,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "imitate": {
@@ -52579,9 +52884,10 @@
   },
   "thrice": {
     "first_heard": "2026-03-04T14:20:38.223081",
-    "count": 8,
+    "count": 9,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "accursed": {
@@ -52831,9 +53137,10 @@
   },
   "water": {
     "first_heard": "2026-03-04T14:20:38.258635",
-    "count": 120,
+    "count": 121,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "sails": {
@@ -54021,9 +54328,10 @@
   },
   "cut": {
     "first_heard": "2026-03-04T14:20:38.326251",
-    "count": 42,
+    "count": 43,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "windings": {
@@ -55197,9 +55505,10 @@
   },
   "operation": {
     "first_heard": "2026-03-04T14:20:38.452058",
-    "count": 8,
+    "count": 9,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "dried": {
@@ -55246,9 +55555,10 @@
   },
   "fan": {
     "first_heard": "2026-03-04T14:20:38.452116",
-    "count": 22,
+    "count": 24,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "offals": {
@@ -55568,9 +55878,10 @@
   },
   "floor": {
     "first_heard": "2026-03-04T14:20:38.452342",
-    "count": 58,
+    "count": 59,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "chinks": {
@@ -56051,9 +56362,10 @@
   },
   "solve": {
     "first_heard": "2026-03-04T14:20:38.520796",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "enigmatic": {
@@ -57353,9 +57665,10 @@
   },
   "decision": {
     "first_heard": "2026-03-04T14:20:38.664847",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "vow": {
@@ -57451,9 +57764,10 @@
   },
   "reward": {
     "first_heard": "2026-03-04T14:20:38.664885",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "gestures": {
@@ -57682,9 +57996,10 @@
   },
   "simplest": {
     "first_heard": "2026-03-04T14:20:38.702014",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tenderest": {
@@ -57962,9 +58277,10 @@
   },
   "containing": {
     "first_heard": "2026-03-04T14:20:38.740766",
-    "count": 12,
+    "count": 33,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "articles": {
@@ -57990,9 +58306,10 @@
   },
   "images": {
     "first_heard": "2026-03-04T14:20:38.740799",
-    "count": 4,
+    "count": 46,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "affecting": {
@@ -58333,9 +58650,10 @@
   },
   "image": {
     "first_heard": "2026-03-04T14:20:38.807815",
-    "count": 20,
+    "count": 83,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "postponed": {
@@ -58823,9 +59141,10 @@
   },
   "bird": {
     "first_heard": "2026-03-04T14:20:38.886155",
-    "count": 14,
+    "count": 15,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "stillness": {
@@ -59061,9 +59380,10 @@
   },
   "fired": {
     "first_heard": "2026-03-04T14:20:38.924733",
-    "count": 6,
+    "count": 7,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "heath": {
@@ -59201,16 +59521,18 @@
   },
   "map": {
     "first_heard": "2026-03-04T14:20:38.924873",
-    "count": 10,
+    "count": 31,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "extract": {
     "first_heard": "2026-03-04T14:20:38.924881",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "confines": {
@@ -59292,9 +59614,10 @@
   },
   "gun": {
     "first_heard": "2026-03-04T14:20:38.964085",
-    "count": 16,
+    "count": 17,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "injurer": {
@@ -59950,9 +60273,10 @@
   },
   "europe": {
     "first_heard": "2026-03-04T14:20:39.046755",
-    "count": 16,
+    "count": 17,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "burns": {
@@ -60363,9 +60687,10 @@
   },
   "ensure": {
     "first_heard": "2026-03-04T14:20:39.128935",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "concert": {
@@ -60489,9 +60814,10 @@
   },
   "september": {
     "first_heard": "2026-03-04T14:20:39.129025",
-    "count": 4,
+    "count": 5,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "acquiesced": {
@@ -60769,9 +61095,10 @@
   },
   "killing": {
     "first_heard": "2026-03-04T14:21:43.519163",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "managed": {
@@ -61693,9 +62020,10 @@
   },
   "quiet": {
     "first_heard": "2026-03-04T14:21:43.660467",
-    "count": 36,
+    "count": 37,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "lazily": {
@@ -62442,9 +62770,10 @@
   },
   "frames": {
     "first_heard": "2026-03-04T14:21:43.769129",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "cartwheels": {
@@ -62876,9 +63205,10 @@
   },
   "isn": {
     "first_heard": "2026-03-04T14:21:43.830091",
-    "count": 20,
+    "count": 21,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "chrysalis": {
@@ -63058,9 +63388,10 @@
   },
   "shorter": {
     "first_heard": "2026-03-04T14:21:43.863537",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "thoughtfully": {
@@ -63331,9 +63662,10 @@
   },
   "producing": {
     "first_heard": "2026-03-04T14:21:43.917187",
-    "count": 6,
+    "count": 27,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "curls": {
@@ -63884,9 +64216,10 @@
   },
   "desk": {
     "first_heard": "2026-03-04T14:21:44.010027",
-    "count": 12,
+    "count": 13,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "riddles": {
@@ -64157,9 +64490,10 @@
   },
   "unlocking": {
     "first_heard": "2026-03-04T14:21:44.072255",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "gardeners": {
@@ -65865,9 +66199,10 @@
   },
   "signed": {
     "first_heard": "2026-03-04T14:21:44.420143",
-    "count": 14,
+    "count": 15,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "honest": {
@@ -66299,9 +66634,10 @@
   },
   "machine": {
     "first_heard": "2026-03-04T14:22:49.144438",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "softer": {
@@ -66327,9 +66663,10 @@
   },
   "trained": {
     "first_heard": "2026-03-04T14:22:49.144504",
-    "count": 6,
+    "count": 48,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "reasoner": {
@@ -66586,9 +66923,11 @@
   },
   "problem": {
     "first_heard": "2026-03-04T14:22:49.145040",
-    "count": 16,
+    "count": 104,
     "sources": [
-      "book"
+      "book",
+      "arxiv",
+      "ambient"
     ]
   },
   "effusive": {
@@ -66859,9 +67198,10 @@
   },
   "problems": {
     "first_heard": "2026-03-04T14:22:49.184173",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "chronicle": {
@@ -67419,9 +67759,10 @@
   },
   "agent": {
     "first_heard": "2026-03-04T14:22:49.218890",
-    "count": 18,
+    "count": 39,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "dryly": {
@@ -67671,9 +68012,10 @@
   },
   "la": {
     "first_heard": "2026-03-04T14:22:49.219012",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "scala": {
@@ -68175,9 +68517,10 @@
   },
   "runs": {
     "first_heard": "2026-03-04T14:22:49.290785",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "lent": {
@@ -68784,9 +69127,10 @@
   },
   "wheel": {
     "first_heard": "2026-03-04T14:22:49.326561",
-    "count": 8,
+    "count": 12,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "guardsmen": {
@@ -68812,9 +69156,10 @@
   },
   "becomes": {
     "first_heard": "2026-03-04T14:22:49.363448",
-    "count": 14,
+    "count": 35,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "edged": {
@@ -69246,9 +69591,10 @@
   },
   "panel": {
     "first_heard": "2026-03-04T14:22:49.399241",
-    "count": 6,
+    "count": 7,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "excuses": {
@@ -69708,9 +70054,10 @@
   },
   "average": {
     "first_heard": "2026-03-04T14:22:49.473302",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "commonplace": {
@@ -70268,9 +70615,10 @@
   },
   "west": {
     "first_heard": "2026-03-04T14:22:49.576456",
-    "count": 16,
+    "count": 20,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "tramped": {
@@ -71549,9 +71897,10 @@
   },
   "theoretical": {
     "first_heard": "2026-03-04T14:22:49.731456",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "makings": {
@@ -71983,9 +72332,10 @@
   },
   "comparing": {
     "first_heard": "2026-03-04T14:22:49.771226",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tension": {
@@ -72179,9 +72529,10 @@
   },
   "effective": {
     "first_heard": "2026-03-04T14:22:49.810615",
-    "count": 2,
+    "count": 65,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "derbies": {
@@ -72501,9 +72852,10 @@
   },
   "selection": {
     "first_heard": "2026-03-04T14:22:49.849847",
-    "count": 6,
+    "count": 111,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "realistic": {
@@ -72550,16 +72902,18 @@
   },
   "contact": {
     "first_heard": "2026-03-04T14:22:49.849879",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "test": {
     "first_heard": "2026-03-04T14:22:49.849886",
-    "count": 10,
+    "count": 11,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "bruise": {
@@ -72655,9 +73009,10 @@
   },
   "analysis": {
     "first_heard": "2026-03-04T14:22:49.849983",
-    "count": 4,
+    "count": 88,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "bigger": {
@@ -77226,9 +77581,10 @@
   },
   "reconstruction": {
     "first_heard": "2026-03-04T14:22:50.733194",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "opposing": {
@@ -77254,9 +77610,10 @@
   },
   "newly": {
     "first_heard": "2026-03-04T14:22:50.733218",
-    "count": 8,
+    "count": 29,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "outstretched": {
@@ -77919,9 +78276,10 @@
   },
   "notably": {
     "first_heard": "2026-03-04T14:22:50.853121",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "tennessee": {
@@ -80103,9 +80461,10 @@
   },
   "joking": {
     "first_heard": "2026-03-04T14:22:51.239753",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "incredulity": {
@@ -81048,9 +81407,10 @@
   },
   "resulting": {
     "first_heard": "2026-03-04T14:23:56.125590",
-    "count": 4,
+    "count": 25,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "etext": {
@@ -81062,9 +81422,10 @@
   },
   "domain": {
     "first_heard": "2026-03-04T14:23:56.125597",
-    "count": 2,
+    "count": 65,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "consumptive": {
@@ -82910,9 +83271,10 @@
   },
   "capture": {
     "first_heard": "2026-03-04T14:23:56.253065",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "shakes": {
@@ -84086,9 +84448,10 @@
   },
   "robust": {
     "first_heard": "2026-03-04T14:23:56.343095",
-    "count": 4,
+    "count": 46,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "passenger": {
@@ -85829,9 +86192,10 @@
   },
   "based": {
     "first_heard": "2026-03-04T14:23:57.001129",
-    "count": 2,
+    "count": 233,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "aggregated": {
@@ -90407,9 +90771,10 @@
   },
   "merging": {
     "first_heard": "2026-03-04T14:23:57.776806",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "flowering": {
@@ -90834,9 +91199,10 @@
   },
   "gangway": {
     "first_heard": "2026-03-04T14:23:57.842756",
-    "count": 6,
+    "count": 7,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "larboard": {
@@ -91667,9 +92033,10 @@
   },
   "contradiction": {
     "first_heard": "2026-03-04T14:23:58.073873",
-    "count": 2,
+    "count": 86,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "appals": {
@@ -94971,9 +95338,10 @@
   },
   "recently": {
     "first_heard": "2026-03-04T14:23:58.591396",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "repast": {
@@ -96476,9 +96844,10 @@
   },
   "consistency": {
     "first_heard": "2026-03-04T14:23:58.822109",
-    "count": 2,
+    "count": 44,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "invaders": {
@@ -96938,9 +97307,10 @@
   },
   "responsible": {
     "first_heard": "2026-03-04T14:23:58.940753",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "questionably": {
@@ -97897,9 +98267,10 @@
   },
   "counterpart": {
     "first_heard": "2026-03-04T14:23:59.180866",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "appellative": {
@@ -99626,16 +99997,18 @@
   },
   "procedure": {
     "first_heard": "2026-03-04T14:23:59.581502",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "pre": {
     "first_heard": "2026-03-04T14:23:59.581503",
-    "count": 2,
+    "count": 23,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "declines": {
@@ -101929,9 +102302,10 @@
   },
   "engineering": {
     "first_heard": "2026-03-04T14:23:59.877058",
-    "count": 2,
+    "count": 44,
     "sources": [
-      "book"
+      "book",
+      "arxiv"
     ]
   },
   "canals": {
@@ -102006,9 +102380,10 @@
   },
   "federated": {
     "first_heard": "2026-03-04T14:23:59.877105",
-    "count": 2,
+    "count": 3,
     "sources": [
-      "book"
+      "book",
+      "ambient"
     ]
   },
   "isolatoes": {
@@ -102226,6 +102601,1147 @@
     "count": 8,
     "sources": [
       "news"
+    ]
+  },
+  "reinforcement": {
+    "first_heard": "2026-03-05T09:42:46.001222",
+    "count": 63,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "ramp": {
+    "first_heard": "2026-03-05T09:42:46.001235",
+    "count": 105,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "metering": {
+    "first_heard": "2026-03-05T09:42:46.001237",
+    "count": 84,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "signals": {
+    "first_heard": "2026-03-05T09:42:46.001244",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "flows": {
+    "first_heard": "2026-03-05T09:42:46.001248",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "ramps": {
+    "first_heard": "2026-03-05T09:42:46.001250",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "widely": {
+    "first_heard": "2026-03-05T09:42:46.001254",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "implemented": {
+    "first_heard": "2026-03-05T09:42:46.001255",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "mobility": {
+    "first_heard": "2026-03-05T09:42:46.001257",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "freeway": {
+    "first_heard": "2026-03-05T09:42:46.001259",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "update": {
+    "first_heard": "2026-03-05T09:42:46.001262",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "timings": {
+    "first_heard": "2026-03-05T09:42:46.001264",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "predefined": {
+    "first_heard": "2026-03-05T09:42:46.001268",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "detectors": {
+    "first_heard": "2026-03-05T09:42:46.001272",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "occupancies": {
+    "first_heard": "2026-03-05T09:42:46.001275",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "cameras": {
+    "first_heard": "2026-03-05T09:42:46.001278",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "increasingly": {
+    "first_heard": "2026-03-05T09:42:46.001282",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "deployed": {
+    "first_heard": "2026-03-05T09:42:46.001283",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "networks": {
+    "first_heard": "2026-03-05T09:42:46.001285",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "drl": {
+    "first_heard": "2026-03-05T09:42:46.001296",
+    "count": 84,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "efficiency": {
+    "first_heard": "2026-03-05T09:42:46.001301",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "inputs": {
+    "first_heard": "2026-03-05T09:42:46.001306",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "learns": {
+    "first_heard": "2026-03-05T09:42:46.001307",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "optimal": {
+    "first_heard": "2026-03-05T09:42:46.001308",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "strategies": {
+    "first_heard": "2026-03-05T09:42:46.001310",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "dimensional": {
+    "first_heard": "2026-03-05T09:42:46.001312",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "visual": {
+    "first_heard": "2026-03-05T09:42:46.001313",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "demonstrates": {
+    "first_heard": "2026-03-05T09:42:46.001316",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "mainline": {
+    "first_heard": "2026-03-05T09:42:46.001325",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "queues": {
+    "first_heard": "2026-03-05T09:42:46.001326",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "downstream": {
+    "first_heard": "2026-03-05T09:42:46.001330",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "controls": {
+    "first_heard": "2026-03-05T09:42:46.001340",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "rethink": {
+    "first_heard": "2026-03-05T09:42:46.067677",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "grid": {
+    "first_heard": "2026-03-05T09:42:46.067686",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "algorithm": {
+    "first_heard": "2026-03-05T09:42:46.067689",
+    "count": 294,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "promisein": {
+    "first_heard": "2026-03-05T09:42:46.067696",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "solving": {
+    "first_heard": "2026-03-05T09:42:46.067697",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "depth": {
+    "first_heard": "2026-03-05T09:42:46.067705",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "voltage": {
+    "first_heard": "2026-03-05T09:42:46.067707",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "fromaspects": {
+    "first_heard": "2026-03-05T09:42:46.067709",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "approachto": {
+    "first_heard": "2026-03-05T09:42:46.067718",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "operating": {
+    "first_heard": "2026-03-05T09:42:46.067720",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "interimreinforcement": {
+    "first_heard": "2026-03-05T09:42:46.067724",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "theproposed": {
+    "first_heard": "2026-03-05T09:42:46.067728",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "generalization": {
+    "first_heard": "2026-03-05T09:42:46.067730",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "voltagecontrol": {
+    "first_heard": "2026-03-05T09:42:46.067738",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "outperforms": {
+    "first_heard": "2026-03-05T09:42:46.067739",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "rl": {
+    "first_heard": "2026-03-05T09:42:46.067741",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "fuzzy": {
+    "first_heard": "2026-03-05T09:42:46.133389",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "commitments": {
+    "first_heard": "2026-03-05T09:42:46.133393",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "biometric": {
+    "first_heard": "2026-03-05T09:42:46.133398",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "templates": {
+    "first_heard": "2026-03-05T09:42:46.133399",
+    "count": 63,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "facial": {
+    "first_heard": "2026-03-05T09:42:46.133407",
+    "count": 84,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "processed": {
+    "first_heard": "2026-03-05T09:42:46.133409",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "recognition": {
+    "first_heard": "2026-03-05T09:42:46.133413",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "entropy": {
+    "first_heard": "2026-03-05T09:42:46.133421",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "protected": {
+    "first_heard": "2026-03-05T09:42:46.133426",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "template": {
+    "first_heard": "2026-03-05T09:42:46.133427",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "reconstructs": {
+    "first_heard": "2026-03-05T09:42:46.133428",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "reconstructed": {
+    "first_heard": "2026-03-05T09:42:46.133430",
+    "count": 84,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "resemble": {
+    "first_heard": "2026-03-05T09:42:46.133432",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "scenario": {
+    "first_heard": "2026-03-05T09:42:46.133435",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "configured": {
+    "first_heard": "2026-03-05T09:42:46.133440",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "settings": {
+    "first_heard": "2026-03-05T09:42:46.133443",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "extraction": {
+    "first_heard": "2026-03-05T09:42:46.133451",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "rates": {
+    "first_heard": "2026-03-05T09:42:46.133454",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "portfolio": {
+    "first_heard": "2026-03-05T09:42:46.200333",
+    "count": 210,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "decades": {
+    "first_heard": "2026-03-05T09:42:46.200343",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "configuration": {
+    "first_heard": "2026-03-05T09:42:46.200345",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "diverse": {
+    "first_heard": "2026-03-05T09:42:46.200349",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "parameter": {
+    "first_heard": "2026-03-05T09:42:46.200350",
+    "count": 63,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "selector": {
+    "first_heard": "2026-03-05T09:42:46.200355",
+    "count": 105,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "predicted": {
+    "first_heard": "2026-03-05T09:42:46.200359",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "oftentimes": {
+    "first_heard": "2026-03-05T09:42:46.200361",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "typical": {
+    "first_heard": "2026-03-05T09:42:46.200366",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "provable": {
+    "first_heard": "2026-03-05T09:42:46.200371",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "guarantees": {
+    "first_heard": "2026-03-05T09:42:46.200371",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "analyze": {
+    "first_heard": "2026-03-05T09:42:46.200374",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "analyzing": {
+    "first_heard": "2026-03-05T09:42:46.200383",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "quantities": {
+    "first_heard": "2026-03-05T09:42:46.200386",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "diverge": {
+    "first_heard": "2026-03-05T09:42:46.200387",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "theoretic": {
+    "first_heard": "2026-03-05T09:42:46.200389",
+    "count": 63,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "function": {
+    "first_heard": "2026-03-05T09:42:46.200395",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "parameters": {
+    "first_heard": "2026-03-05T09:42:46.200396",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "overfitting": {
+    "first_heard": "2026-03-05T09:42:46.200404",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "tradeoff": {
+    "first_heard": "2026-03-05T09:42:46.200408",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "dolphins": {
+    "first_heard": "2026-03-05T09:42:46.266820",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "contradictions": {
+    "first_heard": "2026-03-05T09:42:46.266824",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "quantify": {
+    "first_heard": "2026-03-05T09:42:46.266827",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "detection": {
+    "first_heard": "2026-03-05T09:42:46.266836",
+    "count": 84,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "decode": {
+    "first_heard": "2026-03-05T09:42:46.266837",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "conversational": {
+    "first_heard": "2026-03-05T09:42:46.266839",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "dataset": {
+    "first_heard": "2026-03-05T09:42:46.266840",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "bot": {
+    "first_heard": "2026-03-05T09:42:46.266843",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "dialogues": {
+    "first_heard": "2026-03-05T09:42:46.266844",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "structured": {
+    "first_heard": "2026-03-05T09:42:46.266846",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "transformer": {
+    "first_heard": "2026-03-05T09:42:46.266850",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "unstructured": {
+    "first_heard": "2026-03-05T09:42:46.266853",
+    "count": 42,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "supervision": {
+    "first_heard": "2026-03-05T09:42:46.266859",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "nli": {
+    "first_heard": "2026-03-05T09:42:46.266862",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "transferable": {
+    "first_heard": "2026-03-05T09:42:46.266869",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "distribution": {
+    "first_heard": "2026-03-05T09:42:46.266872",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "correlates": {
+    "first_heard": "2026-03-05T09:42:46.266877",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "judgments": {
+    "first_heard": "2026-03-05T09:42:46.266879",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "evaluating": {
+    "first_heard": "2026-03-05T09:42:46.266884",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "chatbots": {
+    "first_heard": "2026-03-05T09:42:46.266889",
+    "count": 21,
+    "sources": [
+      "arxiv"
+    ]
+  },
+  "qe": {
+    "first_heard": "2026-03-05T12:57:09.848124",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hi": {
+    "first_heard": "2026-03-05T13:20:24.323509",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "starplicator": {
+    "first_heard": "2026-03-05T14:05:20.590867",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "kissi": {
+    "first_heard": "2026-03-05T14:10:02.342230",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "aj": {
+    "first_heard": "2026-03-05T14:19:45.676664",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "itchow": {
+    "first_heard": "2026-03-05T14:23:59.829905",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "chowchow": {
+    "first_heard": "2026-03-05T14:23:59.830306",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "taxi": {
+    "first_heard": "2026-03-05T14:30:57.475924",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bikes": {
+    "first_heard": "2026-03-05T14:30:57.475970",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "specifically": {
+    "first_heard": "2026-03-05T14:30:57.475973",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rasulafan": {
+    "first_heard": "2026-03-05T14:32:05.848381",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tmn": {
+    "first_heard": "2026-03-05T14:36:02.627487",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tm": {
+    "first_heard": "2026-03-05T14:36:02.627591",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "campos": {
+    "first_heard": "2026-03-05T14:37:31.201819",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pcheekee": {
+    "first_heard": "2026-03-05T14:39:28.729242",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "folsom": {
+    "first_heard": "2026-03-05T14:39:28.729300",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "boss": {
+    "first_heard": "2026-03-05T14:41:23.244745",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bus": {
+    "first_heard": "2026-03-05T14:41:50.776465",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tv": {
+    "first_heard": "2026-03-05T14:45:38.965436",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "percontent": {
+    "first_heard": "2026-03-05T14:47:35.153535",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "peruvian": {
+    "first_heard": "2026-03-05T14:47:35.153572",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "motivate": {
+    "first_heard": "2026-03-05T14:48:00.666885",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "selves": {
+    "first_heard": "2026-03-05T14:49:32.410292",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "vesor": {
+    "first_heard": "2026-03-05T14:51:04.262700",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "critically": {
+    "first_heard": "2026-03-05T14:51:04.262758",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tightened": {
+    "first_heard": "2026-03-05T14:51:53.018778",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dugout": {
+    "first_heard": "2026-03-05T14:51:53.018856",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "macho": {
+    "first_heard": "2026-03-05T14:52:16.176915",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bismillah": {
+    "first_heard": "2026-03-05T14:52:16.176994",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "al": {
+    "first_heard": "2026-03-05T14:52:16.177012",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "toping": {
+    "first_heard": "2026-03-05T15:03:10.802242",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "favorite": {
+    "first_heard": "2026-03-05T15:03:10.803128",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "transforming": {
+    "first_heard": "2026-03-05T15:05:07.935175",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ski": {
+    "first_heard": "2026-03-05T15:08:11.542313",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cash": {
+    "first_heard": "2026-03-05T15:14:26.228051",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "celebration": {
+    "first_heard": "2026-03-05T15:14:48.427290",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "zac": {
+    "first_heard": "2026-03-05T15:15:11.151953",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "screw": {
+    "first_heard": "2026-03-05T15:15:11.152079",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dumb": {
+    "first_heard": "2026-03-05T15:15:35.697279",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "na": {
+    "first_heard": "2026-03-05T15:15:35.697331",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "blurning": {
+    "first_heard": "2026-03-05T15:15:35.697346",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nerfed": {
+    "first_heard": "2026-03-05T15:15:35.697454",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "clip": {
+    "first_heard": "2026-03-05T15:15:35.697500",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "disappear": {
+    "first_heard": "2026-03-05T15:15:35.697513",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mario": {
+    "first_heard": "2026-03-05T15:15:35.697528",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "realistically": {
+    "first_heard": "2026-03-05T15:15:35.697541",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "durante": {
+    "first_heard": "2026-03-05T15:15:35.697570",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gran": {
+    "first_heard": "2026-03-05T15:15:35.697583",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hawke": {
+    "first_heard": "2026-03-05T15:15:35.697584",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "popney": {
+    "first_heard": "2026-03-05T15:16:22.209161",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "luminpty": {
+    "first_heard": "2026-03-05T15:18:16.913153",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ness": {
+    "first_heard": "2026-03-05T15:20:13.133418",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "btshuh": {
+    "first_heard": "2026-03-05T15:20:13.133439",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tangy": {
+    "first_heard": "2026-03-05T15:20:13.133453",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "huh": {
+    "first_heard": "2026-03-05T15:21:21.368593",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "samba": {
+    "first_heard": "2026-03-05T15:21:21.368637",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gherpese": {
+    "first_heard": "2026-03-05T15:21:21.368642",
+    "count": 1,
+    "sources": [
+      "ambient"
     ]
   }
 }

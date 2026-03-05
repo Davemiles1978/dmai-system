@@ -177,6 +177,10 @@ class LanguageLearner:
         }
     
     def get_stats(self):
+        # Add caching
+        cache_key = f'get_stats_'
+        if hasattr(self, '_cache') and cache_key in self._cache:
+            return self._cache[cache_key]
         """Get learning statistics"""
         return {
             "vocabulary_size": len(self.vocabulary),
