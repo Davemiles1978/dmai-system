@@ -1,25 +1,38 @@
+# DMAI Core Requirements
 flask==2.3.3
-requests
-numpy
-pillow
 gunicorn==21.2.0
+requests>=2.31.0
+numpy>=1.24.0
+pillow>=10.0.0
 networkx>=2.6
-numpy>=1.21
 asyncio>=3.4
 psutil>=5.8.0
 
-# Required for Knowledge Graph
-networkx>=2.6
+# Web Scraping & Research
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+newspaper3k>=0.2.8
+feedparser>=6.0.0
 
-# Self-assessment requirements
-psutil>=5.8.0
+# Voice & Audio
 pvporcupine==4.0.2
 pvrecorder==1.2.7
 pyttsx3==2.90
 sounddevice==0.5.1
 soundfile==0.12.1
 scipy==1.11.4
-whisper==1.1.10
+# Whisper requires setuptools
+setuptools>=65.0.0
 openai-whisper==20231117
-pvporcupine==4.0.2
-pvrecorder==1.2.7
+langdetect>=1.0.9
+SpeechRecognition>=3.10.0
+
+# Evolution System
+watchdog>=3.0.0
+
+# Dark Web (optional)
+stem>=1.8.0
+
+# Utilities
+python-dotenv>=1.0.0
+pyyaml>=6.0

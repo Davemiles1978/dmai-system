@@ -442,7 +442,7 @@ class WebResearcher:
                 
                 for retry in range(3):
                     try:
-                                        response = requests.get(source['url'], timeout=10, headers=headers)
+                        response = requests.get(source['url'], timeout=10, headers=headers)
                         break
                     except:
                         if retry == 2:

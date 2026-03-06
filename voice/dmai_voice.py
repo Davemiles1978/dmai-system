@@ -12,7 +12,7 @@ from voice.wake.wake_detector import WakeWordDetector
 from voice.commands.enhanced_processor import EnhancedCommandProcessor
 from voice.auth.voice_auth import VoiceAuth
 from voice.speech_to_text import SpeechToText
-from voice.speaker import DMASpeaker
+from voice.speaker import DMAISpeaker
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class DMAIVoice:
         self.processor = EnhancedCommandProcessor()
         self.auth = VoiceAuth()
         self.stt = SpeechToText(model_size=whisper_model)
-        self.speaker = DMASpeaker()
+        self.speaker = DMAISpeaker()
         self.sample_rate = 16000
         
     def on_wake_word(self):
@@ -85,8 +85,8 @@ class DMAIVoice:
             print("Run: python voice/enroll_master.py")
             return
         
-        self.speaker.speak("I'm ready. Say Jarvis when you need me.")
-        print("\nSay 'Jarvis' (Ctrl+C to exit)\n")
+        self.speaker.speak("I'm ready. Say Hey Dee Mai when you need me.")
+        print("\nSay 'Hey Dee Mai' (Ctrl+C to exit)\n")
         
         self.wake_detector.start(callback=self.on_wake_word)
 

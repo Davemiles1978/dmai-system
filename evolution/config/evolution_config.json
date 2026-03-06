@@ -1,0 +1,90 @@
+{
+  "evolution_weights": {
+    "external_research": 0.6,
+    "internal_coevolution": 0.4
+  },
+  "research_sources": {
+    "github": {
+      "enabled": true,
+      "weight": 0.3,
+      "url": "https://github.com/trending?since=daily",
+      "topics": ["ai", "machine-learning", "evolutionary-algorithms", "self-improving-systems"]
+    },
+    "arxiv": {
+      "enabled": true,
+      "weight": 0.25,
+      "categories": ["cs.AI", "cs.LG", "cs.NE", "cs.SE"]
+    },
+    "huggingface": {
+      "enabled": true,
+      "weight": 0.2,
+      "types": ["models", "papers", "datasets"]
+    },
+    "darkweb": {
+      "enabled": true,
+      "weight": 0.15,
+      "caution_level": "high",
+      "sources": ["ai-forums", "research-leaks", "underground-labs"]
+    },
+    "ainews": {
+      "enabled": true,
+      "weight": 0.1,
+      "sources": ["reddit.com/r/MachineLearning", "news.ycombinator.com", "lobste.rs"]
+    }
+  },
+  "evaluation_pool": [
+    {
+      "name": "gemini",
+      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/gemini_evaluator.py",
+      "enabled": true,
+      "evolution_stage": 1,
+      "last_evaluated": null,
+      "evaluated_by": []
+    },
+    {
+      "name": "grok",
+      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/grok_evaluator.py",
+      "enabled": true,
+      "evolution_stage": 1,
+      "last_evaluated": null,
+      "evaluated_by": []
+    },
+    {
+      "name": "gpt",
+      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/gpt_evaluator.py",
+      "enabled": true,
+      "evolution_stage": 1,
+      "last_evaluated": null,
+      "evaluated_by": []
+    },
+    {
+      "name": "dmai_core",
+      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/core/dmai_core.py",
+      "enabled": true,
+      "evolution_stage": 1,
+      "last_evaluated": null,
+      "evaluated_by": []
+    }
+  ],
+  "metrics": {
+    "tracking": {
+      "diversity_score": true,
+      "improvement_rate": true,
+      "external_injection_rate": true,
+      "stagnation_warning_threshold": 10,
+      "quality_threshold": 0.7
+    },
+    "version_control": {
+      "max_versions_per_target": 10,
+      "auto_rollback_on_failure": true,
+      "require_improvement": true
+    }
+  },
+  "cycle_settings": {
+    "min_cycles_per_day": 4,
+    "max_cycles_per_day": 12,
+    "cycle_interval_minutes": 120,
+    "randomize_timing": true,
+    "run_during": ["low_usage", "scheduled"]
+  }
+}

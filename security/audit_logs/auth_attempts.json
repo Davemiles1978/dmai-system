@@ -1,0 +1,45 @@
+{
+  "attempts": [
+    {
+      "timestamp": "2026-03-06T09:20:57.560075",
+      "success": true,
+      "method": "fingerprint",
+      "details": "",
+      "ip": "local_only"
+    },
+    {
+      "timestamp": "2026-03-06T09:21:04.132675",
+      "success": true,
+      "method": "face",
+      "details": "",
+      "ip": "local_only"
+    },
+    {
+      "timestamp": "2026-03-06T09:24:01.630165",
+      "success": true,
+      "method": "fingerprint",
+      "details": "",
+      "ip": "local_only"
+    },
+    {
+      "timestamp": "2026-03-06T09:24:08.312943",
+      "success": true,
+      "method": "face",
+      "details": "",
+      "ip": "local_only"
+    }
+  ],
+  "lockouts": [],
+  "enrollments": [
+    {
+      "timestamp": "2026-03-06T09:20:51.977714",
+      "method": "fingerprint",
+      "name": "master_finger"
+    },
+    {
+      "timestamp": "2026-03-06T09:20:51.977904",
+      "method": "face",
+      "name": "master_face"
+    }
+  ]
+}

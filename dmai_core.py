@@ -53,7 +53,7 @@ class DMAICore:
                 "enabled": True
             },
             "evolution": {
-                "script": "services/evolution_engine.py",
+                "script": "evolution/evolution_engine.py",
                 "process": None,
                 "restart_count": 0,
                 "last_restart": None,

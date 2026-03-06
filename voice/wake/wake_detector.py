@@ -1,4 +1,4 @@
-"""Wake word detection for DMAI"""
+"""Wake word detection for DMAI - Now with 'Hey Dee Mai'"""
 import pvporcupine
 import pvrecorder
 import numpy as np
@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class WakeWordDetector:
-    """Detects wake word - currently Jarvis, but DMAI will evolve this"""
+    """Detects wake word - 'Hey Dee Mai'"""
     
     def __init__(self, sensitivity=0.7):
         self.sensitivity = sensitivity
@@ -25,14 +25,27 @@ class WakeWordDetector:
             logger.error("PICOVOICE_ACCESS_KEY not set")
     
     def initialize(self):
-        """Initialize Porcupine with Jarvis wake word"""
+        """Initialize Porcupine with Hey Dee Mai wake word"""
         try:
-            # Use the Jarvis keyword file
+            # Path to your custom wake word file
             keyword_path = os.path.join(
                 os.path.dirname(__file__), 
                 'keywords', 
-                'jarvis_en_mac_v4_0_0.ppn'
+                'Hey-Dee-Mai_en_mac_v4_0_0.ppn'
             )
+            
+            # Check if file exists
+            if not os.path.exists(keyword_path):
+                logger.error(f"Keyword file not found at: {keyword_path}")
+                logger.info("Available keywords:")
+                keywords_dir = os.path.join(os.path.dirname(__file__), 'keywords')
+                if os.path.exists(keywords_dir):
+                    for f in os.listdir(keywords_dir):
+                        if f.endswith('.ppn'):
+                            logger.info(f"  - {f}")
+                return False
+            
+            logger.info(f"Using keyword file: {os.path.basename(keyword_path)}")
             
             self.porcupine = pvporcupine.create(
                 access_key=self.access_key,
@@ -43,10 +56,10 @@ class WakeWordDetector:
             # Initialize recorder
             self.recorder = pvrecorder.PvRecorder(
                 frame_length=self.porcupine.frame_length,
-                device_index=-1
+                device_index=-1  # Default microphone
             )
             
-            logger.info("Wake word detector initialized with Jarvis")
+            logger.info("✅ Wake word detector initialized with 'Hey Dee Mai'")
             return True
             
         except Exception as e:
@@ -63,7 +76,8 @@ class WakeWordDetector:
         self.running = True
         self.recorder.start()
         
-        logger.info("Listening for 'Jarvis'...")
+        logger.info("🎤 Listening for 'Hey Dee Mai'...")
+        print("\n🎤 DMAI is listening for 'Hey Dee Mai'...")
         
         try:
             while self.running:
@@ -71,10 +85,11 @@ class WakeWordDetector:
                 result = self.porcupine.process(pcm)
                 
                 if result >= 0:
-                    logger.info("Wake word detected!")
+                    logger.info("✅ 'Hey Dee Mai' detected!")
+                    print("\n✅ Wake word detected!")
                     if self.callback:
                         self.callback()
-                    time.sleep(1)
+                    time.sleep(1.5)  # Prevent multiple triggers
                     
         except KeyboardInterrupt:
             self.stop()
@@ -93,3 +108,4 @@ class WakeWordDetector:
             self.porcupine.delete()
         if self.recorder:
             self.recorder.delete()
+        logger.info("Wake word detector cleaned up")

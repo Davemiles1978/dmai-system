@@ -42,7 +42,7 @@ def test_verification():
 def test_wake_word():
     """Test wake word detection"""
     print("\n🔊 Testing wake word detection")
-    print("Say 'Jarvis' when ready")
+    print("Say 'Hey Dee Mai' when ready")
     
     def on_wake():
         print("\n✅ Wake word detected! DMAI is listening...")

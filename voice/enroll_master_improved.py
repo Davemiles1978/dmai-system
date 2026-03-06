@@ -100,9 +100,9 @@ def main():
             print("\n✅ SUCCESS! DMAI now knows your voice better!")
             print(f"   Used {len(recordings)} phrases for training")
             print("\nYou can now talk to me by saying:")
-            print("  \"Jarvis\" (wake me up)")
+            print("  \"Hey Dee Mai\" (wake me up)")
             print("  Then speak your command")
-            print("\nTry: 'Jarvis, what's my status?'")
+            print("\nTry: 'Hey Dee Mai, what's my status?'")
         else:
             print("\n❌ Enrollment failed. Please try again.")
     except Exception as e:

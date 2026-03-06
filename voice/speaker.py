@@ -5,7 +5,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-class DMASpeaker:
+class DMAISpeaker:
     """Makes DMAI talk back to you - with female voice & correct pronunciation"""
     
     def __init__(self):

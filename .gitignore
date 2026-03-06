@@ -74,3 +74,11 @@ Thumbs.db
 agi/backups/
 agi/test_results/
 *.log
+
+# Virtual environments
+venv/
+venv_py39_backup/
+*.dylib
+*.so
+*.dll
+

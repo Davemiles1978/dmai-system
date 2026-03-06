@@ -1,0 +1,588 @@
+{
+  "favorite_artists": [
+    {
+      "artist": "Ruby Darkrose",
+      "count": 3
+    },
+    {
+      "artist": "David Kushner",
+      "count": 3
+    },
+    {
+      "artist": "Studio B",
+      "count": 2
+    },
+    {
+      "artist": "Shawn Mendes",
+      "count": 2
+    },
+    {
+      "artist": "Ren",
+      "count": 2
+    },
+    {
+      "artist": "Faithless",
+      "count": 2
+    },
+    {
+      "artist": "You + Me",
+      "count": 1
+    },
+    {
+      "artist": "Underworld",
+      "count": 1
+    },
+    {
+      "artist": "Tyga",
+      "count": 1
+    },
+    {
+      "artist": "Train",
+      "count": 1
+    },
+    {
+      "artist": "The national parks",
+      "count": 1
+    },
+    {
+      "artist": "The Wildhearts",
+      "count": 1
+    },
+    {
+      "artist": "The Orb",
+      "count": 1
+    },
+    {
+      "artist": "The Offspring",
+      "count": 1
+    },
+    {
+      "artist": "The Notorious B.I.G",
+      "count": 1
+    },
+    {
+      "artist": "The Hu",
+      "count": 1
+    },
+    {
+      "artist": "Snow Patrol",
+      "count": 1
+    },
+    {
+      "artist": "Silver Screen Superstars",
+      "count": 1
+    },
+    {
+      "artist": "Shaboozey",
+      "count": 1
+    },
+    {
+      "artist": "Scooter",
+      "count": 1
+    },
+    {
+      "artist": "Rudimental",
+      "count": 1
+    },
+    {
+      "artist": "Red Hot Chilli Peppers",
+      "count": 1
+    },
+    {
+      "artist": "ROS\u00c9",
+      "count": 1
+    },
+    {
+      "artist": "Professor Green",
+      "count": 1
+    },
+    {
+      "artist": "Pink",
+      "count": 1
+    },
+    {
+      "artist": "Pearl Jam",
+      "count": 1
+    },
+    {
+      "artist": "Paramore",
+      "count": 1
+    },
+    {
+      "artist": "Nina Nesbit",
+      "count": 1
+    },
+    {
+      "artist": "Nathaniel Rateliff & the night sweats",
+      "count": 1
+    },
+    {
+      "artist": "N.W.A",
+      "count": 1
+    },
+    {
+      "artist": "Mr. Scruff",
+      "count": 1
+    },
+    {
+      "artist": "Mckenna Grace",
+      "count": 1
+    },
+    {
+      "artist": "Limp Bizkit",
+      "count": 1
+    },
+    {
+      "artist": "Lewis Capaldi",
+      "count": 1
+    },
+    {
+      "artist": "Lady Gaga & Bruno Mars",
+      "count": 1
+    },
+    {
+      "artist": "LNY TNZ, Ben Nicky, The darkraver & Hans Glock",
+      "count": 1
+    },
+    {
+      "artist": "Keith Urban & Pink",
+      "count": 1
+    },
+    {
+      "artist": "Josh Wink",
+      "count": 1
+    },
+    {
+      "artist": "Icona Pop",
+      "count": 1
+    },
+    {
+      "artist": "House of pain",
+      "count": 1
+    },
+    {
+      "artist": "Handsome Dancer",
+      "count": 1
+    },
+    {
+      "artist": "Green Day",
+      "count": 1
+    },
+    {
+      "artist": "Gerry Cinnamon",
+      "count": 1
+    },
+    {
+      "artist": "Fred again.., The streets & Dermot Kennedy",
+      "count": 1
+    },
+    {
+      "artist": "Foo Fighters",
+      "count": 1
+    },
+    {
+      "artist": "Falling in reverse",
+      "count": 1
+    },
+    {
+      "artist": "Evanescence",
+      "count": 1
+    },
+    {
+      "artist": "Dr. Dre",
+      "count": 1
+    },
+    {
+      "artist": "Devlin (feat. Diane Birch)",
+      "count": 1
+    },
+    {
+      "artist": "Devlin & Ed Sheeran",
+      "count": 1
+    },
+    {
+      "artist": "Devlin",
+      "count": 1
+    },
+    {
+      "artist": "Damien Rice",
+      "count": 1
+    },
+    {
+      "artist": "Damian Rice",
+      "count": 1
+    },
+    {
+      "artist": "DJ Snake (Feat. Future & Travis Scott)",
+      "count": 1
+    },
+    {
+      "artist": "DJ Kool",
+      "count": 1
+    },
+    {
+      "artist": "Chase & Status feat. Irah Flowdan Takura",
+      "count": 1
+    },
+    {
+      "artist": "Charlie Puth",
+      "count": 1
+    },
+    {
+      "artist": "Campbell",
+      "count": 1
+    },
+    {
+      "artist": "Calum Scott",
+      "count": 1
+    },
+    {
+      "artist": "Bob Marley",
+      "count": 1
+    },
+    {
+      "artist": "Benson Boone",
+      "count": 1
+    },
+    {
+      "artist": "Ben Nicky, Dr Phunk, GESES & Fahjah",
+      "count": 1
+    },
+    {
+      "artist": "Ben Nicky & Restricted",
+      "count": 1
+    },
+    {
+      "artist": "Anyma",
+      "count": 1
+    },
+    {
+      "artist": "Anne-Marie",
+      "count": 1
+    },
+    {
+      "artist": "Alan Walker",
+      "count": 1
+    }
+  ],
+  "all_songs": [
+    {
+      "title": "Faded",
+      "artist": "Alan Walker"
+    },
+    {
+      "title": "2002",
+      "artist": "Anne-Marie"
+    },
+    {
+      "title": "Voices in my head",
+      "artist": "Anyma"
+    },
+    {
+      "title": "Dirty Rave (Explicit)",
+      "artist": "Ben Nicky & Restricted"
+    },
+    {
+      "title": "Castles in the sky",
+      "artist": "Ben Nicky, Dr Phunk, GESES & Fahjah"
+    },
+    {
+      "title": "Beautiful Things",
+      "artist": "Benson Boone"
+    },
+    {
+      "title": "Three little birds",
+      "artist": "Bob Marley"
+    },
+    {
+      "title": "Dancing on my own",
+      "artist": "Calum Scott"
+    },
+    {
+      "title": "Would you go to bed with me",
+      "artist": "Campbell"
+    },
+    {
+      "title": "One call away",
+      "artist": "Charlie Puth"
+    },
+    {
+      "title": "Baddadan",
+      "artist": "Chase & Status feat. Irah Flowdan Takura"
+    },
+    {
+      "title": "Let me clear my throat",
+      "artist": "DJ Kool"
+    },
+    {
+      "title": "Tsunami (feat. Future & Travis Scott)",
+      "artist": "DJ Snake (Feat. Future & Travis Scott)"
+    },
+    {
+      "title": "Coconut Skins",
+      "artist": "Damian Rice"
+    },
+    {
+      "title": "Cannonball",
+      "artist": "Damien Rice"
+    },
+    {
+      "title": "Breathe In Breathe Out",
+      "artist": "David Kushner"
+    },
+    {
+      "title": "Love Worth Saving",
+      "artist": "David Kushner"
+    },
+    {
+      "title": "Miserable Man",
+      "artist": "David Kushner"
+    },
+    {
+      "title": "The great British bar off (Explicit)",
+      "artist": "Devlin"
+    },
+    {
+      "title": "(All along the) Watchtower",
+      "artist": "Devlin & Ed Sheeran"
+    },
+    {
+      "title": "Rewind (Feat. Diane Birch)",
+      "artist": "Devlin (feat. Diane Birch)"
+    },
+    {
+      "title": "Fuck you (feat. Devin the dude & Snoop Dogg)",
+      "artist": "Dr. Dre"
+    },
+    {
+      "title": "Going under",
+      "artist": "Evanescence"
+    },
+    {
+      "title": "God Is a DJ",
+      "artist": "Faithless"
+    },
+    {
+      "title": "Insomnia",
+      "artist": "Faithless"
+    },
+    {
+      "title": "The drug in me is you",
+      "artist": "Falling in reverse"
+    },
+    {
+      "title": "My Hero",
+      "artist": "Foo Fighters"
+    },
+    {
+      "title": "Mike (desert island duvet)",
+      "artist": "Fred again.., The streets & Dermot Kennedy"
+    },
+    {
+      "title": "Canter (Explicit)",
+      "artist": "Gerry Cinnamon"
+    },
+    {
+      "title": "Basket Case",
+      "artist": "Green Day"
+    },
+    {
+      "title": "Coincedance",
+      "artist": "Handsome Dancer"
+    },
+    {
+      "title": "Jump around",
+      "artist": "House of pain"
+    },
+    {
+      "title": "I love it (Feat. Charlie XCX) (explicit)",
+      "artist": "Icona Pop"
+    },
+    {
+      "title": "Don\u2019t laugh",
+      "artist": "Josh Wink"
+    },
+    {
+      "title": "One too mnay",
+      "artist": "Keith Urban & Pink"
+    },
+    {
+      "title": "Coke & Bacardi",
+      "artist": "LNY TNZ, Ben Nicky, The darkraver & Hans Glock"
+    },
+    {
+      "title": "Die With A Smile",
+      "artist": "Lady Gaga & Bruno Mars"
+    },
+    {
+      "title": "Before you go",
+      "artist": "Lewis Capaldi"
+    },
+    {
+      "title": "My Generation",
+      "artist": "Limp Bizkit"
+    },
+    {
+      "title": "Do all my friends hate me",
+      "artist": "Mckenna Grace"
+    },
+    {
+      "title": "Fish",
+      "artist": "Mr. Scruff"
+    },
+    {
+      "title": "Express yourself",
+      "artist": "N.W.A"
+    },
+    {
+      "title": "S.O.B",
+      "artist": "Nathaniel Rateliff & the night sweats"
+    },
+    {
+      "title": "When you lose someone",
+      "artist": "Nina Nesbit"
+    },
+    {
+      "title": "The Only Exception",
+      "artist": "Paramore"
+    },
+    {
+      "title": "Even Flow (Explicit)",
+      "artist": "Pearl Jam"
+    },
+    {
+      "title": "Raise your glass",
+      "artist": "Pink"
+    },
+    {
+      "title": "Read All About It (Feat. Emeli Sand\u00e9)",
+      "artist": "Professor Green"
+    },
+    {
+      "title": "APT.",
+      "artist": "ROS\u00c9"
+    },
+    {
+      "title": "Under the Bridge",
+      "artist": "Red Hot Chilli Peppers"
+    },
+    {
+      "title": "Illest of our time (Explicit)",
+      "artist": "Ren"
+    },
+    {
+      "title": "Money Game, Pt. 2 (Explicit)",
+      "artist": "Ren"
+    },
+    {
+      "title": "I knew you\u2019d come back",
+      "artist": "Ruby Darkrose"
+    },
+    {
+      "title": "STFUATTDLAGG",
+      "artist": "Ruby Darkrose"
+    },
+    {
+      "title": "Sweet Little Valentine",
+      "artist": "Ruby Darkrose"
+    },
+    {
+      "title": "These days (Feat. Jess Glynne, Macklemore & Dan Caplen)",
+      "artist": "Rudimental"
+    },
+    {
+      "title": "The Logical Song",
+      "artist": "Scooter"
+    },
+    {
+      "title": "A bar song (tipsy) (Explicit)",
+      "artist": "Shaboozey"
+    },
+    {
+      "title": "If I Can't Have You",
+      "artist": "Shawn Mendes"
+    },
+    {
+      "title": "Treat you better",
+      "artist": "Shawn Mendes"
+    },
+    {
+      "title": "Everybody\u2019s free (To wear sunscreen)",
+      "artist": "Silver Screen Superstars"
+    },
+    {
+      "title": "Chasing Cars",
+      "artist": "Snow Patrol"
+    },
+    {
+      "title": "C'mon Get It On (Radio Edit)",
+      "artist": "Studio B"
+    },
+    {
+      "title": "I See Girls (Freemasons Mix)",
+      "artist": "Studio B"
+    },
+    {
+      "title": "Wolf Totum (Feat. Jacoby Shaddix of Papa Roach)",
+      "artist": "The Hu"
+    },
+    {
+      "title": "Juicy (2005 remaster)",
+      "artist": "The Notorious B.I.G"
+    },
+    {
+      "title": "Why don\u2019t you get a job",
+      "artist": "The Offspring"
+    },
+    {
+      "title": "Little Fluffy Clouds",
+      "artist": "The Orb"
+    },
+    {
+      "title": "Geordie in wonderland",
+      "artist": "The Wildhearts"
+    },
+    {
+      "title": "As we ran",
+      "artist": "The national parks"
+    },
+    {
+      "title": "Marry Me",
+      "artist": "Train"
+    },
+    {
+      "title": "Freaky Deaky (Explicit)",
+      "artist": "Tyga"
+    },
+    {
+      "title": "Born Slippy (Nuxx) (Explicit)",
+      "artist": "Underworld"
+    },
+    {
+      "title": "No Ordinary Love",
+      "artist": "You + Me"
+    }
+  ],
+  "genres": [
+    {
+      "genre": "Dance",
+      "count": 4
+    },
+    {
+      "genre": "Alternative",
+      "count": 3
+    },
+    {
+      "genre": "Pop",
+      "count": 2
+    },
+    {
+      "genre": "Drum & Bass",
+      "count": 1
+    }
+  ],
+  "total_songs": 74,
+  "total_artists": 66,
+  "last_updated": "1772728405.2033637",
+  "source": "Manual Import CSV"
+}

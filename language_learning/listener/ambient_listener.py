@@ -9,6 +9,7 @@ import json
 import logging
 import tempfile
 import subprocess
+import time
 
 # Import speech-to-text for language learning
 from voice.speech_to_text import SpeechToText
@@ -25,6 +26,7 @@ class AmbientListener:
         self.pause_between = pause_between
         self.audio_queue = queue.Queue()
         self.is_listening = False
+        self.stop_event = threading.Event()
         self.learning_log = "language_learning/logs/heard_phrases.json"
         self.music_prefs_file = "language_learning/data/music_preferences.json"
         
@@ -54,6 +56,8 @@ class AmbientListener:
         frames = []
         
         for i in range(0, int(rate / chunk * self.listen_duration)):
+            if self.stop_event.is_set():
+                break
             data = stream.read(chunk)
             frames.append(data)
         
@@ -82,7 +86,7 @@ class AmbientListener:
             result = subprocess.run([
                 'ffprobe', '-i', audio_file, '-show_streams', 
                 '-select_streams', 'a', '-print_format', 'json'
-            ], capture_output=True, text=True)
+            ], capture_output=True, text=True, timeout=5)
             
             if result.returncode == 0:
                 data = json.loads(result.stdout)
@@ -98,7 +102,7 @@ class AmbientListener:
         try:
             result = subprocess.run([
                 'ffprobe', '-i', audio_file, '-show_format', '-print_format', 'json'
-            ], capture_output=True, text=True)
+            ], capture_output=True, text=True, timeout=5)
             
             if result.returncode == 0:
                 data = json.loads(result.stdout)
@@ -196,41 +200,69 @@ class AmbientListener:
         """Main listening loop"""
         logger.info("🚀 Ambient listening started (learning speech AND music)")
         
-        while self.is_listening:
+        while self.is_listening and not self.stop_event.is_set():
             try:
                 # Listen
                 audio_file = self.listen_chunk()
                 
-                # Queue for processing
-                self.audio_queue.put(audio_file)
-                
-                # Process in background
-                self.process_queue()
-                
-                # Pause before next listen
-                logger.info(f"💤 Pausing for {self.pause_between} seconds...")
-                threading.Event().wait(self.pause_between)
+                if audio_file and not self.stop_event.is_set():
+                    # Queue for processing
+                    self.audio_queue.put(audio_file)
+                    
+                    # Process in background
+                    self.process_queue()
+                    
+                    # Pause before next listen (check stop_event during pause)
+                    logger.info(f"💤 Pausing for {self.pause_between} seconds...")
+                    for _ in range(self.pause_between):
+                        if self.stop_event.is_set():
+                            break
+                        time.sleep(1)
                 
             except Exception as e:
                 logger.error(f"Listening error: {e}")
+                if self.stop_event.is_set():
+                    break
+                time.sleep(1)
     
     def process_queue(self):
         """Process audio files in background"""
-        while not self.audio_queue.empty():
+        while not self.audio_queue.empty() and not self.stop_event.is_set():
             audio_file = self.audio_queue.get()
             # Process in thread to not block listening
-            threading.Thread(target=self.process_audio, args=(audio_file,)).start()
+            thread = threading.Thread(target=self.process_audio, args=(audio_file,))
+            thread.daemon = True
+            thread.start()
     
     def start(self):
         """Start ambient listening"""
         self.is_listening = True
-        threading.Thread(target=self.learning_loop, daemon=True).start()
+        self.stop_event.clear()
+        self.thread = threading.Thread(target=self.learning_loop, daemon=True)
+        self.thread.start()
         logger.info("🎧 Ambient listener activated (learning speech AND music)")
     
     def stop(self):
-        """Stop listening"""
+        """Stop listening and clean up"""
         self.is_listening = False
+        self.stop_event.set()
+        
+        # Clear queue
+        while not self.audio_queue.empty():
+            try:
+                self.audio_queue.get_nowait()
+            except:
+                pass
+        
+        # Wait for thread to finish
+        if hasattr(self, 'thread') and self.thread and self.thread.is_alive():
+            self.thread.join(timeout=2.0)
+        
         logger.info("🛑 Ambient listener stopped")
+    
+    def __del__(self):
+        """Destructor for clean shutdown"""
+        self.stop()
 
 if __name__ == "__main__":
     # Test
@@ -238,6 +270,9 @@ if __name__ == "__main__":
     listener.start()
     
     try:
-        threading.Event().wait(60)  # Run for 1 minute
+        # Run for 1 minute with proper cleanup
+        time.sleep(60)
+    except KeyboardInterrupt:
+        logger.info("Interrupted by user")
     finally:
         listener.stop()

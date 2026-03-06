@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from language_learning.listener.ambient_listener import AmbientListener
 from language_learning.processor.language_learner import LanguageLearner
 from voice.speech_to_text import SpeechToText
-from voice.speaker import DMASpeaker
+from voice.speaker import DMAISpeaker
 
 class DMAIWithLearning:
     """DMAI that learns from environment and tells you about it"""
@@ -22,7 +22,7 @@ class DMAIWithLearning:
         self.learner = LanguageLearner()
         self.listener = AmbientListener(listen_duration=8, pause_between=15)
         self.stt = SpeechToText(model_size="base")
-        self.speaker = DMASpeaker()
+        self.speaker = DMAISpeaker()
         self.learning_active = False
         self.last_announcement = datetime.now()
         
