@@ -439,5 +439,1559 @@
     "source": "wikipedia_api_industrial design",
     "word_count": 92,
     "new_words": 0
+  },
+  {
+    "text": "algorithmic trading is a method of executing orders using automated pre-programmed trading instructions accounting for variables such as time, price, and volume. this type of trading attempts to leverage the speed and computational resources of computers relative to human traders. in the twenty-first century, algorithmic trading has been gaining traction with both retail and institutional traders. a study in 2019 showed that around 92% of trading in the forex market was performed by trading algorithms rather than humans.",
+    "timestamp": "2026-03-06T16:52:52.533272",
+    "source": "wikipedia_api_algorithmic trading",
+    "word_count": 78,
+    "new_words": 20
+  },
+  {
+    "text": "in journalism, local news refers to coverage of events, by the news, in a local context that would not be of interest to another locality, or otherwise be of national or international scope. local news, in contrast to national or international news, caters to the news of their regional and local communities; they focus on more localized issues and events. some key features of local newsrooms include regional politics, weather, business, and human interest stories.",
+    "timestamp": "2026-03-06T16:52:55.905328",
+    "source": "wikipedia_api_local news",
+    "word_count": 75,
+    "new_words": 0
+  },
+  {
+    "text": "3d printing, also called additive manufacturing, is the construction of a three-dimensional object from a cad model or a digital 3d model. it can be done in a variety of processes in which material is deposited, joined or solidified under computer control, with the material being added together, typically layer by layer.",
+    "timestamp": "2026-03-06T16:52:59.302639",
+    "source": "wikipedia_api_3d printing",
+    "word_count": 51,
+    "new_words": 0
+  },
+  {
+    "text": "machine learning (ml) is a field of study in artificial intelligence concerned with the development and study of statistical algorithms that can learn from data and generalize to unseen data, and thus perform tasks without explicit instructions. within a subdiscipline of machine learning, advances in the field of deep learning have allowed neural networks, a class of statistical algorithms, to surpass many previous machine learning approaches in performance.",
+    "timestamp": "2026-03-06T17:01:20.873661",
+    "source": "wikipedia_api_machine learning",
+    "word_count": 68,
+    "new_words": 0
+  },
+  {
+    "text": "global news is the news and current affairs division of the canadian global television network. the network is owned by corus entertainment, which oversees all of the network's national news programming as well as local news on its 21 owned-and-operated stations. the same division also operates a news website under the same brand.",
+    "timestamp": "2026-03-06T17:01:24.264999",
+    "source": "wikipedia_api_global news",
+    "word_count": 55,
+    "new_words": 13
+  },
+  {
+    "text": "in finance, diversification is the process of allocating capital in a way that reduces the exposure to any one particular asset or risk. a common path towards diversification is to reduce risk or volatility by investing in a variety of assets. if asset prices do not change in perfect synchrony, a diversified portfolio will have less variance than the weighted average variance of its constituent assets, and often less volatility than the least volatile of its constituents.",
+    "timestamp": "2026-03-06T17:09:06.428073",
+    "source": "wikipedia_api_portfolio diversification",
+    "word_count": 77,
+    "new_words": 22
+  },
+  {
+    "text": "a patent is a type of intellectual property that gives its owner the legal right to exclude others from making, using, or selling an invention for a limited period of time, in exchange for publishing an enabling disclosure of the invention. in most countries, patent rights fall under private law and the patent holder must sue someone infringing the patent in order to enforce their rights.",
+    "timestamp": "2026-03-06T17:09:14.792312",
+    "source": "wikipedia_api_patent law",
+    "word_count": 66,
+    "new_words": 0
+  },
+  {
+    "text": "a stock market, equity market, or share market is the aggregation of buyers and sellers of stocks, which represent ownership claims on businesses; these may include securities listed on a public stock exchange as well as stock that is only traded privately, such as shares of private companies that are sold to investors through equity crowdfunding platforms. investments are usually made with an investment strategy in mind.",
+    "timestamp": "2026-03-06T17:24:17.066601",
+    "source": "wikipedia_api_stock market",
+    "word_count": 67,
+    "new_words": 0
+  },
+  {
+    "text": "the foreign exchange market is a global decentralized or over-the-counter (otc) market for the trading of currencies. this market determines foreign exchange rates for every currency. by trading volume, it is by far the largest market in the world, followed by the credit market.",
+    "timestamp": "2026-03-06T17:24:20.464885",
+    "source": "wikipedia_api_forex trading",
+    "word_count": 46,
+    "new_words": 0
+  },
+  {
+    "text": "offshore construction is the installation of structures and facilities in a marine environment, usually for the production and transmission of electricity, oil, gas and other resources. it is also called maritime engineering.",
+    "timestamp": "2026-03-06T17:33:50.359034",
+    "source": "wikipedia_api_offshore construction",
+    "word_count": 32,
+    "new_words": 11
+  },
+  {
+    "text": "geopolitics is the study of the effects of earth's geography on politics and international relations. geopolitics usually refers to countries and relations between them. according to multiple researchers, the term is currently being used to describe a broad spectrum of concepts, in a general sense used as \"a synonym for international political relations\", but more specifically \"to imply the global structure of such relations\"; this usage builds on an \"early-twentieth-century term for a pseudoscience of political geography\" and other pseudoscientific theories of historical and geographic determinism.",
+    "timestamp": "2026-03-06T17:33:59.112051",
+    "source": "wikipedia_api_geopolitics",
+    "word_count": 89,
+    "new_words": 0
+  },
+  {
+    "text": "intellectual property (ip) is a category of property that includes intangible creations of the human intellect. there are many types of intellectual property, and some countries recognize more than others. the best-known types are patents, copyrights, trademarks, and trade secrets. the modern concept of intellectual property was developed in england in the 17th and 18th centuries. the term \"intellectual property\" began to be used in the 19th century, though it was not until the late 20th century that intellectual property became commonplace in most of the world's legal systems.",
+    "timestamp": "2026-03-06T17:48:09.207771",
+    "source": "wikipedia_api_intellectual property",
+    "word_count": 87,
+    "new_words": 0
+  },
+  {
+    "text": "in finance, an option is a contract which conveys to its owner, the holder, the right, but not the obligation, to buy or sell a specific quantity of an underlying asset or instrument at a specified strike price on or before a specified date, depending on the style of the option.",
+    "timestamp": "2026-03-06T17:48:18.010619",
+    "source": "wikipedia_api_options trading",
+    "word_count": 51,
+    "new_words": 0
+  },
+  {
+    "text": "global news is the news and current affairs division of the canadian global television network. the network is owned by corus entertainment, which oversees all of the network's national news programming as well as local news on its 21 owned-and-operated stations. the same division also operates a news website under the same brand.",
+    "timestamp": "2026-03-06T18:25:25.923474",
+    "source": "wikipedia_api_global news",
+    "word_count": 55,
+    "new_words": 0
+  },
+  {
+    "text": "intellectual property (ip) is a category of property that includes intangible creations of the human intellect. there are many types of intellectual property, and some countries recognize more than others. the best-known types are patents, copyrights, trademarks, and trade secrets. the modern concept of intellectual property was developed in england in the 17th and 18th centuries. the term \"intellectual property\" began to be used in the 19th century, though it was not until the late 20th century that intellectual property became commonplace in most of the world's legal systems.",
+    "timestamp": "2026-03-06T18:25:35.888330",
+    "source": "wikipedia_api_intellectual property",
+    "word_count": 87,
+    "new_words": 0
+  },
+  {
+    "text": "machine learning (ml) is a field of study in artificial intelligence concerned with the development and study of statistical algorithms that can learn from data and generalize to unseen data, and thus perform tasks without explicit instructions. within a subdiscipline of machine learning, advances in the field of deep learning have allowed neural networks, a class of statistical algorithms, to surpass many previous machine learning approaches in performance.",
+    "timestamp": "2026-03-06T18:39:49.051705",
+    "source": "wikipedia_api_machine learning",
+    "word_count": 68,
+    "new_words": 0
+  },
+  {
+    "text": "3d printing, also called additive manufacturing, is the construction of a three-dimensional object from a cad model or a digital 3d model. it can be done in a variety of processes in which material is deposited, joined or solidified under computer control, with the material being added together, typically layer by layer.",
+    "timestamp": "2026-03-06T18:39:52.476095",
+    "source": "wikipedia_api_3d printing",
+    "word_count": 51,
+    "new_words": 0
+  },
+  {
+    "text": "arm is a family of risc instruction set architectures for computer processors. arm holdings develops the instruction set architecture and licenses them to other companies, who build the physical devices that use the instruction set. it also designs and licenses cores that implement these instruction set architectures.",
+    "timestamp": "2026-03-06T18:39:55.908409",
+    "source": "wikipedia_api_arm architecture",
+    "word_count": 47,
+    "new_words": 0
+  },
+  {
+    "text": "a stock market, equity market, or share market is the aggregation of buyers and sellers of stocks, which represent ownership claims on businesses; these may include securities listed on a public stock exchange as well as stock that is only traded privately, such as shares of private companies that are sold to investors through equity crowdfunding platforms. investments are usually made with an investment strategy in mind.",
+    "timestamp": "2026-03-06T18:54:39.059281",
+    "source": "wikipedia_api_stock market",
+    "word_count": 67,
+    "new_words": 0
+  },
+  {
+    "text": "robotics is the interdisciplinary study and practice of the design, construction, operation, and use of robots. a\u00a0roboticist is someone who specializes in robotics. robotics usually combines four aspects of design work: a power source, mechanical construction, a control system, and software.",
+    "timestamp": "2026-03-06T18:54:42.516451",
+    "source": "wikipedia_api_robotics",
+    "word_count": 42,
+    "new_words": 0
+  },
+  {
+    "text": "in finance, an option is a contract which conveys to its owner, the holder, the right, but not the obligation, to buy or sell a specific quantity of an underlying asset or instrument at a specified strike price on or before a specified date, depending on the style of the option.",
+    "timestamp": "2026-03-06T18:54:45.949202",
+    "source": "wikipedia_api_options trading",
+    "word_count": 51,
+    "new_words": 0
+  },
+  {
+    "text": "industrial design is a process of design applied to physical products that are to be manufactured by mass production. it is the creative act of determining and defining a product's form and features, which takes place in advance of the manufacture or production of the product. industrial manufacture consists of predetermined, standardized and repeated, often automated, acts of replication, while craft-based design is a process or approach in which the form of the product is determined personally by the product's creator largely concurrent with the act of its production.",
+    "timestamp": "2026-03-06T19:03:44.060194",
+    "source": "wikipedia_api_industrial design",
+    "word_count": 92,
+    "new_words": 0
+  },
+  {
+    "text": "a neural network is a group of interconnected units called neurons that send signals to one another. neurons can be either biological cells or mathematical models. while individual neurons are simple, many of them together in a network can perform complex tasks. there are two main types of neural networks.in neuroscience, a biological neural network is a physical structure found in brains and complex nervous systems \u2013 a population of nerve cells connected by synapses.\nin machine learning, an artificial neural network is a mathematical model used to approximate nonlinear functions. artificial neural networks are used to solve artificial intelligence problems.",
+    "timestamp": "2026-03-06T19:03:47.469212",
+    "source": "wikipedia_api_neural networks",
+    "word_count": 101,
+    "new_words": 0
+  },
+  {
+    "text": "content strategy guides the planning, development, and management of content. it is a recognized field in user experience design, and it also draws from adjacent disciplines such as information architecture, content management, business analysis, digital marketing, and technical communication.",
+    "timestamp": "2026-03-06T19:12:45.974878",
+    "source": "wikipedia_api_content strategy",
+    "word_count": 39,
+    "new_words": 0
+  },
+  {
+    "text": "computer numerical control (cnc) or cnc machining is the automated control of machine tools by a computer. it is an evolution of numerical control (nc), where machine tools are directly managed by data storage media such as punched cards or punched tape. because cnc allows for easier programming, modification, and real-time adjustments, it has gradually replaced nc as computing costs declined.",
+    "timestamp": "2026-03-06T19:25:19.243724",
+    "source": "wikipedia_api_cnc machining",
+    "word_count": 62,
+    "new_words": 0
+  },
+  {
+    "text": "algorithmic trading is a method of executing orders using automated pre-programmed trading instructions accounting for variables such as time, price, and volume. this type of trading attempts to leverage the speed and computational resources of computers relative to human traders. in the twenty-first century, algorithmic trading has been gaining traction with both retail and institutional traders. a study in 2019 showed that around 92% of trading in the forex market was performed by trading algorithms rather than humans.",
+    "timestamp": "2026-03-06T19:25:22.669703",
+    "source": "wikipedia_api_algorithmic trading",
+    "word_count": 78,
+    "new_words": 0
+  },
+  {
+    "text": "a quantum computer is a computer that exploits superposed and entangled states. quantum computers can be viewed as sampling from quantum systems. these systems evolve in ways that operate on an enormous number of possibilities simultaneously, though they remain subject to strict computational constraints. by contrast, ordinary (\"classical\") computers operate according to deterministic rules. it is widely believed that a quantum computer could perform some calculations exponentially faster than any classical computer. for example, a large-scale quantum computer could break some widely used public-key cryptographic schemes and aid physicists in performing physical simulations. however, current hardware implementations of quantum computation are largely experimental and only suitable for specialized tasks.",
+    "timestamp": "2026-03-06T19:53:24.557521",
+    "source": "wikipedia_api_quantum computing",
+    "word_count": 111,
+    "new_words": 0
+  },
+  {
+    "text": "a patent is a type of intellectual property that gives its owner the legal right to exclude others from making, using, or selling an invention for a limited period of time, in exchange for publishing an enabling disclosure of the invention. in most countries, patent rights fall under private law and the patent holder must sue someone infringing the patent in order to enforce their rights.",
+    "timestamp": "2026-03-06T19:53:27.980167",
+    "source": "wikipedia_api_patent law",
+    "word_count": 66,
+    "new_words": 0
+  },
+  {
+    "text": "offshore construction is the installation of structures and facilities in a marine environment, usually for the production and transmission of electricity, oil, gas and other resources. it is also called maritime engineering.",
+    "timestamp": "2026-03-06T19:53:31.386549",
+    "source": "wikipedia_api_offshore construction",
+    "word_count": 32,
+    "new_words": 0
+  },
+  {
+    "text": "the foreign exchange market is a global decentralized or over-the-counter (otc) market for the trading of currencies. this market determines foreign exchange rates for every currency. by trading volume, it is by far the largest market in the world, followed by the credit market.",
+    "timestamp": "2026-03-06T20:01:55.460984",
+    "source": "wikipedia_api_forex trading",
+    "word_count": 46,
+    "new_words": 0
+  },
+  {
+    "text": "risk management is the identification, evaluation, and prioritization of risks, followed by the minimization, monitoring, and control of the impact or probability of those risks occurring. risks can come from various sources including uncertainty in international markets, political instability, dangers of project failures, legal liabilities, credit risk, accidents, natural causes and disasters, deliberate attack from an adversary, or events of uncertain or unpredictable root-cause. retail traders also apply risk management by using fixed percentage position sizing and risk-to-reward frameworks to avoid large drawdowns and support consistent decision-making under pressure.",
+    "timestamp": "2026-03-06T20:01:58.895018",
+    "source": "wikipedia_api_risk management",
+    "word_count": 93,
+    "new_words": 0
+  },
+  {
+    "text": "a cryptocurrency is a digital currency designed to work through a computer network that is not reliant on any central authority, such as a government or bank, to uphold or maintain it. however, a type of cryptocurrency called a stablecoin may rely upon government action or legislation to require that a stable value be upheld and maintained.",
+    "timestamp": "2026-03-06T20:13:23.600278",
+    "source": "wikipedia_api_cryptocurrency",
+    "word_count": 57,
+    "new_words": 0
+  },
+  {
+    "text": "in journalism, local news refers to coverage of events, by the news, in a local context that would not be of interest to another locality, or otherwise be of national or international scope. local news, in contrast to national or international news, caters to the news of their regional and local communities; they focus on more localized issues and events. some key features of local newsrooms include regional politics, weather, business, and human interest stories.",
+    "timestamp": "2026-03-06T20:30:35.569892",
+    "source": "wikipedia_api_local news",
+    "word_count": 75,
+    "new_words": 0
+  },
+  {
+    "text": "artificial intelligence (ai) is the capability of computational systems to perform tasks typically associated with human intelligence, such as learning, reasoning, problem-solving, perception, and decision-making. it is a field of research in computer science that develops and studies methods and software that enable machines to perceive their environment and use learning and intelligence to take actions that maximize their chances of achieving defined goals.",
+    "timestamp": "2026-03-06T20:30:39.245653",
+    "source": "wikipedia_api_artificial intelligence",
+    "word_count": 66,
+    "new_words": 0
+  },
+  {
+    "text": "geopolitics is the study of the effects of earth's geography on politics and international relations. geopolitics usually refers to countries and relations between them. according to multiple researchers, the term is currently being used to describe a broad spectrum of concepts, in a general sense used as \"a synonym for international political relations\", but more specifically \"to imply the global structure of such relations\"; this usage builds on an \"early-twentieth-century term for a pseudoscience of political geography\" and other pseudoscientific theories of historical and geographic determinism.",
+    "timestamp": "2026-03-06T20:30:43.181383",
+    "source": "wikipedia_api_geopolitics",
+    "word_count": 89,
+    "new_words": 0
+  },
+  {
+    "text": "consciousness is being aware of something internal to one's self or being conscious of states or objects in one's external environment. it has been the topic of extensive explanations, analyses, and debate among philosophers, scientists, and theologians for millennia. there is no consensus on what exactly needs to be studied, or even if consciousness can be considered a scientific concept. in some explanations, it is synonymous with mind, while in others it is considered an aspect of it.",
+    "timestamp": "2026-03-06T20:38:05.102957",
+    "source": "wikipedia_api_consciousness",
+    "word_count": 80,
+    "new_words": 0
+  },
+  {
+    "text": "in finance, diversification is the process of allocating capital in a way that reduces the exposure to any one particular asset or risk. a common path towards diversification is to reduce risk or volatility by investing in a variety of assets. if asset prices do not change in perfect synchrony, a diversified portfolio will have less variance than the weighted average variance of its constituent assets, and often less volatility than the least volatile of its constituents.",
+    "timestamp": "2026-03-06T20:38:08.547184",
+    "source": "wikipedia_api_portfolio diversification",
+    "word_count": 77,
+    "new_words": 0
+  },
+  {
+    "text": "a stock market, equity market, or share market is the aggregation of buyers and sellers of stocks, which represent ownership claims on businesses; these may include securities listed on a public stock exchange as well as stock that is only traded privately, such as shares of private companies that are sold to investors through equity crowdfunding platforms. investments are usually made with an investment strategy in mind.",
+    "timestamp": "2026-03-06T20:38:12.655300",
+    "source": "wikipedia_api_stock market",
+    "word_count": 67,
+    "new_words": 0
+  },
+  {
+    "text": "in finance, diversification is the process of allocating capital in a way that reduces the exposure to any one particular asset or risk. a common path towards diversification is to reduce risk or volatility by investing in a variety of assets. if asset prices do not change in perfect synchrony, a diversified portfolio will have less variance than the weighted average variance of its constituent assets, and often less volatility than the least volatile of its constituents.",
+    "timestamp": "2026-03-06T20:49:34.821913",
+    "source": "wikipedia_api_portfolio diversification",
+    "word_count": 77,
+    "new_words": 0
+  },
+  {
+    "text": "in finance, an option is a contract which conveys to its owner, the holder, the right, but not the obligation, to buy or sell a specific quantity of an underlying asset or instrument at a specified strike price on or before a specified date, depending on the style of the option.",
+    "timestamp": "2026-03-06T20:49:38.779878",
+    "source": "wikipedia_api_options trading",
+    "word_count": 51,
+    "new_words": 0
+  },
+  {
+    "text": "computer numerical control (cnc) or cnc machining is the automated control of machine tools by a computer. it is an evolution of numerical control (nc), where machine tools are directly managed by data storage media such as punched cards or punched tape. because cnc allows for easier programming, modification, and real-time adjustments, it has gradually replaced nc as computing costs declined.",
+    "timestamp": "2026-03-06T20:57:45.914306",
+    "source": "wikipedia_api_cnc machining",
+    "word_count": 62,
+    "new_words": 0
+  },
+  {
+    "text": "arm is a family of risc instruction set architectures for computer processors. arm holdings develops the instruction set architecture and licenses them to other companies, who build the physical devices that use the instruction set. it also designs and licenses cores that implement these instruction set architectures.",
+    "timestamp": "2026-03-06T20:57:49.310923",
+    "source": "wikipedia_api_arm architecture",
+    "word_count": 47,
+    "new_words": 0
+  },
+  {
+    "text": "a quantum computer is a computer that exploits superposed and entangled states. quantum computers can be viewed as sampling from quantum systems. these systems evolve in ways that operate on an enormous number of possibilities simultaneously, though they remain subject to strict computational constraints. by contrast, ordinary (\"classical\") computers operate according to deterministic rules. it is widely believed that a quantum computer could perform some calculations exponentially faster than any classical computer. for example, a large-scale quantum computer could break some widely used public-key cryptographic schemes and aid physicists in performing physical simulations. however, current hardware implementations of quantum computation are largely experimental and only suitable for specialized tasks.",
+    "timestamp": "2026-03-06T21:08:45.430189",
+    "source": "wikipedia_api_quantum computing",
+    "word_count": 111,
+    "new_words": 0
+  },
+  {
+    "text": "industrial design is a process of design applied to physical products that are to be manufactured by mass production. it is the creative act of determining and defining a product's form and features, which takes place in advance of the manufacture or production of the product. industrial manufacture consists of predetermined, standardized and repeated, often automated, acts of replication, while craft-based design is a process or approach in which the form of the product is determined personally by the product's creator largely concurrent with the act of its production.",
+    "timestamp": "2026-03-06T21:08:49.574845",
+    "source": "wikipedia_api_industrial design",
+    "word_count": 92,
+    "new_words": 0
+  },
+  {
+    "text": "geopolitics is the study of the effects of earth's geography on politics and international relations. geopolitics usually refers to countries and relations between them. according to multiple researchers, the term is currently being used to describe a broad spectrum of concepts, in a general sense used as \"a synonym for international political relations\", but more specifically \"to imply the global structure of such relations\"; this usage builds on an \"early-twentieth-century term for a pseudoscience of political geography\" and other pseudoscientific theories of historical and geographic determinism.",
+    "timestamp": "2026-03-06T21:19:31.300100",
+    "source": "wikipedia_api_geopolitics",
+    "word_count": 89,
+    "new_words": 0
+  },
+  {
+    "text": "the foreign exchange market is a global decentralized or over-the-counter (otc) market for the trading of currencies. this market determines foreign exchange rates for every currency. by trading volume, it is by far the largest market in the world, followed by the credit market.",
+    "timestamp": "2026-03-06T21:31:35.935611",
+    "source": "wikipedia_api_forex trading",
+    "word_count": 46,
+    "new_words": 0
+  },
+  {
+    "text": "a patent is a type of intellectual property that gives its owner the legal right to exclude others from making, using, or selling an invention for a limited period of time, in exchange for publishing an enabling disclosure of the invention. in most countries, patent rights fall under private law and the patent holder must sue someone infringing the patent in order to enforce their rights.",
+    "timestamp": "2026-03-06T21:31:44.617301",
+    "source": "wikipedia_api_patent law",
+    "word_count": 66,
+    "new_words": 0
+  },
+  {
+    "text": "consciousness is being aware of something internal to one's self or being conscious of states or objects in one's external environment. it has been the topic of extensive explanations, analyses, and debate among philosophers, scientists, and theologians for millennia. there is no consensus on what exactly needs to be studied, or even if consciousness can be considered a scientific concept. in some explanations, it is synonymous with mind, while in others it is considered an aspect of it.",
+    "timestamp": "2026-03-06T21:43:03.769839",
+    "source": "wikipedia_api_consciousness",
+    "word_count": 80,
+    "new_words": 0
+  },
+  {
+    "text": "a cryptocurrency is a digital currency designed to work through a computer network that is not reliant on any central authority, such as a government or bank, to uphold or maintain it. however, a type of cryptocurrency called a stablecoin may rely upon government action or legislation to require that a stable value be upheld and maintained.",
+    "timestamp": "2026-03-06T21:51:07.496853",
+    "source": "wikipedia_api_cryptocurrency",
+    "word_count": 57,
+    "new_words": 0
+  },
+  {
+    "text": "machine learning (ml) is a field of study in artificial intelligence concerned with the development and study of statistical algorithms that can learn from data and generalize to unseen data, and thus perform tasks without explicit instructions. within a subdiscipline of machine learning, advances in the field of deep learning have allowed neural networks, a class of statistical algorithms, to surpass many previous machine learning approaches in performance.",
+    "timestamp": "2026-03-06T21:51:12.547155",
+    "source": "wikipedia_api_machine learning",
+    "word_count": 68,
+    "new_words": 0
+  },
+  {
+    "text": "in journalism, local news refers to coverage of events, by the news, in a local context that would not be of interest to another locality, or otherwise be of national or international scope. local news, in contrast to national or international news, caters to the news of their regional and local communities; they focus on more localized issues and events. some key features of local newsrooms include regional politics, weather, business, and human interest stories.",
+    "timestamp": "2026-03-06T21:59:07.649462",
+    "source": "wikipedia_api_local news",
+    "word_count": 75,
+    "new_words": 0
+  },
+  {
+    "text": "3d printing, also called additive manufacturing, is the construction of a three-dimensional object from a cad model or a digital 3d model. it can be done in a variety of processes in which material is deposited, joined or solidified under computer control, with the material being added together, typically layer by layer.",
+    "timestamp": "2026-03-06T22:05:26.625980",
+    "source": "wikipedia_api_3d printing",
+    "word_count": 51,
+    "new_words": 0
+  },
+  {
+    "text": "artificial intelligence (ai) is the capability of computational systems to perform tasks typically associated with human intelligence, such as learning, reasoning, problem-solving, perception, and decision-making. it is a field of research in computer science that develops and studies methods and software that enable machines to perceive their environment and use learning and intelligence to take actions that maximize their chances of achieving defined goals.",
+    "timestamp": "2026-03-06T22:05:30.647523",
+    "source": "wikipedia_api_artificial intelligence",
+    "word_count": 66,
+    "new_words": 0
+  },
+  {
+    "text": "robotics is the interdisciplinary study and practice of the design, construction, operation, and use of robots. a\u00a0roboticist is someone who specializes in robotics. robotics usually combines four aspects of design work: a power source, mechanical construction, a control system, and software.",
+    "timestamp": "2026-03-06T22:12:25.736256",
+    "source": "wikipedia_api_robotics",
+    "word_count": 42,
+    "new_words": 0
+  },
+  {
+    "text": "offshore construction is the installation of structures and facilities in a marine environment, usually for the production and transmission of electricity, oil, gas and other resources. it is also called maritime engineering.",
+    "timestamp": "2026-03-06T22:12:29.265489",
+    "source": "wikipedia_api_offshore construction",
+    "word_count": 32,
+    "new_words": 0
+  },
+  {
+    "text": "content strategy guides the planning, development, and management of content. it is a recognized field in user experience design, and it also draws from adjacent disciplines such as information architecture, content management, business analysis, digital marketing, and technical communication.",
+    "timestamp": "2026-03-06T22:12:32.650455",
+    "source": "wikipedia_api_content strategy",
+    "word_count": 39,
+    "new_words": 0
+  },
+  {
+    "text": "intellectual property (ip) is a category of property that includes intangible creations of the human intellect. there are many types of intellectual property, and some countries recognize more than others. the best-known types are patents, copyrights, trademarks, and trade secrets. the modern concept of intellectual property was developed in england in the 17th and 18th centuries. the term \"intellectual property\" began to be used in the 19th century, though it was not until the late 20th century that intellectual property became commonplace in most of the world's legal systems.",
+    "timestamp": "2026-03-06T22:19:44.308348",
+    "source": "wikipedia_api_intellectual property",
+    "word_count": 87,
+    "new_words": 0
+  },
+  {
+    "text": "risk management is the identification, evaluation, and prioritization of risks, followed by the minimization, monitoring, and control of the impact or probability of those risks occurring. risks can come from various sources including uncertainty in international markets, political instability, dangers of project failures, legal liabilities, credit risk, accidents, natural causes and disasters, deliberate attack from an adversary, or events of uncertain or unpredictable root-cause. retail traders also apply risk management by using fixed percentage position sizing and risk-to-reward frameworks to avoid large drawdowns and support consistent decision-making under pressure.",
+    "timestamp": "2026-03-06T22:34:46.411293",
+    "source": "wikipedia_api_risk management",
+    "word_count": 93,
+    "new_words": 0
+  },
+  {
+    "text": "algorithmic trading is a method of executing orders using automated pre-programmed trading instructions accounting for variables such as time, price, and volume. this type of trading attempts to leverage the speed and computational resources of computers relative to human traders. in the twenty-first century, algorithmic trading has been gaining traction with both retail and institutional traders. a study in 2019 showed that around 92% of trading in the forex market was performed by trading algorithms rather than humans.",
+    "timestamp": "2026-03-06T22:34:50.319500",
+    "source": "wikipedia_api_algorithmic trading",
+    "word_count": 78,
+    "new_words": 0
+  },
+  {
+    "text": "a neural network is a group of interconnected units called neurons that send signals to one another. neurons can be either biological cells or mathematical models. while individual neurons are simple, many of them together in a network can perform complex tasks. there are two main types of neural networks.in neuroscience, a biological neural network is a physical structure found in brains and complex nervous systems \u2013 a population of nerve cells connected by synapses.\nin machine learning, an artificial neural network is a mathematical model used to approximate nonlinear functions. artificial neural networks are used to solve artificial intelligence problems.",
+    "timestamp": "2026-03-06T22:34:53.697927",
+    "source": "wikipedia_api_neural networks",
+    "word_count": 101,
+    "new_words": 0
+  },
+  {
+    "text": "global news is the news and current affairs division of the canadian global television network. the network is owned by corus entertainment, which oversees all of the network's national news programming as well as local news on its 21 owned-and-operated stations. the same division also operates a news website under the same brand.",
+    "timestamp": "2026-03-06T22:43:15.253477",
+    "source": "wikipedia_api_global news",
+    "word_count": 55,
+    "new_words": 0
+  },
+  {
+    "text": "global news is the news and current affairs division of the canadian global television network. the network is owned by corus entertainment, which oversees all of the network's national news programming as well as local news on its 21 owned-and-operated stations. the same division also operates a news website under the same brand.",
+    "timestamp": "2026-03-06T22:58:59.122510",
+    "source": "wikipedia_api_global news",
+    "word_count": 55,
+    "new_words": 0
+  },
+  {
+    "text": "hey, 10%. 8 this is the residents of the city, just for that, i don't see you there.",
+    "timestamp": "2026-03-07T06:03:10.689830",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 2
+  },
+  {
+    "text": "what? no, that's not good. fuckin' fucking died in the right. fuckin' fucking died in the right.",
+    "timestamp": "2026-03-07T06:08:58.349892",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 2
+  },
+  {
+    "text": "what peace\u0438\u0442\u0430 has done.",
+    "timestamp": "2026-03-07T06:12:52.216380",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "when someone sees him.",
+    "timestamp": "2026-03-07T06:15:11.678315",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "thank you, guys. it's all great. thank you, sir. thanks for waiting. i'll take you to the center. thank you. i'll be right back.",
+    "timestamp": "2026-03-07T06:16:20.142861",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 2
+  },
+  {
+    "text": "this is the biggest business in the world. i know you won't be as long as you're in there. this is the biggest business in the world.",
+    "timestamp": "2026-03-07T06:19:02.906897",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 1
+  },
+  {
+    "text": "i'm going to take a look at the camera. i'm going to take a look at the camera. i'm going to take a look at the camera. that was a nice one.",
+    "timestamp": "2026-03-07T06:19:26.099654",
+    "source": "ambient",
+    "word_count": 35,
+    "new_words": 1
+  },
+  {
+    "text": "i'm sorry, i'm late. and so i'm just starting to go off at the hostel.",
+    "timestamp": "2026-03-07T06:21:22.258091",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 2
+  },
+  {
+    "text": "then just look there iszi stock casino. again ... this is an environment-based bar. there is no point of itye\u7759 yelling \u043f\u0440\u043e\u0431\u043b\u0435\u043c\u0430",
+    "timestamp": "2026-03-07T06:21:47.342183",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 4
+  },
+  {
+    "text": "come on.",
+    "timestamp": "2026-03-07T06:22:08.637684",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to go along with the other shops. i'm going to have a lot of events. i'm going to have a lot of fun. yeah, that's a great exercise.",
+    "timestamp": "2026-03-07T06:23:18.620833",
+    "source": "ambient",
+    "word_count": 34,
+    "new_words": 3
+  },
+  {
+    "text": "i'm not sure how to get up there, but i'm not sure. i'm not sure how to get up there. i'm not sure how to get up there.",
+    "timestamp": "2026-03-07T06:24:05.216321",
+    "source": "ambient",
+    "word_count": 32,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to go to the park and have a walk. i'm going to go to the park and have a walk. it's so fun. i'm going to go to the park.",
+    "timestamp": "2026-03-07T06:24:28.393092",
+    "source": "ambient",
+    "word_count": 36,
+    "new_words": 1
+  },
+  {
+    "text": "i'm going to show you how to do this machine, one of the ways to do this machine, one of the ways to do this machine, one of the ways to do this machine,",
+    "timestamp": "2026-03-07T06:27:57.872652",
+    "source": "ambient",
+    "word_count": 35,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to get some water. i'm going to get some water. here's some water. there's some water.",
+    "timestamp": "2026-03-07T06:29:07.487464",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 0
+  },
+  {
+    "text": "as you can see, i'm not telling you what you're saying. so i'm just going to talk to you. so i'm going to talk to you later. i'm not going to see you so far. i'm going to talk to you later.",
+    "timestamp": "2026-03-07T06:29:56.089170",
+    "source": "ambient",
+    "word_count": 48,
+    "new_words": 1
+  },
+  {
+    "text": "so, i'm going to start talking about the right vibration. i'm going to talk about the effects of this vibration. and i'm going to talk about the pressure.",
+    "timestamp": "2026-03-07T06:36:07.140136",
+    "source": "ambient",
+    "word_count": 31,
+    "new_words": 1
+  },
+  {
+    "text": "i'm not sure if i can get a finish. i'm not sure if i can get a finish. i'm getting a finish. i'm not sure if i can get a finish.",
+    "timestamp": "2026-03-07T06:37:39.683693",
+    "source": "ambient",
+    "word_count": 35,
+    "new_words": 0
+  },
+  {
+    "text": "oh, what's that?",
+    "timestamp": "2026-03-07T06:39:58.247160",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "thanks for your attention. thank you. have a nice day. have a nice day. have a nice day. have a nice day.",
+    "timestamp": "2026-03-07T06:40:44.966813",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 1
+  },
+  {
+    "text": "stay safe in the",
+    "timestamp": "2026-03-07T06:42:18.824853",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "one of our prices is fine. one is safe. and we're not safe. we're not safe.",
+    "timestamp": "2026-03-07T06:42:41.227144",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 1
+  },
+  {
+    "text": "so then i'll see what we get to see is the gym. let's go check this out. where the coaches are. time for the day to go. let's go back into the gym.",
+    "timestamp": "2026-03-07T06:43:50.954315",
+    "source": "ambient",
+    "word_count": 36,
+    "new_words": 3
+  },
+  {
+    "text": "i think that's it. thanks a lot. thank you. what about you? i think that's it. okay, let's go. let's go.",
+    "timestamp": "2026-03-07T06:50:49.506635",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 0
+  },
+  {
+    "text": "samatina, we got a lot of chess over here. now that's when we'll blow up. and take the cards. i might need a little more later.",
+    "timestamp": "2026-03-07T06:51:59.250362",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 2
+  },
+  {
+    "text": "i can't hear you, but i'll sit there. i can't hear you. but you can't? i can't hear you. i can't hear you. i can't hear you. i can't hear you.",
+    "timestamp": "2026-03-07T06:52:45.746223",
+    "source": "ambient",
+    "word_count": 39,
+    "new_words": 0
+  },
+  {
+    "text": "the night",
+    "timestamp": "2026-03-07T06:54:19.604449",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "take a couple sample of one nail you'll probably not see it",
+    "timestamp": "2026-03-07T06:54:42.940794",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 3
+  },
+  {
+    "text": "they are the might, might, might, might. might as well, might as well. i'm serious, i'm sorry. i'm sorry. i'm sorry, i'm sorry. i'm sorry, i'm sorry.",
+    "timestamp": "2026-03-07T06:55:28.484287",
+    "source": "ambient",
+    "word_count": 34,
+    "new_words": 1
+  },
+  {
+    "text": "i think of it as an environment of great difference",
+    "timestamp": "2026-03-07T06:55:52.840273",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 1
+  },
+  {
+    "text": "that's not the opposite. it's not the same thing. it's not the same thing. it's not the problem.",
+    "timestamp": "2026-03-07T06:56:14.848031",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 1
+  },
+  {
+    "text": "and so here again the advantage yes with so far much and yes they're trying to case in this place",
+    "timestamp": "2026-03-07T06:58:57.501533",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 1
+  },
+  {
+    "text": "what we may need to find is that white strips that surround the sides of the line, the streets of our walls.",
+    "timestamp": "2026-03-07T07:00:30.448381",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 4
+  },
+  {
+    "text": "now in the homemade e",
+    "timestamp": "2026-03-07T07:01:18.571002",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "the bill of the interior to the italian, the dog says that we must be involved in the selection of the building and the road.",
+    "timestamp": "2026-03-07T07:04:23.307598",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 6
+  },
+  {
+    "text": "once all, there's \u0441\u043c\u0435\u0440<|hi|>",
+    "timestamp": "2026-03-07T07:05:11.425340",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 1
+  },
+  {
+    "text": "so take this, uh, uh, i-i-i-is not going to sell my gaming world, give it to one. but you can think that taking a resist and going to it to one-",
+    "timestamp": "2026-03-07T07:07:29.685154",
+    "source": "ambient",
+    "word_count": 34,
+    "new_words": 3
+  },
+  {
+    "text": "we're going to fill in the sky and we'll be very full of solar say that maybe i think a few may not have been rescued.",
+    "timestamp": "2026-03-07T07:08:39.504056",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 4
+  },
+  {
+    "text": "that e",
+    "timestamp": "2026-03-07T07:11:47.103219",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "by the pass by \u0444\u03c1\u03af, they are now pulling through out of the street by finding to protect the place of akoq by deutsche du mumbai.",
+    "timestamp": "2026-03-07T07:12:34.306240",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 6
+  },
+  {
+    "text": "i'm not sure if i'm going to enter the mystery room, but i'm going to see you in turn for a month or so. i'm not going to bring you the lost to a lot of people in the mystery room to be able to see you.",
+    "timestamp": "2026-03-07T07:13:42.453543",
+    "source": "ambient",
+    "word_count": 51,
+    "new_words": 2
+  },
+  {
+    "text": "so, down here, we're going to get the sun's out. so, we're going to see the sea along the boat. it's just right in the back of the boat. there is a nice beach.",
+    "timestamp": "2026-03-07T07:15:15.746898",
+    "source": "ambient",
+    "word_count": 38,
+    "new_words": 3
+  },
+  {
+    "text": "i was scared by a clock and there was a virus. apparently they made it up. we stayed on the road for four hours. we made a little out of time. and the end was slow.",
+    "timestamp": "2026-03-07T07:17:35.328473",
+    "source": "ambient",
+    "word_count": 36,
+    "new_words": 7
+  },
+  {
+    "text": "there's no water supply, no other drinking test, nothing on the ground will take me with all the rain. it's going to be another...",
+    "timestamp": "2026-03-07T07:18:21.807325",
+    "source": "ambient",
+    "word_count": 26,
+    "new_words": 3
+  },
+  {
+    "text": "i'm going to try to do it twice. i'll have to wait until i get it right. that's exactly what i'm going to do. from the top.",
+    "timestamp": "2026-03-07T07:22:14.607438",
+    "source": "ambient",
+    "word_count": 31,
+    "new_words": 0
+  },
+  {
+    "text": "catch one of them. it depends if you're on those.",
+    "timestamp": "2026-03-07T07:22:37.751250",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 1
+  },
+  {
+    "text": "of playing for the americans. one page for 50 pound papers, are there any? no, any. everyone can...",
+    "timestamp": "2026-03-07T07:23:01.652193",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 5
+  },
+  {
+    "text": "you will enjoy it's golden then the\u3001 idol all exquisite kingdom",
+    "timestamp": "2026-03-07T07:23:25.621620",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 4
+  },
+  {
+    "text": "and in the following, for that energy. but yes, it does have a dramatic impact to shoulders, more economy, and truly faith. and...",
+    "timestamp": "2026-03-07T07:23:48.157448",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 6
+  },
+  {
+    "text": "europe, in ukraine, they have an attitude, i don't know how many to three. small world is in pakistan, afghanistan.",
+    "timestamp": "2026-03-07T07:24:10.956131",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 5
+  },
+  {
+    "text": "chris\u4e8bome",
+    "timestamp": "2026-03-07T07:25:22.256354",
+    "source": "ambient",
+    "word_count": 0,
+    "new_words": 0
+  },
+  {
+    "text": "how's it going to help baby. lets hope she didnt followful",
+    "timestamp": "2026-03-07T07:26:08.052868",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 4
+  },
+  {
+    "text": "when my own dead body would erupt. are you okay?",
+    "timestamp": "2026-03-07T07:26:54.471974",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 2
+  },
+  {
+    "text": "i can't move. i'm dead at there.",
+    "timestamp": "2026-03-07T07:27:16.965757",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "give g go my editor my",
+    "timestamp": "2026-03-07T07:36:12.474744",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 1
+  },
+  {
+    "text": "happened oh holyrica and",
+    "timestamp": "2026-03-07T07:46:40.318174",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "i'm not going to let you down. i'm not going to let you down. i'm not going to let you down.",
+    "timestamp": "2026-03-07T07:54:49.460180",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to get out of here because i'm going to get out. i'm going to get out of here.",
+    "timestamp": "2026-03-07T07:56:21.249417",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to make a hole in the middle of the hole. i'm going to make a hole in the middle of the hole. make a hole in the middle of the hole.",
+    "timestamp": "2026-03-07T07:56:45.761915",
+    "source": "ambient",
+    "word_count": 35,
+    "new_words": 0
+  },
+  {
+    "text": "and falling, they don't just believe me, and falling, they don't just believe me, and...",
+    "timestamp": "2026-03-07T08:02:56.502736",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 0
+  },
+  {
+    "text": "they're falling, they don't know what to mean, be mad. they're falling, they don't know what to mean, be mad.",
+    "timestamp": "2026-03-07T08:03:19.689595",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 0
+  },
+  {
+    "text": "yeah, from those rubberies.",
+    "timestamp": "2026-03-07T08:05:39.115488",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "it's great. it's successful in the country.",
+    "timestamp": "2026-03-07T08:06:02.353886",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "it ain't over mine open up nice wash in it nothing said for me",
+    "timestamp": "2026-03-07T08:06:27.032132",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 2
+  },
+  {
+    "text": "i'm gonna put this on your head. i'm gonna put this on your head. i'm gonna put this on your head.",
+    "timestamp": "2026-03-07T08:06:49.651503",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 0
+  },
+  {
+    "text": "what's going on? what's going on? what's going on? what's going on?",
+    "timestamp": "2026-03-07T08:08:00.487517",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to go to the next station. i'm going to the next station. i'm going to the next station.",
+    "timestamp": "2026-03-07T08:11:04.952647",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 0
+  },
+  {
+    "text": "ready for another long day of excitement, right? ready for a day of excitement, long.",
+    "timestamp": "2026-03-07T08:19:36.373005",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 1
+  },
+  {
+    "text": "i'm like, that's it. so, one of the characteristics of success pool. you know?",
+    "timestamp": "2026-03-07T08:20:22.822492",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 2
+  },
+  {
+    "text": "can i check out? yes, i can check out. yeah, i can check out. okay.",
+    "timestamp": "2026-03-07T08:22:42.418744",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 0
+  },
+  {
+    "text": "do an inflator covid disease",
+    "timestamp": "2026-03-07T08:23:06.759787",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "oh, i'm so glad you're here. i'm so glad you're here. thank you. thank you. thank you.",
+    "timestamp": "2026-03-07T08:25:01.847954",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 0
+  },
+  {
+    "text": "-\"wait a minute i can't eat all these... that's enough for dinner, if you either enjoy it or buy thatrel see you next week, in person",
+    "timestamp": "2026-03-07T08:26:37.314695",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 2
+  },
+  {
+    "text": "i'm getting a lot of stuff to eat. i'm getting a lot of stuff to eat. i'm getting a lot of stuff to eat.",
+    "timestamp": "2026-03-07T08:28:54.521296",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 1
+  },
+  {
+    "text": "it's up at length. hold it. and roll it.",
+    "timestamp": "2026-03-07T08:30:05.227885",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 2
+  },
+  {
+    "text": "but lose",
+    "timestamp": "2026-03-07T08:31:15.032082",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "make sure to store hot water when you are ready to season.",
+    "timestamp": "2026-03-07T08:35:06.767760",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 1
+  },
+  {
+    "text": "fuck off. work less and work less, thanks. cheers.",
+    "timestamp": "2026-03-07T08:37:50.746137",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 2
+  },
+  {
+    "text": "i'm using at lolly rock...",
+    "timestamp": "2026-03-07T08:38:13.753594",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 2
+  },
+  {
+    "text": "come on, already.",
+    "timestamp": "2026-03-07T08:40:54.509342",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "i'm fucking nicolai is really excited about these planes.",
+    "timestamp": "2026-03-07T08:47:06.450679",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 3
+  },
+  {
+    "text": "sides of the other planes. but if you're in a round and you see we're going to get planes full of americans, a full of british off.",
+    "timestamp": "2026-03-07T08:47:29.794380",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 1
+  },
+  {
+    "text": "if, but man it would be like the worst.",
+    "timestamp": "2026-03-07T08:47:52.896935",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "so it's enough. it looks pretty. it's like a pile of work. then it hits. wow, that's amazing.",
+    "timestamp": "2026-03-07T08:48:39.503931",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 6
+  },
+  {
+    "text": "for me, that's crazy.",
+    "timestamp": "2026-03-07T08:49:02.679669",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "you gonna be here to be going on next, but if i had to we shall go disk cheese and again we live here still in the morning but i don't know\uce68 and entering probably this i only came in i just bankcame",
+    "timestamp": "2026-03-07T08:49:27.385447",
+    "source": "ambient",
+    "word_count": 43,
+    "new_words": 4
+  },
+  {
+    "text": "they're all getting into it.",
+    "timestamp": "2026-03-07T08:49:50.502289",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to take a shower now. i'm going to stand up. i'm going to have a bath. i'm going to have a bath.",
+    "timestamp": "2026-03-07T09:02:14.979497",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 1
+  },
+  {
+    "text": "when i put some of my things on their feet. look at each other regionaloberai.",
+    "timestamp": "2026-03-07T09:04:35.390003",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 1
+  },
+  {
+    "text": "morning. morning. three. yes. so.",
+    "timestamp": "2026-03-07T09:08:26.892851",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "to do the next car confirmation, because it's a prop, but it's not a prop, it's pretty sure. it's okay.",
+    "timestamp": "2026-03-07T09:08:50.443417",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 3
+  },
+  {
+    "text": "you are the only one who can do this. no, no, no. you are this appear on your head to me to go out with the wrong side. help me.",
+    "timestamp": "2026-03-07T09:09:13.493732",
+    "source": "ambient",
+    "word_count": 30,
+    "new_words": 1
+  },
+  {
+    "text": "do you see that i said they asked me to do this?",
+    "timestamp": "2026-03-07T09:09:36.631999",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 0
+  },
+  {
+    "text": "and he said why? because you are the reason to be evacuated, eight. no. you said you got it.",
+    "timestamp": "2026-03-07T09:09:59.993359",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 2
+  },
+  {
+    "text": "i'm in a mood, man. it's a mood, huh? this one. for me? i'm in a mood. yeah. yeah, you're gonna have to make tomorrow...",
+    "timestamp": "2026-03-07T09:10:23.741754",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 3
+  },
+  {
+    "text": "i'm so very delicate, organisation devoted to these such fundamental points of respect. i've started\u03af\u03b1 after class",
+    "timestamp": "2026-03-07T09:10:47.799252",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 5
+  },
+  {
+    "text": "i mean, i think for the game mix, if you want to... i mean, how to disembark from the game.",
+    "timestamp": "2026-03-07T09:11:09.696722",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 2
+  },
+  {
+    "text": "so for real, at this case, these are the numbers. these are the numbers, they are the numbers. so we need to do this.",
+    "timestamp": "2026-03-07T09:11:33.029823",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 1
+  },
+  {
+    "text": "we started to work on\u6709\u9ede heavy on a camera and didn't think it will out too capac hacerlo with revs ewww",
+    "timestamp": "2026-03-07T09:11:58.018449",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 5
+  },
+  {
+    "text": "because one of the issues that we have, that the last remaining was only for emergency.",
+    "timestamp": "2026-03-07T09:12:19.470727",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 2
+  },
+  {
+    "text": "i just didn't know which anyone would do that and on my board, everybody out here would",
+    "timestamp": "2026-03-07T09:12:43.783996",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 3
+  },
+  {
+    "text": "dualmaid douhoujoin relates to feng single greasy fin y when dot me alternate valid in peace of",
+    "timestamp": "2026-03-07T09:13:31.200494",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 12
+  },
+  {
+    "text": "and know from contact the point of view to be part of the project and be covered in the bio suretze.",
+    "timestamp": "2026-03-07T09:13:52.880836",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 5
+  },
+  {
+    "text": "i already agreed that there's a new one. but it's okay. six days. six days. six days. six days. six days.",
+    "timestamp": "2026-03-07T09:14:15.774283",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 2
+  },
+  {
+    "text": "we'll do like the american navy.",
+    "timestamp": "2026-03-07T09:14:38.818180",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 1
+  },
+  {
+    "text": "prefer the shark on the less than just on the people with the gun.",
+    "timestamp": "2026-03-07T09:15:02.109296",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 3
+  },
+  {
+    "text": "the situation. okay so as soon as possible you go, oh",
+    "timestamp": "2026-03-07T09:15:26.544173",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 1
+  },
+  {
+    "text": "yeah, yeah. that's what i understood here.",
+    "timestamp": "2026-03-07T09:16:11.824595",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 1
+  },
+  {
+    "text": "i don't understand the mega-hide problem, but you have a local contract.",
+    "timestamp": "2026-03-07T09:16:58.449983",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 1
+  },
+  {
+    "text": "they came from ferner, pandro lore and french my website is",
+    "timestamp": "2026-03-07T09:17:25.301910",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 3
+  },
+  {
+    "text": "but i swear you're in the list. but the awareness, isn't it? please.",
+    "timestamp": "2026-03-07T09:17:45.404993",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 3
+  },
+  {
+    "text": "check my channel. i will be back in a few minutes. i will be back in a few minutes. i will be back in a few minutes.",
+    "timestamp": "2026-03-07T09:19:41.319173",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 1
+  },
+  {
+    "text": "if you were to use faster guide is a good help add good news done very nice just about to start see you next time",
+    "timestamp": "2026-03-07T09:20:29.601073",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 2
+  },
+  {
+    "text": "i don't know if you're going to do it. i don't know if you're going to do it or not. you're going to do it. i'm going to do it. i'm going to do it.",
+    "timestamp": "2026-03-07T09:21:15.271195",
+    "source": "ambient",
+    "word_count": 42,
+    "new_words": 0
+  },
+  {
+    "text": "once again i wish me to save the medium for this one.\u0e2b regardezre gone , plz quit to reward your nak massively channel all innocent wan",
+    "timestamp": "2026-03-07T09:21:39.127350",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 8
+  },
+  {
+    "text": "a little bite there, god.",
+    "timestamp": "2026-03-07T09:23:34.728414",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 1
+  },
+  {
+    "text": "i'm going to eat it. it's good. i'm going to eat it. i'm going to eat it. i'm going to eat it.",
+    "timestamp": "2026-03-07T09:25:07.321914",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 0
+  },
+  {
+    "text": "what man?",
+    "timestamp": "2026-03-07T09:26:17.212825",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "it's enough to forgive\u5927\u5bb6. when you were killed...",
+    "timestamp": "2026-03-07T09:26:40.821377",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 1
+  },
+  {
+    "text": "thank you. how's that? what's that? i don't know. i don't know. i don't know. i don't know.",
+    "timestamp": "2026-03-07T09:27:26.360511",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 0
+  },
+  {
+    "text": "what should we do here let's get going",
+    "timestamp": "2026-03-07T09:28:13.879449",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "yes! you guys really? yes.",
+    "timestamp": "2026-03-07T09:28:37.176727",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "and i still have to scalp becky's",
+    "timestamp": "2026-03-07T09:30:56.264098",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 2
+  },
+  {
+    "text": "nothing else. it's something else. there's only you. my wife. no, my wife.",
+    "timestamp": "2026-03-07T09:31:19.954054",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 1
+  },
+  {
+    "text": "i think that the time is right. i think that the time is right. the time is right. the time is right.",
+    "timestamp": "2026-03-07T09:31:42.338041",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 0
+  },
+  {
+    "text": "not like thousands can imagine a man with a big help shirt there so you think you'll get done.",
+    "timestamp": "2026-03-07T09:33:17.129031",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 4
+  },
+  {
+    "text": "oh man the angle is off that's why the angle is off",
+    "timestamp": "2026-03-07T09:35:58.771967",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 1
+  },
+  {
+    "text": "with a bald head...",
+    "timestamp": "2026-03-07T09:38:42.267700",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "i'm going to definitely try it yea",
+    "timestamp": "2026-03-07T09:39:26.938954",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 1
+  },
+  {
+    "text": "incents",
+    "timestamp": "2026-03-07T09:40:13.605894",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 1
+  },
+  {
+    "text": "i have experience with frags that i have probably never seen before either you do or lift atr\u00e1s ok, nobody's there\u4e0d\u6703 there is a keeping body it is indid of intention right\u2122 eye",
+    "timestamp": "2026-03-07T09:41:23.711915",
+    "source": "ambient",
+    "word_count": 32,
+    "new_words": 6
+  },
+  {
+    "text": "pretending to move no please",
+    "timestamp": "2026-03-07T09:42:09.355631",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "remain connected and that that",
+    "timestamp": "2026-03-07T09:43:42.638926",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "no way. which floor is that?",
+    "timestamp": "2026-03-07T09:46:01.636607",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to go to the bathroom. wait a minute, this is the beginning. i'm going to go to the bathroom.",
+    "timestamp": "2026-03-07T09:46:47.406776",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 1
+  },
+  {
+    "text": "i'll make this counter-e this time. and the very same trick.",
+    "timestamp": "2026-03-07T09:47:11.610807",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 1
+  },
+  {
+    "text": "u uncomfortablehere i would have to say",
+    "timestamp": "2026-03-07T09:47:57.956041",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
+  },
+  {
+    "text": "what the volume is?",
+    "timestamp": "2026-03-07T09:48:21.191156",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "pattot \u0440\u0443\u0441 message fantastic but must have a patent oh",
+    "timestamp": "2026-03-07T09:48:44.949863",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 3
+  },
+  {
+    "text": "but fuck. not very well.",
+    "timestamp": "2026-03-07T09:49:30.989707",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "at the right",
+    "timestamp": "2026-03-07T09:49:55.660255",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "skin chilling, skin chilling like, skin praying oh, d'ding ebt i borrow it on that",
+    "timestamp": "2026-03-07T09:51:27.475941",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 6
+  },
+  {
+    "text": "i don't know if you can see it. i'll see you in the next video. i'll see you in the next video. i'll see you in the next video.",
+    "timestamp": "2026-03-07T09:52:36.552437",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 1
+  },
+  {
+    "text": "what do you want? what? what? what? what? what? what?",
+    "timestamp": "2026-03-07T09:53:46.326193",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "sup my cock. sup my cock. sup my cock.",
+    "timestamp": "2026-03-07T09:54:08.964296",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 2
+  },
+  {
+    "text": "more time to say machine gun",
+    "timestamp": "2026-03-07T09:54:33.098909",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "what the fuck? what the fuck? coming in here all smiley and shit. that's not how we should be.",
+    "timestamp": "2026-03-07T09:54:55.579440",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 2
+  },
+  {
+    "text": "i'm going to the beach yeah? i'm going to the beach fuck all the dude it's a long day my friend long day",
+    "timestamp": "2026-03-07T09:55:18.725677",
+    "source": "ambient",
+    "word_count": 26,
+    "new_words": 2
+  },
+  {
+    "text": "i don't know what i'm going to do. i'm going to do it. i don't know. i don't know what i'm going to do. come on.",
+    "timestamp": "2026-03-07T09:56:05.353136",
+    "source": "ambient",
+    "word_count": 32,
+    "new_words": 0
+  },
+  {
+    "text": "got him in the start but not too late",
+    "timestamp": "2026-03-07T09:58:02.326079",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "come on, come on, come back quick. come on, come back quick.",
+    "timestamp": "2026-03-07T09:59:59.453659",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 0
+  },
+  {
+    "text": "she always picks it from here. she sometimes racks over my mouth.",
+    "timestamp": "2026-03-07T10:00:22.148599",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 2
+  },
+  {
+    "text": "around on the bus",
+    "timestamp": "2026-03-07T10:00:46.730519",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "we gonna get out of here...",
+    "timestamp": "2026-03-07T10:01:31.797264",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "you saw what i told you so much actually. this video was a bit sad because the dog wasn't.",
+    "timestamp": "2026-03-07T10:02:42.273222",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 0
+  },
+  {
+    "text": "do you remember how many days it took?",
+    "timestamp": "2026-03-07T10:03:05.606291",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 0
+  },
+  {
+    "text": "and of course bring the stuff",
+    "timestamp": "2026-03-07T10:03:51.403013",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "i can't believe it.",
+    "timestamp": "2026-03-07T10:05:46.750891",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "have you counted the pineapple pilling on your anda po \u043f pracy \u043f\u0440\u0438\u0434\u0443\u043caten? car \uc720",
+    "timestamp": "2026-03-07T10:07:44.329040",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 6
+  },
+  {
+    "text": "oh do your teeth theweit then... around",
+    "timestamp": "2026-03-07T10:08:08.371789",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
   }
 ]
