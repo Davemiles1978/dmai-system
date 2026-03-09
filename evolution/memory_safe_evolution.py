@@ -48,3 +48,47 @@ class MemorySafeEvolution(AdvancedEvolution):
 if __name__ == "__main__":
     evolution = MemorySafeEvolution()
     evolution.run_cycle()
+
+def get_all_systems_debug(self):
+    """Get systems with memory tracking"""
+    import tracemalloc
+    tracemalloc.start()
+    
+    systems = self.get_all_systems_debug()
+    current, peak = tracemalloc.get_traced_memory()
+    
+    print(f"📊 Systems loaded: {len(systems)}")
+    print(f"   Memory for systems: {current / 1024 / 1024:.1f} MB")
+    print(f"   Peak memory: {peak / 1024 / 1024:.1f} MB")
+    
+    # If too many, log which ones are biggest
+    if len(systems) > 30:
+        print("⚠️ High system count - top 5 by name:")
+        for s in sorted(systems, key=lambda x: len(x.get('name', '')))[:5]:
+            print(f"   • {s.get('name', 'unknown')}")
+    
+    return systems
+
+def get_all_systems_debug(self):
+    """Get systems with memory tracking"""
+    import tracemalloc
+    tracemalloc.start()
+    
+    systems = self.get_all_systems_debug()
+    current, peak = tracemalloc.get_traced_memory()
+    
+    print(f"📊 Systems loaded: {len(systems)}")
+    print(f"   Memory for systems: {current / 1024 / 1024:.1f} MB")
+    print(f"   Peak memory: {peak / 1024 / 1024:.1f} MB")
+    
+    # If too many, log which ones are biggest
+    if len(systems) > 30:
+        print("⚠️ High system count - top 5 by name:")
+        for s in sorted(systems, key=lambda x: len(x.get('name', '')))[:5]:
+            print(f"   • {s.get('name', 'unknown')}")
+    
+    return systems
+
+# Replace the original get_all_systems with debug version
+# Add this line in run_cycle:
+# systems = self.get_all_systems_debug()
