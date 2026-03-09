@@ -1,97 +1,13 @@
 services:
-  # Existing AGI Evolution Service
   - type: worker
-    name: agi-evolution-system
+    name: dmai-evolution
     runtime: python
-    repo: https://github.com/Davemiles1978/dmai-system.git
-    branch: main
-    buildCommand: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-      pip install networkx numpy psutil
-      python -c "print('✅ Dependencies installed')"
-    startCommand: python cloud_launcher.py
+    buildCommand: pip install -r requirements.txt && pip install -r evolution/cloud_requirements.txt
+    startCommand: python evolution/cloud_evolution.py
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
+      - key: HEARTBEAT_URL
+        value: https://your-monitor.com/heartbeat  # Optional
       - key: PYTHONUNBUFFERED
-        value: 1
-      - key: RENDER
         value: true
-      - key: GENERATION_START
-        value: 5
-    disk:
-      name: agi-data
-      mountPath: /var/data
-      sizeGB: 10
     autoDeploy: true
-    plan: starter
-    numInstances: 1
-
-  # Cloud Evolution Web Service
-  - type: web
-    name: dmai-cloud-evolution
-    runtime: python
-    repo: https://github.com/Davemiles1978/dmai-system.git
-    branch: main
-    rootDir: cloud_evolution
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn cloud_evolve:app
-    healthCheckPath: /health
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-    plan: free
-    autoDeploy: true
-
-  # NEW: API Harvester Service
-  - type: worker
-    name: api-harvester
-    runtime: python
-    repo: https://github.com/Davemiles1978/api-harvester
-    branch: main
-    buildCommand: |
-      apt-get update && apt-get install -y build-essential libpq-dev
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: python harvester.py
-    envVars:
-      - key: ENCRYPTION_KEY
-        generateValue: true
-      - key: GITHUB_TOKEN
-        sync: false
-      - key: PYTHON_VERSION
-        value: 3.11.11
-      - key: DATABASE_URL
-        fromDatabase:
-          name: dmai-harvester-db
-          property: connectionString
-
-  # NEW: API Validator Cron Job
-  - type: cron
-    name: api-validator
-    runtime: python
-    repo: https://github.com/Davemiles1978/api-harvester
-    branch: main
-    schedule: "0 * * * *"
-    buildCommand: |
-      apt-get update && apt-get install -y build-essential libpq-dev
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: python validator.py
-    envVars:
-      - key: ENCRYPTION_KEY
-        sync: false
-      - key: PYTHON_VERSION
-        value: 3.11.11
-      - key: DATABASE_URL
-        fromDatabase:
-          name: dmai-harvester-db
-          property: connectionString
-
-databases:
-  - name: dmai-harvester-db
-    plan: free
-    databaseName: harvester
-    user: dmai
-    ipAllowList: []
+    plan: free  # Upgrade later as she grows
