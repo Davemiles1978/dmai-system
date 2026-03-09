@@ -25,3 +25,5 @@ pydantic-settings==2.1.0
 
 # For voice (if needed in cloud)
 # pyttsx3==2.90  # Comment out if not needed in cloud
+setuptools==65.5.0
+setuptools==65.5.0
