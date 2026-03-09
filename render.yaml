@@ -2,12 +2,13 @@ services:
   - type: worker
     name: dmai-evolution
     runtime: python
-    buildCommand: pip install -r requirements.txt && pip install -r evolution/cloud_requirements.txt
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r evolution/worker-requirements.txt
     startCommand: python evolution/cloud_evolution.py
     envVars:
-      - key: HEARTBEAT_URL
-        value: https://your-monitor.com/heartbeat  # Optional
+      - key: PYTHON_VERSION
+        value: 3.11.6
       - key: PYTHONUNBUFFERED
         value: true
-    autoDeploy: true
-    plan: free  # Upgrade later as she grows
+    plan: free

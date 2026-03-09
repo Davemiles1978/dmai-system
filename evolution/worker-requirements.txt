@@ -1,0 +1,5 @@
+# Core dependencies for cloud_evolution.py
+requests==2.31.0
+python-dotenv==1.0.0
+
+# NO FastAPI, NO Uvicorn, NO numpy, NO scikit-learn needed!
