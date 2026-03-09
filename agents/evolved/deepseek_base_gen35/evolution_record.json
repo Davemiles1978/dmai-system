@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-03-09T17:11:36.665563",
+  "parent1": "dmai_core",
+  "parent2": "deepseek_base",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "evolution",
+      "description": "Transfer evolution from \ud83e\udde0 DMAI Core to \ud83d\udcda deepseek_base",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "coordination",
+      "description": "Transfer coordination from \ud83e\udde0 DMAI Core to \ud83d\udcda deepseek_base",
+      "quality": 0.8292478668075777
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "learning",
+      "description": "Transfer learning from \ud83e\udde0 DMAI Core to \ud83d\udcda deepseek_base",
+      "quality": 0.8822020446691147
+    },
+    {
+      "type": "meta_learning",
+      "description": "Apply meta-learning patterns to improve learning rate",
+      "quality": 0.8371222865233254
+    }
+  ],
+  "new_generation": 35,
+  "capabilities": [
+    "evolution",
+    "reasoning",
+    "language",
+    "learning",
+    "code",
+    "coordination"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-03-09T18:28:13.428698",
+  "parent1": "dmai_core",
+  "parent2": "claude_base_gen27_gen2",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "evolution",
+      "description": "Transfer evolution from \ud83e\udde0 DMAI Core to \u26a1 claude_base_gen27_gen2",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "coordination",
+      "description": "Transfer coordination from \ud83e\udde0 DMAI Core to \u26a1 claude_base_gen27_gen2",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "learning",
+      "description": "Transfer learning from \ud83e\udde0 DMAI Core to \u26a1 claude_base_gen27_gen2",
+      "quality": 0.7766584230099773
+    },
+    {
+      "type": "meta_learning",
+      "description": "Apply meta-learning patterns to improve learning rate",
+      "quality": 0.5695148373009884
+    }
+  ],
+  "new_generation": 37,
+  "capabilities": [
+    "evolution",
+    "reasoning",
+    "language",
+    "learning",
+    "coordination"
+  ]
+}

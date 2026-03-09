@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-03-09T15:12:59.480476",
+  "parent1": "dmai_core",
+  "parent2": "github_llama.cpp_gen2",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "evolution",
+      "description": "Transfer evolution from \ud83e\udde0 DMAI Core to \u26a1 github_llama.cpp_gen2",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "coordination",
+      "description": "Transfer coordination from \ud83e\udde0 DMAI Core to \u26a1 github_llama.cpp_gen2",
+      "quality": 0.9
+    },
+    {
+      "type": "meta_learning",
+      "description": "Apply meta-learning patterns to improve learning rate",
+      "quality": 0.738365062196898
+    }
+  ],
+  "new_generation": 28,
+  "capabilities": [
+    "coordination",
+    "evolution",
+    "learning"
+  ]
+}
