@@ -54,7 +54,7 @@ def get_all_systems_debug(self):
     import tracemalloc
     tracemalloc.start()
     
-    systems = self.get_all_systems_debug()
+    systems = self.log_memory_to_file()
     current, peak = tracemalloc.get_traced_memory()
     
     print(f"📊 Systems loaded: {len(systems)}")
@@ -74,7 +74,7 @@ def get_all_systems_debug(self):
     import tracemalloc
     tracemalloc.start()
     
-    systems = self.get_all_systems_debug()
+    systems = self.log_memory_to_file()
     current, peak = tracemalloc.get_traced_memory()
     
     print(f"📊 Systems loaded: {len(systems)}")
@@ -91,4 +91,38 @@ def get_all_systems_debug(self):
 
 # Replace the original get_all_systems with debug version
 # Add this line in run_cycle:
-# systems = self.get_all_systems_debug()
+# systems = self.log_memory_to_file()
+
+def log_memory_to_file(self):
+    """Log memory usage to file before crash"""
+    import tracemalloc
+    import psutil
+    import os
+    from datetime import datetime
+    
+    log_file = "logs/memory_debug.log"
+    os.makedirs("logs", exist_ok=True)
+    
+    with open(log_file, "a") as f:
+        f.write(f"\n--- Memory Check at {datetime.now()} ---\n")
+        
+        process = psutil.Process(os.getpid())
+        mem = process.memory_info()
+        f.write(f"RSS: {mem.rss / 1024 / 1024:.1f} MB\n")
+        f.write(f"VMS: {mem.vms / 1024 / 1024:.1f} MB\n")
+        
+        tracemalloc.start()
+        systems = self.get_all_systems()
+        current, peak = tracemalloc.get_traced_memory()
+        
+        f.write(f"Systems loaded: {len(systems)}\n")
+        f.write(f"Memory for systems: {current / 1024 / 1024:.1f} MB\n")
+        f.write(f"Peak: {peak / 1024 / 1024:.1f} MB\n")
+        
+        # Force garbage collection and log again
+        import gc
+        gc.collect()
+        after_gc, _ = tracemalloc.get_traced_memory()
+        f.write(f"After GC: {after_gc / 1024 / 1024:.1f} MB\n")
+        
+    return systems
