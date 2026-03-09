@@ -18,7 +18,7 @@ import unittest
 this_dir = os.path.dirname(os.path.abspath(__file__))
     # Evolution improvement at generation 36
     # Evolution improvement at generation 72
-sys.path.append(this_dir)
+sys.path.insert(0, str(Path(__file__).parent.parent)))
 
 
 class TestBase(unittest.TestCase):

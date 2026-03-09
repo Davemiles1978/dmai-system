@@ -1,7 +1,7 @@
 #!/bin/bash
 # Play a random song from your DMAI music preferences
 
-PREFERENCES="/Users/davidmiles/Desktop/AI-Evolution-System/music/preferences.json"
+PREFERENCES="/Users/davidmiles/Desktop/dmai-system/music/preferences.json"
 
 if [ ! -f "$PREFERENCES" ]; then
     echo "❌ No music preferences found"
@@ -23,4 +23,4 @@ else:
 echo "🎵 Playing something from $ARTIST..."
 
 # Search for a song by this artist
-/Users/davidmiles/Desktop/AI-Evolution-System/scripts/yt_stream.sh "$ARTIST"
+/Users/davidmiles/Desktop/dmai-system/scripts/yt_stream.sh "$ARTIST"

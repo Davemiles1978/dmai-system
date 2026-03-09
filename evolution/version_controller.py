@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Version Controller for DMAI Evolution
 Manages rollbacks and version history
@@ -12,8 +18,8 @@ from pathlib import Path
 
 class VersionController:
     def __init__(self):
-        self.versions_dir = Path("/Users/davidmiles/Desktop/AI-Evolution-System/evolution/versions")
-        self.history_file = Path("/Users/davidmiles/Desktop/AI-Evolution-System/data/version_history.json")
+        self.versions_dir = Path("/Users/davidmiles/Desktop/dmai-system/evolution/versions")
+        self.history_file = Path("/Users/davidmiles/Desktop/dmai-system/data/version_history.json")
         self.versions_dir.mkdir(parents=True, exist_ok=True)
         self.load_history()
     

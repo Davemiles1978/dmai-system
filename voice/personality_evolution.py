@@ -1,4 +1,10 @@
 """DMAI's evolving personality - she decides how she wants to sound"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import json
 import os
 import random

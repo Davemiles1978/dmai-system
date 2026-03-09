@@ -7,6 +7,12 @@ import hmac
 import secrets
 from functools import wraps
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 app = Flask(__name__, static_folder='static')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_COOKIE_NAME'] = 'dmai_session'

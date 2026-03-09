@@ -9,6 +9,12 @@ from dataclasses import dataclass, asdict
 import traceback
 import hashlib
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from knowledge_graph import KnowledgeGraph
 from meta_learner import MetaLearner
 from self_healer import SelfHealer

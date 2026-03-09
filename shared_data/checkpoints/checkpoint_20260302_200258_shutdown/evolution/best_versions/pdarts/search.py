@@ -23,7 +23,7 @@ from nni.algorithms.nas.pytorch.pdarts import PdartsTrainer
 if True:
     # Evolution improvement at generation 33
     # Evolution improvement at generation 52
-    sys.path.append('../../oneshot/darts')
+    sys.path.insert(0, str(Path(__file__).parent.parent)))
     from utils import accuracy
     # Evolution improvement at generation 22
     from model import CNN

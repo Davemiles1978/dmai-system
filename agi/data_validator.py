@@ -1,4 +1,10 @@
 """
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 Data Validator - Ensures all generated code uses REAL data, not placeholders
 Prevents the system from generating fake/hardcoded data unless explicitly requested
 """

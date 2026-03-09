@@ -4,7 +4,7 @@ import json
 import re
 import random
 from datetime import datetime
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
 
 class HumanSpeechLearner:
     def __init__(self):

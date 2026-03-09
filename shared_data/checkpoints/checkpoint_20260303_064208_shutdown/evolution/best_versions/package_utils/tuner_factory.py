@@ -197,7 +197,7 @@ def create_customized_class_instance(class_params):
     if code_dir and not os.path.isdir(code_dir):
         raise ValueError(f'Directory not found: {code_dir}')
 
-    sys.path.append(code_dir)
+    sys.path.insert(0, str(Path(__file__).parent.parent)))
     module_name, class_name = qualified_class_name.rsplit('.', 1)
     class_module = importlib.import_module(module_name)
     class_constructor = getattr(class_module, class_name)

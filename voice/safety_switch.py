@@ -4,6 +4,12 @@ import threading
 import time
 from datetime import datetime
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 class DMASafetySwitch:
     def __init__(self):
         self.switch_file = "dmai_safety.json"

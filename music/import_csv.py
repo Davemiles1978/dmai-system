@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Import script for your exact CSV format
 Handles the "my_music_library" title line at the top

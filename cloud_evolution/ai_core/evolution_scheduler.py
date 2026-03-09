@@ -6,7 +6,7 @@ import time
 import json
 import logging
 from datetime import datetime, timedelta
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
 
 from ai_core.core_brain import DMAIBrain
 from ai_core.evolution_engine import EvolutionEngine

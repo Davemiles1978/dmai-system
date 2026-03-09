@@ -8,7 +8,7 @@ import random
 import re
 from bs4 import BeautifulSoup
 import nltk
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
 
 from language_learning.processor.language_learner import LanguageLearner
 

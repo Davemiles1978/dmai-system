@@ -7,7 +7,7 @@ import json
 import threading
 from datetime import datetime
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).parent.parent)))))
 
 from voice.safety_switch import safety
 from voice.auth.voice_auth import VoiceAuth

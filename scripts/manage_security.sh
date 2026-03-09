@@ -1,7 +1,7 @@
 #!/bin/bash
 # Security management script
 
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 
 case "$1" in
     setup)

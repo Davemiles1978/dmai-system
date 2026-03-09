@@ -1,7 +1,7 @@
 #!/bin/bash
 # Simple YouTube audio player using yt-dlp binary
 
-SCRIPT_DIR="/Users/davidmiles/Desktop/AI-Evolution-System/scripts"
+SCRIPT_DIR="/Users/davidmiles/Desktop/dmai-system/scripts"
 
 # Download yt-dlp binary if not present
 if [ ! -f "$SCRIPT_DIR/yt-dlp" ]; then

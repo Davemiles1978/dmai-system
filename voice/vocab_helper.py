@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Simple helper for voice system to add vocabulary
 """
@@ -6,7 +12,7 @@ import sys
 import subprocess
 from pathlib import Path
 
-MANAGER_PATH = "/Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/secure/vocabulary_manager.py"
+MANAGER_PATH = "/Users/davidmiles/Desktop/dmai-system/language_learning/data/secure/vocabulary_manager.py"
 
 def add_words(words):
     """Add words via the manager"""

@@ -1,6 +1,6 @@
 #!/bin/bash
-SOURCE="/Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/vocabulary.json"
-BACKUP_DIR="/Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/backups"
+SOURCE="/Users/davidmiles/Desktop/dmai-system/language_learning/data/vocabulary.json"
+BACKUP_DIR="/Users/davidmiles/Desktop/dmai-system/language_learning/data/backups"
 
 mkdir -p "$BACKUP_DIR"
 

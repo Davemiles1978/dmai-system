@@ -1,0 +1,16 @@
+{
+  "voice_speech_to_text": [
+    {
+      "with": "evolution_randomizer",
+      "generation": 53,
+      "score": 89.28699603066855
+    }
+  ],
+  "evolution_randomizer": [
+    {
+      "with": "voice_speech_to_text",
+      "generation": 53,
+      "score": 89.28699603066855
+    }
+  ]
+}

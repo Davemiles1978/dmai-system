@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """DMAI Cloud Web Control UI - Accessible from anywhere"""
 from flask import Flask, render_template_string, request, jsonify
 import os

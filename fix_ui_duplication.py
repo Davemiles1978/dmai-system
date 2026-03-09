@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Auto-fix for UI HTML duplication and syntax errors
 Run this once to clean up the file

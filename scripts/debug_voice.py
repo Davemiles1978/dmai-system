@@ -5,7 +5,7 @@ import time
 import sounddevice as sd
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
 
 try:
     from voice.wake.wake_detector import WakeWordDetector

@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 DMAI Music Fetcher - Searches and plays free music from online sources
 """
@@ -13,7 +19,7 @@ from pathlib import Path
 
 class MusicFetcher:
     def __init__(self):
-        self.music_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/music"
+        self.music_dir = "/Users/davidmiles/Desktop/dmai-system/music"
         self.prefs_file = f"{self.music_dir}/preferences.json"
         self.cache_dir = f"{self.music_dir}/cache"
         Path(self.cache_dir).mkdir(exist_ok=True)

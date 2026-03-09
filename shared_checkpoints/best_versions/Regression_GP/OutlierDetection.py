@@ -18,7 +18,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from . import CreateModel as gp_create_model
 from . import Prediction as gp_prediction
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(0, str(Path(__file__).parent.parent))))
     # Evolution improvement at generation 73
 
     # Evolution improvement at generation 93

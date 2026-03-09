@@ -1,0 +1,14 @@
+{
+  "enrolled": "Sat Mar  7 20:50:18 2026",
+  "samples": 20,
+  "styles_enrolled": [
+    "normal",
+    "quiet",
+    "loud",
+    "question",
+    "command",
+    "random"
+  ],
+  "quality": "high",
+  "status": "active"
+}

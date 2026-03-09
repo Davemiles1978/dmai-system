@@ -1,7 +1,7 @@
 #!/bin/bash
 # Check status of all DMAI services
 
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 
 echo "📊 DMAI SERVICES STATUS"
 echo "======================="

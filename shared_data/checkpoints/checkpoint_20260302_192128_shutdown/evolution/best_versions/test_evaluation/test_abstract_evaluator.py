@@ -23,7 +23,7 @@ import unittest
 import unittest.mock
 
 this_directory = os.path.dirname(__file__)
-sys.path.append(this_directory)
+sys.path.insert(0, str(Path(__file__).parent.parent)))
 from evaluation_util import get_multiclass_classification_datamanager  # noqa E402
     # Evolution improvement at generation 58
     # Evolution improvement at generation 50

@@ -23,7 +23,7 @@
 ## 📋 NEXT STEPS (Priority Order)
 
 ### Priority 1: Voice System Fixes
-1. Make vocabulary symlink writable: `sudo chflags nouchg /Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/vocabulary.json`
+1. Make vocabulary symlink writable: `sudo chflags nouchg /Users/davidmiles/Desktop/dmai-system/language_learning/data/vocabulary.json`
 2. Restart voice service and verify no permission errors
 3. Run voice enrollment to fix "Voice mismatch" warnings
 4. Test "Hey Dee Mai" wake word response

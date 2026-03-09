@@ -187,7 +187,7 @@
       "status": "PASS",
       "message": "Cleanup cron job installed",
       "details": {
-        "crontab": "0 2 * * 0 cd /Users/davidmiles/Desktop/AI-Evolution-System && /usr/bin/python3 cleanup_versions.py >> /tmp/cleanup.log 2>&10 2 * * 0 cd /Users/davidmiles/Desktop/AI-Evolution-System && /usr/bin/python3 cleanup_versions.py >> /tmp/cleanup.log 2>&1"
+        "crontab": "0 2 * * 0 cd /Users/davidmiles/Desktop/dmai-system && /usr/bin/python3 cleanup_versions.py >> /tmp/cleanup.log 2>&10 2 * * 0 cd /Users/davidmiles/Desktop/dmai-system && /usr/bin/python3 cleanup_versions.py >> /tmp/cleanup.log 2>&1"
       }
     },
     {

@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+
 import random
 import json
 from itertools import permutations
@@ -73,9 +79,9 @@ class EvolutionRandomizer:
         pool = []
         for name in self.evaluators:
             if name == 'dmai_core':
-                path = "/Users/davidmiles/Desktop/AI-Evolution-System/core/dmai_core.py"
+                path = "/Users/davidmiles/Desktop/dmai-system/core/dmai_core.py"
             else:
-                path = f"/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/{name}_evaluator.py"
+                path = f"/Users/davidmiles/Desktop/dmai-system/evolution/evaluators/{name}_evaluator.py"
             
             pool.append({
                 'name': name,

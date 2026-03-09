@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 
 # Add to path
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))).parent))
 
 # Try to import voice modules
 try:

@@ -1,10 +1,10 @@
 #!/bin/bash
 # Voice system starter - protects against corruption
 
-LOG_FILE="/Users/davidmiles/Desktop/AI-Evolution-System/logs/voice_auto.log"
-VENV_PATH="/Users/davidmiles/Desktop/AI-Evolution-System/venv/bin/python3"
-VOICE_SCRIPT="/Users/davidmiles/Desktop/AI-Evolution-System/voice/dmai_voice_with_learning.py"
-LOCK_FILE="/Users/davidmiles/Desktop/AI-Evolution-System/voice/voice.lock"
+LOG_FILE="/Users/davidmiles/Desktop/dmai-system/logs/voice_auto.log"
+VENV_PATH="/Users/davidmiles/Desktop/dmai-system/venv/bin/python3"
+VOICE_SCRIPT="/Users/davidmiles/Desktop/dmai-system/voice/dmai_voice_with_learning.py"
+LOCK_FILE="/Users/davidmiles/Desktop/dmai-system/voice/voice.lock"
 
 echo "$(date): Starting voice system..." >> $LOG_FILE
 
@@ -25,7 +25,7 @@ pkill -f dmai_voice_with_learning.py >> $LOG_FILE 2>&1
 sleep 2
 
 # Start voice
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 nohup $VENV_PATH $VOICE_SCRIPT >> $LOG_FILE 2>&1 &
 VOICE_PID=$!
 echo $VOICE_PID > $LOCK_FILE

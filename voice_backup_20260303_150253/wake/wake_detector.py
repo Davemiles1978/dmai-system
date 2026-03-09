@@ -1,4 +1,10 @@
 """Wake word detection for DMAI"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pvporcupine
 import pvrecorder
 import numpy as np

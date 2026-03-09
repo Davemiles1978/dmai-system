@@ -11,7 +11,7 @@ def health_status():
     """Return health status for Render"""
     try:
         # Import orchestrator
-        sys.path.append('.')
+        sys.path.insert(0, str(Path(__file__).parent.parent)))
         from agi_orchestrator import AGIOrchestrator
         
         # Check if running on Render

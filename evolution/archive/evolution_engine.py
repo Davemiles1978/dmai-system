@@ -4,6 +4,12 @@ import random
 import logging
 from datetime import datetime
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 logger = logging.getLogger(__name__)
 
 class EvolutionEngine:

@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 
 # Add project to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
 
 from voice.wake.wake_detector import WakeWordDetector
 from voice.auth.voice_auth import VoiceAuth

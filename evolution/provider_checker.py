@@ -1,4 +1,10 @@
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
     def process_provider_update(self, evaluator_name, new_version):
         """
         Process a provider update by merging with internal evolution
@@ -8,7 +14,7 @@
         from evolution.version_merger import version_merger
         
         # Get internal version path
-        internal_path = f"/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/{evaluator_name}_evaluator.py"
+        internal_path = f"/Users/davidmiles/Desktop/dmai-system/evolution/evaluators/{evaluator_name}_evaluator.py"
         
         # Create provider info
         provider_info = {

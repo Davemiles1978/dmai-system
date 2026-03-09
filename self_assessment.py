@@ -1,4 +1,10 @@
 """
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 Self-Assessment Metrics for AGI Evolution System
 Measures learning effectiveness, evolution quality, and system health
 Phase 2 - Self-Awareness

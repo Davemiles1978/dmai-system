@@ -1,4 +1,10 @@
 """DMAI Personality Settings - How she talks to you"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import json
 import os
 from datetime import datetime

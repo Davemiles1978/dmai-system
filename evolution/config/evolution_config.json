@@ -35,7 +35,7 @@
   "evaluation_pool": [
     {
       "name": "gemini",
-      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/gemini_evaluator.py",
+      "path": "/Users/davidmiles/Desktop/dmai-system/evolution/evaluators/gemini_evaluator.py",
       "enabled": true,
       "evolution_stage": 1,
       "last_evaluated": null,
@@ -43,7 +43,7 @@
     },
     {
       "name": "grok",
-      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/grok_evaluator.py",
+      "path": "/Users/davidmiles/Desktop/dmai-system/evolution/evaluators/grok_evaluator.py",
       "enabled": true,
       "evolution_stage": 1,
       "last_evaluated": null,
@@ -51,7 +51,7 @@
     },
     {
       "name": "gpt",
-      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/gpt_evaluator.py",
+      "path": "/Users/davidmiles/Desktop/dmai-system/evolution/evaluators/gpt_evaluator.py",
       "enabled": true,
       "evolution_stage": 1,
       "last_evaluated": null,
@@ -59,7 +59,7 @@
     },
     {
       "name": "dmai_core",
-      "path": "/Users/davidmiles/Desktop/AI-Evolution-System/core/dmai_core.py",
+      "path": "/Users/davidmiles/Desktop/dmai-system/core/dmai_core.py",
       "enabled": true,
       "evolution_stage": 1,
       "last_evaluated": null,

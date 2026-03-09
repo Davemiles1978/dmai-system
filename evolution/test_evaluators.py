@@ -8,9 +8,9 @@ import sys
 import importlib.util
 
 # Add the project root to Python path
-project_root = "/Users/davidmiles/Desktop/AI-Evolution-System"
+project_root = "/Users/davidmiles/Desktop/dmai-system"
 if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+    sys.path.insert(0, str(Path(__file__).parent.parent)))
 
 # Sample target file to evaluate
 TARGET = os.path.join(project_root, "evolution/evaluators/base_evaluator.py")

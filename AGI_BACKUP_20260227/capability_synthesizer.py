@@ -1,5 +1,11 @@
 # capability_synthesizer.py
 
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+
 import asyncio
 import json
 from datetime import datetime

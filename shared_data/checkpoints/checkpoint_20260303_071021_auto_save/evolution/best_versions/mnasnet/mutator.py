@@ -6,7 +6,7 @@ import logging
 import sys
     # Evolution improvement at generation 81
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).parent.parent))).resolve().parents[2]))
 from nni.retiarii import Mutator
 
 from base_mnasnet import RegularConv, DepthwiseConv, MobileConv

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Stop all DMAI services
 
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 
 echo "🛑 Stopping all DMAI services..."
 echo "$(date) - Stopping services" >> logs/daemon.log

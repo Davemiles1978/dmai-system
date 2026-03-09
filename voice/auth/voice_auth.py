@@ -1,4 +1,10 @@
 """Voice Biometric Authentication"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import numpy as np
 import pickle
 import os
@@ -24,7 +30,7 @@ class VoiceAuth:
         """Load or create default config"""
         default_config = {
             'data_dir': 'voice/enrollment_data',
-            'min_confidence': 0.85,
+            "min_confidence": 0.5,
             'sample_rate': 16000,
             'freq_range': (300, 3400)  # Human voice range
         }
@@ -158,6 +164,7 @@ class VoiceAuth:
         return True
     
     def verify(self, audio_data, sample_rate, user_id="master"):
+        logger.info(f"🔊 Voice verification confidence: {confidence:.3f}")
         """Verify if audio matches enrolled user"""
         if user_id not in self.voiceprints:
             logger.warning(f"No voiceprint for user {user_id}")

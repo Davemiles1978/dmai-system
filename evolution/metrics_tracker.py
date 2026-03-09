@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Metrics Tracker for DMAI Evolution
 Tracks quality and diversity of evolution
@@ -11,7 +17,7 @@ from pathlib import Path
 
 class MetricsTracker:
     def __init__(self):
-        self.metrics_file = "/Users/davidmiles/Desktop/AI-Evolution-System/data/evolution_metrics.json"
+        self.metrics_file = "/Users/davidmiles/Desktop/dmai-system/data/evolution_metrics.json"
         self.load_metrics()
     
     def load_metrics(self):

@@ -4,6 +4,12 @@ import json
 import os
 from datetime import datetime, timedelta
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 class AdminAuth:
     def __init__(self):
         self.admin_id = "davidmiles1978"  # Your specific ID

@@ -2,7 +2,7 @@
   "master": {
     "role": "master_admin",
     "name": "David",
-    "enrolled_at": "2026-03-03T21:14:22.206350",
+    "enrolled_at": "2026-03-08T19:04:05.934804",
     "voiceprint_path": "voice/enrollment_data/master_voiceprint.pkl",
     "biometrics_enrolled": [
       "voice"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Promote a merged "super evolved" version to become the primary evaluator
 
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 
 echo "🚀 DMAI VERSION PROMOTION TOOL"
 echo "==============================="

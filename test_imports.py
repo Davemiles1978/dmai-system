@@ -4,6 +4,12 @@ import meta_learner
 import self_healer
 import data_validator
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 print("✅ All modules imported successfully")
 
 # Reload modules to ensure we have latest code

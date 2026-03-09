@@ -33,7 +33,7 @@ import os
 current_directory = os.path.dirname(__file__)
 parent_directory = os.path.join(current_directory, "..")
 parent_directory = os.path.abspath(parent_directory)
-sys.path.append(parent_directory)
+sys.path.insert(0, str(Path(__file__).parent.parent)))
 
 import autosklearn
 

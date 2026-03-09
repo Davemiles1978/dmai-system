@@ -1,4 +1,10 @@
 """Convert speech to text using Whisper"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import whisper
 import numpy as np
 import tempfile

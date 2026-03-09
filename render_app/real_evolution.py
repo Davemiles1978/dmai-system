@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """Cloud service that triggers REAL DMAI evolution"""
 from flask import Flask, jsonify
 import os
@@ -21,7 +27,7 @@ def run_evolution():
             ['python', 'ai_core/evolution_scheduler.py', '--now'],
             capture_output=True,
             text=True,
-            cwd='/Users/davidmiles/Desktop/AI-Evolution-System'  # Adjust path
+            cwd='/Users/davidmiles/Desktop/dmai-system'  # Adjust path
         )
         return {
             "success": result.returncode == 0,

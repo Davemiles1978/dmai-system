@@ -11,7 +11,7 @@ evaluators = [
     'alpamayo', 'nova', 'mistral'
 ]
 
-base_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators"
+base_dir = "/Users/davidmiles/Desktop/dmai-system/evolution/evaluators"
 
 # Template for each evaluator
 template = '''#!/usr/bin/env python3
@@ -23,14 +23,14 @@ import sys
 import os
 
 # Add project root to path
-project_root = "/Users/davidmiles/Desktop/AI-Evolution-System"
+project_root = "/Users/davidmiles/Desktop/dmai-system"
 if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+    sys.path.insert(0, str(Path(__file__).parent.parent)))
 
 try:
     from evolution.evaluators.base_evaluator import BaseEvaluator
 except ImportError:
-    sys.path.append(project_root)
+    sys.path.insert(0, str(Path(__file__).parent.parent)))
     from evolution.evaluators.base_evaluator import BaseEvaluator
 
 class {class_name}(BaseEvaluator):

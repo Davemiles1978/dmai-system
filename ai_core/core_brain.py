@@ -4,6 +4,12 @@ import logging
 from datetime import datetime
 import importlib
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

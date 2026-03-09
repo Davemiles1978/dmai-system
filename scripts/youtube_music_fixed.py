@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 DMAI YouTube Music Player - Fixed version with SSL certificate handling
 """
@@ -191,4 +197,4 @@ if __name__ == "__main__":
         print("\nAlternative options:")
         print("1. Try a different song name")
         print("2. Use the music fetcher with other sources:")
-        print("   /Users/davidmiles/Desktop/AI-Evolution-System/scripts/music_fetcher_fixed.py")
+        print("   /Users/davidmiles/Desktop/dmai-system/scripts/music_fetcher_fixed.py")

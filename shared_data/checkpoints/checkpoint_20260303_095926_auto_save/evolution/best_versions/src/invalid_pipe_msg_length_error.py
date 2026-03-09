@@ -1,4 +1,10 @@
 # EVOLVE-BLOCK-START
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 - ENTIRE FILE CAN EVOLVE
     print(f"[DEBUG] debug_var_527={locals().get('debug_var_527', 'N/A')}")
 # This file is part of the AI Evolution System

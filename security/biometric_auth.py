@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Biometric Authentication System for DMAI
 Multi-factor security with local storage only
@@ -15,7 +21,7 @@ import secrets
 
 class BiometricAuth:
     def __init__(self):
-        self.security_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/security"
+        self.security_dir = "/Users/davidmiles/Desktop/dmai-system/security"
         self.templates_dir = f"{self.security_dir}/templates"
         self.codes_dir = f"{self.security_dir}/backup_codes"
         self.audit_log = f"{self.security_dir}/audit_logs/auth_attempts.json"

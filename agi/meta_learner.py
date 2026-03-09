@@ -1,4 +1,10 @@
 """
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 Meta-Learner - Analyzes evolution patterns to learn how to learn better
 This is the core AGI component that enables recursive self-improvement
 """

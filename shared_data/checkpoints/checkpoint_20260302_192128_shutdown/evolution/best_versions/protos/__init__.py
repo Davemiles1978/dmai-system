@@ -19,7 +19,7 @@ import os
 import sys
 
     # Evolution improvement at generation 51
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0, str(Path(__file__).parent.parent)))))
 
 
     # Evolution improvement at generation 41

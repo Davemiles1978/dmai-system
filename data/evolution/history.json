@@ -1,0 +1,132 @@
+[
+  {
+    "generation": 5,
+    "timestamp": "2026-03-08T17:29:21.622322",
+    "target_system": "grok_base",
+    "source_system": "external_Claude-3.5",
+    "improvement_type": "capability_acquisition",
+    "description": "Acquire reasoning, language capabilities from external_Claude-3.5",
+    "potential_uplift": 0.4278944783743608,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 6,
+    "timestamp": "2026-03-08T18:54:51.362756",
+    "target_system": "external_Claude-3.5",
+    "source_system": "gpt_base",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from gpt_base",
+    "potential_uplift": 0.1783178659651255,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 7,
+    "timestamp": "2026-03-08T18:57:45.420671",
+    "target_system": "deepseek_base",
+    "source_system": "DMAI",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from DMAI to deepseek_base",
+    "potential_uplift": 0.022492257791168237,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 8,
+    "timestamp": "2026-03-08T19:37:34.957493",
+    "target_system": "deepseek_base",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.1022771883033101,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 10,
+    "timestamp": "2026-03-09T00:51:52.586445",
+    "target_system": "deepseek_base",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.13182714310537552,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 11,
+    "timestamp": "2026-03-09T03:04:52.530504",
+    "target_system": "grok_base",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.2080675894363265,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 12,
+    "timestamp": "2026-03-09T04:12:45.995001",
+    "target_system": "DMAI",
+    "source_system": "claude_base",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from claude_base to DMAI",
+    "potential_uplift": 0.13021433441151248,
+    "old_version": "3f68146d"
+  },
+  {
+    "generation": 13,
+    "timestamp": "2026-03-09T06:04:59.713204",
+    "target_system": "DMAI",
+    "source_system": "grok_base",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from grok_base to DMAI",
+    "potential_uplift": 0.005483968668651744,
+    "old_version": "3f68146d"
+  },
+  {
+    "generation": 14,
+    "timestamp": "2026-03-09T06:43:22.745942",
+    "target_system": "DMAI",
+    "source_system": "grok_base",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from grok_base to DMAI",
+    "potential_uplift": 0.05094682881307979,
+    "old_version": "03911076"
+  },
+  {
+    "generation": 16,
+    "timestamp": "2026-03-09T06:57:12.276522",
+    "target_system": "gpt_base",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.14203549854935468,
+    "old_version": "33e2ed8d"
+  },
+  {
+    "generation": 18,
+    "timestamp": "2026-03-09T07:29:01.774289",
+    "target_system": "DMAI",
+    "source_system": "deepseek_base",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from deepseek_base to DMAI",
+    "potential_uplift": 0.010916266720529763,
+    "old_version": "53871528"
+  },
+  {
+    "generation": 19,
+    "timestamp": "2026-03-09T07:44:13.233615",
+    "target_system": "DMAI",
+    "source_system": "gpt_base",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from gpt_base to DMAI",
+    "potential_uplift": 0.021437926314067067,
+    "old_version": "53871528"
+  },
+  {
+    "generation": 20,
+    "timestamp": "2026-03-09T07:50:07.940856",
+    "target_system": "claude_base",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.13923535090033012,
+    "old_version": "unknown"
+  }
+]

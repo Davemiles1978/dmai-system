@@ -20,7 +20,7 @@ evaluators = [
     'mistral'
 ]
 
-base_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators"
+base_dir = "/Users/davidmiles/Desktop/dmai-system/evolution/evaluators"
 
 for evaluator in evaluators:
     filename = f"{base_dir}/{evaluator}_evaluator.py"
@@ -34,14 +34,14 @@ Specialized for {evaluator} AI architecture
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, str(Path(__file__).parent.parent)))))))
 
 try:
     from evolution.evaluators.base_evaluator import BaseEvaluator
 except ImportError:
     # Fallback for when running directly
     import sys
-    sys.path.append("/Users/davidmiles/Desktop/AI-Evolution-System")
+    sys.path.insert(0, str(Path(__file__).parent.parent)))
     from evolution.evaluators.base_evaluator import BaseEvaluator
 
 class {evaluator.capitalize()}Evaluator(BaseEvaluator):

@@ -224,26 +224,26 @@ text
 
 ### Step 1: Voice Enrollment (15 minutes)
 ```bash
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 python voice/enroll_master.py
 # Follow prompts - speak 3-5 samples
 Step 2: Fix Evaluator Import Errors (30 minutes)
 bash
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 python3 evolution/test_evaluators.py
 # Share output for debugging
 Step 3: Evolution Consolidation (1 hour)
 bash
 # Find latest evolution engine
-ls -la /Users/davidmiles/Desktop/AI-Evolution-System/services/evolution_engine.py
-ls -la /Users/davidmiles/Desktop/AI-Evolution-System/ai_core/evolution_engine.py
+ls -la /Users/davidmiles/Desktop/dmai-system/services/evolution_engine.py
+ls -la /Users/davidmiles/Desktop/dmai-system/ai_core/evolution_engine.py
 
 # Move to evolution directory
-cp /path/to/latest/evolution_engine.py /Users/davidmiles/Desktop/AI-Evolution-System/evolution/
+cp /path/to/latest/evolution_engine.py /Users/davidmiles/Desktop/dmai-system/evolution/
 Step 4: Test YouTube Streaming (30 minutes)
 bash
 # Export cookies (need to do manually)
-/Users/davidmiles/Desktop/AI-Evolution-System/scripts/yt_stream.sh "Faithless Insomnia"
+/Users/davidmiles/Desktop/dmai-system/scripts/yt_stream.sh "Faithless Insomnia"
 🎯 PROJECT GOALS SUMMARY
 Goal	Current	Target	ETA
 Voice system operational	90%	100%	TODAY

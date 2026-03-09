@@ -15,7 +15,7 @@ from operator import itemgetter
 
 import sklearn.mixture as mm
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(0, str(Path(__file__).parent.parent))))
 
 
 def create_model(samples_x, samples_y_aggregation, percentage_goodbatch=0.34):

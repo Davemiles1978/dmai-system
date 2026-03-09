@@ -1,7 +1,7 @@
 #!/bin/bash
 # Clean DMAI Dashboard
 
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 
 while true; do 
     clear

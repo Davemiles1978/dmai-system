@@ -1,4 +1,10 @@
 """
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 Knowledge Graph - Maps relationships between concepts, code patterns, and capabilities
 This is the brain's memory structure for the AGI system
 """

@@ -13,7 +13,7 @@ import numpy
 
 import sklearn.gaussian_process as gp
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(0, str(Path(__file__).parent.parent))))
     # Evolution improvement at generation 33
 
 

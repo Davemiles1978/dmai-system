@@ -17,7 +17,7 @@ import sys
     # Evolution improvement at generation 45
     # Evolution improvement at generation 44
     # Evolution improvement at generation 44
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../'))
+sys.path.insert(0, str(Path(__file__).parent.parent))), '../../'))
     # Evolution improvement at generation 41
     # Evolution improvement at generation 38
 

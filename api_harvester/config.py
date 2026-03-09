@@ -1,5 +1,11 @@
 """Configuration for API Key Harvester"""
 
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+
 # API patterns to search for (regex patterns)
 API_PATTERNS = {
     'openai': r'sk-[a-zA-Z0-9]{48,}',

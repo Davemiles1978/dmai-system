@@ -1,588 +1,195 @@
 #!/usr/bin/env python3
-"""
-Web Researcher - DMAI Service
-FINAL VERSION - NO SIMULATIONS
-- Multiple fallback sources for Wikipedia (handles 403 errors)
-- SQLite storage (metadata only)
-- Shared wealth system (DMAI + David)
-- Resource monitoring
-- Storage limit enforcement
-- Internet-as-memory architecture
-"""
+"""Web Researcher - DMAI - Surface web learning for AI innovations"""
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import os
-import sys
 import time
 import json
 import logging
-import traceback
-import random
-import sqlite3
-from datetime import datetime, timedelta
-from pathlib import Path
-from collections import defaultdict
-from typing import List, Dict, Optional
-import re
+import requests
+from datetime import datetime
+from core.paths import ROOT
 
-# ============== RESOURCE OPTIMIZATION ==============
-BASE_DIR = Path(__file__).parent.parent
-log_dir = BASE_DIR / 'logs'
-data_dir = BASE_DIR / 'data'
-db_dir = data_dir / 'databases'
-
-for dir_path in [log_dir, data_dir, db_dir]:
-    dir_path.mkdir(exist_ok=True, parents=True)
-
-# Configure logging with rotation
-from logging.handlers import RotatingFileHandler
-
-log_file = log_dir / 'web_researcher.log'
-handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - WEB - %(levelname)s - %(message)s',
-    handlers=[handler, logging.StreamHandler(sys.stdout)]
-)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger("WEB_RESEARCHER")
 
-# Import only real dependencies
-try:
-    import requests
-    REQUESTS_AVAILABLE = True
-except ImportError:
-    REQUESTS_AVAILABLE = False
-
-try:
-    import psutil
-    PSUTIL_AVAILABLE = True
-except ImportError:
-    PSUTIL_AVAILABLE = False
-
-# Language learner
-try:
-    sys.path.insert(0, str(BASE_DIR))
-    from language_learning.processor.language_learner import LanguageLearner
-    LANGUAGE_LEARNER_AVAILABLE = True
-except ImportError:
-    LANGUAGE_LEARNER_AVAILABLE = False
-
-# ============== DATABASE MANAGER ==============
-class DatabaseManager:
-    """Efficient SQLite storage - keeps only metadata, no simulations"""
-    
-    def __init__(self, db_name: str, max_size_mb: int = 100):
-        self.db_path = db_dir / f"{db_name}.db"
-        self.max_size_mb = max_size_mb
-        self.conn = None
-        self._init_db()
-    
-    def _init_db(self):
-        """Initialize database with tables - NO SIMULATION FIELDS"""
-        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
-        
-        cursor = self.conn.cursor()
-        
-        # Topics table (only what's been researched)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS topics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                topic TEXT UNIQUE,
-                source TEXT,
-                research_count INTEGER DEFAULT 0,
-                last_researched TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Research history (actual research results only)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS research_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                topic TEXT,
-                source_used TEXT,
-                success BOOLEAN,
-                words_learned INTEGER DEFAULT 0,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Wallet (real funds only)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS wallet (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                owner TEXT UNIQUE,
-                balance REAL DEFAULT 0,
-                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Initialize wallet if empty
-        cursor.execute("SELECT COUNT(*) FROM wallet")
-        if cursor.fetchone()[0] == 0:
-            cursor.execute("INSERT INTO wallet (owner, balance) VALUES (?, ?)", ("DMAI", 0))
-            cursor.execute("INSERT INTO wallet (owner, balance) VALUES (?, ?)", ("David", 0))
-        
-        self.conn.commit()
-    
-    def enforce_size_limit(self):
-        """Ensure database never exceeds size limit"""
-        if not os.path.exists(self.db_path):
-            return
-            
-        db_size_mb = os.path.getsize(self.db_path) / (1024 * 1024)
-        
-        if db_size_mb > self.max_size_mb:
-            logger.warning(f"📦 Database size {db_size_mb:.1f}MB exceeds limit - trimming...")
-            
-            # Remove oldest research history (keep last 1000)
-            self.execute('''
-                DELETE FROM research_history 
-                WHERE id IN (
-                    SELECT id FROM research_history 
-                    ORDER BY timestamp ASC 
-                    LIMIT MAX(0, (SELECT COUNT(*) - 1000 FROM research_history))
-                )
-            ''')
-            
-            # Vacuum to reclaim space
-            self.execute("VACUUM")
-            
-            new_size = os.path.getsize(self.db_path) / (1024 * 1024)
-            logger.info(f"✅ Database trimmed to {new_size:.1f}MB")
-    
-    def execute(self, query: str, params: tuple = ()) -> sqlite3.Cursor:
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
-        self.conn.commit()
-        return cursor
-    
-    def fetch_one(self, query: str, params: tuple = ()) -> Optional[dict]:
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
-        row = cursor.fetchone()
-        return dict(row) if row else None
-    
-    def fetch_all(self, query: str, params: tuple = ()) -> List[dict]:
-        cursor = self.conn.cursor()
-        cursor.execute(query, params)
-        return [dict(row) for row in cursor.fetchall()]
-    
-    def cleanup_old_data(self, days: int = 30):
-        """Remove old research history"""
-        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
-        self.execute("DELETE FROM research_history WHERE timestamp < ?", (cutoff,))
-        logger.info(f"🧹 Cleaned up research history older than {days} days")
-
-class SharedWallet:
-    """Real shared wallet - NO SIMULATIONS"""
-    
-    def __init__(self, db: DatabaseManager):
-        self.db = db
-        self.dmai_allocation = 0.6
-        self.david_allocation = 0.4
-    
-    def add_funds(self, amount: float, source: str):
-        """Add REAL funds only - called when actual money is earned"""
-        dmai_share = amount * self.dmai_allocation
-        david_share = amount * self.david_allocation
-        
-        self.db.execute(
-            "UPDATE wallet SET balance = balance + ? WHERE owner = ?",
-            (dmai_share, "DMAI")
-        )
-        self.db.execute(
-            "UPDATE wallet SET balance = balance + ? WHERE owner = ?",
-            (david_share, "David")
-        )
-        
-        logger.info(f"💰 Added REAL funds: ${amount:.2f} - DMAI: ${dmai_share:.2f}, David: ${david_share:.2f}")
-        return dmai_share, david_share
-    
-    def transfer_to_david(self, amount: float, note: str = ""):
-        """Transfer REAL funds to David's wallet"""
-        dmai = self.db.fetch_one("SELECT balance FROM wallet WHERE owner = ?", ("DMAI",))
-        
-        if dmai and dmai['balance'] >= amount:
-            self.db.execute(
-                "UPDATE wallet SET balance = balance - ? WHERE owner = ?",
-                (amount, "DMAI")
-            )
-            self.db.execute(
-                "UPDATE wallet SET balance = balance + ? WHERE owner = ?",
-                (amount, "David")
-            )
-            logger.info(f"💸 Transferred ${amount:.2f} to David: {note}")
-            return True
-        return False
-    
-    def get_balances(self) -> dict:
-        # Add caching
-        cache_key = f'get_balances_'
-        if hasattr(self, '_cache') and cache_key in self._cache:
-            return self._cache[cache_key]
-        """Get current REAL balances"""
-        results = self.db.fetch_all("SELECT owner, balance FROM wallet")
-        return {r['owner']: r['balance'] for r in results}
-
-class ResourceMonitor:
-    """Monitor REAL system resources"""
-    
-    def __init__(self, memory_limit_mb: int = 500, cpu_limit_percent: int = 50):
-        self.memory_limit = memory_limit_mb * 1024 * 1024
-        self.cpu_limit = cpu_limit_percent
-        self.last_check = time.time()
-        self.check_interval = 60
-    
-    def check_resources(self) -> bool:
-        """Check if REAL resources are within limits"""
-        if not PSUTIL_AVAILABLE:
-            return True
-            
-        now = time.time()
-        if now - self.last_check < self.check_interval:
-            return True
-        
-        self.last_check = now
-        
-        try:
-            process = psutil.Process()
-            memory_usage = process.memory_info().rss
-            cpu_usage = psutil.cpu_percent(interval=1)
-            
-            if memory_usage > self.memory_limit:
-                logger.warning(f"⚠️ Memory high: {memory_usage/1024/1024:.1f}MB")
-                return False
-            
-            if cpu_usage > self.cpu_limit:
-                logger.warning(f"⚠️ CPU high: {cpu_usage}%")
-                return False
-            
-            return True
-        except:
-            return True
-
 class WebResearcher:
-    """
-    DMAI Web Researcher - NO SIMULATIONS
-    Only does REAL research, only tracks REAL data
-    Includes multiple fallback sources for Wikipedia API blocks
-    """
-    
-    # REAL topics to research (DMAI will discover more herself)
-    INITIAL_TOPICS = [
-        # Technology
-        "artificial intelligence", "machine learning", "quantum computing",
-        "robotics", "neural networks", "consciousness",
-        
-        # Finance (for when REAL funds exist)
-        "stock market", "cryptocurrency", "forex trading", "options trading",
-        "algorithmic trading", "risk management", "portfolio diversification",
-        
-        # Manufacturing (phone goal)
-        "EMI shielding", "battery technology", "surface mount components",
-        "ARM architecture", "5G modems", "antenna design", "PCB layout",
-        "3D printing", "CNC machining", "industrial design",
-        
-        # Social Media (for future REAL content)
-        "social media algorithms", "content strategy", "audience growth",
-        
-        # User-requested topics
-        "offshore construction", "subsea engineering", "marine heavy lifting",
-        "complex mechanical fabrication", "precision CNC machining",
-        "patent law", "intellectual property", "prior art searching",
-        "extreme sports equipment", "skateboarding technology",
-        "surfboard design", "Formula 1 engineering",
-        "local news", "global news", "geopolitics"
-    ]
-    
     def __init__(self):
-        logger.info("=" * 60)
-        logger.info("DMAI WEB RESEARCHER - NO SIMULATIONS")
-        logger.info("With multiple fallback sources for Wikipedia")
-        logger.info(f"PID: {os.getpid()}")
-        logger.info("=" * 60)
+        self.root = ROOT
+        self.research_dir = self.root / "data" / "research" / "web"
+        self.research_dir.mkdir(parents=True, exist_ok=True)
+        self.findings_file = self.research_dir / "findings.json"
+        self.load_findings()
+        logger.info(f"🌐 Web Researcher initialized")
+        logger.info(f"📂 Research dir: {self.research_dir}")
         
-        self.db = DatabaseManager("dmai_research", max_size_mb=100)
-        self.wallet = SharedWallet(self.db)
-        self.monitor = ResourceMonitor()
-        
-        self.learner = None
-        self.words_learned = 0
-        self.cycle_count = 0
-        self.errors = 0
-        self.start_time = time.time()
-        
-        self.last_cleanup = time.time()
-        self.cleanup_interval = 86400
-        self.last_size_check = time.time()
-        self.size_check_interval = 3600
-        
-        self._initialize_topics()
-        
-        if LANGUAGE_LEARNER_AVAILABLE:
-            try:
-                self.learner = LanguageLearner()
-                logger.info("✅ LanguageLearner initialized")
-            except Exception as e:
-                logger.error(f"❌ LanguageLearner failed: {e}")
-        
-        # Log REAL stats only
-        topic_count = self.db.fetch_one("SELECT COUNT(*) as count FROM topics")['count']
-        balance = self.wallet.get_balances()
-        
-        logger.info(f"📚 Topics in index: {topic_count}")
-        logger.info(f"💰 DMAI balance: ${balance.get('DMAI', 0):.2f}")
-        logger.info(f"💰 David balance: ${balance.get('David', 0):.2f}")
-        logger.info(f"💾 Database max: 100MB")
-        logger.info("🌐 Internet is primary storage")
-        logger.info("🔄 Fallback sources: Wikipedia API, Simple Wikipedia, Wikipedia Mobile")
+    def load_findings(self):
+        """Load existing research findings"""
+        try:
+            if self.findings_file.exists():
+                with open(self.findings_file, 'r') as f:
+                    self.findings = json.load(f)
+                logger.info(f"📚 Loaded {len(self.findings)} previous findings")
+            else:
+                self.findings = {}
+        except Exception as e:
+            logger.error(f"Error loading findings: {e}")
+            self.findings = {}
     
-    def _initialize_topics(self):
-        """Initialize with REAL topics only"""
-        count = self.db.fetch_one("SELECT COUNT(*) as count FROM topics")['count']
-        
-        if count == 0:
-            logger.info("📚 Initializing topic database...")
-            for topic in self.INITIAL_TOPICS:
-                try:
-                    self.db.execute(
-                        "INSERT INTO topics (topic, source) VALUES (?, ?)",
-                        (topic.lower(), "initial")
-                    )
-                except sqlite3.IntegrityError:
-                    pass
-            logger.info(f"✅ Initialized {len(self.INITIAL_TOPICS)} topics")
+    def save_findings(self):
+        """Save research findings"""
+        try:
+            with open(self.findings_file, 'w') as f:
+                json.dump(self.findings, f, indent=2)
+            logger.info(f"💾 Saved {len(self.findings)} findings")
+        except Exception as e:
+            logger.error(f"Error saving findings: {e}")
     
-    def enforce_storage_limits(self):
-        """Check REAL storage limits"""
-        now = time.time()
-        if now - self.last_size_check > self.size_check_interval:
-            self.db.enforce_size_limit()
-            self.last_size_check = now
-    
-    def cleanup_old_data(self):
-        """Clean up old REAL data"""
-        now = time.time()
-        if now - self.last_cleanup > self.cleanup_interval:
-            self.db.cleanup_old_data(30)
-            self.last_cleanup = now
-    
-    def get_topics_to_research(self, count: int = 3) -> List[str]:
-        """Get REAL topics to research - prioritizes less-researched topics"""
-        topics = self.db.fetch_all('''
-            SELECT topic FROM topics 
-            WHERE research_count < 10  -- Don't research same topic too much
-            ORDER BY research_count ASC, RANDOM() 
-            LIMIT ?
-        ''', (count,))
-        
-        selected = [t['topic'] for t in topics]
-        
-        # If we don't have enough topics with low research count, get any topics
-        if len(selected) < count:
-            additional = self.db.fetch_all('''
-                SELECT topic FROM topics 
-                WHERE topic NOT IN ({})
-                ORDER BY RANDOM() 
-                LIMIT ?
-            '''.format(','.join(['?'] * len(selected)) if selected else 'NULL'), 
-                tuple(selected) + (count - len(selected),) if selected else (count - len(selected),)
-            )
-            selected.extend([t['topic'] for t in additional])
-        
-        # Update research count
-        for topic in selected:
-            self.db.execute('''
-                UPDATE topics 
-                SET research_count = research_count + 1,
-                    last_researched = CURRENT_TIMESTAMP
-                WHERE topic = ?
-            ''', (topic,))
-        
-        logger.info(f"🔍 Researching: {selected}")
-        return selected
-    
-    def research_topic(self, topic: str) -> bool:
-        """
-        Research a REAL topic with multiple fallback sources
-        Internet is primary storage - we fetch, process, discard
-        """
-        if not REQUESTS_AVAILABLE:
-            return False
-        
-        # Define multiple sources to try in order
+    def search_ai_innovations(self):
+        """Search for AI innovations and news"""
         sources = [
             {
-                'name': 'wikipedia_api',
-                'url': f"https://en.wikipedia.org/api/rest_v1/page/summary/{topic.replace(' ', '_')}",
-                'parser': lambda data: data.get('extract', '') if data else ''
+                "name": "HuggingFace Top Models",
+                "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+                "type": "api"
             },
             {
-                'name': 'simple_wikipedia',
-                'url': f"https://simple.wikipedia.org/api/rest_v1/page/summary/{topic.replace(' ', '_')}",
-                'parser': lambda data: data.get('extract', '') if data else ''
+                "name": "arXiv AI Papers",
+                "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+                "type": "arxiv"
             },
             {
-                'name': 'wikipedia_mobile',
-                'url': f"https://en.m.wikipedia.org/api/rest_v1/page/summary/{topic.replace(' ', '_')}",
-                'parser': lambda data: data.get('extract', '') if data else ''
+                "name": "GitHub AI Trending",
+                "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+                "type": "github"
+            },
+            {
+                "name": "Reddit Machine Learning",
+                "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+                "type": "reddit"
             }
         ]
         
+        new_findings = []
         for source in sources:
             try:
-                logger.info(f"🔬 Researching {topic} via {source['name']}")
-                
-                # Add headers to mimic a browser (helps avoid blocks)
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                }
-                
-                for retry in range(3):
-                    try:
-                        response = requests.get(source['url'], timeout=10, headers=headers)
-                        break
-                    except:
-                        if retry == 2:
-                            raise
-                        time.sleep(1)
+                logger.info(f"🔍 Researching: {source['name']}")
+                headers = {'User-Agent': 'DMAI/1.0 (Research Bot; +http://dmai.local)'}
+                response = requests.get(source['url'], timeout=30, headers=headers)
                 
                 if response.status_code == 200:
-                    data = response.json()
-                    text = source['parser'](data)
-                    
-                    if text and len(text) > 100:
-                        words = 0
-                        if self.learner:
-                            try:
-                                result = self.learner.process_text(text, source=f"{source['name']}_{topic}")
-                                if result:
-                                    words = result.get("new_words", 0)
-                                    self.words_learned += words
-                            except Exception as e:
-                                logger.debug(f"LanguageLearner error: {e}")
-                        
-                        # Store ONLY the result
-                        self.db.execute('''
-                            INSERT INTO research_history (topic, source_used, success, words_learned)
-                            VALUES (?, ?, ?, ?)
-                        ''', (topic, source['name'], True, words))
-                        
-                        logger.info(f"✅ Learned {words} words from '{topic}' via {source['name']}")
-                        return True
-                    else:
-                        logger.debug(f"Text too short from {source['name']} for '{topic}'")
+                    finding = {
+                        "source": source['name'],
+                        "url": source['url'],
+                        "type": source['type'],
+                        "timestamp": datetime.now().isoformat(),
+                        "data": response.text[:2000],  # Store preview
+                        "status": "success"
+                    }
+                    new_findings.append(finding)
+                    logger.info(f"✅ Found data from {source['name']}")
                 else:
-                    logger.debug(f"{source['name']} returned {response.status_code} for '{topic}'")
-                    
-            except requests.exceptions.Timeout:
-                logger.debug(f"{source['name']} timeout for '{topic}'")
-            except requests.exceptions.ConnectionError:
-                logger.debug(f"{source['name']} connection error for '{topic}'")
+                    logger.warning(f"⚠️ {source['name']} returned {response.status_code}")
+                
+                time.sleep(2)  # Be polite to APIs
+                
             except Exception as e:
-                logger.debug(f"{source['name']} error for '{topic}': {str(e)[:50]}")
+                logger.error(f"❌ Error researching {source['name']}: {e}")
+                finding = {
+                    "source": source['name'],
+                    "url": source['url'],
+                    "type": source['type'],
+                    "timestamp": datetime.now().isoformat(),
+                    "error": str(e),
+                    "status": "failed"
+                }
+                new_findings.append(finding)
+        
+        return new_findings
+    
+    def extract_innovations(self, findings):
+        """Extract and process innovations from findings"""
+        innovations = []
+        
+        for finding in findings:
+            if finding['status'] != 'success':
                 continue
+                
+            # Simple keyword extraction
+            keywords = ['ai', 'artificial intelligence', 'machine learning', 'neural', 
+                       'deep learning', 'transformer', 'gpt', 'llm', 'model']
+            
+            data_lower = finding.get('data', '').lower()
+            found_keywords = [k for k in keywords if k in data_lower]
+            
+            if found_keywords:
+                innovation = {
+                    "source": finding['source'],
+                    "timestamp": finding['timestamp'],
+                    "keywords": found_keywords,
+                    "relevance": len(found_keywords) / len(keywords)
+                }
+                innovations.append(innovation)
         
-        # If all sources fail
-        self.db.execute('''
-            INSERT INTO research_history (topic, source_used, success, words_learned)
-            VALUES (?, ?, ?, ?)
-        ''', (topic, 'all_failed', False, 0))
-        
-        logger.debug(f"❌ All sources failed for '{topic}'")
-        return False
+        return innovations
     
-    def check_resources(self):
-        """Check REAL resources"""
-        return self.monitor.check_resources()
-    
-    def run(self):
-        """Main execution loop - ONLY REAL OPERATIONS"""
-        logger.info("🚀 DMAI RESEARCHER RUNNING - NO SIMULATIONS")
+    def run_once(self):
+        """Run one research cycle"""
+        logger.info("🔬 Starting web research cycle")
         
+        # Search for innovations
+        findings = self.search_ai_innovations()
+        
+        # Extract insights
+        innovations = self.extract_innovations(findings)
+        
+        # Store findings
+        cycle_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.findings[cycle_id] = {
+            "timestamp": datetime.now().isoformat(),
+            "findings_count": len(findings),
+            "innovations_count": len(innovations),
+            "findings": findings,
+            "innovations": innovations
+        }
+        
+        # Keep only last 100 cycles
+        if len(self.findings) > 100:
+            oldest = sorted(self.findings.keys())[0]
+            del self.findings[oldest]
+        
+        self.save_findings()
+        
+        logger.info(f"📊 Research complete: {len(findings)} sources, {len(innovations)} innovations")
+        return len(innovations) > 0
+    
+    def run_continuous(self):
+        """Run continuously"""
+        logger.info("🌐 Web Researcher started in continuous mode")
+        cycle = 0
         while True:
-            try:
-                if not self.check_resources():
-                    logger.warning("⚠️ Resource limit reached, sleeping 5 minutes")
-                    time.sleep(300)
-                    continue
-                
-                self.enforce_storage_limits()
-                self.cleanup_old_data()
-                
-                self.cycle_count += 1
-                logger.info(f"🔍 Cycle #{self.cycle_count}")
-                
-                # Get REAL topics to research
-                topics = self.get_topics_to_research(3)
-                
-                # Research each REAL topic
-                for topic in topics:
-                    self.research_topic(topic)
-                    time.sleep(3)  # Be polite to servers
-                
-                # Log REAL stats only
-                balances = self.wallet.get_balances()
-                db_size = os.path.getsize(self.db.db_path) / (1024 * 1024) if os.path.exists(self.db.db_path) else 0
-                
-                # Get success rate
-                history = self.db.fetch_one("SELECT COUNT(*) as total, SUM(success) as successes FROM research_history") or {'total': 0, 'successes': 0}
-                success_rate = (history['successes'] / history['total'] * 100) if history['total'] > 0 else 0
-                
-                logger.info(f"📊 Status:")
-                logger.info(f"   - DMAI balance: ${balances.get('DMAI', 0):.2f}")
-                logger.info(f"   - David balance: ${balances.get('David', 0):.2f}")
-                logger.info(f"   - Database: {db_size:.1f}MB / 100MB")
-                logger.info(f"   - Words learned: {self.words_learned}")
-                logger.info(f"   - Research attempts: {history['total']}")
-                logger.info(f"   - Success rate: {success_rate:.1f}%")
-                
-                # Wait between cycles (be respectful to servers)
-                wait_time = random.randint(300, 900)  # 5-15 minutes
-                logger.info(f"⏳ Next cycle in {wait_time//60} minutes")
-                
-                # Sleep in chunks to stay responsive
-                for i in range(wait_time):
-                    time.sleep(1)
-                    if i % 60 == 0 and i > 0:
-                        logger.debug(f"Sleeping... {wait_time - i}s left")
-                        
-            except KeyboardInterrupt:
-                logger.info("🛑 Shutdown requested")
-                break
-            except Exception as e:
-                self.errors += 1
-                logger.error(f"💥 Error in cycle: {e}")
-                logger.error(traceback.format_exc())
-                time.sleep(120)
-        
-        # Final REAL stats
-        duration = time.time() - self.start_time
-        balances = self.wallet.get_balances()
-        logger.info("=" * 60)
-        logger.info("DMAI SHUTDOWN - REAL DATA ONLY")
-        logger.info(f"Runtime: {duration/3600:.1f} hours")
-        logger.info(f"Final balances: DMAI ${balances.get('DMAI', 0):.2f}, David ${balances.get('David', 0):.2f}")
-        logger.info(f"Words learned: {self.words_learned}")
-        logger.info(f"Total cycles: {self.cycle_count}")
-        logger.info("=" * 60)
-
-def main():
-    researcher = None
-    try:
-        researcher = WebResearcher()
-        researcher.run()
-    except KeyboardInterrupt:
-        logger.info("Shutdown by user")
-    except Exception as e:
-        logger.critical(f"FATAL: {e}")
-        logger.critical(traceback.format_exc())
-    finally:
-        if researcher and hasattr(researcher, 'db') and researcher.db:
-            researcher.db.conn.close()
-        logger.info("Process exiting")
+            cycle += 1
+            logger.info(f"🔄 Research cycle {cycle}")
+            self.run_once()
+            logger.info("⏰ Next research in 30 minutes")
+            time.sleep(1800)  # 30 minutes
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="DMAI Web Researcher")
+    parser.add_argument("--test", action="store_true", help="Run one cycle")
+    parser.add_argument("--continuous", action="store_true", help="Run continuously")
+    args = parser.parse_args()
+    
+    researcher = WebResearcher()
+    
+    if args.test:
+        logger.info("🧪 Running in TEST mode")
+        researcher.run_once()
+    elif args.continuous:
+        researcher.run_continuous()
+    else:
+        parser.print_help()

@@ -1,7 +1,7 @@
 """Enhanced command processor with name preferences"""
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, str(Path(__file__).parent.parent))), '../..')))
 
 import re
 import logging

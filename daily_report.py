@@ -9,7 +9,7 @@ import socket
 import platform
 
 # Add project to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).parent.parent)))))
 
 from language_learning.processor.language_learner import LanguageLearner
 from voice.safety_switch import safety

@@ -3,7 +3,7 @@
 # BULK CLONE ALL RECOMMENDED AI REPOSITORIES
 # ============================================
 
-cd ~/Desktop/AI-Evolution-System/repos
+cd ~/Desktop/dmai-system/repos
 
 echo "🚀 Starting bulk clone of AI repositories..."
 
@@ -68,8 +68,8 @@ git clone https://github.com/deepmind/bsuite.git bsuite
 
 echo ""
 echo "✅ ALL REPOSITORIES CLONED SUCCESSFULLY!"
-echo "📁 Location: ~/Desktop/AI-Evolution-System/repos/"
+echo "📁 Location: ~/Desktop/dmai-system/repos/"
 echo ""
 echo "🔍 Next step: Mark them for evolution"
-echo "cd ~/Desktop/AI-Evolution-System"
+echo "cd ~/Desktop/dmai-system"
 echo "python mark_all_for_evolution.py"

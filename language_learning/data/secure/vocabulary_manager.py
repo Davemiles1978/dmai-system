@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Vocabulary Manager - Enforces append-only behavior
 DMAI can add new words but never modify or delete existing ones
@@ -10,9 +16,9 @@ import time
 from pathlib import Path
 import hashlib
 
-MASTER_PATH = "/Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/secure/vocabulary_master.json"
-BACKUP_DIR = "/Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/secure/backups/"
-LOG_PATH = "/Users/davidmiles/Desktop/AI-Evolution-System/logs/vocabulary_changes.log"
+MASTER_PATH = "/Users/davidmiles/Desktop/dmai-system/language_learning/data/secure/vocabulary_master.json"
+BACKUP_DIR = "/Users/davidmiles/Desktop/dmai-system/language_learning/data/secure/backups/"
+LOG_PATH = "/Users/davidmiles/Desktop/dmai-system/logs/vocabulary_changes.log"
 
 class VocabularyManager:
     def __init__(self):
@@ -204,7 +210,7 @@ from pathlib import Path
 def create_backup():
     """Manual backup function"""
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    backup_path = Path("/Users/davidmiles/Desktop/AI-Evolution-System/language_learning/data/secure/backups/") / f"vocabulary_{timestamp}.json"
+    backup_path = Path("/Users/davidmiles/Desktop/dmai-system/language_learning/data/secure/backups/") / f"vocabulary_{timestamp}.json"
     shutil.copy2(MASTER_PATH, backup_path)
     print(f"✅ Backup created: {backup_path}")
     return backup_path

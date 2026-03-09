@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from tqdm import tqdm
 
-sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "../../")))
+sys.path.insert(0, str(Path(__file__).parent.parent))), "../../")))
 import numpy as np
 import torch
 from fire import Fire

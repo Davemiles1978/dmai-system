@@ -1,5 +1,11 @@
 import safety
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 # Test safe command
 result = safety.check_safety("ls -la")
 print(f"Safe command result: {result}")

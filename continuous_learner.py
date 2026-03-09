@@ -6,7 +6,7 @@ import time
 import json
 import threading
 from datetime import datetime
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).parent.parent)))))
 
 from language_learning.real_book_reader import RealBookReader
 from language_learning.tor_vocabulary import TorVocabularyLearner

@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 
 # Add current directory to path
-sys.path.append(str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))).parent))
 
 from agi_orchestrator import AGIOrchestrator
 from knowledge_graph import KnowledgeGraph

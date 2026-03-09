@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+from pathlib import Path
 import os
 import threading
 import time
@@ -8,15 +9,16 @@ import json
 import subprocess
 import re
 from datetime import datetime
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 import sounddevice as sd
 import numpy as np
 from voice.wake.wake_detector import WakeWordDetector
 from voice.commands.enhanced_processor import EnhancedCommandProcessor
+from voice.commands.ai_processor import AIProcessor
 from voice.auth.voice_auth import VoiceAuth
 from voice.speech_to_text import SpeechToText
-from voice.speaker import DMAISpeaker
+from voice.speaker_fixed import DMAISpeaker
 from voice.safety_switch import safety
 from language_learning.listener.ambient_listener import AmbientListener
 from language_learning.processor.language_learner import LanguageLearner
@@ -28,6 +30,7 @@ class DMAIVoiceWithLearning:
     def __init__(self, whisper_model="base"):
         self.wake_detector = WakeWordDetector()
         self.processor = EnhancedCommandProcessor()
+        self.ai_processor = AIProcessor()
         self.auth = VoiceAuth()
         self.stt = SpeechToText(model_size=whisper_model)
         self.speaker = DMAISpeaker()
@@ -226,12 +229,36 @@ class DMAIVoiceWithLearning:
             print(f"You: {text}")
             
             # Process text for learning (this should use our append-only system)
-            # The LanguageLearner class needs to be modified separately to use add_to_vocabulary
             learning_response = self.handle_learning_commands(text)
             if learning_response:
                 self.speaker.speak(learning_response)
                 return
             
+            # Try AI processor for general conversation
+            try:
+                ai_response = self.ai_processor.process(text)
+                logger.info(f"🤖 AI response received: {ai_response[:50] if ai_response else 'None'}...")
+                
+                if ai_response and len(ai_response) > 3:
+                    self.speaker.speak(ai_response)
+                    
+                    # Learn any new words from the conversation
+                    words = text.lower().split()
+                    new_words_added = 0
+                    for word in words:
+                        word = word.strip('.,!?;:')
+                        if len(word) > 2 and not self.word_exists(word):
+                            if self.add_to_vocabulary([word]) > 0:
+                                new_words_added += 1
+                    if new_words_added > 0:
+                        logger.info(f"Added {new_words_added} new words from AI conversation")
+                    return
+                else:
+                    logger.warning(f"⚠️ AI response too short or empty")
+            except Exception as e:
+                logger.error(f"AI processor error: {e}")
+            
+            # Fall back to command processor if AI fails
             command = self.processor.process(text)
             response = self.processor.generate_response(command)
             
@@ -239,13 +266,10 @@ class DMAIVoiceWithLearning:
             words = text.lower().split()
             new_words_added = 0
             for word in words:
-                # Clean word of punctuation
                 word = word.strip('.,!?;:')
                 if len(word) > 2 and not self.word_exists(word):
-                    # This will only add if it doesn't exist
                     if self.add_to_vocabulary([word]) > 0:
                         new_words_added += 1
-            
             if new_words_added > 0:
                 logger.info(f"Added {new_words_added} new words from command")
             
@@ -349,7 +373,7 @@ class DMAIVoiceWithLearning:
         
         # Announce only once at startup
         if not self._announced_startup:
-            self.speaker.speak(f"I'm ready. I currently know {true_size} words. Say Hey Dee Mai when you need me.")
+            self.speaker.speak("Hey, it's DeeMai!")
             self._announced_startup = True
         
         print("\nVoice enrolled")

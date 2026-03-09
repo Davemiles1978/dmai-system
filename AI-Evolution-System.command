@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 ./launch.sh

@@ -1,0 +1,8 @@
+{
+  "grok_base": 2,
+  "external_Claude-3.5": 1,
+  "deepseek_base": 3,
+  "DMAI": 5,
+  "gpt_base": 1,
+  "claude_base": 1
+}

@@ -2,7 +2,7 @@
 """Main DMAI voice interface with real speech"""
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
 
 import time
 import logging

@@ -1,252 +1,236 @@
 #!/usr/bin/env python3
-"""
-Dark Web Researcher - DMAI Service
-Researches security topics and dark web terminology
-Survives independently with auto-restart capability
-"""
+"""Dark Web Researcher - DMAI - Deep web learning for AI innovations"""
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import os
-import sys
 import time
 import json
 import logging
-import traceback
-import random
+import requests
 from datetime import datetime
-from pathlib import Path
+from core.paths import ROOT
 
-# Ensure logs directory exists
-log_dir = Path(__file__).parent.parent / 'logs'
-log_dir.mkdir(exist_ok=True)
-
-# Configure logging FIRST so we can see all errors
-logging.basicConfig(
-    level=logging.DEBUG,  # Changed to DEBUG for more detail
-    format='%(asctime)s - DARK - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_dir / 'dark_researcher.log', mode='a'),
-        logging.StreamHandler(sys.stdout)  # Explicitly use stdout
-    ]
-)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger("DARK_RESEARCHER")
-logger.info("=" * 60)
-logger.info("DARK RESEARCHER STARTING UP")
-logger.info(f"PID: {os.getpid()}")
-logger.info(f"Time: {datetime.now().isoformat()}")
-logger.info("=" * 60)
 
-# Try to import language learner with detailed error handling
-try:
-    logger.info("Attempting to import LanguageLearner...")
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    logger.info(f"Python path: {sys.path}")
-    
-    from language_learning.processor.language_learner import LanguageLearner
-    logger.info("✅ Successfully imported LanguageLearner")
-    LANGUAGE_LEARNER_AVAILABLE = True
-except ImportError as e:
-    logger.error(f"❌ Failed to import LanguageLearner: {e}")
-    logger.error(traceback.format_exc())
-    LANGUAGE_LEARNER_AVAILABLE = False
-except Exception as e:
-    logger.error(f"❌ Unexpected error importing LanguageLearner: {e}")
-    logger.error(traceback.format_exc())
-    LANGUAGE_LEARNER_AVAILABLE = False
-
-class DarkWebResearcher:
-    """Researches dark web topics and security terminology"""
-    
+class DarkResearcher:
     def __init__(self):
-        logger.info("Initializing DarkWebResearcher...")
-        self.learner = None
-        self.tor_running = False
-        self.words_learned = 0
-        self.cycle_count = 0
-        self.errors = 0
-        self.start_time = time.time()
-        
-        # Topics to research
-        self.dark_topics = [
-            "cybersecurity", "encryption", "privacy", "anonymity",
-            "zero day exploits", "vulnerabilities", "threat intelligence",
-            "darknet markets", "cryptocurrency", "blockchain",
-            "underground forums", "hacking techniques", "security research",
-            "penetration testing", "network security", "malware analysis",
-            "digital forensics", "cryptography", "Tor network", "VPN protocols"
-        ]
-        
-        # Initialize language learner if available
-        if LANGUAGE_LEARNER_AVAILABLE:
-            try:
-                logger.info("Initializing LanguageLearner...")
-                self.learner = LanguageLearner()
-                logger.info("✅ LanguageLearner initialized successfully")
-            except Exception as e:
-                logger.error(f"❌ Failed to initialize LanguageLearner: {e}")
-                logger.error(traceback.format_exc())
-                self.learner = None
-        else:
-            logger.warning("⚠️ LanguageLearner not available - running in standalone mode")
-        
-        # Check Tor availability
-        self.check_tor()
-        logger.info("DarkWebResearcher initialization complete")
+        self.root = ROOT
+        self.research_dir = self.root / "data" / "research" / "dark"
+        self.research_dir.mkdir(parents=True, exist_ok=True)
+        self.findings_file = self.research_dir / "findings.json"
+        self.tor_available = self.check_tor()
+        self.load_findings()
+        logger.info(f"🌑 Dark Web Researcher initialized")
+        logger.info(f"📂 Research dir: {self.research_dir}")
+        logger.info(f"🔌 Tor available: {self.tor_available}")
         
     def check_tor(self):
-        """Check if Tor proxy is available"""
+        """Check if Tor is available"""
         try:
-            logger.debug("Checking Tor availability...")
-            import requests
-            
-            # Try with Tor proxy
-            session = requests.session()
-            session.proxies = {
+            # Test Tor proxy
+            proxies = {
                 'http': 'socks5h://127.0.0.1:9050',
                 'https': 'socks5h://127.0.0.1:9050'
             }
-            session.timeout = 10
-            
-            try:
-                response = session.get('http://check.torproject.org', timeout=10)
-                self.tor_running = True
-                logger.info("✅ Tor is running and available")
-                return True
-            except:
-                # Try without Tor
-                response = requests.get('https://api.ipify.org?format=json', timeout=10)
-                self.tor_running = False
-                logger.warning("⚠️ Tor not available - using clearnet only")
-                return False
-                
-        except ImportError:
-            logger.warning("⚠️ Requests library not available - cannot check Tor")
-            self.tor_running = False
-            return False
-        except Exception as e:
-            logger.error(f"❌ Error checking Tor: {e}")
-            self.tor_running = False
+            test_url = 'http://check.torproject.org'
+            response = requests.get(test_url, proxies=proxies, timeout=10)
+            return response.status_code == 200
+        except:
             return False
     
-    def research_topic(self, topic):
-        """Research a topic from available sources"""
+    def load_findings(self):
+        """Load existing research findings"""
         try:
-            logger.info(f"Researching topic: {topic}")
-            
-            # Try Wikipedia API
-            try:
-                import requests
-                url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{topic.replace(' ', '_')}"
-                
-                for retry in range(3):
-                    try:
-                        response = requests.get(url, timeout=10)
-                        if response.status_code == 200:
-                            data = response.json()
-                            text = data.get('extract', '')
-                            
-                            if text and len(text) > 50:
-                                logger.info(f"Got {len(text)} chars from Wikipedia for '{topic}'")
-                                
-                                # Process with language learner if available
-                                if self.learner:
-                                    try:
-                                        result = self.learner.process_text(
-                                            text, 
-                                            source=f"dark_research_{topic}"
-                                        )
-                                        if result and result.get("new_words", 0) > 0:
-                                            new = result["new_words"]
-                                            self.words_learned += new
-                                            logger.info(f"✅ Learned {new} new words from '{topic}'")
-                                    except Exception as e:
-                                        logger.error(f"Error processing text with learner: {e}")
-                                else:
-                                    logger.info(f"📚 Would learn from: {topic} (learner unavailable)")
-                                
-                                return True
-                            else:
-                                logger.warning(f"Text too short for '{topic}'")
-                        else:
-                            logger.warning(f"Wikipedia returned {response.status_code} for '{topic}'")
-                            
-                    except requests.exceptions.RequestException as e:
-                        logger.warning(f"Request error (attempt {retry+1}/3): {e}")
-                        if retry < 2:
-                            time.sleep(2)
-                            
-            except ImportError:
-                logger.warning("Requests library not available - cannot research")
-                return False
-                
+            if self.findings_file.exists():
+                with open(self.findings_file, 'r') as f:
+                    self.findings = json.load(f)
+                logger.info(f"📚 Loaded {len(self.findings)} previous findings")
+            else:
+                self.findings = {}
         except Exception as e:
-            logger.error(f"Research error for '{topic}': {e}")
-            logger.debug(traceback.format_exc())
-            
-        return False
+            logger.error(f"Error loading findings: {e}")
+            self.findings = {}
     
-    def run(self):
-        """Main execution loop - NEVER EXITS"""
-        logger.info("🚀 Dark Researcher main loop started")
-        logger.info(f"Topics available: {len(self.dark_topics)}")
+    def save_findings(self):
+        """Save research findings"""
+        try:
+            with open(self.findings_file, 'w') as f:
+                json.dump(self.findings, f, indent=2)
+            logger.info(f"💾 Saved {len(self.findings)} findings")
+        except Exception as e:
+            logger.error(f"Error saving findings: {e}")
+    
+    def search_dark_web(self):
+        """Search dark web for AI innovations (if Tor available)"""
+        if not self.tor_available:
+            logger.warning("⚠️ Tor not available - skipping dark web research")
+            return []
         
-        # Main infinite loop
-        while True:
+        proxies = {
+            'http': 'socks5h://127.0.0.1:9050',
+            'https': 'socks5h://127.0.0.1:9050'
+        }
+        
+        # Dark web sources (onion sites)
+        sources = [
+            {
+                "name": "Darknet AI Forum",
+                "url": "http://ai4dark.onion/forum",
+                "type": "forum"
+            },
+            {
+                "name": "Hidden AI Research",
+                "url": "http://research7.onion/latest",
+                "type": "research"
+            },
+            {
+                "name": "Dark ML Repository",
+                "url": "http://mlhub.onion/models",
+                "type": "models"
+            }
+        ]
+        
+        findings = []
+        for source in sources:
             try:
-                # Inner research loop
-                self.cycle_count += 1
-                logger.info(f"🔍 Starting research cycle #{self.cycle_count}")
+                logger.info(f"🔍 Researching dark source: {source['name']}")
+                response = requests.get(source['url'], proxies=proxies, timeout=60)
                 
-                # Select random topic
-                topic = random.choice(self.dark_topics)
+                if response.status_code == 200:
+                    finding = {
+                        "source": source['name'],
+                        "url": source['url'],
+                        "type": source['type'],
+                        "timestamp": datetime.now().isoformat(),
+                        "data": response.text[:2000],
+                        "status": "success"
+                    }
+                    findings.append(finding)
+                    logger.info(f"✅ Found data from {source['name']}")
+                else:
+                    logger.warning(f"⚠️ {source['name']} returned {response.status_code}")
                 
-                # Research the topic
-                self.research_topic(topic)
+                time.sleep(5)  # Be extra polite to onion sites
                 
-                # Calculate wait time (10-30 minutes)
-                wait_time = random.randint(600, 1800)
-                logger.info(f"⏳ Next research cycle in {wait_time//60} minutes")
-                logger.info(f"📊 Stats: {self.words_learned} words learned, {self.errors} errors")
-                
-                # Sleep in small chunks to remain responsive
-                chunks = wait_time
-                for i in range(chunks):
-                    time.sleep(1)
-                    # Log every 5 minutes during sleep
-                    if i > 0 and i % 300 == 0:
-                        logger.debug(f"Sleeping... {wait_time - i} seconds remaining")
-                        
-            except KeyboardInterrupt:
-                logger.info("🛑 Keyboard interrupt received")
-                break
             except Exception as e:
-                self.errors += 1
-                logger.error(f"💥 Critical error in main loop: {e}")
-                logger.error(traceback.format_exc())
-                
-                # Wait before restarting cycle
-                logger.info("Restarting research cycle in 30 seconds...")
-                time.sleep(30)
+                logger.error(f"❌ Error researching {source['name']}: {e}")
+                finding = {
+                    "source": source['name'],
+                    "url": source['url'],
+                    "type": source['type'],
+                    "timestamp": datetime.now().isoformat(),
+                    "error": str(e),
+                    "status": "failed"
+                }
+                findings.append(finding)
         
-        logger.info(f"Dark researcher stopped after {self.cycle_count} cycles")
-        logger.info(f"Total words learned: {self.words_learned}")
-
-def main():
-    """Entry point with exception catching"""
-    researcher = None
-    try:
-        researcher = DarkWebResearcher()
-        researcher.run()
-    except KeyboardInterrupt:
-        logger.info("Shutdown requested by user")
-    except Exception as e:
-        logger.critical(f"FATAL UNHANDLED ERROR: {e}")
-        logger.critical(traceback.format_exc())
-    finally:
-        if researcher:
-            logger.info(f"Final stats: {researcher.words_learned} words learned")
-        logger.info("Dark researcher process exiting")
-        # Small delay to allow logs to flush
-        time.sleep(0.5)
+        return findings
+    
+    def search_clearnet_alternatives(self):
+        """Search clearnet for AI innovations (fallback when Tor unavailable)"""
+        sources = [
+            {
+                "name": "AI Security Papers",
+                "url": "https://arxiv.org/list/cs.CR/recent",
+                "type": "arxiv"
+            },
+            {
+                "name": "Privacy Preserving ML",
+                "url": "https://github.com/topics/federated-learning",
+                "type": "github"
+            },
+            {
+                "name": "Encrypted AI Models",
+                "url": "https://huggingface.co/models?search=encrypted",
+                "type": "huggingface"
+            }
+        ]
+        
+        findings = []
+        for source in sources:
+            try:
+                logger.info(f"🔍 Researching clearnet: {source['name']}")
+                headers = {'User-Agent': 'DMAI/1.0 (Research Bot; +http://dmai.local)'}
+                response = requests.get(source['url'], timeout=30, headers=headers)
+                
+                if response.status_code == 200:
+                    finding = {
+                        "source": source['name'],
+                        "url": source['url'],
+                        "type": source['type'],
+                        "timestamp": datetime.now().isoformat(),
+                        "data": response.text[:2000],
+                        "status": "success",
+                        "note": "Clearnet alternative (Tor unavailable)"
+                    }
+                    findings.append(finding)
+                    logger.info(f"✅ Found data from {source['name']}")
+                
+                time.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"❌ Error researching {source['name']}: {e}")
+        
+        return findings
+    
+    def run_once(self):
+        """Run one research cycle"""
+        logger.info("🔬 Starting dark web research cycle")
+        
+        # Try dark web first if Tor available
+        if self.tor_available:
+            findings = self.search_dark_web()
+        else:
+            logger.info("🌐 Using clearnet alternatives (Tor not available)")
+            findings = self.search_clearnet_alternatives()
+        
+        # Store findings
+        cycle_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.findings[cycle_id] = {
+            "timestamp": datetime.now().isoformat(),
+            "tor_available": self.tor_available,
+            "findings_count": len(findings),
+            "findings": findings
+        }
+        
+        # Keep only last 50 cycles
+        if len(self.findings) > 50:
+            oldest = sorted(self.findings.keys())[0]
+            del self.findings[oldest]
+        
+        self.save_findings()
+        
+        logger.info(f"📊 Research complete: {len(findings)} sources found")
+        return len(findings) > 0
+    
+    def run_continuous(self):
+        """Run continuously"""
+        logger.info("🌑 Dark Web Researcher started in continuous mode")
+        cycle = 0
+        while True:
+            cycle += 1
+            logger.info(f"🔄 Research cycle {cycle}")
+            self.run_once()
+            logger.info("⏰ Next research in 1 hour")
+            time.sleep(3600)  # 1 hour
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="DMAI Dark Web Researcher")
+    parser.add_argument("--test", action="store_true", help="Run one cycle")
+    parser.add_argument("--continuous", action="store_true", help="Run continuously")
+    args = parser.parse_args()
+    
+    researcher = DarkResearcher()
+    
+    if args.test:
+        logger.info("🧪 Running in TEST mode")
+        researcher.run_once()
+    elif args.continuous:
+        researcher.run_continuous()
+    else:
+        parser.print_help()

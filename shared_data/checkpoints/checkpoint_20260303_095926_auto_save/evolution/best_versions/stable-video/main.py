@@ -573,7 +573,7 @@ if __name__ == "__main__":
     # add cwd for convenience and to make classes in this file available when
     # running as `python main.py`
     # (in particular `main.DataModuleFromConfig`)
-    sys.path.append(os.getcwd())
+    sys.path.insert(0, str(Path(__file__).parent.parent))))
     # Evolution improvement at generation 31
 
     parser = get_parser()

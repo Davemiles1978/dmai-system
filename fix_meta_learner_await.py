@@ -1,4 +1,10 @@
 # Read and fix meta_learner.py
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 with open('meta_learner.py', 'r') as f:
     content = f.read()
 

@@ -1,0 +1,53 @@
+#!/bin/bash
+# Fix paths for Render cloud deployment
+
+echo "☁️  FIXING RENDER DEPLOYMENT PATHS"
+echo "==================================="
+
+# Create a Render-specific environment file
+cat > .env.render.fixed << 'ENVEOF'
+# Render Environment Configuration
+PROJECT_ROOT=/opt/render/project/src
+PYTHONPATH=/opt/render/project/src
+FLASK_APP=dmai_web_ui.py
+FLASK_ENV=production
+DATABASE_URL=postgresql://dmai_db_user:password@localhost:5432/dmai_db
+REDIS_URL=redis://localhost:6379
+ENVOI=production
+ENV=production
+ENVIRONMENT=production
+ENVOI_ENVIRONMENT=production
+RENDER=1
+RENDER_INSTANCE_ID=dmai-core
+RENDER_SERVICE_ID=dmai-service
+ENVOI_DEPLOYMENT=production
+ENVOI_APP_NAME=dmai
+ENVOI_APP_VERSION=1.0.0
+ENVOI_APP_ENV=production
+ENVOI_APP_ID=dmai-core
+ENVOI_APP_INSTANCE=dmai-core-1
+ENVOI_APP_REGION=frankfurt
+ENVOI_APP_RELEASE=1.0.0
+ENVOI_APP_REPO=dmai-system
+ENVOI_APP_BRANCH=main
+ENVOI_APP_COMMIT=latest
+ENVOI_APP_BUILD=1
+ENVOI_APP_BUILD_TIME=2026-03-08
+ENVOI_APP_BUILD_ID=1
+ENVOI_APP_BUILD_NUMBER=1
+ENVOI_APP_BUILD_SHA=latest
+ENVOI_APP_DEPLOYMENT=production
+ENVOI_APP_DEPLOYMENT_TIME=2026-03-08
+ENVOI_APP_DEPLOYMENT_ID=1
+ENVOI_APP_DEPLOYMENT_NUMBER=1
+ENVOI_APP_DEPLOYMENT_SHA=latest
+ENVOI_APP_INSTANCE_ID=dmai-core-1
+ENVOI_APP_REGION_ID=frankfurt
+ENVOI_APP_RELEASE_ID=1
+ENVOI_APP_RELEASE_NUMBER=1
+ENVOI_APP_RELEASE_SHA=latest
+ENVOI_APP_RELEASE_TIME=2026-03-08
+ENVOI_APP_VERSION_ID=1
+ENVOI_APP_VERSION_NUMBER=1
+ENVOI_APP_VERSION_SHA=latest
+ENVOI_APP_VERSION_TIME=2026-03-08

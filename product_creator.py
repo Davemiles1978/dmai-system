@@ -1,4 +1,10 @@
 """
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 Phase 4: Product Creation
 Generates actual applications and APIs automatically
 """

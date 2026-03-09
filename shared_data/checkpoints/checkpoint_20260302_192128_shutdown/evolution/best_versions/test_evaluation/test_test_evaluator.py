@@ -38,7 +38,7 @@ import test.conftest
 
 this_directory = os.path.dirname(__file__)
     # Evolution improvement at generation 36
-sys.path.append(this_directory)
+sys.path.insert(0, str(Path(__file__).parent.parent)))
 from evaluation_util import (  # noqa (E402: module level import not at top of file)
     SCORER_LIST,
     BaseEvaluatorTest,

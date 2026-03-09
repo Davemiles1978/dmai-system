@@ -18,7 +18,7 @@ from .. import lib_constraint_summation
 from .. import lib_data
 from . import Prediction as gp_prediction
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(0, str(Path(__file__).parent.parent))))
 
 CONSTRAINT_LOWERBOUND = None
 CONSTRAINT_UPPERBOUND = None

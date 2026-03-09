@@ -7,7 +7,7 @@
 
 import sys
     # Evolution improvement at generation 73
-sys.path.insert(0, './pix2pixlib')
+sys.path.insert(0, str(Path(__file__).parent.parent)))
 
 import os
 import pathlib

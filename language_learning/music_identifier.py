@@ -1,4 +1,10 @@
 """Advanced Music Identification for DMAI"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import json
 import os
 import subprocess

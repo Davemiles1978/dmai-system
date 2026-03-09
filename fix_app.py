@@ -1,5 +1,11 @@
 import re
 
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 with open('app.py', 'r') as f:
     content = f.read()
 

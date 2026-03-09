@@ -1,1822 +1,542 @@
 [
   {
-    "text": "bonjour, comment allez-vous?",
-    "timestamp": "2026-03-04T08:26:50.605363",
+    "text": "bbc news",
+    "timestamp": "2026-03-08T04:38:30.355144",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:06:16.278236",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:09:15.014985",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:09:27.960924",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:09:42.743961",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:10:11.777930",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:10:27.661824",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:19:18.965388",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T05:48:42.862003",
+    "source": "news"
+  },
+  {
+    "text": "i don't know. i'm not telling you. i'm not telling you. i'm not telling you.",
+    "timestamp": "2026-03-08T05:52:44.983038",
     "source": "ambient"
   },
   {
-    "text": "hola, \u00bfc\u00f3mo est\u00e1s?",
-    "timestamp": "2026-03-04T08:26:50.608804",
+    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
+    "timestamp": "2026-03-08T05:53:54.942907",
     "source": "ambient"
   },
   {
-    "text": "guten tag, wie geht es ihnen?",
-    "timestamp": "2026-03-04T08:26:50.614794",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm gonna do it, i'm gonna do it.",
-    "timestamp": "2026-03-04T08:38:12.869878",
-    "source": "ambient"
-  },
-  {
-    "text": "investment e $1.00",
-    "timestamp": "2026-03-04T08:42:52.729366",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah",
-    "timestamp": "2026-03-04T08:45:11.502692",
-    "source": "ambient"
-  },
-  {
-    "text": "d-d-d-d",
-    "timestamp": "2026-03-04T08:53:18.631264",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-04T08:53:41.465130",
-    "source": "ambient"
-  },
-  {
-    "text": "so you're saying 255?",
-    "timestamp": "2026-03-04T08:59:29.292916",
-    "source": "ambient"
-  },
-  {
-    "text": "best",
-    "timestamp": "2026-03-04T09:04:33.085163",
-    "source": "ambient"
-  },
-  {
-    "text": "0oko yis\u5fc3 the",
-    "timestamp": "2026-03-04T09:12:16.149981",
-    "source": "ambient"
-  },
-  {
-    "text": "man and aaron.",
-    "timestamp": "2026-03-04T09:19:37.523286",
-    "source": "ambient"
-  },
-  {
-    "text": "no problem",
-    "timestamp": "2026-03-04T09:33:54.896392",
-    "source": "ambient"
-  },
-  {
-    "text": "total",
-    "timestamp": "2026-03-04T09:35:06.181566",
-    "source": "ambient"
-  },
-  {
-    "text": "urazbhu and arise, brendanan guild\u2026 \u2026",
-    "timestamp": "2026-03-04T09:37:48.615758",
-    "source": "ambient"
-  },
-  {
-    "text": "oh god! no!",
-    "timestamp": "2026-03-04T09:38:11.357378",
-    "source": "ambient"
-  },
-  {
-    "text": "5-6, 9-8,",
-    "timestamp": "2026-03-04T09:39:23.241982",
-    "source": "ambient"
-  },
-  {
-    "text": "a bit louder.",
-    "timestamp": "2026-03-04T09:48:38.210696",
-    "source": "ambient"
-  },
-  {
-    "text": "being",
-    "timestamp": "2026-03-04T10:08:23.779046",
-    "source": "ambient"
-  },
-  {
-    "text": "okay.",
-    "timestamp": "2026-03-04T10:10:17.815612",
-    "source": "ambient"
-  },
-  {
-    "text": "yongisang yongisang yongisang jonghyunong yongisang",
-    "timestamp": "2026-03-04T10:11:28.812283",
-    "source": "ambient"
-  },
-  {
-    "text": "all.",
-    "timestamp": "2026-03-04T10:13:25.761543",
-    "source": "ambient"
-  },
-  {
-    "text": "renn",
-    "timestamp": "2026-03-04T10:13:53.358586",
-    "source": "ambient"
-  },
-  {
-    "text": "change...",
-    "timestamp": "2026-03-04T10:28:56.157786",
-    "source": "ambient"
-  },
-  {
-    "text": "good night.",
-    "timestamp": "2026-03-04T10:59:53.213990",
-    "source": "ambient"
-  },
-  {
-    "text": "i didn't work at it.",
-    "timestamp": "2026-03-04T11:07:34.426023",
-    "source": "ambient"
-  },
-  {
-    "text": "i now know 628 words.",
-    "timestamp": "2026-03-04T11:08:21.665661",
-    "source": "ambient"
-  },
-  {
-    "text": "hey buddy i'm.....",
-    "timestamp": "2026-03-04T11:39:42.089820",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm a doctor. i'm a doctor. i'm a doctor. i'm a doctor.",
-    "timestamp": "2026-03-04T11:42:00.349462",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah. yeah. yeah. yeah. yeah. yeah.",
-    "timestamp": "2026-03-04T12:20:17.692021",
-    "source": "ambient"
-  },
-  {
-    "text": "see, i'm capable! no",
-    "timestamp": "2026-03-04T12:24:11.673840",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah. maybe you could go. maybe you could.",
-    "timestamp": "2026-03-04T12:26:05.664089",
-    "source": "ambient"
-  },
-  {
-    "text": "wow.",
-    "timestamp": "2026-03-04T12:26:28.789673",
-    "source": "ambient"
-  },
-  {
-    "text": "intro",
-    "timestamp": "2026-03-04T12:27:17.954795",
-    "source": "ambient"
-  },
-  {
-    "text": "baby manipulate",
-    "timestamp": "2026-03-04T12:28:26.483574",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah",
-    "timestamp": "2026-03-04T12:32:39.982946",
-    "source": "ambient"
-  },
-  {
-    "text": "hello.",
-    "timestamp": "2026-03-04T12:33:51.996366",
-    "source": "ambient"
-  },
-  {
-    "text": "hello? prima?",
-    "timestamp": "2026-03-04T12:41:11.073543",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-04T12:41:34.174894",
-    "source": "ambient"
-  },
-  {
-    "text": "madam, may i ask you this way? may i ask you this away?",
-    "timestamp": "2026-03-04T12:41:58.801080",
-    "source": "ambient"
-  },
-  {
-    "text": "visible",
-    "timestamp": "2026-03-04T12:42:22.602400",
-    "source": "ambient"
-  },
-  {
-    "text": "yep\u0bc6 fre deze my oo o o o o o o o",
-    "timestamp": "2026-03-04T12:44:42.015096",
-    "source": "ambient"
-  },
-  {
-    "text": "i am not sure. i am not sure. i am not sure. i am not sure.",
-    "timestamp": "2026-03-04T12:52:01.028953",
-    "source": "ambient"
-  },
-  {
-    "text": "ller",
-    "timestamp": "2026-03-04T12:52:49.460621",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not sure. i'm not sure. i'm not sure. i'm not sure.",
-    "timestamp": "2026-03-04T13:00:55.907794",
-    "source": "ambient"
-  },
-  {
-    "text": "good night.",
-    "timestamp": "2026-03-04T13:13:24.919418",
+    "text": "channel",
+    "timestamp": "2026-03-08T06:08:15.937298",
     "source": "ambient"
   },
   {
     "text": "hey.",
-    "timestamp": "2026-03-04T13:17:09.720276",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah.",
-    "timestamp": "2026-03-04T13:23:44.491773",
-    "source": "ambient"
-  },
-  {
-    "text": "okay. yeah.",
-    "timestamp": "2026-03-04T13:24:07.446515",
-    "source": "ambient"
-  },
-  {
-    "text": "okay.",
-    "timestamp": "2026-03-04T13:24:31.814550",
-    "source": "ambient"
-  },
-  {
-    "text": "go. ok. yes.",
-    "timestamp": "2026-03-04T13:25:18.379471",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah",
-    "timestamp": "2026-03-04T13:26:28.364131",
-    "source": "ambient"
-  },
-  {
-    "text": "\ub0b4\ufffd avengers ramen els europe moving around, yeah. just a f\u00f6r mig.",
-    "timestamp": "2026-03-04T13:27:16.950381",
-    "source": "ambient"
-  },
-  {
-    "text": "magical",
-    "timestamp": "2026-03-04T13:31:09.637609",
-    "source": "ambient"
-  },
-  {
-    "text": "okay.",
-    "timestamp": "2026-03-04T13:32:39.231394",
-    "source": "ambient"
-  },
-  {
-    "text": "good go wait. good go. oh",
-    "timestamp": "2026-03-04T13:34:35.860471",
-    "source": "ambient"
-  },
-  {
-    "text": "yoozhou",
-    "timestamp": "2026-03-04T13:44:39.065612",
-    "source": "ambient"
-  },
-  {
-    "text": "silver road",
-    "timestamp": "2026-03-04T13:46:10.568685",
-    "source": "ambient"
-  },
-  {
-    "text": "flesh",
-    "timestamp": "2026-03-04T13:58:11.187920",
-    "source": "ambient"
-  },
-  {
-    "text": "i now know 1,328 words.",
-    "timestamp": "2026-03-04T14:05:30.779963",
-    "source": "ambient"
-  },
-  {
-    "text": "aubossne\u0430\u043c speaking",
-    "timestamp": "2026-03-04T14:08:14.409989",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm still ten years old, i felt guilty about him. and more sense.",
-    "timestamp": "2026-03-04T14:19:27.276418",
+    "timestamp": "2026-03-08T06:38:51.991868",
     "source": "ambient"
   },
   {
     "text": "bbc news",
-    "timestamp": "2026-03-04T14:23:35.984310",
+    "timestamp": "2026-03-08T06:40:17.625871",
     "source": "news"
   },
   {
-    "text": "tresayes quarry",
-    "timestamp": "2026-03-04T14:23:39.391867",
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-08T06:40:30.485110",
+    "source": "github"
+  },
+  {
+    "text": "openai /    skills",
+    "timestamp": "2026-03-08T06:40:30.494681",
+    "source": "github"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T06:41:02.556481",
+    "source": "news"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T06:41:03.703422",
+    "source": "news"
+  },
+  {
+    "text": "nickelodeon (manga)",
+    "timestamp": "2026-03-08T06:41:06.830251",
     "source": "wikipedia"
   },
   {
-    "text": "me_irl",
-    "timestamp": "2026-03-04T14:23:42.333115",
-    "source": "reddit"
-  },
-  {
-    "text": "me_irl",
-    "timestamp": "2026-03-04T14:23:42.414736",
-    "source": "reddit"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-04T14:23:48.901871",
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-08T06:41:15.491815",
     "source": "github"
   },
   {
-    "text": "k-dense-ai /    claude-scientific-skills",
-    "timestamp": "2026-03-04T14:23:49.027005",
+    "text": "openai /    skills",
+    "timestamp": "2026-03-08T06:41:15.496416",
     "source": "github"
   },
   {
-    "text": "codebuffai /    codebuff",
-    "timestamp": "2026-03-04T14:23:49.028503",
-    "source": "github"
-  },
-  {
-    "text": "me_irl",
-    "timestamp": "2026-03-04T17:44:10.835072",
-    "source": "reddit"
-  },
-  {
-    "text": "me_irl",
-    "timestamp": "2026-03-04T17:44:11.004159",
-    "source": "reddit"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-04T17:44:17.979288",
-    "source": "github"
-  },
-  {
-    "text": "k-dense-ai /    claude-scientific-skills",
-    "timestamp": "2026-03-04T17:44:18.138159",
-    "source": "github"
-  },
-  {
-    "text": "codebuffai /    codebuff",
-    "timestamp": "2026-03-04T17:44:18.140310",
-    "source": "github"
-  },
-  {
-    "text": "news",
-    "timestamp": "2026-03-04T19:07:18.281863",
+    "text": "eh jos\u00e9",
+    "timestamp": "2026-03-08T06:42:44.176750",
     "source": "ambient"
   },
   {
-    "text": "pizza",
-    "timestamp": "2026-03-04T19:15:50.462545",
+    "text": "so.... it's all just a big question.",
+    "timestamp": "2026-03-08T06:45:52.539290",
     "source": "ambient"
   },
   {
-    "text": "morgan",
-    "timestamp": "2026-03-05T10:05:55.745235",
+    "text": "i called her!",
+    "timestamp": "2026-03-08T07:09:05.940333",
     "source": "ambient"
   },
   {
-    "text": "okay.",
-    "timestamp": "2026-03-05T10:10:56.004250",
+    "text": "assen a",
+    "timestamp": "2026-03-08T07:18:48.315502",
     "source": "ambient"
   },
   {
-    "text": "lu die. um. forub. miri doctor home",
-    "timestamp": "2026-03-05T10:14:03.053755",
+    "text": "i see you. i see you. i see you. i see you.",
+    "timestamp": "2026-03-08T07:29:13.702735",
     "source": "ambient"
   },
   {
-    "text": "done.",
-    "timestamp": "2026-03-05T10:22:08.591760",
-    "source": "ambient"
-  },
-  {
-    "text": "okay. yeah, yeah.",
-    "timestamp": "2026-03-05T10:23:16.814983",
-    "source": "ambient"
-  },
-  {
-    "text": "legendsjakpole de thorne",
-    "timestamp": "2026-03-05T10:23:42.294411",
-    "source": "ambient"
-  },
-  {
-    "text": "no, i better see you later. but, but.",
-    "timestamp": "2026-03-05T10:27:55.525695",
-    "source": "ambient"
-  },
-  {
-    "text": "jala, jala okay? jala",
-    "timestamp": "2026-03-05T10:40:41.748610",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm recording a video a minute ago",
-    "timestamp": "2026-03-05T10:43:27.281413",
-    "source": "ambient"
-  },
-  {
-    "text": "nobody \u0432\u043e\u043e\u0431\u0449\u0435 saw us... david, \u0441\u0435\u0439\u0447\u0430\u0441 ningu\u00e9m... personos, propaganda, \uc785\ub2c8\ub2e4",
-    "timestamp": "2026-03-05T11:03:11.387904",
-    "source": "ambient"
-  },
-  {
-    "text": "block",
-    "timestamp": "2026-03-05T11:33:00.047029",
-    "source": "ambient"
-  },
-  {
-    "text": "norwegian.",
-    "timestamp": "2026-03-05T11:41:08.207401",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah, yeah, yeah",
-    "timestamp": "2026-03-05T11:48:07.173807",
-    "source": "ambient"
-  },
-  {
-    "text": "ababa, ababa, ababa, ababa, ababa, ababa, ababa, ababa. peace out, john.",
-    "timestamp": "2026-03-05T11:50:49.773342",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm going to get you guys. i'm going to get you guys. i'm going to get you guys.",
-    "timestamp": "2026-03-05T11:51:33.707112",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm going to go down. i'm going down. i'm going down.",
-    "timestamp": "2026-03-05T11:56:59.449982",
-    "source": "ambient"
-  },
-  {
-    "text": "more videos",
-    "timestamp": "2026-03-05T11:57:24.114699",
-    "source": "ambient"
-  },
-  {
-    "text": "... ah",
-    "timestamp": "2026-03-05T12:00:06.199547",
-    "source": "ambient"
-  },
-  {
-    "text": "geez\u2026.",
-    "timestamp": "2026-03-05T12:00:29.467460",
-    "source": "ambient"
-  },
-  {
-    "text": "a 1, 2, 3, 4, 6, 5, 6, 7, 8, 7, 8, 8, 6, 7, 8, 7, 8, 7, 8, 8, 8, 8, 8, 8, 8,",
-    "timestamp": "2026-03-05T12:03:12.695363",
-    "source": "ambient"
-  },
-  {
-    "text": "my explain\u043e\u043c ko akabit me",
-    "timestamp": "2026-03-05T12:03:58.974260",
+    "text": "i'm going to do it again. i'm going to do it again. i'm going to do it again. second one.",
+    "timestamp": "2026-03-08T07:31:33.379057",
     "source": "ambient"
   },
   {
     "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-05T12:07:49.973089",
+    "timestamp": "2026-03-08T07:38:09.117002",
     "source": "ambient"
   },
   {
-    "text": "happen you you 1 f",
-    "timestamp": "2026-03-05T12:08:37.290146",
+    "text": "under the waterfall",
+    "timestamp": "2026-03-08T07:51:22.681258",
     "source": "ambient"
   },
   {
-    "text": "assam!",
-    "timestamp": "2026-03-05T12:10:55.328215",
+    "text": "ah, am i listening to it again? hmm hm.",
+    "timestamp": "2026-03-08T16:35:17.865912",
     "source": "ambient"
   },
   {
-    "text": "i nevercarst \u0436da and you never car get a pay bug\u00fcn \uc624\ufffd",
-    "timestamp": "2026-03-05T12:16:24.338420",
+    "text": "good-bye!",
+    "timestamp": "2026-03-08T16:38:46.705724",
     "source": "ambient"
   },
   {
-    "text": "like as a kid. so",
-    "timestamp": "2026-03-05T12:21:24.815675",
+    "text": "hello.",
+    "timestamp": "2026-03-08T17:02:24.072672",
     "source": "ambient"
   },
   {
-    "text": "aaaaaaaaaaaaaaah crazy",
-    "timestamp": "2026-03-05T12:22:57.495904",
+    "text": "47\u7c3f gam data 4 equitable set",
+    "timestamp": "2026-03-08T17:03:11.298420",
     "source": "ambient"
   },
   {
-    "text": "yeah? okay.",
-    "timestamp": "2026-03-05T12:23:20.854072",
+    "text": "in order and revert.",
+    "timestamp": "2026-03-08T17:10:01.820819",
     "source": "ambient"
   },
   {
-    "text": "\u3044\u3046\u3053\u3068.",
-    "timestamp": "2026-03-05T12:24:32.115557",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not sure. i'm not sure. i'm not sure. i'm not sure.",
-    "timestamp": "2026-03-05T12:26:48.408512",
-    "source": "ambient"
-  },
-  {
-    "text": "okay. yeah. okay. okay. okay. okay. okay. okay.",
-    "timestamp": "2026-03-05T12:27:35.135450",
-    "source": "ambient"
-  },
-  {
-    "text": "duke",
-    "timestamp": "2026-03-05T12:44:37.856241",
-    "source": "ambient"
-  },
-  {
-    "text": "heheh",
-    "timestamp": "2026-03-05T12:49:43.161022",
-    "source": "ambient"
-  },
-  {
-    "text": "okay.",
-    "timestamp": "2026-03-05T13:01:25.377368",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm going to make some more fire. i'm going to make some more. make some more. i'm going to make some more.",
-    "timestamp": "2026-03-05T13:14:59.588011",
-    "source": "ambient"
-  },
-  {
-    "text": "now i willx",
-    "timestamp": "2026-03-05T13:50:40.830871",
-    "source": "ambient"
-  },
-  {
-    "text": "okay just stop driving ...",
-    "timestamp": "2026-03-05T13:54:08.340847",
-    "source": "ambient"
-  },
-  {
-    "text": "nothing but",
-    "timestamp": "2026-03-05T14:20:52.201833",
-    "source": "ambient"
-  },
-  {
-    "text": "uh, uh. uh, uh.",
-    "timestamp": "2026-03-05T14:27:50.769181",
-    "source": "ambient"
-  },
-  {
-    "text": "i mean, i understand you.",
-    "timestamp": "2026-03-05T14:32:52.147754",
-    "source": "ambient"
-  },
-  {
-    "text": "mr urban",
-    "timestamp": "2026-03-05T14:44:31.446394",
-    "source": "ambient"
-  },
-  {
-    "text": "that thing's up on you. no, i'm just okay. okay.",
-    "timestamp": "2026-03-05T14:50:17.769048",
-    "source": "ambient"
-  },
-  {
-    "text": "ssssssssssssssssssssssssss",
-    "timestamp": "2026-03-05T14:54:11.075750",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not sure if i can do it. i'm not sure. i'm not sure. i'm not sure.",
-    "timestamp": "2026-03-05T14:56:06.237071",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-05T14:57:15.647627",
-    "source": "ambient"
-  },
-  {
-    "text": "oh, let me check your files.",
-    "timestamp": "2026-03-05T15:05:46.523233",
-    "source": "ambient"
-  },
-  {
-    "text": "you can do it. yeah, yeah, yeah, yeah. ciao. ciao. bye.",
-    "timestamp": "2026-03-05T15:06:12.351270",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-05T15:08:29.090296",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah",
-    "timestamp": "2026-03-05T15:12:21.731329",
-    "source": "ambient"
-  },
-  {
-    "text": "shit.",
-    "timestamp": "2026-03-05T15:13:08.307900",
-    "source": "ambient"
-  },
-  {
-    "text": "enhancement",
-    "timestamp": "2026-03-05T15:14:42.094674",
-    "source": "ambient"
-  },
-  {
-    "text": "arizona rum",
-    "timestamp": "2026-03-05T15:16:37.878931",
-    "source": "ambient"
-  },
-  {
-    "text": "\u03c4<|tl|> b",
-    "timestamp": "2026-03-05T15:18:35.008649",
-    "source": "ambient"
-  },
-  {
-    "text": "i don't'd lose my conscience sure, you might get a lock",
-    "timestamp": "2026-03-05T15:22:25.867776",
-    "source": "ambient"
-  },
-  {
-    "text": "okay, cool. cool.",
-    "timestamp": "2026-03-05T15:36:44.203573",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-05T15:40:35.310197",
-    "source": "ambient"
-  },
-  {
-    "text": "all right",
-    "timestamp": "2026-03-05T15:44:28.289998",
-    "source": "ambient"
-  },
-  {
-    "text": "dude, fuck you hm hm",
-    "timestamp": "2026-03-05T15:45:38.306567",
-    "source": "ambient"
-  },
-  {
-    "text": "u's derni\u00e8re year? com limca te ummail from limca te 4-foot monitor",
-    "timestamp": "2026-03-05T15:54:32.345354",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not sure. but i don't know. but i'm not sure. i'm not sure. i'm not sure. i'm not sure. i'm not sure.",
-    "timestamp": "2026-03-05T16:01:28.937530",
-    "source": "ambient"
-  },
-  {
-    "text": "i don't get it. applause! \uc774\uac70 \uc9c4\uc9dc\u0131k duutter you got it!",
-    "timestamp": "2026-03-05T16:04:36.152505",
-    "source": "ambient"
-  },
-  {
-    "text": "well drei",
-    "timestamp": "2026-03-05T16:30:30.868831",
-    "source": "ambient"
-  },
-  {
-    "text": "wise walk like a dempurt",
-    "timestamp": "2026-03-05T16:32:03.937057",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-05T16:35:32.184746",
-    "source": "ambient"
-  },
-  {
-    "text": "improve",
-    "timestamp": "2026-03-05T16:38:15.955330",
-    "source": "ambient"
-  },
-  {
-    "text": "no well i got ready",
-    "timestamp": "2026-03-05T16:40:58.450912",
-    "source": "ambient"
-  },
-  {
-    "text": "i actually had a car in my car and i didn't have a car in my car. i had a car in my car and i had a car in my car.",
-    "timestamp": "2026-03-05T16:45:12.722090",
-    "source": "ambient"
-  },
-  {
-    "text": "i'll call you at 4 months and i'll call you. remite's funny now. remite's funny. again.",
-    "timestamp": "2026-03-05T16:48:41.606537",
-    "source": "ambient"
-  },
-  {
-    "text": "say he",
-    "timestamp": "2026-03-05T16:49:29.144936",
-    "source": "ambient"
-  },
-  {
-    "text": "ruby",
-    "timestamp": "2026-03-05T16:56:50.538948",
-    "source": "ambient"
-  },
-  {
-    "text": "okay. como esta?",
-    "timestamp": "2026-03-05T17:01:29.112564",
-    "source": "ambient"
-  },
-  {
-    "text": "or i'll start throwing you like a...ependent driving",
-    "timestamp": "2026-03-05T17:03:25.536599",
-    "source": "ambient"
-  },
-  {
-    "text": "year still if if if",
-    "timestamp": "2026-03-05T17:05:44.438136",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not sucking.",
-    "timestamp": "2026-03-05T17:18:52.108678",
-    "source": "ambient"
-  },
-  {
-    "text": "mhm.",
-    "timestamp": "2026-03-05T17:19:41.265859",
-    "source": "ambient"
-  },
-  {
-    "text": "so... yeah?",
-    "timestamp": "2026-03-05T17:20:26.397002",
-    "source": "ambient"
-  },
-  {
-    "text": "supa",
-    "timestamp": "2026-03-05T17:24:18.282422",
-    "source": "ambient"
-  },
-  {
-    "text": "jo call 00listen to drink",
-    "timestamp": "2026-03-05T17:32:25.836266",
-    "source": "ambient"
-  },
-  {
-    "text": "see?",
-    "timestamp": "2026-03-05T17:32:49.594372",
-    "source": "ambient"
-  },
-  {
-    "text": "less talk guys... i learnt last fluke",
-    "timestamp": "2026-03-05T17:38:38.377434",
-    "source": "ambient"
-  },
-  {
-    "text": "pero vaak haion",
-    "timestamp": "2026-03-05T17:48:18.533884",
-    "source": "ambient"
-  },
-  {
-    "text": "100% all right",
-    "timestamp": "2026-03-05T17:49:26.873544",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah",
-    "timestamp": "2026-03-05T17:51:00.771880",
-    "source": "ambient"
-  },
-  {
-    "text": "anne aasheim",
-    "timestamp": "2026-03-05T20:39:46.627924",
-    "source": "wikipedia"
-  },
-  {
-    "text": "meirl",
-    "timestamp": "2026-03-05T20:39:49.450274",
-    "source": "reddit"
-  },
-  {
-    "text": "kaleb smith",
-    "timestamp": "2026-03-05T20:41:54.002141",
-    "source": "wikipedia"
-  },
-  {
-    "text": "meirl",
-    "timestamp": "2026-03-05T20:41:56.904948",
-    "source": "reddit"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-05T20:42:03.889708",
-    "source": "github"
-  },
-  {
-    "text": "moeru-ai /    airi",
-    "timestamp": "2026-03-05T20:42:03.912636",
-    "source": "github"
-  },
-  {
-    "text": "plateau de bure interferometer",
-    "timestamp": "2026-03-05T21:05:00.567733",
-    "source": "wikipedia"
-  },
-  {
-    "text": "debeque de wrap le",
-    "timestamp": "2026-03-05T21:14:34.067361",
-    "source": "ambient"
-  },
-  {
-    "text": "stop. start. demi.",
-    "timestamp": "2026-03-06T07:04:28.277479",
-    "source": "ambient"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T07:07:30.204599",
-    "source": "news"
-  },
-  {
-    "text": "2005 al hillah bombing",
-    "timestamp": "2026-03-06T07:07:33.420421",
-    "source": "wikipedia"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-06T07:07:42.919630",
-    "source": "github"
-  },
-  {
-    "text": "moeru-ai /    airi",
-    "timestamp": "2026-03-06T07:07:42.942549",
-    "source": "github"
-  },
-  {
-    "text": "i didn't push that up.",
-    "timestamp": "2026-03-06T07:23:43.645649",
-    "source": "ambient"
-  },
-  {
-    "text": "raptin dog",
-    "timestamp": "2026-03-06T07:27:13.573008",
-    "source": "ambient"
-  },
-  {
-    "text": "almost shut",
-    "timestamp": "2026-03-06T07:29:08.697701",
-    "source": "ambient"
-  },
-  {
-    "text": "pension\u9b5a",
-    "timestamp": "2026-03-06T07:29:56.193471",
-    "source": "ambient"
-  },
-  {
-    "text": "unfortunately, i'm not much closer, mumbles.",
-    "timestamp": "2026-03-06T07:38:25.272229",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T07:39:10.834042",
-    "source": "ambient"
-  },
-  {
-    "text": "i didn't want it in it.",
-    "timestamp": "2026-03-06T07:41:29.837529",
-    "source": "ambient"
-  },
-  {
-    "text": "oh, yeah.",
-    "timestamp": "2026-03-06T07:42:39.401789",
-    "source": "ambient"
-  },
-  {
-    "text": "shhh. shhh. shhh. shhh.",
-    "timestamp": "2026-03-06T07:46:08.408197",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm gonna understand.",
-    "timestamp": "2026-03-06T07:49:13.875907",
-    "source": "ambient"
-  },
-  {
-    "text": "here",
-    "timestamp": "2026-03-06T07:59:20.100025",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T08:12:26.351647",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T08:17:50.666563",
-    "source": "ambient"
-  },
-  {
-    "text": "no one cares, i can't leave.",
-    "timestamp": "2026-03-06T08:25:11.360608",
-    "source": "ambient"
-  },
-  {
-    "text": "done using a passengers",
-    "timestamp": "2026-03-06T08:35:15.170253",
-    "source": "ambient"
-  },
-  {
-    "text": "represent it...",
-    "timestamp": "2026-03-06T08:44:55.198222",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not going to say it but... i'm not going to say it but... i'm not going to say it but...",
-    "timestamp": "2026-03-06T09:17:46.268813",
-    "source": "ambient"
-  },
-  {
-    "text": "okay guys, thank you. so good.",
-    "timestamp": "2026-03-06T09:33:13.968076",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not going to do that. i'm going to do it. i'm going to do it. i'm going to do it.",
-    "timestamp": "2026-03-06T09:34:47.318450",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm starting to see 95 degrees\ufffd\ufffd,",
-    "timestamp": "2026-03-06T10:16:11.348616",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry i'm sorry i'm sorry i'm sorry",
-    "timestamp": "2026-03-06T10:20:25.261934",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm going to do it again. you're going to do it again? yeah yeah yeah. i'm going to do it again.",
-    "timestamp": "2026-03-06T10:27:23.138183",
-    "source": "ambient"
-  },
-  {
-    "text": "i will have to kill percent damn justify sergeant",
-    "timestamp": "2026-03-06T10:28:56.387285",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry if i haven't told you. okay.",
-    "timestamp": "2026-03-06T10:30:05.000598",
-    "source": "ambient"
-  },
-  {
-    "text": "soka!",
-    "timestamp": "2026-03-06T10:32:01.934235",
-    "source": "ambient"
-  },
-  {
-    "text": "one l",
-    "timestamp": "2026-03-06T10:32:26.792715",
-    "source": "ambient"
-  },
-  {
-    "text": "keep walking sir. kublan takanthra pak malani bajjap subscriptions and likes.",
-    "timestamp": "2026-03-06T10:34:21.800196",
-    "source": "ambient"
-  },
-  {
-    "text": "i like this variety",
-    "timestamp": "2026-03-06T10:35:54.608169",
-    "source": "ambient"
-  },
-  {
-    "text": "yummy bird.",
-    "timestamp": "2026-03-06T10:44:24.503844",
-    "source": "ambient"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T11:12:11.217313",
-    "source": "news"
-  },
-  {
-    "text": "noussair mazraoui",
-    "timestamp": "2026-03-06T11:12:14.035756",
-    "source": "wikipedia"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-06T11:12:24.126566",
-    "source": "github"
-  },
-  {
-    "text": "moeru-ai /    airi",
-    "timestamp": "2026-03-06T11:12:24.150713",
-    "source": "github"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T12:57:56.935950",
-    "source": "news"
-  },
-  {
-    "text": "shaker furniture",
-    "timestamp": "2026-03-06T12:58:00.041718",
-    "source": "wikipedia"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-06T12:58:09.501332",
-    "source": "github"
-  },
-  {
-    "text": "moeru-ai /    airi",
-    "timestamp": "2026-03-06T12:58:09.532803",
-    "source": "github"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:01:27.291266",
-    "source": "news"
-  },
-  {
-    "text": "cora farrell",
-    "timestamp": "2026-03-06T13:01:30.499237",
-    "source": "wikipedia"
-  },
-  {
-    "text": "gouse gouse gouse gouse gouse gssss!!! gsssssgsssgss not",
-    "timestamp": "2026-03-06T13:06:59.246237",
-    "source": "ambient"
-  },
-  {
-    "text": "can i eat more?",
-    "timestamp": "2026-03-06T13:18:44.560833",
-    "source": "ambient"
-  },
-  {
-    "text": "oh, okay. okay. okay. hmm. hmm. hmm. hmm.",
-    "timestamp": "2026-03-06T13:34:18.326544",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah.",
-    "timestamp": "2026-03-06T13:35:04.447790",
-    "source": "ambient"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:35:32.692617",
-    "source": "news"
-  },
-  {
-    "text": "bronis\u0142aw \u017curakowski",
-    "timestamp": "2026-03-06T13:35:35.862110",
-    "source": "wikipedia"
-  },
-  {
-    "text": "keygraphhq /    shannon",
-    "timestamp": "2026-03-06T13:35:45.212033",
-    "source": "github"
-  },
-  {
-    "text": "moeru-ai /    airi",
-    "timestamp": "2026-03-06T13:35:45.242002",
-    "source": "github"
-  },
-  {
-    "text": "hello hi lidba, how are ya? was tasty.",
-    "timestamp": "2026-03-06T13:46:49.466867",
-    "source": "ambient"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:50:06.227056",
-    "source": "news"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:50:52.995672",
-    "source": "news"
-  },
-  {
-    "text": "kommadi",
-    "timestamp": "2026-03-06T13:50:57.741686",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:51:29.891376",
-    "source": "news"
-  },
-  {
-    "text": "sean kane",
-    "timestamp": "2026-03-06T13:51:34.483872",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:52:04.045001",
-    "source": "news"
-  },
-  {
-    "text": "agnes krumwiede",
-    "timestamp": "2026-03-06T13:52:08.183626",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:52:35.358676",
-    "source": "news"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:53:27.582899",
-    "source": "news"
-  },
-  {
-    "text": "hayashida domain",
-    "timestamp": "2026-03-06T13:53:31.579901",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:54:10.464166",
-    "source": "news"
-  },
-  {
-    "text": "lud\u011bk \u010dajka",
-    "timestamp": "2026-03-06T13:54:13.822278",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:54:52.823137",
-    "source": "news"
-  },
-  {
-    "text": "caricuao station",
-    "timestamp": "2026-03-06T13:54:57.223127",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:55:28.884573",
-    "source": "news"
-  },
-  {
-    "text": "proton persona",
-    "timestamp": "2026-03-06T13:55:32.624106",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:56:06.062835",
-    "source": "news"
-  },
-  {
-    "text": "cheryl dunye",
-    "timestamp": "2026-03-06T13:56:09.846245",
-    "source": "wikipedia"
-  },
-  {
-    "text": "bbc news",
-    "timestamp": "2026-03-06T13:56:40.644450",
-    "source": "news"
-  },
-  {
-    "text": "a clean state jab",
-    "timestamp": "2026-03-06T14:13:28.820483",
-    "source": "ambient"
-  },
-  {
-    "text": "okay",
-    "timestamp": "2026-03-06T14:13:51.765439",
-    "source": "ambient"
-  },
-  {
-    "text": "ave.",
-    "timestamp": "2026-03-06T14:16:36.415628",
-    "source": "ambient"
-  },
-  {
-    "text": "have",
-    "timestamp": "2026-03-06T14:17:43.636341",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm lost. don't understand.",
-    "timestamp": "2026-03-06T14:21:35.046178",
-    "source": "ambient"
-  },
-  {
-    "text": "i love it. i love it. i love it.",
-    "timestamp": "2026-03-06T15:00:38.850926",
-    "source": "ambient"
-  },
-  {
-    "text": "i don't care. i don't care.",
-    "timestamp": "2026-03-06T15:01:02.101985",
-    "source": "ambient"
-  },
-  {
-    "text": "i love it!",
-    "timestamp": "2026-03-06T15:01:25.954362",
-    "source": "ambient"
-  },
-  {
-    "text": "don't go kick it just goes",
-    "timestamp": "2026-03-06T15:10:57.052678",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm afraid we can't say i'm okay, i'm okay, i'm not okay",
-    "timestamp": "2026-03-06T15:17:53.796749",
-    "source": "ambient"
-  },
-  {
-    "text": "kus you you",
-    "timestamp": "2026-03-06T15:19:04.374077",
-    "source": "ambient"
-  },
-  {
-    "text": "i'll pray, i'll pray, i'll know what i'm saying man, i won't let you go, i'll jump",
-    "timestamp": "2026-03-06T15:19:29.322971",
-    "source": "ambient"
-  },
-  {
-    "text": "i want to see him turn it aheadam gonzalo haydn",
-    "timestamp": "2026-03-06T15:21:23.478244",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not gonna cry, i'm gonna cry i'm not gonna cry, i'm gonna cry",
-    "timestamp": "2026-03-06T15:27:56.882562",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah. ah! ah! ah! ah! ah! ah! ah!",
-    "timestamp": "2026-03-06T15:31:03.037993",
+    "text": "no alcohol, no alcohol bas smells",
+    "timestamp": "2026-03-08T17:10:27.819983",
     "source": "ambient"
   },
   {
     "text": "i'm so sorry. i'm so sorry. i'm so sorry. i'm so sorry.",
-    "timestamp": "2026-03-06T15:41:35.700973",
+    "timestamp": "2026-03-08T17:16:16.049784",
     "source": "ambient"
   },
   {
-    "text": "i'm not a man. i'm a man. i'm a man. i'm a man.",
-    "timestamp": "2026-03-06T15:47:01.234390",
+    "text": "let's do some water",
+    "timestamp": "2026-03-08T17:24:04.198541",
     "source": "ambient"
   },
   {
-    "text": "somebody else somebody else",
-    "timestamp": "2026-03-06T15:47:46.281034",
+    "text": "being on set",
+    "timestamp": "2026-03-08T17:56:59.449820",
     "source": "ambient"
   },
   {
-    "text": "men and",
-    "timestamp": "2026-03-06T15:54:57.756024",
+    "text": "fuck",
+    "timestamp": "2026-03-08T17:57:41.481747",
     "source": "ambient"
   },
   {
-    "text": "for example, i customlich klekke. so, i need a klekke\u043e\u043d\u0438\u0441\u0442\u0430\u0432erst hause",
-    "timestamp": "2026-03-06T16:00:47.057896",
+    "text": "zhuge",
+    "timestamp": "2026-03-08T18:45:52.584215",
     "source": "ambient"
   },
   {
-    "text": "yes, i'm listening.",
-    "timestamp": "2026-03-06T16:05:01.647965",
+    "text": "music",
+    "timestamp": "2026-03-08T18:47:47.866140",
     "source": "ambient"
   },
   {
-    "text": "i'm not gonna let you go, you're not gonna let me go",
-    "timestamp": "2026-03-06T16:10:18.152654",
+    "text": "good. lapse",
+    "timestamp": "2026-03-08T18:50:07.734486",
     "source": "ambient"
   },
   {
-    "text": "i'm singing on just mine, losing all",
-    "timestamp": "2026-03-06T16:11:04.643388",
-    "source": "ambient"
-  },
-  {
-    "text": "you're funny. you're funny. i think i'm saying no reason cause i'm here.",
-    "timestamp": "2026-03-06T16:19:36.099079",
-    "source": "ambient"
-  },
-  {
-    "text": "so today again",
-    "timestamp": "2026-03-06T16:23:51.678123",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah...",
-    "timestamp": "2026-03-06T16:35:09.030775",
-    "source": "ambient"
-  },
-  {
-    "text": "you enjoy.",
-    "timestamp": "2026-03-06T16:36:17.400595",
-    "source": "ambient"
-  },
-  {
-    "text": "amen to you, see ya!",
-    "timestamp": "2026-03-06T16:36:41.388103",
-    "source": "ambient"
-  },
-  {
-    "text": "my my",
-    "timestamp": "2026-03-06T16:38:13.981246",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not going to be a good guy. i'm not going to be a good guy. i'm not going to be a good guy.",
-    "timestamp": "2026-03-06T16:38:59.409306",
-    "source": "ambient"
-  },
-  {
-    "text": "malaan ision. smulam mainlaar. inner insular. tabana boon.",
-    "timestamp": "2026-03-06T16:41:43.674039",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T16:42:51.709014",
-    "source": "ambient"
-  },
-  {
-    "text": "fuck.",
-    "timestamp": "2026-03-06T16:43:15.700710",
-    "source": "ambient"
-  },
-  {
-    "text": "i love you. i love you. i love you.",
-    "timestamp": "2026-03-06T16:44:01.365320",
-    "source": "ambient"
-  },
-  {
-    "text": "come on",
-    "timestamp": "2026-03-06T16:45:58.445454",
-    "source": "ambient"
-  },
-  {
-    "text": "more",
-    "timestamp": "2026-03-06T16:50:15.134092",
-    "source": "ambient"
-  },
-  {
-    "text": "i love you all. i love you all. i love you all. give me some more.",
-    "timestamp": "2026-03-06T16:52:56.118957",
-    "source": "ambient"
-  },
-  {
-    "text": "demostrate",
-    "timestamp": "2026-03-06T16:53:45.283252",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. no, i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T16:54:52.641780",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T16:55:15.811703",
-    "source": "ambient"
-  },
-  {
-    "text": "did i lis .. did i mosque? color",
-    "timestamp": "2026-03-06T16:55:40.185544",
-    "source": "ambient"
-  },
-  {
-    "text": "iles",
-    "timestamp": "2026-03-06T16:56:04.007990",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm not sure. i'm not sure. i'm not sure. i'm not sure.",
-    "timestamp": "2026-03-06T16:57:11.839985",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm going to get some water. i'm going to get some water. i'm going to get some water.",
-    "timestamp": "2026-03-06T16:59:07.899684",
-    "source": "ambient"
-  },
-  {
-    "text": "mmmmmusic....",
-    "timestamp": "2026-03-06T17:02:14.783209",
-    "source": "ambient"
-  },
-  {
-    "text": "\u518d\u6b21\u719f\u4e86udes\u30b9\u30ef\u30a4\u30bf",
-    "timestamp": "2026-03-06T17:02:38.181175",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah. oh, same, same. yeah, same. yeah.",
-    "timestamp": "2026-03-06T17:05:19.248378",
-    "source": "ambient"
-  },
-  {
-    "text": "are weed independence issues?",
-    "timestamp": "2026-03-06T17:14:38.177744",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm having\u3044 don't make a mistake",
-    "timestamp": "2026-03-06T17:15:02.015094",
-    "source": "ambient"
-  },
-  {
-    "text": "okay.",
-    "timestamp": "2026-03-06T17:19:39.318193",
-    "source": "ambient"
-  },
-  {
-    "text": "rodos",
-    "timestamp": "2026-03-06T17:22:22.812363",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry, i'm sorry. i'm sorry, i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-06T17:24:18.489191",
-    "source": "ambient"
-  },
-  {
-    "text": ". . . . . . .",
-    "timestamp": "2026-03-06T17:27:24.712879",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah.",
-    "timestamp": "2026-03-06T18:14:12.866333",
-    "source": "ambient"
-  },
-  {
-    "text": "\u03ba\u03acarena.",
-    "timestamp": "2026-03-06T18:18:53.391824",
-    "source": "ambient"
-  },
-  {
-    "text": "real quick",
-    "timestamp": "2026-03-06T18:22:22.402544",
-    "source": "ambient"
-  },
-  {
-    "text": "good",
-    "timestamp": "2026-03-06T18:23:08.122543",
-    "source": "ambient"
-  },
-  {
-    "text": "mocha estatalia.",
-    "timestamp": "2026-03-06T18:23:54.826555",
-    "source": "ambient"
-  },
-  {
-    "text": "pu evolutionary",
-    "timestamp": "2026-03-06T18:27:00.380491",
-    "source": "ambient"
-  },
-  {
-    "text": "are you okay?",
-    "timestamp": "2026-03-06T18:30:07.299009",
-    "source": "ambient"
-  },
-  {
-    "text": "leur",
-    "timestamp": "2026-03-06T18:30:29.837295",
-    "source": "ambient"
-  },
-  {
-    "text": "wurf banana",
-    "timestamp": "2026-03-06T18:41:21.483377",
-    "source": "ambient"
-  },
-  {
-    "text": "manman. bro. no back",
-    "timestamp": "2026-03-06T18:42:07.524476",
-    "source": "ambient"
-  },
-  {
-    "text": "hmm. hmm. hmm. hmm.",
-    "timestamp": "2026-03-06T18:44:49.415267",
-    "source": "ambient"
-  },
-  {
-    "text": "\u043f\u043e\u0441\u043b\u0435\u0434",
-    "timestamp": "2026-03-06T18:47:09.922087",
-    "source": "ambient"
-  },
-  {
-    "text": "signals.",
-    "timestamp": "2026-03-06T18:51:02.282093",
-    "source": "ambient"
-  },
-  {
-    "text": "i'll ride, i'll ride, i'll ride. mm, fancy.",
-    "timestamp": "2026-03-06T18:53:00.569046",
-    "source": "ambient"
-  },
-  {
-    "text": "i said i would not eat pickled okra.",
-    "timestamp": "2026-03-06T19:04:58.606086",
-    "source": "ambient"
-  },
-  {
-    "text": "but let us do our usage",
-    "timestamp": "2026-03-06T19:25:33.387921",
-    "source": "ambient"
-  },
-  {
-    "text": "tomatoes",
-    "timestamp": "2026-03-06T19:25:55.856096",
-    "source": "ambient"
-  },
-  {
-    "text": "what? go go gloves. bap, bap, bap. bap, bap. bap, bap. bap, bap. bap, bap. bap, bap.",
-    "timestamp": "2026-03-06T19:27:51.328988",
-    "source": "ambient"
-  },
-  {
-    "text": "a time",
-    "timestamp": "2026-03-06T19:47:14.421081",
-    "source": "ambient"
-  },
-  {
-    "text": "sna d\u00fcny",
-    "timestamp": "2026-03-06T19:47:37.570979",
-    "source": "ambient"
-  },
-  {
-    "text": "water water water the water",
-    "timestamp": "2026-03-06T19:50:45.160105",
-    "source": "ambient"
-  },
-  {
-    "text": "jia ji congratulating dad brenda\u00a1\u00a1!!]",
-    "timestamp": "2026-03-06T19:52:16.664793",
-    "source": "ambient"
-  },
-  {
-    "text": "i can't have",
-    "timestamp": "2026-03-06T19:53:49.951159",
-    "source": "ambient"
-  },
-  {
-    "text": "$aca\u011fly",
-    "timestamp": "2026-03-06T19:57:18.767900",
-    "source": "ambient"
-  },
-  {
-    "text": "\ud83c\udfb5 \ud83c\udfb5 \ud83c\udfb5",
-    "timestamp": "2026-03-06T20:28:58.277191",
+    "text": "let's go!",
+    "timestamp": "2026-03-08T18:52:26.891220",
     "source": "ambient"
   },
   {
     "text": "bbc news",
-    "timestamp": "2026-03-06T20:37:31.069480",
+    "timestamp": "2026-03-08T18:57:20.265882",
     "source": "news"
   },
   {
-    "text": "moeru-ai /    airi",
-    "timestamp": "2026-03-06T20:37:46.765380",
+    "text": "omni, pt. 1",
+    "timestamp": "2026-03-08T18:57:23.548849",
+    "source": "wikipedia"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-08T19:17:17.121088",
+    "source": "news"
+  },
+  {
+    "text": "yannoulis chalepas",
+    "timestamp": "2026-03-08T19:17:20.390255",
+    "source": "wikipedia"
+  },
+  {
+    "text": "starting up. so, i'm gonna be honest.",
+    "timestamp": "2026-03-08T19:31:15.892416",
+    "source": "ambient"
+  },
+  {
+    "text": "i listen to god for you to break no more.",
+    "timestamp": "2026-03-08T19:39:49.365773",
+    "source": "ambient"
+  },
+  {
+    "text": "fortugal smells just a quick",
+    "timestamp": "2026-03-08T19:44:29.368127",
+    "source": "ambient"
+  },
+  {
+    "text": "fire, no!",
+    "timestamp": "2026-03-08T19:45:15.472949",
+    "source": "ambient"
+  },
+  {
+    "text": "come on",
+    "timestamp": "2026-03-08T19:48:45.843612",
+    "source": "ambient"
+  },
+  {
+    "text": "okay.",
+    "timestamp": "2026-03-08T19:50:17.704760",
+    "source": "ambient"
+  },
+  {
+    "text": "good",
+    "timestamp": "2026-03-08T19:51:53.319516",
+    "source": "ambient"
+  },
+  {
+    "text": "! thum!",
+    "timestamp": "2026-03-08T19:53:00.603655",
+    "source": "ambient"
+  },
+  {
+    "text": "yes. let's go.",
+    "timestamp": "2026-03-08T19:56:28.898554",
+    "source": "ambient"
+  },
+  {
+    "text": "i didn't recognize that voice.",
+    "timestamp": "2026-03-08T19:59:11.444181",
+    "source": "ambient"
+  },
+  {
+    "text": "i'm alright. you can't do this. it's all good you guys. i'm done.",
+    "timestamp": "2026-03-08T20:04:37.174534",
+    "source": "ambient"
+  },
+  {
+    "text": "okay.",
+    "timestamp": "2026-03-08T20:05:23.605841",
+    "source": "ambient"
+  },
+  {
+    "text": "okay.",
+    "timestamp": "2026-03-08T20:05:47.000910",
+    "source": "ambient"
+  },
+  {
+    "text": "fuckingok, freakingit gives a darkzieh. must be leaking airs, mhm~? you must be joking!",
+    "timestamp": "2026-03-08T20:29:44.643366",
+    "source": "ambient"
+  },
+  {
+    "text": "fl \u043e ann\u00e9es ! \u30b5\u30e4\u30ba ! !",
+    "timestamp": "2026-03-08T20:30:07.342832",
+    "source": "ambient"
+  },
+  {
+    "text": "==== bible ====",
+    "timestamp": "2026-03-08T20:32:50.190590",
+    "source": "ambient"
+  },
+  {
+    "text": "i'm going to kill you! i'm going to kill you! i'm going to kill you!",
+    "timestamp": "2026-03-08T20:37:04.993711",
+    "source": "ambient"
+  },
+  {
+    "text": "today i willbirds",
+    "timestamp": "2026-03-08T20:38:40.033408",
+    "source": "ambient"
+  },
+  {
+    "text": "don't fucking quit.",
+    "timestamp": "2026-03-08T20:41:43.648063",
+    "source": "ambient"
+  },
+  {
+    "text": "damaged",
+    "timestamp": "2026-03-08T20:47:10.377973",
+    "source": "ambient"
+  },
+  {
+    "text": "maybe you can help me sleep. you think you failed you buddy?",
+    "timestamp": "2026-03-08T20:47:55.946857",
+    "source": "ambient"
+  },
+  {
+    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
+    "timestamp": "2026-03-08T20:50:39.163972",
+    "source": "ambient"
+  },
+  {
+    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
+    "timestamp": "2026-03-08T20:58:47.055397",
+    "source": "ambient"
+  },
+  {
+    "text": "so you",
+    "timestamp": "2026-03-08T21:02:17.452426",
+    "source": "ambient"
+  },
+  {
+    "text": "i'm tired. i'm tired. maybe even scared.",
+    "timestamp": "2026-03-08T21:04:37.118102",
+    "source": "ambient"
+  },
+  {
+    "text": "auto",
+    "timestamp": "2026-03-08T21:08:06.477554",
+    "source": "ambient"
+  },
+  {
+    "text": "more",
+    "timestamp": "2026-03-08T21:08:54.034494",
+    "source": "ambient"
+  },
+  {
+    "text": "good evening.",
+    "timestamp": "2026-03-08T21:12:46.335657",
+    "source": "ambient"
+  },
+  {
+    "text": "h ah",
+    "timestamp": "2026-03-08T21:15:28.351173",
+    "source": "ambient"
+  },
+  {
+    "text": "okay. okay.",
+    "timestamp": "2026-03-08T21:17:48.871774",
+    "source": "ambient"
+  },
+  {
+    "text": "yeah",
+    "timestamp": "2026-03-08T21:19:21.651309",
+    "source": "ambient"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-09T06:28:33.685855",
+    "source": "news"
+  },
+  {
+    "text": "vollmersweiler",
+    "timestamp": "2026-03-09T06:28:37.154508",
+    "source": "wikipedia"
+  },
+  {
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T06:28:46.973685",
     "source": "github"
   },
   {
-    "text": "qwenlm /    qwen-agent",
-    "timestamp": "2026-03-06T20:37:46.801021",
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T06:28:46.976942",
     "source": "github"
   },
   {
-    "text": "3 16",
-    "timestamp": "2026-03-07T06:07:26.949358",
+    "text": "bbc news",
+    "timestamp": "2026-03-09T06:43:07.756891",
+    "source": "news"
+  },
+  {
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T06:43:20.389613",
+    "source": "github"
+  },
+  {
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T06:43:20.392791",
+    "source": "github"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-09T06:51:00.498162",
+    "source": "news"
+  },
+  {
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T06:51:13.213006",
+    "source": "github"
+  },
+  {
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T06:51:13.216191",
+    "source": "github"
+  },
+  {
+    "text": "bbc news",
+    "timestamp": "2026-03-09T06:56:56.180862",
+    "source": "news"
+  },
+  {
+    "text": "james mclachlan (australian politician)",
+    "timestamp": "2026-03-09T06:56:59.449519",
+    "source": "wikipedia"
+  },
+  {
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T06:57:08.871567",
+    "source": "github"
+  },
+  {
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T06:57:08.874672",
+    "source": "github"
+  },
+  {
+    "text": "i'm in a great sky, i'm in a great sky. i'm in a great sky. i'm in a great sky.",
+    "timestamp": "2026-03-09T07:19:30.473953",
     "source": "ambient"
   },
   {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T06:36:52.235848",
+    "text": "i me",
+    "timestamp": "2026-03-09T07:21:24.012620",
     "source": "ambient"
   },
   {
-    "text": "i'm sorry, i'm sorry. i'm sorry, i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T06:44:14.111331",
+    "text": "yo , you areboarding",
+    "timestamp": "2026-03-09T07:22:37.300398",
     "source": "ambient"
   },
   {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T06:44:37.299945",
+    "text": "i'm gonna die, oh yeah i'm gonna die, oh yeah i'm gonna die, oh yeah oh yeah",
+    "timestamp": "2026-03-09T07:31:36.702603",
     "source": "ambient"
   },
   {
-    "text": "voting",
-    "timestamp": "2026-03-07T07:09:04.263804",
+    "text": "bbc news",
+    "timestamp": "2026-03-09T07:43:58.103020",
+    "source": "news"
+  },
+  {
+    "text": "welshpool frillies",
+    "timestamp": "2026-03-09T07:44:01.348510",
+    "source": "wikipedia"
+  },
+  {
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T07:44:09.669376",
+    "source": "github"
+  },
+  {
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T07:44:09.672459",
+    "source": "github"
+  },
+  {
+    "text": "song so",
+    "timestamp": "2026-03-09T07:51:09.188062",
     "source": "ambient"
   },
   {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T07:19:54.873198",
-    "source": "ambient"
+    "text": "bbc news",
+    "timestamp": "2026-03-09T07:56:25.012976",
+    "source": "news"
   },
   {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T07:21:04.687678",
-    "source": "ambient"
+    "text": "steve coleman",
+    "timestamp": "2026-03-09T07:56:28.167749",
+    "source": "wikipedia"
   },
   {
-    "text": "i'm\u7f8e\u570b",
-    "timestamp": "2026-03-07T07:33:07.060869",
-    "source": "ambient"
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T07:56:36.542323",
+    "source": "github"
   },
   {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T07:49:46.359956",
-    "source": "ambient"
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T07:56:36.546307",
+    "source": "github"
   },
   {
-    "text": "i'm sorry, i'm sorry, i'm sorry.",
-    "timestamp": "2026-03-07T07:55:57.833661",
-    "source": "ambient"
+    "text": "bbc news",
+    "timestamp": "2026-03-09T07:57:24.785045",
+    "source": "news"
   },
   {
-    "text": "so good",
-    "timestamp": "2026-03-07T08:07:14.206671",
-    "source": "ambient"
+    "text": "666ghj /    mirofish",
+    "timestamp": "2026-03-09T07:57:36.453479",
+    "source": "github"
   },
   {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T08:14:10.929279",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm back. i'm going to play a game again. are you going to go deep? go deep. go deep. go deep.",
-    "timestamp": "2026-03-07T08:19:59.682127",
-    "source": "ambient"
-  },
-  {
-    "text": "run blockley!",
-    "timestamp": "2026-03-07T08:22:21.063509",
-    "source": "ambient"
-  },
-  {
-    "text": "please love",
-    "timestamp": "2026-03-07T08:23:29.569016",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T08:24:15.272258",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm afraid you are going to die. i will die. i'm afraid you are going to die. i'm afraid you are going to die.",
-    "timestamp": "2026-03-07T08:25:25.879695",
-    "source": "ambient"
-  },
-  {
-    "text": "i want to show you guys",
-    "timestamp": "2026-03-07T08:29:17.388704",
-    "source": "ambient"
-  },
-  {
-    "text": "beautiful view",
-    "timestamp": "2026-03-07T08:29:41.385586",
-    "source": "ambient"
-  },
-  {
-    "text": "haha",
-    "timestamp": "2026-03-07T08:34:44.518460",
-    "source": "ambient"
-  },
-  {
-    "text": "fucked up.",
-    "timestamp": "2026-03-07T08:48:16.136305",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T08:53:42.160046",
-    "source": "ambient"
-  },
-  {
-    "text": "interpretation",
-    "timestamp": "2026-03-07T08:54:30.490228",
-    "source": "ambient"
-  },
-  {
-    "text": "web fragen sounds work\u06c1",
-    "timestamp": "2026-03-07T09:00:20.604518",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm so tired. i'm tired. i'm so tired. i'm so tired.",
-    "timestamp": "2026-03-07T09:02:38.541433",
-    "source": "ambient"
-  },
-  {
-    "text": "roni",
-    "timestamp": "2026-03-07T09:06:55.569459",
-    "source": "ambient"
-  },
-  {
-    "text": "...\u3067\u3057\u3087\u3046has",
-    "timestamp": "2026-03-07T09:13:06.991657",
-    "source": "ambient"
-  },
-  {
-    "text": "guess",
-    "timestamp": "2026-03-07T09:20:05.506755",
-    "source": "ambient"
-  },
-  {
-    "text": "looks\u3053\u306e",
-    "timestamp": "2026-03-07T09:25:56.760033",
-    "source": "ambient"
-  },
-  {
-    "text": "crazy",
-    "timestamp": "2026-03-07T09:29:23.313731",
-    "source": "ambient"
-  },
-  {
-    "text": "yeah, yeah",
-    "timestamp": "2026-03-07T09:32:31.106777",
-    "source": "ambient"
-  },
-  {
-    "text": "okay?",
-    "timestamp": "2026-03-07T09:32:52.164718",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T09:34:01.102353",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T09:38:16.831869",
-    "source": "ambient"
-  },
-  {
-    "text": "cool?oda",
-    "timestamp": "2026-03-07T09:40:36.622690",
-    "source": "ambient"
-  },
-  {
-    "text": "slide sub",
-    "timestamp": "2026-03-07T09:41:00.021307",
-    "source": "ambient"
-  },
-  {
-    "text": "abs pro",
-    "timestamp": "2026-03-07T09:50:17.828150",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry, i'm sorry. i'm sorry. i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T09:50:39.917996",
-    "source": "ambient"
-  },
-  {
-    "text": "al\u0131m is nearer",
-    "timestamp": "2026-03-07T09:51:53.369889",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm going here. let's see.",
-    "timestamp": "2026-03-07T09:52:12.608634",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm so strong.",
-    "timestamp": "2026-03-07T09:53:01.322810",
-    "source": "ambient"
-  },
-  {
-    "text": "... helloooo!",
-    "timestamp": "2026-03-07T09:55:42.697667",
-    "source": "ambient"
-  },
-  {
-    "text": "okay, i'm gonna get you a present. i'm gonna get you a present. i'm gonna get you a present.",
-    "timestamp": "2026-03-07T10:06:10.098365",
-    "source": "ambient"
-  },
-  {
-    "text": "i'm sorry, i'm sorry. i'm sorry, i'm sorry. i'm sorry.",
-    "timestamp": "2026-03-07T10:07:19.881704",
-    "source": "ambient"
+    "text": "shadcn-ui /    ui",
+    "timestamp": "2026-03-09T07:57:36.456643",
+    "source": "github"
   }
 ]

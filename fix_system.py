@@ -44,7 +44,7 @@ def fix_safety_module():
         logger.info("Checking safety module...")
         
         # Import our fixed safety module
-        sys.path.insert(0, str(Path.cwd()))
+        sys.path.insert(0, str(Path(__file__).parent.parent)))))
         import safety
         
         # Test the module
@@ -62,7 +62,7 @@ def fix_music_learner():
     try:
         logger.info("Testing music learner...")
         
-        sys.path.insert(0, str(Path.cwd()))
+        sys.path.insert(0, str(Path(__file__).parent.parent)))))
         import music_learner
         
         # Initialize and test

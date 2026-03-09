@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Version Merger for DMAI Evolution
 Merges external provider updates with internally evolved versions
@@ -14,7 +20,7 @@ from pathlib import Path
 
 class VersionMerger:
     def __init__(self):
-        self.evolution_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/evolution"
+        self.evolution_dir = "/Users/davidmiles/Desktop/dmai-system/evolution"
         self.versions_dir = f"{self.evolution_dir}/versions"
         self.merged_dir = f"{self.evolution_dir}/merged_versions"
         self.history_file = f"{self.evolution_dir}/version_history.json"
@@ -304,7 +310,7 @@ if __name__ == "__main__":
     
     # Test with a sample evaluator
     test_evaluator = "gemini"
-    test_internal = "/Users/davidmiles/Desktop/AI-Evolution-System/evolution/evaluators/gemini_evaluator.py"
+    test_internal = "/Users/davidmiles/Desktop/dmai-system/evolution/evaluators/gemini_evaluator.py"
     test_provider = {
         'version': '2.6.0',
         'features': ['multimodal_enhanced', 'faster_inference']

@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """Test DMAI learning announcement"""
 import time
 from language_learning.integrate_with_voice import DMAIWithLearning

@@ -16,14 +16,14 @@ from datetime import datetime
 from pathlib import Path
 
 # Add parent directories to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, str(Path(__file__).parent.parent)))))))
 
 from evolution.orchestrator.metrics_tracker import MetricsTracker
 from evolution.orchestrator.version_controller import VersionController
 
 class HybridEvolutionOrchestrator:
     def __init__(self):
-        self.evolution_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/evolution"
+        self.evolution_dir = "/Users/davidmiles/Desktop/dmai-system/evolution"
         self.config_path = f"{self.evolution_dir}/config/evolution_config.json"
         self.load_config()
         

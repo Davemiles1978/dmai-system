@@ -4,7 +4,7 @@
 echo "🚀 Setting up DMAI 24/7 Daemon System"
 echo "====================================="
 
-cd /Users/davidmiles/Desktop/AI-Evolution-System
+cd /Users/davidmiles/Desktop/dmai-system
 
 # Step 1: Stop any running services
 echo "🛑 Stopping any running services..."
@@ -36,23 +36,23 @@ cat > ~/Library/LaunchAgents/com.dmai.core.plist << 'INNER'
     <string>com.dmai.core</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/davidmiles/Desktop/AI-Evolution-System/scripts/start_all_daemons.sh</string>
+        <string>/Users/davidmiles/Desktop/dmai-system/scripts/start_all_daemons.sh</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/davidmiles/Desktop/AI-Evolution-System/logs/launchd.log</string>
+    <string>/Users/davidmiles/Desktop/dmai-system/logs/launchd.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/davidmiles/Desktop/AI-Evolution-System/logs/launchd.error.log</string>
+    <string>/Users/davidmiles/Desktop/dmai-system/logs/launchd.error.log</string>
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
         <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
     </dict>
     <key>WorkingDirectory</key>
-    <string>/Users/davidmiles/Desktop/AI-Evolution-System</string>
+    <string>/Users/davidmiles/Desktop/dmai-system</string>
 </dict>
 </plist>
 INNER

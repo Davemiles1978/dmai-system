@@ -1,4 +1,10 @@
 """Tor proxy configuration for DMAI dark web access"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import requests
 
 TOR_PROXY = 'socks5h://127.0.0.1:9150'

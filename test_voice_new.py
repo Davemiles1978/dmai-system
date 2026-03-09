@@ -8,7 +8,7 @@ import importlib
 from pathlib import Path
 
 # Add to path
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))).parent))
 
 # Force reload of voice modules
 if 'voice.speech_to_text' in sys.modules:
@@ -35,7 +35,7 @@ else:
     print("\nUpdating speech_to_text.py with listen method...")
     
     # Update the file with the correct version
-    with open('/Users/davidmiles/Desktop/AI-Evolution-System/voice/speech_to_text.py', 'r') as f:
+    with open('/Users/davidmiles/Desktop/dmai-system/voice/speech_to_text.py', 'r') as f:
         content = f.read()
     
     if 'def listen' not in content:

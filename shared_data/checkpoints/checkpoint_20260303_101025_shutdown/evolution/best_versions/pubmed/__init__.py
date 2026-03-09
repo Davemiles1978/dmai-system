@@ -1,4 +1,10 @@
 # EVOLVE-BLOCK-START    # Evolution improvement at generation 22
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
     # Evolution improvement at generation 32
     # Evolution improvement at generation 48
  - ENTIRE FILE CAN EVOLVE

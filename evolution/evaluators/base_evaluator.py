@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 """
 Base Evaluator Template for DMAI Evolution System
 All AI evaluators inherit from this base class
@@ -17,7 +23,7 @@ class BaseEvaluator:
     def __init__(self, name, version="1.0.0"):
         self.name = name
         self.version = version
-        self.evolution_dir = "/Users/davidmiles/Desktop/AI-Evolution-System/evolution"
+        self.evolution_dir = "/Users/davidmiles/Desktop/dmai-system/evolution"
         self.log_file = f"{self.evolution_dir}/logs/{name}_evaluations.log"
         self.ensure_logs()
     

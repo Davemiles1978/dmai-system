@@ -1,4 +1,10 @@
 """Self Healer module for AGI evolution system"""
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import json
 from pathlib import Path
 from datetime import datetime

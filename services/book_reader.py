@@ -1,107 +1,151 @@
 #!/usr/bin/env python3
-import os
+"""Book Reader Service - DMAI"""
+
 import sys
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+import os
 import time
 import json
 import logging
-import random
+import requests
 from datetime import datetime
-from pathlib import Path
+from core.paths import VOCAB_PATH, DATA_DIR
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from language_learning.processor.language_learner import LanguageLearner
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - BOOK - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/book_reader.log'),
-        logging.StreamHandler()
-    ]
-)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger("BOOK")
 
 class BookReader:
     def __init__(self):
-        self.learner = LanguageLearner()
-        self.books_processed = 0
-        self.words_learned = 0
-        self.cycle_count = 0
-        self.book_dir = Path("language_learning/books")
-        self.book_dir.mkdir(exist_ok=True)
-        self._cache = {}
+        self.vocab_path = VOCAB_PATH
+        self.data_dir = DATA_DIR
+        self.books_read = 0
+        logger.info(f"📚 Vocabulary path: {self.vocab_path}")
+        logger.info(f"📂 Data directory: {self.data_dir}")
         
-    def get_gutenberg_book(self):
-        # Add caching
-        cache_key = f'get_gutenberg_book_'
-        if hasattr(self, '_cache') and cache_key in self._cache:
-            return self._cache[cache_key]
+    def load_vocabulary(self):
+        """Load existing vocabulary"""
         try:
-            import requests
-            books = [
-                "https://www.gutenberg.org/files/1342/1342-0.txt",
-                "https://www.gutenberg.org/files/11/11-0.txt",
-                "https://www.gutenberg.org/files/1661/1661-0.txt",
-                "https://www.gutenberg.org/files/84/84-0.txt",
-                "https://www.gutenberg.org/files/2701/2701-0.txt"
-            ]
-            
-            url = random.choice(books)
-            logger.info(f"Downloading book from {url}")
-            
-            for retry in range(3):
-                try:
-                    response = requests.get(url, timeout=30)
-                    break
-                except:
-                    if retry == 2:
-                        raise
-                    time.sleep(1)
-            if response.status_code == 200:
-                text = response.text[:50000]
-                
-                result = self.learner.process_text(text, source="gutenberg")
-                if result:
-                    new = result.get("new_words", 0)
-                    if new > 0:
-                        self.words_learned += new
-                        self.books_processed += 1
-                        logger.info(f"+{new} words from book {self.books_processed}")
-                        
+            if self.vocab_path.exists():
+                with open(self.vocab_path, 'r') as f:
+                    vocab = json.load(f)
+                logger.info(f"📚 Loaded {len(vocab)} words")
+                return vocab
+            else:
+                logger.warning(f"Vocabulary not found at {self.vocab_path}")
+                return {}
         except Exception as e:
-            logger.error(f"Book download error: {e}")
+            logger.error(f"Error loading vocabulary: {e}")
+            return {}
     
-    def run(self):
-        logger.info("Book Reader started")
-        
-        while True:
+    def download_book(self, url):
+        """Download a book from Project Gutenberg with retry logic"""
+        for retry in range(3):
             try:
-                # Inner loop runs forever
-                while True:
-                    self.cycle_count += 1
-                    logger.info(f"Book reading cycle {self.cycle_count}")
-                    
-                    self.get_gutenberg_book()
-                    
-                    wait = random.randint(3600, 7200)
-                    logger.info(f"Next book in {wait//3600} hours")
-                    
-                    # Sleep in chunks to be responsive to interrupts
-                    for i in range(wait):
-                        time.sleep(1)
-                        
-            except KeyboardInterrupt:
-                logger.info("Shutdown requested")
-                break
+                logger.info(f"Downloading book from {url} (attempt {retry+1}/3)")
+                response = requests.get(url, timeout=30)
+                response.raise_for_status()
+                logger.info(f"✅ Successfully downloaded book from {url}")
+                return response.text
+            except requests.exceptions.Timeout:
+                logger.warning(f"Download attempt {retry+1} timed out")
+                if retry == 2:
+                    logger.error(f"All download attempts failed for {url} - timeout")
+                    return None
+                time.sleep(2)
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"Download attempt {retry+1} failed: {e}")
+                if retry == 2:
+                    logger.error(f"All download attempts failed for {url}")
+                    return None
+                time.sleep(2)
             except Exception as e:
-                logger.error(f"Book reader error: {e}")
-                logger.info("Restarting book reader cycle in 60 seconds...")
-                time.sleep(60)
+                logger.error(f"Unexpected error downloading book: {e}")
+                return None
+    
+    def process_book(self, text):
+        """Extract words from book text"""
+        # Simple word extraction
+        words = set()
+        for line in text.split('\n'):
+            for word in line.split():
+                # Clean word
+                word = word.strip('.,!?;:""()[]{}').lower()
+                if word and len(word) > 1 and word.isalpha():
+                    words.add(word)
+        return words
+    
+    def run_once(self):
+        """Run one book reading cycle"""
+        # Load current vocabulary
+        vocab = self.load_vocabulary()
+        if not vocab:
+            vocab = {}
+        
+        # Download a book
+        book_urls = [
+            "https://www.gutenberg.org/files/1342/1342-0.txt",  # Pride and Prejudice
+            "https://www.gutenberg.org/files/1661/1661-0.txt",  # Sherlock Holmes
+            "https://www.gutenberg.org/files/84/84-0.txt",      # Frankenstein
+            "https://www.gutenberg.org/files/2701/2701-0.txt",  # Moby Dick
+            "https://www.gutenberg.org/files/11/11-0.txt",      # Alice in Wonderland
+        ]
+        
+        for url in book_urls:
+            text = self.download_book(url)
+            if text:
+                new_words = self.process_book(text)
+                # Add to vocabulary
+                new_count = 0
+                for word in new_words:
+                    if word not in vocab:
+                        vocab[word] = {
+                            "first_seen": datetime.now().isoformat(),
+                            "source": url,
+                            "count": 1
+                        }
+                        new_count += 1
+                logger.info(f"📚 Added {new_count} new words from {url}")
+                
+                # Save updated vocabulary
+                self.vocab_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(self.vocab_path, 'w') as f:
+                    json.dump(vocab, f, indent=2)
+                
+                # If we got words, consider this a successful cycle
+                if new_count > 0:
+                    return True
+        
+        logger.info("No new words added in this cycle")
+        return False
+    
+    def run_continuous(self):
+        """Run continuously"""
+        logger.info("📖 Book Reader started in continuous mode")
+        while True:
+            self.books_read += 1
+            logger.info(f"📚 Book reading cycle {self.books_read}")
+            self.run_once()
+            logger.info("⏰ Next book in 1 hour")
+            time.sleep(3600)  # Wait 1 hour
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="DMAI Book Reader Service")
+    parser.add_argument("--test", action="store_true", help="Run one cycle")
+    parser.add_argument("--continuous", action="store_true", help="Run continuously")
+    args = parser.parse_args()
+    
     reader = BookReader()
-    try:
-        reader.run()
-    except KeyboardInterrupt:
-        logger.info(f"Read {reader.books_processed} books, learned {reader.words_learned} words")
+    
+    if args.test:
+        logger.info("🧪 Running in TEST mode - one cycle only")
+        reader.run_once()
+    elif args.continuous:
+        logger.info("🔄 Running in CONTINUOUS mode")
+        reader.run_continuous()
+    else:
+        parser.print_help()

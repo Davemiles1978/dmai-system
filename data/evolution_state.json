@@ -1,17 +1,1 @@
-{
-  "generation": 27,
-  "best_score": 0,
-  "total_improvements": 0,
-  "recent_improvements": [],
-  "evolvable_files": [
-    "voice/dmai_voice_with_learning.py",
-    "voice/speech_to_text.py",
-    "voice/speaker.py",
-    "language_learning/processor/language_learner.py",
-    "language_learning/listener/ambient_listener.py",
-    "services/web_researcher.py",
-    "services/dark_researcher.py",
-    "services/book_reader.py"
-  ],
-  "timestamp": "2026-03-07T09:34:49.420107"
-}
+{"generation": 54}
