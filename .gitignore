@@ -1,13 +1,21 @@
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
 # Python
 __pycache__/
 *.py[cod]
+*.pyc
 *$py.class
 *.so
 .Python
 venv/
+.venv
 env/
 ENV/
-.venv
+venv_py39_backup/
 pip-log.txt
 pip-delete-this-directory.txt
 .pytest_cache/
@@ -17,9 +25,51 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-*.log
 
-# Large files that shouldn't be in git
+# API Keys and Secrets - NEVER COMMIT
+config.json
+secrets.json
+credentials.json
+api_keys.json
+*_key.json
+*_token.json
+service-account*.json
+oauth*.json
+*.key
+*.pem
+*.p12
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+
+# Voice and biometric data - PRIVATE
+voice/enrollment_data/
+voice/enrollment_data/*.pkl
+voice/profiles/
+data/voice_profiles/
+*.pkl
+*.voiceprint
+*.voice
+
+# Vocabulary data - BACKED UP but not in git
+language_learning/data/secure/
+language_learning/data/vocabulary.json
+data/secure/
+*.vocab
+
+# Checkpoints and large binary files
+shared_checkpoints/
+shared_data/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.h5
+*.keras
 *.zip
 *.tar.gz
 *.tgz
@@ -31,20 +81,31 @@ dmypy.json
 *.iso
 *.dmg
 
-# Checkpoints (these are huge - you might want to exclude them)
-# # checkpoints/ - now using shared_checkpoints - now using shared_checkpointsgeneration_*/
-shared_# # checkpoints/ - now using shared_checkpoints - now using shared_checkpointsgeneration_*/
-shared_data/# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints
+# Logs
+logs/
+*.log
+*.log.*
 
-# Keep these patterns if needed, but exclude the large binary files
-!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.md
-!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.txt
-!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.py
-!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.js
-!# # checkpoints/ - now using shared_checkpoints - now using shared_checkpoints*/repos/*/*.json
+# API Harvester specific
+api-harvester/config.json
+api-harvester/*.db
+api-harvester/__pycache__/
+api-harvester/venv/
+
+# Funding/Wallet - SENSITIVE
+funding/wallets/
+*.wallet
+*.keystore
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
 
 # OS files
 .DS_Store
+*.DS_Store
 Thumbs.db
 desktop.ini
 
@@ -61,24 +122,23 @@ desktop.ini
 *.bak
 *.bak*
 
-# System files
-.DS_Store
-*.DS_Store
-Thumbs.db
-
-# Repos (if you don't want to track cloned repos)
+# Repos
 /repos/
-/# # checkpoints/ - now using shared_checkpoints - now using shared_checkpointsbest_versions/repos/
+shared_checkpoints/best_versions/repos/
 
 # Test/temp files
 agi/backups/
 agi/test_results/
-*.log
 
-# Virtual environments
-venv/
-venv_py39_backup/
+# Binary/shared libraries
 *.dylib
 *.so
 *.dll
 
+# Environment files
+
+# Security configs
+security/*.json
+evolution/config/
+logs/evolution.log
+evolution.log
