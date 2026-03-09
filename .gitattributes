@@ -10,6 +10,5 @@
 *.tar.gz filter=lfs diff=lfs merge=lfs -text
 *.whl filter=lfs diff=lfs merge=lfs -text
 *.log filter=lfs diff=lfs merge=lfs -text
-scripts/yt-dlp filter=lfs diff=lfs merge=lfs -text
 checkpoints/** filter=lfs diff=lfs merge=lfs -text
 repos/**/*.json filter=lfs diff=lfs merge=lfs -text

@@ -142,3 +142,4 @@ security/*.json
 evolution/config/
 logs/evolution.log
 evolution.log
+scripts/yt-dlp
