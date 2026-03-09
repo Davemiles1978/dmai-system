@@ -5,7 +5,7 @@ services:
     buildCommand: |
       pip install --upgrade pip
       pip install -r evolution/worker-requirements.txt
-    startCommand: python evolution/continuous_advanced_evolution.py
+    startCommand: python evolution/dual_launcher.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.6
