@@ -52,3 +52,12 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n\n👋 Evolution paused. Run again to continue.")
+
+# Add after imports:
+from evolution_cleanup import EvolutionCleanup
+
+# Inside the main loop, after each cycle:
+if cycle % 3 == 0:  # Every 3 cycles
+    print("\n🧹 Running scheduled cleanup...")
+    cleanup = EvolutionCleanup()
+    cleanup.cleanup(dry_run=False)
