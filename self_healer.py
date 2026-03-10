@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 # Add current directory to path so we can find evolution_engine
-sys.path.insert(0, str(Path(__file__).parent.parent)))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - SELF_HEALER - %(message)s')
 
