@@ -14,19 +14,53 @@ import os
 import sys
 import traceback
 import shutil
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
-# Setup logging
+# ============= SAFE LOGGING SETUP =============
+# Try multiple locations for log file, with fallbacks
+LOG_PATHS = [
+    '/var/data/evolution.log',           # Preferred persistent location
+    '/tmp/evolution.log',                 # Temporary location (cleared on restart)
+    'evolution.log'                        # Current directory (may not be writable)
+]
+
+log_file = None
+for potential_path in LOG_PATHS:
+    try:
+        # Test if we can write to this location
+        test_path = Path(potential_path).parent
+        test_path.mkdir(parents=True, exist_ok=True)
+        
+        # Try to create a test file
+        with open(potential_path, 'a') as f:
+            f.write('')
+        
+        log_file = potential_path
+        print(f"✅ Using log file: {log_file}")
+        break
+    except (OSError, PermissionError, IOError):
+        continue
+
+if log_file is None:
+    # Ultimate fallback - use temp directory
+    log_dir = tempfile.gettempdir()
+    log_file = os.path.join(log_dir, 'evolution.log')
+    print(f"⚠️ Using fallback log file: {log_file}")
+
+# Setup logging with safe file handler
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('/var/data/evolution.log')
+        logging.FileHandler(log_file)
     ]
 )
 logger = logging.getLogger('render_agi')
+logger.info(f"🚀 Logging initialized to: {log_file}")
+# ==============================================
 
 class RenderAGILauncher:
     def __init__(self):
@@ -87,6 +121,25 @@ class RenderAGILauncher:
             logger.error(f"Symlink setup failed: {e}")
             # Non-fatal, continue
     
+    async def seed_if_needed(self):
+        """Seed knowledge graph if empty"""
+        try:
+            from knowledge_graph import KnowledgeGraph
+            kg = KnowledgeGraph()
+            if len(kg.graph.nodes) <= 1:  # Only root node
+                logger.info("🌱 Seeding knowledge graph with initial concepts...")
+                kg.add_concept("evolution", "core_process", {"description": "System evolution"})
+                kg.add_concept("mutation", "core_operation", {"description": "Code mutation"})
+                kg.add_concept("selection", "core_operation", {"description": "Fitness selection"})
+                kg.add_concept("capability", "core_concept", {"description": "System capability"})
+                kg.add_relationship("evolution", "mutation", "uses")
+                kg.add_relationship("evolution", "selection", "uses")
+                kg.add_relationship("mutation", "capability", "creates")
+                kg.save()
+                logger.info("✅ Knowledge graph seeded")
+        except Exception as e:
+            logger.error(f"Failed to seed knowledge graph: {e}")
+    
     async def initialize(self):
         """Initialize the AGI launcher"""
         logger.info("🚀 Initializing AGI Launcher...")
@@ -104,6 +157,9 @@ class RenderAGILauncher:
             logger.info(f"📁 Checkpoint path: {self.launcher.orchestrator.checkpoint_path}")
         else:
             logger.warning("⚠️ Orchestrator not yet initialized, paths will be set later")
+        
+        # Seed knowledge graph if needed
+        await self.seed_if_needed()
         
         await self.launcher.initialize()
         logger.info("✅ AGI Launcher initialized")
@@ -142,44 +198,3 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"💥 Fatal error: {e}")
         sys.exit(1)
-
-    async def seed_if_needed(self):
-        """Seed knowledge graph if empty"""
-        try:
-            from knowledge_graph import KnowledgeGraph
-            kg = KnowledgeGraph()
-            if len(kg.graph.nodes) <= 1:  # Only root node
-                logger.info("🌱 Seeding knowledge graph with initial concepts...")
-                kg.add_concept("evolution", "core_process", {"description": "System evolution"})
-                kg.add_concept("mutation", "core_operation", {"description": "Code mutation"})
-                kg.add_concept("selection", "core_operation", {"description": "Fitness selection"})
-                kg.add_concept("capability", "core_concept", {"description": "System capability"})
-                kg.add_relationship("evolution", "mutation", "uses")
-                kg.add_relationship("evolution", "selection", "uses")
-                kg.add_relationship("mutation", "capability", "creates")
-                kg.save()
-                logger.info("✅ Knowledge graph seeded")
-        except Exception as e:
-            logger.error(f"Failed to seed knowledge graph: {e}")
-
-    async def initialize(self):
-        """Initialize the AGI launcher"""
-        logger.info("🚀 Initializing AGI Launcher...")
-        
-        # Seed knowledge graph if needed
-        await self.seed_if_needed()
-        
-        # Import here to catch import errors
-        from launch_agi import AGILauncher
-        
-        self.launcher = AGILauncher()
-        
-        # Override paths for persistent storage
-        if hasattr(self.launcher, 'orchestrator') and self.launcher.orchestrator:
-            self.launcher.orchestrator.base_path = self.data_path / 'shared_data' / 'agi_evolution'
-            self.launcher.orchestrator.checkpoint_path = self.data_path / 'shared_checkpoints'
-            logger.info(f"📁 Data path: {self.launcher.orchestrator.base_path}")
-            logger.info(f"📁 Checkpoint path: {self.launcher.orchestrator.checkpoint_path}")
-        
-        await self.launcher.initialize()
-        logger.info("✅ AGI Launcher initialized")
