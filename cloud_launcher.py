@@ -18,36 +18,27 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-# ============= SAFE LOGGING SETUP =============
-# Try multiple locations for log file, with fallbacks
-LOG_PATHS = [
-    '/var/data/evolution.log',           # Preferred persistent location
-    '/tmp/evolution.log',                 # Temporary location (cleared on restart)
-    'evolution.log'                        # Current directory (may not be writable)
-]
+# ============= RENDER-COMPATIBLE SETUP =============
+# On Render free tier, we can only write to:
+# - /tmp (ephemeral - cleared on restart)
+# - The app's own directory (may not be writable)
+# - /opt/render/project/data (only on paid instances)
 
-log_file = None
-for potential_path in LOG_PATHS:
-    try:
-        # Test if we can write to this location
-        test_path = Path(potential_path).parent
-        test_path.mkdir(parents=True, exist_ok=True)
-        
-        # Try to create a test file
-        with open(potential_path, 'a') as f:
-            f.write('')
-        
-        log_file = potential_path
-        print(f"✅ Using log file: {log_file}")
-        break
-    except (OSError, PermissionError, IOError):
-        continue
+# Determine the best data path
+if os.path.exists('/opt/render/project/data') and os.access('/opt/render/project/data', os.W_OK):
+    # Paid instance with persistent disk
+    DATA_ROOT = Path('/opt/render/project/data')
+    print(f"✅ Using persistent disk: {DATA_ROOT}")
+else:
+    # Free instance - use /tmp (ephemeral)
+    DATA_ROOT = Path('/tmp/agi_evolution_data')
+    print(f"⚠️ Using ephemeral storage (free tier): {DATA_ROOT}")
 
-if log_file is None:
-    # Ultimate fallback - use temp directory
-    log_dir = tempfile.gettempdir()
-    log_file = os.path.join(log_dir, 'evolution.log')
-    print(f"⚠️ Using fallback log file: {log_file}")
+# Create data directory
+DATA_ROOT.mkdir(parents=True, exist_ok=True)
+
+# Setup logging path
+LOG_FILE = DATA_ROOT / 'evolution.log'
 
 # Setup logging with safe file handler
 logging.basicConfig(
@@ -55,16 +46,17 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(log_file)
+        logging.FileHandler(LOG_FILE)
     ]
 )
 logger = logging.getLogger('render_agi')
-logger.info(f"🚀 Logging initialized to: {log_file}")
-# ==============================================
+logger.info(f"🚀 Logging initialized to: {LOG_FILE}")
+logger.info(f"📁 Data root: {DATA_ROOT}")
+# ====================================================
 
 class RenderAGILauncher:
     def __init__(self):
-        self.data_path = Path('/var/data')
+        self.data_root = DATA_ROOT
         self.launcher = None
         self.setup_directories()
         self.setup_symlinks()
@@ -72,22 +64,20 @@ class RenderAGILauncher:
     def setup_directories(self):
         """Create necessary directories"""
         try:
-            self.data_path.mkdir(parents=True, exist_ok=True)
-            
             dirs = [
-                self.data_path / 'shared_data',
-                self.data_path / 'shared_data/agi_evolution',
-                self.data_path / 'shared_data/agi_evolution/capabilities',
-                self.data_path / 'shared_data/agi_evolution/patterns',
-                self.data_path / 'shared_data/agi_evolution/synthesis',
-                self.data_path / 'shared_data/agi_evolution/orchestrator_state',
-                self.data_path / 'shared_data/agi_evolution/evolution_history',
-                self.data_path / 'shared_checkpoints',
-                self.data_path / 'agi',
-                self.data_path / 'agi/backups',
-                self.data_path / 'agi/health',
-                self.data_path / 'agi/models',
-                self.data_path / 'agi/test_results',
+                self.data_root / 'shared_data',
+                self.data_root / 'shared_data/agi_evolution',
+                self.data_root / 'shared_data/agi_evolution/capabilities',
+                self.data_root / 'shared_data/agi_evolution/patterns',
+                self.data_root / 'shared_data/agi_evolution/synthesis',
+                self.data_root / 'shared_data/agi_evolution/orchestrator_state',
+                self.data_root / 'shared_data/agi_evolution/evolution_history',
+                self.data_root / 'shared_checkpoints',
+                self.data_root / 'agi',
+                self.data_root / 'agi/backups',
+                self.data_root / 'agi/health',
+                self.data_root / 'agi/models',
+                self.data_root / 'agi/test_results',
             ]
             
             for d in dirs:
@@ -99,7 +89,7 @@ class RenderAGILauncher:
             raise
     
     def setup_symlinks(self):
-        """Create symlinks from working directory to persistent disk"""
+        """Create symlinks from working directory to data root"""
         try:
             # Remove existing directories if they're not symlinks
             for dir_name in ['shared_data', 'shared_checkpoints', 'agi']:
@@ -111,8 +101,8 @@ class RenderAGILauncher:
                         shutil.move(str(path), backup_name)
                         logger.info(f"  Moved to {backup_name}")
                 
-                # Create symlink
-                target = self.data_path / dir_name
+                # Create symlink to data root
+                target = self.data_root / dir_name
                 if not path.exists():
                     path.symlink_to(target, target_is_directory=True)
                     logger.info(f"🔗 Created symlink: {path} -> {target}")
@@ -149,10 +139,10 @@ class RenderAGILauncher:
         
         self.launcher = AGILauncher()
         
-        # Override paths for persistent storage AFTER initialization
+        # Override paths for persistent storage
         if hasattr(self.launcher, 'orchestrator') and self.launcher.orchestrator:
-            self.launcher.orchestrator.base_path = self.data_path / 'shared_data' / 'agi_evolution'
-            self.launcher.orchestrator.checkpoint_path = self.data_path / 'shared_checkpoints'
+            self.launcher.orchestrator.base_path = self.data_root / 'shared_data' / 'agi_evolution'
+            self.launcher.orchestrator.checkpoint_path = self.data_root / 'shared_checkpoints'
             logger.info(f"📁 Data path: {self.launcher.orchestrator.base_path}")
             logger.info(f"📁 Checkpoint path: {self.launcher.orchestrator.checkpoint_path}")
         else:
