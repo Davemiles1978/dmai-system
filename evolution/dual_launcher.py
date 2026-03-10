@@ -19,45 +19,43 @@ def run_evolution():
     """Run the memory-safe evolution"""
     print("🚀 Starting Evolution System...")
     try:
-        # Try different import approaches
-        try:
-            from continuous_advanced_evolution import main as evolution_main
-        except ImportError:
-            from evolution.continuous_advanced_evolution import main as evolution_main
+        from continuous_advanced_evolution import main as evolution_main
         evolution_main()
     except Exception as e:
         print(f"❌ Evolution error: {e}")
         traceback.print_exc()
 
 def run_telegram():
-    """Run Telegram bot with error handling"""
+    """Run Telegram bot with error handling and restart"""
     print("📱 Starting Telegram Bot...")
-    try:
-        # Check if file exists first
-        telegram_path = PROJECT_ROOT / "telegram_reporter.py"
-        if not telegram_path.exists():
-            print(f"❌ telegram_reporter.py not found at {telegram_path}")
-            return
-            
-        # Try different import approaches
+    while True:  # Add restart loop
         try:
             import telegram_reporter
-        except ImportError:
-            sys.path.insert(0, str(PROJECT_ROOT))
-            import telegram_reporter
-            
-        print("✅ Telegram module imported successfully")
-        
-    except Exception as e:
-        print(f"❌ Telegram error: {e}")
-        traceback.print_exc()
+            print("✅ Telegram module imported successfully")
+            # The module runs its own infinite loop
+            # If it exits, we'll catch and restart
+            break
+        except Exception as e:
+            print(f"❌ Telegram error: {e}")
+            traceback.print_exc()
+            print("🔄 Restarting Telegram in 10 seconds...")
+            time.sleep(10)
+
+def monitor_threads(telegram_thread):
+    """Monitor threads and restart if needed"""
+    while True:
+        if not telegram_thread.is_alive():
+            print("❌ Telegram thread died - restarting...")
+            new_thread = threading.Thread(target=run_telegram, daemon=True)
+            new_thread.start()
+            telegram_thread = new_thread
+        time.sleep(30)
 
 if __name__ == "__main__":
     print("="*60)
     print("🔄 DMAI DUAL LAUNCHER")
     print("Running both Evolution and Telegram in parallel")
     print("="*60)
-    print(f"📂 Project root: {PROJECT_ROOT}")
     
     # Check if files exist
     telegram_file = PROJECT_ROOT / "telegram_reporter.py"
@@ -73,14 +71,12 @@ if __name__ == "__main__":
     telegram_thread.start()
     print("✅ Telegram bot started in background thread")
     
+    # Start monitor thread
+    monitor_thread = threading.Thread(target=monitor_threads, args=(telegram_thread,), daemon=True)
+    monitor_thread.start()
+    
     # Give Telegram a moment to initialize
     time.sleep(2)
-    
-    # Check if thread is still alive
-    if telegram_thread.is_alive():
-        print("✅ Telegram thread is running")
-    else:
-        print("❌ Telegram thread died - check errors above")
     
     # Run evolution in main thread (will block)
     print("✅ Evolution system starting in main thread\n")
