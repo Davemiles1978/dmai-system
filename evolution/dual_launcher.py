@@ -26,20 +26,32 @@ def run_evolution():
         traceback.print_exc()
 
 def run_telegram():
-    """Run Telegram bot with error handling and restart"""
+    """Run Telegram bot with detailed error logging"""
     print("📱 Starting Telegram Bot...")
-    while True:  # Add restart loop
-        try:
-            import telegram_reporter
-            print("✅ Telegram module imported successfully")
-            # The module runs its own infinite loop
-            # If it exits, we'll catch and restart
-            break
-        except Exception as e:
-            print(f"❌ Telegram error: {e}")
-            traceback.print_exc()
-            print("🔄 Restarting Telegram in 10 seconds...")
-            time.sleep(10)
+    try:
+        import telegram_reporter
+        print("✅ Telegram module imported successfully")
+        
+        # Check if the module has a main function or runs on import
+        if hasattr(telegram_reporter, 'main'):
+            print("📞 Calling telegram_reporter.main()")
+            telegram_reporter.main()
+        elif hasattr(telegram_reporter, 'run'):
+            print("📞 Calling telegram_reporter.run()")
+            telegram_reporter.run()
+        else:
+            print("⚠️ No main/run function found, module runs on import")
+            # The module might run its own infinite loop on import
+            # Keep thread alive by sleeping
+            while True:
+                time.sleep(60)
+                
+    except Exception as e:
+        print(f"❌ Telegram error: {e}")
+        print("📋 Full traceback:")
+        traceback.print_exc()
+        print(f"🔄 Telegram thread died, restarting in 10 seconds...")
+        time.sleep(10)
 
 def monitor_threads(telegram_thread):
     """Monitor threads and restart if needed"""
@@ -48,8 +60,9 @@ def monitor_threads(telegram_thread):
             print("❌ Telegram thread died - restarting...")
             new_thread = threading.Thread(target=run_telegram, daemon=True)
             new_thread.start()
-            telegram_thread = new_thread
-        time.sleep(30)
+            # Update the reference in the monitor
+            globals()['telegram_thread'] = new_thread
+        time.sleep(5)
 
 if __name__ == "__main__":
     print("="*60)
