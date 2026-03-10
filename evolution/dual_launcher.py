@@ -26,26 +26,19 @@ def run_evolution():
         traceback.print_exc()
 
 def run_telegram():
-    """Run Telegram bot with detailed error logging"""
+    """Run Telegram bot with proper polling loop"""
     print("📱 Starting Telegram Bot...")
     try:
         import telegram_reporter
         print("✅ Telegram module imported successfully")
         
-        # Check if the module has a main function or runs on import
-        if hasattr(telegram_reporter, 'main'):
-            print("📞 Calling telegram_reporter.main()")
-            telegram_reporter.main()
-        elif hasattr(telegram_reporter, 'run'):
-            print("📞 Calling telegram_reporter.run()")
-            telegram_reporter.run()
-        else:
-            print("⚠️ No main/run function found, module runs on import")
-            # The module might run its own infinite loop on import
-            # Keep thread alive by sleeping
-            while True:
-                time.sleep(60)
-                
+        # Create bot instance and start polling
+        bot = telegram_reporter.DMAITelegramBot()
+        print("✅ Bot instance created")
+        
+        # Start polling (this has infinite loop inside)
+        bot.run_polling()
+        
     except Exception as e:
         print(f"❌ Telegram error: {e}")
         print("📋 Full traceback:")
