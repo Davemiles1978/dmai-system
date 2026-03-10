@@ -3,7 +3,7 @@
 ADVANCED SYSTEM-WIDE EVOLUTION
 - Every system can evolve
 - Cross-pollination between ALL systems
-- Fresh blood from external sources
+- Fresh blood from external sources via dedicated harvester
 - No more stagnation
 """
 
@@ -15,12 +15,20 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any
 import hashlib
+import os
+
+# Import fresh blood harvester
+try:
+    from fresh_blood_harvester import FreshBloodHarvester
+except ImportError:
+    # Fallback if harvester not available
+    FreshBloodHarvester = None
 
 class AdvancedEvolution:
     """
     Evolves the ENTIRE ecosystem of AI systems.
     No system is left behind.
-    Fresh blood constantly introduced.
+    Fresh blood constantly introduced via dedicated harvester.
     """
     
     def __init__(self):
@@ -37,13 +45,13 @@ class AdvancedEvolution:
         self.generations_file = Path("data/evolution/all_generations.json")
         self.load_generations()
         
-        # External sources for fresh blood
-        self.external_sources = [
-            "github",           # Scan GitHub for AI projects
-            "huggingface",      # New models from HF
-            "arxiv",            # Research papers
-            "api_harvester",    # New APIs discovered
-        ]
+        # Initialize fresh blood harvester
+        if FreshBloodHarvester:
+            self.fresh_blood = FreshBloodHarvester()
+            self.harvester_enabled = True
+        else:
+            print("⚠️ Fresh blood harvester not available")
+            self.harvester_enabled = False
         
     def load_generations(self):
         """Load generation data for ALL systems"""
@@ -110,7 +118,7 @@ class AdvancedEvolution:
                         "complexity": 0.5 + (self.generations["systems"].get(evolved.name, 1) * 0.1)
                     })
         
-        # 4. FRESH BLOOD - External systems (CRITICAL)
+        # 4. FRESH BLOOD - From external sources via harvester
         fresh_blood = self._get_fresh_blood()
         systems.extend(fresh_blood)
         
@@ -120,70 +128,43 @@ class AdvancedEvolution:
         return systems
     
     def _get_fresh_blood(self) -> List[Dict]:
-        """Discover new external systems to inject"""
+        """Get fresh blood from the dedicated harvester"""
+        if not self.harvester_enabled:
+            return []
+        
         fresh = []
         
-        # Source 1: API Harvester (new APIs discovered)
+        # First, run harvest cycle occasionally (20% chance)
+        if random.random() < 0.2:
+            try:
+                self.fresh_blood.run_harvest_cycle()
+            except Exception as e:
+                print(f"⚠️ Fresh blood harvest cycle error: {e}")
+        
+        # Get candidates for evolution
         try:
-            response = requests.get("http://localhost:8081/keys", timeout=2)
-            if response.ok:
-                keys = response.json().get('keys', [])
-                for key in keys[-3:]:  # Last 3 keys
-                    service = key.get('service', 'unknown')
-                    if service not in self.generations["external_seen"]:
-                        fresh.append({
-                            "id": f"external_{service}",
-                            "name": f"🌐 {service} API",
-                            "type": "external",
-                            "generation": 0,  # Brand new!
-                            "capabilities": self._infer_capabilities(service),
-                            "source": "api_harvester",
-                            "api_key": key.get('key', ''),
-                            "freshness": "new",
-                            "complexity": 0.2
-                        })
-                        self.generations["external_seen"].append(service)
-        except:
-            pass
-        
-        # Source 2: GitHub AI Projects (simulated for now)
-        github_projects = [
-            {"name": "llama.cpp", "caps": ["inference", "optimization"]},
-            {"name": "transformers", "caps": ["nlp", "embeddings"]},
-            {"name": "diffusers", "caps": ["image_gen", "diffusion"]},
-        ]
-        
-        for project in github_projects:
-            if project['name'] not in self.generations["external_seen"]:
-                fresh.append({
-                    "id": f"github_{project['name']}",
-                    "name": f"📦 {project['name']}",
-                    "type": "external",
-                    "generation": 0,
-                    "capabilities": project['caps'],
-                    "source": "github",
-                    "freshness": "new",
-                    "complexity": 0.3
-                })
-                self.generations["external_seen"].append(project['name'])
+            candidates = self.fresh_blood.get_fresh_blood_for_evolution(max_items=2)
+            
+            for cand in candidates:
+                # Check if we've seen this before
+                if cand["id"] not in self.generations["external_seen"]:
+                    fresh.append({
+                        "id": cand["id"],
+                        "name": cand["name"],
+                        "type": "external",
+                        "generation": 0,
+                        "capabilities": cand.get("capabilities", ["general"]),
+                        "source": cand.get("source", "unknown"),
+                        "url": cand.get("url", ""),
+                        "freshness": "new",
+                        "complexity": cand.get("complexity", 0.3),
+                        "description": cand.get("description", "")[:100]
+                    })
+                    self.generations["external_seen"].append(cand["id"])
+        except Exception as e:
+            print(f"⚠️ Error getting fresh blood: {e}")
         
         return fresh[:2]  # Max 2 fresh systems per cycle
-    
-    def _infer_capabilities(self, service_name: str) -> List[str]:
-        """Infer capabilities from service name"""
-        service_lower = service_name.lower()
-        caps = []
-        
-        if any(word in service_lower for word in ['gpt', 'chat', 'llm', 'language']):
-            caps.append("language")
-        if any(word in service_lower for word in ['vision', 'image', 'vision']):
-            caps.append("vision")
-        if any(word in service_lower for word in ['voice', 'speech', 'audio']):
-            caps.append("audio")
-        if any(word in service_lower for word in ['code', 'coder', 'programming']):
-            caps.append("coding")
-        
-        return caps if caps else ["general"]
     
     def _get_capabilities(self, system_id: str) -> List[str]:
         """Get capabilities from manifest"""
@@ -204,7 +185,7 @@ class AdvancedEvolution:
             return ["language", "reasoning"]
         elif "grok" in system_id:
             return ["language", "real_time"]
-        elif "external" in system_id:
+        elif "external" in system_id or "github" in system_id or "hf" in system_id:
             return ["fresh", "unknown"]
         else:
             return ["learning"]
@@ -374,6 +355,14 @@ class AdvancedEvolution:
                 "quality": random.uniform(0.5, 0.85)
             })
         
+        # 5. Research paper integration (for ArXiv sources)
+        if donor.get("source") == "arxiv" or receiver.get("source") == "arxiv":
+            improvements.append({
+                "type": "research_integration",
+                "description": f"Incorporate novel research findings",
+                "quality": random.uniform(0.7, 0.95)
+            })
+        
         return improvements
     
     def _verify_improvement(self, improvement: Dict, sys1: Dict, sys2: Dict) -> bool:
@@ -397,6 +386,10 @@ class AdvancedEvolution:
         common_caps = set(sys1.get("capabilities", [])) & set(sys2.get("capabilities", []))
         if common_caps:
             base_chance *= (1 + len(common_caps) * 0.05)
+        
+        # Research papers have higher potential
+        if improvement.get("type") == "research_integration":
+            base_chance *= 1.15
         
         # Random factor
         return random.random() < min(base_chance, 0.95)
@@ -453,7 +446,11 @@ class AdvancedEvolution:
         if fresh:
             print("\n🆕 NEW SYSTEMS DETECTED:")
             for f in fresh:
-                print(f"   • {f['name']} (from {f['source']})")
+                source = f.get('source', 'unknown')
+                url = f.get('url', '')
+                print(f"   • {f['name']} (from {source})")
+                if url:
+                    print(f"     {url}")
         
         # Select pairs
         pairs = self.select_evolution_pairs(systems, num_pairs=4)
