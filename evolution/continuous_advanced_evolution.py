@@ -3,9 +3,12 @@
 
 import time
 import gc
+import psutil
+import os
 from memory_safe_evolution import MemorySafeEvolution
 from adaptive_timer import AdaptiveEvolutionTimer
 from auto_cleanup import cleanup_if_needed
+from evolution_cleanup import EvolutionCleanup
 
 def main():
     timer = AdaptiveEvolutionTimer()
@@ -16,6 +19,14 @@ def main():
     print("Auto-cleanup at 600MB, evolution cycles with memory protection")
     print("="*70 + "\n")
     
+    # Check startup memory
+    startup_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
+    print(f"🚀 Startup memory: {startup_memory:.1f} MB")
+    if startup_memory > 400:
+        print("⚠️ Warning: Startup memory > 400MB, forcing immediate cleanup...")
+        cleanup = EvolutionCleanup()
+        cleanup.cleanup(dry_run=False)
+    
     cycle = 0
     while True:
         cycle += 1
@@ -25,6 +36,12 @@ def main():
         
         # Check memory and cleanup if needed
         cleanup_if_needed()
+        
+        # Run scheduled cleanup every 3 cycles
+        if cycle % 3 == 0:
+            print("\n🧹 Running scheduled cleanup...")
+            cleanup = EvolutionCleanup()
+            cleanup.cleanup(dry_run=False)
         
         # Run evolution cycle with memory protection
         successes = evolution.run_cycle()
@@ -52,12 +69,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n\n👋 Evolution paused. Run again to continue.")
-
-# Add after imports:
-from evolution_cleanup import EvolutionCleanup
-
-# Inside the main loop, after each cycle:
-if cycle % 3 == 0:  # Every 3 cycles
-    print("\n🧹 Running scheduled cleanup...")
-    cleanup = EvolutionCleanup()
-    cleanup.cleanup(dry_run=False)
