@@ -502,10 +502,32 @@ class DMAITelegramBot:
         help_text += "• `/issues` - Current technical issues\n"
         help_text += "• `/thought` - DMAI's current thoughts\n\n"
         
-        help_text += f"*Version:* DMAI v24 | Stage: Baby 👶\n"
+        help_text += f"*Version:* DMAI v{self._get_dmai_generation()} | Stage: {self._get_current_stage()}\n"
         help_text += f"*Last Updated:* {datetime.now().strftime('%Y-%m-%d')}"
         
         return help_text
+    
+    def _get_dmai_generation(self):
+        """Helper to get DMAI generation"""
+        try:
+            gen_file = Path("data/evolution/all_generations.json")
+            if gen_file.exists():
+                with open(gen_file) as f:
+                    gens = json.load(f)
+                    return gens.get("systems", {}).get("dmai_core", "?")
+        except:
+            pass
+        return "?"
+    
+    def _get_current_stage(self):
+        """Helper to get current stage"""
+        try:
+            from evolution.adaptive_timer import AdaptiveEvolutionTimer
+            timer = AdaptiveEvolutionTimer()
+            info = timer.get_stage_info()
+            return info['name']
+        except:
+            return "Unknown"
     
     def handle_command(self, command, chat_id):
         """Handle user commands - SINGLE handler for all commands"""
@@ -533,24 +555,53 @@ class DMAITelegramBot:
         elif command == '/health' or command == '/sysstatus':
             self.system_status()
         
-        # Evolution Status
+        # Evolution Status - FIXED with debugging
         elif command == '/status':
             try:
                 from evolution.adaptive_timer import AdaptiveEvolutionTimer
                 timer = AdaptiveEvolutionTimer()
                 info = timer.get_stage_info()
                 
-                message = f"🧬 *DMAI STATUS*\n\n"
+                # Debug: Check multiple sources
+                debug_info = "\n🔍 *DEBUG INFO*\n"
+                
+                # Source 1: all_generations.json
+                gen_file = Path("data/evolution/all_generations.json")
+                dmai_gen = "Not found"
+                if gen_file.exists():
+                    try:
+                        with open(gen_file) as f:
+                            gens = json.load(f)
+                            dmai_gen = gens.get("systems", {}).get("dmai_core", "Missing in file")
+                            debug_info += f"📁 all_generations.json: FOUND\n"
+                            debug_info += f"   dmai_core = {dmai_gen}\n"
+                    except Exception as e:
+                        debug_info += f"📁 all_generations.json: Error reading - {str(e)[:50]}\n"
+                else:
+                    debug_info += f"📁 all_generations.json: FILE NOT FOUND at {gen_file.absolute()}\n"
+                
+                # Source 2: Timer state
+                debug_info += f"⏱️ timer_state: evolutions = {info['evolutions']}\n"
+                
+                # Source 3: Count evolved DMAI cores
+                evolved_dir = Path("agents/evolved")
+                if evolved_dir.exists():
+                    dmai_cores = [d for d in evolved_dir.iterdir() if "dmai_core" in d.name]
+                    debug_info += f"🧬 Evolved DMAI cores: {len(dmai_cores)}\n"
+                
+                # Main message
+                message = f"🧬 *DMAI CORE STATUS*\n\n"
                 message += f"Stage: {info['name']}\n"
-                message += f"Evolutions: {info['evolutions']}\n"
+                message += f"DMAI Generation: {dmai_gen}\n"
+                message += f"Timer Evolutions: {info['evolutions']}\n"
                 message += f"Success Rate: {info['success_rate']}\n"
                 message += f"Current Interval: {info['interval_minutes']:.0f} minutes\n"
                 message += f"Total Attempts: {timer.state['total_attempts']}\n"
+                message += debug_info
                 
                 self.send_message(message, parse_mode="Markdown")
             except Exception as e:
-                self.send_message(f"❌ Error: {e}")
-        
+                self.send_message(f"❌ Error: {str(e)}")        
         # Life Report
         elif command == '/life':
             self.daily_report()
