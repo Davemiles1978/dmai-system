@@ -260,6 +260,107 @@ class DMAITelegramBot:
         
         self.send_message(message, parse_mode="Markdown")
     
+    # ==================== SYSTEM STATUS MONITOR ====================
+    
+    def system_status(self):
+        """Check and report status of all core systems"""
+        import psutil
+        
+        message = "🔧 *DMAI SYSTEM STATUS*\n\n"
+        
+        # 1. Check core processes
+        message += "*🔄 CORE SERVICES*\n"
+        core_services = [
+            "evolution_engine",
+            "book_reader", 
+            "web_researcher",
+            "dark_researcher",
+            "music_learner",
+            "voice_service"
+        ]
+        
+        try:
+            # Get running processes
+            result = subprocess.run(['ps', 'aux'], capture_output=True, text=True)
+            processes = result.stdout
+            
+            for service in core_services:
+                if service in processes:
+                    message += f"✅ {service}: Running\n"
+                else:
+                    message += f"❌ {service}: Not running\n"
+        except:
+            message += "⚠️ Could not check processes\n"
+        
+        # 2. System resources
+        message += "\n*💻 SYSTEM RESOURCES*\n"
+        try:
+            cpu = psutil.cpu_percent(interval=1)
+            memory = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            
+            message += f"CPU: {cpu}%\n"
+            message += f"Memory: {memory.percent}% ({memory.used//1024//1024}MB/{memory.total//1024//1024}MB)\n"
+            message += f"Disk: {disk.percent}% ({disk.used//1024//1024//1024}GB/{disk.total//1024//1024//1024}GB)\n"
+        except Exception as e:
+            message += f"⚠️ Could not check resources: {str(e)[:50]}\n"
+        
+        # 3. Evolution status
+        message += "\n*🧬 EVOLUTION STATUS*\n"
+        try:
+            from evolution.adaptive_timer import AdaptiveEvolutionTimer
+            timer = AdaptiveEvolutionTimer()
+            info = timer.get_stage_info()
+            
+            message += f"Stage: {info['name']}\n"
+            message += f"Evolutions: {info['evolutions']}\n"
+            message += f"Success Rate: {info['success_rate']}\n"
+            message += f"Next cycle: {info['interval_minutes']:.0f} min\n"
+        except Exception as e:
+            message += f"⚠️ Could not get evolution status: {str(e)[:50]}\n"
+        
+        # 4. API Harvester status
+        message += "\n*🔑 API HARVESTER*\n"
+        try:
+            response = requests.get("http://localhost:8081/status", timeout=5)
+            if response.ok:
+                data = response.json()
+                message += f"✅ Running\n"
+                message += f"Keys found: {data.get('keys_found', 'N/A')}\n"
+            else:
+                message += "❌ Not responding\n"
+        except:
+            message += "❌ Could not connect\n"
+        
+        # 5. Recent issues
+        message += "\n*⚠️ RECENT ISSUES*\n"
+        try:
+            log_file = Path("logs/daemon.log")
+            if log_file.exists():
+                # Get last 5 error lines
+                result = subprocess.run(['tail', '-20', str(log_file)], capture_output=True, text=True)
+                errors = [line for line in result.stdout.split('\n') if 'error' in line.lower() or 'fail' in line.lower()]
+                if errors:
+                    for err in errors[-3:]:  # Show last 3 errors
+                        message += f"• {err[:100]}...\n"
+                else:
+                    message += "✅ No recent issues\n"
+            else:
+                message += "ℹ️ No log file found\n"
+        except:
+            message += "⚠️ Could not read logs\n"
+        
+        # 6. Uptime
+        message += "\n*⏱️ SYSTEM UPTIME*\n"
+        try:
+            result = subprocess.run(['uptime'], capture_output=True, text=True)
+            uptime = result.stdout.strip()
+            message += f"{uptime}\n"
+        except:
+            pass
+        
+        self.send_message(message, parse_mode="Markdown")
+    
     # ==================== DAILY COMPREHENSIVE REPORT ====================
     
     def daily_report(self):
@@ -347,6 +448,7 @@ class DMAITelegramBot:
         
         help_text += "*Status & Reports:*\n"
         help_text += "• `/status` - Current evolution status\n"
+        help_text += "• `/health` or `/sysstatus` - Complete system health check\n"
         help_text += "• `/life` - Complete daily life report\n"
         help_text += "• `/mood` - DMAI's current mood & personality\n"
         help_text += "• `/vocab` - Vocabulary count\n"
@@ -386,7 +488,11 @@ class DMAITelegramBot:
         elif command == '/help':
             self.send_message(self.get_help_message(), parse_mode="Markdown")
         
-        # Status
+        # System Health Status (NEW)
+        elif command == '/health' or command == '/sysstatus':
+            self.system_status()
+        
+        # Evolution Status
         elif command == '/status':
             try:
                 from evolution.adaptive_timer import AdaptiveEvolutionTimer
