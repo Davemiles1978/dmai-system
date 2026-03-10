@@ -20,18 +20,21 @@ class DMAITelegramBot:
         self.load_config()
         
     def load_config(self):
-        """Load or create config"""
-        if self.token_file.exists():
-            with open(self.token_file) as f:
-                self.config = json.load(f)
-                self.base_url = f"https://api.telegram.org/bot{self.config['token']}"
-                self.last_update_id = self.config.get('last_update_id', 0)
-                print(f"✅ Loaded existing config for chat_id: {self.config['chat_id']}")
-        else:
-            print("\n🤖 First time setup - Enter your Telegram Bot Token:")
-            token = input("Token: ").strip()
-            print("Enter your Telegram Chat ID (from @userinfobot):")
-            chat_id = input("Chat ID: ").strip()
+        """Load or create config - FIRST check environment variables (for cloud), THEN file"""
+        # Check environment variables first (for Render cloud deployment)
+        token = os.environ.get('TELEGRAM_TOKEN')
+        chat_id = os.environ.get('TELEGRAM_CHAT_ID')
+        
+        if token and chat_id:
+            # Try to load last_update_id from file if it exists
+            last_id = 0
+            if self.token_file.exists():
+                try:
+                    with open(self.token_file) as f:
+                        old_config = json.load(f)
+                        last_id = old_config.get('last_update_id', 0)
+                except:
+                    pass
             
             self.config = {
                 "token": token,
@@ -40,14 +43,52 @@ class DMAITelegramBot:
                 "notify_on_success": True,
                 "notify_on_stage_change": True,
                 "bot_username": "dmai_evolution_bot",
-                "last_update_id": 0
+                "last_update_id": last_id
             }
+            self.base_url = f"https://api.telegram.org/bot{token}"
+            print(f"✅ Configured from environment variables for chat_id: {chat_id}")
             
+            # Save to file for persistence of last_update_id
             with open(self.token_file, 'w') as f:
                 json.dump(self.config, f, indent=2)
-            
-            self.base_url = f"https://api.telegram.org/bot{token}"
-            self.send_message("🎉 DMAI Telegram Bot Connected!\nI'll keep you updated on my entire life journey.")
+            return
+        
+        # Fall back to config file (for local development)
+        if self.token_file.exists():
+            with open(self.token_file) as f:
+                self.config = json.load(f)
+                self.base_url = f"https://api.telegram.org/bot{self.config['token']}"
+                self.last_update_id = self.config.get('last_update_id', 0)
+                print(f"✅ Loaded existing config for chat_id: {self.config['chat_id']}")
+                return
+        
+        # If we get here, no config found anywhere
+        # On Render, this is a fatal error
+        if os.environ.get('RENDER') or os.environ.get('RENDER_WORKER'):
+            print("❌ CRITICAL: On Render but TELEGRAM_TOKEN and TELEGRAM_CHAT_ID not set in environment")
+            raise ValueError("Telegram credentials not configured for cloud deployment")
+        
+        # Local development only - interactive setup
+        print("\n🤖 First time setup - Enter your Telegram Bot Token:")
+        token = input("Token: ").strip()
+        print("Enter your Telegram Chat ID (from @userinfobot):")
+        chat_id = input("Chat ID: ").strip()
+        
+        self.config = {
+            "token": token,
+            "chat_id": chat_id,
+            "daily_report_time": "09:00",
+            "notify_on_success": True,
+            "notify_on_stage_change": True,
+            "bot_username": "dmai_evolution_bot",
+            "last_update_id": 0
+        }
+        
+        with open(self.token_file, 'w') as f:
+            json.dump(self.config, f, indent=2)
+        
+        self.base_url = f"https://api.telegram.org/bot{token}"
+        self.send_message("🎉 DMAI Telegram Bot Connected!\nI'll keep you updated on my entire life journey.")
     
     # ==================== ALL REPORTING FUNCTIONS ====================
     
