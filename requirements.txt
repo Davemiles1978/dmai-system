@@ -4,3 +4,13 @@ setuptools==65.5.0
 psutil==5.9.5
 networkx>=2.8
 numpy>=1.24.0
+
+# Web framework for evolution engine
+flask>=2.0.0
+
+# PostgreSQL database connection
+psycopg2-binary>=2.9.0
+
+# FastAPI for api-harvester
+fastapi>=0.128.0
+uvicorn>=0.27.0
