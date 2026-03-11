@@ -1,11 +1,38 @@
 #!/usr/bin/env python3
-"""Launcher that runs both evolution and telegram in parallel"""
+"""Launcher that runs both evolution and telegram in parallel with health endpoint"""
 import threading
 import time
 import sys
 import traceback
 import os
+import socket
+import json
 from pathlib import Path
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Memory optimization
+import gc
+gc.set_threshold(700, 10, 5)  # More aggressive garbage collection
+import resource
+try:
+    # Set soft memory limit
+    resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
+except:
+    pass
+
+# Clear cache periodically
+import threading
+import time
+def cache_cleaner():
+    while True:
+        time.sleep(300)  # Every 5 minutes
+        gc.collect()  # Force garbage collection
+        if hasattr(__import__('torch'), 'mps'):
+            import torch
+            if hasattr(torch.mps, 'empty_cache'):
+                torch.mps.empty_cache()
+threading.Thread(target=cache_cleaner, daemon=True).start()
+
 
 # Get the absolute path to the project root
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()
@@ -15,202 +42,103 @@ sys.path.insert(0, str(PROJECT_ROOT / "evolution"))
 print(f"📂 Project root: {PROJECT_ROOT}")
 print(f"📂 Python path: {sys.path}")
 
-def run_evolution():
-    """Run the memory-safe evolution"""
-    print("🚀 Starting Evolution System...")
-    try:
-        from continuous_advanced_evolution import main as evolution_main
-        evolution_main()
-    except Exception as e:
-        print(f"❌ Evolution error: {e}")
-        traceback.print_exc()
+# Global variables to track service status
+evolution_running = False
+telegram_running = False
+evolution_pid = None
+telegram_thread = None
 
-def run_telegram():
-    """Run Telegram bot with proper polling loop"""
-    print("📱 Starting Telegram Bot...")
-    try:
-        import telegram_reporter
-        print("✅ Telegram module imported successfully")
-        
-        # Create bot instance and start polling
-        bot = telegram_reporter.DMAITelegramBot()
-        print("✅ Bot instance created")
-        
-        # Start polling (this has infinite loop inside)
-        bot.run_polling()
-        
-    except Exception as e:
-        print(f"❌ Telegram error: {e}")
-        print("📋 Full traceback:")
-        traceback.print_exc()
-        print(f"🔄 Telegram thread died, restarting in 10 seconds...")
-        time.sleep(10)
-
-def monitor_threads(telegram_thread):
-    """Monitor threads and restart if needed"""
-    while True:
-        if not telegram_thread.is_alive():
-            print("❌ Telegram thread died - restarting...")
-            new_thread = threading.Thread(target=run_telegram, daemon=True)
-            new_thread.start()
-            # Update the reference in the monitor
-            globals()['telegram_thread'] = new_thread
-        time.sleep(5)
-
-if __name__ == "__main__":
-    print("="*60)
-    print("🔄 DMAI DUAL LAUNCHER")
-    print("Running both Evolution and Telegram in parallel")
-    print("="*60)
-    
-    # Check if files exist
-    telegram_file = PROJECT_ROOT / "telegram_reporter.py"
-    evolution_dir = PROJECT_ROOT / "evolution"
-    
-    print(f"📄 telegram_reporter.py exists: {telegram_file.exists()}")
-    print(f"📁 evolution directory exists: {evolution_dir.exists()}")
-    if evolution_dir.exists():
-        print(f"📄 continuous_advanced_evolution.py exists: {(evolution_dir / 'continuous_advanced_evolution.py').exists()}")
-    
-    # Start Telegram in a separate thread
-    telegram_thread = threading.Thread(target=run_telegram, daemon=True)
-    telegram_thread.start()
-    print("✅ Telegram bot started in background thread")
-    
-    # Start monitor thread
-    monitor_thread = threading.Thread(target=monitor_threads, args=(telegram_thread,), daemon=True)
-    monitor_thread.start()
-    
-    # Give Telegram a moment to initialize
-    time.sleep(2)
-    
-    # Run evolution in main thread (will block)
-    print("✅ Evolution system starting in main thread\n")
-    run_evolution()
-
-# ============================================================================
-# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
-# ============================================================================
-# This section adds API endpoints for external systems to connect
-# All original code above remains completely unchanged
-
-import json
-import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from datetime import datetime
-
-# Global references
-_dual_instance = None
-_start_time = datetime.now()
-_telegram_running = False
-_evolution_running = False
-
-class DualLauncherAPIHandler(BaseHTTPRequestHandler):
-    """API for external systems to query dual launcher status"""
-    
+class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/status':
+        if self.path == '/health' or self.path == '/status':
             self.send_response(200)
-            self.send_header('Content-type', 'application/json')
+            self.send_header('Content-Type', 'application/json')
             self.end_headers()
             
-            # Check thread status
-            telegram_alive = False
-            evolution_alive = False
-            
-            # Try to check if threads are alive
-            for thread in threading.enumerate():
-                if 'telegram' in thread.name.lower():
-                    telegram_alive = True
-                if 'evolution' in thread.name.lower():
-                    evolution_alive = True
-            
-            status = {
-                "name": "dual_launcher",
-                "running": True,
-                "telegram_running": telegram_alive,
-                "evolution_running": evolution_alive,
-                "healthy": True,
-                "uptime": str(datetime.now() - _start_time)
+            response = {
+                'status': 'healthy',
+                'service': 'dual_launcher',
+                'evolution_running': evolution_running,
+                'telegram_running': telegram_running,
+                'evolution_pid': evolution_pid,
+                'timestamp': str(__import__('datetime').datetime.now())
             }
-            
-            self.wfile.write(json.dumps(status).encode())
-            
-        elif self.path == '/threads':
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            
-            threads = []
-            for thread in threading.enumerate():
-                threads.append({
-                    "name": thread.name,
-                    "daemon": thread.daemon,
-                    "alive": thread.is_alive()
-                })
-            
-            self.wfile.write(json.dumps({"threads": threads}).encode())
-            
-        else:
-            self.send_response(404)
-            self.end_headers()
-    
-    def do_POST(self):
-        if self.path == '/command':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            
-            try:
-                command = json.loads(post_data)
-                cmd = command.get('command', '')
-                
-                if cmd == 'restart_telegram':
-                    # Force restart telegram thread
-                    print("🔄 Manual Telegram restart triggered via API")
-                    self.wfile.write(json.dumps({
-                        "status": "restart_initiated",
-                        "message": "Telegram bot will restart"
-                    }).encode())
-                    
-                elif cmd == 'status':
-                    # Return current status
-                    telegram_alive = any(t.is_alive() and 'telegram' in t.name.lower() for t in threading.enumerate())
-                    evolution_alive = any(t.is_alive() and 'evolution' in t.name.lower() for t in threading.enumerate())
-                    
-                    self.wfile.write(json.dumps({
-                        "telegram": "running" if telegram_alive else "stopped",
-                        "evolution": "running" if evolution_alive else "stopped",
-                        "thread_count": threading.active_count()
-                    }).encode())
-                    
-                else:
-                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
-                    
-            except Exception as e:
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
+            self.wfile.write(json.dumps(response).encode())
         else:
             self.send_response(404)
             self.end_headers()
     
     def log_message(self, format, *args):
-        return  # Suppress HTTP logs
+        # Suppress log messages
+        pass
 
-def _start_api_server():
-    """Start API server in background thread"""
-    port = 9009  # Fixed port for dual launcher
-    
-    def run_server():
-        server = HTTPServer(('localhost', port), DualLauncherAPIHandler)
-        print(f"📡 Dual Launcher API endpoint active at http://localhost:{port}")
+def run_health_server():
+    """Run a simple health check server on port 9009"""
+    server = HTTPServer(('localhost', 9009), HealthHandler)
+    print(f"✅ Health server running on port 9009")
+    try:
         server.serve_forever()
-    
-    thread = threading.Thread(target=run_server, daemon=True)
-    thread.start()
-    return port
+    except Exception as e:
+        print(f"❌ Health server error: {e}")
 
-# Initialize the API server
-_api_port = _start_api_server()
+def run_evolution():
+    """Run the memory-safe evolution"""
+    global evolution_running, evolution_pid
+    print("🚀 Starting Evolution System...")
+    try:
+        evolution_pid = os.getpid()
+        # Import evolution engine properly
+        from continuous_advanced_evolution import EvolutionEngine
+        engine = EvolutionEngine()
+        evolution_running = True
+        
+        # Run in server mode
+        if '--server' not in sys.argv:
+            sys.argv.append('--server')
+        
+        # Import and run the server function
+        from continuous_advanced_evolution import run_server
+        run_server()
+        
+    except Exception as e:
+        evolution_running = False
+        print(f"❌ Evolution error: {e}")
+        traceback.print_exc()
+
+def run_telegram():
+    """Run the telegram bot"""
+    global telegram_running
+    print("📱 Starting Telegram Bot...")
+    try:
+        # Import the adapter
+        sys.path.insert(0, str(PROJECT_ROOT))
+        from telegram_adapter import DMAITelegramReporter
+        
+        bot = DMAITelegramReporter()
+        telegram_running = True
+        print("✅ Telegram adapter initialized")
+        
+        # Run the bot (this will block in its own thread)
+        bot.run()
+        
+    except Exception as e:
+        telegram_running = False
+        print(f"❌ Telegram error: {e}")
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    # Start health server in a background thread
+    health_thread = threading.Thread(target=run_health_server, daemon=True)
+    health_thread.start()
+    print("✅ Health server started in background thread")
+    
+    # Start telegram in a background thread
+    telegram_thread = threading.Thread(target=run_telegram, daemon=True)
+    telegram_thread.start()
+    print("✅ Telegram bot started in background thread")
+    
+    # Small delay to let services start
+    time.sleep(2)
+    
+    # Run evolution in the main thread
+    run_evolution()

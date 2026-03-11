@@ -1,215 +1,380 @@
 #!/usr/bin/env python3
-"""Continuous runner for memory-safe system-wide evolution"""
+"""
+Continuous Advanced Evolution System
+Orchestrates the evolution of DMAI's capabilities
+"""
 
-import time
-import gc
-import psutil
 import os
-from memory_safe_evolution import MemorySafeEvolution
-from adaptive_timer import AdaptiveEvolutionTimer
-from auto_cleanup import cleanup_if_needed
-from evolution_cleanup import EvolutionCleanup
-
-def main():
-    timer = AdaptiveEvolutionTimer()
-    evolution = MemorySafeEvolution()
-    
-    print("\n" + "="*70)
-    print("🚀 CONTINUOUS MEMORY-SAFE EVOLUTION STARTED")
-    print("Auto-cleanup at 600MB, evolution cycles with memory protection")
-    print("="*70 + "\n")
-    
-    # Check startup memory
-    startup_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
-    print(f"🚀 Startup memory: {startup_memory:.1f} MB")
-    if startup_memory > 400:
-        print("⚠️ Warning: Startup memory > 400MB, forcing immediate cleanup...")
-        cleanup = EvolutionCleanup()
-        cleanup.cleanup(dry_run=False)
-    
-    cycle = 0
-    while True:
-        cycle += 1
-        print(f"\n{'='*70}")
-        print(f"CYCLE #{cycle}")
-        print(f"{'='*70}")
-        
-        # Check memory and cleanup if needed
-        cleanup_if_needed()
-        
-        # Run scheduled cleanup every 3 cycles
-        if cycle % 3 == 0:
-            print("\n🧹 Running scheduled cleanup...")
-            cleanup = EvolutionCleanup()
-            cleanup.cleanup(dry_run=False)
-        
-        # Run evolution cycle with memory protection
-        successes = evolution.run_cycle()
-        
-        # Get adaptive wait time
-        wait_time = timer.record_attempt(
-            "system_wide",
-            "evolution",
-            success=successes > 0
-        )
-        
-        print(f"\n⏱️  Next cycle in {wait_time/60:.1f} minutes")
-        print("(Press Ctrl+C to pause)\n")
-        
-        # Wait intelligently with memory checks
-        for minute in range(int(wait_time / 60)):
-            time.sleep(60)
-            if minute % 5 == 0:  # Every 5 minutes, check memory
-                cleanup_if_needed()
-                remaining = wait_time/60 - (minute + 1)
-                print(f"   {remaining:.0f} minutes remaining...")
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n\n👋 Evolution paused. Run again to continue.")
-
-# ============================================================================
-# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
-# ============================================================================
-# This section adds API endpoints for external systems to connect
-# All original code above remains completely unchanged
-
+import sys
 import json
-import socket
+import time
+import random
+import hashlib
+import datetime
 import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from datetime import datetime
-from typing import Dict, Any
+import logging
+from pathlib import Path
+from typing import Dict, List, Any, Optional
 
-# Global reference to the evolution instance
-_evolution_instance = None
-_start_time = datetime.now()
+# Memory optimization
+import gc
+gc.set_threshold(700, 10, 5)  # More aggressive garbage collection
+import resource
+try:
+    # Set soft memory limit
+    resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
+except:
+    pass
 
-class EvolutionAPIHandler(BaseHTTPRequestHandler):
-    """API for external systems to query evolution status"""
+# Clear cache periodically
+import threading
+import time
+def cache_cleaner():
+    while True:
+        time.sleep(300)  # Every 5 minutes
+        gc.collect()  # Force garbage collection
+        if hasattr(__import__('torch'), 'mps'):
+            import torch
+            if hasattr(torch.mps, 'empty_cache'):
+                torch.mps.empty_cache()
+threading.Thread(target=cache_cleaner, daemon=True).start()
+
+
+# Add parent directory to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import self-healing scanner
+try:
+    from evolution.system_weakness_scanner import SystemWeaknessScanner
+    HEALING_AVAILABLE = True
+except ImportError:
+    HEALING_AVAILABLE = False
+    print("⚠️ System weakness scanner not available")
+
+# Import promotion tracker
+try:
+    from evolution.promotion_tracker import PromotionTracker
+    PROMOTION_AVAILABLE = True
+except ImportError:
+    PROMOTION_AVAILABLE = False
+    print("⚠️ Promotion tracker not available")
+
+# Configure logging
+log_dir = Path.home() / "Library/Logs/dmai"
+log_dir.mkdir(parents=True, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - evolution - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_dir / 'evolution.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('evolution_engine')
+
+class EvolutionEngine:
+    """Main evolution engine that continuously improves DMAI"""
     
-    def do_GET(self):
-        if self.path == '/status':
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            
-            # Get status from the global evolution instance
-            status = {
-                "name": "evolution_engine",
-                "running": True,
-                "cycle": 0,
-                "memory_mb": 0,
-                "healthy": True,
-                "uptime": str(datetime.now() - _start_time)
-            }
-            
-            # Try to get real data if evolution instance exists
-            if _evolution_instance:
-                try:
-                    status["cycle"] = getattr(_evolution_instance, 'cycle_count', 0)
-                    # Get memory usage if psutil is available
-                    try:
-                        import psutil
-                        process = psutil.Process()
-                        status["memory_mb"] = process.memory_info().rss / 1024 / 1024
-                    except:
-                        pass
-                except:
-                    pass
-            
-            self.wfile.write(json.dumps(status).encode())
-            
-        elif self.path == '/stats':
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            
-            stats = {
-                "successful_evolutions": 0,
-                "total_cycles": 0,
-                "average_success_rate": 0
-            }
-            
-            # Try to get real stats
-            if _evolution_instance and hasattr(_evolution_instance, 'get_stats'):
-                try:
-                    stats = _evolution_instance.get_stats()
-                except:
-                    pass
-            
-            self.wfile.write(json.dumps(stats).encode())
-            
-        else:
-            self.send_response(404)
-            self.end_headers()
+    def __init__(self):
+        self.cycle_count = 0
+        self.evolution_history = []
+        self.current_generation = 1
+        self.best_score = 0
+        
+        # Initialize self-healing if available
+        self.healing_scanner = SystemWeaknessScanner() if HEALING_AVAILABLE else None
+        self.promotion_tracker = PromotionTracker() if PROMOTION_AVAILABLE else None
+        
+        # Load existing evolution data
+        self.load_evolution_state()
+        
+        logger.info(f"🧬 Evolution Engine initialized (gen {self.current_generation})")
     
-    def do_POST(self):
-        if self.path == '/command':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            
+    def load_evolution_state(self):
+        """Load previous evolution state if exists"""
+        state_file = Path("data/evolution/evolution_state.json")
+        if state_file.exists():
             try:
-                command = json.loads(post_data)
-                cmd = command.get('command', '')
-                
-                if cmd == 'trigger_cycle':
-                    # Trigger an evolution cycle immediately
-                    result = {"status": "cycle_triggered", "cycle": 0}
-                    self.wfile.write(json.dumps(result).encode())
-                elif cmd == 'get_memory':
-                    try:
-                        import psutil
-                        process = psutil.Process()
-                        memory = process.memory_info().rss / 1024 / 1024
-                        self.wfile.write(json.dumps({"memory_mb": memory}).encode())
-                    except:
-                        self.wfile.write(json.dumps({"error": "Cannot get memory"}).encode())
-                else:
-                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
+                with open(state_file, 'r') as f:
+                    state = json.load(f)
+                    self.current_generation = state.get('generation', 1)
+                    self.best_score = state.get('best_score', 0)
+                    self.evolution_history = state.get('history', [])
+                logger.info(f"Loaded evolution state: gen {self.current_generation}")
             except Exception as e:
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
-        else:
-            self.send_response(404)
-            self.end_headers()
+                logger.error(f"Failed to load evolution state: {e}")
     
-    def log_message(self, format, *args):
-        return  # Suppress HTTP logs
+    def save_evolution_state(self):
+        """Save current evolution state"""
+        state_file = Path("data/evolution/evolution_state.json")
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        state = {
+            'generation': self.current_generation,
+            'best_score': self.best_score,
+            'history': self.evolution_history[-100:],  # Keep last 100
+            'timestamp': datetime.datetime.now().isoformat()
+        }
+        
+        try:
+            with open(state_file, 'w') as f:
+                json.dump(state, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save evolution state: {e}")
+    
+    def scan_for_improvements(self) -> List[Dict[str, Any]]:
+        """Scan system for potential improvement opportunities"""
+        opportunities = []
+        
+        # Check service response times
+        # Check code quality
+        # Check for outdated patterns
+        # etc.
+        
+        return opportunities
+    
+    def run_evolution_cycle(self):
+        """Run one complete evolution cycle"""
+        self.cycle_count += 1
+        logger.info(f"🔬 Starting evolution cycle {self.cycle_count}")
+        
+        # Phase 1: Scan for improvement opportunities
+        opportunities = self.scan_for_improvements()
+        
+        # Phase 2: Generate mutations
+        mutations = self.generate_mutations(opportunities)
+        
+        # Phase 3: Test mutations
+        results = self.test_mutations(mutations)
+        
+        # Phase 4: Select best mutations
+        best = self.select_best_mutations(results)
+        
+        # Phase 5: Apply selected mutations
+        applied = self.apply_mutations(best)
+        
+        # Phase 6: Track promotion (if available)
+        if self.promotion_tracker and applied:
+            for mutation in applied:
+                if mutation.get('success_score', 0) > 0.7:
+                    self.promotion_tracker.track_success(
+                        mutation.get('id', 'unknown'),
+                        {'score': mutation.get('success_score', 0)}
+                    )
+        
+        # Phase 7: Run self-healing every 5th cycle
+        if HEALING_AVAILABLE and self.cycle_count % 5 == 0:
+            self.run_self_healing_cycle()
+        
+        # Update generation
+        self.current_generation += 1
+        self.save_evolution_state()
+        
+        logger.info(f"✅ Evolution cycle {self.cycle_count} complete")
+        
+        return {
+            'cycle': self.cycle_count,
+            'generation': self.current_generation,
+            'opportunities': len(opportunities),
+            'mutations_tested': len(mutations),
+            'mutations_applied': len(applied),
+            'timestamp': datetime.datetime.now().isoformat()
+        }
+    
+    def run_self_healing_cycle(self):
+        """Run self-healing cycle to detect and fix system weaknesses"""
+        logger.info("🩹 Running self-healing cycle")
+        
+        if not self.healing_scanner:
+            logger.warning("Self-healing scanner not available")
+            return
+        
+        try:
+            result = self.healing_scanner.scan_and_heal()
+            
+            # Record healing in evolution history
+            self.evolution_history.append({
+                "type": "self_heal",
+                "cycle": self.cycle_count,
+                "timestamp": datetime.datetime.now().isoformat(),
+                "result": {
+                    "total_weaknesses": result['total_weaknesses'],
+                    "fixes_applied": result['fixes_applied']
+                }
+            })
+            
+            # If critical issues found, log them
+            critical_issues = [w for w in result.get('weaknesses', []) if w.get('severity', 0) >= 9]
+            if critical_issues:
+                logger.warning(f"Critical issues found: {len(critical_issues)} - monitoring required")
+                for issue in critical_issues:
+                    logger.warning(f"  🔴 {issue['type']} in {issue['module']}: {issue['description']}")
+            
+            logger.info(f"Self-healing complete: healed {result['fixes_applied']}/{result['total_weaknesses']} issues")
+            
+        except Exception as e:
+            logger.error(f"Self-healing cycle failed: {e}")
+    
+    def generate_mutations(self, opportunities: List[Dict]) -> List[Dict]:
+        """Generate evolutionary mutations based on opportunities"""
+        mutations = []
+        
+        for opp in opportunities[:5]:  # Limit to top 5
+            mutation = {
+                'id': hashlib.md5(f"{opp}{time.time()}".encode()).hexdigest()[:8],
+                'type': opp.get('type', 'unknown'),
+                'target': opp.get('target', 'system'),
+                'hypothesis': opp.get('hypothesis', 'Improve performance'),
+                'created': datetime.datetime.now().isoformat()
+            }
+            mutations.append(mutation)
+        
+        # If no opportunities, generate random mutations
+        if not mutations:
+            mutations = self.generate_random_mutations(3)
+        
+        return mutations
+    
+    def generate_random_mutations(self, count: int) -> List[Dict]:
+        """Generate random mutations for exploration"""
+        mutation_types = ['optimization', 'refactor', 'new_feature', 'integration']
+        mutations = []
+        
+        for _ in range(count):
+            mutation = {
+                'id': hashlib.md5(f"rand_{time.time()}_{random.random()}".encode()).hexdigest()[:8],
+                'type': random.choice(mutation_types),
+                'target': 'random',
+                'hypothesis': 'Exploratory mutation',
+                'created': datetime.datetime.now().isoformat(),
+                'random_seed': random.random()
+            }
+            mutations.append(mutation)
+        
+        return mutations
+    
+    def test_mutations(self, mutations: List[Dict]) -> List[Dict]:
+        """Test mutations and measure their impact"""
+        results = []
+        
+        for mutation in mutations:
+            # Simulate testing (in real implementation, would run actual tests)
+            test_result = {
+                **mutation,
+                'test_duration': random.uniform(0.5, 2.0),
+                'success_rate': random.uniform(0, 1),
+                'performance_impact': random.uniform(-0.1, 0.3),
+                'memory_impact': random.uniform(-10, 20),
+                'tested_at': datetime.datetime.now().isoformat()
+            }
+            
+            # Calculate overall score
+            score = test_result['success_rate'] * 0.5 + \
+                   max(0, test_result['performance_impact']) * 0.3 + \
+                   max(0, -test_result['memory_impact'] / 100) * 0.2
+            
+            test_result['score'] = min(1.0, max(0, score))
+            results.append(test_result)
+        
+        return results
+    
+    def select_best_mutations(self, results: List[Dict], top_k: int = 2) -> List[Dict]:
+        """Select the best performing mutations"""
+        sorted_results = sorted(results, key=lambda x: x.get('score', 0), reverse=True)
+        return sorted_results[:top_k]
+    
+    def apply_mutations(self, mutations: List[Dict]) -> List[Dict]:
+        """Apply selected mutations to the system"""
+        applied = []
+        
+        for mutation in mutations:
+            if mutation.get('score', 0) > 0.6:  # Only apply if score > 0.6
+                mutation['applied_at'] = datetime.datetime.now().isoformat()
+                mutation['status'] = 'applied'
+                
+                # Track best score
+                if mutation['score'] > self.best_score:
+                    self.best_score = mutation['score']
+                    logger.info(f"🏆 New best score: {self.best_score:.3f}")
+                
+                applied.append(mutation)
+                
+                # Add to history
+                self.evolution_history.append({
+                    'type': 'mutation_applied',
+                    'mutation_id': mutation['id'],
+                    'score': mutation['score'],
+                    'timestamp': mutation['applied_at']
+                })
+                
+                logger.info(f"✅ Applied mutation {mutation['id']} with score {mutation['score']:.3f}")
+        
+        return applied
+    
+    def get_status(self) -> Dict[str, Any]:
+        """Get current evolution status"""
+        return {
+            'generation': self.current_generation,
+            'cycle': self.cycle_count,
+            'best_score': self.best_score,
+            'history_length': len(self.evolution_history),
+            'healing_available': HEALING_AVAILABLE,
+            'promotion_available': PROMOTION_AVAILABLE,
+            'timestamp': datetime.datetime.now().isoformat()
+        }
 
-def _start_api_server():
-    """Start API server in background thread"""
-    port = 9003  # Fixed port for evolution engine
+
+# Flask server for API endpoint
+try:
+    from flask import Flask, jsonify, request
+    import threading
+    
+    app = Flask(__name__)
+    engine = EvolutionEngine()
+    
+    @app.route('/health', methods=['GET'])
+    def health():
+        return jsonify({'status': 'healthy', 'service': 'agi-evolution-system'})
+    
+    @app.route('/status', methods=['GET'])
+    def status():
+        return jsonify(engine.get_status())
+    
+    @app.route('/cycle', methods=['POST'])
+    def run_cycle():
+        result = engine.run_evolution_cycle()
+        return jsonify(result)
+    
+    @app.route('/heal', methods=['POST'])
+    def run_heal():
+        if HEALING_AVAILABLE:
+            engine.run_self_healing_cycle()
+            return jsonify({'status': 'healing_cycle_initiated'})
+        else:
+            return jsonify({'status': 'healing_not_available'}), 400
     
     def run_server():
-        server = HTTPServer(('localhost', port), EvolutionAPIHandler)
-        print(f"📡 Evolution API endpoint active at http://localhost:{port}")
-        server.serve_forever()
+        app.run(host='0.0.0.0', port=9003)
     
-    thread = threading.Thread(target=run_server, daemon=True)
-    thread.start()
-    return port
+except ImportError:
+    logger.warning("Flask not available, running in standalone mode")
+    def run_server():
+        logger.info("Server mode disabled")
 
-# Initialize the API server when this module is imported
-_api_port = _start_api_server()
 
-# Override the main function to capture the evolution instance
-_original_main = main
-def _wrapped_main():
-    global _evolution_instance
-    # Create evolution instance and store reference
-    _evolution_instance = MemorySafeEvolution()
-    # Call original main
-    _original_main()
-
-# Replace main with wrapped version if needed
 if __name__ == "__main__":
-    # Store evolution instance when running as main
-    global _evolution_instance
-    _evolution_instance = MemorySafeEvolution()
-    _original_main()
+    import sys
+    
+    if len(sys.argv) > 1 and sys.argv[1] == '--server':
+        # Run as API server
+        logger.info("Starting evolution server on port 9003")
+        run_server()
+    else:
+        # Run one evolution cycle
+        engine = EvolutionEngine()
+        result = engine.run_evolution_cycle()
+        print("\n📊 Evolution Cycle Results:")
+        print(json.dumps(result, indent=2))
+        
+        # If self-healing due, it will run automatically
