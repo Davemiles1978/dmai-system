@@ -27,7 +27,7 @@ class EvolutionCleanup:
         # Cleanup thresholds
         self.max_systems = 30  # Maximum total evolved systems
         self.max_generations = 5  # Keep only last 5 generations
-        self.min_quality_score = 0.5  # Minimum quality to keep
+        self.min_quality_score = 0.6  # Minimum quality to keep
         
     def _load_history(self):
         """Load cleanup history"""

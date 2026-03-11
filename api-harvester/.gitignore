@@ -1,0 +1,121 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+*.so
+.Python
+venv/
+.venv
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# API Keys and Secrets - NEVER COMMIT
+config.json
+*.key
+*.pem
+*.p12
+.env
+.env.local
+.env.production
+.env.staging
+secrets.json
+credentials.json
+api_keys.json
+*_token.json
+*_key.json
+oauth*.json
+service-account*.json
+
+# Storage - Sensitive Data (from original)
+storage/encrypted_keys.json
+storage/key_metadata.json
+storage/
+*.storage
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+harvester.db
+scraper_cache.db
+
+# Logs
+*.log
+*.log.*
+logs/
+harvester.log
+api_server.log
+scraper.log
+
+# OS files
+.DS_Store
+*.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backups
+*.backup
+*.backup*
+*.bak
+*.bak*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+
+# Scraper data
+scrapers/__pycache__/
+scrapers/*.pyc
+data/
+*.jsonl
+*.csv
+
+# Large files
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.mp4
+*.mov
+*.avi
+*.iso
+*.dmg
+
+# Redis data (if using)
+dump.rdb
+appendonly.aof
+
+# Test files
+tests/__pycache__/
+tests/*.pyc
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Example configs (safe to commit)
+!config.json.example
+!.env.example
+!*.example

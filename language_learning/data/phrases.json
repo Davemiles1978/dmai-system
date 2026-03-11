@@ -2784,5 +2784,950 @@
     "source": "ambient",
     "word_count": 16,
     "new_words": 0
+  },
+  {
+    "text": "i can't believe that i'm trying to reach out to somebody i can't leave the room, i'm trying to leave the room",
+    "timestamp": "2026-03-09T08:08:35.651978",
+    "source": "ambient",
+    "word_count": 26,
+    "new_words": 0
+  },
+  {
+    "text": "i'm going to have a look at the the the the the the the the the the the the the the the the",
+    "timestamp": "2026-03-09T08:14:41.185797",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 0
+  },
+  {
+    "text": "hey, it's d.m.i.",
+    "timestamp": "2026-03-09T09:47:11.329914",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "yeah, but i don't know which one, but which number?",
+    "timestamp": "2026-03-09T09:50:03.618263",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 0
+  },
+  {
+    "text": "i don't know.",
+    "timestamp": "2026-03-09T09:50:50.677705",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "we are here to eat hot potit's cold",
+    "timestamp": "2026-03-09T09:51:15.634463",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "neighbors.",
+    "timestamp": "2026-03-09T17:55:20.469943",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 1
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-10T09:26:18.047135",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 3
+  },
+  {
+    "text": "openclaw /    openclaw",
+    "timestamp": "2026-03-10T09:26:18.118804",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "chris mason: the cost of living is catapulted centre stage yet again",
+    "timestamp": "2026-03-10T10:56:32.050138",
+    "source": "news",
+    "word_count": 12,
+    "new_words": 10
+  },
+  {
+    "text": "five iranian footballers granted australian visas after anthem protest",
+    "timestamp": "2026-03-10T10:56:32.056754",
+    "source": "news",
+    "word_count": 9,
+    "new_words": 8
+  },
+  {
+    "text": "rising prices, mixed messages: iran war is fraught with political risk for trump",
+    "timestamp": "2026-03-10T10:56:32.061590",
+    "source": "news",
+    "word_count": 13,
+    "new_words": 10
+  },
+  {
+    "text": "faisal islam: trump comments may have eased oil price surge, but havoc remains",
+    "timestamp": "2026-03-10T10:56:32.068255",
+    "source": "news",
+    "word_count": 13,
+    "new_words": 10
+  },
+  {
+    "text": "the inaugural tees valley mayoral election was held on 4 may 2017 to elect the mayor of the tees valley combined authority. the mayor was elected by the supplementary vote system. subsequent elections were held in may 2021 and every four years after 2024.",
+    "timestamp": "2026-03-10T10:56:35.165456",
+    "source": "wikipedia",
+    "word_count": 40,
+    "new_words": 21
+  },
+  {
+    "text": "i found this pretty inspirational right now",
+    "timestamp": "2026-03-10T10:56:37.922741",
+    "source": "reddit",
+    "word_count": 7,
+    "new_words": 4
+  },
+  {
+    "text": "wholesome bird.",
+    "timestamp": "2026-03-10T10:56:37.930695",
+    "source": "reddit",
+    "word_count": 2,
+    "new_words": 2
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-10T10:56:40.907979",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 2
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-10T10:56:40.912502",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 7
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-10T10:56:40.916947",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 7
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-10T10:56:40.925549",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 6
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-10T10:56:40.929864",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 6
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-10T10:56:44.439720",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 2
+  },
+  {
+    "text": "openclaw /    openclaw",
+    "timestamp": "2026-03-10T10:56:44.444290",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "hey, it's d.m.i.",
+    "timestamp": "2026-03-10T11:12:47.202591",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 4
+  },
+  {
+    "text": "yeah, like static you",
+    "timestamp": "2026-03-10T13:10:38.737235",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 2
+  },
+  {
+    "text": "that's shit.",
+    "timestamp": "2026-03-10T13:26:20.115370",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "the skirmish, it's not a wall.",
+    "timestamp": "2026-03-10T13:29:29.512619",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
+  },
+  {
+    "text": "then",
+    "timestamp": "2026-03-10T13:48:17.264363",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 0
+  },
+  {
+    "text": "first of all, first of all.",
+    "timestamp": "2026-03-10T13:58:48.206831",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "can empathize to it",
+    "timestamp": "2026-03-10T14:02:02.850120",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "you know? you know? you know? you know?",
+    "timestamp": "2026-03-10T14:47:01.346518",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 0
+  },
+  {
+    "text": "warning greetings. it's a million.",
+    "timestamp": "2026-03-10T15:12:49.730311",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 3
+  },
+  {
+    "text": "i found this pretty inspirational right now",
+    "timestamp": "2026-03-10T15:13:06.767739",
+    "source": "reddit",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-10T15:13:09.889018",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-10T15:13:09.991301",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-10T15:13:10.018648",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-10T15:13:10.051233",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-10T15:13:10.076267",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-10T15:13:14.095227",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 3
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-10T15:13:14.123189",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 3
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-10T15:13:14.154297",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-10T15:13:14.184814",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "hey, tmi. it's tmi.",
+    "timestamp": "2026-03-10T15:17:01.326227",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 1
+  },
+  {
+    "text": "the yup",
+    "timestamp": "2026-03-10T15:33:24.027093",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "okay. what the hell is it?",
+    "timestamp": "2026-03-10T17:35:20.553332",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 1
+  },
+  {
+    "text": "that's the right way.",
+    "timestamp": "2026-03-10T17:36:07.619401",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "i'll have that.",
+    "timestamp": "2026-03-10T17:47:18.171075",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "the good",
+    "timestamp": "2026-03-10T18:52:38.959228",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "there he is. come on.",
+    "timestamp": "2026-03-10T19:13:35.923421",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "there we go. what is it?",
+    "timestamp": "2026-03-10T19:15:10.920238",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "what the interstate?",
+    "timestamp": "2026-03-10T19:16:45.391713",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "and protocol.",
+    "timestamp": "2026-03-10T19:29:24.267638",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "and how i have that car over there.",
+    "timestamp": "2026-03-10T19:30:35.637546",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 1
+  },
+  {
+    "text": "i'm all the fuck up yeah! i'm all the fuck up i'm all the fuck up i'm all the fuck up",
+    "timestamp": "2026-03-10T19:33:32.678550",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 0
+  },
+  {
+    "text": "i think, the internet\uc785\ub2c8\ub2e4f",
+    "timestamp": "2026-03-10T20:04:49.155386",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "seed and wildlands.",
+    "timestamp": "2026-03-10T20:14:05.178322",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 2
+  },
+  {
+    "text": "come on, come on!",
+    "timestamp": "2026-03-10T20:52:04.893853",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "it's gonna be this and what?",
+    "timestamp": "2026-03-10T20:56:02.871745",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T06:14:30.806726",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T06:14:34.040168",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T06:14:34.112760",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T06:14:34.182409",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T06:14:34.257193",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T06:14:34.326832",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T06:14:38.111645",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T06:14:38.204502",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T06:14:38.283201",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T06:14:38.356502",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "wildfires in 2019",
+    "timestamp": "2026-03-11T06:26:18.988113",
+    "source": "wikipedia",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T06:26:21.723078",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T06:26:24.643330",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T06:26:24.740003",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T06:26:24.824648",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T06:26:24.912256",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T06:26:25.001117",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T06:26:32.984853",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T06:26:35.867283",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T06:26:35.967259",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T06:26:36.075040",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T06:26:36.152291",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T06:26:36.269289",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T06:26:38.867016",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T06:26:38.950836",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T06:26:39.074141",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T06:26:39.159623",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T06:51:15.473249",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T06:51:18.261862",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T06:51:18.336000",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T06:51:18.429608",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T06:51:18.513438",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T06:51:18.584881",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T06:51:22.443512",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T06:51:22.547168",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T06:51:22.653012",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T06:51:22.749837",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T07:46:00.428736",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T07:46:03.598616",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T07:46:03.693122",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T07:46:03.766076",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T07:46:03.842168",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T07:46:03.911842",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T07:46:07.802900",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T07:46:07.873596",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T07:46:07.949834",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T07:46:08.022184",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T07:51:02.425435",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T07:51:05.369077",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T07:51:05.462368",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T07:51:05.532346",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T07:51:05.605825",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T07:51:05.675601",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T07:51:09.473019",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T07:51:09.545535",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T07:51:09.624350",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T07:51:09.697733",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T07:56:10.100621",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T07:56:12.963042",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T07:56:13.056513",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T07:56:13.130500",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T07:56:13.207710",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T07:56:13.281632",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T07:56:17.029451",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T07:56:17.102630",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T07:56:17.185219",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T07:56:17.258194",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "new guy at work",
+    "timestamp": "2026-03-11T08:02:14.821058",
+    "source": "reddit",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "foundations of genir",
+    "timestamp": "2026-03-11T08:02:17.787807",
+    "source": "academic",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "competing visions of ethical ai: a case study of openai",
+    "timestamp": "2026-03-11T08:02:17.881015",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "towards the ultimate brain: exploring scientific discovery with chatgpt ai",
+    "timestamp": "2026-03-11T08:02:17.953396",
+    "source": "academic",
+    "word_count": 10,
+    "new_words": 0
+  },
+  {
+    "text": "meaningful human control: actionable properties for ai system development",
+    "timestamp": "2026-03-11T08:02:18.029608",
+    "source": "academic",
+    "word_count": 9,
+    "new_words": 0
+  },
+  {
+    "text": "need of ai in modern education: in the eyes of explainable ai (xai)",
+    "timestamp": "2026-03-11T08:02:18.099636",
+    "source": "academic",
+    "word_count": 13,
+    "new_words": 0
+  },
+  {
+    "text": "msitarzewski /    agency-agents",
+    "timestamp": "2026-03-11T08:02:21.849669",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "nousresearch /    hermes-agent",
+    "timestamp": "2026-03-11T08:02:21.933588",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "promptfoo /    promptfoo",
+    "timestamp": "2026-03-11T08:02:22.053535",
+    "source": "github",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "googlecloudplatform /    generative-ai",
+    "timestamp": "2026-03-11T08:02:22.139297",
+    "source": "github",
+    "word_count": 3,
+    "new_words": 0
   }
 ]

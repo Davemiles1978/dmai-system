@@ -396,3 +396,151 @@ if __name__ == "__main__":
         dmai.stop_learning()
         dmai.wake_detector.cleanup()
         dmai.speaker.shutdown()
+
+# ============================================================================
+# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
+# ============================================================================
+# This section adds API endpoints for external systems to connect
+# All original code above remains completely unchanged
+
+import json
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Global reference to the voice instance
+_voice_instance = None
+_start_time = datetime.now()
+
+class VoiceAPIHandler(BaseHTTPRequestHandler):
+    """API for external systems to query voice service status"""
+    
+    def do_GET(self):
+        if self.path == '/status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            status = {
+                "name": "voice_service",
+                "running": True,
+                "vocabulary_size": 0,
+                "learning_active": False,
+                "in_conversation": False,
+                "healthy": True,
+                "uptime": str(datetime.now() - _start_time)
+            }
+            
+            # Try to get real data if voice instance exists
+            if _voice_instance:
+                try:
+                    status["vocabulary_size"] = _voice_instance.get_true_vocabulary()
+                    status["learning_active"] = getattr(_voice_instance, 'learning_active', False)
+                    status["in_conversation"] = getattr(_voice_instance, 'in_conversation', False)
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(status).encode())
+            
+        elif self.path == '/vocabulary':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            vocab_stats = {
+                "total_words": 0,
+                "today_words": 0,
+                "stage": 1
+            }
+            
+            if _voice_instance:
+                try:
+                    vocab_stats["total_words"] = _voice_instance.get_true_vocabulary()
+                    vocab_stats["today_words"] = getattr(_voice_instance, 'daily_word_count', 0)
+                    vocab_stats["stage"] = getattr(_voice_instance, 'evolution_stage', 1)
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(vocab_stats).encode())
+            
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/command':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            try:
+                command = json.loads(post_data)
+                cmd = command.get('command', '')
+                
+                if cmd == 'start_learning':
+                    if _voice_instance:
+                        _voice_instance.start_learning()
+                        self.wfile.write(json.dumps({"status": "learning_started"}).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "Voice service not initialized"}).encode())
+                        
+                elif cmd == 'stop_learning':
+                    if _voice_instance:
+                        _voice_instance.stop_learning()
+                        self.wfile.write(json.dumps({"status": "learning_stopped"}).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "Voice service not initialized"}).encode())
+                        
+                elif cmd == 'say':
+                    text = command.get('text', '')
+                    if _voice_instance and text:
+                        _voice_instance.speaker.speak(text)
+                        self.wfile.write(json.dumps({"status": "speaking", "text": text}).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "No text provided"}).encode())
+                        
+                elif cmd == 'get_vocabulary':
+                    if _voice_instance:
+                        size = _voice_instance.get_true_vocabulary()
+                        self.wfile.write(json.dumps({"vocabulary_size": size}).encode())
+                    else:
+                        self.wfile.write(json.dumps({"vocabulary_size": 0}).encode())
+                        
+                else:
+                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
+                    
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress HTTP logs
+
+def _start_api_server():
+    """Start API server in background thread"""
+    port = 9008  # Fixed port for voice service
+    
+    def run_server():
+        server = HTTPServer(('localhost', port), VoiceAPIHandler)
+        print(f"📡 Voice Service API endpoint active at http://localhost:{port}")
+        server.serve_forever()
+    
+    thread = threading.Thread(target=run_server, daemon=True)
+    thread.start()
+    return port
+
+# Initialize the API server when this module is imported
+_api_port = _start_api_server()
+
+# Store reference to voice instance when created
+_original_init = DMAIVoiceWithLearning.__init__
+def _wrapped_init(self, *args, **kwargs):
+    global _voice_instance
+    _original_init(self, *args, **kwargs)
+    _voice_instance = self
+
+DMAIVoiceWithLearning.__init__ = _wrapped_init

@@ -234,3 +234,141 @@ if __name__ == "__main__":
         researcher.run_continuous()
     else:
         parser.print_help()
+
+# ============================================================================
+# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
+# ============================================================================
+# This section adds API endpoints for external systems to connect
+# All original code above remains completely unchanged
+
+import json
+import socket
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from datetime import datetime
+from typing import Dict, Any
+
+# Global reference to the researcher instance
+_dark_instance = None
+_start_time = datetime.now()
+
+class DarkResearcherAPIHandler(BaseHTTPRequestHandler):
+    """API for external systems to query dark researcher status"""
+    
+    def do_GET(self):
+        if self.path == '/status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Get status
+            status = {
+                "name": "dark_researcher",
+                "running": True,
+                "findings_count": 0,
+                "tor_available": False,
+                "last_cycle": None,
+                "healthy": True,
+                "uptime": str(datetime.now() - _start_time)
+            }
+            
+            # Try to get real data if researcher instance exists
+            if _dark_instance:
+                try:
+                    status["findings_count"] = len(getattr(_dark_instance, 'findings', {}))
+                    status["tor_available"] = getattr(_dark_instance, 'tor_available', False)
+                    if _dark_instance.findings:
+                        last_key = sorted(_dark_instance.findings.keys())[-1]
+                        status["last_cycle"] = _dark_instance.findings[last_key].get('timestamp')
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(status).encode())
+            
+        elif self.path == '/tor_status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            tor_status = {
+                "available": False,
+                "message": "Tor not available"
+            }
+            
+            if _dark_instance:
+                tor_status["available"] = _dark_instance.tor_available
+                tor_status["message"] = "Tor is available" if _dark_instance.tor_available else "Tor not available"
+            
+            self.wfile.write(json.dumps(tor_status).encode())
+            
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/command':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            try:
+                command = json.loads(post_data)
+                cmd = command.get('command', '')
+                
+                if cmd == 'research_now':
+                    # Trigger immediate research
+                    if _dark_instance:
+                        result = _dark_instance.run_once()
+                        self.wfile.write(json.dumps({
+                            "status": "research_completed", 
+                            "success": result
+                        }).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "Researcher not initialized"}).encode())
+                elif cmd == 'check_tor':
+                    if _dark_instance:
+                        # Force recheck Tor
+                        _dark_instance.tor_available = _dark_instance.check_tor()
+                        self.wfile.write(json.dumps({
+                            "tor_available": _dark_instance.tor_available
+                        }).encode())
+                    else:
+                        self.wfile.write(json.dumps({"tor_available": False}).encode())
+                else:
+                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress HTTP logs
+
+def _start_api_server():
+    """Start API server in background thread"""
+    port = 9006  # Fixed port for dark researcher
+    
+    def run_server():
+        server = HTTPServer(('localhost', port), DarkResearcherAPIHandler)
+        print(f"📡 Dark Researcher API endpoint active at http://localhost:{port}")
+        server.serve_forever()
+    
+    thread = threading.Thread(target=run_server, daemon=True)
+    thread.start()
+    return port
+
+# Initialize the API server when this module is imported
+_api_port = _start_api_server()
+
+# Store reference to researcher instance when created
+_original_init = DarkResearcher.__init__
+def _wrapped_init(self, *args, **kwargs):
+    global _dark_instance
+    _original_init(self, *args, **kwargs)
+    _dark_instance = self
+
+DarkResearcher.__init__ = _wrapped_init

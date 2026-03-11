@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-03-11T06:41:51.608648",
+  "parent1": "gpt_base_gen32",
+  "parent2": "dmai_core_gen38",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "language",
+      "description": "Transfer language from \u26a1 gpt_base_gen32 to \u26a1 dmai_core_gen38",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "reasoning",
+      "description": "Transfer reasoning from \u26a1 gpt_base_gen32 to \u26a1 dmai_core_gen38",
+      "quality": 0.9
+    }
+  ],
+  "new_generation": 38,
+  "capabilities": [
+    "language",
+    "reasoning"
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-03-10T10:33:12.047253",
+  "critical_dirs": [
+    {
+      "path": "/Users/davidmiles/Desktop/api-harvester",
+      "exists": false,
+      "is_directory": false
+    },
+    {
+      "path": "/Users/davidmiles/Desktop/dmai-system",
+      "exists": true,
+      "is_directory": true,
+      "item_count": 310,
+      "sample_items": [
+        "fix_vocabulary.py",
+        "fix_system.py.bak",
+        "safety.py.bak",
+        "DMAI-Evolution.py",
+        "agi"
+      ]
+    },
+    {
+      "path": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true,
+      "is_directory": true,
+      "item_count": 4,
+      "sample_items": [
+        ".DS_Store",
+        "AI-Evolution-System-old-backup",
+        "logs",
+        "api-harvester"
+      ]
+    },
+    {
+      "path": "/Users/davidmiles/Desktop/AI-Evolution-System-old-backup",
+      "exists": true,
+      "is_directory": true,
+      "item_count": 204,
+      "sample_items": [
+        "fix_vocabulary.py",
+        "DMAI-Evolution.py",
+        "agi",
+        "product_creator.py",
+        "meta_learner.py.backup"
+      ]
+    },
+    {
+      "path": "/Users/davidmiles/Desktop/my workspace",
+      "exists": false,
+      "is_directory": false
+    },
+    {
+      "path": "/Users/davidmiles/Desktop/dmai-production",
+      "exists": false,
+      "is_directory": false
+    }
+  ],
+  "services": [
+    {
+      "name": "com.dmai.master.plist.disabled",
+      "working_dir": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true
+    },
+    {
+      "name": "com.dmai.listener.plist.disabled",
+      "working_dir": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true
+    },
+    {
+      "name": "com.dmai.voice.plist.disabled",
+      "working_dir": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true
+    },
+    {
+      "name": "com.dmai.core.plist",
+      "working_dir": "/Users/davidmiles/Desktop/dmai-system",
+      "exists": true
+    },
+    {
+      "name": "com.dmai.continuous.learner.plist.disabled",
+      "working_dir": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true
+    },
+    {
+      "name": "com.dmai.evolution.plist.disabled",
+      "working_dir": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true
+    },
+    {
+      "name": "com.dmai.core.plist.disabled",
+      "working_dir": "/Users/davidmiles/Desktop/AI-Evolution-System",
+      "exists": true
+    }
+  ],
+  "processes": [
+    {
+      "pid": "816",
+      "command": "/usr/libexec/icloudmailagent"
+    }
+  ],
+  "symlinks": []
+}

@@ -22,10 +22,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Get absolute paths
-DMAI_ROOT = Path(__file__).parent.parent
-HARVESTER_ROOT = Path("/Users/davidmiles/Desktop/api-harvester")
-VENV_PYTHON = DMAI_ROOT / "venv" / "bin" / "python3"
+DMAI_ROOT = Path("/Users/davidmiles/Desktop/dmai-system")
+HARVESTER_ROOT = Path("/Users/davidmiles/Desktop/dmai-system/api-harvester")  
 HARVESTER_VENV = HARVESTER_ROOT / "venv" / "bin" / "python3"
+MAIN_VENV = DMAI_ROOT / "venv" / "bin" / "python3"
 LOG_DIR = DMAI_ROOT / "logs"
 
 # Create log directory
@@ -35,107 +35,92 @@ SERVICES = [
     {
         "name": "harvester_daemon",
         "path": HARVESTER_ROOT / "harvester.py",
-        "args": ["--daemon"],
-        "pid": None,
-        "log": LOG_DIR / "harvester.log",
         "venv": HARVESTER_VENV,
-        "cwd": HARVESTER_ROOT,
-        "last_restart": 0
+        "args": ["--daemon"],
+        "log": LOG_DIR / "harvester_daemon.log",
     },
     {
         "name": "harvester_api",
         "path": HARVESTER_ROOT / "api_server.py",
-        "args": [],
-        "pid": None,
-        "log": LOG_DIR / "harvester_api.log",
         "venv": HARVESTER_VENV,
-        "cwd": HARVESTER_ROOT,
-        "last_restart": 0
+        "args": ["--daemon"],
+        "log": LOG_DIR / "harvester_api.log",
     },
     {
         "name": "evolution_engine",
-        "path": DMAI_ROOT / "evolution" / "evolution_engine.py",
-        "args": ["--continuous"],
-        "pid": None,
-        "log": LOG_DIR / "evolution.log",
-        "venv": VENV_PYTHON,
-        "cwd": DMAI_ROOT,
-        "last_restart": 0
+        "path": DMAI_ROOT / "evolution" / "continuous_advanced_evolution.py",
+        "venv": MAIN_VENV,
+        "log": LOG_DIR / "evolution_engine.log",
     },
     {
         "name": "book_reader",
         "path": DMAI_ROOT / "services" / "book_reader.py",
+        "venv": MAIN_VENV,
         "args": ["--continuous"],
-        "pid": None,
         "log": LOG_DIR / "book_reader.log",
-        "venv": VENV_PYTHON,
-        "cwd": DMAI_ROOT,
-        "last_restart": 0
     },
     {
         "name": "web_researcher",
         "path": DMAI_ROOT / "services" / "web_researcher.py",
+        "venv": MAIN_VENV,
         "args": ["--continuous"],
-        "pid": None,
         "log": LOG_DIR / "web_researcher.log",
-        "venv": VENV_PYTHON,
-        "cwd": DMAI_ROOT,
-        "last_restart": 0
     },
     {
         "name": "dark_researcher",
         "path": DMAI_ROOT / "services" / "dark_researcher.py",
+        "venv": MAIN_VENV,
         "args": ["--continuous"],
-        "pid": None,
         "log": LOG_DIR / "dark_researcher.log",
-        "venv": VENV_PYTHON,
-        "cwd": DMAI_ROOT,
-        "last_restart": 0
     },
     {
         "name": "music_learner",
-        "path": DMAI_ROOT / "services" / "music_learner.py",
-        "args": [],
-        "pid": None,
+        "path": DMAI_ROOT / "music" / "music_learner.py",
+        "venv": MAIN_VENV,
+        "args": ["--continuous"],
         "log": LOG_DIR / "music_learner.log",
-        "venv": VENV_PYTHON,
-        "cwd": DMAI_ROOT,
-        "last_restart": 0
     },
     {
         "name": "voice_service",
         "path": DMAI_ROOT / "voice" / "dmai_voice_with_learning.py",
-        "args": ["--continuous"],
-        "pid": None,
+        "venv": MAIN_VENV,
         "log": LOG_DIR / "voice.log",
-        "venv": VENV_PYTHON,
-        "cwd": DMAI_ROOT,
-        "last_restart": 0
-    }
+    },
+    {
+        "name": "dual_launcher",
+        "path": DMAI_ROOT / "evolution" / "dual_launcher.py",
+        "venv": MAIN_VENV,
+        "log": LOG_DIR / "dual_launcher.log",
+    },
 ]
 
 def is_process_alive(pid):
     """Check if process is alive and not a zombie"""
+    if not pid:
+        return False
     try:
         # Check if process exists
         os.kill(pid, 0)
         
-        # Check if it's a zombie by reading /proc (on Linux) or using ps (on macOS)
-        # On macOS, we can check if the process is a zombie via ps
+        # On macOS, check if it's a zombie
         result = subprocess.run(['ps', '-o', 'state=', '-p', str(pid)], 
                               capture_output=True, text=True)
         if result.returncode == 0:
             state = result.stdout.strip()
-            # 'Z' means zombie
+            # 'Z' means zombie - kill it
             if state == 'Z':
                 return False
-        return True
+            # Any other state means it's alive
+            return True
+        return False
     except (OSError, ProcessLookupError):
         return False
 
 def start_service(service):
     """Start a service and return PID"""
-    cmd = [str(service["venv"]), str(service["path"])] + service["args"]
+    cmd = [str(service["venv"]), str(service["path"])]
+    if "args" in service:
+        cmd += service["args"]
     
     try:
         # Open log file
@@ -149,8 +134,7 @@ def start_service(service):
             stdout=log_file,
             stderr=subprocess.STDOUT,
             start_new_session=True,
-            env=os.environ.copy(),
-            cwd=str(service["cwd"])
+            env=os.environ.copy()
         )
         
         service["pid"] = process.pid
@@ -196,13 +180,14 @@ def main():
     # Kill any existing service processes
     logger.info("Cleaning up old processes...")
     os.system("pkill -f 'dmai_voice_with_learning.py' 2>/dev/null")
-    os.system("pkill -f 'evolution_engine.py' 2>/dev/null")
+    os.system("pkill -f 'continuous_advanced_evolution.py' 2>/dev/null")
     os.system("pkill -f 'book_reader.py' 2>/dev/null")
     os.system("pkill -f 'web_researcher.py' 2>/dev/null")
     os.system("pkill -f 'dark_researcher.py' 2>/dev/null")
     os.system("pkill -f 'music_learner.py' 2>/dev/null")
     os.system("pkill -f 'harvester.py' 2>/dev/null")
     os.system("pkill -f 'api_server.py' 2>/dev/null")
+    os.system("pkill -f 'dual_launcher.py' 2>/dev/null")
     
     time.sleep(2)
     

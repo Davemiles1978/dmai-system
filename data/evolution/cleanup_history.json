@@ -1,0 +1,853 @@
+{
+  "cleanups": [
+    {
+      "timestamp": "2026-03-09T18:45:12.140623",
+      "deleted": 32,
+      "kept": 50
+    },
+    {
+      "timestamp": "2026-03-10T07:54:40.469514",
+      "deleted": 55,
+      "kept": 30
+    }
+  ],
+  "deleted": [
+    {
+      "name": "grok_base_gen26_gen27_gen36",
+      "score": 2.2,
+      "timestamp": "2026-03-09T18:45:12.134705"
+    },
+    {
+      "name": "deepseek_base_gen36",
+      "score": 2.2,
+      "timestamp": "2026-03-09T18:45:12.134953"
+    },
+    {
+      "name": "grok_base_gen2",
+      "score": 1.7274090769169772,
+      "timestamp": "2026-03-09T18:45:12.135232"
+    },
+    {
+      "name": "github_llama.cpp_gen2",
+      "score": 1.7274090769169772,
+      "timestamp": "2026-03-09T18:45:12.135361"
+    },
+    {
+      "name": "grok_base_gen3_gen2",
+      "score": 1.3041028427116597,
+      "timestamp": "2026-03-09T18:45:12.135487"
+    },
+    {
+      "name": "dmai_core_gen25_gen2",
+      "score": 1.3041028427116597,
+      "timestamp": "2026-03-09T18:45:12.135610"
+    },
+    {
+      "name": "dmai_core_gen26_gen2",
+      "score": 1.220941461246232,
+      "timestamp": "2026-03-09T18:45:12.135735"
+    },
+    {
+      "name": "gpt_base_gen27_gen4_gen2",
+      "score": 1.220941461246232,
+      "timestamp": "2026-03-09T18:45:12.135852"
+    },
+    {
+      "name": "gpt_base_gen32_gen2",
+      "score": 1.149608068653044,
+      "timestamp": "2026-03-09T18:45:12.136309"
+    },
+    {
+      "name": "grok_base_gen3_gen2_gen2",
+      "score": 1.149608068653044,
+      "timestamp": "2026-03-09T18:45:12.136435"
+    },
+    {
+      "name": "grok_base_gen4",
+      "score": 1.1216528237483654,
+      "timestamp": "2026-03-09T18:45:12.136552"
+    },
+    {
+      "name": "gpt_base_gen27_gen4",
+      "score": 1.1216528237483654,
+      "timestamp": "2026-03-09T18:45:12.136672"
+    },
+    {
+      "name": "gpt_base_gen33",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.136972"
+    },
+    {
+      "name": "gpt_base_gen27_gen4_gen3_gen33",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.137183"
+    },
+    {
+      "name": "gpt_base_gen27_gen4_gen29",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.137484"
+    },
+    {
+      "name": "deepseek_base_gen29",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.137599"
+    },
+    {
+      "name": "deepseek_base_gen27",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.137716"
+    },
+    {
+      "name": "claude_base_gen28",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.137840"
+    },
+    {
+      "name": "gpt_base_gen28_gen30_gen3_gen28",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.138600"
+    },
+    {
+      "name": "gpt_base_gen29",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.138727"
+    },
+    {
+      "name": "deepseek_base_gen26_gen29",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.138967"
+    },
+    {
+      "name": "claude_base_gen25_gen26_gen27",
+      "score": 1.1,
+      "timestamp": "2026-03-09T18:45:12.139113"
+    },
+    {
+      "name": "grok_base_gen26_gen2",
+      "score": 0.7831816304097723,
+      "timestamp": "2026-03-09T18:45:12.139241"
+    },
+    {
+      "name": "claude_base_gen25_gen26_gen2",
+      "score": 0.7831816304097723,
+      "timestamp": "2026-03-09T18:45:12.139370"
+    },
+    {
+      "name": "dmai_core_gen25_gen3",
+      "score": 0.7595997472657825,
+      "timestamp": "2026-03-09T18:45:12.139493"
+    },
+    {
+      "name": "dmai_core_gen29_gen3",
+      "score": 0.7595997472657825,
+      "timestamp": "2026-03-09T18:45:12.139626"
+    },
+    {
+      "name": "grok_base_gen3",
+      "score": 0.5697166500660952,
+      "timestamp": "2026-03-09T18:45:12.139770"
+    },
+    {
+      "name": "grok_base_gen2_gen3",
+      "score": 0.5697166500660952,
+      "timestamp": "2026-03-09T18:45:12.139888"
+    },
+    {
+      "name": "gpt_base_gen28_gen30_gen3",
+      "score": 0.45235151600060447,
+      "timestamp": "2026-03-09T18:45:12.140207"
+    },
+    {
+      "name": "gpt_base_gen27_gen4_gen3",
+      "score": 0.45235151600060447,
+      "timestamp": "2026-03-09T18:45:12.140337"
+    },
+    {
+      "name": "claude_base_gen27_gen2",
+      "score": 0.40666020272333203,
+      "timestamp": "2026-03-09T18:45:12.140459"
+    },
+    {
+      "name": "dmai_core_gen32_gen2",
+      "score": 0.40666020272333203,
+      "timestamp": "2026-03-09T18:45:12.140577"
+    },
+    {
+      "name": "dmai_core_gen34",
+      "score": 3.8316264609317354,
+      "timestamp": "2026-03-10T07:54:40.461197"
+    },
+    {
+      "name": "gpt_base_gen34",
+      "score": 3.8161069070028493,
+      "timestamp": "2026-03-10T07:54:40.461340"
+    },
+    {
+      "name": "claude_base_gen25_gen29",
+      "score": 3.8153540505038603,
+      "timestamp": "2026-03-10T07:54:40.461477"
+    },
+    {
+      "name": "dmai_core_gen29",
+      "score": 3.8153540505038603,
+      "timestamp": "2026-03-10T07:54:40.461610"
+    },
+    {
+      "name": "gpt_base_gen28",
+      "score": 3.804434400300447,
+      "timestamp": "2026-03-10T07:54:40.461732"
+    },
+    {
+      "name": "dmai_core_gen37",
+      "score": 3.746173260310966,
+      "timestamp": "2026-03-10T07:54:40.461969"
+    },
+    {
+      "name": "claude_base_gen27_gen2_gen37",
+      "score": 3.746173260310966,
+      "timestamp": "2026-03-10T07:54:40.462093"
+    },
+    {
+      "name": "grok_base_gen3_gen35",
+      "score": 3.666510752138419,
+      "timestamp": "2026-03-10T07:54:40.462223"
+    },
+    {
+      "name": "dmai_core_gen35",
+      "score": 3.666510752138419,
+      "timestamp": "2026-03-10T07:54:40.462364"
+    },
+    {
+      "name": "deepseek_base_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.462609"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen26_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.462742"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen28_gen39",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.463028"
+    },
+    {
+      "name": "claude_base_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.463273"
+    },
+    {
+      "name": "claude_base_gen27",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.463410"
+    },
+    {
+      "name": "dmai_core_gen40_gen36",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.463626"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.463747"
+    },
+    {
+      "name": "gpt_base_gen39",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.463962"
+    },
+    {
+      "name": "claude_base_gen36",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.464094"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen28_gen27",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-10T07:54:40.464248"
+    },
+    {
+      "name": "deepseek_base_gen40",
+      "score": 3.2866203019675906,
+      "timestamp": "2026-03-10T07:54:40.464486"
+    },
+    {
+      "name": "grok_base_gen37",
+      "score": 3.175495020902037,
+      "timestamp": "2026-03-10T07:54:40.464609"
+    },
+    {
+      "name": "dmai_core_gen41",
+      "score": 2.9699172933114464,
+      "timestamp": "2026-03-10T07:54:40.464730"
+    },
+    {
+      "name": "dmai_core_gen39_gen41",
+      "score": 2.9699172933114464,
+      "timestamp": "2026-03-10T07:54:40.464853"
+    },
+    {
+      "name": "dmai_core_gen40",
+      "score": 2.9629716594399302,
+      "timestamp": "2026-03-10T07:54:40.464972"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen26_gen40",
+      "score": 2.9629716594399302,
+      "timestamp": "2026-03-10T07:54:40.465097"
+    },
+    {
+      "name": "dmai_core_gen28",
+      "score": 2.938365062196898,
+      "timestamp": "2026-03-10T07:54:40.465217"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen28",
+      "score": 2.938365062196898,
+      "timestamp": "2026-03-10T07:54:40.465334"
+    },
+    {
+      "name": "dmai_core_gen42",
+      "score": 2.913243850766951,
+      "timestamp": "2026-03-10T07:54:40.465453"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen28_gen42",
+      "score": 2.913243850766951,
+      "timestamp": "2026-03-10T07:54:40.465580"
+    },
+    {
+      "name": "dmai_core_gen25_gen28_gen33",
+      "score": 2.7235852394424884,
+      "timestamp": "2026-03-10T07:54:40.465816"
+    },
+    {
+      "name": "dmai_core_gen33",
+      "score": 2.7235852394424884,
+      "timestamp": "2026-03-10T07:54:40.465938"
+    },
+    {
+      "name": "dmai_core_gen26",
+      "score": 2.624267396597173,
+      "timestamp": "2026-03-10T07:54:40.466059"
+    },
+    {
+      "name": "claude_base_gen25_gen26",
+      "score": 2.624267396597173,
+      "timestamp": "2026-03-10T07:54:40.466178"
+    },
+    {
+      "name": "dmai_core_gen25",
+      "score": 2.5662449439591675,
+      "timestamp": "2026-03-10T07:54:40.466327"
+    },
+    {
+      "name": "claude_base_gen25",
+      "score": 2.5662449439591675,
+      "timestamp": "2026-03-10T07:54:40.466445"
+    },
+    {
+      "name": "gpt_base_gen2",
+      "score": 2.3740116958694384,
+      "timestamp": "2026-03-10T07:54:40.466560"
+    },
+    {
+      "name": "github_transformers_gen2",
+      "score": 2.3740116958694384,
+      "timestamp": "2026-03-10T07:54:40.466686"
+    },
+    {
+      "name": "deepseek_base_gen28",
+      "score": 2.2,
+      "timestamp": "2026-03-10T07:54:40.466898"
+    },
+    {
+      "name": "gpt_base_gen35",
+      "score": 2.2,
+      "timestamp": "2026-03-10T07:54:40.467033"
+    },
+    {
+      "name": "dmai_core_gen25_gen28",
+      "score": 2.2,
+      "timestamp": "2026-03-10T07:54:40.467147"
+    },
+    {
+      "name": "dmai_core_gen26_gen35",
+      "score": 2.2,
+      "timestamp": "2026-03-10T07:54:40.467266"
+    },
+    {
+      "name": "grok_base_gen31_gen39",
+      "score": 2.2,
+      "timestamp": "2026-03-10T07:54:40.467530"
+    },
+    {
+      "name": "grok_base_gen39",
+      "score": 2.2,
+      "timestamp": "2026-03-10T07:54:40.467649"
+    },
+    {
+      "name": "claude_base_gen26_gen2",
+      "score": 1.696161071649844,
+      "timestamp": "2026-03-10T07:54:40.467769"
+    },
+    {
+      "name": "dmai_core_gen30_gen2",
+      "score": 1.696161071649844,
+      "timestamp": "2026-03-10T07:54:40.467894"
+    },
+    {
+      "name": "claude_base_gen35",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468025"
+    },
+    {
+      "name": "deepseek_base_gen28_gen36_gen38",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468144"
+    },
+    {
+      "name": "gpt_base_gen37",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468292"
+    },
+    {
+      "name": "gpt_base_gen38",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468528"
+    },
+    {
+      "name": "dmai_core_gen32_gen37",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468646"
+    },
+    {
+      "name": "gpt_base_gen36",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468777"
+    },
+    {
+      "name": "grok_base_gen26_gen35",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.468907"
+    },
+    {
+      "name": "deepseek_base_gen28_gen36",
+      "score": 1.1,
+      "timestamp": "2026-03-10T07:54:40.469152"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28_gen38_gen2",
+      "score": 0.5965378144415836,
+      "timestamp": "2026-03-10T07:54:40.469359"
+    },
+    {
+      "name": "dmai_core_gen33_gen2",
+      "score": 0.5965378144415836,
+      "timestamp": "2026-03-10T07:54:40.469484"
+    }
+  ],
+  "kept": [
+    {
+      "name": "grok_base_gen29",
+      "score": 4.099341455053359,
+      "timestamp": "2026-03-09T18:45:12.140581"
+    },
+    {
+      "name": "gpt_base_gen27",
+      "score": 4.0739466193171285,
+      "timestamp": "2026-03-09T18:45:12.140582"
+    },
+    {
+      "name": "dmai_core_gen36",
+      "score": 4.059430115048569,
+      "timestamp": "2026-03-09T18:45:12.140583"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28_gen36",
+      "score": 4.059430115048569,
+      "timestamp": "2026-03-09T18:45:12.140584"
+    },
+    {
+      "name": "deepseek_base_gen35",
+      "score": 4.048572198000018,
+      "timestamp": "2026-03-09T18:45:12.140584"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28",
+      "score": 3.996756428101523,
+      "timestamp": "2026-03-09T18:45:12.140585"
+    },
+    {
+      "name": "grok_base_gen31",
+      "score": 3.958562756673569,
+      "timestamp": "2026-03-09T18:45:12.140586"
+    },
+    {
+      "name": "deepseek_base_gen25",
+      "score": 3.9402699855031673,
+      "timestamp": "2026-03-09T18:45:12.140587"
+    },
+    {
+      "name": "claude_base_gen30",
+      "score": 3.9387733256717192,
+      "timestamp": "2026-03-09T18:45:12.140588"
+    },
+    {
+      "name": "grok_base_gen26",
+      "score": 3.8921537265996133,
+      "timestamp": "2026-03-09T18:45:12.140589"
+    },
+    {
+      "name": "dmai_core_gen27",
+      "score": 3.873839783749473,
+      "timestamp": "2026-03-09T18:45:12.140590"
+    },
+    {
+      "name": "grok_base_gen26_gen27",
+      "score": 3.873839783749473,
+      "timestamp": "2026-03-09T18:45:12.140591"
+    },
+    {
+      "name": "grok_base_gen2_gen3_gen31",
+      "score": 3.8645419982605245,
+      "timestamp": "2026-03-09T18:45:12.140591"
+    },
+    {
+      "name": "dmai_core_gen31",
+      "score": 3.8645419982605245,
+      "timestamp": "2026-03-09T18:45:12.140592"
+    },
+    {
+      "name": "deepseek_base_gen27_gen32",
+      "score": 3.846950853107491,
+      "timestamp": "2026-03-09T18:45:12.140593"
+    },
+    {
+      "name": "dmai_core_gen32",
+      "score": 3.846950853107491,
+      "timestamp": "2026-03-09T18:45:12.140594"
+    },
+    {
+      "name": "dmai_core_gen30",
+      "score": 3.846587068785185,
+      "timestamp": "2026-03-09T18:45:12.140595"
+    },
+    {
+      "name": "gpt_base_gen28_gen30",
+      "score": 3.846587068785185,
+      "timestamp": "2026-03-09T18:45:12.140595"
+    },
+    {
+      "name": "gpt_base_gen32",
+      "score": 3.8433901822661882,
+      "timestamp": "2026-03-09T18:45:12.140596"
+    },
+    {
+      "name": "grok_base_gen26_gen34",
+      "score": 3.8316264609317354,
+      "timestamp": "2026-03-09T18:45:12.140597"
+    },
+    {
+      "name": "dmai_core_gen34",
+      "score": 3.8316264609317354,
+      "timestamp": "2026-03-09T18:45:12.140598"
+    },
+    {
+      "name": "gpt_base_gen34",
+      "score": 3.8161069070028493,
+      "timestamp": "2026-03-09T18:45:12.140599"
+    },
+    {
+      "name": "claude_base_gen25_gen29",
+      "score": 3.8153540505038603,
+      "timestamp": "2026-03-09T18:45:12.140599"
+    },
+    {
+      "name": "dmai_core_gen29",
+      "score": 3.8153540505038603,
+      "timestamp": "2026-03-09T18:45:12.140600"
+    },
+    {
+      "name": "gpt_base_gen28",
+      "score": 3.804434400300447,
+      "timestamp": "2026-03-09T18:45:12.140601"
+    },
+    {
+      "name": "dmai_core_gen37",
+      "score": 3.746173260310966,
+      "timestamp": "2026-03-09T18:45:12.140602"
+    },
+    {
+      "name": "claude_base_gen27_gen2_gen37",
+      "score": 3.746173260310966,
+      "timestamp": "2026-03-09T18:45:12.140603"
+    },
+    {
+      "name": "grok_base_gen3_gen35",
+      "score": 3.666510752138419,
+      "timestamp": "2026-03-09T18:45:12.140604"
+    },
+    {
+      "name": "dmai_core_gen35",
+      "score": 3.666510752138419,
+      "timestamp": "2026-03-09T18:45:12.140604"
+    },
+    {
+      "name": "deepseek_base_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-09T18:45:12.140605"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen26_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-09T18:45:12.140606"
+    },
+    {
+      "name": "claude_base_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-09T18:45:12.140607"
+    },
+    {
+      "name": "claude_base_gen27",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-09T18:45:12.140607"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen26",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-09T18:45:12.140608"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen28_gen27",
+      "score": 3.3000000000000003,
+      "timestamp": "2026-03-09T18:45:12.140609"
+    },
+    {
+      "name": "grok_base_gen37",
+      "score": 3.175495020902037,
+      "timestamp": "2026-03-09T18:45:12.140610"
+    },
+    {
+      "name": "dmai_core_gen28",
+      "score": 2.938365062196898,
+      "timestamp": "2026-03-09T18:45:12.140611"
+    },
+    {
+      "name": "github_llama.cpp_gen2_gen28",
+      "score": 2.938365062196898,
+      "timestamp": "2026-03-09T18:45:12.140611"
+    },
+    {
+      "name": "dmai_core_gen25_gen28_gen33",
+      "score": 2.7235852394424884,
+      "timestamp": "2026-03-09T18:45:12.140612"
+    },
+    {
+      "name": "dmai_core_gen33",
+      "score": 2.7235852394424884,
+      "timestamp": "2026-03-09T18:45:12.140613"
+    },
+    {
+      "name": "dmai_core_gen26",
+      "score": 2.624267396597173,
+      "timestamp": "2026-03-09T18:45:12.140614"
+    },
+    {
+      "name": "claude_base_gen25_gen26",
+      "score": 2.624267396597173,
+      "timestamp": "2026-03-09T18:45:12.140615"
+    },
+    {
+      "name": "dmai_core_gen25",
+      "score": 2.5662449439591675,
+      "timestamp": "2026-03-09T18:45:12.140616"
+    },
+    {
+      "name": "claude_base_gen25",
+      "score": 2.5662449439591675,
+      "timestamp": "2026-03-09T18:45:12.140617"
+    },
+    {
+      "name": "gpt_base_gen2",
+      "score": 2.3740116958694384,
+      "timestamp": "2026-03-09T18:45:12.140618"
+    },
+    {
+      "name": "github_transformers_gen2",
+      "score": 2.3740116958694384,
+      "timestamp": "2026-03-09T18:45:12.140619"
+    },
+    {
+      "name": "deepseek_base_gen28",
+      "score": 2.2,
+      "timestamp": "2026-03-09T18:45:12.140619"
+    },
+    {
+      "name": "gpt_base_gen35",
+      "score": 2.2,
+      "timestamp": "2026-03-09T18:45:12.140620"
+    },
+    {
+      "name": "dmai_core_gen25_gen28",
+      "score": 2.2,
+      "timestamp": "2026-03-09T18:45:12.140621"
+    },
+    {
+      "name": "dmai_core_gen26_gen35",
+      "score": 2.2,
+      "timestamp": "2026-03-09T18:45:12.140622"
+    },
+    {
+      "name": "grok_base_gen29",
+      "score": 4.099341455053359,
+      "timestamp": "2026-03-10T07:54:40.469488"
+    },
+    {
+      "name": "gpt_base_gen27",
+      "score": 4.0739466193171285,
+      "timestamp": "2026-03-10T07:54:40.469489"
+    },
+    {
+      "name": "dmai_core_gen36",
+      "score": 4.059430115048569,
+      "timestamp": "2026-03-10T07:54:40.469490"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28_gen36",
+      "score": 4.059430115048569,
+      "timestamp": "2026-03-10T07:54:40.469491"
+    },
+    {
+      "name": "dmai_core_gen38",
+      "score": 4.052638517529427,
+      "timestamp": "2026-03-10T07:54:40.469492"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28_gen38",
+      "score": 4.052638517529427,
+      "timestamp": "2026-03-10T07:54:40.469493"
+    },
+    {
+      "name": "deepseek_base_gen35",
+      "score": 4.048572198000018,
+      "timestamp": "2026-03-10T07:54:40.469493"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28",
+      "score": 3.996756428101523,
+      "timestamp": "2026-03-10T07:54:40.469494"
+    },
+    {
+      "name": "deepseek_base_gen43",
+      "score": 3.9671135464978726,
+      "timestamp": "2026-03-10T07:54:40.469495"
+    },
+    {
+      "name": "deepseek_base_gen42",
+      "score": 3.962940192641708,
+      "timestamp": "2026-03-10T07:54:40.469496"
+    },
+    {
+      "name": "grok_base_gen31",
+      "score": 3.958562756673569,
+      "timestamp": "2026-03-10T07:54:40.469496"
+    },
+    {
+      "name": "deepseek_base_gen25",
+      "score": 3.9402699855031673,
+      "timestamp": "2026-03-10T07:54:40.469497"
+    },
+    {
+      "name": "claude_base_gen30",
+      "score": 3.9387733256717192,
+      "timestamp": "2026-03-10T07:54:40.469498"
+    },
+    {
+      "name": "dmai_core_gen39",
+      "score": 3.900838914260228,
+      "timestamp": "2026-03-10T07:54:40.469499"
+    },
+    {
+      "name": "grok_base_gen26_gen27_gen28_gen39",
+      "score": 3.900838914260228,
+      "timestamp": "2026-03-10T07:54:40.469500"
+    },
+    {
+      "name": "grok_base_gen38",
+      "score": 3.895050369367971,
+      "timestamp": "2026-03-10T07:54:40.469501"
+    },
+    {
+      "name": "grok_base_gen26",
+      "score": 3.8921537265996133,
+      "timestamp": "2026-03-10T07:54:40.469502"
+    },
+    {
+      "name": "deepseek_base_gen41",
+      "score": 3.889059023803519,
+      "timestamp": "2026-03-10T07:54:40.469503"
+    },
+    {
+      "name": "dmai_core_gen27",
+      "score": 3.873839783749473,
+      "timestamp": "2026-03-10T07:54:40.469504"
+    },
+    {
+      "name": "grok_base_gen26_gen27",
+      "score": 3.873839783749473,
+      "timestamp": "2026-03-10T07:54:40.469504"
+    },
+    {
+      "name": "dmai_core_gen43",
+      "score": 3.8674980666317516,
+      "timestamp": "2026-03-10T07:54:40.469505"
+    },
+    {
+      "name": "grok_base_gen39_gen43",
+      "score": 3.8674980666317516,
+      "timestamp": "2026-03-10T07:54:40.469506"
+    },
+    {
+      "name": "grok_base_gen2_gen3_gen31",
+      "score": 3.8645419982605245,
+      "timestamp": "2026-03-10T07:54:40.469507"
+    },
+    {
+      "name": "dmai_core_gen31",
+      "score": 3.8645419982605245,
+      "timestamp": "2026-03-10T07:54:40.469507"
+    },
+    {
+      "name": "deepseek_base_gen27_gen32",
+      "score": 3.846950853107491,
+      "timestamp": "2026-03-10T07:54:40.469508"
+    },
+    {
+      "name": "dmai_core_gen32",
+      "score": 3.846950853107491,
+      "timestamp": "2026-03-10T07:54:40.469509"
+    },
+    {
+      "name": "dmai_core_gen30",
+      "score": 3.846587068785185,
+      "timestamp": "2026-03-10T07:54:40.469510"
+    },
+    {
+      "name": "gpt_base_gen28_gen30",
+      "score": 3.846587068785185,
+      "timestamp": "2026-03-10T07:54:40.469511"
+    },
+    {
+      "name": "gpt_base_gen32",
+      "score": 3.8433901822661882,
+      "timestamp": "2026-03-10T07:54:40.469512"
+    },
+    {
+      "name": "grok_base_gen26_gen34",
+      "score": 3.8316264609317354,
+      "timestamp": "2026-03-10T07:54:40.469513"
+    }
+  ]
+}

@@ -128,5 +128,75 @@
     "description": "Adopt architectural patterns from DMAI",
     "potential_uplift": 0.13923535090033012,
     "old_version": "unknown"
+  },
+  {
+    "generation": 28,
+    "timestamp": "2026-03-09T14:54:11.183235",
+    "target_system": "DMAI",
+    "source_system": "claude_base",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from claude_base to DMAI",
+    "potential_uplift": 0.057447642342840693,
+    "old_version": "b669726b"
+  },
+  {
+    "generation": 33,
+    "timestamp": "2026-03-10T13:13:35.909413",
+    "target_system": "discarded",
+    "source_system": "DMAI",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from DMAI to discarded",
+    "potential_uplift": 0.014881601271169163,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 34,
+    "timestamp": "2026-03-10T14:13:55.394068",
+    "target_system": "discarded",
+    "source_system": "DMAI",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from DMAI to discarded",
+    "potential_uplift": 0.02679451822222367,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 35,
+    "timestamp": "2026-03-10T15:14:12.443419",
+    "target_system": "external",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.20383383370780161,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 38,
+    "timestamp": "2026-03-10T17:18:20.116297",
+    "target_system": "DMAI",
+    "source_system": "external",
+    "improvement_type": "intelligence_transfer",
+    "description": "Transfer intelligence patterns from external to DMAI",
+    "potential_uplift": 0.09190147897449276,
+    "old_version": "d62826ec"
+  },
+  {
+    "generation": 42,
+    "timestamp": "2026-03-11T03:37:24.331320",
+    "target_system": "hall_of_fame",
+    "source_system": "external_Midjourney",
+    "improvement_type": "capability_acquisition",
+    "description": "Acquire creation, vision capabilities from external_Midjourney",
+    "potential_uplift": 0.5684570500967377,
+    "old_version": "unknown"
+  },
+  {
+    "generation": 44,
+    "timestamp": "2026-03-11T06:27:22.109567",
+    "target_system": "external",
+    "source_system": "DMAI",
+    "improvement_type": "architectural_enhancement",
+    "description": "Adopt architectural patterns from DMAI",
+    "potential_uplift": 0.2442163337361878,
+    "old_version": "unknown"
   }
 ]

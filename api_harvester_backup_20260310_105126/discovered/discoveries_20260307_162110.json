@@ -1,0 +1,74 @@
+{
+  "timestamp": "20260307_162110",
+  "total_discoveries": 10,
+  "discoveries": [
+    {
+      "source": "api_directory",
+      "url": "https://raw.githubusercontent.com/public-apis/public-apis/master/README.md",
+      "data_preview": "# Try Public APIs for free\nThe Public APIs repository is manually curated by community members like you and folks working at [APILayer](https://apilayer.com/?utm_source=Github&utm_medium=Referral&utm_",
+      "discovered_at": "2026-03-07T16:20:58.346336"
+    },
+    {
+      "source": "api_directory",
+      "url": "https://raw.githubusercontent.com/marmelab/awesome-rest/master/README.md",
+      "data_preview": "# Awesome REST [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)\n\nA collaborative list of grea",
+      "discovered_at": "2026-03-07T16:20:59.596859"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "docs.perplexity.ai",
+      "url": "https://docs.perplexity.ai",
+      "discovered_at": "2026-03-07T16:21:00.356702"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "docs.together.ai",
+      "url": "https://docs.together.ai",
+      "discovered_at": "2026-03-07T16:21:01.282901"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "replicate.com/docs",
+      "url": "https://replicate.com/docs",
+      "discovered_at": "2026-03-07T16:21:03.032068"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "docs.cohere.com",
+      "url": "https://docs.cohere.com",
+      "discovered_at": "2026-03-07T16:21:04.406366"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "ai.google.dev/docs",
+      "url": "https://ai.google.dev/docs",
+      "discovered_at": "2026-03-07T16:21:05.981624"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "docs.anthropic.com",
+      "url": "https://docs.anthropic.com",
+      "discovered_at": "2026-03-07T16:21:09.024533"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "docs.mistral.ai",
+      "url": "https://docs.mistral.ai",
+      "discovered_at": "2026-03-07T16:21:09.745925"
+    },
+    {
+      "source": "documentation",
+      "type": "api_docs",
+      "name": "docs.groq.com",
+      "url": "https://docs.groq.com",
+      "discovered_at": "2026-03-07T16:21:10.941300"
+    }
+  ]
+}

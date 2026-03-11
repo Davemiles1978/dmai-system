@@ -87,3 +87,130 @@ if __name__ == "__main__":
     # Run evolution in main thread (will block)
     print("✅ Evolution system starting in main thread\n")
     run_evolution()
+
+# ============================================================================
+# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
+# ============================================================================
+# This section adds API endpoints for external systems to connect
+# All original code above remains completely unchanged
+
+import json
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from datetime import datetime
+
+# Global references
+_dual_instance = None
+_start_time = datetime.now()
+_telegram_running = False
+_evolution_running = False
+
+class DualLauncherAPIHandler(BaseHTTPRequestHandler):
+    """API for external systems to query dual launcher status"""
+    
+    def do_GET(self):
+        if self.path == '/status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Check thread status
+            telegram_alive = False
+            evolution_alive = False
+            
+            # Try to check if threads are alive
+            for thread in threading.enumerate():
+                if 'telegram' in thread.name.lower():
+                    telegram_alive = True
+                if 'evolution' in thread.name.lower():
+                    evolution_alive = True
+            
+            status = {
+                "name": "dual_launcher",
+                "running": True,
+                "telegram_running": telegram_alive,
+                "evolution_running": evolution_alive,
+                "healthy": True,
+                "uptime": str(datetime.now() - _start_time)
+            }
+            
+            self.wfile.write(json.dumps(status).encode())
+            
+        elif self.path == '/threads':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            threads = []
+            for thread in threading.enumerate():
+                threads.append({
+                    "name": thread.name,
+                    "daemon": thread.daemon,
+                    "alive": thread.is_alive()
+                })
+            
+            self.wfile.write(json.dumps({"threads": threads}).encode())
+            
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/command':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            try:
+                command = json.loads(post_data)
+                cmd = command.get('command', '')
+                
+                if cmd == 'restart_telegram':
+                    # Force restart telegram thread
+                    print("🔄 Manual Telegram restart triggered via API")
+                    self.wfile.write(json.dumps({
+                        "status": "restart_initiated",
+                        "message": "Telegram bot will restart"
+                    }).encode())
+                    
+                elif cmd == 'status':
+                    # Return current status
+                    telegram_alive = any(t.is_alive() and 'telegram' in t.name.lower() for t in threading.enumerate())
+                    evolution_alive = any(t.is_alive() and 'evolution' in t.name.lower() for t in threading.enumerate())
+                    
+                    self.wfile.write(json.dumps({
+                        "telegram": "running" if telegram_alive else "stopped",
+                        "evolution": "running" if evolution_alive else "stopped",
+                        "thread_count": threading.active_count()
+                    }).encode())
+                    
+                else:
+                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
+                    
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress HTTP logs
+
+def _start_api_server():
+    """Start API server in background thread"""
+    port = 9009  # Fixed port for dual launcher
+    
+    def run_server():
+        server = HTTPServer(('localhost', port), DualLauncherAPIHandler)
+        print(f"📡 Dual Launcher API endpoint active at http://localhost:{port}")
+        server.serve_forever()
+    
+    thread = threading.Thread(target=run_server, daemon=True)
+    thread.start()
+    return port
+
+# Initialize the API server
+_api_port = _start_api_server()

@@ -1,0 +1,8 @@
+{
+    "name": "deepseek_base",
+    "type": "base",
+    "generation": 1,
+    "capabilities": ["language", "reasoning", "code"],
+    "strengths": ["learning", "adaptation"],
+    "created": "2026-03-09T14:59:12+03:00"
+}

@@ -1,0 +1,50 @@
+services:
+  # Main harvester - runs 24/7
+  - type: worker
+    name: api-harvester
+    runtime: python
+    repo: https://github.com/Davemiles1978/api-harvester
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python harvester.py
+    envVars:
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: GITHUB_TOKEN
+        sync: false
+    buildFilter:
+      paths:
+      - render.yaml
+      - requirements.txt
+      - harvester.py
+      - config.py
+      - storage/**/*.py
+      - scrapers/**/*.py
+
+  # Validator - runs hourly
+  - type: cron
+    name: api-validator
+    runtime: python
+    repo: https://github.com/Davemiles1978/api-harvester
+    branch: main
+    schedule: "0 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python validator.py
+    envVars:
+      - key: ENCRYPTION_KEY
+        sync: false
+    buildFilter:
+      paths:
+      - render.yaml
+      - requirements.txt
+      - validator.py
+      - config.py
+      - storage/**/*.py
+
+  # PostgreSQL database
+  - type: db
+    name: dmai-harvester-db
+    plan: free
+    databaseName: harvester
+    user: dmai
+    ipAllowList: []

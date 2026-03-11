@@ -1,0 +1,247 @@
+{
+  "creation_date": "2026-03-09T10:43:03.627853",
+  "successful_evolutions": 28,
+  "failed_attempts": 0,
+  "current_stage": "young_adult",
+  "evolution_history": [
+    {
+      "timestamp": "2026-03-09T15:12:14.977227",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T15:12:59.480694",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T15:15:37.396424",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T15:30:37.579409",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T16:00:37.827533",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T16:30:38.037629",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T17:00:38.298115",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T17:08:40.430687",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T17:11:36.668938",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T17:41:36.938917",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T18:28:13.445914",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T19:16:13.839287",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T20:04:14.232307",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-09T23:39:47.448981",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-10T06:12:28.447958",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-10T07:00:29.109233",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-10T07:48:29.504268",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-10T08:36:29.863435",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-10T09:24:30.327761",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T06:41:51.611148",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T07:45:46.649725",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T07:45:53.323077",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T07:50:41.894325",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T07:50:55.882441",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T07:55:49.047121",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T07:56:03.063624",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T08:01:54.131854",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    },
+    {
+      "timestamp": "2026-03-11T08:02:08.150825",
+      "parents": [
+        "system_wide",
+        "evolution"
+      ],
+      "quality": 0
+    }
+  ],
+  "average_success_rate": 0.5384615384615384,
+  "last_adjustment": "2026-03-11T08:02:08.150833",
+  "current_interval": 5760,
+  "total_attempts": 52,
+  "preferred_pairs": {
+    "DMAI\u27f2DMAI": {
+      "attempts": 24,
+      "successes": 0
+    },
+    "system_wide\u27f2evolution": {
+      "attempts": 28,
+      "successes": 28
+    }
+  },
+  "learning_rate": 1.0
+}

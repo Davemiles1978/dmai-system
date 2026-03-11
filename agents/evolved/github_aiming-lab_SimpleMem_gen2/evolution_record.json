@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-03-11T07:50:55.877445",
+  "parent1": "github_aiming-lab_SimpleMem",
+  "parent2": "dmai_core_gen32_gen38",
+  "improvements": [
+    {
+      "type": "architecture_merge",
+      "description": "Merge architectures of \u26a1 dmai_core_gen32_gen38 and \ud83d\udce6 SimpleMem",
+      "quality": 0.7666294500972747
+    },
+    {
+      "type": "fresh_integration",
+      "description": "Incorporate novel approach from external system",
+      "quality": 0.7962543633963988
+    }
+  ],
+  "new_generation": 2,
+  "capabilities": [
+    "optimization",
+    "agent_framework",
+    "retrieval",
+    "language_model"
+  ]
+}

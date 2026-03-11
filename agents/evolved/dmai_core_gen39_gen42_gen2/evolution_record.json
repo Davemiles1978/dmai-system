@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-03-11T08:01:54.128124",
+  "parent1": "github_rasbt_LLMs-from-scratch",
+  "parent2": "dmai_core_gen39_gen42",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "learning",
+      "description": "Transfer learning from \u26a1 dmai_core_gen39_gen42 to \ud83d\udce6 LLMs-from-scratch",
+      "quality": 0.5412994669520573
+    },
+    {
+      "type": "architecture_merge",
+      "description": "Merge architectures of \u26a1 dmai_core_gen39_gen42 and \ud83d\udce6 LLMs-from-scratch",
+      "quality": 0.7742238230212666
+    },
+    {
+      "type": "fresh_integration",
+      "description": "Incorporate novel approach from external system",
+      "quality": 0.7901360903979828
+    }
+  ],
+  "new_generation": 2,
+  "capabilities": [
+    "learning"
+  ]
+}

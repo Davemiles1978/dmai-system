@@ -1,45 +1,4 @@
 {
-  "Perplexity": {
-    "priority": 10,
-    "capabilities": [
-      "research",
-      "language",
-      "reasoning"
-    ],
-    "api_required": true,
-    "reverse_engineer": false,
-    "discovered_by": "user_request",
-    "status": "api_requested",
-    "attempts": 0,
-    "last_request": "2026-03-09T07:49:52.393550"
-  },
-  "Midjourney": {
-    "priority": 8,
-    "capabilities": [
-      "vision",
-      "creation"
-    ],
-    "api_required": true,
-    "reverse_engineer": false,
-    "discovered_by": "research",
-    "status": "api_requested",
-    "attempts": 0,
-    "last_request": "2026-03-09T07:49:52.398094"
-  },
-  "Suno": {
-    "priority": 7,
-    "capabilities": [
-      "audio",
-      "creation",
-      "music"
-    ],
-    "api_required": true,
-    "reverse_engineer": false,
-    "discovered_by": "research",
-    "status": "api_requested",
-    "attempts": 0,
-    "last_request": "2026-03-09T06:25:57.581538"
-  },
   "ElevenLabs": {
     "priority": 6,
     "capabilities": [
@@ -103,7 +62,7 @@
     "status": "api_requested",
     "attempts": 0,
     "discovered_at": "2026-03-09T06:43:06.924854",
-    "last_request": "2026-03-09T06:51:00.555895"
+    "last_request": "2026-03-11T06:14:31.483213"
   },
   "Claude-3.5": {
     "priority": 9,
@@ -117,6 +76,6 @@
     "status": "api_requested",
     "attempts": 0,
     "discovered_at": "2026-03-09T06:56:57.052989",
-    "last_request": "2026-03-09T07:49:52.396003"
+    "last_request": "2026-03-11T06:14:31.480992"
   }
 }

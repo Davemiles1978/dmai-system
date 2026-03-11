@@ -1,0 +1,8 @@
+{
+    "name": "DMAI_core",
+    "type": "core",
+    "generation": 24,
+    "capabilities": ["evolution", "coordination", "learning"],
+    "strengths": ["system_architecture", "meta_learning"],
+    "created": "2026-03-09T14:59:12+03:00"
+}

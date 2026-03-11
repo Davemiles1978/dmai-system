@@ -2,7 +2,10 @@
   "grok_base": 2,
   "external_Claude-3.5": 1,
   "deepseek_base": 3,
-  "DMAI": 5,
+  "DMAI": 7,
   "gpt_base": 1,
-  "claude_base": 1
+  "claude_base": 1,
+  "discarded": 2,
+  "external": 2,
+  "hall_of_fame": 1
 }

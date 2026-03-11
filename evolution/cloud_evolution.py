@@ -140,3 +140,58 @@ class CloudEvolutionService:
 if __name__ == "__main__":
     service = CloudEvolutionService()
     service.run_forever()
+
+    def __init__(self):
+        self.timer = AdaptiveEvolutionTimer()
+        self.heartbeat_url = os.getenv('HEARTBEAT_URL')
+        self.service_name = "dmai-evolution"
+        self.version = "1.0"
+        
+        # Initialize Telegram
+        try:
+            sys.path.append(str(Path(__file__).parent.parent))
+            from telegram_reporter import DMAITelegramBot
+            self.telegram = DMAITelegramBot()
+            self.telegram_enabled = True
+        except Exception as e:
+            print(f"⚠️ Telegram not configured: {e}")
+            self.telegram_enabled = False
+            self.telegram = None
+    
+    def run_cycle(self):
+        """Execute one evolution cycle with Telegram updates"""
+        try:
+            print(f"\n🧬 Cycle at {datetime.now().isoformat()}")
+            
+            # Run the evolution engine
+            result = subprocess.run(
+                [sys.executable, "evolution/evolution_engine.py"],
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+            
+            # Check for success
+            success = "✅ Improvement passed all tests!" in result.stdout
+            
+            # Record with timer
+            wait_time = self.timer.record_attempt(
+                "DMAI", "DMAI",
+                success=success
+            )
+            
+            # Send Telegram update on success
+            if success and self.telegram_enabled:
+                info = self.timer.get_stage_info()
+                self.telegram.report_evolution(True, info)
+            
+            # Send daily report at 9 AM
+            if datetime.now().hour == 9 and datetime.now().minute == 0:
+                if self.telegram_enabled:
+                    self.telegram.daily_report()
+            
+            return wait_time
+            
+        except Exception as e:
+            print(f"❌ Error: {e}")
+            return 600

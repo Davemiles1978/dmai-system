@@ -193,3 +193,156 @@ if __name__ == "__main__":
         researcher.run_continuous()
     else:
         parser.print_help()
+
+# ============================================================================
+# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
+# ============================================================================
+# This section adds API endpoints for external systems to connect
+# All original code above remains completely unchanged
+
+import json
+import socket
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from datetime import datetime
+from typing import Dict, Any
+
+# Global reference to the researcher instance
+_researcher_instance = None
+_start_time = datetime.now()
+
+class WebResearcherAPIHandler(BaseHTTPRequestHandler):
+    """API for external systems to query web researcher status"""
+    
+    def do_GET(self):
+        if self.path == '/status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Get status
+            status = {
+                "name": "web_researcher",
+                "running": True,
+                "findings_count": 0,
+                "last_cycle": None,
+                "healthy": True,
+                "uptime": str(datetime.now() - _start_time)
+            }
+            
+            # Try to get real data if researcher instance exists
+            if _researcher_instance:
+                try:
+                    status["findings_count"] = len(getattr(_researcher_instance, 'findings', {}))
+                    if _researcher_instance.findings:
+                        last_key = sorted(_researcher_instance.findings.keys())[-1]
+                        status["last_cycle"] = _researcher_instance.findings[last_key].get('timestamp')
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(status).encode())
+            
+        elif self.path == '/findings':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Return recent findings summary
+            summary = {
+                "total_cycles": 0,
+                "recent_innovations": []
+            }
+            
+            if _researcher_instance:
+                try:
+                    summary["total_cycles"] = len(_researcher_instance.findings)
+                    # Get last 5 cycles' innovation counts
+                    cycles = sorted(_researcher_instance.findings.keys())[-5:]
+                    for cycle in cycles:
+                        summary["recent_innovations"].append({
+                            "cycle": cycle,
+                            "innovations": _researcher_instance.findings[cycle].get('innovations_count', 0)
+                        })
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(summary).encode())
+            
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/command':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            try:
+                command = json.loads(post_data)
+                cmd = command.get('command', '')
+                
+                if cmd == 'research_now':
+                    # Trigger immediate research
+                    if _researcher_instance:
+                        result = _researcher_instance.run_once()
+                        self.wfile.write(json.dumps({
+                            "status": "research_completed", 
+                            "success": result
+                        }).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "Researcher not initialized"}).encode())
+                elif cmd == 'get_innovation':
+                    keyword = command.get('keyword', '')
+                    if keyword and _researcher_instance:
+                        # Search findings for keyword
+                        matches = []
+                        for cycle_id, cycle_data in _researcher_instance.findings.items():
+                            for innovation in cycle_data.get('innovations', []):
+                                if keyword.lower() in ' '.join(innovation.get('keywords', [])).lower():
+                                    matches.append({
+                                        "cycle": cycle_id,
+                                        "source": innovation.get('source'),
+                                        "timestamp": innovation.get('timestamp')
+                                    })
+                        self.wfile.write(json.dumps({"matches": matches[:10]}).encode())
+                    else:
+                        self.wfile.write(json.dumps({"matches": []}).encode())
+                else:
+                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress HTTP logs
+
+def _start_api_server():
+    """Start API server in background thread"""
+    port = 9005  # Fixed port for web researcher
+    
+    def run_server():
+        server = HTTPServer(('localhost', port), WebResearcherAPIHandler)
+        print(f"📡 Web Researcher API endpoint active at http://localhost:{port}")
+        server.serve_forever()
+    
+    thread = threading.Thread(target=run_server, daemon=True)
+    thread.start()
+    return port
+
+# Initialize the API server when this module is imported
+_api_port = _start_api_server()
+
+# Store reference to researcher instance when created
+_original_init = WebResearcher.__init__
+def _wrapped_init(self, *args, **kwargs):
+    global _researcher_instance
+    _original_init(self, *args, **kwargs)
+    _researcher_instance = self
+
+WebResearcher.__init__ = _wrapped_init

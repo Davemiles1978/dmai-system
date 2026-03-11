@@ -149,3 +149,159 @@ if __name__ == "__main__":
         reader.run_continuous()
     else:
         parser.print_help()
+
+# ============================================================================
+# PLUGGABLE INTERFACE LAYER - DO NOT MODIFY BELOW THIS LINE
+# ============================================================================
+# This section adds API endpoints for external systems to connect
+# All original code above remains completely unchanged
+
+import json
+import socket
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from datetime import datetime
+from typing import Dict, Any
+
+# Global reference to the book reader instance
+_book_instance = None
+_start_time = datetime.now()
+
+class BookReaderAPIHandler(BaseHTTPRequestHandler):
+    """API for external systems to query book reader status"""
+    
+    def do_GET(self):
+        if self.path == '/status':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Get status
+            status = {
+                "name": "book_reader",
+                "running": True,
+                "books_read": 0,
+                "vocabulary_size": 0,
+                "healthy": True,
+                "uptime": str(datetime.now() - _start_time)
+            }
+            
+            # Try to get real data if book instance exists
+            if _book_instance:
+                try:
+                    status["books_read"] = getattr(_book_instance, 'books_read', 0)
+                    # Try to load vocabulary to get size
+                    vocab = _book_instance.load_vocabulary()
+                    if vocab:
+                        status["vocabulary_size"] = len(vocab)
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(status).encode())
+            
+        elif self.path == '/vocabulary':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Return vocabulary statistics
+            vocab_stats = {
+                "total_words": 0,
+                "recent_additions": []
+            }
+            
+            if _book_instance:
+                try:
+                    vocab = _book_instance.load_vocabulary()
+                    if vocab:
+                        vocab_stats["total_words"] = len(vocab)
+                        # Get 10 most recent words
+                        recent = sorted(
+                            vocab.items(), 
+                            key=lambda x: x[1].get('first_seen', ''), 
+                            reverse=True
+                        )[:10]
+                        vocab_stats["recent_additions"] = [
+                            {"word": w, "source": d.get('source', '')} 
+                            for w, d in recent
+                        ]
+                except:
+                    pass
+            
+            self.wfile.write(json.dumps(vocab_stats).encode())
+            
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/command':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            try:
+                command = json.loads(post_data)
+                cmd = command.get('command', '')
+                
+                if cmd == 'read_now':
+                    # Trigger an immediate book read
+                    if _book_instance:
+                        result = _book_instance.run_once()
+                        self.wfile.write(json.dumps({
+                            "status": "read_completed", 
+                            "success": result
+                        }).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "Book reader not initialized"}).encode())
+                elif cmd == 'get_word':
+                    word = command.get('word', '')
+                    if word and _book_instance:
+                        vocab = _book_instance.load_vocabulary()
+                        if vocab and word in vocab:
+                            self.wfile.write(json.dumps({
+                                "found": True,
+                                "data": vocab[word]
+                            }).encode())
+                        else:
+                            self.wfile.write(json.dumps({"found": False}).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "No word specified"}).encode())
+                else:
+                    self.wfile.write(json.dumps({"error": f"Unknown command: {cmd}"}).encode())
+            except Exception as e:
+                self.wfile.write(json.dumps({"error": str(e)}).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress HTTP logs
+
+def _start_api_server():
+    """Start API server in background thread"""
+    port = 9004  # Fixed port for book reader
+    
+    def run_server():
+        server = HTTPServer(('localhost', port), BookReaderAPIHandler)
+        print(f"📡 Book Reader API endpoint active at http://localhost:{port}")
+        server.serve_forever()
+    
+    thread = threading.Thread(target=run_server, daemon=True)
+    thread.start()
+    return port
+
+# Initialize the API server when this module is imported
+_api_port = _start_api_server()
+
+# Store reference to book instance when created
+_original_init = BookReader.__init__
+def _wrapped_init(self, *args, **kwargs):
+    global _book_instance
+    _original_init(self, *args, **kwargs)
+    _book_instance = self
+
+BookReader.__init__ = _wrapped_init

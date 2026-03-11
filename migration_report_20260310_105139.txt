@@ -1,0 +1,67 @@
+============================================================
+API-HARVESTER COMPLETE MIGRATION REPORT
+============================================================
+Date: 2026-03-10 10:51:39
+
+SOURCES SCANNED:
+  • Current (dmai-system): /Users/davidmiles/Desktop/dmai-system/api_harvester - FOUND
+  • Evolution System: /Users/davidmiles/Desktop/AI-Evolution-System/api-harvester - FOUND
+  • Evolution Backup: /Users/davidmiles/Desktop/AI-Evolution-System-old-backup/api-harvester - NOT FOUND
+
+============================================================
+MIGRATION SUMMARY
+============================================================
+
+BACKUP CREATED:
+  /Users/davidmiles/Desktop/dmai-system/api_harvester_backup_20260310_105126
+
+FILES MERGED BY SOURCE:
+
+  📦 From Evolution System:
+    ✅ .env
+    ✅ .env.example
+    ✅ .gitignore
+    ✅ .gitignore.backup.20260309_083427
+    ✅ README.md
+    ✅ add_all_keys.py
+    ✅ add_keys.py
+    ✅ api_server.log
+    ✅ api_server.py
+    ✅ config.json
+    ✅ config.json.example
+    ✅ harvester.log
+    ✅ harvester.py.backup
+    ✅ harvester_installed.txt
+    ✅ keys/ (directory)
+    ✅ logs/ (directory)
+    ✅ render.yaml
+    ✅ requirements.txt
+    ✅ scrapers/ (directory)
+    ✅ start_harvester.sh
+    ... and 3 more
+
+CONFLICT RESOLUTIONS:
+
+  ⚠️  config.py
+     Source: Evolution System
+     Action: kept_current
+     Backup: /Users/davidmiles/Desktop/dmai-system/api_harvester/config.py.from_Evolution_System_20260310_105128
+
+  ⚠️  harvester.py
+     Source: Evolution System
+     Action: replaced_with_newer
+     Backup: /Users/davidmiles/Desktop/dmai-system/api_harvester/harvester.py.from_Evolution_System_20260310_105128
+
+============================================================
+FINAL LOCATION:
+  /Users/davidmiles/Desktop/dmai-system/api-harvester
+  Total files: 4891
+
+============================================================
+NEXT STEPS:
+1. Review this report carefully
+2. Test that all services work with new location
+3. After verification, archive old folders:
+   • /Users/davidmiles/Desktop/AI-Evolution-System
+   • /Users/davidmiles/Desktop/AI-Evolution-System-old-backup
+4. Run the path fix script to update launchd

@@ -1,0 +1,71 @@
+[
+  {
+    "id": "github_Azure_azure-search-vector-samples",
+    "name": "\ud83d\udce6 azure-search-vector-samples",
+    "full_name": "Azure/azure-search-vector-samples",
+    "type": "external",
+    "source": "github",
+    "url": "https://github.com/Azure/azure-search-vector-samples",
+    "description": "A repository of code samples for Vector search capabilities in Azure AI Search.",
+    "stars": 907,
+    "freshness": "new",
+    "capabilities": [
+      "embeddings",
+      "coding"
+    ],
+    "complexity": 0.0907,
+    "discovered": "2026-03-11T07:45:40.541558"
+  },
+  {
+    "id": "github_lanterndata_lantern",
+    "name": "\ud83d\udce6 lantern",
+    "full_name": "lanterndata/lantern",
+    "type": "external",
+    "source": "github",
+    "url": "https://github.com/lanterndata/lantern",
+    "description": "PostgreSQL vector database extension for building AI applications",
+    "stars": 876,
+    "freshness": "new",
+    "capabilities": [
+      "embeddings",
+      "vision"
+    ],
+    "complexity": 0.0876,
+    "discovered": "2026-03-11T07:45:40.541615"
+  },
+  {
+    "id": "github_henomis_lingoose",
+    "name": "\ud83d\udce6 lingoose",
+    "full_name": "henomis/lingoose",
+    "type": "external",
+    "source": "github",
+    "url": "https://github.com/henomis/lingoose",
+    "description": "\ud83e\udebf LinGoose is a Go framework for building awesome AI/LLM applications.",
+    "stars": 831,
+    "freshness": "new",
+    "capabilities": [
+      "language_model",
+      "embeddings"
+    ],
+    "complexity": 0.0831,
+    "discovered": "2026-03-11T07:45:40.541640"
+  },
+  {
+    "id": "github_danny-avila_rag_api",
+    "name": "\ud83d\udce6 rag_api",
+    "full_name": "danny-avila/rag_api",
+    "type": "external",
+    "source": "github",
+    "url": "https://github.com/danny-avila/rag_api",
+    "description": "ID-based RAG FastAPI: Integration with Langchain and PostgreSQL/pgvector",
+    "stars": 771,
+    "freshness": "new",
+    "capabilities": [
+      "retrieval",
+      "embeddings",
+      "optimization"
+    ],
+    "complexity": 0.0771,
+    "discovered": "2026-03-11T07:45:40.541656"
+  }
+]

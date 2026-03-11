@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-03-11T07:45:53.320175",
+  "parent1": "dmai_core",
+  "parent2": "dmai_core_gen45",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "evolution",
+      "description": "Transfer evolution from \ud83e\udde0 DMAI Core to \u26a1 dmai_core_gen45",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "coordination",
+      "description": "Transfer coordination from \ud83e\udde0 DMAI Core to \u26a1 dmai_core_gen45",
+      "quality": 0.9
+    },
+    {
+      "type": "meta_learning",
+      "description": "Apply meta-learning patterns to improve learning rate",
+      "quality": 0.6992149907867262
+    }
+  ],
+  "new_generation": 48,
+  "capabilities": [
+    "coordination",
+    "learning",
+    "evolution"
+  ]
+}
