@@ -1,145 +1,43 @@
-# Environment files
-.env
-.env.local
-.env.production
-.env.staging
-
 # Python
 __pycache__/
 *.py[cod]
-*.pyc
 *$py.class
 *.so
 .Python
-venv/
-.venv
 env/
-ENV/
-venv_py39_backup/
-pip-log.txt
-pip-delete-this-directory.txt
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# API Keys and Secrets - NEVER COMMIT
-config.json
-secrets.json
-credentials.json
-api_keys.json
-*_key.json
-*_token.json
-service-account*.json
-oauth*.json
-*.key
-*.pem
-*.p12
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-*.db-journal
-*.db-wal
-
-# Voice and biometric data - PRIVATE
-voice/enrollment_data/
-voice/enrollment_data/*.pkl
-voice/profiles/
-data/voice_profiles/
-*.pkl
-*.voiceprint
-*.voice
-
-# Vocabulary data - BACKED UP but not in git
-language_learning/data/secure/
-language_learning/data/vocabulary.json
-data/secure/
-*.vocab
-
-# Checkpoints and large binary files
-shared_checkpoints/
-shared_data/
-checkpoints/
-*.pt
-*.pth
-*.onnx
-*.h5
-*.keras
-*.zip
-*.tar.gz
-*.tgz
-*.7z
-*.rar
-*.mp4
-*.mov
-*.avi
-*.iso
-*.dmg
-
-# Logs
-logs/
-*.log
-*.log.*
-
-# API Harvester specific
-api-harvester/config.json
-api-harvester/*.db
-api-harvester/__pycache__/
-api-harvester/venv/
-
-# Funding/Wallet - SENSITIVE
-funding/wallets/
-*.wallet
-*.keystore
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
-# OS files
-.DS_Store
-*.DS_Store
-Thumbs.db
-desktop.ini
+venv/
+venv_brew/
+.venv/
+*.egg-info/
+dist/
+build/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# Backups
-*.backup
-*.backup*
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (but not the directories)
+data/research/dark/*.json
+data/research/web/*.json
+language_learning/data/*.json
+!language_learning/data/secure/vocabulary_master.json
+
+# Logs
+logs/
+*.log
+
+# Temporary scripts
+fix_*.py
+test_*.py
 *.bak
-*.bak*
-
-# Repos
-/repos/
-shared_checkpoints/best_versions/repos/
-
-# Test/temp files
-agi/backups/
-agi/test_results/
-
-# Binary/shared libraries
-*.dylib
-*.so
-*.dll
-
-# Environment files
-
-# Security configs
-security/*.json
-evolution/config/
-logs/evolution.log
-evolution.log
-scripts/yt-dlp
+*.bak2
+*.bak3
+*.bak4
+*.bak5
+*.bak6

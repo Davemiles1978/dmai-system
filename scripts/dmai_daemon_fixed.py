@@ -36,90 +36,81 @@ SERVICES = [
         "name": "harvester_daemon",
         "path": HARVESTER_ROOT / "harvester.py",
         "venv": HARVESTER_VENV,
-        "args": ["--daemon"],
         "log": LOG_DIR / "harvester_daemon.log",
+        "args": ["--daemon"]
     },
     {
         "name": "harvester_api",
         "path": HARVESTER_ROOT / "api_server.py",
         "venv": HARVESTER_VENV,
-        "args": ["--daemon"],
         "log": LOG_DIR / "harvester_api.log",
-    },
-    {
-        "name": "evolution_engine",
-        "path": DMAI_ROOT / "evolution" / "continuous_advanced_evolution.py",
-        "venv": MAIN_VENV,
-        "log": LOG_DIR / "evolution_engine.log",
+        "args": ["--daemon"]
     },
     {
         "name": "book_reader",
         "path": DMAI_ROOT / "services" / "book_reader.py",
         "venv": MAIN_VENV,
-        "args": ["--continuous"],
         "log": LOG_DIR / "book_reader.log",
+        "args": ["--continuous"]
     },
     {
         "name": "web_researcher",
         "path": DMAI_ROOT / "services" / "web_researcher.py",
         "venv": MAIN_VENV,
-        "args": ["--continuous"],
         "log": LOG_DIR / "web_researcher.log",
+        "args": ["--continuous"]
     },
     {
         "name": "dark_researcher",
         "path": DMAI_ROOT / "services" / "dark_researcher.py",
         "venv": MAIN_VENV,
-        "args": ["--continuous"],
         "log": LOG_DIR / "dark_researcher.log",
+        "args": ["--continuous"]
     },
     {
         "name": "music_learner",
         "path": DMAI_ROOT / "music" / "music_learner.py",
         "venv": MAIN_VENV,
-        "args": ["--continuous"],
         "log": LOG_DIR / "music_learner.log",
+        "args": ["--continuous"]
     },
     {
         "name": "voice_service",
         "path": DMAI_ROOT / "voice" / "dmai_voice_with_learning.py",
         "venv": MAIN_VENV,
         "log": LOG_DIR / "voice.log",
+        "args": []
     },
     {
         "name": "dual_launcher",
         "path": DMAI_ROOT / "evolution" / "dual_launcher.py",
         "venv": MAIN_VENV,
         "log": LOG_DIR / "dual_launcher.log",
+        "args": []
     },
 ]
 
 def is_process_alive(pid):
     """Check if process is alive and not a zombie"""
-    if not pid:
-        return False
     try:
         # Check if process exists
         os.kill(pid, 0)
         
-        # On macOS, check if it's a zombie
+        # Check if it's a zombie
         result = subprocess.run(['ps', '-o', 'state=', '-p', str(pid)], 
                               capture_output=True, text=True)
         if result.returncode == 0:
             state = result.stdout.strip()
-            # 'Z' means zombie - kill it
             if state == 'Z':
                 return False
-            # Any other state means it's alive
-            return True
-        return False
+        return True
     except (OSError, ProcessLookupError):
         return False
 
 def start_service(service):
     """Start a service and return PID"""
     cmd = [str(service["venv"]), str(service["path"])]
-    if "args" in service:
+    if "args" in service and service["args"]:
         cmd += service["args"]
     
     try:
@@ -128,13 +119,20 @@ def start_service(service):
         log_file.write(f"\n--- Starting at {datetime.now()} ---\n")
         log_file.flush()
         
-        # Start process
+        # Set resource limits before starting (Unix only)
+        import resource
+        def set_limits():
+            # Set memory limit to 512MB per service
+            resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, 512 * 1024 * 1024))
+        
+        # Start process with preexec function to set limits
         process = subprocess.Popen(
             cmd,
             stdout=log_file,
             stderr=subprocess.STDOUT,
             start_new_session=True,
-            env=os.environ.copy()
+            env=os.environ.copy(),
+            preexec_fn=set_limits if hasattr(os, 'fork') else None
         )
         
         service["pid"] = process.pid
@@ -180,7 +178,6 @@ def main():
     # Kill any existing service processes
     logger.info("Cleaning up old processes...")
     os.system("pkill -f 'dmai_voice_with_learning.py' 2>/dev/null")
-    os.system("pkill -f 'continuous_advanced_evolution.py' 2>/dev/null")
     os.system("pkill -f 'book_reader.py' 2>/dev/null")
     os.system("pkill -f 'web_researcher.py' 2>/dev/null")
     os.system("pkill -f 'dark_researcher.py' 2>/dev/null")

@@ -2506,5 +2506,1373 @@
         "relevance": 0.1111111111111111
       }
     ]
+  },
+  "20260311_090233": {
+    "timestamp": "2026-03-11T09:02:33.959226",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T09:02:22.095300",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4559,\"private\":false,\"downloads\":202130878,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68133004,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":48598806,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T09:02:25.147613",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T06:02:25Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T09:02:28.601964",
+        "data": "{\"total_count\":122586,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T09:02:31.951638",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.75, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 9, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 9, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T09:02:22.095300",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T09:02:25.147613",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T09:02:28.601964",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T09:02:31.951638",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_093241": {
+    "timestamp": "2026-03-11T09:32:41.859175",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T09:32:31.557869",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":202130878,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68133004,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":48598806,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T09:32:34.111035",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T06:02:25Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T09:32:36.525163",
+        "data": "{\"total_count\":122588,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T09:32:39.856026",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.72, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 7, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 7, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T09:32:31.557869",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T09:32:34.111035",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T09:32:36.525163",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T09:32:39.856026",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_094544": {
+    "timestamp": "2026-03-11T09:45:44.012990",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T09:45:32.681302",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":202130878,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68133004,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":48598806,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T09:45:35.518471",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T06:02:25Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T09:45:38.733828",
+        "data": "{\"total_count\":122591,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T09:45:42.004909",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.79, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T09:45:32.681302",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T09:45:35.518471",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T09:45:38.733828",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T09:45:42.004909",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_095145": {
+    "timestamp": "2026-03-11T09:51:45.050044",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T09:51:33.415770",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":202130878,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68133004,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":48598806,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T09:51:36.243978",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T06:02:25Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T09:51:39.450820",
+        "data": "{\"total_count\":122591,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T09:51:43.042896",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.82, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T09:51:33.415770",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T09:51:36.243978",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T09:51:39.450820",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T09:51:43.042896",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_095300": {
+    "timestamp": "2026-03-11T09:53:00.477421",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T09:52:49.257250",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":202130878,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68133004,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":48598806,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T09:52:51.885379",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T06:02:25Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T09:52:55.224729",
+        "data": "{\"total_count\":122591,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T09:52:58.463879",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.83, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 11, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 11, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T09:52:49.257250",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T09:52:51.885379",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T09:52:55.224729",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T09:52:58.463879",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_095505": {
+    "timestamp": "2026-03-11T09:55:05.522864",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T09:54:54.262973",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":202130878,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68133004,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":48598806,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T09:54:57.006915",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T06:02:25Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T09:55:00.249599",
+        "data": "{\"total_count\":122591,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T09:55:03.518818",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.75, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 9, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 9, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T09:54:54.262973",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T09:54:57.006915",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T09:55:00.249599",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T09:55:03.518818",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_102518": {
+    "timestamp": "2026-03-11T10:25:18.425925",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T10:25:06.726308",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T10:25:09.843252",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T07:25:09Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T10:25:13.079565",
+        "data": "{\"total_count\":122594,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T10:25:16.418739",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.79, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T10:25:06.726308",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T10:25:09.843252",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T10:25:13.079565",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T10:25:16.418739",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_103212": {
+    "timestamp": "2026-03-11T10:32:12.045706",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T10:32:00.523538",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T10:32:03.522083",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T07:25:09Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T10:32:06.821441",
+        "data": "{\"total_count\":122594,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T10:32:10.044553",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.77, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 9, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 9, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T10:32:00.523538",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T10:32:03.522083",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T10:32:06.821441",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T10:32:10.044553",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_103634": {
+    "timestamp": "2026-03-11T10:36:34.877630",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T10:36:23.441874",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T10:36:26.305247",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T07:25:09Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T10:36:29.514152",
+        "data": "{\"total_count\":122595,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T10:36:32.869348",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpoi3u\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.79, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T10:36:23.441874",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T10:36:26.305247",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T10:36:29.514152",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T10:36:32.869348",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_103731": {
+    "timestamp": "2026-03-11T10:37:31.065191",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T10:37:20.125793",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T10:37:22.737490",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T07:25:09Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T10:37:25.793326",
+        "data": "{\"total_count\":122595,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T10:37:29.059517",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpoi3u\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.82, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T10:37:20.125793",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T10:37:22.737490",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T10:37:25.793326",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T10:37:29.059517",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_105011": {
+    "timestamp": "2026-03-11T10:50:11.609524",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T10:50:00.238801",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T10:50:03.071446",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T07:25:09Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T10:50:06.335178",
+        "data": "{\"total_count\":122596,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T10:50:09.602060",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpoi3u\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.72, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 7, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 7, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T10:50:00.238801",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T10:50:03.071446",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T10:50:06.335178",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T10:50:09.602060",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_112024": {
+    "timestamp": "2026-03-11T11:20:24.099781",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T11:20:12.573656",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T11:20:15.450768",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T07:25:09Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T11:20:18.721232",
+        "data": "{\"total_count\":122600,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T11:20:22.096800",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpe31a\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.73, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 8, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 8, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T11:20:12.573656",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T11:20:15.450768",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T11:20:18.721232",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T11:20:22.096800",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_115037": {
+    "timestamp": "2026-03-11T11:50:37.118751",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T11:50:24.631342",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T11:50:27.679692",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T08:50:27Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T11:50:31.318235",
+        "data": "{\"total_count\":122604,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T11:50:35.113759",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpe31a\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.82, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T11:50:24.631342",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T11:50:27.679692",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T11:50:31.318235",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T11:50:35.113759",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_122049": {
+    "timestamp": "2026-03-11T12:20:49.010515",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T12:20:37.558800",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T12:20:40.295208",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T08:50:27Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T12:20:43.578319",
+        "data": "{\"total_count\":122610,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T12:20:46.999384",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpe31a\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.73, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 8, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 8, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T12:20:37.558800",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T12:20:40.295208",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T12:20:43.578319",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T12:20:46.999384",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_125101": {
+    "timestamp": "2026-03-11T12:51:01.816896",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T12:50:50.018729",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T12:50:53.201477",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T09:50:53Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T12:50:56.597705",
+        "data": "{\"total_count\":122618,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T12:50:59.811484",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpe31a\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.73, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 8, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 8, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T12:50:50.018729",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T12:50:53.201477",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T12:50:56.597705",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T12:50:59.811484",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_132114": {
+    "timestamp": "2026-03-11T13:21:14.716276",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T13:21:02.782054",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T13:21:05.574215",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T09:50:53Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T13:21:08.983238",
+        "data": "{\"total_count\":122622,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T13:21:12.714166",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpe31a\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.75, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 9, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 9, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T13:21:02.782054",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T13:21:05.574215",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T13:21:08.983238",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T13:21:12.714166",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_135127": {
+    "timestamp": "2026-03-11T13:51:27.279981",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T13:51:15.460725",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T13:51:18.451831",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T10:51:18Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T13:51:22.008903",
+        "data": "{\"total_count\":122622,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T13:51:25.275925",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.79, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 10, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 10, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, ",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T13:51:15.460725",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T13:51:18.451831",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T13:51:22.008903",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T13:51:25.275925",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
+  },
+  "20260311_142139": {
+    "timestamp": "2026-03-11T14:21:39.621779",
+    "findings_count": 4,
+    "innovations_count": 4,
+    "findings": [
+      {
+        "source": "HuggingFace Top Models",
+        "url": "https://huggingface.co/api/models?sort=downloads&limit=20",
+        "type": "api",
+        "timestamp": "2026-03-11T14:21:28.234988",
+        "data": "[{\"_id\":\"621ffdc136468d709f180294\",\"id\":\"sentence-transformers/all-MiniLM-L6-v2\",\"likes\":4560,\"private\":false,\"downloads\":203633600,\"tags\":[\"sentence-transformers\",\"pytorch\",\"tf\",\"rust\",\"onnx\",\"safetensors\",\"openvino\",\"bert\",\"feature-extraction\",\"sentence-similarity\",\"transformers\",\"en\",\"dataset:s2orc\",\"dataset:flax-sentence-embeddings/stackexchange_xml\",\"dataset:ms_marco\",\"dataset:gooaq\",\"dataset:yahoo_answers_topics\",\"dataset:code_search_net\",\"dataset:search_qa\",\"dataset:eli5\",\"dataset:snli\",\"dataset:multi_nli\",\"dataset:wikihow\",\"dataset:natural_questions\",\"dataset:trivia_qa\",\"dataset:embedding-data/sentence-compression\",\"dataset:embedding-data/flickr30k-captions\",\"dataset:embedding-data/altlex\",\"dataset:embedding-data/simple-wiki\",\"dataset:embedding-data/QQP\",\"dataset:embedding-data/SPECTER\",\"dataset:embedding-data/PAQ_pairs\",\"dataset:embedding-data/WikiAnswers\",\"arxiv:1904.06472\",\"arxiv:2102.07033\",\"arxiv:2104.08727\",\"arxiv:1704.05179\",\"arxiv:1810.09305\",\"license:apache-2.0\",\"eval-results\",\"text-embeddings-inference\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"sentence-similarity\",\"library_name\":\"sentence-transformers\",\"createdAt\":\"2022-03-02T23:29:05.000Z\",\"modelId\":\"sentence-transformers/all-MiniLM-L6-v2\"},{\"_id\":\"621ffdc036468d709f174338\",\"id\":\"google-bert/bert-base-uncased\",\"likes\":2584,\"private\":false,\"downloads\":68879514,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"coreml\",\"onnx\",\"safetensors\",\"bert\",\"fill-mask\",\"exbert\",\"en\",\"dataset:bookcorpus\",\"dataset:wikipedia\",\"arxiv:1810.04805\",\"license:apache-2.0\",\"endpoints_compatible\",\"deploy:azure\",\"region:us\"],\"pipeline_tag\":\"fill-mask\",\"library_name\":\"transformers\",\"createdAt\":\"2022-03-02T23:29:04.000Z\",\"modelId\":\"google-bert/bert-base-uncased\"},{\"_id\":\"621ffdc136468d709f17b61d\",\"id\":\"google/electra-base-discriminator\",\"likes\":84,\"private\":false,\"downloads\":49706634,\"tags\":[\"transformers\",\"pytorch\",\"tf\",\"jax\",\"rust\",\"electra\",\"pretraining\",\"en\",\"arxiv:1406.2661\",\"license:apache-2.",
+        "status": "success"
+      },
+      {
+        "source": "arXiv AI Papers",
+        "url": "https://export.arxiv.org/api/query?search_query=cat:cs.AI&start=0&max_results=10",
+        "type": "arxiv",
+        "timestamp": "2026-03-11T14:21:31.065757",
+        "data": "<?xml version='1.0' encoding='UTF-8'?>\n<feed xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:arxiv=\"http://arxiv.org/schemas/atom\" xmlns=\"http://www.w3.org/2005/Atom\">\n  <id>https://arxiv.org/api/xn611ryeCDnDvmVYOJ6SWZuh1qk</id>\n  <title>arXiv Query: search_query=cat:cs.AI&amp;id_list=&amp;start=0&amp;max_results=10</title>\n  <updated>2026-03-11T10:51:18Z</updated>\n  <link href=\"https://arxiv.org/api/query?search_query=cat:cs.AI&amp;start=0&amp;max_results=10&amp;id_list=\" type=\"application/atom+xml\"/>\n  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n  <opensearch:totalResults>166532</opensearch:totalResults>\n  <opensearch:startIndex>0</opensearch:startIndex>\n  <entry>\n    <id>http://arxiv.org/abs/2012.12104v1</id>\n    <title>A Deep Reinforcement Learning Approach for Ramp Metering Based on Traffic Video Data</title>\n    <updated>2020-12-09T05:08:41Z</updated>\n    <link href=\"https://arxiv.org/abs/2012.12104v1\" rel=\"alternate\" type=\"text/html\"/>\n    <link href=\"https://arxiv.org/pdf/2012.12104v1\" rel=\"related\" type=\"application/pdf\" title=\"pdf\"/>\n    <summary>Ramp metering that uses traffic signals to regulate vehicle flows from the on-ramps has been widely implemented to improve vehicle mobility of the freeway. Previous studies generally update signal timings in real-time based on predefined traffic measures collected by point detectors, such as traffic volumes and occupancies. Comparing with point detectors, traffic cameras-which have been increasingly deployed on road networks-could cover larger areas and provide more detailed traffic information. In this work, we propose a deep reinforcement learning (DRL) method to explore the potential of traffic video data in improving the efficiency of ramp metering. The proposed method uses traffic video frames as inputs and learns the optimal control strategies directly from the high-dimensional visual inputs. A real-world case study demonstrates that, in comparison with a state-of-the-practice method,",
+        "status": "success"
+      },
+      {
+        "source": "GitHub AI Trending",
+        "url": "https://api.github.com/search/repositories?q=artificial-intelligence&sort=stars&order=desc",
+        "type": "github",
+        "timestamp": "2026-03-11T14:21:34.287625",
+        "data": "{\"total_count\":122625,\"incomplete_results\":false,\"items\":[{\"id\":614765452,\"node_id\":\"R_kgDOJKSTjA\",\"name\":\"AutoGPT\",\"full_name\":\"Significant-Gravitas/AutoGPT\",\"private\":false,\"owner\":{\"login\":\"Significant-Gravitas\",\"id\":130738209,\"node_id\":\"O_kgDOB8roIQ\",\"avatar_url\":\"https://avatars.githubusercontent.com/u/130738209?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/Significant-Gravitas\",\"html_url\":\"https://github.com/Significant-Gravitas\",\"followers_url\":\"https://api.github.com/users/Significant-Gravitas/followers\",\"following_url\":\"https://api.github.com/users/Significant-Gravitas/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/Significant-Gravitas/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/Significant-Gravitas/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/Significant-Gravitas/subscriptions\",\"organizations_url\":\"https://api.github.com/users/Significant-Gravitas/orgs\",\"repos_url\":\"https://api.github.com/users/Significant-Gravitas/repos\",\"events_url\":\"https://api.github.com/users/Significant-Gravitas/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/Significant-Gravitas/received_events\",\"type\":\"Organization\",\"user_view_type\":\"public\",\"site_admin\":false},\"html_url\":\"https://github.com/Significant-Gravitas/AutoGPT\",\"description\":\"AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.\",\"fork\":false,\"url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT\",\"forks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/forks\",\"keys_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/keys{/key_id}\",\"collaborators_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/collaborators{/collaborator}\",\"teams_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/teams\",\"hooks_url\":\"https://api.github.com/repos/Significant-Gravitas/AutoGPT/hooks\",",
+        "status": "success"
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "url": "https://www.reddit.com/r/MachineLearning/hot/.json?limit=10",
+        "type": "reddit",
+        "timestamp": "2026-03-11T14:21:37.616451",
+        "data": "{\"kind\": \"Listing\", \"data\": {\"after\": \"t3_1rpvbrt\", \"dist\": 10, \"modhash\": \"\", \"geo_filter\": null, \"children\": [{\"kind\": \"t3\", \"data\": {\"approved_at_utc\": null, \"subreddit\": \"MachineLearning\", \"selftext\": \"Please post your personal projects, startups, product placements, collaboration needs, blogs etc.\\n\\nPlease mention the payment and pricing requirements for products and services.\\n\\nPlease do not post link shorteners, link aggregator websites , or auto-subscribe links.\\n\\n\\\\--\\n\\nAny abuse of trust will lead to bans.\\n\\nEncourage others who create new posts for questions to post here instead!\\n\\nThread will stay alive until next one so keep posting after the date in the title.\\n\\n\\\\--\\n\\nMeta: This is an experiment. If the community doesnt like this, we will cancel it. This is to encourage those in the community to promote their work by not spamming the main threads.\", \"author_fullname\": \"t2_6l4z3\", \"saved\": false, \"mod_reason_title\": null, \"gilded\": 0, \"clicked\": false, \"title\": \"[D] Self-Promotion Thread\", \"link_flair_richtext\": [], \"subreddit_name_prefixed\": \"r/MachineLearning\", \"hidden\": false, \"pwls\": 6, \"link_flair_css_class\": \"one\", \"downs\": 0, \"thumbnail_height\": null, \"top_awarded_type\": null, \"hide_score\": false, \"name\": \"t3_1rihows\", \"quarantine\": false, \"link_flair_text_color\": null, \"upvote_ratio\": 0.75, \"author_flair_background_color\": null, \"subreddit_type\": \"public\", \"ups\": 9, \"total_awards_received\": 0, \"media_embed\": {}, \"thumbnail_width\": null, \"author_flair_template_id\": null, \"is_original_content\": false, \"user_reports\": [], \"secure_media\": null, \"is_reddit_media_domain\": false, \"is_meta\": false, \"category\": null, \"secure_media_embed\": {}, \"link_flair_text\": \"Discussion\", \"can_mod_post\": false, \"score\": 9, \"approved_by\": null, \"is_created_from_ads_ui\": false, \"author_premium\": true, \"thumbnail\": \"self\", \"edited\": false, \"author_flair_css_class\": null, \"author_flair_richtext\": [], \"gildings\": {}, \"content_categories\": null, \"is_self\": true, \"m",
+        "status": "success"
+      }
+    ],
+    "innovations": [
+      {
+        "source": "HuggingFace Top Models",
+        "timestamp": "2026-03-11T14:21:28.234988",
+        "keywords": [
+          "ai",
+          "transformer",
+          "model"
+        ],
+        "relevance": 0.3333333333333333
+      },
+      {
+        "source": "arXiv AI Papers",
+        "timestamp": "2026-03-11T14:21:31.065757",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      },
+      {
+        "source": "GitHub AI Trending",
+        "timestamp": "2026-03-11T14:21:34.287625",
+        "keywords": [
+          "ai",
+          "gpt"
+        ],
+        "relevance": 0.2222222222222222
+      },
+      {
+        "source": "Reddit Machine Learning",
+        "timestamp": "2026-03-11T14:21:37.616451",
+        "keywords": [
+          "ai"
+        ],
+        "relevance": 0.1111111111111111
+      }
+    ]
   }
 }

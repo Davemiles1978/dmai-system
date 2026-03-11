@@ -1,413 +1,4 @@
 {
-  "20260309_022015": {
-    "timestamp": "2026-03-09T02:20:15.764529",
-    "tor_available": false,
-    "findings_count": 0,
-    "findings": []
-  },
-  "20260309_032804": {
-    "timestamp": "2026-03-09T03:28:04.469209",
-    "tor_available": false,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "AI Security Papers",
-        "url": "https://arxiv.org/list/cs.CR/recent",
-        "type": "arxiv",
-        "timestamp": "2026-03-09T03:27:55.417926",
-        "data": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>  <title>Cryptography and Security  </title>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/static/browse/0.3.4/images/icons/apple-touch-icon.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/static/browse/0.3.4/images/icons/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/static/browse/0.3.4/images/icons/favicon-16x16.png\">\n  <link rel=\"manifest\" href=\"/static/browse/0.3.4/images/icons/site.webmanifest\">\n  <link rel=\"mask-icon\" href=\"/static/browse/0.3.4/images/icons/safari-pinned-tab.svg\" color=\"#5bbad5\">\n  <meta name=\"msapplication-TileColor\" content=\"#da532c\">\n  <meta name=\"theme-color\" content=\"#ffffff\">\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"/static/browse/0.3.4/css/arXiv.css?v=20241206\" />\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"print\" href=\"/static/browse/0.3.4/css/arXiv-print.css?v=20200611\" />\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"/static/browse/0.3.4/css/browse_search.css\" />\n  <script language=\"javascript\" src=\"/static/browse/0.3.4/js/accordion.js\" ></script>\n  <script language=\"javascript\" src=\"/static/browse/0.3.4/js/optin-modal.js?v=20250819\"></script>\n  \n  <script src=\"/static/browse/0.3.4/js/mathjaxToggle.min.js\" type=\"text/javascript\"></script>\n  <script type=\"text/javascript\" language=\"javascript\">mathjaxToggle();</script>\n</head>\n\n<body  class=\"with-cu-identity\">\n  \n  \n  <div class=\"flex-wrap-footer\">\n    <header>\n      <a href=\"#content\" class=\"is-sr-only\">Skip to main content</a>\n      <!-- start desktop header -->\n      <div class=\"columns is-vcentered is-hidden-mobile\" id=\"cu-identity\">\n        <div class=\"column\" id=\"cu-logo\">\n          <a href=\"https://www.cornell.edu/\"><img src=\"/static/browse/0.3.4/images/icons/cu/cornell-reduced-white-SMALL.svg\" alt=\"Cornell University\" /></a>\n        </div><!-- /from April 7 at 1:00 AM to May ",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      },
-      {
-        "source": "Privacy Preserving ML",
-        "url": "https://github.com/topics/federated-learning",
-        "type": "github",
-        "timestamp": "2026-03-09T03:27:59.399168",
-        "data": "\n\n<!DOCTYPE html>\n<html\n  lang=\"en\"\n  \n  data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark\"\n  data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\"\n  \n  >\n\n\n\n\n  <head>\n    <meta charset=\"utf-8\">\n  <link rel=\"dns-prefetch\" href=\"https://github.githubassets.com\">\n  <link rel=\"dns-prefetch\" href=\"https://avatars.githubusercontent.com\">\n  <link rel=\"dns-prefetch\" href=\"https://github-cloud.s3.amazonaws.com\">\n  <link rel=\"dns-prefetch\" href=\"https://user-images.githubusercontent.com/\">\n  <link rel=\"preconnect\" href=\"https://github.githubassets.com\" crossorigin>\n  <link rel=\"preconnect\" href=\"https://avatars.githubusercontent.com\">\n\n  \n\n  <link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/light-8810aba6e224dcba.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/light_high_contrast-4bd5b16144e096b4.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/dark-7b03b2414064dc76.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/dark_high_contrast-18178c5e0f26dae5.css\" /><link data-color-theme=\"light\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light-8810aba6e224dcba.css\" /><link data-color-theme=\"light_high_contrast\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_high_contrast-4bd5b16144e096b4.css\" /><link data-color-theme=\"light_colorblind\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_colorblind-f50d4b1ac9e848ec.css\" /><link data-color-theme=\"light_colorblind_high_contrast\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_colorblind_high_contrast-700c9067c7ae1651.css\" /><link d",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      },
-      {
-        "source": "Encrypted AI Models",
-        "url": "https://huggingface.co/models?search=encrypted",
-        "type": "huggingface",
-        "timestamp": "2026-03-09T03:28:02.463611",
-        "data": "<!doctype html>\n<html class=\"\">\n\t<head>\n\t\t<meta charset=\"utf-8\" />\n\n\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\" />\n\n\t\t<meta name=\"description\" content=\"Explore machine learning models.\" />\n\n\t\t<meta property=\"fb:app_id\" content=\"1321688464574422\" />\n\n\t\t<meta name=\"twitter:card\" content=\"summary_large_image\" />\n\n\t\t<meta name=\"twitter:site\" content=\"@huggingface\" />\n\n\t\t<meta name=\"twitter:image\" content=\"https://huggingface.co/front/thumbnails/models.png\" />\n\n\t\t<meta property=\"og:title\" content=\"Models \u2013 Hugging Face\" />\n\n\t\t<meta property=\"og:description\" content=\"Explore machine learning models.\" />\n\n\t\t<meta property=\"og:type\" content=\"website\" />\n\n\t\t<meta property=\"og:url\" content=\"https://huggingface.co/models\" />\n\n\t\t<meta property=\"og:image\" content=\"https://huggingface.co/front/thumbnails/models.png\" />\n\n\t\t<link rel=\"stylesheet\" href=\"/front/build/kube-752b511/style.css\" />\n\n\t\t<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" />\n\n\t\t<link\n\t\t\thref=\"https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap\"\n\t\t\trel=\"stylesheet\"\n\t\t/>\n\n\t\t<link\n\t\t\thref=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap\"\n\t\t\trel=\"stylesheet\"\n\t\t/>\n\n\t\t<link\n\t\t\trel=\"preload\"\n\t\t\thref=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css\"\n\t\t\tas=\"style\"\n\t\t\tonload=\"\n\t\t\t\tthis.onload = null;\n\t\t\t\tthis.rel = 'stylesheet';\n\t\t\t\"\n\t\t/>\n\n\t\t<noscript>\n\t\t\t<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css\" />\n\t\t</noscript>\n\t\t<script>const guestTheme = document.cookie.match(/theme=(\\w+)/)?.[1]; document.documentElement.classList.toggle('dark', guestTheme === 'dark' || ( (!guestTheme || guestTheme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches));</script>  <!-- HEAD_svelte-wykbfb_START --><style data-svelte-h=\"svelte-1p4uj91\">html {\n\t\t\tscrollbar-gutter: stable",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      }
-    ]
-  },
-  "20260309_043622": {
-    "timestamp": "2026-03-09T04:36:22.750813",
-    "tor_available": false,
-    "findings_count": 2,
-    "findings": [
-      {
-        "source": "AI Security Papers",
-        "url": "https://arxiv.org/list/cs.CR/recent",
-        "type": "arxiv",
-        "timestamp": "2026-03-09T04:35:39.536333",
-        "data": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>  <title>Cryptography and Security  </title>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/static/browse/0.3.4/images/icons/apple-touch-icon.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/static/browse/0.3.4/images/icons/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/static/browse/0.3.4/images/icons/favicon-16x16.png\">\n  <link rel=\"manifest\" href=\"/static/browse/0.3.4/images/icons/site.webmanifest\">\n  <link rel=\"mask-icon\" href=\"/static/browse/0.3.4/images/icons/safari-pinned-tab.svg\" color=\"#5bbad5\">\n  <meta name=\"msapplication-TileColor\" content=\"#da532c\">\n  <meta name=\"theme-color\" content=\"#ffffff\">\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"/static/browse/0.3.4/css/arXiv.css?v=20241206\" />\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"print\" href=\"/static/browse/0.3.4/css/arXiv-print.css?v=20200611\" />\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"/static/browse/0.3.4/css/browse_search.css\" />\n  <script language=\"javascript\" src=\"/static/browse/0.3.4/js/accordion.js\" ></script>\n  <script language=\"javascript\" src=\"/static/browse/0.3.4/js/optin-modal.js?v=20250819\"></script>\n  \n  <script src=\"/static/browse/0.3.4/js/mathjaxToggle.min.js\" type=\"text/javascript\"></script>\n  <script type=\"text/javascript\" language=\"javascript\">mathjaxToggle();</script>\n</head>\n\n<body  class=\"with-cu-identity\">\n  \n  \n  <div class=\"flex-wrap-footer\">\n    <header>\n      <a href=\"#content\" class=\"is-sr-only\">Skip to main content</a>\n      <!-- start desktop header -->\n      <div class=\"columns is-vcentered is-hidden-mobile\" id=\"cu-identity\">\n        <div class=\"column\" id=\"cu-logo\">\n          <a href=\"https://www.cornell.edu/\"><img src=\"/static/browse/0.3.4/images/icons/cu/cornell-reduced-white-SMALL.svg\" alt=\"Cornell University\" /></a>\n        </div><!-- /from April 7 at 1:00 AM to May ",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      },
-      {
-        "source": "Privacy Preserving ML",
-        "url": "https://github.com/topics/federated-learning",
-        "type": "github",
-        "timestamp": "2026-03-09T04:35:43.287702",
-        "data": "\n\n<!DOCTYPE html>\n<html\n  lang=\"en\"\n  \n  data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark\"\n  data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\"\n  \n  >\n\n\n\n\n  <head>\n    <meta charset=\"utf-8\">\n  <link rel=\"dns-prefetch\" href=\"https://github.githubassets.com\">\n  <link rel=\"dns-prefetch\" href=\"https://avatars.githubusercontent.com\">\n  <link rel=\"dns-prefetch\" href=\"https://github-cloud.s3.amazonaws.com\">\n  <link rel=\"dns-prefetch\" href=\"https://user-images.githubusercontent.com/\">\n  <link rel=\"preconnect\" href=\"https://github.githubassets.com\" crossorigin>\n  <link rel=\"preconnect\" href=\"https://avatars.githubusercontent.com\">\n\n  \n\n  <link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/light-8810aba6e224dcba.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/light_high_contrast-4bd5b16144e096b4.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/dark-7b03b2414064dc76.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/dark_high_contrast-18178c5e0f26dae5.css\" /><link data-color-theme=\"light\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light-8810aba6e224dcba.css\" /><link data-color-theme=\"light_high_contrast\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_high_contrast-4bd5b16144e096b4.css\" /><link data-color-theme=\"light_colorblind\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_colorblind-f50d4b1ac9e848ec.css\" /><link data-color-theme=\"light_colorblind_high_contrast\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_colorblind_high_contrast-700c9067c7ae1651.css\" /><link d",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      }
-    ]
-  },
-  "20260309_062517": {
-    "timestamp": "2026-03-09T06:25:17.183149",
-    "tor_available": false,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "AI Security Papers",
-        "url": "https://arxiv.org/list/cs.CR/recent",
-        "type": "arxiv",
-        "timestamp": "2026-03-09T06:25:08.900032",
-        "data": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>  <title>Cryptography and Security  </title>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/static/browse/0.3.4/images/icons/apple-touch-icon.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/static/browse/0.3.4/images/icons/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/static/browse/0.3.4/images/icons/favicon-16x16.png\">\n  <link rel=\"manifest\" href=\"/static/browse/0.3.4/images/icons/site.webmanifest\">\n  <link rel=\"mask-icon\" href=\"/static/browse/0.3.4/images/icons/safari-pinned-tab.svg\" color=\"#5bbad5\">\n  <meta name=\"msapplication-TileColor\" content=\"#da532c\">\n  <meta name=\"theme-color\" content=\"#ffffff\">\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"/static/browse/0.3.4/css/arXiv.css?v=20241206\" />\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"print\" href=\"/static/browse/0.3.4/css/arXiv-print.css?v=20200611\" />\n  <link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"/static/browse/0.3.4/css/browse_search.css\" />\n  <script language=\"javascript\" src=\"/static/browse/0.3.4/js/accordion.js\" ></script>\n  <script language=\"javascript\" src=\"/static/browse/0.3.4/js/optin-modal.js?v=20250819\"></script>\n  \n  <script src=\"/static/browse/0.3.4/js/mathjaxToggle.min.js\" type=\"text/javascript\"></script>\n  <script type=\"text/javascript\" language=\"javascript\">mathjaxToggle();</script>\n</head>\n\n<body  class=\"with-cu-identity\">\n  \n  \n  <div class=\"flex-wrap-footer\">\n    <header>\n      <a href=\"#content\" class=\"is-sr-only\">Skip to main content</a>\n      <!-- start desktop header -->\n      <div class=\"columns is-vcentered is-hidden-mobile\" id=\"cu-identity\">\n        <div class=\"column\" id=\"cu-logo\">\n          <a href=\"https://www.cornell.edu/\"><img src=\"/static/browse/0.3.4/images/icons/cu/cornell-reduced-white-SMALL.svg\" alt=\"Cornell University\" /></a>\n        </div><!-- /from April 7 at 1:00 AM to May ",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      },
-      {
-        "source": "Privacy Preserving ML",
-        "url": "https://github.com/topics/federated-learning",
-        "type": "github",
-        "timestamp": "2026-03-09T06:25:12.174762",
-        "data": "\n\n<!DOCTYPE html>\n<html\n  lang=\"en\"\n  \n  data-color-mode=\"auto\" data-light-theme=\"light\" data-dark-theme=\"dark\"\n  data-a11y-animated-images=\"system\" data-a11y-link-underlines=\"true\"\n  \n  >\n\n\n\n\n  <head>\n    <meta charset=\"utf-8\">\n  <link rel=\"dns-prefetch\" href=\"https://github.githubassets.com\">\n  <link rel=\"dns-prefetch\" href=\"https://avatars.githubusercontent.com\">\n  <link rel=\"dns-prefetch\" href=\"https://github-cloud.s3.amazonaws.com\">\n  <link rel=\"dns-prefetch\" href=\"https://user-images.githubusercontent.com/\">\n  <link rel=\"preconnect\" href=\"https://github.githubassets.com\" crossorigin>\n  <link rel=\"preconnect\" href=\"https://avatars.githubusercontent.com\">\n\n  \n\n  <link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/light-8810aba6e224dcba.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/light_high_contrast-4bd5b16144e096b4.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/dark-7b03b2414064dc76.css\" /><link crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" href=\"https://github.githubassets.com/assets/dark_high_contrast-18178c5e0f26dae5.css\" /><link data-color-theme=\"light\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light-8810aba6e224dcba.css\" /><link data-color-theme=\"light_high_contrast\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_high_contrast-4bd5b16144e096b4.css\" /><link data-color-theme=\"light_colorblind\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_colorblind-f50d4b1ac9e848ec.css\" /><link data-color-theme=\"light_colorblind_high_contrast\" crossorigin=\"anonymous\" media=\"all\" rel=\"stylesheet\" data-href=\"https://github.githubassets.com/assets/light_colorblind_high_contrast-700c9067c7ae1651.css\" /><link d",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      },
-      {
-        "source": "Encrypted AI Models",
-        "url": "https://huggingface.co/models?search=encrypted",
-        "type": "huggingface",
-        "timestamp": "2026-03-09T06:25:15.180499",
-        "data": "<!doctype html>\n<html class=\"\">\n\t<head>\n\t\t<meta charset=\"utf-8\" />\n\n\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\" />\n\n\t\t<meta name=\"description\" content=\"Explore machine learning models.\" />\n\n\t\t<meta property=\"fb:app_id\" content=\"1321688464574422\" />\n\n\t\t<meta name=\"twitter:card\" content=\"summary_large_image\" />\n\n\t\t<meta name=\"twitter:site\" content=\"@huggingface\" />\n\n\t\t<meta name=\"twitter:image\" content=\"https://huggingface.co/front/thumbnails/models.png\" />\n\n\t\t<meta property=\"og:title\" content=\"Models \u2013 Hugging Face\" />\n\n\t\t<meta property=\"og:description\" content=\"Explore machine learning models.\" />\n\n\t\t<meta property=\"og:type\" content=\"website\" />\n\n\t\t<meta property=\"og:url\" content=\"https://huggingface.co/models\" />\n\n\t\t<meta property=\"og:image\" content=\"https://huggingface.co/front/thumbnails/models.png\" />\n\n\t\t<link rel=\"stylesheet\" href=\"/front/build/kube-752b511/style.css\" />\n\n\t\t<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" />\n\n\t\t<link\n\t\t\thref=\"https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap\"\n\t\t\trel=\"stylesheet\"\n\t\t/>\n\n\t\t<link\n\t\t\thref=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap\"\n\t\t\trel=\"stylesheet\"\n\t\t/>\n\n\t\t<link\n\t\t\trel=\"preload\"\n\t\t\thref=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css\"\n\t\t\tas=\"style\"\n\t\t\tonload=\"\n\t\t\t\tthis.onload = null;\n\t\t\t\tthis.rel = 'stylesheet';\n\t\t\t\"\n\t\t/>\n\n\t\t<noscript>\n\t\t\t<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css\" />\n\t\t</noscript>\n\t\t<script>const guestTheme = document.cookie.match(/theme=(\\w+)/)?.[1]; document.documentElement.classList.toggle('dark', guestTheme === 'dark' || ( (!guestTheme || guestTheme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches));</script>  <!-- HEAD_svelte-wykbfb_START --><style data-svelte-h=\"svelte-1p4uj91\">html {\n\t\t\tscrollbar-gutter: stable",
-        "status": "success",
-        "note": "Clearnet alternative (Tor unavailable)"
-      }
-    ]
-  },
-  "20260309_064307": {
-    "timestamp": "2026-03-09T06:43:07.928909",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T06:43:07.925868",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T06:43:07.927484",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T06:43:07.928887",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_065054": {
-    "timestamp": "2026-03-09T06:50:54.074335",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T06:50:54.071380",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T06:50:54.073120",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T06:50:54.074321",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_065650": {
-    "timestamp": "2026-03-09T06:56:50.434383",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T06:56:50.431385",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T06:56:50.433116",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T06:56:50.434370",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_071853": {
-    "timestamp": "2026-03-09T07:18:53.931574",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T07:18:53.927720",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T07:18:53.929953",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T07:18:53.931560",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_072837": {
-    "timestamp": "2026-03-09T07:28:37.390197",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T07:28:37.387413",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T07:28:37.389047",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T07:28:37.390183",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_074351": {
-    "timestamp": "2026-03-09T07:43:51.215465",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T07:43:51.212627",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T07:43:51.214241",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T07:43:51.215450",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_074949": {
-    "timestamp": "2026-03-09T07:49:49.127303",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T07:49:49.122872",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T07:49:49.125108",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T07:49:49.127287",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_075623": {
-    "timestamp": "2026-03-09T07:56:23.736651",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T07:56:23.733499",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T07:56:23.735344",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T07:56:23.736633",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_094708": {
-    "timestamp": "2026-03-09T09:47:08.614117",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T09:47:08.610680",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T09:47:08.612596",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T09:47:08.614091",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
-  "20260309_095219": {
-    "timestamp": "2026-03-09T09:52:19.786211",
-    "tor_available": true,
-    "findings_count": 3,
-    "findings": [
-      {
-        "source": "Darknet AI Forum",
-        "url": "http://ai4dark.onion/forum",
-        "type": "forum",
-        "timestamp": "2026-03-09T09:52:19.782301",
-        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Hidden AI Research",
-        "url": "http://research7.onion/latest",
-        "type": "research",
-        "timestamp": "2026-03-09T09:52:19.784526",
-        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      },
-      {
-        "source": "Dark ML Repository",
-        "url": "http://mlhub.onion/models",
-        "type": "models",
-        "timestamp": "2026-03-09T09:52:19.786191",
-        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
-        "status": "failed"
-      }
-    ]
-  },
   "20260309_095221": {
     "timestamp": "2026-03-09T09:52:21.500320",
     "tor_available": true,
@@ -1519,6 +1110,440 @@
         "url": "http://mlhub.onion/models",
         "type": "models",
         "timestamp": "2026-03-11T08:02:02.444360",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_090202": {
+    "timestamp": "2026-03-11T09:02:02.556087",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:02:02.552374",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:02:02.554665",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:02:02.556064",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_093232": {
+    "timestamp": "2026-03-11T09:32:32.495946",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:32:32.490416",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:32:32.493495",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:32:32.495905",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_093235": {
+    "timestamp": "2026-03-11T09:32:35.375823",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:32:35.372237",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:32:35.374202",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:32:35.375795",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_094537": {
+    "timestamp": "2026-03-11T09:45:37.644674",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:45:37.631983",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:45:37.638764",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:45:37.644624",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_095137": {
+    "timestamp": "2026-03-11T09:51:37.898367",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:51:37.886205",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:51:37.892308",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:51:37.898314",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_095253": {
+    "timestamp": "2026-03-11T09:52:53.948305",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:52:53.936634",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:52:53.942577",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:52:53.948250",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_095458": {
+    "timestamp": "2026-03-11T09:54:58.753474",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T09:54:58.742204",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T09:54:58.747762",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T09:54:58.753419",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_103204": {
+    "timestamp": "2026-03-11T10:32:04.220555",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T10:32:04.211663",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T10:32:04.216026",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T10:32:04.220505",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_103626": {
+    "timestamp": "2026-03-11T10:36:26.698831",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T10:36:26.696198",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T10:36:26.697588",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T10:36:26.698816",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_103723": {
+    "timestamp": "2026-03-11T10:37:23.619954",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T10:37:23.608485",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T10:37:23.614569",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T10:37:23.619907",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_105003": {
+    "timestamp": "2026-03-11T10:50:03.783971",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T10:50:03.775397",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T10:50:03.780322",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T10:50:03.783926",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_115003": {
+    "timestamp": "2026-03-11T11:50:03.876617",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T11:50:03.873258",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T11:50:03.875101",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T11:50:03.876591",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_125004": {
+    "timestamp": "2026-03-11T12:50:04.016895",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T12:50:03.985709",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T12:50:04.011075",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T12:50:04.016780",
+        "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      }
+    ]
+  },
+  "20260311_135004": {
+    "timestamp": "2026-03-11T13:50:04.114500",
+    "tor_available": true,
+    "findings_count": 3,
+    "findings": [
+      {
+        "source": "Darknet AI Forum",
+        "url": "http://ai4dark.onion/forum",
+        "type": "forum",
+        "timestamp": "2026-03-11T13:50:04.111162",
+        "error": "SOCKSHTTPConnectionPool(host='ai4dark.onion', port=80): Max retries exceeded with url: /forum (Caused by NewConnectionError(\"SOCKSConnection(host='ai4dark.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Hidden AI Research",
+        "url": "http://research7.onion/latest",
+        "type": "research",
+        "timestamp": "2026-03-11T13:50:04.113148",
+        "error": "SOCKSHTTPConnectionPool(host='research7.onion', port=80): Max retries exceeded with url: /latest (Caused by NewConnectionError(\"SOCKSConnection(host='research7.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
+        "status": "failed"
+      },
+      {
+        "source": "Dark ML Repository",
+        "url": "http://mlhub.onion/models",
+        "type": "models",
+        "timestamp": "2026-03-11T13:50:04.114462",
         "error": "SOCKSHTTPConnectionPool(host='mlhub.onion', port=80): Max retries exceeded with url: /models (Caused by NewConnectionError(\"SOCKSConnection(host='mlhub.onion', port=80): Failed to establish a new connection: 0x01: General SOCKS server failure\"))",
         "status": "failed"
       }

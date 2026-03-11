@@ -96,6 +96,30 @@ import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
 
+# Memory optimization
+import gc
+gc.set_threshold(700, 10, 5)  # More aggressive garbage collection
+import resource
+try:
+    # Set soft memory limit
+    resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
+except:
+    pass
+
+# Clear cache periodically
+import threading
+import time
+def cache_cleaner():
+    while True:
+        time.sleep(300)  # Every 5 minutes
+        gc.collect()  # Force garbage collection
+        if hasattr(__import__('torch'), 'mps'):
+            import torch
+            if hasattr(torch.mps, 'empty_cache'):
+                torch.mps.empty_cache()
+threading.Thread(target=cache_cleaner, daemon=True).start()
+
+
 # Global reference
 _api_start_time = datetime.now()
 

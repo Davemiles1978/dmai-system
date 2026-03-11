@@ -17,6 +17,23 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message
 logger = logging.getLogger("WEB_RESEARCHER")
 
 class WebResearcher:
+
+    # Memory-optimized chunked processing
+    def process_in_chunks(self, data, chunk_size=100):
+        """Process data in chunks to save memory"""
+        results = []
+        for i in range(0, len(data), chunk_size):
+            chunk = data[i:i + chunk_size]
+            chunk_results = self._process_chunk(chunk)
+            results.extend(chunk_results)
+            
+            # Free memory after each chunk
+            del chunk
+            import gc
+            gc.collect()
+        
+        return results
+
     def __init__(self):
         self.root = ROOT
         self.research_dir = self.root / "data" / "research" / "web"
@@ -206,6 +223,30 @@ import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 from typing import Dict, Any
+
+# Memory optimization
+import gc
+gc.set_threshold(700, 10, 5)  # More aggressive garbage collection
+import resource
+try:
+    # Set soft memory limit
+    resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024, 1024 * 1024 * 1024))
+except:
+    pass
+
+# Clear cache periodically
+import threading
+import time
+def cache_cleaner():
+    while True:
+        time.sleep(300)  # Every 5 minutes
+        gc.collect()  # Force garbage collection
+        if hasattr(__import__('torch'), 'mps'):
+            import torch
+            if hasattr(torch.mps, 'empty_cache'):
+                torch.mps.empty_cache()
+threading.Thread(target=cache_cleaner, daemon=True).start()
+
 
 # Global reference to the researcher instance
 _researcher_instance = None

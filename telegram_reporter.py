@@ -438,7 +438,7 @@ class DMAITelegramBot:
             # === API KEYS ===
             try:
                 result = subprocess.run(
-                    ['curl', '-s', 'http://localhost:8081/keys'],
+                    ['curl', '-s', 'http://localhost:8081/keys/found'],
                     capture_output=True, text=True
                 )
                 if result.stdout:
@@ -493,7 +493,7 @@ class DMAITelegramBot:
         help_text += "• `/life` - Complete daily life report\n"
         help_text += "• `/mood` - DMAI's current mood & personality\n"
         help_text += "• `/vocab` - Vocabulary count\n"
-        help_text += "• `/keys` - API keys count\n\n"
+        help_text += "• `/keys/found` - Found keys count\n\n"
         
         help_text += "*Future Commands (Coming Soon):*\n"
         help_text += "• `/research` - Latest research findings\n"
@@ -640,10 +640,10 @@ class DMAITelegramBot:
                 self.send_message(f"❌ Could not load vocabulary: {e}")
         
         # API Keys
-        elif command == '/keys':
+        elif command == '/keys/found':
             try:
                 result = subprocess.run(
-                    ['curl', '-s', 'http://localhost:8081/keys'],
+                    ['curl', '-s', 'http://localhost:8081/keys/found'],
                     capture_output=True, text=True
                 )
                 if result.stdout:
