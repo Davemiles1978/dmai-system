@@ -1,4 +1,4 @@
-# Python
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -12,27 +12,22 @@ venv_brew/
 dist/
 build/
 
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
 .DS_Store
 Thumbs.db
 
-# Data files (but not the directories)
 data/research/dark/*.json
 data/research/web/*.json
 language_learning/data/*.json
 !language_learning/data/secure/vocabulary_master.json
 
-# Logs
 logs/
 *.log
 
-# Temporary scripts
 fix_*.py
 test_*.py
 *.bak
@@ -41,3 +36,9 @@ test_*.py
 *.bak4
 *.bak5
 *.bak6
+
+api-harvester/keys/
+api-harvester/venv_*/
+api-harvester/venv_brew/
+api-harvester/*.pyc
+api-harvester/__pycache__/
