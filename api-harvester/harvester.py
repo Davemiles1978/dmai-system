@@ -1,3 +1,6 @@
+from github_scraper_evolution import GitHubScraperEvolution
+from db_hybrid import KeyEvolutionDB, process_harvested_key
+
 #!/usr/bin/env python3
 """DMAI API Harvester - Finds and manages API keys"""
 
@@ -100,7 +103,7 @@ class Harvester:
             
             logger.info(f"📦 GitHub config: { {k: v[:4] + '...' if k == 'token' and v else v for k, v in github_config.items()} }")
             
-            self.github_scraper = GitHubScraper(config=github_config)
+            self.github_scraper = GitHubScraperEvolution(config=github_config)
             logger.info("✅ GitHub scraper initialized")
             
             # TODO: Initialize other scrapers as needed
@@ -149,7 +152,8 @@ class Harvester:
         if self.github_scraper:
             logger.info("\n🔍 Starting GitHub scraping...")
             try:
-                github_count = self.github_scraper.search_code()
+                results = self.github_scraper.search_github("api key OR token OR secret")
+                github_count = len(results) if results else 0
                 total_keys += github_count
                 logger.info(f"✅ GitHub scraping complete: found {github_count} potential keys")
             except Exception as e:
@@ -243,6 +247,8 @@ except:
 # Clear cache periodically
 import threading
 import time
+from db_hybrid import KeyEvolutionDB, process_harvested_key
+from github_scraper_evolution import GitHubScraperEvolution
 def cache_cleaner():
     while True:
         time.sleep(300)  # Every 5 minutes
