@@ -13,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 import glob
 import hashlib
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Add parent to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -22,6 +23,41 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger("SESSION_WATCHER")
+
+# Track service start time
+start_time = datetime.now()
+
+class HealthHandler(BaseHTTPRequestHandler):
+    """Health check endpoint for cron-job.org"""
+    
+    def do_GET(self):
+        if self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = {
+                "status": "healthy",
+                "service": "session-watcher",
+                "timestamp": datetime.now().isoformat(),
+                "uptime": str(datetime.now() - start_time)
+            }
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress logs
+
+def run_health_server():
+    """Run health check server on port specified by Render"""
+    port = int(os.environ.get('PORT', 8082))
+    try:
+        server = HTTPServer(('0.0.0.0', port), HealthHandler)
+        logger.info(f"✅ Health check server running on port {port}")
+        server.serve_forever()
+    except Exception as e:
+        logger.error(f"Health server error: {e}")
 
 class DMAISessionWatcher:
     """
@@ -182,6 +218,9 @@ if __name__ == "__main__":
     ║     Every file change feeds DMAI's learning                 ║
     ╚══════════════════════════════════════════════════════════════╝
     """)
+    
+    # Start health check server
+    threading.Thread(target=run_health_server, daemon=True).start()
     
     watcher = DMAISessionWatcher()
     watcher.start()
