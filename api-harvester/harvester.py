@@ -2,7 +2,7 @@ from github_scraper_evolution import GitHubScraperEvolution
 from db_hybrid import KeyEvolutionDB, process_harvested_key
 
 #!/usr/bin/env python3
-"""DMAI API Harvester - Finds and manages API keys"""
+"""DMAI API Harvester - Finds and manages API keys for ALL integrated systems"""
 
 import os
 import sys
@@ -12,6 +12,9 @@ import logging
 import signal
 import threading
 import traceback
+import importlib.util
+import inspect
+import requests
 from datetime import datetime
 from pathlib import Path
 
@@ -39,6 +42,8 @@ class Harvester:
         self.github_scraper = None
         self.storage = None
         self.db = None
+        self.integrators = {}  # Store loaded integrators
+        self.key_wishlist = {}  # Store all required keys from integrators
         
         # Setup signal handlers
         signal.signal(signal.SIGINT, self.signal_handler)
@@ -49,6 +54,8 @@ class Harvester:
         logger.info("=" * 50)
         
         self.init_components()
+        self.load_integrators()
+        self.generate_key_wishlist()
         
     def load_config(self):
         """Load configuration"""
@@ -70,11 +77,29 @@ class Harvester:
         config.setdefault('redis_port', 6379)
         config.setdefault('database_url', 'sqlite:///harvester.db')
         config.setdefault('check_interval', 3600)  # 1 hour
+        config.setdefault('integrations_path', os.path.join(os.path.dirname(__file__), '..', 'integrations'))
         
         # Log token status (without revealing the full token)
         if config.get('github_token'):
             token = config['github_token']
-            logger.info(f"🔑 GitHub token found: {token[:4]}...{token[-4:] if len(token) > 8 else ''}")
+            logger.info(f"🔑 GitHub token found in config: {token[:4]}...{token[-4:] if len(token) > 8 else ''} (length: {len(token)})")
+            
+            # Test the token with a quick API call
+            try:
+                test_response = requests.get(
+                    "https://api.github.com/rate_limit",
+                    headers={"Authorization": f"token {token}"},
+                    timeout=5
+                )
+                if test_response.status_code == 200:
+                    rate_data = test_response.json()
+                    search_limit = rate_data.get('resources', {}).get('search', {}).get('limit', 30)
+                    search_remaining = rate_data.get('resources', {}).get('search', {}).get('remaining', 0)
+                    logger.info(f"✅ GitHub token is valid! Search rate limit: {search_remaining}/{search_limit}")
+                else:
+                    logger.error(f"❌ GitHub token test failed with status: {test_response.status_code}")
+            except Exception as e:
+                logger.error(f"❌ GitHub token test error: {e}")
         else:
             logger.warning("⚠️ No GitHub token found in config or environment")
         
@@ -83,9 +108,6 @@ class Harvester:
     def init_components(self):
         """Initialize all scraper components"""
         try:
-            # Initialize GitHub scraper
-            from scrapers.github_scraper import GitHubScraper
-            
             # Get token from config
             token = self.config.get('github_token')
             
@@ -101,14 +123,10 @@ class Harvester:
                 'retry_count': 3
             }
             
-            logger.info(f"📦 GitHub config: { {k: v[:4] + '...' if k == 'token' and v else v for k, v in github_config.items()} }")
+            logger.info(f"📦 Initializing GitHub scraper with config")
             
             self.github_scraper = GitHubScraperEvolution(config=github_config)
             logger.info("✅ GitHub scraper initialized")
-            
-            # TODO: Initialize other scrapers as needed
-            # self.reddit_scraper = RedditScraper(self.config)
-            # self.darkweb_scraper = DarkWebScraper(self.config)
             
             logger.info("✅ All components initialized successfully")
             
@@ -116,6 +134,260 @@ class Harvester:
             logger.error(f"Failed to initialize components: {e}")
             logger.error(traceback.format_exc())
             raise
+    
+    def load_integrators(self):
+        """Load all integrator modules to discover required keys"""
+        integrations_path = Path(self.config.get('integrations_path', os.path.join(os.path.dirname(__file__), '..', 'integrations')))
+        
+        if not integrations_path.exists():
+            logger.warning(f"Integrations path not found: {integrations_path.absolute()}")
+            return
+        
+        logger.info(f"🔍 Scanning for integrators in: {integrations_path.absolute()}")
+        
+        # Walk through all integrator files
+        for root, dirs, files in os.walk(integrations_path):
+            for file in files:
+                if file.endswith('_integrator.py'):
+                    module_path = os.path.join(root, file)
+                    module_name = file.replace('.py', '')
+                    rel_path = os.path.relpath(module_path, start=os.path.dirname(__file__))
+                    
+                    try:
+                        # Load module dynamically
+                        spec = importlib.util.spec_from_file_location(module_name, module_path)
+                        module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                        
+                        # Find integrator class
+                        for name, obj in inspect.getmembers(module):
+                            if inspect.isclass(obj) and name.endswith('Integrator'):
+                                # Create instance (pass db path for key loading)
+                                instance = obj(self.get_db_path())
+                                self.integrators[module_name] = {
+                                    'instance': instance,
+                                    'path': rel_path,
+                                    'name': name,
+                                    'required_keys': []
+                                }
+                                
+                                # Get required keys if method exists
+                                if hasattr(instance, 'get_required_keys'):
+                                    required = instance.get_required_keys()
+                                    self.integrators[module_name]['required_keys'] = required
+                                    logger.info(f"✅ Loaded integrator: {module_name} ({len(required)} required keys)")
+                                else:
+                                    logger.info(f"✅ Loaded integrator: {module_name} (no key requirements)")
+                                
+                                break
+                                
+                    except Exception as e:
+                        logger.error(f"Failed to load integrator {module_name}: {e}")
+        
+        logger.info(f"Loaded {len(self.integrators)} integrators total")
+    
+    def get_db_path(self):
+        """Get database path for integrators"""
+        return os.path.join(os.path.dirname(__file__), 'dmai_local.db')
+    
+    def generate_key_wishlist(self):
+        """Generate comprehensive wishlist of all keys needed by all integrators"""
+        self.key_wishlist = {
+            # ===== AI PROVIDERS (24/7 Learning) =====
+            'ai_providers': {
+                'openai': 'OpenAI API key for GPT-4 access',
+                'anthropic': 'Anthropic API key for Claude models',
+                'google_gemini': 'Google Gemini API key',
+                'meta_llama': 'Meta Llama access token',
+                'mistral': 'Mistral AI API key',
+                'cohere': 'Cohere API key',
+                'deepseek': 'DeepSeek API key',
+                'perplexity': 'Perplexity API key',
+                'together': 'Together AI API key',
+                'replicate': 'Replicate API token',
+                'huggingface': 'HuggingFace API token',
+            },
+            
+            # ===== CODE GENERATION =====
+            'code_generation': {
+                'github_copilot': 'GitHub Copilot token',
+                'amazon_codewhisperer': 'AWS CodeWhisperer credentials',
+                'deepseek_coder': 'DeepSeek Coder API key',
+                'codeium': 'Codeium API key',
+                'tabnine': 'Tabnine API key',
+                'cursor': 'Cursor IDE API key',
+                'sourcegraph': 'Sourcegraph Cody token',
+            },
+            
+            # ===== IMAGE GENERATION =====
+            'image_generation': {
+                'openai_dalle': 'OpenAI DALL-E API key',
+                'stability_ai': 'Stability AI API key (Stable Diffusion)',
+                'midjourney': 'Midjourney API key',
+                'adobe_firefly': 'Adobe Firefly API key',
+                'leonardo': 'Leonardo.ai API key',
+                'playground': 'Playground AI API key',
+                'ideogram': 'Ideogram API key',
+                'clipdrop': 'Clipdrop API key',
+                'getimg': 'Getimg.ai API key',
+            },
+            
+            # ===== VIDEO GENERATION =====
+            'video_generation': {
+                'runway': 'RunwayML API key',
+                'pika': 'Pika API key',
+                'haiper': 'Haiper API key',
+                'synthesia': 'Synthesia API key',
+                'heygen': 'HeyGen API key',
+                'd_id': 'D-ID API key',
+                'kaiber': 'Kaiber API key',
+            },
+            
+            # ===== AUDIO/VOICE =====
+            'audio_voice': {
+                'elevenlabs': 'ElevenLabs API key',
+                'openai_whisper': 'OpenAI Whisper API key',
+                'bark': 'Suno Bark API key',
+                'playht': 'Play.ht API key',
+                'resemble': 'Resemble AI API key',
+                'wellsaid': 'WellSaid API key',
+                'murf': 'Murf API key',
+            },
+            
+            # ===== RESEARCH PAPERS =====
+            'research_papers': {
+                'arxiv': 'arXiv API key',
+                'semantic_scholar': 'Semantic Scholar API key',
+                'paperswithcode': 'PapersWithCode API key',
+                'openreview': 'OpenReview API key',
+                'crossref': 'Crossref API key',
+                'scopus': 'Scopus API key',
+                'ieee': 'IEEE Xplore API key',
+                'springer': 'Springer API key',
+                'acm': 'ACM Digital Library key',
+            },
+            
+            # ===== ENGINEERING DOMAINS =====
+            'engineering': {
+                # Mechanical
+                'onshape': 'Onshape API key',
+                'fusion360': 'Fusion 360 API key',
+                'solidworks': 'SolidWorks API key',
+                'grabcad': 'GrabCAD API key',
+                'step': 'STEP file library access',
+                
+                # Electrical/Electronics
+                'altium': 'Altium Designer API key',
+                'kicad': 'KiCad API key',
+                'eagle': 'Autodesk Eagle API key',
+                'easyeda': 'EasyEDA API key',
+                'digikey': 'DigiKey API key',
+                'mouser': 'Mouser API key',
+                'octopart': 'Octopart API key',
+                
+                # 3D Design/Printing
+                'thingiverse': 'Thingiverse API key',
+                'printables': 'Printables API key',
+                'cults3d': 'Cults3D API key',
+                'prusaprinters': 'PrusaPrinters API key',
+                
+                # Project Management
+                'jira': 'Jira API key',
+                'asana': 'Asana API key',
+                'trello': 'Trello API key',
+                'monday': 'Monday.com API key',
+                'clickup': 'ClickUp API key',
+                'linear': 'Linear API key',
+                
+                # Production/Manufacturing
+                'protolabs': 'ProtoLabs API key',
+                'xometry': 'Xometry API key',
+                'hubs': 'Hubs API key',
+                'pcbway': 'PCBWay API key',
+                'jlcpcb': 'JLCPCB API key',
+            },
+            
+            # ===== SYNTHETIC INTELLIGENCE RESEARCH =====
+            'synthetic_intelligence': {
+                # Meta-Learning
+                'meta_learning_papers': 'Access to meta-learning research',
+                'few_shot_datasets': 'Few-shot learning datasets',
+                'transfer_learning': 'Transfer learning resources',
+                
+                # Neural Architecture
+                'nas_bench': 'Neural Architecture Search benchmarks',
+                'model_zoo': 'Pre-trained model collections',
+                'architecture_search': 'Architecture search APIs',
+                
+                # Self-Improvement
+                'auto_ml': 'AutoML APIs',
+                'hyperparameter_tuning': 'Hyperparameter optimization',
+                'model_compression': 'Model compression tools',
+                
+                # Emergent Behavior
+                'emergence_research': 'Emergent behavior datasets',
+                'interpretability': 'Model interpretability tools',
+                'mechanistic': 'Mechanistic interpretability',
+            },
+            
+            # ===== KNOWLEDGE AGGREGATION =====
+            'knowledge_aggregation': {
+                'wikipedia': 'Wikipedia API key',
+                'wikidata': 'Wikidata API key',
+                'dbpedia': 'DBpedia API key',
+                'wolfram': 'Wolfram Alpha API key',
+                'google_knowledge': 'Google Knowledge Graph API',
+                'bing_search': 'Bing Search API',
+                'common_crawl': 'Common Crawl access',
+                'archive': 'Internet Archive API',
+            },
+            
+            # ===== EVOLUTION TRIGGER SYSTEMS =====
+            'evolution_triggers': {
+                'github_events': 'GitHub Events API',
+                'arxiv_updates': 'ArXiv update feed',
+                'huggingface_daily': 'HuggingFace daily papers',
+                'reddit_ml': 'Reddit ML subreddit API',
+                'discord_communities': 'Discord bot token',
+                'slack_channels': 'Slack API token',
+                'telegram_groups': 'Telegram bot token',
+            },
+            
+            # ===== TECHNIQUE EXTRACTION =====
+            'technique_extraction': {
+                'github_code_search': 'GitHub Code Search API',
+                'stackoverflow': 'Stack Overflow API key',
+                'medium': 'Medium API key',
+                'dev_to': 'Dev.to API key',
+                'hackernews': 'HackerNews API',
+                'lobsters': 'Lobsters API',
+            }
+        }
+        
+        # Add all keys from loaded integrators
+        for integrator_name, integrator_info in self.integrators.items():
+            required = integrator_info.get('required_keys', [])
+            if required:
+                # Determine category from integrator name
+                category = integrator_name.replace('_integrator', '')
+                if category not in self.key_wishlist:
+                    self.key_wishlist[category] = {}
+                
+                for key in required:
+                    self.key_wishlist[category][key] = f'Required by {integrator_name}'
+        
+        # Save wishlist to file
+        wishlist_file = Path(os.path.join(os.path.dirname(__file__), 'key_wishlist.json'))
+        with open(wishlist_file, 'w') as f:
+            json.dump(self.key_wishlist, f, indent=2)
+        
+        # Count total keys
+        total_keys = sum(len(keys) for keys in self.key_wishlist.values())
+        logger.info(f"📋 Generated key wishlist with {total_keys} keys across {len(self.key_wishlist)} categories")
+        
+        # Log summary
+        for category, keys in self.key_wishlist.items():
+            logger.info(f"  • {category}: {len(keys)} keys")
     
     def signal_handler(self, signum, frame):
         """Handle shutdown signals"""
@@ -152,18 +424,34 @@ class Harvester:
         if self.github_scraper:
             logger.info("\n🔍 Starting GitHub scraping...")
             try:
-                results = self.github_scraper.search_github("api key OR token OR secret")
-                github_count = len(results) if results else 0
-                total_keys += github_count
-                logger.info(f"✅ GitHub scraping complete: found {github_count} potential keys")
+                # Search for each key type
+                for category, keys in self.key_wishlist.items():
+                    for key_name, description in keys.items():
+                        logger.debug(f"Searching for {key_name}...")
+                        # Construct search queries
+                        queries = [
+                            f'"{key_name}" api key',
+                            f'"{key_name}" token',
+                            f'"{key_name}" secret',
+                            f'"{key_name.upper()}_KEY"',
+                            f'"{key_name.upper()}_TOKEN"'
+                        ]
+                        
+                        for query in queries:
+                            try:
+                                results = self.github_scraper.search_github(query)
+                                if results:
+                                    logger.info(f"Found potential matches for {key_name}")
+                                    # Process results
+                                    for result in results:
+                                        if self.extract_key_from_result(result, key_name):
+                                            total_keys += 1
+                            except Exception as e:
+                                logger.error(f"Error searching for {key_name}: {e}")
+                                
             except Exception as e:
                 logger.error(f"GitHub scraper error: {e}")
                 logger.error(traceback.format_exc())
-        
-        # TODO: Run other scrapers
-        # if self.reddit_scraper:
-        #     reddit_count = self.reddit_scraper.scrape()
-        #     total_keys += reddit_count
         
         cycle_time = time.time() - cycle_start
         logger.info(f"\n{'='*50}")
@@ -174,11 +462,118 @@ class Harvester:
         
         return total_keys
     
+    def extract_key_from_result(self, result, key_name):
+        """Extract potential API key from search result"""
+        try:
+            content = result.get('content', '')
+            if not content:
+                return False
+            
+            import re
+            
+            # Common key patterns
+            patterns = [
+                r'[a-zA-Z0-9]{32,}',  # 32+ char alphanumeric
+                r'sk-[a-zA-Z0-9]{48,}',  # OpenAI style
+                r'sk-ant-api03-[a-zA-Z0-9_-]{90,}',  # Anthropic style
+                r'AIzaSy[a-zA-Z0-9_-]{35}',  # Google style
+                r'hf_[a-zA-Z0-9]{34,}',  # HuggingFace style
+                r'ghp_[a-zA-Z0-9]{36,}',  # GitHub style
+                r'AKIA[0-9A-Z]{16}',  # AWS style
+            ]
+            
+            for pattern in patterns:
+                matches = re.findall(pattern, content)
+                if matches:
+                    for match in matches:
+                        # Store the key
+                        self.store_key(key_name, match, 'github', result.get('url', ''))
+                        return True
+                        
+        except Exception as e:
+            logger.error(f"Error extracting key: {e}")
+        
+        return False
+    
+    def store_key(self, service, api_key, source, url):
+        """Store discovered key and create notification"""
+        try:
+            from db_hybrid import KeyEvolutionDB
+            db = KeyEvolutionDB()
+            
+            # Check if key exists
+            existing = db.get_key(service)
+            if existing:
+                return
+            
+            # Store key
+            db.add_key(service, api_key, {
+                'source': source,
+                'url': url,
+                'discovered_at': datetime.now().isoformat()
+            })
+            
+            logger.info(f"🔑 Found new {service} key: {api_key[:10]}... from {source}")
+            
+            # Create notification file for UI
+            self.create_notification(service, api_key, source, url)
+            
+        except Exception as e:
+            logger.error(f"Error storing key: {e}")
+    
+    def create_notification(self, service, api_key, source, url):
+        """Create notification file for web UI"""
+        notifications_dir = Path(os.path.join(os.path.dirname(__file__), 'notifications'))
+        notifications_dir.mkdir(exist_ok=True)
+        
+        # Find which integrator needs this key
+        integrator_name = None
+        integration_code = None
+        
+        for name, info in self.integrators.items():
+            if service in info.get('required_keys', []):
+                integrator_name = name
+                # Get integration code if available
+                if hasattr(info['instance'], 'get_integration_code'):
+                    integration_code = info['instance'].get_integration_code(service, api_key)
+                break
+        
+        notification = {
+            'service': service,
+            'api_key': api_key[:20] + '...' + api_key[-10:],
+            'full_key': api_key,
+            'source': source,
+            'url': url,
+            'discovered_at': datetime.now().isoformat(),
+            'integrator': integrator_name,
+            'integration_code': integration_code,
+            'message': f"🔑 New {service.upper()} API key discovered!"
+        }
+        
+        filename = notifications_dir / f"{service}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(filename, 'w') as f:
+            json.dump(notification, f, indent=2)
+        
+        # Also print to console with color
+        print("\n" + "="*80)
+        print(f"🔑🔑🔑 NEW API KEY DISCOVERED [{service.upper()}] 🔑🔑🔑")
+        print("="*80)
+        print(f"Service:     {service}")
+        print(f"Key:         {api_key[:20]}...{api_key[-10:]}")
+        print(f"Source:      {source}")
+        print(f"URL:         {url}")
+        print(f"Integrator:  {integrator_name or 'Unknown'}")
+        print("-"*80)
+        if integration_code:
+            print("Integration code available in notification file")
+        print("="*80 + "\n")
+    
     def run(self):
         """Main run loop"""
         logger.info("=" * 50)
         logger.info(f"DMAI API Harvester started - Continuous Mode")
         logger.info(f"PID: {os.getpid()}")
+        logger.info(f"Tracking {sum(len(keys) for keys in self.key_wishlist.values())} keys across {len(self.key_wishlist)} categories")
         logger.info("=" * 50)
         
         while self.running:
@@ -209,12 +604,21 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="DMAI API Harvester")
     parser.add_argument("--daemon", action="store_true", help="Run in daemon mode")
-    parser.add_argument("--port", type=int, default=8081, help="API port (default: 8081)")
+    parser.add_argument("--port", type=int, default=9001, help="API port (default: 9001)")
     parser.add_argument("--once", action="store_true", help="Run one cycle and exit")
+    parser.add_argument("--wishlist", action="store_true", help="Generate key wishlist and exit")
     
     args = parser.parse_args()
     
     harvester = Harvester()
+    
+    if args.wishlist:
+        print("\n📋 KEY WISHLIST SUMMARY:")
+        for category, keys in harvester.key_wishlist.items():
+            print(f"  • {category}: {len(keys)} keys")
+        print(f"\nTotal: {sum(len(keys) for keys in harvester.key_wishlist.values())} keys")
+        print(f"Wishlist saved to: {os.path.join(os.path.dirname(__file__), 'key_wishlist.json')}")
+        sys.exit(0)
     
     if args.once:
         logger.info("Running single cycle")
@@ -279,18 +683,36 @@ class HarvesterAPIHandler(BaseHTTPRequestHandler):
                 "cycle": 0,
                 "total_keys_found": 0,
                 "healthy": True,
-                "uptime": str(datetime.now() - _start_time)
+                "uptime": str(datetime.now() - _start_time),
+                "categories_tracked": 0,
+                "keys_tracked": 0,
+                "github_token_valid": False
             }
             
             # Try to get real data if harvester instance exists
             if _harvester_instance:
                 try:
                     status["cycle"] = getattr(_harvester_instance, 'cycle_count', 0)
-                    # We don't store total keys, but could be added
+                    status["categories_tracked"] = len(getattr(_harvester_instance, 'key_wishlist', {}))
+                    status["keys_tracked"] = sum(len(keys) for keys in getattr(_harvester_instance, 'key_wishlist', {}).values())
+                    # Check if token is valid
+                    if hasattr(_harvester_instance, 'github_scraper') and _harvester_instance.github_scraper:
+                        status["github_token_valid"] = _harvester_instance.github_scraper.token is not None
                 except:
                     pass
             
             self.wfile.write(json.dumps(status).encode())
+            
+        elif self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            health_status = {
+                "status": "healthy",
+                "service": "api-harvester",
+                "timestamp": datetime.now().isoformat()
+            }
+            self.wfile.write(json.dumps(health_status).encode())
             
         elif self.path == '/config':
             self.send_response(200)
@@ -299,15 +721,50 @@ class HarvesterAPIHandler(BaseHTTPRequestHandler):
             
             config_info = {
                 "has_github_token": False,
-                "check_interval": 3600
+                "check_interval": 3600,
+                "integrators_loaded": 0
             }
             
             if _harvester_instance and hasattr(_harvester_instance, 'config'):
                 config = _harvester_instance.config
                 config_info["has_github_token"] = config.get('github_token') is not None
                 config_info["check_interval"] = config.get('check_interval', 3600)
+                config_info["integrators_loaded"] = len(getattr(_harvester_instance, 'integrators', {}))
             
             self.wfile.write(json.dumps(config_info).encode())
+            
+        elif self.path == '/wishlist':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            if _harvester_instance and hasattr(_harvester_instance, 'key_wishlist'):
+                self.wfile.write(json.dumps(_harvester_instance.key_wishlist).encode())
+            else:
+                self.wfile.write(json.dumps({}).encode())
+                
+        elif self.path == '/notifications':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            
+            # Get recent notifications
+            notifications_dir = Path(os.path.join(os.path.dirname(__file__), 'notifications'))
+            notifications = []
+            
+            if notifications_dir.exists():
+                for file in sorted(notifications_dir.glob('*.json'), reverse=True)[:50]:
+                    try:
+                        with open(file, 'r') as f:
+                            notif = json.load(f)
+                            # Remove full key for security
+                            if 'full_key' in notif:
+                                del notif['full_key']
+                            notifications.append(notif)
+                    except:
+                        pass
+            
+            self.wfile.write(json.dumps(notifications).encode())
             
         else:
             self.send_response(404)
@@ -343,9 +800,19 @@ class HarvesterAPIHandler(BaseHTTPRequestHandler):
                         stats = {
                             "cycle": getattr(_harvester_instance, 'cycle_count', 0),
                             "running": getattr(_harvester_instance, 'running', False),
-                            "uptime": str(datetime.now() - getattr(_harvester_instance, 'start_time', datetime.now()))
+                            "uptime": str(datetime.now() - getattr(_harvester_instance, 'start_time', datetime.now())),
+                            "integrators": len(getattr(_harvester_instance, 'integrators', {})),
+                            "keys_tracked": sum(len(keys) for keys in getattr(_harvester_instance, 'key_wishlist', {}).values())
                         }
                         self.wfile.write(json.dumps(stats).encode())
+                    else:
+                        self.wfile.write(json.dumps({"error": "Harvester not initialized"}).encode())
+                        
+                elif cmd == 'regenerate_wishlist':
+                    if _harvester_instance:
+                        _harvester_instance.load_integrators()
+                        _harvester_instance.generate_key_wishlist()
+                        self.wfile.write(json.dumps({"status": "wishlist_regenerated"}).encode())
                     else:
                         self.wfile.write(json.dumps({"error": "Harvester not initialized"}).encode())
                         
@@ -368,6 +835,11 @@ def _start_api_server():
     def run_server():
         server = HTTPServer(('localhost', port), HarvesterAPIHandler)
         print(f"📡 Harvester API endpoint active at http://localhost:{port}")
+        print(f"   • /status - Harvester status")
+        print(f"   • /health - Health check")
+        print(f"   • /wishlist - Key wishlist")
+        print(f"   • /notifications - Recent key discoveries")
+        print(f"   • POST /command - Send commands")
         server.serve_forever()
     
     thread = threading.Thread(target=run_server, daemon=True)
