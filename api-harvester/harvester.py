@@ -45,6 +45,10 @@ class Harvester:
         self.integrators = {}  # Store loaded integrators
         self.key_wishlist = {}  # Store all required keys from integrators
         
+        # Initialize database
+        self.db = KeyEvolutionDB()
+        logger.info("✅ Database initialized")
+        
         # Setup signal handlers
         signal.signal(signal.SIGINT, self.signal_handler)
         signal.signal(signal.SIGTERM, self.signal_handler)
@@ -404,7 +408,7 @@ class Harvester:
         
         # Close connections
         if self.db:
-            self.db.close()
+            self.db.conn.close()
         
         logger.info("Harvester shutdown complete")
         sys.exit(0)
@@ -498,16 +502,13 @@ class Harvester:
     def store_key(self, service, api_key, source, url):
         """Store discovered key and create notification"""
         try:
-            from db_hybrid import KeyEvolutionDB
-            db = KeyEvolutionDB()
-            
             # Check if key exists
-            existing = db.get_key(service)
+            existing = self.db.get_key(service)
             if existing:
                 return
             
             # Store key
-            db.add_key(service, api_key, {
+            self.db.add_key(service, api_key, {
                 'source': source,
                 'url': url,
                 'discovered_at': datetime.now().isoformat()
@@ -710,7 +711,8 @@ class HarvesterAPIHandler(BaseHTTPRequestHandler):
             health_status = {
                 "status": "healthy",
                 "service": "api-harvester",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
+                "uptime": str(datetime.now() - _start_time)
             }
             self.wfile.write(json.dumps(health_status).encode())
             
