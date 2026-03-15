@@ -45,42 +45,6 @@ class Harvester:
         self.integrators = {}  # Store loaded integrators
         self.key_wishlist = {}  # Store all required keys from integrators
         
-        # Initialize database - FORCE using KeyEvolutionDB
-        self.db = KeyEvolutionDB()
-        logger.info("✅ Database initialized with KeyEvolutionDB")
-        
-        # Add compatibility method for save_api (used by APIS.Guru and public-apis scrapers)
-        def save_api_compatibility(api_data):
-            try:
-                service = api_data.get('name', api_data.get('service', 'unknown'))
-                # Sanitize service name for use as key
-                service_key = service.lower().replace(' ', '-').replace('/', '-').replace('.', '-')
-                
-                metadata = {
-                    'source': api_data.get('source', 'apis.guru'),
-                    'url': api_data.get('url', ''),
-                    'description': api_data.get('description', '')[:200],
-                    'category': api_data.get('category', 'unknown'),
-                    'original_data': api_data
-                }
-                
-                # Use a placeholder key since we don't have a real API key
-                # This just records that we discovered this API exists
-                placeholder_key = f"discovered_{service_key}_{int(time.time())}"
-                
-                # Store in database using existing method
-                result = self.db.add_key(f"apis.guru:{service_key}", placeholder_key, metadata)
-                if result:
-                    logger.debug(f"✅ Saved API info for {service}")
-                return result
-            except Exception as e:
-                logger.error(f"Error in save_api compatibility method: {e}")
-                return None
-        
-        # Attach the compatibility method to self.db
-        self.db.save_api = save_api_compatibility.__get__(self.db, KeyEvolutionDB)
-        logger.info("✅ Added save_api compatibility method to database")
-        
         # Setup signal handlers
         signal.signal(signal.SIGINT, self.signal_handler)
         signal.signal(signal.SIGTERM, self.signal_handler)
@@ -97,6 +61,9 @@ class Harvester:
         """Load configuration"""
         config = {}
         config_file = Path("config.json")
+        # DEBUG: Check if file exists and print path
+        logger.info(f"📁 Looking for config file at: {config_file.absolute()}")
+        logger.info(f"📁 File exists: {config_file.exists()}")
         
         if config_file.exists():
             try:
@@ -440,107 +407,10 @@ class Harvester:
         
         # Close connections
         if self.db:
-            self.db.conn.close()
+            self.db.close()
         
         logger.info("Harvester shutdown complete")
         sys.exit(0)
-    
-    # ==================== MISSING METHODS ADDED BELOW ====================
-    
-    def scrape_apis_guru(self):
-        """Scrape APIs from APIS.Guru directory"""
-        try:
-            logger.info("Scraping APIS.Guru API directory...")
-            response = requests.get("https://api.apis.guru/v2/list.json", timeout=30)
-            
-            if response.status_code == 200:
-                data = response.json()
-                saved_count = 0
-                
-                for api_name, api_info in list(data.items())[:100]:  # Limit to first 100
-                    try:
-                        # Create API data structure
-                        api_data = {
-                            'name': api_name,
-                            'service': api_name,
-                            'url': api_info.get('info', {}).get('contact', {}).get('url', ''),
-                            'description': api_info.get('info', {}).get('description', '')[:200],
-                            'category': 'apis.guru',
-                            'source': 'apis.guru'
-                        }
-                        
-                        # Save using compatibility method
-                        self.db.save_api(api_data)
-                        saved_count += 1
-                        
-                    except Exception as e:
-                        logger.error(f"Error saving API {api_name}: {e}")
-                
-                logger.info(f"Successfully saved {saved_count} APIs from APIS.Guru")
-            else:
-                logger.error(f"Failed to fetch APIS.Guru data: {response.status_code}")
-                
-        except Exception as e:
-            logger.error(f"APIS.Guru scraping error: {e}")
-    
-    def scrape_public_apis_github(self):
-        """Scrape public APIs from GitHub repository"""
-        try:
-            logger.info("Scraping public-apis GitHub repo...")
-            response = requests.get(
-                "https://raw.githubusercontent.com/public-apis/public-apis/master/README.md",
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                content = response.text
-                logger.info(f"Fetched public-apis README ({len(content)} bytes)")
-                
-                # Simple parsing - look for API entries
-                lines = content.split('\n')
-                saved_count = 0
-                
-                for line in lines:
-                    if '|' in line and 'api' in line.lower():
-                        parts = line.split('|')
-                        if len(parts) >= 3:
-                            api_name = parts[1].strip()
-                            api_desc = parts[2].strip() if len(parts) > 2 else ""
-                            
-                            if api_name and not api_name.startswith('---'):
-                                api_data = {
-                                    'name': api_name,
-                                    'service': api_name.lower().replace(' ', '-'),
-                                    'description': api_desc[:200],
-                                    'category': 'public-apis',
-                                    'source': 'public-apis-github'
-                                }
-                                
-                                try:
-                                    self.db.save_api(api_data)
-                                    saved_count += 1
-                                except Exception as e:
-                                    logger.error(f"Public APIs scraping error: {e}")
-                                    raise
-                
-                logger.info(f"Successfully saved {saved_count} APIs from public-apis")
-            else:
-                logger.error(f"Failed to fetch public-apis: {response.status_code}")
-                
-        except Exception as e:
-            logger.error(f"Public APIs scraping error: {e}")
-            raise
-    
-    def update_redis_metrics(self):
-        """Update Redis with current metrics (if Redis is configured)"""
-        try:
-            # This is a placeholder - actual Redis implementation would go here
-            # For now, just log that it's not configured
-            logger.debug("Redis metrics update skipped (Redis not configured)")
-        except Exception as e:
-            logger.error(f"Failed to update Redis metrics: {e}")
-    
-    # ==================== END OF MISSING METHODS ====================
     
     def run_cycle(self):
         """Run one harvesting cycle"""
@@ -585,24 +455,6 @@ class Harvester:
             except Exception as e:
                 logger.error(f"GitHub scraper error: {e}")
                 logger.error(traceback.format_exc())
-        
-        # Run APIS.Guru scraper
-        try:
-            self.scrape_apis_guru()
-        except Exception as e:
-            logger.error(f"APIS.Guru scraper error: {e}")
-        
-        # Run public-apis scraper
-        try:
-            self.scrape_public_apis_github()
-        except Exception as e:
-            logger.error(f"Public APIs scraper error: {e}")
-        
-        # Update Redis metrics
-        try:
-            self.update_redis_metrics()
-        except Exception as e:
-            logger.error(f"Redis metrics error: {e}")
         
         cycle_time = time.time() - cycle_start
         logger.info(f"\n{'='*50}")
@@ -649,13 +501,16 @@ class Harvester:
     def store_key(self, service, api_key, source, url):
         """Store discovered key and create notification"""
         try:
+            from db_hybrid import KeyEvolutionDB
+            db = KeyEvolutionDB()
+            
             # Check if key exists
-            existing = self.db.get_key(service)
+            existing = db.get_key(service)
             if existing:
                 return
             
             # Store key
-            self.db.add_key(service, api_key, {
+            db.add_key(service, api_key, {
                 'source': source,
                 'url': url,
                 'discovered_at': datetime.now().isoformat()
@@ -851,18 +706,6 @@ class HarvesterAPIHandler(BaseHTTPRequestHandler):
             
             self.wfile.write(json.dumps(status).encode())
             
-        elif self.path == '/health':
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            health_status = {
-                "status": "healthy",
-                "service": "api-harvester",
-                "timestamp": datetime.now().isoformat(),
-                "uptime": str(datetime.now() - _start_time)
-            }
-            self.wfile.write(json.dumps(health_status).encode())
-            
         elif self.path == '/config':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -985,7 +828,6 @@ def _start_api_server():
         server = HTTPServer(('localhost', port), HarvesterAPIHandler)
         print(f"📡 Harvester API endpoint active at http://localhost:{port}")
         print(f"   • /status - Harvester status")
-        print(f"   • /health - Health check")
         print(f"   • /wishlist - Key wishlist")
         print(f"   • /notifications - Recent key discoveries")
         print(f"   • POST /command - Send commands")
