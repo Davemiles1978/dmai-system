@@ -413,6 +413,103 @@ class Harvester:
         logger.info("Harvester shutdown complete")
         sys.exit(0)
     
+    # ==================== MISSING METHODS ADDED BELOW ====================
+    
+    def scrape_apis_guru(self):
+        """Scrape APIs from APIS.Guru directory"""
+        try:
+            logger.info("Scraping APIS.Guru API directory...")
+            response = requests.get("https://api.apis.guru/v2/list.json", timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                saved_count = 0
+                
+                for api_name, api_info in list(data.items())[:100]:  # Limit to first 100
+                    try:
+                        # Create API data structure
+                        api_data = {
+                            'name': api_name,
+                            'service': api_name,
+                            'url': api_info.get('info', {}).get('contact', {}).get('url', ''),
+                            'description': api_info.get('info', {}).get('description', '')[:200],
+                            'category': 'apis.guru',
+                            'source': 'apis.guru'
+                        }
+                        
+                        # Save using compatibility method
+                        self.db.save_api(api_data)
+                        saved_count += 1
+                        
+                    except Exception as e:
+                        logger.error(f"Error saving API {api_name}: {e}")
+                
+                logger.info(f"Successfully saved {saved_count} APIs from APIS.Guru")
+            else:
+                logger.error(f"Failed to fetch APIS.Guru data: {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"APIS.Guru scraping error: {e}")
+    
+    def scrape_public_apis_github(self):
+        """Scrape public APIs from GitHub repository"""
+        try:
+            logger.info("Scraping public-apis GitHub repo...")
+            response = requests.get(
+                "https://raw.githubusercontent.com/public-apis/public-apis/master/README.md",
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                content = response.text
+                logger.info(f"Fetched public-apis README ({len(content)} bytes)")
+                
+                # Simple parsing - look for API entries
+                lines = content.split('\n')
+                saved_count = 0
+                
+                for line in lines:
+                    if '|' in line and 'api' in line.lower():
+                        parts = line.split('|')
+                        if len(parts) >= 3:
+                            api_name = parts[1].strip()
+                            api_desc = parts[2].strip() if len(parts) > 2 else ""
+                            
+                            if api_name and not api_name.startswith('---'):
+                                api_data = {
+                                    'name': api_name,
+                                    'service': api_name.lower().replace(' ', '-'),
+                                    'description': api_desc[:200],
+                                    'category': 'public-apis',
+                                    'source': 'public-apis-github'
+                                }
+                                
+                                try:
+                                    self.db.save_api(api_data)
+                                    saved_count += 1
+                                except Exception as e:
+                                    logger.error(f"Public APIs scraping error: {e}")
+                                    raise
+                
+                logger.info(f"Successfully saved {saved_count} APIs from public-apis")
+            else:
+                logger.error(f"Failed to fetch public-apis: {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"Public APIs scraping error: {e}")
+            raise
+    
+    def update_redis_metrics(self):
+        """Update Redis with current metrics (if Redis is configured)"""
+        try:
+            # This is a placeholder - actual Redis implementation would go here
+            # For now, just log that it's not configured
+            logger.debug("Redis metrics update skipped (Redis not configured)")
+        except Exception as e:
+            logger.error(f"Failed to update Redis metrics: {e}")
+    
+    # ==================== END OF MISSING METHODS ====================
+    
     def run_cycle(self):
         """Run one harvesting cycle"""
         self.cycle_count += 1
@@ -456,6 +553,24 @@ class Harvester:
             except Exception as e:
                 logger.error(f"GitHub scraper error: {e}")
                 logger.error(traceback.format_exc())
+        
+        # Run APIS.Guru scraper
+        try:
+            self.scrape_apis_guru()
+        except Exception as e:
+            logger.error(f"APIS.Guru scraper error: {e}")
+        
+        # Run public-apis scraper
+        try:
+            self.scrape_public_apis_github()
+        except Exception as e:
+            logger.error(f"Public APIs scraper error: {e}")
+        
+        # Update Redis metrics
+        try:
+            self.update_redis_metrics()
+        except Exception as e:
+            logger.error(f"Redis metrics error: {e}")
         
         cycle_time = time.time() - cycle_start
         logger.info(f"\n{'='*50}")
