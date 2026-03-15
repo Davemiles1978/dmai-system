@@ -45,9 +45,41 @@ class Harvester:
         self.integrators = {}  # Store loaded integrators
         self.key_wishlist = {}  # Store all required keys from integrators
         
-        # Initialize database
+        # Initialize database - FORCE using KeyEvolutionDB
         self.db = KeyEvolutionDB()
-        logger.info("✅ Database initialized")
+        logger.info("✅ Database initialized with KeyEvolutionDB")
+        
+        # Add compatibility method for save_api (used by APIS.Guru and public-apis scrapers)
+        def save_api_compatibility(api_data):
+            try:
+                service = api_data.get('name', api_data.get('service', 'unknown'))
+                # Sanitize service name for use as key
+                service_key = service.lower().replace(' ', '-').replace('/', '-').replace('.', '-')
+                
+                metadata = {
+                    'source': api_data.get('source', 'apis.guru'),
+                    'url': api_data.get('url', ''),
+                    'description': api_data.get('description', '')[:200],
+                    'category': api_data.get('category', 'unknown'),
+                    'original_data': api_data
+                }
+                
+                # Use a placeholder key since we don't have a real API key
+                # This just records that we discovered this API exists
+                placeholder_key = f"discovered_{service_key}_{int(time.time())}"
+                
+                # Store in database using existing method
+                result = self.db.add_key(f"apis.guru:{service_key}", placeholder_key, metadata)
+                if result:
+                    logger.debug(f"✅ Saved API info for {service}")
+                return result
+            except Exception as e:
+                logger.error(f"Error in save_api compatibility method: {e}")
+                return None
+        
+        # Attach the compatibility method to self.db
+        self.db.save_api = save_api_compatibility.__get__(self.db, KeyEvolutionDB)
+        logger.info("✅ Added save_api compatibility method to database")
         
         # Setup signal handlers
         signal.signal(signal.SIGINT, self.signal_handler)
