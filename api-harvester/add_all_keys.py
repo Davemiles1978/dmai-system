@@ -1,51 +1,39 @@
 #!/usr/bin/env python3
 """
-Add all your API keys to the validation queue
+Add all your API keys to the database using KeyEvolutionDB
 """
 import os
-import hashlib
-import psycopg2
+import sys
 from dotenv import load_dotenv
+
+# Add parent directory to path to import db_hybrid
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 load_dotenv()
 
-def hash_key(key):
-    """Create a SHA-256 hash of the key (don't store raw keys)"""
-    return hashlib.sha256(key.encode()).hexdigest()
+# Import KeyEvolutionDB
+from db_hybrid import KeyEvolutionDB
 
 def add_key(service, key_value, source):
-    """Add a key to pending_keys"""
+    """Add a key to the database"""
     if not key_value or key_value.startswith('your_'):
         print(f"⚠️  Skipping {service}: No valid key found")
-        return
+        return False
     
-    key_hash = hash_key(key_value)
+    db = KeyEvolutionDB()
+    metadata = {
+        'source': source,
+        'added_by': 'add_all_keys.py'
+    }
     
-    conn = psycopg2.connect(os.getenv('DATABASE_URL'))
-    cur = conn.cursor()
+    result = db.add_key(service, key_value, metadata)
     
-    try:
-        cur.execute("""
-            INSERT INTO pending_keys (service, key_hash, source, status)
-            VALUES (%s, %s, %s, 'pending')
-            ON CONFLICT (key_hash) DO NOTHING
-            RETURNING id
-        """, (service, key_hash, source))
-        
-        result = cur.fetchone()
-        conn.commit()
-        
-        if result:
-            print(f"✅ Added {service} key (ID: {result[0]})")
-        else:
-            print(f"ℹ️  {service} key already in queue")
-            
-    except Exception as e:
-        print(f"❌ Error adding {service}: {e}")
-        conn.rollback()
-    finally:
-        cur.close()
-        conn.close()
+    if result:
+        print(f"✅ Added {service} key")
+        return True
+    else:
+        print(f"ℹ️  {service} key already in database or failed")
+        return False
 
 if __name__ == "__main__":
     # Get keys from environment
@@ -57,8 +45,11 @@ if __name__ == "__main__":
         ('groq', os.getenv('GROK_API_KEY'), 'environment'),
     ]
     
-    print("🔑 Adding keys to validation queue...")
-    for service, key, source in keys:
-        add_key(service, key, source)
+    print("🔑 Adding keys to database...")
+    success_count = 0
     
-    print("\n✅ Done! Run 'python3 validator.py' to validate them")
+    for service, key, source in keys:
+        if add_key(service, key, source):
+            success_count += 1
+    
+    print(f"\n✅ Done! Added {success_count} keys to database.")
