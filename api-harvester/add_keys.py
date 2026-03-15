@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Add API keys to validation queue
+Add API keys to validation queue - Updated to use KeyEvolutionDB
 """
 import os
-import hashlib
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Add parent directory to path to import db_hybrid
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Load .env from current directory
 env_path = Path('.env')
@@ -15,22 +17,21 @@ if env_path.exists():
     print(f"✅ Loaded .env from {env_path.absolute()}")
 else:
     print(f"❌ .env not found at {env_path.absolute()}")
-    sys.exit(1)
+    # Try to load from parent
+    parent_env = Path('../.env')
+    if parent_env.exists():
+        load_dotenv(dotenv_path=parent_env)
+        print(f"✅ Loaded .env from {parent_env.absolute()}")
+    else:
+        print("❌ No .env file found")
+        sys.exit(1)
 
-# Get database URL directly from environment (not from config)
-db_url = os.getenv('DATABASE_URL')
-if not db_url:
-    print("❌ DATABASE_URL not found in environment")
-    sys.exit(1)
+# Import KeyEvolutionDB instead of DatabaseManager
+from db_hybrid import KeyEvolutionDB
 
-print(f"🔌 Database URL: {db_url[:50]}...")
-
-# Import DatabaseManager after env is loaded
-from storage.db_manager import DatabaseManager
-
-# Connect to database
+# Initialize database
 try:
-    db = DatabaseManager(db_url)
+    db = KeyEvolutionDB()
     print("✅ Connected to database successfully")
 except Exception as e:
     print(f"❌ Failed to connect: {e}")
@@ -45,20 +46,23 @@ services = {
     'groq': os.getenv('GROK_API_KEY')
 }
 
-print("\n📊 Adding keys to validation queue:")
+print("\n📊 Adding keys to database:")
 for service, token in services.items():
     if token and not token.startswith('your_') and len(token) > 20:
-        # Create hash of the token
-        key_hash = hashlib.sha256(token.encode()).hexdigest()
-        print(f"  {service}: {token[:8]}...{token[-8:]} (hash: {key_hash[:16]}...)")
+        print(f"  {service}: {token[:8]}...{token[-8:]}")
         
-        # Add to queue
-        result = db.add_pending_key(service, key_hash, 'environment')
+        # Add to database using KeyEvolutionDB
+        metadata = {
+            'source': 'environment',
+            'added_by': 'add_keys.py'
+        }
+        
+        result = db.add_key(service, token, metadata)
         if result:
-            print(f"  ✅ Added {service} to queue")
+            print(f"  ✅ Added {service} to database")
         else:
-            print(f"  ⚠️ {service} already in queue or failed")
+            print(f"  ⚠️ {service} already in database or failed")
     else:
         print(f"  ❌ {service}: No valid token found")
 
-print("\n✅ Done! Run 'python3 validator.py' to validate the keys")
+print("\n✅ Done! Keys added to database.")
