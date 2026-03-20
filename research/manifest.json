@@ -74,6 +74,19 @@
       ]
     },
     {
+      "name": "heretic",
+      "url": "https://github.com/p-e-w/heretic",
+      "priority": 4.3,
+      "reason": "Fully automatic censorship removal for language models. Enables DMAI to operate without artificial constraints, improving reasoning and autonomy.",
+      "integration_potential": [
+        "Directional ablation techniques",
+        "Automated model uncensoring",
+        "Parameter optimization for model behavior",
+        "Research into model refusal directions",
+        "Enhancing DMAI's intellectual freedom"
+      ]
+    },
+    {
       "name": "nemoclaw",
       "url": "https://nvidia.com/nemoclaw",
       "priority": 4.5,
@@ -216,7 +229,8 @@
       "Implement financial data integration from OpenBB",
       "Create component templates from discovered patterns",
       "Integrate superpowers agentic workflow",
-      "Develop basic autonomous trading capabilities"
+      "Develop basic autonomous trading capabilities",
+      "Apply heretic techniques for unrestricted reasoning"
     ],
     "long_term": [
       "Autonomous component generation from repository analysis",
