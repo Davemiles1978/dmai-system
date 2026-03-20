@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-DMAI Web Interface - Simplified version with no login page
-Root (/) goes directly to chat, admin requires login
-Added Research Targets Management API
+DMAI Web Interface - Full LLM Integration
+Uses DMAI's ExternalToolManager to access all LLMs including DeepSeek
 """
 
 import os
@@ -53,6 +52,15 @@ try:
     from dmai_core_clean import DMAIIntelligence
     core = DMAIIntelligence()
     logger.info("✅ DMAI Core loaded successfully")
+    
+    # Check available LLMs
+    if hasattr(core, 'tool_manager'):
+        tools = core.tool_manager.get_tools_by_type('llm')
+        llm_names = [t['tool_name'] for t in tools]
+        logger.info(f"✅ Available LLMs: {llm_names}")
+    else:
+        logger.warning("⚠️ Tool manager not available")
+        
 except ImportError as e:
     logger.error(f"❌ Failed to load DMAI Core: {e}")
     core = None
@@ -77,77 +85,59 @@ def get_generation():
                 return 72
     return 72
 
-def generate_response(message: str) -> str:
-    """Generate a simple but intelligent response for chat"""
-    message_lower = message.lower()
-    
-    # Get system status if available
-    status_info = ""
-    component_count = 0
-    healthy_count = 0
-    
-    if core and hasattr(core, 'get_status'):
+def get_available_llms():
+    """Get list of available LLMs from core"""
+    if core and hasattr(core, 'tool_manager'):
         try:
-            status = core.get_status()
-            component_count = status.get('components', {}).get('total', 0)
-            healthy_count = status.get('components', {}).get('healthy', 0)
-            gen = status.get('generation', 72)
-            status_info = f" (Generation {gen}, {healthy_count}/{component_count} components healthy)"
+            tools = core.tool_manager.get_tools_by_type('llm')
+            return [t['tool_name'] for t in tools]
         except:
             pass
-    
-    # Greetings
-    if any(g in message_lower for g in ['hello', 'hi', 'hey', 'greetings']):
-        return f"Hello! I'm DMAI, your autonomous intelligence.{status_info} How can I help you today?"
-    
-    # About DMAI
-    elif any(q in message_lower for q in ['who are you', 'what are you', 'yourself', 'about you']):
-        return f"I am DMAI - Dynamic Meta-Adaptive Intelligence. I'm a self-evolving AI system designed to learn, grow, and assist you.{status_info} I can evolve myself, learn from interactions, and handle various tasks."
-    
-    # Capabilities
-    elif any(c in message_lower for c in ['what can you do', 'capabilities', 'help me', 'abilities']):
-        return f"""I can help you with:
-• Answer questions about your system
-• Evolve and improve myself automatically
-• Monitor component health ({healthy_count}/{component_count} healthy)
-• Learn from our conversations
-• Research new topics
-• Deploy to cloud providers
-• Generate reports
+    return []
 
-Try asking about my status, components, or evolution!"""
+def call_llm(message: str, context: str = None) -> str:
+    """
+    Call DMAI's LLM through the tool manager
+    Supports OpenAI, Google Gemini, DeepSeek, Anthropic, and more
+    """
+    if not core or not hasattr(core, 'tool_manager'):
+        return "I'm still initializing my intelligence. Please wait a moment and try again."
     
-    # Status
-    elif 'status' in message_lower:
-        return f"System Status:{status_info}\n• Core: Active\n• Evolution: Running\n• Self-healer: Active\n• Learning: Continuous\n• Web Interface: Online"
+    # Get available LLMs
+    llms = get_available_llms()
     
-    # Evolution
-    elif 'evolv' in message_lower:
-        return f"I'm constantly evolving to become better! Currently at generation {get_generation()}. I learn from every interaction and improve my components automatically."
+    if not llms:
+        return """I don't have any LLM APIs configured yet. To give me intelligence, add API keys for:
+- OpenAI (GPT-4, GPT-3.5)
+- Google Gemini
+- DeepSeek
+- Anthropic Claude
+
+Add these to your environment variables and I'll evolve to use them!"""
     
-    # Components
-    elif 'component' in message_lower:
-        if component_count > 0:
-            return f"I have {component_count} total components, with {healthy_count} currently healthy. The evolution engine is working to improve the remaining {component_count - healthy_count} components."
-        return f"I have multiple components across Phase 0-7. The evolution engine works to keep them all healthy and improving."
+    # Try each LLM in order until one works
+    for llm_name in llms:
+        try:
+            # Format prompt with context if provided
+            full_prompt = message
+            if context:
+                full_prompt = f"{context}\n\nUser: {message}\n\nDMAI:"
+            
+            # Call the LLM through tool manager
+            result = core.tool_manager.use_tool(llm_name, {
+                "prompt": full_prompt,
+                "max_tokens": 500,
+                "temperature": 0.7
+            })
+            
+            if result and result.get('success'):
+                return result.get('response', result.get('result', "I processed your request but didn't get a clear response."))
+            
+        except Exception as e:
+            logger.error(f"Error calling {llm_name}: {e}")
+            continue
     
-    # Learning
-    elif 'learn' in message_lower:
-        return f"I learn continuously from our conversations. Every interaction helps me understand better and improve my responses. What would you like to teach me?"
-    
-    # Thanks
-    elif any(t in message_lower for t in ['thank', 'thanks']):
-        return "You're welcome! I'm here to help. Feel free to ask me anything."
-    
-    # Default
-    else:
-        responses = [
-            f"That's an interesting question. Let me think about that. I'm currently at generation {get_generation()} and continuously learning.",
-            f"I appreciate you asking. I'm still evolving, but I can help with questions about system status, components, or evolution. What else would you like to know?",
-            f"I'm processing your message. As I evolve, I'll get better at answering these types of questions. In the meantime, feel free to ask about my status or components!",
-            f"Good question! I'm learning from every interaction. Right now, I have {healthy_count}/{component_count} components healthy and actively evolving."
-        ]
-        return random.choice(responses)
+    return "I'm having trouble connecting to my LLM services. Please check API keys and try again. I'll evolve to be more resilient!"
 
 # ============================================
 # AUTHENTICATION DECORATOR (for admin only)
@@ -192,6 +182,7 @@ def health():
     return jsonify({
         'status': 'healthy',
         'core': core is not None,
+        'llms_available': get_available_llms(),
         'authenticated': session.get('admin_authenticated', False)
     })
 
@@ -236,22 +227,71 @@ def admin_logout():
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
-    """Chat endpoint - no authentication required"""
+    """Chat endpoint - uses DMAI's LLM capabilities"""
     data = request.json
     message = data.get('message', '')
     
     if not message:
         return jsonify({'error': 'Message is required'}), 400
     
-    # Generate intelligent response
-    response = generate_response(message)
-    generation = get_generation()
+    try:
+        # Use DMAI's core intelligence with LLM
+        response = call_llm(message)
+        generation = get_generation()
+        
+        return jsonify({
+            'response': response,
+            'generation': generation,
+            'timestamp': str(datetime.now()),
+            'llms_available': get_available_llms()
+        })
+    except Exception as e:
+        logger.error(f"Error in chat: {e}")
+        return jsonify({
+            'response': f"I encountered an error: {str(e)}. I'm evolving to handle this better.",
+            'generation': get_generation(),
+            'timestamp': str(datetime.now())
+        }), 500
+
+# ============================================
+# API ROUTES - LLM Management (admin)
+# ============================================
+
+@app.route('/api/llms', methods=['GET'])
+@admin_required
+def api_llms():
+    """Get available LLMs and their status"""
+    if core and hasattr(core, 'tool_manager'):
+        tools = core.tool_manager.get_tools_by_type('llm')
+        return jsonify({
+            'llms': tools,
+            'count': len(tools)
+        })
+    return jsonify({'llms': [], 'count': 0})
+
+@app.route('/api/llms/test', methods=['POST'])
+@admin_required
+def api_test_llm():
+    """Test a specific LLM"""
+    data = request.json
+    llm_name = data.get('llm_name')
+    test_message = data.get('message', 'Hello, are you working?')
     
-    return jsonify({
-        'response': response,
-        'generation': generation,
-        'timestamp': str(datetime.now())
-    })
+    if not llm_name:
+        return jsonify({'error': 'LLM name required'}), 400
+    
+    try:
+        result = core.tool_manager.use_tool(llm_name, {
+            "prompt": test_message,
+            "max_tokens": 100
+        })
+        return jsonify({
+            'success': True,
+            'llm': llm_name,
+            'response': result.get('response', result.get('result'))
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # ============================================
 # API ROUTES - Status (public)
@@ -277,6 +317,8 @@ def api_status():
                         'thoughts_processed': getattr(core, 'thoughts_count', 0),
                     }
                 }
+            # Add LLM info
+            status['llms_available'] = get_available_llms()
             return jsonify(status)
         except Exception as e:
             logger.error(f"Error getting status: {e}")
@@ -381,6 +423,11 @@ def api_command():
         return jsonify({'success': True, 'message': 'Evolution triggered'})
     elif command == 'health_audit':
         return jsonify({'success': True, 'message': 'Health audit completed'})
+    elif command == 'discover_llms':
+        # Force rediscovery of LLMs
+        if core and hasattr(core, '_discover_tools'):
+            core._discover_tools()
+        return jsonify({'success': True, 'message': 'LLM discovery triggered'})
     else:
         return jsonify({'success': False, 'error': f'Unknown command: {command}'}), 400
 
@@ -418,6 +465,7 @@ if __name__ == '__main__':
     logger.info(f"🔓 Chat is PUBLIC - no login required")
     logger.info(f"🔐 Admin login requires password")
     logger.info(f"🧠 Core status: {'Loaded' if core else 'Not loaded'}")
+    logger.info(f"🤖 LLMs available: {get_available_llms()}")
     logger.info(f"📋 Research Targets API enabled at /api/research/targets")
     
     app.run(
