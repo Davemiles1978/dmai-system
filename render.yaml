@@ -10,7 +10,7 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       python -c "from pathlib import Path; [p.mkdir(parents=True, exist_ok=True) for p in [Path('logs'), Path('data'), Path('components'), Path('templates')]]"
-    startCommand: python dmai_web.py
+    startCommand: python3 dmai_web.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
@@ -39,7 +39,7 @@ services:
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
-    startCommand: python telegram_master_control.py
+    startCommand: python3 telegram_master_control.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
