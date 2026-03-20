@@ -10,13 +10,13 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
       python -c "from pathlib import Path; [p.mkdir(parents=True, exist_ok=True) for p in [Path('logs'), Path('data'), Path('components'), Path('templates')]]"
-    startCommand: python dmai_core_clean.py
+    startCommand: python dmai_web.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
       - key: MASTER_PASSWORD
         value: Talula.78
-      - key: TELEGRAM_TOKEN
+      - key: TELEGRAM_BOT_TOKEN
         sync: false  # Set in Render dashboard
       - key: TELEGRAM_CHAT_ID
         sync: false  # Set in Render dashboard
@@ -39,7 +39,7 @@ services:
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
-    startCommand: python telegram_worker.py
+    startCommand: python telegram_master_control.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
