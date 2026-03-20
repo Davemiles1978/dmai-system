@@ -1,0 +1,11 @@
+{
+  "service": "wellsaid",
+  "api_key": "isNetworkOrIdempoten...questError",
+  "full_key": "isNetworkOrIdempotentRequestError",
+  "source": "github",
+  "url": "https://api.github.com/repositories/895196285/contents/src/services/wellsaid/api.ts?ref=3b9f603c27e58c67786e83ddc705972335bcb0e7",
+  "discovered_at": "2026-03-14T19:47:52.975899",
+  "integrator": "video_audio_integrator",
+  "integration_code": "# wellsaid = isNetworkOrIdempotentRequestError\n# Add your video/audio integration code here",
+  "message": "\ud83d\udd11 New WELLSAID API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "farmers_market_api",
+  "api_key": "AIzaSyDhK9UhFQBJwQSm...IThjitW1uo",
+  "full_key": "AIzaSyDhK9UhFQBJwQSmTXVZxueOoIThjitW1uo",
+  "source": "github",
+  "url": "https://api.github.com/repositories/965748709/contents/.env?ref=14dc7b4a30ea469dd9cb430b54f2bf7b348f29ba",
+  "discovered_at": "2026-03-15T13:05:50.728105",
+  "integrator": "cooking_integrator",
+  "integration_code": "# farmers_market_api = AIzaSyDhK9UhFQBJwQSmTXVZxueOoIThjitW1uo\n# Add your cooking integration code here",
+  "message": "\ud83d\udd11 New FARMERS_MARKET_API API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "sourcegraph",
+  "api_key": "gocklaboggjfkolaknpb...dbaopcepfp",
+  "full_key": "gocklaboggjfkolaknpbhddbaopcepfp",
+  "source": "github",
+  "url": "https://api.github.com/repositories/142131085/contents/Chrome.md?ref=28f78aee232e7430425055b795de2d52242eef27",
+  "discovered_at": "2026-03-14T16:33:26.644068",
+  "integrator": "code_generation_integrator",
+  "integration_code": "# sourcegraph = gocklaboggjfkolaknpbhddbaopcepfp\n# Add your code generation integration code here",
+  "message": "\ud83d\udd11 New SOURCEGRAPH API key discovered!"
+}

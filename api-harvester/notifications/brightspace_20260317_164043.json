@@ -1,0 +1,11 @@
+{
+  "service": "brightspace",
+  "api_key": "PagedBrightspaceData...ReportInfo",
+  "full_key": "PagedBrightspaceDataSetReportInfo",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1091330736/contents/docs/D2L_API_INDEX.md?ref=cc1547b58050c8a7cb483f7f41b6cee37d62148b",
+  "discovered_at": "2026-03-17T16:40:43.383053",
+  "integrator": "coaching_integrator",
+  "integration_code": "# brightspace = PagedBrightspaceDataSetReportInfo\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New BRIGHTSPACE API key discovered!"
+}

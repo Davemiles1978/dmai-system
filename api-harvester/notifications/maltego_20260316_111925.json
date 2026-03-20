@@ -1,0 +1,11 @@
+{
+  "service": "maltego",
+  "api_key": "283efaddbcf896ab4054...330d1bbc06",
+  "full_key": "283efaddbcf896ab405488330d1bbc06",
+  "source": "github",
+  "url": "https://api.github.com/repositories/442224019/contents/OSINT.md?ref=61671a5d3378caa767b4fc435070e26f0f3d4027",
+  "discovered_at": "2026-03-16T11:19:25.214788",
+  "integrator": "osint_integrator",
+  "integration_code": "# maltego = 283efaddbcf896ab405488330d1bbc06\n# Add your OSINT integration code here",
+  "message": "\ud83d\udd11 New MALTEGO API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "abuseipdb",
+  "api_key": "aHR0cHM6Ly93d3cuc3Bp...9vdC5uZXQv",
+  "full_key": "aHR0cHM6Ly93d3cuc3BpZGVyZm9vdC5uZXQv",
+  "source": "github",
+  "url": "https://api.github.com/repositories/344930623/contents/container_app/app/spiderfoot/spiderfoot.md?ref=8c6b2ed0bfad05d49db645c3ac30d7dbc4f35dbc",
+  "discovered_at": "2026-03-17T09:21:37.870165",
+  "integrator": "hacking_integrator",
+  "integration_code": "# abuseipdb = aHR0cHM6Ly93d3cuc3BpZGVyZm9vdC5uZXQv\n# Add your integration code here",
+  "message": "\ud83d\udd11 New ABUSEIPDB API key discovered!"
+}

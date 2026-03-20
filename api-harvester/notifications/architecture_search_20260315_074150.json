@@ -1,0 +1,11 @@
+{
+  "service": "architecture_search",
+  "api_key": "8ecb98da25f57f5357bf...1661e28f02",
+  "full_key": "8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02",
+  "source": "github",
+  "url": "https://api.github.com/repositories/337795269/contents/row2vec/_modules/row2vec/api.html?ref=dd1dade6e2bf1a272a9ecf602680b81402e43310",
+  "discovered_at": "2026-03-15T07:41:50.615354",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New ARCHITECTURE_SEARCH API key discovered!"
+}

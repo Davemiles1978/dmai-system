@@ -1,0 +1,11 @@
+{
+  "service": "edx",
+  "api_key": "3bc7cdeed1da30c0cccf...f038cb0915",
+  "full_key": "3bc7cdeed1da30c0cccfc2cfd14b0df038cb0915",
+  "source": "github",
+  "url": "https://api.github.com/repositories/614769936/contents/req.txt?ref=e2842bbc9864b29179aa856e191244a3cb2b08e0",
+  "discovered_at": "2026-03-17T16:08:28.026509",
+  "integrator": "coaching_integrator",
+  "integration_code": "# edx = 3bc7cdeed1da30c0cccfc2cfd14b0df038cb0915\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New EDX API key discovered!"
+}

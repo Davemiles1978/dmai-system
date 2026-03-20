@@ -1,0 +1,11 @@
+{
+  "service": "google_quantum",
+  "api_key": "ControllerExtensionM...ntegration",
+  "full_key": "ControllerExtensionModuleQuantumComputingIntegration",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1055834399/contents/admin/controller/extension/module/quantum_computing_integration.php?ref=63a4747f9134cbec1cd78c6984887adad021e4e9",
+  "discovered_at": "2026-03-18T07:35:10.610461",
+  "integrator": "quantum_integrator",
+  "integration_code": "# google_quantum = ControllerExtensionModuleQuantumComputingIntegration\n# Install required packages: pip install qiskit amazon-braket-sdk dwave-ocean-sdk",
+  "message": "\ud83d\udd11 New GOOGLE_QUANTUM API key discovered!"
+}

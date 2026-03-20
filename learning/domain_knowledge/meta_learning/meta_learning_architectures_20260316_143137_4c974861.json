@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-03-16T14:31:37.050317",
+  "domain": "meta_learning",
+  "category": "architectures",
+  "url": "https://paperswithcode.com/task/meta-learning",
+  "title": "Trending Papers - Hugging Face",
+  "content_preview": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTrending Papers - Hugging Face\n\n\n\n\n\n\n   Hugging Face        Models   Datasets   Spaces   Buckets new  Docs   Enterprise   Pricing       Log In Sign Up   new Get trending papers in your email inbox once a day! Get trending papers in your email inbox! Subscribe   Trending Papers  byAK and the research community             Daily  Weekly  Monthly    Trending Papers    Bitnet.cpp: Efficient Edge Inference for Ternary LLMs Bitnet.cpp enhances edge inference for ternary LLMs using a novel mixed-precision matrix multiplication library, achieving significant speed improvements over baselines.       10 authors \u00b7 Published on Feb 17, 2025    Upvote 13      GitHub  34.8k  arXiv Page    Bitnet.cpp: Efficient Edge Inference for Ternary LLMs Bitnet.cpp enhances edge inference for ternary LLMs using a novel mixed-precision matrix multiplication library, achieving significant speed improvements over baselines.       10 authors \u00b7 Feb 17, 2025    Upvote 13      GitHub  34.8k  arXiv Page  Submitted by\n\t\t\t\t\t  taesiri Fish Audio S2 Technical Report Fish Audio S2 is an open-source text-to-speech system with multi-speaker capabilities, multi-turn generation, and instruction-following control through natural-language descriptions, utilizing a multi-stage training approach and production-ready inference engine.  Fish Audio \u00b7 Published on Mar 9, 2026    Upvote 26      GitHub  27.6k  arXiv Page   Submitted by\n\t\t\t\t\t  taesiri Fish Audio S2 Technical Report Fish Audio S2 is an open-source text-to-speech system with multi-speaker capabilities, multi-turn generation, and instruction-following control through natural-language descriptions, utilizing a multi-stage training approach and production-ready inference engine.  Fish Audio \u00b7 Mar 9, 2026    Upvote 26      GitHub  27.6k  arXiv Page  Submitted by\n\t\t\t\t\t  Lingaaaaaaa OpenClaw-RL: Train Any Agent Simply by Talking OpenClaw-RL framework enables policy learning from diverse next-state signals across multiple interaction modalities using asynchronous training with PRM judges and hindsight-guided distillation.  Princeton AI Lab \u00b7 Published on Mar 10, 2026    Upvote 102      GitHub  3.07k  arXiv Page   Submitted by\n\t\t\t\t\t  Lingaaaaaaa OpenClaw-RL: Train Any Agent Simply by Talking OpenClaw-RL framework enables policy learning from diverse next-state signals across multiple interaction modalities using asynchronous training with PRM judges and hindsight-guided distillation.  Princeton AI Lab \u00b7 Mar 10, 2026    Upvote 102      GitHub  3.07k  arXiv Page  Submitted by\n\t\t\t\t\t  UglyToilet MemOS: A Memory OS for AI System MemOS, a memory operating system for Large Language Models, addresses memory management challenges by unifying plaintext, activation-based, and parameter-level memories, enabling efficient storage, retrieval, and continual learning.       39 authors \u00b7 Published on Jul 4, 2025    Upvote 163      GitHub  7.14k  arXiv Page   Submitted by\n\t\t\t\t\t  UglyToilet MemOS: A Memory OS for AI System MemOS, a memory operating system for Large Language Models, addresses memory management challenges by unifying plaintext, activation-based, and parameter-level memories, enabling efficient storage, retrieval, and continual learning.       39 authors \u00b7 Jul 4, 2025    Upvote 163      GitHub  7.14k  arXiv Page   TradingAgents: Multi-Agents LLM Financial Trading Framework A multi-agent framework using large language models for stock trading simulates real-world trading firms, improving performance metrics like cumulative returns and Sharpe ratio.      4 authors \u00b7 Published on Dec 28, 2024    Upvote 24      GitHub  32.3k  arXiv Page    TradingAgents: Multi-Agents LLM Financial Trading Framework A multi-agent framework using large language models for stock trading simulates real-world trading firms, improving performance metrics like cumulative returns and Sharpe ratio.      4 authors \u00b7 Dec 28, 2024    Upvote 24      GitHub  32.3k  arXiv Page  Submitted by\n\t\t\t\t\t  akhaliq Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory Mem0, a memory-centric architecture with graph-based memory, enhances long-term conversational coherence in LLMs by efficiently extracting, consolidating, and retrieving information, outperforming existing memory systems in terms of accuracy and computational efficiency.       5 authors \u00b7 Published on Apr 28, 2025    Upvote 48      GitHub  50k  arXiv Page   Submitted by\n\t\t\t\t\t  akhaliq Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory Mem0, a memory-centric architecture with graph-based memory, enhances long-term conversational coherence in LLMs by efficiently extracting, consolidating, and retrieving information, outperforming existing memory systems in terms of accuracy and computational efficiency.       5 authors \u00b7 Apr 28, 2025    Upvote 48      GitHub  50k  arXiv Page  Submitted by\n\t\t\t\t\t  akhaliq Efficient Memory Management for Large Language Model Serving with\n  PagedAttention PagedAttention algorithm and vLLM system enh",
+  "links": [
+    "/",
+    "/models",
+    "/datasets",
+    "/spaces",
+    "/storage",
+    "/docs",
+    "/enterprise",
+    "/pricing",
+    "/login",
+    "/join",
+    "/login?next=%2Fpapers",
+    "/akhaliq",
+    "/papers",
+    "/papers/2502.11880",
+    "/papers/2502.11880",
+    "/login?next=%2Fpapers%2F2502.11880",
+    "https://github.com/microsoft/BitNet",
+    "https://arxiv.org/abs/2502.11880",
+    "/papers/2502.11880",
+    "/papers/2502.11880"
+  ],
+  "content_hash": "a05cd712b78af1c61d787c3a45042fa3"
+}

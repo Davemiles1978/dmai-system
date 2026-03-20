@@ -1,0 +1,11 @@
+{
+  "service": "aap_pediatrics",
+  "api_key": "gvZ5K3JTxPAHcHsm6B04...FXJu6RhCmk",
+  "full_key": "gvZ5K3JTxPAHcHsm6B04Ti8IJdXecjyWRFXJu6RhCmk",
+  "source": "github",
+  "url": "https://api.github.com/repositories/342953600/contents/webscraping-o/htmlfiles/aappublications.txt?ref=3fd0ac35fa66e50fb90e3eb77b1a00b72ff76911",
+  "discovered_at": "2026-03-16T15:30:30.883855",
+  "integrator": "childcare_integrator",
+  "integration_code": "# aap_pediatrics = gvZ5K3JTxPAHcHsm6B04Ti8IJdXecjyWRFXJu6RhCmk\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New AAP_PEDIATRICS API key discovered!"
+}

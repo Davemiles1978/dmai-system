@@ -1,0 +1,11 @@
+{
+  "service": "codeium",
+  "api_key": "hobjkcpmjhlegmobgona...epfckjkceh",
+  "full_key": "hobjkcpmjhlegmobgonaagepfckjkceh",
+  "source": "github",
+  "url": "https://api.github.com/repositories/594647016/contents/README.md?ref=821b570b526dbb05b57aa4ded578b709a704a38a",
+  "discovered_at": "2026-03-14T16:12:30.528395",
+  "integrator": "code_generation_integrator",
+  "integration_code": "# codeium = hobjkcpmjhlegmobgonaagepfckjkceh\n# Add your code generation integration code here",
+  "message": "\ud83d\udd11 New CODEIUM API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "declaration_independence",
+  "api_key": "wgRelatedArticlesUse...rrusSearch",
+  "full_key": "wgRelatedArticlesUseCirrusSearch",
+  "source": "github",
+  "url": "https://api.github.com/repositories/68062589/contents/data-raw/wikipages/j3u6y5a16m.html?ref=f755772f4ec37107de9972e2df076ea56827bcae",
+  "discovered_at": "2026-03-17T06:22:36.682152",
+  "integrator": "history_integrator",
+  "integration_code": "# declaration_independence = wgRelatedArticlesUseCirrusSearch\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New DECLARATION_INDEPENDENCE API key discovered!"
+}

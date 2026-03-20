@@ -1,0 +1,11 @@
+{
+  "service": "cpr_certification",
+  "api_key": "AIzaSyDcBP8bIBztxmXJ...aEFfnzSBgc",
+  "full_key": "AIzaSyDcBP8bIBztxmXJh1AL5PxkaaEFfnzSBgc",
+  "source": "github",
+  "url": "https://api.github.com/repositories/998696214/contents/Common/constants.py?ref=00ee4c4c3b0887e70d9e8817efbb5b37174f72b4",
+  "discovered_at": "2026-03-16T20:16:14.143852",
+  "integrator": "medical_integrator",
+  "integration_code": "# cpr_certification = AIzaSyDcBP8bIBztxmXJh1AL5PxkaaEFfnzSBgc\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New CPR_CERTIFICATION API key discovered!"
+}

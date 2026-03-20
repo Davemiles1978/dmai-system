@@ -1,0 +1,11 @@
+{
+  "service": "threatcrowd",
+  "api_key": "470b7057b86f41c396a9...03377f3d81",
+  "full_key": "470b7057b86f41c396a97903377f3d81",
+  "source": "github",
+  "url": "https://api.github.com/repositories/300551372/contents/Bug%20Bounty/assets/tools.md?ref=3b856e5c03732ae3028a23b2e53cc39ef5aae6a5",
+  "discovered_at": "2026-03-17T09:47:27.327574",
+  "integrator": "hacking_integrator",
+  "integration_code": "# threatcrowd = 470b7057b86f41c396a97903377f3d81\n# Add your integration code here",
+  "message": "\ud83d\udd11 New THREATCROWD API key discovered!"
+}

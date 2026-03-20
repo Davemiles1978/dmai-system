@@ -1,0 +1,11 @@
+{
+  "service": "cdc_travel_health",
+  "api_key": "f430db9fcdba51ae39fd...3b19a6a44e",
+  "full_key": "f430db9fcdba51ae39fd533b19a6a44e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1182891270/contents/src/config/apiConfig.js?ref=63a25efea55af74458b0c86a831dd0f4579b47a2",
+  "discovered_at": "2026-03-16T21:00:47.507539",
+  "integrator": "medical_integrator",
+  "integration_code": "# CDC Travel Health Information\nimport requests\n\nCDC_TRAVEL_API_KEY = \"f430db9fcdba51ae39fd533b19a6a44e\"\nBASE_URL = \"https://wwwnc.cdc.gov/travel/api/v1\"\n\ndef get_destination_health(destination_country):\n    \"\"\"Get health recommendations for travel destination\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/destinations/{destination_country}\",\n        params={\"api_key\": CDC_TRAVEL_API_KEY}\n    )\n    return response.json()\n\ndef get_required_vaccinations(destination):\n    \"\"\"Get required vaccinations for destination\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/vaccinations/required\",\n        params={\n            \"destination\": destination,\n            \"api_key\": CDC_TRAVEL_API_KEY\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New CDC_TRAVEL_HEALTH API key discovered!"
+}

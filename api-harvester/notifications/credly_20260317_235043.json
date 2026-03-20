@@ -1,0 +1,11 @@
+{
+  "service": "credly",
+  "api_key": "1Y05NShfRax0xuUPATvR...EEl4XcQgze",
+  "full_key": "1Y05NShfRax0xuUPATvRNJOEEl4XcQgze",
+  "source": "github",
+  "url": "https://api.github.com/repositories/803300456/contents/Shivani?ref=7307601409a60d8fc44305bc15682eb3b4c84f58",
+  "discovered_at": "2026-03-17T23:50:43.410248",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Credly Badging Integration\nimport requests\n\nCREDLY_API_KEY = \"1Y05NShfRax0xuUPATvRNJOEEl4XcQgze\"\nCREDLY_ORG_ID = \"your_org_id\"\n\ndef issue_badge(user_email, badge_template_id):\n    \"\"\"Issue a digital badge\"\"\"\n    response = requests.post(\n        f\"https://api.credly.com/v1/organizations/{CREDLY_ORG_ID}/badges\",\n        headers={\n            \"Authorization\": f\"Bearer {CREDLY_API_KEY}\",\n            \"Content-Type\": \"application/json\"\n        },\n        json={\n            \"recipient_email\": user_email,\n            \"badge_template_id\": badge_template_id,\n            \"issued_to_organization\": False\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New CREDLY API key discovered!"
+}

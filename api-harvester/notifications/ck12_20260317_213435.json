@@ -1,0 +1,11 @@
+{
+  "service": "ck12",
+  "api_key": "W251bGwsMSwxLG51bGws...NxN3lpeSJd",
+  "full_key": "W251bGwsMSwxLG51bGwsImFsYnVtLUJpNjNydmdjN3QycnFsN3NsYXA0d2NxN3lpeSJd",
+  "source": "github",
+  "url": "https://api.github.com/repositories/389307289/contents/6o_urls.txt?ref=5c0300471b87c6a5f3dd8883484f8155b5ff33d7",
+  "discovered_at": "2026-03-17T21:34:35.084481",
+  "integrator": "coaching_integrator",
+  "integration_code": "# ck12 = W251bGwsMSwxLG51bGwsImFsYnVtLUJpNjNydmdjN3QycnFsN3NsYXA0d2NxN3lpeSJd\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New CK12 API key discovered!"
+}

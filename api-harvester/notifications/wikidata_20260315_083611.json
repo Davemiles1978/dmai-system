@@ -1,0 +1,11 @@
+{
+  "service": "wikidata",
+  "api_key": "setSessionRenewedOnA...entication",
+  "full_key": "setSessionRenewedOnAuthentication",
+  "source": "github",
+  "url": "https://api.github.com/repositories/48451041/contents/README.md?ref=829ce8241ec29fddf7c893f431b57c8cf4221baf",
+  "discovered_at": "2026-03-15T08:36:11.880985",
+  "integrator": "knowledge_aggregation_integrator",
+  "integration_code": "# wikidata = setSessionRenewedOnAuthentication\n# Add your knowledge aggregation integration code here",
+  "message": "\ud83d\udd11 New WIKIDATA API key discovered!"
+}

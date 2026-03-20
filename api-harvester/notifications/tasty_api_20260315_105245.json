@@ -1,0 +1,11 @@
+{
+  "service": "tasty_api",
+  "api_key": "3711375463msh659873d...e89a12800f",
+  "full_key": "3711375463msh659873d468ffe12p1bb860jsn11e89a12800f",
+  "source": "github",
+  "url": "https://api.github.com/repositories/894456177/contents/routes/api.js?ref=ff3fd952b934d8a9e4c2742c022345cc2de824ab",
+  "discovered_at": "2026-03-15T10:52:45.029919",
+  "integrator": "cooking_integrator",
+  "integration_code": "# Tasty Recipe API\nimport requests\n\nTASTY_API_KEY = \"3711375463msh659873d468ffe12p1bb860jsn11e89a12800f\"\nBASE_URL = \"https://tasty.p.rapidapi.com/recipes\"\n\ndef get_tasty_recipes(tag=None, q=None):\n    \"\"\"Get recipes from Tasty\"\"\"\n    headers = {\n        \"X-RapidAPI-Key\": TASTY_API_KEY,\n        \"X-RapidAPI-Host\": \"tasty.p.rapidapi.com\"\n    }\n    \n    params = {\"from\": 0, \"size\": 20}\n    if tag:\n        params[\"tags\"] = tag\n    if q:\n        params[\"q\"] = q\n    \n    response = requests.get(f\"{BASE_URL}/list\", headers=headers, params=params)\n    return response.json()\n\ndef get_recipe_video(recipe_id):\n    \"\"\"Get recipe video instructions\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/get-more-info\",\n        headers=headers,\n        params={\"id\": recipe_id}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New TASTY_API API key discovered!"
+}

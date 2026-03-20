@@ -1,0 +1,11 @@
+{
+  "service": "replicate",
+  "api_key": "bbcb751c9d0be8dbed62...2187f3d688",
+  "full_key": "bbcb751c9d0be8dbed620b2187f3d688",
+  "source": "github",
+  "url": "https://api.github.com/repositories/897493973/contents/Api.txt?ref=cf320afc90c60a02be063545530760f4bb720d3b",
+  "discovered_at": "2026-03-14T15:41:40.678324",
+  "integrator": "ai_ml_integrator",
+  "integration_code": "\n# Replicate Integration\nimport replicate\n\nreplicate.Client(api_token=\"bbcb751c9d0be8dbed620b2187f3d688\")\n\n# Run a model\noutput = replicate.run(\n    \"meta/llama-2-70b-chat:02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3\",\n    input={\"prompt\": \"DMAI is a self-evolving AI system that\"}\n)\nprint(\"\".join(output))\n",
+  "message": "\ud83d\udd11 New REPLICATE API key discovered!"
+}

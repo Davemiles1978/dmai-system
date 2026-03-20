@@ -1,0 +1,11 @@
+{
+  "service": "leonardo",
+  "api_key": "0xCAC7BFd2B83DaAcbf6...88f9e05f0d",
+  "full_key": "0xCAC7BFd2B83DaAcbf6A9f6146CB6dF88f9e05f0d",
+  "source": "github",
+  "url": "https://api.github.com/repositories/705562142/contents/api.md?ref=7e6740c1fc9323e311ddde947ab8d269c482029c",
+  "discovered_at": "2026-03-14T17:06:41.521226",
+  "integrator": "image_generation_integrator",
+  "integration_code": "# leonardo = 0xCAC7BFd2B83DaAcbf6A9f6146CB6dF88f9e05f0d\n# Add your image generation integration code here",
+  "message": "\ud83d\udd11 New LEONARDO API key discovered!"
+}

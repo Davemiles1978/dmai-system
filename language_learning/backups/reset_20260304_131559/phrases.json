@@ -1,0 +1,1682 @@
+[
+  {
+    "text": "hello there, how are you today?",
+    "timestamp": "2026-03-04T08:18:51.766764",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": []
+  },
+  {
+    "text": "i am learning new words every day",
+    "timestamp": "2026-03-04T08:18:51.767581",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": []
+  },
+  {
+    "text": "dmai is becoming more intelligent",
+    "timestamp": "2026-03-04T08:18:51.767865",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": []
+  },
+  {
+    "text": "hello there, how are you today?",
+    "timestamp": "2026-03-04T08:26:50.601828",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "i am learning new words every day",
+    "timestamp": "2026-03-04T08:26:50.607043",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "dmai is becoming more intelligent",
+    "timestamp": "2026-03-04T08:26:50.613141",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "i'm now listening and learning from conversations around me. i already had a quick brown fox jump over the lazy dog.",
+    "timestamp": "2026-03-04T08:30:51.139615",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 12
+  },
+  {
+    "text": "sometimes i'm sorry if you can keep learning and learning.",
+    "timestamp": "2026-03-04T08:31:15.531084",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 3
+  },
+  {
+    "text": "i'm ready. i currently know 131 words. say jarvis when you need me.",
+    "timestamp": "2026-03-04T08:33:13.844773",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 4
+  },
+  {
+    "text": "well you not recognize my voice, you fucking cunt.",
+    "timestamp": "2026-03-04T08:33:36.253150",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 4
+  },
+  {
+    "text": "i'm trying to... i hope... what?",
+    "timestamp": "2026-03-04T08:35:09.308751",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
+  },
+  {
+    "text": "i'm gonna not fucking close the terminal. fucking stupid.",
+    "timestamp": "2026-03-04T08:35:32.529624",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 4
+  },
+  {
+    "text": "i'm ready. i currently know 145 words. say jarvis when you need me. sure thing.",
+    "timestamp": "2026-03-04T08:37:03.768341",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 2
+  },
+  {
+    "text": "washing out.",
+    "timestamp": "2026-03-04T08:37:26.539395",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "let's do another one. let both of you explain to us send it.",
+    "timestamp": "2026-03-04T08:37:50.618999",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 6
+  },
+  {
+    "text": "i'm gonna do it. nobody said that. let's do another one. let's both of you explain.",
+    "timestamp": "2026-03-04T08:38:36.257696",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 2
+  },
+  {
+    "text": "morning.",
+    "timestamp": "2026-03-04T08:42:06.361630",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 1
+  },
+  {
+    "text": "permits of gsa so no i am not.",
+    "timestamp": "2026-03-04T08:42:28.379072",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 2
+  },
+  {
+    "text": "it's just a mess. it's just a mess. it's just a mess. it's just a mess. it's just a mess. but, i'm gonna get my cat away.",
+    "timestamp": "2026-03-04T08:44:02.260474",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 3
+  },
+  {
+    "text": "how do you spell access?",
+    "timestamp": "2026-03-04T08:45:33.760463",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "i only queueed for four hours, but i had noone to get eaten. but i'm still tired.",
+    "timestamp": "2026-03-04T08:45:59.524102",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 7
+  },
+  {
+    "text": "i think it's very fun to do a mini shop here. that's how it's supposed to be.",
+    "timestamp": "2026-03-04T08:46:20.560483",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 6
+  },
+  {
+    "text": "then there are some reports. i don't even know if it stands to\u2026 first question. is there anything on the list? there are some reports. traveling and collecting information the editorial form of the criminal\u9662 it stands 5<|pl|>",
+    "timestamp": "2026-03-04T08:46:46.325102",
+    "source": "ambient",
+    "word_count": 38,
+    "new_words": 13
+  },
+  {
+    "text": "we're gonna be fucking evacuated from the vessel anyway, so i got two packets of cigarette left. i'm not paying fucking",
+    "timestamp": "2026-03-04T08:47:06.737018",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 9
+  },
+  {
+    "text": "do it cheap normally. not fucking hell, let's just take your arm off you. you don't need that anymore. crazy.",
+    "timestamp": "2026-03-04T08:47:30.310128",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 7
+  },
+  {
+    "text": "fuck you, that's not it. stupid post.",
+    "timestamp": "2026-03-04T08:47:53.886390",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 2
+  },
+  {
+    "text": "where did you get so fucked up?",
+    "timestamp": "2026-03-04T08:48:16.604182",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 3
+  },
+  {
+    "text": "damught the bunu...",
+    "timestamp": "2026-03-04T08:48:41.146415",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 2
+  },
+  {
+    "text": "yeah, it's top one of the background.",
+    "timestamp": "2026-03-04T08:50:12.529809",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 3
+  },
+  {
+    "text": "and the dark web, so... surface and dark web, i guess. whatever you call it.",
+    "timestamp": "2026-03-04T08:50:58.943747",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 6
+  },
+  {
+    "text": "are you learning that you're not learning? i haven't confused this shit.",
+    "timestamp": "2026-03-04T08:51:45.191994",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 3
+  },
+  {
+    "text": "i'm i get that act of",
+    "timestamp": "2026-03-04T08:52:09.478532",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 1
+  },
+  {
+    "text": "that's new world.",
+    "timestamp": "2026-03-04T08:52:32.730256",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "73. how do you want to know? 199 now.",
+    "timestamp": "2026-03-04T08:54:04.713232",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "this is stupid.",
+    "timestamp": "2026-03-04T08:54:28.048538",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "we don't do that meeting at the moment, do we? good, more arms to switch.",
+    "timestamp": "2026-03-04T08:55:14.317540",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 4
+  },
+  {
+    "text": "i mean like wow it's cool though because you can't speak with him. but she only knows 358 lights.",
+    "timestamp": "2026-03-04T08:55:37.570928",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 7
+  },
+  {
+    "text": "i speak english language filters out foreign languages. get better as it goes.",
+    "timestamp": "2026-03-04T08:56:00.646051",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 7
+  },
+  {
+    "text": "299 a second to go. still learning very much so.",
+    "timestamp": "2026-03-04T08:56:23.955486",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 2
+  },
+  {
+    "text": "and then you should turn up the light.",
+    "timestamp": "2026-03-04T08:57:10.643471",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 3
+  },
+  {
+    "text": "shhh... where were they from?",
+    "timestamp": "2026-03-04T08:58:20.799352",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "this was that fire parker",
+    "timestamp": "2026-03-04T08:58:46.124127",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 3
+  },
+  {
+    "text": "i didn't know it would be a guitar. but what was it to do?",
+    "timestamp": "2026-03-04T08:59:52.592331",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 2
+  },
+  {
+    "text": "don't brother, see true?",
+    "timestamp": "2026-03-04T09:00:40.523469",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "\ud574\uc11c i'm really nervous it's going down",
+    "timestamp": "2026-03-04T09:02:13.922357",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 4
+  },
+  {
+    "text": "got me a new 255 fucking stupid thing",
+    "timestamp": "2026-03-04T09:02:58.414394",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "263, 365. okay, that's good.",
+    "timestamp": "2026-03-04T09:03:21.523204",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "are you still learning?",
+    "timestamp": "2026-03-04T09:04:07.682551",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "two pounds seventy is not exactly gonna leave me in retirement stage but",
+    "timestamp": "2026-03-04T09:05:40.569055",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 6
+  },
+  {
+    "text": "yes. this is really? yeah. i know no 273 words. i've always still got better as well at what time.",
+    "timestamp": "2026-03-04T09:06:03.873387",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 3
+  },
+  {
+    "text": "and this particular vault had 62 million pounds worth of gold. it didn't take any souvenirs, it's 62.",
+    "timestamp": "2026-03-04T09:16:53.710310",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 6
+  },
+  {
+    "text": "so, i think it's pretty easy to move the doors into the next box. so, you're really going to need to move it.",
+    "timestamp": "2026-03-04T09:17:17.440010",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 6
+  },
+  {
+    "text": "but this is... i'm listening. not enough numbers that they are some old names except a saying... this is...",
+    "timestamp": "2026-03-04T09:17:40.430790",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 6
+  },
+  {
+    "text": "of a number of volts around london. london has more physical gold in and around the city than any other place on the planet.",
+    "timestamp": "2026-03-04T09:18:03.470772",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 8
+  },
+  {
+    "text": "and then you're gonna start to think it'll last till you put it in and you're gonna be able to do it. you're not like weighed on the way.",
+    "timestamp": "2026-03-04T09:18:49.829537",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 7
+  },
+  {
+    "text": "it seems like it's working. i feel like going out on this small tent year, it looks like it will want me to settle next year.",
+    "timestamp": "2026-03-04T09:19:17.702797",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 7
+  },
+  {
+    "text": "firing more missiles and drones, hitting air ports and a oil tank, triggering more travel chaos.",
+    "timestamp": "2026-03-04T09:21:32.363942",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 11
+  },
+  {
+    "text": "iran's the is retaliation kept coming. why use of missiles targeting",
+    "timestamp": "2026-03-04T09:22:18.663190",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 6
+  },
+  {
+    "text": "in the uae.",
+    "timestamp": "2026-03-04T09:22:41.823514",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "to defend our sex. once the united states is doing, is an extra",
+    "timestamp": "2026-03-04T09:23:05.215977",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 7
+  },
+  {
+    "text": "blowing it to pieces with families inside. a lot of one woman was killed here but doesn't survive.",
+    "timestamp": "2026-03-04T09:23:28.255525",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 9
+  },
+  {
+    "text": "the key question now is the death toll and the devastation now is how much longer can this come?",
+    "timestamp": "2026-03-04T09:23:51.606868",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 5
+  },
+  {
+    "text": "of their supreme leader. thousands to defund their protest, the attack is changing, dead, american.",
+    "timestamp": "2026-03-04T09:24:37.918898",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 9
+  },
+  {
+    "text": "security guards, hope you fire. 22 people were killed. iran's remaining leaders meeting overnight to elect one leader.",
+    "timestamp": "2026-03-04T09:25:01.181274",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 6
+  },
+  {
+    "text": "and must be a clerk. then in that power back you will rather concede. it no longer has complete control of its military.",
+    "timestamp": "2026-03-04T09:25:24.419825",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 8
+  },
+  {
+    "text": "terram skyline, bill, and spongebob, iranian fire jets targeting before they even get off the ground.",
+    "timestamp": "2026-03-04T09:25:47.541323",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 8
+  },
+  {
+    "text": "they want immunity. israeli prime minister netanyahu, not her friend, standing exposed on a rooftop in telafi.",
+    "timestamp": "2026-03-04T09:26:11.071683",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 10
+  },
+  {
+    "text": "volatile and divine. the middle east is waking to a wave of fresh strikes. live now.",
+    "timestamp": "2026-03-04T09:26:33.992544",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 9
+  },
+  {
+    "text": "the board just here is attacking to the east rail, the northern areas of the country. and they said that the federal staff was right off the side of the paper bench.",
+    "timestamp": "2026-03-04T09:26:57.296315",
+    "source": "ambient",
+    "word_count": 32,
+    "new_words": 12
+  },
+  {
+    "text": "they issued an alert of warning to the control before and the residents get out of the area. when that starts, they start understanding you can see that they can just let the cars...",
+    "timestamp": "2026-03-04T09:27:20.559216",
+    "source": "ambient",
+    "word_count": 34,
+    "new_words": 8
+  },
+  {
+    "text": "i'm ready. i currently know for",
+    "timestamp": "2026-03-04T09:27:43.580868",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "for police another month to come. the us president has also confirmed that there have been now three us casualties, three us-",
+    "timestamp": "2026-03-04T09:28:06.965712",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 7
+  },
+  {
+    "text": "and it hasn't worked touchdown in washington dc",
+    "timestamp": "2026-03-04T09:28:30.070208",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 5
+  },
+  {
+    "text": "there was nothing. anyway, earlier we floored up a recorded speech. combat operations continued.",
+    "timestamp": "2026-03-04T09:28:53.326141",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 8
+  },
+  {
+    "text": "america. and let it happen. but america is already playing the game. of course. breaking tonight us troops killed in the middle east.",
+    "timestamp": "2026-03-04T09:29:16.562697",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 8
+  },
+  {
+    "text": "the property of allah, there were indicators that indicate potential next to the power. americans have learnt these lessons before as dead...",
+    "timestamp": "2026-03-04T09:30:02.937760",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 8
+  },
+  {
+    "text": "the other ship of terrorism is sinking. the captain is dead. for now, the double truck appears all farthest on the...",
+    "timestamp": "2026-03-04T09:30:26.316610",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 8
+  },
+  {
+    "text": "i'm going to get my hands on this guy. he's going to be crazy. he's going to be crazy. he's going to be crazy.",
+    "timestamp": "2026-03-04T09:31:13.153254",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 2
+  },
+  {
+    "text": "so much fun atmosphere so much drink",
+    "timestamp": "2026-03-04T09:31:35.656033",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
+  },
+  {
+    "text": "that's what ever it is, we see people flying over a 10 feet and spinning some 20s. it's a bit of cheer sometimes because it's that.",
+    "timestamp": "2026-03-04T09:32:45.547498",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 6
+  },
+  {
+    "text": "young names a lot of teenagers they're the best in the world the level is just getting higher and higher and higher",
+    "timestamp": "2026-03-04T09:33:08.761108",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 6
+  },
+  {
+    "text": "we have 4 izambiles, comable and easy models and four retrieving options that we have",
+    "timestamp": "2026-03-04T09:34:20.412189",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 5
+  },
+  {
+    "text": "time let's style. modest progression. so you can see the flow. you can see the flow.",
+    "timestamp": "2026-03-04T09:35:27.829015",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 4
+  },
+  {
+    "text": "so, do you have 241 over here, \u043d\u043e here has never gone",
+    "timestamp": "2026-03-04T09:35:53.332272",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 2
+  },
+  {
+    "text": "i'm not afraid. so, i got a beauty. extend from tokyo.",
+    "timestamp": "2026-03-04T09:36:14.443720",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 4
+  },
+  {
+    "text": "repeated, perfected. this is the city that we find within the city.",
+    "timestamp": "2026-03-04T09:36:37.473003",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 4
+  },
+  {
+    "text": "you're sitting at level weights. you didn't just get there your weight. you learned how to move inside.",
+    "timestamp": "2026-03-04T09:37:01.054663",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 4
+  },
+  {
+    "text": "when i saw my first job. new york, twenties.",
+    "timestamp": "2026-03-04T09:37:25.412604",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 4
+  },
+  {
+    "text": "sounds too dark",
+    "timestamp": "2026-03-04T09:39:45.063546",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 2
+  },
+  {
+    "text": "this is crimson",
+    "timestamp": "2026-03-04T09:40:07.206270",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "thank you. yeah.",
+    "timestamp": "2026-03-04T09:40:29.554284",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "why are you not working?",
+    "timestamp": "2026-03-04T09:40:52.851776",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 0
+  },
+  {
+    "text": "it feels like we're in trouble. it does feel very good. so we...\u30c3\u30c8-style label. oh no. yeah... so far i'm laughing? try another thing. oh rub pyre phone.",
+    "timestamp": "2026-03-04T09:41:17.270539",
+    "source": "ambient",
+    "word_count": 31,
+    "new_words": 11
+  },
+  {
+    "text": "the much husqvar",
+    "timestamp": "2026-03-04T09:41:40.188579",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "that's better.",
+    "timestamp": "2026-03-04T09:46:17.560559",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 0
+  },
+  {
+    "text": "what is it? the fucking computer's got a bad up.",
+    "timestamp": "2026-03-04T09:46:41.067458",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 2
+  },
+  {
+    "text": "of the",
+    "timestamp": "2026-03-04T09:47:06.224520",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 0
+  },
+  {
+    "text": "but, no. it'd be good to try any led thing. registoma, 10, then 5 returned and 5 return in there.",
+    "timestamp": "2026-03-04T09:47:52.797243",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 5
+  },
+  {
+    "text": "see? what? what? what?",
+    "timestamp": "2026-03-04T09:49:01.685926",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "i've got a reading of books on the internet. 10,000 words, yay!",
+    "timestamp": "2026-03-04T09:49:46.491626",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 4
+  },
+  {
+    "text": "what the fuck, where is this? you can level that. my computer's gonna set fire.",
+    "timestamp": "2026-03-04T09:50:09.789298",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 1
+  },
+  {
+    "text": "scary thoughts. i say you have a million dollars. we don't know but you have a kiss which is not in the call. we have not put it.",
+    "timestamp": "2026-03-04T09:50:33.005659",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 4
+  },
+  {
+    "text": "yeah. they're definitely planning a full d-mob underneath. all the diving gasses been disconqu-",
+    "timestamp": "2026-03-04T09:51:42.715476",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 8
+  },
+  {
+    "text": "i know that i've just moved it if it was putting the food in the table. i know i'm moving it. yeah. okay, i'm sorry.",
+    "timestamp": "2026-03-04T09:52:05.839685",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 5
+  },
+  {
+    "text": "it's got a little\u2026 a lot of it's going ham a lot of 1993",
+    "timestamp": "2026-03-04T09:52:31.004959",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 2
+  },
+  {
+    "text": "beautiful sheriff. yeah, a lot of sharing.",
+    "timestamp": "2026-03-04T09:54:27.828513",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 3
+  },
+  {
+    "text": "what? humans? yeah. i was like, no, were you just setting fucking? what's up? yeah, but i just...",
+    "timestamp": "2026-03-04T09:54:48.531482",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 2
+  },
+  {
+    "text": "no one najleps ideal and only white bumps",
+    "timestamp": "2026-03-04T09:55:13.511224",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 4
+  },
+  {
+    "text": "which is the only, people see necesario ok fuck ah",
+    "timestamp": "2026-03-04T09:55:36.579512",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 3
+  },
+  {
+    "text": "now do not see any of other actions\u05d9\u05de now, we need to wait for your holiday during events we need to wait for your holiday we need to wait for your time it is over",
+    "timestamp": "2026-03-04T09:56:00.152599",
+    "source": "ambient",
+    "word_count": 34,
+    "new_words": 4
+  },
+  {
+    "text": "you're getting better, reminded.... how are you feeling? tell your neighbors to beongeic and think straight away of you and leave them behind cause you know that you need nothing just believe me you're not perfect",
+    "timestamp": "2026-03-04T09:57:08.946940",
+    "source": "ambient",
+    "word_count": 38,
+    "new_words": 10
+  },
+  {
+    "text": "oh, it's hot. it's hot. it's hot. ah.",
+    "timestamp": "2026-03-04T10:01:23.575254",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 1
+  },
+  {
+    "text": "fucking hell, nothing has ever messed up his up",
+    "timestamp": "2026-03-04T10:12:16.279354",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "and then the clinic will be consult with new shape\u5b8c\u4e86",
+    "timestamp": "2026-03-04T10:18:03.673576",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 2
+  },
+  {
+    "text": "a unit of bb-40.",
+    "timestamp": "2026-03-04T10:19:13.716078",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 2
+  },
+  {
+    "text": "fucking cold again today.",
+    "timestamp": "2026-03-04T10:31:12.374020",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 2
+  },
+  {
+    "text": "coffee required. i don't know how you guys are functioning in another coffee.",
+    "timestamp": "2026-03-04T10:46:17.720215",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 4
+  },
+  {
+    "text": "make the fucking coffee.",
+    "timestamp": "2026-03-04T10:47:03.966770",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "i look forwards of a day that she's just on any device everywhere. slayerless! more than that.",
+    "timestamp": "2026-03-04T10:47:27.291759",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 4
+  },
+  {
+    "text": "you'll be gone. top 10 millionaires in the world.",
+    "timestamp": "2026-03-04T10:47:50.409698",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "yeah, and the name's yippon nibut, it's not real, it's not real, i think.",
+    "timestamp": "2026-03-04T10:48:13.939821",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 4
+  },
+  {
+    "text": "annoyed that at the moment i have to call it jarvis. yes, i'm listening. i know you're listening. i wasn't talking to you. i was just using your voice command.",
+    "timestamp": "2026-03-04T10:48:38.017182",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 5
+  },
+  {
+    "text": "if you're listening, why are you not coming up there?",
+    "timestamp": "2026-03-04T10:49:00.200377",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 0
+  },
+  {
+    "text": "i'm ready. i currently know 600-eight words. say jarvis when you need me. well done.",
+    "timestamp": "2026-03-04T10:49:17.191460",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 2
+  },
+  {
+    "text": "i didn't set up tour today.",
+    "timestamp": "2026-03-04T10:49:40.217802",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 1
+  },
+  {
+    "text": "i thought you'd do what?",
+    "timestamp": "2026-03-04T10:50:49.930609",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 1
+  },
+  {
+    "text": "there's toll running .",
+    "timestamp": "2026-03-04T10:52:00.577526",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "got you down here.",
+    "timestamp": "2026-03-04T10:52:24.547081",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "blatant minds not of your",
+    "timestamp": "2026-03-04T10:53:37.902079",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "why have you started putting hashtag shit in again?",
+    "timestamp": "2026-03-04T10:54:41.864397",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 2
+  },
+  {
+    "text": "put in hash moments in.",
+    "timestamp": "2026-03-04T10:57:47.278715",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "there's..... lounge",
+    "timestamp": "2026-03-04T10:59:00.015177",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "ying- guaranteeed wealth detailed",
+    "timestamp": "2026-03-04T11:03:15.388128",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 4
+  },
+  {
+    "text": "i am going to check it and see if we got it, we can go through the pipe!",
+    "timestamp": "2026-03-04T11:07:08.415955",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 3
+  },
+  {
+    "text": "what? i didn't work at it.",
+    "timestamp": "2026-03-04T11:07:29.435927",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 0
+  },
+  {
+    "text": "oh, i don't know. who are the folks like that? yeah.",
+    "timestamp": "2026-03-04T11:08:16.256409",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 1
+  },
+  {
+    "text": "you heard me?",
+    "timestamp": "2026-03-04T11:15:38.138230",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  },
+  {
+    "text": "enjoy the walk!",
+    "timestamp": "2026-03-04T11:16:02.942164",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 2
+  },
+  {
+    "text": "then",
+    "timestamp": "2026-03-04T11:16:24.596642",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 0
+  },
+  {
+    "text": "where's your last count?",
+    "timestamp": "2026-03-04T11:28:00.031498",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 1
+  },
+  {
+    "text": "why isn't it working properly? why you not listening and understanding and putting all the words?",
+    "timestamp": "2026-03-04T11:29:55.877454",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 2
+  },
+  {
+    "text": "i mean, i think i'm sharing up to thinking about it. i really know i've found all these things on it. it appears to be a beautiful...",
+    "timestamp": "2026-03-04T11:31:28.682111",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 3
+  },
+  {
+    "text": "this is real. this is real. this is real. this is real.",
+    "timestamp": "2026-03-04T11:31:51.820123",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 0
+  },
+  {
+    "text": "out to place but still from the same video is much more convincing",
+    "timestamp": "2026-03-04T11:32:15.065024",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 3
+  },
+  {
+    "text": "some words of help. do a hug? sure. thank you. i am a white guy.",
+    "timestamp": "2026-03-04T11:33:24.505811",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 2
+  },
+  {
+    "text": "if anyone needs any help, i'll follow out a phone for another year.",
+    "timestamp": "2026-03-04T11:33:47.656619",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 3
+  },
+  {
+    "text": "don't say that, you won't know.",
+    "timestamp": "2026-03-04T11:34:11.829002",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 1
+  },
+  {
+    "text": "i knew i was gonna lose you, but i didn't think we'd be this comprehensive comprehensive? it's straight ill with a virgin",
+    "timestamp": "2026-03-04T11:35:20.749261",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 5
+  },
+  {
+    "text": "i'm not going to do it. i'm going to just want to go one more. i'm going to miss it. i'm going to miss it.",
+    "timestamp": "2026-03-04T11:36:07.259328",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 1
+  },
+  {
+    "text": "i'm going to repair a plating strip of the other camera. mm-hmm. the place was crawling with pussy.",
+    "timestamp": "2026-03-04T11:36:31.756188",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 8
+  },
+  {
+    "text": "i'm more high in connect. it's crazy. i mean it's crazy because i don't even know how you knew that i was jealous. i really never bring it up.",
+    "timestamp": "2026-03-04T11:37:17.179770",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 4
+  },
+  {
+    "text": "i'm wearing a grey in prison. is that why you're afraid? is this green? yeah. i call it more teal.",
+    "timestamp": "2026-03-04T11:37:40.487018",
+    "source": "ambient",
+    "word_count": 22,
+    "new_words": 5
+  },
+  {
+    "text": "alright, if i was that easy, i'd have more.",
+    "timestamp": "2026-03-04T11:38:26.811393",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 1
+  },
+  {
+    "text": "this is why this act is so much of a shame.",
+    "timestamp": "2026-03-04T11:38:49.886312",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 1
+  },
+  {
+    "text": "i've said of many people of the generation to remember, but i wasn't lucky in the rest of the night before the living in the billbank tower where i'm born.",
+    "timestamp": "2026-03-04T11:39:13.118567",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 10
+  },
+  {
+    "text": "and kiwi is like a girl o it's like a burdock the bale sustains the baby aiya",
+    "timestamp": "2026-03-04T11:39:40.709501",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 8
+  },
+  {
+    "text": "if the war begins inside the world, war is a relationship that you talk about, and not benefit from. come to the laser focus and walk down.",
+    "timestamp": "2026-03-04T11:39:59.670641",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 7
+  },
+  {
+    "text": "what happened? somebody said today they said, oh, well, because they want to do it really quickly after that, he'll get bored. i don't get bored.",
+    "timestamp": "2026-03-04T11:40:22.902691",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 4
+  },
+  {
+    "text": "here with us still in this beautiful building in it. beautiful. we're handing out to the building a little bit. we're improving the building.",
+    "timestamp": "2026-03-04T11:40:46.098377",
+    "source": "ambient",
+    "word_count": 26,
+    "new_words": 3
+  },
+  {
+    "text": "the most beautiful, i believe it's because i don't think it's going to be the most beautiful world anywhere in the world.",
+    "timestamp": "2026-03-04T11:41:09.217515",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 1
+  },
+  {
+    "text": "bombs are now smarter than our president.",
+    "timestamp": "2026-03-04T11:41:32.407511",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
+  },
+  {
+    "text": "to give a team that that happens. no, it's not his job. my job is to give a team that's the one. how many people do you have to tell me?",
+    "timestamp": "2026-03-04T11:41:55.702121",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 2
+  },
+  {
+    "text": "i'm so sorry, can't face it, i'm working with my name on a good day! i'm so sorry, good day!",
+    "timestamp": "2026-03-04T11:42:18.941361",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 1
+  },
+  {
+    "text": "i spoke to you that there were thousands of hours of planning between us and it really no terry officials. oh anything for the bombing buddy.",
+    "timestamp": "2026-03-04T11:42:42.194428",
+    "source": "ambient",
+    "word_count": 26,
+    "new_words": 6
+  },
+  {
+    "text": "oh, my god. yeah. yeah. hey, dude. hey, now. all the boys.",
+    "timestamp": "2026-03-04T11:43:06.677714",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 4
+  },
+  {
+    "text": "i think it's a bit hard to do. it's a bit hard to do. it's a bit hard to do. it's a bit hard to do.",
+    "timestamp": "2026-03-04T11:43:28.547763",
+    "source": "ambient",
+    "word_count": 30,
+    "new_words": 1
+  },
+  {
+    "text": "that has finally shown the strength and boldness that is needed. they're ready in government. how now with the truck doctrine is all about...",
+    "timestamp": "2026-03-04T11:44:14.779530",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 7
+  },
+  {
+    "text": "how boiled our ribs?",
+    "timestamp": "2026-03-04T11:45:02.008499",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 2
+  },
+  {
+    "text": "i'm not going to be a bunch. nobody's got the laser focus of one dot on trump. let's go to the president and try and ask today to be grateful.",
+    "timestamp": "2026-03-04T11:45:28.978142",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 5
+  },
+  {
+    "text": "i'm sorry. it's even... it looks serious, i gotta... just remind you this part right here. can we get...",
+    "timestamp": "2026-03-04T11:47:01.370132",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 4
+  },
+  {
+    "text": "first, a stunning statement from the defense secretary pete hankseth. america, regardless of what so-called international institutions say is...",
+    "timestamp": "2026-03-04T11:47:47.863226",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 10
+  },
+  {
+    "text": "correct. no stupid rules that make the central manage charge of america's military. give it to be...",
+    "timestamp": "2026-03-04T11:48:11.744246",
+    "source": "ambient",
+    "word_count": 18,
+    "new_words": 5
+  },
+  {
+    "text": "second headline which i think i'll take you to make so clearly the strain between america and its allies in particular the uk and this so called...",
+    "timestamp": "2026-03-04T11:48:34.988453",
+    "source": "ambient",
+    "word_count": 28,
+    "new_words": 5
+  },
+  {
+    "text": "that's the blood consequence of the judgment made by the british government that trump's passion over the weekend in iran for no.",
+    "timestamp": "2026-03-04T11:48:59.050882",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 7
+  },
+  {
+    "text": "john stovry, who left the us streets on the ground inside iran. but he didn't take it. are you currently a american who's on the ground in iran?",
+    "timestamp": "2026-03-04T11:49:21.234092",
+    "source": "ambient",
+    "word_count": 30,
+    "new_words": 3
+  },
+  {
+    "text": "he would rule out sending us troops into iran. of course, that's kind of the core of trump style. never to rule anything out. thank you.",
+    "timestamp": "2026-03-04T11:49:44.880317",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 4
+  },
+  {
+    "text": "is the mixed messaging the core objectives and scenes we ran into be clear first were destroying a wrench this okay",
+    "timestamp": "2026-03-04T11:50:07.479437",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 8
+  },
+  {
+    "text": "armed final directors, armies outside of their borders. but what's the path to achieve those",
+    "timestamp": "2026-03-04T11:50:31.000787",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 9
+  },
+  {
+    "text": "unintended consequences. full headlines, from here and watching said that i think are really important. first, a stunning statement.",
+    "timestamp": "2026-03-04T11:50:53.899232",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 5
+  },
+  {
+    "text": "no fixed hours, you can do all of it.",
+    "timestamp": "2026-03-04T11:51:17.837088",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "alright. bye.",
+    "timestamp": "2026-03-04T11:52:49.773478",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "i'll teach you though you'll have to know how to do it. i'll teach you how to do it. i'll teach you how to do it. i'll teach you how to do it.",
+    "timestamp": "2026-03-04T11:53:18.057291",
+    "source": "ambient",
+    "word_count": 38,
+    "new_words": 1
+  },
+  {
+    "text": "we're doing nesting. that was just it. we're getting very brave when talking to the nudgers drawn to.",
+    "timestamp": "2026-03-04T11:53:59.446990",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 4
+  },
+  {
+    "text": "i'm getting the car, she's stay here. i will get some place and that'll be where we'll...",
+    "timestamp": "2026-03-04T11:54:23.026632",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 2
+  },
+  {
+    "text": "slowly, slowly. then you can't see. but this one is a house...!",
+    "timestamp": "2026-03-04T11:55:14.044294",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 2
+  },
+  {
+    "text": "i'm gonna show you what to send and what not to send and whether you're 100% innocent or unyield.",
+    "timestamp": "2026-03-04T11:56:18.456702",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 4
+  },
+  {
+    "text": "and invite download belong hours and let view on us on the full wise request",
+    "timestamp": "2026-03-04T11:56:44.395927",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 6
+  },
+  {
+    "text": "your every day, or what it doesn't like, you stick to the fact that basic minimum answers. historically...",
+    "timestamp": "2026-03-04T11:57:28.208835",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 6
+  },
+  {
+    "text": "hmrc your life story they are not interested they're interested in it",
+    "timestamp": "2026-03-04T11:57:51.290716",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 4
+  },
+  {
+    "text": "that's been requested. eut is down the line that the fire is still all night because they've come to team to show which information they've found.",
+    "timestamp": "2026-03-04T11:58:14.727536",
+    "source": "ambient",
+    "word_count": 29,
+    "new_words": 3
+  },
+  {
+    "text": "and the way that they are doing it, invaded ukraine. each leader came to the task, freshness.",
+    "timestamp": "2026-03-04T11:59:01.453485",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 6
+  },
+  {
+    "text": "to be more hard-life. one advocated the use of a tactical nuclear device in ukraine. another suggested that...",
+    "timestamp": "2026-03-04T11:59:24.144318",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 4
+  },
+  {
+    "text": "it's like a cat car, it's trumps, i'm not running out of fuel. food and things are basic, there's a change.",
+    "timestamp": "2026-03-04T12:00:10.599356",
+    "source": "ambient",
+    "word_count": 25,
+    "new_words": 3
+  },
+  {
+    "text": "and three months. and he's showing off his science of strange and strange and stupid and still the long white table between himself and his wall.",
+    "timestamp": "2026-03-04T12:00:33.766492",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 7
+  },
+  {
+    "text": "and\u03ba\u03b1.",
+    "timestamp": "2026-03-04T12:00:59.483086",
+    "source": "ambient",
+    "word_count": 0,
+    "new_words": 0
+  },
+  {
+    "text": "in trump's account for the same brief, came told there are any minutes the action order would be the issue.",
+    "timestamp": "2026-03-04T12:01:20.058508",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 7
+  },
+  {
+    "text": "42 stealth roundtools, had landedends, in israel's mercedes-benzxual",
+    "timestamp": "2026-03-04T12:01:47.488884",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 6
+  },
+  {
+    "text": "they repurposed the underground car box for a few boards. he saws opposition leader, yela ead, said, he would put all his differences.",
+    "timestamp": "2026-03-04T12:02:06.869983",
+    "source": "ambient",
+    "word_count": 23,
+    "new_words": 9
+  },
+  {
+    "text": "bush justified the 2003 iraq invasion. by maintaining the us was an imminent danger of salam hussein's weapons of massacres.",
+    "timestamp": "2026-03-04T12:02:29.636195",
+    "source": "ambient",
+    "word_count": 20,
+    "new_words": 11
+  },
+  {
+    "text": "from having industrial grain, formulating material. that is old because trump claimed to have obliterated iran.",
+    "timestamp": "2026-03-04T12:02:52.865686",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 7
+  },
+  {
+    "text": "so you try to ask him things like the real estate dealer he once was in manhattan is a dog in the right emotion please ask",
+    "timestamp": "2026-03-04T12:03:16.123354",
+    "source": "ambient",
+    "word_count": 26,
+    "new_words": 5
+  },
+  {
+    "text": "what are you doing?",
+    "timestamp": "2026-03-04T12:03:39.383964",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "really?",
+    "timestamp": "2026-03-04T12:04:25.531953",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 0
+  },
+  {
+    "text": "alright.",
+    "timestamp": "2026-03-04T12:04:48.795965",
+    "source": "ambient",
+    "word_count": 1,
+    "new_words": 0
+  },
+  {
+    "text": "paramount that",
+    "timestamp": "2026-03-04T12:16:51.646688",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 1
+  },
+  {
+    "text": "what? what? what? what?",
+    "timestamp": "2026-03-04T12:18:21.473331",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "randomouslythes without found unisc \u00e4r def",
+    "timestamp": "2026-03-04T12:19:55.758380",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 4
+  },
+  {
+    "text": "non, i understand. just knock down, downloading, thing we're...",
+    "timestamp": "2026-03-04T12:23:01.582795",
+    "source": "ambient",
+    "word_count": 10,
+    "new_words": 4
+  },
+  {
+    "text": "because what i mean is that i was able to call my husband for a dm i had different health reasons because i had t\u00e4llat",
+    "timestamp": "2026-03-04T12:24:11.946159",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 5
+  },
+  {
+    "text": "ooh, my girl di take part in a course where i'm notesus",
+    "timestamp": "2026-03-04T12:29:13.366546",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 3
+  },
+  {
+    "text": "it's a little weird but don't be rude at least it will be weird f2",
+    "timestamp": "2026-03-04T12:30:05.125941",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 3
+  },
+  {
+    "text": "hello, second? yeah? yes, ma'am? yes, ma'am?",
+    "timestamp": "2026-03-04T12:31:54.323001",
+    "source": "ambient",
+    "word_count": 9,
+    "new_words": 1
+  },
+  {
+    "text": "i actually... alright. i'm actually planning to do them now. and yeah, yeah.",
+    "timestamp": "2026-03-04T12:32:17.016841",
+    "source": "ambient",
+    "word_count": 14,
+    "new_words": 1
+  },
+  {
+    "text": "sorry, these are the liters, it's a nickel cube. yeah, i mean, yeah, sorry.",
+    "timestamp": "2026-03-04T12:33:06.604001",
+    "source": "ambient",
+    "word_count": 15,
+    "new_words": 3
+  },
+  {
+    "text": "i'm taking you here. all right. no.",
+    "timestamp": "2026-03-04T12:33:26.538118",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 1
+  },
+  {
+    "text": "where are you going?",
+    "timestamp": "2026-03-04T12:33:52.023506",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 0
+  },
+  {
+    "text": "we learned went to know. everyone could",
+    "timestamp": "2026-03-04T12:36:14.551300",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 2
+  },
+  {
+    "text": "he said there's an old cow in the village. there can't be love. it promises to go to the fairest house anyway.",
+    "timestamp": "2026-03-04T12:36:36.196891",
+    "source": "ambient",
+    "word_count": 24,
+    "new_words": 5
+  },
+  {
+    "text": "like in the hair salon also the guy who transferred hair is on his side, needs a later on.",
+    "timestamp": "2026-03-04T12:38:31.230322",
+    "source": "ambient",
+    "word_count": 19,
+    "new_words": 4
+  },
+  {
+    "text": "i'm going to be sitting here. i'm going to be sitting here. i'm going to be sitting here.",
+    "timestamp": "2026-03-04T12:41:57.823838",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 0
+  },
+  {
+    "text": "that fellow langia it was an insane",
+    "timestamp": "2026-03-04T12:42:22.652426",
+    "source": "ambient",
+    "word_count": 7,
+    "new_words": 3
+  },
+  {
+    "text": "freebieas monobichas",
+    "timestamp": "2026-03-04T12:44:41.322372",
+    "source": "ambient",
+    "word_count": 2,
+    "new_words": 2
+  },
+  {
+    "text": "you seen this table? we got a filling.",
+    "timestamp": "2026-03-04T12:47:22.859456",
+    "source": "ambient",
+    "word_count": 8,
+    "new_words": 2
+  },
+  {
+    "text": "is it a blue? is it a blue? is it a blue?",
+    "timestamp": "2026-03-04T12:49:18.649236",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 1
+  },
+  {
+    "text": "do you? more like that. cheers tim. yeah, i'm just... something side that, does it?",
+    "timestamp": "2026-03-04T12:51:37.941193",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 3
+  },
+  {
+    "text": "you cant make that obvious",
+    "timestamp": "2026-03-04T12:52:49.508137",
+    "source": "ambient",
+    "word_count": 5,
+    "new_words": 2
+  },
+  {
+    "text": "maybe he can tell me what's happening about whether i need to apply. i doubt it.",
+    "timestamp": "2026-03-04T12:54:43.448150",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 4
+  },
+  {
+    "text": "more, the end of the morning. yeah, more day, more pain, my friend.",
+    "timestamp": "2026-03-04T12:55:07.165604",
+    "source": "ambient",
+    "word_count": 13,
+    "new_words": 2
+  },
+  {
+    "text": "i know nothing. i know nothing.",
+    "timestamp": "2026-03-04T12:55:29.976936",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "i think this is part of ...",
+    "timestamp": "2026-03-04T12:56:18.287385",
+    "source": "ambient",
+    "word_count": 6,
+    "new_words": 0
+  },
+  {
+    "text": "it looks like it's only got 964 words in the vocabulary. keep making your vocabulary more big.",
+    "timestamp": "2026-03-04T12:56:39.854565",
+    "source": "ambient",
+    "word_count": 17,
+    "new_words": 3
+  },
+  {
+    "text": "so, what do you think? i don't know, i don't know. i don't know. i don't know.",
+    "timestamp": "2026-03-04T12:57:27.111138",
+    "source": "ambient",
+    "word_count": 21,
+    "new_words": 0
+  },
+  {
+    "text": "i don't know if you can see it. i don't know if you can see it. i don't know if you can see it.",
+    "timestamp": "2026-03-04T12:57:50.836303",
+    "source": "ambient",
+    "word_count": 27,
+    "new_words": 0
+  },
+  {
+    "text": "oh they can send me to malaysia, i can go with that.",
+    "timestamp": "2026-03-04T12:58:12.767685",
+    "source": "ambient",
+    "word_count": 12,
+    "new_words": 1
+  },
+  {
+    "text": "yeah? we're\u6500. bird scientists",
+    "timestamp": "2026-03-04T12:58:38.146112",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 2
+  },
+  {
+    "text": "969 words is not a solid vocabulary but whatever fuckin do us",
+    "timestamp": "2026-03-04T12:59:22.280389",
+    "source": "ambient",
+    "word_count": 11,
+    "new_words": 2
+  },
+  {
+    "text": "i'm going to leave here. i'm going to put it in the back. i'm going to put it in the back. i'm going to put it in the back.",
+    "timestamp": "2026-03-04T13:02:05.047381",
+    "source": "ambient",
+    "word_count": 33,
+    "new_words": 0
+  },
+  {
+    "text": "when you sleep, everyone",
+    "timestamp": "2026-03-04T13:09:27.863291",
+    "source": "ambient",
+    "word_count": 4,
+    "new_words": 1
+  },
+  {
+    "text": "when i'm the worker nobody opens it right there or anything as the worker thanks",
+    "timestamp": "2026-03-04T13:11:25.858840",
+    "source": "ambient",
+    "word_count": 16,
+    "new_words": 3
+  },
+  {
+    "text": "you willirring right?",
+    "timestamp": "2026-03-04T13:13:24.925694",
+    "source": "ambient",
+    "word_count": 3,
+    "new_words": 1
+  }
+]

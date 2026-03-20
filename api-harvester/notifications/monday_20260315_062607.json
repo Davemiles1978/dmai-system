@@ -1,0 +1,11 @@
+{
+  "service": "monday",
+  "api_key": "bbcb751c9d0be8dbed62...2187f3d688",
+  "full_key": "bbcb751c9d0be8dbed620b2187f3d688",
+  "source": "github",
+  "url": "https://api.github.com/repositories/897493973/contents/Api.txt?ref=cf320afc90c60a02be063545530760f4bb720d3b",
+  "discovered_at": "2026-03-15T06:26:07.016697",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New MONDAY API key discovered!"
+}

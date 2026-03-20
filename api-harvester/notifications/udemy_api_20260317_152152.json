@@ -1,0 +1,11 @@
+{
+  "service": "udemy_api",
+  "api_key": "EEr58ok9yozgyDTzfc3i...FaBo8mpVk2",
+  "full_key": "EEr58ok9yozgyDTzfc3iim9RccHmrmFaBo8mpVk2",
+  "source": "github",
+  "url": "https://api.github.com/repositories/840412861/contents/backend/steps/utils/API_UDEMY.py?ref=7e033e3370daa3b2f797aedafd00822fb4122cf4",
+  "discovered_at": "2026-03-17T15:21:52.765047",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Udemy API Integration\nimport requests\n\nUDEMY_CLIENT_ID = \"EEr58ok9yozgyDTzfc3iim9RccHmrmFaBo8mpVk2\"\nUDEMY_CLIENT_SECRET = \"your_secret\"\n\ndef search_udemy_courses(keyword):\n    \"\"\"Search for courses on Udemy\"\"\"\n    auth = requests.post(\n        \"https://www.udemy.com/oauth-2/token/\",\n        data={\n            \"client_id\": UDEMY_CLIENT_ID,\n            \"client_secret\": UDEMY_CLIENT_SECRET,\n            \"grant_type\": \"client_credentials\"\n        }\n    )\n    token = auth.json().get(\"access_token\")\n    \n    response = requests.get(\n        \"https://www.udemy.com/api-2.0/courses/\",\n        headers={\"Authorization\": f\"Bearer {token}\"},\n        params={\"search\": keyword, \"page_size\": 50}\n    )\n    return response.json()\n\ndef get_course_trends():\n    \"\"\"Get trending course topics\"\"\"\n    response = requests.get(\n        \"https://www.udemy.com/api-2.0/courses/trending/\",\n        headers={\"Authorization\": f\"Bearer {token}\"}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New UDEMY_API API key discovered!"
+}

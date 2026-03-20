@@ -1,0 +1,9 @@
+DMAI PRODUCTION DATABASE CONFIGURED
+================================
+Database: harvester_u9ni
+Workspace: dmai-production
+Size: 8 MB
+Tables: 9 tables with data (including 69 system_weaknesses)
+Configured at: 2026-03-18 09:19:39.560924
+
+This database is now the primary data store for DMAI.

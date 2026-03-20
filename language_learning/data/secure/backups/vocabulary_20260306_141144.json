@@ -1,0 +1,2054 @@
+{
+  "the": {
+    "first_heard": "bootstrap",
+    "count": 20,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "be": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "to": {
+    "first_heard": "bootstrap",
+    "count": 15,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "of": {
+    "first_heard": "bootstrap",
+    "count": 24,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "and": {
+    "first_heard": "bootstrap",
+    "count": 15,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "a": {
+    "first_heard": "bootstrap",
+    "count": 15,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "in": {
+    "first_heard": "bootstrap",
+    "count": 14,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "that": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "have": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "i": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "it": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "for": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "not": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "on": {
+    "first_heard": "bootstrap",
+    "count": 9,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "with": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "he": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "as": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "you": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "news"
+    ]
+  },
+  "do": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "at": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "this": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "but": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "his": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "by": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "from": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "they": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "we": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "say": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "her": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "she": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "or": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "an": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "will": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "my": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "one": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "all": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "would": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "there": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "their": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "what": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "so": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "up": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "out": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia"
+    ]
+  },
+  "if": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "about": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "who": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "get": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "which": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "go": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "me": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "when": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "make": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "can": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "like": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "time": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "no": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "just": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "him": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "know": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "take": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "people": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "into": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "year": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "your": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "good": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "some": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "could": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "news"
+    ]
+  },
+  "them": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "see": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "other": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "than": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "then": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "now": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "look": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "only": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "come": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "its": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "over": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "think": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "also": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "back": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "after": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "use": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "two": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "how": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "our": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "work": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "first": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia"
+    ]
+  },
+  "well": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "way": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "even": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "new": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "want": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "because": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "any": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "these": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "give": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "day": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "most": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "us": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "dmai": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "david": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "master": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "father": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "sir": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "four": {
+    "first_heard": "2026-03-06T13:54:10.477515",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "arrested": {
+    "first_heard": "2026-03-06T13:54:10.477537",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "uk": {
+    "first_heard": "2026-03-06T13:54:10.477555",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "suspicion": {
+    "first_heard": "2026-03-06T13:54:10.477559",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "assisting": {
+    "first_heard": "2026-03-06T13:54:10.477572",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "iran": {
+    "first_heard": "2026-03-06T13:54:10.477575",
+    "count": 15,
+    "sources": [
+      "news"
+    ]
+  },
+  "s": {
+    "first_heard": "2026-03-06T13:54:10.477577",
+    "count": 8,
+    "sources": [
+      "news",
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "intelligence": {
+    "first_heard": "2026-03-06T13:54:10.477579",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "service": {
+    "first_heard": "2026-03-06T13:54:10.477581",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "passengers": {
+    "first_heard": "2026-03-06T13:54:10.514176",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "describe": {
+    "first_heard": "2026-03-06T13:54:10.514254",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "surreal": {
+    "first_heard": "2026-03-06T13:54:10.514261",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "scramble": {
+    "first_heard": "2026-03-06T13:54:10.514263",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "reach": {
+    "first_heard": "2026-03-06T13:54:10.514269",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "government": {
+    "first_heard": "2026-03-06T13:54:10.514344",
+    "count": 7,
+    "sources": [
+      "news",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "flight": {
+    "first_heard": "2026-03-06T13:54:10.514349",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "middle": {
+    "first_heard": "2026-03-06T13:54:10.514356",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "east": {
+    "first_heard": "2026-03-06T13:54:10.514358",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "five": {
+    "first_heard": "2026-03-06T13:54:10.583912",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "ways": {
+    "first_heard": "2026-03-06T13:54:10.583931",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "war": {
+    "first_heard": "2026-03-06T13:54:10.583938",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "affect": {
+    "first_heard": "2026-03-06T13:54:10.583943",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "charts": {
+    "first_heard": "2026-03-06T13:54:10.583948",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "school": {
+    "first_heard": "2026-03-06T13:54:10.647576",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "nearby": {
+    "first_heard": "2026-03-06T13:54:10.647600",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "military": {
+    "first_heard": "2026-03-06T13:54:10.647603",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "base": {
+    "first_heard": "2026-03-06T13:54:10.647605",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "struck": {
+    "first_heard": "2026-03-06T13:54:10.647607",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "multiple": {
+    "first_heard": "2026-03-06T13:54:10.647609",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "times": {
+    "first_heard": "2026-03-06T13:54:10.647611",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "satellite": {
+    "first_heard": "2026-03-06T13:54:10.647613",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "image": {
+    "first_heard": "2026-03-06T13:54:10.647617",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "reveals": {
+    "first_heard": "2026-03-06T13:54:10.647620",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "was": {
+    "first_heard": "2026-03-06T13:54:13.836390",
+    "count": 3,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "czechoslovak": {
+    "first_heard": "2026-03-06T13:54:13.836417",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "professional": {
+    "first_heard": "2026-03-06T13:54:13.836420",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "ice": {
+    "first_heard": "2026-03-06T13:54:13.836422",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "hockey": {
+    "first_heard": "2026-03-06T13:54:13.836424",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "defenceman": {
+    "first_heard": "2026-03-06T13:54:13.836426",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "caricuao": {
+    "first_heard": "2026-03-06T13:54:57.242493",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "is": {
+    "first_heard": "2026-03-06T13:54:57.242520",
+    "count": 12,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "caracas": {
+    "first_heard": "2026-03-06T13:54:57.242530",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "metro": {
+    "first_heard": "2026-03-06T13:54:57.242533",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "station": {
+    "first_heard": "2026-03-06T13:54:57.242535",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "line": {
+    "first_heard": "2026-03-06T13:54:57.242547",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "opened": {
+    "first_heard": "2026-03-06T13:54:57.242554",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "october": {
+    "first_heard": "2026-03-06T13:54:57.242556",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "part": {
+    "first_heard": "2026-03-06T13:54:57.242559",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "inaugural": {
+    "first_heard": "2026-03-06T13:54:57.242569",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "section": {
+    "first_heard": "2026-03-06T13:54:57.242571",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "la": {
+    "first_heard": "2026-03-06T13:54:57.242577",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "paz": {
+    "first_heard": "2026-03-06T13:54:57.242580",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "las": {
+    "first_heard": "2026-03-06T13:54:57.242583",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "adjuntas": {
+    "first_heard": "2026-03-06T13:54:57.242585",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "branch": {
+    "first_heard": "2026-03-06T13:54:57.242589",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "leading": {
+    "first_heard": "2026-03-06T13:54:57.242591",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "between": {
+    "first_heard": "2026-03-06T13:54:57.242594",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "mamera": {
+    "first_heard": "2026-03-06T13:54:57.242596",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "proton": {
+    "first_heard": "2026-03-06T13:55:32.671379",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "persona": {
+    "first_heard": "2026-03-06T13:55:32.671414",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "series": {
+    "first_heard": "2026-03-06T13:55:32.671421",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "compact": {
+    "first_heard": "2026-03-06T13:55:32.671427",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "subcompact": {
+    "first_heard": "2026-03-06T13:55:32.671431",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "cars": {
+    "first_heard": "2026-03-06T13:55:32.671434",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "produced": {
+    "first_heard": "2026-03-06T13:55:32.671436",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "malaysian": {
+    "first_heard": "2026-03-06T13:55:32.671456",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "automobile": {
+    "first_heard": "2026-03-06T13:55:32.671470",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "manufacturer": {
+    "first_heard": "2026-03-06T13:55:32.671472",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "cheryl": {
+    "first_heard": "2026-03-06T13:56:09.876058",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "dunye": {
+    "first_heard": "2026-03-06T13:56:09.876080",
+    "count": 4,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "liberian": {
+    "first_heard": "2026-03-06T13:56:09.876088",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "american": {
+    "first_heard": "2026-03-06T13:56:09.876091",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "film": {
+    "first_heard": "2026-03-06T13:56:09.876093",
+    "count": 3,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "director": {
+    "first_heard": "2026-03-06T13:56:09.876095",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "producer": {
+    "first_heard": "2026-03-06T13:56:09.876097",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "screenwriter": {
+    "first_heard": "2026-03-06T13:56:09.876099",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "editor": {
+    "first_heard": "2026-03-06T13:56:09.876101",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "actress": {
+    "first_heard": "2026-03-06T13:56:09.876105",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "daughter": {
+    "first_heard": "2026-03-06T13:56:09.876113",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "edith": {
+    "first_heard": "2026-03-06T13:56:09.876117",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "irene": {
+    "first_heard": "2026-03-06T13:56:09.876119",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "hamilton": {
+    "first_heard": "2026-03-06T13:56:09.876121",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "george": {
+    "first_heard": "2026-03-06T13:56:09.876124",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "kekura": {
+    "first_heard": "2026-03-06T13:56:09.876126",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "born": {
+    "first_heard": "2026-03-06T13:56:09.876130",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "liberia": {
+    "first_heard": "2026-03-06T13:56:09.876133",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "shortly": {
+    "first_heard": "2026-03-06T13:56:09.876137",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "family": {
+    "first_heard": "2026-03-06T13:56:09.876141",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "moved": {
+    "first_heard": "2026-03-06T13:56:09.876143",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "philadelphia": {
+    "first_heard": "2026-03-06T13:56:09.876147",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "often": {
+    "first_heard": "2026-03-06T13:56:09.876151",
+    "count": 2,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "concerns": {
+    "first_heard": "2026-03-06T13:56:09.876153",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "themes": {
+    "first_heard": "2026-03-06T13:56:09.876155",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "race": {
+    "first_heard": "2026-03-06T13:56:09.876156",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "sexuality": {
+    "first_heard": "2026-03-06T13:56:09.876158",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "gender": {
+    "first_heard": "2026-03-06T13:56:09.876159",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "particularly": {
+    "first_heard": "2026-03-06T13:56:09.876161",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "issues": {
+    "first_heard": "2026-03-06T13:56:09.876162",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "relating": {
+    "first_heard": "2026-03-06T13:56:09.876164",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "black": {
+    "first_heard": "2026-03-06T13:56:09.876165",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "lesbians": {
+    "first_heard": "2026-03-06T13:56:09.876167",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "known": {
+    "first_heard": "2026-03-06T13:56:09.876169",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "lesbian": {
+    "first_heard": "2026-03-06T13:56:09.876175",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "ever": {
+    "first_heard": "2026-03-06T13:56:09.876177",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "direct": {
+    "first_heard": "2026-03-06T13:56:09.876179",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "feature": {
+    "first_heard": "2026-03-06T13:56:09.876181",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "watermelon": {
+    "first_heard": "2026-03-06T13:56:09.876185",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "woman": {
+    "first_heard": "2026-03-06T13:56:09.876187",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "runs": {
+    "first_heard": "2026-03-06T13:56:09.876449",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "production": {
+    "first_heard": "2026-03-06T13:56:09.876462",
+    "count": 4,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "company": {
+    "first_heard": "2026-03-06T13:56:09.876465",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "jingletown": {
+    "first_heard": "2026-03-06T13:56:09.876468",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "films": {
+    "first_heard": "2026-03-06T13:56:09.876469",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "based": {
+    "first_heard": "2026-03-06T13:56:09.876927",
+    "count": 2,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "oakland": {
+    "first_heard": "2026-03-06T13:56:09.876938",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "california": {
+    "first_heard": "2026-03-06T13:56:09.876941",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "cryptocurrency": {
+    "first_heard": "2026-03-06T14:11:32.885795",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "digital": {
+    "first_heard": "2026-03-06T14:11:32.885800",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "currency": {
+    "first_heard": "2026-03-06T14:11:32.885801",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "designed": {
+    "first_heard": "2026-03-06T14:11:32.885802",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "through": {
+    "first_heard": "2026-03-06T14:11:32.885807",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "computer": {
+    "first_heard": "2026-03-06T14:11:32.885809",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "network": {
+    "first_heard": "2026-03-06T14:11:32.885809",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "reliant": {
+    "first_heard": "2026-03-06T14:11:32.885811",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "central": {
+    "first_heard": "2026-03-06T14:11:32.885813",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "authority": {
+    "first_heard": "2026-03-06T14:11:32.885814",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "such": {
+    "first_heard": "2026-03-06T14:11:32.885815",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "bank": {
+    "first_heard": "2026-03-06T14:11:32.885817",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "uphold": {
+    "first_heard": "2026-03-06T14:11:32.885818",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "maintain": {
+    "first_heard": "2026-03-06T14:11:32.885819",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "however": {
+    "first_heard": "2026-03-06T14:11:32.885820",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "type": {
+    "first_heard": "2026-03-06T14:11:32.885821",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "called": {
+    "first_heard": "2026-03-06T14:11:32.885822",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "stablecoin": {
+    "first_heard": "2026-03-06T14:11:32.885823",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "may": {
+    "first_heard": "2026-03-06T14:11:32.885824",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "rely": {
+    "first_heard": "2026-03-06T14:11:32.885825",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "upon": {
+    "first_heard": "2026-03-06T14:11:32.885825",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "action": {
+    "first_heard": "2026-03-06T14:11:32.885826",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "legislation": {
+    "first_heard": "2026-03-06T14:11:32.885827",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "require": {
+    "first_heard": "2026-03-06T14:11:32.885828",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "stable": {
+    "first_heard": "2026-03-06T14:11:32.885829",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "value": {
+    "first_heard": "2026-03-06T14:11:32.885829",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "upheld": {
+    "first_heard": "2026-03-06T14:11:32.885830",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "maintained": {
+    "first_heard": "2026-03-06T14:11:32.885831",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "industrial": {
+    "first_heard": "2026-03-06T14:11:41.688075",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "design": {
+    "first_heard": "2026-03-06T14:11:41.688078",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "process": {
+    "first_heard": "2026-03-06T14:11:41.688082",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "applied": {
+    "first_heard": "2026-03-06T14:11:41.688084",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "physical": {
+    "first_heard": "2026-03-06T14:11:41.688085",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "products": {
+    "first_heard": "2026-03-06T14:11:41.688087",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "are": {
+    "first_heard": "2026-03-06T14:11:41.688088",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "manufactured": {
+    "first_heard": "2026-03-06T14:11:41.688089",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "mass": {
+    "first_heard": "2026-03-06T14:11:41.688091",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "creative": {
+    "first_heard": "2026-03-06T14:11:41.688093",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "act": {
+    "first_heard": "2026-03-06T14:11:41.688094",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "determining": {
+    "first_heard": "2026-03-06T14:11:41.688095",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "defining": {
+    "first_heard": "2026-03-06T14:11:41.688096",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "product": {
+    "first_heard": "2026-03-06T14:11:41.688097",
+    "count": 4,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "form": {
+    "first_heard": "2026-03-06T14:11:41.688098",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "features": {
+    "first_heard": "2026-03-06T14:11:41.688099",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "takes": {
+    "first_heard": "2026-03-06T14:11:41.688100",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "place": {
+    "first_heard": "2026-03-06T14:11:41.688104",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "advance": {
+    "first_heard": "2026-03-06T14:11:41.688105",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "manufacture": {
+    "first_heard": "2026-03-06T14:11:41.688106",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "consists": {
+    "first_heard": "2026-03-06T14:11:41.688108",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "predetermined": {
+    "first_heard": "2026-03-06T14:11:41.688110",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "standardized": {
+    "first_heard": "2026-03-06T14:11:41.688110",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "repeated": {
+    "first_heard": "2026-03-06T14:11:41.688111",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "automated": {
+    "first_heard": "2026-03-06T14:11:41.688112",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "acts": {
+    "first_heard": "2026-03-06T14:11:41.688113",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "replication": {
+    "first_heard": "2026-03-06T14:11:41.688114",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "while": {
+    "first_heard": "2026-03-06T14:11:41.688115",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "craft": {
+    "first_heard": "2026-03-06T14:11:41.688115",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "approach": {
+    "first_heard": "2026-03-06T14:11:41.688117",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "determined": {
+    "first_heard": "2026-03-06T14:11:41.688119",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "personally": {
+    "first_heard": "2026-03-06T14:11:41.688120",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "creator": {
+    "first_heard": "2026-03-06T14:11:41.688121",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "largely": {
+    "first_heard": "2026-03-06T14:11:41.688122",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "concurrent": {
+    "first_heard": "2026-03-06T14:11:41.688123",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  }
+}

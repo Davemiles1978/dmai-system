@@ -1,0 +1,11 @@
+{
+  "service": "spiderfoot",
+  "api_key": "aHR0cHM6Ly93d3cuc3Bp...9vdC5uZXQv",
+  "full_key": "aHR0cHM6Ly93d3cuc3BpZGVyZm9vdC5uZXQv",
+  "source": "github",
+  "url": "https://api.github.com/repositories/636753644/contents/Spiderfoot.md?ref=fb845a08ada6c747cbd3aa0b535a708c7ed1d165",
+  "discovered_at": "2026-03-16T11:28:27.821494",
+  "integrator": "osint_integrator",
+  "integration_code": "# spiderfoot = aHR0cHM6Ly93d3cuc3BpZGVyZm9vdC5uZXQv\n# Add your OSINT integration code here",
+  "message": "\ud83d\udd11 New SPIDERFOOT API key discovered!"
+}

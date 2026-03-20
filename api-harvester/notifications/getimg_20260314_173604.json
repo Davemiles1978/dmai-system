@@ -1,0 +1,11 @@
+{
+  "service": "getimg",
+  "api_key": "563492ad6f9170000100...0f1a28b71c",
+  "full_key": "563492ad6f91700001000001aa36f140408c4304a03b3a0f1a28b71c",
+  "source": "github",
+  "url": "https://api.github.com/repositories/382364212/contents/app.js?ref=bc0e59398e69e377fde7651112878138e3f95552",
+  "discovered_at": "2026-03-14T17:36:04.225139",
+  "integrator": "image_generation_integrator",
+  "integration_code": "# getimg = 563492ad6f91700001000001aa36f140408c4304a03b3a0f1a28b71c\n# Add your image generation integration code here",
+  "message": "\ud83d\udd11 New GETIMG API key discovered!"
+}

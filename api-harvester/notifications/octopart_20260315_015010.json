@@ -1,0 +1,11 @@
+{
+  "service": "octopart",
+  "api_key": "15b909e62efccd31a1b0...3db361743f",
+  "full_key": "15b909e62efccd31a1b0098eae5dba3db361743f",
+  "source": "github",
+  "url": "https://api.github.com/repositories/20313991/contents/octopart.gs?ref=313b606763537dcdfc138e1b4fbd1ecc39531fc4",
+  "discovered_at": "2026-03-15T01:50:10.677672",
+  "integrator": "engineering_integrator",
+  "integration_code": "# octopart = 15b909e62efccd31a1b0098eae5dba3db361743f\n# Add your engineering integration code here",
+  "message": "\ud83d\udd11 New OCTOPART API key discovered!"
+}

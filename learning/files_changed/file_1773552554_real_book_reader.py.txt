@@ -1,0 +1,61 @@
+# File: /Users/davidmiles/Desktop/dmai-system/language_learning/real_book_reader.py
+# Time: 2026-03-15T08:29:14.465962
+################################################################################
+#!/usr/bin/env python3
+"""Real book reader - downloads and learns from actual books including Terry Pratchett"""
+import sys
+import os
+import json
+import time
+import requests
+import re
+from bs4 import BeautifulSoup
+sys.path.insert(0, str(Path(__file__).parent.parent))))))
+
+from language_learning.processor.language_learner import LanguageLearner
+
+class RealBookReader:
+    def __init__(self):
+        self.learner = LanguageLearner()
+        self.session = requests.Session()
+        
+        # Terry Pratchett's Discworld series
+        self.pratchett_books = [
+            ("https://archive.org/download/TheColourOfMagic_201810/TheColourOfMagic.epub", "The Colour of Magic - Terry Pratchett"),
+            ("https://archive.org/download/TheLightFantastic_201810/TheLightFantastic.epub", "The Light Fantastic - Terry Pratchett"),
+            ("https://archive.org/download/EqualRites_201810/EqualRites.epub", "Equal Rites - Terry Pratchett"),
+            ("https://archive.org/download/Mort_201810/Mort.epub", "Mort - Terry Pratchett"),
+            ("https://archive.org/download/Sourcery_201810/Sourcery.epub", "Sourcery - Terry Pratchett"),
+            ("https://archive.org/download/WyrdSisters_201810/WyrdSisters.epub", "Wyrd Sisters - Terry Pratchett"),
+            ("https://archive.org/download/Pyramids_201810/Pyramids.epub", "Pyramids - Terry Pratchett"),
+            ("https://archive.org/download/GuardsGuards_201810/GuardsGuards.epub", "Guards! Guards! - Terry Pratchett"),
+            ("https://archive.org/download/Eric_201810/Eric.epub", "Eric - Terry Pratchett"),
+            ("https://archive.org/download/MovingPictures_201810/MovingPictures.epub", "Moving Pictures - Terry Pratchett"),
+            ("https://archive.org/download/ReaperMan_201810/ReaperMan.epub", "Reaper Man - Terry Pratchett"),
+            ("https://archive.org/download/WitchesAbroad_201810/WitchesAbroad.epub", "Witches Abroad - Terry Pratchett"),
+            ("https://archive.org/download/SmallGods_201810/SmallGods.epub", "Small Gods - Terry Pratchett"),
+            ("https://archive.org/download/LordsAndLadies_201810/LordsAndLadies.epub", "Lords and Ladies - Terry Pratchett"),
+            ("https://archive.org/download/MenAtArms_201810/MenAtArms.epub", "Men at Arms - Terry Pratchett"),
+            ("https://archive.org/download/SoulMusic_201810/SoulMusic.epub", "Soul Music - Terry Pratchett"),
+            ("https://archive.org/download/InterestingTimes_201810/InterestingTimes.epub", "Interesting Times - Terry Pratchett"),
+            ("https://archive.org/download/Maskerade_201810/Maskerade.epub", "Maskerade - Terry Pratchett"),
+            ("https://archive.org/download/FeetOfClay_201810/FeetOfClay.epub", "Feet of Clay - Terry Pratchett"),
+            ("https://archive.org/download/Hogfather_201810/Hogfather.epub", "Hogfather - Terry Pratchett"),
+            ("https://archive.org/download/Jingo_201810/Jingo.epub", "Jingo - Terry Pratchett"),
+            ("https://archive.org/download/TheLastContinent_201810/TheLastContinent.epub", "The Last Continent - Terry Pratchett"),
+            ("https://archive.org/download/CarpeJugulum_201810/CarpeJugulum.epub", "Carpe Jugulum - Terry Pratchett"),
+            ("https://archive.org/download/TheFifthElephant_201810/TheFifthElephant.epub", "The Fifth Elephant - Terry Pratchett"),
+            ("https://archive.org/download/TheTruth_201810/TheTruth.epub", "The Truth - Terry Pratchett"),
+            ("https://archive.org/download/ThiefOfTime_201810/ThiefOfTime.epub", "Thief of Time - Terry Pratchett"),
+            ("https://archive.org/download/TheLastHero_201810/TheLastHero.epub", "The Last Hero - Terry Pratchett"),
+            ("https://archive.org/download/TheAmazingMaurice_201810/TheAmazingMaurice.epub", "The Amazing Maurice - Terry Pratchett"),
+            ("https://archive.org/download/NightWatch_201810/NightWatch.epub", "Night Watch - Terry Pratchett"),
+            ("https://archive.org/download/TheWeeFreeMen_201810/TheWeeFreeMen.epub", "The Wee Free Men - Terry Pratchett"),
+            ("https://archive.org/download/MonstrousRegiment_201810/MonstrousRegiment.epub", "Monstrous Regiment - Terry Pratchett"),
+            ("https://archive.org/download/AHatFullOfSky_201810/AHatFullOfSky.epub", "A Hat Full of Sky - Terry Pratchett"),
+            ("https://archive.org/download/GoingPostal_201810/GoingPostal.epub", "Going Postal - Terry Pratchett"),
+            ("https://archive.org/download/Thud_201810/Thud.epub", "Thud! - Terry Pratchett"),
+            ("https://archive.org/download/Wintersmith_201810/Wintersmith.epub", "Wintersmith - Terry Pratchett"),
+            ("https://archive.org/download/MakingMoney_201810/MakingMoney.epub", "Making Money - Terry Pratchett"),
+            ("https://archive.org/download/UnseenAcademicals_201810/UnseenAcademicals.epub", "Unseen Academicals - Terry Pratchett"),
+            ("https://archive.org/download/IShallWearMidnight_201810/IShallWearMidnight.epub", "I Shall Wear Midni

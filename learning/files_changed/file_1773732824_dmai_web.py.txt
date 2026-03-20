@@ -1,0 +1,135 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_web.py
+# Time: 2026-03-17T10:33:44.137303
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI WEB - Chat interface
+Simplified authentication for immediate access
+"""
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.absolute()
+sys.path.insert(0, str(BASE_DIR))
+
+import os
+import time
+import json
+import logging
+import hashlib
+import threading
+from datetime import datetime
+from flask import Flask, render_template, request, jsonify, session
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - WEB[DMAI] - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger('WEB')
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', hashlib.sha256(b"DMAI_SECRET").hexdigest())
+
+# Import DMAI core
+try:
+    from dmai_core_clean import DMAIIntelligence
+    logger.info("✅ Successfully imported DMAI core")
+except Exception as e:
+    logger.error(f"Failed to import DMAI core: {e}")
+    sys.exit(1)
+
+# Create global DMAI instance
+dmai = DMAIIntelligence()
+
+# Start DMAI in background thread
+def run_dmai():
+    try:
+        dmai.run()
+    except Exception as e:
+        logger.error(f"DMAI thread crashed: {e}")
+
+dmai_thread = threading.Thread(target=run_dmai, daemon=True)
+dmai_thread.start()
+logger.info("✅ DMAI background thread started")
+
+# Simple password check (no biometrics for now)
+MASTER_PASSWORD = os.environ.get('MASTER_PASSWORD', 'dmai2026')
+
+@app.route('/')
+def index():
+    """Main chat interface"""
+    return render_template('chat.html',
+                         authenticated=session.get('authenticated', False),
+                         user=session.get('user', 'admin'))
+
+@app.route('/api/auth', methods=['POST'])
+def authenticate():
+    """Simple password authentication"""
+    data = request.json
+    username = data.get('username', 'admin')
+    password = data.get('password', '')
+    
+    if password == MASTER_PASSWORD:
+        session['authenticated'] = True
+        session['user'] = username
+        logger.info(f"✅ User {username} authenticated")
+        return jsonify({'success': True, 'user': username})
+    
+    logger.warning(f"❌ Failed login attempt for {username}")
+    return jsonify({'success': False, 'error': 'Invalid password'}), 401
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'success': True})
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    data = request.json
+    message = data.get('message', '')
+    
+    # For now, just echo until we fix the query method
+    return jsonify({
+        'response': f"I received: '{message}'. DMAI is running!",
+        'generation': 72,
+        'thoughts': 0,
+        'funding': 0
+    })
+
+@app.route('/api/status', methods=['GET'])
+def status():
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    return jsonify({
+        'name': 'DMAI',
+        'generation': 72,
+        'uptime': 'Just started',
+        'authenticated': True,
+        'user': session.get('user')
+    })
+
+@app.route('/admin')
+def admin_dash():
+    if not session.get('authenticated'):
+        return render_template('login.html', redirect='/admin')
+    return "<h1>Admin Dashboard</h1><p>Coming soon...</p><a href='/'>Back to Chat</a>"
+
+@app.route('/vision')
+def vision():
+    return render_template('vision.html')
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5001))
+    logger.info(f"🌐 Starting web interface on port {port}")
+    logger.info(f"🔗 Access at: http://localhost:{port}")
+    logger.info(f"🔐 Default password: {MASTER_PASSWORD}")
+    app.run(host='0.0.0.0', port=port, debug=False)

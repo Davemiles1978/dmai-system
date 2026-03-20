@@ -1,0 +1,11 @@
+{
+  "service": "nhs_choices",
+  "api_key": "wgRelevantPageIsProb...lyEditable",
+  "full_key": "wgRelevantPageIsProbablyEditable",
+  "source": "github",
+  "url": "https://api.github.com/repositories/50959312/contents/en.wikipedia.org/wiki/Hiccup.html?ref=c5a086db8ab2662a9f26a9474de322efe387ca42",
+  "discovered_at": "2026-03-16T16:53:35.961338",
+  "integrator": "medical_integrator",
+  "integration_code": "# nhs_choices = wgRelevantPageIsProbablyEditable\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New NHS_CHOICES API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "mechanistic",
+  "api_key": "anintroductiontoinfe...emodelling",
+  "full_key": "anintroductiontoinfectiousdiseasemodelling",
+  "source": "github",
+  "url": "https://api.github.com/repositories/35355587/contents/README.Rmd?ref=ddbe6941927f89315aac50121dc05e379b2ca31a",
+  "discovered_at": "2026-03-15T08:14:20.833080",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New MECHANISTIC API key discovered!"
+}

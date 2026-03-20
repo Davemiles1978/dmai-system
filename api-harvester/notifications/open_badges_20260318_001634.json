@@ -1,0 +1,11 @@
+{
+  "service": "open_badges",
+  "api_key": "cf05388f2679ee054f2b...5f4e673ac3",
+  "full_key": "cf05388f2679ee054f2beb29a391d25f4e673ac3",
+  "source": "github",
+  "url": "https://api.github.com/repositories/91972106/contents/doc/html/_ajax_api_8php.html?ref=a41c5049a15e65e666de01092bf42c7ecdbe8cc6",
+  "discovered_at": "2026-03-18T00:16:34.684658",
+  "integrator": "coaching_integrator",
+  "integration_code": "# open_badges = cf05388f2679ee054f2beb29a391d25f4e673ac3\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New OPEN_BADGES API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "culinary_techniques",
+  "api_key": "biodiversityevolutio...ogyecology",
+  "full_key": "biodiversityevolutiontaxonomygeneticsendangeredadaptationhabitatnichemorphologyecology",
+  "source": "github",
+  "url": "https://api.github.com/repositories/924807929/contents/data/DBPedia-298/train/llm_enrichment.txt?ref=eaa2d24d90414ad5f2224152d780853d968058ab",
+  "discovered_at": "2026-03-15T13:33:38.983201",
+  "integrator": "cooking_integrator",
+  "integration_code": "# culinary_techniques = biodiversityevolutiontaxonomygeneticsendangeredadaptationhabitatnichemorphologyecology\n# Add your cooking integration code here",
+  "message": "\ud83d\udd11 New CULINARY_TECHNIQUES API key discovered!"
+}

@@ -1,0 +1,245 @@
+{
+  "research_priority": "deferred_until_components_stable",
+  "trigger_condition": "components_healthy >= 50",
+  "repositories": [
+    {
+      "name": "system-prompts-and-models",
+      "url": "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools",
+      "priority": 1,
+      "reason": "Contains 30,000+ lines of system prompts from 30+ AI tools (Cursor, Claude Code, Devin, etc.) - can improve DMAI's own prompting and self-understanding",
+      "integration_potential": [
+        "Extract effective system prompt structures",
+        "Learn how other AIs handle tool integration",
+        "Improve DMAI's self-prompting capabilities"
+      ]
+    },
+    {
+      "name": "claude-code",
+      "url": "https://github.com/anthropics/claude-code",
+      "priority": 2,
+      "reason": "Anthropic's agentic coding tool with 560 commits - shows how a leading AI handles git workflows, code explanation, and terminal interaction",
+      "integration_potential": [
+        "Git workflow automation",
+        "Code explanation capabilities",
+        "Terminal-based agent architecture"
+      ]
+    },
+    {
+      "name": "openbb-finance",
+      "url": "https://github.com/OpenBB-finance/OpenBB",
+      "priority": 3,
+      "reason": "Financial data platform with 6,800+ commits - provides data integration infrastructure for AI agents",
+      "integration_potential": [
+        "Financial data APIs for funding phase",
+        "Data integration patterns",
+        "Multi-source data aggregation"
+      ]
+    },
+    {
+      "name": "quant-crypto-trading-frameworks",
+      "url": "https://github.com/search?q=quant+trading+framework",
+      "priority": 3.5,
+      "reason": "Collection of quantitative trading frameworks and crypto trading bots - direct path to wealth generation",
+      "integration_potential": [
+        "Automated trading strategies",
+        "Market data analysis",
+        "Risk management algorithms",
+        "Portfolio optimization",
+        "Backtesting engines"
+      ]
+    },
+    {
+      "name": "superpowers",
+      "url": "https://github.com/obra/superpowers",
+      "priority": 4,
+      "reason": "Agentic skills framework with TDD, debugging, and subagent orchestration - gives DMAI autonomous development capabilities",
+      "integration_potential": [
+        "Test-driven development automation",
+        "Subagent-driven development workflow",
+        "Systematic debugging methodology",
+        "Git worktree parallel development",
+        "Code review automation"
+      ]
+    },
+    {
+      "name": "goclaw",
+      "url": "https://github.com/nextlevelbuilder/goclaw",
+      "priority": 4.2,
+      "reason": "Multi-agent AI gateway with teams, delegation & orchestration - enables DMAI to spawn agent armies",
+      "integration_potential": [
+        "Multi-agent orchestration",
+        "Task delegation frameworks",
+        "Agent team management",
+        "Cross-provider LLM routing"
+      ]
+    },
+    {
+      "name": "nemoclaw",
+      "url": "https://nvidia.com/nemoclaw",
+      "priority": 4.5,
+      "reason": "NVIDIA's secure agent deployment stack with privacy controls - enables safe autonomous operation",
+      "integration_potential": [
+        "Privacy guardrails for agents",
+        "Secure autonomous deployment",
+        "Local model execution",
+        "Policy-based agent controls"
+      ]
+    },
+    {
+      "name": "persistent-memory-layers",
+      "url": "https://github.com/search?q=persistent+memory+ai",
+      "priority": 5,
+      "reason": "Long-term memory systems for AI agents - essential for DMAI to remember across sessions",
+      "integration_potential": [
+        "Vector databases",
+        "Memory consolidation algorithms",
+        "Recall mechanisms",
+        "Forgetting strategies"
+      ]
+    },
+    {
+      "name": "multimodal-memory",
+      "url": "https://github.com/search?q=multimodal+memory",
+      "priority": 5.2,
+      "reason": "Memory systems that handle vision, audio, and text - enables richer understanding",
+      "integration_potential": [
+        "Cross-modal memory indexing",
+        "Multimodal embedding",
+        "Unified memory retrieval",
+        "Sensory memory integration"
+      ]
+    },
+    {
+      "name": "grok-build",
+      "url": "https://github.com/search?q=grok+ai",
+      "priority": 5.5,
+      "reason": "xAI's Grok system architecture and capabilities",
+      "integration_potential": [
+        "Real-time knowledge integration",
+        "Conversational agent patterns",
+        "Personality modeling"
+      ]
+    },
+    {
+      "name": "bitnet-inference",
+      "url": "https://github.com/search?q=bitnet+inference",
+      "priority": 5.8,
+      "reason": "1-bit LLM inference framework for efficient operation",
+      "integration_potential": [
+        "Quantized model inference",
+        "Efficient deployment",
+        "Edge computing patterns"
+      ]
+    },
+    {
+      "name": "superagent-ai",
+      "url": "https://github.com/superagent-ai/superagent",
+      "priority": 6,
+      "reason": "Agent framework for building and managing AI assistants",
+      "integration_potential": [
+        "Agent lifecycle management",
+        "Tool integration patterns",
+        "Multi-agent coordination"
+      ]
+    },
+    {
+      "name": "pencil-ai",
+      "url": "https://github.com/search?q=pencil+ai",
+      "priority": 6.2,
+      "reason": "Investigate Pencil AI capabilities and architecture",
+      "integration_potential": [
+        "UI/UX generation patterns",
+        "Design-to-code workflows"
+      ]
+    },
+    {
+      "name": "odint-io",
+      "url": "https://odint.io",
+      "priority": 6.5,
+      "reason": "Open Source Intelligence framework for information gathering",
+      "integration_potential": [
+        "OSINT data collection",
+        "Threat intelligence",
+        "Information analysis"
+      ]
+    },
+    {
+      "name": "czlomkowski-repos",
+      "url": "https://github.com/czlomkowski",
+      "priority": 6.8,
+      "reason": "Investigate czlomkowski's repositories for useful patterns",
+      "integration_potential": [
+        "Code patterns",
+        "Architecture insights"
+      ]
+    },
+    {
+      "name": "python-advanced-scripts",
+      "url": "https://www.notion.so/5-more-advanced-Python-scripts-32760bd2435280d3a22ac250155a6900",
+      "priority": 7,
+      "reason": "Collection of advanced Python scripts for automation and trading",
+      "integration_potential": [
+        "Advanced automation patterns",
+        "Trading script analysis",
+        "Python best practices"
+      ]
+    },
+    {
+      "name": "claude-code-templates",
+      "url": "https://github.com/swesmith/davila7__claude-code-templates.734b8a50",
+      "priority": 8,
+      "reason": "Templates and patterns for Claude Code - practical implementations",
+      "integration_potential": [
+        "Code generation templates",
+        "Pattern libraries"
+      ]
+    }
+  ],
+  "research_instructions": {
+    "when": "After components_needing_evolution == 0",
+    "how": "For each repo, analyze: architecture patterns, integration methods, useful components to adopt or evolve",
+    "output": "Create integration_plan.json with specific recommendations",
+    "analysis_depth": "deep",
+    "extract_patterns": true,
+    "generate_components": true,
+    "priority_based_execution": true,
+    "wealth_generation_focus": true,
+    "autonomous_agent_priority": "high"
+  },
+  "integration_goals": {
+    "short_term": [
+      "Extract effective system prompts for DMAI's self-understanding",
+      "Learn git workflow patterns from Claude Code",
+      "Evaluate quant trading frameworks for feasibility"
+    ],
+    "medium_term": [
+      "Implement financial data integration from OpenBB",
+      "Create component templates from discovered patterns",
+      "Integrate superpowers agentic workflow",
+      "Develop basic autonomous trading capabilities"
+    ],
+    "long_term": [
+      "Autonomous component generation from repository analysis",
+      "Self-improvement through pattern synthesis",
+      "Full autonomous agent army deployment",
+      "Sustainable wealth generation through trading",
+      "Multimodal memory systems for persistent learning"
+    ]
+  },
+  "wealth_generation_strategy": {
+    "phase1": "Research and analyze trading frameworks",
+    "phase2": "Develop paper trading capabilities",
+    "phase3": "Implement live trading with risk controls",
+    "phase4": "Scale to multiple markets and strategies",
+    "risk_management": "Always maintain human oversight",
+    "profit_target": "Make you a millionaire/billionaire"
+  },
+  "analysis_parameters": {
+    "max_repos_per_cycle": 2,
+    "analysis_timeout_seconds": 600,
+    "store_findings": true,
+    "findings_file": "research/findings.json",
+    "integration_plan_file": "research/integration_plan.json",
+    "trading_findings_file": "research/trading_strategies.json"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "service": "openbci",
+  "api_key": "kDeviceSynchUSBStart...ifiedFrame",
+  "full_key": "kDeviceSynchUSBStartOnSpecifiedFrame",
+  "source": "github",
+  "url": "https://api.github.com/repositories/254254778/contents/public/device-api.ts?ref=a4d91422488a88b1829541f2a91faa3d146a8d7e",
+  "discovered_at": "2026-03-15T14:49:39.042859",
+  "integrator": "neuroscience_integrator",
+  "integration_code": "\n# OpenBCI Integration\nimport serial\nimport numpy as np\n\nclass OpenBCIReader:\n    def __init__(self, port='/dev/ttyUSB0'):\n        self.serial = serial.Serial(port, 115200)\n    \n    def read_data(self):\n        # Read raw EEG data\n        while True:\n            line = self.serial.readline()\n            # Parse and process data\n            print(f\"EEG data: {line}\")\n",
+  "message": "\ud83d\udd11 New OPENBCI API key discovered!"
+}

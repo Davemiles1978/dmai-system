@@ -1,0 +1,11 @@
+{
+  "service": "muscle_wiki",
+  "api_key": "c8343c6i6rgaqd68s6va...kc384m5gvo",
+  "full_key": "c8343c6i6rgaqd68s6va4bkc384m5gvo",
+  "source": "github",
+  "url": "https://api.github.com/repositories/476484320/contents/android/app/google-services.json?ref=b70b69caad546c149bcb071a44346fc6023888f0",
+  "discovered_at": "2026-03-16T09:25:49.139704",
+  "integrator": "sports_integrator",
+  "integration_code": "# muscle_wiki = c8343c6i6rgaqd68s6va4bkc384m5gvo\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New MUSCLE_WIKI API key discovered!"
+}

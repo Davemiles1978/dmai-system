@@ -1,0 +1,11 @@
+{
+  "service": "anthropic",
+  "api_key": "ConvolutionalNeuralN...nitionhttp",
+  "full_key": "ConvolutionalNeuralNetworksforVisualRecognitionhttp",
+  "source": "github",
+  "url": "https://api.github.com/repositories/381360038/contents/map.md?ref=23c19725e56f6b09bbb14380aca7a2ac01f5e042",
+  "discovered_at": "2026-03-14T14:44:02.343915",
+  "integrator": "ai_ml_integrator",
+  "integration_code": "\n# Anthropic Claude Integration\nimport anthropic\n\nclient = anthropic.Anthropic(api_key=\"ConvolutionalNeuralNetworksforVisualRecognitionhttp\")\n\ndef chat_with_claude(prompt):\n    response = client.messages.create(\n        model=\"claude-3-opus-20240229\",\n        max_tokens=1000,\n        messages=[{\"role\": \"user\", \"content\": prompt}]\n    )\n    return response.content[0].text\n",
+  "message": "\ud83d\udd11 New ANTHROPIC API key discovered!"
+}

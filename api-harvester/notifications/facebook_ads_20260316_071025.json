@@ -1,0 +1,11 @@
+{
+  "service": "facebook_ads",
+  "api_key": "GenerateBiosynthProd...tionThread",
+  "full_key": "GenerateBiosynthProductDescriptionThread",
+  "source": "github",
+  "url": "https://api.github.com/repositories/856178923/contents/app/api/api_v1/content.py?ref=50ca8f23d5f505d2023f093739ea7553257c05e8",
+  "discovered_at": "2026-03-16T07:10:25.263635",
+  "integrator": "business_integrator",
+  "integration_code": "# facebook_ads = GenerateBiosynthProductDescriptionThread\n# Add your business integration code here",
+  "message": "\ud83d\udd11 New FACEBOOK_ADS API key discovered!"
+}

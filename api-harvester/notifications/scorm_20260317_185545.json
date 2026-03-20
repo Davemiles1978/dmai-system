@@ -1,0 +1,11 @@
+{
+  "service": "scorm",
+  "api_key": "D6jWRBG8fM7Hg3oq8jD2...rW2HHPe4e0",
+  "full_key": "D6jWRBG8fM7Hg3oq8jD2dcbnXWifTOrW2HHPe4e0",
+  "source": "github",
+  "url": "https://api.github.com/repositories/679003301/contents/api.js?ref=a9300bacd2e2a5a05ba82acdcd80a6140b179ad2",
+  "discovered_at": "2026-03-17T18:55:45.767310",
+  "integrator": "coaching_integrator",
+  "integration_code": "# scorm = D6jWRBG8fM7Hg3oq8jD2dcbnXWifTOrW2HHPe4e0\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New SCORM API key discovered!"
+}

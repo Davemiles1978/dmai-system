@@ -1,0 +1,156 @@
+# File: /Users/davidmiles/Desktop/dmai-system/telegram_bot.py
+# Time: 2026-03-17T17:51:45.532139
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI Telegram Bot - Remote monitoring and control
+Enhanced with all requested commands
+"""
+import os
+import sys
+import json
+import logging
+import requests
+import time
+import threading
+from pathlib import Path
+from datetime import datetime, timedelta
+
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - TELEGRAM - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger('TELEGRAM')
+
+class DMAITelegramBot:
+    """Telegram bot for DMAI monitoring and control"""
+    
+    def __init__(self):
+        self.token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        self.chat_id = os.environ.get('TELEGRAM_CHAT_ID')
+        
+        if not self.token or not self.chat_id:
+            logger.error("❌ Telegram token or chat ID not set in environment")
+            logger.info("Please set: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID")
+            sys.exit(1)
+        
+        self.base_url = f"https://api.telegram.org/bot{self.token}"
+        self.last_update_id = 0
+        self.running = True
+        self.mood_history = []
+        
+        # Connect to DMAI core
+        try:
+            from dmai_core_clean import DMAIIntelligence
+            self.dmai = DMAIIntelligence()
+            logger.info("✅ Connected to DMAI core")
+        except Exception as e:
+            logger.error(f"❌ Failed to connect to DMAI core: {e}")
+            self.dmai = None
+        
+        # Command handlers - COMPLETE LIST
+        self.commands = {
+            '/start': self.cmd_start,
+            '/status': self.cmd_status,
+            '/health': self.cmd_health,
+            '/progress': self.cmd_progress,
+            '/evolve': self.cmd_evolve,
+            '/funding': self.cmd_funding,
+            '/components': self.cmd_components,
+            '/life': self.cmd_life,
+            '/mood': self.cmd_mood,
+            '/keys': self.cmd_keys,
+            '/vocab': self.cmd_vocab,
+            '/research': self.cmd_research,
+            '/capabilities': self.cmd_capabilities,
+            '/issues': self.cmd_issues,
+            '/thought': self.cmd_thought,
+            '/help': self.cmd_help
+        }
+    
+    def send_message(self, text, parse_mode='HTML'):
+        """Send message to Telegram"""
+        url = f"{self.base_url}/sendMessage"
+        data = {
+            'chat_id': self.chat_id,
+            'text': text,
+            'parse_mode': parse_mode
+        }
+        
+        try:
+            response = requests.post(url, json=data, timeout=10)
+            if response.status_code == 200:
+                logger.info(f"📤 Sent message: {text[:50]}...")
+                return True
+            else:
+                logger.error(f"❌ Telegram send failed: {response.text}")
+                return False
+        except Exception as e:
+            logger.error(f"❌ Telegram send error: {e}")
+            return False
+    
+    def get_updates(self):
+        """Get new messages from Telegram"""
+        url = f"{self.base_url}/getUpdates"
+        params = {
+            'offset': self.last_update_id + 1,
+            'timeout': 30
+        }
+        
+        try:
+            response = requests.get(url, params=params, timeout=35)
+            if response.status_code == 200:
+                data = response.json()
+                if data['ok'] and data['result']:
+                    for update in data['result']:
+                        self.last_update_id = update['update_id']
+                        self.handle_update(update)
+            return True
+        except Exception as e:
+            logger.error(f"❌ Failed to get updates: {e}")
+            return False
+    
+    def handle_update(self, update):
+        """Handle incoming message"""
+        if 'message' not in update:
+            return
+        
+        message = update['message']
+        chat_id = message['chat']['id']
+        
+        # Only respond to configured chat ID
+        if str(chat_id) != str(self.chat_id):
+            logger.warning(f"⚠️ Message from unauthorized chat: {chat_id}")
+            return
+        
+        if 'text' not in message:
+            self.send_message("I only understand text commands. Send /help for options.")
+            return
+        
+        text = message['text'].strip()
+        logger.info(f"📩 Received: {text}")
+        
+        # Parse command
+        parts = text.split()
+        command = parts[0].lower()
+        args = parts[1:] if len(parts) > 1 else []
+        
+        # Execute command
+        if command in self.commands:
+            response = self.commands[command](args)
+        else:
+            response = self.cmd_unknown(command)
+        
+        self.send_message(response)
+    
+    def cmd_start(self, args):
+        """Welcome message"""
+        return (
+            "🧠 <b>DMAI Telegram Bot Active</b>\n\n"
+            "I am your DMAI monitoring interface. "
+            "Use /help to see a

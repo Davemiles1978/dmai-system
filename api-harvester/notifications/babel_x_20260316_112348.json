@@ -1,0 +1,11 @@
+{
+  "service": "babel_x",
+  "api_key": "ad711d1ce09242bd13b7...9a005f3143",
+  "full_key": "ad711d1ce09242bd13b73a9a005f3143",
+  "source": "github",
+  "url": "https://api.github.com/repositories/5032273/contents/kdesdk.spec?ref=ea5d91943b73fe5cedbab1a66c83f55f91b03123",
+  "discovered_at": "2026-03-16T11:23:48.647243",
+  "integrator": "osint_integrator",
+  "integration_code": "# babel_x = ad711d1ce09242bd13b73a9a005f3143\n# Add your OSINT integration code here",
+  "message": "\ud83d\udd11 New BABEL_X API key discovered!"
+}

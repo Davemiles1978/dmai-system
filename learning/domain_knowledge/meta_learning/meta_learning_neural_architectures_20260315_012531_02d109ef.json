@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-03-15T01:25:31.505585",
+  "domain": "meta_learning",
+  "category": "neural_architectures",
+  "url": "https://arxiv.org/list/cs.NE/recent",
+  "title": "Neural and Evolutionary Computing  ",
+  "content_preview": "\n\n Neural and Evolutionary Computing  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSkip to main content\n\n\n\n\n\nWe gratefully acknowledge support from the Simons Foundation, member institutions, and all contributors.\nDonate\n\n\n\n\n\n >\ncs.NE\n\n\n\n\n\n\n\n\nHelp | Advanced Search\n\n\n\n\nAll fields\nTitle\nAuthor\nAbstract\nComments\nJournal reference\nACM classification\nMSC classification\nReport number\narXiv identifier\nDOI\nORCID\narXiv author ID\nHelp pages\nFull text\n\n\n\n\nSearch\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nopen search\n\n\n\n\n\n\nGO\n\n\n\nopen navigation menu\n\n\nquick links\n\nLogin\nHelp Pages\nAbout\n\n\n\n\n\n\n\n\n\n\n\nNeural and Evolutionary Computing\nAuthors and titles for recent submissions\n\n\n\n          Fri, 13 Mar 2026\n        \n\n\n          Thu, 12 Mar 2026\n        \n\n\n          Wed, 11 Mar 2026\n        \n\n\n          Tue, 10 Mar 2026\n        \n\n\n          Mon, 9 Mar 2026\n        \n\nSee today's new changes\nTotal of 35 entries \n    \nShowing up to 50 entries per page:\n          \n      fewer\n |\n          more\n |\n          all\n\n\nFri, 13 Mar 2026 (showing 8 of 8 entries )\n\n[1]\n\n        arXiv:2603.11874\n      \n      \n        [pdf, html, other]\n    \n\n\nTitle:\n          An Evolutionary Algorithm with Probabilistic Annealing for Large-scale Sparse Multi-objective Optimization\n        \nShuai Shao, Yuhao Sun, Xing Chen, Ye Tian, Guan Wang, Jin Li\nComments:\n          13 pages, 4 figures, 3 tables. Preprint. Under review\n        \nSubjects:\nNeural and Evolutionary Computing (cs.NE)\n\n\n\n\n[2]\n\n        arXiv:2603.11676\n      \n      \n        [pdf, html, other]\n    \n\n\nTitle:\n          Stable Spike: Dual Consistency Optimization via Bitwise AND Operations for Spiking Neural Networks\n        \nYongqi Ding, Kunshan Yang, Linze Li, Yiyang Zhang, Mengmeng Jing, Lin Zuo\nComments:\n          Accepted by CVPR 2026\n        \nSubjects:\nNeural and Evolutionary Computing (cs.NE); Artificial Intelligence (cs.AI)\n        \n\n\n\n[3]\n\n        arXiv:2603.11056\n      \n      \n        [pdf, html, other]\n    \n\n\nTitle:\n          GeNeX: Genetic Network eXperts framework for addressing Validation Overfitting\n        \nEmmanuel Pintelas, Ioannis E. Livieris\nComments:\n          Accepted for publication in IEEE TRANSACTIONS ON NEURAL NETWORKS AND LEARNING SYSTEMS\n        \nJournal-ref:\n          IEEE TRANSACTIONS ON NEURAL NETWORKS AND LEARNING SYSTEMS, 2026\n        \nSubjects:\nNeural and Evolutionary Computing (cs.NE)\n\n\n\n\n[4]\n\n        arXiv:2603.11972\n      \n          (cross-list from cs.LG)\n\n        [pdf, html, other]\n    \n\n\nTitle:\n          Topological DeepONets and a generalization of the Chen-Chen operator approximation theorem\n        \nVugar Ismailov\nComments:\n          22 pages, 1 figure, 23 references\n        \nSubjects:\nMachine Learning (cs.LG); Neural and Evolutionary Computing (cs.NE); Functional Analysis (math.FA)\n        \n\n\n\n[5]\n\n        arXiv:2603.11939\n      \n          (cross-list from cs.AR)\n\n        [pdf, html, other]\n    \n\n\nTitle:\n          SNAP-V: A RISC-V SoC with Configurable Neuromorphic Acceleration for Small-Scale Spiking Neural Networks\n        \nKanishka Gunawardana, Sanka Peeris, Kavishka Rambukwella, Thamish Wanduragala, Saadia Jameel, Roshan Ragel, Isuru Nawinne\nComments:\n          12 pages, 5 figures, 5 tables\n        \nSubjects:\nHardware Architecture (cs.AR); Neural and Evolutionary Computing (cs.NE)\n        \n\n\n\n[6]\n\n        arXiv:2603.11536\n      \n          (cross-list from quant-ph)\n\n        [pdf, other]\n    \n\n\nTitle:\n          Quantum mechanical framework for quantization-based optimization: from Gradient flow to Schroedinger equation\n        \nJinwuk Seok, Changsik Cho\nComments:\n          preprint, 41 pages\n        \nSubjects:\nQuantum Physics (quant-ph); Neural and Evolutionary Computing (cs.NE); Optimization and Control (math.OC)\n        \n\n\n\n[7]\n\n        arXiv:2603.11128\n      \n          (cross-list from stat.ML)\n\n        [pdf, html, other]\n    \n\n\nTitle:\n          Efficient Approximation to Analytic and $L^p$ functions by Height-Augmented ReLU Networks\n        \nZeYu Li, FengLei Fan, TieYong Zeng\nSubjects:\nMachine Learning (stat.ML); Machine Learning (cs.LG); Neural and Evolutionary Computing (cs.NE)\n        \n\n\n\n[8]\n\n        arXiv:2603.11061\n      \n          (cross-list from physics.chem-ph)\n\n        [pdf, html, other]\n    \n\n\nTitle:\n          Hybrid Quantum-Classical Encoding for Accurate Residue-Level pKa Prediction\n        \nVan Le, Tan Le\nSubjects:\nChemical Physics (physics.chem-ph); Artificial Intelligence (cs.AI); Neural and Evolutionary Computing (cs.NE)\n        \n\n\n\n\nThu, 12 Mar 2026 (showing 6 of 6 entries )\n\n[9]\n\n        arXiv:2603.10537\n      \n      \n        [pdf, html, other]\n    \n\n\nTitle:\n          An Event-Driven E-Skin System with Dynamic Binary Scanning and real time SNN Classification\n        \nGaishan Li, Zhengnan Fu, Anubhab Tripathi, Junyi Yang, Arindam Basu\nSubjects:\nNeural and Evolutionary Computing (cs.NE)\n\n\n\n\n[10]\n\n        arXiv:2603.10246\n      \n      \n        [pdf, html, other]\n    \n\n\nTitle:\n          Intrinsic Numerical Robustness and Fault Tolerance in a Neuromorphic Algorithm for Scientific Comp",
+  "links": [
+    "#content",
+    "https://www.cornell.edu/",
+    "https://info.arxiv.org/about/ourmembers.html",
+    "https://info.arxiv.org/about/donate.html",
+    "/IgnoreMe",
+    "/",
+    "/list/cs.NE/recent",
+    "https://info.arxiv.org/help",
+    "https://arxiv.org/search/advanced",
+    "https://arxiv.org/",
+    "https://www.cornell.edu/",
+    "https://arxiv.org/login",
+    "https://info.arxiv.org/help",
+    "https://info.arxiv.org/about",
+    "/list/cs.NE/recent?skip=0&show=50",
+    "/list/cs.NE/recent?skip=8&show=50",
+    "/list/cs.NE/recent?skip=14&show=50",
+    "/list/cs.NE/recent?skip=21&show=50",
+    "/list/cs.NE/recent?skip=31&show=50",
+    "/list/cs.NE/new"
+  ],
+  "content_hash": "0e0964cb09053c299a944e9420e7a99d"
+}

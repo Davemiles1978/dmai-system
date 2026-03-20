@@ -1,0 +1,11 @@
+{
+  "service": "cmi5",
+  "api_key": "convertISO8601Durati...lliseconds",
+  "full_key": "convertISO8601DurationToMilliseconds",
+  "source": "github",
+  "url": "https://api.github.com/repositories/44613521/contents/src/index.js?ref=e55de43409e049d59347193a0b6b80a63bed7030",
+  "discovered_at": "2026-03-17T19:10:45.028717",
+  "integrator": "coaching_integrator",
+  "integration_code": "# cmi5 = convertISO8601DurationToMilliseconds\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New CMI5 API key discovered!"
+}

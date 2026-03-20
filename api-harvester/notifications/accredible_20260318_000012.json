@@ -1,0 +1,11 @@
+{
+  "service": "accredible",
+  "api_key": "accrediblecustomattr...lectprompt",
+  "full_key": "accrediblecustomattributeselectprompt",
+  "source": "github",
+  "url": "https://api.github.com/repositories/27224668/contents/en/accredible.php?ref=f9172ae26e7cdad62bcb2a5d85edd9e2c8932d56",
+  "discovered_at": "2026-03-18T00:00:12.941945",
+  "integrator": "coaching_integrator",
+  "integration_code": "# accredible = accrediblecustomattributeselectprompt\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New ACCREDIBLE API key discovered!"
+}

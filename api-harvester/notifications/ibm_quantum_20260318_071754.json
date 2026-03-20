@@ -1,0 +1,11 @@
+{
+  "service": "ibm_quantum",
+  "api_key": "KhY7vLMvcvQZ67v91IYu...UqRB3IdHWP",
+  "full_key": "KhY7vLMvcvQZ67v91IYumJogcUqRB3IdHWP",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1115888854/contents/IBM_QUANTUM_STATUS_UPDATE.md?ref=dc70454fb6a1367da412fbad9632b9e21f161e52",
+  "discovered_at": "2026-03-18T07:17:54.253713",
+  "integrator": "quantum_integrator",
+  "integration_code": "\n# IBM Quantum Integration (Qiskit)\nfrom qiskit import IBMQ\nIBMQ.save_account('KhY7vLMvcvQZ67v91IYumJogcUqRB3IdHWP', overwrite=True)\nIBMQ.load_account()\n\n# List available backends\nprovider = IBMQ.get_provider(hub='ibm-q')\nbackends = provider.backends()\nprint(\"Available backends:\", [b.name for b in backends])\n\n# Create a simple circuit\nfrom qiskit import QuantumCircuit, execute\nqc = QuantumCircuit(2, 2)\nqc.h(0)\nqc.cx(0, 1)\nqc.measure([0,1], [0,1])\n\n# Execute on simulator first\nfrom qiskit import Aer\nsimulator = Aer.get_backend('qasm_simulator')\njob = execute(qc, simulator, shots=1000)\nresult = job.result()\ncounts = result.get_counts(qc)\nprint(counts)\n",
+  "message": "\ud83d\udd11 New IBM_QUANTUM API key discovered!"
+}

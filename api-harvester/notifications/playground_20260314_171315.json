@@ -1,0 +1,11 @@
+{
+  "service": "playground",
+  "api_key": "ChatCompletionCreate...nStreaming",
+  "full_key": "ChatCompletionCreateParamsNonStreaming",
+  "source": "github",
+  "url": "https://api.github.com/repositories/773819402/contents/API.md?ref=e4ccb40c188a420630366d3acb0c49a5af1ebfd1",
+  "discovered_at": "2026-03-14T17:13:15.744050",
+  "integrator": "image_generation_integrator",
+  "integration_code": "# playground = ChatCompletionCreateParamsNonStreaming\n# Add your image generation integration code here",
+  "message": "\ud83d\udd11 New PLAYGROUND API key discovered!"
+}

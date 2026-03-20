@@ -1,0 +1,11 @@
+{
+  "service": "fda_drugs",
+  "api_key": "649def34f8be52c8b662...4c09aef38b",
+  "full_key": "649def34f8be52c8b66281af98ae884c09aef38b",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1108468412/contents/docs/competitor-analysis.md?ref=0ca3ffd1a14918b5b5bef948d30dfa74141c0e04",
+  "discovered_at": "2026-03-16T17:34:50.642128",
+  "integrator": "medical_integrator",
+  "integration_code": "# fda_drugs = 649def34f8be52c8b66281af98ae884c09aef38b\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New FDA_DRUGS API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "eagle",
+  "api_key": "72563e4c99bd54dedc29...21dff48032",
+  "full_key": "72563e4c99bd54dedc293bf65183398b60a1794af9eca7e006d6eb21dff48032",
+  "source": "github",
+  "url": "https://api.github.com/repositories/12948749/contents/api.md?ref=20d3898d01ac73eca6a1c09620b0e6c5d98aa5bb",
+  "discovered_at": "2026-03-15T00:57:13.044401",
+  "integrator": "engineering_integrator",
+  "integration_code": "# eagle = 72563e4c99bd54dedc293bf65183398b60a1794af9eca7e006d6eb21dff48032\n# Add your engineering integration code here",
+  "message": "\ud83d\udd11 New EAGLE API key discovered!"
+}

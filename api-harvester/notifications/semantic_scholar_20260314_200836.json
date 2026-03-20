@@ -1,0 +1,11 @@
+{
+  "service": "semantic_scholar",
+  "api_key": "daiacboceoaocpibfode...bdfacokfjb",
+  "full_key": "daiacboceoaocpibfodeljbdfacokfjb",
+  "source": "github",
+  "url": "https://api.github.com/repositories/745982379/contents/app.py?ref=7a19a1425e6859dfd5b03aa41f7f375a4a48200b",
+  "discovered_at": "2026-03-14T20:08:36.564901",
+  "integrator": "research_papers_integrator",
+  "integration_code": "# semantic_scholar = daiacboceoaocpibfodeljbdfacokfjb\n# Add your research papers integration code here",
+  "message": "\ud83d\udd11 New SEMANTIC_SCHOLAR API key discovered!"
+}

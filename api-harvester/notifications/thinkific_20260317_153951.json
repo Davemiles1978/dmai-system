@@ -1,0 +1,11 @@
+{
+  "service": "thinkific",
+  "api_key": "09586040978jtrijgkj5...jrjtnjgnnf",
+  "full_key": "09586040978jtrijgkj5fdjnjlsewjnrej85u49u594u95u4nrej0jrjtnjgnnf",
+  "source": "github",
+  "url": "https://api.github.com/repositories/723734936/contents/cf.lst?ref=59a9fd7cea4d1e9d6e01ef21641c19361052167a",
+  "discovered_at": "2026-03-17T15:39:51.726259",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Thinkific Integration\nimport requests\n\nTHINKIFIC_API_KEY = \"09586040978jtrijgkj5fdjnjlsewjnrej85u49u594u95u4nrej0jrjtnjgnnf\"\nTHINKIFIC_SUBDOMAIN = \"your-subdomain\"\n\ndef get_thinkific_courses():\n    \"\"\"Get all courses\"\"\"\n    response = requests.get(\n        f\"https://api.thinkific.com/api/public/v1/courses\",\n        headers={\n            \"X-Auth-API-Key\": THINKIFIC_API_KEY,\n            \"X-Auth-Subdomain\": THINKIFIC_SUBDOMAIN\n        }\n    )\n    return response.json()\n\ndef create_enrollment(user_id, course_id):\n    \"\"\"Enroll user in course\"\"\"\n    response = requests.post(\n        f\"https://api.thinkific.com/api/public/v1/enrollments\",\n        headers={\n            \"X-Auth-API-Key\": THINKIFIC_API_KEY,\n            \"X-Auth-Subdomain\": THINKIFIC_SUBDOMAIN\n        },\n        json={\n            \"user_id\": user_id,\n            \"course_id\": course_id\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New THINKIFIC API key discovered!"
+}

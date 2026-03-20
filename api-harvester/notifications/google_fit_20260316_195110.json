@@ -1,0 +1,11 @@
+{
+  "service": "google_fit",
+  "api_key": "e1qq893h44vejoau0vdd...3ev2tih0f3",
+  "full_key": "e1qq893h44vejoau0vddk93ev2tih0f3",
+  "source": "github",
+  "url": "https://api.github.com/repositories/994739183/contents/GOOGLE_API_SETUP.md?ref=e37e5dd8dd422f83ab8399ab75b0a0bbd25f9c6f",
+  "discovered_at": "2026-03-16T19:51:10.019509",
+  "integrator": "medical_integrator",
+  "integration_code": "# google_fit = e1qq893h44vejoau0vddk93ev2tih0f3\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New GOOGLE_FIT API key discovered!"
+}

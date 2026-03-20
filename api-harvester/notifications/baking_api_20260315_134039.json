@@ -1,0 +1,11 @@
+{
+  "service": "baking_api",
+  "api_key": "VISUALSTUDIOCODESOUR...CODEACCESS",
+  "full_key": "VISUALSTUDIOCODESOURCECODEACCESS",
+  "source": "github",
+  "url": "https://api.github.com/repositories/111713260/contents/.kdev4/Defines.txt?ref=62209b8b1aa63542b2753ec51913f0cae2a102e1",
+  "discovered_at": "2026-03-15T13:40:39.266473",
+  "integrator": "cooking_integrator",
+  "integration_code": "# baking_api = VISUALSTUDIOCODESOURCECODEACCESS\n# Add your cooking integration code here",
+  "message": "\ud83d\udd11 New BAKING_API API key discovered!"
+}

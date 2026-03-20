@@ -1,0 +1,11 @@
+{
+  "service": "adobe_firefly",
+  "api_key": "wgRelevantPageIsProb...lyEditable",
+  "full_key": "wgRelevantPageIsProbablyEditable",
+  "source": "github",
+  "url": "https://api.github.com/repositories/977859439/contents/M11_LAB.ipynb?ref=1e862824bc5063a07dd1fc186ed47f56fa7b8a9e",
+  "discovered_at": "2026-03-14T17:00:58.273817",
+  "integrator": "image_generation_integrator",
+  "integration_code": "# adobe_firefly = wgRelevantPageIsProbablyEditable\n# Add your image generation integration code here",
+  "message": "\ud83d\udd11 New ADOBE_FIREFLY API key discovered!"
+}

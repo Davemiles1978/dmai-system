@@ -1,0 +1,11 @@
+{
+  "service": "medline_plus",
+  "api_key": "wgRelevantPageIsProb...lyEditable",
+  "full_key": "wgRelevantPageIsProbablyEditable",
+  "source": "github",
+  "url": "https://api.github.com/repositories/50959312/contents/en.wikipedia.org/wiki/Fish_oil.html?ref=c5a086db8ab2662a9f26a9474de322efe387ca42",
+  "discovered_at": "2026-03-16T16:49:10.505158",
+  "integrator": "medical_integrator",
+  "integration_code": "# medline_plus = wgRelevantPageIsProbablyEditable\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New MEDLINE_PLUS API key discovered!"
+}

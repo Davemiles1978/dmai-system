@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-03-11T07:55:49.044248",
+  "parent1": "github_airweave-ai_airweave",
+  "parent2": "gpt_base_gen32",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "language",
+      "description": "Transfer language from \u26a1 gpt_base_gen32 to \ud83d\udce6 airweave",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "reasoning",
+      "description": "Transfer reasoning from \u26a1 gpt_base_gen32 to \ud83d\udce6 airweave",
+      "quality": 0.9
+    },
+    {
+      "type": "fresh_integration",
+      "description": "Incorporate novel approach from external system",
+      "quality": 0.8242853374359902
+    }
+  ],
+  "new_generation": 39,
+  "capabilities": [
+    "retrieval",
+    "reasoning",
+    "language_model",
+    "language",
+    "agent_framework"
+  ]
+}

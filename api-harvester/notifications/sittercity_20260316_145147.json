@@ -1,0 +1,11 @@
+{
+  "service": "sittercity",
+  "api_key": "og73TE0RitC2aWAM4wcY...zE6QuYXW1l",
+  "full_key": "og73TE0RitC2aWAM4wcYhjTvyISe4fW9KIQf4T0J09KzE6QuYXW1l",
+  "source": "github",
+  "url": "https://api.github.com/repositories/522445321/contents/babysitting-jobs-near-me-sittercity.html?ref=b8953aa6643059f412102e71349fd863b642f1f6",
+  "discovered_at": "2026-03-16T14:51:47.224690",
+  "integrator": "childcare_integrator",
+  "integration_code": "# sittercity = og73TE0RitC2aWAM4wcYhjTvyISe4fW9KIQf4T0J09KzE6QuYXW1l\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New SITTERCITY API key discovered!"
+}

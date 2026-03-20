@@ -1,0 +1,11 @@
+{
+  "service": "the_bump",
+  "api_key": "c88e2bcd56513749bec0...7e29cb3ffa",
+  "full_key": "c88e2bcd56513749bec09a7e29cb3ffa",
+  "source": "github",
+  "url": "https://api.github.com/repositories/717394449/contents/backup/Creating_Mod_Browser_Minimap_Thumbnails.html?ref=acfbfaf7439f4b3357c71420ba6b4730482d5242",
+  "discovered_at": "2026-03-16T14:35:05.369585",
+  "integrator": "childcare_integrator",
+  "integration_code": "# the_bump = c88e2bcd56513749bec09a7e29cb3ffa\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New THE_BUMP API key discovered!"
+}

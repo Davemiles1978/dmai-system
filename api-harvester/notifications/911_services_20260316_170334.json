@@ -1,0 +1,11 @@
+{
+  "service": "911_services",
+  "api_key": "wymqpACQbYNye9BE6P1f...tiRSpnYDSk",
+  "full_key": "wymqpACQbYNye9BE6P1feNzS7zuVVVZGztiRSpnYDSk",
+  "source": "github",
+  "url": "https://api.github.com/repositories/426063705/contents/data/SeattleWA/posts_SeattleWA_1547147469.csv?ref=65f8f8592e48907eaeb9f688eae0c24894e13217",
+  "discovered_at": "2026-03-16T17:03:34.857692",
+  "integrator": "medical_integrator",
+  "integration_code": "# 911_services = wymqpACQbYNye9BE6P1feNzS7zuVVVZGztiRSpnYDSk\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New 911_SERVICES API key discovered!"
+}

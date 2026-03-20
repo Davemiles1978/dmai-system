@@ -1,0 +1,11 @@
+{
+  "service": "payhip",
+  "api_key": "1Svyw40Th7VbigX6lpR1...7O2YELrml4",
+  "full_key": "1Svyw40Th7VbigX6lpR1lb1WXwTUVKZWrK7O2YELrml4",
+  "source": "github",
+  "url": "https://api.github.com/repositories/187903742/contents/src/content/en/2025/privacy.md?ref=660559f645e267bd7115a50e9df328a7c58028b0",
+  "discovered_at": "2026-03-17T21:08:06.560544",
+  "integrator": "coaching_integrator",
+  "integration_code": "# payhip = 1Svyw40Th7VbigX6lpR1lb1WXwTUVKZWrK7O2YELrml4\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New PAYHIP API key discovered!"
+}

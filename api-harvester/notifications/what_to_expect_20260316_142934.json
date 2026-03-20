@@ -1,0 +1,11 @@
+{
+  "service": "what_to_expect",
+  "api_key": "xxxxxxxxxxxxxxxxxxxx...xxxxxxxxxx",
+  "full_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1091199151/contents/MOBILE_APP_API_DOCUMENTATION.md?ref=96ba18a2118a4c406982c9a66fa65a5b755165ae",
+  "discovered_at": "2026-03-16T14:29:34.138362",
+  "integrator": "childcare_integrator",
+  "integration_code": "# what_to_expect = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New WHAT_TO_EXPECT API key discovered!"
+}

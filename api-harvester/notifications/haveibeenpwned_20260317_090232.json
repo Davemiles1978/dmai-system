@@ -1,0 +1,11 @@
+{
+  "service": "haveibeenpwned",
+  "api_key": "283efaddbcf896ab4054...330d1bbc06",
+  "full_key": "283efaddbcf896ab405488330d1bbc06",
+  "source": "github",
+  "url": "https://api.github.com/repositories/442224019/contents/OSINT.md?ref=61671a5d3378caa767b4fc435070e26f0f3d4027",
+  "discovered_at": "2026-03-17T09:02:32.101512",
+  "integrator": "hacking_integrator",
+  "integration_code": "\n# HaveIBeenPwned Integration\nHIBP_API_KEY = \"283efaddbcf896ab405488330d1bbc06\"\nimport requests\n\ndef check_email(email):\n    headers = {\"hibp-api-key\": HIBP_API_KEY}\n    response = requests.get(f\"https://haveibeenpwned.com/api/v3/breachedaccount/{email}\", headers=headers)\n    return response.json() if response.status_code == 200 else []\n",
+  "message": "\ud83d\udd11 New HAVEIBEENPWNED API key discovered!"
+}

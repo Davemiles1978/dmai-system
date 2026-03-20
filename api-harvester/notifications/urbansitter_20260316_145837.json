@@ -1,0 +1,11 @@
+{
+  "service": "urbansitter",
+  "api_key": "theacademyforconscio...leadership",
+  "full_key": "theacademyforconsciousleadership",
+  "source": "github",
+  "url": "https://api.github.com/repositories/58876201/contents/easyprivacy/easyprivacy_specific_cname_branch.txt?ref=24494555bcf1ea76d4bb069c1fba2527e342af0a",
+  "discovered_at": "2026-03-16T14:58:37.096300",
+  "integrator": "childcare_integrator",
+  "integration_code": "# urbansitter = theacademyforconsciousleadership\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New URBANSITTER API key discovered!"
+}

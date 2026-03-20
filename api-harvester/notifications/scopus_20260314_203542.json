@@ -1,0 +1,11 @@
+{
+  "service": "scopus",
+  "api_key": "b3a71de2bde045444958...ed9d2f9c5b",
+  "full_key": "b3a71de2bde04544495881ed9d2f9c5b",
+  "source": "github",
+  "url": "https://api.github.com/repositories/65866710/contents/readme.md?ref=e621923e33be234320ea4b7eafc556ff0f6565dc",
+  "discovered_at": "2026-03-14T20:35:42.941225",
+  "integrator": "research_papers_integrator",
+  "integration_code": "# scopus = b3a71de2bde04544495881ed9d2f9c5b\n# Add your research papers integration code here",
+  "message": "\ud83d\udd11 New SCOPUS API key discovered!"
+}

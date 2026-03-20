@@ -1,0 +1,11 @@
+{
+  "service": "prusaprinters",
+  "api_key": "d3d9a9a6595521f9666a...ab83b65699",
+  "full_key": "d3d9a9a6595521f9666a5e94cc830dab83b65699",
+  "source": "github",
+  "url": "https://api.github.com/repositories/493411798/contents/docs/index.html?ref=bc9bf78575392299d4e74ad29e319de788163459",
+  "discovered_at": "2026-03-15T05:00:30.855027",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New PRUSAPRINTERS API key discovered!"
+}

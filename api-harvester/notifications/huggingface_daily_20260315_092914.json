@@ -1,0 +1,11 @@
+{
+  "service": "huggingface_daily",
+  "api_key": "BatchCreateAppTableR...ordRequest",
+  "full_key": "BatchCreateAppTableRecordRequest",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1008101504/contents/utils.py?ref=5b674ba556d9bb2fcbb608b9371b39e7910e7505",
+  "discovered_at": "2026-03-15T09:29:14.910504",
+  "integrator": "evolution_triggers_integrator",
+  "integration_code": "# huggingface_daily = BatchCreateAppTableRecordRequest\n# Add your evolution triggers integration code here",
+  "message": "\ud83d\udd11 New HUGGINGFACE_DAILY API key discovered!"
+}

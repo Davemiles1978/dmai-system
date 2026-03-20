@@ -1,0 +1,11 @@
+{
+  "service": "family_tree_api",
+  "api_key": "AddFluentValidationA...Validation",
+  "full_key": "AddFluentValidationAutoValidation",
+  "source": "github",
+  "url": "https://api.github.com/repositories/704076910/contents/backend/Program.cs?ref=6c8c89cf1d5440a30ac3947a7c5119e113f81d17",
+  "discovered_at": "2026-03-17T06:54:56.326869",
+  "integrator": "history_integrator",
+  "integration_code": "# family_tree_api = AddFluentValidationAutoValidation\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New FAMILY_TREE_API API key discovered!"
+}

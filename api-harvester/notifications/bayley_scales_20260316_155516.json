@@ -1,0 +1,11 @@
+{
+  "service": "bayley_scales",
+  "api_key": "shahidiParaspinalMus...iduals2024",
+  "full_key": "shahidiParaspinalMusclesIndividuals2024",
+  "source": "github",
+  "url": "https://api.github.com/repositories/734847305/contents/docs/sitemap.xml?ref=b3172f98b6a3b0c69d029e69dee1caf7671537b0",
+  "discovered_at": "2026-03-16T15:55:16.946148",
+  "integrator": "childcare_integrator",
+  "integration_code": "# bayley_scales = shahidiParaspinalMusclesIndividuals2024\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New BAYLEY_SCALES API key discovered!"
+}

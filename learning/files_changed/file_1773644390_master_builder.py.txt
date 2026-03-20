@@ -1,0 +1,148 @@
+# File: /Users/davidmiles/Desktop/dmai-system/autonomy/master_builder.py
+# Time: 2026-03-16T09:59:50.485262
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI MASTER BUILDER - Self-Constructing System
+Reads the roadmap and builds itself in optimal order
+"""
+
+import os
+import json
+import time
+import subprocess
+from datetime import datetime
+
+class MasterBuilder:
+    def __init__(self):
+        self.roadmap_file = "docs/complete_roadmap_clean.json"
+        self.state_file = "autonomy/build_state.json"
+        self.components = {}
+        self.completed = []
+        self.in_progress = []
+        self.load_state()
+        
+    def load_state(self):
+        """Load current build state"""
+        if os.path.exists(self.state_file):
+            with open(self.state_file, 'r') as f:
+                data = json.load(f)
+                self.completed = data.get('completed', [])
+                self.in_progress = data.get('in_progress', [])
+        
+    def save_state(self):
+        """Save build state"""
+        with open(self.state_file, 'w') as f:
+            json.dump({
+                'completed': self.completed,
+                'in_progress': self.in_progress,
+                'last_updated': str(datetime.now())
+            }, f, indent=2)
+    
+    def load_roadmap(self):
+        """Load and parse the roadmap"""
+        if not os.path.exists(self.roadmap_file):
+            print(f"❌ Roadmap not found: {self.roadmap_file}")
+            return False
+        
+        with open(self.roadmap_file, 'r') as f:
+            self.roadmap = json.load(f)
+        
+        print(f"\n📖 Loaded roadmap: {self.roadmap['metadata']['version']}")
+        print(f"   Current Gen: {self.roadmap['metadata']['current_generation']}")
+        print(f"   Progress: {self.roadmap['metadata']['overall_progress']}%")
+        
+        # Build component index
+        for phase in self.roadmap['phases']:
+            for task in phase['tasks']:
+                self.components[task['id']] = {
+                    'name': task['name'],
+                    'phase': phase['id'],
+                    'priority': task['priority'],
+                    'depends_on': task.get('depends_on', []),
+                    'status': task['status'],
+                    'eta': task.get('eta', 'unknown'),
+                    'details': task.get('details', {}),
+                    'code_template': task.get('code_template')
+                }
+        
+        print(f"   Total components: {len(self.components)}")
+        return True
+    
+    def analyze_dependencies(self):
+        """Determine what can be built now"""
+        ready = []
+        blocked = []
+        
+        for comp_id, comp in self.components.items():
+            if comp_id in self.completed:
+                continue
+                
+            if comp_id in self.in_progress:
+                continue
+                
+            # Check dependencies
+            deps_met = True
+            missing_deps = []
+            for dep in comp['depends_on']:
+                if dep not in self.completed:
+                    deps_met = False
+                    missing_deps.append(dep)
+            
+            if deps_met:
+                ready.append(comp_id)
+            else:
+                blocked.append({
+                    'component': comp_id,
+                    'name': comp['name'],
+                    'missing': missing_deps
+                })
+        
+        return ready, blocked
+    
+    def get_next_component(self):
+        """Get the highest priority component ready to build"""
+        ready, blocked = self.analyze_dependencies()
+        
+        if not ready:
+            return None
+        
+        # Sort by priority (critical first, then phase order)
+        def priority_score(comp_id):
+            comp = self.components[comp_id]
+            priority_map = {'critical': 3, 'high': 2, 'medium': 1, 'low': 0}
+            return (
+                priority_map.get(comp['priority'], 0),
+                -comp['phase']  # Earlier phases first
+            )
+        
+        ready.sort(key=priority_score, reverse=True)
+        return ready[0]
+    
+    def build_component(self, comp_id):
+        """Build a specific component"""
+        comp = self.components[comp_id]
+        
+        print(f"\n🔧 Building: {comp['name']} (Phase {comp['phase']})")
+        print(f"   Priority: {comp['priority']}")
+        print(f"   ETA: {comp['eta']}")
+        
+        # Mark as in progress
+        self.in_progress.append(comp_id)
+        self.save_state()
+        
+        # Determine component type and build accordingly
+        success = False
+        
+        if 'code_template' in comp and comp['code_template']:
+            # Has a code template - generate the file
+            success = self.generate_code_file(comp)
+            
+        elif 'Design' in comp['name'] or 'Research' in comp['name']:
+            # Design/research task - create design document
+            success = self.create_design_doc(comp)
+            
+        elif 'Fix' in comp['name']:
+            # Fix task - attempt to fix the issue
+            success = self.attempt_fix(comp)
+       

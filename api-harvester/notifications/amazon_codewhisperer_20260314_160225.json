@@ -1,0 +1,11 @@
+{
+  "service": "amazon_codewhisperer",
+  "api_key": "9f6ba10fd3034af2b831...265b6029de",
+  "full_key": "9f6ba10fd3034af2b83184265b6029de",
+  "source": "github",
+  "url": "https://api.github.com/repositories/810008912/contents/public/data/2023/04/14.json?ref=48e53684314295cc903bf8bf6a605aec124ad8ef",
+  "discovered_at": "2026-03-14T16:02:25.064382",
+  "integrator": "code_generation_integrator",
+  "integration_code": "# amazon_codewhisperer = 9f6ba10fd3034af2b83184265b6029de\n# Add your code generation integration code here",
+  "message": "\ud83d\udd11 New AMAZON_CODEWHISPERER API key discovered!"
+}

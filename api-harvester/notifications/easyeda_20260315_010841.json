@@ -1,0 +1,11 @@
+{
+  "service": "easyeda",
+  "api_key": "0819f05c4eef4c71ace9...822a990e87",
+  "full_key": "0819f05c4eef4c71ace90d822a990e87",
+  "source": "github",
+  "url": "https://api.github.com/repositories/324582828/contents/howto.md?ref=8c3a6deafc0bf1f701d1d45295d297e79c62c22f",
+  "discovered_at": "2026-03-15T01:08:41.580423",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New EASYEDA API key discovered!"
+}

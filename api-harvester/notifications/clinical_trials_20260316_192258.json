@@ -1,0 +1,11 @@
+{
+  "service": "clinical_trials",
+  "api_key": "67NVt1J4W7a0bLNPyrBZ...v1plT2mIOi",
+  "full_key": "67NVt1J4W7a0bLNPyrBZTBiUrOnA19v1plT2mIOi",
+  "source": "github",
+  "url": "https://api.github.com/repositories/854811910/contents/api/app.py?ref=8de138986e175d331528679ff212526fb5315632",
+  "discovered_at": "2026-03-16T19:22:58.744797",
+  "integrator": "medical_integrator",
+  "integration_code": "# clinical_trials = 67NVt1J4W7a0bLNPyrBZTBiUrOnA19v1plT2mIOi\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New CLINICAL_TRIALS API key discovered!"
+}

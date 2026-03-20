@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-03-15T08:15:36.594358",
+  "domain": "quant_trading",
+  "category": "algorithms",
+  "url": "https://ta-lib.org",
+  "title": "TA-Lib - Technical Analysis Library",
+  "content_preview": "\n\n\n\n\n\n\n\n\n\n\nTA-Lib - Technical Analysis Library\n\n\n\n\n\n\n\n\n\n\n\n\n          Skip to content\n        \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n            TA-Lib - Technical Analysis Library\n          \n\n\n\n            \n              Home\n            \n          \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n            Initializing search\n          \n\n\n\n\n\n\n\n\n\n\n\n\n    Github (Core C Library)\n  \n\n\n\n\n\n\n\n\n\n\n        \n  \n  \n    \n  \n  Home\n\n      \n\n\n\n        \n  \n  \n    \n  \n  Install\n\n      \n\n\n\n          \n  \n  \n    \n  \n  Docs\n\n        \n\n\n\n        \n  \n  \n    \n  \n  About Us\n\n      \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    TA-Lib - Technical Analysis Library\n  \n\n\n\n\n\n\n    Github (Core C Library)\n  \n\n\n\n\n\n\n\n    Home\n    \n  \n\n\n\n\n\n    Install\n    \n  \n\n\n\n\n\n\n    Docs\n    \n  \n\n\n\n\n\n            Docs\n          \n\n\n\n\n    Functions List\n    \n  \n\n\n\n\n\n    C/C++ API\n    \n  \n\n\n\n\n\n    Wrappers\n    \n  \n\n\n\n\n\n    FAQ\n    \n  \n\n\n\n\n\n\n\n\n    About Us\n    \n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUse TA-Lib to add technical analysis to your own financial market trading applications\n\n\n200 indicators such as ADX, MACD, RSI, Stochastic, Bollinger Bands etc...  See complete list...\n\n\nCandlestick patterns recognition\n\n\nCore written in C/C++ with API also available for Python, R, Ruby, and Zig.\n\n\nOpen-Source (BSD License). Can be freely integrated in your own open-source or commercial applications.\n\n\nTA-Lib was released in 2001 and its well-known algorithms are still widely used over 20 years later. The code is stable and have passed the test of time. \n\n\n\n\n\n\n  Back to top\n\n\n\n\n\n\n\n                Next\n              \n\n                Install\n              \n\n\n\n\n\n\n\n\n\n  \n  \n    Made with\n    \n      Material for MkDocs\n    \n\n\n\n\n\n\n\n\n\n\n\n",
+  "links": [
+    "#_1",
+    ".",
+    "javascript:void(0)",
+    "https://github.com/TA-Lib/ta-lib",
+    ".",
+    "install/",
+    "functions/",
+    "about/",
+    ".",
+    "https://github.com/TA-Lib/ta-lib",
+    ".",
+    "install/",
+    "functions/",
+    "api/",
+    "wrappers/",
+    "faq/",
+    "about/",
+    "functions/",
+    "api/",
+    "wrappers/"
+  ],
+  "content_hash": "7c47423daf10e9e2238e6594f58cb8ae"
+}

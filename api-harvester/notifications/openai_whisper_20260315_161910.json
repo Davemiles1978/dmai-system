@@ -1,0 +1,11 @@
+{
+  "service": "openai_whisper",
+  "api_key": "zyORE5fZONBV3y0j5pji...2xoNCsQN4i",
+  "full_key": "zyORE5fZONBV3y0j5pji9D2xoNCsQN4i",
+  "source": "github",
+  "url": "https://api.github.com/repositories/909530496/contents/env.example?ref=2e18e421215dfb5943226824da3462a37febc665",
+  "discovered_at": "2026-03-15T16:19:10.902846",
+  "integrator": "video_audio_integrator",
+  "integration_code": "# openai_whisper = zyORE5fZONBV3y0j5pji9D2xoNCsQN4i\n# Add your video/audio integration code here",
+  "message": "\ud83d\udd11 New OPENAI_WHISPER API key discovered!"
+}

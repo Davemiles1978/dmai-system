@@ -1,0 +1,11 @@
+{
+  "service": "virustotal",
+  "api_key": "6a0133f264aa62970b02...9c6ba4200d",
+  "full_key": "6a0133f264aa62970b0240a49c6ba4200d",
+  "source": "github",
+  "url": "https://api.github.com/repositories/201067612/contents/README.md?ref=8a402edebc9d45b53916ec05454c92a15d5df0ec",
+  "discovered_at": "2026-03-16T12:01:04.533499",
+  "integrator": "osint_integrator",
+  "integration_code": "# virustotal = 6a0133f264aa62970b0240a49c6ba4200d\n# Add your OSINT integration code here",
+  "message": "\ud83d\udd11 New VIRUSTOTAL API key discovered!"
+}

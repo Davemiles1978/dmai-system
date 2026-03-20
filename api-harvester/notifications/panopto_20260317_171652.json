@@ -1,0 +1,11 @@
+{
+  "service": "panopto",
+  "api_key": "77326256614610cd8b8b...a511322d37",
+  "full_key": "77326256614610cd8b8b09a511322d37",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1087674022/contents/NOTES/R2_API_DOCUMENTATION.md?ref=6dd28688e1b009509f3d5d88079aec36aa1ef6b5",
+  "discovered_at": "2026-03-17T17:16:52.915098",
+  "integrator": "coaching_integrator",
+  "integration_code": "# panopto = 77326256614610cd8b8b09a511322d37\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New PANOPTO API key discovered!"
+}

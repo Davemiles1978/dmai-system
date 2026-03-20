@@ -1,0 +1,11 @@
+{
+  "service": "mirror_api",
+  "api_key": "qP2wxbYvfjbImdsk24ZP...BgBqvpHl9s",
+  "full_key": "qP2wxbYvfjbImdsk24ZPZkeERCUD4hIvBgBqvpHl9s",
+  "source": "github",
+  "url": "https://api.github.com/repositories/365453428/contents/data/readme_files/Scarygami.mirror-api.md?ref=115e48c37e659b144b2c3b89695483fd1d6dc788",
+  "discovered_at": "2026-03-16T08:50:51.185900",
+  "integrator": "sports_integrator",
+  "integration_code": "# mirror_api = qP2wxbYvfjbImdsk24ZPZkeERCUD4hIvBgBqvpHl9s\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New MIRROR_API API key discovered!"
+}

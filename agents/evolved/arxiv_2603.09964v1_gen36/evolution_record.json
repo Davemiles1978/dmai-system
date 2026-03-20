@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-03-11T07:45:53.318630",
+  "parent1": "arxiv_2603.09964v1",
+  "parent2": "grok_base_gen26",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "language",
+      "description": "Transfer language from \u26a1 grok_base_gen26 to \ud83d\udcc4 Understanding the Use of a Large Language Model-Po...",
+      "quality": 0.9
+    },
+    {
+      "type": "fresh_integration",
+      "description": "Incorporate novel approach from external system",
+      "quality": 0.7869263082870495
+    },
+    {
+      "type": "research_integration",
+      "description": "Incorporate novel research findings",
+      "quality": 0.901616745511209
+    }
+  ],
+  "new_generation": 36,
+  "capabilities": [
+    "language",
+    "language_model"
+  ]
+}

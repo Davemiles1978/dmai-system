@@ -1,0 +1,11 @@
+{
+  "service": "travel_vaccinations",
+  "api_key": "b601424d2b1ea6dcd679...cefc718ba3",
+  "full_key": "b601424d2b1ea6dcd679c9195b603ecefc718ba3",
+  "source": "github",
+  "url": "https://api.github.com/repositories/969788086/contents/thoughts/shared/research/2025-11-07-professional-pages-system-next-steps.md?ref=a35279e59640ef757360c511510ece36bb40066f",
+  "discovered_at": "2026-03-16T21:05:55.666834",
+  "integrator": "medical_integrator",
+  "integration_code": "# travel_vaccinations = b601424d2b1ea6dcd679c9195b603ecefc718ba3\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New TRAVEL_VACCINATIONS API key discovered!"
+}

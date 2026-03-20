@@ -1,0 +1,67 @@
+{
+  "generation": 5,
+  "active_capabilities": [],
+  "current_goals": [
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:48:11.982057",
+      "id": "bb81af01"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:49:28.763228",
+      "id": "c1beb02f"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T15:59:47.029106",
+      "id": "e8dec75b"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:02:04.909712",
+      "id": "79ab7b3b"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:05:43.875634",
+      "id": "086daf94"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:08:11.497180",
+      "id": "dfdfe93c"
+    },
+    {
+      "description": "Test goal for evolution",
+      "priority": 5,
+      "requires_evolution": true,
+      "test": true,
+      "submitted": "2026-02-27T16:13:55.793304",
+      "id": "a14e55df"
+    }
+  ],
+  "performance_metrics": {},
+  "learning_rate": 0.1,
+  "exploration_rate": 0.297,
+  "last_evolution": "2026-02-27 16:13:55.794232",
+  "health_status": "initializing"
+}

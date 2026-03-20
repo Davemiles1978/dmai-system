@@ -1,0 +1,11 @@
+{
+  "service": "bci2000",
+  "api_key": "ServerCertificateVal...onCallback",
+  "full_key": "ServerCertificateValidationCallback",
+  "source": "github",
+  "url": "https://api.github.com/repositories/113076775/contents/Assets/Scripts/IoT/Roku.cs?ref=bab67d6d08eb8724ed03628ce18cf17c7bd17059",
+  "discovered_at": "2026-03-15T15:14:05.705916",
+  "integrator": "neuroscience_integrator",
+  "integration_code": "# bci2000 = ServerCertificateValidationCallback\n# BCI integration requires hardware",
+  "message": "\ud83d\udd11 New BCI2000 API key discovered!"
+}

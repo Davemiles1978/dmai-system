@@ -1,0 +1,11 @@
+{
+  "service": "edamam_recipes",
+  "api_key": "b79327d05b8e5b838ad6...d9576b30b6",
+  "full_key": "b79327d05b8e5b838ad6cfd9576b30b6",
+  "source": "github",
+  "url": "https://api.github.com/repositories/503706201/contents/spec/support/edamam_recipes_stub.rb?ref=fc67e842d4e135852963e173b80678f18ba91635",
+  "discovered_at": "2026-03-15T10:48:41.809888",
+  "integrator": "cooking_integrator",
+  "integration_code": "# Edamam Recipe API\nimport requests\n\nEDAMAM_APP_ID = \"b79327d05b8e5b838ad6cfd9576b30b6\"\nEDAMAM_APP_KEY = \"your_app_key\"\nBASE_URL = \"https://api.edamam.com/api/recipes/v2\"\n\ndef search_edamam_recipes(query, diet=None, health=None, cuisine_type=None):\n    \"\"\"Search recipes with Edamam\"\"\"\n    params = {\n        \"type\": \"public\",\n        \"q\": query,\n        \"app_id\": EDAMAM_APP_ID,\n        \"app_key\": EDAMAM_APP_KEY,\n        \"random\": True\n    }\n    \n    if diet:\n        params[\"diet\"] = diet\n    if health:\n        params[\"health\"] = health\n    if cuisine_type:\n        params[\"cuisineType\"] = cuisine_type\n    \n    response = requests.get(BASE_URL, params=params)\n    return response.json()\n\ndef get_recipe_by_uri(recipe_uri):\n    \"\"\"Get recipe by URI\"\"\"\n    response = requests.get(\n        BASE_URL,\n        params={\n            \"type\": \"public\",\n            \"app_id\": EDAMAM_APP_ID,\n            \"app_key\": EDAMAM_APP_KEY,\n            \"r\": recipe_uri\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New EDAMAM_RECIPES API key discovered!"
+}

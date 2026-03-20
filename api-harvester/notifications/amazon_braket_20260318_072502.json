@@ -1,0 +1,11 @@
+{
+  "service": "amazon_braket",
+  "api_key": "AWSAccountManagement...OnlyAccess",
+  "full_key": "AWSAccountManagementReadOnlyAccess",
+  "source": "github",
+  "url": "https://api.github.com/repositories/97484940/contents/sdk/python/pulumi_aws/iam/_enums.py?ref=9ddf4de2c58e0c26c99d98d1b86726a7fea51649",
+  "discovered_at": "2026-03-18T07:25:02.331174",
+  "integrator": "quantum_integrator",
+  "integration_code": "\n# Amazon Braket Integration\nfrom braket.aws import AwsSession\nfrom braket.devices import Devices\n\naws_session = AwsSession()\ndevice = Devices.Amazon.SV1  # Simulator\n\n# Your code here\n",
+  "message": "\ud83d\udd11 New AMAZON_BRAKET API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "big_blue_button",
+  "api_key": "UserAttributeSimilar...yValidator",
+  "full_key": "UserAttributeSimilarityValidator",
+  "source": "github",
+  "url": "https://api.github.com/repositories/366397716/contents/lms/envs/mock.yml?ref=efbc23a4d5af7dc5ff03f80ae97f01bbcb360a58",
+  "discovered_at": "2026-03-17T20:35:05.229038",
+  "integrator": "coaching_integrator",
+  "integration_code": "# big_blue_button = UserAttributeSimilarityValidator\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New BIG_BLUE_BUTTON API key discovered!"
+}

@@ -1,0 +1,147 @@
+# File: /Users/davidmiles/Desktop/dmai-system/components/phase0/P0T1_Fix_Knowledge_Graph_health_warnings.py
+# Time: 2026-03-18T09:59:07.427823
+################################################################################
+#!/usr/bin/env python3
+"""
+P0T1_Fix_Knowledge_Graph_health_warnings.py
+Knowledge Graph Health Monitor - Scans for warnings and auto-repairs issues
+Full-featured component for DMAI evolution system
+"""
+
+import os
+import sys
+import json
+import time
+import logging
+import traceback
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('knowledge_graph_health.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('KnowledgeGraphHealth')
+
+class KnowledgeGraphFixer:
+    """
+    Knowledge Graph Health Monitor - Scans for warnings and auto-repairs issues
+    Full-featured component with graph analysis and repair capabilities
+    """
+    
+    def __init__(self):
+        self.name = "Knowledge Graph Health Fixer"
+        self.component_id = "P0T1"
+        self.version = "1.0.0"
+        self.health_status = {
+            'healthy': False,
+            'warnings': [],
+            'errors': [],
+            'fixes_applied': [],
+            'last_check': None,
+            'node_count': 0,
+            'edge_count': 0,
+            'orphan_nodes': 0,
+            'broken_edges': 0,
+            'missing_metadata': []
+        }
+        self.fix_history = []
+        self.running = False
+        self.graph = None
+        self.graph_available = False
+        
+    def run(self, continuous=False, interval=300):
+        """
+        Main execution method - called by evolution engine
+        """
+        logger.info(f"🚀 Starting Knowledge Graph Health Fixer v{self.version}")
+        self.running = True
+        
+        try:
+            # Initialize graph connection
+            self._init_knowledge_graph()
+            
+            if continuous:
+                logger.info(f"Continuous mode: checking every {interval} seconds")
+                while self.running:
+                    self.check_and_fix()
+                    time.sleep(interval)
+            else:
+                # Single run
+                result = self.check_and_fix()
+                
+            logger.info("✅ Knowledge Graph Health Fixer completed")
+            return self.get_status()
+            
+        except Exception as e:
+            logger.error(f"❌ Error in health fixer: {e}")
+            logger.error(traceback.format_exc())
+            self.health_status['errors'].append(str(e))
+            return self.health_status
+    
+    def _init_knowledge_graph(self):
+        """Initialize connection to knowledge graph"""
+        try:
+            # Try multiple methods to connect to knowledge graph
+            import sys
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            
+            # Try to import knowledge graph module
+            try:
+                from knowledge_graph import KnowledgeGraph
+                self.graph = KnowledgeGraph()
+                self.graph_available = True
+                logger.info("✅ Connected to Knowledge Graph")
+                return
+            except ImportError:
+                logger.warning("⚠️ KnowledgeGraph module not available")
+            
+            # Try to import from core
+            try:
+                from dmai_core_clean import knowledge_graph
+                self.graph = knowledge_graph
+                self.graph_available = True
+                logger.info("✅ Connected to core knowledge graph")
+                return
+            except (ImportError, AttributeError):
+                logger.warning("⚠️ Core knowledge graph not available")
+            
+            # Create simple in-memory graph as fallback
+            try:
+                import networkx as nx
+                self.graph = nx.DiGraph()
+                self.graph_available = True
+                
+                # Add some test data
+                self.graph.add_node("root", type="system", created_at=datetime.now().isoformat())
+                self.graph.add_node("knowledge_base", type="collection")
+                self.graph.add_edge("root", "knowledge_base", type="contains")
+                
+                logger.info("⚠️ Using fallback NetworkX graph with test data")
+                return
+            except ImportError:
+                logger.error("❌ No graph library available")
+                self.graph_available = False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize knowledge graph: {e}")
+            self.graph_available = False
+    
+    def check_and_fix(self):
+        """
+        Perform health check and apply fixes
+        """
+        logger.info("🔍 Scanning knowledge graph for health warnings...")
+        
+        try:
+            # Reset warnings for this check
+            self.health_status['warnings'] = []
+            self.health_status['errors'] = []
+            
+            # Run health checks
+            self._check_graph

@@ -1,0 +1,11 @@
+{
+  "service": "khan_academy",
+  "api_key": "b371671fd071f80a4477...3d4fc687d7",
+  "full_key": "b371671fd071f80a4477f8f3b2812b3d4fc687d7",
+  "source": "github",
+  "url": "https://api.github.com/repositories/956155742/contents/lyo-backend/app/api/endpoints/external_content.py?ref=f8f5bcdc146c70489720af5466ad2742e01dc3f4",
+  "discovered_at": "2026-03-17T21:22:36.958060",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Khan Academy Content Integration\nimport requests\n\nKHAN_API_KEY = \"b371671fd071f80a4477f8f3b2812b3d4fc687d7\"\nBASE_URL = \"https://api.khanacademy.org/api/v1\"\n\ndef get_khan_content(topic):\n    \"\"\"Get educational content from Khan Academy\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/search/topics\",\n        params={\n            \"query\": topic,\n            \"api_key\": KHAN_API_KEY\n        }\n    )\n    return response.json()\n\ndef get_exercises(topic_id):\n    \"\"\"Get exercises for a topic\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/topic/{topic_id}/exercises\",\n        params={\"api_key\": KHAN_API_KEY}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New KHAN_ACADEMY API key discovered!"
+}

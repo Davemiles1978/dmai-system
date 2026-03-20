@@ -1,0 +1,11 @@
+{
+  "service": "turnitin",
+  "api_key": "jkhXe9xwCH8UamKsrNnx...GatwBdAKqe",
+  "full_key": "jkhXe9xwCH8UamKsrNnxZCqCki6JX6HzPkJQINGatwBdAKqe",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1069730038/contents/API_KEY_SETUP.md?ref=07a5e7834338035cbdcd117346af5c7252a87cc1",
+  "discovered_at": "2026-03-17T22:30:02.261013",
+  "integrator": "coaching_integrator",
+  "integration_code": "# turnitin = jkhXe9xwCH8UamKsrNnxZCqCki6JX6HzPkJQINGatwBdAKqe\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New TURNITIN API key discovered!"
+}

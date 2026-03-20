@@ -1,0 +1,11 @@
+{
+  "service": "canvas_lms",
+  "api_key": "4bb5b288bb301d3d4a69...67ad49daa8",
+  "full_key": "4bb5b288bb301d3d4a691ebff686fc67ad49daa8",
+  "source": "github",
+  "url": "https://api.github.com/repositories/30076672/contents/assets/dbinit.sh?ref=c5324d2f745334d57f996ffe371e5c1a48bec640",
+  "discovered_at": "2026-03-17T16:23:14.320296",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Canvas LMS Integration\nimport requests\n\nCANVAS_API_KEY = \"4bb5b288bb301d3d4a691ebff686fc67ad49daa8\"\nCANVAS_URL = \"https://your-institution.instructure.com\"\n\ndef get_canvas_courses():\n    \"\"\"Get all courses\"\"\"\n    response = requests.get(\n        f\"{CANVAS_URL}/api/v1/courses\",\n        headers={\"Authorization\": f\"Bearer {CANVAS_API_KEY}\"}\n    )\n    return response.json()\n\ndef create_assignment(course_id, name, points_possible):\n    \"\"\"Create assignment in course\"\"\"\n    response = requests.post(\n        f\"{CANVAS_URL}/api/v1/courses/{course_id}/assignments\",\n        headers={\"Authorization\": f\"Bearer {CANVAS_API_KEY}\"},\n        json={\n            \"assignment\": {\n                \"name\": name,\n                \"points_possible\": points_possible,\n                \"submission_types\": [\"online_text_entry\"]\n            }\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New CANVAS_LMS API key discovered!"
+}

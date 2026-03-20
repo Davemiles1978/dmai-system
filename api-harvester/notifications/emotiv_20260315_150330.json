@@ -1,0 +1,11 @@
+{
+  "service": "emotiv",
+  "api_key": "d7305f38d29fed78fa85...54dd8e8829",
+  "full_key": "d7305f38d29fed78fa85652e3a63e154dd8e8829",
+  "source": "github",
+  "url": "https://api.github.com/repositories/140781001/contents/_READMES/vuejs.awesome-vue.md?ref=18ca0c71e7718a0e2e9b7269b018f77b06f423b4",
+  "discovered_at": "2026-03-15T15:03:30.260064",
+  "integrator": "neuroscience_integrator",
+  "integration_code": "# emotiv = d7305f38d29fed78fa85652e3a63e154dd8e8829\n# BCI integration requires hardware",
+  "message": "\ud83d\udd11 New EMOTIV API key discovered!"
+}

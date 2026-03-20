@@ -1,0 +1,11 @@
+{
+  "service": "crunchbase",
+  "api_key": "0fbfb71bae06e48163f2...592417079a",
+  "full_key": "0fbfb71bae06e48163f276592417079a",
+  "source": "github",
+  "url": "https://api.github.com/repositories/59441906/contents/News.md?ref=c68e84b468750ecd1ec144b1a03ab943e8561c4e",
+  "discovered_at": "2026-03-16T06:50:49.896094",
+  "integrator": "business_integrator",
+  "integration_code": "# crunchbase = 0fbfb71bae06e48163f276592417079a\n# Add your business integration code here",
+  "message": "\ud83d\udd11 New CRUNCHBASE API key discovered!"
+}

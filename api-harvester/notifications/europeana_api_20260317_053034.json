@@ -1,0 +1,11 @@
+{
+  "service": "europeana_api",
+  "api_key": "vudKODYExVF3mz8CnWx7...ETLxQZZ6iG",
+  "full_key": "vudKODYExVF3mz8CnWx7oAETLxQZZ6iG",
+  "source": "github",
+  "url": "https://api.github.com/repositories/666796800/contents/app/Http/Controllers/NewPostController.php?ref=5cf5c94f4a3dc8adca76d6d2ef25ff13705ff91c",
+  "discovered_at": "2026-03-17T05:30:34.656619",
+  "integrator": "history_integrator",
+  "integration_code": "# europeana_api = vudKODYExVF3mz8CnWx7oAETLxQZZ6iG\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New EUROPEANA_API API key discovered!"
+}

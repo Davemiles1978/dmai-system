@@ -1,0 +1,11 @@
+{
+  "service": "huggingface",
+  "api_key": "ipJYUtdZXL6iVJY967kL...hbGUIOdZo0",
+  "full_key": "ipJYUtdZXL6iVJY967kLT3BlbkFJDdmoOAwUTVhbGUIOdZo0",
+  "source": "github",
+  "url": "https://api.github.com/repositories/691699726/contents/api.txt?ref=199bf5ea73bb8d68c9f4529999882e7f7206ac70",
+  "discovered_at": "2026-03-16T05:45:54.838883",
+  "integrator": "ai_ml_integrator",
+  "integration_code": "\n# HuggingFace Integration\nfrom huggingface_hub import HfApi\napi = HfApi(token=\"ipJYUtdZXL6iVJY967kLT3BlbkFJDdmoOAwUTVhbGUIOdZo0\")\n\n# Search models\nmodels = api.list_models(search=\"text-generation\", limit=5)\nfor model in models:\n    print(model.modelId)\n\n# Use a model\nfrom transformers import pipeline\npipe = pipeline(\"text-generation\", model=\"gpt2\", use_auth_token=\"ipJYUtdZXL6iVJY967kLT3BlbkFJDdmoOAwUTVhbGUIOdZo0\")\nresult = pipe(\"DMAI is learning to\")\nprint(result)\n",
+  "message": "\ud83d\udd11 New HUGGINGFACE API key discovered!"
+}

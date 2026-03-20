@@ -1,0 +1,11 @@
+{
+  "service": "discourse",
+  "api_key": "04ab0102bcae6c7c3a90...9501749274",
+  "full_key": "04ab0102bcae6c7c3a90b01a3879d9518081bc06123038488db9cb109b082a77d97ea3373e3dfde0eccd9adbdce11d0302ea5c098dbb0b310234c8689501749274",
+  "source": "github",
+  "url": "https://api.github.com/repositories/316084470/contents/API.md?ref=afcc53882e177a887b76ab4b9897bbb8a6381cbe",
+  "discovered_at": "2026-03-17T19:49:06.762385",
+  "integrator": "coaching_integrator",
+  "integration_code": "# discourse = 04ab0102bcae6c7c3a90b01a3879d9518081bc06123038488db9cb109b082a77d97ea3373e3dfde0eccd9adbdce11d0302ea5c098dbb0b310234c8689501749274\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New DISCOURSE API key discovered!"
+}

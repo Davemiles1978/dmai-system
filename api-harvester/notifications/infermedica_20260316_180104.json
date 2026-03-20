@@ -1,0 +1,11 @@
+{
+  "service": "infermedica",
+  "api_key": "e9ba22397f798c58459d...03aed6284a",
+  "full_key": "e9ba22397f798c58459d4003aed6284a",
+  "source": "github",
+  "url": "https://api.github.com/repositories/971159664/contents/SP/infermedica-api.js?ref=f3f30aa01ee8c5389886c7b346f168ce5c5b4839",
+  "discovered_at": "2026-03-16T18:01:04.022230",
+  "integrator": "medical_integrator",
+  "integration_code": "# infermedica = e9ba22397f798c58459d4003aed6284a\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New INFERMEDICA API key discovered!"
+}

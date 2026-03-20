@@ -1,0 +1,11 @@
+{
+  "service": "chronicling_america",
+  "api_key": "861bbe6e0fb9992fe1c4...1bccd980bc",
+  "full_key": "861bbe6e0fb9992fe1c4fedf43e3f61bccd980bc",
+  "source": "github",
+  "url": "https://api.github.com/repositories/79838418/contents/_build/html/_sources/loc.gov%20JSON%20API/Chronicling_America/README.md?ref=bfc72f6c9d7629b25a49979ee1e165d02813f4cd",
+  "discovered_at": "2026-03-17T07:00:56.273086",
+  "integrator": "history_integrator",
+  "integration_code": "# chronicling_america = 861bbe6e0fb9992fe1c4fedf43e3f61bccd980bc\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New CHRONICLING_AMERICA API key discovered!"
+}

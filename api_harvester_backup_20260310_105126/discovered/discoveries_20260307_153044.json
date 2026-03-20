@@ -1,0 +1,88 @@
+{
+  "timestamp": "20260307_153044",
+  "total_discoveries": 10,
+  "discoveries": [
+    {
+      "source": "api_directory",
+      "url": "https://raw.githubusercontent.com/public-apis/public-apis/master/README.md",
+      "data_preview": "# Try Public APIs for free\nThe Public APIs repository is manually curated by community members like you and folks working at [APILayer](https://apilayer.com/?utm_source=Github&utm_medium=Referral&utm_",
+      "discovered_at": "2026-03-07T15:30:27.811347"
+    },
+    {
+      "source": "api_directory",
+      "url": "https://raw.githubusercontent.com/marmelab/awesome-rest/master/README.md",
+      "data_preview": "# Awesome REST [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)\n\nA collaborative list of grea",
+      "discovered_at": "2026-03-07T15:30:31.447171"
+    },
+    {
+      "source": "documentation",
+      "site": "https://docs.perplexity.ai",
+      "title": "Overview - Perplexity",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:32.823249"
+    },
+    {
+      "source": "documentation",
+      "site": "https://docs.together.ai",
+      "title": "Overview - Together AI Docs",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:34.439633"
+    },
+    {
+      "source": "documentation",
+      "site": "https://replicate.com/docs",
+      "title": "Documentation \u2013 Replicate",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:36.557066"
+    },
+    {
+      "source": "documentation",
+      "site": "https://docs.cohere.com",
+      "title": "Cohere Documentation | Cohere",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:37.484259"
+    },
+    {
+      "source": "documentation",
+      "site": "https://ai.google.dev/docs",
+      "title": "Gemini API \u00a0|\u00a0 Google AI for Developers",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:39.599366"
+    },
+    {
+      "source": "documentation",
+      "site": "https://docs.anthropic.com",
+      "title": "Documentation - Claude API Docs",
+      "endpoints_found": 6,
+      "sample_endpoints": [
+        "/docs/en/api/overview",
+        "/docs/en/api/messages/create",
+        "/docs/en/api/client-sdks",
+        "/docs/en/api/client-sdks",
+        "/docs/en/api/messages/create"
+      ],
+      "discovered_at": "2026-03-07T15:30:42.046068"
+    },
+    {
+      "source": "documentation",
+      "site": "https://docs.mistral.ai",
+      "title": "Documentation - Mistral AI",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:42.892979"
+    },
+    {
+      "source": "documentation",
+      "site": "https://docs.groq.com",
+      "title": "Overview - GroqDocs",
+      "endpoints_found": 0,
+      "sample_endpoints": [],
+      "discovered_at": "2026-03-07T15:30:44.880335"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "service": "gumroad",
+  "api_key": "PLxsE19GnjC5Nv1CbeKO...qGqw35aZFJ",
+  "full_key": "PLxsE19GnjC5Nv1CbeKOiS5YqGqw35aZFJ",
+  "source": "github",
+  "url": "https://api.github.com/repositories/359435067/contents/index.Rmd?ref=a35f21d54e72850be2c5415a209f9794e3bca07e",
+  "discovered_at": "2026-03-17T20:54:46.622072",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Gumroad Integration for Selling Courses\nimport requests\n\nGUMROAD_ACCESS_TOKEN = \"PLxsE19GnjC5Nv1CbeKOiS5YqGqw35aZFJ\"\n\ndef create_course_product(name, price, description):\n    \"\"\"Create a course product on Gumroad\"\"\"\n    response = requests.post(\n        \"https://api.gumroad.com/v2/products\",\n        data={\n            \"access_token\": GUMROAD_ACCESS_TOKEN,\n            \"name\": name,\n            \"price\": price,\n            \"description\": description,\n            \"custom_permalink\": name.lower().replace(\" \", \"-\")\n        }\n    )\n    return response.json()\n\ndef get_sales():\n    \"\"\"Get course sales data\"\"\"\n    response = requests.get(\n        \"https://api.gumroad.com/v2/sales\",\n        params={\"access_token\": GUMROAD_ACCESS_TOKEN}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New GUMROAD API key discovered!"
+}

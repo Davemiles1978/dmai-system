@@ -1,0 +1,165 @@
+# File: /Users/davidmiles/Desktop/dmai-system/components/phase0/P0T1_Fix_Knowledge_Graph_health_warnings.py
+# Time: 2026-03-18T17:01:05.485750
+################################################################################
+#!/usr/bin/env python3
+"""
+P0T1_Fix_Knowledge_Graph_health_warnings.py
+Knowledge Graph Health Monitor - Scans for warnings and auto-repairs issues
+Full-featured component for DMAI evolution system
+"""
+
+import os
+import sys
+import json
+import time
+import logging
+import traceback
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('knowledge_graph_health.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('KnowledgeGraphHealth')
+
+class KnowledgeGraphFixer:
+    """
+    Knowledge Graph Health Monitor - Scans for warnings and auto-repairs issues
+    Full-featured component with graph analysis and repair capabilities
+    """
+    
+    def __init__(self):
+        self.name = "Knowledge Graph Health Fixer"
+        self.component_id = "P0T1"
+        self.version = "1.0.0"
+        self.health_status = {
+            'healthy': False,
+            'warnings': [],
+            'errors': [],
+            'fixes_applied': [],
+            'last_check': None,
+            'node_count': 0,
+            'edge_count': 0,
+            'orphan_nodes': 0,
+            'broken_edges': 0,
+            'missing_metadata': []
+        }
+        self.fix_history = []
+        self.running = False
+        self.graph = None
+        self.graph_available = False
+        
+    def run(self, continuous=False, interval=300):
+        """
+        Main execution method - called by evolution engine
+        
+        Args:
+            continuous: Whether to run continuously
+            interval: Check interval in seconds
+        """
+        logger.info(f"🚀 Starting Knowledge Graph Health Fixer v{self.version}")
+        self.running = True
+        
+        try:
+            # Initialize graph connection
+            self._init_knowledge_graph()
+            
+            if continuous:
+                logger.info(f"Continuous mode: checking every {interval} seconds")
+                while self.running:
+                    self.check_and_fix()
+                    time.sleep(interval)
+            else:
+                # Single run
+                result = self.check_and_fix()
+                
+            logger.info("✅ Knowledge Graph Health Fixer completed")
+            return self.get_status()
+            
+        except Exception as e:
+            logger.error(f"❌ Error in health fixer: {e}")
+            logger.error(traceback.format_exc())
+            self.health_status['errors'].append(str(e))
+            return self.health_status
+    
+    def evolve(self):
+        """
+        Evolution method - called when component needs to evolve
+        """
+        logger.info(f"🧬 Evolving {self.name}")
+        self.version = f"1.0.{len(self.fix_history) + 1}"
+        return {
+            'component': self.component_id,
+            'evolution': 'completed',
+            'new_version': self.version,
+            'fixes_applied': len(self.fix_history)
+        }
+    
+    def execute(self, command=None, **kwargs):
+        """
+        Execute method - runs specific commands
+        """
+        logger.info(f"⚙️ Executing command: {command}")
+        
+        if command == 'fix':
+            return self.check_and_fix()
+        elif command == 'reset':
+            self.health_status = {
+                'healthy': False,
+                'warnings': [],
+                'errors': [],
+                'fixes_applied': [],
+                'last_check': None,
+                'node_count': 0,
+                'edge_count': 0,
+                'orphan_nodes': 0,
+                'broken_edges': 0,
+                'missing_metadata': []
+            }
+            return {'status': 'reset', 'component': self.component_id}
+        else:
+            return self.get_status()
+    
+    def process(self, data=None):
+        """
+        Process method - handles data processing
+        """
+        logger.info(f"🔄 Processing data for {self.name}")
+        
+        if data and isinstance(data, dict):
+            # Process input data
+            if 'graph_data' in data:
+                self._process_graph_data(data['graph_data'])
+            if 'health_check' in data:
+                return self.check_and_fix()
+        
+        return {
+            'component': self.component_id,
+            'processed': True,
+            'status': self.health_status
+        }
+    
+    def generate(self):
+        """
+        Generate method - produces output/report
+        """
+        logger.info(f"📊 Generating report for {self.name}")
+        
+        return {
+            'component': self.component_id,
+            'name': self.name,
+            'version': self.version,
+            'health_status': self.health_status,
+            'fix_history': self.fix_history[-5:],  # Last 5 fixes
+            'timestamp': datetime.now().isoformat()
+        }
+    
+    def query(self, question=None):
+        """
+    

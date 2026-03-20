@@ -1,0 +1,11 @@
+{
+  "service": "jlcpcb",
+  "api_key": "afaea53834e56d95f024...8b8c9cc3ab",
+  "full_key": "afaea53834e56d95f024dec94b168d8b8c9cc3ab",
+  "source": "github",
+  "url": "https://api.github.com/repositories/80365771/contents/scripts/CHANGELOG.md.in?ref=1b733eedcf91d1140f6a358c74440153db760e2d",
+  "discovered_at": "2026-03-15T07:14:27.182438",
+  "integrator": "engineering_integrator",
+  "integration_code": "# jlcpcb = afaea53834e56d95f024dec94b168d8b8c9cc3ab\n# Add your engineering integration code here",
+  "message": "\ud83d\udd11 New JLCPCB API key discovered!"
+}

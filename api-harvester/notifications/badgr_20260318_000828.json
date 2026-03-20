@@ -1,0 +1,11 @@
+{
+  "service": "badgr",
+  "api_key": "fc3041b9d8116e0b98e7...43c4727a30",
+  "full_key": "fc3041b9d8116e0b98e7d243c4727a30",
+  "source": "github",
+  "url": "https://api.github.com/repositories/5304157/contents/README.md?ref=09ae828cb14bc74eebbd3717d32ce11e189951d3",
+  "discovered_at": "2026-03-18T00:08:28.765201",
+  "integrator": "coaching_integrator",
+  "integration_code": "# badgr = fc3041b9d8116e0b98e7d243c4727a30\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New BADGR API key discovered!"
+}

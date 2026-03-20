@@ -1,0 +1,11 @@
+{
+  "service": "cursor",
+  "api_key": "totalAdditionalContr...nThisMonth",
+  "full_key": "totalAdditionalContributionThisMonth",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1022331356/contents/v0.1?ref=e834b193248d47a454eabac590902f3b3ada5293",
+  "discovered_at": "2026-03-14T16:24:32.476582",
+  "integrator": "code_generation_integrator",
+  "integration_code": "# cursor = totalAdditionalContributionThisMonth\n# Add your code generation integration code here",
+  "message": "\ud83d\udd11 New CURSOR API key discovered!"
+}

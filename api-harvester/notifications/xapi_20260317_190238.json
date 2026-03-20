@@ -1,0 +1,11 @@
+{
+  "service": "xapi",
+  "api_key": "964dc226dd5b57e892e6...9735b6c55f",
+  "full_key": "964dc226dd5b57e892e6199735b6c55f",
+  "source": "github",
+  "url": "https://api.github.com/repositories/239440696/contents/api.txt?ref=20fcec4c087b935101d18c6c8f37daaee4752fd6",
+  "discovered_at": "2026-03-17T19:02:38.864602",
+  "integrator": "coaching_integrator",
+  "integration_code": "# xapi = 964dc226dd5b57e892e6199735b6c55f\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New XAPI API key discovered!"
+}

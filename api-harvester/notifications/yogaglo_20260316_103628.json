@@ -1,0 +1,11 @@
+{
+  "service": "yogaglo",
+  "api_key": "87a23b2fd26e4a599123...268c9c5973",
+  "full_key": "87a23b2fd26e4a59912328268c9c5973",
+  "source": "github",
+  "url": "https://api.github.com/repositories/746037117/contents/sources/phishing_army?ref=afc8f65a1e7edd31caee498c9f759b416e132205",
+  "discovered_at": "2026-03-16T10:36:28.495598",
+  "integrator": "sports_integrator",
+  "integration_code": "# yogaglo = 87a23b2fd26e4a59912328268c9c5973\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New YOGAGLO API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "ada_health",
+  "api_key": "3904d24a08aa08f6a68d...38f9be277e",
+  "full_key": "3904d24a08aa08f6a68dc338f9be277e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/18271330/contents/wikipedia/1396144344/Kankan.html?ref=71d2fbc7e85adddefc969375ca95983a61aa0ad4",
+  "discovered_at": "2026-03-16T17:46:46.565372",
+  "integrator": "medical_integrator",
+  "integration_code": "# Ada Health Symptom Checker\nimport requests\n\nADA_API_KEY = \"3904d24a08aa08f6a68dc338f9be277e\"\nBASE_URL = \"https://api.ada.com/v1\"\n\ndef start_assessment(symptoms, age, gender):\n    \"\"\"Start symptom assessment\"\"\"\n    response = requests.post(\n        f\"{BASE_URL}/assessments\",\n        headers={\"Authorization\": f\"Bearer {ADA_API_KEY}\"},\n        json={\n            \"symptoms\": symptoms,\n            \"demographics\": {\n                \"age\": age,\n                \"gender\": gender\n            }\n        }\n    )\n    return response.json()\n\ndef get_assessment_results(assessment_id):\n    \"\"\"Get results from symptom assessment\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/assessments/{assessment_id}\",\n        headers={\"Authorization\": f\"Bearer {ADA_API_KEY}\"}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New ADA_HEALTH API key discovered!"
+}

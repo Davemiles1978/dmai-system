@@ -1,0 +1,11 @@
+{
+  "service": "khan_academy_kids",
+  "api_key": "KH9wK7ljux0Jskms9SpZ...xw8SdJYReP",
+  "full_key": "KH9wK7ljux0Jskms9SpZ1uqpi1slFRpe4QzVwT9m3hxw8SdJYReP",
+  "source": "github",
+  "url": "https://api.github.com/repositories/337796279/contents/db-1612299903249.json?ref=136586302331040a80b02ae99e8c00eaf8a3c9f3",
+  "discovered_at": "2026-03-16T15:19:13.868284",
+  "integrator": "childcare_integrator",
+  "integration_code": "# khan_academy_kids = KH9wK7ljux0Jskms9SpZ1uqpi1slFRpe4QzVwT9m3hxw8SdJYReP\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New KHAN_ACADEMY_KIDS API key discovered!"
+}

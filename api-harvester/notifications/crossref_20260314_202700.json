@@ -1,0 +1,11 @@
+{
+  "service": "crossref",
+  "api_key": "c5aed981b2738abfba78...a11c8debe6",
+  "full_key": "c5aed981b2738abfba780c85e74c89a11c8debe6",
+  "source": "github",
+  "url": "https://api.github.com/repositories/25475549/contents/README.md?ref=dfe77aa03a8c97cbff6377120c9dc7e805ae4cf4",
+  "discovered_at": "2026-03-14T20:27:00.975738",
+  "integrator": "research_papers_integrator",
+  "integration_code": "# crossref = c5aed981b2738abfba780c85e74c89a11c8debe6\n# Add your research papers integration code here",
+  "message": "\ud83d\udd11 New CROSSREF API key discovered!"
+}

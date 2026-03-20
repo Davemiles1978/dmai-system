@@ -1,0 +1,162 @@
+# File: /Users/davidmiles/Desktop/dmai-system/components/phase1/P1T6_Deploy_Engine_1_AWS.py
+# Time: 2026-03-18T19:41:12.709315
+################################################################################
+#!/usr/bin/env python3
+"""
+P1T6_Deploy_Engine_1_AWS.py
+AWS Deployment Engine - Manages AWS infrastructure deployment and orchestration
+Full-featured component for DMAI evolution system
+"""
+
+import os
+import sys
+import json
+import time
+import logging
+import traceback
+import hashlib
+import random
+import threading
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Union
+from enum import Enum
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('aws_deploy.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('AWSDeploy')
+
+class DeploymentStatus(Enum):
+    """Deployment status states"""
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    ROLLING_BACK = "rolling_back"
+    ROLLED_BACK = "rolled_back"
+    CANCELLED = "cancelled"
+
+class ResourceType(Enum):
+    """AWS resource types"""
+    EC2 = "ec2"
+    LAMBDA = "lambda"
+    S3 = "s3"
+    DYNAMODB = "dynamodb"
+    RDS = "rds"
+    ECS = "ecs"
+    EKS = "eks"
+    CLOUDFRONT = "cloudfront"
+    API_GATEWAY = "api_gateway"
+    ROUTE53 = "route53"
+
+class DeploymentStrategy(Enum):
+    """Deployment strategies"""
+    BLUE_GREEN = "blue_green"
+    CANARY = "canary"
+    ROLLING = "rolling"
+    IMMUTABLE = "immutable"
+    ALL_AT_ONCE = "all_at_once"
+
+class Deploy_Engine_1_AWS:
+    """
+    AWS Deployment Engine - Manages AWS infrastructure deployment and orchestration
+    Handles resource provisioning, deployment strategies, and infrastructure as code
+    """
+    
+    def __init__(self):
+        self.name = "Deploy Engine #1 (AWS)"
+        self.component_id = "P1T6"
+        self.version = "1.0.0"
+        self.status = "initialized"
+        self.depends_on = ["P1T4", "P1T5"]
+        
+        # AWS Configuration
+        self.aws_config = self._load_aws_config()
+        self.regions = ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1']
+        self.default_region = self.aws_config.get('region', 'us-east-1')
+        
+        # Deployment tracking
+        self.deployments = {}
+        self.active_deployments = {}
+        self.deployment_history = []
+        self.deployment_queue = []
+        
+        # Resource tracking
+        self.resources = {}
+        self.stacks = {}
+        self.functions = {}
+        self.instances = {}
+        
+        # Statistics
+        self.stats = {
+            'total_deployments': 0,
+            'successful_deployments': 0,
+            'failed_deployments': 0,
+            'rolled_back_deployments': 0,
+            'resources_provisioned': 0,
+            'resources_terminated': 0,
+            'avg_deployment_time': 0,
+            'last_deployment': None,
+            'cost_estimate': 0.0
+        }
+        
+        # Deployment strategies
+        self.strategies = {
+            DeploymentStrategy.BLUE_GREEN.value: self._blue_green_deploy,
+            DeploymentStrategy.CANARY.value: self._canary_deploy,
+            DeploymentStrategy.ROLLING.value: self._rolling_deploy,
+            DeploymentStrategy.IMMUTABLE.value: self._immutable_deploy,
+            DeploymentStrategy.ALL_AT_ONCE.value: self._all_at_once_deploy
+        }
+        
+        # Configuration
+        self.config = {
+            'default_strategy': DeploymentStrategy.ROLLING.value,
+            'max_concurrent_deployments': 3,
+            'health_check_timeout': 300,
+            'rollback_on_failure': True,
+            'auto_scale': True,
+            'monitoring_enabled': True,
+            'cost_tracking': True,
+            'tags': {
+                'managed_by': 'DMAI',
+                'component': self.component_id,
+                'version': self.version
+            }
+        }
+        
+        # Credentials (loaded from environment)
+        self.credentials = {
+            'access_key_id': os.environ.get('AWS_ACCESS_KEY_ID'),
+            'secret_access_key': os.environ.get('AWS_SECRET_ACCESS_KEY'),
+            'session_token': os.environ.get('AWS_SESSION_TOKEN'),
+            'configured': bool(os.environ.get('AWS_ACCESS_KEY_ID'))
+        }
+        
+        logger.info(f"☁️ AWS Deployment Engine initialized (v{self.version})")
+        if self.credentials['configured']:
+            logger.info("✅ AWS credentials configured")
+        else:
+            logger.warning("⚠️ AWS credentials not configured - running in simulation mode")
+    
+    def run(self, continuous=False, interval=300):
+        """
+        Main execution method - called by evolution engine
+        
+        Args:
+            continuous: Whether to run continuously
+            interval: Check interval in seconds
+        """
+        logger.info(f"🚀 Starting {self.name} v{self.version}")
+        
+        try:
+            if continuous:
+                logger.info(f"Continuous mode: checking every {interval} seconds")
+                while True:
+                    self._deployment_cy

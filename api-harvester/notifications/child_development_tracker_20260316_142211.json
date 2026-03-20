@@ -1,0 +1,11 @@
+{
+  "service": "child_development_tracker",
+  "api_key": "ChildDevelopmentTrac...creenState",
+  "full_key": "ChildDevelopmentTrackerScreenState",
+  "source": "github",
+  "url": "https://api.github.com/repositories/901495220/contents/child_development_tracker_screen.dart?ref=0dcadb625f9694e80721d9d676b03fd070fba48f",
+  "discovered_at": "2026-03-16T14:22:11.058017",
+  "integrator": "childcare_integrator",
+  "integration_code": "# child_development_tracker = ChildDevelopmentTrackerScreenState\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New CHILD_DEVELOPMENT_TRACKER API key discovered!"
+}

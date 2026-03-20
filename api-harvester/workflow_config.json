@@ -1,0 +1,26 @@
+{
+    "database": {
+        "connection_string": "postgresql://dmai:xQjt0tbhmT0vRExNv9wTSbe3t7n34J85@dpg-d6lfcg3h46gs73drf3fg-a.oregon-postgres.render.com/harvester_u9ni?sslmode=require",
+        "pool_size": 5,
+        "max_retries": 3
+    },
+    "validation": {
+        "min_confidence": 0.5,
+        "min_weight": 5,
+        "validate_all": true,
+        "auto_store": true
+    },
+    "github": {
+        "max_results_per_query": 50,
+        "delay_between_requests": 0.5
+    },
+    "key_priorities": {
+        "github": 10,
+        "openai": 10,
+        "aws_access": 10,
+        "stripe_live": 9,
+        "google_api": 8,
+        "slack_token": 7,
+        "discord_bot": 7
+    }
+}

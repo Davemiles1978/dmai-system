@@ -1,0 +1,13 @@
+{
+  "grok_base": 3,
+  "external_Claude-3.5": 1,
+  "deepseek_base": 7,
+  "DMAI": 15,
+  "gpt_base": 3,
+  "claude_base": 3,
+  "discarded": 4,
+  "external": 5,
+  "hall_of_fame": 3,
+  "external_ElevenLabs": 1,
+  "external_Gemini-2.0": 2
+}

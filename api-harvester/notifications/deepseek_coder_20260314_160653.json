@@ -1,0 +1,11 @@
+{
+  "service": "deepseek_coder",
+  "api_key": "6915c5077a402b4cc660...6b08bdba7e",
+  "full_key": "6915c5077a402b4cc6608f74981ecb6b08bdba7e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/637313883/contents/DeepSeek_Coder_V2_Lite_Instruct_GGUF.ipynb?ref=1157277109858b02f0a56f3b9f738787a7df4ec6",
+  "discovered_at": "2026-03-14T16:06:53.597694",
+  "integrator": "code_generation_integrator",
+  "integration_code": "# deepseek_coder = 6915c5077a402b4cc6608f74981ecb6b08bdba7e\n# Add your code generation integration code here",
+  "message": "\ud83d\udd11 New DEEPSEEK_CODER API key discovered!"
+}

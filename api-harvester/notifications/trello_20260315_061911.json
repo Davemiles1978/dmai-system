@@ -1,0 +1,11 @@
+{
+  "service": "trello",
+  "api_key": "ffb12a0c5245ebf410a9...ae711527eb",
+  "full_key": "ffb12a0c5245ebf410a911ae711527eb",
+  "source": "github",
+  "url": "https://api.github.com/repositories/523051008/contents/api.txt?ref=887a3f08dc20c080395d84d08671e7ed6d5fffb9",
+  "discovered_at": "2026-03-15T06:19:11.430783",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New TRELLO API key discovered!"
+}

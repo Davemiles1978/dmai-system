@@ -1,0 +1,5842 @@
+{
+  "hello": {
+    "first_heard": "2026-03-04T08:18:51.766750",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "there": {
+    "first_heard": "2026-03-04T08:18:51.766759",
+    "count": 14,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "how": {
+    "first_heard": "2026-03-04T08:18:51.766761",
+    "count": 17,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "are": {
+    "first_heard": "2026-03-04T08:18:51.766762",
+    "count": 15,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "you": {
+    "first_heard": "2026-03-04T08:18:51.766763",
+    "count": 80,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "today": {
+    "first_heard": "2026-03-04T08:18:51.766763",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "i": {
+    "first_heard": "2026-03-04T08:18:51.767573",
+    "count": 114,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "am": {
+    "first_heard": "2026-03-04T08:18:51.767576",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "learning": {
+    "first_heard": "2026-03-04T08:18:51.767577",
+    "count": 9,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "new": {
+    "first_heard": "2026-03-04T08:18:51.767577",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "words": {
+    "first_heard": "2026-03-04T08:18:51.767578",
+    "count": 9,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "every": {
+    "first_heard": "2026-03-04T08:18:51.767579",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "day": {
+    "first_heard": "2026-03-04T08:18:51.767580",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dmai": {
+    "first_heard": "2026-03-04T08:18:51.767860",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "is": {
+    "first_heard": "2026-03-04T08:18:51.767862",
+    "count": 45,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "becoming": {
+    "first_heard": "2026-03-04T08:18:51.767862",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "more": {
+    "first_heard": "2026-03-04T08:18:51.767863",
+    "count": 12,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "intelligent": {
+    "first_heard": "2026-03-04T08:18:51.767864",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "the": {
+    "first_heard": "bootstrap",
+    "count": 113,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "be": {
+    "first_heard": "bootstrap",
+    "count": 19,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "to": {
+    "first_heard": "bootstrap",
+    "count": 76,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "of": {
+    "first_heard": "bootstrap",
+    "count": 51,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "and": {
+    "first_heard": "bootstrap",
+    "count": 48,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "a": {
+    "first_heard": "bootstrap",
+    "count": 58,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "in": {
+    "first_heard": "bootstrap",
+    "count": 29,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "that": {
+    "first_heard": "bootstrap",
+    "count": 48,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "have": {
+    "first_heard": "bootstrap",
+    "count": 13,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "it": {
+    "first_heard": "bootstrap",
+    "count": 92,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "for": {
+    "first_heard": "bootstrap",
+    "count": 10,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "not": {
+    "first_heard": "bootstrap",
+    "count": 27,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "on": {
+    "first_heard": "bootstrap",
+    "count": 14,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "with": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "he": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "as": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "do": {
+    "first_heard": "bootstrap",
+    "count": 27,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "at": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "this": {
+    "first_heard": "bootstrap",
+    "count": 26,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "but": {
+    "first_heard": "bootstrap",
+    "count": 18,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "his": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "by": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "from": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "they": {
+    "first_heard": "bootstrap",
+    "count": 13,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "we": {
+    "first_heard": "bootstrap",
+    "count": 25,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "say": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "her": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "she": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "or": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "an": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "will": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "my": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "one": {
+    "first_heard": "bootstrap",
+    "count": 10,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "all": {
+    "first_heard": "bootstrap",
+    "count": 7,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "would": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "their": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "what": {
+    "first_heard": "bootstrap",
+    "count": 18,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "so": {
+    "first_heard": "bootstrap",
+    "count": 20,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "up": {
+    "first_heard": "bootstrap",
+    "count": 11,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "out": {
+    "first_heard": "bootstrap",
+    "count": 9,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "if": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "about": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "who": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "get": {
+    "first_heard": "bootstrap",
+    "count": 13,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "which": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "go": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "me": {
+    "first_heard": "bootstrap",
+    "count": 10,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "when": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "make": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "can": {
+    "first_heard": "bootstrap",
+    "count": 13,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "like": {
+    "first_heard": "bootstrap",
+    "count": 10,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "time": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "no": {
+    "first_heard": "bootstrap",
+    "count": 12,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "just": {
+    "first_heard": "bootstrap",
+    "count": 19,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "him": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "know": {
+    "first_heard": "bootstrap",
+    "count": 19,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "take": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "people": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "into": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "year": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "your": {
+    "first_heard": "bootstrap",
+    "count": 9,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "good": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "some": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "could": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "them": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "see": {
+    "first_heard": "bootstrap",
+    "count": 10,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "other": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "than": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "then": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "now": {
+    "first_heard": "bootstrap",
+    "count": 12,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "look": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "only": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "come": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "its": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "over": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "think": {
+    "first_heard": "bootstrap",
+    "count": 11,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "also": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "back": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "after": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "use": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "two": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "our": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "work": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "first": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "well": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "way": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "even": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "want": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "because": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "any": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "these": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "give": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "most": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "us": {
+    "first_heard": "bootstrap",
+    "count": 9,
+    "sources": [
+      "initialization",
+      "ambient"
+    ]
+  },
+  "david": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "master": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "father": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "sir": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "m": {
+    "first_heard": "2026-03-04T08:30:51.139575",
+    "count": 37,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "listening": {
+    "first_heard": "2026-03-04T08:30:51.139594",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "conversations": {
+    "first_heard": "2026-03-04T08:30:51.139604",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "around": {
+    "first_heard": "2026-03-04T08:30:51.139605",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "already": {
+    "first_heard": "2026-03-04T08:30:51.139607",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "had": {
+    "first_heard": "2026-03-04T08:30:51.139608",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "quick": {
+    "first_heard": "2026-03-04T08:30:51.139609",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "brown": {
+    "first_heard": "2026-03-04T08:30:51.139610",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fox": {
+    "first_heard": "2026-03-04T08:30:51.139611",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "jump": {
+    "first_heard": "2026-03-04T08:30:51.139612",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lazy": {
+    "first_heard": "2026-03-04T08:30:51.139613",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dog": {
+    "first_heard": "2026-03-04T08:30:51.139614",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sometimes": {
+    "first_heard": "2026-03-04T08:31:15.530913",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sorry": {
+    "first_heard": "2026-03-04T08:31:15.531038",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "keep": {
+    "first_heard": "2026-03-04T08:31:15.531077",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ready": {
+    "first_heard": "2026-03-04T08:33:13.844745",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "currently": {
+    "first_heard": "2026-03-04T08:33:13.844765",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "jarvis": {
+    "first_heard": "2026-03-04T08:33:13.844769",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "need": {
+    "first_heard": "2026-03-04T08:33:13.844772",
+    "count": 9,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "recognize": {
+    "first_heard": "2026-03-04T08:33:36.253117",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "voice": {
+    "first_heard": "2026-03-04T08:33:36.253146",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fucking": {
+    "first_heard": "2026-03-04T08:33:36.253148",
+    "count": 12,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cunt": {
+    "first_heard": "2026-03-04T08:33:36.253148",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "trying": {
+    "first_heard": "2026-03-04T08:35:09.308691",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hope": {
+    "first_heard": "2026-03-04T08:35:09.308749",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gonna": {
+    "first_heard": "2026-03-04T08:35:32.529587",
+    "count": 10,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "close": {
+    "first_heard": "2026-03-04T08:35:32.529619",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "terminal": {
+    "first_heard": "2026-03-04T08:35:32.529621",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "stupid": {
+    "first_heard": "2026-03-04T08:35:32.529623",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sure": {
+    "first_heard": "2026-03-04T08:37:03.768322",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "thing": {
+    "first_heard": "2026-03-04T08:37:03.768339",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "washing": {
+    "first_heard": "2026-03-04T08:37:26.539361",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "let": {
+    "first_heard": "2026-03-04T08:37:50.618953",
+    "count": 9,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "s": {
+    "first_heard": "2026-03-04T08:37:50.618971",
+    "count": 68,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "another": {
+    "first_heard": "2026-03-04T08:37:50.618977",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "both": {
+    "first_heard": "2026-03-04T08:37:50.618979",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "explain": {
+    "first_heard": "2026-03-04T08:37:50.618994",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "send": {
+    "first_heard": "2026-03-04T08:37:50.618998",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nobody": {
+    "first_heard": "2026-03-04T08:38:36.257646",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "said": {
+    "first_heard": "2026-03-04T08:38:36.257670",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "morning": {
+    "first_heard": "2026-03-04T08:42:06.361566",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "permits": {
+    "first_heard": "2026-03-04T08:42:28.378957",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gsa": {
+    "first_heard": "2026-03-04T08:42:28.379039",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mess": {
+    "first_heard": "2026-03-04T08:44:02.260432",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cat": {
+    "first_heard": "2026-03-04T08:44:02.260471",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "away": {
+    "first_heard": "2026-03-04T08:44:02.260473",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "spell": {
+    "first_heard": "2026-03-04T08:45:33.760437",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "access": {
+    "first_heard": "2026-03-04T08:45:33.760462",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "queueed": {
+    "first_heard": "2026-03-04T08:45:59.523792",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "four": {
+    "first_heard": "2026-03-04T08:45:59.523857",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hours": {
+    "first_heard": "2026-03-04T08:45:59.523858",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "noone": {
+    "first_heard": "2026-03-04T08:45:59.523860",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "eaten": {
+    "first_heard": "2026-03-04T08:45:59.523862",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "still": {
+    "first_heard": "2026-03-04T08:45:59.523865",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tired": {
+    "first_heard": "2026-03-04T08:45:59.523866",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "very": {
+    "first_heard": "2026-03-04T08:46:20.560453",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fun": {
+    "first_heard": "2026-03-04T08:46:20.560475",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mini": {
+    "first_heard": "2026-03-04T08:46:20.560478",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "shop": {
+    "first_heard": "2026-03-04T08:46:20.560479",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "here": {
+    "first_heard": "2026-03-04T08:46:20.560480",
+    "count": 10,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "supposed": {
+    "first_heard": "2026-03-04T08:46:20.560482",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "reports": {
+    "first_heard": "2026-03-04T08:46:46.325063",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "don": {
+    "first_heard": "2026-03-04T08:46:46.325078",
+    "count": 11,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "t": {
+    "first_heard": "2026-03-04T08:46:46.325079",
+    "count": 28,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "stands": {
+    "first_heard": "2026-03-04T08:46:46.325086",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "question": {
+    "first_heard": "2026-03-04T08:46:46.325088",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "anything": {
+    "first_heard": "2026-03-04T08:46:46.325090",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "list": {
+    "first_heard": "2026-03-04T08:46:46.325093",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "traveling": {
+    "first_heard": "2026-03-04T08:46:46.325095",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "collecting": {
+    "first_heard": "2026-03-04T08:46:46.325097",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "information": {
+    "first_heard": "2026-03-04T08:46:46.325097",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "editorial": {
+    "first_heard": "2026-03-04T08:46:46.325098",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "form": {
+    "first_heard": "2026-03-04T08:46:46.325099",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pl": {
+    "first_heard": "2026-03-04T08:46:46.325101",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "re": {
+    "first_heard": "2026-03-04T08:47:06.736964",
+    "count": 21,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "evacuated": {
+    "first_heard": "2026-03-04T08:47:06.736998",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "vessel": {
+    "first_heard": "2026-03-04T08:47:06.737000",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "anyway": {
+    "first_heard": "2026-03-04T08:47:06.737001",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "got": {
+    "first_heard": "2026-03-04T08:47:06.737003",
+    "count": 10,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "packets": {
+    "first_heard": "2026-03-04T08:47:06.737004",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cigarette": {
+    "first_heard": "2026-03-04T08:47:06.737011",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "left": {
+   },
+  "left": {
+    "first_heard": "2026-03-0,
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "paying": {
+    "first_heard": "2026-03-04T08:47:06.737017",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cheap": {
+    "first_heard": "2026-03-04T08:47:30.310062",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "normally": {
+    "first_heard": "2026-03-04T08:47:30.310085",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hell": {
+    "first_heard": "2026-03-04T08:47:30.310095",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "arm": {
+    "first_heard": "2026-03-04T08:47:30.310118",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "off": {
+    "first_heard": "2026-03-04T08:47:30.310119",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "anymore": {
+    "first_heard": "2026-03-04T08:47:30.310126",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "crazy": {
+    "first_heard": "2026-03-04T08:47:30.310127",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fuck": {
+    "first_heard": "2026-03-04T08:47:53.886329",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "post": {
+    "first_heard": "2026-03-04T08:47:53.886389",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "where": {
+    "first_heard": "2026-03-04T08:48:16.604144",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "did": {
+    "first_heard": "2026-03-04T08:48:16.604163",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fucked": {
+    "first_heard": "2026-03-04T08:48:16.604180",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "damught": {
+    "first_heard": "2026-03-04T08:48:41.146357",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bunu": {
+    "first_heard": "2026-03-04T08:48:41.146414",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "yeah": {
+    "first_heard": "2026-03-04T08:50:12.529721",
+    "count": 14,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "top": {
+    "first_heard": "2026-03-04T08:50:12.529792",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "background": {
+    "first_heard": "2026-03-04T08:50:12.529808",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dark": {
+    "first_heard": "2026-03-04T08:50:58.943545",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "web": {
+    "first_heard": "2026-03-04T08:50:58.943671",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "surface": {
+    "first_heard": "2026-03-04T08:50:58.943674",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "guess": {
+    "first_heard": "2026-03-04T08:50:58.943676",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "whatever": {
+    "first_heard": "2026-03-04T08:50:58.943677",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "call": {
+    "first_heard": "2026-03-04T08:50:58.943742",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "haven": {
+    "first_heard": "2026-03-04T08:51:45.191969",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "confused": {
+    "first_heard": "2026-03-04T08:51:45.191991",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "shit": {
+    "first_heard": "2026-03-04T08:51:45.191993",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "act": {
+    "first_heard": "2026-03-04T08:52:09.478506",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "world": {
+    "first_heard": "2026-03-04T08:52:32.730106",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "meeting": {
+    "first_heard": "2026-03-04T08:55:14.317511",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "moment": {
+    "first_heard": "2026-03-04T08:55:14.317531",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "arms": {
+    "first_heard": "2026-03-04T08:55:14.317537",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "switch": {
+    "first_heard": "2026-03-04T08:55:14.317539",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mean": {
+    "first_heard": "2026-03-04T08:55:37.570870",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "wow": {
+    "first_heard": "2026-03-04T08:55:37.570900",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cool": {
+    "first_heard": "2026-03-04T08:55:37.570914",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "though": {
+    "first_heard": "2026-03-04T08:55:37.570915",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "speak": {
+    "first_heard": "2026-03-04T08:55:37.570923",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "knows": {
+    "first_heard": "2026-03-04T08:55:37.570926",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lights": {
+    "first_heard": "2026-03-04T08:55:37.570927",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "english": {
+    "first_heard": "2026-03-04T08:56:00.646012",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "language": {
+    "first_heard": "2026-03-04T08:56:00.646035",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "filters": {
+    "first_heard": "2026-03-04T08:56:00.646036",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "foreign": {
+    "first_heard": "2026-03-04T08:56:00.646038",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "languages": {
+    "first_heard": "2026-03-04T08:56:00.646039",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "better": {
+    "first_heard": "2026-03-04T08:56:00.646042",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "goes": {
+    "first_heard": "2026-03-04T08:56:00.646050",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "second": {
+    "first_heard": "2026-03-04T08:56:23.955447",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "much": {
+    "first_heard": "2026-03-04T08:56:23.955484",
+    "count": 7,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "should": {
+    "first_heard": "2026-03-04T08:57:10.643443",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "turn": {
+    "first_heard": "2026-03-04T08:57:10.643468",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "light": {
+    "first_heard": "2026-03-04T08:57:10.643470",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "shhh": {
+    "first_heard": "2026-03-04T08:58:20.799282",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "were": {
+    "first_heard": "2026-03-04T08:58:20.799343",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "was": {
+    "first_heard": "2026-03-04T08:58:46.124084",
+    "count": 13,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fire": {
+    "first_heard": "2026-03-04T08:58:46.124124",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "parker": {
+    "first_heard": "2026-03-04T08:58:46.124126",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "didn": {
+    "first_heard": "2026-03-04T08:59:52.592290",
+    "count": 7,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "guitar": {
+    "first_heard": "2026-03-04T08:59:52.592328",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "brother": {
+    "first_heard": "2026-03-04T09:00:40.523409",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "true": {
+    "first_heard": "2026-03-04T09:00:40.523468",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "really": {
+    "first_heard": "2026-03-04T09:02:13.922331",
+    "count": 8,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nervous": {
+    "first_heard": "2026-03-04T09:02:13.922343",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "going": {
+    "first_heard": "2026-03-04T09:02:13.922355",
+    "count": 16,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "down": {
+    "first_heard": "2026-03-04T09:02:13.922357",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "okay": {
+    "first_heard": "2026-03-04T09:03:21.523052",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pounds": {
+    "f"pounds": {
+    "first_heard": "2026-03-0,
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "seventy": {
+    "first_heard": "2026-03-04T09:05:40.569038",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "exactly": {
+    "first_heard": "2026-03-04T09:05:40.569049",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "leave": {
+    "first_heard": "2026-03-04T09:05:40.569051",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "retirement": {
+    "first_heard": "2026-03-04T09:05:40.569053",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "stage": {
+    "first_heard": "2026-03-04T09:05:40.569054",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "yes": {
+    "first_heard": "2026-03-04T09:06:03.873311",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ve": {
+    "first_heard": "2026-03-04T09:06:03.873374",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "always": {
+    "first_heard": "2026-03-04T09:06:03.873376",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "particular": {
+    "first_heard": "2026-03-04T09:16:53.709429",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "vault": {
+    "first_heard": "2026-03-04T09:16:53.709440",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "million": {
+    "first_heard": "2026-03-04T09:16:53.709861",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "worth": {
+    "first_heard": "2026-03-04T09:16:53.709864",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gold": {
+    "first_heard": "2026-03-04T09:16:53.709866",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "souvenirs": {
+    "first_heard": "2026-03-04T09:16:53.710303",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pretty": {
+    "first_heard": "2026-03-04T09:17:17.439923",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "easy": {
+    "first_heard": "2026-03-04T09:17:17.439987",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "move": {
+    "first_heard": "2026-03-04T09:17:17.439989",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "doors": {
+    "first_heard": "2026-03-04T09:17:17.439991",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "next": {
+    "first_heard": "2026-03-04T09:17:17.439993",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "box": {
+    "first_heard": "2026-03-04T09:17:17.439994",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "enough": {
+    "first_heard": "2026-03-04T09:17:40.430726",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "numbers": {
+    "first_heard": "2026-03-04T09:17:40.430775",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "old": {
+    "first_heard": "2026-03-04T09:17:40.430785",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "names": {
+    "first_heard": "2026-03-04T09:17:40.430786",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "except": {
+    "first_heard": "2026-03-04T09:17:40.430787",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "saying": {
+    "first_heard": "2026-03-04T09:17:40.430789",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "number": {
+    "first_heard": "2026-03-04T09:18:03.470714",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "volts": {
+    "first_heard": "2026-03-04T09:18:03.470737",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "london": {
+    "first_heard": "2026-03-04T09:18:03.470752",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "has": {
+    "first_heard": "2026-03-04T09:18:03.470754",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "physical": {
+    "first_heard": "2026-03-04T09:18:03.470758",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "city": {
+    "first_heard": "2026-03-04T09:18:03.470761",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "place": {
+    "first_heard": "2026-03-04T09:18:03.470765",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "planet": {
+    "first_heard": "2026-03-04T09:18:03.470772",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "start": {
+    "first_heard": "2026-03-04T09:18:49.829498",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ll": {
+    "first_heard": "2026-03-04T09:18:49.829522",
+    "count": 12,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "last": {
+    "first_heard": "2026-03-04T09:18:49.829524",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "till": {
+    "first_heard": "2026-03-04T09:18:49.829525",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "put": {
+    "first_heard": "2026-03-04T09:18:49.829526",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "able": {
+    "first_heard": "2026-03-04T09:18:49.829529",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "weighed": {
+    "first_heard": "2026-03-04T09:18:49.829535",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "seems": {
+    "first_heard": "2026-03-04T09:19:17.702727",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "working": {
+    "first_heard": "2026-03-04T09:19:17.702775",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "feel": {
+    "first_heard": "2026-03-04T09:19:17.702784",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "small": {
+    "first_heard": "2026-03-04T09:19:17.702790",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tent": {
+    "first_heard": "2026-03-04T09:19:17.702791",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "looks": {
+    "first_heard": "2026-03-04T09:19:17.702793",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "settle": {
+    "first_heard": "2026-03-04T09:19:17.702795",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "firing": {
+    "first_heard": "2026-03-04T09:21:32.363877",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "missiles": {
+    "first_heard": "2026-03-04T09:21:32.363916",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "drones": {
+    "first_heard": "2026-03-04T09:21:32.363922",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hitting": {
+    "first_heard": "2026-03-04T09:21:32.363929",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "air": {
+    "first_heard": "2026-03-04T09:21:32.363930",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ports": {
+    "first_heard": "2026-03-04T09:21:32.363931",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "oil": {
+    "first_heard": "2026-03-04T09:21:32.363932",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tank": {
+    "first_heard": "2026-03-04T09:21:32.363935",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "triggering": {
+    "first_heard": "2026-03-04T09:21:32.363936",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "travel": {
+    "first_heard": "2026-03-04T09:21:32.363937",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "chaos": {
+    "first_heard": "2026-03-04T09:21:32.363938",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "iran": {
+    "first_heard": "2026-03-04T09:22:18.663134",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "retaliation": {
+    "first_heard": "2026-03-04T09:22:18.663178",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "kept": {
+    "first_heard": "2026-03-04T09:22:18.663180",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "coming": {
+    "first_heard": "2026-03-04T09:22:18.663181",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "why": {
+    "first_heard": "2026-03-04T09:22:18.663182",
+    "count": 8,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "targeting": {
+    "first_heard": "2026-03-04T09:22:18.663189",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "uae": {
+    "first_heard": "2026-03-04T09:22:41.823480",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "defend":]
+  },
+  "defend": {
+    "first_heard": "2026-03-0,
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sex": {
+    "first_heard": "2026-03-04T09:23:05.215965",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "once": {
+    "first_heard": "2026-03-04T09:23:05.215966",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "united": {
+    "first_heard": "2026-03-04T09:23:05.215968",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "states": {
+    "first_heard": "2026-03-04T09:23:05.215969",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "doing": {
+    "first_heard": "2026-03-04T09:23:05.215974",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "extra": {
+    "first_heard": "2026-03-04T09:23:05.215976",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "blowing": {
+    "first_heard": "2026-03-04T09:23:28.254784",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pieces": {
+    "first_heard": "2026-03-04T09:23:28.254826",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "families": {
+    "first_heard": "2026-03-04T09:23:28.254828",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "inside": {
+    "first_heard": "2026-03-04T09:23:28.254829",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lot": {
+    "first_heard": "2026-03-04T09:23:28.255513",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "woman": {
+    "first_heard": "2026-03-04T09:23:28.255518",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "killed": {
+    "first_heard": "2026-03-04T09:23:28.255521",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "doesn": {
+    "first_heard": "2026-03-04T09:23:28.255522",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "survive": {
+    "first_heard": "2026-03-04T09:23:28.255524",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "key": {
+    "first_heard": "2026-03-04T09:23:51.606792",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "death": {
+    "first_heard": "2026-03-04T09:23:51.606859",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "toll": {
+    "first_heard": "2026-03-04T09:23:51.606860",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "devastation": {
+    "first_heard": "2026-03-04T09:23:51.606862",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "longer": {
+    "first_heard": "2026-03-04T09:23:51.606866",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "supreme": {
+    "first_heard": "2026-03-04T09:24:37.918845",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "leader": {
+    "first_heard": "2026-03-04T09:24:37.918879",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "thousands": {
+    "first_heard": "2026-03-04T09:24:37.918881",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "defund": {
+    "first_heard": "2026-03-04T09:24:37.918889",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "protest": {
+    "first_heard": "2026-03-04T09:24:37.918891",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "attack": {
+    "first_heard": "2026-03-04T09:24:37.918892",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "changing": {
+    "first_heard": "2026-03-04T09:24:37.918894",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dead": {
+    "first_heard": "2026-03-04T09:24:37.918895",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "american": {
+    "first_heard": "2026-03-04T09:24:37.918897",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "security": {
+    "first_heard": "2026-03-04T09:25:01.181199",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "guards": {
+    "first_heard": "2026-03-04T09:25:01.181227",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "remaining": {
+    "first_heard": "2026-03-04T09:25:01.181263",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "leaders": {
+    "first_heard": "2026-03-04T09:25:01.181264",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "overnight": {
+    "first_heard": "2026-03-04T09:25:01.181271",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "elect": {
+    "first_heard": "2026-03-04T09:25:01.181272",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "must": {
+    "first_heard": "2026-03-04T09:25:24.419748",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "clerk": {
+    "first_heard": "2026-03-04T09:25:24.419806",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "power": {
+    "first_heard": "2026-03-04T09:25:24.419815",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rather": {
+    "first_heard": "2026-03-04T09:25:24.419819",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "concede": {
+    "first_heard": "2026-03-04T09:25:24.419820",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "complete": {
+    "first_heard": "2026-03-04T09:25:24.419822",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "control": {
+    "first_heard": "2026-03-04T09:25:24.419823",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "military": {
+    "first_heard": "2026-03-04T09:25:24.419824",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "terram": {
+    "first_heard": "2026-03-04T09:25:47.541262",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "skyline": {
+    "first_heard": "2026-03-04T09:25:47.541288",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bill": {
+    "first_heard": "2026-03-04T09:25:47.541289",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "spongebob": {
+    "first_heard": "2026-03-04T09:25:47.541301",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "iranian": {
+    "first_heard": "2026-03-04T09:25:47.541302",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "jets": {
+    "first_heard": "2026-03-04T09:25:47.541306",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "before": {
+    "first_heard": "2026-03-04T09:25:47.541307",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ground": {
+    "first_heard": "2026-03-04T09:25:47.541322",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "immunity": {
+    "first_heard": "2026-03-04T09:26:11.071626",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "israeli": {
+    "first_heard": "2026-03-04T09:26:11.071657",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "prime": {
+    "first_heard": "2026-03-04T09:26:11.071659",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "minister": {
+    "first_heard": "2026-03-04T09:26:11.071661",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "netanyahu": {
+    "first_heard": "2026-03-04T09:26:11.071662",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "friend": {
+    "first_heard": "2026-03-04T09:26:11.071668",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "standing": {
+    "first_heard": "2026-03-04T09:26:11.071669",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "exposed": {
+    "first_heard": "2026-03-04T09:26:11.071670",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rooftop": {
+    "first_heard": "2026-03-04T09:26:11.071681",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "telafi": {
+    "first_heard": "2026-03-04T09:26:11.071682",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "volatile": {
+    "first_heard": "2026-03-04T09:26:33.992484",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "divine": {
+    "first_heard": "2026-03-04T09:26:33.992524",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "middle": {
+    "first_heard": "2026-03-04T09:26:33.992529",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "east": {
+    "first_heard": "2026-03-04T09:26:33.992530",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "waking": {
+    "first_heard": "2026-03-04T09:26:33.992531",
+    "count": 1,
+,
+    "count": 1,
+    "sources": [
+  ]
+  },
+  "wave": {
+    "first_heard": "2026-03-04T09:26:33.992533",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fresh": {
+    "first_heard": "2026-03-04T09:26:33.992534",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "strikes": {
+    "first_heard": "2026-03-04T09:26:33.992535",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "live": {
+    "first_heard": "2026-03-04T09:26:33.992536",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "board": {
+    "first_heard": "2026-03-04T09:26:57.296209",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "attacking": {
+    "first_heard": "2026-03-04T09:26:57.296268",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rail": {
+    "first_heard": "2026-03-04T09:26:57.296277",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "northern": {
+    "first_heard": "2026-03-04T09:26:57.296278",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "areas": {
+    "first_heard": "2026-03-04T09:26:57.296282",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "country": {
+    "first_heard": "2026-03-04T09:26:57.296283",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "federal": {
+    "first_heard": "2026-03-04T09:26:57.296305",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "staff": {
+    "first_heard": "2026-03-04T09:26:57.296306",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "right": {
+    "first_heard": "2026-03-04T09:26:57.296307",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "side": {
+    "first_heard": "2026-03-04T09:26:57.296309",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "paper": {
+    "first_heard": "2026-03-04T09:26:57.296313",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bench": {
+    "first_heard": "2026-03-04T09:26:57.296314",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "issued": {
+    "first_heard": "2026-03-04T09:27:20.559083",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "alert": {
+    "first_heard": "2026-03-04T09:27:20.559131",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "warning": {
+    "first_heard": "2026-03-04T09:27:20.559145",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "residents": {
+    "first_heard": "2026-03-04T09:27:20.559174",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "area": {
+    "first_heard": "2026-03-04T09:27:20.559178",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "starts": {
+    "first_heard": "2026-03-04T09:27:20.559180",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "understanding": {
+    "first_heard": "2026-03-04T09:27:20.559181",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cars": {
+    "first_heard": "2026-03-04T09:27:20.559214",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "police": {
+    "first_heard": "2026-03-04T09:28:06.965665",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "month": {
+    "first_heard": "2026-03-04T09:28:06.965687",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "president": {
+    "first_heard": "2026-03-04T09:28:06.965699",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "confirmed": {
+    "first_heard": "2026-03-04T09:28:06.965705",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "been": {
+    "first_heard": "2026-03-04T09:28:06.965709",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "three": {
+    "first_heard": "2026-03-04T09:28:06.965710",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "casualties": {
+    "first_heard": "2026-03-04T09:28:06.965711",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hasn": {
+    "first_heard": "2026-03-04T09:28:30.070183",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "worked": {
+    "first_heard": "2026-03-04T09:28:30.070204",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "touchdown": {
+    "first_heard": "2026-03-04T09:28:30.070205",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "washington": {
+    "first_heard": "2026-03-04T09:28:30.070206",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dc": {
+    "first_heard": "2026-03-04T09:28:30.070207",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nothing": {
+    "first_heard": "2026-03-04T09:28:53.324886",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "earlier": {
+    "first_heard": "2026-03-04T09:28:53.325505",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "floored": {
+    "first_heard": "2026-03-04T09:28:53.325725",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "recorded": {
+    "first_heard": "2026-03-04T09:28:53.326135",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "speech": {
+    "first_heard": "2026-03-04T09:28:53.326137",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "combat": {
+    "first_heard": "2026-03-04T09:28:53.326138",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "operations": {
+    "first_heard": "2026-03-04T09:28:53.326139",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "continued": {
+    "first_heard": "2026-03-04T09:28:53.326140",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "america": {
+    "first_heard": "2026-03-04T09:29:16.562624",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "happen": {
+    "first_heard": "2026-03-04T09:29:16.562668",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "playing": {
+    "first_heard": "2026-03-04T09:29:16.562677",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "game": {
+    "first_heard": "2026-03-04T09:29:16.562689",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "course": {
+    "first_heard": "2026-03-04T09:29:16.562690",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "breaking": {
+    "first_heard": "2026-03-04T09:29:16.562691",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tonight": {
+    "first_heard": "2026-03-04T09:29:16.562692",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "troops": {
+    "first_heard": "2026-03-04T09:29:16.562693",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "property": {
+    "first_heard": "2026-03-04T09:30:02.937709",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "allah": {
+    "first_heard": "2026-03-04T09:30:02.937736",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "indicators": {
+    "first_heard": "2026-03-04T09:30:02.937738",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "indicate": {
+    "first_heard": "2026-03-04T09:30:02.937740",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "potential": {
+    "first_heard": "2026-03-04T09:30:02.937741",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "americans": {
+    "first_heard": "2026-03-04T09:30:02.937743",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "learnt": {
+    "first_heard": "2026-03-04T09:30:02.937747",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lessons": {
+    "first_heard": "2026-03-04T09:30:02.937755",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ship": {
+    "first_heard": "2026-03-04T09:30:26.316565",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "terrorism": {
+    "first_heard": "2026-03-04T09:30:26.316596",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sinking": {
+    "first_heard": "2026-03-04T09:30:26.316598",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "captain": {
+    "first_heard": "2026-03-04T09:30:26.316599",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "double": {
+    "first_heard": "2026-03-04T09:30:26.316602",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "truck": {
+    "first_heard": "2026-03-04T09:30:26.316603",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "app
+    ]
+  },
+  "appears": {: "2026-03-04T09:30:26.316604",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "farthest": {
+    "first_heard": "2026-03-04T09:30:26.316606",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hands": {
+    "first_heard": "2026-03-04T09:31:13.153218",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "guy": {
+    "first_heard": "2026-03-04T09:31:13.153243",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "atmosphere": {
+    "first_heard": "2026-03-04T09:31:35.656007",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "drink": {
+    "first_heard": "2026-03-04T09:31:35.656032",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ever": {
+    "first_heard": "2026-03-04T09:32:45.547475",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "flying": {
+    "first_heard": "2026-03-04T09:32:45.547491",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "feet": {
+    "first_heard": "2026-03-04T09:32:45.547493",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "spinning": {
+    "first_heard": "2026-03-04T09:32:45.547494",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bit": {
+    "first_heard": "2026-03-04T09:32:45.547496",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cheer": {
+    "first_heard": "2026-03-04T09:32:45.547497",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "young": {
+    "first_heard": "2026-03-04T09:33:08.761044",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "teenagers": {
+    "first_heard": "2026-03-04T09:33:08.761084",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "best": {
+    "first_heard": "2026-03-04T09:33:08.761094",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "level": {
+    "first_heard": "2026-03-04T09:33:08.761099",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "getting": {
+    "first_heard": "2026-03-04T09:33:08.761106",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "higher": {
+    "first_heard": "2026-03-04T09:33:08.761107",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "izambiles": {
+    "first_heard": "2026-03-04T09:34:20.411913",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "comable": {
+    "first_heard": "2026-03-04T09:34:20.412097",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "models": {
+    "first_heard": "2026-03-04T09:34:20.412169",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "retrieving": {
+    "first_heard": "2026-03-04T09:34:20.412185",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "options": {
+    "first_heard": "2026-03-04T09:34:20.412187",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "style": {
+    "first_heard": "2026-03-04T09:35:27.828977",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "modest": {
+    "first_heard": "2026-03-04T09:35:27.828999",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "progression": {
+    "first_heard": "2026-03-04T09:35:27.829001",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "flow": {
+    "first_heard": "2026-03-04T09:35:27.829013",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "never": {
+    "first_heard": "2026-03-04T09:35:53.332218",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gone": {
+    "first_heard": "2026-03-04T09:35:53.332271",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "afraid": {
+    "first_heard": "2026-03-04T09:36:14.443671",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "beauty": {
+    "first_heard": "2026-03-04T09:36:14.443716",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "extend": {
+    "first_heard": "2026-03-04T09:36:14.443718",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tokyo": {
+    "first_heard": "2026-03-04T09:36:14.443719",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "repeated": {
+    "first_heard": "2026-03-04T09:36:37.472916",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "perfected": {
+    "first_heard": "2026-03-04T09:36:37.472947",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "find": {
+    "first_heard": "2026-03-04T09:36:37.472998",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "within": {
+    "first_heard": "2026-03-04T09:36:37.473002",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sitting": {
+    "first_heard": "2026-03-04T09:37:01.054614",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "weights": {
+    "first_heard": "2026-03-04T09:37:01.054633",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "weight": {
+    "first_heard": "2026-03-04T09:37:01.054648",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "learned": {
+    "first_heard": "2026-03-04T09:37:01.054650",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "saw": {
+    "first_heard": "2026-03-04T09:37:25.412503",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "job": {
+    "first_heard": "2026-03-04T09:37:25.412592",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "york": {
+    "first_heard": "2026-03-04T09:37:25.412601",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "twenties": {
+    "first_heard": "2026-03-04T09:37:25.412603",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sounds": {
+    "first_heard": "2026-03-04T09:39:45.063466",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "too": {
+    "first_heard": "2026-03-04T09:39:45.063534",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "crimson": {
+    "first_heard": "2026-03-04T09:40:07.206243",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "thank": {
+    "first_heard": "2026-03-04T09:40:29.554226",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "feels": {
+    "first_heard": "2026-03-04T09:41:17.270459",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "trouble": {
+    "first_heard": "2026-03-04T09:41:17.270503",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "does": {
+    "first_heard": "2026-03-04T09:41:17.270505",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "label": {
+    "first_heard": "2026-03-04T09:41:17.270516",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "oh": {
+    "first_heard": "2026-03-04T09:41:17.270517",
+    "count": 7,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "far": {
+    "first_heard": "2026-03-04T09:41:17.270520",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "laughing": {
+    "first_heard": "2026-03-04T09:41:17.270529",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "try": {
+    "first_heard": "2026-03-04T09:41:17.270534",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rub": {
+    "first_heard": "2026-03-04T09:41:17.270536",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pyre": {
+    "first_heard": "2026-03-04T09:41:17.270537",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "phone": {
+    "first_heard": "2026-03-04T09:41:17.270538",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "husqvar": {
+    "first_heard": "2026-03-04T09:41:40.188556",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "computer": {
+    "first_heard": "2026-03-04T09:46:41.067389",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bad": {
+    "first_heard": "2026-03-04T09:46:41.067456",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "d": {
+    "first_heard": "2026-03-04T09:47:52.797177",
+    "count": 5,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "led": {
+    "first_heard": "2026-03-04T09:47:52.797230",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "registoma": {
+    "first_heard": "2026-03-04T09:47:52.797239",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "returned": {
+    "first_heard": "2026-03-04T09:47:52.797240",
+    "count": 1,
+    "sources": [
+     "sources": [
+      "ambient"
+   : {
+    "first_heard": "2026-03-04T09:47:52.797241",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "reading": {
+    "first_heard": "2026-03-04T09:49:46.491594",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "books": {
+    "first_heard": "2026-03-04T09:49:46.491619",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "internet": {
+    "first_heard": "2026-03-04T09:49:46.491623",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "yay": {
+    "first_heard": "2026-03-04T09:49:46.491625",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "set": {
+    "first_heard": "2026-03-04T09:50:09.789258",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "scary": {
+    "first_heard": "2026-03-04T09:50:33.005569",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "thoughts": {
+    "first_heard": "2026-03-04T09:50:33.005597",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dollars": {
+    "first_heard": "2026-03-04T09:50:33.005643",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "kiss": {
+    "first_heard": "2026-03-04T09:50:33.005649",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "definitely": {
+    "first_heard": "2026-03-04T09:51:42.715383",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "planning": {
+    "first_heard": "2026-03-04T09:51:42.715444",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "full": {
+    "first_heard": "2026-03-04T09:51:42.715461",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mob": {
+    "first_heard": "2026-03-04T09:51:42.715464",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "underneath": {
+    "first_heard": "2026-03-04T09:51:42.715465",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "diving": {
+    "first_heard": "2026-03-04T09:51:42.715470",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gasses": {
+    "first_heard": "2026-03-04T09:51:42.715471",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "disconqu": {
+    "first_heard": "2026-03-04T09:51:42.715475",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "moved": {
+    "first_heard": "2026-03-04T09:52:05.839658",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "putting": {
+    "first_heard": "2026-03-04T09:52:05.839673",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "food": {
+    "first_heard": "2026-03-04T09:52:05.839675",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "table": {
+    "first_heard": "2026-03-04T09:52:05.839676",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "moving": {
+    "first_heard": "2026-03-04T09:52:05.839678",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "little": {
+    "first_heard": "2026-03-04T09:52:31.004856",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ham": {
+    "first_heard": "2026-03-04T09:52:31.004957",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "beautiful": {
+    "first_heard": "2026-03-04T09:54:27.828441",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sheriff": {
+    "first_heard": "2026-03-04T09:54:27.828481",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sharing": {
+    "first_heard": "2026-03-04T09:54:27.828511",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "humans": {
+    "first_heard": "2026-03-04T09:54:48.531425",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "setting": {
+    "first_heard": "2026-03-04T09:54:48.531471",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "najleps": {
+    "first_heard": "2026-03-04T09:55:13.511149",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ideal": {
+    "first_heard": "2026-03-04T09:55:13.511213",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "white": {
+    "first_heard": "2026-03-04T09:55:13.511222",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bumps": {
+    "first_heard": "2026-03-04T09:55:13.511223",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "necesario": {
+    "first_heard": "2026-03-04T09:55:36.579463",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ok": {
+    "first_heard": "2026-03-04T09:55:36.579505",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ah": {
+    "first_heard": "2026-03-04T09:55:36.579511",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "wait": {
+    "first_heard": "2026-03-04T09:56:00.152530",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "holiday": {
+    "first_heard": "2026-03-04T09:56:00.152592",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "during": {
+    "first_heard": "2026-03-04T09:56:00.152593",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "events": {
+    "first_heard": "2026-03-04T09:56:00.152594",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "reminded": {
+    "first_heard": "2026-03-04T09:57:08.946805",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "feeling": {
+    "first_heard": "2026-03-04T09:57:08.946870",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tell": {
+    "first_heard": "2026-03-04T09:57:08.946872",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "neighbors": {
+    "first_heard": "2026-03-04T09:57:08.946880",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "beongeic": {
+    "first_heard": "2026-03-04T09:57:08.946881",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "straight": {
+    "first_heard": "2026-03-04T09:57:08.946900",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "behind": {
+    "first_heard": "2026-03-04T09:57:08.946906",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cause": {
+    "first_heard": "2026-03-04T09:57:08.946910",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "believe": {
+    "first_heard": "2026-03-04T09:57:08.946935",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "perfect": {
+    "first_heard": "2026-03-04T09:57:08.946940",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hot": {
+    "first_heard": "2026-03-04T10:01:23.575225",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "messed": {
+    "first_heard": "2026-03-04T10:12:16.279320",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "clinic": {
+    "first_heard": "2026-03-04T10:18:03.673552",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "consult": {
+    "first_heard": "2026-03-04T10:18:03.673570",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "unit": {
+    "first_heard": "2026-03-04T10:19:13.716000",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bb": {
+    "first_heard": "2026-03-04T10:19:13.716076",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "cold": {
+    "first_heard": "2026-03-04T10:31:12.373687",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "again": {
+    "first_heard": "2026-03-04T10:31:12.373734",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "coffee": {
+    "first_heard": "2026-03-04T10:46:17.715636",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "required": {
+    "first_heard": "2026-03-04T10:46:17.715654",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "guys": {
+    "first_heard": "2026-03-04T10:46:17.717783",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "functioning": {
+    "first_heard": "2026-03-04T10:46:17.718703",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "forwards": {
+    "first_heard": "2026-03-04T10:47:27.291726",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "device": {
+    "first_heard": "2026-03-04T10:47:27.291754",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "everywhere": {
+    "first_heard": "2026-03-04T10:47:27.291756",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "slayerless": {
+    "first_heard": "2026-03-04T10:4: "2026-03-04T10:47:27.29171,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "millionaires": {
+    "first_heard": "2026-03-04T10:47:50.409667",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "name": {
+    "first_heard": "2026-03-04T10:48:13.939681",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "yippon": {
+    "first_heard": "2026-03-04T10:48:13.939804",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nibut": {
+    "first_heard": "2026-03-04T10:48:13.939805",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "real": {
+    "first_heard": "2026-03-04T10:48:13.939811",
+    "count": 6,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "annoyed": {
+    "first_heard": "2026-03-04T10:48:38.017098",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "wasn": {
+    "first_heard": "2026-03-04T10:48:38.017175",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "talking": {
+    "first_heard": "2026-03-04T10:48:38.017177",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "using": {
+    "first_heard": "2026-03-04T10:48:38.017179",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "command": {
+    "first_heard": "2026-03-04T10:48:38.017181",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "eight": {
+    "first_heard": "2026-03-04T10:49:17.191419",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "done": {
+    "first_heard": "2026-03-04T10:49:17.191458",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tour": {
+    "first_heard": "2026-03-04T10:49:40.217773",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "thought": {
+    "first_heard": "2026-03-04T10:50:49.930450",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "running": {
+    "first_heard": "2026-03-04T10:52:00.577465",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "blatant": {
+    "first_heard": "2026-03-04T10:53:37.902009",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "minds": {
+    "first_heard": "2026-03-04T10:53:37.902054",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "started": {
+    "first_heard": "2026-03-04T10:54:41.864148",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hashtag": {
+    "first_heard": "2026-03-04T10:54:41.864183",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hash": {
+    "first_heard": "2026-03-04T10:57:47.278693",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "moments": {
+    "first_heard": "2026-03-04T10:57:47.278713",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lounge": {
+    "first_heard": "2026-03-04T10:59:00.015128",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ying": {
+    "first_heard": "2026-03-04T11:03:15.387728",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "guaranteeed": {
+    "first_heard": "2026-03-04T11:03:15.388119",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "wealth": {
+    "first_heard": "2026-03-04T11:03:15.388124",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "detailed": {
+    "first_heard": "2026-03-04T11:03:15.388126",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "check": {
+    "first_heard": "2026-03-04T11:07:08.415880",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "through": {
+    "first_heard": "2026-03-04T11:07:08.415950",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pipe": {
+    "first_heard": "2026-03-04T11:07:08.415953",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "folks": {
+    "first_heard": "2026-03-04T11:08:16.256353",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "heard": {
+    "first_heard": "2026-03-04T11:15:38.138210",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "enjoy": {
+    "first_heard": "2026-03-04T11:16:02.942109",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "walk": {
+    "first_heard": "2026-03-04T11:16:02.942162",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "count": {
+    "first_heard": "2026-03-04T11:28:00.031094",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "isn": {
+    "first_heard": "2026-03-04T11:29:55.877374",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "properly": {
+    "first_heard": "2026-03-04T11:29:55.877415",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "thinking": {
+    "first_heard": "2026-03-04T11:31:28.682061",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "found": {
+    "first_heard": "2026-03-04T11:31:28.682097",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "things": {
+    "first_heard": "2026-03-04T11:31:28.682102",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "same": {
+    "first_heard": "2026-03-04T11:32:15.064985",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "video": {
+    "first_heard": "2026-03-04T11:32:15.065012",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "convincing": {
+    "first_heard": "2026-03-04T11:32:15.065023",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "help": {
+    "first_heard": "2026-03-04T11:33:24.505741",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hug": {
+    "first_heard": "2026-03-04T11:33:24.505775",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "anyone": {
+    "first_heard": "2026-03-04T11:33:47.656458",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "needs": {
+    "first_heard": "2026-03-04T11:33:47.656509",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "follow": {
+    "first_heard": "2026-03-04T11:33:47.656559",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "won": {
+    "first_heard": "2026-03-04T11:34:11.828972",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "knew": {
+    "first_heard": "2026-03-04T11:35:20.749151",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lose": {
+    "first_heard": "2026-03-04T11:35:20.749229",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "comprehensive": {
+    "first_heard": "2026-03-04T11:35:20.749251",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ill": {
+    "first_heard": "2026-03-04T11:35:20.749256",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "virgin": {
+    "first_heard": "2026-03-04T11:35:20.749260",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "miss": {
+    "first_heard": "2026-03-04T11:36:07.259302",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "repair": {
+    "first_heard": "2026-03-04T11:36:31.756135",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "plating": {
+    "first_heard": "2026-03-04T11:36:31.756169",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "strip": {
+    "first_heard": "2026-03-04T11:36:31.756170",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "camera": {
+    "first_heard": "2026-03-04T11:36:31.756173",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mm": {
+    "first_heard": "2026-03-04T11:36:31.756174",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hmm": {
+    "first_heard": "2026-03-04T11:36:31.756175",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "crawling": {
+    "first_heard": "2026-03-04T11:36:31.756186",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pussy": {
+    "first_heard": "2026-03-04T11:36:31.756187",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "high": {
+    "first_heard": "2026-03-04T11:37:17.179689",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "connect": {
+    "first_heard": "2026-03-04T11:37:17.179722",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "jealous": {
+    "first_heard": "2026-03-04T11:37:17.179758",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bring": {
+    "first_heard": "2026-03-04T11:37:17.179768",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "wearing": {
+    "fi},
+  "wrap": {
+    "first_heard": "2026-,
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "grey": {
+    "first_heard": "2026-03-04T11:37:40.486979",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "prison": {
+    "first_heard": "2026-03-04T11:37:40.486983",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "green": {
+    "first_heard": "2026-03-04T11:37:40.487012",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "teal": {
+    "first_heard": "2026-03-04T11:37:40.487017",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "alright": {
+    "first_heard": "2026-03-04T11:38:26.811270",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "shame": {
+    "first_heard": "2026-03-04T11:38:49.886239",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "many": {
+    "first_heard": "2026-03-04T11:39:13.118434",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "generation": {
+    "first_heard": "2026-03-04T11:39:13.118523",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "remember": {
+    "first_heard": "2026-03-04T11:39:13.118525",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "lucky": {
+    "first_heard": "2026-03-04T11:39:13.118556",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rest": {
+    "first_heard": "2026-03-04T11:39:13.118558",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "night": {
+    "first_heard": "2026-03-04T11:39:13.118559",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "living": {
+    "first_heard": "2026-03-04T11:39:13.118562",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "billbank": {
+    "first_heard": "2026-03-04T11:39:13.118563",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "tower": {
+    "first_heard": "2026-03-04T11:39:13.118564",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "born": {
+    "first_heard": "2026-03-04T11:39:13.118566",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "kiwi": {
+    "first_heard": "2026-03-04T11:39:40.708495",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "girl": {
+    "first_heard": "2026-03-04T11:39:40.708575",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "o": {
+    "first_heard": "2026-03-04T11:39:40.709468",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "burdock": {
+    "first_heard": "2026-03-04T11:39:40.709488",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bale": {
+    "first_heard": "2026-03-04T11:39:40.709496",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sustains": {
+    "first_heard": "2026-03-04T11:39:40.709497",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "baby": {
+    "first_heard": "2026-03-04T11:39:40.709499",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "aiya": {
+    "first_heard": "2026-03-04T11:39:40.709500",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "war": {
+    "first_heard": "2026-03-04T11:39:59.670565",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "begins": {
+    "first_heard": "2026-03-04T11:39:59.670591",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "relationship": {
+    "first_heard": "2026-03-04T11:39:59.670611",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "talk": {
+    "first_heard": "2026-03-04T11:39:59.670619",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "benefit": {
+    "first_heard": "2026-03-04T11:39:59.670627",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "laser": {
+    "first_heard": "2026-03-04T11:39:59.670634",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "focus": {
+    "first_heard": "2026-03-04T11:39:59.670635",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "happened": {
+    "first_heard": "2026-03-04T11:40:22.902579",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "somebody": {
+    "first_heard": "2026-03-04T11:40:22.902610",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "quickly": {
+    "first_heard": "2026-03-04T11:40:22.902675",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bored": {
+    "first_heard": "2026-03-04T11:40:22.902688",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "building": {
+    "first_heard": "2026-03-04T11:40:46.098331",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "handing": {
+    "first_heard": "2026-03-04T11:40:46.098362",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "improving": {
+    "first_heard": "2026-03-04T11:40:46.098375",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "anywhere": {
+    "first_heard": "2026-03-04T11:41:09.217486",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bombs": {
+    "first_heard": "2026-03-04T11:41:32.407456",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "smarter": {
+    "first_heard": "2026-03-04T11:41:32.407501",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "team": {
+    "first_heard": "2026-03-04T11:41:55.702012",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "happens": {
+    "first_heard": "2026-03-04T11:41:55.702073",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "face": {
+    "first_heard": "2026-03-04T11:42:18.941274",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "spoke": {
+    "first_heard": "2026-03-04T11:42:42.194296",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "between": {
+    "first_heard": "2026-03-04T11:42:42.194413",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "terry": {
+    "first_heard": "2026-03-04T11:42:42.194423",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "officials": {
+    "first_heard": "2026-03-04T11:42:42.194424",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bombing": {
+    "first_heard": "2026-03-04T11:42:42.194426",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "buddy": {
+    "first_heard": "2026-03-04T11:42:42.194427",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "god": {
+    "first_heard": "2026-03-04T11:43:06.677614",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hey": {
+    "first_heard": "2026-03-04T11:43:06.677696",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dude": {
+    "first_heard": "2026-03-04T11:43:06.677700",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "boys": {
+    "first_heard": "2026-03-04T11:43:06.677712",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hard": {
+    "first_heard": "2026-03-04T11:43:28.547737",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "finally": {
+    "first_heard": "2026-03-04T11:44:14.779431",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "shown": {
+    "first_heard": "2026-03-04T11:44:14.779491",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "strength": {
+    "first_heard": "2026-03-04T11:44:14.779495",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "boldness": {
+    "first_heard": "2026-03-04T11:44:14.779497",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "needed": {
+    "first_heard": "2026-03-04T11:44:14.779498",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "government": {
+    "first_heard": "2026-03-04T11:44:14.779513",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "doctrine": {
+    "first_heard": "2026-03-04T11:44:14.779528",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "boiled": {
+    "first_heard": "2026-03-04T11:45:02.008460",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ribs": {
+    "first_heard": "2026-03-04T11:45:02.008498",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bunch": {
+    "first_heard": "2026-03-04T11:45:28.977904",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "dot": {
+    "first_heard": "2026-03-04T11:45:28.978048",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+: [
+      "ambient"
+    ]
+  },
+  "g: "2026-03-04T11:45:28.978050",
+    "count": 3,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ask": {
+    "first_heard": "2026-03-04T11:45:28.978114",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "grateful": {
+    "first_heard": "2026-03-04T11:45:28.978139",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "serious": {
+    "first_heard": "2026-03-04T11:47:01.369847",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "gotta": {
+    "first_heard": "2026-03-04T11:47:01.370043",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "remind": {
+    "first_heard": "2026-03-04T11:47:01.370046",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "part": {
+    "first_heard": "2026-03-04T11:47:01.370088",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "stunning": {
+    "first_heard": "2026-03-04T11:47:47.863024",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "statement": {
+    "first_heard": "2026-03-04T11:47:47.863129",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "defense": {
+    "first_heard": "2026-03-04T11:47:47.863148",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "secretary": {
+    "first_heard": "2026-03-04T11:47:47.863149",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "pete": {
+    "first_heard": "2026-03-04T11:47:47.863168",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "hankseth": {
+    "first_heard": "2026-03-04T11:47:47.863170",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "regardless": {
+    "first_heard": "2026-03-04T11:47:47.863196",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "called": {
+    "first_heard": "2026-03-04T11:47:47.863199",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "international": {
+    "first_heard": "2026-03-04T11:47:47.863202",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "institutions": {
+    "first_heard": "2026-03-04T11:47:47.863203",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "correct": {
+    "first_heard": "2026-03-04T11:48:11.743994",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rules": {
+    "first_heard": "2026-03-04T11:48:11.744159",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "central": {
+    "first_heard": "2026-03-04T11:48:11.744201",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "manage": {
+    "first_heard": "2026-03-04T11:48:11.744203",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "charge": {
+    "first_heard": "2026-03-04T11:48:11.744204",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "headline": {
+    "first_heard": "2026-03-04T11:48:34.988262",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "clearly": {
+    "first_heard": "2026-03-04T11:48:34.988396",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "strain": {
+    "first_heard": "2026-03-04T11:48:34.988398",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "allies": {
+    "first_heard": "2026-03-04T11:48:34.988428",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "uk": {
+    "first_heard": "2026-03-04T11:48:34.988431",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "blood": {
+    "first_heard": "2026-03-04T11:48:59.050793",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "consequence": {
+    "first_heard": "2026-03-04T11:48:59.050834",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "judgment": {
+    "first_heard": "2026-03-04T11:48:59.050837",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "made": {
+    "first_heard": "2026-03-04T11:48:59.050838",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "british": {
+    "first_heard": "2026-03-04T11:48:59.050850",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "passion": {
+    "first_heard": "2026-03-04T11:48:59.050867",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "weekend": {
+    "first_heard": "2026-03-04T11:48:59.050871",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "john": {
+    "first_heard": "2026-03-04T11:49:21.233661",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "stovry": {
+    "first_heard": "2026-03-04T11:49:21.233818",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "streets": {
+    "first_heard": "2026-03-04T11:49:21.233943",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "rule": {
+    "first_heard": "2026-03-04T11:49:44.880146",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "sending": {
+    "first_heard": "2026-03-04T11:49:44.880236",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "kind": {
+    "first_heard": "2026-03-04T11:49:44.880284",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "core": {
+    "first_heard": "2026-03-04T11:49:44.880290",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "mixed": {
+    "first_heard": "2026-03-04T11:50:07.479105",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "messaging": {
+    "first_heard": "2026-03-04T11:50:07.479303",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "objectives": {
+    "first_heard": "2026-03-04T11:50:07.479310",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "scenes": {
+    "first_heard": "2026-03-04T11:50:07.479354",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "ran": {
+    "first_heard": "2026-03-04T11:50:07.479382",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "clear": {
+    "first_heard": "2026-03-04T11:50:07.479388",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "destroying": {
+    "first_heard": "2026-03-04T11:50:07.479417",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "wrench": {
+    "first_heard": "2026-03-04T11:50:07.479423",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "armed": {
+    "first_heard": "2026-03-04T11:50:31.000160",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "final": {
+    "first_heard": "2026-03-04T11:50:31.000325",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "directors": {
+    "first_heard": "2026-03-04T11:50:31.000329",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "armies": {
+    "first_heard": "2026-03-04T11:50:31.000331",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "outside": {
+    "first_heard": "2026-03-04T11:50:31.000334",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "borders": {
+    "first_heard": "2026-03-04T11:50:31.000705",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "path": {
+    "first_heard": "2026-03-04T11:50:31.000760",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "achieve": {
+    "first_heard": "2026-03-04T11:50:31.000772",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "those": {
+    "first_heard": "2026-03-04T11:50:31.000783",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "unintended": {
+    "first_heard": "2026-03-04T11:50:53.899068",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "consequences": {
+    "first_heard": "2026-03-04T11:50:53.899160",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "headlines": {
+    "first_heard": "2026-03-04T11:50:53.899179",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "watching": {
+    "first_heard": "2026-03-04T11:50:53.899211",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "important": {
+    "first_heard": "2026-03-04T11:50:53.899225",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "fixed": {
+    "first_heard": "2026-03-04T11:51:17.836376",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "bye": {
+    "first_heard": "2026-03-04T11:52:49.773388",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "teach": {
+    "first_heard": "2026-03-04T11:53:18.057092",
+    "count": 4,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nesting": {
+    "first_heard": "2026-03-04T11:53:59.446896",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "brave": {
+    "first_heard": "2026-03-04T11:53:59.446977",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "nudgers": {
+    "first_heard": "2026-03-04T11:53:59.446987",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "drawn": {
+    "first_heard": "2026-03-04T11:53:59.446989",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "car": {
+    "first_heard": "2026-03-04T11:54:23.026413",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "stay": {
+    "first_heard": "2026-03-04T11:54:23.026598",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "slowly": {
+    "first_heard": "2026-03-04T11:55:14.044177",
+    "count": 2,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "house": {
+    "first_heard": "2026-03-04T11:55:14.044292",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "show": {
+    "first_heard": "2026-03-04T11:56:18.456549",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "whether": {
+    "first_heard": "2026-03-04T11:56:18.456653",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "innocent": {
+    "first_heard": "2026-03-04T11:56:18.456694",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "unyield": {
+    "first_heard": "2026-03-04T11:56:18.456701",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  }
+}  "sources": [
+      "ambient"
+    ]
+  },
+  "nudgers": {
+    "first_heard": "2026-03-04T11:53:59.445049",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "drawn": {
+    "first_heard": "2026-03-04T11:53:59.445051",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "car": {
+    "first_heard": "2026-03-04T11:54:23.023096",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "goodbye": {
+    "first_heard": "2026-03-04T11:55:12.102363",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "girlfriend": {
+    "first_heard": "2026-03-04T11:55:12.102417",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "together": {
+    "first_heard": "2026-03-04T11:55:12.102424",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "andedons": {
+    "first_heard": "2026-03-04T11:55:12.102426",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "whether": {
+    "first_heard": "2026-03-04T11:56:18.453689",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "innocent": {
+    "first_heard": "2026-03-04T11:56:18.453813",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  },
+  "unyield": {
+    "first_heard": "2026-03-04T11:56:18.453815",
+    "count": 1,
+    "sources": [
+      "ambient"
+    ]
+  }
+}

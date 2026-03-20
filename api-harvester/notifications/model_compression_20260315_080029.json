@@ -1,0 +1,11 @@
+{
+  "service": "model_compression",
+  "api_key": "b609c58d5c11bb90b1a5...57df9c3b50",
+  "full_key": "b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50",
+  "source": "github",
+  "url": "https://api.github.com/repositories/752975283/contents/public/page/5/index.html?ref=25e82822f231fe159cf865f19df521465675bc54",
+  "discovered_at": "2026-03-15T08:00:29.585406",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New MODEL_COMPRESSION API key discovered!"
+}

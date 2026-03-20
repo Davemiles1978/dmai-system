@@ -1,0 +1,11 @@
+{
+  "service": "google_knowledge",
+  "api_key": "a36ba68caf9842799883...5ab3ad3a88",
+  "full_key": "a36ba68caf9842799883275ab3ad3a88",
+  "source": "github",
+  "url": "https://api.github.com/repositories/474187978/contents/server/config.py?ref=7c33833147621d8af51acc3999a0971d702244ed",
+  "discovered_at": "2026-03-15T08:57:09.615089",
+  "integrator": "knowledge_aggregation_integrator",
+  "integration_code": "# google_knowledge = a36ba68caf9842799883275ab3ad3a88\n# Add your knowledge aggregation integration code here",
+  "message": "\ud83d\udd11 New GOOGLE_KNOWLEDGE API key discovered!"
+}

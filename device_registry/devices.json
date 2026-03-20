@@ -1,0 +1,42 @@
+{
+  "devices": {
+    "current": {
+      "name": "MacBook-Air.local",
+      "type": "laptop",
+      "os": "Darwin",
+      "last_seen": "2026-03-03T14:24:33.442613",
+      "capabilities": [
+        "text",
+        "speaker",
+        "notifications",
+        "filesystem"
+      ]
+    },
+    "MacBook-Air.local": {
+      "name": "MacBook-Air.local",
+      "type": "laptop",
+      "os": "Darwin",
+      "last_seen": "2026-03-03T14:44:40.277547",
+      "capabilities": [
+        "text",
+        "speaker",
+        "notifications",
+        "filesystem"
+      ]
+    },
+    "iphone_david's_iphone_16": {
+      "name": "David's Iphone 16",
+      "type": "mobile",
+      "os": "iOS",
+      "last_seen": "2026-03-03T14:33:41.631641",
+      "capabilities": [
+        "text",
+        "speaker",
+        "notifications",
+        "camera"
+      ],
+      "delivery_method": "simulated"
+    }
+  },
+  "last_updated": "2026-03-03T14:44:40.277555"
+}

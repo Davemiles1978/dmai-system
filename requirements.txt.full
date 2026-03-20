@@ -1,0 +1,29 @@
+# Core
+python-dotenv==1.0.0
+
+# Web Framework
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# HTTP & Scraping
+requests==2.31.0
+beautifulsoup4==4.12.2
+httpx==0.25.1
+
+# AI/ML - Use versions with pre-compiled wheels
+numpy==1.24.3
+scikit-learn==1.3.2
+pandas==2.1.3
+
+# Database
+sqlalchemy==2.0.23
+redis==5.0.1
+
+# Utilities
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# For voice (if needed in cloud)
+# pyttsx3==2.90  # Comment out if not needed in cloud
+setuptools==65.5.0
+setuptools==65.5.0

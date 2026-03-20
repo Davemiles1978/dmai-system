@@ -1,0 +1,11 @@
+{
+  "service": "merlot",
+  "api_key": "GetDishPairingForWin...00Response",
+  "full_key": "GetDishPairingForWine200Response",
+  "source": "github",
+  "url": "https://api.github.com/repositories/189444765/contents/ruby/docs/WineApi.md?ref=75ec4fc8037fa47a20ff4dfd7a00fa87e2d08177",
+  "discovered_at": "2026-03-17T22:03:41.989422",
+  "integrator": "coaching_integrator",
+  "integration_code": "# merlot = GetDishPairingForWine200Response\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New MERLOT API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "clickup",
+  "api_key": "expandActivityOverfl...onDrawable",
+  "full_key": "expandActivityOverflowButtonDrawable",
+  "source": "github",
+  "url": "https://api.github.com/repositories/33727607/contents/bin/R.txt?ref=3c7796ac937ede7dbb3d858c1d11d8cca2bad8a6",
+  "discovered_at": "2026-03-15T06:33:54.378630",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New CLICKUP API key discovered!"
+}

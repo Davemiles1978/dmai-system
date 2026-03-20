@@ -1,0 +1,11 @@
+{
+  "service": "starfall",
+  "api_key": "sisterhoodmattersele...dgrand2022",
+  "full_key": "sisterhoodmatterselectunderwoodgrand2022",
+  "source": "github",
+  "url": "https://api.github.com/repositories/944932787/contents/01/22/51?ref=7513ce8690e9c92eafb67a37ad07bf6023f4e420",
+  "discovered_at": "2026-03-16T15:23:44.353820",
+  "integrator": "childcare_integrator",
+  "integration_code": "# starfall = sisterhoodmatterselectunderwoodgrand2022\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New STARFALL API key discovered!"
+}

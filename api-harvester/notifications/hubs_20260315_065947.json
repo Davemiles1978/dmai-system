@@ -1,0 +1,11 @@
+{
+  "service": "hubs",
+  "api_key": "eyJhbGciOiJSUzI1NiIs...I6IkpXVCJ9",
+  "full_key": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9",
+  "source": "github",
+  "url": "https://api.github.com/repositories/271552908/contents/api.md?ref=15971e8e3899d86fbb6981137658d2ecdee0b335",
+  "discovered_at": "2026-03-15T06:59:47.475715",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New HUBS API key discovered!"
+}

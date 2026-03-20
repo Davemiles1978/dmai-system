@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-03-10T09:24:30.318099",
+  "parent1": "dmai_core_gen39",
+  "parent2": "grok_base_gen26_gen27",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "learning",
+      "description": "Transfer learning from \u26a1 dmai_core_gen39 to \u26a1 grok_base_gen26_gen27",
+      "quality": 0.9
+    }
+  ],
+  "new_generation": 42,
+  "capabilities": [
+    "learning"
+  ]
+}

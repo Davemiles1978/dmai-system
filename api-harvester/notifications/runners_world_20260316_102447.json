@@ -1,0 +1,11 @@
+{
+  "service": "runners_world",
+  "api_key": "mzrmE5qonljUremFsqc0...Fsd15uHvIt",
+  "full_key": "mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt",
+  "source": "github",
+  "url": "https://api.github.com/repositories/432326508/contents/bridal-shoes-green/index.html?ref=b1c153380511a4f7fbe8077760e08cb21cd2b5b9",
+  "discovered_at": "2026-03-16T10:24:47.204303",
+  "integrator": "sports_integrator",
+  "integration_code": "# runners_world = mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New RUNNERS_WORLD API key discovered!"
+}

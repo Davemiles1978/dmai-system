@@ -1,0 +1,11 @@
+{
+  "service": "symcat",
+  "api_key": "kim2024mdagentsadapt...rationllms",
+  "full_key": "kim2024mdagentsadaptivecollaborationllms",
+  "source": "github",
+  "url": "https://api.github.com/repositories/789952325/contents/README.md?ref=3adbd760ca809b4e7b0c1085d68314b6e7d91e1b",
+  "discovered_at": "2026-03-16T17:53:52.536068",
+  "integrator": "medical_integrator",
+  "integration_code": "# symcat = kim2024mdagentsadaptivecollaborationllms\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New SYMCAT API key discovered!"
+}

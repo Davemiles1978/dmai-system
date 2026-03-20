@@ -1,0 +1,11 @@
+{
+  "service": "beer_api",
+  "api_key": "CA6FDAD0735007BF5D7D...F85E3AB4B9",
+  "full_key": "CA6FDAD0735007BF5D7DD5CF88CE50F85E3AB4B9",
+  "source": "github",
+  "url": "https://api.github.com/repositories/520316260/contents/src/api/Untappd.js?ref=f1bdd91b3e317deae63eebd41ec1467ce3ed647b",
+  "discovered_at": "2026-03-15T14:26:15.022098",
+  "integrator": "cooking_integrator",
+  "integration_code": "# beer_api = CA6FDAD0735007BF5D7DD5CF88CE50F85E3AB4B9\n# Add your cooking integration code here",
+  "message": "\ud83d\udd11 New BEER_API API key discovered!"
+}

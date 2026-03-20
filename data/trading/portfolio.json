@@ -1,0 +1,19 @@
+{
+  "portfolio": {
+    "cash": 1.8807780750634409,
+    "stocks": {},
+    "crypto": {},
+    "forex": {},
+    "commodities": {}
+  },
+  "trade_history": [
+    {
+      "type": "deposit",
+      "amount": 1.8807780750634409,
+      "source": "instagram_earnings",
+      "timestamp": "2026-03-05T14:29:37.763961"
+    }
+  ],
+  "metrics": {},
+  "last_updated": "2026-03-05T14:29:37.764157"
+}

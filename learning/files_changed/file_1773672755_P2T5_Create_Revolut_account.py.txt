@@ -1,0 +1,25 @@
+# File: /Users/davidmiles/Desktop/dmai-system/components/phase2/P2T5_Create_Revolut_account.py
+# Time: 2026-03-16T17:52:35.676919
+################################################################################
+#!/usr/bin/env python3
+"""
+Create Revolut account - Component P2T5
+"""
+
+class Create_Revolut_account:
+    def __init__(self):
+        self.name = "Create Revolut account"
+        self.component_id = "P2T5"
+        self.status = "initialized"
+        self.depends_on = []
+        
+    def info(self):
+        return {
+            "name": self.name,
+            "id": self.component_id,
+            "status": self.status
+        }
+
+if __name__ == "__main__":
+    component = Create_Revolut_account()
+    print(f"✅ {component.name} created")

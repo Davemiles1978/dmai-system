@@ -1,0 +1,11 @@
+{
+  "service": "smithsonian_archives",
+  "api_key": "wgRelevantPageIsProb...lyEditable",
+  "full_key": "wgRelevantPageIsProbablyEditable",
+  "source": "github",
+  "url": "https://api.github.com/repositories/558195793/contents/en.wikipedia.org/wiki/Mexichromis_porterae?ref=d448f4066fb743104de709e06eeba670c953bc3c",
+  "discovered_at": "2026-03-17T02:04:05.937762",
+  "integrator": "history_integrator",
+  "integration_code": "# smithsonian_archives = wgRelevantPageIsProbablyEditable\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New SMITHSONIAN_ARCHIVES API key discovered!"
+}

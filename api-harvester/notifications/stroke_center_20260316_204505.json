@@ -1,0 +1,11 @@
+{
+  "service": "stroke_center",
+  "api_key": "ANd9GcSprhvnKXM4gjeq...ewiv0876uw",
+  "full_key": "ANd9GcSprhvnKXM4gjeqt5fvh4Uq2tNaUdpYCXAf0CptoSadeBYQVewiv0876uw",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1005670479/contents/samples/ymyl_29000/res_20250723_n100/7106710.json?ref=58302b1ceff367804d500f62dbe847a4c657dbe9",
+  "discovered_at": "2026-03-16T20:45:05.886845",
+  "integrator": "medical_integrator",
+  "integration_code": "# stroke_center = ANd9GcSprhvnKXM4gjeqt5fvh4Uq2tNaUdpYCXAf0CptoSadeBYQVewiv0876uw\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New STROKE_CENTER API key discovered!"
+}

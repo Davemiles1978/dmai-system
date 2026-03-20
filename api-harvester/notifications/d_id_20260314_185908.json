@@ -1,0 +1,11 @@
+{
+  "service": "d_id",
+  "api_key": "R0lGODlhAQABAIAAAObm...AAICRAEAOw",
+  "full_key": "R0lGODlhAQABAIAAAObm5gAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw",
+  "source": "github",
+  "url": "https://api.github.com/repositories/97749313/contents/API.md?ref=9cba8d38bb75ddf14f9bae0a6f20b8161c864c73",
+  "discovered_at": "2026-03-14T18:59:08.122245",
+  "integrator": "video_audio_integrator",
+  "integration_code": "# d_id = R0lGODlhAQABAIAAAObm5gAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw\n# Add your video/audio integration code here",
+  "message": "\ud83d\udd11 New D_ID API key discovered!"
+}

@@ -1,0 +1,115 @@
+#!/bin/bash
+# DMAI Terminal Setup Command - FIXED VERSION
+
+DMAI_DIR="$HOME/Desktop/dmai-system"
+
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+show_help() {
+    echo -e "${BLUE}🚀 DMAI Control Command${NC}"
+    echo ""
+    echo "Usage: dmai [command]"
+    echo ""
+    echo "Commands:"
+    echo "  start       - Load environment and start daemon"
+    echo "  stop        - Stop all DMAI services"
+    echo "  restart     - Restart all services"
+    echo "  status      - Check service status"
+    echo "  shell       - Just load environment (no daemon)"
+    echo "  logs [svc]  - Show logs"
+    echo "  help        - Show this help"
+}
+
+load_environment() {
+    echo -e "${BLUE}📂 Changing to DMAI directory...${NC}"
+    cd "$DMAI_DIR" || { echo -e "${RED}❌ Failed to cd to $DMAI_DIR${NC}"; exit 1; }
+    
+    echo -e "${BLUE}🐍 Activating virtual environment...${NC}"
+    # Use venv_brew_ssl (Python 3.11 with OpenSSL)
+    if [ -f "venv_brew_ssl/bin/activate" ]; then
+        source venv_brew_ssl/bin/activate
+        echo -e "${GREEN}✅ Virtual env (venv_brew_ssl) activated${NC}"
+    elif [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+        echo -e "${YELLOW}⚠️  Using old venv (Python 3.9) - recommend recreating with venv_brew_ssl${NC}"
+    else
+        echo -e "${RED}❌ No venv found!${NC}"
+        exit 1
+    fi
+    
+    echo -e "${BLUE}📦 Loading environment variables...${NC}"
+    if [ -f ".env" ]; then
+        set -a
+        source .env
+        set +a
+        echo -e "${GREEN}✅ Environment loaded${NC}"
+        
+        # Show what's loaded (masked)
+        echo -e "\n${BLUE}📊 Active variables:${NC}"
+        echo "   TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:0:10}... (${#TELEGRAM_BOT_TOKEN} chars)"
+        echo "   DATABASE: ${RENDER_DATABASE_URL:0:30}..."
+        echo "   GITHUB_TOKEN: ${GITHUB_TOKEN:0:10}..."
+    else
+        echo -e "${RED}❌ No .env file found!${NC}"
+    fi
+    
+    echo -e "\n${GREEN}✅ DMAI environment ready!${NC}"
+    echo -e "${BLUE}📍 Location: $(pwd)${NC}"
+    echo -e "${BLUE}📍 Python: $(which python3)${NC}"
+}
+
+case "$1" in
+    start)
+        load_environment
+        echo -e "\n${BLUE}🚀 Starting DMAI daemon...${NC}"
+        python3 scripts/dmai_daemon_fixed.py start
+        ;;
+    stop)
+        echo -e "${BLUE}🛑 Stopping DMAI services...${NC}"
+        cd "$DMAI_DIR" 2>/dev/null || { echo -e "${RED}❌ DMAI directory not found${NC}"; exit 1; }
+        pkill -f "python.*dmai" 2>/dev/null
+        pkill -f "python.*harvester" 2>/dev/null
+        pkill -f "python.*api_server" 2>/dev/null
+        echo -e "${GREEN}✅ All services stopped${NC}"
+        ;;
+    restart)
+        $0 stop
+        sleep 2
+        $0 start
+        ;;
+    status)
+        cd "$DMAI_DIR" 2>/dev/null || { echo -e "${RED}❌ DMAI directory not found${NC}"; exit 1; }
+        echo -e "${BLUE}📊 DMAI Service Status:${NC}"
+        python3 scripts/dmai_daemon_fixed.py status
+        ;;
+    logs)
+        cd "$DMAI_DIR" 2>/dev/null || { echo -e "${RED}❌ DMAI directory not found${NC}"; exit 1; }
+        if [ -n "$2" ]; then
+            LOG_FILE="$HOME/Library/Logs/dmai/${2}.log"
+            if [ -f "$LOG_FILE" ]; then
+                echo -e "${BLUE}📋 Showing last 50 lines of $2.log:${NC}"
+                tail -50 "$LOG_FILE"
+            else
+                echo -e "${RED}❌ Log file not found: $LOG_FILE${NC}"
+                ls -1 "$HOME/Library/Logs/dmai/" 2>/dev/null || echo "No logs found"
+            fi
+        else
+            echo -e "${YELLOW}📋 Recent logs:${NC}"
+            ls -lt "$HOME/Library/Logs/dmai/" 2>/dev/null | head -10 || echo "No logs found"
+        fi
+        ;;
+    shell)
+        load_environment
+        echo -e "\n${GREEN}✅ DMAI shell ready! Type 'exit' to leave${NC}"
+        # Set a clean prompt with just 🧬 DMAI at the beginning
+        export PS1="🧬 DMAI \\$ "
+        exec $SHELL
+        ;;
+    help|*)
+        show_help
+        ;;
+esac

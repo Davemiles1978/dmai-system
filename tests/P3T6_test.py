@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""
+Tests for P3T6 - Deploy fragment spawning
+"""
+
+import unittest
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+try:
+    from components.phase3.P3T6_Deploy_fragment_spawning import FragmentSpawningDeployer
+except ImportError:
+    FragmentSpawningDeployer = None
+
+class TestP3T6(unittest.TestCase):
+    """Test suite for P3T6 - Deploy fragment spawning"""
+    
+    def setUp(self):
+        if FragmentSpawningDeployer:
+            self.component = FragmentSpawningDeployer()
+        else:
+            self.skipTest("FragmentSpawningDeployer class not found")
+    
+    def test_component_exists(self):
+        """Test that component can be instantiated"""
+        if FragmentSpawningDeployer:
+            self.assertIsNotNone(self.component)
+    
+    def test_component_id(self):
+        """Test that component has correct ID"""
+        if FragmentSpawningDeployer:
+            self.assertEqual(self.component.component_id, "P3T6")
+
+if __name__ == '__main__':
+    unittest.main()

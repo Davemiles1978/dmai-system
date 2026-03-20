@@ -1,0 +1,11 @@
+{
+  "service": "tonal_api",
+  "api_key": "DistilBertForSequenc...sification",
+  "full_key": "DistilBertForSequenceClassification",
+  "source": "github",
+  "url": "https://api.github.com/repositories/680202939/contents/nlp/ICML2024/train_model.ipynb?ref=9c3433d9c0c827b29d34e484cdc25caebeecf57c",
+  "discovered_at": "2026-03-16T08:56:00.303798",
+  "integrator": "sports_integrator",
+  "integration_code": "# tonal_api = DistilBertForSequenceClassification\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New TONAL_API API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "printables",
+  "api_key": "1EqKVTt3clsfM8pFoZVf...Pzm9oNqWkY",
+  "full_key": "1EqKVTt3clsfM8pFoZVfl4kPzm9oNqWkY",
+  "source": "github",
+  "url": "https://api.github.com/repositories/509598134/contents/README.md?ref=d52d14322600f04b71e5f21feb80a081308c118d",
+  "discovered_at": "2026-03-15T02:39:11.155459",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New PRINTABLES API key discovered!"
+}

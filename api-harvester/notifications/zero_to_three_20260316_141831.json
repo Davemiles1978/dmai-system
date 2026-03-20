@@ -1,0 +1,11 @@
+{
+  "service": "zero_to_three",
+  "api_key": "getAnalyticsEventFro...tification",
+  "full_key": "getAnalyticsEventFromAppleNotification",
+  "source": "github",
+  "url": "https://api.github.com/repositories/109269038/contents/src/common/apple/utils.ts?ref=53e24c2c27e193ea63255efc4bd8680320b94d1e",
+  "discovered_at": "2026-03-16T14:18:31.948069",
+  "integrator": "childcare_integrator",
+  "integration_code": "# zero_to_three = getAnalyticsEventFromAppleNotification\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New ZERO_TO_THREE API key discovered!"
+}

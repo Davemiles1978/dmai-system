@@ -1,0 +1,11 @@
+{
+  "service": "podia",
+  "api_key": "AnimationBaseConfigu...tionWidget",
+  "full_key": "AnimationBaseConfigurationWidget",
+  "source": "github",
+  "url": "https://api.github.com/repositories/26667800/contents/po/sc.po?ref=ea964995174bf308dd4b72d30b21dda367eb8998",
+  "discovered_at": "2026-03-17T15:50:16.659369",
+  "integrator": "coaching_integrator",
+  "integration_code": "# podia = AnimationBaseConfigurationWidget\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New PODIA API key discovered!"
+}

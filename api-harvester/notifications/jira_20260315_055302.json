@@ -1,0 +1,11 @@
+{
+  "service": "jira",
+  "api_key": "48B9AEC9700AADBB107C...CF172A4D28",
+  "full_key": "48B9AEC9700AADBB107CD6CF172A4D28",
+  "source": "github",
+  "url": "https://api.github.com/repositories/85510140/contents/API.md?ref=6a82b9703b88c7add0e553def33f92ca419a5f94",
+  "discovered_at": "2026-03-15T05:53:02.192543",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New JIRA API key discovered!"
+}

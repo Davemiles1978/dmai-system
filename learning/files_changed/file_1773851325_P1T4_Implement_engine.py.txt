@@ -1,0 +1,175 @@
+# File: /Users/davidmiles/Desktop/dmai-system/components/phase1/P1T4_Implement_engine.py
+# Time: 2026-03-18T19:28:45.044516
+################################################################################
+#!/usr/bin/env python3
+"""
+P1T4_Implement_engine.py
+Engine Implementation - Core execution engine for DMAI operations
+Full-featured component for DMAI evolution system
+"""
+
+import os
+import sys
+import json
+import time
+import logging
+import traceback
+import hashlib
+import threading
+import queue
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Callable
+from enum import Enum
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('engine.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('Engine')
+
+class EngineState(Enum):
+    """Engine operational states"""
+    STOPPED = "stopped"
+    STARTING = "starting"
+    RUNNING = "running"
+    PAUSED = "paused"
+    DEGRADED = "degraded"
+    ERROR = "error"
+    MAINTENANCE = "maintenance"
+
+class TaskPriority(Enum):
+    """Task priority levels"""
+    CRITICAL = 1
+    HIGH = 2
+    MEDIUM = 3
+    LOW = 4
+    BACKGROUND = 5
+
+class TaskStatus(Enum):
+    """Task execution status"""
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+    RETRYING = "retrying"
+
+class Engine:
+    """
+    Engine Implementation - Core execution engine for DMAI
+    Manages task execution, scheduling, and resource allocation
+    """
+    
+    def __init__(self):
+        self.name = "Engine"
+        self.component_id = "P1T4"
+        self.version = "1.0.0"
+        self.status = EngineState.STOPPED.value
+        self.depends_on = ["P1T1", "P1T2", "P1T3"]
+        
+        # Task management
+        self.task_queue = queue.PriorityQueue()
+        self.active_tasks = {}
+        self.completed_tasks = []
+        self.failed_tasks = []
+        self.task_history = []
+        self.task_counter = 0
+        
+        # Engine components
+        self.workers = []
+        self.schedulers = []
+        self.executors = {}
+        self.handlers = {}
+        
+        # Resource management
+        self.resources = {
+            'cpu': {'total': 100, 'used': 0, 'available': 100},
+            'memory': {'total': 1024, 'used': 0, 'available': 1024},
+            'threads': {'total': 10, 'used': 0, 'available': 10},
+            'connections': {'total': 50, 'used': 0, 'available': 50}
+        }
+        
+        # Performance metrics
+        self.metrics = {
+            'tasks_processed': 0,
+            'tasks_succeeded': 0,
+            'tasks_failed': 0,
+            'avg_processing_time': 0,
+            'peak_concurrency': 0,
+            'total_uptime': 0,
+            'last_health_check': None,
+            'error_rate': 0
+        }
+        
+        # Configuration
+        self.config = {
+            'max_workers': 5,
+            'task_timeout': 300,  # 5 minutes
+            'max_retries': 3,
+            'retry_delay': 5,  # seconds
+            'health_check_interval': 60,
+            'metrics_window': 3600  # 1 hour
+        }
+        
+        # Control flags
+        self.running = False
+        self.paused = False
+        self.maintenance_mode = False
+        self.engine_thread = None
+        
+        # Statistics
+        self.stats = {
+            'start_time': None,
+            'stop_time': None,
+            'total_runtime': 0,
+            'tasks_by_priority': {p.name: 0 for p in TaskPriority},
+            'tasks_by_status': {s.value: 0 for s in TaskStatus},
+            'peak_queue_size': 0,
+            'avg_queue_wait': 0
+        }
+        
+        logger.info(f"⚙️ Engine component initialized (v{self.version})")
+    
+    def run(self, continuous=False, interval=1):
+        """
+        Main execution method - called by evolution engine
+        
+        Args:
+            continuous: Whether to run continuously
+            interval: Check interval in seconds
+        """
+        logger.info(f"🚀 Starting {self.name} v{self.version}")
+        
+        try:
+            if continuous:
+                logger.info(f"Continuous mode: running engine permanently")
+                self.start()
+                # Keep running until stopped
+                while self.running:
+                    time.sleep(interval)
+            else:
+                # Single run - process pending tasks
+                result = self.process_pending()
+            
+            logger.info(f"✅ {self.name} completed")
+            return self.get_status()
+            
+        except Exception as e:
+            logger.error(f"❌ Error in {self.name}: {e}")
+            logger.error(traceback.format_exc())
+            self.status = EngineState.ERROR.value
+            return {"error": str(e), "component": self.component_id}
+    
+    def evolve(self):
+        """
+        Evolution method - called when component needs to evolve
+        """
+        logger.info(f"🧬 Evolving {self.name}")
+        self.version = f"1.0.{len(self.task_history) + 1}"
+        
+        # Evolve engine configuration based on performance

@@ -1,0 +1,11 @@
+{
+  "service": "open_router",
+  "api_key": "05b6a8aea663a48f306f...655b8c3cc2",
+  "full_key": "05b6a8aea663a48f306fe51fb0f01ee9bfe5774c69a3111490c112655b8c3cc2",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1137406445/contents/FIXED_API_KEY_NAME.md?ref=764beb7bb94b08216f8384444b55ab897dec5c44",
+  "discovered_at": "2026-03-16T12:22:04.134704",
+  "integrator": "osint_integrator",
+  "integration_code": "# open_router = 05b6a8aea663a48f306fe51fb0f01ee9bfe5774c69a3111490c112655b8c3cc2\n# Add your OSINT integration code here",
+  "message": "\ud83d\udd11 New OPEN_ROUTER API key discovered!"
+}

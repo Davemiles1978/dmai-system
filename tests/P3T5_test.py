@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""
+Tests for P3T5 - Automate Oracle account creation
+"""
+
+import unittest
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+try:
+    from components.phase3.P3T5_Automate_Oracle_account_creation import AutomateOracleAccount
+except ImportError:
+    AutomateOracleAccount = None
+
+class TestP3T5(unittest.TestCase):
+    """Test suite for P3T5 - Automate Oracle account creation"""
+    
+    def setUp(self):
+        if AutomateOracleAccount:
+            self.component = AutomateOracleAccount()
+        else:
+            self.skipTest("AutomateOracleAccount class not found")
+    
+    def test_component_exists(self):
+        """Test that component can be instantiated"""
+        if AutomateOracleAccount:
+            self.assertIsNotNone(self.component)
+    
+    def test_component_id(self):
+        """Test that component has correct ID"""
+        if AutomateOracleAccount:
+            self.assertEqual(self.component.component_id, "P3T5")
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,0 +1,118 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_web.py
+# Time: 2026-03-17T10:57:13.557842
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI WEB - Chat interface
+SIMPLIFIED - No 2FA, just password
+"""
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.absolute()
+sys.path.insert(0, str(BASE_DIR))
+
+import os
+import json
+import logging
+import hashlib
+from datetime import datetime
+from flask import Flask, render_template, request, jsonify, session
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - WEB[DMAI] - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger('WEB')
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', hashlib.sha256(b"DMAI_SECRET").hexdigest())
+
+# Master password from environment
+MASTER_PASSWORD = os.environ.get('MASTER_PASSWORD', 'dmai2026')
+logger.info(f"🔐 Password configured: {'Yes (custom)' if os.environ.get('MASTER_PASSWORD') else 'No (using default dmai2026)'}")
+
+@app.route('/')
+def index():
+    """Main chat interface"""
+    return render_template('chat.html',
+                         authenticated=session.get('authenticated', False),
+                         user=session.get('user', 'admin'))
+
+@app.route('/api/auth', methods=['POST'])
+def authenticate():
+    """Simple password authentication - NO 2FA"""
+    try:
+        data = request.get_json()
+        username = data.get('username', 'admin')
+        password = data.get('password', '')
+        
+        logger.info(f"Login attempt for user: {username}")
+        
+        if password == MASTER_PASSWORD:
+            session['authenticated'] = True
+            session['user'] = username
+            logger.info(f"✅ User {username} authenticated successfully")
+            return jsonify({'success': True, 'user': username})
+        
+        logger.warning(f"❌ Failed login attempt for {username}")
+        return jsonify({'success': False, 'error': 'Invalid password'}), 401
+        
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        return jsonify({'success': False, 'error': 'Server error'}), 500
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'success': True})
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    data = request.get_json()
+    message = data.get('message', '')
+    
+    # Simple response for now
+    return jsonify({
+        'response': f"I received: '{message}'. DMAI is online!",
+        'generation': 72
+    })
+
+@app.route('/api/status', methods=['GET'])
+def status():
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    return jsonify({
+        'name': 'DMAI',
+        'generation': 72,
+        'authenticated': True,
+        'user': session.get('user')
+    })
+
+@app.route('/admin')
+def admin_dash():
+    if not session.get('authenticated'):
+        return render_template('login.html', redirect='/admin')
+    return "<h1>Admin Dashboard</h1><p>Coming soon...</p><a href='/'>Back to Chat</a>"
+
+@app.route('/vision')
+def vision():
+    return render_template('vision.html')
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5001))
+    logger.info("="*50)
+    logger.info("🚀 DMAI Web Interface Starting")
+    logger.info(f"🌐 Port: {port}")
+    logger.info(f"🔐 Password: {MASTER_PASSWORD}")
+    logger.info("="*50)
+    app.run(host='0.0.0.0', port=port, debug=False)

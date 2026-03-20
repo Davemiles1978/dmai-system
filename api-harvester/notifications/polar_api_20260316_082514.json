@@ -1,0 +1,11 @@
+{
+  "service": "polar_api",
+  "api_key": "CreateCustomerSessio...erIDCreate",
+  "full_key": "CreateCustomerSessionsCreateCustomerSessionCreateCustomerSessionCustomerIDCreate",
+  "source": "github",
+  "url": "https://api.github.com/repositories/902730256/contents/apps/backend/app/payments.go?ref=407f65c22dcac04f0c77042f9849b76c426d9151",
+  "discovered_at": "2026-03-16T08:25:14.932393",
+  "integrator": "sports_integrator",
+  "integration_code": "# polar_api = CreateCustomerSessionsCreateCustomerSessionCreateCustomerSessionCustomerIDCreate\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New POLAR_API API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "kajabi",
+  "api_key": "PLYK5u0J3Vpqs0xx1b64...IQuF2RF7es",
+  "full_key": "PLYK5u0J3Vpqs0xx1b645wv6IQuF2RF7es",
+  "source": "github",
+  "url": "https://api.github.com/repositories/389307289/contents/_f_urls.txt?ref=5c0300471b87c6a5f3dd8883484f8155b5ff33d7",
+  "discovered_at": "2026-03-17T15:44:59.437426",
+  "integrator": "coaching_integrator",
+  "integration_code": "# kajabi = PLYK5u0J3Vpqs0xx1b645wv6IQuF2RF7es\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New KAJABI API key discovered!"
+}

@@ -1,0 +1,4125 @@
+{
+  "the": {
+    "first_heard": "bootstrap",
+    "count": 40,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "be": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "to": {
+    "first_heard": "bootstrap",
+    "count": 30,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "of": {
+    "first_heard": "bootstrap",
+    "count": 51,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "and": {
+    "first_heard": "bootstrap",
+    "count": 32,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "a": {
+    "first_heard": "bootstrap",
+    "count": 41,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "in": {
+    "first_heard": "bootstrap",
+    "count": 30,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "that": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "have": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "i": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "it": {
+    "first_heard": "bootstrap",
+    "count": 13,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "for": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "not": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_options trading"
+    ]
+  },
+  "on": {
+    "first_heard": "bootstrap",
+    "count": 15,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "with": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "he": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "as": {
+    "first_heard": "bootstrap",
+    "count": 8,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "you": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "news"
+    ]
+  },
+  "do": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "at": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_options trading"
+    ]
+  },
+  "this": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "but": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "his": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "by": {
+    "first_heard": "bootstrap",
+    "count": 10,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "from": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "they": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "we": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "say": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "her": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "she": {
+    "first_heard": "bootstrap",
+    "count": 4,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "or": {
+    "first_heard": "bootstrap",
+    "count": 15,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_options trading"
+    ]
+  },
+  "an": {
+    "first_heard": "bootstrap",
+    "count": 7,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "will": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "my": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "one": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "all": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "would": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "there": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "their": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "what": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "so": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "up": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "out": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia"
+    ]
+  },
+  "if": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "about": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "who": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "get": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "which": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_options trading"
+    ]
+  },
+  "go": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "me": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "when": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "make": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "can": {
+    "first_heard": "bootstrap",
+    "count": 5,
+    "sources": [
+      "initialization",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "like": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "time": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "no": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "just": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "him": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "know": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "take": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "people": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "into": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "year": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "your": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "good": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "some": {
+    "first_heard": "bootstrap",
+    "count": 3,
+    "sources": [
+      "initialization",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "could": {
+    "first_heard": "bootstrap",
+    "count": 7,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "them": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "see": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "other": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "than": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "then": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "now": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "look": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "only": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "come": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "its": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_options trading"
+    ]
+  },
+  "over": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "think": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "also": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "back": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "after": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia"
+    ]
+  },
+  "use": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "two": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "how": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "our": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "work": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "first": {
+    "first_heard": "bootstrap",
+    "count": 6,
+    "sources": [
+      "initialization",
+      "news",
+      "wikipedia"
+    ]
+  },
+  "well": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "way": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "even": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "new": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "want": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "because": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "any": {
+    "first_heard": "bootstrap",
+    "count": 2,
+    "sources": [
+      "initialization",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "these": {
+    "first_heard": "bootstrap",
+    "count": 1,
+    "sources": [
+      "initialization",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "give": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "day": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "most": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "us": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "dmai": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "david": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "master": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "father": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "sir": {
+    "first_heard": "bootstrap",
+    "count": 0,
+    "sources": [
+      "initialization"
+    ]
+  },
+  "four": {
+    "first_heard": "2026-03-06T13:54:10.477515",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "arrested": {
+    "first_heard": "2026-03-06T13:54:10.477537",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "uk": {
+    "first_heard": "2026-03-06T13:54:10.477555",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "suspicion": {
+    "first_heard": "2026-03-06T13:54:10.477559",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "assisting": {
+    "first_heard": "2026-03-06T13:54:10.477572",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "iran": {
+    "first_heard": "2026-03-06T13:54:10.477575",
+    "count": 15,
+    "sources": [
+      "news"
+    ]
+  },
+  "s": {
+    "first_heard": "2026-03-06T13:54:10.477577",
+    "count": 11,
+    "sources": [
+      "news",
+      "wikipedia",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "intelligence": {
+    "first_heard": "2026-03-06T13:54:10.477579",
+    "count": 7,
+    "sources": [
+      "news",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "service": {
+    "first_heard": "2026-03-06T13:54:10.477581",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "passengers": {
+    "first_heard": "2026-03-06T13:54:10.514176",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "describe": {
+    "first_heard": "2026-03-06T13:54:10.514254",
+    "count": 6,
+    "sources": [
+      "news",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "surreal": {
+    "first_heard": "2026-03-06T13:54:10.514261",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "scramble": {
+    "first_heard": "2026-03-06T13:54:10.514263",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "reach": {
+    "first_heard": "2026-03-06T13:54:10.514269",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "government": {
+    "first_heard": "2026-03-06T13:54:10.514344",
+    "count": 7,
+    "sources": [
+      "news",
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "flight": {
+    "first_heard": "2026-03-06T13:54:10.514349",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "middle": {
+    "first_heard": "2026-03-06T13:54:10.514356",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "east": {
+    "first_heard": "2026-03-06T13:54:10.514358",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "five": {
+    "first_heard": "2026-03-06T13:54:10.583912",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "ways": {
+    "first_heard": "2026-03-06T13:54:10.583931",
+    "count": 6,
+    "sources": [
+      "news",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "war": {
+    "first_heard": "2026-03-06T13:54:10.583938",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "affect": {
+    "first_heard": "2026-03-06T13:54:10.583943",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "charts": {
+    "first_heard": "2026-03-06T13:54:10.583948",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "school": {
+    "first_heard": "2026-03-06T13:54:10.647576",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "nearby": {
+    "first_heard": "2026-03-06T13:54:10.647600",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "military": {
+    "first_heard": "2026-03-06T13:54:10.647603",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "base": {
+    "first_heard": "2026-03-06T13:54:10.647605",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "struck": {
+    "first_heard": "2026-03-06T13:54:10.647607",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "multiple": {
+    "first_heard": "2026-03-06T13:54:10.647609",
+    "count": 6,
+    "sources": [
+      "news",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "times": {
+    "first_heard": "2026-03-06T13:54:10.647611",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "satellite": {
+    "first_heard": "2026-03-06T13:54:10.647613",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "image": {
+    "first_heard": "2026-03-06T13:54:10.647617",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "reveals": {
+    "first_heard": "2026-03-06T13:54:10.647620",
+    "count": 5,
+    "sources": [
+      "news"
+    ]
+  },
+  "was": {
+    "first_heard": "2026-03-06T13:54:13.836390",
+    "count": 3,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "czechoslovak": {
+    "first_heard": "2026-03-06T13:54:13.836417",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "professional": {
+    "first_heard": "2026-03-06T13:54:13.836420",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "ice": {
+    "first_heard": "2026-03-06T13:54:13.836422",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "hockey": {
+    "first_heard": "2026-03-06T13:54:13.836424",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "defenceman": {
+    "first_heard": "2026-03-06T13:54:13.836426",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "caricuao": {
+    "first_heard": "2026-03-06T13:54:57.242493",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "is": {
+    "first_heard": "2026-03-06T13:54:57.242520",
+    "count": 30,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_industrial design",
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_forex trading",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_options trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "caracas": {
+    "first_heard": "2026-03-06T13:54:57.242530",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "metro": {
+    "first_heard": "2026-03-06T13:54:57.242533",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "station": {
+    "first_heard": "2026-03-06T13:54:57.242535",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "line": {
+    "first_heard": "2026-03-06T13:54:57.242547",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "opened": {
+    "first_heard": "2026-03-06T13:54:57.242554",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "october": {
+    "first_heard": "2026-03-06T13:54:57.242556",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "part": {
+    "first_heard": "2026-03-06T13:54:57.242559",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "inaugural": {
+    "first_heard": "2026-03-06T13:54:57.242569",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "section": {
+    "first_heard": "2026-03-06T13:54:57.242571",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "la": {
+    "first_heard": "2026-03-06T13:54:57.242577",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "paz": {
+    "first_heard": "2026-03-06T13:54:57.242580",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "las": {
+    "first_heard": "2026-03-06T13:54:57.242583",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "adjuntas": {
+    "first_heard": "2026-03-06T13:54:57.242585",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "branch": {
+    "first_heard": "2026-03-06T13:54:57.242589",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "leading": {
+    "first_heard": "2026-03-06T13:54:57.242591",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "between": {
+    "first_heard": "2026-03-06T13:54:57.242594",
+    "count": 2,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "mamera": {
+    "first_heard": "2026-03-06T13:54:57.242596",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "proton": {
+    "first_heard": "2026-03-06T13:55:32.671379",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "persona": {
+    "first_heard": "2026-03-06T13:55:32.671414",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "series": {
+    "first_heard": "2026-03-06T13:55:32.671421",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "compact": {
+    "first_heard": "2026-03-06T13:55:32.671427",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "subcompact": {
+    "first_heard": "2026-03-06T13:55:32.671431",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "cars": {
+    "first_heard": "2026-03-06T13:55:32.671434",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "produced": {
+    "first_heard": "2026-03-06T13:55:32.671436",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "malaysian": {
+    "first_heard": "2026-03-06T13:55:32.671456",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "automobile": {
+    "first_heard": "2026-03-06T13:55:32.671470",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "manufacturer": {
+    "first_heard": "2026-03-06T13:55:32.671472",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "cheryl": {
+    "first_heard": "2026-03-06T13:56:09.876058",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "dunye": {
+    "first_heard": "2026-03-06T13:56:09.876080",
+    "count": 4,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "liberian": {
+    "first_heard": "2026-03-06T13:56:09.876088",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "american": {
+    "first_heard": "2026-03-06T13:56:09.876091",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "film": {
+    "first_heard": "2026-03-06T13:56:09.876093",
+    "count": 3,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "director": {
+    "first_heard": "2026-03-06T13:56:09.876095",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "producer": {
+    "first_heard": "2026-03-06T13:56:09.876097",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "screenwriter": {
+    "first_heard": "2026-03-06T13:56:09.876099",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "editor": {
+    "first_heard": "2026-03-06T13:56:09.876101",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "actress": {
+    "first_heard": "2026-03-06T13:56:09.876105",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "daughter": {
+    "first_heard": "2026-03-06T13:56:09.876113",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "edith": {
+    "first_heard": "2026-03-06T13:56:09.876117",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "irene": {
+    "first_heard": "2026-03-06T13:56:09.876119",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "hamilton": {
+    "first_heard": "2026-03-06T13:56:09.876121",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "george": {
+    "first_heard": "2026-03-06T13:56:09.876124",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "kekura": {
+    "first_heard": "2026-03-06T13:56:09.876126",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "born": {
+    "first_heard": "2026-03-06T13:56:09.876130",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "liberia": {
+    "first_heard": "2026-03-06T13:56:09.876133",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "shortly": {
+    "first_heard": "2026-03-06T13:56:09.876137",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "family": {
+    "first_heard": "2026-03-06T13:56:09.876141",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "moved": {
+    "first_heard": "2026-03-06T13:56:09.876143",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "philadelphia": {
+    "first_heard": "2026-03-06T13:56:09.876147",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "often": {
+    "first_heard": "2026-03-06T13:56:09.876151",
+    "count": 2,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "concerns": {
+    "first_heard": "2026-03-06T13:56:09.876153",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "themes": {
+    "first_heard": "2026-03-06T13:56:09.876155",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "race": {
+    "first_heard": "2026-03-06T13:56:09.876156",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "sexuality": {
+    "first_heard": "2026-03-06T13:56:09.876158",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "gender": {
+    "first_heard": "2026-03-06T13:56:09.876159",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "particularly": {
+    "first_heard": "2026-03-06T13:56:09.876161",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "issues": {
+    "first_heard": "2026-03-06T13:56:09.876162",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "relating": {
+    "first_heard": "2026-03-06T13:56:09.876164",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "black": {
+    "first_heard": "2026-03-06T13:56:09.876165",
+    "count": 2,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "lesbians": {
+    "first_heard": "2026-03-06T13:56:09.876167",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "known": {
+    "first_heard": "2026-03-06T13:56:09.876169",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "lesbian": {
+    "first_heard": "2026-03-06T13:56:09.876175",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "ever": {
+    "first_heard": "2026-03-06T13:56:09.876177",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "direct": {
+    "first_heard": "2026-03-06T13:56:09.876179",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "feature": {
+    "first_heard": "2026-03-06T13:56:09.876181",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "watermelon": {
+    "first_heard": "2026-03-06T13:56:09.876185",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "woman": {
+    "first_heard": "2026-03-06T13:56:09.876187",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "runs": {
+    "first_heard": "2026-03-06T13:56:09.876449",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "production": {
+    "first_heard": "2026-03-06T13:56:09.876462",
+    "count": 4,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "company": {
+    "first_heard": "2026-03-06T13:56:09.876465",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "jingletown": {
+    "first_heard": "2026-03-06T13:56:09.876468",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "films": {
+    "first_heard": "2026-03-06T13:56:09.876469",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "based": {
+    "first_heard": "2026-03-06T13:56:09.876927",
+    "count": 2,
+    "sources": [
+      "wikipedia",
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "oakland": {
+    "first_heard": "2026-03-06T13:56:09.876938",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "california": {
+    "first_heard": "2026-03-06T13:56:09.876941",
+    "count": 1,
+    "sources": [
+      "wikipedia"
+    ]
+  },
+  "cryptocurrency": {
+    "first_heard": "2026-03-06T14:11:32.885795",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "digital": {
+    "first_heard": "2026-03-06T14:11:32.885800",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "currency": {
+    "first_heard": "2026-03-06T14:11:32.885801",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "designed": {
+    "first_heard": "2026-03-06T14:11:32.885802",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "through": {
+    "first_heard": "2026-03-06T14:11:32.885807",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "computer": {
+    "first_heard": "2026-03-06T14:11:32.885809",
+    "count": 8,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "network": {
+    "first_heard": "2026-03-06T14:11:32.885809",
+    "count": 5,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "reliant": {
+    "first_heard": "2026-03-06T14:11:32.885811",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "central": {
+    "first_heard": "2026-03-06T14:11:32.885813",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "authority": {
+    "first_heard": "2026-03-06T14:11:32.885814",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "such": {
+    "first_heard": "2026-03-06T14:11:32.885815",
+    "count": 4,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_content strategy",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "bank": {
+    "first_heard": "2026-03-06T14:11:32.885817",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "uphold": {
+    "first_heard": "2026-03-06T14:11:32.885818",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "maintain": {
+    "first_heard": "2026-03-06T14:11:32.885819",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "however": {
+    "first_heard": "2026-03-06T14:11:32.885820",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "type": {
+    "first_heard": "2026-03-06T14:11:32.885821",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "called": {
+    "first_heard": "2026-03-06T14:11:32.885822",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cryptocurrency",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "stablecoin": {
+    "first_heard": "2026-03-06T14:11:32.885823",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "may": {
+    "first_heard": "2026-03-06T14:11:32.885824",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "rely": {
+    "first_heard": "2026-03-06T14:11:32.885825",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "upon": {
+    "first_heard": "2026-03-06T14:11:32.885825",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "action": {
+    "first_heard": "2026-03-06T14:11:32.885826",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "legislation": {
+    "first_heard": "2026-03-06T14:11:32.885827",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "require": {
+    "first_heard": "2026-03-06T14:11:32.885828",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "stable": {
+    "first_heard": "2026-03-06T14:11:32.885829",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "value": {
+    "first_heard": "2026-03-06T14:11:32.885829",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "upheld": {
+    "first_heard": "2026-03-06T14:11:32.885830",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "maintained": {
+    "first_heard": "2026-03-06T14:11:32.885831",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cryptocurrency"
+    ]
+  },
+  "industrial": {
+    "first_heard": "2026-03-06T14:11:41.688075",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "design": {
+    "first_heard": "2026-03-06T14:11:41.688078",
+    "count": 4,
+    "sources": [
+      "wikipedia_api_industrial design",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "process": {
+    "first_heard": "2026-03-06T14:11:41.688082",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "applied": {
+    "first_heard": "2026-03-06T14:11:41.688084",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "physical": {
+    "first_heard": "2026-03-06T14:11:41.688085",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_industrial design",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "products": {
+    "first_heard": "2026-03-06T14:11:41.688087",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "are": {
+    "first_heard": "2026-03-06T14:11:41.688088",
+    "count": 6,
+    "sources": [
+      "wikipedia_api_industrial design",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "manufactured": {
+    "first_heard": "2026-03-06T14:11:41.688089",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "mass": {
+    "first_heard": "2026-03-06T14:11:41.688091",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "creative": {
+    "first_heard": "2026-03-06T14:11:41.688093",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "act": {
+    "first_heard": "2026-03-06T14:11:41.688094",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "determining": {
+    "first_heard": "2026-03-06T14:11:41.688095",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "defining": {
+    "first_heard": "2026-03-06T14:11:41.688096",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "product": {
+    "first_heard": "2026-03-06T14:11:41.688097",
+    "count": 4,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "form": {
+    "first_heard": "2026-03-06T14:11:41.688098",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "features": {
+    "first_heard": "2026-03-06T14:11:41.688099",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "takes": {
+    "first_heard": "2026-03-06T14:11:41.688100",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "place": {
+    "first_heard": "2026-03-06T14:11:41.688104",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "advance": {
+    "first_heard": "2026-03-06T14:11:41.688105",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "manufacture": {
+    "first_heard": "2026-03-06T14:11:41.688106",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "consists": {
+    "first_heard": "2026-03-06T14:11:41.688108",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "predetermined": {
+    "first_heard": "2026-03-06T14:11:41.688110",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "standardized": {
+    "first_heard": "2026-03-06T14:11:41.688110",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "repeated": {
+    "first_heard": "2026-03-06T14:11:41.688111",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "automated": {
+    "first_heard": "2026-03-06T14:11:41.688112",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design",
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "acts": {
+    "first_heard": "2026-03-06T14:11:41.688113",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "replication": {
+    "first_heard": "2026-03-06T14:11:41.688114",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "while": {
+    "first_heard": "2026-03-06T14:11:41.688115",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_industrial design",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "craft": {
+    "first_heard": "2026-03-06T14:11:41.688115",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "approach": {
+    "first_heard": "2026-03-06T14:11:41.688117",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "determined": {
+    "first_heard": "2026-03-06T14:11:41.688119",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "personally": {
+    "first_heard": "2026-03-06T14:11:41.688120",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "creator": {
+    "first_heard": "2026-03-06T14:11:41.688121",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "largely": {
+    "first_heard": "2026-03-06T14:11:41.688122",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_industrial design",
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "concurrent": {
+    "first_heard": "2026-03-06T14:11:41.688123",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_industrial design"
+    ]
+  },
+  "machine": {
+    "first_heard": "2026-03-06T14:24:47.778562",
+    "count": 6,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "learning": {
+    "first_heard": "2026-03-06T14:24:47.778612",
+    "count": 5,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "ml": {
+    "first_heard": "2026-03-06T14:24:47.778616",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "field": {
+    "first_heard": "2026-03-06T14:24:47.778646",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "study": {
+    "first_heard": "2026-03-06T14:24:47.778651",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "artificial": {
+    "first_heard": "2026-03-06T14:24:47.778655",
+    "count": 4,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "concerned": {
+    "first_heard": "2026-03-06T14:24:47.778662",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "development": {
+    "first_heard": "2026-03-06T14:24:47.778671",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "statistical": {
+    "first_heard": "2026-03-06T14:24:47.778676",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "algorithms": {
+    "first_heard": "2026-03-06T14:24:47.778678",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "learn": {
+    "first_heard": "2026-03-06T14:24:47.778687",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "data": {
+    "first_heard": "2026-03-06T14:24:47.778694",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "generalize": {
+    "first_heard": "2026-03-06T14:24:47.778696",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "unseen": {
+    "first_heard": "2026-03-06T14:24:47.778701",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "thus": {
+    "first_heard": "2026-03-06T14:24:47.778703",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "perform": {
+    "first_heard": "2026-03-06T14:24:47.778705",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "tasks": {
+    "first_heard": "2026-03-06T14:24:47.778707",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "without": {
+    "first_heard": "2026-03-06T14:24:47.778709",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "explicit": {
+    "first_heard": "2026-03-06T14:24:47.778711",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "instructions": {
+    "first_heard": "2026-03-06T14:24:47.778713",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "within": {
+    "first_heard": "2026-03-06T14:24:47.778715",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "subdiscipline": {
+    "first_heard": "2026-03-06T14:24:47.778717",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "advances": {
+    "first_heard": "2026-03-06T14:24:47.778721",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "deep": {
+    "first_heard": "2026-03-06T14:24:47.778725",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "allowed": {
+    "first_heard": "2026-03-06T14:24:47.778728",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "neural": {
+    "first_heard": "2026-03-06T14:24:47.778731",
+    "count": 6,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "networks": {
+    "first_heard": "2026-03-06T14:24:47.778733",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "class": {
+    "first_heard": "2026-03-06T14:24:47.778736",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "surpass": {
+    "first_heard": "2026-03-06T14:24:47.778740",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "many": {
+    "first_heard": "2026-03-06T14:24:47.778742",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_machine learning",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "previous": {
+    "first_heard": "2026-03-06T14:24:47.778745",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "approaches": {
+    "first_heard": "2026-03-06T14:24:47.778748",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "performance": {
+    "first_heard": "2026-03-06T14:24:47.778750",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_machine learning"
+    ]
+  },
+  "numerical": {
+    "first_heard": "2026-03-06T14:24:51.182284",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "control": {
+    "first_heard": "2026-03-06T14:24:51.182294",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "cnc": {
+    "first_heard": "2026-03-06T14:24:51.182298",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "machining": {
+    "first_heard": "2026-03-06T14:24:51.182312",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "tools": {
+    "first_heard": "2026-03-06T14:24:51.182324",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "evolution": {
+    "first_heard": "2026-03-06T14:24:51.182333",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "nc": {
+    "first_heard": "2026-03-06T14:24:51.182336",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "where": {
+    "first_heard": "2026-03-06T14:24:51.182338",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "directly": {
+    "first_heard": "2026-03-06T14:24:51.182342",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "managed": {
+    "first_heard": "2026-03-06T14:24:51.182343",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "storage": {
+    "first_heard": "2026-03-06T14:24:51.182347",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "media": {
+    "first_heard": "2026-03-06T14:24:51.182349",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "punched": {
+    "first_heard": "2026-03-06T14:24:51.182355",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "cards": {
+    "first_heard": "2026-03-06T14:24:51.182357",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "tape": {
+    "first_heard": "2026-03-06T14:24:51.182359",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "allows": {
+    "first_heard": "2026-03-06T14:24:51.182363",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "easier": {
+    "first_heard": "2026-03-06T14:24:51.182367",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "programming": {
+    "first_heard": "2026-03-06T14:24:51.182369",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "modification": {
+    "first_heard": "2026-03-06T14:24:51.182370",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "real": {
+    "first_heard": "2026-03-06T14:24:51.182374",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "adjustments": {
+    "first_heard": "2026-03-06T14:24:51.182378",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "has": {
+    "first_heard": "2026-03-06T14:24:51.182380",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_cnc machining",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "gradually": {
+    "first_heard": "2026-03-06T14:24:51.182383",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "replaced": {
+    "first_heard": "2026-03-06T14:24:51.182384",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "computing": {
+    "first_heard": "2026-03-06T14:24:51.182386",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "costs": {
+    "first_heard": "2026-03-06T14:24:51.182445",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "declined": {
+    "first_heard": "2026-03-06T14:24:51.182448",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_cnc machining"
+    ]
+  },
+  "foreign": {
+    "first_heard": "2026-03-06T14:36:57.424448",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "exchange": {
+    "first_heard": "2026-03-06T14:36:57.424466",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "market": {
+    "first_heard": "2026-03-06T14:36:57.424469",
+    "count": 5,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "global": {
+    "first_heard": "2026-03-06T14:36:57.424490",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_forex trading",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "decentralized": {
+    "first_heard": "2026-03-06T14:36:57.424492",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "counter": {
+    "first_heard": "2026-03-06T14:36:57.424512",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "otc": {
+    "first_heard": "2026-03-06T14:36:57.424516",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "trading": {
+    "first_heard": "2026-03-06T14:36:57.424521",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "currencies": {
+    "first_heard": "2026-03-06T14:36:57.424533",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "determines": {
+    "first_heard": "2026-03-06T14:36:57.424541",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "rates": {
+    "first_heard": "2026-03-06T14:36:57.424544",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "every": {
+    "first_heard": "2026-03-06T14:36:57.424546",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "volume": {
+    "first_heard": "2026-03-06T14:36:57.424552",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "far": {
+    "first_heard": "2026-03-06T14:36:57.424556",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "largest": {
+    "first_heard": "2026-03-06T14:36:57.424558",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "world": {
+    "first_heard": "2026-03-06T14:36:57.424561",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "followed": {
+    "first_heard": "2026-03-06T14:36:57.424563",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "credit": {
+    "first_heard": "2026-03-06T14:36:57.424566",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_forex trading"
+    ]
+  },
+  "quantum": {
+    "first_heard": "2026-03-06T14:37:06.105657",
+    "count": 6,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "exploits": {
+    "first_heard": "2026-03-06T14:37:06.105683",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "superposed": {
+    "first_heard": "2026-03-06T14:37:06.105689",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "entangled": {
+    "first_heard": "2026-03-06T14:37:06.105694",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "states": {
+    "first_heard": "2026-03-06T14:37:06.105696",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "computers": {
+    "first_heard": "2026-03-06T14:37:06.105698",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "viewed": {
+    "first_heard": "2026-03-06T14:37:06.105723",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "sampling": {
+    "first_heard": "2026-03-06T14:37:06.105727",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "systems": {
+    "first_heard": "2026-03-06T14:37:06.105732",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "evolve": {
+    "first_heard": "2026-03-06T14:37:06.105736",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "operate": {
+    "first_heard": "2026-03-06T14:37:06.105741",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "enormous": {
+    "first_heard": "2026-03-06T14:37:06.105757",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "number": {
+    "first_heard": "2026-03-06T14:37:06.105759",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "possibilities": {
+    "first_heard": "2026-03-06T14:37:06.105763",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "simultaneously": {
+    "first_heard": "2026-03-06T14:37:06.105766",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "though": {
+    "first_heard": "2026-03-06T14:37:06.105768",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "remain": {
+    "first_heard": "2026-03-06T14:37:06.105772",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "subject": {
+    "first_heard": "2026-03-06T14:37:06.105774",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "strict": {
+    "first_heard": "2026-03-06T14:37:06.105777",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "computational": {
+    "first_heard": "2026-03-06T14:37:06.105780",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "constraints": {
+    "first_heard": "2026-03-06T14:37:06.105781",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "contrast": {
+    "first_heard": "2026-03-06T14:37:06.105785",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "ordinary": {
+    "first_heard": "2026-03-06T14:37:06.105787",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "classical": {
+    "first_heard": "2026-03-06T14:37:06.105789",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "according": {
+    "first_heard": "2026-03-06T14:37:06.105792",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "deterministic": {
+    "first_heard": "2026-03-06T14:37:06.105794",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "rules": {
+    "first_heard": "2026-03-06T14:37:06.105796",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "widely": {
+    "first_heard": "2026-03-06T14:37:06.105799",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "believed": {
+    "first_heard": "2026-03-06T14:37:06.105801",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "calculations": {
+    "first_heard": "2026-03-06T14:37:06.105815",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "exponentially": {
+    "first_heard": "2026-03-06T14:37:06.105817",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "faster": {
+    "first_heard": "2026-03-06T14:37:06.105818",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "example": {
+    "first_heard": "2026-03-06T14:37:06.105825",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "large": {
+    "first_heard": "2026-03-06T14:37:06.105828",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "scale": {
+    "first_heard": "2026-03-06T14:37:06.105830",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "break": {
+    "first_heard": "2026-03-06T14:37:06.105832",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "used": {
+    "first_heard": "2026-03-06T14:37:06.105835",
+    "count": 5,
+    "sources": [
+      "wikipedia_api_quantum computing",
+      "wikipedia_api_neural networks",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "public": {
+    "first_heard": "2026-03-06T14:37:06.105837",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "key": {
+    "first_heard": "2026-03-06T14:37:06.105839",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "cryptographic": {
+    "first_heard": "2026-03-06T14:37:06.105841",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "schemes": {
+    "first_heard": "2026-03-06T14:37:06.105842",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "aid": {
+    "first_heard": "2026-03-06T14:37:06.105845",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "physicists": {
+    "first_heard": "2026-03-06T14:37:06.105846",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "performing": {
+    "first_heard": "2026-03-06T14:37:06.105849",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "simulations": {
+    "first_heard": "2026-03-06T14:37:06.105853",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "current": {
+    "first_heard": "2026-03-06T14:37:06.105856",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "hardware": {
+    "first_heard": "2026-03-06T14:37:06.105858",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "implementations": {
+    "first_heard": "2026-03-06T14:37:06.105860",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "computation": {
+    "first_heard": "2026-03-06T14:37:06.105863",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "experimental": {
+    "first_heard": "2026-03-06T14:37:06.105867",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "suitable": {
+    "first_heard": "2026-03-06T14:37:06.105870",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "specialized": {
+    "first_heard": "2026-03-06T14:37:06.105872",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_quantum computing"
+    ]
+  },
+  "group": {
+    "first_heard": "2026-03-06T14:44:24.067804",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "interconnected": {
+    "first_heard": "2026-03-06T14:44:24.067831",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "units": {
+    "first_heard": "2026-03-06T14:44:24.067837",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "neurons": {
+    "first_heard": "2026-03-06T14:44:24.067838",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "send": {
+    "first_heard": "2026-03-06T14:44:24.067840",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "signals": {
+    "first_heard": "2026-03-06T14:44:24.067864",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "another": {
+    "first_heard": "2026-03-06T14:44:24.067895",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "either": {
+    "first_heard": "2026-03-06T14:44:24.067967",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "biological": {
+    "first_heard": "2026-03-06T14:44:24.067982",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "cells": {
+    "first_heard": "2026-03-06T14:44:24.067985",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "mathematical": {
+    "first_heard": "2026-03-06T14:44:24.067987",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "models": {
+    "first_heard": "2026-03-06T14:44:24.067988",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "individual": {
+    "first_heard": "2026-03-06T14:44:24.067990",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "simple": {
+    "first_heard": "2026-03-06T14:44:24.067991",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "together": {
+    "first_heard": "2026-03-06T14:44:24.067996",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "complex": {
+    "first_heard": "2026-03-06T14:44:24.067998",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "main": {
+    "first_heard": "2026-03-06T14:44:24.068001",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "types": {
+    "first_heard": "2026-03-06T14:44:24.068001",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "neuroscience": {
+    "first_heard": "2026-03-06T14:44:24.068003",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "structure": {
+    "first_heard": "2026-03-06T14:44:24.068006",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_neural networks",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "found": {
+    "first_heard": "2026-03-06T14:44:24.068007",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "brains": {
+    "first_heard": "2026-03-06T14:44:24.068027",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "nervous": {
+    "first_heard": "2026-03-06T14:44:24.068029",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "population": {
+    "first_heard": "2026-03-06T14:44:24.068031",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "nerve": {
+    "first_heard": "2026-03-06T14:44:24.068032",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "connected": {
+    "first_heard": "2026-03-06T14:44:24.068033",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "synapses": {
+    "first_heard": "2026-03-06T14:44:24.068034",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "model": {
+    "first_heard": "2026-03-06T14:44:24.068162",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "approximate": {
+    "first_heard": "2026-03-06T14:44:24.068168",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "nonlinear": {
+    "first_heard": "2026-03-06T14:44:24.068170",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "functions": {
+    "first_heard": "2026-03-06T14:44:24.068173",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "solve": {
+    "first_heard": "2026-03-06T14:44:24.068178",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "problems": {
+    "first_heard": "2026-03-06T14:44:24.068189",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_neural networks"
+    ]
+  },
+  "consciousness": {
+    "first_heard": "2026-03-06T14:44:27.462224",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "being": {
+    "first_heard": "2026-03-06T14:44:27.462336",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_consciousness",
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "aware": {
+    "first_heard": "2026-03-06T14:44:27.462347",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "something": {
+    "first_heard": "2026-03-06T14:44:27.462352",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "internal": {
+    "first_heard": "2026-03-06T14:44:27.462354",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "self": {
+    "first_heard": "2026-03-06T14:44:27.462368",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "conscious": {
+    "first_heard": "2026-03-06T14:44:27.462372",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "objects": {
+    "first_heard": "2026-03-06T14:44:27.462378",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "external": {
+    "first_heard": "2026-03-06T14:44:27.462384",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "environment": {
+    "first_heard": "2026-03-06T14:44:27.462387",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "been": {
+    "first_heard": "2026-03-06T14:44:27.462393",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "topic": {
+    "first_heard": "2026-03-06T14:44:27.462397",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "extensive": {
+    "first_heard": "2026-03-06T14:44:27.462399",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "explanations": {
+    "first_heard": "2026-03-06T14:44:27.462402",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "analyses": {
+    "first_heard": "2026-03-06T14:44:27.462404",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "debate": {
+    "first_heard": "2026-03-06T14:44:27.462408",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "among": {
+    "first_heard": "2026-03-06T14:44:27.462411",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "philosophers": {
+    "first_heard": "2026-03-06T14:44:27.462413",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "scientists": {
+    "first_heard": "2026-03-06T14:44:27.462415",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "theologians": {
+    "first_heard": "2026-03-06T14:44:27.462418",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "millennia": {
+    "first_heard": "2026-03-06T14:44:27.462421",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "consensus": {
+    "first_heard": "2026-03-06T14:44:27.462432",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "exactly": {
+    "first_heard": "2026-03-06T14:44:27.462440",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "needs": {
+    "first_heard": "2026-03-06T14:44:27.462442",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "studied": {
+    "first_heard": "2026-03-06T14:44:27.462447",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "considered": {
+    "first_heard": "2026-03-06T14:44:27.462456",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "scientific": {
+    "first_heard": "2026-03-06T14:44:27.462460",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "concept": {
+    "first_heard": "2026-03-06T14:44:27.462462",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "synonymous": {
+    "first_heard": "2026-03-06T14:44:27.462476",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "mind": {
+    "first_heard": "2026-03-06T14:44:27.462489",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "others": {
+    "first_heard": "2026-03-06T14:44:27.462493",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "aspect": {
+    "first_heard": "2026-03-06T14:44:27.462498",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_consciousness"
+    ]
+  },
+  "content": {
+    "first_heard": "2026-03-06T14:46:46.891537",
+    "count": 3,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "strategy": {
+    "first_heard": "2026-03-06T14:46:46.891542",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "guides": {
+    "first_heard": "2026-03-06T14:46:46.891543",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "planning": {
+    "first_heard": "2026-03-06T14:46:46.891545",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "management": {
+    "first_heard": "2026-03-06T14:46:46.891550",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "recognized": {
+    "first_heard": "2026-03-06T14:46:46.891554",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "user": {
+    "first_heard": "2026-03-06T14:46:46.891556",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "experience": {
+    "first_heard": "2026-03-06T14:46:46.891557",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "draws": {
+    "first_heard": "2026-03-06T14:46:46.891560",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "adjacent": {
+    "first_heard": "2026-03-06T14:46:46.891561",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "disciplines": {
+    "first_heard": "2026-03-06T14:46:46.891562",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "information": {
+    "first_heard": "2026-03-06T14:46:46.891564",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "architecture": {
+    "first_heard": "2026-03-06T14:46:46.891565",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "business": {
+    "first_heard": "2026-03-06T14:46:46.891566",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "analysis": {
+    "first_heard": "2026-03-06T14:46:46.891567",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "marketing": {
+    "first_heard": "2026-03-06T14:46:46.891569",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "technical": {
+    "first_heard": "2026-03-06T14:46:46.891570",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "communication": {
+    "first_heard": "2026-03-06T14:46:46.891570",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_content strategy"
+    ]
+  },
+  "finance": {
+    "first_heard": "2026-03-06T14:46:50.292435",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "option": {
+    "first_heard": "2026-03-06T14:46:50.292449",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "contract": {
+    "first_heard": "2026-03-06T14:46:50.292457",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "conveys": {
+    "first_heard": "2026-03-06T14:46:50.292461",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "owner": {
+    "first_heard": "2026-03-06T14:46:50.292468",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "holder": {
+    "first_heard": "2026-03-06T14:46:50.292473",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "right": {
+    "first_heard": "2026-03-06T14:46:50.292475",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "obligation": {
+    "first_heard": "2026-03-06T14:46:50.292481",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "buy": {
+    "first_heard": "2026-03-06T14:46:50.292483",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "sell": {
+    "first_heard": "2026-03-06T14:46:50.292487",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "specific": {
+    "first_heard": "2026-03-06T14:46:50.292489",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "quantity": {
+    "first_heard": "2026-03-06T14:46:50.292492",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "underlying": {
+    "first_heard": "2026-03-06T14:46:50.292496",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "asset": {
+    "first_heard": "2026-03-06T14:46:50.292498",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "instrument": {
+    "first_heard": "2026-03-06T14:46:50.292501",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "specified": {
+    "first_heard": "2026-03-06T14:46:50.292505",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "strike": {
+    "first_heard": "2026-03-06T14:46:50.292508",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "price": {
+    "first_heard": "2026-03-06T14:46:50.292510",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "before": {
+    "first_heard": "2026-03-06T14:46:50.292515",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "date": {
+    "first_heard": "2026-03-06T14:46:50.292519",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "depending": {
+    "first_heard": "2026-03-06T14:46:50.292521",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "style": {
+    "first_heard": "2026-03-06T14:46:50.292523",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_options trading"
+    ]
+  },
+  "geopolitics": {
+    "first_heard": "2026-03-06T14:46:53.689908",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "effects": {
+    "first_heard": "2026-03-06T14:46:53.689929",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "earth": {
+    "first_heard": "2026-03-06T14:46:53.689933",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "geography": {
+    "first_heard": "2026-03-06T14:46:53.689938",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "politics": {
+    "first_heard": "2026-03-06T14:46:53.689943",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "international": {
+    "first_heard": "2026-03-06T14:46:53.689947",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "relations": {
+    "first_heard": "2026-03-06T14:46:53.689949",
+    "count": 4,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "usually": {
+    "first_heard": "2026-03-06T14:46:53.689952",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "refers": {
+    "first_heard": "2026-03-06T14:46:53.689954",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "countries": {
+    "first_heard": "2026-03-06T14:46:53.689958",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "researchers": {
+    "first_heard": "2026-03-06T14:46:53.689969",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "term": {
+    "first_heard": "2026-03-06T14:46:53.689971",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "currently": {
+    "first_heard": "2026-03-06T14:46:53.689974",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "broad": {
+    "first_heard": "2026-03-06T14:46:53.689983",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "spectrum": {
+    "first_heard": "2026-03-06T14:46:53.689985",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "concepts": {
+    "first_heard": "2026-03-06T14:46:53.689988",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "general": {
+    "first_heard": "2026-03-06T14:46:53.689991",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "sense": {
+    "first_heard": "2026-03-06T14:46:53.689993",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "synonym": {
+    "first_heard": "2026-03-06T14:46:53.689997",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "political": {
+    "first_heard": "2026-03-06T14:46:53.690002",
+    "count": 2,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "more": {
+    "first_heard": "2026-03-06T14:46:53.690008",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "specifically": {
+    "first_heard": "2026-03-06T14:46:53.690010",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "imply": {
+    "first_heard": "2026-03-06T14:46:53.690013",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "usage": {
+    "first_heard": "2026-03-06T14:46:53.690025",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "builds": {
+    "first_heard": "2026-03-06T14:46:53.690026",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "early": {
+    "first_heard": "2026-03-06T14:46:53.690031",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "twentieth": {
+    "first_heard": "2026-03-06T14:46:53.690033",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "century": {
+    "first_heard": "2026-03-06T14:46:53.690035",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "pseudoscience": {
+    "first_heard": "2026-03-06T14:46:53.690039",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "pseudoscientific": {
+    "first_heard": "2026-03-06T14:46:53.690044",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "theories": {
+    "first_heard": "2026-03-06T14:46:53.690046",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "historical": {
+    "first_heard": "2026-03-06T14:46:53.690049",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "geographic": {
+    "first_heard": "2026-03-06T14:46:53.690052",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  },
+  "determinism": {
+    "first_heard": "2026-03-06T14:46:53.690054",
+    "count": 1,
+    "sources": [
+      "wikipedia_api_geopolitics"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "service": "sakai",
+  "api_key": "AppLevelJTADPUFieldI...ionServlet",
+  "full_key": "AppLevelJTADPUFieldInjectionServlet",
+  "source": "github",
+  "url": "https://api.github.com/repositories/487685565/contents/wordlists/Java.txt?ref=e7dad5f41ff725ac63858e6568c50b6e118865ef",
+  "discovered_at": "2026-03-17T16:46:52.506040",
+  "integrator": "coaching_integrator",
+  "integration_code": "# sakai = AppLevelJTADPUFieldInjectionServlet\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New SAKAI API key discovered!"
+}

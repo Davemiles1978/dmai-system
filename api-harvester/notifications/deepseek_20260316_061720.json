@@ -1,0 +1,11 @@
+{
+  "service": "deepseek",
+  "api_key": "AIzaSyDGrrqme3GXKYXM...ql7LJVYIPo",
+  "full_key": "AIzaSyDGrrqme3GXKYXMgZ6YVrpwmql7LJVYIPo",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1110174676/contents/env.txt?ref=04013dbac960eaa8b8fb99985e18d3e6f6ebb05a",
+  "discovered_at": "2026-03-16T06:17:20.744948",
+  "integrator": "ai_ml_integrator",
+  "integration_code": "# deepseek = AIzaSyDGrrqme3GXKYXMgZ6YVrpwmql7LJVYIPo\n# Add your AI/ML integration code here",
+  "message": "\ud83d\udd11 New DEEPSEEK API key discovered!"
+}

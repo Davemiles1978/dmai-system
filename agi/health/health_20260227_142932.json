@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-02-27T14:29:32.701859",
+  "status": "warning",
+  "components": {
+    "evolution_engine": "present",
+    "knowledge_graph": "present",
+    "meta_learner": "present",
+    "self_healer": "present",
+    "shared_checkpoints": "gen 4",
+    "user_data": "missing",
+    "ui": "present"
+  },
+  "issues": [],
+  "warnings": [
+    "user_data not found (optional)"
+  ]
+}

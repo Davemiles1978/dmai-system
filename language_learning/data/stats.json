@@ -1,0 +1,29 @@
+{
+  "total_phrases_heard": 7957,
+  "english_phrases": 316,
+  "non_english_phrases": 603,
+  "unique_words": 21783,
+  "common_words": {
+    "i": 214,
+    "m": 77,
+    "you": 68,
+    "the": 62,
+    "s": 52,
+    "it": 45,
+    "and": 43,
+    "that": 36,
+    "we": 36,
+    "to": 35,
+    "a": 31,
+    "what": 31,
+    "is": 31,
+    "going": 27,
+    "was": 26,
+    "don": 26,
+    "promptfoo": 24,
+    "have": 23,
+    "so": 23,
+    "this": 21
+  },
+  "learning_rate": 68.93354430379746
+}

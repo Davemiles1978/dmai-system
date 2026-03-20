@@ -1,0 +1,148 @@
+# File: /Users/davidmiles/Desktop/dmai-system/evolution/knowledge_synthesizer.py
+# Time: 2026-03-15T08:29:14.455573
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI Knowledge Synthesizer - Central hub that processes ALL learning
+Transforms raw data into knowledge and triggers evolution
+Runs 24/7 on Render
+"""
+import os
+import sys
+import json
+import time
+import glob
+import sqlite3
+import threading
+from datetime import datetime
+import logging
+from pathlib import Path
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Add parent to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("KNOWLEDGE_SYNTHESIZER")
+
+# Track service start time
+start_time = datetime.now()
+
+class HealthHandler(BaseHTTPRequestHandler):
+    """Health check endpoint for cron-job.org"""
+    
+    def do_GET(self):
+        if self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = {
+                "status": "healthy",
+                "service": "knowledge-synthesizer",
+                "timestamp": datetime.now().isoformat(),
+                "uptime": str(datetime.now() - start_time)
+            }
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        return  # Suppress logs
+
+def run_health_server():
+    """Run health check server on port specified by Render"""
+    port = int(os.environ.get('PORT', 8081))
+    try:
+        server = HTTPServer(('0.0.0.0', port), HealthHandler)
+        logger.info(f"✅ Health check server running on port {port}")
+        server.serve_forever()
+    except Exception as e:
+        logger.error(f"Health server error: {e}")
+
+class KnowledgeSynthesizer:
+    """
+    Synthesizes all learning sources into actionable knowledge
+    Triggers DMAI evolution when new patterns are discovered
+    """
+    
+    def __init__(self):
+        self.base_dir = os.path.dirname(os.path.dirname(__file__))
+        
+        # Learning sources
+        self.learning_dirs = {
+            'api_keys': os.path.join(self.base_dir, 'api-harvester', 'dmai_local.db'),
+            'terminal_sessions': os.path.join(self.base_dir, 'learning', 'terminal_sessions'),
+            'commands': os.path.join(self.base_dir, 'learning', 'commands'),
+            'files_changed': os.path.join(self.base_dir, 'learning', 'files_changed'),
+            'domain_knowledge': os.path.join(self.base_dir, 'learning', 'domain_knowledge'),
+            'code_patterns': os.path.join(self.base_dir, 'learning', 'code_patterns'),
+            'api_patterns': os.path.join(self.base_dir, 'learning', 'api_patterns'),
+            'research': os.path.join(self.base_dir, 'research_data')
+        }
+        
+        # Evolution engine directories
+        self.evolution_dir = os.path.join(self.base_dir, 'evolution')
+        os.makedirs(self.evolution_dir, exist_ok=True)
+        
+        # Stats tracking
+        self.stats = {
+            'total_learning_items': 0,
+            'last_synthesis': None,
+            'evolution_triggers': 0,
+            'patterns_found': 0
+        }
+        
+        logger.info("=" * 60)
+        logger.info("🧠 DMAI KNOWLEDGE SYNTHESIZER INITIALIZED")
+        logger.info(f"Monitoring {len(self.learning_dirs)} learning sources")
+        logger.info("=" * 60)
+    
+    def start(self):
+        """Main loop - runs continuously"""
+        logger.info("🚀 Starting Knowledge Synthesizer - Processing all learning sources")
+        
+        while True:
+            try:
+                # Synthesize all knowledge
+                synthesis = self.synthesize_all()
+                
+                # Generate insights
+                insights = self.generate_insights(synthesis)
+                
+                # Trigger evolution if significant learning occurred
+                if insights['should_evolve']:
+                    self.trigger_evolution(insights)
+                
+                # Log progress
+                self.log_stats(synthesis)
+                
+                # Wait before next cycle
+                time.sleep(300)  # 5 minutes
+                
+            except Exception as e:
+                logger.error(f"Error in synthesis cycle: {e}")
+                time.sleep(60)
+    
+    def synthesize_all(self):
+        """Gather and count all learning materials"""
+        synthesis = {
+            'timestamp': datetime.now().isoformat(),
+            'sources': {},
+            'total_items': 0,
+            'new_items_since_last': 0
+        }
+        
+        # Check each learning source
+        for source_name, source_path in self.learning_dirs.items():
+            count = 0
+            
+            if source_name == 'api_keys':
+                # Count keys in database
+                if os.path.exists(source_path):
+                    try:
+ 

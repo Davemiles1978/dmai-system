@@ -1,0 +1,11 @@
+{
+  "service": "fitbit_api",
+  "api_key": "foodLogShowCopyIndiv...ButtonAtom",
+  "full_key": "foodLogShowCopyIndividualButtonAtom",
+  "source": "github",
+  "url": "https://api.github.com/repositories/822863251/contents/src/app/settings/page.tsx?ref=f48529be9a3226fddf1ae3e377b913b1dd6f124b",
+  "discovered_at": "2026-03-16T08:13:52.180085",
+  "integrator": "sports_integrator",
+  "integration_code": "# fitbit_api = foodLogShowCopyIndividualButtonAtom\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New FITBIT_API API key discovered!"
+}

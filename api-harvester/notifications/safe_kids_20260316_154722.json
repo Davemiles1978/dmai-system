@@ -1,0 +1,11 @@
+{
+  "service": "safe_kids",
+  "api_key": "209c4d6570553b6af2a9...7c36cf3e3e",
+  "full_key": "209c4d6570553b6af2a9b17c36cf3e3e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/410067891/contents/rendering_stream/html/safekids.org.html?ref=1cb3fec31d9e5e9eb2fb448e28b11ce3641b72cc",
+  "discovered_at": "2026-03-16T15:47:22.086358",
+  "integrator": "childcare_integrator",
+  "integration_code": "# safe_kids = 209c4d6570553b6af2a9b17c36cf3e3e\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New SAFE_KIDS API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "rigetti",
+  "api_key": "a3f5b8c2d9e6f1a4b7c8...c1d4e7f9a2",
+  "full_key": "a3f5b8c2d9e6f1a4b7c8d2e5f9a1b4c7d8e2f5a8b1c4d7e9f2a5b8c1d4e7f9a2",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1098354170/contents/docs/QKD_API_GUIDE.md?ref=12463f40e9a369e9364e33a56ac133842ac66e29",
+  "discovered_at": "2026-03-18T07:40:13.859560",
+  "integrator": "quantum_integrator",
+  "integration_code": "# rigetti = a3f5b8c2d9e6f1a4b7c8d2e5f9a1b4c7d8e2f5a8b1c4d7e9f2a5b8c1d4e7f9a2\n# Install required packages: pip install qiskit amazon-braket-sdk dwave-ocean-sdk",
+  "message": "\ud83d\udd11 New RIGETTI API key discovered!"
+}

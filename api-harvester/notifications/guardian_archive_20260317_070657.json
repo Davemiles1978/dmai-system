@@ -1,0 +1,11 @@
+{
+  "service": "guardian_archive",
+  "api_key": "ed12c0c2018bf440666c...5c1b396c8c",
+  "full_key": "ed12c0c2018bf440666cade7c73e485c1b396c8c",
+  "source": "github",
+  "url": "https://api.github.com/repositories/485280063/contents/steam/707720/achievements_db.json?ref=3f5901dc655b7b8ad718992847dfe5b5fbd2de3f",
+  "discovered_at": "2026-03-17T07:06:57.513910",
+  "integrator": "history_integrator",
+  "integration_code": "# guardian_archive = ed12c0c2018bf440666cade7c73e485c1b396c8c\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New GUARDIAN_ARCHIVE API key discovered!"
+}

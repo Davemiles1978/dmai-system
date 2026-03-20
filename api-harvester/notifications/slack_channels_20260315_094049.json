@@ -1,0 +1,11 @@
+{
+  "service": "slack_channels",
+  "api_key": "WebSocketConnectionC...dException",
+  "full_key": "WebSocketConnectionClosedException",
+  "source": "github",
+  "url": "https://api.github.com/repositories/18410202/contents/slack/slack_workspace.py?ref=08a9cd05d482772e79d879e0b99ddd66a94d979d",
+  "discovered_at": "2026-03-15T09:40:49.461830",
+  "integrator": "evolution_triggers_integrator",
+  "integration_code": "# slack_channels = WebSocketConnectionClosedException\n# Add your evolution triggers integration code here",
+  "message": "\ud83d\udd11 New SLACK_CHANNELS API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "github_events",
+  "api_key": "1234567890abcdef1234...7890abcdef",
+  "full_key": "1234567890abcdef1234567890abcdef",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1103356285/contents/DEVELOPER_API_GUIDE.md?ref=17bc61c08daccb7bd4fbf5401f4b0bd5772e4ecc",
+  "discovered_at": "2026-03-15T09:21:39.201620",
+  "integrator": "evolution_triggers_integrator",
+  "integration_code": "# github_events = 1234567890abcdef1234567890abcdef\n# Add your evolution triggers integration code here",
+  "message": "\ud83d\udd11 New GITHUB_EVENTS API key discovered!"
+}

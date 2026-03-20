@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-03-11T07:50:41.890748",
+  "parent1": "github_memodb-io_memobase",
+  "parent2": "deepseek_base_gen25",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "language",
+      "description": "Transfer language from \u26a1 deepseek_base_gen25 to \ud83d\udce6 memobase",
+      "quality": 0.5417932694667248
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "reasoning",
+      "description": "Transfer reasoning from \u26a1 deepseek_base_gen25 to \ud83d\udce6 memobase",
+      "quality": 0.6963416248883117
+    }
+  ],
+  "new_generation": 2,
+  "capabilities": [
+    "language",
+    "reasoning"
+  ]
+}

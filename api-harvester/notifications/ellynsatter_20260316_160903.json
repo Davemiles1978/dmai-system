@@ -1,0 +1,11 @@
+{
+  "service": "ellynsatter",
+  "api_key": "getDiverseArticlesFr...Categories",
+  "full_key": "getDiverseArticlesFromAllCategories",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1148608517/contents/ParentBud_01/Managers/CareCardsDataManager.swift?ref=c2d347fa1cb33c7ef204082de3c4991a6c93150d",
+  "discovered_at": "2026-03-16T16:09:03.626627",
+  "integrator": "childcare_integrator",
+  "integration_code": "# ellynsatter = getDiverseArticlesFromAllCategories\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New ELLYNSATTER API key discovered!"
+}

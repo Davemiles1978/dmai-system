@@ -1,0 +1,11 @@
+{
+  "service": "library_of_congress",
+  "api_key": "3989a5f99e41487aaef6...680537c3f5",
+  "full_key": "3989a5f99e41487aaef698680537c3f5",
+  "source": "github",
+  "url": "https://api.github.com/repositories/39789776/contents/docs/messaging_spec.rst?ref=d38886fb7e534973ea979caad2ab31b3904d651b",
+  "discovered_at": "2026-03-16T21:13:38.041720",
+  "integrator": "history_integrator",
+  "integration_code": "# Library of Congress API\nimport requests\n\nLOC_API_KEY = \"3989a5f99e41487aaef698680537c3f5\"\nBASE_URL = \"https://www.loc.gov/\"\n\ndef search_loc(query, format=None):\n    \"\"\"Search the Library of Congress\"\"\"\n    params = {\n        \"q\": query,\n        \"fo\": \"json\",\n        \"api_key\": LOC_API_KEY\n    }\n    if format:\n        params[\"fa\"] = f\"format:<built-in function format>\"\n    \n    response = requests.get(f\"{BASE_URL}/search/\", params=params)\n    return response.json()\n\ndef get_historic_newspapers(date, state=None):\n    \"\"\"Search historic newspapers by date\"\"\"\n    params = {\n        \"date\": date,\n        \"fo\": \"json\",\n        \"api_key\": LOC_API_KEY\n    }\n    if state:\n        params[\"state\"] = state\n    \n    response = requests.get(f\"{BASE_URL}/newspapers/\", params=params)\n    return response.json()\n\ndef get_american_memory_collection(collection):\n    \"\"\"Access American Memory historical collections\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/collections/{collection}\",\n        params={\"fo\": \"json\", \"api_key\": LOC_API_KEY}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New LIBRARY_OF_CONGRESS API key discovered!"
+}

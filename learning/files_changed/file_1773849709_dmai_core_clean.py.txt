@@ -1,0 +1,147 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_core_clean.py
+# Time: 2026-03-18T19:01:49.370212
+################################################################################
+#!/usr/bin/env python3
+"""
+██████╗ ███╗   ███╗ █████╗ ██╗
+██╔══██╗████╗ ████║██╔══██╗██║
+██║  ██║██╔████╔██║███████║██║
+██║  ██║██║╚██╔╝██║██╔══██║██║
+██████╔╝██║ ╚═╝ ██║██║  ██║██║
+╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
+
+DMAI CORE - SINGLE UNIFIED INTELLIGENCE
+Version: 12.0 | PRODUCTION READY - With Evolution Forcing
+"""
+import sys
+from pathlib import Path
+
+# Get the absolute path to the dmai-system directory
+BASE_DIR = Path(__file__).parent.absolute()
+sys.path.insert(0, str(BASE_DIR))
+
+import os
+import time
+import json
+import logging
+import threading
+import importlib
+import importlib.util
+import inspect
+import queue
+import random
+import hashlib
+from datetime import datetime, timedelta
+from typing import Dict, Any, List, Optional, Callable
+from dataclasses import dataclass, field
+from collections import deque
+import traceback
+
+# Create logs directory if it doesn't exist
+logs_dir = BASE_DIR / "logs"
+logs_dir.mkdir(exist_ok=True)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(str(logs_dir / 'dmai_core.log')),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('CORE')
+
+# ============================================================================
+# DATABASE LAYER - PERSISTENT STORAGE WITH EXISTING SCHEMA SUPPORT
+# ============================================================================
+
+class DMAIDatabase:
+    """Persistent database for API keys, knowledge graph, and evolution history
+    Now supports the existing sophisticated PostgreSQL schema while maintaining
+    SQLite fallback for local development
+    """
+    
+    def __init__(self):
+        self.database_url = os.environ.get('DATABASE_URL')
+        self.use_sqlite = False
+        self.conn = None
+        self.sqlite_conn = None
+        self.total_funding = 0.0
+        
+        if self.database_url:
+            self._connect_postgres()
+        else:
+            self._connect_sqlite()
+    
+    def _connect_postgres(self):
+        """Connect to PostgreSQL (Render) with existing schema"""
+        try:
+            import psycopg2
+            from psycopg2.extras import Json, RealDictCursor
+            
+            self.conn = psycopg2.connect(self.database_url)
+            self.conn.autocommit = False
+            self._verify_postgres_tables()
+            logger.info("✅ Connected to PostgreSQL database (Render)")
+        except ImportError:
+            logger.warning("psycopg2 not installed, falling back to SQLite")
+            self._connect_sqlite()
+        except Exception as e:
+            logger.error(f"PostgreSQL connection failed: {e}, falling back to SQLite")
+            self._connect_sqlite()
+    
+    def _verify_postgres_tables(self):
+        """Verify PostgreSQL tables exist (don't create - use existing schema)"""
+        with self.conn.cursor() as cur:
+            # Check if api_keys table exists with expected columns
+            cur.execute("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = 'api_keys'
+                )
+            """)
+            if not cur.fetchone()[0]:
+                logger.warning("api_keys table not found, will use SQLite fallback")
+                self.use_sqlite = True
+                return
+            
+            # Log the schema we're working with
+            cur.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'api_keys'
+                ORDER BY ordinal_position
+            """)
+            columns = [row[0] for row in cur.fetchall()]
+            logger.info(f"📋 Using existing api_keys schema with columns: {columns[:10]}...")
+    
+    def _connect_sqlite(self):
+        """Connect to SQLite (local development) with simple schema"""
+        try:
+            import sqlite3
+            self.use_sqlite = True
+            self.sqlite_conn = sqlite3.connect(str(BASE_DIR / 'dmai_local.db'), check_same_thread=False)
+            self.sqlite_conn.row_factory = sqlite3.Row
+            self._init_sqlite_tables()
+            
+            # Load existing total funding
+            self.total_funding = self.get_total_funding()
+            logger.info("✅ Connected to SQLite database (local)")
+        except Exception as e:
+            logger.error(f"SQLite connection failed: {e}")
+    
+    def _init_sqlite_tables(self):
+        """Initialize SQLite tables with simple schema (fallback only)"""
+        cur = self.sqlite_conn.cursor()
+        
+        # API Keys table - simple schema for SQLite fallback
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS api_keys (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                service TEXT NOT NULL,
+                key_value TEXT NOT NULL,
+                source TEXT,
+                url TEXT,
+                metadata TEXT,
+                discovered_at TIME

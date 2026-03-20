@@ -1,0 +1,11 @@
+{
+  "service": "oer_commons",
+  "api_key": "wgRelatedArticlesUse...rrusSearch",
+  "full_key": "wgRelatedArticlesUseCirrusSearch",
+  "source": "github",
+  "url": "https://api.github.com/repositories/60363433/contents/documentation/web/html/open_educational_resources.html?ref=fe339a2806b11b61a29265a9468988d57a89b367",
+  "discovered_at": "2026-03-17T21:41:51.764984",
+  "integrator": "coaching_integrator",
+  "integration_code": "# oer_commons = wgRelatedArticlesUseCirrusSearch\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New OER_COMMONS API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "master_db_path",
+  "api_key": "0x000000000000000000...000000dEaD",
+  "full_key": "0x000000000000000000000000000000000000dEaD",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1157922409/contents/go/Makefile?ref=6c860f581604a94cb6f50e10ea67dda0c4d867fd",
+  "discovered_at": "2026-03-15T10:38:51.008165",
+  "integrator": "master_integrator",
+  "integration_code": "# Master Integrator Configuration\nMASTER_DB_PATH = \"0x000000000000000000000000000000000000dEaD\"\n\n# The master integrator coordinates all other integrators\n# It has discovered 28 integration modules\n",
+  "message": "\ud83d\udd11 New MASTER_DB_PATH API key discovered!"
+}

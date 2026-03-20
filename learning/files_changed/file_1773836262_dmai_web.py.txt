@@ -1,0 +1,153 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_web.py
+# Time: 2026-03-18T15:17:42.228249
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI Web Interface - Complete Unified Version
+Serves chat interface, admin dashboard, and API endpoints
+Now with database debugging and PostgreSQL enforcement
+"""
+
+import os
+import sys
+import json
+import time
+import logging
+import sqlite3
+import threading
+import traceback
+from datetime import datetime, timedelta
+from functools import wraps
+from pathlib import Path
+
+# Flask and web dependencies
+try:
+    from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
+    from flask_cors import CORS
+except ImportError:
+    print("❌ Flask not installed. Run: pip install flask flask-cors")
+    sys.exit(1)
+
+# Try to import DMAI core
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from dmai_core_clean import DMAIIntelligence as DMAICore
+    CORE_AVAILABLE = True
+    print("✅ Successfully imported DMAI core")
+except ImportError as e:
+    CORE_AVAILABLE = False
+    print(f"⚠️ DMAI core not available: {e}")
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('webui.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('WEB[DMAI]')
+
+# ============================================
+# CONFIGURATION
+# ============================================
+
+# Password from environment or default
+MASTER_PASSWORD = os.environ.get('MASTER_PASSWORD', 'dmai2026')
+FLASK_SECRET_KEY = os.environ.get('FLASK_SECRET_KEY', os.urandom(24).hex())
+
+# Database configuration
+DATABASE_URL = os.environ.get('DATABASE_URL')
+USE_POSTGRESQL = os.environ.get('USE_POSTGRESQL', 'false').lower() == 'true'
+
+# ============================================
+# FLASK APP INITIALIZATION
+# ============================================
+
+app = Flask(__name__, 
+            static_folder='static',
+            template_folder='templates')
+app.secret_key = FLASK_SECRET_KEY
+CORS(app)
+
+# ============================================
+# DATABASE INITIALIZATION
+# ============================================
+
+def init_database():
+    """Initialize database connection - PostgreSQL preferred, SQLite fallback"""
+    conn = None
+    using_postgresql = False
+    
+    # Try PostgreSQL first if URL is provided
+    if DATABASE_URL:
+        try:
+            import psycopg2
+            from psycopg2 import sql
+            conn = psycopg2.connect(DATABASE_URL)
+            using_postgresql = True
+            logger.info(f"✅ Connected to PostgreSQL database")
+            
+            # Create tables if they don't exist
+            with conn.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS api_keys (
+                        id SERIAL PRIMARY KEY,
+                        service TEXT,
+                        key_value TEXT,
+                        status TEXT,
+                        discovered_at TIMESTAMP DEFAULT NOW(),
+                        last_validated TIMESTAMP,
+                        validation_count INTEGER DEFAULT 0
+                    )
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS evolution_state (
+                        id SERIAL PRIMARY KEY,
+                        generation INTEGER,
+                        component_id TEXT,
+                        health_score FLOAT,
+                        last_updated TIMESTAMP DEFAULT NOW()
+                    )
+                """)
+                conn.commit()
+                
+        except ImportError:
+            logger.warning("⚠️ psycopg2 not installed, falling back to SQLite")
+            using_postgresql = False
+        except Exception as e:
+            logger.error(f"❌ PostgreSQL connection failed: {e}")
+            using_postgresql = False
+    
+    # Fallback to SQLite
+    if not using_postgresql:
+        try:
+            conn = sqlite3.connect('dmai_local.db', check_same_thread=False)
+            conn.row_factory = sqlite3.Row
+            logger.info("✅ Connected to SQLite database (local)")
+            
+            # Create tables
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS api_keys (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    service TEXT,
+                    key_value TEXT,
+                    status TEXT,
+                    discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_validated TIMESTAMP,
+                    validation_count INTEGER DEFAULT 0
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS evolution_state (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    generation INTEGER,
+                    component_id TEXT,
+                    health_score FLOAT,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.commit()
+            
+        except

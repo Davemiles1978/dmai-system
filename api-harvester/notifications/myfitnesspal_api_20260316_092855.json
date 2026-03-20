@@ -1,0 +1,11 @@
+{
+  "service": "myfitnesspal_api",
+  "api_key": "eyJhbGciOiJIUzI1NiIs...I6IkpXVCJ9",
+  "full_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1027057486/contents/.env%20?ref=74bee394bcb9cb29b373e7bdac1a2f7c4798b8aa",
+  "discovered_at": "2026-03-16T09:28:55.737717",
+  "integrator": "sports_integrator",
+  "integration_code": "# MyFitnessPal Integration\nimport requests\nfrom datetime import datetime\n\nMFP_API_KEY = \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"\nBASE_URL = \"https://api.myfitnesspal.com/v1\"\n\ndef get_daily_nutrition(date=None):\n    \"\"\"Get nutrition data for a specific date\"\"\"\n    if not date:\n        date = datetime.now().strftime(\"%Y-%m-%d\")\n    \n    response = requests.get(\n        f\"{BASE_URL}/diary\",\n        headers={\"Authorization\": f\"Bearer {MFP_API_KEY}\"},\n        params={\"date\": date}\n    )\n    return response.json()\n\ndef track_meal(food_name, quantity, unit, meal_type):\n    \"\"\"Log a meal in MyFitnessPal\"\"\"\n    response = requests.post(\n        f\"{BASE_URL}/entries\",\n        headers={\"Authorization\": f\"Bearer {MFP_API_KEY}\"},\n        json={\n            \"food_name\": food_name,\n            \"quantity\": quantity,\n            \"unit\": unit,\n            \"meal_type\": meal_type\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New MYFITNESSPAL_API API key discovered!"
+}

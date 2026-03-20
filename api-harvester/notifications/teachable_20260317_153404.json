@@ -1,0 +1,11 @@
+{
+  "service": "teachable",
+  "api_key": "d7305f38d29fed78fa85...54dd8e8829",
+  "full_key": "d7305f38d29fed78fa85652e3a63e154dd8e8829",
+  "source": "github",
+  "url": "https://api.github.com/repositories/118102098/contents/README.md?ref=0e9afa0c8b67df6f8ffa0a8d46847476a56ccd1b",
+  "discovered_at": "2026-03-17T15:34:04.200004",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Teachable Integration\nimport requests\n\nTEACHABLE_API_KEY = \"d7305f38d29fed78fa85652e3a63e154dd8e8829\"\nTEACHABLE_BASE_URL = \"https://your-school.teachable.com\"\n\ndef get_courses():\n    \"\"\"Get all courses\"\"\"\n    response = requests.get(\n        f\"{TEACHABLE_BASE_URL}/api/v1/courses\",\n        headers={\"api_key\": TEACHABLE_API_KEY}\n    )\n    return response.json()\n\ndef get_students():\n    \"\"\"Get student list\"\"\"\n    response = requests.get(\n        f\"{TEACHABLE_BASE_URL}/api/v1/users\",\n        headers={\"api_key\": TEACHABLE_API_KEY}\n    )\n    return response.json()\n\ndef create_course(title, description):\n    \"\"\"Create a new course\"\"\"\n    response = requests.post(\n        f\"{TEACHABLE_BASE_URL}/api/v1/courses\",\n        headers={\"api_key\": TEACHABLE_API_KEY},\n        json={\n            \"course\": {\n                \"title\": title,\n                \"description\": description\n            }\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New TEACHABLE API key discovered!"
+}

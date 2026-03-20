@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-03-16T15:04:30.042024",
+  "domain": "hacking",
+  "category": "security_news",
+  "url": "https://thehackernews.com",
+  "title": "The Hacker News | #1 Trusted Source for Cybersecurity News",
+  "content_preview": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThe Hacker News | #1 Trusted Source for Cybersecurity News\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n-->\n\n\n\n\n\n#1 Trusted Cybersecurity News Platform\n\nFollowed by 5.20+ million\uf099\n\uf0e1\n\uf09a\n\n\n\n\n\n\n\uf0c9\n\ue800\n\uf0e0 Subscribe \u2013 Get Latest News\n\n\n\n\n\n\ue801 Home\n\uf0e0 Newsletter\n\ue805 Webinars\n\n\n\n\nHome\nThreat Intelligence\nVulnerabilities\nCyber Attacks\nWebinars\nExpert Insights\nAwards\n\n\n\uf0c9\n\ue800\n\n\n\n\n\n\n\n\n\ue80a\n\n\n\nResources\n\nWebinars\nAwards\nFree eBooks\n\n\n\nAbout Site\n\nAbout THN\nJobs\nAdvertise with us\n\n\n\n\nContact/Tip Us\n\n\n\uf0e0\nReach out to get featured\u2014contact us to send your exclusive story idea, research, hacks, or ask us a question or leave a comment/feedback!\n\n\n\nFollow Us On Social Media\n\n\uf09a\n\uf099\n\uf0e1\n\uf167\n\uf16d\n\n\n\uf09e RSS Feeds\n\uf0f3 Email Alerts\n\n\n\n\n\n\n\n\n\nThe Hacker News | #1 Trusted Source for Cybersecurity News\n\n\n\n\n\n\n\n\n\n\n\n\nWhy Security Validation Is Becoming Agentic\n\n\ue802Mar 16, 2026\nThreat Detection / Artificial Intelligence\n\n If you run security at any reasonably complex organization, your validation stack probably looks something like this: a BAS tool in one corner. A pentest engagement, or maybe an automated pentesting product, in another. A vulnerability scanner feeding an attack surface management platform somewhere else. Each tool gives you a slice of the picture. None of them talks to each other in any meaningful way.  Meanwhile, adversaries do not attack in silos. A real intrusion might chain together an exposed identity, a cloud misconfiguration, a missed detection opportunity, and an unpatched vulnerability in a single operation. Attackers understand that your environment is an interconnected system. Unfortunately, most validation programs are still treating it as a set of disparate, disconnected parts.  This isn't a minor inefficiency. It's a structural blind spot. And it's lasted for years because the market has treated every validation discipline as a separate category, with its own...\n\n\n\n\n\n\n\n\n\n\n\n\nClickFix Campaigns Spread MacSync macOS Infostealer via Fake AI Tool Installers\n\n\ue802Mar 16, 2026\nMalvertising / Threat Intelligence\n\n Three different ClickFix campaigns have been found to act as a delivery vector for the deployment of a macOS information stealer called MacSync .  \"Unlike traditional exploit-based attacks, this method relies entirely on user interaction \u2013 usually in the form of copying and executing commands \u2013 making it particularly effective against users who may not appreciate the implications of running unknown and obfuscated terminal commands,\" Sophos researchers Jagadeesh Chandraiah, Tonmoy Jitu, Dmitry Samosseiko, and Matt Wixey said .  It's currently not known if the campaigns are the work of the same threat actor. The use of ClickFix lures to distribute the malware was also flagged by Jamf Threat Labs in December 2025. The details of the three campaigns are as follows -   November 2025: A campaign that used the OpenAI Atlas browser as bait, delivered via sponsored search results on Google, to direct users to a fake Google Sites URL with a download button that, when clicked, disp...\n\n\n\n\n\n\n\n\n\n\n\n\nDRILLAPP Backdoor Targets Ukraine, Abuses Microsoft Edge Debugging for Stealth Espionage\n\n\ue802Mar 16, 2026\nCyber Espionage / Endpoint Security\n\n   Ukrainian entities have emerged as the target of a new campaign likely orchestrated by threat actors linked to Russia, according to a report from S2 Grupo's LAB52 threat intelligence team.  The campaign, observed  in February 2026, has been assessed to share overlaps with a prior campaign mounted by Laundry Bear  (aka UAC-0190 or Void Blizzard) aimed at Ukrainian defense forces with a malware family known as PLUGGYAPE.  The attack activity \"employs various judicial and charity themed lures to deploy a JavaScript\u2011based backdoor that runs through the Edge browser,\" the cybersecurity company said. Codenamed DRILLAPP , the malware is capable of uploading and downloading files, leveraging the microphone, and capturing images through the webcam by taking advantage of the web browser's features.   Two different versions of the campaign have been identified, with the first iteration detected in early February by making use of a Windows shortcut (LNK) file to create an HTML...\n\n\n\n\n5 Cloud Security Risks You Can\u2019t Afford to IgnoreSentinelOneEnterprise Security / Cloud SecurityGet expert analysis, attacker insights, and case studies in our 2025 risk report.\n\n\n\n\n\n\n\n\nAndroid 17 Blocks Non-Accessibility Apps from Accessibility API to Prevent Malware Abuse\n\n\ue802Mar 16, 2026\nMobile Security / Data Protection\n\n Google is testing a new security feature as part of Android Advanced Protection Mode (AAPM) that prevents certain kinds of apps from using the accessibility services API.  The change, incorporated in Android 17 Beta 2, was first reported  by Android Authority last week.  AAPM was introduced  by Google in Android 16, released last year. When enabled , it causes the device to enter a heightened security state  to guard against sophisticated cyber attacks. Like Apple's Lockdown Mode, the opt-in feature prioritizes security at the cost o",
+  "links": [
+    "https://twitter.com/thehackersnews",
+    "https://www.linkedin.com/company/thehackernews/",
+    "https://www.facebook.com/thehackernews",
+    "/",
+    "javascript:void(0)",
+    "#email-outer",
+    "/",
+    "#email-outer",
+    "/p/upcoming-hacker-news-webinars.html",
+    "/",
+    "/search/label/Threat%20Intelligence",
+    "/search/label/Vulnerability",
+    "/search/label/Cyber%20Attack",
+    "/p/upcoming-hacker-news-webinars.html",
+    "https://thehackernews.com/expert-insights/",
+    "https://awards.thehackernews.com/",
+    "javascript:void(0)",
+    "javascript:void(0)",
+    "/p/upcoming-hacker-news-webinars.html",
+    "https://awards.thehackernews.com/"
+  ],
+  "content_hash": "e797e7516b9092a211f678f546edb74d"
+}

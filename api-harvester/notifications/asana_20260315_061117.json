@@ -1,0 +1,11 @@
+{
+  "service": "asana",
+  "api_key": "SkypeForBusinessRemo...Powershell",
+  "full_key": "SkypeForBusinessRemotePowershell",
+  "source": "github",
+  "url": "https://api.github.com/repositories/201956499/contents/ids.md?ref=9229f4d5f094109d8b2ff28cc00ef3f7df7f07ca",
+  "discovered_at": "2026-03-15T06:11:17.644742",
+  "integrator": null,
+  "integration_code": null,
+  "message": "\ud83d\udd11 New ASANA API key discovered!"
+}

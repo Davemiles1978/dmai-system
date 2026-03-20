@@ -1,0 +1,11 @@
+{
+  "service": "drugbank_api",
+  "api_key": "2fc26d35c67cae0be988...8af42b2e78",
+  "full_key": "2fc26d35c67cae0be988000da89a8f4023135680b510bd6a376ff32bee3786861094b57ae63ec523b4f49ae871c60026a56901e55cec849013338b8af42b2e78",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1080919103/contents/docs/ENVIRONMENT_SETUP.md?ref=897273d3f9e36169df36ad172f70b00d73525bb2",
+  "discovered_at": "2026-03-16T17:16:21.282573",
+  "integrator": "medical_integrator",
+  "integration_code": "# DrugBank Pharmaceutical Database\nimport requests\n\nDRUGBANK_API_KEY = \"2fc26d35c67cae0be988000da89a8f4023135680b510bd6a376ff32bee3786861094b57ae63ec523b4f49ae871c60026a56901e55cec849013338b8af42b2e78\"\nBASE_URL = \"https://api.drugbank.com/v1\"\n\ndef get_drug_info(drug_name):\n    \"\"\"Get detailed drug information\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/drugs\",\n        headers={\"Authorization\": f\"Bearer {DRUGBANK_API_KEY}\"},\n        params={\"name\": drug_name}\n    )\n    return response.json()\n\ndef check_drug_interactions(drugs):\n    \"\"\"Check interactions between drugs\"\"\"\n    response = requests.post(\n        f\"{BASE_URL}/interactions\",\n        headers={\"Authorization\": f\"Bearer {DRUGBANK_API_KEY}\"},\n        json={\"drugs\": drugs}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New DRUGBANK_API API key discovered!"
+}

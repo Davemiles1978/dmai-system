@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-03-11T07:50:55.878180",
+  "parent1": "github_qdrant_fastembed",
+  "parent2": "deepseek_base",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "language",
+      "description": "Transfer language from \ud83d\udcda deepseek_base to \ud83d\udce6 fastembed",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "reasoning",
+      "description": "Transfer reasoning from \ud83d\udcda deepseek_base to \ud83d\udce6 fastembed",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "code",
+      "description": "Transfer code from \ud83d\udcda deepseek_base to \ud83d\udce6 fastembed",
+      "quality": 0.9
+    }
+  ],
+  "new_generation": 50,
+  "capabilities": [
+    "optimization",
+    "reasoning",
+    "language",
+    "retrieval",
+    "embeddings",
+    "code"
+  ]
+}

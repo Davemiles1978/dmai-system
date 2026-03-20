@@ -1,0 +1,155 @@
+# File: /Users/davidmiles/Desktop/dmai-system/components/phase1/P1T1_Design_Recovery_Engine_1.py
+# Time: 2026-03-18T19:14:50.372730
+################################################################################
+#!/usr/bin/env python3
+"""
+P1T1_Design_Recovery_Engine_1.py
+Design Recovery Engine #1 - Core recovery planning and execution
+Full-featured component for DMAI evolution system
+"""
+
+import os
+import sys
+import json
+import time
+import logging
+import traceback
+import hashlib
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('recovery_engine_1.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('RecoveryEngine1')
+
+class Design_Recovery_Engine_1:
+    """
+    Design Recovery Engine #1 - Plans and executes system recovery strategies
+    Monitors system health, detects failures, and initiates recovery procedures
+    """
+    
+    def __init__(self):
+        self.name = "Design Recovery Engine #1"
+        self.component_id = "P1T1"
+        self.version = "1.0.0"
+        self.status = "initialized"
+        self.depends_on = ["P0T1", "P0T2", "P0T3", "P0T4"]
+        
+        # Recovery state
+        self.recovery_plans = []
+        self.active_recoveries = {}
+        self.recovery_history = []
+        self.recovery_stats = {
+            'total_recoveries': 0,
+            'successful_recoveries': 0,
+            'failed_recoveries': 0,
+            'avg_recovery_time': 0,
+            'last_recovery': None
+        }
+        
+        # Monitoring state
+        self.health_checks = []
+        self.failure_detection_threshold = 3
+        self.check_interval = 60  # seconds
+        
+    def run(self, continuous=False, interval=60):
+        """
+        Main execution method - called by evolution engine
+        
+        Args:
+            continuous: Whether to run continuously
+            interval: Check interval in seconds
+        """
+        logger.info(f"🚀 Starting {self.name} v{self.version}")
+        
+        try:
+            if continuous:
+                logger.info(f"Continuous mode: checking every {interval} seconds")
+                while True:
+                    self._monitor_and_recover()
+                    time.sleep(interval)
+            else:
+                # Single run
+                result = self._monitor_and_recover()
+            
+            logger.info(f"✅ {self.name} completed")
+            return self.get_status()
+            
+        except Exception as e:
+            logger.error(f"❌ Error in {self.name}: {e}")
+            logger.error(traceback.format_exc())
+            return {"error": str(e), "component": self.component_id}
+    
+    def evolve(self):
+        """
+        Evolution method - called when component needs to evolve
+        """
+        logger.info(f"🧬 Evolving {self.name}")
+        self.version = f"1.0.{len(self.recovery_history) + 1}"
+        
+        # Evolve recovery strategies
+        evolution_result = {
+            'component': self.component_id,
+            'evolution': 'completed',
+            'new_version': self.version,
+            'recovery_stats': self.recovery_stats,
+            'active_plans': len(self.active_recoveries)
+        }
+        
+        # Learn from recovery history
+        if len(self.recovery_history) > 10:
+            self._optimize_recovery_strategies()
+            evolution_result['optimization'] = 'applied'
+        
+        return evolution_result
+    
+    def execute(self, command=None, **kwargs):
+        """
+        Execute method - runs specific commands
+        
+        Commands:
+            - recover: Execute recovery for a component
+            - plan: Create recovery plan
+            - monitor: Run health monitoring
+            - status: Get recovery status
+            - history: View recovery history
+            - reset: Reset recovery stats
+        """
+        logger.info(f"⚙️ Executing command: {command}")
+        
+        if command == 'recover':
+            component = kwargs.get('component')
+            plan_id = kwargs.get('plan_id')
+            if component:
+                return self.execute_recovery(component)
+            elif plan_id:
+                return self.execute_recovery_plan(plan_id)
+            else:
+                return {"error": "No component or plan_id provided"}
+                
+        elif command == 'plan':
+            component = kwargs.get('component')
+            failure_type = kwargs.get('failure_type', 'unknown')
+            if component:
+                return self.create_recovery_plan(component, failure_type)
+            else:
+                return {"error": "No component specified"}
+                
+        elif command == 'monitor':
+            component = kwargs.get('component')
+            if component:
+                return self.check_component_health(component)
+            else:
+                return self.run_health_check()
+                
+        elif command == 'status':
+            plan_id = kwargs.get('plan_id')
+            if plan_id:
+                return self.get_recovery

@@ -1,0 +1,11 @@
+{
+  "service": "tabnine",
+  "api_key": "42ab95d5e11f247c6f0c...816caa4a4f",
+  "full_key": "42ab95d5e11f247c6f0c8f5181b02e816caa4a4f",
+  "source": "github",
+  "url": "https://api.github.com/repositories/407967910/contents/CHANGELOG.md?ref=2a8fffdff1a20473f0fbacef10f2fb356e039b31",
+  "discovered_at": "2026-03-14T16:18:27.442203",
+  "integrator": "code_generation_integrator",
+  "integration_code": "# tabnine = 42ab95d5e11f247c6f0c8f5181b02e816caa4a4f\n# Add your code generation integration code here",
+  "message": "\ud83d\udd11 New TABNINE API key discovered!"
+}

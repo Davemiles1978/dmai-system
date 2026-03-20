@@ -1,0 +1,142 @@
+{
+  "artists": {
+    "The Beatles": {
+      "name": "The Beatles",
+      "genres": [
+        "rock",
+        "pop"
+      ],
+      "era": "1960s",
+      "influence_score": 10,
+      "listens": 1,
+      "rating": 6.08,
+      "first_listen": "2026-03-04T21:10:56.090202",
+      "last_listen": "2026-03-04T21:10:56.090202",
+      "discovery_date": "2026-03-04T21:10:56.087862"
+    },
+    "Miles Davis": {
+      "name": "Miles Davis",
+      "genres": [
+        "jazz"
+      ],
+      "era": "1950s",
+      "influence_score": 9,
+      "listens": 1,
+      "rating": 7.36,
+      "first_listen": "2026-03-04T21:10:56.089887",
+      "last_listen": "2026-03-04T21:10:56.089887",
+      "discovery_date": "2026-03-04T21:10:56.087868"
+    },
+    "Bach": {
+      "name": "Bach",
+      "genres": [
+        "classical",
+        "baroque"
+      ],
+      "era": "1700s",
+      "influence_score": 10,
+      "listens": 1,
+      "rating": 6.93,
+      "first_listen": "2026-03-04T21:10:56.090867",
+      "last_listen": "2026-03-04T21:10:56.090867",
+      "discovery_date": "2026-03-04T21:10:56.087869"
+    },
+    "Nina Simone": {
+      "name": "Nina Simone",
+      "genres": [
+        "jazz",
+        "soul",
+        "blues"
+      ],
+      "era": "1960s",
+      "influence_score": 8,
+      "listens": 1,
+      "rating": 4.3,
+      "first_listen": "2026-03-04T21:10:56.089254",
+      "last_listen": "2026-03-04T21:10:56.089254",
+      "discovery_date": "2026-03-04T21:10:56.087870"
+    },
+    "Kraftwerk": {
+      "name": "Kraftwerk",
+      "genres": [
+        "electronic"
+      ],
+      "era": "1970s",
+      "influence_score": 9,
+      "listens": 1,
+      "rating": 5.22,
+      "first_listen": "2026-03-04T21:10:56.088530",
+      "last_listen": "2026-03-04T21:10:56.088530",
+      "discovery_date": "2026-03-04T21:10:56.087870"
+    },
+    "Bob Marley": {
+      "name": "Bob Marley",
+      "genres": [
+        "reggae"
+      ],
+      "era": "1970s",
+      "influence_score": 9,
+      "listens": 1,
+      "rating": 5.9,
+      "first_listen": "2026-03-04T21:10:56.091237",
+      "last_listen": "2026-03-04T21:10:56.091237",
+      "discovery_date": "2026-03-04T21:10:56.087871"
+    },
+    "Aretha Franklin": {
+      "name": "Aretha Franklin",
+      "genres": [
+        "soul",
+        "r&b"
+      ],
+      "era": "1960s",
+      "influence_score": 9,
+      "listens": 1,
+      "rating": 7.24,
+      "first_listen": "2026-03-04T21:10:56.088930",
+      "last_listen": "2026-03-04T21:10:56.088930",
+      "discovery_date": "2026-03-04T21:10:56.087872"
+    },
+    "Radiohead": {
+      "name": "Radiohead",
+      "genres": [
+        "alternative",
+        "rock"
+      ],
+      "era": "1990s",
+      "influence_score": 8,
+      "listens": 1,
+      "rating": 6.26,
+      "first_listen": "2026-03-04T21:10:56.090530",
+      "last_listen": "2026-03-04T21:10:56.090530",
+      "discovery_date": "2026-03-04T21:10:56.087873"
+    },
+    "Daft Punk": {
+      "name": "Daft Punk",
+      "genres": [
+        "electronic",
+        "house"
+      ],
+      "era": "1990s",
+      "influence_score": 8,
+      "listens": 1,
+      "rating": 6.42,
+      "first_listen": "2026-03-04T21:10:56.089576",
+      "last_listen": "2026-03-04T21:10:56.089576",
+      "discovery_date": "2026-03-04T21:10:56.087873"
+    },
+    "Kendrick Lamar": {
+      "name": "Kendrick Lamar",
+      "genres": [
+        "hip-hop"
+      ],
+      "era": "2010s",
+      "influence_score": 8,
+      "listens": 1,
+      "rating": 4.32,
+      "first_listen": "2026-03-04T21:10:56.091582",
+      "last_listen": "2026-03-04T21:10:56.091582",
+      "discovery_date": "2026-03-04T21:10:56.087874"
+    }
+  },
+  "genres": {}
+}

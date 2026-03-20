@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: dmai-evolution-clean
+    runtime: python
+    buildCommand: pip install -r deploy/requirements.txt
+    startCommand: cd deploy && gunicorn evolution:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0

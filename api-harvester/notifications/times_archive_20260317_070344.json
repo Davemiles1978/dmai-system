@@ -1,0 +1,11 @@
+{
+  "service": "times_archive",
+  "api_key": "wgRelevantPageIsProb...lyEditable",
+  "full_key": "wgRelevantPageIsProbablyEditable",
+  "source": "github",
+  "url": "https://api.github.com/repositories/738793490/contents/out/File_LinkedIn_icon.svg?ref=88ced4c83465c5ef47a677f4ecbc8917b244f867",
+  "discovered_at": "2026-03-17T07:03:44.297662",
+  "integrator": "history_integrator",
+  "integration_code": "# times_archive = wgRelevantPageIsProbablyEditable\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New TIMES_ARCHIVE API key discovered!"
+}

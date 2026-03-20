@@ -1,0 +1,11 @@
+{
+  "service": "moodle",
+  "api_key": "eyJ1c2VybmFtZSI6InNv...JIUzI1NiJ9",
+  "full_key": "eyJ1c2VybmFtZSI6InNvcGhpZS5leGFtcGxlQGVtYWlsLmNvbSIsInBhc3N3b3JkIjoibXl2ZXJ5c2VjcmV0aXZlcGFzc3dvcmQxMjMiLCJhbGciOiJIUzI1NiJ9",
+  "source": "github",
+  "url": "https://api.github.com/repositories/925244395/contents/api.md?ref=e359b2c0ae2626f80bbf22387a0967325e0d1374",
+  "discovered_at": "2026-03-17T16:16:18.973105",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Moodle LMS Integration\nimport requests\n\nMOODLE_TOKEN = \"eyJ1c2VybmFtZSI6InNvcGhpZS5leGFtcGxlQGVtYWlsLmNvbSIsInBhc3N3b3JkIjoibXl2ZXJ5c2VjcmV0aXZlcGFzc3dvcmQxMjMiLCJhbGciOiJIUzI1NiJ9\"\nMOODLE_URL = \"https://your-moodle-site.com\"\n\ndef get_moodle_courses():\n    \"\"\"Get all courses\"\"\"\n    response = requests.get(\n        f\"{MOODLE_URL}/webservice/rest/server.php\",\n        params={\n            \"wstoken\": MOODLE_TOKEN,\n            \"wsfunction\": \"core_course_get_courses\",\n            \"moodlewsrestformat\": \"json\"\n        }\n    )\n    return response.json()\n\ndef create_moodle_course(fullname, shortname, category_id=1):\n    \"\"\"Create a new course\"\"\"\n    response = requests.post(\n        f\"{MOODLE_URL}/webservice/rest/server.php\",\n        params={\n            \"wstoken\": MOODLE_TOKEN,\n            \"wsfunction\": \"core_course_create_courses\",\n            \"moodlewsrestformat\": \"json\"\n        },\n        data={\n            \"courses[0][fullname]\": fullname,\n            \"courses[0][shortname]\": shortname,\n            \"courses[0][categoryid]\": category_id\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New MOODLE API key discovered!"
+}

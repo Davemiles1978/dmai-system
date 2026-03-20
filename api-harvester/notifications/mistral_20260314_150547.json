@@ -1,0 +1,11 @@
+{
+  "service": "mistral",
+  "api_key": "eedaca5338033d73c4eb...e2cce5412b",
+  "full_key": "eedaca5338033d73c4eb240cba9534b1f95c31ead5599c638dc247e2cce5412b",
+  "source": "github",
+  "url": "https://api.github.com/repositories/827422441/contents/app.txt?ref=da02cd683d5c600a505c3fa42646f03a5e609bd4",
+  "discovered_at": "2026-03-14T15:05:47.101153",
+  "integrator": "ai_ml_integrator",
+  "integration_code": "# mistral = eedaca5338033d73c4eb240cba9534b1f95c31ead5599c638dc247e2cce5412b\n# Add your AI/ML integration code here",
+  "message": "\ud83d\udd11 New MISTRAL API key discovered!"
+}

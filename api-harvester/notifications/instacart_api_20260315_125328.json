@@ -1,0 +1,11 @@
+{
+  "service": "instacart_api",
+  "api_key": "8d19259c6b764d38b6cc...72396131ae",
+  "full_key": "8d19259c6b764d38b6cc0b72396131ae",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1020565853/contents/.claude/agents/api-integration-specialist.md?ref=45237d86dbaaed6ff1bfa368f8f639f6c528a548",
+  "discovered_at": "2026-03-15T12:53:28.564625",
+  "integrator": "cooking_integrator",
+  "integration_code": "# Instacart Grocery Integration\nimport requests\n\nINSTACART_API_KEY = \"8d19259c6b764d38b6cc0b72396131ae\"\nBASE_URL = \"https://api.instacart.com/v1\"\n\ndef create_grocery_list(recipe_ingredients):\n    \"\"\"Create grocery list from recipe\"\"\"\n    response = requests.post(\n        f\"{BASE_URL}/shopping_list\",\n        headers={\"Authorization\": f\"Bearer {INSTACART_API_KEY}\"},\n        json={\"items\": recipe_ingredients}\n    )\n    return response.json()\n\ndef find_products(ingredient, store_id=None):\n    \"\"\"Find specific products in stores\"\"\"\n    params = {\"query\": ingredient}\n    if store_id:\n        params[\"store_id\"] = store_id\n    \n    response = requests.get(\n        f\"{BASE_URL}/products/search\",\n        headers={\"Authorization\": f\"Bearer {INSTACART_API_KEY}\"},\n        params=params\n    )\n    return response.json()\n\ndef get_delivery_slots(zip_code):\n    \"\"\"Get available delivery slots\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/delivery_slots\",\n        headers={\"Authorization\": f\"Bearer {INSTACART_API_KEY}\"},\n        params={\"zip_code\": zip_code}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New INSTACART_API API key discovered!"
+}

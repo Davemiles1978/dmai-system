@@ -1,0 +1,104 @@
+#!/bin/bash
+# Production daemon starter for DMAI services
+# Forces use of venv Python
+
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:$PATH"
+cd /Users/davidmiles/Desktop/dmai-system || exit 1
+
+# Create logs directory
+mkdir -p logs
+
+# ABSOLUTE PATH to venv python - this is critical!
+VENV_PYTHON="/Users/davidmiles/Desktop/dmai-system/venv/bin/python3"
+
+# Verify venv python exists
+if [ ! -f "$VENV_PYTHON" ]; then
+    echo "❌ CRITICAL: venv python not found at $VENV_PYTHON"
+    exit 1
+fi
+
+echo "✅ Using venv Python: $VENV_PYTHON"
+echo "========================================"
+
+# Kill any existing processes using system python
+echo "🛑 Killing any services using system Python..."
+ps aux | grep -E "web_researcher|dark_researcher|book_reader|music_learner|evolution_engine|dmai_voice" | grep -v grep | grep -v "$VENV_PYTHON" | awk '{print $2}' | xargs kill -9 2>/dev/null
+sleep 2
+
+# Install ALL voice dependencies
+echo "📦 Installing voice dependencies..."
+$VENV_PYTHON -m pip install sounddevice pvporcupine pvrecorder pyaudio numpy scipy >> logs/voice_deps.log 2>&1
+echo "✅ Voice dependencies installed"
+
+# Log function
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> logs/daemon.log
+}
+
+log "🚀 Starting all DMAI services with venv Python"
+
+# Function to start a service using venv python
+start_service() {
+    local name=$1
+    local script=$2
+    local args=$3
+    local log_file="logs/${name}.log"
+    
+    log "Starting $name..."
+    
+    # Use venv python directly - no activation needed
+    (
+        while true; do
+            echo "$(date) - Starting $name" >> "$log_file"
+            $VENV_PYTHON "$script" $args >> "$log_file" 2>&1
+            EXIT_CODE=$?
+            echo "$(date) - $name crashed with code $EXIT_CODE, restarting in 5s..." >> "$log_file"
+            sleep 5
+        done
+    ) &
+    
+    log "✅ $name started with PID $!"
+    sleep 1
+}
+
+# Start all services with venv python
+start_service "evolution" "evolution/evolution_engine.py" "--continuous"
+start_service "web_researcher" "services/web_researcher.py" "--continuous"
+start_service "dark_researcher" "services/dark_researcher.py" "--continuous"
+start_service "book_reader" "services/book_reader.py" "--continuous"
+start_service "music_learner" "services/music_learner.py" "--continuous"
+start_service "voice" "voice/dmai_voice_with_learning.py" ""
+
+sleep 3
+
+# Verify all services are using venv python
+echo ""
+echo "🔍 Verifying services are using venv Python..."
+VENV_COUNT=0
+TOTAL=0
+
+for service in evolution_engine web_researcher dark_researcher book_reader music_learner dmai_voice; do
+    PID=$(pgrep -f "$service" | head -1)
+    if [ ! -z "$PID" ]; then
+        TOTAL=$((TOTAL + 1))
+        # Check what python this process is using
+        if ps -p $PID -o command= | grep -q "$VENV_PYTHON"; then
+            echo "✅ $service: using venv Python"
+            VENV_COUNT=$((VENV_COUNT + 1))
+        else
+            echo "❌ $service: using system Python - killing and restarting"
+            kill -9 $PID 2>/dev/null
+            sleep 1
+            start_service "$service" "${service/evolution_engine/evolution\/evolution_engine.py}" "--continuous"
+        fi
+    fi
+done
+
+echo ""
+echo "========================================"
+echo "✅ All services started - Total processes: $TOTAL"
+echo "✅ $VENV_COUNT services confirmed using venv Python"
+echo "========================================"
+
+# Show running processes
+ps aux | grep -E "evolution_engine|web_researcher|dark_researcher|book_reader|music_learner|dmai_voice" | grep -v grep

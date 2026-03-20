@@ -1,0 +1,11 @@
+{
+  "service": "gutenberg_project",
+  "api_key": "daca50cb5051c131ad81...8c83bce0d6",
+  "full_key": "daca50cb5051c131ad81a3dace70098c83bce0d6",
+  "source": "github",
+  "url": "https://api.github.com/repositories/131518080/contents/wordpress/wp-content/plugins/gutenberg/gutenberg.php?ref=f1b89d004e507c811848dd552ba4fb78320d1c03",
+  "discovered_at": "2026-03-17T06:27:22.129822",
+  "integrator": "history_integrator",
+  "integration_code": "# gutenberg_project = daca50cb5051c131ad81a3dace70098c83bce0d6\n# Add your history integration code here",
+  "message": "\ud83d\udd11 New GUTENBERG_PROJECT API key discovered!"
+}

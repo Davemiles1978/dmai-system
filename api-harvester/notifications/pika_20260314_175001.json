@@ -1,0 +1,11 @@
+{
+  "service": "pika",
+  "api_key": "59a98ed1869e26027a3f...d6070003f8",
+  "full_key": "59a98ed1869e26027a3ff8d6070003f8",
+  "source": "github",
+  "url": "https://api.github.com/repositories/742272374/contents/tv.txt?ref=2c5569628c68c37bff4fd07e4b5940b432c4bbf7",
+  "discovered_at": "2026-03-14T17:50:01.890553",
+  "integrator": "video_audio_integrator",
+  "integration_code": "# pika = 59a98ed1869e26027a3ff8d6070003f8\n# Add your video/audio integration code here",
+  "message": "\ud83d\udd11 New PIKA API key discovered!"
+}

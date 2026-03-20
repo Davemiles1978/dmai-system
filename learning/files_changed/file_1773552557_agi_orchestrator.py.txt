@@ -1,0 +1,144 @@
+# File: /Users/davidmiles/Desktop/dmai-system/agi_orchestrator.py
+# Time: 2026-03-15T08:29:17.883717
+################################################################################
+import asyncio
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Callable
+import importlib.util
+import sys
+from dataclasses import dataclass, asdict
+import traceback
+import hashlib
+
+
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from knowledge_graph import KnowledgeGraph
+from meta_learner import MetaLearner
+from self_healer import SelfHealer
+from data_validator import DataValidator
+from capability_synthesizer import CapabilitySynthesizer
+from self_assessment import SelfAssessment
+
+@dataclass
+class AGIState:
+    """Current state of the AGI system"""
+    generation: int
+    active_capabilities: List[str]
+    current_goals: List[Dict[str, Any]]
+    performance_metrics: Dict[str, float]
+    learning_rate: float
+    exploration_rate: float
+    last_evolution: str
+    health_status: str
+
+class AGIOrchestrator:
+    """Orchestrates all AGI components for recursive self-improvement"""
+    
+    def __init__(self, base_path: str = "shared_data/agi_evolution"):
+        self.base_path = Path(base_path)
+        self.state_path = self.base_path / "orchestrator_state"
+        self.evolution_path = self.base_path / "evolution_history"
+        self.checkpoint_path = Path("shared_checkpoints")
+        
+        # Create directories
+        for path in [self.state_path, self.evolution_path]:
+            path.mkdir(parents=True, exist_ok=True)
+            
+        # Initialize all AGI components
+        self.knowledge_graph = KnowledgeGraph()
+        self.meta_learner = MetaLearner()
+        self.self_healer = SelfHealer()
+        self.data_validator = DataValidator()
+        self.capability_synthesizer = CapabilitySynthesizer()
+        self.self_assessment = SelfAssessment()
+        
+        # State management
+        self.state = self._load_state()
+        self.evolution_queue = asyncio.Queue()
+        self.active_tasks: Dict[str, asyncio.Task] = {}
+        self.capability_cache: Dict[str, Any] = {}
+        
+        # Event handlers
+        self.event_handlers: Dict[str, List[Callable]] = {
+            'capability_synthesized': [],
+            'evolution_step': [],
+            'state_changed': [],
+            'error_occurred': [],
+            'checkpoint_created': []
+        }
+        
+    def _load_state(self) -> AGIState:
+        """Load orchestrator state"""
+        state_file = self.state_path / "current_state.json"
+        
+        if state_file.exists():
+            with open(state_file, 'r') as f:
+                data = json.load(f)
+                return AGIState(**data)
+        else:
+            # Initialize new state
+            return AGIState(
+                generation=4,
+                active_capabilities=[],
+                current_goals=[],
+                performance_metrics={},
+                learning_rate=0.1,
+                exploration_rate=0.3,
+                last_evolution=datetime.now().isoformat(),
+                health_status="initializing"
+            )
+    
+    async def start(self):
+        """Start the orchestrator - required for cloud deployment"""
+        print("🚀 Starting AGI Orchestrator via start() method")
+        
+        # Register with self-healer
+        self.self_healer.register_component("agi_orchestrator", self)
+        
+        # Load capabilities
+        await self._load_active_capabilities()
+        
+        # Start background tasks
+        asyncio.create_task(self._evolution_loop())
+        asyncio.create_task(self._health_monitor())
+        asyncio.create_task(self._goal_processor())
+        
+        # Update state
+        self.state.health_status = "running"
+        self._save_state()
+        
+        print(f"✅ AGI Orchestrator started at Generation {self.state.generation}")
+        return self
+    
+    async def _load_active_capabilities(self):
+        """Load and cache active capabilities"""
+        caps_dir = Path("shared_data/agi_evolution/capabilities")
+        if caps_dir.exists():
+            for cap_file in caps_dir.glob("*.json"):
+                with open(cap_file, 'r') as f:
+                    cap_data = json.load(f)
+                    if cap_data.get('name'):
+                        self.state.active_capabilities.append(cap_data['name'])
+    
+    async def _evolution_loop(self):
+        """Main evolution loop for recursive self-improvement"""
+        while True:
+            try:
+                if await self._should_evolve():
+                    await self._perform_evolution_step()
+                    
+                while not self.evolution_queue.empty():
+                    evolution_task = await self.evolution_queue.get()
+                    result = None
+                    try:
+                        result = await self._process_evolution_task(evolution_task)
+                    except Exception as e:
+                        print(f"❌ Error processing task: {e}")
+                        result = {"error": str(e)}
+        

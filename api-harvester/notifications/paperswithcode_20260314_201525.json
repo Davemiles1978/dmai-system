@@ -1,0 +1,11 @@
+{
+  "service": "paperswithcode",
+  "api_key": "7354971552bbf204a435...7c1704bdcc",
+  "full_key": "7354971552bbf204a4357369637b687c1704bdcc",
+  "source": "github",
+  "url": "https://api.github.com/repositories/139389523/contents/MORE.md?ref=27143071868fce80d71661ccfb6fd83be7f955f6",
+  "discovered_at": "2026-03-14T20:15:25.963018",
+  "integrator": "research_papers_integrator",
+  "integration_code": "# paperswithcode = 7354971552bbf204a4357369637b687c1704bdcc\n# Add your research papers integration code here",
+  "message": "\ud83d\udd11 New PAPERSWITHCODE API key discovered!"
+}

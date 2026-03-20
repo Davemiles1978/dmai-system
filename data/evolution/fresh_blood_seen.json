@@ -1,0 +1,28 @@
+{
+  "github": [
+    "Azure/azure-search-vector-samples",
+    "lanterndata/lantern",
+    "henomis/lingoose",
+    "danny-avila/rag_api",
+    "RelevanceAI/vectorhub",
+    "f/prompts.chat",
+    "rasbt/LLMs-from-scratch",
+    "netdata/netdata",
+    "OpenBB-finance/OpenBB",
+    "microsoft/AI-For-Beginners",
+    "VectifyAI/PageIndex",
+    "airweave-ai/airweave",
+    "aiming-lab/SimpleMem",
+    "qdrant/fastembed",
+    "memodb-io/memobase"
+  ],
+  "huggingface": [],
+  "arxiv": [
+    "2603.09972v1",
+    "2603.09964v1",
+    "2603.09974v1",
+    "2603.09970v1",
+    "2603.09957v1"
+  ],
+  "darkweb": []
+}

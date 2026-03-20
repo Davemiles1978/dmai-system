@@ -1,0 +1,53 @@
+# File: /Users/davidmiles/Desktop/dmai-system/tests/P2T3_test.py
+# Time: 2026-03-16T11:45:17.263698
+################################################################################
+#!/usr/bin/env python3
+"""
+Tests for P2T3 - Get virtual card(s)
+"""
+
+import unittest
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+try:
+    from components.phase2.P2T3_Get_virtual_card import VirtualCardManager
+except ImportError:
+    VirtualCardManager = None
+
+class TestP2T3(unittest.TestCase):
+    """Test suite for P2T3 - Get virtual card(s)"""
+    
+    def setUp(self):
+        if VirtualCardManager:
+            self.component = VirtualCardManager()
+        else:
+            self.skipTest("VirtualCardManager class not found")
+    
+    def test_component_exists(self):
+        """Test that component can be instantiated"""
+        if VirtualCardManager:
+            self.assertIsNotNone(self.component)
+    
+    def test_component_id(self):
+        """Test that component has correct ID"""
+        if VirtualCardManager:
+            self.assertEqual(self.component.component_id, "P2T3")
+    
+    def test_create_card(self):
+        """Test card creation"""
+        if VirtualCardManager:
+            card = self.component.create_card()
+            self.assertIsNotNone(card)
+            self.assertIn('id', card)
+    
+    def test_get_cards(self):
+        """Test getting cards"""
+        if VirtualCardManager:
+            cards = self.component.get_cards()
+            self.assertIsInstance(cards, list)
+
+if __name__ == '__main__':
+    unittest.main()

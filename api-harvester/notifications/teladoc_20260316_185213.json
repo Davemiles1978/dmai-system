@@ -1,0 +1,11 @@
+{
+  "service": "teladoc",
+  "api_key": "2dfa727615msh3c6f698...6a1bc337ef",
+  "full_key": "2dfa727615msh3c6f698544ce015p142450jsn646a1bc337ef",
+  "source": "github",
+  "url": "https://api.github.com/repositories/952943326/contents/api/views.py?ref=30e59df41cb87e6354b3c6b33277b02edf8102ff",
+  "discovered_at": "2026-03-16T18:52:13.186158",
+  "integrator": "medical_integrator",
+  "integration_code": "# teladoc = 2dfa727615msh3c6f698544ce015p142450jsn646a1bc337ef\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New TELADOC API key discovered!"
+}

@@ -1,0 +1,11 @@
+{
+  "service": "rxnorm",
+  "api_key": "129f8f97fb94a87ca49c...dafe691e1e",
+  "full_key": "129f8f97fb94a87ca49ca8dafe691e1e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/48087995/contents/R/RxODE.R?ref=e3df2ae1504238cfd6cde29522e5a47352df1264",
+  "discovered_at": "2026-03-16T17:22:51.036820",
+  "integrator": "medical_integrator",
+  "integration_code": "# rxnorm = 129f8f97fb94a87ca49ca8dafe691e1e\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New RXNORM API key discovered!"
+}

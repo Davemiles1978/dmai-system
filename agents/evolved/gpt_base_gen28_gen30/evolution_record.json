@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-03-09T15:30:37.578260",
+  "parent1": "dmai_core",
+  "parent2": "gpt_base_gen28",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "evolution",
+      "description": "Transfer evolution from \ud83e\udde0 DMAI Core to \u26a1 gpt_base_gen28",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "coordination",
+      "description": "Transfer coordination from \ud83e\udde0 DMAI Core to \u26a1 gpt_base_gen28",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "learning",
+      "description": "Transfer learning from \ud83e\udde0 DMAI Core to \u26a1 gpt_base_gen28",
+      "quality": 0.9
+    },
+    {
+      "type": "meta_learning",
+      "description": "Apply meta-learning patterns to improve learning rate",
+      "quality": 0.5465870687851848
+    }
+  ],
+  "new_generation": 30,
+  "capabilities": [
+    "learning",
+    "reasoning",
+    "evolution",
+    "language",
+    "coordination"
+  ]
+}

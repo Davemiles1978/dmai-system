@@ -1,0 +1,11 @@
+{
+  "service": "kidshealth",
+  "api_key": "e02f0f27daadca306a80...ae900b8f0e",
+  "full_key": "e02f0f27daadca306a80f17b2007f4ae900b8f0e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/849670424/contents/svc.txt?ref=ee6b74427f2278687126e6c6b02203922ad3fcf4",
+  "discovered_at": "2026-03-16T15:34:59.825177",
+  "integrator": "childcare_integrator",
+  "integration_code": "# KidsHealth Medical Information\nimport requests\n\nKIDSHEALTH_API_KEY = \"e02f0f27daadca306a80f17b2007f4ae900b8f0e\"\nBASE_URL = \"https://api.kidshealth.org/v1\"\n\ndef get_child_health_info(topic, age_range):\n    \"\"\"Get child health information\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/topics\",\n        params={\n            \"topic\": topic,\n            \"age\": age_range,\n            \"api_key\": KIDSHEALTH_API_KEY\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New KIDSHEALTH API key discovered!"
+}

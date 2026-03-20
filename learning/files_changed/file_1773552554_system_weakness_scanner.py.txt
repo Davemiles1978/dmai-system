@@ -1,0 +1,135 @@
+# File: /Users/davidmiles/Desktop/dmai-system/evolution/system_weakness_scanner.py
+# Time: 2026-03-15T08:29:14.453118
+################################################################################
+#!/usr/bin/env python3
+"""
+System Weakness Scanner for DMAI
+Scans all services for performance bottlenecks, error-prone modules, and security gaps
+Integrates with evolution cycle to auto-heal detected issues
+VERSION: Fixed to work with dmai_daemon - doesn't directly restart services
+"""
+
+import os
+import sys
+import json
+import time
+import psutil
+import subprocess
+import requests
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+import logging
+
+# Add parent directory to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from core_connector import get_evolution_status, voice_say
+except ImportError:
+    # Mock functions for standalone testing
+    def voice_say(text):
+        print(f"[VOICE] {text}")
+    
+    def get_evolution_status():
+        return {"status": "unknown"}
+
+# Configure logging
+log_dir = Path.home() / "Library/Logs/dmai"
+log_dir.mkdir(parents=True, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - weakness_scanner - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_dir / 'weakness_scanner.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('weakness_scanner')
+
+# Service configurations - match exactly with dmai_daemon.py
+SERVICES = [
+    {"name": "harvester_daemon", "port": 9001, "health_url": "http://localhost:9001/health"},
+    {"name": "harvester_api", "port": 9002, "health_url": "http://localhost:9002/health"},
+    {"name": "evolution_engine", "port": 9003, "health_url": "http://localhost:9003/health"},
+    {"name": "book_reader", "port": 9004, "health_url": "http://localhost:9004/status"},
+    {"name": "web_researcher", "port": 9005, "health_url": "http://localhost:9005/status"},
+    {"name": "dark_researcher", "port": 9006, "health_url": "http://localhost:9006/status"},
+    {"name": "music_learner", "port": 9007, "health_url": "http://localhost:9007/status"},
+    {"name": "voice_service", "port": 9008, "health_url": "http://localhost:9008/health"},
+    {"name": "dual_launcher", "port": 9009, "health_url": "http://localhost:9009/status"},
+]
+
+# PostgreSQL connection for storing weaknesses
+DB_CONFIG = {
+    "host": "dpg-d6lfcg3h46gs73drf3fg-a.oregon-postgres.render.com",
+    "database": "harvester_u9ni",
+    "user": "dmai",
+    "password": "xQjt0tbhmT0vRExNv9wTSbe3t7n34J85",
+    "port": 5432
+}
+
+class SystemWeaknessScanner:
+    def __init__(self):
+        self.weaknesses = []
+        self.service_stats = {}
+        self.db_conn = None
+        self.daemon_pid = self.find_daemon_pid()
+        self.init_database()
+        
+    def find_daemon_pid(self) -> Optional[int]:
+        """Find the PID of the running dmai_daemon"""
+        try:
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                if proc.info['cmdline'] and 'dmai_daemon_fixed.py' in ' '.join(proc.info['cmdline']):
+                    logger.info(f"Found dmai_daemon with PID: {proc.info['pid']}")
+                    return proc.info['pid']
+        except Exception as e:
+            logger.error(f"Error finding daemon PID: {e}")
+        return None
+    
+    def is_daemon_healthy(self) -> bool:
+        """Check if the main daemon is running and healthy"""
+        if not self.daemon_pid:
+            self.daemon_pid = self.find_daemon_pid()
+        
+        if self.daemon_pid:
+            try:
+                # Check if daemon process exists
+                proc = psutil.Process(self.daemon_pid)
+                if proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        
+        return False
+    
+    def signal_daemon_to_restart(self, service_name: str):
+        """Signal the daemon to restart a service instead of doing it directly"""
+        if not self.is_daemon_healthy():
+            logger.error("Daemon not running, cannot signal restart")
+            return False
+        
+        try:
+            # Try to use the daemon's API if available
+            # For now, we'll just log that the daemon should handle this
+            logger.info(f"⚠️ Service {service_name} needs restart - daemon should handle this")
+            
+            # We could implement a signal file approach or socket communication
+            # For now, we'll rely on the daemon's own monitoring
+            return True
+        except Exception as e:
+            logger.error(f"Failed to signal daemon: {e}")
+            return False
+    
+    def init_database(self):
+        """Initialize database connection and create table if needed"""
+        try:
+            import psycopg2
+            self.db_conn = psycopg2.connect(
+                host=DB_CONFIG["host"],
+                database=DB_CONFIG["database"],
+                user=DB_CONFIG["user"],
+                password=DB_CONFIG["password"],
+                port=DB_CONFIG["port"]
+           

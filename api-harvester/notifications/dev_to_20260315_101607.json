@@ -1,0 +1,11 @@
+{
+  "service": "dev_to",
+  "api_key": "eyJhbGciOiJIUzI1NiIs...I6IkpXVCJ9",
+  "full_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1027705591/contents/docs/API.md?ref=afd7b15688955623296c0c0b9cc90248eea9d8bf",
+  "discovered_at": "2026-03-15T10:16:07.618101",
+  "integrator": "technique_extraction_integrator",
+  "integration_code": "# dev_to = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\n# Add your technique extraction integration code here",
+  "message": "\ud83d\udd11 New DEV_TO API key discovered!"
+}

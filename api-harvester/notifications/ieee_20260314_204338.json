@@ -1,0 +1,11 @@
+{
+  "service": "ieee",
+  "api_key": "0fbfb71bae06e48163f2...592417079a",
+  "full_key": "0fbfb71bae06e48163f276592417079a",
+  "source": "github",
+  "url": "https://api.github.com/repositories/59441906/contents/News.md?ref=c68e84b468750ecd1ec144b1a03ab943e8561c4e",
+  "discovered_at": "2026-03-14T20:43:38.498023",
+  "integrator": "research_papers_integrator",
+  "integration_code": "# ieee = 0fbfb71bae06e48163f276592417079a\n# Add your research papers integration code here",
+  "message": "\ud83d\udd11 New IEEE API key discovered!"
+}

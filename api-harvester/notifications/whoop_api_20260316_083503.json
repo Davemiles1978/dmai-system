@@ -1,0 +1,11 @@
+{
+  "service": "whoop_api",
+  "api_key": "93f5e3fc10ae9d096fb3...3f749c1fe2",
+  "full_key": "93f5e3fc10ae9d096fb30fa68221413b97e2b2f261c3f963cba8013f749c1fe2",
+  "source": "github",
+  "url": "https://api.github.com/repositories/790263097/contents/sync.py?ref=79c471595881fa42e9b68fed5adc6e3046faf30e",
+  "discovered_at": "2026-03-16T08:35:03.552383",
+  "integrator": "sports_integrator",
+  "integration_code": "# whoop_api = 93f5e3fc10ae9d096fb30fa68221413b97e2b2f261c3f963cba8013f749c1fe2\n# Add your sports/fitness integration code here",
+  "message": "\ud83d\udd11 New WHOOP_API API key discovered!"
+}

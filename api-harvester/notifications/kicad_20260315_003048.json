@@ -1,0 +1,11 @@
+{
+  "service": "kicad",
+  "api_key": "1EqKVTt3clsfM8pFoZVf...Pzm9oNqWkY",
+  "full_key": "1EqKVTt3clsfM8pFoZVfl4kPzm9oNqWkY",
+  "source": "github",
+  "url": "https://api.github.com/repositories/509598134/contents/README.md?ref=d52d14322600f04b71e5f21feb80a081308c118d",
+  "discovered_at": "2026-03-15T00:30:48.751410",
+  "integrator": "engineering_integrator",
+  "integration_code": "# kicad = 1EqKVTt3clsfM8pFoZVfl4kPzm9oNqWkY\n# Add your engineering integration code here",
+  "message": "\ud83d\udd11 New KICAD API key discovered!"
+}

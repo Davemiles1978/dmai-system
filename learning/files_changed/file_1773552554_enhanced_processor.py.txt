@@ -1,0 +1,134 @@
+# File: /Users/davidmiles/Desktop/dmai-system/voice/commands/enhanced_processor.py
+# Time: 2026-03-15T08:29:14.178608
+################################################################################
+"""Enhanced command processor with device awareness"""
+import sys
+from pathlib import Path
+import os
+# Add the project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+import re
+import json
+import logging
+from datetime import datetime
+from voice.devices.device_manager import DeviceManager
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class EnhancedCommandProcessor:
+    """Command processor that knows about your devices"""
+    
+    def __init__(self):
+        self.device_manager = DeviceManager()
+        self.commands = {
+            "create": {
+                "patterns": ["create", "make", "generate", "build", "write"],
+                "response": "I'll create that for you."
+            },
+            "research": {
+                "patterns": ["research", "find", "search", "look up", "what is", "who is", "tell me about"],
+                "response": "Let me research that."
+            },
+            "analyze": {
+                "patterns": ["analyze", "check", "audit", "review", "examine"],
+                "response": "Analyzing now."
+            },
+            "status": {
+                "patterns": ["status", "how are you", "what's happening", "progress", "how's it going"],
+                "response": "All systems are evolving normally."
+            },
+            "protect": {
+                "patterns": ["protect", "secure", "defend", "monitor", "watch"],
+                "response": "I'll enhance security."
+            },
+            "automate": {
+                "patterns": ["automate", "schedule", "set up", "workflow", "create a task"],
+                "response": "Setting up automation."
+            },
+            "device": {
+                "patterns": [
+                    "phone", "iphone", "laptop", "computer",  # Device mentions
+                    "send to", "send it", "where's", "find", "locate"  # Device actions
+                ],
+                "response": "Let me handle that for you."
+            },
+            "help": {
+                "patterns": ["help", "what can you do", "capabilities", "what do you do"],
+                "response": "I can create, research, analyze, protect, automate, and manage your devices. What do you need?"
+            }
+        }
+        
+        # Track conversation context
+        self.context = {
+            "last_command": None,
+            "last_intent": None,
+            "last_items": {},
+            "awaiting_delivery": False,
+            "pending_result": None
+        }
+    
+    def process(self, text):
+        """Convert spoken text to actionable command"""
+        text = text.lower().strip()
+        
+        # Check for delivery preferences
+        delivery = self.extract_delivery(text)
+        if delivery:
+            # Remove the delivery phrase for intent detection
+            for phrase in delivery['matched_phrases']:
+                text = text.replace(phrase, '').strip()
+        
+        # Determine intent
+        intent = self.classify_intent(text, delivery)
+        
+        # Extract any specific items
+        items = self.extract_items(text, intent, delivery)
+        
+        # Check if this is a follow-up command (like "send it to my phone")
+        if intent == "unknown" and delivery and self.context["last_intent"] in ["create", "research", "analyze"]:
+            # This is a delivery instruction for the previous command
+            intent = "delivery_only"
+            items = {
+                "action": "send",
+                "device": delivery['method'],
+                "references": "previous"
+            }
+            logger.info(f"Interpreted as delivery for previous {self.context['last_intent']} command")
+        
+        command = {
+            "original": text,
+            "intent": intent,
+            "items": items,
+            "delivery": delivery,
+            "timestamp": datetime.now().isoformat(),
+            "needs_clarification": False
+        }
+        
+        # Store context for future commands
+        if intent not in ["unknown", "delivery_only"]:
+            self.context["last_intent"] = intent
+            self.context["last_items"] = items
+            self.context["last_command"] = command
+        
+        logger.info(f"Processed command: {intent} - {items}")
+        return command
+    
+    def classify_intent(self, text, delivery=None):
+        """Determine what action the user wants"""
+        # First check for device-related commands
+        device_keywords = ['phone', 'iphone', 'laptop', 'computer', 'where is', 'find my']
+        if any(keyword in text for keyword in device_keywords):
+            return "device"
+        
+        # Then check other intents
+        for intent, data in self.commands.items():
+            if intent == "device":  # Already checked
+                continue
+            for pattern in data['patterns']:
+                if pattern in text:
+                    return intent
+        return "unknown"
+    
+    def extract_items(self, text, intent

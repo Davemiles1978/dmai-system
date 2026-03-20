@@ -1,0 +1,11 @@
+{
+  "service": "telegram_groups",
+  "api_key": "9cbf370c5880e0b98819...d0a02c4256",
+  "full_key": "9cbf370c5880e0b98819df5b59877ed0a02c4256",
+  "source": "github",
+  "url": "https://api.github.com/repositories/478809713/contents/archive/2026/2026-03-01.md?ref=bc1cd3a198ff30697db05f1824ebb57e29ba8b92",
+  "discovered_at": "2026-03-15T09:47:53.227226",
+  "integrator": "evolution_triggers_integrator",
+  "integration_code": "# telegram_groups = 9cbf370c5880e0b98819df5b59877ed0a02c4256\n# Add your evolution triggers integration code here",
+  "message": "\ud83d\udd11 New TELEGRAM_GROUPS API key discovered!"
+}

@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-03-10T09:24:30.317681",
+  "parent1": "deepseek_base",
+  "parent2": "grok_base_gen29",
+  "improvements": [
+    {
+      "type": "capability_transfer",
+      "capability": "reasoning",
+      "description": "Transfer reasoning from \ud83d\udcda deepseek_base to \u26a1 grok_base_gen29",
+      "quality": 0.9
+    },
+    {
+      "type": "capability_transfer",
+      "capability": "code",
+      "description": "Transfer code from \ud83d\udcda deepseek_base to \u26a1 grok_base_gen29",
+      "quality": 0.9
+    }
+  ],
+  "new_generation": 45,
+  "capabilities": [
+    "code",
+    "language",
+    "real_time",
+    "reasoning"
+  ]
+}

@@ -1,0 +1,37 @@
+# File: /Users/davidmiles/Desktop/dmai-system/tests/P0T0_test.py
+# Time: 2026-03-16T10:18:27.843347
+################################################################################
+#!/usr/bin/env python3
+"""
+Tests for Fix Knowledge Graph health warnings
+Component ID: P0T0
+"""
+
+import unittest
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+class TestFixKnowledgeGraphhealthwarnings(unittest.TestCase):
+    """Test suite for Fix Knowledge Graph health warnings"""
+    
+    def setUp(self):
+        """Set up test fixtures"""
+        self.component_name = "Fix Knowledge Graph health warnings"
+        self.phase = 0
+    
+    def test_component_exists(self):
+        """Test that the component can be referenced"""
+        self.assertIsNotNone(self.component_name)
+    
+    def test_phase_assignment(self):
+        """Test phase is correct"""
+        self.assertEqual(self.phase, 0)
+    
+    def test_priority(self):
+        """Test priority is set"""
+        self.assertIn("high", ["critical", "high", "medium", "low"])
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,0 +1,225 @@
+/* ==================== DESKTOP FIXES ==================== */
+@media screen and (min-width: 769px) {
+    /* Make everything scrollable */
+    body, html {
+        overflow: hidden !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    #app {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+    
+    .main-content {
+        display: flex !important;
+        flex: 1 !important;
+        overflow: hidden !important;
+        min-height: 0 !important;
+    }
+    
+    /* Left panel - scrollable */
+    .chat-list-panel {
+        width: 280px !important;
+        overflow-y: auto !important;
+        height: 100% !important;
+        background: var(--bg-secondary) !important;
+        border-right: 1px solid var(--border) !important;
+        padding: 16px !important;
+    }
+    
+    /* Center panel */
+    .main-chat-panel {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        min-width: 0 !important;
+    }
+    
+    .messages-container {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding: 16px !important;
+        min-height: 0 !important;
+    }
+    
+    /* Right panel - scrollable */
+    .tools-panel {
+        width: 300px !important;
+        overflow-y: auto !important;
+        height: 100% !important;
+        background: var(--bg-secondary) !important;
+        border-left: 1px solid var(--border) !important;
+        padding: 16px !important;
+    }
+    
+    /* Input area */
+    .input-area {
+        padding: 12px 16px !important;
+        background: var(--bg-secondary) !important;
+        border-top: 1px solid var(--border) !important;
+    }
+    
+    /* Fix message responses */
+    .message.ai {
+        background: var(--message-ai) !important;
+        color: var(--message-ai-text) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
+        padding: 12px 14px !important;
+        margin: 8px 0 !important;
+        max-width: 85% !important;
+        align-self: flex-start !important;
+        word-wrap: break-word !important;
+    }
+    
+    .message.user {
+        background: var(--message-user) !important;
+        color: var(--message-user-text) !important;
+        border-radius: 12px !important;
+        padding: 12px 14px !important;
+        margin: 8px 0 !important;
+        max-width: 85% !important;
+        align-self: flex-end !important;
+        word-wrap: break-word !important;
+    }
+    
+    /* Make all buttons clickable */
+    .tool-btn, .style-preset, .platform-badge, .action-btn, 
+    .suggestion-btn, .send-btn, .chat-item, .mobile-menu-btn {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1000 !important;
+    }
+    
+    .tool-btn:hover, .style-preset:hover, .platform-badge:hover {
+        opacity: 0.9 !important;
+        transform: translateY(-1px) !important;
+    }
+}
+
+/* ==================== MOBILE FIXES ==================== */
+@media screen and (max-width: 768px) {
+    body, html {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+    
+    #app {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+    }
+    
+    .header {
+        height: 60px !important;
+        padding: 0 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    
+    .mobile-menu-btn {
+        display: flex !important;
+        width: 44px !important;
+        height: 44px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 24px !important;
+        background: var(--bg-tertiary) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+    }
+    
+    .main-chat-panel {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .messages-container {
+        padding: 12px !important;
+        overflow-y: visible !important;
+    }
+    
+    .input-area {
+        position: sticky !important;
+        bottom: 0 !important;
+        background: var(--bg-secondary) !important;
+        border-top: 1px solid var(--border) !important;
+        padding: 8px 12px !important;
+    }
+}
+
+/* Fix scrollbar */
+::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent) !important;
+    border-radius: 4px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light) !important;
+}
+
+/* Logo styling */
+.logo img {
+    transition: all 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+    .logo img {
+        width: 28px !important;
+        height: 28px !important;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .logo img {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .logo img:hover {
+        transform: rotate(180deg);
+        transition: transform 0.5s ease;
+    }
+}
+
+/* Logo styling */
+.logo img {
+    transition: all 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+    .logo img {
+        width: 28px !important;
+        height: 28px !important;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .logo img {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .logo img:hover {
+        transform: rotate(180deg);
+        transition: transform 0.5s ease;
+    }
+}

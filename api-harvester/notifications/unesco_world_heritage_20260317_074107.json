@@ -1,0 +1,11 @@
+{
+  "service": "unesco_world_heritage",
+  "api_key": "profaddic7edadhearsi...bscssadmin",
+  "full_key": "profaddic7edadhearsionabscssadmin",
+  "source": "github",
+  "url": "https://api.github.com/repositories/78939997/contents/broken_gems?ref=4e45fcc49bad2e1754072f084c106e9cc31f09b7",
+  "discovered_at": "2026-03-17T07:41:07.578051",
+  "integrator": "history_integrator",
+  "integration_code": "# UNESCO World Heritage Sites API\nimport requests\n\nUNESCO_API_KEY = \"profaddic7edadhearsionabscssadmin\"\nBASE_URL = \"https://whc.unesco.org/api\"\n\ndef list_world_heritage_sites(country=None, category=None):\n    \"\"\"List World Heritage sites by criteria\"\"\"\n    params = {\n        \"apikey\": UNESCO_API_KEY,\n        \"format\": \"json\"\n    }\n    if country:\n        params[\"country\"] = country\n    if category:\n        params[\"category\"] = category\n    \n    response = requests.get(f\"{BASE_URL}/sites\", params=params)\n    return response.json()\n\ndef get_site_details(site_id):\n    \"\"\"Get detailed information about a World Heritage site\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/sites/{site_id}\",\n        params={\"apikey\": UNESCO_API_KEY, \"format\": \"json\"}\n    )\n    return response.json()\n\ndef get_sites_in_danger():\n    \"\"\"Get list of World Heritage sites in danger\"\"\"\n    response = requests.get(\n        f\"{BASE_URL}/danger\",\n        params={\"apikey\": UNESCO_API_KEY, \"format\": \"json\"}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New UNESCO_WORLD_HERITAGE API key discovered!"
+}

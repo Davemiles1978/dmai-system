@@ -1,0 +1,11 @@
+{
+  "service": "kahoot",
+  "api_key": "eyJvcyI6IldpbmRvd3Mi...SI6bnVsbH0",
+  "full_key": "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiRmlyZWZveCIsImRldmljZSI6IiIsInN5c3RlbV9sb2NhbGUiOiJlbi1VUyIsImJyb3dzZXJfdXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQ7IHJ2Ojk0LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvOTQuMCIsImJyb3dzZXJfdmVyc2lvbiI6Ijk0LjAiLCJvc192ZXJzaW9uIjoiMTAiLCJyZWZlcnJlciI6IiIsInJlZmVycmluZ19kb21haW4iOiIiLCJyZWZlcnJlcl9jdXJyZW50IjoiIiwicmVmZXJyaW5nX2RvbWFpbl9jdXJyZW50IjoiIiwicmVsZWFzZV9jaGFubmVsIjoic3RhYmxlIiwiY2xpZW50X2J1aWxkX251bWJlciI6OTk5OSwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0",
+  "source": "github",
+  "url": "https://api.github.com/repositories/461838718/contents/main.py?ref=fb1e8bfa0462e86408efcba316acd37dc71f93e4",
+  "discovered_at": "2026-03-17T17:59:08.425335",
+  "integrator": "coaching_integrator",
+  "integration_code": "# Kahoot Integration for Interactive Quizzes\nimport requests\n\nKAHOOT_API_KEY = \"eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiRmlyZWZveCIsImRldmljZSI6IiIsInN5c3RlbV9sb2NhbGUiOiJlbi1VUyIsImJyb3dzZXJfdXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQ7IHJ2Ojk0LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvOTQuMCIsImJyb3dzZXJfdmVyc2lvbiI6Ijk0LjAiLCJvc192ZXJzaW9uIjoiMTAiLCJyZWZlcnJlciI6IiIsInJlZmVycmluZ19kb21haW4iOiIiLCJyZWZlcnJlcl9jdXJyZW50IjoiIiwicmVmZXJyaW5nX2RvbWFpbl9jdXJyZW50IjoiIiwicmVsZWFzZV9jaGFubmVsIjoic3RhYmxlIiwiY2xpZW50X2J1aWxkX251bWJlciI6OTk5OSwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0\"\n\ndef create_kahoot_quiz(title, questions):\n    \"\"\"Create an interactive quiz on Kahoot\"\"\"\n    response = requests.post(\n        \"https://create.kahoot.it/rest/kahoots\",\n        headers={\n            \"Authorization\": f\"Bearer {KAHOOT_API_KEY}\",\n            \"Content-Type\": \"application/json\"\n        },\n        json={\n            \"title\": title,\n            \"questions\": questions,\n            \"language\": \"English\"\n        }\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New KAHOOT API key discovered!"
+}

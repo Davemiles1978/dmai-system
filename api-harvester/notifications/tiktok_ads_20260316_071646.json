@@ -1,0 +1,11 @@
+{
+  "service": "tiktok_ads",
+  "api_key": "EAAUO7xsa6KsBOwJ4PFf...NWwMvSoqmP",
+  "full_key": "EAAUO7xsa6KsBOwJ4PFfmZAkF8KBtxzsL5MYKYr5Ejihw6LwPVvYT74gXEY8ZAAqlS64DlRRoLmOYTw88RxwJkPpSGZBlhNby5kWlsd80KpfUbbXEj3eMje1wiNqXA1I1j7CU2emxjNGZAnmh7rQoZBupT1v4MktMEnKPGHxtnFEWQSzXTZCCx4aRNWwMvSoqmP",
+  "source": "github",
+  "url": "https://api.github.com/repositories/807253826/contents/services/api_service.py?ref=74ea6e1b053018662e46d7978c63d04b849d7330",
+  "discovered_at": "2026-03-16T07:16:46.796907",
+  "integrator": "business_integrator",
+  "integration_code": "# tiktok_ads = EAAUO7xsa6KsBOwJ4PFfmZAkF8KBtxzsL5MYKYr5Ejihw6LwPVvYT74gXEY8ZAAqlS64DlRRoLmOYTw88RxwJkPpSGZBlhNby5kWlsd80KpfUbbXEj3eMje1wiNqXA1I1j7CU2emxjNGZAnmh7rQoZBupT1v4MktMEnKPGHxtnFEWQSzXTZCCx4aRNWwMvSoqmP\n# Add your business integration code here",
+  "message": "\ud83d\udd11 New TIKTOK_ADS API key discovered!"
+}

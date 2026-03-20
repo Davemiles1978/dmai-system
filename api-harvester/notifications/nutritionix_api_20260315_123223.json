@@ -1,0 +1,11 @@
+{
+  "service": "nutritionix_api",
+  "api_key": "79dcp2841e6tndjjbn13...bq1tv0p3ud",
+  "full_key": "79dcp2841e6tndjjbn1373bq1tv0p3ud",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1029155865/contents/setup_api_keys.py?ref=f11072bc8f17da382a05a4f5ab6ef9dd662feaf3",
+  "discovered_at": "2026-03-15T12:32:23.314567",
+  "integrator": "cooking_integrator",
+  "integration_code": "# Nutritionix Nutrition Analysis\nimport requests\n\nNUTRITIONIX_APP_ID = \"79dcp2841e6tndjjbn1373bq1tv0p3ud\"\nNUTRITIONIX_API_KEY = \"your_api_key\"\nBASE_URL = \"https://trackapi.nutritionix.com/v2\"\n\ndef analyze_recipe(ingredients):\n    \"\"\"Analyze nutrition for list of ingredients\"\"\"\n    response = requests.post(\n        f\"{BASE_URL}/natural/nutrients\",\n        headers={\n            \"x-app-id\": NUTRITIONIX_APP_ID,\n            \"x-app-key\": NUTRITIONIX_API_KEY,\n            \"Content-Type\": \"application/json\"\n        },\n        json={\"query\": \"\\n\".join(ingredients)}\n    )\n    return response.json()\n\ndef get_food_details(food_name):\n    \"\"\"Get detailed food information\"\"\"\n    response = requests.post(\n        f\"{BASE_URL}/search/instant\",\n        headers={\n            \"x-app-id\": NUTRITIONIX_APP_ID,\n            \"x-app-key\": NUTRITIONIX_API_KEY\n        },\n        params={\"query\": food_name}\n    )\n    return response.json()\n",
+  "message": "\ud83d\udd11 New NUTRITIONIX_API API key discovered!"
+}

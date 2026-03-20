@@ -1,0 +1,11 @@
+{
+  "service": "captivate",
+  "api_key": "QmcW5SAPHRXrcjpjxuGA...Se2NtxBNyL",
+  "full_key": "QmcW5SAPHRXrcjpjxuGAHhcb4sKgkcqBhRwESe2NtxBNyL",
+  "source": "github",
+  "url": "https://api.github.com/repositories/601058384/contents/Readme.md?ref=d4d05cd6fb0fbd4a8ac481799ccf7e56703f6579",
+  "discovered_at": "2026-03-17T17:25:52.560178",
+  "integrator": "coaching_integrator",
+  "integration_code": "# captivate = QmcW5SAPHRXrcjpjxuGAHhcb4sKgkcqBhRwESe2NtxBNyL\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New CAPTIVATE API key discovered!"
+}

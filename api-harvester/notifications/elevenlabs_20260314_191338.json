@@ -1,0 +1,11 @@
+{
+  "service": "elevenlabs",
+  "api_key": "convertTextIntoClear...scriptText",
+  "full_key": "convertTextIntoClearTranscriptText",
+  "source": "github",
+  "url": "https://api.github.com/repositories/593006919/contents/API.md?ref=79a836185795ea7a604ce7cf6b5b2b4b8f6d9272",
+  "discovered_at": "2026-03-14T19:13:38.766117",
+  "integrator": "video_audio_integrator",
+  "integration_code": "# elevenlabs = convertTextIntoClearTranscriptText\n# Add your video/audio integration code here",
+  "message": "\ud83d\udd11 New ELEVENLABS API key discovered!"
+}

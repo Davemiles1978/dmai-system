@@ -1,0 +1,11 @@
+{
+  "service": "onshape",
+  "api_key": "2fd1cc6a6d67419169d2...ccd0940247",
+  "full_key": "2fd1cc6a6d67419169d2be750a421bccd0940247",
+  "source": "github",
+  "url": "https://api.github.com/repositories/865051944/contents/README.md?ref=f4cedbda68ef80092b03e3953bc2fba4790f8cd2",
+  "discovered_at": "2026-03-14T21:06:43.886063",
+  "integrator": "engineering_integrator",
+  "integration_code": "# onshape = 2fd1cc6a6d67419169d2be750a421bccd0940247\n# Add your engineering integration code here",
+  "message": "\ud83d\udd11 New ONSHAPE API key discovered!"
+}

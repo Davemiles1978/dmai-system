@@ -1,0 +1,11 @@
+{
+  "service": "icd10_api",
+  "api_key": "eyJhbGciOiJIUzI1NiIs...I6IkpXVCJ9",
+  "full_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+  "source": "github",
+  "url": "https://api.github.com/repositories/1034895517/contents/Samples/Dashboard/Dashboard.Web/Program.cs?ref=a126320b19f3cfd94e030420be3a063aaf737079",
+  "discovered_at": "2026-03-16T19:28:51.573603",
+  "integrator": "medical_integrator",
+  "integration_code": "# icd10_api = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New ICD10_API API key discovered!"
+}

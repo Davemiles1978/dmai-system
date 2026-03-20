@@ -1,0 +1,167 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_web.py
+# Time: 2026-03-17T12:15:12.768041
+################################################################################
+#!/usr/bin/env python3
+"""
+DMAI WEB - Chat interface
+CONNECTED to real DMAI intelligence
+"""
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.absolute()
+sys.path.insert(0, str(BASE_DIR))
+
+import os
+import json
+import logging
+import hashlib
+import threading
+import time
+from datetime import datetime
+from flask import Flask, render_template, request, jsonify, session
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - WEB[DMAI] - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger('WEB')
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', hashlib.sha256(b"DMAI_SECRET").hexdigest())
+
+# Master password from environment
+MASTER_PASSWORD = os.environ.get('MASTER_PASSWORD', 'dmai2026')
+logger.info(f"🔐 Password configured: {'Yes (custom)' if os.environ.get('MASTER_PASSWORD') else 'No (using default dmai2026)'}")
+
+# Import the REAL DMAI core
+try:
+    from dmai_core_clean import DMAIIntelligence
+    logger.info("✅ Successfully imported DMAI core")
+    DMAI_AVAILABLE = True
+except Exception as e:
+    logger.error(f"❌ Failed to import DMAI core: {e}")
+    DMAI_AVAILABLE = False
+    sys.exit(1)
+
+# Create global DMAI instance
+dmai = DMAIIntelligence()
+logger.info("✅ DMAI instance created")
+
+# Start DMAI in background thread
+def run_dmai():
+    try:
+        logger.info("🚀 Starting DMAI background thread")
+        dmai.run()
+    except Exception as e:
+        logger.error(f"❌ DMAI thread crashed: {e}")
+
+dmai_thread = threading.Thread(target=run_dmai, daemon=True)
+dmai_thread.start()
+logger.info("✅ DMAI background thread started")
+
+# Give DMAI a moment to initialize
+time.sleep(2)
+
+@app.route('/')
+def index():
+    """Main chat interface"""
+    return render_template('chat.html',
+                         authenticated=session.get('authenticated', False),
+                         user=session.get('user', 'admin'))
+
+@app.route('/api/auth', methods=['POST'])
+def authenticate():
+    """Simple password authentication"""
+    try:
+        data = request.get_json()
+        username = data.get('username', 'admin')
+        password = data.get('password', '')
+        
+        logger.info(f"Login attempt for user: {username}")
+        
+        if password == MASTER_PASSWORD:
+            session['authenticated'] = True
+            session['user'] = username
+            logger.info(f"✅ User {username} authenticated successfully")
+            return jsonify({'success': True, 'user': username})
+        
+        logger.warning(f"❌ Failed login attempt for {username}")
+        return jsonify({'success': False, 'error': 'Invalid password'}), 401
+        
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        return jsonify({'success': False, 'error': 'Server error'}), 500
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'success': True})
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Send message to REAL DMAI"""
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        
+        logger.info(f"💬 User message: {message}")
+        
+        # Send to REAL DMAI and get response
+        response = dmai.query(message)
+        
+        logger.info(f"🤖 DMAI response: {response}")
+        
+        return jsonify({
+            'response': response,
+            'generation': dmai.generation if hasattr(dmai, 'generation') else 72,
+            'thoughts': dmai.metrics.get('thoughts_processed', 0) if hasattr(dmai, 'metrics') else 0
+        })
+        
+    except Exception as e:
+        logger.error(f"Chat error: {e}")
+        return jsonify({
+            'response': f"I encountered an error: {str(e)}. Please try again.",
+            'generation': 72
+        }), 200  # Return 200 so frontend shows the error message
+
+@app.route('/api/status', methods=['GET'])
+def status():
+    """Get DMAI status"""
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        status_data = dmai.get_status() if hasattr(dmai, 'get_status') else {
+            'name': 'DMAI',
+            'generation': 72,
+            'uptime': 'Unknown',
+            'authenticated': True
+        }
+        return jsonify(status_data)
+    except Exception as e:
+        logger.error(f"Status error: {e}")
+        return jsonify({
+            'name': 'DMAI',
+            'generation': 72,
+            'error': str(e)
+        })
+
+@app.route('/admin')
+def admin_dash():
+    if not session.get('authenticated'):
+        return render_template('login.html', redirect='/admin')
+    return "<h1>Admin Dashboard</h1><p>Coming soon...</p><a href='/'>Back to Chat</a>"
+
+@app.route('/vision')
+def vision():
+    return render_template('vision.html')
+
+@app.route('/health')
+def health():
+    return jsonify({
+      

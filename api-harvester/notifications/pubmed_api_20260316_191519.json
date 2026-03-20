@@ -1,0 +1,11 @@
+{
+  "service": "pubmed_api",
+  "api_key": "08c23ab8f583472d803e...03fbad0433",
+  "full_key": "08c23ab8f583472d803e5403fbad0433",
+  "source": "github",
+  "url": "https://api.github.com/repositories/935999377/contents/context/api_config.py?ref=885d22acc42d27ef95b5a6a9ae2c2391e5e0ae09",
+  "discovered_at": "2026-03-16T19:15:19.396261",
+  "integrator": "medical_integrator",
+  "integration_code": "# pubmed_api = 08c23ab8f583472d803e5403fbad0433\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New PUBMED_API API key discovered!"
+}

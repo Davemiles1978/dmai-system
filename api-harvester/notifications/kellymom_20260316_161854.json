@@ -1,0 +1,11 @@
+{
+  "service": "kellymom",
+  "api_key": "BFE15C2AC3242C22CA25...8E0081F1C5",
+  "full_key": "BFE15C2AC3242C22CA25718E0081F1C5",
+  "source": "github",
+  "url": "https://api.github.com/repositories/54839973/contents/WEBPY/data/hasilSE/K2/WMIR/Bing/List_LinksAndSnippets_SE2_200pg_adolescent%20or%20alcoholism.txt?ref=8c8446802d83f28e988afbe0ba57ee1eeb71845a",
+  "discovered_at": "2026-03-16T16:18:54.253800",
+  "integrator": "childcare_integrator",
+  "integration_code": "# kellymom = BFE15C2AC3242C22CA25718E0081F1C5\n# Add your childcare integration code here",
+  "message": "\ud83d\udd11 New KELLYMOM API key discovered!"
+}

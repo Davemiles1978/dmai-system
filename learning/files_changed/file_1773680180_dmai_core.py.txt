@@ -1,0 +1,152 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_core.py
+# Time: 2026-03-16T19:56:20.312233
+################################################################################
+#!/usr/bin/env python3
+import os
+import sys
+import time
+import json
+import logging
+import subprocess
+import threading
+import requests
+import random
+from datetime import datetime
+from pathlib import Path
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - CORE - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/core.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger("DMAI-CORE")
+
+class DMAICore:
+    def __init__(self):
+        self.services = {
+            "voice": {
+                "script": "voice/dmai_voice_with_learning.py",
+                "process": None,
+                "restart_count": 0,
+                "last_restart": None,
+                "enabled": True
+            },
+            "learner": {
+                "script": "services/vocabulary_learner.py",
+                "process": None,
+                "restart_count": 0,
+                "last_restart": None,
+                "enabled": True
+            },
+            "web_researcher": {
+                "script": "services/web_researcher.py",
+                "process": None,
+                "restart_count": 0,
+                "last_restart": None,
+                "enabled": True
+            },
+            "dark_researcher": {
+                "script": "services/dark_researcher.py",
+                "process": None,
+                "restart_count": 0,
+                "last_restart": None,
+                "enabled": True
+            },
+            "evolution": {
+                "script": "services/evolution_engine.py",
+                "process": None,
+                "restart_count": 0,
+                "last_restart": None,
+                "enabled": True
+            }
+        }
+        self.running = True
+        self.evolution_generation = 1
+        self.vocabulary_size = 0
+        self.knowledge_base = {}
+        
+    def start_service(self, name, config):
+        try:
+            script_path = Path(config["script"])
+            if not script_path.exists():
+                logger.error(f"Service script not found: {script_path}")
+                return False
+                
+            logger.info(f"Starting {name} service...")
+            
+            process = subprocess.Popen(
+                [sys.executable, str(script_path)],
+                stdout=open(f'logs/{name}.log', 'a'),
+                stderr=subprocess.STDOUT,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True
+            )
+            
+            config["process"] = process
+            config["last_restart"] = datetime.now()
+            logger.info(f"{name} started (PID: {process.pid})")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to start {name}: {e}")
+            return False
+    
+    def check_services(self):
+        for name, config in self.services.items():
+            if not config["enabled"]:
+                continue
+                
+            process = config.get("process")
+            
+            if process:
+                poll = process.poll()
+                if poll is not None:
+                    logger.warning(f"{name} died with code {poll}")
+                    
+                    config["restart_count"] += 1
+                    wait_time = min(30 * (2 ** config["restart_count"]), 3600)
+                    
+                    logger.info(f"Restarting {name} in {wait_time}s...")
+                    time.sleep(wait_time)
+                    
+                    self.start_service(name, config)
+            else:
+                self.start_service(name, config)
+    
+    def update_vocabulary_size(self):
+        try:
+            vocab_file = Path("language_learning/data/vocabulary.json")
+            if vocab_file.exists():
+                with open(vocab_file, 'r') as f:
+                    vocab = json.load(f)
+                self.vocabulary_size = len(vocab)
+                logger.info(f"Vocabulary: {self.vocabulary_size} words")
+        except:
+            pass
+    
+    def self_improve(self):
+        logger.info("Running self-improvement cycle...")
+        
+        improvements = []
+        
+        if self.vocabulary_size > 10000 and self.evolution_generation < 2:
+            improvements.append("Enable deep learning mode")
+            self.evolution_generation = 2
+            
+        if self.vocabulary_size > 50000 and self.evolution_generation < 3:
+            improvements.append("Enable cross-domain knowledge synthesis")
+            self.evolution_generation = 3
+            
+        if self.vocabulary_size > 100000 and self.evolution_generation < 4:
+            improvements.append("Enable autonomous research direction")
+            self.evolution_generation = 4
+            
+        if improvements:
+            logger.info(f"DMAI evolved to generation {self.evolution_generation}")
+            for imp in improvements:
+                logger.info(f"  • {imp}")
+                
+            evo_file = Path(

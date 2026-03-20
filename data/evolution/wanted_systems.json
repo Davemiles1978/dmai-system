@@ -1,0 +1,30 @@
+{
+  "Ideogram": {
+    "priority": 5,
+    "capabilities": [
+      "vision",
+      "creation"
+    ],
+    "api_required": true,
+    "reverse_engineer": false,
+    "discovered_by": "research",
+    "status": "api_requested",
+    "attempts": 0,
+    "discovered_at": "2026-03-08T13:16:43.053518",
+    "last_request": "2026-03-18T09:39:15.247669"
+  },
+  "Claude-3.5": {
+    "priority": 9,
+    "capabilities": [
+      "language",
+      "reasoning"
+    ],
+    "api_required": true,
+    "reverse_engineer": false,
+    "discovered_by": "research",
+    "status": "api_requested",
+    "attempts": 0,
+    "discovered_at": "2026-03-16T08:13:27.452167",
+    "last_request": "2026-03-18T09:39:15.243965"
+  }
+}

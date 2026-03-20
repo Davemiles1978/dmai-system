@@ -1,0 +1,11 @@
+{
+  "service": "doctor_on_demand",
+  "api_key": "0099ec3754bf473d2bbf...7204ab6fea",
+  "full_key": "0099ec3754bf473d2bbf317204ab6fea",
+  "source": "github",
+  "url": "https://api.github.com/repositories/253459081/contents/COVID%2019%20Compass%20-%20Startup%20List.csv?ref=c9de6d0909f3829ab3b7f48606ffadbec0d803f6",
+  "discovered_at": "2026-03-16T19:05:35.723522",
+  "integrator": "medical_integrator",
+  "integration_code": "# doctor_on_demand = 0099ec3754bf473d2bbf317204ab6fea\n# Add your medical integration code here",
+  "message": "\ud83d\udd11 New DOCTOR_ON_DEMAND API key discovered!"
+}

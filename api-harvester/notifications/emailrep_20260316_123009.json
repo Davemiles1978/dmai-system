@@ -1,0 +1,11 @@
+{
+  "service": "emailrep",
+  "api_key": "b71db26d57fe49709fe9...6c9318dc60",
+  "full_key": "b71db26d57fe49709fe9c06c9318dc60",
+  "source": "github",
+  "url": "https://api.github.com/repositories/971387699/contents/api.php?ref=26d2d4ba3c87511d906155b34e348736900b459d",
+  "discovered_at": "2026-03-16T12:30:09.871415",
+  "integrator": "osint_integrator",
+  "integration_code": "# emailrep = b71db26d57fe49709fe9c06c9318dc60\n# Add your OSINT integration code here",
+  "message": "\ud83d\udd11 New EMAILREP API key discovered!"
+}

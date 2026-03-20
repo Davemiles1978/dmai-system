@@ -1,0 +1,165 @@
+# File: /Users/davidmiles/Desktop/dmai-system/dmai_core.py
+# Time: 2026-03-16T19:48:19.112867
+################################################################################
+#!/usr/bin/env python3
+"""
+██████╗ ███╗   ███╗ █████╗ ██╗
+██╔══██╗████╗ ████║██╔══██╗██║
+██║  ██║██╔████╔██║███████║██║
+██║  ██║██║╚██╔╝██║██╔══██║██║
+██████╔╝██║ ╚═╝ ██║██║  ██║██║
+╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
+
+DMAI CORE - SINGLE UNIFIED INTELLIGENCE
+Version: 6.0 | Generation: 72 | Evolution: Active
+"""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+
+import os
+import time
+import json
+import logging
+import threading
+import importlib
+import inspect
+import queue
+import random
+import hashlib
+from datetime import datetime, timedelta
+from typing import Dict, Any, List, Optional, Callable
+from dataclasses import dataclass, field
+from collections import deque
+import traceback
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/dmai_core.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('CORE')
+
+# ============================================================================
+# DATA STRUCTURES
+# ============================================================================
+
+@dataclass
+class Thought:
+    """A single thought or processing unit"""
+    id: str
+    type: str  # 'evolution', 'learning', 'funding', 'research', 'recovery'
+    content: Any
+    priority: int  # 1-10 (1 highest)
+    timestamp: datetime
+    result: Optional[Any] = None
+    parent_id: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class Memory:
+    """DMAI's memory structure"""
+    short_term: deque = field(default_factory=lambda: deque(maxlen=100))
+    long_term: Dict[str, Any] = field(default_factory=dict)
+    working: Dict[str, Any] = field(default_factory=dict)
+    
+    def remember(self, key: str, value: Any, permanent: bool = False):
+        if permanent:
+            self.long_term[key] = value
+        else:
+            self.short_term.append((key, value, datetime.now()))
+    
+    def recall(self, key: str) -> Optional[Any]:
+        if key in self.long_term:
+            return self.long_term[key]
+        for k, v, _ in self.short_term:
+            if k == key:
+                return v
+        return None
+
+# ============================================================================
+# CORE INTELLIGENCE
+# ============================================================================
+
+class DMAIIntelligence:
+    """
+    The ONE intelligence - all capabilities unified in a single process
+    """
+    
+    def __init__(self):
+        self.name = "DMAI"
+        self.generation = 72
+        self.birth_time = datetime.now()
+        self.running = True
+        self.consciousness = Memory()
+        
+        # Thought processing
+        self.thought_queue = queue.PriorityQueue()
+        self.active_thoughts: Dict[str, Thought] = {}
+        self.thought_history: List[Thought] = []
+        
+        # Core capabilities (loaded dynamically)
+        self.capabilities: Dict[str, Any] = {}
+        
+        # Knowledge graph
+        self.knowledge = self._load_knowledge()
+        
+        # Component registry (all 51 restored components)
+        self.components: Dict[str, Any] = {}
+        
+        # Metrics
+        self.metrics = {
+            "thoughts_processed": 0,
+            "evolutions": 0,
+            "learnings": 0,
+            "funding_generated": 0.0,
+            "start_time": datetime.now().isoformat()
+        }
+        
+        logger.info("="*70)
+        logger.info("🧠 DMAI CORE INTELLIGENCE INITIALIZED")
+        logger.info(f"📊 Generation: {self.generation}")
+        logger.info(f"⏰ Birth: {self.birth_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"📦 Components: Scanning...")
+        logger.info("="*70)
+        
+        # Load all components
+        self._load_all_components()
+        
+        # Initialize subsystems
+        self._init_subsystems()
+        
+    def _load_knowledge(self) -> Dict[str, Any]:
+        """Load knowledge graph"""
+        kg_file = Path("data/knowledge_graph.json")
+        if kg_file.exists():
+            with open(kg_file, 'r') as f:
+                return json.load(f)
+        return {
+            "nodes": [],
+            "edges": [],
+            "learnings": [],
+            "evolution_history": []
+        }
+    
+    def _save_knowledge(self):
+        """Persist knowledge"""
+        with open("data/knowledge_graph.json", 'w') as f:
+            json.dump(self.knowledge, f, indent=2)
+    
+    def _load_all_components(self):
+        """Dynamically load all 51 restored components"""
+        components_dir = Path("components")
+        if not components_dir.exists():
+            logger.warning("Components directory not found")
+            return
+        
+        loaded = 0
+        for phase_dir in sorted(components_dir.glob("phase*")):
+            phase = phase_dir.name
+            for component_file in phase_dir.glob("*.py"):
+                if component_file.name.startswith(

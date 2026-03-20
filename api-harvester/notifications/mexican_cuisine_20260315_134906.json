@@ -1,0 +1,11 @@
+{
+  "service": "mexican_cuisine",
+  "api_key": "3904d24a08aa08f6a68d...38f9be277e",
+  "full_key": "3904d24a08aa08f6a68dc338f9be277e",
+  "source": "github",
+  "url": "https://api.github.com/repositories/18271330/contents/wikipedia/1396144344/Dough.html?ref=71d2fbc7e85adddefc969375ca95983a61aa0ad4",
+  "discovered_at": "2026-03-15T13:49:06.008496",
+  "integrator": "cooking_integrator",
+  "integration_code": "# mexican_cuisine = 3904d24a08aa08f6a68dc338f9be277e\n# Add your cooking integration code here",
+  "message": "\ud83d\udd11 New MEXICAN_CUISINE API key discovered!"
+}

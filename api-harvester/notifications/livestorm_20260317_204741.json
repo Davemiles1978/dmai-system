@@ -1,0 +1,11 @@
+{
+  "service": "livestorm",
+  "api_key": "14fa265df1bd0a3d78fc...42bf6cd95d",
+  "full_key": "14fa265df1bd0a3d78fca341a9739a42bf6cd95d",
+  "source": "github",
+  "url": "https://api.github.com/repositories/44571718/contents/README.md?ref=39043d47c497c6c6e2d7b06d4a4367e32a27fb4f",
+  "discovered_at": "2026-03-17T20:47:41.464777",
+  "integrator": "coaching_integrator",
+  "integration_code": "# livestorm = 14fa265df1bd0a3d78fca341a9739a42bf6cd95d\n# Add your coaching/education integration code here",
+  "message": "\ud83d\udd11 New LIVESTORM API key discovered!"
+}
