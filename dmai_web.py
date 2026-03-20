@@ -99,10 +99,14 @@ def index():
 
 @app.route('/chat')
 def chat_page():
-    """Serve the chat interface page - no login required"""
+    """Serve the chat interface page - TEMPORARILY FORCED PUBLIC
+    DMAI will restore proper authentication later"""
+    # TEMPORARY: Force authenticated=True to bypass login screen
     return render_template('chat.html', 
                          generation=get_generation(),
-                         user='Guest')
+                         user='Guest',
+                         authenticated=True,
+                         admin_mode=False)
 
 @app.route('/vision')
 def vision():
