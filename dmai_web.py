@@ -173,12 +173,15 @@ def api_chat():
     # Process message through core
     if core:
         try:
-            if hasattr(core, 'process_message'):
+            # Use the core's think method for intelligent responses
+            if hasattr(core, 'think'):
+                response = core.think('chat', {'message': message, 'user': 'Guest'})
+            elif hasattr(core, 'process_message'):
                 response = core.process_message(message)
             elif hasattr(core, 'chat'):
                 response = core.chat(message)
             else:
-                response = f"Echo: {message}"
+                response = f"I received: '{message}'. I'm still learning to respond better. Try asking about my status or evolution."
             
             generation = get_generation()
             
