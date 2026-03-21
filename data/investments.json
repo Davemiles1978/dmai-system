@@ -1,0 +1,31 @@
+{
+  "portfolio": {
+    "crypto": {
+      "allocation": 0.2,
+      "value": 60362579.476746686,
+      "return_rate": 0.02
+    },
+    "stocks": {
+      "allocation": 0.35,
+      "value": 32306318.753480602,
+      "return_rate": 0.01
+    },
+    "bonds": {
+      "allocation": 0.2,
+      "value": 10919721.03923112,
+      "return_rate": 0.005
+    },
+    "real_estate": {
+      "allocation": 0.15,
+      "value": 11153587.07828046,
+      "return_rate": 0.008
+    },
+    "ventures": {
+      "allocation": 0.1,
+      "value": 444741976.6770759,
+      "return_rate": 0.04
+    }
+  },
+  "total_invested": 34115074.382415965,
+  "total_growth": 525369108.6423988
+}

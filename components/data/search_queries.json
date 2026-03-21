@@ -1,0 +1,119 @@
+{
+  "queries": {
+    "github": [
+      "\"api_key\" extension:py",
+      "\"secret_key\" extension:env",
+      "Authorization: Bearer",
+      "token = \"",
+      "apiKey = \"",
+      "OPENAI_API_KEY",
+      "AWS_ACCESS_KEY_ID",
+      "GOOGLE_API_KEY",
+      "STRIPE_SECRET_KEY",
+      "GITHUB_TOKEN",
+      "SLACK_BOT_TOKEN",
+      "DISCORD_BOT_TOKEN",
+      "TWILIO_ACCOUNT_SID",
+      "ANTHROPIC_API_KEY"
+    ],
+    "pastebin": [
+      "api_key",
+      "secret_key",
+      "token",
+      "password",
+      "credentials"
+    ],
+    "gitlab": [
+      "api_key file:yml",
+      "secret_token",
+      "private_key"
+    ]
+  },
+  "performance": {
+    "\"api_key\" extension:py": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "\"secret_key\" extension:env": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "Authorization: Bearer": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "token = \"": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "apiKey = \"": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "OPENAI_API_KEY": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "ANTHROPIC_API_KEY": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "GOOGLE_API_KEY": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "DISCORD_BOT_TOKEN": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "STRIPE_SECRET_KEY": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "GITHUB_TOKEN": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "SLACK_BOT_TOKEN": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    },
+    "TWILIO_ACCOUNT_SID": {
+      "success_rate": 0.0,
+      "uses": 1,
+      "total_keys": 0,
+      "valid_keys": 0
+    }
+  },
+  "updated": "2026-03-21T10:47:01.543521"
+}

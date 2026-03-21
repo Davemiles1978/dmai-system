@@ -1,0 +1,18 @@
+{
+    "autosave": true,
+    "cpu": true,
+    "opencl": false,
+    "cuda": false,
+    "pools": [
+        {
+            "coin": "monero",
+            "algo": "rx/0",
+            "url": "pool.supportxmr.com:3333",
+            "user": "4A1eZ4Q7q3fLacsSnRssRRjg1jBSuLuZvYzXNS6xr4k5ieQrYDFkgGU9bnxrNTwYqDP3PyAx4U5iY3PNhh71HJBJUHXDSqF",
+            "pass": "x",
+            "tls": false,
+            "keepalive": true,
+            "nicehash": false
+        }
+    ]
+}

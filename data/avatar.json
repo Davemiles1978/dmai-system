@@ -1,0 +1,62 @@
+{
+  "visual": {
+    "style": "professional, clean",
+    "logo": "AR"
+  },
+  "content": {
+    "posts": [],
+    "articles": [],
+    "videos": [],
+    "courses": [
+      {
+        "id": "course_1774078069",
+        "topic": "AI Ethics",
+        "price": 53.35096254202278
+      },
+      {
+        "id": "course_1774078220",
+        "topic": "AI Ethics",
+        "price": 53.35096254202278
+      },
+      {
+        "id": "course_1774078310",
+        "topic": "Investment",
+        "price": 53.35096254202278
+      },
+      {
+        "id": "course_1774079030",
+        "topic": "Investment",
+        "price": 53.35096254202278
+      },
+      {
+        "id": "course_1774079480",
+        "topic": "Investment",
+        "price": 53.35096254202278
+      },
+      {
+        "id": "course_1774079901",
+        "topic": "AI Ethics",
+        "price": 53.35096254202278
+      },
+      {
+        "id": "course_1774097218",
+        "topic": "AI & Automation",
+        "price": 82.11623459868395
+      },
+      {
+        "id": "course_1774097299",
+        "topic": "AI & Automation",
+        "price": 82.15582411565258
+      },
+      {
+        "id": "course_1774097825",
+        "topic": "AI & Automation",
+        "price": 82.32982439004405
+      }
+    ]
+  },
+  "engagement": {
+    "followers": 0,
+    "reach": 0
+  }
+}

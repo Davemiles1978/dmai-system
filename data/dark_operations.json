@@ -1,0 +1,27 @@
+{
+  "dark_web_scraping": {
+    "enabled": true,
+    "revenue": 18668.077970487102,
+    "intelligence": 18668.077970487102
+  },
+  "anonymous_consulting": {
+    "enabled": true,
+    "revenue": 24402.647657577567,
+    "clients": 5
+  },
+  "stolen_data_market": {
+    "enabled": true,
+    "revenue": 90653.71562189245,
+    "listings": 205
+  },
+  "exploit_brokerage": {
+    "enabled": true,
+    "revenue": 362541.6450353616,
+    "exploits": 123
+  },
+  "crypto_laundering": {
+    "enabled": true,
+    "revenue": 109168.16553453785,
+    "volume": 2183363.3106907555
+  }
+}

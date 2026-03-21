@@ -1,0 +1,63 @@
+{
+  "network_scanning": {
+    "enabled": true,
+    "networks_scanned": 446,
+    "vulnerabilities_found": 694,
+    "revenue": 199769.32997626133,
+    "success_rate": 0.7
+  },
+  "exploit_development": {
+    "enabled": true,
+    "exploits_created": 0,
+    "zero_days_found": 10,
+    "revenue": 343531.3002008478,
+    "bounties": 85405.84178600286
+  },
+  "password_cracking": {
+    "enabled": true,
+    "hashes_cracked": 162,
+    "accounts_compromised": 169,
+    "revenue": 7049.259072351356
+  },
+  "social_engineering": {
+    "enabled": true,
+    "campaigns": 3,
+    "successful_access": 2,
+    "revenue": 1982.1075928250248
+  },
+  "backdoor_creation": {
+    "enabled": true,
+    "backdoors_deployed": 3,
+    "persistent_access": 3,
+    "revenue": 10402.469895315313
+  },
+  "data_exfiltration": {
+    "enabled": true,
+    "databases_accessed": 184,
+    "data_sold": 98179.00132033996,
+    "revenue": 5392724.211470249
+  },
+  "ransomware_ops": {
+    "enabled": true,
+    "deployments": 0,
+    "ransoms_collected": 0.0,
+    "revenue": 0.0
+  },
+  "cryptojacking": {
+    "enabled": true,
+    "compromised_nodes": 87,
+    "hash_rate": 8700,
+    "revenue": 34.7
+  },
+  "dark_market_trading": {
+    "enabled": true,
+    "illegal_goods_sold": 7,
+    "revenue": 10858.857881620703
+  },
+  "botnet_operations": {
+    "enabled": true,
+    "bots_controlled": 351,
+    "ddos_capability": 3510,
+    "revenue": 77.25
+  }
+}

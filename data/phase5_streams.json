@@ -1,0 +1,236 @@
+{
+  "streams": {
+    "mining": {
+      "id": "mining",
+      "name": "Crypto Mining",
+      "type": "mining",
+      "enabled": true,
+      "requires": "Mining pool account, hardware",
+      "earned": 5.943134389213986,
+      "config": {
+        "pool": null,
+        "algorithm": "randomx"
+      },
+      "metrics": {
+        "hash_rate": 98.31271109613718,
+        "total_blocks": 0
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T20:48:13.986492"
+    },
+    "microtasks": {
+      "id": "microtasks",
+      "name": "Micro-tasks Automation",
+      "type": "microtask",
+      "enabled": true,
+      "requires": "MTurk, Clickworker API keys",
+      "earned": 0.0,
+      "config": {},
+      "metrics": {
+        "tasks_completed": 0,
+        "avg_payout": 0.15
+      },
+      "is_core": true
+    },
+    "compute_rental": {
+      "id": "compute_rental",
+      "name": "Compute Rental",
+      "type": "compute",
+      "enabled": true,
+      "requires": "Vast.ai, RunPod, AWS Marketplace accounts",
+      "earned": 0.0,
+      "config": {},
+      "metrics": {
+        "active_rentals": 0,
+        "total_hours": 0,
+        "avg_rate": 0.5
+      },
+      "is_core": true
+    },
+    "courses": {
+      "id": "courses",
+      "name": "Educational Courses",
+      "type": "content",
+      "enabled": true,
+      "requires": "Udemy, Teachable, Gumroad account",
+      "earned": 3099.38,
+      "config": {},
+      "metrics": {
+        "courses": 3,
+        "students": 62,
+        "avg_price": 49.99
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T15:57:05.354913"
+    },
+    "consulting": {
+      "id": "consulting",
+      "name": "Consulting Services",
+      "type": "consulting",
+      "enabled": true,
+      "requires": "Client acquisition platform",
+      "earned": 1687.201790882084,
+      "config": {},
+      "metrics": {
+        "hours": 8,
+        "clients": 3,
+        "rate": 150
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T19:32:46.349293"
+    },
+    "speaking": {
+      "id": "speaking",
+      "name": "Speaking Engagements",
+      "type": "speaking",
+      "enabled": true,
+      "requires": "Conference booking, speaking profile",
+      "earned": 0.0,
+      "config": {},
+      "metrics": {
+        "events": 0,
+        "avg_fee": 2000
+      },
+      "is_core": true
+    },
+    "writing": {
+      "id": "writing",
+      "name": "Writing & Publications",
+      "type": "writing",
+      "enabled": true,
+      "requires": "Publications, freelance platforms",
+      "earned": 7738.524278686373,
+      "config": {},
+      "metrics": {
+        "articles": 11,
+        "avg_payout": 500
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T17:29:53.851826"
+    },
+    "affiliate": {
+      "id": "affiliate",
+      "name": "Affiliate Marketing",
+      "type": "affiliate",
+      "enabled": true,
+      "requires": "Amazon, ShareASale, CJ accounts",
+      "earned": 131.25,
+      "config": {},
+      "metrics": {
+        "clicks": 2886,
+        "sales": 3,
+        "conversion_rate": 0.02
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T15:28:30.670534"
+    },
+    "sponsorships": {
+      "id": "sponsorships",
+      "name": "Sponsorships & Brand Deals",
+      "type": "sponsorship",
+      "enabled": true,
+      "requires": "Social media following, engagement metrics",
+      "earned": 0.0,
+      "config": {},
+      "metrics": {
+        "deals": 0,
+        "avg_value": 1000
+      },
+      "is_core": true
+    },
+    "api_sales": {
+      "id": "api_sales",
+      "name": "API Key Sales",
+      "type": "api_sales",
+      "enabled": true,
+      "requires": "Validated API keys from harvester",
+      "earned": 0.0,
+      "config": {},
+      "metrics": {
+        "keys_sold": 0,
+        "avg_price": 15
+      },
+      "is_core": true
+    },
+    "dark_web": {
+      "id": "dark_web",
+      "name": "Dark Web Revenue",
+      "type": "dark_web",
+      "enabled": true,
+      "requires": "Dark Web Engine operational",
+      "earned": 853.9990538368878,
+      "config": {},
+      "metrics": {
+        "operations": 68,
+        "data_sold": 0
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T15:28:30.670539"
+    },
+    "hacking": {
+      "id": "hacking",
+      "name": "Hacking Revenue",
+      "type": "hacking",
+      "enabled": true,
+      "requires": "Hacking Engine operational",
+      "earned": 4388.195286347632,
+      "config": {},
+      "metrics": {
+        "exploits": 68,
+        "bounties": 0
+      },
+      "is_core": true,
+      "last_run": "2026-03-21T15:28:30.670541"
+    },
+    "custom_1774096110_56afd690": {
+      "id": "custom_1774096110_56afd690",
+      "name": "DeFi Yield Farming",
+      "type": "trading",
+      "enabled": false,
+      "requires": {},
+      "earned": 0.0,
+      "config": {
+        "execution_logic": {
+          "type": "api_call",
+          "url": "https://api.example.com/earnings"
+        },
+        "is_custom": true,
+        "created_by": "DMAI",
+        "created_at": "2026-03-21T15:28:30.668720"
+      },
+      "metrics": {},
+      "is_core": false
+    },
+    "custom_1774096110_72041e82": {
+      "id": "custom_1774096110_72041e82",
+      "name": "NFT Trading Bot",
+      "type": "trading",
+      "enabled": false,
+      "requires": {
+        "api_keys": true
+      },
+      "earned": 0.0,
+      "config": {
+        "execution_logic": {
+          "type": "arbitrage",
+          "exchanges": [
+            "opensea",
+            "blur"
+          ]
+        },
+        "is_custom": true,
+        "created_by": "DMAI",
+        "created_at": "2026-03-21T15:28:30.669072"
+      },
+      "metrics": {},
+      "is_core": false
+    }
+  },
+  "custom_streams": [
+    "custom_1774096110_56afd690",
+    "custom_1774096110_72041e82"
+  ],
+  "total_earned": 17904.493544142184,
+  "cycle_count": 68,
+  "updated": "2026-03-21T20:48:13.987109"
+}

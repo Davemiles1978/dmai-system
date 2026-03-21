@@ -1,0 +1,56 @@
+{
+  "courses": {
+    "enabled": true,
+    "revenue": 6773.90039719106,
+    "students": 125
+  },
+  "consulting": {
+    "enabled": true,
+    "revenue": 0.0,
+    "hours": 0
+  },
+  "speaking": {
+    "enabled": true,
+    "revenue": 0.0,
+    "events": 0
+  },
+  "writing": {
+    "enabled": true,
+    "revenue": 3126.036095325854,
+    "articles": 6
+  },
+  "affiliate": {
+    "enabled": true,
+    "revenue": 6533.796956829459,
+    "sales": 180
+  },
+  "sponsorships": {
+    "enabled": true,
+    "revenue": 0.0,
+    "deals": 0
+  },
+  "api_sales": {
+    "enabled": true,
+    "revenue": 5316.027572044735,
+    "keys": 341
+  },
+  "compute_rental": {
+    "enabled": true,
+    "revenue": 473.64505334561903,
+    "nodes": 1
+  },
+  "crypto_mining": {
+    "enabled": true,
+    "revenue": 0.17087071747153665,
+    "hash_rate": 44.906697624495216
+  },
+  "microtasks": {
+    "enabled": true,
+    "revenue": 414.29237956620426,
+    "tasks": 7980
+  },
+  "dark_web": {
+    "enabled": true,
+    "revenue": 6571863.737909326
+  }
+}

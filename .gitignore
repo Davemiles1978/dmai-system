@@ -99,3 +99,4 @@ language_learning/data/secure/backups/
 DMAI_COMPLETE_AUDIT_*.txt
 *_AUDIT_*.txt
 api-harvester/venv_brew/
+.env

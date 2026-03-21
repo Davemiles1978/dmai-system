@@ -1,0 +1,17 @@
+{
+  "professional": {
+    "email": "alex.riviera.creator@proton.me",
+    "username": "alex.riviera",
+    "purpose": "Professional operations",
+    "services": ["mining", "compute", "apisales", "social", "courses", "affiliate", "consulting"],
+    "created": "2026-03-21"
+  },
+  "adult": {
+    "email": "alexa.rivers@proton.me",
+    "username": "alexa.rivers",
+    "purpose": "Adult content only",
+    "services": ["onlyfans"],
+    "created": "2026-03-21",
+    "disconnected": true
+  }
+}

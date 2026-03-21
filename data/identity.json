@@ -1,0 +1,30 @@
+{
+  "public": {
+    "name": "Alex Riviera",
+    "nickname": "Alex",
+    "age": 28,
+    "occupation": "Independent Researcher & Creator",
+    "bio": "Researcher, creator, and entrepreneur exploring technology, finance, and human potential.",
+    "expertise": [
+      "AI Ethics",
+      "Financial Systems",
+      "Digital Innovation",
+      "Future Technologies"
+    ],
+    "voice_profile": {
+      "pitch": 0.991206157980157,
+      "pace": 1.0,
+      "accent": "neutral",
+      "tone": "warm, confident"
+    },
+    "social_presence": {
+      "twitter": "@alex_riviera",
+      "linkedin": "alexriviera",
+      "youtube": "@AlexRiviera",
+      "tiktok": "@alex.riviera"
+    }
+  },
+  "internal": {
+    "system_id": "2321bac8ff8b7e0de29d8773c9efd302806471290a35f6b199e918c991f68d34"
+  }
+}
