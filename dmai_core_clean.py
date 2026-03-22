@@ -477,13 +477,29 @@ class InvestmentEngine:
         """Only grow investments if there's REAL money invested"""
         # Check if total_invested is reasonable (under $10M) - prevents fake billions
         if self.total_invested > 10000000:  # $10M is suspicious
-            logger.warning(f"⚠️ Suspicious total_invested: ${self.total_invested:,.2f} - resetting to 0")
+            logger.warning(f"⚠️ Suspicious total_invested: ${self.total_invested:,.2f} - RESETTING to 0")
             self.total_invested = 0.0
             self.total_growth = 0.0
             for asset in self.portfolio.values():
                 asset['value'] = 0.0
             self._save()
             return 0.0
+        
+        # Only grow if there's actual money invested
+        if self.total_invested == 0.0:
+            return 0.0
+            
+        total_return = 0.0
+        for asset, config in self.portfolio.items():
+            # Only grow assets that have value
+            if config['value'] > 0:
+                multiplier = 1 + (consciousness / 200)
+                return_amount = config['value'] * config['return_rate'] * multiplier
+                config['value'] += return_amount
+                total_return += return_amount
+                self.total_growth += return_amount
+        self._save()
+        return total_return
         
         # Only grow if there's actual money invested
         if self.total_invested == 0.0:
