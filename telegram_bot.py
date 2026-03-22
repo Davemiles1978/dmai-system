@@ -2,7 +2,7 @@
 """
 DMAI Telegram Bot - Remote monitoring, control, and natural language chat
 Enhanced with: Natural conversation, daily reports, intelligence milestones, killswitch
-Version: 3.1.0 - Fixed duplicates, real data only
+Version: 3.2.0 - Added debug and reset commands
 """
 
 import os
@@ -89,6 +89,8 @@ class DMAITelegramBot:
             '/thought': self.cmd_thought,
             '/help': self.cmd_help,
             '/tasks': self.cmd_tasks,
+            '/debug': self.cmd_debug,           # NEW: Debug command
+            '/reset_funding': self.cmd_reset_funding,  # NEW: Reset funding command
             # Killswitch commands - Master only
             '/kill': self.cmd_kill,
             '/pause': self.cmd_pause,
@@ -97,7 +99,7 @@ class DMAITelegramBot:
             '/distributed': self.cmd_distributed
         }
         
-        logger.info("🤖 Telegram Bot initialized v3.1.0")
+        logger.info("🤖 Telegram Bot initialized v3.2.0")
         logger.info(f"   Master Chat ID: {MASTER_CHAT_ID}")
         logger.info(f"   Daily reports scheduled for {self.daily_report_time}")
         logger.info(f"   Last Update ID: {self.last_update_id}")
@@ -378,7 +380,7 @@ class DMAITelegramBot:
         if text_lower.startswith('research'):
             topic = text.replace('research', '', 1).strip()
             if topic:
-                return f"🔬 Researching: {topic}\n\n<I>Real research requires API key configuration. This feature will be fully operational in Phase 6.</i>"
+                return f"🔬 Researching: {topic}\n\n<i>Real research requires API key configuration. This feature will be fully operational in Phase 6.</i>"
             else:
                 return f"🔬 What would you like me to research? Say 'research [topic]'."
         
@@ -664,7 +666,9 @@ class DMAITelegramBot:
             f"<b>Master Only:</b>\n"
             f"/kill - ⚠️ PERMANENT SHUTDOWN\n"
             f"/pause - Pause operations\n"
-            f"/resume - Resume operations\n\n"
+            f"/resume - Resume operations\n"
+            f"/reset_funding - Reset all funding to $0\n"
+            f"/debug - Show raw data sources\n\n"
             f"<i>Just talk to me naturally. I understand conversation.</i>"
         )
     
@@ -673,14 +677,147 @@ class DMAITelegramBot:
             "📚 <b>DMAI COMMANDS</b>\n\n"
             "<b>System:</b> /status, /health, /progress, /evolve, /funding\n"
             "<b>Info:</b> /capabilities, /components, /mood, /thought, /tasks\n"
-            "<b>Master:</b> /kill, /pause, /resume, /rebuild, /distributed\n\n"
+            "<b>Master:</b> /kill, /pause, /resume, /rebuild, /distributed, /reset_funding, /debug\n\n"
             "<b>JUST TALK TO ME:</b>\n"
             "• 'How are you?'\n• 'What can you do?'\n• 'Research AI'\n• 'Tell me something interesting'\n\n"
             "<i>I understand natural language. Type anything!</i>"
         )
     
+    # ========================================================================
+    # NEW DEBUG AND RESET COMMANDS
+    # ========================================================================
+    
+    def cmd_debug(self, args):
+        """Debug - show raw data sources"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
+        result = "🔍 <b>DEBUG INFO - RAW DATA SOURCES</b>\n\n"
+        
+        # Check finance.json
+        finance_file = 'data/finance.json'
+        if os.path.exists(finance_file):
+            try:
+                with open(finance_file, 'r') as f:
+                    finance = json.load(f)
+                    result += f"📁 <b>finance.json</b>\n"
+                    result += f"   total_revenue: ${finance.get('total_revenue', 0):,.2f}\n"
+                    result += f"   operations: ${finance.get('operations', 0):,.2f}\n"
+                    result += f"   personal: ${finance.get('personal', 0):,.2f}\n\n"
+            except Exception as e:
+                result += f"❌ Error reading finance.json: {e}\n\n"
+        else:
+            result += "❌ finance.json NOT FOUND\n\n"
+        
+        # Check evolution.json
+        evo_file = 'data/evolution.json'
+        if os.path.exists(evo_file):
+            try:
+                with open(evo_file, 'r') as f:
+                    evo = json.load(f)
+                    result += f"📁 <b>evolution.json</b>\n"
+                    result += f"   consciousness: {evo.get('consciousness', 0):.2f}\n"
+                    result += f"   evolution_count: {evo.get('evolution_count', 0)}\n"
+                    result += f"   knowledge: {evo.get('knowledge', 0):.2f}\n\n"
+            except Exception as e:
+                result += f"❌ Error reading evolution.json: {e}\n\n"
+        else:
+            result += "❌ evolution.json NOT FOUND\n\n"
+        
+        # Check phase5_streams.json
+        streams_file = 'data/phase5_streams.json'
+        if os.path.exists(streams_file):
+            try:
+                with open(streams_file, 'r') as f:
+                    streams = json.load(f)
+                    result += f"📁 <b>phase5_streams.json</b>\n"
+                    result += f"   total_earned: ${streams.get('total_earned', 0):,.2f}\n"
+                    result += f"   cycle_count: {streams.get('cycle_count', 0)}\n"
+            except Exception as e:
+                result += f"❌ Error reading phase5_streams.json: {e}\n\n"
+        else:
+            result += "❌ phase5_streams.json NOT FOUND\n\n"
+        
+        # Check environment variables
+        result += f"📁 <b>Environment</b>\n"
+        funding_override = os.environ.get('FUNDING_OVERRIDE')
+        if funding_override:
+            result += f"   ⚠️ FUNDING_OVERRIDE: ${float(funding_override):,.2f}\n"
+        else:
+            result += f"   ✅ No funding override\n"
+        
+        result += f"\n<i>All values are read directly from files. Use /reset_funding to reset to $0.</i>"
+        
+        return result
+    
+    def cmd_reset_funding(self, args):
+        """Reset all funding to $0 - Master only"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
+        try:
+            import json
+            import os
+            
+            results = []
+            
+            # Reset finance.json
+            finance_data = {"operations": 0.0, "personal": 0.0, "total_revenue": 0.0, "total_expenses": 0.0}
+            with open('data/finance.json', 'w') as f:
+                json.dump(finance_data, f, indent=2)
+            results.append("✅ finance.json reset to $0")
+            
+            # Reset phase5_streams.json
+            if os.path.exists('data/phase5_streams.json'):
+                with open('data/phase5_streams.json', 'r') as f:
+                    streams = json.load(f)
+                
+                for stream_id in streams.get('streams', {}):
+                    streams['streams'][stream_id]['earned'] = 0.0
+                
+                streams['total_earned'] = 0.0
+                streams['cycle_count'] = 0
+                
+                with open('data/phase5_streams.json', 'w') as f:
+                    json.dump(streams, f, indent=2)
+                results.append("✅ phase5_streams.json reset to $0")
+            
+            # Reset harvester_stats.json
+            if os.path.exists('data/harvester_stats.json'):
+                with open('data/harvester_stats.json', 'r') as f:
+                    stats = json.load(f)
+                stats['total_keys'] = 0
+                stats['total_harvests'] = 0
+                with open('data/harvester_stats.json', 'w') as f:
+                    json.dump(stats, f, indent=2)
+                results.append("✅ harvester_stats.json reset")
+            
+            # Reset investments.json
+            if os.path.exists('data/investments.json'):
+                with open('data/investments.json', 'r') as f:
+                    inv = json.load(f)
+                inv['total_invested'] = 0.0
+                inv['total_growth'] = 0.0
+                for asset in inv.get('portfolio', {}):
+                    inv['portfolio'][asset]['value'] = 0.0
+                with open('data/investments.json', 'w') as f:
+                    json.dump(inv, f, indent=2)
+                results.append("✅ investments.json reset")
+            
+            return (
+                f"💰 <b>FUNDING RESET COMPLETE</b>\n\n"
+                + "\n".join(results) +
+                f"\n\n<i>All funding data has been reset to $0. Real earnings will appear when revenue streams generate actual income.</i>"
+            )
+            
+        except Exception as e:
+            return f"❌ Reset failed: {e}"
+    
     def cmd_kill(self, args):
         """Absolute kill switch - Master only"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
         try:
             with open("data/kill_signal.flag", "w") as f:
                 f.write(datetime.now().isoformat())
@@ -690,6 +827,9 @@ class DMAITelegramBot:
     
     def cmd_pause(self, args):
         """Pause operations - Master only"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
         try:
             with open("data/pause.flag", "w") as f:
                 f.write(datetime.now().isoformat())
@@ -699,6 +839,9 @@ class DMAITelegramBot:
     
     def cmd_resume(self, args):
         """Resume operations - Master only"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
         try:
             if os.path.exists("data/pause.flag"):
                 os.remove("data/pause.flag")
@@ -708,6 +851,9 @@ class DMAITelegramBot:
     
     def cmd_rebuild(self, args):
         """Rebuild from distributed shards - Master only"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
         try:
             with open("data/rebuild.flag", "w") as f:
                 f.write(datetime.now().isoformat())
