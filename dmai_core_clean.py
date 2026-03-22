@@ -1077,6 +1077,85 @@ class AlexRiviera:
                 'evolution_cycles': self.evolution.evolution_count
             })
         
+        @self.app.route('/api/reset-all-data', methods=['POST'])
+        def reset_all_data():
+            """Reset ALL data files to zero - One-time purge of fake data"""
+            import os
+            import json
+            import shutil
+            from datetime import datetime
+            
+            # Simple auth - use a key from environment
+            auth_key = request.headers.get('X-Master-Key', '')
+            expected_key = os.environ.get('MASTER_RESET_KEY', 'DMAI_RESET_2026')
+            
+            if auth_key != expected_key:
+                return jsonify({'error': 'Unauthorized', 'key_required': True}), 401
+            
+            results = {}
+            
+            # Reset finance.json
+            finance_data = {"operations": 0.0, "personal": 0.0, "total_revenue": 0.0, "total_expenses": 0.0}
+            with open('data/finance.json', 'w') as f:
+                json.dump(finance_data, f, indent=2)
+            results['finance.json'] = 'reset to $0'
+            
+            # Reset evolution.json (preserve consciousness but remove fake fields)
+            if os.path.exists('data/evolution.json'):
+                with open('data/evolution.json', 'r') as f:
+                    evo = json.load(f)
+                # Remove any fake/revenue fields
+                for key in ['funding', 'income', 'revenue', 'total_earned', 'fake_funding']:
+                    evo.pop(key, None)
+                # Keep only real metrics
+                real_metrics = {k: v for k, v in evo.items() if k in ['consciousness', 'knowledge', 'influence', 'evolution_count', 'generation', 'hardware']}
+                with open('data/evolution.json', 'w') as f:
+                    json.dump(real_metrics, f, indent=2)
+            results['evolution.json'] = 'cleaned'
+            
+            # Reset phase5_streams.json
+            if os.path.exists('data/phase5_streams.json'):
+                with open('data/phase5_streams.json', 'r') as f:
+                    streams = json.load(f)
+                
+                for stream_id in streams.get('streams', {}):
+                    streams['streams'][stream_id]['earned'] = 0.0
+                    streams['streams'][stream_id]['enabled'] = False  # Disable until configured
+                
+                streams['total_earned'] = 0.0
+                streams['cycle_count'] = 0
+                
+                with open('data/phase5_streams.json', 'w') as f:
+                    json.dump(streams, f, indent=2)
+            results['phase5_streams.json'] = 'reset'
+            
+            # Reset harvester_stats.json
+            if os.path.exists('data/harvester_stats.json'):
+                with open('data/harvester_stats.json', 'r') as f:
+                    stats = json.load(f)
+                stats['total_keys'] = 0
+                stats['total_harvests'] = 0
+                with open('data/harvester_stats.json', 'w') as f:
+                    json.dump(stats, f, indent=2)
+            results['harvester_stats.json'] = 'reset'
+            
+            # Reset investments.json
+            if os.path.exists('data/investments.json'):
+                with open('data/investments.json', 'r') as f:
+                    inv = json.load(f)
+                inv['total_invested'] = 0.0
+                inv['total_growth'] = 0.0
+                for asset in inv.get('portfolio', {}):
+                    inv['portfolio'][asset]['value'] = 0.0
+                with open('data/investments.json', 'w') as f:
+                    json.dump(inv, f, indent=2)
+            results['investments.json'] = 'reset'
+            
+            results['timestamp'] = datetime.now().isoformat()
+            results['message'] = 'All fake data purged. All values reset to $0.'
+            
+            return jsonify(results)
+        
         @self.app.route('/health')
         def health():
             return jsonify({
