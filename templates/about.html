@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex Riviera</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; }
+        .profile { margin-top: 20px; }
+        .social { margin-top: 20px; }
+        .social a { margin-right: 15px; color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Alex Riviera</h1>
+        <div class="profile">
+            <p><strong>Occupation:</strong> {{ profile.occupation }}</p>
+            <p><strong>Bio:</strong> {{ profile.bio }}</p>
+        </div>
+        <div class="social">
+            <h3>Connect:</h3>
+            <p>Twitter: <a href="https://twitter.com/{{ profile.social.twitter }}" target="_blank">{{ profile.social.twitter }}</a></p>
+            <p>LinkedIn: <a href="https://linkedin.com/in/{{ profile.social.linkedin }}" target="_blank">{{ profile.social.linkedin }}</a></p>
+            <p>YouTube: <a href="https://youtube.com/{{ profile.social.youtube }}" target="_blank">{{ profile.social.youtube }}</a></p>
+            <p>TikTok: <a href="https://tiktok.com/{{ profile.social.tiktok }}" target="_blank">{{ profile.social.tiktok }}</a></p>
+        </div>
+    </div>
+</body>
+</html>

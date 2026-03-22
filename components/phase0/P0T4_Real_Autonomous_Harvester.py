@@ -17,6 +17,7 @@ import base64
 import threading
 import queue
 import random
+import gc
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple, Set
 from pathlib import Path
@@ -36,6 +37,12 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger('RealAutonomousHarvester')
+
+# Memory limits
+MAX_STORED_KEYS = 1000      # Keep only last 1000 valid keys
+MAX_STORED_STATS = 100      # Keep only last 100 stats entries
+MAX_STORED_SOURCES = 50     # Keep only top 50 sources
+MAX_QUERIES_PER_TYPE = 50   # Limit queries per source type
 
 # ============================================================================
 # DATA STRUCTURES
@@ -179,6 +186,10 @@ class SearchQueryGenerator:
                     data = json.load(f)
                     self.queries = data.get('queries', {})
                     self.query_performance = data.get('performance', {})
+                    # Trim queries if needed
+                    for source_type in self.queries:
+                        if len(self.queries[source_type]) > MAX_QUERIES_PER_TYPE:
+                            self.queries[source_type] = self.queries[source_type][-MAX_QUERIES_PER_TYPE:]
             except:
                 pass
     
@@ -269,6 +280,9 @@ class SearchQueryGenerator:
                 self.queries[source_type] = []
             if query not in self.queries[source_type]:
                 self.queries[source_type].append(query)
+                # Trim if needed
+                if len(self.queries[source_type]) > MAX_QUERIES_PER_TYPE:
+                    self.queries[source_type] = self.queries[source_type][-MAX_QUERIES_PER_TYPE:]
                 logger.info(f"🧬 Evolved: Added new query '{query}' to {source_type}")
         
         self._save()
@@ -293,6 +307,9 @@ class SearchQueryGenerator:
             if source_type not in self.queries:
                 self.queries[source_type] = []
             self.queries[source_type].extend(new_queries)
+            # Trim if needed
+            if len(self.queries[source_type]) > MAX_QUERIES_PER_TYPE:
+                self.queries[source_type] = self.queries[source_type][-MAX_QUERIES_PER_TYPE:]
             self._save()
             logger.info(f"🧬 Evolved: Added {len(new_queries)} new queries from patterns")
 
@@ -323,6 +340,11 @@ class SourceDiscoveryEngine:
     
     def _save(self):
         self.sources_file.parent.mkdir(exist_ok=True)
+        # Trim sources to MAX_STORED_SOURCES
+        sources_to_save = sorted(self.sources, key=lambda x: x.reliability * (1 + x.keys_found / 100), reverse=True)
+        if len(sources_to_save) > MAX_STORED_SOURCES:
+            sources_to_save = sources_to_save[:MAX_STORED_SOURCES]
+        
         with open(self.sources_file, 'w') as f:
             json.dump({
                 'sources': [
@@ -336,7 +358,7 @@ class SourceDiscoveryEngine:
                         'success_rate': s.success_rate,
                         'first_discovered': s.first_discovered.isoformat()
                     }
-                    for s in self.sources
+                    for s in sources_to_save
                 ]
             }, f, indent=2)
     
@@ -498,6 +520,7 @@ class KeyValidator:
         self.validation_cache = {}
         self.session = requests.Session()
         self.session.timeout = 10
+        self.MAX_CACHE_SIZE = 500  # Limit cache size
     
     def validate_key(self, key: str, key_type: str) -> Tuple[bool, str, float]:
         """Validate an API key, return (is_valid, message, value_score)"""
@@ -551,13 +574,20 @@ class KeyValidator:
                 message = f"Validation failed with status {response.status_code}"
                 value_score = 0.0
             
-            # Cache result
+            # Cache result with limit
             self.validation_cache[cache_key] = {
                 'is_valid': is_valid,
                 'message': message,
                 'value_score': value_score,
                 'timestamp': datetime.now()
             }
+            
+            # Trim cache if too large
+            if len(self.validation_cache) > self.MAX_CACHE_SIZE:
+                # Remove oldest entries
+                oldest = sorted(self.validation_cache.items(), key=lambda x: x[1]['timestamp'])[:50]
+                for k, _ in oldest:
+                    del self.validation_cache[k]
             
             return is_valid, message, value_score
             
@@ -630,6 +660,7 @@ class RealAutonomousHarvester:
     - Validates keys in real-time
     - Self-improves search patterns
     - Integrates with DMAI evolution
+    - Memory-optimized with limits
     """
     
     def __init__(self, data_path: Path = None):
@@ -661,7 +692,8 @@ class RealAutonomousHarvester:
             'discovered_sources': 0,
             'evolutions': 0,
             'last_harvest': None,
-            'keys_by_type': {}
+            'keys_by_type': {},
+            'history': []  # Limited to MAX_STORED_STATS
         }
         
         # Queue for async validation
@@ -674,18 +706,29 @@ class RealAutonomousHarvester:
         logger.info("🌾 Real Autonomous Harvester initialized")
         logger.info(f"   Sources: {len(self.source_discovery.sources)}")
         logger.info(f"   Patterns: {len(API_KEY_PATTERNS)}")
+        logger.info(f"   Max keys storage: {MAX_STORED_KEYS}")
+        logger.info(f"   Max stats storage: {MAX_STORED_STATS}")
     
     def _load_stats(self):
         stats_file = self.data_path / 'harvester_stats.json'
         if stats_file.exists():
             try:
                 with open(stats_file, 'r') as f:
-                    self.stats = json.load(f)
+                    loaded = json.load(f)
+                    self.stats = loaded
+                    # Trim history if needed
+                    if len(self.stats.get('history', [])) > MAX_STORED_STATS:
+                        self.stats['history'] = self.stats['history'][-MAX_STORED_STATS:]
             except:
                 pass
     
     def _save_stats(self):
         stats_file = self.data_path / 'harvester_stats.json'
+        
+        # Trim stats history before saving
+        if 'history' in self.stats and len(self.stats['history']) > MAX_STORED_STATS:
+            self.stats['history'] = self.stats['history'][-MAX_STORED_STATS:]
+        
         with open(stats_file, 'w') as f:
             json.dump(self.stats, f, indent=2)
     
@@ -773,11 +816,25 @@ class RealAutonomousHarvester:
         self.stats['invalid_keys'] += result['rejected']
         self.stats['sources_processed'] = result['sources_scraped']
         self.stats['last_harvest'] = result['timestamp']
+        
+        # Add to history with limit
+        self.stats['history'].append({
+            'cycle': cycle,
+            'timestamp': result['timestamp'],
+            'keys_found': result['keys_found'],
+            'validated': result['validated']
+        })
+        if len(self.stats['history']) > MAX_STORED_STATS:
+            self.stats['history'] = self.stats['history'][-MAX_STORED_STATS:]
+        
         self._save_stats()
         
         result['duration'] = time.time() - start_time
         
         logger.info(f"🌾 Cycle {cycle}: {result['keys_found']} keys found, {result['validated']} validated in {result['duration']:.1f}s")
+        
+        # Memory cleanup
+        gc.collect()
         
         return result
     
@@ -919,7 +976,7 @@ class RealAutonomousHarvester:
         return validated_keys
     
     def _store_valid_keys(self, keys: List[Dict]):
-        """Store valid keys to database"""
+        """Store valid keys with memory limit"""
         if not keys:
             return
         
@@ -928,7 +985,6 @@ class RealAutonomousHarvester:
             import psycopg2
             import os
             
-            # Get database URL from environment or config
             db_url = os.environ.get('DATABASE_URL')
             if db_url:
                 conn = psycopg2.connect(db_url)
@@ -964,7 +1020,7 @@ class RealAutonomousHarvester:
         except Exception as e:
             logger.warning(f"PostgreSQL storage failed: {e}")
         
-        # Fallback to JSON file
+        # Fallback to JSON file with memory limit
         keys_file = self.data_path / 'valid_keys.json'
         existing = []
         if keys_file.exists():
@@ -978,9 +1034,10 @@ class RealAutonomousHarvester:
         for key in keys:
             existing.append(key)
         
-        # Keep only last 10000
-        if len(existing) > 10000:
-            existing = existing[-10000:]
+        # Trim to MAX_STORED_KEYS
+        if len(existing) > MAX_STORED_KEYS:
+            existing = existing[-MAX_STORED_KEYS:]
+            logger.debug(f"Trimmed keys to {MAX_STORED_KEYS}")
         
         with open(keys_file, 'w') as f:
             json.dump(existing, f, indent=2)
@@ -993,9 +1050,21 @@ class RealAutonomousHarvester:
             'component': self.component_id,
             'name': self.name,
             'version': self.version,
-            'stats': self.stats,
+            'stats': {
+                'total_keys_found': self.stats['total_keys_found'],
+                'valid_keys': self.stats['valid_keys'],
+                'keys_by_type': self.stats['keys_by_type'],
+                'sources_processed': self.stats['sources_processed'],
+                'evolutions': self.stats['evolutions'],
+                'last_harvest': self.stats['last_harvest']
+            },
             'sources': len(self.source_discovery.sources),
             'patterns': len(API_KEY_PATTERNS),
+            'memory_limits': {
+                'max_stored_keys': MAX_STORED_KEYS,
+                'max_stored_stats': MAX_STORED_STATS,
+                'max_stored_sources': MAX_STORED_SOURCES
+            },
             'ready': True
         }
     
@@ -1017,6 +1086,9 @@ class RealAutonomousHarvester:
                         )
         
         self._save_stats()
+        
+        # Memory cleanup
+        gc.collect()
         
         return {
             'component': self.component_id,
@@ -1069,10 +1141,18 @@ class RealAutonomousHarvester:
             'component': self.component_id,
             'name': self.name,
             'version': self.version,
-            'stats': self.stats,
+            'stats': {
+                'total_keys_found': self.stats['total_keys_found'],
+                'valid_keys': self.stats['valid_keys'],
+                'evolutions': self.stats['evolutions']
+            },
             'sources': [{'url': s.url, 'type': s.source_type, 'keys': s.keys_found} 
                         for s in self.source_discovery.sources[:20]],
-            'top_patterns': list(self.stats.get('keys_by_type', {}).items())[:10]
+            'top_patterns': list(self.stats.get('keys_by_type', {}).items())[:10],
+            'memory_limits': {
+                'max_stored_keys': MAX_STORED_KEYS,
+                'max_stored_stats': MAX_STORED_STATS
+            }
         }
     
     def query(self, question: str = None) -> Dict:
@@ -1082,7 +1162,11 @@ class RealAutonomousHarvester:
         elif question == 'sources':
             return {'sources': len(self.source_discovery.sources)}
         elif question == 'keys':
-            return self.stats
+            return {
+                'total_found': self.stats['total_keys_found'],
+                'valid': self.stats['valid_keys'],
+                'by_type': self.stats['keys_by_type']
+            }
         else:
             return self.get_status()
 

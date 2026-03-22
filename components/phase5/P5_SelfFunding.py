@@ -53,9 +53,6 @@ class SelfFundingEngine:
         
         # API Keys (all start as None - must be configured)
         self.api_keys = {
-            'mining_pool': os.environ.get('MINING_POOL_URL'),
-            'vast_ai': os.environ.get('VAST_API_KEY'),
-            'runpod': os.environ.get('RUNPOD_API_KEY'),
             'rapidapi': os.environ.get('RAPIDAPI_KEY'),
             'udemy': os.environ.get('UDEMY_API_KEY'),
             'teachable': os.environ.get('TEACHABLE_API_KEY'),
@@ -161,27 +158,9 @@ class SelfFundingEngine:
                     pass
     
     def _init_core_streams(self):
-        """Initialize 12 core income streams - ALL real API based"""
+        """Initialize core income streams - ALL real API based (mining and compute removed)"""
         if not self.streams:
             self.streams = {
-                'mining': {
-                    'id': 'mining',
-                    'name': 'Crypto Mining',
-                    'type': 'mining',
-                    'enabled': bool(self.api_keys.get('mining_pool') and self.ops_wallet),
-                    'requires': 'MINING_POOL_URL',
-                    'earned': 0.0,
-                    'is_core': True
-                },
-                'compute_rental': {
-                    'id': 'compute_rental',
-                    'name': 'Compute Rental',
-                    'type': 'compute',
-                    'enabled': bool(self.api_keys.get('vast_ai') or self.api_keys.get('runpod')),
-                    'requires': 'VAST_API_KEY or RUNPOD_API_KEY',
-                    'earned': 0.0,
-                    'is_core': True
-                },
                 'api_sales': {
                     'id': 'api_sales',
                     'name': 'API Key Sales',
@@ -300,9 +279,6 @@ class SelfFundingEngine:
             
             # Enable associated streams
             stream_map = {
-                'mining_pool': 'mining',
-                'vast_ai': 'compute_rental',
-                'runpod': 'compute_rental',
                 'rapidapi': 'api_sales',
                 'udemy': 'courses',
                 'teachable': 'courses',
@@ -423,7 +399,7 @@ class SelfFundingEngine:
         return {'success': True}
     
     def enable_all_core(self):
-        """Enable all 12 core streams that have API keys configured"""
+        """Enable all core streams that have API keys configured"""
         for stream_id, stream in self.streams.items():
             if stream.get('is_core', False):
                 requires = stream.get('requires', '')
@@ -513,35 +489,7 @@ class SelfFundingEngine:
     def _execute_stream(self, stream_id: str, stream: Dict) -> Dict:
         """Execute REAL API call for a stream"""
         
-        if stream_id == 'mining':
-            pool_url = self.api_keys.get('mining_pool')
-            wallet = self.ops_wallet
-            if pool_url and wallet:
-                try:
-                    response = requests.get(f"{pool_url}/api/stats_address?address={wallet}", timeout=10)
-                    if response.status_code == 200:
-                        data = response.json()
-                        earned = float(data.get('amtDue', 0))
-                        return {'stream': stream['name'], 'earned': earned}
-                except Exception as e:
-                    logger.error(f"Mining API error: {e}")
-            return {'stream': stream['name'], 'earned': 0, 'message': 'Mining not configured'}
-        
-        elif stream_id == 'compute_rental':
-            api_key = self.api_keys.get('vast_ai')
-            if api_key:
-                try:
-                    headers = {'Authorization': f'Bearer {api_key}'}
-                    response = requests.get('https://vast.ai/api/v0/me', headers=headers, timeout=10)
-                    if response.status_code == 200:
-                        data = response.json()
-                        earned = float(data.get('balance', 0))
-                        return {'stream': stream['name'], 'earned': earned}
-                except Exception as e:
-                    logger.error(f"Vast.ai API error: {e}")
-            return {'stream': stream['name'], 'earned': 0, 'message': 'Compute rental not configured'}
-        
-        elif stream_id == 'api_sales':
+        if stream_id == 'api_sales':
             api_key = self.api_keys.get('rapidapi')
             if api_key:
                 try:
@@ -658,8 +606,6 @@ if __name__ == "__main__":
     
     print("\n" + "="*70)
     print("To configure services, set environment variables:")
-    print("  export MINING_POOL_URL=https://pool.supportxmr.com")
-    print("  export VAST_API_KEY=your_key")
     print("  export RAPIDAPI_KEY=your_key")
     print("  export UDEMY_API_KEY=your_key")
     print("  export AMAZON_AFFILIATE_ID=your_id")

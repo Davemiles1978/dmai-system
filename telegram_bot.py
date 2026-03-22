@@ -11,6 +11,7 @@ import requests
 import time
 import threading
 import random
+import gc
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -24,6 +25,9 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger('TELEGRAM')
+
+# Memory limit for updates per poll
+MAX_UPDATES_PER_POLL = 10
 
 class DMAITelegramBot:
     """Telegram bot for DMAI monitoring and control"""
@@ -64,6 +68,7 @@ class DMAITelegramBot:
         }
         
         logger.info("🤖 Telegram Bot initialized")
+        logger.info(f"   Memory: Max updates per poll: {MAX_UPDATES_PER_POLL}")
     
     def set_dmai_core(self, dmai_instance):
         """Connect to DMAI core"""
@@ -112,11 +117,12 @@ class DMAITelegramBot:
         logger.info("🛑 Telegram polling stopped")
     
     def get_updates(self):
-        """Get new messages from Telegram"""
+        """Get new messages from Telegram - limited to MAX_UPDATES_PER_POLL"""
         url = f"{self.base_url}/getUpdates"
         params = {
             'offset': self.last_update_id + 1,
-            'timeout': 30
+            'timeout': 30,
+            'limit': MAX_UPDATES_PER_POLL
         }
         
         try:
@@ -124,7 +130,8 @@ class DMAITelegramBot:
             if response.status_code == 200:
                 data = response.json()
                 if data['ok'] and data['result']:
-                    for update in data['result']:
+                    # Process only limited updates
+                    for update in data['result'][-MAX_UPDATES_PER_POLL:]:
                         self.last_update_id = update['update_id']
                         self.handle_update(update)
             return True
@@ -164,6 +171,10 @@ class DMAITelegramBot:
             response = self.cmd_unknown(command)
         
         self.send_message(response)
+        
+        # Periodic memory cleanup
+        if random.random() < 0.01:  # 1% chance per message
+            gc.collect()
     
     def cmd_start(self, args):
         """Welcome message"""

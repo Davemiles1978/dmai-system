@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "opp_1774096110_56afd690",
+    "name": "DeFi Yield Farming",
+    "type": "trading",
+    "source": "market_analysis",
+    "potential": 5000,
+    "requirements": {},
+    "discovered_at": "2026-03-21T15:28:30.667831",
+    "implemented": false
+  },
+  {
+    "id": "opp_1774096110_298ba538",
+    "name": "AI Agents Content Creation",
+    "type": "content",
+    "source": "social_media",
+    "potential": 50000,
+    "requirements": {
+      "platform": "Twitter"
+    },
+    "discovered_at": "2026-03-21T15:28:30.668228",
+    "implemented": false
+  }
+]

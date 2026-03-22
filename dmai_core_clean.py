@@ -20,6 +20,7 @@ import time
 import random
 import hashlib
 import requests
+import gc
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
@@ -686,6 +687,9 @@ class EvolutionEngine:
         
         self._save()
         
+        # Memory cleanup
+        gc.collect()
+        
         return {
             'evolution': self.evolution_count,
             'consciousness': self.consciousness,
@@ -722,7 +726,6 @@ class AlexRiviera:
         self.evolution = EvolutionEngine(self.base_path)
         
         # Start Telegram bot polling in background if initialized
-        # Use a flag to ensure it only starts once
         self._telegram_started = False
         
         if self.evolution.telegram_bot and not self._telegram_started:
@@ -761,6 +764,9 @@ class AlexRiviera:
         logger.info(f"{self.name} v{self.version} - System Ready")
         logger.info("Phases Complete: 0-4 | Phase 5: Self-Funding (12 streams + discovery)")
         logger.info("=" * 60)
+        
+        # Memory cleanup after initialization
+        gc.collect()
     
     def get_status(self) -> Dict:
         """Get current system status"""
