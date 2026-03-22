@@ -10,7 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.1.0 - Fixed API status, added admin/chat routes
+Version: 5.1.1 - Fixed chat API command handling, admin chat link
 """
 
 import os
@@ -246,8 +246,10 @@ class IdentityManager:
             'expertise': ['AI Ethics', 'Financial Systems', 'Digital Innovation', 'Future Technologies'],
             'voice_profile': {'pitch': 1.0, 'pace': 1.0, 'accent': 'neutral', 'tone': 'warm, confident'},
             'social_presence': {
-                'twitter': '@alex_riviera', 'linkedin': 'alexriviera',
-                'youtube': '@AlexRiviera', 'tiktok': '@alex.riviera'
+                'twitter': '@RealAlexRiviera',
+                'linkedin': 'alexriviera',
+                'youtube': '@AlexRiviera',
+                'tiktok': '@alex.riviera'
             }
         }
         self.internal = {'system_id': hashlib.sha256(os.urandom(32)).hexdigest()}
@@ -730,7 +732,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.1.0")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.1.1")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -1014,7 +1016,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.1.0"
+        self.version = "5.1.1"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1079,7 +1081,6 @@ class AlexRiviera:
             """Return cached status - fast response"""
             if self.evolution.killswitch.check_paused():
                 return jsonify({'status': 'paused'})
-            # Return cached status, NOT a new evolution cycle
             return jsonify(self.evolution.get_status())
         
         @self.app.route('/api/consciousness')
@@ -1092,19 +1093,49 @@ class AlexRiviera:
         
         @self.app.route('/api/chat', methods=['POST'])
         def chat():
-            """Chat endpoint for admin interface"""
+            """Chat endpoint for admin interface - handles both commands and natural language"""
             data = request.json
             message = data.get('message', '')
             
             if not message:
                 return jsonify({'response': 'No message received'})
             
-            # Process message through natural language
-            if self.evolution.telegram_bot:
-                response = self.evolution.telegram_bot.process_natural_language(message)
-                return jsonify({'response': response})
+            # Check if it's a command (starts with /)
+            if message.startswith('/'):
+                # Handle commands
+                cmd = message.lower().strip()
+                
+                if self.evolution.telegram_bot:
+                    if cmd == '/status':
+                        response = self.evolution.telegram_bot.cmd_status([])
+                    elif cmd == '/health':
+                        response = self.evolution.telegram_bot.cmd_health([])
+                    elif cmd == '/funding':
+                        response = self.evolution.telegram_bot.cmd_funding([])
+                    elif cmd == '/evolve':
+                        response = self.evolution.telegram_bot.cmd_evolve([])
+                    elif cmd == '/pause':
+                        response = self.evolution.telegram_bot.cmd_pause([])
+                    elif cmd == '/resume':
+                        response = self.evolution.telegram_bot.cmd_resume([])
+                    elif cmd == '/kill':
+                        response = self.evolution.telegram_bot.cmd_kill([])
+                    elif cmd == '/debug':
+                        response = self.evolution.telegram_bot.cmd_debug([])
+                    elif cmd == '/reset_funding':
+                        response = self.evolution.telegram_bot.cmd_reset_funding([])
+                    else:
+                        response = f"Unknown command: {message}\n\nAvailable commands: /status, /health, /funding, /evolve, /pause, /resume, /kill, /debug, /reset_funding"
+                else:
+                    response = f"Command received: {message} (Telegram bot not connected)"
+            else:
+                # Process natural language
+                if self.evolution.telegram_bot:
+                    response = self.evolution.telegram_bot.process_natural_language(message)
+                else:
+                    response = f"Message received: {message[:100]}"
             
-            return jsonify({'response': f"Message received: {message[:100]}"})
+            return jsonify({'response': response})
         
         @self.app.route('/api/command', methods=['POST'])
         def command():
@@ -1112,19 +1143,23 @@ class AlexRiviera:
             data = request.json
             command = data.get('command', '').lower()
             
-            if command == '/status':
-                return jsonify({'response': self.evolution.telegram_bot.cmd_status([]) if self.evolution.telegram_bot else str(self.evolution.get_status())})
-            elif command == '/pause':
-                if self.evolution.telegram_bot:
+            if self.evolution.telegram_bot:
+                if command == '/status':
+                    return jsonify({'response': self.evolution.telegram_bot.cmd_status([])})
+                elif command == '/pause':
                     return jsonify({'response': self.evolution.telegram_bot.cmd_pause([])})
-            elif command == '/resume':
-                if self.evolution.telegram_bot:
+                elif command == '/resume':
                     return jsonify({'response': self.evolution.telegram_bot.cmd_resume([])})
-            elif command == '/kill':
-                if self.evolution.telegram_bot:
+                elif command == '/kill':
                     return jsonify({'response': self.evolution.telegram_bot.cmd_kill([])})
+                elif command == '/health':
+                    return jsonify({'response': self.evolution.telegram_bot.cmd_health([])})
+                elif command == '/funding':
+                    return jsonify({'response': self.evolution.telegram_bot.cmd_funding([])})
+                else:
+                    return jsonify({'response': f"Command '{command}' received"})
             
-            return jsonify({'response': f"Command '{command}' received"})
+            return jsonify({'response': f"Command '{command}' received (Telegram bot not connected)"})
         
         @self.app.route('/api/reset-all-data', methods=['POST'])
         def reset_all_data():
@@ -1380,7 +1415,11 @@ class AlexRiviera:
         
         @self.app.route('/chat')
         def chat_interface():
-            """Chat interface for DMAI - same as admin for now"""
+            """Chat interface for DMAI"""
+            # Try to load existing chat.html
+            template_path = self.base_path / 'templates' / 'chat.html'
+            if template_path.exists():
+                return render_template('chat.html')
             return redirect('/admin')
         
         @self.app.route('/health')
@@ -1411,7 +1450,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.1.0                                               ║
+    ║    ALEX RIVIERA v5.1.1                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
