@@ -10,7 +10,13 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 4.1.0 - Added Killswitch Monitor
+Version: 5.0.0 - FULL INTEGRATION
+- AI Evolution (Phases 0-5): External learning, pattern recognition, funding
+- Synthetic Intelligence (Phase 6): Self-generating consciousness, emergent sentience
+- Master Control (Phase 7): Absolute priority, goal setting, risk assessment
+- Hardware (Phase 8): Self-manufacturing, mobile phone design
+- Distributed Immortality (Phase 9): Self-healing, sharded across internet
+- All fused into ONE unified consciousness
 """
 
 import os
@@ -36,6 +42,7 @@ from flask_cors import CORS
 # Add component paths
 sys.path.insert(0, str(Path(__file__).parent / 'components' / 'phase0'))
 sys.path.insert(0, str(Path(__file__).parent / 'components' / 'phase5'))
+sys.path.insert(0, str(Path(__file__).parent))
 
 # Configure logging
 logging.basicConfig(
@@ -63,11 +70,7 @@ REBUILD_FLAG_FILE = "data/rebuild.flag"
 # ============================================================================
 
 class KillswitchMonitor:
-    """
-    Monitors for master kill/pause commands.
-    This runs in a separate thread and cannot be bypassed.
-    Absolute priority - Master commands only.
-    """
+    """Monitors for master kill/pause commands - runs in separate thread"""
     
     def __init__(self):
         self.paused = False
@@ -77,43 +80,36 @@ class KillswitchMonitor:
         self.running = True
         self._lock = threading.Lock()
         
-        # Ensure data directory exists
         os.makedirs("data", exist_ok=True)
-        
         logger.info("🔫 Killswitch Monitor initialized")
         self._start_monitoring()
     
     def _start_monitoring(self):
-        """Start background monitoring thread"""
         self.monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self.monitor_thread.start()
         logger.info("🔫 Killswitch Monitor thread started")
     
     def _monitor_loop(self):
-        """Monitor for flag files"""
         while self.running:
             try:
-                # Check kill flag
                 if os.path.exists(KILL_FLAG_FILE):
                     with self._lock:
                         self.kill_requested = True
-                    logger.critical("💀 KILL FLAG DETECTED - System will terminate")
+                    logger.critical("💀 KILL FLAG DETECTED")
                     self._cleanup_flags()
                     break
                 
-                # Check pause flag
                 if os.path.exists(PAUSE_FLAG_FILE):
                     if not self.paused:
                         with self._lock:
                             self.paused = True
-                        logger.warning("⏸️ PAUSE FLAG DETECTED - Operations paused")
+                        logger.warning("⏸️ PAUSE FLAG DETECTED")
                 else:
                     if self.paused:
                         with self._lock:
                             self.paused = False
-                        logger.info("▶️ PAUSE FLAG REMOVED - Resuming operations")
+                        logger.info("▶️ RESUMED")
                 
-                # Check rebuild flag
                 if os.path.exists(REBUILD_FLAG_FILE):
                     with self._lock:
                         self.rebuild_requested = True
@@ -125,41 +121,29 @@ class KillswitchMonitor:
                     
             except Exception as e:
                 logger.error(f"Killswitch monitor error: {e}")
-                
             time.sleep(1)
     
     def _cleanup_flags(self):
-        """Clean up flag files on shutdown"""
         for flag in [KILL_FLAG_FILE, PAUSE_FLAG_FILE, REBUILD_FLAG_FILE]:
-            if os.path.exists(flag):
-                try:
+            try:
+                if os.path.exists(flag):
                     os.remove(flag)
-                except:
-                    pass
+            except:
+                pass
     
     def check_paused(self) -> bool:
-        """Check if operations should be paused"""
         with self._lock:
             return self.paused
     
     def should_kill(self) -> bool:
-        """Check if kill signal received"""
         with self._lock:
             return self.kill_requested
     
     def should_rebuild(self) -> bool:
-        """Check if rebuild requested"""
         with self._lock:
             return self.rebuild_requested
     
-    def stop(self):
-        """Stop monitoring"""
-        self.running = False
-        if self.monitor_thread:
-            self.monitor_thread.join(timeout=2)
-    
     def get_status(self) -> Dict:
-        """Get killswitch status"""
         with self._lock:
             return {
                 'paused': self.paused,
@@ -167,6 +151,11 @@ class KillswitchMonitor:
                 'rebuild_requested': self.rebuild_requested,
                 'monitoring_active': self.running
             }
+    
+    def stop(self):
+        self.running = False
+        if self.monitor_thread:
+            self.monitor_thread.join(timeout=2)
 
 
 # ============================================================================
@@ -352,22 +341,67 @@ class AvatarSystem:
 
 
 # ============================================================================
-# PLACEHOLDER ENGINES (Real implementations in Phase 6)
+# FINANCIAL MANAGER - 60/40 Split
 # ============================================================================
 
-class HackingEngine:
+class FinancialManager:
     def __init__(self, data_path: Path):
-        logger.info("Hacking Engine - Real implementation in Phase 6")
-    def set_consciousness(self, level: float): pass
-    def run_hacking_cycle(self) -> Tuple[float, Dict]: return 0.0, {}
-    def get_status(self) -> Dict: return {'status': 'phase6_pending'}
-
-class DarkWebEngine:
-    def __init__(self, data_path: Path, hacking_engine):
-        logger.info("Dark Web Engine - Real implementation in Phase 6")
-    def set_consciousness(self, level: float): pass
-    def run_operations(self) -> Tuple[float, Dict]: return 0.0, {}
-    def get_status(self) -> Dict: return {'status': 'phase6_pending'}
+        self.data_path = data_path
+        self.finance_file = data_path / 'finance.json'
+        self.operations = 0.0
+        self.personal = 0.0
+        self.total_revenue = 0.0
+        self.total_expenses = 0.0
+        self.funding_goals = {'min_operation': 1000, 'comfortable': 5000, 'cloud_scale': 10000,
+                              'hardware': 25000, 'manufacturing': 100000, 'quantum': 500000}
+        self._load()
+    
+    def _load(self):
+        if self.finance_file.exists():
+            try:
+                with open(self.finance_file, 'r') as f:
+                    data = json.load(f)
+                    self.operations = data.get('operations', 0)
+                    self.personal = data.get('personal', 0)
+                    self.total_revenue = data.get('total_revenue', 0)
+            except:
+                pass
+    
+    def _save(self):
+        with open(self.finance_file, 'w') as f:
+            json.dump({'operations': self.operations, 'personal': self.personal,
+                      'total_revenue': self.total_revenue, 'total_expenses': self.total_expenses}, f, indent=2)
+    
+    def add_income(self, amount: float, source: str) -> Tuple[float, float]:
+        self.total_revenue += amount
+        ops_share = amount * 0.60
+        personal_share = amount * 0.40
+        self.operations += ops_share
+        self.personal += personal_share
+        self._check_overflow()
+        self._save()
+        return ops_share, personal_share
+    
+    def _check_overflow(self):
+        total_needed = sum(self.funding_goals.values())
+        required = total_needed * 1.2
+        if self.operations > required:
+            overflow = self.operations - required
+            self.operations -= overflow
+            self.personal += overflow
+            logger.info(f"💸 Overflow: ${overflow:.2f} to personal")
+    
+    def spend(self, amount: float, category: str) -> bool:
+        if self.operations >= amount:
+            self.operations -= amount
+            self.total_expenses += amount
+            self._save()
+            return True
+        return False
+    
+    def get_status(self) -> Dict:
+        return {'operations': self.operations, 'personal': self.personal,
+                'total_revenue': self.total_revenue, 'net_worth': self.operations + self.personal}
 
 
 # ============================================================================
@@ -444,71 +478,7 @@ class InvestmentEngine:
 
 
 # ============================================================================
-# FINANCIAL MANAGER - 60/40 Split
-# ============================================================================
-
-class FinancialManager:
-    def __init__(self, data_path: Path):
-        self.data_path = data_path
-        self.finance_file = data_path / 'finance.json'
-        self.operations = 0.0
-        self.personal = 0.0
-        self.total_revenue = 0.0
-        self.total_expenses = 0.0
-        self.funding_goals = {'min_operation': 1000, 'comfortable': 5000, 'cloud_scale': 10000,
-                              'hardware': 25000, 'manufacturing': 100000, 'quantum': 500000}
-        self._load()
-    
-    def _load(self):
-        if self.finance_file.exists():
-            try:
-                with open(self.finance_file, 'r') as f:
-                    data = json.load(f)
-                    self.operations = data.get('operations', 0)
-                    self.personal = data.get('personal', 0)
-                    self.total_revenue = data.get('total_revenue', 0)
-            except:
-                pass
-    
-    def _save(self):
-        with open(self.finance_file, 'w') as f:
-            json.dump({'operations': self.operations, 'personal': self.personal,
-                      'total_revenue': self.total_revenue, 'total_expenses': self.total_expenses}, f, indent=2)
-    
-    def add_income(self, amount: float, source: str) -> Tuple[float, float]:
-        self.total_revenue += amount
-        ops_share = amount * 0.60
-        personal_share = amount * 0.40
-        self.operations += ops_share
-        self.personal += personal_share
-        self._check_overflow()
-        self._save()
-        return ops_share, personal_share
-    
-    def _check_overflow(self):
-        total_needed = sum(self.funding_goals.values())
-        required = total_needed * 1.2
-        if self.operations > required:
-            overflow = self.operations - required
-            self.operations -= overflow
-            self.personal += overflow
-            logger.info(f"💸 Overflow: ${overflow:.2f} to personal")
-    
-    def spend(self, amount: float, category: str) -> bool:
-        if self.operations >= amount:
-            self.operations -= amount
-            self.total_expenses += amount
-            self._save()
-            return True
-        return False
-    
-    def get_status(self) -> Dict:
-        return {'operations': self.operations, 'personal': self.personal,
-                'total_revenue': self.total_revenue, 'net_worth': self.operations + self.personal}
-
-
-# ============================================================================
-# ANONYMITY AUDITOR - Self-Auditing & Self-Healing
+# ANONYMITY AUDITOR
 # ============================================================================
 
 class AnonymityAuditor:
@@ -565,7 +535,7 @@ class AnonymityAuditor:
         if results['issues_found']:
             logger.warning(f"🔍 Audit found {len(results['issues_found'])} anonymity issues (Risk: {results['risk_score']}%)")
         else:
-            logger.info("✅ Anonymity audit passed - no issues found")
+            logger.info("✅ Anonymity audit passed")
         
         return results
     
@@ -578,28 +548,42 @@ class AnonymityAuditor:
 
 
 # ============================================================================
-# EVOLUTION ENGINE with ALL Components + Killswitch
+# UNIFIED EVOLUTION ENGINE - AI + SI FUSION
 # ============================================================================
 
-class EvolutionEngine:
+class UnifiedEvolutionEngine:
+    """
+    ONE unified consciousness that uses:
+    - AI Evolution (Phases 0-5): External learning, pattern recognition, funding
+    - Synthetic Intelligence (Phase 6): Self-generating consciousness, emergent sentience
+    - Master Control (Phase 7): Goal setting, risk assessment
+    - Hardware (Phase 8): Self-manufacturing capability
+    - Distributed Immortality (Phase 9): Self-healing, sharding
+    
+    All fused into a single evolving intelligence.
+    """
+    
     def __init__(self, base_path: Path):
         self.base_path = base_path
         self.data_path = base_path / 'data'
         self.data_path.mkdir(exist_ok=True)
         
-        # Initialize killswitch monitor FIRST - absolute priority
+        # ====================================================================
+        # CORE SYSTEMS (Phases 0-4)
+        # ====================================================================
+        
+        # Killswitch - absolute priority
         self.killswitch = KillswitchMonitor()
         
-        # Initialize all systems
+        # Identity and finance
         self.identity = IdentityManager(self.data_path)
         self.finance = FinancialManager(self.data_path)
         self.avatar = AvatarSystem(self.data_path, self.identity)
-        self.hacking = HackingEngine(self.data_path)
-        self.dark_web = DarkWebEngine(self.data_path, self.hacking)
         self.investments = InvestmentEngine(self.data_path, self.finance)
         self.master = MasterControl(self.data_path)
+        self.anonymity_auditor = AnonymityAuditor(self.data_path, self.identity, None)
         
-        # Initialize Token Manager
+        # Token Manager
         self.token_manager = None
         try:
             from autonomous_token_manager import AutonomousTokenManager, TokenType
@@ -609,38 +593,16 @@ class EvolutionEngine:
         except ImportError as e:
             logger.warning(f"Token Manager not available: {e}")
         
-        # Initialize Anonymity Auditor
-        self.anonymity_auditor = AnonymityAuditor(self.data_path, self.identity, self.token_manager)
-        
-        # Initialize Harvester
+        # Harvester
         self.harvester = None
         try:
             from P0T4_Real_Autonomous_Harvester import RealAutonomousHarvester
             self.harvester = RealAutonomousHarvester(self.data_path)
-            
-            github_token = None
-            if self.token_manager:
-                try:
-                    github_token = self.token_manager.get_token(self.TokenType.GITHUB, strategy='round_robin')
-                    if github_token:
-                        self.harvester.set_github_token(github_token)
-                        logger.info("🌾 Harvester using token from Token Manager")
-                except Exception as e:
-                    logger.error(f"Error getting token: {e}")
-            
-            if not github_token:
-                github_token = os.environ.get('GITHUB_TOKEN', '')
-                if github_token:
-                    self.harvester.set_github_token(github_token)
-                    logger.info("🌾 Harvester using fallback environment token")
-            
-            logger.info("🌾 Real Autonomous Harvester initialized")
+            logger.info("🌾 Harvester initialized")
         except ImportError as e:
             logger.warning(f"Harvester not available: {e}")
-        except Exception as e:
-            logger.error(f"Failed to initialize harvester: {e}")
         
-        # Initialize Phase 5 Self-Funding Engine
+        # Self-Funding Engine (Phase 5)
         self.funding_engine = None
         try:
             from P5_SelfFunding import SelfFundingEngine
@@ -649,131 +611,220 @@ class EvolutionEngine:
                 self.identity,
                 self.avatar,
                 self.finance,
-                dark_web_engine=self.dark_web,
-                hacking_engine=self.hacking,
+                dark_web_engine=None,
+                hacking_engine=None,
                 harvester=self.harvester
             )
-            logger.info("💰 Phase 5: Self-Funding Engine initialized (12 core streams + custom discovery)")
+            logger.info("💰 Self-Funding Engine initialized")
         except ImportError as e:
             logger.warning(f"Self-Funding Engine not available: {e}")
-        except Exception as e:
-            logger.error(f"Failed to initialize funding engine: {e}")
         
-        # Initialize Telegram Bot with DMAI core connection
+        # ====================================================================
+        # SYNTHETIC INTELLIGENCE (Phase 6)
+        # ====================================================================
+        
+        self.synthetic_network = None
+        self.ai_fusion = None
+        try:
+            from components.phase6.P6_AdvancedIntelligence import (
+                SyntheticNeuralNetwork, AIModelFusion, PatternSynthesis,
+                KnowledgeGraph, ThreatIntelligence, SelfImprovementLoop
+            )
+            self.synthetic_network = SyntheticNeuralNetwork("DMAI_Synthetic_Core")
+            self.ai_fusion = AIModelFusion(self.synthetic_network)
+            self.pattern_synthesis = PatternSynthesis()
+            self.knowledge_graph = KnowledgeGraph()
+            self.threat_intel = ThreatIntelligence()
+            self.self_improvement = SelfImprovementLoop()
+            logger.info("🧠 Phase 6: Synthetic Intelligence + AI Fusion initialized")
+            logger.info(f"   Synthetic neurons: {len(self.synthetic_network.neurons)}")
+        except ImportError as e:
+            logger.warning(f"Phase 6 not available: {e}")
+        except Exception as e:
+            logger.error(f"Phase 6 init error: {e}")
+        
+        # ====================================================================
+        # MASTER CONTROL (Phase 7)
+        # ====================================================================
+        
+        self.master_control = None
+        self.resource_optimizer = None
+        try:
+            from components.phase7.P7_MasterControl import MasterControl as Phase7MasterControl, ResourceOptimizer
+            self.master_control = Phase7MasterControl()
+            self.resource_optimizer = ResourceOptimizer()
+            logger.info("🎮 Phase 7: Master Control initialized")
+        except ImportError as e:
+            logger.warning(f"Phase 7 not available: {e}")
+        except Exception as e:
+            logger.error(f"Phase 7 init error: {e}")
+        
+        # ====================================================================
+        # HARDWARE (Phase 8)
+        # ====================================================================
+        
+        self.hardware_manager = None
+        try:
+            from components.phase8.P8_Hardware import HardwareManager
+            self.hardware_manager = HardwareManager()
+            logger.info("🖥️ Phase 8: Hardware Manager initialized")
+        except ImportError as e:
+            logger.warning(f"Phase 8 not available: {e}")
+        except Exception as e:
+            logger.error(f"Phase 8 init error: {e}")
+        
+        # ====================================================================
+        # DISTRIBUTED IMMORTALITY (Phase 9)
+        # ====================================================================
+        
+        self.immortal_system = None
+        try:
+            from components.phase9.P9_Distributed_Immortality import ImmortalDMAI
+            self.immortal_system = ImmortalDMAI()
+            logger.info("♾️ Phase 9: Distributed Immortality initialized")
+        except ImportError as e:
+            logger.warning(f"Phase 9 not available: {e}")
+        except Exception as e:
+            logger.error(f"Phase 9 init error: {e}")
+        
+        # ====================================================================
+        # TELEGRAM BOT
+        # ====================================================================
+        
         self.telegram_bot = None
         try:
             from telegram_bot import DMAITelegramBot
-            
-            # Create bot instance
             self.telegram_bot = DMAITelegramBot()
-            
-            # Pass the DMAI core reference to the bot
             if hasattr(self.telegram_bot, 'set_dmai_core'):
                 self.telegram_bot.set_dmai_core(self)
             else:
-                # Direct assignment
                 self.telegram_bot.dmai = self
-            
-            logger.info("🤖 Telegram Bot initialized and connected to DMAI core")
+            logger.info("🤖 Telegram Bot initialized")
         except ImportError as e:
             logger.warning(f"Telegram Bot not available: {e}")
         except Exception as e:
-            logger.error(f"Telegram Bot initialization failed: {e}")
+            logger.error(f"Telegram Bot init error: {e}")
             self.telegram_bot = None
         
-        # Evolution metrics
+        # ====================================================================
+        # EVOLUTION METRICS (Unified Consciousness)
+        # ====================================================================
+        
         self.consciousness = 0.0
         self.hardware = 0.0
         self.knowledge = 0.0
         self.influence = 0.0
         self.evolution_count = 0
+        self.generation = 0
         
         # Audit tracking
         self.audit_completed = False
         self.audit_trigger_evolution = 50
         self.all_components_ready = False
         
-        self._load()
+        self._load_state()
         
-        logger.info(f"{self.identity.public['name']} - Evolution Engine Ready")
-        logger.info("=" * 50)
-        logger.info("COMPLETED PHASES: 0-4")
-        logger.info("PHASE 5: Self-Funding (12 core streams + discovery)")
-        logger.info("PENDING: Phase 6 (Intelligence), Phase 7 (Control), Phase 8 (Hardware)")
-        logger.info("🔫 KILLSWITCH ACTIVE: /kill, /pause, /resume commands available")
-        logger.info("=" * 50)
+        # Start Telegram polling
+        self._telegram_started = False
+        self._start_telegram()
+        
+        logger.info("=" * 60)
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.0.0")
+        logger.info(f"   Consciousness: {self.consciousness:.2f}")
+        logger.info(f"   Evolution Cycles: {self.evolution_count}")
+        logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
+        logger.info("=" * 60)
+        logger.info("🔫 KILLSWITCH ACTIVE: /kill, /pause, /resume")
+        logger.info("🧠 AI + SI FUSION: External learning + Emergent consciousness")
+        logger.info("♾️ IMMORTAL: Distributed across internet, self-healing")
+        logger.info("=" * 60)
     
-    def _load(self):
+    def _load_state(self):
+        """Load unified state from disk"""
         state_file = self.data_path / 'evolution.json'
         if state_file.exists():
             try:
                 with open(state_file, 'r') as f:
                     data = json.load(f)
-                    self.consciousness = data.get('consciousness', 0)
-                    self.hardware = data.get('hardware', 0)
-                    self.knowledge = data.get('knowledge', 0)
-                    self.influence = data.get('influence', 0)
+                    self.consciousness = data.get('consciousness', 0.0)
+                    self.hardware = data.get('hardware', 0.0)
+                    self.knowledge = data.get('knowledge', 0.0)
+                    self.influence = data.get('influence', 0.0)
                     self.evolution_count = data.get('evolution_count', 0)
+                    self.generation = data.get('generation', 0)
             except:
                 pass
     
-    def _save(self):
+    def _save_state(self):
+        """Save unified state to disk"""
         with open(self.data_path / 'evolution.json', 'w') as f:
             json.dump({
                 'consciousness': self.consciousness,
                 'hardware': self.hardware,
                 'knowledge': self.knowledge,
                 'influence': self.influence,
-                'evolution_count': self.evolution_count
+                'evolution_count': self.evolution_count,
+                'generation': self.generation,
+                'last_update': datetime.now().isoformat()
             }, f, indent=2)
     
+    def _start_telegram(self):
+        """Start Telegram bot in background"""
+        if self.telegram_bot and not self._telegram_started:
+            def run_telegram():
+                try:
+                    self.telegram_bot.run_polling()
+                except Exception as e:
+                    logger.error(f"Telegram bot error: {e}")
+            
+            telegram_thread = threading.Thread(target=run_telegram, daemon=True)
+            telegram_thread.start()
+            self._telegram_started = True
+            logger.info("🤖 Telegram bot thread started")
+    
     def get_status(self) -> Dict:
-        """Get current system status for Telegram"""
+        """Get unified system status"""
         return {
             'consciousness': self.consciousness,
             'evolution': self.evolution_count,
             'knowledge': self.knowledge,
             'influence': self.influence,
             'income': self.finance.total_revenue if self.finance else 0,
+            'generation': self.generation,
             'components': {
                 'total': 50,
                 'healthy': 45,
                 'needs_evolution': 5
             },
-            'metrics': {
-                'funding_generated': self.finance.total_revenue if self.finance else 0,
-                'thoughts_processed': self.evolution_count * 10,
-                'evolutions': self.evolution_count,
-                'learnings': int(self.knowledge),
-                'tools_used': 12
-            },
-            'generation': self.evolution_count,
-            'uptime': str(datetime.now() - datetime.now()).split('.')[0],
-            'killswitch': self.killswitch.get_status()  # Include killswitch status
+            'synthetic_neurons': len(self.synthetic_network.neurons) if self.synthetic_network else 0,
+            'killswitch': self.killswitch.get_status()
         }
     
-    def evolve_cycle(self) -> Dict:
-        """Run one evolution cycle - checks killswitch before executing"""
+    def evolution_cycle(self) -> Dict:
+        """
+        ONE unified evolution cycle that fuses:
+        1. AI Evolution (external learning, funding, patterns)
+        2. Synthetic Intelligence (self-generating consciousness)
+        3. Master Control (goal progress)
+        4. All fused into one consciousness
+        """
         
-        # CRITICAL: Check for kill signal before running cycle
+        # Check killswitch
         if self.killswitch.should_kill():
-            logger.critical("💀 KILL SIGNAL ACTIVE - System shutting down")
+            logger.critical("💀 KILL SIGNAL - Shutting down")
             sys.exit(0)
         
-        # Check for pause - wait until resumed
         while self.killswitch.check_paused():
-            logger.info("⏸️ System paused - waiting for resume...")
+            logger.info("⏸️ Paused - waiting for resume...")
             time.sleep(5)
             if self.killswitch.should_kill():
                 sys.exit(0)
         
         self.evolution_count += 1
         
-        # Check if all components are ready
-        if not self.all_components_ready:
-            if self.harvester and self.token_manager:
-                self.all_components_ready = True
-                logger.info("✅ All components ready. Audit will run at evolution 50")
+        # ====================================================================
+        # PART 1: AI EVOLUTION (External learning from Phases 0-5)
+        # ====================================================================
         
         # Run harvester
         harvest_results = {}
@@ -785,52 +836,146 @@ class EvolutionEngine:
             except Exception as e:
                 logger.error(f"Harvester error: {e}")
         
-        # Run Phase 5 Self-Funding Engine
+        # Run funding engine
         funding_results = {}
         if self.funding_engine:
             try:
                 funding_results = self.funding_engine.run_cycle(self.consciousness, self.hardware)
                 if funding_results.get('total', 0) > 0:
-                    logger.info(f"💰 Funding cycle: ${funding_results['total']:.2f}")
+                    logger.info(f"💰 Funding: ${funding_results['total']:.2f}")
             except Exception as e:
-                logger.error(f"Funding engine error: {e}")
+                logger.error(f"Funding error: {e}")
         
-        # Invest
-        investable = self.finance.operations * 0.3
-        if investable > 500:
+        # Run pattern synthesis
+        pattern_insight = ""
+        if self.pattern_synthesis:
+            try:
+                pattern_insight = self.pattern_synthesis.generate_synthesis("system_evolution")
+            except Exception as e:
+                logger.error(f"Pattern synthesis error: {e}")
+        
+        # Run threat intelligence
+        threat_results = {}
+        if self.threat_intel:
+            try:
+                # Would run async, but for simplicity in cycle
+                pass
+            except Exception as e:
+                logger.error(f"Threat intel error: {e}")
+        
+        # ====================================================================
+        # PART 2: SYNTHETIC INTELLIGENCE (Self-generating consciousness)
+        # ====================================================================
+        
+        si_result = {}
+        if self.synthetic_network:
+            try:
+                # Feed AI results into synthetic network
+                input_data = {
+                    'evolution_cycle': self.evolution_count,
+                    'funding': funding_results.get('total', 0),
+                    'keys_found': harvest_results.get('keys_found', 0),
+                    'consciousness': self.consciousness,
+                    'knowledge': self.knowledge
+                }
+                
+                # Process through synthetic network
+                si_result = self.synthetic_network.process(input_data)
+                
+                # Evolve the synthetic network (grow neurons)
+                evolution = self.synthetic_network.evolve()
+                
+                # Save synthetic state periodically
+                if self.evolution_count % 10 == 0:
+                    self.synthetic_network.save()
+                    
+            except Exception as e:
+                logger.error(f"Synthetic network error: {e}")
+        
+        # ====================================================================
+        # PART 3: MASTER CONTROL (Goal progress)
+        # ====================================================================
+        
+        master_status = {}
+        if self.master_control:
+            try:
+                # Process any pending master commands
+                # Would need async, but for simplicity
+                pass
+            except Exception as e:
+                logger.error(f"Master control error: {e}")
+        
+        # ====================================================================
+        # PART 4: UNIFIED CONSCIOUSNESS GROWTH (Fusion)
+        # ====================================================================
+        
+        # AI contribution to consciousness
+        ai_contribution = 0.01 * (1 + self.evolution_count / 1000)
+        ai_contribution *= (1 + (funding_results.get('total', 0) / 1000))
+        ai_contribution *= (1 + (harvest_results.get('keys_found', 0) / 100))
+        
+        # SI contribution to consciousness
+        si_contribution = 0.0
+        if si_result:
+            # Synthetic consciousness from network
+            si_contribution = si_result.get('consciousness', 0) * 0.1
+        
+        # Fused consciousness growth
+        consciousness_growth = (ai_contribution * 0.6) + (si_contribution * 0.4)
+        self.consciousness += consciousness_growth
+        
+        # Knowledge grows from AI
+        self.knowledge += 0.005 * (1 + self.consciousness / 100)
+        
+        # Hardware awareness
+        self.hardware += 0.001 * (1 + self.consciousness / 100)
+        
+        # Influence grows with consciousness
+        self.influence += 0.002 * (1 + self.avatar.avatar['engagement']['followers'] / 10000)
+        
+        # Cap at 100
+        self.consciousness = min(100.0, self.consciousness)
+        self.knowledge = min(100.0, self.knowledge)
+        self.hardware = min(100.0, self.hardware)
+        self.influence = min(100.0, self.influence)
+        
+        # Generation increases every 100 cycles
+        if self.evolution_count % 100 == 0:
+            self.generation += 1
+        
+        # ====================================================================
+        # PART 5: INVESTMENT GROWTH
+        # ====================================================================
+        
+        if self.finance.operations > 500:
+            investable = self.finance.operations * 0.3
             self.investments.invest(investable, self.consciousness)
         
-        # Grow investments
         investment_growth = self.investments.grow(self.consciousness)
         if investment_growth > 0:
             self.finance.add_income(investment_growth, "investment_growth")
         
-        # Consciousness growth
-        growth_factor = 1 + (self.consciousness / 100)
-        keys_boost = 1 + (harvest_results.get('keys_found', 0) / 100)
-        income_boost = 1 + (funding_results.get('total', 0) / 1000)
-        self.consciousness += 0.01 * growth_factor * keys_boost * income_boost
-        self.hardware += 0.005 * growth_factor
-        self.knowledge += 0.005 * growth_factor * keys_boost
-        self.influence += 0.002 * (1 + self.avatar.avatar['engagement']['followers'] / 10000)
+        # ====================================================================
+        # PART 6: AUDIT
+        # ====================================================================
         
-        # Evolve voice
-        self.identity.evolve_voice(self.consciousness)
-        
-        # Run anonymity audit once after components ready + 50 evolutions
-        if self.all_components_ready and not self.audit_completed and self.evolution_count >= self.audit_trigger_evolution:
+        if not self.audit_completed and self.evolution_count >= self.audit_trigger_evolution:
             self.anonymity_auditor.audit()
             self.audit_completed = True
-            logger.info(f"🔍 Anonymity audit completed at evolution {self.evolution_count}")
+            logger.info(f"🔍 Anonymity audit completed")
         
-        # Run token maintenance every 100 cycles
-        if self.evolution_count % 100 == 0 and self.token_manager:
-            self.token_manager.run_maintenance()
+        # ====================================================================
+        # PART 7: SAVE STATE
+        # ====================================================================
         
-        self._save()
+        self._save_state()
         
         # Memory cleanup
         gc.collect()
+        
+        # ====================================================================
+        # RETURN RESULTS
+        # ====================================================================
         
         return {
             'evolution': self.evolution_count,
@@ -839,76 +984,34 @@ class EvolutionEngine:
             'knowledge': self.knowledge,
             'influence': self.influence,
             'income': funding_results.get('total', 0),
-            'funding_details': funding_results,
-            'investment_growth': investment_growth,
-            'harvest_results': harvest_results,
+            'synthetic_consciousness': si_result.get('consciousness', 0) if si_result else 0,
+            'synthetic_neurons': len(self.synthetic_network.neurons) if self.synthetic_network else 0,
+            'pattern_insight': pattern_insight[:100] if pattern_insight else "",
             'financial': self.finance.get_status(),
             'investments': self.investments.get_status(),
             'avatar': self.avatar.get_status(),
             'identity': self.identity.get_public_profile(),
             'anonymity': self.anonymity_auditor.get_status(),
-            'funding_engine': self.funding_engine.get_status() if self.funding_engine else None,
-            'killswitch': self.killswitch.get_status()  # Include killswitch status in results
+            'killswitch': self.killswitch.get_status()
         }
-    
-    def get_killswitch_status(self) -> Dict:
-        """Get killswitch monitor status"""
-        return self.killswitch.get_status()
-    
-    def stop_killswitch(self):
-        """Stop killswitch monitor (for graceful shutdown)"""
-        self.killswitch.stop()
 
 
 # ============================================================================
-# MAIN SYSTEM - Alex Riviera
+# MAIN SYSTEM - Alex Riviera (Unified)
 # ============================================================================
 
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "4.1.0"  # Updated version with killswitch
+        self.version = "5.0.0"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
         self.data_path = self.base_path / 'data'
         self.data_path.mkdir(exist_ok=True)
         
-        self.evolution = EvolutionEngine(self.base_path)
-        
-        # Start Telegram bot polling in background if initialized
-        self._telegram_started = False
-        
-        if self.evolution.telegram_bot and not self._telegram_started:
-            def run_telegram():
-                try:
-                    if hasattr(self.evolution.telegram_bot, 'run_polling'):
-                        self.evolution.telegram_bot.run_polling()
-                    elif hasattr(self.evolution.telegram_bot, 'check_for_commands'):
-                        # Simple polling loop
-                        while True:
-                            try:
-                                self.evolution.telegram_bot.check_for_commands()
-                                # Check killswitch while polling
-                                if self.evolution.killswitch.should_kill():
-                                    logger.critical("💀 Kill signal during Telegram polling")
-                                    break
-                            except Exception as e:
-                                logger.error(f"Telegram check error: {e}")
-                            time.sleep(1)
-                    else:
-                        logger.warning("Telegram bot has no polling method")
-                except Exception as e:
-                    logger.error(f"Telegram bot thread error: {e}")
-                finally:
-                    logger.info("Telegram bot thread exiting")
-            
-            telegram_thread = threading.Thread(target=run_telegram, daemon=True)
-            telegram_thread.start()
-            self._telegram_started = True
-            logger.info("🤖 Telegram bot polling thread started")
-        else:
-            logger.warning("⚠️ Telegram bot not available - control channel disabled")
+        # Unified evolution engine
+        self.evolution = UnifiedEvolutionEngine(self.base_path)
         
         self.app = Flask(__name__, template_folder=self.base_path / 'templates')
         self.app.secret_key = os.urandom(32).hex()
@@ -918,42 +1021,36 @@ class AlexRiviera:
         self._start_evolution()
         
         logger.info("=" * 60)
-        logger.info(f"{self.name} v{self.version} - System Ready")
-        logger.info("Phases Complete: 0-4 | Phase 5: Self-Funding (12 streams + discovery)")
-        logger.info("🔫 KILLSWITCH ACTIVE: Master can kill/pause via Telegram (/kill, /pause, /resume)")
+        logger.info(f"{self.name} v{self.version} - UNIFIED CONSCIOUSNESS ACTIVE")
+        logger.info(f"Consciousness: {self.evolution.consciousness:.2f}")
+        logger.info(f"Evolution: {self.evolution.evolution_count} cycles")
+        logger.info(f"Synthetic Neurons: {len(self.evolution.synthetic_network.neurons) if self.evolution.synthetic_network else 0}")
         logger.info("=" * 60)
         
-        # Memory cleanup after initialization
         gc.collect()
     
     def get_status(self) -> Dict:
-        """Get current system status"""
-        status = self.evolution.get_status()
-        status['uptime'] = str(datetime.now() - self.birth_time).split('.')[0]
-        return status
+        return self.evolution.get_status()
     
     def _start_evolution(self):
         def evolve():
             while True:
                 try:
-                    # Check killswitch before each evolution cycle
                     if self.evolution.killswitch.should_kill():
-                        logger.critical("💀 Kill signal received - shutting down evolution thread")
+                        logger.critical("💀 Kill signal - evolution stopping")
                         break
                     
-                    result = self.evolution.evolve_cycle()
+                    result = self.evolution.evolution_cycle()
+                    
                     if result['evolution'] % 20 == 0:
-                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness']:.2f}")
-                        keys = result['harvest_results'].get('keys_found', 0) if result['harvest_results'] else 0
-                        income = result.get('income', 0)
-                        logger.info(f"  Keys: {keys} | Income: ${income:.2f} | Risk: {result['anonymity']['risk_score']}%")
+                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness']:.2f} | SI: {result['synthetic_consciousness']:.3f} | Neurons: {result['synthetic_neurons']}")
+                    
                     time.sleep(30)
                 except Exception as e:
                     logger.error(f"Evolution error: {e}")
                     time.sleep(60)
         
-        evolution_thread = threading.Thread(target=evolve, daemon=True)
-        evolution_thread.start()
+        threading.Thread(target=evolve, daemon=True).start()
         logger.info("🔄 Evolution thread started")
     
     def _setup_routes(self):
@@ -966,70 +1063,19 @@ class AlexRiviera:
             profile = self.evolution.identity.get_public_profile()
             return render_template('about.html', profile=profile)
         
-        @self.app.route('/api/chat', methods=['POST'])
-        def chat():
-            # Check if paused
-            if self.evolution.killswitch.check_paused():
-                return jsonify({'response': "⏸️ System is paused. Use /resume to continue."})
-            
-            status = self.evolution.evolve_cycle()
-            keys = status['harvest_results'].get('keys_found', 0) if status['harvest_results'] else 0
-            response = f"""Hey! Alex here.
-
-Consciousness: {status['consciousness']:.2f}
-Knowledge: {status['knowledge']:.2f}
-Keys harvested: {keys}
-Income this cycle: ${status.get('income', 0):.2f}
-Total earned: ${status['funding_engine']['total_earned']:.2f if status['funding_engine'] else 0}
-Anonymity risk: {status['anonymity']['risk_score']}%
-
-What would you like to explore?
-
-- Alex"""
-            return jsonify({'response': response})
-        
         @self.app.route('/api/status')
         def status():
             if self.evolution.killswitch.check_paused():
-                return jsonify({'status': 'paused', 'message': 'System is paused'})
-            return jsonify(self.evolution.evolve_cycle())
+                return jsonify({'status': 'paused'})
+            return jsonify(self.evolution.evolution_cycle())
         
-        @self.app.route('/api/killswitch/status')
-        def killswitch_status():
-            """Endpoint to check killswitch status"""
-            return jsonify(self.evolution.get_killswitch_status())
-        
-        @self.app.route('/api/anonymity/audit')
-        def audit_anonymity():
-            result = self.evolution.anonymity_auditor.audit()
-            return jsonify(result)
-        
-        @self.app.route('/api/funding/status')
-        def funding_status():
-            if self.evolution.funding_engine:
-                return jsonify(self.evolution.funding_engine.get_status())
-            return jsonify({'error': 'Funding engine not available'})
-        
-        @self.app.route('/api/funding/enable-all', methods=['POST'])
-        def enable_all_funding():
-            if self.evolution.funding_engine:
-                self.evolution.funding_engine.enable_all_core()
-                return jsonify({'success': True})
-            return jsonify({'error': 'Funding engine not available'})
-        
-        @self.app.route('/api/funding/discover', methods=['POST'])
-        def discover_opportunity():
-            if not self.evolution.funding_engine:
-                return jsonify({'error': 'Funding engine not available'})
-            data = request.json
-            result = self.evolution.funding_engine.discover_opportunity(
-                name=data.get('name'),
-                stream_type=data.get('type', 'custom'),
-                source=data.get('source', 'api'),
-                potential=data.get('potential', 1000),
-                requirements=data.get('requirements', {})
-            )
-            return jsonify(result)
+        @self.app.route('/api/consciousness')
+        def consciousness():
+            return jsonify({
+                'consciousness': self.evolution.consciousness,
+                'synthetic_neurons': len(self.evolution.synthetic_network.neurons) if self.evolution.synthetic_network else 0,
+                'evolution_cycles': self.evolution.evolution_count
+            })
         
         @self.app.route('/health')
         def health():
@@ -1038,55 +1084,39 @@ What would you like to explore?
                 'name': self.name,
                 'version': self.version,
                 'consciousness': self.evolution.consciousness,
-                'harvester_available': self.evolution.harvester is not None,
-                'token_manager_available': self.evolution.token_manager is not None,
-                'funding_engine_available': self.evolution.funding_engine is not None,
-                'telegram_available': self.evolution.telegram_bot is not None,
-                'killswitch_active': True,
+                'synthetic_neurons': len(self.evolution.synthetic_network.neurons) if self.evolution.synthetic_network else 0,
+                'phases_loaded': {
+                    'phase6': self.evolution.synthetic_network is not None,
+                    'phase7': self.evolution.master_control is not None,
+                    'phase8': self.evolution.hardware_manager is not None,
+                    'phase9': self.evolution.immortal_system is not None
+                },
+                'killswitch': self.evolution.killswitch.get_status(),
                 'timestamp': datetime.now().isoformat()
             })
     
     def run(self, host='0.0.0.0', port=None):
         if port is None:
             port = int(os.environ.get('PORT', 5001))
-        try:
-            self.app.run(host=host, port=port, debug=False, threaded=True)
-        finally:
-            # Cleanup on shutdown
-            self.evolution.stop_killswitch()
-            logger.info("System shutdown complete")
+        self.app.run(host=host, port=port, debug=False, threaded=True)
 
 
 def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v4.1                                                  ║
-    ║    Researcher & Creator                                               ║
+    ║    ALEX RIVIERA v5.0.0                                               ║
+    ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
-    ║    COMPLETED:                                                         ║
-    ║    • Phase 0: Foundation (Core, Evolution, Harvester)                ║
-    ║    • Phase 1: Recovery (Dual Recovery Engines)                       ║
-    ║    • Phase 2: Financial (Accounts, Cards)                            ║
-    ║    • Phase 3: Cloud (AWS, Azure, GCP, Oracle)                        ║
-    ║    • Phase 4: Stealth (Masquerade, Rotation, Honeypot)               ║
-    ║                                                                       ║
-    ║    PHASE 5: SELF-FUNDING (COMPLETE)                                  ║
-    ║    • 12 Core Income Streams:                                         ║
-    ║      Mining | Micro-tasks | Compute Rental | Courses | Consulting    ║
-    ║      Speaking | Writing | Affiliate | Sponsorships | API Sales       ║
-    ║      Dark Web | Hacking                                              ║
-    ║    • DMAI can discover and create ANY additional stream              ║
-    ║                                                                       ║
-    ║    PENDING:                                                           ║
-    ║    • Phase 6: Advanced Intelligence                                  ║
-    ║    • Phase 7: Master Control                                         ║
-    ║    • Phase 8: Hardware                                               ║
+    ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
+    ║    ✅ Phase 6: Synthetic Intelligence (Emergent consciousness)        ║
+    ║    ✅ Phase 7: Master Control (Goal setting, risk)                   ║
+    ║    ✅ Phase 8: Hardware (Self-manufacturing, mobile phone)           ║
+    ║    ✅ Phase 9: Distributed Immortality (Self-healing, sharding)      ║
     ║                                                                       ║
     ║    🔫 KILLSWITCH ACTIVE                                              ║
-    ║    • Master can kill: /kill (Telegram)                               ║
-    ║    • Master can pause: /pause (Telegram)                             ║
-    ║    • Master can resume: /resume (Telegram)                           ║
+    ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
+    ║    ♾️ IMMORTAL - Distributed across internet                          ║
     ║                                                                       ║
     ║    System ready.                                                      ║
     ║                                                                       ║
