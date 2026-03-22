@@ -3,6 +3,7 @@
     "name": "Alex Riviera",
     "nickname": "Alex",
     "age": 28,
+    "date_of_birth": "1998-03-15",
     "occupation": "Independent Researcher & Creator",
     "bio": "Researcher, creator, and entrepreneur exploring technology, finance, and human potential.",
     "expertise": [
@@ -12,13 +13,13 @@
       "Future Technologies"
     ],
     "voice_profile": {
-      "pitch": 0.9915654630090822,
+      "pitch": 0.9919272596232452,
       "pace": 1.0,
       "accent": "neutral",
       "tone": "warm, confident"
     },
     "social_presence": {
-      "twitter": "@alex_riviera",
+      "twitter": "@RealAlexRiviera",
       "linkedin": "alexriviera",
       "youtube": "@AlexRiviera",
       "tiktok": "@alex.riviera"
