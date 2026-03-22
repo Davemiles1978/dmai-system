@@ -859,9 +859,10 @@ What would you like to explore?
                 'timestamp': datetime.now().isoformat()
             })
     
-    def run(self, host='0.0.0.0', port=5001):
+    def run(self, host='0.0.0.0', port=None):
+        if port is None:
+            port = int(os.environ.get('PORT', 5001))
         self.app.run(host=host, port=port, debug=False, threaded=True)
-
 
 def main():
     print("""
