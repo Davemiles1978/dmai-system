@@ -722,7 +722,10 @@ class AlexRiviera:
         self.evolution = EvolutionEngine(self.base_path)
         
         # Start Telegram bot polling in background if initialized
-        if self.evolution.telegram_bot:
+        # Use a flag to ensure it only starts once
+        self._telegram_started = False
+        
+        if self.evolution.telegram_bot and not self._telegram_started:
             def run_telegram():
                 try:
                     if hasattr(self.evolution.telegram_bot, 'run_polling'):
@@ -742,6 +745,7 @@ class AlexRiviera:
             
             telegram_thread = threading.Thread(target=run_telegram, daemon=True)
             telegram_thread.start()
+            self._telegram_started = True
             logger.info("🤖 Telegram bot polling thread started")
         else:
             logger.warning("⚠️ Telegram bot not available - control channel disabled")
