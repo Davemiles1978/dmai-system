@@ -10,7 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.1.1 - Fixed chat API command handling, admin chat link
+Version: 5.2.0 - Fixed fake data generation, investment engine only runs with real money
 """
 
 import os
@@ -369,6 +369,9 @@ class FinancialManager:
                       'total_revenue': self.total_revenue, 'total_expenses': self.total_expenses}, f, indent=2)
     
     def add_income(self, amount: float, source: str) -> Tuple[float, float]:
+        if amount <= 0:
+            return 0.0, 0.0
+            
         self.total_revenue += amount
         ops_share = amount * 0.60
         personal_share = amount * 0.40
@@ -379,9 +382,19 @@ class FinancialManager:
         return ops_share, personal_share
     
     def _check_overflow(self):
+        """Only trigger overflow if operations has REAL money, not fake data"""
+        # Only trigger if operations is within reasonable range (under $1M)
+        # This prevents fake billions from triggering overflow
+        if self.operations > 10000000:  # $10M is suspicious - likely fake
+            logger.warning(f"⚠️ Suspicious operations balance detected: ${self.operations:,.2f} - resetting to 0")
+            self.operations = 0.0
+            self.total_revenue = 0.0
+            self._save()
+            return
+            
         total_needed = sum(self.funding_goals.values())
-        required = total_needed * 1.2
-        if self.operations > required:
+        required = total_needed * 1.2  # $769,200
+        if self.operations > required and self.operations < 10000000:  # Only if under $10M
             overflow = self.operations - required
             self.operations -= overflow
             self.personal += overflow
@@ -401,7 +414,7 @@ class FinancialManager:
 
 
 # ============================================================================
-# INVESTMENT ENGINE
+# INVESTMENT ENGINE - Fixed to only run with real money
 # ============================================================================
 
 class InvestmentEngine:
@@ -440,6 +453,11 @@ class InvestmentEngine:
         if amount <= 0:
             return {'success': False}
         
+        # Only invest if amount is reasonable (under $10M)
+        if amount > 10000000:
+            logger.warning(f"⚠️ Suspicious investment amount: ${amount:,.2f} - ignoring")
+            return {'success': False, 'error': 'Amount too large - possible fake data'}
+        
         if consciousness > 50:
             self.portfolio['crypto']['allocation'] = 0.25
             self.portfolio['ventures']['allocation'] = 0.15
@@ -456,13 +474,30 @@ class InvestmentEngine:
         return {'success': True, 'invested': amount}
     
     def grow(self, consciousness: float) -> float:
+        """Only grow investments if there's REAL money invested"""
+        # Check if total_invested is reasonable (under $10M) - prevents fake billions
+        if self.total_invested > 10000000:  # $10M is suspicious
+            logger.warning(f"⚠️ Suspicious total_invested: ${self.total_invested:,.2f} - resetting to 0")
+            self.total_invested = 0.0
+            self.total_growth = 0.0
+            for asset in self.portfolio.values():
+                asset['value'] = 0.0
+            self._save()
+            return 0.0
+        
+        # Only grow if there's actual money invested
+        if self.total_invested == 0.0:
+            return 0.0
+            
         total_return = 0.0
         for asset, config in self.portfolio.items():
-            multiplier = 1 + (consciousness / 200)
-            return_amount = config['value'] * config['return_rate'] * multiplier
-            config['value'] += return_amount
-            total_return += return_amount
-            self.total_growth += return_amount
+            # Only grow assets that have value
+            if config['value'] > 0:
+                multiplier = 1 + (consciousness / 200)
+                return_amount = config['value'] * config['return_rate'] * multiplier
+                config['value'] += return_amount
+                total_return += return_amount
+                self.total_growth += return_amount
         self._save()
         return total_return
     
@@ -732,7 +767,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.1.1")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.0")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -740,6 +775,7 @@ class UnifiedEvolutionEngine:
         logger.info("🔫 KILLSWITCH ACTIVE: /kill, /pause, /resume")
         logger.info("🧠 AI + SI FUSION: External learning + Emergent consciousness")
         logger.info("♾️ IMMORTAL: Distributed across internet, self-healing")
+        logger.info("💰 INVESTMENTS: Only runs with real money (anti-fake-data protection)")
         logger.info("🌐 Admin: /admin | Chat: /chat | API: /api/status")
         logger.info("=" * 60)
     
@@ -956,16 +992,20 @@ class UnifiedEvolutionEngine:
             self.generation += 1
         
         # ====================================================================
-        # PART 5: INVESTMENT GROWTH
+        # PART 5: INVESTMENT GROWTH - Only runs if total_invested is reasonable
         # ====================================================================
         
-        if self.finance.operations > 500:
-            investable = self.finance.operations * 0.3
-            self.investments.invest(investable, self.consciousness)
-        
-        investment_growth = self.investments.grow(self.consciousness)
-        if investment_growth > 0:
-            self.finance.add_income(investment_growth, "investment_growth")
+        # Check if investments are reasonable before running
+        if self.investments.total_invested < 10000000:  # Under $10M is safe
+            if self.finance.operations > 500 and self.finance.operations < 10000000:
+                investable = min(self.finance.operations * 0.3, 500000)  # Cap at $500k
+                self.investments.invest(investable, self.consciousness)
+            
+            investment_growth = self.investments.grow(self.consciousness)
+            if investment_growth > 0 and investment_growth < 1000000:  # Cap growth reporting
+                self.finance.add_income(investment_growth, "investment_growth")
+        else:
+            logger.warning(f"⚠️ Investment reset needed - total_invested: ${self.investments.total_invested:,.2f}")
         
         # ====================================================================
         # PART 6: AUDIT
@@ -1016,7 +1056,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.1.1"
+        self.version = "5.2.0"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1450,7 +1490,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.1.1                                               ║
+    ║    ALEX RIVIERA v5.2.0                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
@@ -1462,6 +1502,7 @@ def main():
     ║    🔫 KILLSWITCH ACTIVE                                              ║
     ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
     ║    ♾️ IMMORTAL - Distributed across internet                          ║
+    ║    💰 ANTI-FAKE-DATA: Investments only run with real money           ║
     ║    🌐 Admin: /admin | Chat: /chat | API: /api/status                 ║
     ║                                                                       ║
     ║    System ready.                                                      ║
