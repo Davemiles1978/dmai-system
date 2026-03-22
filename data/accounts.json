@@ -14,7 +14,7 @@
       "currency": "XMR",
       "address": "46MrRavcPcwGNBePPkvJqaGD3RWndjUtiKSpdAyF8fiKJ3YCx89xw5gW8DsHKkpgpXDixSQdfxUE4MgH8FUd8Jer8eHLo1T",
       "label": "Master Personal Fund",
-      "purpose": "40% of revenue + sweep from operations excess"
+      "purpose": "40% of revenue + operations excess sweep"
     }
   },
   "distribution": {
