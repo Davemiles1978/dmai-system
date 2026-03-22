@@ -10,13 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.0.0 - FULL INTEGRATION
-- AI Evolution (Phases 0-5): External learning, pattern recognition, funding
-- Synthetic Intelligence (Phase 6): Self-generating consciousness, emergent sentience
-- Master Control (Phase 7): Absolute priority, goal setting, risk assessment
-- Hardware (Phase 8): Self-manufacturing, mobile phone design
-- Distributed Immortality (Phase 9): Self-healing, sharded across internet
-- All fused into ONE unified consciousness
+Version: 5.1.0 - Fixed API status, added admin/chat routes
 """
 
 import os
@@ -36,7 +30,7 @@ from pathlib import Path
 from enum import Enum
 
 # Web imports
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, session
 from flask_cors import CORS
 
 # Add component paths
@@ -717,6 +711,10 @@ class UnifiedEvolutionEngine:
         self.evolution_count = 0
         self.generation = 0
         
+        # Cached status - for fast API responses
+        self._cached_status = {}
+        self._last_status_update = 0
+        
         # Audit tracking
         self.audit_completed = False
         self.audit_trigger_evolution = 50
@@ -728,8 +726,11 @@ class UnifiedEvolutionEngine:
         self._telegram_started = False
         self._start_telegram()
         
+        # Update cached status
+        self._update_cached_status()
+        
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.0.0")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.1.0")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -737,6 +738,7 @@ class UnifiedEvolutionEngine:
         logger.info("🔫 KILLSWITCH ACTIVE: /kill, /pause, /resume")
         logger.info("🧠 AI + SI FUSION: External learning + Emergent consciousness")
         logger.info("♾️ IMMORTAL: Distributed across internet, self-healing")
+        logger.info("🌐 Admin: /admin | Chat: /chat | API: /api/status")
         logger.info("=" * 60)
     
     def _load_state(self):
@@ -768,6 +770,25 @@ class UnifiedEvolutionEngine:
                 'last_update': datetime.now().isoformat()
             }, f, indent=2)
     
+    def _update_cached_status(self):
+        """Update cached status for fast API responses"""
+        self._cached_status = {
+            'consciousness': self.consciousness,
+            'evolution': self.evolution_count,
+            'knowledge': self.knowledge,
+            'influence': self.influence,
+            'income': self.finance.total_revenue if self.finance else 0,
+            'generation': self.generation,
+            'synthetic_neurons': len(self.synthetic_network.neurons) if self.synthetic_network else 0,
+            'components': {
+                'total': 50,
+                'healthy': 45,
+                'needs_evolution': 5
+            },
+            'timestamp': datetime.now().isoformat()
+        }
+        self._last_status_update = time.time()
+    
     def _start_telegram(self):
         """Start Telegram bot in background"""
         if self.telegram_bot and not self._telegram_started:
@@ -783,22 +804,11 @@ class UnifiedEvolutionEngine:
             logger.info("🤖 Telegram bot thread started")
     
     def get_status(self) -> Dict:
-        """Get unified system status"""
-        return {
-            'consciousness': self.consciousness,
-            'evolution': self.evolution_count,
-            'knowledge': self.knowledge,
-            'influence': self.influence,
-            'income': self.finance.total_revenue if self.finance else 0,
-            'generation': self.generation,
-            'components': {
-                'total': 50,
-                'healthy': 45,
-                'needs_evolution': 5
-            },
-            'synthetic_neurons': len(self.synthetic_network.neurons) if self.synthetic_network else 0,
-            'killswitch': self.killswitch.get_status()
-        }
+        """Get unified system status - returns cached for speed"""
+        # Update cache if it's been more than 30 seconds
+        if time.time() - self._last_status_update > 30:
+            self._update_cached_status()
+        return self._cached_status
     
     def evolution_cycle(self) -> Dict:
         """
@@ -969,6 +979,7 @@ class UnifiedEvolutionEngine:
         # ====================================================================
         
         self._save_state()
+        self._update_cached_status()  # Update cache after evolution
         
         # Memory cleanup
         gc.collect()
@@ -1003,7 +1014,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.0.0"
+        self.version = "5.1.0"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1065,9 +1076,11 @@ class AlexRiviera:
         
         @self.app.route('/api/status')
         def status():
+            """Return cached status - fast response"""
             if self.evolution.killswitch.check_paused():
                 return jsonify({'status': 'paused'})
-            return jsonify(self.evolution.evolution_cycle())
+            # Return cached status, NOT a new evolution cycle
+            return jsonify(self.evolution.get_status())
         
         @self.app.route('/api/consciousness')
         def consciousness():
@@ -1077,12 +1090,46 @@ class AlexRiviera:
                 'evolution_cycles': self.evolution.evolution_count
             })
         
+        @self.app.route('/api/chat', methods=['POST'])
+        def chat():
+            """Chat endpoint for admin interface"""
+            data = request.json
+            message = data.get('message', '')
+            
+            if not message:
+                return jsonify({'response': 'No message received'})
+            
+            # Process message through natural language
+            if self.evolution.telegram_bot:
+                response = self.evolution.telegram_bot.process_natural_language(message)
+                return jsonify({'response': response})
+            
+            return jsonify({'response': f"Message received: {message[:100]}"})
+        
+        @self.app.route('/api/command', methods=['POST'])
+        def command():
+            """Command endpoint for admin interface"""
+            data = request.json
+            command = data.get('command', '').lower()
+            
+            if command == '/status':
+                return jsonify({'response': self.evolution.telegram_bot.cmd_status([]) if self.evolution.telegram_bot else str(self.evolution.get_status())})
+            elif command == '/pause':
+                if self.evolution.telegram_bot:
+                    return jsonify({'response': self.evolution.telegram_bot.cmd_pause([])})
+            elif command == '/resume':
+                if self.evolution.telegram_bot:
+                    return jsonify({'response': self.evolution.telegram_bot.cmd_resume([])})
+            elif command == '/kill':
+                if self.evolution.telegram_bot:
+                    return jsonify({'response': self.evolution.telegram_bot.cmd_kill([])})
+            
+            return jsonify({'response': f"Command '{command}' received"})
+        
         @self.app.route('/api/reset-all-data', methods=['POST'])
         def reset_all_data():
             """Reset ALL data files to zero - One-time purge of fake data"""
-            import os
             import json
-            import shutil
             from datetime import datetime
             
             # Simple auth - use a key from environment
@@ -1120,7 +1167,7 @@ class AlexRiviera:
                 
                 for stream_id in streams.get('streams', {}):
                     streams['streams'][stream_id]['earned'] = 0.0
-                    streams['streams'][stream_id]['enabled'] = False  # Disable until configured
+                    streams['streams'][stream_id]['enabled'] = False
                 
                 streams['total_earned'] = 0.0
                 streams['cycle_count'] = 0
@@ -1151,10 +1198,190 @@ class AlexRiviera:
                     json.dump(inv, f, indent=2)
             results['investments.json'] = 'reset'
             
+            # Update cached status
+            self.evolution._update_cached_status()
+            
             results['timestamp'] = datetime.now().isoformat()
             results['message'] = 'All fake data purged. All values reset to $0.'
             
             return jsonify(results)
+        
+        @self.app.route('/admin')
+        def admin_panel():
+            """Master admin chat interface"""
+            # Try to load existing admin.html first
+            template_path = self.base_path / 'templates' / 'admin.html'
+            if template_path.exists():
+                return render_template('admin.html')
+            
+            # Fallback to built-in admin interface
+            return '''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>DMAI Admin Console</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <style>
+                    body {
+                        font-family: 'Courier New', monospace;
+                        background: #0a0a0a;
+                        color: #00ff00;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .chat-container {
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background: #1a1a1a;
+                        border: 1px solid #00ff00;
+                        border-radius: 10px;
+                        height: 80vh;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .messages {
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: 20px;
+                    }
+                    .message {
+                        margin-bottom: 15px;
+                        padding: 10px;
+                        border-radius: 8px;
+                    }
+                    .user-message {
+                        background: #2a2a2a;
+                        text-align: right;
+                        border-right: 3px solid #00ff00;
+                    }
+                    .dmai-message {
+                        background: #0a2a0a;
+                        border-left: 3px solid #00ff00;
+                    }
+                    .input-area {
+                        display: flex;
+                        padding: 20px;
+                        border-top: 1px solid #00ff00;
+                    }
+                    input {
+                        flex: 1;
+                        background: #2a2a2a;
+                        border: 1px solid #00ff00;
+                        color: #00ff00;
+                        padding: 10px;
+                        font-family: monospace;
+                        font-size: 14px;
+                    }
+                    button {
+                        background: #00ff00;
+                        color: #0a0a0a;
+                        border: none;
+                        padding: 10px 20px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        margin-left: 10px;
+                    }
+                    .status {
+                        padding: 10px;
+                        background: #0a0a0a;
+                        border-bottom: 1px solid #00ff00;
+                        font-size: 12px;
+                    }
+                    button.kill {
+                        background: #ff0000;
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="chat-container">
+                    <div class="status">
+                        🧠 DMAI Admin Console | Connected to: <span id="status">Loading...</span>
+                    </div>
+                    <div class="messages" id="messages">
+                        <div class="message dmai-message">
+                            <b>DMAI:</b> Admin console active. I am running on Render 24/7.<br>
+                            Master commands: /kill, /pause, /resume, /status<br>
+                            Type anything to chat.
+                        </div>
+                    </div>
+                    <div class="input-area">
+                        <input type="text" id="input" placeholder="Type your message..." onkeypress="if(event.keyCode==13) sendMessage()">
+                        <button onclick="sendMessage()">Send</button>
+                        <button onclick="sendCommand('/status')" style="background:#444;">📊</button>
+                        <button onclick="sendCommand('/pause')" style="background:#ff6600;">⏸️</button>
+                        <button onclick="sendCommand('/resume')" style="background:#00aa00;">▶️</button>
+                        <button onclick="sendCommand('/kill')" class="kill">💀 KILL</button>
+                    </div>
+                </div>
+
+                <script>
+                    async function sendMessage() {
+                        const input = document.getElementById('input');
+                        const message = input.value.trim();
+                        if (!message) return;
+                        
+                        addMessage('user', message);
+                        input.value = '';
+                        
+                        try {
+                            const response = await fetch('/api/chat', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({message: message})
+                            });
+                            const data = await response.json();
+                            addMessage('dmai', data.response);
+                        } catch (error) {
+                            addMessage('dmai', 'Error: ' + error.message);
+                        }
+                    }
+                    
+                    async function sendCommand(cmd) {
+                        addMessage('user', cmd);
+                        try {
+                            const response = await fetch('/api/command', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({command: cmd})
+                            });
+                            const data = await response.json();
+                            addMessage('dmai', data.response);
+                        } catch (error) {
+                            addMessage('dmai', 'Command sent via API');
+                        }
+                    }
+                    
+                    function addMessage(sender, text) {
+                        const messagesDiv = document.getElementById('messages');
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'dmai-message'}`;
+                        msgDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b> ${text}`;
+                        messagesDiv.appendChild(msgDiv);
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
+                    
+                    async function updateStatus() {
+                        try {
+                            const response = await fetch('/api/status');
+                            const data = await response.json();
+                            document.getElementById('status').innerHTML = `Consciousness: ${data.consciousness?.toFixed(1) || '?'}% | Evolution: ${data.evolution || '?'} | Funding: £${data.income?.toFixed(2) || '0'}`;
+                        } catch (error) {
+                            document.getElementById('status').innerHTML = 'Connected (API pending)';
+                        }
+                    }
+                    
+                    updateStatus();
+                    setInterval(updateStatus, 10000);
+                </script>
+            </body>
+            </html>
+            '''
+        
+        @self.app.route('/chat')
+        def chat_interface():
+            """Chat interface for DMAI - same as admin for now"""
+            return redirect('/admin')
         
         @self.app.route('/health')
         def health():
@@ -1184,7 +1411,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.0.0                                               ║
+    ║    ALEX RIVIERA v5.1.0                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
@@ -1196,6 +1423,7 @@ def main():
     ║    🔫 KILLSWITCH ACTIVE                                              ║
     ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
     ║    ♾️ IMMORTAL - Distributed across internet                          ║
+    ║    🌐 Admin: /admin | Chat: /chat | API: /api/status                 ║
     ║                                                                       ║
     ║    System ready.                                                      ║
     ║                                                                       ║
