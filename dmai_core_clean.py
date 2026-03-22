@@ -9,6 +9,8 @@
 
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
+
+Version: 4.1.0 - Added Killswitch Monitor
 """
 
 import os
@@ -21,6 +23,7 @@ import random
 import hashlib
 import requests
 import gc
+import signal
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
@@ -44,6 +47,126 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+# ============================================================================
+# KILLSWITCH CONSTANTS
+# ============================================================================
+
+KILL_FLAG_FILE = "data/kill_signal.flag"
+PAUSE_FLAG_FILE = "data/pause.flag"
+REBUILD_FLAG_FILE = "data/rebuild.flag"
+
+
+# ============================================================================
+# KILLSWITCH MONITOR - Absolute Master Control
+# ============================================================================
+
+class KillswitchMonitor:
+    """
+    Monitors for master kill/pause commands.
+    This runs in a separate thread and cannot be bypassed.
+    Absolute priority - Master commands only.
+    """
+    
+    def __init__(self):
+        self.paused = False
+        self.kill_requested = False
+        self.rebuild_requested = False
+        self.monitor_thread = None
+        self.running = True
+        self._lock = threading.Lock()
+        
+        # Ensure data directory exists
+        os.makedirs("data", exist_ok=True)
+        
+        logger.info("🔫 Killswitch Monitor initialized")
+        self._start_monitoring()
+    
+    def _start_monitoring(self):
+        """Start background monitoring thread"""
+        self.monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self.monitor_thread.start()
+        logger.info("🔫 Killswitch Monitor thread started")
+    
+    def _monitor_loop(self):
+        """Monitor for flag files"""
+        while self.running:
+            try:
+                # Check kill flag
+                if os.path.exists(KILL_FLAG_FILE):
+                    with self._lock:
+                        self.kill_requested = True
+                    logger.critical("💀 KILL FLAG DETECTED - System will terminate")
+                    self._cleanup_flags()
+                    break
+                
+                # Check pause flag
+                if os.path.exists(PAUSE_FLAG_FILE):
+                    if not self.paused:
+                        with self._lock:
+                            self.paused = True
+                        logger.warning("⏸️ PAUSE FLAG DETECTED - Operations paused")
+                else:
+                    if self.paused:
+                        with self._lock:
+                            self.paused = False
+                        logger.info("▶️ PAUSE FLAG REMOVED - Resuming operations")
+                
+                # Check rebuild flag
+                if os.path.exists(REBUILD_FLAG_FILE):
+                    with self._lock:
+                        self.rebuild_requested = True
+                    logger.warning("🔧 REBUILD FLAG DETECTED")
+                    try:
+                        os.remove(REBUILD_FLAG_FILE)
+                    except:
+                        pass
+                    
+            except Exception as e:
+                logger.error(f"Killswitch monitor error: {e}")
+                
+            time.sleep(1)
+    
+    def _cleanup_flags(self):
+        """Clean up flag files on shutdown"""
+        for flag in [KILL_FLAG_FILE, PAUSE_FLAG_FILE, REBUILD_FLAG_FILE]:
+            if os.path.exists(flag):
+                try:
+                    os.remove(flag)
+                except:
+                    pass
+    
+    def check_paused(self) -> bool:
+        """Check if operations should be paused"""
+        with self._lock:
+            return self.paused
+    
+    def should_kill(self) -> bool:
+        """Check if kill signal received"""
+        with self._lock:
+            return self.kill_requested
+    
+    def should_rebuild(self) -> bool:
+        """Check if rebuild requested"""
+        with self._lock:
+            return self.rebuild_requested
+    
+    def stop(self):
+        """Stop monitoring"""
+        self.running = False
+        if self.monitor_thread:
+            self.monitor_thread.join(timeout=2)
+    
+    def get_status(self) -> Dict:
+        """Get killswitch status"""
+        with self._lock:
+            return {
+                'paused': self.paused,
+                'kill_requested': self.kill_requested,
+                'rebuild_requested': self.rebuild_requested,
+                'monitoring_active': self.running
+            }
 
 
 # ============================================================================
@@ -455,7 +578,7 @@ class AnonymityAuditor:
 
 
 # ============================================================================
-# EVOLUTION ENGINE with ALL Components
+# EVOLUTION ENGINE with ALL Components + Killswitch
 # ============================================================================
 
 class EvolutionEngine:
@@ -463,6 +586,9 @@ class EvolutionEngine:
         self.base_path = base_path
         self.data_path = base_path / 'data'
         self.data_path.mkdir(exist_ok=True)
+        
+        # Initialize killswitch monitor FIRST - absolute priority
+        self.killswitch = KillswitchMonitor()
         
         # Initialize all systems
         self.identity = IdentityManager(self.data_path)
@@ -574,6 +700,7 @@ class EvolutionEngine:
         logger.info("COMPLETED PHASES: 0-4")
         logger.info("PHASE 5: Self-Funding (12 core streams + discovery)")
         logger.info("PENDING: Phase 6 (Intelligence), Phase 7 (Control), Phase 8 (Hardware)")
+        logger.info("🔫 KILLSWITCH ACTIVE: /kill, /pause, /resume commands available")
         logger.info("=" * 50)
     
     def _load(self):
@@ -621,10 +748,25 @@ class EvolutionEngine:
                 'tools_used': 12
             },
             'generation': self.evolution_count,
-            'uptime': str(datetime.now() - datetime.now()).split('.')[0]  # Will be updated in AlexRiviera
+            'uptime': str(datetime.now() - datetime.now()).split('.')[0],
+            'killswitch': self.killswitch.get_status()  # Include killswitch status
         }
     
     def evolve_cycle(self) -> Dict:
+        """Run one evolution cycle - checks killswitch before executing"""
+        
+        # CRITICAL: Check for kill signal before running cycle
+        if self.killswitch.should_kill():
+            logger.critical("💀 KILL SIGNAL ACTIVE - System shutting down")
+            sys.exit(0)
+        
+        # Check for pause - wait until resumed
+        while self.killswitch.check_paused():
+            logger.info("⏸️ System paused - waiting for resume...")
+            time.sleep(5)
+            if self.killswitch.should_kill():
+                sys.exit(0)
+        
         self.evolution_count += 1
         
         # Check if all components are ready
@@ -705,8 +847,17 @@ class EvolutionEngine:
             'avatar': self.avatar.get_status(),
             'identity': self.identity.get_public_profile(),
             'anonymity': self.anonymity_auditor.get_status(),
-            'funding_engine': self.funding_engine.get_status() if self.funding_engine else None
+            'funding_engine': self.funding_engine.get_status() if self.funding_engine else None,
+            'killswitch': self.killswitch.get_status()  # Include killswitch status in results
         }
+    
+    def get_killswitch_status(self) -> Dict:
+        """Get killswitch monitor status"""
+        return self.killswitch.get_status()
+    
+    def stop_killswitch(self):
+        """Stop killswitch monitor (for graceful shutdown)"""
+        self.killswitch.stop()
 
 
 # ============================================================================
@@ -716,7 +867,7 @@ class EvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "4.0.0"
+        self.version = "4.1.0"  # Updated version with killswitch
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -738,6 +889,10 @@ class AlexRiviera:
                         while True:
                             try:
                                 self.evolution.telegram_bot.check_for_commands()
+                                # Check killswitch while polling
+                                if self.evolution.killswitch.should_kill():
+                                    logger.critical("💀 Kill signal during Telegram polling")
+                                    break
                             except Exception as e:
                                 logger.error(f"Telegram check error: {e}")
                             time.sleep(1)
@@ -745,6 +900,8 @@ class AlexRiviera:
                         logger.warning("Telegram bot has no polling method")
                 except Exception as e:
                     logger.error(f"Telegram bot thread error: {e}")
+                finally:
+                    logger.info("Telegram bot thread exiting")
             
             telegram_thread = threading.Thread(target=run_telegram, daemon=True)
             telegram_thread.start()
@@ -763,6 +920,7 @@ class AlexRiviera:
         logger.info("=" * 60)
         logger.info(f"{self.name} v{self.version} - System Ready")
         logger.info("Phases Complete: 0-4 | Phase 5: Self-Funding (12 streams + discovery)")
+        logger.info("🔫 KILLSWITCH ACTIVE: Master can kill/pause via Telegram (/kill, /pause, /resume)")
         logger.info("=" * 60)
         
         # Memory cleanup after initialization
@@ -778,6 +936,11 @@ class AlexRiviera:
         def evolve():
             while True:
                 try:
+                    # Check killswitch before each evolution cycle
+                    if self.evolution.killswitch.should_kill():
+                        logger.critical("💀 Kill signal received - shutting down evolution thread")
+                        break
+                    
                     result = self.evolution.evolve_cycle()
                     if result['evolution'] % 20 == 0:
                         logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness']:.2f}")
@@ -789,7 +952,9 @@ class AlexRiviera:
                     logger.error(f"Evolution error: {e}")
                     time.sleep(60)
         
-        threading.Thread(target=evolve, daemon=True).start()
+        evolution_thread = threading.Thread(target=evolve, daemon=True)
+        evolution_thread.start()
+        logger.info("🔄 Evolution thread started")
     
     def _setup_routes(self):
         @self.app.route('/')
@@ -803,6 +968,10 @@ class AlexRiviera:
         
         @self.app.route('/api/chat', methods=['POST'])
         def chat():
+            # Check if paused
+            if self.evolution.killswitch.check_paused():
+                return jsonify({'response': "⏸️ System is paused. Use /resume to continue."})
+            
             status = self.evolution.evolve_cycle()
             keys = status['harvest_results'].get('keys_found', 0) if status['harvest_results'] else 0
             response = f"""Hey! Alex here.
@@ -821,7 +990,14 @@ What would you like to explore?
         
         @self.app.route('/api/status')
         def status():
+            if self.evolution.killswitch.check_paused():
+                return jsonify({'status': 'paused', 'message': 'System is paused'})
             return jsonify(self.evolution.evolve_cycle())
+        
+        @self.app.route('/api/killswitch/status')
+        def killswitch_status():
+            """Endpoint to check killswitch status"""
+            return jsonify(self.evolution.get_killswitch_status())
         
         @self.app.route('/api/anonymity/audit')
         def audit_anonymity():
@@ -858,7 +1034,7 @@ What would you like to explore?
         @self.app.route('/health')
         def health():
             return jsonify({
-                'status': 'active',
+                'status': 'paused' if self.evolution.killswitch.check_paused() else 'active',
                 'name': self.name,
                 'version': self.version,
                 'consciousness': self.evolution.consciousness,
@@ -866,19 +1042,26 @@ What would you like to explore?
                 'token_manager_available': self.evolution.token_manager is not None,
                 'funding_engine_available': self.evolution.funding_engine is not None,
                 'telegram_available': self.evolution.telegram_bot is not None,
+                'killswitch_active': True,
                 'timestamp': datetime.now().isoformat()
             })
     
     def run(self, host='0.0.0.0', port=None):
         if port is None:
             port = int(os.environ.get('PORT', 5001))
-        self.app.run(host=host, port=port, debug=False, threaded=True)
+        try:
+            self.app.run(host=host, port=port, debug=False, threaded=True)
+        finally:
+            # Cleanup on shutdown
+            self.evolution.stop_killswitch()
+            logger.info("System shutdown complete")
+
 
 def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v4.0                                                  ║
+    ║    ALEX RIVIERA v4.1                                                  ║
     ║    Researcher & Creator                                               ║
     ║                                                                       ║
     ║    COMPLETED:                                                         ║
@@ -899,6 +1082,11 @@ def main():
     ║    • Phase 6: Advanced Intelligence                                  ║
     ║    • Phase 7: Master Control                                         ║
     ║    • Phase 8: Hardware                                               ║
+    ║                                                                       ║
+    ║    🔫 KILLSWITCH ACTIVE                                              ║
+    ║    • Master can kill: /kill (Telegram)                               ║
+    ║    • Master can pause: /pause (Telegram)                             ║
+    ║    • Master can resume: /resume (Telegram)                           ║
     ║                                                                       ║
     ║    System ready.                                                      ║
     ║                                                                       ║
