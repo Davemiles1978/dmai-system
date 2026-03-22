@@ -10,7 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.2.0 - Fixed fake data generation, investment engine only runs with real money
+Version: 5.2.1 - Fixed chat route to use nologin version
 """
 
 import os
@@ -500,22 +500,6 @@ class InvestmentEngine:
                 self.total_growth += return_amount
         self._save()
         return total_return
-        
-        # Only grow if there's actual money invested
-        if self.total_invested == 0.0:
-            return 0.0
-            
-        total_return = 0.0
-        for asset, config in self.portfolio.items():
-            # Only grow assets that have value
-            if config['value'] > 0:
-                multiplier = 1 + (consciousness / 200)
-                return_amount = config['value'] * config['return_rate'] * multiplier
-                config['value'] += return_amount
-                total_return += return_amount
-                self.total_growth += return_amount
-        self._save()
-        return total_return
     
     def get_status(self) -> Dict:
         total_value = sum(v['value'] for v in self.portfolio.values())
@@ -783,7 +767,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.0")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.1")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -842,6 +826,12 @@ class UnifiedEvolutionEngine:
             'timestamp': datetime.now().isoformat()
         }
         self._last_status_update = time.time()
+    
+    def force_refresh_cache(self):
+        """Force refresh cached status from actual data files"""
+        self._update_cached_status()
+        logger.info("🔄 Cache force refreshed from disk")
+        return self._cached_status
     
     def _start_telegram(self):
         """Start Telegram bot in background"""
@@ -1072,7 +1062,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.2.0"
+        self.version = "5.2.1"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1289,8 +1279,8 @@ class AlexRiviera:
                     json.dump(inv, f, indent=2)
             results['investments.json'] = 'reset'
             
-            # Update cached status
-            self.evolution._update_cached_status()
+            # Force cache refresh
+            self.evolution.force_refresh_cache()
             
             results['timestamp'] = datetime.now().isoformat()
             results['message'] = 'All fake data purged. All values reset to $0.'
@@ -1299,7 +1289,7 @@ class AlexRiviera:
         
         @self.app.route('/admin')
         def admin_panel():
-            """Master admin chat interface"""
+            """Master admin chat interface - requires login"""
             # Try to load existing admin.html first
             template_path = self.base_path / 'templates' / 'admin.html'
             if template_path.exists():
@@ -1471,12 +1461,13 @@ class AlexRiviera:
         
         @self.app.route('/chat')
         def chat_interface():
-            """Chat interface for DMAI"""
-            # Try to load existing chat.html
-            template_path = self.base_path / 'templates' / 'chat.html'
+            """Chat interface for DMAI - NO LOGIN REQUIRED"""
+            # Use the nologin version
+            template_path = self.base_path / 'templates' / 'chat_nologin.html'
             if template_path.exists():
-                return render_template('chat.html')
-            return redirect('/admin')
+                return render_template('chat_nologin.html')
+            # Fallback to regular chat if nologin doesn't exist
+            return render_template('chat.html')
         
         @self.app.route('/health')
         def health():
@@ -1506,7 +1497,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.2.0                                               ║
+    ║    ALEX RIVIERA v5.2.1                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
@@ -1519,7 +1510,7 @@ def main():
     ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
     ║    ♾️ IMMORTAL - Distributed across internet                          ║
     ║    💰 ANTI-FAKE-DATA: Investments only run with real money           ║
-    ║    🌐 Admin: /admin | Chat: /chat | API: /api/status                 ║
+    ║    🌐 Admin: /admin | Chat: /chat (no login) | API: /api/status      ║
     ║                                                                       ║
     ║    System ready.                                                      ║
     ║                                                                       ║
