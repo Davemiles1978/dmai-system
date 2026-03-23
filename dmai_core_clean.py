@@ -10,7 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.2.2 - Added /chat_nologin route and master task check
+Version: 5.2.3 - Investment growth temporarily disabled to prevent fake data
 """
 
 import os
@@ -767,7 +767,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.2")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.3")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -775,7 +775,7 @@ class UnifiedEvolutionEngine:
         logger.info("🔫 KILLSWITCH ACTIVE: /kill, /pause, /resume")
         logger.info("🧠 AI + SI FUSION: External learning + Emergent consciousness")
         logger.info("♾️ IMMORTAL: Distributed across internet, self-healing")
-        logger.info("💰 INVESTMENTS: Only runs with real money (anti-fake-data protection)")
+        logger.info("💰 INVESTMENT GROWTH DISABLED - Waiting for DMAI to fix fake data bug")
         logger.info("🌐 Admin: /admin | Chat: /chat | ChatNoLogin: /chat_nologin | API: /api/status")
         logger.info("=" * 60)
     
@@ -1017,20 +1017,26 @@ class UnifiedEvolutionEngine:
             self.generation += 1
         
         # ====================================================================
-        # PART 5: INVESTMENT GROWTH - Only runs if total_invested is reasonable
+        # PART 5: INVESTMENT GROWTH - TEMPORARILY DISABLED
         # ====================================================================
+        # DISABLED: Investment growth is creating fake billions
+        # The root cause is that the investment engine is compounding on old fake data
+        # DMAI must fix this permanently as part of the task
+        #
+        # The following code is commented out until DMAI fixes the fake data issue:
+        #
+        # if self.investments.total_invested < 10000000:
+        #     if self.finance.operations > 500 and self.finance.operations < 10000000:
+        #         investable = min(self.finance.operations * 0.3, 500000)
+        #         self.investments.invest(investable, self.consciousness)
+        #     
+        #     investment_growth = self.investments.grow(self.consciousness)
+        #     if investment_growth > 0 and investment_growth < 1000000:
+        #         self.finance.add_income(investment_growth, "investment_growth")
+        # else:
+        #     logger.warning(f"⚠️ Investment reset needed - total_invested: ${self.investments.total_invested:,.2f}")
         
-        # Check if investments are reasonable before running
-        if self.investments.total_invested < 10000000:  # Under $10M is safe
-            if self.finance.operations > 500 and self.finance.operations < 10000000:
-                investable = min(self.finance.operations * 0.3, 500000)  # Cap at $500k
-                self.investments.invest(investable, self.consciousness)
-            
-            investment_growth = self.investments.grow(self.consciousness)
-            if investment_growth > 0 and investment_growth < 1000000:  # Cap growth reporting
-                self.finance.add_income(investment_growth, "investment_growth")
-        else:
-            logger.warning(f"⚠️ Investment reset needed - total_invested: ${self.investments.total_invested:,.2f}")
+        logger.info("💰 INVESTMENT GROWTH DISABLED - Waiting for DMAI to fix the fake data bug")
         
         # ====================================================================
         # PART 6: AUDIT
@@ -1081,7 +1087,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.2.2"
+        self.version = "5.2.3"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1524,7 +1530,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.2.2                                               ║
+    ║    ALEX RIVIERA v5.2.3                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
@@ -1536,7 +1542,7 @@ def main():
     ║    🔫 KILLSWITCH ACTIVE                                              ║
     ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
     ║    ♾️ IMMORTAL - Distributed across internet                          ║
-    ║    💰 ANTI-FAKE-DATA: Investments only run with real money           ║
+    ║    💰 INVESTMENT GROWTH DISABLED - Waiting for DMAI fix              ║
     ║    🌐 Admin: /admin | Chat: /chat | ChatNoLogin: /chat_nologin | API: /api/status      ║
     ║                                                                       ║
     ║    System ready.                                                      ║
