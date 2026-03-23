@@ -40,7 +40,6 @@ class GitHubStarMonitor:
                     return json.load(f)
             except Exception as e:
                 logger.error(f"Failed to load processed stars: {e}")
-                pass
         return {"processed": [], "last_check": None}
     
     def _save_processed(self):
@@ -68,18 +67,25 @@ class GitHubStarMonitor:
                 
                 if response.status_code != 200:
                     logger.error(f"Failed to fetch stars: {response.status_code}")
-                    break
+                    return []  # Return empty list on error
                 
                 data = response.json()
+                if data is None:
+                    logger.warning("GitHub API returned None")
+                    return []
+                
                 if not data:
                     break
                 
                 repos.extend(data)
                 page += 1
                 
+            except requests.exceptions.Timeout:
+                logger.error("GitHub API timeout")
+                return []
             except Exception as e:
                 logger.error(f"Error fetching stars: {e}")
-                break
+                return []
         
         return repos
     
@@ -228,6 +234,12 @@ class GitHubStarMonitor:
                 # Fetch current stars
                 repos = self.fetch_starred_repos()
                 
+                # Check if repos is valid
+                if repos is None:
+                    logger.warning("GitHub API returned None, waiting before retry")
+                    time.sleep(300)  # Wait 5 minutes on error
+                    continue
+                
                 if repos:
                     # Check for new repos
                     processed_names = [p["name"] for p in self.processed["processed"]]
@@ -237,7 +249,7 @@ class GitHubStarMonitor:
                         if name not in processed_names:
                             self.process_repo(repo)
                 else:
-                    logger.debug("No repos fetched or GitHub API error")
+                    logger.debug("No repos fetched from GitHub")
                 
                 # Wait for next check
                 for _ in range(self.check_interval):
