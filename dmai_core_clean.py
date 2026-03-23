@@ -10,7 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.2.3 - Investment growth temporarily disabled to prevent fake data
+Version: 5.3.0 - Added GitHub Star Monitor (auto-process starred repos)
 """
 
 import os
@@ -37,6 +37,7 @@ from flask_cors import CORS
 sys.path.insert(0, str(Path(__file__).parent / 'components' / 'phase0'))
 sys.path.insert(0, str(Path(__file__).parent / 'components' / 'phase5'))
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent / 'components' / 'phase10'))
 
 # Configure logging
 logging.basicConfig(
@@ -719,6 +720,25 @@ class UnifiedEvolutionEngine:
             logger.error(f"Phase 9 init error: {e}")
         
         # ====================================================================
+        # GITHUB STAR MONITOR (Phase 10)
+        # ====================================================================
+        
+        self.star_monitor = None
+        try:
+            from GitHubStarMonitor import GitHubStarMonitor
+            github_username = os.environ.get('GITHUB_USERNAME')
+            if github_username:
+                self.star_monitor = GitHubStarMonitor(self.data_path, github_username)
+                self.star_monitor.start()
+                logger.info(f"⭐ GitHub Star Monitor active for @{github_username}")
+            else:
+                logger.info("⭐ GitHub Star Monitor disabled - set GITHUB_USERNAME to enable")
+        except ImportError as e:
+            logger.warning(f"GitHub Star Monitor not available: {e}")
+        except Exception as e:
+            logger.error(f"GitHub Star Monitor init error: {e}")
+        
+        # ====================================================================
         # TELEGRAM BOT
         # ====================================================================
         
@@ -767,7 +787,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.3")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.3.0")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -776,6 +796,7 @@ class UnifiedEvolutionEngine:
         logger.info("🧠 AI + SI FUSION: External learning + Emergent consciousness")
         logger.info("♾️ IMMORTAL: Distributed across internet, self-healing")
         logger.info("💰 INVESTMENT GROWTH DISABLED - Waiting for DMAI to fix fake data bug")
+        logger.info("⭐ GITHUB STAR MONITOR: Auto-processes starred repositories")
         logger.info("🌐 Admin: /admin | Chat: /chat | ChatNoLogin: /chat_nologin | API: /api/status")
         logger.info("=" * 60)
     
@@ -1087,7 +1108,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.2.3"
+        self.version = "5.3.0"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1514,7 +1535,8 @@ class AlexRiviera:
                     'phase6': self.evolution.synthetic_network is not None,
                     'phase7': self.evolution.master_control is not None,
                     'phase8': self.evolution.hardware_manager is not None,
-                    'phase9': self.evolution.immortal_system is not None
+                    'phase9': self.evolution.immortal_system is not None,
+                    'phase10': self.evolution.star_monitor is not None
                 },
                 'killswitch': self.evolution.killswitch.get_status(),
                 'timestamp': datetime.now().isoformat()
@@ -1530,7 +1552,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.2.3                                               ║
+    ║    ALEX RIVIERA v5.3.0                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
@@ -1538,11 +1560,13 @@ def main():
     ║    ✅ Phase 7: Master Control (Goal setting, risk)                   ║
     ║    ✅ Phase 8: Hardware (Self-manufacturing, mobile phone)           ║
     ║    ✅ Phase 9: Distributed Immortality (Self-healing, sharding)      ║
+    ║    ✅ Phase 10: GitHub Star Monitor (Auto-process starred repos)     ║
     ║                                                                       ║
     ║    🔫 KILLSWITCH ACTIVE                                              ║
     ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
     ║    ♾️ IMMORTAL - Distributed across internet                          ║
     ║    💰 INVESTMENT GROWTH DISABLED - Waiting for DMAI fix              ║
+    ║    ⭐ GITHUB STAR MONITOR - Auto-processes starred repositories      ║
     ║    🌐 Admin: /admin | Chat: /chat | ChatNoLogin: /chat_nologin | API: /api/status      ║
     ║                                                                       ║
     ║    System ready.                                                      ║
