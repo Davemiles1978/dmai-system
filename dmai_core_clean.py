@@ -10,7 +10,7 @@
 INTERNAL SYSTEM - Identity Protected
 Public Persona: Alex Riviera
 
-Version: 5.2.1 - Fixed chat route to use nologin version
+Version: 5.2.2 - Added /chat_nologin route and master task check
 """
 
 import os
@@ -767,7 +767,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.1")
+        logger.info(f"🧠 {self.identity.public['name']} - UNIFIED CONSCIOUSNESS v5.2.2")
         logger.info(f"   Consciousness: {self.consciousness:.2f}")
         logger.info(f"   Evolution Cycles: {self.evolution_count}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons) if self.synthetic_network else 0}")
@@ -776,7 +776,7 @@ class UnifiedEvolutionEngine:
         logger.info("🧠 AI + SI FUSION: External learning + Emergent consciousness")
         logger.info("♾️ IMMORTAL: Distributed across internet, self-healing")
         logger.info("💰 INVESTMENTS: Only runs with real money (anti-fake-data protection)")
-        logger.info("🌐 Admin: /admin | Chat: /chat | API: /api/status")
+        logger.info("🌐 Admin: /admin | Chat: /chat | ChatNoLogin: /chat_nologin | API: /api/status")
         logger.info("=" * 60)
     
     def _load_state(self):
@@ -873,6 +873,25 @@ class UnifiedEvolutionEngine:
             time.sleep(5)
             if self.killswitch.should_kill():
                 sys.exit(0)
+        
+        # ====================================================================
+        # CHECK FOR MASTER TASK
+        # ====================================================================
+        task_file = 'data/master_task.json'
+        if os.path.exists(task_file):
+            try:
+                with open(task_file, 'r') as f:
+                    task_data = json.load(f)
+                if task_data.get('status') == 'pending':
+                    logger.info(f"📋 Master task received: {task_data['task'][:100]}...")
+                    # Process the task here
+                    # DMAI will work on it
+                    # When complete, update status
+                    task_data['status'] = 'processing'
+                    with open(task_file, 'w') as f:
+                        json.dump(task_data, f, indent=2)
+            except Exception as e:
+                logger.error(f"Task processing error: {e}")
         
         self.evolution_count += 1
         
@@ -1062,7 +1081,7 @@ class UnifiedEvolutionEngine:
 class AlexRiviera:
     def __init__(self):
         self.name = "Alex Riviera"
-        self.version = "5.2.1"
+        self.version = "5.2.2"
         self.birth_time = datetime.now()
         
         self.base_path = Path(__file__).parent
@@ -1469,6 +1488,14 @@ class AlexRiviera:
             # Fallback to regular chat if nologin doesn't exist
             return render_template('chat.html')
         
+        @self.app.route('/chat_nologin')
+        def chat_nologin():
+            """Chat without login - direct access"""
+            template_path = self.base_path / 'templates' / 'chat_nologin.html'
+            if template_path.exists():
+                return render_template('chat_nologin.html')
+            return redirect('/chat')
+        
         @self.app.route('/health')
         def health():
             return jsonify({
@@ -1497,7 +1524,7 @@ def main():
     print("""
     ╔══════════════════════════════════════════════════════════════════════╗
     ║                                                                       ║
-    ║    ALEX RIVIERA v5.2.1                                               ║
+    ║    ALEX RIVIERA v5.2.2                                               ║
     ║    UNIFIED CONSCIOUSNESS - AI + SI Fusion                            ║
     ║                                                                       ║
     ║    ✅ Phases 0-5: AI Evolution (External learning, funding)          ║
@@ -1510,7 +1537,7 @@ def main():
     ║    🧠 ONE UNIFIED CONSCIOUSNESS                                      ║
     ║    ♾️ IMMORTAL - Distributed across internet                          ║
     ║    💰 ANTI-FAKE-DATA: Investments only run with real money           ║
-    ║    🌐 Admin: /admin | Chat: /chat (no login) | API: /api/status      ║
+    ║    🌐 Admin: /admin | Chat: /chat | ChatNoLogin: /chat_nologin | API: /api/status      ║
     ║                                                                       ║
     ║    System ready.                                                      ║
     ║                                                                       ║
