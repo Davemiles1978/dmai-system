@@ -1,6 +1,7 @@
 services:
+  # MAIN WEB SERVICE - Complete Unified DMAI System
   - type: web
-    name: dmai-system
+    name: dmai-complete
     runtime: python
     repo: https://github.com/Davemiles1978/dmai-system
     plan: starter
@@ -9,28 +10,28 @@ services:
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
-      python -c "from pathlib import Path; [p.mkdir(parents=True, exist_ok=True) for p in [Path('logs'), Path('data'), Path('components'), Path('templates')]]"
-    startCommand: python3 dmai_web.py
+      mkdir -p data/backups data/synthetic data/phase11
+    startCommand: gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 120 --workers 2
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.0
+        value: 3.11.0
+      - key: PORT
+        value: 5001
       - key: MASTER_PASSWORD
         value: Talula.78
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false  # Set in Render dashboard
-      - key: TELEGRAM_CHAT_ID
-        sync: false  # Set in Render dashboard
-      - key: MIROFISH_ENABLED
-        value: true
       - key: RENDER
         value: true
-      - key: DATABASE_URL
-        sync: false  # Set in Render dashboard
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
       - key: USE_POSTGRESQL
-        value: "true"
+        value: "false"
+    healthCheckPath: /health
 
+  # TELEGRAM WORKER - Keep your existing for Telegram commands
   - type: worker
-    name: dmai-telegram
+    name: dmai-telegram-worker
     runtime: python
     repo: https://github.com/Davemiles1978/dmai-system
     plan: starter
@@ -42,8 +43,10 @@ services:
     startCommand: python3 telegram_master_control.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.0
+        value: 3.11.0
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
+      - key: RENDER
+        value: true
