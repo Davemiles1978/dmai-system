@@ -5,8 +5,12 @@ import json
 import requests
 import time
 import threading
+import logging
 from datetime import datetime
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
 
 class GitHubStarMonitor:
     """
@@ -14,10 +18,10 @@ class GitHubStarMonitor:
     """
     
     def __init__(self, data_path: Path, github_username: str, github_token: str = None):
-        self.data_path = data_path
+        self.data_path = Path(data_path)  # Ensure it's a Path object
         self.github_username = github_username
         self.github_token = github_token or os.environ.get('GITHUB_TOKEN')
-        self.processed_file = data_path / 'github_processed_stars.json'
+        self.processed_file = self.data_path / 'github_processed_stars.json'
         self.processed = self._load_processed()
         self.monitoring = False
         self.check_interval = 86400  # Check every 24 hours
@@ -34,14 +38,18 @@ class GitHubStarMonitor:
             try:
                 with open(self.processed_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                logger.error(f"Failed to load processed stars: {e}")
                 pass
         return {"processed": [], "last_check": None}
     
     def _save_processed(self):
         """Save processed repos list"""
-        with open(self.processed_file, 'w') as f:
-            json.dump(self.processed, f, indent=2)
+        try:
+            with open(self.processed_file, 'w') as f:
+                json.dump(self.processed, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save processed stars: {e}")
     
     def fetch_starred_repos(self):
         """Fetch all starred repositories"""
@@ -50,22 +58,28 @@ class GitHubStarMonitor:
         page = 1
         
         while True:
-            response = requests.get(
-                url,
-                headers=self.headers,
-                params={'page': page, 'per_page': 100}
-            )
-            
-            if response.status_code != 200:
-                logger.error(f"Failed to fetch stars: {response.status_code}")
+            try:
+                response = requests.get(
+                    url,
+                    headers=self.headers,
+                    params={'page': page, 'per_page': 100},
+                    timeout=30
+                )
+                
+                if response.status_code != 200:
+                    logger.error(f"Failed to fetch stars: {response.status_code}")
+                    break
+                
+                data = response.json()
+                if not data:
+                    break
+                
+                repos.extend(data)
+                page += 1
+                
+            except Exception as e:
+                logger.error(f"Error fetching stars: {e}")
                 break
-            
-            data = response.json()
-            if not data:
-                break
-            
-            repos.extend(data)
-            page += 1
         
         return repos
     
@@ -162,8 +176,11 @@ class GitHubStarMonitor:
             "status": "pending"
         }
         
-        with open(task_file, 'w') as f:
-            json.dump(task_data, f, indent=2)
+        try:
+            with open(task_file, 'w') as f:
+                json.dump(task_data, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save github task: {e}")
         
         # Also log to master task
         self._add_to_master_task(name, analysis)
@@ -198,8 +215,9 @@ class GitHubStarMonitor:
                 
                 with open(task_file, 'w') as f:
                     json.dump(master_task, f, indent=2)
-            except:
-                pass
+                    
+            except Exception as e:
+                logger.error(f"Failed to add to master task: {e}")
     
     def run_monitor(self):
         """Main monitoring loop"""
@@ -210,16 +228,23 @@ class GitHubStarMonitor:
                 # Fetch current stars
                 repos = self.fetch_starred_repos()
                 
-                # Check for new repos
-                processed_names = [p["name"] for p in self.processed["processed"]]
+                if repos:
+                    # Check for new repos
+                    processed_names = [p["name"] for p in self.processed["processed"]]
+                    
+                    for repo in repos:
+                        name = repo.get('full_name')
+                        if name not in processed_names:
+                            self.process_repo(repo)
+                else:
+                    logger.debug("No repos fetched or GitHub API error")
                 
-                for repo in repos:
-                    name = repo.get('full_name')
-                    if name not in processed_names:
-                        self.process_repo(repo)
-                
-                time.sleep(self.check_interval)
-                
+                # Wait for next check
+                for _ in range(self.check_interval):
+                    if not self.monitoring:
+                        break
+                    time.sleep(1)
+                    
             except Exception as e:
                 logger.error(f"Star monitor error: {e}")
                 time.sleep(60)
@@ -233,3 +258,4 @@ class GitHubStarMonitor:
     def stop(self):
         """Stop monitoring"""
         self.monitoring = False
+        logger.info("⭐ GitHub Star Monitor stopped")
