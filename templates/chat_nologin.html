@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧬 DMAI Chat Interface</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .chat-header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        .chat-header .status {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message.user {
+            align-items: flex-end;
+        }
+        .message.dmai {
+            align-items: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        .user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .dmai .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .message-time {
+            font-size: 0.7em;
+            color: #999;
+            margin-top: 5px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-area input:focus {
+            border-color: #667eea;
+        }
+        .input-area button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        .input-area button:hover {
+            background: #5a67d8;
+        }
+        .voice-btn {
+            background: #48bb78 !important;
+            padding: 12px 15px !important;
+            font-size: 1.2em !important;
+        }
+        .voice-btn:hover {
+            background: #38a169 !important;
+        }
+        .voice-btn.listening {
+            background: #e53e3e !important;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .login-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+        .login-box h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+        }
+        .login-box input:focus {
+            border-color: #667eea;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .login-box button:hover {
+            background: #5a67d8;
+        }
+        .error {
+            color: #e53e3e;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.2);
+            font-size: 0.8em;
+            transition: background 0.3s;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .voice-status {
+            font-size: 0.8em;
+            color: #48bb78;
+            margin-left: 10px;
+            text-align: center;
+            padding: 5px;
+        }
+        .admin-dashboard {
+            padding: 20px;
+            background: #f9f9f9;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .admin-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .admin-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .stat-item {
+            background: #f0f4ff;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .admin-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .admin-btn:hover {
+            background: #5a67d8;
+        }
+        .admin-btn.secondary {
+            background: #48bb78;
+        }
+        .admin-btn.warning {
+            background: #e53e3e;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .component-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .component-item {
+            padding: 5px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+        .component-item:last-child {
+            border-bottom: none;
+        }
+        .health-badge {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .health-good { background: #48bb78; }
+        .health-fair { background: #fbbf24; }
+        .health-poor { background: #e53e3e; }
+    </style>
+</head>
+<body>
+
+<script>
+// ============================================
+// GLOBAL VARIABLES
+// ============================================
+let generation = {{ generation }};
+let isListening = false;
+let recognition = null;
+let voiceEnabled = false;
+let adminMode = {{ 'true' if admin_mode else 'false' }};
+let refreshInterval = null;
+
+// ============================================
+// VOICE RECOGNITION SETUP
+// ============================================
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = function() {
+        isListening = true;
+        updateVoiceUI(true);
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = '🎤 Listening... Speak now';
+    };
+    
+    recognition.onend = function() {
+        isListening = false;
+        updateVoiceUI(false);
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) {
+            statusEl.textContent = voiceEnabled ? 'Voice ready - click 🎤 to speak' : '';
+        }
+    };
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('message-input');
+        if (input) {
+            input.value = transcript;
+            sendMessage();
+        }
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Voice error:', event.error);
+        isListening = false;
+        updateVoiceUI(false);
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = '❌ Voice error: ' + event.error;
+    };
+} else {
+    console.log('Voice recognition not supported');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const voiceToggle = document.getElementById('voiceToggleBtn');
+    const adminVoice = document.getElementById('adminVoiceToggle');
+    if (voiceBtn) voiceBtn.style.display = 'none';
+    if (voiceToggle) voiceToggle.style.display = 'none';
+    if (adminVoice) adminVoice.style.display = 'none';
+}
+
+function updateVoiceUI(listening) {
+    const voiceBtn = document.getElementById('voiceBtn');
+    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+    const adminVoice = document.getElementById('adminVoiceToggle');
+    
+    if (listening) {
+        if (voiceBtn) {
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '⏹️';
+        }
+        if (voiceToggleBtn) voiceToggleBtn.textContent = '🎤 Listening...';
+        if (adminVoice) adminVoice.textContent = '🎤 Listening...';
+    } else {
+        if (voiceBtn) {
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '🎤';
+        }
+        const status = voiceEnabled ? '🎤 Voice On' : '🎤 Voice Off';
+        if (voiceToggleBtn) voiceToggleBtn.textContent = status;
+        if (adminVoice) adminVoice.textContent = status;
+    }
+}
+
+function toggleVoice() {
+    if (!recognition) {
+        alert('Voice recognition not supported in your browser.');
+        return;
+    }
+    
+    voiceEnabled = !voiceEnabled;
+    
+    if (voiceEnabled) {
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = 'Voice ready - click 🎤 to speak';
+        const voiceToggle = document.getElementById('voiceToggleBtn');
+        const adminVoice = document.getElementById('adminVoiceToggle');
+        if (voiceToggle) voiceToggle.textContent = '🎤 Voice On';
+        if (adminVoice) adminVoice.textContent = '🎤 Voice On';
+    } else {
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = '';
+        const voiceToggle = document.getElementById('voiceToggleBtn');
+        const adminVoice = document.getElementById('adminVoiceToggle');
+        if (voiceToggle) voiceToggle.textContent = '🎤 Voice Off';
+        if (adminVoice) adminVoice.textContent = '🎤 Voice Off';
+        if (isListening) {
+            recognition.stop();
+        }
+    }
+}
+
+// ============================================
+// CHAT FUNCTIONS
+// ============================================
+function sendMessage() {
+    const input = document.getElementById('message-input');
+    if (!input) return;
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addMessage('user', message);
+    input.value = '';
+    
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+    })
+    .then(res => res.json())
+    .then(data => {
+        let responseText = data.response;
+        if (typeof responseText === 'object') {
+            responseText = JSON.stringify(responseText, null, 2);
+        }
+        addMessage('dmai', responseText);
+        if (data.generation) {
+            generation = data.generation;
+            const genSpan = document.getElementById('generation');
+            if (genSpan) genSpan.textContent = generation;
+        }
+    })
+    .catch(err => {
+        addMessage('dmai', 'Sorry, I encountered an error.');
+        console.error(err);
+    });
+}
+
+function addMessage(sender, text) {
+    const messages = document.getElementById('messages');
+    if (!messages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = text;
+    
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'message-time';
+    timeDiv.textContent = new Date().toLocaleTimeString();
+    
+    messageDiv.appendChild(contentDiv);
+    messageDiv.appendChild(timeDiv);
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// ============================================
+// AUTHENTICATION FUNCTIONS
+// ============================================
+function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    fetch('/api/auth', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                location.reload();
+            }
+        } else {
+            const errorDiv = document.getElementById('error');
+            if (errorDiv) errorDiv.textContent = data.error || 'Login failed';
+        }
+    })
+    .catch(err => {
+        const errorDiv = document.getElementById('error');
+        if (errorDiv) errorDiv.textContent = 'Connection error';
+        console.error(err);
+    });
+}
+
+function logout() {
+    fetch('/api/logout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(() => {
+        window.location.href = '/';
+    })
+    .catch(err => {
+        console.error('Logout error:', err);
+        window.location.href = '/';
+    });
+}
+
+// ============================================
+// ADMIN DASHBOARD FUNCTIONS - REAL DATA ONLY
+// ============================================
+function loadAdminData() {
+    fetch('/api/status')
+        .then(res => res.json())
+        .then(data => {
+            // Update basic stats
+            document.getElementById('stat-generation').textContent = data.generation || '72';
+            document.getElementById('stat-components').textContent = data.components?.total || '0';
+            document.getElementById('stat-healthy').textContent = data.components?.healthy || '0';
+            document.getElementById('stat-needs-work').textContent = data.components?.needs_evolution || '0';
+            
+            // Calculate health percentage from real data
+            const total = data.components?.total || 0;
+            const healthy = data.components?.healthy || 0;
+            let healthPct = 0;
+            if (total > 0) {
+                healthPct = ((healthy / total) * 100).toFixed(1);
+            }
+            
+            document.getElementById('stat-health').textContent = healthPct + '%';
+            document.getElementById('stat-funding').textContent = '$' + (data.metrics?.funding_generated || 0).toFixed(2);
+            document.getElementById('stat-queue').textContent = data.components?.evolution_queue_size || '0';
+            document.getElementById('stat-evolutions').textContent = data.metrics?.evolutions || '0';
+            
+            // Update progress bar
+            const progressBar = document.getElementById('health-progress');
+            if (progressBar) {
+                progressBar.style.width = Math.min(100, Math.max(0, healthPct)) + '%';
+            }
+            
+            // Update health status text
+            const healthText = document.getElementById('health-status-text');
+            if (healthText) {
+                if (healthPct >= 95) healthText.textContent = '🌟 Excellent - All systems optimal';
+                else if (healthPct >= 75) healthText.textContent = '✅ Good - Most components healthy';
+                else if (healthPct >= 50) healthText.textContent = '⚠️ Fair - Some components need work';
+                else if (healthPct >= 25) healthText.textContent = '🔴 Poor - Many components need evolution';
+                else healthText.textContent = '💀 Critical - System needs immediate attention';
+            }
+            
+            // Phase breakdown
+            const phases = data.components?.by_phase || {};
+            let phaseHtml = '';
+            for (const [phase, count] of Object.entries(phases)) {
+                phaseHtml += `
+                    <div class="stat-item">
+                        <div class="stat-label">${phase}</div>
+                        <div class="stat-value">${count}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('phase-stats').innerHTML = phaseHtml || '<div class="stat-item">No phase data</div>';
+            
+            // Components needing evolution
+            const componentList = document.getElementById('component-list');
+            if (componentList && data.components?.details) {
+                const needingWork = data.components.details.filter(c => c.score < 60);
+                if (needingWork.length > 0) {
+                    let compHtml = '';
+                    needingWork.slice(0, 10).forEach(comp => {
+                        const healthClass = comp.score < 30 ? 'health-poor' : (comp.score < 60 ? 'health-fair' : 'health-good');
+                        compHtml += `
+                            <div class="component-item">
+                                <span class="health-badge ${healthClass}"></span>
+                                ${comp.id}: ${comp.score}% healthy
+                                ${comp.missing.length > 0 ? '<br><small>Missing: ' + comp.missing.join(', ') + '</small>' : ''}
+                            </div>
+                        `;
+                    });
+                    componentList.innerHTML = compHtml;
+                } else {
+                    componentList.innerHTML = '<div class="component-item">✅ All components healthy</div>';
+                }
+            }
+            
+            // Evolution queue
+            fetch('/api/evolution/queue')
+                .then(res => res.json())
+                .then(queueData => {
+                    const queueEl = document.getElementById('evolution-queue');
+                    if (queueEl) {
+                        if (queueData.needs_evolution && queueData.needs_evolution.length > 0) {
+                            let queueHtml = `<div class="stat-item">Queue Size: ${queueData.queue_size}</div>`;
+                            queueData.needs_evolution.slice(0, 5).forEach(item => {
+                                queueHtml += `
+                                    <div class="component-item">
+                                        ${item.id}: ${item.health_score}% - Missing: ${item.missing_methods.join(', ')}
+                                    </div>
+                                `;
+                            });
+                            queueEl.innerHTML = queueHtml;
+                        } else {
+                            queueEl.innerHTML = '<div class="stat-item">Queue Size: 0</div><div class="component-item">✅ No components in queue</div>';
+                        }
+                    }
+                });
+            
+            // API Keys summary
+            fetch('/api/keys')
+                .then(res => res.json())
+                .then(keyData => {
+                    const keysEl = document.getElementById('api-keys-summary');
+                    if (keysEl) {
+                        let keysHtml = `<div class="stat-item">Total Keys: ${keyData.total || 0}</div>`;
+                        
+                        if (keyData.by_service) {
+                            const topServices = Object.entries(keyData.by_service).slice(0, 5);
+                            for (const [service, info] of topServices) {
+                                keysHtml += `<div class="stat-item">${service}: ${info.count} keys</div>`;
+                            }
+                        }
+                        
+                        keysEl.innerHTML = keysHtml;
+                    }
+                });
+            
+            // System metrics
+            document.getElementById('metric-thoughts').textContent = data.metrics?.thoughts_processed?.toLocaleString() || '0';
+            document.getElementById('metric-learnings').textContent = data.metrics?.learnings?.toLocaleString() || '0';
+            document.getElementById('metric-tools').textContent = data.tools?.available || '0';
+            document.getElementById('metric-uptime').textContent = data.uptime || 'Unknown';
+        })
+        .catch(err => {
+            console.error('Failed to load admin data:', err);
+            document.getElementById('phase-stats').innerHTML = '<div class="stat-item">Error loading data</div>';
+        });
+}
+
+function triggerEvolution() {
+    fetch('/api/command', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'evolve'})
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || 'Evolution triggered');
+        setTimeout(loadAdminData, 2000);
+    })
+    .catch(err => {
+        alert('Failed to trigger evolution');
+    });
+}
+
+function runHealthAudit() {
+    fetch('/api/command', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'health_audit'})
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || 'Health audit completed');
+        setTimeout(loadAdminData, 2000);
+    })
+    .catch(err => {
+        alert('Failed to run health audit');
+    });
+}
+
+function showCommand(cmd) {
+    fetch('/api/command', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: cmd})
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || `Command ${cmd} executed`);
+        setTimeout(loadAdminData, 2000);
+    })
+    .catch(err => {
+        alert(`Failed to execute ${cmd}`);
+    });
+}
+
+function refreshAdminData() {
+    loadAdminData();
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Clear any existing intervals
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+    
+    // If in admin mode, load admin data and set up auto-refresh
+    if (adminMode) {
+        loadAdminData();
+        refreshInterval = setInterval(loadAdminData, 30000);
+    } else if (!{{ 'true' if not authenticated else 'false' }}) {
+        // Start status updates for chat
+        refreshInterval = setInterval(() => {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.generation) {
+                        const genSpan = document.getElementById('generation');
+                        if (genSpan) genSpan.textContent = data.generation;
+                    }
+                })
+                .catch(err => console.error('Status update failed:', err));
+        }, 30000);
+    }
+    
+    // Add Enter key handler for password field
+    const passwordField = document.getElementById('password');
+    if (passwordField) {
+        passwordField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    }
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+</script>
+</body>
+</html>
