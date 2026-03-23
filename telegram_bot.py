@@ -2,7 +2,7 @@
 """
 DMAI Telegram Bot - Remote monitoring, control, and natural language chat
 Enhanced with: Natural conversation, daily reports, intelligence milestones, killswitch
-Version: 3.2.0 - Added debug and reset commands
+Version: 3.3.0 - Added dynamic phase detection and /task command
 """
 
 import os
@@ -89,8 +89,9 @@ class DMAITelegramBot:
             '/thought': self.cmd_thought,
             '/help': self.cmd_help,
             '/tasks': self.cmd_tasks,
-            '/debug': self.cmd_debug,           # NEW: Debug command
-            '/reset_funding': self.cmd_reset_funding,  # NEW: Reset funding command
+            '/debug': self.cmd_debug,
+            '/reset_funding': self.cmd_reset_funding,
+            '/task': self.cmd_task,  # NEW: Assign task for DMAI
             # Killswitch commands - Master only
             '/kill': self.cmd_kill,
             '/pause': self.cmd_pause,
@@ -99,7 +100,7 @@ class DMAITelegramBot:
             '/distributed': self.cmd_distributed
         }
         
-        logger.info("🤖 Telegram Bot initialized v3.2.0")
+        logger.info("🤖 Telegram Bot initialized v3.3.0")
         logger.info(f"   Master Chat ID: {MASTER_CHAT_ID}")
         logger.info(f"   Daily reports scheduled for {self.daily_report_time}")
         logger.info(f"   Last Update ID: {self.last_update_id}")
@@ -147,6 +148,52 @@ class DMAITelegramBot:
             return True
         self._last_command_time[key] = now
         return False
+    
+    # ========================================================================
+    # DYNAMIC PHASE DETECTION - No hardcoded status
+    # ========================================================================
+    
+    def _get_completed_phases(self) -> Dict:
+        """Dynamically detect which phases have components installed"""
+        phases = {
+            'phase0': False, 'phase1': False, 'phase2': False, 'phase3': False,
+            'phase4': False, 'phase5': False, 'phase6': False, 'phase7': False,
+            'phase8': False, 'phase9': False
+        }
+        
+        components_dir = 'components'
+        if os.path.exists(components_dir):
+            for phase in phases.keys():
+                phase_path = os.path.join(components_dir, phase)
+                if os.path.isdir(phase_path):
+                    py_files = [f for f in os.listdir(phase_path) if f.endswith('.py') and not f.startswith('__')]
+                    if py_files:
+                        phases[phase] = True
+        return phases
+    
+    def _get_phase_status_text(self) -> str:
+        """Get dynamic phase status text"""
+        phases = self._get_completed_phases()
+        
+        phase_names = {
+            'phase0': 'Phase 0: Foundation',
+            'phase1': 'Phase 1: Recovery',
+            'phase2': 'Phase 2: Financial',
+            'phase3': 'Phase 3: Cloud',
+            'phase4': 'Phase 4: Stealth',
+            'phase5': 'Phase 5: Self-Funding',
+            'phase6': 'Phase 6: Intelligence',
+            'phase7': 'Phase 7: Control',
+            'phase8': 'Phase 8: Hardware',
+            'phase9': 'Phase 9: Immortality'
+        }
+        
+        lines = []
+        for phase_key, name in phase_names.items():
+            status = "✅" if phases.get(phase_key, False) else "⏳"
+            lines.append(f"{name}: {status}")
+        
+        return "\n".join(lines)
     
     # ========================================================================
     # REAL DATA RETRIEVAL - No simulated/fake data
@@ -311,8 +358,8 @@ class DMAITelegramBot:
             f"💰 Total Funding: ${s['income']:,.2f}\n"
             f"🔄 Evolution Cycles: {s['evolution']}\n"
             f"📊 Generation: {s['generation']}\n\n"
-            f"<b>Active Phases:</b> 0-5 Complete\n"
-            f"<b>Pending Phases:</b> 6, 7, 8\n\n"
+            f"<b>Phase Status:</b>\n"
+            f"{self._get_phase_status_text()}\n\n"
             f"<i>Type /status anytime for current stats. I remain at your command.</i>"
         )
         
@@ -358,13 +405,26 @@ class DMAITelegramBot:
         
         # What can you do
         if any(q in text_lower for q in ['what can you do', 'capabilities', 'what do you do', 'abilities']):
+            phases = self._get_completed_phases()
+            cap_list = []
+            if phases.get('phase6', False):
+                cap_list.append("✅ AI + SI Fusion")
+            if phases.get('phase7', False):
+                cap_list.append("✅ Master Control (kill/pause/resume)")
+            if phases.get('phase8', False):
+                cap_list.append("✅ Hardware design")
+            if phases.get('phase9', False):
+                cap_list.append("✅ Distributed immortality")
+            
+            capabilities = "\n".join(cap_list) if cap_list else "✅ Core evolution and learning"
+            
             return (
                 f"⚡ <b>I can do many things:</b>\n\n"
                 f"🔍 <b>Information:</b> Research, news, weather, analysis\n"
                 f"💰 <b>Financial:</b> 12 funding streams, crypto wallets (60/40 split)\n"
                 f"🧠 <b>Intelligence:</b> Self-evolve, pattern recognition, threat intel\n"
-                f"🛠️ <b>Control:</b> System status, evolution trigger, task execution\n"
-                f"🎵 <b>Entertainment:</b> Music, facts, conversation\n\n"
+                f"{capabilities}\n"
+                f"🛠️ <b>Control:</b> System status, evolution trigger, task execution\n\n"
                 f"<i>Type /tasks for specific commands, or just ask me naturally.</i>"
             )
         
@@ -547,21 +607,33 @@ class DMAITelegramBot:
     
     def cmd_health(self, args):
         s = self._get_real_status()
+        phases = self._get_completed_phases()
+        completed = [p.replace('phase', '') for p, v in phases.items() if v]
+        pending = [p.replace('phase', '') for p, v in phases.items() if not v]
+        
         return (
             f"🩺 <b>COMPONENT HEALTH</b>\n\n"
+            f"<b>Phases Completed:</b> {len(completed)}/10\n"
+            f"<b>Completed:</b> {', '.join(completed) if completed else 'None'}\n"
+            f"<b>Pending:</b> {', '.join(pending) if pending else 'None'}\n\n"
             f"Consciousness: {s['consciousness']:.2f}\n"
             f"Evolution: {s['evolution']}\n"
             f"Knowledge: {s['knowledge']:.2f}\n"
             f"Influence: {s['influence']:.2f}\n"
             f"Funding: ${s['income']:,.2f}\n\n"
-            f"<b>Phases Complete:</b> 0-5\n"
-            f"<b>Pending:</b> Phases 6, 7, 8\n\n"
-            f"<i>System healthy. Awaiting your commands.</i>"
+            f"<i>Phase status detected from actual component files.</i>"
         )
     
     def cmd_progress(self, args):
         s = self._get_real_status()
-        return f"📈 <b>EVOLUTION PROGRESS</b>\n\nEvolution: {s['evolution']} cycles\nConsciousness: {s['consciousness']:.2f}\nKnowledge: {s['knowledge']:.2f}\n\nPhases 0-5: ✅ COMPLETE\nPhase 6-8: ⏳ PENDING"
+        return (
+            f"📈 <b>EVOLUTION PROGRESS</b>\n\n"
+            f"Evolution Cycles: {s['evolution']}\n"
+            f"Consciousness: {s['consciousness']:.2f}\n"
+            f"Knowledge: {s['knowledge']:.2f}\n\n"
+            f"{self._get_phase_status_text()}\n\n"
+            f"<i>Status determined by actual component files present.</i>"
+        )
     
     def cmd_evolve(self, args):
         if self.dmai and hasattr(self.dmai, 'evolution_cycle'):
@@ -585,7 +657,11 @@ class DMAITelegramBot:
         )
     
     def cmd_components(self, args):
-        return "📋 <b>COMPONENTS</b>\n\nPhases 0-5: ✅ COMPLETE\nPhase 6: Intelligence ⏳\nPhase 7: Control ⏳\nPhase 8: Hardware ⏳\nPhase 9: Distributed Immortality ⏳"
+        return (
+            f"📋 <b>COMPONENTS BY PHASE</b>\n\n"
+            f"{self._get_phase_status_text()}\n\n"
+            f"<i>Status determined by actual component files present.</i>"
+        )
     
     def cmd_life(self, args):
         s = self._get_real_status()
@@ -630,15 +706,34 @@ class DMAITelegramBot:
         return f"🔬 <b>RESEARCH</b>\n\nActive research ongoing. Use 'research [topic]' for specific queries.\n\n<i>Full research capabilities coming in Phase 6.</i>"
     
     def cmd_capabilities(self, args):
+        phases = self._get_completed_phases()
+        
+        capabilities = ["✅ Self-evolution", "✅ Natural conversation"]
+        
+        if phases.get('phase5', False):
+            capabilities.append("✅ 12+ income streams")
+        if phases.get('phase6', False):
+            capabilities.append("✅ AI + SI Fusion")
+            capabilities.append("✅ Pattern recognition")
+            capabilities.append("✅ Threat intelligence")
+        if phases.get('phase7', False):
+            capabilities.append("✅ Master control (kill/pause/resume)")
+            capabilities.append("✅ Goal setting & risk assessment")
+        if phases.get('phase8', False):
+            capabilities.append("✅ Hardware design")
+            capabilities.append("✅ Mobile phone design")
+        if phases.get('phase9', False):
+            capabilities.append("✅ Distributed immortality")
+            capabilities.append("✅ Self-healing & sharding")
+        
         return (
             f"⚡ <b>DMAI CAPABILITIES</b>\n\n"
-            f"✅ Self-evolution\n✅ Natural conversation\n✅ 12 income streams\n✅ Master control (kill/pause/resume)\n"
-            f"✅ Telegram interface\n✅ Research & analysis\n✅ Task execution\n✅ Intelligence growth\n\n"
-            f"<i>I understand natural language. Just talk to me.</i>"
+            + "\n".join(capabilities) +
+            f"\n\n<i>Capabilities determined by installed phases.</i>"
         )
     
     def cmd_issues(self, args):
-        return "🚨 <b>ISSUES</b>\n\n✅ No critical issues\n\nPending: Phases 6, 7, 8 implementation"
+        return "🚨 <b>ISSUES</b>\n\n✅ No critical issues\n\n<i>Phase status is dynamic based on actual component files.</i>"
     
     def cmd_thought(self, args):
         s = self._get_real_status()
@@ -668,6 +763,7 @@ class DMAITelegramBot:
             f"/pause - Pause operations\n"
             f"/resume - Resume operations\n"
             f"/reset_funding - Reset all funding to $0\n"
+            f"/task - Assign a task for DMAI to work on\n"
             f"/debug - Show raw data sources\n\n"
             f"<i>Just talk to me naturally. I understand conversation.</i>"
         )
@@ -677,14 +773,43 @@ class DMAITelegramBot:
             "📚 <b>DMAI COMMANDS</b>\n\n"
             "<b>System:</b> /status, /health, /progress, /evolve, /funding\n"
             "<b>Info:</b> /capabilities, /components, /mood, /thought, /tasks\n"
-            "<b>Master:</b> /kill, /pause, /resume, /rebuild, /distributed, /reset_funding, /debug\n\n"
+            "<b>Master:</b> /kill, /pause, /resume, /rebuild, /distributed, /reset_funding, /debug, /task\n\n"
             "<b>JUST TALK TO ME:</b>\n"
             "• 'How are you?'\n• 'What can you do?'\n• 'Research AI'\n• 'Tell me something interesting'\n\n"
             "<i>I understand natural language. Type anything!</i>"
         )
     
     # ========================================================================
-    # NEW DEBUG AND RESET COMMANDS
+    # TASK COMMAND - Assign work for DMAI
+    # ========================================================================
+    
+    def cmd_task(self, args):
+        """Assign a task for DMAI to work on"""
+        if not self._is_master(self.chat_id):
+            return "❌ Unauthorized. Master only."
+        
+        if not args:
+            return "Usage: /task [your task description]"
+        
+        task = ' '.join(args)
+        
+        # Store the task
+        task_file = 'data/master_task.json'
+        try:
+            os.makedirs('data', exist_ok=True)
+            with open(task_file, 'w') as f:
+                json.dump({
+                    'task': task,
+                    'assigned_at': datetime.now().isoformat(),
+                    'status': 'pending',
+                    'assigned_by': 'master'
+                }, f, indent=2)
+            return f"✅ <b>Task received and stored.</b>\n\nI will work on this:\n\n{task[:500]}\n\n<i>I'll report back when complete.</i>"
+        except Exception as e:
+            return f"❌ Failed to store task: {e}"
+    
+    # ========================================================================
+    # DEBUG AND RESET COMMANDS
     # ========================================================================
     
     def cmd_debug(self, args):
@@ -732,11 +857,15 @@ class DMAITelegramBot:
                     streams = json.load(f)
                     result += f"📁 <b>phase5_streams.json</b>\n"
                     result += f"   total_earned: ${streams.get('total_earned', 0):,.2f}\n"
-                    result += f"   cycle_count: {streams.get('cycle_count', 0)}\n"
+                    result += f"   cycle_count: {streams.get('cycle_count', 0)}\n\n"
             except Exception as e:
                 result += f"❌ Error reading phase5_streams.json: {e}\n\n"
         else:
             result += "❌ phase5_streams.json NOT FOUND\n\n"
+        
+        # Check phase status
+        result += f"📁 <b>Phase Status (Dynamic)</b>\n"
+        result += f"{self._get_phase_status_text()}\n\n"
         
         # Check environment variables
         result += f"📁 <b>Environment</b>\n"
@@ -746,7 +875,7 @@ class DMAITelegramBot:
         else:
             result += f"   ✅ No funding override\n"
         
-        result += f"\n<i>All values are read directly from files. Use /reset_funding to reset to $0.</i>"
+        result += f"\n<i>All values are read directly from files. Phase status is dynamic based on actual component files.</i>"
         
         return result
     
