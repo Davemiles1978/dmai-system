@@ -1,7 +1,7 @@
 services:
   # MAIN WEB SERVICE - Complete Unified DMAI System
   - type: web
-    name: dmai-complete
+    name: dmai-web
     runtime: python
     repo: https://github.com/Davemiles1978/dmai-system
     plan: starter
@@ -21,17 +21,35 @@ services:
         value: Talula.78
       - key: RENDER
         value: true
+      - key: USE_POSTGRESQL
+        value: "false"
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
-      - key: USE_POSTGRESQL
-        value: "false"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN_MAIN
+        sync: false
+      - key: GITHUB_TOKEN_SECONDARY
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USER
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
     healthCheckPath: /health
 
-  # TELEGRAM WORKER - Keep your existing for Telegram commands
+  # TELEGRAM BOT WORKER - Uses telegram_bot.py
   - type: worker
-    name: dmai-telegram-worker
+    name: dmai-telegram
     runtime: python
     repo: https://github.com/Davemiles1978/dmai-system
     plan: starter
@@ -40,7 +58,7 @@ services:
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
-    startCommand: python3 telegram_master_control.py
+    startCommand: python3 telegram_bot.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
