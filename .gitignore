@@ -72,10 +72,16 @@ Thumbs.db
 *.log
 logs/
 health_reports/
+dmai_complete.log
 
 # Data files that shouldn't be in git
+data/*.json
+data/backups/
+data/synthetic/
+data/phase*/
 data/telegram_token.json
 data/voice_enrollment/
+!data/.gitkeep
 cookies.txt
 *.pkl
 
@@ -99,4 +105,3 @@ language_learning/data/secure/backups/
 DMAI_COMPLETE_AUDIT_*.txt
 *_AUDIT_*.txt
 api-harvester/venv_brew/
-.env

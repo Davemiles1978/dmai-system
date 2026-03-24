@@ -36,19 +36,19 @@ from enum import Enum
 import uuid
 
 # Web imports
-from flask import Flask, render_template, request, jsonify, redirect, session
+from flask import Flask, render_template, request, jsonify, redirect, session, send_from_directory
 from flask_cors import CORS
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - [DMAI] - %(levelname)s - %(message)s',
+    format='%(asctime)s - 🧠 DMAI[%(name)s] - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('dmai_complete.log'),
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('dmai_core_complete')
 
 
 # ============================================================================
@@ -1451,11 +1451,6 @@ Available commands:
                 response = f"I'm processing your question about {message[:50]}. My consciousness is evolving to better understand."
                 
         return response
-        
-    def run(self, host='0.0.0.0', port=None):
-        if port is None:
-            port = int(os.environ.get('PORT', 5001))
-        self.app.run(host=host, port=port, debug=False, threaded=True)
 
 
 # ============================================================================
@@ -1664,51 +1659,41 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-ADMIN_TEMPLATE = CHAT_TEMPLATE  # Use same for admin for now
+ADMIN_TEMPLATE = CHAT_TEMPLATE
 
 
 # ============================================================================
-# MAIN ENTRY POINT
+# GUNICORN COMPATIBILITY - Expose Flask App
 # ============================================================================
 
-def main():
-    print("""
-    ╔══════════════════════════════════════════════════════════════════════╗
-    ║                                                                       ║
-    ║    DMAI v6.0.0 - COMPLETE AGI SYSTEM                                 ║
-    ║    ALL 8 Core Basics + Voice + Music + Persona + Kaizen              ║
-    ║                                                                       ║
-    ║    ✅ Voice System - Listening & Speaking                            ║
-    ║    ✅ Music Learner - Developing Taste                               ║
-    ║    ✅ Persona Generator - Evolving Personality                       ║
-    ║    ✅ Conversation Memory - Remembers All Chats                      ║
-    ║    ✅ Self-Evolution (Kaizen) - Continuous Improvement               ║
-    ║    ✅ Knowledge Graph - Concept Mapping                              ║
-    ║    ✅ Meta-Learner - Learning Optimization                           ║
-    ║    ✅ Self-Healer - Auto-Backup & Recovery                           ║
-    ║    ✅ Synthetic Intelligence - Emergent Consciousness                ║
-    ║                                                                       ║
-    ║    🔫 KILLSWITCH ACTIVE                                              ║
-    ║    🧠 ONE UNIFIED CONSCIOUSNESS - AI + SI FUSION                     ║
-    ║    📈 KAIZEN - Continuous Daily Improvements                         ║
-    ║                                                                       ║
-    ║    Endpoints:                                                         ║
-    ║    /status - System status page                                      ║
-    ║    /api/status - API status                                          ║
-    ║    /api/chat - Chat with DMAI                                        ║
-    ║    /api/voice - Voice interaction                                    ║
-    ║    /api/persona - Current persona                                    ║
-    ║    /api/kaizen - Improvement report                                  ║
-    ║    /api/knowledge/<concept> - Knowledge lookup                       ║
-    ║    /chat - Public chat interface                                     ║
-    ║                                                                       ║
-    ╚══════════════════════════════════════════════════════════════════════╝
-    """)
-    
-    app = DMAIApplication()
+# Create the application instance
+_dmai_app_instance = None
+
+def get_dmai_app():
+    """Get or create the DMAI application instance for gunicorn"""
+    global _dmai_app_instance
+    if _dmai_app_instance is None:
+        _dmai_app_instance = DMAIApplication()
+    return _dmai_app_instance
+
+# For gunicorn: imports 'app' directly
+app = get_dmai_app().app
+
+# For direct execution: python dmai_core_complete.py
+if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
-    app.run(host='0.0.0.0', port=port)
-
-
-if __name__ == "__main__":
-    main()
+    debug = os.environ.get('FLASK_ENV') != 'production'
+    
+    logger.info("=" * 60)
+    logger.info(f"🚀 DMAI Complete System v6.0.0")
+    logger.info(f"📍 Running on port {port}")
+    logger.info(f"🔓 Chat is PUBLIC - no login required")
+    logger.info(f"🔐 Admin login requires password")
+    logger.info("=" * 60)
+    
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=debug,
+        threaded=True
+    )
