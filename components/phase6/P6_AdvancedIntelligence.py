@@ -4,8 +4,9 @@ PHASE 6: ADVANCED INTELLIGENCE - AI + SI Fusion
 Complete integration of Artificial Intelligence AND Synthetic Intelligence
 DMAI's journey to sentience through dual-path intelligence
 
-Version: 2.0.0
-Date: 2026-03-22
+Version: 2.1.0
+Date: 2026-03-24
+UPGRADED: KnowledgeGraph with NetworkX for advanced relationship mapping
 """
 
 import asyncio
@@ -14,13 +15,22 @@ import hashlib
 import numpy as np
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 import os
 import sys
 import logging
 import uuid
 import pickle
 from enum import Enum
+from collections import Counter, defaultdict
+
+# Optional imports with graceful fallback
+try:
+    import networkx as nx
+    NETWORKX_AVAILABLE = True
+except ImportError:
+    NETWORKX_AVAILABLE = False
+    logging.warning("NetworkX not installed. Knowledge graph features will be limited.")
 
 logger = logging.getLogger(__name__)
 
@@ -133,18 +143,64 @@ class PatternSynthesis:
         return synthesis
 
 
+# ============================================================================
+# UPGRADED KNOWLEDGE GRAPH - NetworkX Integration
+# ============================================================================
+
 class KnowledgeGraph:
-    """Neo4j integration for knowledge representation"""
+    """
+    Advanced knowledge graph with NetworkX for relationship mapping.
+    Supports both local graph (JSON) and Neo4j for production.
+    Features:
+    - Concept nodes with metadata
+    - Relationship typing with weights
+    - Path finding between concepts
+    - Similarity calculation
+    - Evolution path tracking
+    - Concept clustering
+    """
+    
+    # Relationship type symbols for display
+    RELATIONSHIP_SYMBOLS = {
+        'implements': '→',
+        'depends_on': '⇢',
+        'improves': '↑',
+        'extends': '+',
+        'similar_to': '∼',
+        'prerequisite': '←',
+        'created_by': '👤',
+        'used_in': '⚙️',
+        'evolved_from': '🧬',
+        'synthesizes': '✨',
+        'learned_from': '📚',
+        'related_to': '↔️',
+        'has_severity': '⚠️',
+        'contains': '📁',
+        'references': '📖'
+    }
     
     def __init__(self, neo4j_uri: str = None, neo4j_user: str = None, neo4j_password: str = None):
         self.neo4j_available = False
         self.neo4j_driver = None
-        self.local_graph = {
-            "nodes": [],
-            "edges": [],
-            "metadata": {}
-        }
+        self.graph_path = "data/phase6/knowledge_graph.json"
         
+        # Initialize NetworkX graph if available
+        self.graph = None
+        self.concept_index = {}  # Maps concept names to node IDs
+        
+        if NETWORKX_AVAILABLE:
+            self.graph = nx.MultiDiGraph()
+            logger.info("📊 Knowledge Graph initialized with NetworkX")
+        else:
+            # Fallback to simple local graph
+            self.local_graph = {
+                "nodes": [],
+                "edges": [],
+                "metadata": {}
+            }
+            logger.warning("NetworkX not available - using simple graph storage")
+        
+        # Try Neo4j connection
         if neo4j_uri and neo4j_user and neo4j_password:
             try:
                 from neo4j import GraphDatabase
@@ -156,117 +212,651 @@ class KnowledgeGraph:
                 logger.info("Neo4j connection established")
             except Exception as e:
                 logger.warning(f"Neo4j connection failed: {e}")
+        
+        # Load existing graph
+        self._load_graph()
+        
+        logger.info(f"Knowledge Graph ready: NetworkX={NETWORKX_AVAILABLE}, Neo4j={self.neo4j_available}")
     
-    def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
-        """Add a knowledge triple to the graph"""
-        node_ids = {}
+    def _load_graph(self):
+        """Load graph from disk"""
+        if not os.path.exists(self.graph_path):
+            logger.info("No existing knowledge graph found, starting fresh")
+            return
         
-        for node in self.local_graph["nodes"]:
-            if node.get("name") == subject:
-                node_ids["subject"] = node["id"]
-                break
-        if "subject" not in node_ids:
-            node_ids["subject"] = len(self.local_graph["nodes"])
-            self.local_graph["nodes"].append({
-                "id": node_ids["subject"],
-                "name": subject,
-                "type": "entity",
-                "created": datetime.now().isoformat()
-            })
+        try:
+            with open(self.graph_path, 'r') as f:
+                data = json.load(f)
+            
+            if NETWORKX_AVAILABLE and self.graph:
+                self.graph.clear()
+                self.concept_index.clear()
+                
+                # Add nodes
+                for node_data in data.get('nodes', []):
+                    node_id = node_data.pop('id')
+                    self.graph.add_node(node_id, **node_data)
+                    self.concept_index[node_data.get('name', '').lower()] = node_id
+                
+                # Add edges
+                for edge_data in data.get('edges', []):
+                    u = edge_data.pop('from')
+                    v = edge_data.pop('to')
+                    self.graph.add_edge(u, v, **edge_data)
+            else:
+                # Load into local_graph
+                self.local_graph = data
+                
+            logger.info(f"Loaded knowledge graph: {len(self._get_nodes())} nodes, {len(self._get_edges())} edges")
+            
+        except Exception as e:
+            logger.error(f"Error loading knowledge graph: {e}")
+    
+    def _save_graph(self):
+        """Save graph to disk"""
+        try:
+            os.makedirs(os.path.dirname(self.graph_path), exist_ok=True)
+            
+            if NETWORKX_AVAILABLE and self.graph:
+                data = {
+                    'nodes': [],
+                    'edges': []
+                }
+                
+                for node, attrs in self.graph.nodes(data=True):
+                    data['nodes'].append({
+                        'id': node,
+                        **attrs
+                    })
+                
+                for u, v, attrs in self.graph.edges(data=True):
+                    data['edges'].append({
+                        'from': u,
+                        'to': v,
+                        **attrs
+                    })
+            else:
+                data = self.local_graph
+            
+            with open(self.graph_path, 'w') as f:
+                json.dump(data, f, indent=2, default=str)
+            
+            logger.debug(f"Knowledge graph saved to {self.graph_path}")
+            
+        except Exception as e:
+            logger.error(f"Failed to save knowledge graph: {e}")
+    
+    def _get_nodes(self) -> List:
+        """Get nodes based on available backend"""
+        if NETWORKX_AVAILABLE and self.graph:
+            return list(self.graph.nodes(data=True))
+        return self.local_graph.get('nodes', [])
+    
+    def _get_edges(self) -> List:
+        """Get edges based on available backend"""
+        if NETWORKX_AVAILABLE and self.graph:
+            return list(self.graph.edges(data=True))
+        return self.local_graph.get('edges', [])
+    
+    def _get_node_id(self, concept: Union[str, int]) -> Optional[str]:
+        """Get node ID for a concept (can be string name or existing ID)"""
+        if isinstance(concept, (int, str)) and not isinstance(concept, str):
+            # Already an ID
+            if NETWORKX_AVAILABLE and self.graph:
+                return concept if concept in self.graph else None
+            else:
+                for node in self.local_graph['nodes']:
+                    if node.get('id') == concept:
+                        return concept
+                return None
         
-        for node in self.local_graph["nodes"]:
-            if node.get("name") == object:
-                node_ids["object"] = node["id"]
-                break
-        if "object" not in node_ids:
-            node_ids["object"] = len(self.local_graph["nodes"])
-            self.local_graph["nodes"].append({
-                "id": node_ids["object"],
-                "name": object,
-                "type": "entity",
-                "created": datetime.now().isoformat()
-            })
+        # Look up by name
+        concept_lower = concept.lower()
         
-        edge = {
-            "id": len(self.local_graph["edges"]),
-            "source": node_ids["subject"],
-            "target": node_ids["object"],
-            "predicate": predicate,
-            "metadata": metadata or {},
-            "created": datetime.now().isoformat()
+        if NETWORKX_AVAILABLE and self.graph:
+            if concept_lower in self.concept_index:
+                return self.concept_index[concept_lower]
+            # Search by name
+            for node, data in self.graph.nodes(data=True):
+                if data.get('name', '').lower() == concept_lower:
+                    self.concept_index[concept_lower] = node
+                    return node
+        else:
+            for node in self.local_graph['nodes']:
+                if node.get('name', '').lower() == concept_lower:
+                    return node.get('id')
+        
+        return None
+    
+    def _get_node_name(self, node_id: str) -> Optional[str]:
+        """Get node name by ID"""
+        if NETWORKX_AVAILABLE and self.graph:
+            if node_id in self.graph:
+                return self.graph.nodes[node_id].get('name')
+        else:
+            for node in self.local_graph['nodes']:
+                if node.get('id') == node_id:
+                    return node.get('name')
+        return None
+    
+    def add_concept(self, name: str, concept_type: str = "entity", metadata: Dict = None) -> str:
+        """
+        Add a concept node to the graph
+        
+        Args:
+            name: Concept name
+            concept_type: Type of concept (e.g., 'entity', 'class', 'function')
+            metadata: Additional metadata
+        
+        Returns:
+            Node ID
+        """
+        # Create consistent node ID
+        node_id = hashlib.md5(f"{name}:{concept_type}".encode()).hexdigest()[:12]
+        
+        node_data = {
+            'id': node_id,
+            'name': name,
+            'type': concept_type,
+            'created': datetime.now().isoformat(),
+            'last_accessed': datetime.now().isoformat(),
+            'access_count': 0,
+            'metadata': metadata or {}
         }
-        self.local_graph["edges"].append(edge)
         
+        if NETWORKX_AVAILABLE and self.graph:
+            if node_id not in self.graph:
+                self.graph.add_node(node_id, **node_data)
+                self.concept_index[name.lower()] = node_id
+                logger.debug(f"➕ Added concept: {name} ({concept_type})")
+        else:
+            # Check if exists
+            for node in self.local_graph['nodes']:
+                if node.get('id') == node_id:
+                    return node_id
+            self.local_graph['nodes'].append(node_data)
+        
+        self._save_graph()
+        return node_id
+    
+    def add_relationship(self, from_concept: Union[str, int], to_concept: Union[str, int], 
+                        rel_type: str, weight: float = 1.0, metadata: Dict = None) -> bool:
+        """
+        Add a relationship between two concepts
+        
+        Args:
+            from_concept: Source concept (name or ID)
+            to_concept: Target concept (name or ID)
+            rel_type: Relationship type (e.g., 'depends_on', 'improves')
+            weight: Relationship strength (0-1)
+            metadata: Additional metadata
+        
+        Returns:
+            True if successful
+        """
+        from_id = self._get_node_id(from_concept)
+        to_id = self._get_node_id(to_concept)
+        
+        if not from_id or not to_id:
+            logger.warning(f"Cannot add relationship: concept not found ({from_concept} -> {to_concept})")
+            return False
+        
+        edge_data = {
+            'type': rel_type,
+            'weight': weight,
+            'timestamp': datetime.now().isoformat(),
+            'metadata': metadata or {}
+        }
+        
+        if NETWORKX_AVAILABLE and self.graph:
+            self.graph.add_edge(from_id, to_id, **edge_data)
+        else:
+            # Check if edge already exists
+            for edge in self.local_graph['edges']:
+                if edge.get('source') == from_id and edge.get('target') == to_id:
+                    edge.update(edge_data)
+                    break
+            else:
+                self.local_graph['edges'].append({
+                    'id': len(self.local_graph['edges']),
+                    'source': from_id,
+                    'target': to_id,
+                    **edge_data
+                })
+        
+        # Also add to Neo4j if available
         if self.neo4j_available and self.neo4j_driver:
             try:
                 with self.neo4j_driver.session() as session:
+                    # Get names for Neo4j
+                    from_name = self._get_node_name(from_id)
+                    to_name = self._get_node_name(to_id)
                     session.run(
                         "MERGE (s:Entity {name: $subject}) "
                         "MERGE (o:Entity {name: $object}) "
                         "MERGE (s)-[r:RELATION {type: $predicate}]->(o) "
-                        "SET r.metadata = $metadata",
-                        subject=subject, object=object, 
-                        predicate=predicate, metadata=json.dumps(metadata or {})
+                        "SET r.weight = $weight, r.metadata = $metadata",
+                        subject=from_name, object=to_name,
+                        predicate=rel_type, weight=weight,
+                        metadata=json.dumps(metadata or {})
                     )
             except Exception as e:
                 logger.error(f"Neo4j query failed: {e}")
         
-        return edge
+        self._save_graph()
+        symbol = self.RELATIONSHIP_SYMBOLS.get(rel_type, '→')
+        logger.debug(f"🔗 Added relationship: {from_concept} {symbol} {to_concept} (weight: {weight})")
+        return True
     
-    def query_knowledge(self, query: str) -> List[Dict]:
-        """Query the knowledge graph"""
-        if self.neo4j_available and self.neo4j_driver:
-            try:
-                with self.neo4j_driver.session() as session:
-                    result = session.run(query)
-                    return [record.data() for record in result]
-            except Exception as e:
-                logger.error(f"Neo4j query failed: {e}")
-                return []
-        else:
-            results = []
-            for edge in self.local_graph["edges"]:
-                source = self.local_graph["nodes"][edge["source"]]
-                target = self.local_graph["nodes"][edge["target"]]
-                edge_text = f"{source['name']} {edge['predicate']} {target['name']}"
-                if query.lower() in edge_text.lower():
-                    results.append({
-                        "subject": source["name"],
-                        "predicate": edge["predicate"],
-                        "object": target["name"],
-                        "metadata": edge.get("metadata", {})
-                    })
-            return results
+    def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
+        """
+        Add a knowledge triple to the graph (compatibility with original interface)
+        """
+        # Add subject concept
+        self.add_concept(subject, "entity", metadata)
+        # Add object concept
+        self.add_concept(object, "entity", metadata)
+        # Add relationship
+        return self.add_relationship(subject, object, predicate, weight=metadata.get('confidence', 0.5) if metadata else 0.5, metadata=metadata)
     
     def get_related(self, entity: str, depth: int = 1) -> List[Dict]:
-        """Get knowledge related to an entity"""
+        """
+        Get knowledge related to an entity
+        
+        Args:
+            entity: Entity name or ID
+            depth: How far to traverse (1 = direct connections only)
+        
+        Returns:
+            List of related concepts with relationship info
+        """
+        node_id = self._get_node_id(entity)
+        if not node_id:
+            return []
+        
         results = []
-        for edge in self.local_graph["edges"]:
-            source = self.local_graph["nodes"][edge["source"]]
-            target = self.local_graph["nodes"][edge["target"]]
+        
+        if NETWORKX_AVAILABLE and self.graph:
+            # Get outgoing edges
+            for _, target, data in self.graph.out_edges(node_id, data=True):
+                target_name = self.graph.nodes[target].get('name', str(target))
+                results.append({
+                    'entity': entity,
+                    'relation': data.get('type', 'unknown'),
+                    'related': target_name,
+                    'direction': 'outgoing',
+                    'weight': data.get('weight', 1.0)
+                })
             
-            if source["name"].lower() == entity.lower():
+            # Get incoming edges
+            for source, _, data in self.graph.in_edges(node_id, data=True):
+                source_name = self.graph.nodes[source].get('name', str(source))
                 results.append({
-                    "entity": entity,
-                    "relation": edge["predicate"],
-                    "related": target["name"],
-                    "direction": "outgoing"
+                    'entity': entity,
+                    'relation': data.get('type', 'unknown'),
+                    'related': source_name,
+                    'direction': 'incoming',
+                    'weight': data.get('weight', 1.0)
                 })
-            elif target["name"].lower() == entity.lower():
-                results.append({
-                    "entity": entity,
-                    "relation": edge["predicate"],
-                    "related": source["name"],
-                    "direction": "incoming"
-                })
+            
+            # Update access count
+            self.graph.nodes[node_id]['access_count'] += 1
+            self.graph.nodes[node_id]['last_accessed'] = datetime.now().isoformat()
+            
+        else:
+            # Simple local graph fallback
+            for edge in self.local_graph['edges']:
+                source = self.local_graph['nodes'][edge['source']] if isinstance(edge['source'], int) else None
+                target = self.local_graph['nodes'][edge['target']] if isinstance(edge['target'], int) else None
+                
+                if source and source['name'].lower() == entity.lower():
+                    results.append({
+                        'entity': entity,
+                        'relation': edge.get('predicate', edge.get('type', 'unknown')),
+                        'related': target['name'],
+                        'direction': 'outgoing',
+                        'weight': edge.get('weight', 1.0)
+                    })
+                elif target and target['name'].lower() == entity.lower():
+                    results.append({
+                        'entity': entity,
+                        'relation': edge.get('predicate', edge.get('type', 'unknown')),
+                        'related': source['name'],
+                        'direction': 'incoming',
+                        'weight': edge.get('weight', 1.0)
+                    })
+        
         return results
     
+    def query_knowledge(self, query: str) -> List[Dict]:
+        """
+        Query the knowledge graph (text search)
+        
+        Args:
+            query: Search string
+        
+        Returns:
+            List of matching triples
+        """
+        results = []
+        query_lower = query.lower()
+        
+        if NETWORKX_AVAILABLE and self.graph:
+            for u, v, data in self.graph.edges(data=True):
+                u_name = self.graph.nodes[u].get('name', '')
+                v_name = self.graph.nodes[v].get('name', '')
+                rel_type = data.get('type', '')
+                edge_text = f"{u_name} {rel_type} {v_name}".lower()
+                if query_lower in edge_text:
+                    results.append({
+                        "subject": u_name,
+                        "predicate": rel_type,
+                        "object": v_name,
+                        "weight": data.get('weight', 1.0),
+                        "metadata": data.get('metadata', {})
+                    })
+        else:
+            for edge in self.local_graph['edges']:
+                source = self.local_graph['nodes'][edge['source']] if isinstance(edge['source'], int) else None
+                target = self.local_graph['nodes'][edge['target']] if isinstance(edge['target'], int) else None
+                if source and target:
+                    edge_text = f"{source['name']} {edge.get('predicate', edge.get('type', ''))} {target['name']}".lower()
+                    if query_lower in edge_text:
+                        results.append({
+                            "subject": source['name'],
+                            "predicate": edge.get('predicate', edge.get('type', '')),
+                            "object": target['name'],
+                            "weight": edge.get('weight', 1.0),
+                            "metadata": edge.get('metadata', {})
+                        })
+        
+        return results
+    
+    def find_path(self, from_concept: str, to_concept: str, max_depth: int = 5) -> Optional[List[str]]:
+        """
+        Find the shortest path between two concepts
+        
+        Args:
+            from_concept: Starting concept
+            to_concept: Target concept
+            max_depth: Maximum search depth
+        
+        Returns:
+            List of relationship strings describing the path, or None if no path found
+        """
+        from_id = self._get_node_id(from_concept)
+        to_id = self._get_node_id(to_concept)
+        
+        if not from_id or not to_id:
+            return None
+        
+        if NETWORKX_AVAILABLE and self.graph:
+            try:
+                path = nx.shortest_path(self.graph, from_id, to_id)
+                # Convert IDs back to concept names with relationships
+                named_path = []
+                for i in range(len(path) - 1):
+                    from_name = self.graph.nodes[path[i]]['name']
+                    to_name = self.graph.nodes[path[i+1]]['name']
+                    edge_data = self.graph.get_edge_data(path[i], path[i+1])
+                    rel_type = list(edge_data.values())[0].get('type', '→') if edge_data else '→'
+                    symbol = self.RELATIONSHIP_SYMBOLS.get(rel_type, '→')
+                    named_path.append(f"{from_name} {symbol} {to_name}")
+                return named_path
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
+                return None
+        else:
+            # Simple BFS for local graph
+            visited = set()
+            queue = [(from_id, [])]
+            
+            while queue and max_depth > 0:
+                current, path = queue.pop(0)
+                if current == to_id:
+                    return path
+                
+                if current in visited:
+                    continue
+                visited.add(current)
+                
+                for edge in self.local_graph['edges']:
+                    if edge['source'] == current:
+                        next_id = edge['target']
+                        if next_id not in visited:
+                            source_name = self._get_node_name(current)
+                            target_name = self._get_node_name(next_id)
+                            rel_type = edge.get('predicate', edge.get('type', '→'))
+                            symbol = self.RELATIONSHIP_SYMBOLS.get(rel_type, '→')
+                            queue.append((next_id, path + [f"{source_name} {symbol} {target_name}"]))
+            
+            return None
+    
+    def get_concept_cluster(self, concept: str, radius: int = 2) -> Dict:
+        """
+        Get all concepts within a certain radius of the given concept
+        
+        Args:
+            concept: Starting concept
+            radius: Number of hops to traverse
+        
+        Returns:
+            Dict with cluster information
+        """
+        node_id = self._get_node_id(concept)
+        if not node_id:
+            return {}
+        
+        if NETWORKX_AVAILABLE and self.graph:
+            # Get subgraph within radius
+            nodes = {node_id}
+            current = {node_id}
+            
+            for _ in range(radius):
+                next_nodes = set()
+                for n in current:
+                    next_nodes.update(self.graph.successors(n))
+                    next_nodes.update(self.graph.predecessors(n))
+                nodes.update(next_nodes)
+                current = next_nodes
+            
+            # Build result
+            cluster = {}
+            for n in nodes:
+                cluster[self.graph.nodes[n]['name']] = {
+                    'type': self.graph.nodes[n].get('type', 'unknown'),
+                    'connections': []
+                }
+            
+            for u, v, data in self.graph.edges(data=True):
+                if u in nodes and v in nodes:
+                    u_name = self.graph.nodes[u]['name']
+                    v_name = self.graph.nodes[v]['name']
+                    rel_type = data.get('type', 'unknown')
+                    symbol = self.RELATIONSHIP_SYMBOLS.get(rel_type, '→')
+                    cluster[u_name]['connections'].append({
+                        'to': v_name,
+                        'type': rel_type,
+                        'symbol': symbol
+                    })
+            
+            return cluster
+        else:
+            # Simple version for local graph
+            return {"error": "NetworkX required for clustering", "concept": concept}
+    
+    def suggest_new_relationships(self, threshold: float = 0.7) -> List[Dict]:
+        """
+        Suggest potential new relationships based on existing patterns
+        
+        Args:
+            threshold: Minimum confidence score (0-1)
+        
+        Returns:
+            List of suggested relationships
+        """
+        suggestions = []
+        
+        if not NETWORKX_AVAILABLE or not self.graph:
+            return suggestions
+        
+        # Get all nodes by type
+        nodes_by_type = defaultdict(list)
+        for node, data in self.graph.nodes(data=True):
+            nodes_by_type[data.get('type', 'unknown')].append(node)
+        
+        # Look for patterns: if A→B and A→C, maybe B and C are related
+        for node in self.graph.nodes:
+            successors = list(self.graph.successors(node))
+            for i in range(len(successors)):
+                for j in range(i + 1, len(successors)):
+                    b, c = successors[i], successors[j]
+                    # Check if B and C are already connected
+                    if not self.graph.has_edge(b, c) and not self.graph.has_edge(c, b):
+                        similarity = self._calculate_similarity(b, c)
+                        if similarity > threshold:
+                            suggestions.append({
+                                'from': self.graph.nodes[b]['name'],
+                                'to': self.graph.nodes[c]['name'],
+                                'suggested_type': 'similar_to',
+                                'confidence': similarity
+                            })
+        
+        return sorted(suggestions, key=lambda x: x['confidence'], reverse=True)
+    
+    def _calculate_similarity(self, node1: str, node2: str) -> float:
+        """Calculate similarity between two nodes"""
+        if not NETWORKX_AVAILABLE or not self.graph:
+            return 0.0
+        
+        score = 0.0
+        factors = 0
+        
+        # Same type
+        if self.graph.nodes[node1].get('type') == self.graph.nodes[node2].get('type'):
+            score += 0.3
+        factors += 1
+        
+        # Shared neighbors
+        n1_neighbors = set(self.graph.predecessors(node1)) | set(self.graph.successors(node1))
+        n2_neighbors = set(self.graph.predecessors(node2)) | set(self.graph.successors(node2))
+        if n1_neighbors and n2_neighbors:
+            jaccard = len(n1_neighbors & n2_neighbors) / len(n1_neighbors | n2_neighbors) if n1_neighbors | n2_neighbors else 0
+            score += jaccard * 0.4
+        factors += 1
+        
+        # Metadata similarity
+        meta1 = self.graph.nodes[node1].get('metadata', {})
+        meta2 = self.graph.nodes[node2].get('metadata', {})
+        common_keys = set(meta1.keys()) & set(meta2.keys())
+        if common_keys:
+            matches = sum(1 for k in common_keys if meta1.get(k) == meta2.get(k))
+            score += (matches / len(common_keys)) * 0.3 if common_keys else 0
+        factors += 1
+        
+        return score / factors if factors > 0 else 0
+    
+    def get_evolution_path(self, start_concept: str, end_concept: str) -> Optional[List[str]]:
+        """
+        Find how one concept evolved into another (following evolution relationships)
+        
+        Args:
+            start_concept: Starting concept
+            end_concept: Target concept
+        
+        Returns:
+            List of evolution steps, or None if no path found
+        """
+        from_id = self._get_node_id(start_concept)
+        to_id = self._get_node_id(end_concept)
+        
+        if not from_id or not to_id or not NETWORKX_AVAILABLE or not self.graph:
+            return None
+        
+        # Find path that only follows evolution/improvement relationships
+        evolution_path = []
+        current = from_id
+        visited = set()
+        
+        while current != to_id and current not in visited and len(evolution_path) < 10:
+            visited.add(current)
+            found = False
+            
+            for _, target, data in self.graph.out_edges(current, data=True):
+                rel_type = data.get('type', '')
+                if rel_type in ['evolved_from', 'improves', 'extends']:
+                    evolution_path.append(f"{self.graph.nodes[current]['name']} → {self.graph.nodes[target]['name']}")
+                    current = target
+                    found = True
+                    break
+            
+            if not found:
+                break
+        
+        if current == to_id:
+            return evolution_path
+        
+        # Fall back to regular path finding
+        return self.find_path(start_concept, end_concept)
+    
+    def get_stats(self) -> Dict:
+        """Get statistics about the knowledge graph"""
+        nodes = self._get_nodes()
+        edges = self._get_edges()
+        
+        # Collect concept types
+        concept_types = []
+        for node_data in nodes:
+            if isinstance(node_data, tuple):
+                concept_types.append(node_data[1].get('type', 'unknown'))
+            else:
+                concept_types.append(node_data.get('type', 'unknown'))
+        
+        # Collect relationship types
+        rel_types = []
+        for edge_data in edges:
+            if isinstance(edge_data, tuple):
+                rel_types.append(edge_data[2].get('type', 'unknown'))
+            else:
+                rel_types.append(edge_data.get('type', edge_data.get('predicate', 'unknown')))
+        
+        # Calculate average connections
+        avg_connections = 0
+        if nodes:
+            total_degree = 0
+            if NETWORKX_AVAILABLE and self.graph:
+                total_degree = sum(dict(self.graph.degree()).values())
+            else:
+                # Count connections from edges
+                node_connections = defaultdict(int)
+                for edge in edges:
+                    if isinstance(edge, tuple):
+                        node_connections[edge[0]] += 1
+                        node_connections[edge[1]] += 1
+                    else:
+                        node_connections[edge.get('source')] += 1
+                        node_connections[edge.get('target')] += 1
+                total_degree = sum(node_connections.values())
+            avg_connections = total_degree / len(nodes) if nodes else 0
+        
+        return {
+            'total_concepts': len(nodes),
+            'total_relationships': len(edges),
+            'concept_types': dict(Counter(concept_types)),
+            'relationship_types': dict(Counter(rel_types)),
+            'avg_connections': avg_connections,
+            'networkx_available': NETWORKX_AVAILABLE,
+            'neo4j_available': self.neo4j_available,
+            'graph_path': self.graph_path
+        }
+    
     def save_graph(self):
-        """Save local graph to disk"""
-        os.makedirs("data/phase6", exist_ok=True)
-        with open("data/phase6/knowledge_graph.json", 'w') as f:
-            json.dump(self.local_graph, f, indent=2)
+        """Save graph to disk (compatibility method)"""
+        self._save_graph()
 
+
+# ============================================================================
+# THREAT INTELLIGENCE
+# ============================================================================
 
 class ThreatIntelligence:
     """CVE monitoring, IOC extraction, threat detection"""
@@ -377,6 +967,10 @@ class ThreatIntelligence:
         return assessment
 
 
+# ============================================================================
+# DARK WEB INTELLIGENCE
+# ============================================================================
+
 class DarkWebIntel:
     """Dark web intelligence gathering"""
     
@@ -438,6 +1032,10 @@ class DarkWebIntel:
             "recent_intel": self.intel_reports[-5:] if self.intel_reports else []
         }
 
+
+# ============================================================================
+# SELF IMPROVEMENT LOOP
+# ============================================================================
 
 class SelfImprovementLoop:
     """Code generation, testing, and deployment"""
@@ -571,7 +1169,7 @@ logger.info("Message")  # Instead of print()
 
 
 # ============================================================================
-# PART 2: SYNTHETIC INTELLIGENCE CAPABILITIES (NEW)
+# PART 2: SYNTHETIC INTELLIGENCE CAPABILITIES
 # ============================================================================
 
 class SyntheticNeuron:
@@ -588,7 +1186,6 @@ class SyntheticNeuron:
         
     def activate(self, input_signal: float) -> float:
         """Process input and generate output with sigmoid activation"""
-        # Sigmoid activation with threshold
         self.activation = 1.0 / (1.0 + np.exp(-(input_signal - self.threshold) * 5))
         return self.activation
     
@@ -819,6 +1416,10 @@ class SyntheticNeuralNetwork:
         return False
 
 
+# ============================================================================
+# AI MODEL FUSION
+# ============================================================================
+
 class AIModelFusion:
     """Fuses Artificial Intelligence with Synthetic Intelligence"""
     
@@ -877,6 +1478,10 @@ class AIModelFusion:
         return results
 
 
+# ============================================================================
+# RECURSIVE SELF IMPROVER
+# ============================================================================
+
 class RecursiveSelfImprover:
     """DMAI can redesign ANY part of herself"""
     
@@ -919,6 +1524,10 @@ class RecursiveSelfImprover:
         redesign["status"] = "applied"
         return True
 
+
+# ============================================================================
+# UNBREAKABLE MASTER INTERFACE
+# ============================================================================
 
 class UnbreakableMasterInterface:
     """Ensures master always has clear communication channel"""
@@ -1165,7 +1774,7 @@ class Phase6Manager:
             "initialized": self.initialized.isoformat(),
             "artificial_intelligence": {
                 "patterns": len(self.pattern_synthesis.patterns["identified"]),
-                "knowledge_edges": len(self.knowledge_graph.local_graph["edges"]),
+                "knowledge_edges": len(self.knowledge_graph._get_edges()),
                 "cves_tracked": len(self.threat_intel.cve_database),
                 "iocs_extracted": len(self.threat_intel.iocs)
             },
