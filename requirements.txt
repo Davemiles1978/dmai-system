@@ -15,7 +15,7 @@ psutil>=5.9.0
 # Data processing
 numpy>=1.24.0
 
-# Database (keep for future)
+# Database
 psycopg2-binary>=2.9.0
 
 # AI APIs
@@ -28,7 +28,7 @@ deepseek>=0.1.0
 python-telegram-bot>=20.0
 
 # ====================================================================
-# VOICE INTEGRATION DEPENDENCIES (NEW)
+# VOICE INTEGRATION DEPENDENCIES
 # ====================================================================
 
 # Text-to-Speech
@@ -40,16 +40,21 @@ SpeechRecognition>=3.10.0        # Microphone input
 pyaudio>=0.2.11                  # Audio capture
 whisper>=1.1.10                  # Local STT (OpenAI Whisper)
 
-# Audio processing
-wave>=0.0.2                      # WAV file handling
-audioop-lts>=0.2.0               # Audio level detection
+# Audio processing (wave is built-in, no install needed)
+# wave is part of Python standard library
 
 # Web scraping for knowledge sources
 beautifulsoup4>=4.12.0           # HTML parsing
 feedparser>=6.0.10               # RSS feeds
 
-# Optional: Google Cloud STT (if using)
-# google-cloud-speech>=2.24.0
+# ====================================================================
+# MUSIC LEARNER DEPENDENCIES
+# ====================================================================
+
+librosa>=0.10.0                  # Audio analysis
+soundfile>=0.12.0                # Audio file handling
+audioread>=3.0.0                 # Audio format support
+spotipy>=2.23.0                  # Spotify API (optional)
 
 # Web server
 gunicorn==20.1.0
