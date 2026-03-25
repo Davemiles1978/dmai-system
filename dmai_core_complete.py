@@ -41,7 +41,7 @@ import re
 from bs4 import BeautifulSoup
 
 # Web imports
-from flask import Flask, render_template, request, jsonify, redirect, session, send_from_directory
+from flask import Flask, render_template, render_template_string, request, jsonify, redirect, session, send_from_directory
 from flask_cors import CORS
 
 # ============================================================================
