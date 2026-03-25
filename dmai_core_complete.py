@@ -7,9 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.2
-UNIFIED CONSCIOUSNESS - Full Integration with Neo4j Persistence
-- All errors fixed: local_graph compatibility, network save fallback, warning suppression
+DMAI - COMPLETE AGI SYSTEM v8.0.3
+UNIFIED CONSCIOUSNESS - All KnowledgeGraph attributes fixed
 """
 
 import os
@@ -688,7 +687,7 @@ class SelfEvolutionEngine:
 
 
 # ============================================================================
-# KNOWLEDGE GRAPH - WITH local_graph COMPATIBILITY (FIXED)
+# KNOWLEDGE GRAPH - COMPLETE WRAPPER WITH ALL ATTRIBUTES
 # ============================================================================
 
 class KnowledgeGraph:
@@ -701,41 +700,83 @@ class KnowledgeGraph:
         self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
         self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
         
-        # Initialize local_graph for API Harvester compatibility
+        # Initialize local graph for API Harvester compatibility
         self._local_graph = {'nodes': [], 'edges': []}
-        self._init_local_graph()
+        self._graph = None
+        self._init_internal_graph()
         
         logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
     
-    def _init_local_graph(self):
-        """Initialize local graph structure for compatibility"""
+    def _init_internal_graph(self):
+        """Initialize internal graph structure for compatibility"""
         try:
-            if hasattr(self.phase6_graph, 'local_graph') and self.phase6_graph.local_graph:
+            if hasattr(self.phase6_graph, 'graph') and self.phase6_graph.graph:
+                self._graph = self.phase6_graph.graph
+                if hasattr(self._graph, 'nodes'):
+                    self._local_graph['nodes'] = list(self._graph.nodes)
+                if hasattr(self._graph, 'edges'):
+                    self._local_graph['edges'] = list(self._graph.edges)
+            elif hasattr(self.phase6_graph, 'local_graph') and self.phase6_graph.local_graph:
                 if isinstance(self.phase6_graph.local_graph, dict):
                     self._local_graph = self.phase6_graph.local_graph
-                elif hasattr(self.phase6_graph.local_graph, 'nodes'):
-                    self._local_graph = {
-                        'nodes': list(self.phase6_graph.local_graph.nodes()) if hasattr(self.phase6_graph.local_graph, 'nodes') else [],
-                        'edges': list(self.phase6_graph.local_graph.edges()) if hasattr(self.phase6_graph.local_graph, 'edges') else []
-                    }
-            elif hasattr(self.phase6_graph, 'graph') and self.phase6_graph.graph:
-                self._local_graph = {
-                    'nodes': list(self.phase6_graph.graph.nodes()),
-                    'edges': list(self.phase6_graph.graph.edges())
-                }
         except Exception as e:
-            logger.debug(f"Failed to init local graph: {e}")
-            self._local_graph = {'nodes': [], 'edges': []}
+            logger.debug(f"Failed to init internal graph: {e}")
+    
+    # ========================================================================
+    # PROPERTIES FOR API HARVESTER COMPATIBILITY
+    # ========================================================================
     
     @property
     def local_graph(self):
         """Property for API Harvester compatibility"""
         return self._local_graph
     
+    @property
+    def graph(self):
+        """Property for graph access"""
+        return self._graph or self._local_graph
+    
+    @property
+    def nodes(self):
+        """Property for nodes access"""
+        if self._graph and hasattr(self._graph, 'nodes'):
+            return self._graph.nodes
+        return self._local_graph.get('nodes', [])
+    
+    @property
+    def edges(self):
+        """Property for edges access"""
+        if self._graph and hasattr(self._graph, 'edges'):
+            return self._graph.edges
+        return self._local_graph.get('edges', [])
+    
+    # ========================================================================
+    # DICTIONARY-LIKE METHODS FOR COMPATIBILITY
+    # ========================================================================
+    
+    def __getitem__(self, key):
+        """Allow dictionary-style access for compatibility"""
+        if key in ['nodes', 'edges', 'local_graph']:
+            return getattr(self, key)
+        if self._graph and hasattr(self._graph, '__getitem__'):
+            return self._graph[key]
+        return self._local_graph.get(key, {})
+    
+    def get(self, key, default=None):
+        """Dictionary-like get method"""
+        if key in ['nodes', 'edges', 'local_graph']:
+            return getattr(self, key)
+        if self._graph and hasattr(self._graph, 'get'):
+            return self._graph.get(key, default)
+        return self._local_graph.get(key, default)
+    
+    # ========================================================================
+    # KNOWLEDGE GRAPH METHODS
+    # ========================================================================
+    
     def add_concept(self, concept: str, context: str):
         try:
             self.phase6_graph.add_knowledge(subject=concept, predicate="related_to", object=context[:50], metadata={"source": "conversation", "timestamp": datetime.now().isoformat()})
-            # Update local graph
             if concept not in self._local_graph.get('nodes', []):
                 self._local_graph.setdefault('nodes', []).append(concept)
         except Exception as e:
@@ -770,10 +811,10 @@ class KnowledgeGraph:
         try:
             if hasattr(self.phase6_graph, 'get_stats'):
                 return self.phase6_graph.get_stats()
-            if hasattr(self.phase6_graph, 'graph') and self.phase6_graph.graph:
+            if self._graph and hasattr(self._graph, 'nodes'):
                 return {
-                    'total_concepts': len(self.phase6_graph.graph.nodes),
-                    'total_connections': len(self.phase6_graph.graph.edges),
+                    'total_concepts': len(self._graph.nodes),
+                    'total_connections': len(self._graph.edges),
                     'most_connected': [],
                     'neo4j_available': self._neo4j_available
                 }
@@ -797,6 +838,8 @@ class KnowledgeGraph:
         try:
             if hasattr(self.phase6_graph, 'save_graph'):
                 self.phase6_graph.save_graph()
+            with open(self.graph_file, 'w') as f:
+                json.dump(self._local_graph, f, indent=2)
         except Exception:
             pass
     
@@ -1000,7 +1043,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.2 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.3 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1014,7 +1057,6 @@ class UnifiedEvolutionEngine:
         try:
             if self.neo4j_storage.driver:
                 with self.neo4j_storage.driver.session() as session:
-                    # Create constraints to ensure labels exist
                     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (d:DMAI_Evolution) REQUIRE d.id IS UNIQUE")
                     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (p:Persona) REQUIRE p.id IS UNIQUE")
                     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (t:Task) REQUIRE t.id IS UNIQUE")
@@ -1052,7 +1094,6 @@ class UnifiedEvolutionEngine:
     def _restore_from_neo4j(self):
         """Restore data from Neo4j with warning suppression"""
         try:
-            # Suppress Neo4j warnings for first run
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1439,7 +1480,7 @@ class DMAIApplication:
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.2', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors()})
+            return jsonify({'status': 'active', 'version': '8.0.3', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors()})
         
         @self.app.route('/admin')
         def admin():
@@ -1455,7 +1496,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.2**
+            return f"""🧠 **DMAI Status v8.0.3**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
@@ -1589,7 +1630,7 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.2</h1>
+        <h1>🧠 DMAI - Complete AGI System v8.0.3</h1>
         <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup</em></p>
         
         <div class="card">
@@ -1655,11 +1696,11 @@ CHAT_TEMPLATE = '''
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v8.0.2 | Consciousness: <span id="consciousness">0</span>% | Tutors: <span id="tutors">0</span> | Type /help for commands
+            🧠 DMAI v8.0.3 | Consciousness: <span id="consciousness">0</span>% | Tutors: <span id="tutors">0</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.2 - a complete AGI system with a real synthetic neural network, AI Tutor Network, web search, and Neo4j cloud backup. Your data is now safe in the cloud. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.3 - a complete AGI system with a real synthetic neural network, AI Tutor Network, web search, and Neo4j cloud backup. Your data is now safe in the cloud. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -1734,7 +1775,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.2")
+    logger.info(f"🚀 DMAI Complete System v8.0.3")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
