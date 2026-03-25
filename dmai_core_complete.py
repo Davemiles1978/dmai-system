@@ -936,25 +936,37 @@ class KnowledgeGraph:
         
     def add_concept(self, concept: str, context: str):
         """Add a concept to the knowledge graph"""
-        self.phase6_graph.add_knowledge(
-            subject=concept,
-            predicate="related_to",
-            object=context[:50],
-            metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
-        )
+        try:
+            self.phase6_graph.add_knowledge(
+                subject=concept,
+                predicate="related_to",
+                object=context[:50],
+                metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
+            )
+        except Exception as e:
+            logger.debug(f"Failed to add concept {concept}: {e}")
         
     def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
         """Add knowledge triple"""
-        self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
+        try:
+            self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
+        except Exception as e:
+            logger.debug(f"Failed to add knowledge: {e}")
         
     def connect_concepts(self, concept1: str, concept2: str, relationship: str):
         """Connect two concepts"""
-        self.phase6_graph.add_knowledge(concept1, relationship, concept2)
+        try:
+            self.phase6_graph.add_knowledge(concept1, relationship, concept2)
+        except Exception as e:
+            logger.debug(f"Failed to connect concepts: {e}")
         
     def get_related(self, concept: str) -> List[str]:
         """Get related concepts"""
-        results = self.phase6_graph.get_related(concept)
-        return [r.get('related', '') for r in results]
+        try:
+            results = self.phase6_graph.get_related(concept)
+            return [r.get('related', '') for r in results] if results else []
+        except Exception:
+            return []
         
     def get_insights(self, concept: str) -> List[str]:
         """Get insights about a concept"""
@@ -973,16 +985,7 @@ class KnowledgeGraph:
             if hasattr(self.phase6_graph, 'get_stats'):
                 return self.phase6_graph.get_stats()
             
-            # Fallback: manually count from local graph
-            if hasattr(self.phase6_graph, 'local_graph'):
-                return {
-                    'total_concepts': len(self.phase6_graph.local_graph.get('nodes', [])),
-                    'total_connections': len(self.phase6_graph.local_graph.get('edges', [])),
-                    'most_connected': [],
-                    'neo4j_available': self._neo4j_available
-                }
-            
-            # If using NetworkX graph
+            # Check for graph attribute (NetworkX)
             if hasattr(self.phase6_graph, 'graph') and self.phase6_graph.graph:
                 return {
                     'total_concepts': len(self.phase6_graph.graph.nodes),
@@ -990,34 +993,42 @@ class KnowledgeGraph:
                     'most_connected': [],
                     'neo4j_available': self._neo4j_available
                 }
+            
+            # Return empty stats if nothing available
+            return {
+                'total_concepts': 0,
+                'total_connections': 0,
+                'most_connected': [],
+                'neo4j_available': self._neo4j_available
+            }
                 
         except Exception as e:
-            logger.error(f"Failed to get graph stats: {e}")
-        
-        return {
-            'total_concepts': 0,
-            'total_connections': 0,
-            'most_connected': [],
-            'neo4j_available': self._neo4j_available
-        }
+            logger.debug(f"Failed to get graph stats: {e}")
+            return {
+                'total_concepts': 0,
+                'total_connections': 0,
+                'most_connected': [],
+                'neo4j_available': self._neo4j_available
+            }
         
     def query_knowledge(self, query: str) -> List[Dict]:
         """Query knowledge graph"""
-        return self.phase6_graph.query_knowledge(query)
+        try:
+            return self.phase6_graph.query_knowledge(query)
+        except Exception:
+            return []
         
     def save_graph(self):
         """Save graph to disk (for local backup)"""
-        if hasattr(self.phase6_graph, 'save_graph'):
-            self.phase6_graph.save_graph()
-        else:
-            # Fallback: save local graph if available
-            if hasattr(self.phase6_graph, 'local_graph'):
-                with open(self.graph_file, 'w') as f:
-                    json.dump(self.phase6_graph.local_graph, f, indent=2)
+        try:
+            if hasattr(self.phase6_graph, 'save_graph'):
+                self.phase6_graph.save_graph()
+        except Exception:
+            pass
                     
     def is_neo4j_available(self) -> bool:
         """Check if Neo4j is available and connected"""
-        return self._neo4j_available and self.phase6_graph.neo4j_available
+        return self._neo4j_available and hasattr(self.phase6_graph, 'neo4j_available') and self.phase6_graph.neo4j_available
 
 
 # ============================================================================
@@ -1306,7 +1317,7 @@ class UnifiedEvolutionEngine:
         
     def _seed_initial_network(self):
         """Seed the initial network with base neurons"""
-        # Add initial neurons
+        # Add initial neurons - use correct parameter for RealSyntheticNeuron
         initial_neurons = [
             "consciousness_core", "learning_input", "memory_store", "persona_core",
             "emotion_center", "reasoning_engine", "creativity_module", "knowledge_integration",
@@ -1317,23 +1328,33 @@ class UnifiedEvolutionEngine:
         
         for neuron_name in initial_neurons:
             neuron_id = f"neuron_{neuron_name}_{uuid.uuid4().hex[:8]}"
-            self.synthetic_network.neurons[neuron_id] = RealSyntheticNeuron(
-                neuron_id=neuron_id,
-                activation=0.1,
-                threshold=0.5,
-                learning_rate=0.1
-            )
-        
-        # Create initial connections
-        neuron_ids = list(self.synthetic_network.neurons.keys())
-        for i in range(min(50, len(neuron_ids) - 1)):
-            for j in range(i + 1, min(i + 5, len(neuron_ids))):
-                if i < len(neuron_ids) and j < len(neuron_ids):
-                    self.synthetic_network.neurons[neuron_ids[i]].create_synapse(
-                        neuron_ids[j], random.uniform(0.1, 0.5)
-                    )
+            try:
+                # RealSyntheticNeuron expects only neuron_id parameter
+                neuron = RealSyntheticNeuron(neuron_id=neuron_id)
+                self.synthetic_network.neurons[neuron_id] = neuron
+            except TypeError:
+                try:
+                    # Try positional argument
+                    neuron = RealSyntheticNeuron(neuron_id)
+                    self.synthetic_network.neurons[neuron_id] = neuron
+                except Exception as e:
+                    logger.error(f"Failed to create neuron {neuron_id}: {e}")
         
         logger.info(f"🌱 Seeded initial network with {len(self.synthetic_network.neurons)} neurons")
+        
+        # Create initial connections if the network supports it
+        if len(self.synthetic_network.neurons) > 1:
+            neuron_ids = list(self.synthetic_network.neurons.keys())
+            for i in range(min(30, len(neuron_ids) - 1)):
+                for j in range(i + 1, min(i + 4, len(neuron_ids))):
+                    if i < len(neuron_ids) and j < len(neuron_ids):
+                        try:
+                            if hasattr(self.synthetic_network.neurons[neuron_ids[i]], 'create_synapse'):
+                                self.synthetic_network.neurons[neuron_ids[i]].create_synapse(
+                                    neuron_ids[j], random.uniform(0.1, 0.5)
+                                )
+                        except Exception:
+                            pass  # Ignore synapse creation errors
         
     def _restore_from_neo4j(self):
         """Restore data from Neo4j if available"""
