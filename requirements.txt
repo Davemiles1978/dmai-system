@@ -32,25 +32,58 @@ beautifulsoup4>=4.12.0
 feedparser>=6.0.10
 
 # ====================================================================
-# AUDIO/MUSIC DEPENDENCIES (MARKED OPTIONAL - WILL FAIL ON RENDER)
-# These are for local development only. Render doesn't have audio hardware.
+# CLOUD DEPLOYMENT DEPENDENCIES (REAL API INTEGRATION)
 # ====================================================================
 
-# Text-to-Speech (optional - falls back to system say)
+# AWS SDK for real EC2, S3, Lambda deployment
+boto3>=1.34.0
+
+# Oracle Cloud SDK for real OCI deployment
+oci>=2.128.0
+
+# Pin urllib3 to avoid conflicts between boto3 and oci
+urllib3==1.26.18
+
+# ====================================================================
+# AUDIO/MUSIC DEPENDENCIES (OPTIONAL - FOR LOCAL DEVELOPMENT)
+# Uncomment these for local audio features. Render does not have audio hardware.
+# ====================================================================
+
+# Text-to-Speech
 # pyttsx3>=2.90
 
-# Speech-to-Text (optional - requires portaudio system library)
+# Speech-to-Text (requires portaudio system library)
 # SpeechRecognition>=3.10.0
 # pyaudio>=0.2.11
 
-# Local STT (optional - large model, may cause memory issues)
+# Local STT (OpenAI Whisper)
 # whisper>=1.1.10
 
-# Music analysis (optional - requires system libraries)
+# Music analysis
 # librosa>=0.10.0
 # soundfile>=0.12.0
 # audioread>=3.0.0
 # spotipy>=2.23.0
 
-# Cloud TTS (optional)
+# Cloud TTS
 # elevenlabs>=1.0.0
+
+# ====================================================================
+# BROWSER AUTOMATION (for identity persona generator)
+# ====================================================================
+
+# Playwright for real browser automation
+playwright>=1.40.0
+
+# ====================================================================
+# NETWORK AND SECURITY
+# ====================================================================
+
+# NetworkX for knowledge graph (optional but recommended)
+networkx>=3.0
+
+# Neo4j driver for knowledge graph (optional)
+# neo4j>=5.14.0
+
+# Web server
+gunicorn==20.1.0
