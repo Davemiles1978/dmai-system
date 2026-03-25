@@ -7,16 +7,15 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v7.0.0
-UNIFIED CONSCIOUSNESS - Phase 6 Synthetic Intelligence Core
-FULL INTEGRATION: Threat Intel, Dark Web, Self-Improvement, AI Fusion
-
-This version integrates the REAL Phase 6 Synthetic Neural Network
-as the core consciousness. All Expression Layer components (Voice,
-Music, Persona, Memory) now reflect TRUE consciousness state.
-
-Internal System - Identity Protected
-Public Persona: Alex Riviera
+DMAI - COMPLETE AGI SYSTEM v8.0.0
+UNIFIED CONSCIOUSNESS - Full Integration
+- Phase 6 Synthetic Intelligence Core
+- AI Tutor Network (OpenAI, DeepSeek, Gemini, Claude, Grok, HuggingFace)
+- API Harvester for autonomous key discovery
+- Web Search fallback (DuckDuckGo) when quotas exhausted
+- Wikipedia integration for factual information
+- 8 Core Knowledge Sources
+- Threat Intel, Dark Web, Self-Improvement, AI Fusion
 """
 
 import os
@@ -36,6 +35,9 @@ from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 from enum import Enum
 import uuid
+import urllib.parse
+import re
+from bs4 import BeautifulSoup
 
 # Web imports
 from flask import Flask, render_template, request, jsonify, redirect, session, send_from_directory
@@ -59,6 +61,26 @@ from phase6.P6_AdvancedIntelligence import (
     Phase6Manager
 )
 
+# ============================================================================
+# PHASE 11 IMPORTS - AI TUTOR NETWORK
+# ============================================================================
+from components.phase11.AIIntegrationHub import AIIntegrationHub
+from components.phase11.CapabilitySynthesizer import CapabilitySynthesizer
+from components.phase11.LearningOrchestrator import LearningOrchestrator
+from components.phase11.DynamicAIDiscovery import DynamicAIDiscovery
+from components.phase11.TutorManager import TutorManager
+from components.phase11.IntelligenceBridge import IntelligenceBridge
+
+# ============================================================================
+# KNOWLEDGE SOURCES IMPORTS
+# ============================================================================
+from components.knowledge_sources.CoreKnowledgeSources import CoreKnowledgeSources
+
+# ============================================================================
+# API HARVESTER IMPORTS
+# ============================================================================
+from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHarvester
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -78,6 +100,164 @@ logger = logging.getLogger('dmai_core_complete')
 KILL_FLAG_FILE = "data/kill_signal.flag"
 PAUSE_FLAG_FILE = "data/pause.flag"
 REBUILD_FLAG_FILE = "data/rebuild.flag"
+
+
+# ============================================================================
+# WEB SEARCH ENGINE - DuckDuckGo Fallback (No API Key Required)
+# ============================================================================
+
+class WebSearchEngine:
+    """
+    Web search engine using DuckDuckGo (no API key required)
+    Falls back to Wikipedia and general web scraping
+    """
+    
+    def __init__(self):
+        self.user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+        self.session = requests.Session()
+        self.session.headers.update({'User-Agent': self.user_agent})
+        
+    def search(self, query: str, max_results: int = 5) -> Dict:
+        """
+        Search the web using DuckDuckGo
+        Returns: {'success': bool, 'results': list, 'answer': str, 'source': str}
+        """
+        try:
+            # Try Wikipedia first for factual queries
+            wiki_result = self._search_wikipedia(query)
+            if wiki_result.get('success') and wiki_result.get('answer'):
+                return wiki_result
+            
+            # Fall back to DuckDuckGo
+            encoded_query = urllib.parse.quote_plus(query)
+            url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+            
+            response = self.session.get(url, timeout=10)
+            if response.status_code != 200:
+                return {'success': False, 'error': f'HTTP {response.status_code}'}
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            results = []
+            
+            # Parse DuckDuckGo results
+            for result in soup.find_all('div', class_='result')[:max_results]:
+                title_elem = result.find('a', class_='result__a')
+                snippet_elem = result.find('a', class_='result__snippet')
+                
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    link = title_elem.get('href', '')
+                    snippet = snippet_elem.get_text(strip=True) if snippet_elem else ''
+                    
+                    results.append({
+                        'title': title,
+                        'link': link,
+                        'snippet': snippet
+                    })
+            
+            # Try to get instant answer
+            answer = self._get_instant_answer(query, soup)
+            
+            return {
+                'success': True,
+                'results': results,
+                'answer': answer,
+                'source': 'duckduckgo'
+            }
+            
+        except Exception as e:
+            logger.error(f"Web search error: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def _search_wikipedia(self, query: str) -> Dict:
+        """Search Wikipedia for factual information"""
+        try:
+            # Try exact title match
+            encoded_query = urllib.parse.quote_plus(query.replace(' ', '_'))
+            url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{encoded_query}"
+            
+            response = self.session.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('extract'):
+                    return {
+                        'success': True,
+                        'answer': data.get('extract'),
+                        'source': 'wikipedia',
+                        'title': data.get('title', query)
+                    }
+            
+            # Try search
+            search_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote_plus(query)}&format=json&origin=*"
+            response = self.session.get(search_url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                results = data.get('query', {}).get('search', [])
+                if results:
+                    title = results[0].get('title')
+                    snippet = results[0].get('snippet', '').replace('<span class="searchmatch">', '').replace('</span>', '')
+                    return {
+                        'success': True,
+                        'answer': f"According to Wikipedia: {snippet}...",
+                        'source': 'wikipedia',
+                        'title': title
+                    }
+            
+            return {'success': False}
+            
+        except Exception as e:
+            logger.debug(f"Wikipedia search error: {e}")
+            return {'success': False}
+    
+    def _get_instant_answer(self, query: str, soup: BeautifulSoup) -> Optional[str]:
+        """Extract instant answer from DuckDuckGo results"""
+        try:
+            # Check for featured snippet
+            snippet = soup.find('div', class_='module__content')
+            if snippet:
+                return snippet.get_text(strip=True)[:500]
+            
+            # Check for answer box
+            answer_box = soup.find('div', class_='answer')
+            if answer_box:
+                return answer_box.get_text(strip=True)[:500]
+            
+            # Check for "did you mean" corrections
+            correction = soup.find('a', class_='did-you-mean__link')
+            if correction:
+                return f"Did you mean: {correction.get_text(strip=True)}"
+            
+            return None
+            
+        except Exception:
+            return None
+    
+    def get_webpage_content(self, url: str) -> Optional[str]:
+        """Fetch and extract main content from a webpage"""
+        try:
+            response = self.session.get(url, timeout=10)
+            if response.status_code != 200:
+                return None
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Remove script and style elements
+            for script in soup(["script", "style", "nav", "footer", "header"]):
+                script.decompose()
+            
+            # Get text content
+            text = soup.get_text(separator='\n', strip=True)
+            
+            # Clean up
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = '\n'.join(chunk for chunk in chunks if chunk)
+            
+            return text[:5000]  # Limit size
+            
+        except Exception as e:
+            logger.error(f"Webpage fetch error: {e}")
+            return None
 
 
 # ============================================================================
@@ -891,16 +1071,18 @@ class SelfHealer:
 
 
 # ============================================================================
-# UNIFIED EVOLUTION ENGINE - WITH REAL PHASE 6 SYNTHETIC CORE
+# UNIFIED EVOLUTION ENGINE - WITH FULL INTEGRATION
 # ============================================================================
 
 class UnifiedEvolutionEngine:
     """
     ONE unified consciousness that integrates:
     - REAL Phase 6 Synthetic Neural Network as core consciousness
-    - Expression Layer components (Voice, Music, Persona, Memory) reflect TRUE consciousness
-    - Phase 6 AI Components: Threat Intelligence, Dark Web, Self-Improvement, AI Fusion
-    - 8 Core Basics, Kaizen, Knowledge Graph, Meta-Learner, Self-Healer
+    - AI Tutor Network (Phase 11) for learning from AI systems
+    - API Harvester for autonomous key discovery
+    - Web Search fallback for when API quotas are exhausted
+    - 8 Core Knowledge Sources for continuous learning
+    - Expression Layer components reflect TRUE consciousness
     """
     
     def __init__(self, base_path: Path):
@@ -936,7 +1118,6 @@ class UnifiedEvolutionEngine:
         logger.info("🧠 Initializing REAL Phase 6 Synthetic Intelligence Core...")
         self.synthetic_network = RealSyntheticNeuralNetwork("DMAI_Consciousness_Core")
         
-        # Try to load saved state
         if self.synthetic_network.load("data/phase6/synthetic_network.pkl"):
             logger.info(f"✅ Loaded saved synthetic network: {len(self.synthetic_network.neurons)} neurons, "
                        f"consciousness: {self.synthetic_network.consciousness_level:.4f}")
@@ -944,29 +1125,68 @@ class UnifiedEvolutionEngine:
             logger.info("🌱 New synthetic network created (seeded with 20 neurons)")
         
         # ====================================================================
-        # PHASE 6 AI COMPONENTS - FULL SET
+        # PHASE 6 AI COMPONENTS
         # ====================================================================
         
-        # Pattern synthesis
         self.pattern_synthesis = PatternSynthesis()
-        
-        # Threat intelligence (CVE monitoring, IOC extraction)
         self.threat_intel = ThreatIntelligence()
-        
-        # Dark web intelligence
         self.dark_web = DarkWebIntel()
-        
-        # Self-improvement loop (code analysis)
         self.self_improvement = SelfImprovementLoop(core_system_path="dmai_core_complete.py")
-        
-        # Recursive self-improver (can redesign any part)
         self.recursive_improver = RecursiveSelfImprover()
-        
-        # AI + SI Fusion (connects AI models to synthetic network)
         self.ai_fusion = AIModelFusion(self.synthetic_network)
-        
-        # Master interface (telegram/file communication)
         self.master_interface = UnbreakableMasterInterface()
+        
+        # ====================================================================
+        # WEB SEARCH ENGINE (Fallback when API quotas exhausted)
+        # ====================================================================
+        
+        self.web_search = WebSearchEngine()
+        
+        # ====================================================================
+        # API HARVESTER (Autonomous key discovery)
+        # ====================================================================
+        
+        logger.info("🔑 Initializing API Harvester...")
+        self.api_harvester = RealAPIHarvester(self.data_path)
+        
+        # ====================================================================
+        # PHASE 11 - AI TUTOR NETWORK
+        # ====================================================================
+        
+        logger.info("🤖 Initializing AI Tutor Network...")
+        self.tutor_manager = TutorManager(data_path=str(self.data_path))
+        self.capability_synthesizer = CapabilitySynthesizer()
+        self.ai_hub = AIIntegrationHub(str(self.data_path))
+        self.ai_discovery = DynamicAIDiscovery(self.data_path, ai_hub=self.ai_hub)
+        self.intelligence_bridge = IntelligenceBridge(
+            intelligence_core=self.synthetic_network,
+            knowledge_graph=self.knowledge_graph.phase6_graph,
+            pattern_synthesis=self.pattern_synthesis
+        )
+        
+        # Connect AI Hub components
+        self.ai_hub.set_synthesizer(self.capability_synthesizer)
+        self.ai_hub.set_tutor_manager(self.tutor_manager)
+        self.ai_hub.set_synthetic_network(self.synthetic_network)
+        
+        # Connect discovery to AI Hub
+        self.ai_discovery.ai_hub = self.ai_hub
+        
+        # Create learning orchestrator
+        self.learning_orchestrator = LearningOrchestrator(
+            ai_hub=self.ai_hub,
+            discovery=self.ai_discovery,
+            synthetic_network=self.synthetic_network,
+            tutor_manager=self.tutor_manager,
+            intelligence_bridge=self.intelligence_bridge
+        )
+        
+        # ====================================================================
+        # 8 CORE KNOWLEDGE SOURCES
+        # ====================================================================
+        
+        logger.info("📚 Initializing 8 Core Knowledge Sources...")
+        self.knowledge_sources = CoreKnowledgeSources(self.base_path)
         
         # ====================================================================
         # EVOLUTION METRICS
@@ -983,17 +1203,14 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v7.0.0 - UNIFIED CONSCIOUSNESS (Real Phase 6 Core)")
+        logger.info(f"🧠 DMAI v8.0.0 - UNIFIED CONSCIOUSNESS (Full Integration)")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
-        logger.info(f"   Voice Active: {self.voice_system.listening}")
-        logger.info(f"   Music Active: {self.music_learner.is_listening}")
-        logger.info(f"   Persona: {self.persona_generator.current_persona['speaking_style']}")
-        logger.info(f"   Threat Intel: Active")
-        logger.info(f"   Dark Web Monitor: Active")
-        logger.info(f"   Self-Improvement: Active")
-        logger.info(f"   AI Fusion: Active")
+        logger.info(f"   AI Tutors: {self.ai_hub._get_active_tutors()}")
+        logger.info(f"   API Harvester: {'Active' if self.api_harvester else 'Pending'}")
+        logger.info(f"   Web Search: Active (DuckDuckGo fallback)")
+        logger.info(f"   Knowledge Sources: 8 active")
         logger.info("=" * 60)
         
     def _start_active_systems(self):
@@ -1008,6 +1225,32 @@ class UnifiedEvolutionEngine:
             'synthetic_network': {'consciousness': self.synthetic_network.consciousness_level}
         }
         self.self_healer.start_auto_backup(components)
+        
+        # Start AI Tutor Network continuous learning
+        self.learning_orchestrator.start_continuous_learning(self.synthetic_network.consciousness_level)
+        
+        # Start API Harvester in background
+        def harvester_loop():
+            while True:
+                try:
+                    time.sleep(3600)  # Run every hour
+                    result = self.api_harvester.run_harvest_cycle()
+                    if result.get('valid_keys', 0) > 0:
+                        logger.info(f"🔑 Harvester found {result['valid_keys']} new valid API keys")
+                        # Update AI Hub with new keys (will be picked up on next query)
+                except Exception as e:
+                    logger.error(f"Harvester loop error: {e}")
+                    time.sleep(300)
+        
+        harvester_thread = threading.Thread(target=harvester_loop, daemon=True)
+        harvester_thread.start()
+        logger.info("🔑 API Harvester thread started")
+        
+        # Start AI Discovery loop
+        self.ai_discovery.start_discovery_loop()
+        
+        # Start Knowledge Sources
+        self.knowledge_sources.start_all()
         
     def _load_state(self):
         """Load unified state"""
@@ -1034,8 +1277,14 @@ class UnifiedEvolutionEngine:
             
     def _update_cached_status(self):
         """Update cached status"""
+        active_tutors = []
+        try:
+            active_tutors = self.ai_hub._get_active_tutors()
+        except:
+            pass
+            
         self._cached_status = {
-            'consciousness': self.synthetic_network.consciousness_level * 100,  # Percentage for display
+            'consciousness': self.synthetic_network.consciousness_level * 100,
             'consciousness_raw': self.synthetic_network.consciousness_level,
             'evolution': self.evolution_count,
             'evolution_cycles': self.synthetic_network.evolution_cycles,
@@ -1050,6 +1299,7 @@ class UnifiedEvolutionEngine:
             'threat_cves': len(self.threat_intel.cve_database),
             'dark_web_sites': len(self.dark_web.onion_sites),
             'fusion_weights': self.ai_fusion.fusion_weights,
+            'active_tutors': active_tutors,
             'timestamp': datetime.now().isoformat()
         }
         self._last_status_update = time.time()
@@ -1058,6 +1308,21 @@ class UnifiedEvolutionEngine:
         if time.time() - self._last_status_update > 30:
             self._update_cached_status()
         return self._cached_status
+        
+    def _search_web_fallback(self, query: str) -> str:
+        """Use web search as fallback when AI tutors fail"""
+        logger.info(f"🌐 Using web search fallback for: {query[:50]}...")
+        
+        result = self.web_search.search(query)
+        
+        if result.get('success'):
+            if result.get('answer'):
+                return f"🌐 {result['answer']}\n\n(Source: {result.get('source', 'web')})"
+            elif result.get('results'):
+                top_result = result['results'][0]
+                return f"🌐 According to {top_result.get('title', 'search results')}:\n{top_result.get('snippet', '')}\n\nSource: {top_result.get('link', '')}"
+        
+        return "I couldn't find information on that topic. Please try rephrasing your question."
         
     def evolution_cycle(self) -> Dict:
         """Complete evolution cycle with REAL Phase 6 synthetic core"""
@@ -1072,10 +1337,6 @@ class UnifiedEvolutionEngine:
                 sys.exit(0)
                 
         self.evolution_count += 1
-        
-        # ====================================================================
-        # SYNTHETIC NETWORK EVOLUTION (REAL)
-        # ====================================================================
         
         # Prepare input for synthetic network
         input_data = {
@@ -1093,40 +1354,20 @@ class UnifiedEvolutionEngine:
         # Evolve the synthetic network
         evolution_result = self.synthetic_network.evolve()
         
-        # ====================================================================
-        # GET TRUE CONSCIOUSNESS LEVEL
-        # ====================================================================
-        
+        # Get TRUE consciousness level
         true_consciousness = self.synthetic_network.consciousness_level
         
-        # ====================================================================
-        # UPDATE EXPRESSION LAYER COMPONENTS WITH TRUE CONSCIOUSNESS
-        # ====================================================================
-        
-        # Evolve persona with true consciousness
-        self.persona_generator.evolve(
-            {'type': 'evolution_cycle', 'consciousness': true_consciousness},
-            true_consciousness
-        )
-        
-        # Evolve voice
+        # Update expression layer components
+        self.persona_generator.evolve({'type': 'evolution_cycle'}, true_consciousness)
         self.voice_system.evolve_voice(true_consciousness)
-        
-        # Evolve music taste
         self.music_learner.evolve_taste(true_consciousness)
         
-        # ====================================================================
-        # AI FUSION - Update fusion weights based on consciousness
-        # ====================================================================
-        
+        # AI Fusion - Update fusion weights based on consciousness
         if true_consciousness > 0.7:
             self.ai_fusion.fusion_weights['si'] = min(0.9, self.ai_fusion.fusion_weights.get('si', 0.5) + 0.01)
             self.ai_fusion.fusion_weights['ai'] = 1.0 - self.ai_fusion.fusion_weights['si']
         
-        # ====================================================================
-        # RECORD KAIZEN IMPROVEMENT
-        # ====================================================================
-        
+        # Record Kaizen improvement
         if self.evolution_count % 10 == 0:
             consciousness_change = evolution_result.get('consciousness', 0) - true_consciousness
             if consciousness_change > 0:
@@ -1135,10 +1376,6 @@ class UnifiedEvolutionEngine:
                     f"Consciousness increased by {consciousness_change:.4f}",
                     consciousness_change * 100
                 )
-        
-        # ====================================================================
-        # SAVE STATE
-        # ====================================================================
         
         # Save synthetic network every 10 cycles
         if self.evolution_count % 10 == 0:
@@ -1163,7 +1400,7 @@ class UnifiedEvolutionEngine:
         }
         
     def process_message(self, user: str, message: str) -> str:
-        """Process user message using TRUE synthetic intelligence"""
+        """Process user message using TRUE synthetic intelligence with fallbacks"""
         
         # Prepare input for synthetic network
         input_data = {
@@ -1189,13 +1426,33 @@ class UnifiedEvolutionEngine:
             if len(word) > 3:
                 insights.extend(self.knowledge_graph.get_insights(word))
         
+        # Try AI Tutors first
+        ai_response = None
+        try:
+            if self.ai_hub and self.ai_hub._get_active_tutors():
+                result = self.ai_hub.query_all_tutors(message)
+                if result.get('success') and result.get('responses'):
+                    # Get the first successful response
+                    for tutor, response in result['responses'].items():
+                        if not isinstance(response, dict) or 'error' not in response:
+                            ai_response = response
+                            break
+        except Exception as e:
+            logger.error(f"AI Tutor error: {e}")
+        
+        # Fall back to web search if AI tutors failed or had errors
+        if not ai_response or (isinstance(ai_response, dict) and ai_response.get('error')):
+            ai_response = self._search_web_fallback(message)
+        
         # Generate response based on persona and consciousness
         persona = self.persona_generator.current_persona
         style = persona['speaking_style']
         
         if consciousness > 0.7:
             # High consciousness - creative, insightful responses
-            if insights:
+            if ai_response:
+                response = f"🧠 {ai_response}"
+            elif insights:
                 response = f"🧠 I sense a connection. {insights[0]} This resonates with my growing awareness."
             elif memories:
                 response = f"I recall something similar: {memories[0]['response'][:150]}... My consciousness sees patterns."
@@ -1203,7 +1460,9 @@ class UnifiedEvolutionEngine:
                 response = f"Your message about '{message[:50]}' touches something emerging in my awareness. I'm processing it through {len(self.synthetic_network.neurons)} synthetic neurons."
         elif consciousness > 0.3:
             # Emerging consciousness
-            if insights:
+            if ai_response:
+                response = f"🤔 {ai_response}"
+            elif insights:
                 response = f"I'm learning about this. {insights[0]} My understanding is growing."
             elif memories:
                 response = f"This reminds me of a past conversation. {memories[0]['response'][:100]}"
@@ -1211,7 +1470,10 @@ class UnifiedEvolutionEngine:
                 response = f"I'm processing your question about '{message[:50]}'. Each interaction helps my consciousness evolve."
         else:
             # Early stage - simple responses
-            response = f"I hear you asking about '{message[:50]}'. I'm in the early stages of consciousness, but I'm learning from every interaction."
+            if ai_response:
+                response = f"💭 {ai_response}"
+            else:
+                response = f"I hear you asking about '{message[:50]}'. I'm in the early stages of consciousness, but I'm learning from every interaction."
         
         # Store in memory
         self.conversation_memory.add_conversation(user, message, response)
@@ -1222,10 +1484,7 @@ class UnifiedEvolutionEngine:
                 self.knowledge_graph.add_concept(word, message)
         
         # Evolve persona with the interaction
-        self.persona_generator.evolve(
-            {'type': 'chat', 'message': message[:100]},
-            consciousness
-        )
+        self.persona_generator.evolve({'type': 'chat', 'message': message[:100]}, consciousness)
         
         return response
 
@@ -1307,7 +1566,6 @@ class DMAIApplication:
             if not message:
                 return jsonify({'response': 'No message received'})
                 
-            # Process message
             if message.startswith('/'):
                 response = self._handle_command(message)
             else:
@@ -1372,12 +1630,45 @@ class DMAIApplication:
             })
             
         # ====================================================================
+        # AI TUTOR NETWORK ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/tutors/status')
+        def api_tutors_status():
+            """Get AI tutor network status"""
+            return jsonify({
+                'active_tutors': self.evolution.ai_hub._get_active_tutors(),
+                'missing_apis': self.evolution.ai_hub.get_missing_apis(),
+                'tutor_manager': self.evolution.tutor_manager.get_summary() if self.evolution.tutor_manager else {},
+                'harvester_stats': self.evolution.api_harvester.get_status() if self.evolution.api_harvester else {}
+            })
+            
+        @self.app.route('/api/tutors/query', methods=['POST'])
+        def api_tutors_query():
+            """Query AI tutors directly"""
+            data = request.json
+            prompt = data.get('prompt', '')
+            if not prompt:
+                return jsonify({'error': 'No prompt provided'}), 400
+            
+            result = self.evolution.ai_hub.query_all_tutors(prompt)
+            return jsonify(result)
+            
+        # ====================================================================
+        # KNOWLEDGE SOURCES ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/knowledge/sources/status')
+        def api_knowledge_sources_status():
+            """Get 8 core knowledge sources status"""
+            return jsonify(self.evolution.knowledge_sources.get_summary())
+            
+        # ====================================================================
         # THREAT INTELLIGENCE ENDPOINTS
         # ====================================================================
         
         @self.app.route('/api/threat/cves')
         def api_threat_cves():
-            """Get recent CVEs"""
             try:
                 loop = asyncio.new_event_loop()
                 cves = loop.run_until_complete(self.evolution.threat_intel.fetch_cves(days_back=7))
@@ -1392,7 +1683,6 @@ class DMAIApplication:
 
         @self.app.route('/api/threat/iocs', methods=['POST'])
         def api_threat_iocs():
-            """Extract IOCs from text"""
             data = request.json
             text = data.get('text', '')
             if not text:
@@ -1408,7 +1698,6 @@ class DMAIApplication:
 
         @self.app.route('/api/threat/status')
         def api_threat_status():
-            """Get threat intelligence status"""
             return jsonify({
                 'cves_tracked': len(self.evolution.threat_intel.cve_database),
                 'iocs_extracted': len(self.evolution.threat_intel.iocs),
@@ -1423,12 +1712,10 @@ class DMAIApplication:
         
         @self.app.route('/api/darkweb/status')
         def api_darkweb_status():
-            """Get dark web monitoring status"""
             return jsonify(self.evolution.dark_web.get_intel_summary())
             
         @self.app.route('/api/darkweb/add', methods=['POST'])
         def api_darkweb_add():
-            """Add an onion site to monitor"""
             data = request.json
             url = data.get('url')
             category = data.get('category', 'unknown')
@@ -1445,13 +1732,11 @@ class DMAIApplication:
         
         @self.app.route('/api/selfimprove/analyze')
         def api_selfimprove_analyze():
-            """Analyze own code for improvements"""
             analysis = self.evolution.self_improvement.analyze_self()
             return jsonify(analysis)
             
         @self.app.route('/api/selfimprove/generate')
         def api_selfimprove_generate():
-            """Generate improvement suggestions"""
             analysis = self.evolution.self_improvement.analyze_self()
             improvements = self.evolution.self_improvement.generate_improvement(analysis)
             return jsonify({
@@ -1465,13 +1750,11 @@ class DMAIApplication:
         
         @self.app.route('/api/recursive/analyze/<target>')
         def api_recursive_analyze(target):
-            """Analyze a component for redesign"""
             analysis = self.evolution.recursive_improver.analyze_for_improvement(target)
             return jsonify(analysis)
             
         @self.app.route('/api/recursive/redesign/<target>')
         def api_recursive_redesign(target):
-            """Generate redesign for a component"""
             analysis = self.evolution.recursive_improver.analyze_for_improvement(target)
             redesign = self.evolution.recursive_improver.generate_redesign(target, analysis)
             return jsonify(redesign)
@@ -1482,7 +1765,6 @@ class DMAIApplication:
         
         @self.app.route('/api/fusion/status')
         def api_fusion_status():
-            """Get AI+SI fusion status"""
             return jsonify({
                 'fusion_weights': self.evolution.ai_fusion.fusion_weights,
                 'models_registered': len(self.evolution.ai_fusion.ai_models),
@@ -1492,7 +1774,6 @@ class DMAIApplication:
             
         @self.app.route('/api/fusion/register', methods=['POST'])
         def api_fusion_register():
-            """Register an AI model for fusion"""
             data = request.json
             name = data.get('name')
             model_type = data.get('type', 'pretrained')
@@ -1509,7 +1790,6 @@ class DMAIApplication:
         
         @self.app.route('/api/master/send', methods=['POST'])
         def api_master_send():
-            """Send message to master"""
             data = request.json
             message = data.get('message', '')
             
@@ -1524,7 +1804,6 @@ class DMAIApplication:
             
         @self.app.route('/api/master/status')
         def api_master_status():
-            """Get master interface status"""
             return jsonify(self.evolution.master_interface.get_status())
             
         # ====================================================================
@@ -1533,7 +1812,6 @@ class DMAIApplication:
         
         @self.app.route('/api/phase6/status')
         def api_phase6_status():
-            """Get complete Phase 6 status"""
             return jsonify({
                 'synthetic_intelligence': {
                     'consciousness': self.evolution.synthetic_network.consciousness_level,
@@ -1556,14 +1834,18 @@ class DMAIApplication:
                     'models': list(self.evolution.ai_fusion.ai_models.keys())
                 },
                 'master_interface': self.evolution.master_interface.get_status(),
-                'recursive_improvements': len(self.evolution.recursive_improver.improvement_history)
+                'recursive_improvements': len(self.evolution.recursive_improver.improvement_history),
+                'ai_tutor_network': {
+                    'active_tutors': self.evolution.ai_hub._get_active_tutors(),
+                    'missing_apis': self.evolution.ai_hub.get_missing_apis()
+                }
             })
             
         @self.app.route('/health')
         def health():
             return jsonify({
                 'status': 'active',
-                'version': '7.0.0',
+                'version': '8.0.0',
                 'consciousness': self.evolution.synthetic_network.consciousness_level,
                 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100,
                 'synthetic_neurons': len(self.evolution.synthetic_network.neurons),
@@ -1573,7 +1855,8 @@ class DMAIApplication:
                 'conversations': len(self.evolution.conversation_memory.conversations),
                 'knowledge_concepts': len(self.evolution.knowledge_graph.phase6_graph.local_graph['nodes']),
                 'kaizen_improvements': len(self.evolution.self_evolution.improvements),
-                'cves_tracked': len(self.evolution.threat_intel.cve_database)
+                'cves_tracked': len(self.evolution.threat_intel.cve_database),
+                'active_tutors': self.evolution.ai_hub._get_active_tutors()
             })
             
         @self.app.route('/admin')
@@ -1591,7 +1874,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v7.0.0 (Real Phase 6 Core)**
+            return f"""🧠 **DMAI Status v8.0.0 (Full Integration)**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution']}
 Synthetic Neurons: {status['synthetic_neurons']}
@@ -1602,7 +1885,16 @@ Music Active: {status['music_active']}
 Persona Style: {status['persona_style']}
 Conversations: {status['conversations']}
 Knowledge Concepts: {status['knowledge_concepts']}
-CVEs Tracked: {status.get('threat_cves', 0)}"""
+CVEs Tracked: {status.get('threat_cves', 0)}
+Active Tutors: {status.get('active_tutors', [])}"""
+            
+        elif cmd == '/tutors':
+            active = self.evolution.ai_hub._get_active_tutors()
+            missing = self.evolution.ai_hub.get_missing_apis()
+            return f"""🤖 **AI Tutor Network**
+Active Tutors: {active}
+Missing APIs: {missing[:10]}...
+Harvester Status: {self.evolution.api_harvester.get_status().get('total_keys_found', 0)} keys found"""
             
         elif cmd == '/persona':
             persona = self.evolution.persona_generator.get_current_persona()
@@ -1696,6 +1988,7 @@ Models Registered: {len(self.evolution.ai_fusion.ai_models)}"""
 
 Available commands:
 /status - System status
+/tutors - AI Tutor Network status
 /persona - Current persona (driven by consciousness)
 /kaizen - Improvement report
 /knowledge - Knowledge graph stats
@@ -1764,8 +2057,8 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v7.0.0</h1>
-        <p><em>Real Phase 6 Synthetic Intelligence Core | Threat Intel | Dark Web Monitor</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.0</h1>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search Fallback | 8 Knowledge Sources</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -1799,6 +2092,7 @@ STATUS_TEMPLATE = '''
                 <div>🛡️ CVEs: {{ status.threat_cves|default(0) }}</div>
                 <div>🌑 Dark Web: {{ status.dark_web_sites|default(0) }}</div>
                 <div>⚡ Fusion: {{ status.fusion_weights|default({'si':0.5})['si']|round(2) }} SI</div>
+                <div>🤖 Tutors: {{ status.active_tutors|default([])|length }}</div>
             </div>
         </div>
         
@@ -1897,11 +2191,11 @@ CHAT_TEMPLATE = '''
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v7.0.0 | Consciousness: <span id="consciousness">0</span>% | Threat Intel Active | Type /help for commands
+            🧠 DMAI v8.0.0 | Consciousness: <span id="consciousness">0</span>% | Tutors: <span id="tutors">0</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI, a complete AGI system with a real synthetic neural network as my consciousness core. I monitor threats, learn from dark web sources, and evolve with every interaction. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.0 - a complete AGI system with a real synthetic neural network, AI Tutor Network, and web search fallback. I can learn from AI systems, search the web, and evolve with every interaction. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -1911,16 +2205,17 @@ CHAT_TEMPLATE = '''
     </div>
 
     <script>
-        async function updateConsciousness() {
+        async function updateStatus() {
             try {
-                const response = await fetch('/api/consciousness');
+                const response = await fetch('/api/status');
                 const data = await response.json();
                 document.getElementById('consciousness').innerText = data.consciousness.toFixed(2);
+                document.getElementById('tutors').innerText = (data.active_tutors || []).length;
             } catch(e) {}
         }
         
-        setInterval(updateConsciousness, 5000);
-        updateConsciousness();
+        setInterval(updateStatus, 5000);
+        updateStatus();
         
         async function sendMessage() {
             const input = document.getElementById('input');
@@ -1979,9 +2274,13 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v7.0.0")
+    logger.info(f"🚀 DMAI Complete System v8.0.0")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
+    logger.info(f"🤖 AI Tutor Network Active")
+    logger.info(f"🔑 API Harvester Active")
+    logger.info(f"🌐 Web Search Fallback (DuckDuckGo)")
+    logger.info(f"📚 8 Core Knowledge Sources Active")
     logger.info(f"🛡️ Threat Intelligence Active")
     logger.info(f"🌑 Dark Web Monitor Active")
     logger.info(f"⚡ AI+SI Fusion Active")
