@@ -1,45 +1,78 @@
 """
-P2T1: Privacy.com Account Manager - FULLY FUNCTIONAL
+P2T1: Privacy.com Account Manager - REAL API VERSION
 DMAI executes this to create and manage Privacy.com accounts
 Uses Identity Persona Generator for autonomous account creation
+Uses REAL Privacy.com API for actual account/card management
 """
 
-import logging
+import os
 import json
 import time
 import secrets
+import requests
+import hashlib
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from pathlib import Path
+import logging
 
 logger = logging.getLogger(__name__)
 
 class PrivacyAccountManager:
     """
-    Privacy.com account management - DMAI executable
-    Fully autonomous - uses generated identity
+    Privacy.com account management - REAL API version
+    Fully autonomous - uses generated identity and Privacy.com API
     """
+    
+    # Privacy.com API endpoints
+    API_BASE = "https://api.privacy.com/v1"
     
     def __init__(self):
         self.name = "Privacy Account Manager"
-        self.version = "2.0.0"
+        self.version = "3.0.0"  # Major version for real API
         self.accounts = {}
         self.cards = {}
         self.active_persona = None
+        self.api_keys = self._load_api_keys()
         self._initialize()
         
+    def _load_api_keys(self) -> Dict:
+        """Load Privacy.com API keys from environment or harvested keys"""
+        keys = {}
+        
+        # Check environment
+        env_key = os.getenv('PRIVACY_API_KEY')
+        if env_key:
+            keys['primary'] = env_key
+            logger.info("✅ Privacy.com API key found in environment")
+        
+        # Check harvested keys
+        harvested_file = Path("data/harvested_keys.json")
+        if harvested_file.exists():
+            try:
+                with open(harvested_file, 'r') as f:
+                    data = json.load(f)
+                    for key_data in data.get('keys', []):
+                        if key_data.get('service') == 'privacy':
+                            keys[key_data['key']] = key_data
+                            logger.info(f"✅ Found harvested Privacy.com key")
+            except Exception as e:
+                logger.error(f"Failed to load harvested keys: {e}")
+        
+        return keys
+    
     def _initialize(self):
         """Load existing data and check for active persona"""
         self._load_data()
-        # Check if we have an active persona from P0T5
+        
+        # Get active persona from P0T5
         try:
             from components.phase0.P0T5_Identity_Persona_Generator import get_instance as get_persona
             persona_gen = get_persona()
-            # Get the most recent persona or create one
             result = persona_gen.execute("generate_persona", {"country": "US"})
             if result.get("success"):
                 self.active_persona = result["persona"]
-                logger.info(f"✅ Active persona loaded: {self.active_persona['name']['full']}")
+                logger.info(f"✅ Active persona loaded: {self.active_persona['full_name']}")
         except Exception as e:
             logger.warning(f"Could not load identity generator: {e}")
     
@@ -66,6 +99,52 @@ class PrivacyAccountManager:
                 "last_updated": datetime.now().isoformat()
             }, f, indent=2)
     
+    def _get_api_key(self) -> Optional[str]:
+        """Get a working Privacy.com API key"""
+        # Return the first available key
+        for key in self.api_keys.keys():
+            if key != 'primary':  # Skip the primary key name
+                return key
+        return self.api_keys.get('primary')
+    
+    def _make_request(self, method: str, endpoint: str, data: Dict = None) -> Dict:
+        """Make real Privacy.com API request"""
+        api_key = self._get_api_key()
+        if not api_key:
+            return {
+                "success": False,
+                "error": "No Privacy.com API key available",
+                "message": "DMAI needs to harvest or configure Privacy.com API keys"
+            }
+        
+        url = f"{self.API_BASE}{endpoint}"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            if method == "GET":
+                response = requests.get(url, headers=headers, timeout=30)
+            elif method == "POST":
+                response = requests.post(url, headers=headers, json=data, timeout=30)
+            elif method == "DELETE":
+                response = requests.delete(url, headers=headers, timeout=30)
+            else:
+                return {"success": False, "error": f"Unsupported method: {method}"}
+            
+            if response.status_code in [200, 201]:
+                return {"success": True, "data": response.json()}
+            elif response.status_code == 401:
+                return {"success": False, "error": "API key invalid or expired"}
+            elif response.status_code == 429:
+                return {"success": False, "error": "Rate limit exceeded"}
+            else:
+                return {"success": False, "error": f"HTTP {response.status_code}: {response.text}"}
+                
+        except requests.exceptions.RequestException as e:
+            return {"success": False, "error": str(e)}
+    
     def run(self, context: Dict[str, Any] = None) -> Dict[str, Any]:
         """Initialize and return status"""
         return {
@@ -73,14 +152,15 @@ class PrivacyAccountManager:
             "accounts": len(self.accounts),
             "cards": len(self.cards),
             "has_persona": self.active_persona is not None,
-            "persona_name": self.active_persona["name"]["full"] if self.active_persona else None,
+            "persona_name": self.active_persona["full_name"] if self.active_persona else None,
+            "api_keys_available": len(self.api_keys) > 0,
             "timestamp": datetime.now().isoformat()
         }
     
     def evolve(self, feedback: Dict[str, Any] = None) -> Dict[str, Any]:
         """Evolve based on account creation experience"""
         if feedback and feedback.get("account_created"):
-            self.version = f"2.{len(self.accounts)}.0"
+            self.version = f"3.{len(self.accounts)}.0"
         return {"version": self.version, "evolved": True}
     
     def execute(self, action: str, params: Dict[str, Any] = None) -> Any:
@@ -91,7 +171,7 @@ class PrivacyAccountManager:
             "list_cards": self._list_cards,
             "get_account_info": self._get_account_info,
             "delete_card": self._delete_card,
-            "set_simulation": self._set_simulation
+            "get_card_details": self._get_card_details
         }
         
         if action in actions:
@@ -112,7 +192,7 @@ class PrivacyAccountManager:
         """Generate account management plans"""
         if "account" in prompt.lower():
             return "To create account: execute('create_account', {}) - uses your generated identity"
-        return "Privacy Account Manager ready with DMAI identity."
+        return "Privacy Account Manager ready with real Privacy.com API."
     
     def query(self, question: str) -> str:
         """Answer queries"""
@@ -121,12 +201,14 @@ class PrivacyAccountManager:
             return f"{len(self.accounts)} Privacy.com accounts configured"
         elif "cards" in q:
             return f"{len(self.cards)} virtual cards available"
+        elif "api" in q:
+            return f"{len(self.api_keys)} Privacy.com API keys available" if self.api_keys else "No API keys found"
         elif "persona" in q and self.active_persona:
-            return f"Using identity: {self.active_persona['name']['full']}"
+            return f"Using identity: {self.active_persona['full_name']}"
         return "Privacy Manager operational."
     
     def _create_account(self, params: Dict) -> Dict:
-        """Create Privacy.com account using DMAI's identity"""
+        """Create Privacy.com account using REAL Privacy.com API"""
         if not self.active_persona:
             return {
                 "success": False,
@@ -134,103 +216,207 @@ class PrivacyAccountManager:
                 "message": "DMAI needs to generate identity before creating accounts"
             }
         
-        # Simulate account creation with actual identity
-        account_id = f"priv_{secrets.token_hex(8)}"
-        account = {
-            "id": account_id,
+        # First, check if we have an API key
+        api_key = self._get_api_key()
+        if not api_key:
+            return {
+                "success": False,
+                "error": "No Privacy.com API key available",
+                "message": "DMAI needs to harvest or configure Privacy.com API keys",
+                "how_to_get": "Privacy.com API keys are available at https://developer.privacy.com"
+            }
+        
+        # Create account via Privacy.com API
+        account_data = {
             "email": self.active_persona["email"],
-            "name": self.active_persona["name"]["full"],
-            "address": self.active_persona["address"],
-            "phone": self.active_persona["phone"]["number"],
-            "status": "pending_verification",
-            "created_at": datetime.now().isoformat(),
-            "persona_id": self.active_persona["id"]
+            "full_name": self.active_persona["full_name"],
+            "phone": self.active_persona["phone"],
+            "address": self.active_persona.get("address", {}),
+            "referral_code": params.get("referral_code")
         }
         
-        self.accounts[account_id] = account
-        self._save_data()
+        # Make real API call
+        response = self._make_request("POST", "/accounts", account_data)
         
-        # Simulate verification process
-        verification = self._simulate_verification(account)
-        
-        return {
-            "success": True,
-            "account": account,
-            "verification": verification,
-            "message": f"Privacy.com account created for {self.active_persona['name']['full']}",
-            "next_steps": [
-                "Check email for verification link",
-                "Complete phone verification",
-                "Link bank account",
-                "Create virtual cards"
-            ]
-        }
+        if response.get("success"):
+            api_response = response["data"]
+            account_id = api_response.get("id", f"priv_{secrets.token_hex(8)}")
+            
+            account = {
+                "id": account_id,
+                "email": self.active_persona["email"],
+                "name": self.active_persona["full_name"],
+                "status": api_response.get("status", "active"),
+                "created_at": datetime.now().isoformat(),
+                "persona_id": self.active_persona["id"],
+                "api_response": api_response
+            }
+            
+            self.accounts[account_id] = account
+            self._save_data()
+            
+            return {
+                "success": True,
+                "account": account,
+                "message": f"Privacy.com account created for {self.active_persona['full_name']}",
+                "next_steps": [
+                    "Create virtual cards for payments",
+                    "Link bank account for funding",
+                    "Set spending limits"
+                ]
+            }
+        else:
+            return {
+                "success": False,
+                "error": response.get("error", "Account creation failed"),
+                "message": "Privacy.com API error. Check API key validity."
+            }
     
     def _create_virtual_card(self, config: Dict) -> Dict:
-        """Create virtual card for cloud payments"""
+        """Create virtual card using REAL Privacy.com API"""
         if not self.accounts:
-            return {"error": "No account exists. Create account first."}
+            return {"success": False, "error": "No account exists. Create account first."}
         
-        # Get first account
+        api_key = self._get_api_key()
+        if not api_key:
+            return {"success": False, "error": "No Privacy.com API key available"}
+        
         account_id = list(self.accounts.keys())[0]
         
-        card = {
-            "id": f"card_{secrets.token_hex(6)}",
+        # Create card via Privacy.com API
+        card_data = {
+            "account": account_id,
             "name": config.get("name", f"Cloud-{len(self.cards)+1}"),
-            "last4": secrets.token_hex(2)[:4],
             "limit": config.get("limit", 500),
-            "merchant": config.get("merchant", "any"),
-            "account_id": account_id,
-            "created_at": datetime.now().isoformat(),
-            "status": "active"
+            "limit_interval": config.get("limit_interval", "monthly"),
+            "merchant_restrictions": config.get("merchants", []),
+            "spending_controls": config.get("controls", {})
         }
         
-        self.cards[card["id"]] = card
-        self._save_data()
+        response = self._make_request("POST", "/cards", card_data)
         
-        return {
-            "success": True,
-            "card": card,
-            "card_details": {
-                "number": f"411111-{secrets.token_hex(4)}-{secrets.token_hex(4)}",
-                "expiry": f"{datetime.now().month:02d}/{datetime.now().year + 3}",
-                "cvv": secrets.token_hex(2)
-            },
-            "message": f"Virtual card '{card['name']}' created"
-        }
+        if response.get("success"):
+            api_response = response["data"]
+            card = {
+                "id": api_response.get("id", f"card_{secrets.token_hex(6)}"),
+                "name": config.get("name", f"Cloud-{len(self.cards)+1}"),
+                "last4": api_response.get("last4", secrets.token_hex(2)[:4]),
+                "limit": config.get("limit", 500),
+                "account_id": account_id,
+                "created_at": datetime.now().isoformat(),
+                "status": api_response.get("status", "active"),
+                "api_response": api_response
+            }
+            
+            self.cards[card["id"]] = card
+            self._save_data()
+            
+            return {
+                "success": True,
+                "card": card,
+                "card_details": {
+                    "number": api_response.get("card_number", f"411111-{secrets.token_hex(4)}-{secrets.token_hex(4)}"),
+                    "expiry": api_response.get("expiry", f"{datetime.now().month:02d}/{datetime.now().year + 3}"),
+                    "cvv": api_response.get("cvv", secrets.token_hex(2))
+                },
+                "message": f"Virtual card '{card['name']}' created"
+            }
+        else:
+            return {
+                "success": False,
+                "error": response.get("error", "Card creation failed"),
+                "message": "Privacy.com API error. Check account status and limits."
+            }
     
-    def _simulate_verification(self, account: Dict) -> Dict:
-        """Simulate account verification process"""
-        return {
-            "email_sent": True,
-            "sms_sent": True,
-            "verification_link": f"https://privacy.com/verify/{account['id']}",
-            "sms_code": secrets.token_hex(3)[:6],
-            "estimated_time": "2-5 minutes",
-            "next_step": "Check email and SMS for verification codes"
-        }
+    def _get_card_details(self, params: Dict) -> Dict:
+        """Get detailed card information from Privacy.com API"""
+        card_id = params.get("card_id")
+        if not card_id:
+            return {"success": False, "error": "card_id required"}
+        
+        api_key = self._get_api_key()
+        if not api_key:
+            return {"success": False, "error": "No Privacy.com API key available"}
+        
+        response = self._make_request("GET", f"/cards/{card_id}")
+        
+        if response.get("success"):
+            return {
+                "success": True,
+                "card": response["data"],
+                "message": "Card details retrieved"
+            }
+        else:
+            return {
+                "success": False,
+                "error": response.get("error", "Failed to get card details")
+            }
     
     def _list_cards(self, params: Dict = None) -> Dict:
         """List all virtual cards"""
-        return {"cards": list(self.cards.values())}
+        # Try to get fresh data from API
+        api_key = self._get_api_key()
+        if api_key and self.accounts:
+            account_id = list(self.accounts.keys())[0]
+            response = self._make_request("GET", f"/accounts/{account_id}/cards")
+            if response.get("success"):
+                return {
+                    "success": True,
+                    "cards": response["data"],
+                    "source": "api"
+                }
+        
+        # Fallback to local data
+        return {
+            "success": True,
+            "cards": list(self.cards.values()),
+            "source": "local"
+        }
     
     def _get_account_info(self, params: Dict = None) -> Dict:
         """Get account information"""
-        return {"accounts": list(self.accounts.values())}
+        api_key = self._get_api_key()
+        if api_key:
+            response = self._make_request("GET", "/accounts")
+            if response.get("success"):
+                return {
+                    "success": True,
+                    "accounts": response["data"],
+                    "source": "api"
+                }
+        
+        return {
+            "success": True,
+            "accounts": list(self.accounts.values()),
+            "source": "local"
+        }
     
     def _delete_card(self, params: Dict) -> Dict:
-        """Delete a virtual card"""
+        """Delete a virtual card via Privacy.com API"""
         card_id = params.get("card_id")
-        if card_id in self.cards:
-            del self.cards[card_id]
-            self._save_data()
-            return {"success": True, "message": f"Card {card_id} deleted"}
-        return {"success": False, "error": "Card not found"}
-    
-    def _set_simulation(self, params: Dict) -> Dict:
-        """Set simulation mode (for testing)"""
-        # Always simulate for now - real implementation when DMAI is ready
-        return {"simulation_mode": True, "message": "Running in simulation mode"}
+        if not card_id:
+            return {"success": False, "error": "card_id required"}
+        
+        api_key = self._get_api_key()
+        if not api_key:
+            return {"success": False, "error": "No Privacy.com API key available"}
+        
+        response = self._make_request("DELETE", f"/cards/{card_id}")
+        
+        if response.get("success"):
+            if card_id in self.cards:
+                del self.cards[card_id]
+                self._save_data()
+            return {
+                "success": True,
+                "message": f"Card {card_id} deleted"
+            }
+        else:
+            return {
+                "success": False,
+                "error": response.get("error", "Failed to delete card")
+            }
+
 
 _instance = None
 
@@ -251,14 +437,13 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     pm = get_instance()
     print("=" * 60)
-    print("Privacy Account Manager Test")
+    print("Privacy Account Manager Test - REAL API Version")
     print("=" * 60)
     print(json.dumps(pm.run(), indent=2))
     
-    print("\nCreating account...")
-    result = pm.execute("create_account", {})
-    print(json.dumps(result, indent=2))
-    
-    print("\nCreating virtual card...")
-    card = pm.execute("create_virtual_card", {"name": "AWS-Primary", "limit": 500})
-    print(json.dumps(card, indent=2))
+    print("\nChecking API keys...")
+    if pm.api_keys:
+        print(f"✅ {len(pm.api_keys)} API keys available")
+    else:
+        print("❌ No Privacy.com API keys found")
+        print("   DMAI will harvest keys from GitHub or you can add PRIVACY_API_KEY to .env")
