@@ -900,16 +900,33 @@ class SelfEvolutionEngine:
 
 
 # ============================================================================
-# KNOWLEDGE GRAPH - Concept Mapping (Uses Phase 6 Real Implementation)
+# KNOWLEDGE GRAPH - Neo4j with Local Fallback
 # ============================================================================
 
 class KnowledgeGraph:
-    """Wrapper for Phase 6 Knowledge Graph"""
+    """
+    Knowledge Graph wrapper that uses Neo4j when available,
+    falls back to local JSON storage when Neo4j is not configured.
+    """
     
     def __init__(self, data_path: Path):
         self.data_path = data_path
-        self.phase6_graph = RealKnowledgeGraph()  # Uses local graph, can connect Neo4j
         self.graph_file = data_path / 'knowledge_graph.json'
+        
+        # Initialize Phase 6 Knowledge Graph (supports Neo4j via env vars)
+        neo4j_uri = os.getenv('NEO4J_URI')
+        neo4j_user = os.getenv('NEO4J_USER')
+        neo4j_password = os.getenv('NEO4J_PASSWORD')
+        
+        self.phase6_graph = RealKnowledgeGraph(
+            neo4j_uri=neo4j_uri,
+            neo4j_user=neo4j_user,
+            neo4j_password=neo4j_password
+        )
+        
+        self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
+        
+        logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
         
     def add_concept(self, concept: str, context: str):
         """Add a concept to the knowledge graph"""
@@ -941,10 +958,41 @@ class KnowledgeGraph:
         return []
         
     def get_stats(self) -> Dict:
+        """
+        Get statistics from the knowledge graph.
+        Works with both Neo4j and local fallback.
+        """
+        try:
+            # If Phase 6 graph has a get_stats method, use it
+            if hasattr(self.phase6_graph, 'get_stats'):
+                return self.phase6_graph.get_stats()
+            
+            # Fallback: manually count from local graph
+            if hasattr(self.phase6_graph, 'local_graph'):
+                return {
+                    'total_concepts': len(self.phase6_graph.local_graph.get('nodes', [])),
+                    'total_connections': len(self.phase6_graph.local_graph.get('edges', [])),
+                    'most_connected': [],
+                    'neo4j_available': self._neo4j_available
+                }
+            
+            # If using NetworkX graph
+            if hasattr(self.phase6_graph, 'graph') and self.phase6_graph.graph:
+                return {
+                    'total_concepts': len(self.phase6_graph.graph.nodes),
+                    'total_connections': len(self.phase6_graph.graph.edges),
+                    'most_connected': [],
+                    'neo4j_available': self._neo4j_available
+                }
+                
+        except Exception as e:
+            logger.error(f"Failed to get graph stats: {e}")
+        
         return {
-            'total_concepts': len(self.phase6_graph.local_graph['nodes']),
-            'total_connections': len(self.phase6_graph.local_graph['edges']),
-            'most_connected': []
+            'total_concepts': 0,
+            'total_connections': 0,
+            'most_connected': [],
+            'neo4j_available': self._neo4j_available
         }
         
     def query_knowledge(self, query: str) -> List[Dict]:
@@ -952,9 +1000,18 @@ class KnowledgeGraph:
         return self.phase6_graph.query_knowledge(query)
         
     def save_graph(self):
-        """Save graph to disk"""
-        self.phase6_graph.save_graph()
-
+        """Save graph to disk (for local backup)"""
+        if hasattr(self.phase6_graph, 'save_graph'):
+            self.phase6_graph.save_graph()
+        else:
+            # Fallback: save local graph if available
+            if hasattr(self.phase6_graph, 'local_graph'):
+                with open(self.graph_file, 'w') as f:
+                    json.dump(self.phase6_graph.local_graph, f, indent=2)
+                    
+    def is_neo4j_available(self) -> bool:
+        """Check if Neo4j is available and connected"""
+        return self._neo4j_available and self.phase6_graph.neo4j_available
 
 # ============================================================================
 # META-LEARNER - Learning Optimization
@@ -1275,34 +1332,38 @@ class UnifiedEvolutionEngine:
                 'last_update': datetime.now().isoformat()
             }, f, indent=2)
             
-    def _update_cached_status(self):
-        """Update cached status"""
-        active_tutors = []
-        try:
-            active_tutors = self.ai_hub._get_active_tutors()
-        except:
-            pass
-            
-        self._cached_status = {
-            'consciousness': self.synthetic_network.consciousness_level * 100,
-            'consciousness_raw': self.synthetic_network.consciousness_level,
-            'evolution': self.evolution_count,
-            'evolution_cycles': self.synthetic_network.evolution_cycles,
-            'synthetic_neurons': len(self.synthetic_network.neurons),
-            'synthetic_synapses': self.synthetic_network._total_synapses(),
-            'voice_active': self.voice_system.listening,
-            'music_active': self.music_learner.is_listening,
-            'persona_style': self.persona_generator.current_persona['speaking_style'],
-            'conversations': len(self.conversation_memory.conversations),
-            'knowledge_concepts': len(self.knowledge_graph.phase6_graph.local_graph['nodes']),
-            'income': self.finance.total_revenue,
-            'threat_cves': len(self.threat_intel.cve_database),
-            'dark_web_sites': len(self.dark_web.onion_sites),
-            'fusion_weights': self.ai_fusion.fusion_weights,
-            'active_tutors': active_tutors,
-            'timestamp': datetime.now().isoformat()
-        }
-        self._last_status_update = time.time()
+def _update_cached_status(self):
+    """Update cached status"""
+    active_tutors = []
+    try:
+        active_tutors = self.ai_hub._get_active_tutors()
+    except:
+        pass
+    
+    # Get knowledge graph stats safely
+    kg_stats = self.knowledge_graph.get_stats()
+    
+    self._cached_status = {
+        'consciousness': self.synthetic_network.consciousness_level * 100,
+        'consciousness_raw': self.synthetic_network.consciousness_level,
+        'evolution': self.evolution_count,
+        'evolution_cycles': self.synthetic_network.evolution_cycles,
+        'synthetic_neurons': len(self.synthetic_network.neurons),
+        'synthetic_synapses': self.synthetic_network._total_synapses(),
+        'voice_active': self.voice_system.listening,
+        'music_active': self.music_learner.is_listening,
+        'persona_style': self.persona_generator.current_persona['speaking_style'],
+        'conversations': len(self.conversation_memory.conversations),
+        'knowledge_concepts': kg_stats.get('total_concepts', 0),
+        'income': self.finance.total_revenue,
+        'threat_cves': len(self.threat_intel.cve_database),
+        'dark_web_sites': len(self.dark_web.onion_sites),
+        'fusion_weights': self.ai_fusion.fusion_weights,
+        'active_tutors': active_tutors,
+        'neo4j_available': self.knowledge_graph.is_neo4j_available(),
+        'timestamp': datetime.now().isoformat()
+    }
+    self._last_status_update = time.time()
         
     def get_status(self) -> Dict:
         if time.time() - self._last_status_update > 30:
