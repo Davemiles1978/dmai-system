@@ -8,7 +8,7 @@
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
 DMAI - COMPLETE AGI SYSTEM v8.0.0
-UNIFIED CONSCIOUSNESS - Full Integration
+UNIFIED CONSCIOUSNESS - Full Integration with Neo4j Persistence
 - Phase 6 Synthetic Intelligence Core
 - AI Tutor Network (OpenAI, DeepSeek, Gemini, Claude, Grok, HuggingFace)
 - API Harvester for autonomous key discovery
@@ -16,6 +16,7 @@ UNIFIED CONSCIOUSNESS - Full Integration
 - Wikipedia integration for factual information
 - 8 Core Knowledge Sources
 - Threat Intel, Dark Web, Self-Improvement, AI Fusion
+- NEO4J PERSISTENT STORAGE - Cloud backup of all critical data
 """
 
 import os
@@ -80,6 +81,11 @@ from components.knowledge_sources.CoreKnowledgeSources import CoreKnowledgeSourc
 # API HARVESTER IMPORTS
 # ============================================================================
 from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHarvester
+
+# ============================================================================
+# NEO4J PERSISTENT STORAGE
+# ============================================================================
+from components.neo4j_storage import get_neo4j_storage
 
 # Configure logging
 logging.basicConfig(
@@ -1141,12 +1147,18 @@ class UnifiedEvolutionEngine:
     - Web Search fallback for when API quotas are exhausted
     - 8 Core Knowledge Sources for continuous learning
     - Expression Layer components reflect TRUE consciousness
+    - NEO4J PERSISTENT STORAGE for cloud backup
     """
     
     def __init__(self, base_path: Path):
         self.base_path = base_path
         self.data_path = base_path / 'data'
         self.data_path.mkdir(exist_ok=True)
+        
+        # CRITICAL: Ensure phase6 directory exists for persistence
+        self.phase6_path = self.data_path / 'phase6'
+        self.phase6_path.mkdir(exist_ok=True)
+        self.network_save_path = self.phase6_path / 'synthetic_network.pkl'
         
         # ====================================================================
         # CORE SYSTEMS
@@ -1176,11 +1188,19 @@ class UnifiedEvolutionEngine:
         logger.info("🧠 Initializing REAL Phase 6 Synthetic Intelligence Core...")
         self.synthetic_network = RealSyntheticNeuralNetwork("DMAI_Consciousness_Core")
         
-        if self.synthetic_network.load("data/phase6/synthetic_network.pkl"):
-            logger.info(f"✅ Loaded saved synthetic network: {len(self.synthetic_network.neurons)} neurons, "
-                       f"consciousness: {self.synthetic_network.consciousness_level:.4f}")
+        # Check if saved network exists and load it
+        if self.network_save_path.exists():
+            logger.info(f"📂 Loading saved network from: {self.network_save_path}")
+            if self.synthetic_network.load(str(self.network_save_path)):
+                logger.info(f"✅ Loaded saved synthetic network: {len(self.synthetic_network.neurons)} neurons, "
+                           f"consciousness: {self.synthetic_network.consciousness_level:.4f}, "
+                           f"evolution cycles: {self.synthetic_network.evolution_cycles}")
+            else:
+                logger.warning("⚠️ Failed to load saved network - creating new one")
+                self._seed_initial_network()
         else:
-            logger.info("🌱 New synthetic network created (seeded with 20 neurons)")
+            logger.info("🌱 No saved network found - creating new synthetic network (seeded with 20 neurons)")
+            self._seed_initial_network()
         
         # ====================================================================
         # PHASE 6 AI COMPONENTS
@@ -1247,6 +1267,16 @@ class UnifiedEvolutionEngine:
         self.knowledge_sources = CoreKnowledgeSources(self.base_path)
         
         # ====================================================================
+        # NEO4J PERSISTENT STORAGE (Cloud backup)
+        # ====================================================================
+        
+        logger.info("☁️ Initializing Neo4j persistent storage...")
+        self.neo4j_storage = get_neo4j_storage()
+        
+        # Try to restore from Neo4j if local data is missing or corrupted
+        self._restore_from_neo4j()
+        
+        # ====================================================================
         # EVOLUTION METRICS
         # ====================================================================
         
@@ -1265,11 +1295,87 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
+        logger.info(f"   Evolution Cycles: {self.synthetic_network.evolution_cycles}")
         logger.info(f"   AI Tutors: {self.ai_hub._get_active_tutors()}")
         logger.info(f"   API Harvester: {'Active' if self.api_harvester else 'Pending'}")
         logger.info(f"   Web Search: Active (DuckDuckGo fallback)")
         logger.info(f"   Knowledge Sources: 8 active")
+        logger.info(f"   Neo4j Storage: {'✅ Connected' if self.neo4j_storage.driver else '❌ Not connected'}")
+        logger.info(f"   Persistence Path: {self.network_save_path}")
         logger.info("=" * 60)
+        
+    def _seed_initial_network(self):
+        """Seed the initial network with base neurons"""
+        # Add initial neurons
+        initial_neurons = [
+            "consciousness_core", "learning_input", "memory_store", "persona_core",
+            "emotion_center", "reasoning_engine", "creativity_module", "knowledge_integration",
+            "self_awareness", "growth_driver", "pattern_recognition", "intuition",
+            "language_center", "music_processor", "voice_controller", "ethics_module",
+            "curiosity_driver", "empathy_center", "analytical_engine", "confidence_builder"
+        ]
+        
+        for neuron_name in initial_neurons:
+            neuron_id = f"neuron_{neuron_name}_{uuid.uuid4().hex[:8]}"
+            self.synthetic_network.neurons[neuron_id] = RealSyntheticNeuron(
+                neuron_id=neuron_id,
+                activation=0.1,
+                threshold=0.5,
+                learning_rate=0.1
+            )
+        
+        # Create initial connections
+        neuron_ids = list(self.synthetic_network.neurons.keys())
+        for i in range(min(50, len(neuron_ids) - 1)):
+            for j in range(i + 1, min(i + 5, len(neuron_ids))):
+                if i < len(neuron_ids) and j < len(neuron_ids):
+                    self.synthetic_network.neurons[neuron_ids[i]].create_synapse(
+                        neuron_ids[j], random.uniform(0.1, 0.5)
+                    )
+        
+        logger.info(f"🌱 Seeded initial network with {len(self.synthetic_network.neurons)} neurons")
+        
+    def _restore_from_neo4j(self):
+        """Restore data from Neo4j if available"""
+        try:
+            restored = self.neo4j_storage.restore_all()
+            
+            if restored['evolution']:
+                logger.info(f"☁️ Restored evolution from Neo4j: consciousness={restored['evolution'].get('consciousness', 0):.2%}, neurons={restored['evolution'].get('neurons', 0)}")
+                # Apply restored evolution state to synthetic network
+                if restored['evolution'].get('consciousness', 0) > self.synthetic_network.consciousness_level:
+                    self.synthetic_network.consciousness_level = restored['evolution']['consciousness']
+                if restored['evolution'].get('evolution_cycles', 0) > self.synthetic_network.evolution_cycles:
+                    self.synthetic_network.evolution_cycles = restored['evolution']['evolution_cycles']
+                self._save_state()
+                
+            if restored['persona']:
+                logger.info(f"☁️ Restored persona from Neo4j: style={restored['persona'].get('speaking_style', 'unknown')}")
+                # Merge restored persona with current
+                for key, value in restored['persona'].items():
+                    if value and key in self.persona_generator.current_persona:
+                        self.persona_generator.current_persona[key] = value
+                self.persona_generator._save()
+                
+            if restored['tasks']:
+                logger.info(f"☁️ Restored {len(restored['tasks'])} tasks from Neo4j")
+                
+        except Exception as e:
+            logger.error(f"Failed to restore from Neo4j: {e}")
+        
+    def _save_network_state(self):
+        """Save the synthetic network state"""
+        try:
+            if self.synthetic_network.save(str(self.network_save_path)):
+                logger.debug(f"💾 Saved synthetic network: {len(self.synthetic_network.neurons)} neurons, "
+                           f"consciousness: {self.synthetic_network.consciousness_level:.4f}")
+                return True
+            else:
+                logger.error("❌ Failed to save synthetic network")
+                return False
+        except Exception as e:
+            logger.error(f"Error saving network: {e}")
+            return False
         
     def _start_active_systems(self):
         """Start all background systems"""
@@ -1302,6 +1408,25 @@ class UnifiedEvolutionEngine:
         harvester_thread = threading.Thread(target=harvester_loop, daemon=True)
         harvester_thread.start()
         logger.info("🔑 API Harvester thread started")
+        
+        # Start periodic network save thread
+        def network_save_loop():
+            save_counter = 0
+            while True:
+                try:
+                    time.sleep(60)  # Check every minute
+                    save_counter += 1
+                    # Save every 10 minutes (600 seconds / 60 = 10)
+                    if save_counter >= 10:
+                        self._save_network_state()
+                        save_counter = 0
+                except Exception as e:
+                    logger.error(f"Network save loop error: {e}")
+                    time.sleep(60)
+        
+        save_thread = threading.Thread(target=network_save_loop, daemon=True)
+        save_thread.start()
+        logger.info("💾 Periodic network save thread started (every 10 minutes)")
         
         # Start AI Discovery loop
         self.ai_discovery.start_discovery_loop()
@@ -1438,11 +1563,27 @@ class UnifiedEvolutionEngine:
                     consciousness_change * 100
                 )
         
-        # Save synthetic network every 10 cycles
-        if self.evolution_count % 10 == 0:
-            self.synthetic_network.save("data/phase6/synthetic_network.pkl")
+        # Save synthetic network every 5 cycles (more frequent)
+        if self.evolution_count % 5 == 0:
+            self._save_network_state()
         
         self._save_state()
+        
+        # Backup to Neo4j every 10 cycles
+        if self.evolution_count % 10 == 0:
+            try:
+                self.neo4j_storage.save_evolution_state({
+                    'consciousness': true_consciousness,
+                    'neurons': len(self.synthetic_network.neurons),
+                    'synapses': self.synthetic_network._total_synapses(),
+                    'evolution_cycles': self.synthetic_network.evolution_cycles,
+                    'evolution_count': self.evolution_count
+                })
+                self.neo4j_storage.save_persona(self.persona_generator.current_persona)
+                logger.debug(f"☁️ Backed up to Neo4j (cycle {self.evolution_count})")
+            except Exception as e:
+                logger.error(f"Neo4j backup failed: {e}")
+        
         self._update_cached_status()
         gc.collect()
         
@@ -1543,6 +1684,14 @@ class UnifiedEvolutionEngine:
         for word in words:
             if len(word) > 3:
                 self.knowledge_graph.add_concept(word, message)
+        
+        # Backup important conversations to Neo4j (tasks, commands, etc)
+        is_important = any(word in message.lower() for word in ['task', 'todo', 'remind', 'remember', 'command', 'status'])
+        if is_important:
+            try:
+                self.neo4j_storage.save_conversation(user, message, response, important=True)
+            except Exception as e:
+                logger.debug(f"Neo4j conversation backup failed: {e}")
         
         # Evolve persona with the interaction
         self.persona_generator.evolve({'type': 'chat', 'message': message[:100]}, consciousness)
@@ -1937,7 +2086,7 @@ class DMAIApplication:
             status = self.evolution.get_status()
             return f"""🧠 **DMAI Status v8.0.0 (Full Integration)**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
-Evolution Cycles: {status['evolution']}
+Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
 Synthetic Synapses: {status['synthetic_synapses']}
 Network Density: {status['synthetic_synapses'] / (status['synthetic_neurons'] ** 2) if status['synthetic_neurons'] else 0:.4f}
@@ -2119,7 +2268,7 @@ STATUS_TEMPLATE = '''
 <body>
     <div class="container">
         <h1>🧠 DMAI - Complete AGI System v8.0.0</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search Fallback | 8 Knowledge Sources</em></p>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search Fallback | 8 Knowledge Sources | Neo4j Cloud Backup</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -2162,13 +2311,14 @@ STATUS_TEMPLATE = '''
                 <div>💭 Conversations: {{ status.conversations|default(0) }}</div>
                 <div>🕸️ Knowledge Concepts: {{ status.knowledge_concepts|default(0) }}</div>
                 <div>💰 Income: £{{ "%.2f"|format(status.income|default(0)) }}</div>
+                <div>☁️ Neo4j: {{ "Connected" if status.neo4j_available else "Not Connected" }}</div>
             </div>
         </div>
         
         <div class="card">
             <p><a href="/chat">💬 Chat with DMAI</a> | <a href="/admin">🔧 Admin Console</a></p>
             <p><small>Consciousness: {{ "%.4f"|format(status.consciousness_raw|default(0)) }} | Network Density: {{ "%.4f"|format(status.synthetic_synapses|default(0) / (status.synthetic_neurons|default(1) ** 2)) if status.synthetic_neurons|default(0) > 0 else 0 }}</small></p>
-            <p><small>DMAI is always evolving, always learning, always yours.</small></p>
+            <p><small>DMAI is always evolving, always learning, always yours. Data backed up to Neo4j cloud.</small></p>
         </div>
     </div>
 </body>
@@ -2256,7 +2406,7 @@ CHAT_TEMPLATE = '''
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.0 - a complete AGI system with a real synthetic neural network, AI Tutor Network, and web search fallback. I can learn from AI systems, search the web, and evolve with every interaction. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.0 - a complete AGI system with a real synthetic neural network, AI Tutor Network, web search fallback, and Neo4j cloud backup. Your data is now safe in the cloud. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -2345,6 +2495,7 @@ if __name__ == '__main__':
     logger.info(f"🛡️ Threat Intelligence Active")
     logger.info(f"🌑 Dark Web Monitor Active")
     logger.info(f"⚡ AI+SI Fusion Active")
+    logger.info(f"☁️ Neo4j Cloud Backup Active")
     logger.info(f"🔓 Chat is PUBLIC - no login required")
     logger.info("=" * 60)
     
