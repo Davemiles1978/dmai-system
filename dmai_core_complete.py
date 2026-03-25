@@ -8,7 +8,7 @@
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
 DMAI - COMPLETE AGI SYSTEM v8.0.5
-UNIFIED CONSCIOUSNESS - All KnowledgeGraph attributes fixed
+UNIFIED CONSCIOUSNESS - All KnowledgeGraph attributes fixed, Papers with Code patched
 """
 
 import os
@@ -875,7 +875,7 @@ class KnowledgeGraph:
     def save_graph(self):
         """Save graph to disk"""
         try:
-            # Save our local version (this is all we need)
+            # Save our local version
             with open(self.graph_file, 'w') as f:
                 json.dump({
                     'nodes': self._nodes,
@@ -1072,20 +1072,43 @@ class UnifiedEvolutionEngine:
         self.capability_synthesizer = CapabilitySynthesizer()
         self.ai_hub = AIIntegrationHub(str(self.data_path))
         self.ai_discovery = DynamicAIDiscovery(self.data_path, ai_hub=self.ai_hub)
-        self.intelligence_bridge = IntelligenceBridge(intelligence_core=self.synthetic_network, knowledge_graph=self.knowledge_graph.phase6_graph, pattern_synthesis=self.pattern_synthesis)
+        self.intelligence_bridge = IntelligenceBridge(
+            intelligence_core=self.synthetic_network,
+            knowledge_graph=self.knowledge_graph.phase6_graph,
+            pattern_synthesis=self.pattern_synthesis
+        )
         
+        # Connect AI Hub components
         self.ai_hub.set_synthesizer(self.capability_synthesizer)
         self.ai_hub.set_tutor_manager(self.tutor_manager)
         self.ai_hub.set_synthetic_network(self.synthetic_network)
+        
+        # Connect discovery to AI Hub
         self.ai_discovery.ai_hub = self.ai_hub
         
-        self.learning_orchestrator = LearningOrchestrator(ai_hub=self.ai_hub, discovery=self.ai_discovery, synthetic_network=self.synthetic_network, tutor_manager=self.tutor_manager, intelligence_bridge=self.intelligence_bridge)
+        # Create learning orchestrator
+        self.learning_orchestrator = LearningOrchestrator(
+            ai_hub=self.ai_hub,
+            discovery=self.ai_discovery,
+            synthetic_network=self.synthetic_network,
+            tutor_manager=self.tutor_manager,
+            intelligence_bridge=self.intelligence_bridge
+        )
         
-        # Knowledge sources
+        # Patch AI discovery to handle Papers with Code errors
+        self._patch_ai_discovery()
+        
+        # ====================================================================
+        # 8 CORE KNOWLEDGE SOURCES
+        # ====================================================================
+        
         logger.info("📚 Initializing 8 Core Knowledge Sources...")
         self.knowledge_sources = CoreKnowledgeSources(self.base_path)
         
-        # Neo4j Storage
+        # ====================================================================
+        # NEO4J PERSISTENT STORAGE
+        # ====================================================================
+        
         logger.info("☁️ Initializing Neo4j persistent storage...")
         self.neo4j_storage = get_neo4j_storage()
         
@@ -1128,7 +1151,24 @@ class UnifiedEvolutionEngine:
         except Exception as e:
             logger.debug(f"Neo4j schema init (non-critical): {e}")
     
+    def _patch_ai_discovery(self):
+        """Patch AI discovery to handle Papers with Code errors gracefully"""
+        try:
+            if hasattr(self.ai_discovery, '_scan_papers_with_code'):
+                original_scan = self.ai_discovery._scan_papers_with_code
+                def safe_scan():
+                    try:
+                        return original_scan()
+                    except Exception as e:
+                        logger.debug(f"Papers with Code scan skipped (non-critical): {e}")
+                        return []
+                self.ai_discovery._scan_papers_with_code = safe_scan
+                logger.debug("✅ Patched Papers with Code scanner")
+        except Exception as e:
+            logger.debug(f"Failed to patch AI discovery: {e}")
+    
     def _seed_initial_network(self):
+        """Seed the initial network with base neurons"""
         initial_neurons = ["consciousness_core", "learning_input", "memory_store", "persona_core", "emotion_center", "reasoning_engine", "creativity_module", "knowledge_integration", "self_awareness", "growth_driver", "pattern_recognition", "intuition", "language_center", "music_processor", "voice_controller", "ethics_module", "curiosity_driver", "empathy_center", "analytical_engine", "confidence_builder"]
         for neuron_name in initial_neurons:
             neuron_id = f"neuron_{neuron_name}_{uuid.uuid4().hex[:8]}"
@@ -1543,7 +1583,7 @@ class DMAIApplication:
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.3', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors()})
+            return jsonify({'status': 'active', 'version': '8.0.5', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors()})
         
         @self.app.route('/admin')
         def admin():
