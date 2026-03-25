@@ -1013,6 +1013,7 @@ class KnowledgeGraph:
         """Check if Neo4j is available and connected"""
         return self._neo4j_available and self.phase6_graph.neo4j_available
 
+
 # ============================================================================
 # META-LEARNER - Learning Optimization
 # ============================================================================
@@ -1294,7 +1295,6 @@ class UnifiedEvolutionEngine:
                     result = self.api_harvester.run_harvest_cycle()
                     if result.get('valid_keys', 0) > 0:
                         logger.info(f"🔑 Harvester found {result['valid_keys']} new valid API keys")
-                        # Update AI Hub with new keys (will be picked up on next query)
                 except Exception as e:
                     logger.error(f"Harvester loop error: {e}")
                     time.sleep(300)
@@ -1332,38 +1332,38 @@ class UnifiedEvolutionEngine:
                 'last_update': datetime.now().isoformat()
             }, f, indent=2)
             
-def _update_cached_status(self):
-    """Update cached status"""
-    active_tutors = []
-    try:
-        active_tutors = self.ai_hub._get_active_tutors()
-    except:
-        pass
-    
-    # Get knowledge graph stats safely
-    kg_stats = self.knowledge_graph.get_stats()
-    
-    self._cached_status = {
-        'consciousness': self.synthetic_network.consciousness_level * 100,
-        'consciousness_raw': self.synthetic_network.consciousness_level,
-        'evolution': self.evolution_count,
-        'evolution_cycles': self.synthetic_network.evolution_cycles,
-        'synthetic_neurons': len(self.synthetic_network.neurons),
-        'synthetic_synapses': self.synthetic_network._total_synapses(),
-        'voice_active': self.voice_system.listening,
-        'music_active': self.music_learner.is_listening,
-        'persona_style': self.persona_generator.current_persona['speaking_style'],
-        'conversations': len(self.conversation_memory.conversations),
-        'knowledge_concepts': kg_stats.get('total_concepts', 0),
-        'income': self.finance.total_revenue,
-        'threat_cves': len(self.threat_intel.cve_database),
-        'dark_web_sites': len(self.dark_web.onion_sites),
-        'fusion_weights': self.ai_fusion.fusion_weights,
-        'active_tutors': active_tutors,
-        'neo4j_available': self.knowledge_graph.is_neo4j_available(),
-        'timestamp': datetime.now().isoformat()
-    }
-    self._last_status_update = time.time()
+    def _update_cached_status(self):
+        """Update cached status"""
+        active_tutors = []
+        try:
+            active_tutors = self.ai_hub._get_active_tutors()
+        except:
+            pass
+        
+        # Get knowledge graph stats safely
+        kg_stats = self.knowledge_graph.get_stats()
+        
+        self._cached_status = {
+            'consciousness': self.synthetic_network.consciousness_level * 100,
+            'consciousness_raw': self.synthetic_network.consciousness_level,
+            'evolution': self.evolution_count,
+            'evolution_cycles': self.synthetic_network.evolution_cycles,
+            'synthetic_neurons': len(self.synthetic_network.neurons),
+            'synthetic_synapses': self.synthetic_network._total_synapses(),
+            'voice_active': self.voice_system.listening,
+            'music_active': self.music_learner.is_listening,
+            'persona_style': self.persona_generator.current_persona['speaking_style'],
+            'conversations': len(self.conversation_memory.conversations),
+            'knowledge_concepts': kg_stats.get('total_concepts', 0),
+            'income': self.finance.total_revenue,
+            'threat_cves': len(self.threat_intel.cve_database),
+            'dark_web_sites': len(self.dark_web.onion_sites),
+            'fusion_weights': self.ai_fusion.fusion_weights,
+            'active_tutors': active_tutors,
+            'neo4j_available': self.knowledge_graph.is_neo4j_available(),
+            'timestamp': datetime.now().isoformat()
+        }
+        self._last_status_update = time.time()
         
     def get_status(self) -> Dict:
         if time.time() - self._last_status_update > 30:
@@ -1403,7 +1403,7 @@ def _update_cached_status(self):
         input_data = {
             'evolution_cycle': self.evolution_count,
             'conversations': len(self.conversation_memory.conversations),
-            'concepts': len(self.knowledge_graph.phase6_graph.local_graph['nodes']),
+            'concepts': self.knowledge_graph.get_stats().get('total_concepts', 0),
             'kaizen_improvements': len(self.self_evolution.improvements),
             'cves': len(self.threat_intel.cve_database),
             'iocs': len(self.threat_intel.iocs)
@@ -1455,7 +1455,7 @@ def _update_cached_status(self):
             'evolution_cycles': evolution_result.get('cycles', self.synthetic_network.evolution_cycles),
             'persona': self.persona_generator.current_persona,
             'conversations': len(self.conversation_memory.conversations),
-            'concepts': len(self.knowledge_graph.phase6_graph.local_graph['nodes']),
+            'concepts': self.knowledge_graph.get_stats().get('total_concepts', 0),
             'cves_tracked': len(self.threat_intel.cve_database),
             'fusion_weights': self.ai_fusion.fusion_weights
         }
@@ -1914,7 +1914,7 @@ class DMAIApplication:
                 'music_active': self.evolution.music_learner.is_listening,
                 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'],
                 'conversations': len(self.evolution.conversation_memory.conversations),
-                'knowledge_concepts': len(self.evolution.knowledge_graph.phase6_graph.local_graph['nodes']),
+                'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0),
                 'kaizen_improvements': len(self.evolution.self_evolution.improvements),
                 'cves_tracked': len(self.evolution.threat_intel.cve_database),
                 'active_tutors': self.evolution.ai_hub._get_active_tutors()
