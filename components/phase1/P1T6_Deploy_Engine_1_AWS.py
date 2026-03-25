@@ -576,7 +576,7 @@ class Deploy_Engine_1_AWS:
                 terminated.append(self._terminate_real_resource(resource))
                 self.stats['resources_terminated'] += 1
         else:
-            # Track simulated termination
+            # Track resource termination
             for resource in deployment.get('resources', []):
                 terminated.append(resource)
                 self.stats['resources_terminated'] += 1
