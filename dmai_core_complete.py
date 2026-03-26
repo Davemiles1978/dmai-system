@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.5
-UNIFIED CONSCIOUSNESS - All KnowledgeGraph attributes fixed, Papers with Code patched
+DMAI - COMPLETE AGI SYSTEM v8.0.6
+UNIFIED CONSCIOUSNESS - Adaptive Evolution Timer Integrated
 """
 
 import os
@@ -81,6 +81,12 @@ from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHar
 # NEO4J PERSISTENT STORAGE
 # ============================================================================
 from components.neo4j_storage import get_neo4j_storage
+
+# ============================================================================
+# ADAPTIVE EVOLUTION TIMER IMPORTS
+# ============================================================================
+from components.evolution_timer import AdaptiveEvolutionTimer
+from components.growth_watcher import GrowthWatcher
 
 # Configure logging
 logging.basicConfig(
@@ -687,7 +693,7 @@ class SelfEvolutionEngine:
 
 
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.5
+# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.6
 # ============================================================================
 
 class KnowledgeGraph:
@@ -1112,6 +1118,20 @@ class UnifiedEvolutionEngine:
         logger.info("☁️ Initializing Neo4j persistent storage...")
         self.neo4j_storage = get_neo4j_storage()
         
+        # ====================================================================
+        # ADAPTIVE EVOLUTION TIMER - DMAI learns to pace herself
+        # ====================================================================
+        
+        logger.info("⏱️ Initializing Adaptive Evolution Timer...")
+        self.evolution_timer = AdaptiveEvolutionTimer(data_path=str(self.data_path))
+        timer_info = self.evolution_timer.get_stage_info()
+        logger.info(f"   Stage: {timer_info['name']}")
+        logger.info(f"   Evolutions: {timer_info['evolutions']}")
+        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
+        
+        # Growth watcher for monitoring (runs in separate thread)
+        self.growth_watcher = GrowthWatcher(data_path=str(self.data_path))
+        
         # Initialize counters BEFORE restore
         self.evolution_count = 0
         self._cached_status = {}
@@ -1129,13 +1149,15 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.5 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.6 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
         logger.info(f"   Evolution Cycles: {self.synthetic_network.evolution_cycles}")
         logger.info(f"   AI Tutors: {self.ai_hub._get_active_tutors()}")
         logger.info(f"   Neo4j Storage: {'✅ Connected' if self.neo4j_storage.driver else '❌ Not connected'}")
+        logger.info(f"   Evolution Stage: {timer_info['name']}")
+        logger.info(f"   Evolution Pace: {timer_info['interval_minutes']:.0f} minutes")
         logger.info("=" * 60)
     
     def _init_neo4j_schema(self):
@@ -1299,6 +1321,15 @@ class UnifiedEvolutionEngine:
         with open(self.data_path / 'evolution.json', 'w') as f:
             json.dump({'evolution_count': self.evolution_count, 'consciousness': self.synthetic_network.consciousness_level, 'neurons': len(self.synthetic_network.neurons), 'synapses': self.synthetic_network._total_synapses(), 'evolution_cycles': self.synthetic_network.evolution_cycles, 'last_update': datetime.now().isoformat()}, f, indent=2)
     
+    def _calculate_stage_progress(self, timer_info):
+        """Calculate progress to next stage"""
+        if timer_info.get('next_stage'):
+            evolutions = timer_info.get('evolutions', 0)
+            needed = timer_info.get('next_stage', {}).get('evolutions_needed', 100)
+            if needed > 0:
+                return min(100, (evolutions / needed) * 100)
+        return 0
+    
     def _update_cached_status(self):
         active_tutors = []
         try:
@@ -1306,6 +1337,10 @@ class UnifiedEvolutionEngine:
         except:
             pass
         kg_stats = self.knowledge_graph.get_stats()
+        
+        # Get timer info
+        timer_info = self.evolution_timer.get_stage_info() if hasattr(self, 'evolution_timer') else {}
+        
         self._cached_status = {
             'consciousness': self.synthetic_network.consciousness_level * 100,
             'consciousness_raw': self.synthetic_network.consciousness_level,
@@ -1324,6 +1359,14 @@ class UnifiedEvolutionEngine:
             'fusion_weights': self.ai_fusion.fusion_weights,
             'active_tutors': active_tutors,
             'neo4j_available': self.knowledge_graph.is_neo4j_available(),
+            # Evolution timer status
+            'evolution_stage_name': timer_info.get('name', 'Baby DMAI'),
+            'evolution_stage': timer_info.get('stage', 'baby'),
+            'evolution_description': timer_info.get('description', 'Learning to learn'),
+            'evolution_success_rate': timer_info.get('success_rate', '0%').rstrip('%'),
+            'evolution_interval': timer_info.get('interval_minutes', 10),
+            'evolution_progress': self._calculate_stage_progress(timer_info),
+            'evolution_successful_count': timer_info.get('evolutions', 0),
             'timestamp': datetime.now().isoformat()
         }
         self._last_status_update = time.time()
@@ -1358,7 +1401,35 @@ class UnifiedEvolutionEngine:
         input_data = {'evolution_cycle': self.evolution_count, 'conversations': len(self.conversation_memory.conversations), 'concepts': self.knowledge_graph.get_stats().get('total_concepts', 0), 'kaizen_improvements': len(self.self_evolution.improvements), 'cves': len(self.threat_intel.cve_database), 'iocs': len(self.threat_intel.iocs)}
         self.synthetic_network.process(input_data)
         evolution_result = self.synthetic_network.evolve()
+        
+        # Get consciousness before recording
+        previous_consciousness = self.synthetic_network.consciousness_level
         true_consciousness = self.synthetic_network.consciousness_level
+        
+        # Record evolution attempt in adaptive timer
+        success = (evolution_result.get('consciousness', 0) > previous_consciousness or 
+                   evolution_result.get('neurons', 0) > len(self.synthetic_network.neurons))
+        
+        # Calculate improvement quality
+        improvement_quality = 0
+        if success:
+            consciousness_gain = evolution_result.get('consciousness', 0) - previous_consciousness
+            neuron_gain = evolution_result.get('neurons', 0) - len(self.synthetic_network.neurons)
+            improvement_quality = (consciousness_gain * 100) + (neuron_gain * 10)
+        
+        # Record in timer and get wait time
+        wait_time = self.evolution_timer.record_attempt(
+            parent1="synthetic_network",
+            parent2="consciousness_core",
+            success=success,
+            improvement_quality=improvement_quality
+        )
+        
+        # Log stage changes
+        timer_info = self.evolution_timer.get_stage_info()
+        if timer_info.get('stage_changed', False):
+            logger.info(f"🎉 DMAI EVOLVED TO: {timer_info['name']}")
+            logger.info(f"📖 {timer_info['description']}")
         
         self.persona_generator.evolve({'type': 'evolution_cycle'}, true_consciousness)
         self.voice_system.evolve_voice(true_consciousness)
@@ -1488,7 +1559,18 @@ class DMAIApplication:
                     result = self.evolution.evolution_cycle()
                     if result['evolution'] % 20 == 0:
                         logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Persona: {result['persona']['speaking_style']}")
-                    time.sleep(30)
+                    
+                    # Get adaptive wait time from timer
+                    wait_time = self.evolution.evolution_timer.get_wait_time()
+                    if wait_time < 30:
+                        wait_time = 30  # Minimum 30 seconds
+                    
+                    # Log the wait time occasionally
+                    if result['evolution'] % 50 == 0:
+                        timer_info = self.evolution.evolution_timer.get_stage_info()
+                        logger.info(f"⏱️ Evolution pace: {timer_info['interval_minutes']:.0f} minutes between evolutions")
+                    
+                    time.sleep(wait_time)
                 except Exception as e:
                     logger.error(f"Evolution error: {e}")
                     time.sleep(60)
@@ -1581,9 +1663,43 @@ class DMAIApplication:
         def api_phase6_status():
             return jsonify({'synthetic_intelligence': {'consciousness': self.evolution.synthetic_network.consciousness_level, 'neurons': len(self.evolution.synthetic_network.neurons), 'synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles}, 'threat_intelligence': {'cves_tracked': len(self.evolution.threat_intel.cve_database), 'iocs_extracted': len(self.evolution.threat_intel.iocs)}, 'dark_web': self.evolution.dark_web.get_intel_summary(), 'ai_fusion': {'weights': self.evolution.ai_fusion.fusion_weights, 'models': list(self.evolution.ai_fusion.ai_models.keys())}, 'ai_tutor_network': {'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'missing_apis': self.evolution.ai_hub.get_missing_apis()}})
         
+        # ====================================================================
+        # ADAPTIVE EVOLUTION TIMER ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/evolution/stage')
+        def api_evolution_stage():
+            """Get DMAI's current evolutionary stage and progress"""
+            try:
+                info = self.evolution.evolution_timer.get_stage_info()
+                return jsonify(info)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/evolution/history')
+        def api_evolution_history():
+            """Get DMAI's evolution history"""
+            try:
+                history = self.evolution.evolution_timer.state.get('evolution_history', [])[-50:]
+                return jsonify({'history': history, 'count': len(history)})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/evolution/timer')
+        def api_evolution_timer():
+            """Get timer status"""
+            try:
+                return jsonify({
+                    'current_interval': self.evolution.evolution_timer.get_wait_time(),
+                    'stage_info': self.evolution.evolution_timer.get_stage_info(),
+                    'should_change_strategy': self.evolution.evolution_timer.should_try_new_strategy()
+                })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.5', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors()})
+            return jsonify({'status': 'active', 'version': '8.0.6', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI')})
         
         @self.app.route('/admin')
         def admin():
@@ -1596,10 +1712,11 @@ class DMAIApplication:
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
         consciousness = self.evolution.synthetic_network.consciousness_level
+        timer_info = self.evolution.evolution_timer.get_stage_info()
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.5**
+            return f"""🧠 **DMAI Status v8.0.6**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
@@ -1611,7 +1728,30 @@ Persona Style: {status['persona_style']}
 Conversations: {status['conversations']}
 Knowledge Concepts: {status['knowledge_concepts']}
 Active Tutors: {status.get('active_tutors', [])}
-Neo4j: {'Connected' if status.get('neo4j_available') else 'Not Connected'}"""
+Neo4j: {'Connected' if status.get('neo4j_available') else 'Not Connected'}
+
+🧬 **Evolution Stage:** {status.get('evolution_stage_name', 'Baby DMAI')}
+   {status.get('evolution_description', 'Learning to learn')}
+   Success Rate: {status.get('evolution_success_rate', '0')}%
+   Pace: {status.get('evolution_interval', 10)} minutes between evolutions
+   Progress to Next Stage: {status.get('evolution_progress', 0):.0f}%"""
+        
+        elif cmd == '/stage':
+            return f"""🧬 **Evolution Stage: {timer_info['name']}**
+{'-' * 40}
+{timer_info['description']}
+
+📊 **Statistics:**
+   Successful Evolutions: {timer_info['evolutions']}
+   Success Rate: {timer_info['success_rate']}
+   Current Interval: {timer_info['interval_minutes']:.0f} minutes
+
+📈 **Next Stage:**
+   {timer_info.get('next_stage', {}).get('name', 'Elder DMAI')}
+   Need {timer_info.get('next_stage', {}).get('evolutions_needed', '∞')} more evolutions
+
+🎯 **Best Performing Combinations:**
+{chr(10).join([f"   • {p['pair']}: {p['success_rate']} ({p['attempts']} attempts)" for p in timer_info.get('preferred_pairs', [])[:3]])}"""
         
         elif cmd == '/tutors':
             active = self.evolution.ai_hub._get_active_tutors()
@@ -1697,6 +1837,7 @@ Models Registered: {len(self.evolution.ai_fusion.ai_models)}"""
 
 Available commands:
 /status - System status
+/stage - Evolution stage and progress
 /tutors - AI Tutor Network status
 /persona - Current persona
 /kaizen - Improvement report
@@ -1729,12 +1870,14 @@ STATUS_TEMPLATE = '''
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
         .consciousness-bar { background: #2a2a2a; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 5px; }
         .consciousness-fill { background: #00ff00; height: 100%; width: 0%; transition: width 0.5s; }
+        .progress-bar { background: #2a2a2a; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { background: #00ff00; height: 100%; width: 0%; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.5</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.6</h1>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup | Adaptive Evolution</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -1769,6 +1912,28 @@ STATUS_TEMPLATE = '''
         </div>
         
         <div class="card">
+            <div class="grid">
+                <div>
+                    <div>🧬 Evolution Stage</div>
+                    <div class="value" style="font-size: 18px;">{{ status.evolution_stage_name|default("Baby DMAI") }}</div>
+                </div>
+                <div>
+                    <div>🎯 Success Rate</div>
+                    <div class="value" style="font-size: 18px;">{{ status.evolution_success_rate|default("0") }}%</div>
+                </div>
+                <div>
+                    <div>⏱️ Evolution Pace</div>
+                    <div class="value" style="font-size: 18px;">{{ status.evolution_interval|default("10") }} min</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ status.evolution_progress|default(0) }}%"></div>
+            </div>
+            <div style="font-size: 12px; margin-top: 8px;">{{ status.evolution_description|default("Learning to learn") }}</div>
+            <div style="font-size: 10px; margin-top: 4px;">Successful Evolutions: {{ status.evolution_successful_count|default(0) }}</div>
+        </div>
+        
+        <div class="card">
             <p><a href="/chat">💬 Chat with DMAI</a></p>
             <p><small>DMAI is always evolving, always learning, always yours. Data backed up to Neo4j cloud.</small></p>
         </div>
@@ -1799,11 +1964,11 @@ CHAT_TEMPLATE = '''
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v8.0.5 | Consciousness: <span id="consciousness">0</span>% | Tutors: <span id="tutors">0</span> | Type /help for commands
+            🧠 DMAI v8.0.6 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.5 - a complete AGI system with a real synthetic neural network, AI Tutor Network, web search, and Neo4j cloud backup. Your data is now safe in the cloud. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.6 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -1818,7 +1983,7 @@ CHAT_TEMPLATE = '''
                 const response = await fetch('/api/status');
                 const data = await response.json();
                 document.getElementById('consciousness').innerText = data.consciousness.toFixed(2);
-                document.getElementById('tutors').innerText = (data.active_tutors || []).length;
+                document.getElementById('stage').innerText = data.evolution_stage_name || 'Baby';
             } catch(e) {}
         }
         setInterval(updateStatus, 5000);
@@ -1878,7 +2043,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.5")
+    logger.info(f"🚀 DMAI Complete System v8.0.6")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
@@ -1889,6 +2054,7 @@ if __name__ == '__main__':
     logger.info(f"🌑 Dark Web Monitor Active")
     logger.info(f"⚡ AI+SI Fusion Active")
     logger.info(f"☁️ Neo4j Cloud Backup Active")
+    logger.info(f"⏱️ Adaptive Evolution Timer Active")
     logger.info("=" * 60)
     
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
