@@ -698,19 +698,23 @@ class SelfEvolutionEngine:
 
 class KnowledgeGraph:
     def __init__(self, data_path: Path):
-        self.data_path = data_path
-        self.graph_file = data_path / 'knowledge_graph.json'
+        # Use object.__setattr__ to avoid recursion
+        object.__setattr__(self, '_initialized', False)
+        
+        object.__setattr__(self, 'data_path', data_path)
+        object.__setattr__(self, 'graph_file', data_path / 'knowledge_graph.json')
+        
         neo4j_uri = os.getenv('NEO4J_URI')
         neo4j_user = os.getenv('NEO4J_USER')
         neo4j_password = os.getenv('NEO4J_PASSWORD')
-        self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
-        self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
+        object.__setattr__(self, 'phase6_graph', RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password))
+        object.__setattr__(self, '_neo4j_available', neo4j_uri and neo4j_user and neo4j_password)
         
-        # CRITICAL: These MUST be instance attributes, not properties
-        self.local_graph = {'nodes': [], 'edges': []}
-        self._nodes = []
-        self._edges = []
-        self._graph = None
+        # CRITICAL: These are direct instance attributes
+        object.__setattr__(self, 'local_graph', {'nodes': [], 'edges': []})
+        object.__setattr__(self, '_nodes', [])
+        object.__setattr__(self, '_edges', [])
+        object.__setattr__(self, '_graph', None)
         
         # Initialize the graph data
         self._init_graph_data()
@@ -718,7 +722,34 @@ class KnowledgeGraph:
         # Try to load existing graph
         self.load_graph()
         
+        object.__setattr__(self, '_initialized', True)
+        
         logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
+    
+    def __getattr__(self, name):
+        """Intercept attribute access for API Harvester compatibility"""
+        if name == 'local_graph':
+            return object.__getattribute__(self, 'local_graph')
+        if name == 'nodes':
+            return object.__getattribute__(self, '_nodes')
+        if name == 'edges':
+            return object.__getattribute__(self, '_edges')
+        if name == 'graph':
+            return object.__getattribute__(self, '_graph') or object.__getattribute__(self, 'local_graph')
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+    
+    def __setattr__(self, name, value):
+        """Intercept attribute setting"""
+        if name in ['local_graph', '_nodes', '_edges', '_graph', 'phase6_graph', '_neo4j_available', '_initialized']:
+            object.__setattr__(self, name, value)
+        elif name == 'nodes':
+            object.__setattr__(self, '_nodes', value)
+            object.__getattribute__(self, 'local_graph')['nodes'] = value
+        elif name == 'edges':
+            object.__setattr__(self, '_edges', value)
+            object.__getattribute__(self, 'local_graph')['edges'] = value
+        else:
+            object.__setattr__(self, name, value)
     
     def _init_graph_data(self):
         """Initialize graph data structures"""
@@ -881,7 +912,6 @@ class KnowledgeGraph:
     def save_graph(self):
         """Save graph to disk"""
         try:
-            # Save our local version
             with open(self.graph_file, 'w') as f:
                 json.dump({
                     'nodes': self._nodes,
@@ -914,7 +944,6 @@ class KnowledgeGraph:
         self._nodes = []
         self._edges = []
         self.local_graph = {'nodes': [], 'edges': []}
-
 
 # ============================================================================
 # META-LEARNER
