@@ -7,7 +7,7 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.8
+DMAI - COMPLETE AGI SYSTEM v8.0.9
 UNIFIED CONSCIOUSNESS - Adaptive Evolution Timer Integrated
 """
 
@@ -691,29 +691,27 @@ class SelfEvolutionEngine:
     def get_metrics(self) -> Dict:
         return self.efficiency_metrics
 
-
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.8
+# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.9
 # ============================================================================
 
 class KnowledgeGraph:
     def __init__(self, data_path: Path):
-        # Initialize all attributes FIRST using object.__setattr__ to avoid recursion
-        object.__setattr__(self, '_initialized', False)
-        object.__setattr__(self, 'data_path', data_path)
-        object.__setattr__(self, 'graph_file', data_path / 'knowledge_graph.json')
+        # Initialize all attributes
+        self.data_path = data_path
+        self.graph_file = data_path / 'knowledge_graph.json'
         
         neo4j_uri = os.getenv('NEO4J_URI')
         neo4j_user = os.getenv('NEO4J_USER')
         neo4j_password = os.getenv('NEO4J_PASSWORD')
-        object.__setattr__(self, 'phase6_graph', RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password))
-        object.__setattr__(self, '_neo4j_available', neo4j_uri and neo4j_user and neo4j_password)
+        self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
+        self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
         
-        # CRITICAL: These are direct instance attributes - NOT properties
-        object.__setattr__(self, 'local_graph', {'nodes': [], 'edges': []})
-        object.__setattr__(self, '_nodes', [])
-        object.__setattr__(self, '_edges', [])
-        object.__setattr__(self, '_graph', None)
+        # CRITICAL: These are direct instance attributes - MUST be set before any method calls
+        self.local_graph = {'nodes': [], 'edges': []}
+        self._nodes = []
+        self._edges = []
+        self._graph = None
         
         # Initialize the graph data
         self._init_graph_data()
@@ -721,79 +719,7 @@ class KnowledgeGraph:
         # Try to load existing graph
         self.load_graph()
         
-        object.__setattr__(self, '_initialized', True)
-        
         logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
-    
-    def __getattr__(self, name):
-        """Fallback for any missing attributes - ensures local_graph is always found"""
-        if name == 'local_graph':
-            return object.__getattribute__(self, 'local_graph')
-        if name == 'nodes':
-            return object.__getattribute__(self, '_nodes')
-        if name == 'edges':
-            return object.__getattribute__(self, '_edges')
-        if name == 'graph':
-            return object.__getattribute__(self, '_graph') or object.__getattribute__(self, 'local_graph')
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-    
-    def __setattr__(self, name, value):
-        """Intercept all attribute setting to ensure local_graph is always accessible"""
-        if name in ['local_graph', '_nodes', '_edges', '_graph', 'phase6_graph', '_neo4j_available', '_initialized', 'data_path', 'graph_file']:
-            object.__setattr__(self, name, value)
-        elif name == 'nodes':
-            object.__setattr__(self, '_nodes', value)
-            object.__getattribute__(self, 'local_graph')['nodes'] = value
-        elif name == 'edges':
-            object.__setattr__(self, '_edges', value)
-            object.__getattribute__(self, 'local_graph')['edges'] = value
-        else:
-            object.__setattr__(self, name, value)
-    
-    def __getitem__(self, key):
-        """Allow dictionary-style access like kg['local_graph']"""
-        if key == 'local_graph':
-            return self.local_graph
-        if key == 'nodes':
-            return self._nodes
-        if key == 'edges':
-            return self._edges
-        if key == 'graph':
-            return self._graph or self.local_graph
-        if self._graph and hasattr(self._graph, '__getitem__'):
-            return self._graph[key]
-        return self.local_graph.get(key, {})
-    
-    def __setitem__(self, key, value):
-        """Allow dictionary-style assignment"""
-        if key == 'local_graph':
-            self.local_graph = value
-            self._nodes = value.get('nodes', [])
-            self._edges = value.get('edges', [])
-        elif key == 'nodes':
-            self._nodes = value
-            self.local_graph['nodes'] = value
-        elif key == 'edges':
-            self._edges = value
-            self.local_graph['edges'] = value
-        elif self._graph and hasattr(self._graph, '__setitem__'):
-            self._graph[key] = value
-        else:
-            self.local_graph[key] = value
-    
-    def __contains__(self, key):
-        """Support 'in' operator"""
-        return key in ['local_graph', 'nodes', 'edges', 'graph'] or \
-               (self._graph and key in self._graph) or \
-               key in self.local_graph
-    
-    def get(self, key, default=None):
-        """Dictionary-like get method"""
-        if key in ['local_graph', 'nodes', 'edges', 'graph']:
-            return self.__getitem__(key)
-        if self._graph and hasattr(self._graph, 'get'):
-            return self._graph.get(key, default)
-        return self.local_graph.get(key, default)
     
     def _init_graph_data(self):
         """Initialize graph data structures"""
@@ -817,123 +743,11 @@ class KnowledgeGraph:
             self._nodes = []
             self._edges = []
     
-    def add_concept(self, concept: str, context: str):
-        """Add a concept to the knowledge graph"""
-        try:
-            # Add to phase6 graph (Neo4j or NetworkX)
-            self.phase6_graph.add_knowledge(
-                subject=concept, 
-                predicate="related_to", 
-                object=context[:50], 
-                metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
-            )
-            # Update local graph - direct attribute access
-            if concept not in self._nodes:
-                self._nodes.append(concept)
-            if 'nodes' not in self.local_graph:
-                self.local_graph['nodes'] = []
-            if concept not in self.local_graph['nodes']:
-                self.local_graph['nodes'].append(concept)
-        except Exception as e:
-            logger.debug(f"Failed to add concept {concept}: {e}")
-    
-    def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
-        """Add knowledge triple"""
-        try:
-            self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
-        except Exception as e:
-            logger.debug(f"Failed to add knowledge: {e}")
-    
-    def connect_concepts(self, concept1: str, concept2: str, relationship: str):
-        """Connect two concepts"""
-        try:
-            self.phase6_graph.add_knowledge(concept1, relationship, concept2)
-            edge = (concept1, concept2, relationship)
-            if edge not in self._edges:
-                self._edges.append(edge)
-            if 'edges' not in self.local_graph:
-                self.local_graph['edges'] = []
-            if edge not in self.local_graph['edges']:
-                self.local_graph['edges'].append(edge)
-        except Exception as e:
-            logger.debug(f"Failed to connect concepts: {e}")
-    
-    def get_related(self, concept: str) -> List[str]:
-        try:
-            results = self.phase6_graph.get_related(concept)
-            return [r.get('related', '') for r in results] if results else []
-        except Exception:
-            return []
-    
-    def get_insights(self, concept: str) -> List[str]:
-        related = self.get_related(concept)
-        if related:
-            return [f"Related to: {', '.join(related[:3])}"]
-        return []
-    
-    def get_stats(self) -> Dict:
-        try:
-            if hasattr(self.phase6_graph, 'get_stats'):
-                return self.phase6_graph.get_stats()
-            return {
-                'total_concepts': len(self._nodes),
-                'total_connections': len(self._edges),
-                'most_connected': [],
-                'neo4j_available': self._neo4j_available
-            }
-        except Exception as e:
-            logger.debug(f"Failed to get graph stats: {e}")
-            return {
-                'total_concepts': len(self._nodes),
-                'total_connections': len(self._edges),
-                'most_connected': [],
-                'neo4j_available': self._neo4j_available
-            }
-    
-    def query_knowledge(self, query: str) -> List[Dict]:
-        try:
-            return self.phase6_graph.query_knowledge(query)
-        except Exception:
-            return []
-    
-    def save_graph(self):
-        try:
-            with open(self.graph_file, 'w') as f:
-                json.dump({
-                    'nodes': self._nodes,
-                    'edges': self._edges,
-                    'local_graph': self.local_graph
-                }, f, indent=2)
-            logger.debug(f"💾 Saved knowledge graph: {len(self._nodes)} concepts, {len(self._edges)} connections")
-        except Exception as e:
-            logger.error(f"Failed to save knowledge graph: {e}")
-    
-    def load_graph(self):
-        try:
-            if self.graph_file.exists():
-                with open(self.graph_file, 'r') as f:
-                    data = json.load(f)
-                    self._nodes = data.get('nodes', [])
-                    self._edges = data.get('edges', [])
-                    self.local_graph = data.get('local_graph', {'nodes': self._nodes, 'edges': self._edges})
-                logger.debug(f"📂 Loaded knowledge graph: {len(self._nodes)} concepts, {len(self._edges)} connections")
-        except Exception as e:
-            logger.debug(f"Failed to load graph: {e}")
-    
-    def is_neo4j_available(self) -> bool:
-        return self._neo4j_available and hasattr(self.phase6_graph, 'neo4j_available') and self.phase6_graph.neo4j_available
-    
-    def clear(self):
-        self._nodes = []
-        self._edges = []
-        self.local_graph = {'nodes': [], 'edges': []}
-    
     # ========================================================================
     # DICTIONARY-LIKE METHODS FOR COMPATIBILITY
     # ========================================================================
     
     def __getitem__(self, key):
-        """Allow dictionary-style access like kg['local_graph']"""
         if key == 'local_graph':
             return self.local_graph
         if key == 'nodes':
@@ -947,7 +761,6 @@ class KnowledgeGraph:
         return self.local_graph.get(key, {})
     
     def __setitem__(self, key, value):
-        """Allow dictionary-style assignment like kg['local_graph'] = {...}"""
         if key == 'local_graph':
             self.local_graph = value
             self._nodes = value.get('nodes', [])
@@ -964,13 +777,11 @@ class KnowledgeGraph:
             self.local_graph[key] = value
     
     def __contains__(self, key):
-        """Support 'in' operator"""
         return key in ['local_graph', 'nodes', 'edges', 'graph'] or \
                (self._graph and key in self._graph) or \
                key in self.local_graph
     
     def get(self, key, default=None):
-        """Dictionary-like get method"""
         if key in ['local_graph', 'nodes', 'edges', 'graph']:
             return self.__getitem__(key)
         if self._graph and hasattr(self._graph, 'get'):
@@ -991,7 +802,7 @@ class KnowledgeGraph:
                 object=context[:50], 
                 metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
             )
-            # Update local graph - this is the key fix
+            # Update local graph
             if concept not in self._nodes:
                 self._nodes.append(concept)
             if 'nodes' not in self.local_graph:
@@ -1002,17 +813,14 @@ class KnowledgeGraph:
             logger.debug(f"Failed to add concept {concept}: {e}")
     
     def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
-        """Add knowledge triple"""
         try:
             self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
         except Exception as e:
             logger.debug(f"Failed to add knowledge: {e}")
     
     def connect_concepts(self, concept1: str, concept2: str, relationship: str):
-        """Connect two concepts"""
         try:
             self.phase6_graph.add_knowledge(concept1, relationship, concept2)
-            # Update local graph
             edge = (concept1, concept2, relationship)
             if edge not in self._edges:
                 self._edges.append(edge)
@@ -1024,7 +832,6 @@ class KnowledgeGraph:
             logger.debug(f"Failed to connect concepts: {e}")
     
     def get_related(self, concept: str) -> List[str]:
-        """Get related concepts"""
         try:
             results = self.phase6_graph.get_related(concept)
             return [r.get('related', '') for r in results] if results else []
@@ -1032,14 +839,12 @@ class KnowledgeGraph:
             return []
     
     def get_insights(self, concept: str) -> List[str]:
-        """Get insights about a concept"""
         related = self.get_related(concept)
         if related:
             return [f"Related to: {', '.join(related[:3])}"]
         return []
     
     def get_stats(self) -> Dict:
-        """Get graph statistics"""
         try:
             if hasattr(self.phase6_graph, 'get_stats'):
                 return self.phase6_graph.get_stats()
@@ -1059,14 +864,12 @@ class KnowledgeGraph:
             }
     
     def query_knowledge(self, query: str) -> List[Dict]:
-        """Query knowledge graph"""
         try:
             return self.phase6_graph.query_knowledge(query)
         except Exception:
             return []
     
     def save_graph(self):
-        """Save graph to disk"""
         try:
             with open(self.graph_file, 'w') as f:
                 json.dump({
@@ -1079,7 +882,6 @@ class KnowledgeGraph:
             logger.error(f"Failed to save knowledge graph: {e}")
     
     def load_graph(self):
-        """Load graph from disk"""
         try:
             if self.graph_file.exists():
                 with open(self.graph_file, 'r') as f:
@@ -1092,14 +894,13 @@ class KnowledgeGraph:
             logger.debug(f"Failed to load graph: {e}")
     
     def is_neo4j_available(self) -> bool:
-        """Check if Neo4j is available"""
         return self._neo4j_available and hasattr(self.phase6_graph, 'neo4j_available') and self.phase6_graph.neo4j_available
     
     def clear(self):
-        """Clear the knowledge graph"""
         self._nodes = []
         self._edges = []
         self.local_graph = {'nodes': [], 'edges': []}
+
 
 # ============================================================================
 # META-LEARNER
@@ -1334,7 +1135,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.8 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.9 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1901,7 +1702,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.8**
+            return f"""🧠 **DMAI Status v8.0.9**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
@@ -2061,7 +1862,7 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.8</h1>
+        <h1>🧠 DMAI - Complete AGI System v8.0.9</h1>
         <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup | Adaptive Evolution</em></p>
         
         <div class="card">
@@ -2149,11 +1950,11 @@ CHAT_TEMPLATE = '''
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v8.0.8 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
+            🧠 DMAI v8.0.9 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.8 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.9 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -2228,7 +2029,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.8")
+    logger.info(f"🚀 DMAI Complete System v8.0.9")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
