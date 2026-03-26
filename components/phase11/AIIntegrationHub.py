@@ -431,37 +431,47 @@ class AIIntegrationHub:
             return {'success': False, 'tutor': 'OpenAI', 'error': str(e)}
             
     def _query_deepseek(self, prompt: str) -> Dict:
-        """Query DeepSeek - Original logic preserved"""
+        """Query DeepSeek with increased timeout and retry logic"""
         api_key = self.api_keys.get('deepseek')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'DeepSeek', 'error': 'No API key'}
-            
-        try:
-            response = requests.post(
-                'https://api.deepseek.com/v1/chat/completions',
-                headers={'Authorization': f'Bearer {api_key}'},
-                json={
-                    'model': 'deepseek-chat',
-                    'messages': [{'role': 'user', 'content': prompt}],
-                    'max_tokens': 1000,
-                    'temperature': 0.7
-                },
-                timeout=15
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                return {
-                    'success': True,
-                    'tutor': 'DeepSeek',
-                    'response': data['choices'][0]['message']['content'],
-                    'model': 'deepseek-chat'
-                }
-            else:
-                return {'success': False, 'tutor': 'DeepSeek', 'error': f'HTTP {response.status_code}'}
+        
+        # Retry logic for timeout issues
+        for attempt in range(2):
+            try:
+                response = requests.post(
+                    'https://api.deepseek.com/v1/chat/completions',
+                    headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+                    json={
+                        'model': 'deepseek-chat',
+                        'messages': [{'role': 'user', 'content': prompt}],
+                        'max_tokens': 500,
+                        'temperature': 0.7
+                    },
+                    timeout=30  # Increased from 15 to 30 seconds
+                )
                 
-        except Exception as e:
-            return {'success': False, 'tutor': 'DeepSeek', 'error': str(e)}
+                if response.status_code == 200:
+                    data = response.json()
+                    return {
+                        'success': True,
+                        'tutor': 'DeepSeek',
+                        'response': data['choices'][0]['message']['content'],
+                        'model': 'deepseek-chat'
+                    }
+                else:
+                    return {'success': False, 'tutor': 'DeepSeek', 'error': f'HTTP {response.status_code}'}
+                    
+            except requests.exceptions.Timeout:
+                if attempt == 0:
+                    logger.warning(f"DeepSeek timeout, retrying...")
+                    continue
+                else:
+                    return {'success': False, 'tutor': 'DeepSeek', 'error': 'Request timed out after retry'}
+            except Exception as e:
+                return {'success': False, 'tutor': 'DeepSeek', 'error': str(e)}
+        
+        return {'success': False, 'tutor': 'DeepSeek', 'error': 'All attempts failed'}
             
     def _query_gemini(self, prompt: str) -> Dict:
         """Query Google Gemini - Original logic preserved"""
