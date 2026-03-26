@@ -7,7 +7,7 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.11
+DMAI - COMPLETE AGI SYSTEM v8.0.14
 UNIFIED CONSCIOUSNESS - Complete KnowledgeGraph Fix with Patch
 """
 
@@ -1577,15 +1577,23 @@ class UnifiedEvolutionEngine:
         try:
             if self.ai_hub and self.ai_hub._get_active_tutors():
                 result = self.ai_hub.query_all_tutors(message)
-                if result.get('success') and result.get('responses'):
+                # Check for responses directly (no success flag needed)
+                if result.get('responses'):
                     for tutor, response in result['responses'].items():
-                        if not isinstance(response, dict) or 'error' not in response:
+                        # If response is a string (valid response from tutor)
+                        if isinstance(response, str) and len(response) > 0:
                             ai_response = response
+                            logger.info(f"✅ Using response from {tutor}")
+                            break
+                        # If response is a dict with a response field
+                        elif isinstance(response, dict) and response.get('response'):
+                            ai_response = response['response']
+                            logger.info(f"✅ Using response from {tutor}")
                             break
         except Exception as e:
             logger.error(f"AI Tutor error: {e}")
         
-        if not ai_response or (isinstance(ai_response, dict) and ai_response.get('error')):
+        if not ai_response:
             ai_response = self._search_web_fallback(message)
         
         persona = self.persona_generator.current_persona
@@ -1796,17 +1804,28 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
         
+        @self.app.route('/api/brain/data')
+        def api_brain_data():
+            """API endpoint for brain visualization data"""
+            return jsonify({
+                'consciousness': self.evolution.synthetic_network.consciousness_level,
+                'neurons': len(self.evolution.synthetic_network.neurons),
+                'synapses': self.evolution.synthetic_network._total_synapses(),
+                'evolution_cycles': self.evolution.synthetic_network.evolution_cycles,
+                'persona_style': self.evolution.persona_generator.current_persona['speaking_style']
+            })
+        
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.10', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI')})
+            return jsonify({'status': 'active', 'version': '8.0.13', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI')})
         
         @self.app.route('/admin')
         def admin():
-            return ADMIN_TEMPLATE
+            return render_template_string(ADMIN_TEMPLATE, status=self.evolution.get_status())
         
         @self.app.route('/chat')
         def chat():
-            return CHAT_TEMPLATE
+            return render_template_string(CHAT_TEMPLATE, status=self.evolution.get_status())
     
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
@@ -1815,7 +1834,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.10**
+            return f"""🧠 **DMAI Status v8.0.13**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
