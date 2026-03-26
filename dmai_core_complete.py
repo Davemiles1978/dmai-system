@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.9
-UNIFIED CONSCIOUSNESS - Adaptive Evolution Timer Integrated
+DMAI - COMPLETE AGI SYSTEM v8.0.10
+UNIFIED CONSCIOUSNESS - Complete KnowledgeGraph Fix with Patch
 """
 
 import os
@@ -692,12 +692,11 @@ class SelfEvolutionEngine:
         return self.efficiency_metrics
 
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.9
+# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.10
 # ============================================================================
 
 class KnowledgeGraph:
     def __init__(self, data_path: Path):
-        # Initialize all attributes
         self.data_path = data_path
         self.graph_file = data_path / 'knowledge_graph.json'
         
@@ -707,11 +706,13 @@ class KnowledgeGraph:
         self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
         self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
         
-        # CRITICAL: These are direct instance attributes - MUST be set before any method calls
+        # CRITICAL: Direct instance attributes for API Harvester compatibility
         self.local_graph = {'nodes': [], 'edges': []}
         self._nodes = []
         self._edges = []
         self._graph = None
+        self.nodes = self._nodes  # Alias for API Harvester
+        self.edges = self._edges  # Alias for API Harvester
         
         # Initialize the graph data
         self._init_graph_data()
@@ -729,19 +730,25 @@ class KnowledgeGraph:
                 if hasattr(self._graph, 'nodes'):
                     self._nodes = list(self._graph.nodes)
                     self.local_graph['nodes'] = self._nodes
+                    self.nodes = self._nodes
                 if hasattr(self._graph, 'edges'):
                     self._edges = list(self._graph.edges)
                     self.local_graph['edges'] = self._edges
+                    self.edges = self._edges
             elif hasattr(self.phase6_graph, 'local_graph') and self.phase6_graph.local_graph:
                 if isinstance(self.phase6_graph.local_graph, dict):
                     self.local_graph = self.phase6_graph.local_graph
                     self._nodes = self.local_graph.get('nodes', [])
                     self._edges = self.local_graph.get('edges', [])
+                    self.nodes = self._nodes
+                    self.edges = self._edges
         except Exception as e:
             logger.debug(f"Failed to init graph data: {e}")
             self.local_graph = {'nodes': [], 'edges': []}
             self._nodes = []
             self._edges = []
+            self.nodes = []
+            self.edges = []
     
     # ========================================================================
     # DICTIONARY-LIKE METHODS FOR COMPATIBILITY
@@ -765,12 +772,16 @@ class KnowledgeGraph:
             self.local_graph = value
             self._nodes = value.get('nodes', [])
             self._edges = value.get('edges', [])
+            self.nodes = self._nodes
+            self.edges = self._edges
         elif key == 'nodes':
             self._nodes = value
             self.local_graph['nodes'] = value
+            self.nodes = value
         elif key == 'edges':
             self._edges = value
             self.local_graph['edges'] = value
+            self.edges = value
         elif self._graph and hasattr(self._graph, '__setitem__'):
             self._graph[key] = value
         else:
@@ -795,6 +806,16 @@ class KnowledgeGraph:
     def add_concept(self, concept: str, context: str):
         """Add a concept to the knowledge graph"""
         try:
+            # Ensure all attributes exist (defensive programming)
+            if not hasattr(self, 'local_graph'):
+                self.local_graph = {'nodes': [], 'edges': []}
+            if not hasattr(self, '_nodes'):
+                self._nodes = []
+                self.nodes = self._nodes
+            if not hasattr(self, '_edges'):
+                self._edges = []
+                self.edges = self._edges
+            
             # Add to phase6 graph (Neo4j or NetworkX)
             self.phase6_graph.add_knowledge(
                 subject=concept, 
@@ -805,10 +826,13 @@ class KnowledgeGraph:
             # Update local graph
             if concept not in self._nodes:
                 self._nodes.append(concept)
+                self.nodes = self._nodes
             if 'nodes' not in self.local_graph:
                 self.local_graph['nodes'] = []
             if concept not in self.local_graph['nodes']:
                 self.local_graph['nodes'].append(concept)
+            
+            logger.debug(f"✅ Added concept: {concept}")
         except Exception as e:
             logger.debug(f"Failed to add concept {concept}: {e}")
     
@@ -824,6 +848,7 @@ class KnowledgeGraph:
             edge = (concept1, concept2, relationship)
             if edge not in self._edges:
                 self._edges.append(edge)
+                self.edges = self._edges
             if 'edges' not in self.local_graph:
                 self.local_graph['edges'] = []
             if edge not in self.local_graph['edges']:
@@ -889,6 +914,8 @@ class KnowledgeGraph:
                     self._nodes = data.get('nodes', [])
                     self._edges = data.get('edges', [])
                     self.local_graph = data.get('local_graph', {'nodes': self._nodes, 'edges': self._edges})
+                    self.nodes = self._nodes
+                    self.edges = self._edges
                 logger.debug(f"📂 Loaded knowledge graph: {len(self._nodes)} concepts, {len(self._edges)} connections")
         except Exception as e:
             logger.debug(f"Failed to load graph: {e}")
@@ -900,7 +927,8 @@ class KnowledgeGraph:
         self._nodes = []
         self._edges = []
         self.local_graph = {'nodes': [], 'edges': []}
-
+        self.nodes = []
+        self.edges = []
 
 # ============================================================================
 # META-LEARNER
@@ -1026,6 +1054,10 @@ class UnifiedEvolutionEngine:
         self.conversation_memory = ConversationMemory(self.data_path)
         self.self_evolution = SelfEvolutionEngine(self.data_path)
         self.knowledge_graph = KnowledgeGraph(self.data_path)
+        
+        # Patch knowledge graph for API Harvester compatibility
+        self._patch_knowledge_graph()
+        
         self.meta_learner = MetaLearner(self.data_path)
         self.self_healer = SelfHealer(self.data_path)
         
@@ -1135,7 +1167,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.9 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.10 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1145,6 +1177,18 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Evolution Stage: {timer_info['name']}")
         logger.info(f"   Evolution Pace: {timer_info['interval_minutes']:.0f} minutes")
         logger.info("=" * 60)
+    
+    def _patch_knowledge_graph(self):
+        """Add missing attributes to knowledge graph for API Harvester compatibility"""
+        if hasattr(self, 'knowledge_graph'):
+            # Ensure all expected attributes exist
+            if not hasattr(self.knowledge_graph, 'local_graph'):
+                self.knowledge_graph.local_graph = {'nodes': [], 'edges': []}
+            if not hasattr(self.knowledge_graph, 'nodes'):
+                self.knowledge_graph.nodes = self.knowledge_graph._nodes if hasattr(self.knowledge_graph, '_nodes') else []
+            if not hasattr(self.knowledge_graph, 'edges'):
+                self.knowledge_graph.edges = self.knowledge_graph._edges if hasattr(self.knowledge_graph, '_edges') else []
+            logger.debug("✅ Knowledge Graph patched for API Harvester compatibility")
     
     def _init_neo4j_schema(self):
         """Initialize Neo4j schema to prevent warning messages"""
@@ -1685,7 +1729,7 @@ class DMAIApplication:
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.6', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI')})
+            return jsonify({'status': 'active', 'version': '8.0.10', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI')})
         
         @self.app.route('/admin')
         def admin():
@@ -1702,7 +1746,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.9**
+            return f"""🧠 **DMAI Status v8.0.10**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
@@ -1862,7 +1906,7 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.9</h1>
+        <h1>🧠 DMAI - Complete AGI System v8.0.10</h1>
         <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup | Adaptive Evolution</em></p>
         
         <div class="card">
@@ -1950,11 +1994,11 @@ CHAT_TEMPLATE = '''
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v8.0.9 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
+            🧠 DMAI v8.0.10 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.9 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.10 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -2029,7 +2073,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.9")
+    logger.info(f"🚀 DMAI Complete System v8.0.10")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
