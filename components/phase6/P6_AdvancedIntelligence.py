@@ -4,9 +4,9 @@ PHASE 6: ADVANCED INTELLIGENCE - AI + SI Fusion
 Complete integration of Artificial Intelligence AND Synthetic Intelligence
 DMAI's journey to sentience through dual-path intelligence
 
-Version: 2.1.0
-Date: 2026-03-24
-UPGRADED: KnowledgeGraph with NetworkX for advanced relationship mapping
+Version: 2.1.1
+Date: 2026-03-26
+FIXED: KnowledgeGraph local_graph initialization to prevent AttributeError
 """
 
 import asyncio
@@ -184,6 +184,14 @@ class KnowledgeGraph:
         self.neo4j_driver = None
         self.graph_path = "data/phase6/knowledge_graph.json"
         
+        # CRITICAL FIX: Initialize local_graph immediately
+        # This prevents AttributeError when add_concept is called before graph is loaded
+        self.local_graph = {
+            "nodes": [],
+            "edges": [],
+            "metadata": {}
+        }
+        
         # Initialize NetworkX graph if available
         self.graph = None
         self.concept_index = {}  # Maps concept names to node IDs
@@ -192,12 +200,6 @@ class KnowledgeGraph:
             self.graph = nx.MultiDiGraph()
             logger.info("📊 Knowledge Graph initialized with NetworkX")
         else:
-            # Fallback to simple local graph
-            self.local_graph = {
-                "nodes": [],
-                "edges": [],
-                "metadata": {}
-            }
             logger.warning("NetworkX not available - using simple graph storage")
         
         # Try Neo4j connection
@@ -228,6 +230,9 @@ class KnowledgeGraph:
             with open(self.graph_path, 'r') as f:
                 data = json.load(f)
             
+            # Load into local_graph regardless of NetworkX availability
+            self.local_graph = data
+            
             if NETWORKX_AVAILABLE and self.graph:
                 self.graph.clear()
                 self.concept_index.clear()
@@ -243,9 +248,6 @@ class KnowledgeGraph:
                     u = edge_data.pop('from')
                     v = edge_data.pop('to')
                     self.graph.add_edge(u, v, **edge_data)
-            else:
-                # Load into local_graph
-                self.local_graph = data
                 
             logger.info(f"Loaded knowledge graph: {len(self._get_nodes())} nodes, {len(self._get_edges())} edges")
             
@@ -370,7 +372,7 @@ class KnowledgeGraph:
                 self.concept_index[name.lower()] = node_id
                 logger.debug(f"➕ Added concept: {name} ({concept_type})")
         else:
-            # Check if exists
+            # Check if exists in local_graph
             for node in self.local_graph['nodes']:
                 if node.get('id') == node_id:
                     return node_id
@@ -411,7 +413,7 @@ class KnowledgeGraph:
         if NETWORKX_AVAILABLE and self.graph:
             self.graph.add_edge(from_id, to_id, **edge_data)
         else:
-            # Check if edge already exists
+            # Check if edge already exists in local_graph
             for edge in self.local_graph['edges']:
                 if edge.get('source') == from_id and edge.get('target') == to_id:
                     edge.update(edge_data)
@@ -506,22 +508,24 @@ class KnowledgeGraph:
         else:
             # Simple local graph fallback
             for edge in self.local_graph['edges']:
-                source = self.local_graph['nodes'][edge['source']] if isinstance(edge['source'], int) else None
-                target = self.local_graph['nodes'][edge['target']] if isinstance(edge['target'], int) else None
+                source_idx = edge.get('source')
+                target_idx = edge.get('target')
+                source = self.local_graph['nodes'][source_idx] if isinstance(source_idx, int) and source_idx < len(self.local_graph['nodes']) else None
+                target = self.local_graph['nodes'][target_idx] if isinstance(target_idx, int) and target_idx < len(self.local_graph['nodes']) else None
                 
-                if source and source['name'].lower() == entity.lower():
+                if source and source.get('name', '').lower() == entity.lower():
                     results.append({
                         'entity': entity,
                         'relation': edge.get('predicate', edge.get('type', 'unknown')),
-                        'related': target['name'],
+                        'related': target.get('name', 'unknown'),
                         'direction': 'outgoing',
                         'weight': edge.get('weight', 1.0)
                     })
-                elif target and target['name'].lower() == entity.lower():
+                elif target and target.get('name', '').lower() == entity.lower():
                     results.append({
                         'entity': entity,
                         'relation': edge.get('predicate', edge.get('type', 'unknown')),
-                        'related': source['name'],
+                        'related': source.get('name', 'unknown'),
                         'direction': 'incoming',
                         'weight': edge.get('weight', 1.0)
                     })
@@ -557,15 +561,17 @@ class KnowledgeGraph:
                     })
         else:
             for edge in self.local_graph['edges']:
-                source = self.local_graph['nodes'][edge['source']] if isinstance(edge['source'], int) else None
-                target = self.local_graph['nodes'][edge['target']] if isinstance(edge['target'], int) else None
+                source_idx = edge.get('source')
+                target_idx = edge.get('target')
+                source = self.local_graph['nodes'][source_idx] if isinstance(source_idx, int) and source_idx < len(self.local_graph['nodes']) else None
+                target = self.local_graph['nodes'][target_idx] if isinstance(target_idx, int) and target_idx < len(self.local_graph['nodes']) else None
                 if source and target:
-                    edge_text = f"{source['name']} {edge.get('predicate', edge.get('type', ''))} {target['name']}".lower()
+                    edge_text = f"{source.get('name', '')} {edge.get('predicate', edge.get('type', ''))} {target.get('name', '')}".lower()
                     if query_lower in edge_text:
                         results.append({
-                            "subject": source['name'],
+                            "subject": source.get('name', ''),
                             "predicate": edge.get('predicate', edge.get('type', '')),
-                            "object": target['name'],
+                            "object": target.get('name', ''),
                             "weight": edge.get('weight', 1.0),
                             "metadata": edge.get('metadata', {})
                         })
@@ -620,8 +626,8 @@ class KnowledgeGraph:
                 visited.add(current)
                 
                 for edge in self.local_graph['edges']:
-                    if edge['source'] == current:
-                        next_id = edge['target']
+                    if edge.get('source') == current:
+                        next_id = edge.get('target')
                         if next_id not in visited:
                             source_name = self._get_node_name(current)
                             target_name = self._get_node_name(next_id)
