@@ -13,7 +13,18 @@ class AdaptiveEvolutionTimer:
     Gets smarter about pacing as she evolves.
     """
     
-    def __init__(self, timer_file="data/evolution/timer_state.json"):
+    def __init__(self, timer_file="data/evolution/timer_state.json", data_path=None):
+        """
+        Initialize the timer.
+        
+        Args:
+            timer_file: Direct path to timer state file (used if data_path not provided)
+            data_path: Alternative: base path where timer_state.json will be stored
+        """
+        # Handle data_path parameter for compatibility with dmai_core_complete.py
+        if data_path is not None:
+            timer_file = Path(data_path) / "timer_state.json"
+        
         self.timer_file = Path(timer_file)
         self.timer_file.parent.mkdir(parents=True, exist_ok=True)
         self.state = self.load_state()
