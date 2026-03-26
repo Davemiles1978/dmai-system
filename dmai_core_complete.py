@@ -1090,6 +1090,9 @@ class UnifiedEvolutionEngine:
         logger.info("🔑 Initializing API Harvester...")
         self.api_harvester = RealAPIHarvester(self.data_path)
         
+        # Patch API Harvester's knowledge graph
+        self._patch_api_harvester_knowledge_graph()
+        
         # AI Tutor Network
         logger.info("🤖 Initializing AI Tutor Network...")
         self.tutor_manager = TutorManager(data_path=str(self.data_path))
@@ -1189,6 +1192,64 @@ class UnifiedEvolutionEngine:
             if not hasattr(self.knowledge_graph, 'edges'):
                 self.knowledge_graph.edges = self.knowledge_graph._edges if hasattr(self.knowledge_graph, '_edges') else []
             logger.debug("✅ Knowledge Graph patched for API Harvester compatibility")
+    
+    def _patch_api_harvester_knowledge_graph(self):
+        """Override knowledge graph methods for API Harvester compatibility"""
+        try:
+            if hasattr(self, 'api_harvester') and hasattr(self.api_harvester, 'knowledge_graph'):
+                # Create a wrapper class that intercepts add_concept calls
+                class KGWrap:
+                    def __init__(self, original):
+                        self._original = original
+                        self.local_graph = getattr(original, 'local_graph', {'nodes': [], 'edges': []})
+                        self._nodes = getattr(original, '_nodes', [])
+                        self._edges = getattr(original, '_edges', [])
+                        self.nodes = self._nodes
+                        self.edges = self._edges
+                    
+                    def add_concept(self, concept, context):
+                        """Safe add_concept that never fails"""
+                        try:
+                            # Try to add using original method
+                            if hasattr(self._original, 'add_concept'):
+                                self._original.add_concept(concept, context)
+                            # Update our local copy
+                            if concept not in self._nodes:
+                                self._nodes.append(concept)
+                                self.nodes = self._nodes
+                            if 'nodes' not in self.local_graph:
+                                self.local_graph['nodes'] = []
+                            if concept not in self.local_graph['nodes']:
+                                self.local_graph['nodes'].append(concept)
+                            return True
+                        except Exception as e:
+                            # Fallback: just update our local copy
+                            if concept not in self._nodes:
+                                self._nodes.append(concept)
+                                self.nodes = self._nodes
+                            if 'nodes' not in self.local_graph:
+                                self.local_graph['nodes'] = []
+                            if concept not in self.local_graph['nodes']:
+                                self.local_graph['nodes'].append(concept)
+                            logger.debug(f"Fallback add_concept for {concept}: {e}")
+                            return False
+                    
+                    def __getattr__(self, name):
+                        """Forward all other attributes to original"""
+                        return getattr(self._original, name)
+                    
+                    def __setattr__(self, name, value):
+                        """Handle attribute setting"""
+                        if name in ['_original', 'local_graph', '_nodes', '_edges', 'nodes', 'edges']:
+                            super().__setattr__(name, value)
+                        else:
+                            setattr(self._original, name, value)
+                
+                # Replace the knowledge graph in the API Harvester
+                self.api_harvester.knowledge_graph = KGWrap(self.knowledge_graph)
+                logger.info("✅ API Harvester knowledge graph patched with safe wrapper")
+        except Exception as e:
+            logger.error(f"Failed to patch API Harvester knowledge graph: {e}")
     
     def _init_neo4j_schema(self):
         """Initialize Neo4j schema to prevent warning messages"""
