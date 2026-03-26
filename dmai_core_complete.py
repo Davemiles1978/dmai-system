@@ -7,7 +7,7 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.6
+DMAI - COMPLETE AGI SYSTEM v8.0.7
 UNIFIED CONSCIOUSNESS - Adaptive Evolution Timer Integrated
 """
 
@@ -693,28 +693,25 @@ class SelfEvolutionEngine:
 
 
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.6
+# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.7
 # ============================================================================
 
 class KnowledgeGraph:
     def __init__(self, data_path: Path):
-        # Use object.__setattr__ to avoid recursion
-        object.__setattr__(self, '_initialized', False)
-        
-        object.__setattr__(self, 'data_path', data_path)
-        object.__setattr__(self, 'graph_file', data_path / 'knowledge_graph.json')
-        
+        self.data_path = data_path
+        self.graph_file = data_path / 'knowledge_graph.json'
         neo4j_uri = os.getenv('NEO4J_URI')
         neo4j_user = os.getenv('NEO4J_USER')
         neo4j_password = os.getenv('NEO4J_PASSWORD')
-        object.__setattr__(self, 'phase6_graph', RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password))
-        object.__setattr__(self, '_neo4j_available', neo4j_uri and neo4j_user and neo4j_password)
+        self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
+        self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
         
-        # CRITICAL: These are direct instance attributes
-        object.__setattr__(self, 'local_graph', {'nodes': [], 'edges': []})
-        object.__setattr__(self, '_nodes', [])
-        object.__setattr__(self, '_edges', [])
-        object.__setattr__(self, '_graph', None)
+        # CRITICAL: These are REAL instance attributes, not properties
+        # This is what the API Harvester expects
+        self.local_graph = {'nodes': [], 'edges': []}
+        self._nodes = []
+        self._edges = []
+        self._graph = None
         
         # Initialize the graph data
         self._init_graph_data()
@@ -722,34 +719,7 @@ class KnowledgeGraph:
         # Try to load existing graph
         self.load_graph()
         
-        object.__setattr__(self, '_initialized', True)
-        
         logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
-    
-    def __getattr__(self, name):
-        """Intercept attribute access for API Harvester compatibility"""
-        if name == 'local_graph':
-            return object.__getattribute__(self, 'local_graph')
-        if name == 'nodes':
-            return object.__getattribute__(self, '_nodes')
-        if name == 'edges':
-            return object.__getattribute__(self, '_edges')
-        if name == 'graph':
-            return object.__getattribute__(self, '_graph') or object.__getattribute__(self, 'local_graph')
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-    
-    def __setattr__(self, name, value):
-        """Intercept attribute setting"""
-        if name in ['local_graph', '_nodes', '_edges', '_graph', 'phase6_graph', '_neo4j_available', '_initialized']:
-            object.__setattr__(self, name, value)
-        elif name == 'nodes':
-            object.__setattr__(self, '_nodes', value)
-            object.__getattribute__(self, 'local_graph')['nodes'] = value
-        elif name == 'edges':
-            object.__setattr__(self, '_edges', value)
-            object.__getattribute__(self, 'local_graph')['edges'] = value
-        else:
-            object.__setattr__(self, name, value)
     
     def _init_graph_data(self):
         """Initialize graph data structures"""
@@ -829,13 +799,14 @@ class KnowledgeGraph:
     def add_concept(self, concept: str, context: str):
         """Add a concept to the knowledge graph"""
         try:
+            # Add to phase6 graph (Neo4j or NetworkX)
             self.phase6_graph.add_knowledge(
                 subject=concept, 
                 predicate="related_to", 
                 object=context[:50], 
                 metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
             )
-            # Update local graph
+            # Update local graph - this is the key fix
             if concept not in self._nodes:
                 self._nodes.append(concept)
             if 'nodes' not in self.local_graph:
@@ -1178,7 +1149,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.6 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.7 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1745,7 +1716,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.6**
+            return f"""🧠 **DMAI Status v8.0.7**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Synthetic Neurons: {status['synthetic_neurons']}
@@ -1905,7 +1876,7 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.6</h1>
+        <h1>🧠 DMAI - Complete AGI System v8.0.7</h1>
         <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup | Adaptive Evolution</em></p>
         
         <div class="card">
@@ -1993,11 +1964,11 @@ CHAT_TEMPLATE = '''
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v8.0.6 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
+            🧠 DMAI v8.0.7 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.6 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
+                <b>DMAI:</b> I am DMAI v8.0.7 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
             </div>
         </div>
         <div class="input-area">
@@ -2072,7 +2043,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.6")
+    logger.info(f"🚀 DMAI Complete System v8.0.7")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
