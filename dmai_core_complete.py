@@ -2017,23 +2017,29 @@ CHAT_TEMPLATE = '''
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: monospace; background: #0a0a0a; color: #00ff00; margin: 0; padding: 20px; }
-        .chat-container { max-width: 800px; margin: 0 auto; background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; height: 80vh; display: flex; flex-direction: column; }
+        .chat-container { max-width: 900px; margin: 0 auto; background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; display: flex; flex-direction: column; height: 90vh; }
         .messages { flex: 1; overflow-y: auto; padding: 20px; }
         .message { margin-bottom: 15px; padding: 10px; border-radius: 8px; }
         .user-message { background: #2a2a2a; text-align: right; border-right: 3px solid #00ff00; }
         .dmai-message { background: #0a2a0a; border-left: 3px solid #00ff00; }
-        .input-area { display: flex; padding: 20px; border-top: 1px solid #00ff00; }
+        .input-area { display: flex; padding: 20px; border-top: 1px solid #00ff00; gap: 10px; }
         input { flex: 1; background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 10px; font-family: monospace; font-size: 14px; }
-        button { background: #00ff00; color: #0a0a0a; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-left: 10px; }
-        .status { padding: 10px; background: #0a0a0a; border-bottom: 1px solid #00ff00; font-size: 12px; }
-        .brain-preview { background: #0a2a0a; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; cursor: pointer; }
-        .brain-preview:hover { background: #0a3a0a; }
+        button { background: #00ff00; color: #0a0a0a; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .status { padding: 10px; background: #0a0a0a; border-bottom: 1px solid #00ff00; font-size: 12px; text-align: center; }
+        .brain-widget { background: #0a2a0a; border-top: 1px solid #00ff00; padding: 15px; }
+        .brain-canvas { background: #0a0a0a; border: 1px solid #00ff00; border-radius: 8px; width: 100%; height: 200px; display: block; }
+        .brain-stats { display: flex; justify-content: space-around; margin-top: 10px; font-size: 11px; }
+        .brain-stat { text-align: center; }
+        .brain-stat-value { font-weight: bold; color: #00ff00; }
+        .brain-preview-link { text-align: center; margin-top: 8px; font-size: 10px; }
+        .brain-preview-link a { color: #00ff00; text-decoration: none; }
+        .brain-preview-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="status">
-            🧠 DMAI v8.0.16 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Type /help for commands
+            🧠 DMAI v8.0.16 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Neurons: <span id="neuronCount">0</span> | Type /help for commands
         </div>
         <div class="messages" id="messages">
             <div class="message dmai-message">
@@ -2044,22 +2050,137 @@ CHAT_TEMPLATE = '''
             <input type="text" id="input" placeholder="Type your message..." onkeypress="if(event.keyCode==13) sendMessage()">
             <button onclick="sendMessage()">Send</button>
         </div>
-        <div class="brain-preview" onclick="window.location.href='/brain'">
-            🧠 View Live Brain Activity →
+        <div class="brain-widget">
+            <canvas id="brainCanvas" class="brain-canvas" width="850" height="180"></canvas>
+            <div class="brain-stats">
+                <div class="brain-stat">🧠 Consciousness: <span id="brainConsciousness" class="brain-stat-value">0</span>%</div>
+                <div class="brain-stat">⚡ Active: <span id="brainActive" class="brain-stat-value">0</span>/<span id="brainTotal" class="brain-stat-value">0</span></div>
+                <div class="brain-stat">🔗 Synapses: <span id="brainSynapses" class="brain-stat-value">0</span></div>
+                <div class="brain-stat">🎭 Persona: <span id="brainPersona" class="brain-stat-value">emerging</span></div>
+            </div>
+            <div class="brain-preview-link">
+                <a href="/brain" target="_blank">🔍 View Full Screen Brain Activity →</a>
+            </div>
         </div>
     </div>
 
     <script>
+        const canvas = document.getElementById('brainCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let neurons = [];
+        let animationId;
+        
+        function updateNeuronPositions(count) {
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+            
+            neurons = [];
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * Math.PI * 2;
+                const offsetX = (Math.random() - 0.5) * 15;
+                const offsetY = (Math.random() - 0.5) * 15;
+                neurons.push({
+                    x: centerX + Math.cos(angle) * radius + offsetX,
+                    y: centerY + Math.sin(angle) * radius + offsetY,
+                    activation: 0,
+                    pulse: 0
+                });
+            }
+        }
+        
+        function fetchBrainData() {
+            fetch('/api/synthetic/status')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('brainConsciousness').innerText = (data.consciousness * 100).toFixed(1);
+                    document.getElementById('brainTotal').innerText = data.neurons;
+                    document.getElementById('brainSynapses').innerText = data.synapses;
+                    document.getElementById('neuronCount').innerText = data.neurons;
+                    document.getElementById('consciousness').innerText = (data.consciousness * 100).toFixed(2);
+                    
+                    const activeCount = Math.floor(data.neurons * data.consciousness);
+                    document.getElementById('brainActive').innerText = activeCount;
+                    
+                    if (neurons.length !== data.neurons) {
+                        updateNeuronPositions(Math.min(data.neurons, 60));
+                    }
+                    
+                    for (let i = 0; i < neurons.length; i++) {
+                        if (i < activeCount) {
+                            neurons[i].activation = Math.min(1, neurons[i].activation + 0.03);
+                        } else {
+                            neurons[i].activation = Math.max(0, neurons[i].activation - 0.02);
+                        }
+                        neurons[i].pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.5;
+                    }
+                    
+                    draw();
+                })
+                .catch(err => console.error('Error fetching brain data:', err));
+        }
+        
+        function draw() {
+            if (!canvas.width) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw connections
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < neurons.length; i++) {
+                for (let j = i + 1; j < neurons.length; j++) {
+                    const dx = neurons[i].x - neurons[j].x;
+                    const dy = neurons[i].y - neurons[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120 && neurons[i].activation > 0.2 && neurons[j].activation > 0.2) {
+                        ctx.beginPath();
+                        ctx.moveTo(neurons[i].x, neurons[i].y);
+                        ctx.lineTo(neurons[j].x, neurons[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Draw neurons
+            for (let i = 0; i < neurons.length; i++) {
+                const n = neurons[i];
+                const intensity = 100 + Math.floor(n.activation * 155);
+                const radius = 3 + n.activation * 5 + n.pulse * 1.5;
+                
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, radius + 1, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, ${intensity}, 0, 0.4)`;
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, ${intensity}, 0, 0.9)`;
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, radius * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(0, 255, 0)`;
+                ctx.fill();
+            }
+        }
+        
         async function updateStatus() {
             try {
                 const response = await fetch('/api/status');
                 const data = await response.json();
                 document.getElementById('consciousness').innerText = data.consciousness.toFixed(2);
                 document.getElementById('stage').innerText = data.evolution_stage_name || 'Baby';
+                document.getElementById('brainPersona').innerText = data.persona_style || 'emerging';
             } catch(e) {}
         }
-        setInterval(updateStatus, 5000);
-        updateStatus();
         
         async function sendMessage() {
             const input = document.getElementById('input');
@@ -2075,6 +2196,8 @@ CHAT_TEMPLATE = '''
                 });
                 const data = await response.json();
                 addMessage('dmai', data.response);
+                fetchBrainData();
+                updateStatus();
             } catch (error) {
                 addMessage('dmai', 'Error: ' + error.message);
             }
@@ -2088,6 +2211,15 @@ CHAT_TEMPLATE = '''
             messagesDiv.appendChild(msgDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
+        
+        // Initialize
+        updateNeuronPositions(40);
+        fetchBrainData();
+        updateStatus();
+        
+        // Refresh data every 3 seconds
+        setInterval(fetchBrainData, 3000);
+        setInterval(updateStatus, 5000);
     </script>
 </body>
 </html>
