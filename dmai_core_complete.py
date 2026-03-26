@@ -1577,19 +1577,24 @@ class UnifiedEvolutionEngine:
         try:
             if self.ai_hub and self.ai_hub._get_active_tutors():
                 result = self.ai_hub.query_all_tutors(message)
-                # Check for responses directly (no success flag needed)
+                # Prioritize AI LLM responses over GitHub
                 if result.get('responses'):
-                    for tutor, response in result['responses'].items():
-                        # If response is a string (valid response from tutor)
-                        if isinstance(response, str) and len(response) > 0:
-                            ai_response = response
-                            logger.info(f"✅ Using response from {tutor}")
-                            break
-                        # If response is a dict with a response field
-                        elif isinstance(response, dict) and response.get('response'):
-                            ai_response = response['response']
-                            logger.info(f"✅ Using response from {tutor}")
-                            break
+                    # First, look for AI tutor responses (DeepSeek, OpenAI, Gemini, Claude)
+                    ai_tutors = ['DeepSeek', 'OpenAI GPT-4', 'Google Gemini', 'Anthropic Claude', 'Perplexity AI']
+                    for tutor in ai_tutors:
+                        if tutor in result['responses']:
+                            response = result['responses'][tutor]
+                            if isinstance(response, str) and len(response) > 0 and not response.startswith('Found'):
+                                ai_response = response
+                                logger.info(f"✅ Using AI response from {tutor}")
+                                break
+                    # If no AI response, take the first valid response (including GitHub)
+                    if not ai_response:
+                        for tutor, response in result['responses'].items():
+                            if isinstance(response, str) and len(response) > 0:
+                                ai_response = response
+                                logger.info(f"✅ Using fallback response from {tutor}")
+                                break
         except Exception as e:
             logger.error(f"AI Tutor error: {e}")
         
