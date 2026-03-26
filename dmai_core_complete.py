@@ -7,7 +7,7 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.10
+DMAI - COMPLETE AGI SYSTEM v8.0.11
 UNIFIED CONSCIOUSNESS - Complete KnowledgeGraph Fix with Patch
 """
 
@@ -692,7 +692,7 @@ class SelfEvolutionEngine:
         return self.efficiency_metrics
 
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.10
+# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.11
 # ============================================================================
 
 class KnowledgeGraph:
@@ -704,6 +704,14 @@ class KnowledgeGraph:
         neo4j_user = os.getenv('NEO4J_USER')
         neo4j_password = os.getenv('NEO4J_PASSWORD')
         self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
+        
+        # CRITICAL FIX: Ensure Phase 6 graph has local_graph attribute
+        # This prevents AttributeError when Phase 6 tries to access self.local_graph
+        if not hasattr(self.phase6_graph, 'local_graph'):
+            self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
+        if not hasattr(self.phase6_graph, 'graph'):
+            self.phase6_graph.graph = None
+        
         self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
         
         # CRITICAL: Direct instance attributes for API Harvester compatibility
@@ -806,15 +814,9 @@ class KnowledgeGraph:
     def add_concept(self, concept: str, context: str):
         """Add a concept to the knowledge graph"""
         try:
-            # Ensure all attributes exist (defensive programming)
-            if not hasattr(self, 'local_graph'):
-                self.local_graph = {'nodes': [], 'edges': []}
-            if not hasattr(self, '_nodes'):
-                self._nodes = []
-                self.nodes = self._nodes
-            if not hasattr(self, '_edges'):
-                self._edges = []
-                self.edges = self._edges
+            # Ensure Phase 6 graph has local_graph (defensive check)
+            if not hasattr(self.phase6_graph, 'local_graph'):
+                self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
             
             # Add to phase6 graph (Neo4j or NetworkX)
             self.phase6_graph.add_knowledge(
@@ -838,12 +840,18 @@ class KnowledgeGraph:
     
     def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
         try:
+            # Ensure Phase 6 graph has local_graph (defensive check)
+            if not hasattr(self.phase6_graph, 'local_graph'):
+                self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
             self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
         except Exception as e:
             logger.debug(f"Failed to add knowledge: {e}")
     
     def connect_concepts(self, concept1: str, concept2: str, relationship: str):
         try:
+            # Ensure Phase 6 graph has local_graph (defensive check)
+            if not hasattr(self.phase6_graph, 'local_graph'):
+                self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
             self.phase6_graph.add_knowledge(concept1, relationship, concept2)
             edge = (concept1, concept2, relationship)
             if edge not in self._edges:
