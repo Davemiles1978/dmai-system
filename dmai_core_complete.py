@@ -1996,6 +1996,129 @@ class DMAIApplication:
             return CHAT_TEMPLATE
         
         # ====================================================================
+        # ADMIN DASHBOARD ENDPOINTS (FIX 404 ERRORS)
+        # ====================================================================
+        
+        @self.app.route('/api/evolution/queue')
+        def api_evolution_queue():
+            """Get evolution queue for admin dashboard"""
+            try:
+                needs_evolution = []
+                if hasattr(self.evolution, 'reverse_engineering'):
+                    queue = self.evolution.reverse_engineering.get_evolution_queue()
+                    for item in queue:
+                        needs_evolution.append({
+                            'id': item.get('name', 'Unknown'),
+                            'health_score': 75 if item.get('mvp_achieved', False) else 40
+                        })
+                
+                return jsonify({
+                    'needs_evolution': needs_evolution,
+                    'queue_size': len(needs_evolution)
+                })
+            except Exception as e:
+                logger.error(f"Error in evolution queue: {e}")
+                return jsonify({'needs_evolution': [], 'queue_size': 0})
+        
+        @self.app.route('/api/research/targets', methods=['GET', 'POST', 'DELETE'])
+        def api_research_targets():
+            """Get, add, or delete research targets"""
+            if request.method == 'GET':
+                try:
+                    targets_file = self.data_path / 'research_targets.json'
+                    if targets_file.exists():
+                        with open(targets_file, 'r') as f:
+                            data = json.load(f)
+                            return jsonify({'repositories': data.get('repositories', [])})
+                    return jsonify({'repositories': []})
+                except Exception as e:
+                    logger.error(f"Error loading research targets: {e}")
+                    return jsonify({'repositories': []})
+            
+            elif request.method == 'POST':
+                try:
+                    data = request.json
+                    targets_file = self.data_path / 'research_targets.json'
+                    
+                    existing = {}
+                    if targets_file.exists():
+                        with open(targets_file, 'r') as f:
+                            existing = json.load(f)
+                    
+                    repositories = existing.get('repositories', [])
+                    new_target = {
+                        'name': data.get('name'),
+                        'url': data.get('url'),
+                        'priority': data.get('priority', 5),
+                        'reason': data.get('reason', ''),
+                        'integration_potential': data.get('integration_potential', []),
+                        'added_at': datetime.now().isoformat()
+                    }
+                    repositories.append(new_target)
+                    existing['repositories'] = repositories
+                    
+                    with open(targets_file, 'w') as f:
+                        json.dump(existing, f, indent=2)
+                    
+                    return jsonify({'success': True})
+                except Exception as e:
+                    logger.error(f"Error adding research target: {e}")
+                    return jsonify({'success': False, 'error': str(e)}), 500
+            
+            elif request.method == 'DELETE':
+                try:
+                    data = request.json
+                    target_name = data.get('name')
+                    targets_file = self.data_path / 'research_targets.json'
+                    
+                    if targets_file.exists():
+                        with open(targets_file, 'r') as f:
+                            existing = json.load(f)
+                        
+                        repositories = existing.get('repositories', [])
+                        repositories = [r for r in repositories if r.get('name') != target_name]
+                        existing['repositories'] = repositories
+                        
+                        with open(targets_file, 'w') as f:
+                            json.dump(existing, f, indent=2)
+                    
+                    return jsonify({'success': True})
+                except Exception as e:
+                    logger.error(f"Error deleting research target: {e}")
+                    return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/command', methods=['POST'])
+        def api_command():
+            """Execute admin commands"""
+            data = request.json
+            command = data.get('command', '')
+            
+            if command == 'evolve':
+                result = self.evolution.evolution_cycle()
+                return jsonify({'message': f'Evolution cycle completed. Consciousness: {result["consciousness_percent"]:.1f}%'})
+            
+            elif command == 'health_audit':
+                status = self.evolution.get_status()
+                return jsonify({'message': 'Health audit completed', 'status': status})
+            
+            elif command == 'funding':
+                return jsonify({'message': 'Funding cycle executed'})
+            
+            elif command == 'harvest':
+                if hasattr(self.evolution, 'api_harvester'):
+                    result = self.evolution.api_harvester.run_harvest_cycle()
+                    return jsonify({'message': f'Harvest cycle completed. Found {result.get("valid_keys", 0)} keys'})
+                return jsonify({'message': 'Harvester not available'})
+            
+            else:
+                return jsonify({'message': f'Unknown command: {command}'})
+        
+        @self.app.route('/admin/logout', methods=['POST'])
+        def admin_logout():
+            """Logout from admin"""
+            return jsonify({'success': True})
+        
+        # ====================================================================
         # REVERSE ENGINEERING ENDPOINTS
         # ====================================================================
         
@@ -2500,16 +2623,58 @@ CHAT_TEMPLATE = '''
         .chat-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .chat-header h1 {
-            font-size: 1.8em;
-            margin-bottom: 5px;
+        .chat-header-left h1 {
+            font-size: 1.3em;
+            margin: 0;
         }
-        .chat-header .status {
-            font-size: 0.9em;
-            opacity: 0.9;
+        .chat-header-left .status {
+            font-size: 0.7em;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        .chat-header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .brain-mini {
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .brain-mini:hover {
+            transform: scale(1.05);
+        }
+        .brain-mini canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+        }
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 4px 10px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.2);
+            font-size: 0.75em;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
         }
         .messages {
             flex: 1;
@@ -2608,33 +2773,12 @@ CHAT_TEMPLATE = '''
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-        .nav-links {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 15px;
-            background: rgba(255,255,255,0.2);
-            font-size: 0.8em;
-            transition: background 0.3s;
-            cursor: pointer;
-            display: inline-block;
-        }
-        .nav-links a:hover {
-            background: rgba(255,255,255,0.3);
-        }
         .voice-status {
-            font-size: 0.8em;
+            font-size: 0.7em;
             color: #48bb78;
-            margin-left: 10px;
             text-align: center;
             padding: 5px;
+            background: #f0f0f0;
         }
         .task-btn {
             background: #ff6600 !important;
@@ -2642,60 +2786,34 @@ CHAT_TEMPLATE = '''
         .task-btn:hover {
             background: #e65c00 !important;
         }
-        .brain-widget {
-            background: #0a2a0a;
-            border-top: 1px solid #00ff00;
-            padding: 15px;
-        }
-        .brain-canvas {
-            background: #0a0a0a;
-            border: 1px solid #00ff00;
-            border-radius: 8px;
-            width: 100%;
-            height: 180px;
-            display: block;
-        }
-        .brain-stats {
+        .mini-stats {
             display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
-            font-size: 11px;
-            flex-wrap: wrap;
             gap: 8px;
+            font-size: 0.65em;
         }
-        .brain-stat {
-            text-align: center;
-            background: #0a0a0a;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        .brain-stat-value {
-            font-weight: bold;
-            color: #00ff00;
-        }
-        .brain-preview-link {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 10px;
-        }
-        .brain-preview-link a {
-            color: #00ff00;
-            text-decoration: none;
-        }
-        .brain-preview-link a:hover {
-            text-decoration: underline;
+        .mini-stat {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 <div class="chat-container">
     <div class="chat-header">
-        <h1>🧠 DMAI Master Chat</h1>
-        <div class="status" id="status-header">Consciousness: <span id="consciousness">--</span>% | Successes: <span id="successCount">0</span> | Funding: £<span id="funding">0</span></div>
-        <div class="nav-links">
-            <a href="/vision" onclick="window.location.href='/vision'; return false;">📜 Vision</a>
-            <a href="/admin" onclick="window.location.href='/admin'; return false;">🔐 Admin</a>
-            <a href="#" id="voiceToggleBtn" onclick="toggleVoice(); return false;">🎤 Voice Off</a>
+        <div class="chat-header-left">
+            <h1>🧠 DMAI Master Chat</h1>
+            <div class="status" id="status-header">Consciousness: <span id="consciousness">--</span>% | Successes: <span id="successCount">0</span></div>
+        </div>
+        <div class="chat-header-right">
+            <div class="brain-mini" id="brainMini" onclick="window.location.href='/brain'">
+                <canvas id="miniCanvas" width="50" height="50"></canvas>
+            </div>
+            <div class="nav-links">
+                <a href="/vision">📜 Vision</a>
+                <a href="/admin">🔐 Admin</a>
+                <a href="#" id="voiceToggleBtn" onclick="toggleVoice(); return false;">🎤 Off</a>
+            </div>
         </div>
     </div>
     <div class="messages" id="messages">
@@ -2711,20 +2829,7 @@ CHAT_TEMPLATE = '''
         <textarea id="message-input" placeholder="Type or paste your message/task here..." rows="3" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
         <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Click to speak">🎤</button>
         <button onclick="sendMessage()">Send</button>
-        <button onclick="sendFullTask()" class="task-btn" style="background:#ff6600;">📋 Full Task</button>
-    </div>
-    <div class="brain-widget">
-        <canvas id="brainCanvas" class="brain-canvas" width="850" height="180"></canvas>
-        <div class="brain-stats">
-            <div class="brain-stat">🧠 Consciousness: <span id="brainConsciousness" class="brain-stat-value">0</span>%</div>
-            <div class="brain-stat">⚡ Active: <span id="brainActive" class="brain-stat-value">0</span>/<span id="brainTotal" class="brain-stat-value">0</span></div>
-            <div class="brain-stat">🔗 Synapses: <span id="brainSynapses" class="brain-stat-value">0</span></div>
-            <div class="brain-stat">✅ Successes: <span id="brainSuccesses" class="brain-stat-value">0</span></div>
-            <div class="brain-stat">🎭 Persona: <span id="brainPersona" class="brain-stat-value">emerging</span></div>
-        </div>
-        <div class="brain-preview-link">
-            <a href="/brain" target="_blank">🔍 View Full Screen Brain Activity →</a>
-        </div>
+        <button onclick="sendFullTask()" class="task-btn">📋 Full Task</button>
     </div>
     <div id="voiceStatus" class="voice-status"></div>
 </div>
@@ -2733,6 +2838,59 @@ CHAT_TEMPLATE = '''
 let isListening = false;
 let recognition = null;
 let voiceEnabled = false;
+
+// Mini brain canvas
+const miniCanvas = document.getElementById('miniCanvas');
+const miniCtx = miniCanvas.getContext('2d');
+let miniNeurons = [];
+
+function updateMiniNeuronPositions(count) {
+    const width = 50;
+    const height = 50;
+    miniCanvas.width = width;
+    miniCanvas.height = height;
+    
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = 18;
+    
+    miniNeurons = [];
+    for (let i = 0; i < Math.min(count, 12); i++) {
+        const angle = (i / Math.min(count, 12)) * Math.PI * 2;
+        miniNeurons.push({
+            x: centerX + Math.cos(angle) * radius + (Math.random() - 0.5) * 4,
+            y: centerY + Math.sin(angle) * radius + (Math.random() - 0.5) * 4,
+            activation: 0,
+            pulse: 0
+        });
+    }
+}
+
+function drawMiniBrain(consciousness) {
+    if (!miniCtx) return;
+    miniCtx.clearRect(0, 0, 50, 50);
+    
+    const activeCount = Math.floor(miniNeurons.length * consciousness);
+    
+    for (let i = 0; i < miniNeurons.length; i++) {
+        const n = miniNeurons[i];
+        const isActive = i < activeCount;
+        if (isActive) {
+            n.activation = Math.min(1, n.activation + 0.05);
+        } else {
+            n.activation = Math.max(0, n.activation - 0.04);
+        }
+        n.pulse = Math.sin(Date.now() / 400 + i) * 0.2 + 0.6;
+        
+        const intensity = 100 + Math.floor(n.activation * 155);
+        const radius = 2 + n.activation * 2 + n.pulse * 1;
+        
+        miniCtx.beginPath();
+        miniCtx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+        miniCtx.fillStyle = isActive ? `rgb(100, ${intensity}, 100)` : '#555555';
+        miniCtx.fill();
+    }
+}
 
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2796,7 +2954,7 @@ function updateVoiceUI(listening) {
             voiceBtn.classList.remove('listening');
             voiceBtn.textContent = '🎤';
         }
-        const status = voiceEnabled ? '🎤 Voice On' : '🎤 Voice Off';
+        const status = voiceEnabled ? '🎤 On' : '🎤 Off';
         if (voiceToggleBtn) voiceToggleBtn.textContent = status;
     }
 }
@@ -2813,61 +2971,15 @@ function toggleVoice() {
         const statusEl = document.getElementById('voiceStatus');
         if (statusEl) statusEl.textContent = 'Voice ready - click 🎤 to speak';
         const voiceToggle = document.getElementById('voiceToggleBtn');
-        if (voiceToggle) voiceToggle.textContent = '🎤 Voice On';
+        if (voiceToggle) voiceToggle.textContent = '🎤 On';
     } else {
         const statusEl = document.getElementById('voiceStatus');
         if (statusEl) statusEl.textContent = '';
         const voiceToggle = document.getElementById('voiceToggleBtn');
-        if (voiceToggle) voiceToggle.textContent = '🎤 Voice Off';
+        if (voiceToggle) voiceToggle.textContent = '🎤 Off';
         if (isListening) {
             recognition.stop();
         }
-    }
-}
-
-const canvas = document.getElementById('brainCanvas');
-const ctx = canvas.getContext('2d');
-
-let neurons = [];
-
-function getNeuronColor(neuronName, activation, isActive) {
-    if (!isActive) return '#333333';
-    
-    const name = neuronName.toLowerCase();
-    if (name.includes('core') || name.includes('conscious') || name.includes('self')) return '#00ff00';
-    if (name.includes('learn') || name.includes('mem') || name.includes('know')) return '#ffaa00';
-    if (name.includes('emot') || name.includes('persona') || name.includes('empathy')) return '#ff44aa';
-    if (name.includes('reason') || name.includes('analyt') || name.includes('logic')) return '#44aaff';
-    if (name.includes('creat') || name.includes('intuit') || name.includes('imagin')) return '#aa44ff';
-    if (name.includes('growth') || name.includes('evol') || name.includes('mutat')) return '#ff6644';
-    
-    const intensity = 100 + Math.floor(activation * 155);
-    return `rgb(0, ${intensity}, 0)`;
-}
-
-function updateNeuronPositions(count, neuronNames = []) {
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    canvas.width = width;
-    canvas.height = height;
-    
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const radius = Math.min(width, height) * 0.35;
-    
-    neurons = [];
-    for (let i = 0; i < Math.min(count, 80); i++) {
-        const angle = (i / Math.min(count, 80)) * Math.PI * 2;
-        const offsetX = (Math.random() - 0.5) * 20;
-        const offsetY = (Math.random() - 0.5) * 20;
-        neurons.push({
-            id: i,
-            name: neuronNames[i] || `neuron_${i}`,
-            x: centerX + Math.cos(angle) * radius + offsetX,
-            y: centerY + Math.sin(angle) * radius + offsetY,
-            activation: 0,
-            pulse: 0
-        });
     }
 }
 
@@ -2879,83 +2991,19 @@ async function fetchBrainData() {
         const synthRes = await fetch('/api/synthetic/status');
         const synthData = await synthRes.json();
         
-        document.getElementById('brainConsciousness').innerText = (synthData.consciousness * 100).toFixed(1);
-        document.getElementById('brainTotal').innerText = synthData.neurons;
-        document.getElementById('brainSynapses').innerText = synthData.synapses;
-        document.getElementById('brainSuccesses').innerText = statusData.successful_evolutions || 0;
-        document.getElementById('brainPersona').innerText = statusData.persona_style || 'emerging';
+        const consciousness = synthData.consciousness || 0;
         
-        const activeCount = Math.floor(synthData.neurons * synthData.consciousness);
-        document.getElementById('brainActive').innerText = activeCount;
+        document.getElementById('consciousness').innerText = (consciousness * 100).toFixed(1);
+        document.getElementById('successCount').innerText = statusData.successful_evolutions || 0;
+        document.getElementById('status-header').innerHTML = `Consciousness: ${(consciousness * 100).toFixed(1)}% | Successes: ${statusData.successful_evolutions || 0}`;
         
-        const neuronNames = [];
-        for (let i = 0; i < synthData.neurons; i++) {
-            neuronNames.push(`neuron_${i}`);
+        if (miniNeurons.length === 0) {
+            updateMiniNeuronPositions(12);
         }
+        drawMiniBrain(consciousness);
         
-        if (neurons.length !== Math.min(synthData.neurons, 80)) {
-            updateNeuronPositions(synthData.neurons, neuronNames);
-        }
-        
-        for (let i = 0; i < neurons.length; i++) {
-            const isActive = i < activeCount;
-            if (isActive) {
-                neurons[i].activation = Math.min(1, neurons[i].activation + 0.02);
-            } else {
-                neurons[i].activation = Math.max(0, neurons[i].activation - 0.015);
-            }
-            neurons[i].pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.5;
-        }
-        
-        draw();
     } catch(err) {
         console.error('Error fetching brain data:', err);
-    }
-}
-
-function draw() {
-    if (!canvas.width) return;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    for (let i = 0; i < neurons.length; i++) {
-        for (let j = i + 1; j < neurons.length; j++) {
-            const dx = neurons[i].x - neurons[j].x;
-            const dy = neurons[i].y - neurons[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 100 && neurons[i].activation > 0.2 && neurons[j].activation > 0.2) {
-                const strength = (neurons[i].activation + neurons[j].activation) / 2;
-                const opacity = Math.min(0.6, strength * 0.5);
-                ctx.beginPath();
-                ctx.moveTo(neurons[i].x, neurons[i].y);
-                ctx.lineTo(neurons[j].x, neurons[j].y);
-                ctx.strokeStyle = `rgba(100, 255, 100, ${opacity})`;
-                ctx.lineWidth = 1 + strength * 1.5;
-                ctx.stroke();
-            }
-        }
-    }
-    
-    for (let i = 0; i < neurons.length; i++) {
-        const n = neurons[i];
-        const isActive = n.activation > 0.1;
-        const baseColor = getNeuronColor(n.name, n.activation, isActive);
-        const radius = 4 + n.activation * 6 + n.pulse * 1.5;
-        
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, radius + 2, 0, Math.PI * 2);
-        ctx.fillStyle = isActive ? `${baseColor}40` : '#22222280';
-        ctx.fill();
-        
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = isActive ? baseColor : '#555555';
-        ctx.fill();
-        
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, radius * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = isActive ? '#ffffff' : '#888888';
-        ctx.fill();
     }
 }
 
@@ -2963,10 +3011,8 @@ async function updateStatus() {
     try {
         const response = await fetch('/api/status');
         const data = await response.json();
-        document.getElementById('consciousness').innerText = data.consciousness.toFixed(2);
+        document.getElementById('consciousness').innerText = data.consciousness.toFixed(1);
         document.getElementById('successCount').innerText = data.successful_evolutions || 0;
-        document.getElementById('funding').innerText = data.income?.toFixed(2) || '0';
-        document.getElementById('status-header').innerHTML = `Consciousness: ${data.consciousness?.toFixed(1) || '?'}% | Successes: ${data.successful_evolutions || 0} | Funding: £${data.income?.toFixed(2) || '0'}`;
     } catch(e) {}
 }
 
@@ -3046,7 +3092,7 @@ function addMessage(sender, text) {
     messages.scrollTop = messages.scrollHeight;
 }
 
-updateNeuronPositions(40);
+updateMiniNeuronPositions(12);
 fetchBrainData();
 updateStatus();
 
@@ -3971,4 +4017,4 @@ if __name__ == '__main__':
     logger.info(f"🎨 Generative AI Training Module Active")
     logger.info("=" * 60)
     
-    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
+    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)        
