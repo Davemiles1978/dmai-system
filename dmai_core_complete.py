@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.18
-UNIFIED CONSCIOUSNESS - Full Integration: Reverse Engineering | AGI Training | LLM Training | Software Training
+DMAI - COMPLETE AGI SYSTEM v8.0.19
+UNIFIED CONSCIOUSNESS - Full Integration: Reverse Engineering | AGI Training | LLM Training | Software Training | Generative AI Training
 """
 
 import os
@@ -111,6 +111,11 @@ from components.llm_training.LLMTrainingProgram import LLMTrainingOrchestrator
 # SOFTWARE TRAINING PROGRAM MODULE IMPORTS
 # ============================================================================
 from components.software_training.SoftwareTrainingProgram import SoftwareTrainingOrchestrator
+
+# ============================================================================
+# GENERATIVE AI TRAINING PROGRAM MODULE IMPORTS
+# ============================================================================
+from components.genai_training.GenAITrainingProgram import GenAITrainingOrchestrator
 
 # Configure logging
 logging.basicConfig(
@@ -1191,6 +1196,13 @@ class UnifiedEvolutionEngine:
         self.software_training = SoftwareTrainingOrchestrator(self.data_path)
         
         # ====================================================================
+        # GENERATIVE AI TRAINING PROGRAM MODULE
+        # ====================================================================
+        
+        logger.info("🎨 Initializing Generative AI Training Program Module...")
+        self.genai_training = GenAITrainingOrchestrator(self.data_path)
+        
+        # ====================================================================
         # INTEGRATE REVERSE ENGINEERING WITH DMAI CORE
         # ====================================================================
         
@@ -1216,7 +1228,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.18 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.19 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1230,6 +1242,7 @@ class UnifiedEvolutionEngine:
         logger.info(f"   AGI Training: Active")
         logger.info(f"   LLM Training: Active")
         logger.info(f"   Software Training: Active")
+        logger.info(f"   Generative AI Training: Active")
         logger.info("=" * 60)
     
     def _patch_knowledge_graph(self):
@@ -1972,7 +1985,7 @@ class DMAIApplication:
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.18', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
+            return jsonify({'status': 'active', 'version': '8.0.19', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
         
         @self.app.route('/admin')
         def admin():
@@ -2130,6 +2143,49 @@ class DMAIApplication:
         def api_software_training_packages():
             packages = self.evolution.software_training.get_market_packages()
             return jsonify({'packages': packages})
+        
+        # ====================================================================
+        # GENERATIVE AI TRAINING ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/genai/training/create', methods=['POST'])
+        def api_genai_training_create():
+            data = request.json
+            template = data.get('template', 'product_visualization')
+            customizations = data.get('customizations', {})
+            
+            result = self.evolution.genai_training.create_from_template(template, customizations)
+            return jsonify(result)
+        
+        @self.app.route('/api/genai/training/start', methods=['POST'])
+        def api_genai_training_start():
+            data = request.json
+            program_id = data.get('program_id')
+            config = data.get('config', {})
+            
+            result = self.evolution.genai_training.genai_training.train_genai_model(program_id, config)
+            return jsonify(result)
+        
+        @self.app.route('/api/genai/training/status/<session_id>')
+        def api_genai_training_status(session_id):
+            result = self.evolution.genai_training.genai_training.get_training_status(session_id)
+            return jsonify(result)
+        
+        @self.app.route('/api/genai/training/export/<session_id>')
+        def api_genai_training_export(session_id):
+            format = request.args.get('format', 'docker')
+            result = self.evolution.genai_training.genai_training.export_trained_model(session_id, format)
+            return jsonify(result)
+        
+        @self.app.route('/api/genai/training/packages')
+        def api_genai_training_packages():
+            packages = self.evolution.genai_training.get_market_packages()
+            return jsonify({'packages': packages})
+        
+        @self.app.route('/api/genai/training/templates')
+        def api_genai_training_templates():
+            templates = self.evolution.genai_training.industry_templates
+            return jsonify({'templates': list(templates.keys())})
     
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
@@ -2138,7 +2194,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.18**
+            return f"""🧠 **DMAI Status v8.0.19**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Successful Evolutions: {status['successful_evolutions']}
@@ -2268,6 +2324,17 @@ Models Registered: {len(self.evolution.ai_fusion.ai_models)}"""
 /software_status <session_id> - Check training status
 /software_packages - View market packages"""
         
+        elif cmd == '/genai_train':
+            return """🎨 **Generative AI Training Commands:**
+/genai_create <template> - Create training program
+   Templates: product_visualization, marketing_content, ai_video_generation, 
+             music_composition, 3d_asset_generation, fashion_design, 
+             architectural_rendering, voice_synthesis
+/genai_start <program_id> - Start training
+/genai_status <session_id> - Check training status
+/genai_export <session_id> - Export trained model (docker, standalone, huggingface)
+/genai_packages - View market packages"""
+        
         elif cmd == '/pause':
             with open(PAUSE_FLAG_FILE, 'w') as f:
                 f.write('paused')
@@ -2302,6 +2369,7 @@ Available commands:
 /agi_train - AGI training help
 /llm_train - LLM training help
 /software_train - Software training help
+/genai_train - Generative AI training help
 /pause - Pause evolution
 /resume - Resume evolution
 /kill - Emergency shutdown"""
@@ -2331,8 +2399,8 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.18</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | Reverse Engineering | AGI Training | LLM Training | Software Training</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.19</h1>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | Reverse Engineering | AGI Training | LLM Training | Software Training | Generative AI Training</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -3883,7 +3951,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.18")
+    logger.info(f"🚀 DMAI Complete System v8.0.19")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active (prioritizing DeepSeek)")
@@ -3900,6 +3968,7 @@ if __name__ == '__main__':
     logger.info(f"🎓 AGI Training Module Active")
     logger.info(f"🎓 LLM Training Module Active")
     logger.info(f"💻 Software Training Module Active")
+    logger.info(f"🎨 Generative AI Training Module Active")
     logger.info("=" * 60)
     
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
