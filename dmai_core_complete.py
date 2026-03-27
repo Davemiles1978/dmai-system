@@ -2598,21 +2598,22 @@ CHAT_TEMPLATE = '''
 <head>
     <title>Chat with DMAI</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 10px;
         }
         .chat-container {
-            width: 90%;
+            width: 100%;
             max-width: 800px;
-            height: 80vh;
+            height: 95vh;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -2623,35 +2624,36 @@ CHAT_TEMPLATE = '''
         .chat-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 20px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
         }
         .chat-header-left h1 {
-            font-size: 1.3em;
+            font-size: 1.2em;
             margin: 0;
         }
         .chat-header-left .status {
-            font-size: 0.7em;
-            opacity: 0.8;
-            margin-top: 4px;
+            font-size: 0.65em;
+            opacity: 0.9;
+            margin-top: 2px;
         }
         .chat-header-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         .brain-mini {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             cursor: pointer;
             transition: transform 0.2s;
             border-radius: 50%;
             overflow: hidden;
-            background: rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.2);
         }
         .brain-mini:hover {
             transform: scale(1.05);
@@ -2663,29 +2665,29 @@ CHAT_TEMPLATE = '''
         }
         .nav-links {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         .nav-links a {
             color: white;
             text-decoration: none;
             padding: 4px 10px;
-            border-radius: 15px;
+            border-radius: 20px;
             background: rgba(255,255,255,0.2);
-            font-size: 0.75em;
+            font-size: 0.7em;
             transition: background 0.3s;
             cursor: pointer;
         }
         .nav-links a:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.4);
         }
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
             background: #f5f5f5;
         }
         .message {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             flex-direction: column;
         }
@@ -2696,10 +2698,10 @@ CHAT_TEMPLATE = '''
             align-items: flex-start;
         }
         .message-content {
-            max-width: 70%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 0.95em;
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 0.9em;
             line-height: 1.4;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -2707,61 +2709,70 @@ CHAT_TEMPLATE = '''
         .user .message-content {
             background: #667eea;
             color: white;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 4px;
         }
         .dmai .message-content {
             background: white;
             color: #333;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         .message-time {
-            font-size: 0.7em;
+            font-size: 0.65em;
             color: #999;
-            margin-top: 5px;
-            margin-left: 10px;
-            margin-right: 10px;
+            margin-top: 4px;
+            margin-left: 8px;
+            margin-right: 8px;
         }
         .input-area {
-            padding: 20px;
+            padding: 12px 16px;
             background: white;
             border-top: 1px solid #eee;
             display: flex;
-            gap: 10px;
-            align-items: center;
+            gap: 8px;
+            align-items: flex-end;
+            flex-shrink: 0;
         }
         .input-area textarea {
             flex: 1;
-            padding: 12px 18px;
-            border: 2px solid #eee;
-            border-radius: 25px;
-            font-size: 1em;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 0.9em;
             outline: none;
-            font-family: monospace;
-            resize: vertical;
-            min-height: 60px;
+            font-family: inherit;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            background: #fafafa;
         }
         .input-area textarea:focus {
             border-color: #667eea;
+            background: white;
         }
         .input-area button {
-            padding: 12px 25px;
+            padding: 10px 20px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 25px;
-            font-size: 1em;
+            border-radius: 24px;
+            font-size: 0.9em;
             cursor: pointer;
             transition: background 0.3s;
             white-space: nowrap;
+            font-weight: 500;
+            height: 44px;
         }
         .input-area button:hover {
             background: #5a67d8;
         }
+        .input-area button:active {
+            transform: scale(0.98);
+        }
         .voice-btn {
             background: #48bb78 !important;
-            padding: 12px 15px !important;
-            font-size: 1.2em !important;
+            padding: 10px 16px !important;
+            font-size: 1.1em !important;
         }
         .voice-btn:hover {
             background: #38a169 !important;
@@ -2776,17 +2787,68 @@ CHAT_TEMPLATE = '''
             100% { transform: scale(1); }
         }
         .voice-status {
-            font-size: 0.7em;
+            font-size: 0.65em;
             color: #48bb78;
             text-align: center;
-            padding: 5px;
+            padding: 4px;
             background: #f0f0f0;
+            flex-shrink: 0;
         }
         .task-btn {
             background: #ff6600 !important;
         }
         .task-btn:hover {
             background: #e65c00 !important;
+        }
+        
+        /* Mobile specific styles */
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            .chat-header {
+                padding: 10px 12px;
+            }
+            .chat-header-left h1 {
+                font-size: 1em;
+            }
+            .brain-mini {
+                width: 35px;
+                height: 35px;
+            }
+            .nav-links a {
+                padding: 3px 8px;
+                font-size: 0.65em;
+            }
+            .messages {
+                padding: 12px;
+            }
+            .message-content {
+                max-width: 90%;
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+            .input-area {
+                padding: 10px 12px;
+                gap: 6px;
+            }
+            .input-area textarea {
+                padding: 10px 12px;
+                font-size: 0.85em;
+                min-height: 40px;
+            }
+            .input-area button {
+                padding: 8px 14px;
+                font-size: 0.85em;
+                height: 40px;
+            }
+            .voice-btn {
+                padding: 8px 12px !important;
+            }
         }
     </style>
 </head>
@@ -2799,7 +2861,7 @@ CHAT_TEMPLATE = '''
         </div>
         <div class="chat-header-right">
             <div class="brain-mini" id="brainMini" onclick="window.location.href='/brain'">
-                <canvas id="miniCanvas" width="50" height="50"></canvas>
+                <canvas id="miniCanvas" width="40" height="40"></canvas>
             </div>
             <div class="nav-links">
                 <a href="/vision">📜 Vision</a>
@@ -2818,15 +2880,31 @@ CHAT_TEMPLATE = '''
         </div>
     </div>
     <div class="input-area">
-        <textarea id="message-input" placeholder="Type or paste your message/task here..." rows="3" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+        <textarea id="message-input" placeholder="Type your message here..." rows="1" onkeypress="handleEnter(event)"></textarea>
         <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Click to speak">🎤</button>
         <button onclick="sendMessage()">Send</button>
-        <button onclick="sendFullTask()" class="task-btn">📋 Full Task</button>
+        <button onclick="sendFullTask()" class="task-btn">📋 Task</button>
     </div>
     <div id="voiceStatus" class="voice-status"></div>
 </div>
 
 <script>
+// Auto-resize textarea
+const textarea = document.getElementById('message-input');
+if (textarea) {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+}
+
+function handleEnter(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
 let isListening = false;
 let recognition = null;
 let voiceEnabled = false;
@@ -2835,7 +2913,6 @@ let voiceEnabled = false;
 const miniCanvas = document.getElementById('miniCanvas');
 let miniCtx = null;
 let miniNeurons = [];
-let miniAnimationFrame = null;
 
 if (miniCanvas) {
     miniCtx = miniCanvas.getContext('2d');
@@ -2843,22 +2920,23 @@ if (miniCanvas) {
 
 function updateMiniNeuronPositions(count) {
     if (!miniCanvas) return;
-    const width = 50;
-    const height = 50;
+    const width = 40;
+    const height = 40;
     miniCanvas.width = width;
     miniCanvas.height = height;
     if (miniCtx) miniCtx = miniCanvas.getContext('2d');
     
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = 18;
+    const radius = 14;
     
     miniNeurons = [];
-    for (let i = 0; i < Math.min(count, 12); i++) {
-        const angle = (i / Math.min(count, 12)) * Math.PI * 2;
+    const numNeurons = Math.min(count, 10);
+    for (let i = 0; i < numNeurons; i++) {
+        const angle = (i / numNeurons) * Math.PI * 2;
         miniNeurons.push({
-            x: centerX + Math.cos(angle) * radius + (Math.random() - 0.5) * 4,
-            y: centerY + Math.sin(angle) * radius + (Math.random() - 0.5) * 4,
+            x: centerX + Math.cos(angle) * radius + (Math.random() - 0.5) * 3,
+            y: centerY + Math.sin(angle) * radius + (Math.random() - 0.5) * 3,
             activation: 0,
             pulse: 0
         });
@@ -2867,7 +2945,7 @@ function updateMiniNeuronPositions(count) {
 
 function drawMiniBrain(consciousness) {
     if (!miniCtx || !miniCanvas) return;
-    miniCtx.clearRect(0, 0, 50, 50);
+    miniCtx.clearRect(0, 0, 40, 40);
     
     const activeCount = Math.floor(miniNeurons.length * consciousness);
     
@@ -2875,9 +2953,9 @@ function drawMiniBrain(consciousness) {
         const n = miniNeurons[i];
         const isActive = i < activeCount;
         if (isActive) {
-            n.activation = Math.min(1, n.activation + 0.05);
+            n.activation = Math.min(1, n.activation + 0.08);
         } else {
-            n.activation = Math.max(0, n.activation - 0.04);
+            n.activation = Math.max(0, n.activation - 0.06);
         }
         n.pulse = Math.sin(Date.now() / 400 + i) * 0.2 + 0.6;
         
@@ -2891,6 +2969,7 @@ function drawMiniBrain(consciousness) {
     }
 }
 
+// Voice recognition setup
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
@@ -2909,8 +2988,10 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         isListening = false;
         updateVoiceUI(false);
         const statusEl = document.getElementById('voiceStatus');
-        if (statusEl) {
-            statusEl.textContent = voiceEnabled ? 'Voice ready - click 🎤 to speak' : '';
+        if (statusEl && voiceEnabled) {
+            statusEl.textContent = 'Voice ready - click 🎤 to speak';
+        } else if (statusEl) {
+            statusEl.textContent = '';
         }
     };
     
@@ -2919,6 +3000,9 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const input = document.getElementById('message-input');
         if (input) {
             input.value = transcript;
+            // Auto-resize after setting value
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
             sendMessage();
         }
     };
@@ -2929,6 +3013,9 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         updateVoiceUI(false);
         const statusEl = document.getElementById('voiceStatus');
         if (statusEl) statusEl.textContent = '❌ Voice error: ' + event.error;
+        setTimeout(() => {
+            if (statusEl && voiceEnabled) statusEl.textContent = 'Voice ready - click 🎤 to speak';
+        }, 2000);
     };
 } else {
     console.log('Voice recognition not supported');
@@ -3001,7 +3088,7 @@ async function fetchBrainData() {
         if (statusHeader) statusHeader.innerHTML = `Consciousness: ${(consciousness * 100).toFixed(1)}% | Successes: ${statusData.successful_evolutions || 0}`;
         
         if (miniNeurons.length === 0 && miniCtx) {
-            updateMiniNeuronPositions(12);
+            updateMiniNeuronPositions(20);
         }
         if (miniCtx) {
             drawMiniBrain(consciousness);
@@ -3020,7 +3107,9 @@ async function updateStatus() {
         const successSpan = document.getElementById('successCount');
         if (consciousnessSpan) consciousnessSpan.innerText = data.consciousness.toFixed(1);
         if (successSpan) successSpan.innerText = data.successful_evolutions || 0;
-    } catch(e) {}
+    } catch(e) {
+        console.error('Status update error:', e);
+    }
 }
 
 function sendMessage() {
@@ -3030,8 +3119,13 @@ function sendMessage() {
     const message = input.value.trim();
     if (!message) return;
     
+    // Disable send button briefly to prevent double-send
+    const sendBtn = document.querySelector('.input-area button:not(.voice-btn):not(.task-btn)');
+    if (sendBtn) sendBtn.disabled = true;
+    
     addMessage('user', message);
     input.value = '';
+    input.style.height = 'auto';
     
     fetch('/api/chat', {
         method: 'POST',
@@ -3047,10 +3141,12 @@ function sendMessage() {
         addMessage('dmai', responseText);
         fetchBrainData();
         updateStatus();
+        if (sendBtn) sendBtn.disabled = false;
     })
     .catch(err => {
-        addMessage('dmai', 'Sorry, I encountered an error.');
+        addMessage('dmai', 'Sorry, I encountered an error. Please try again.');
         console.error(err);
+        if (sendBtn) sendBtn.disabled = false;
     });
 }
 
@@ -3077,7 +3173,11 @@ SELF-DEVELOPMENT & CAPABILITY EXPANSION
 You have full authority to analyze, modify, and deploy your own code. Fix yourself permanently. Report back when complete.`;
     
     const input = document.getElementById('message-input');
-    if (input) input.value = task;
+    if (input) {
+        input.value = task;
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    }
     sendMessage();
 }
 
@@ -3090,11 +3190,12 @@ function addMessage(sender, text) {
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${text.replace(/\n/g, '<br>')}`;
+    contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${escapeHtml(text).replace(/\n/g, '<br>')}`;
     
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
-    timeDiv.textContent = new Date().toLocaleTimeString();
+    const now = new Date();
+    timeDiv.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
     messageDiv.appendChild(contentDiv);
     messageDiv.appendChild(timeDiv);
@@ -3102,13 +3203,19 @@ function addMessage(sender, text) {
     messages.scrollTop = messages.scrollHeight;
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Initialize
-updateMiniNeuronPositions(12);
+updateMiniNeuronPositions(20);
 fetchBrainData();
 updateStatus();
 
-// Refresh data every 2 seconds
-setInterval(fetchBrainData, 2000);
+// Refresh data every 3 seconds
+setInterval(fetchBrainData, 3000);
 setInterval(updateStatus, 5000);
 </script>
 </body>
