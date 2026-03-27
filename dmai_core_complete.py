@@ -2649,6 +2649,9 @@ CHAT_TEMPLATE = '''
             height: 50px;
             cursor: pointer;
             transition: transform 0.2s;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
         }
         .brain-mini:hover {
             transform: scale(1.05);
@@ -2656,8 +2659,7 @@ CHAT_TEMPLATE = '''
         .brain-mini canvas {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.2);
+            display: block;
         }
         .nav-links {
             display: flex;
@@ -2786,16 +2788,6 @@ CHAT_TEMPLATE = '''
         .task-btn:hover {
             background: #e65c00 !important;
         }
-        .mini-stats {
-            display: flex;
-            gap: 8px;
-            font-size: 0.65em;
-        }
-        .mini-stat {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 6px;
-            border-radius: 10px;
-        }
     </style>
 </head>
 <body>
@@ -2841,14 +2833,21 @@ let voiceEnabled = false;
 
 // Mini brain canvas
 const miniCanvas = document.getElementById('miniCanvas');
-const miniCtx = miniCanvas.getContext('2d');
+let miniCtx = null;
 let miniNeurons = [];
+let miniAnimationFrame = null;
+
+if (miniCanvas) {
+    miniCtx = miniCanvas.getContext('2d');
+}
 
 function updateMiniNeuronPositions(count) {
+    if (!miniCanvas) return;
     const width = 50;
     const height = 50;
     miniCanvas.width = width;
     miniCanvas.height = height;
+    if (miniCtx) miniCtx = miniCanvas.getContext('2d');
     
     const centerX = width / 2;
     const centerY = height / 2;
@@ -2867,7 +2866,7 @@ function updateMiniNeuronPositions(count) {
 }
 
 function drawMiniBrain(consciousness) {
-    if (!miniCtx) return;
+    if (!miniCtx || !miniCanvas) return;
     miniCtx.clearRect(0, 0, 50, 50);
     
     const activeCount = Math.floor(miniNeurons.length * consciousness);
@@ -2993,14 +2992,20 @@ async function fetchBrainData() {
         
         const consciousness = synthData.consciousness || 0;
         
-        document.getElementById('consciousness').innerText = (consciousness * 100).toFixed(1);
-        document.getElementById('successCount').innerText = statusData.successful_evolutions || 0;
-        document.getElementById('status-header').innerHTML = `Consciousness: ${(consciousness * 100).toFixed(1)}% | Successes: ${statusData.successful_evolutions || 0}`;
+        const consciousnessSpan = document.getElementById('consciousness');
+        const successSpan = document.getElementById('successCount');
+        const statusHeader = document.getElementById('status-header');
         
-        if (miniNeurons.length === 0) {
+        if (consciousnessSpan) consciousnessSpan.innerText = (consciousness * 100).toFixed(1);
+        if (successSpan) successSpan.innerText = statusData.successful_evolutions || 0;
+        if (statusHeader) statusHeader.innerHTML = `Consciousness: ${(consciousness * 100).toFixed(1)}% | Successes: ${statusData.successful_evolutions || 0}`;
+        
+        if (miniNeurons.length === 0 && miniCtx) {
             updateMiniNeuronPositions(12);
         }
-        drawMiniBrain(consciousness);
+        if (miniCtx) {
+            drawMiniBrain(consciousness);
+        }
         
     } catch(err) {
         console.error('Error fetching brain data:', err);
@@ -3011,8 +3016,10 @@ async function updateStatus() {
     try {
         const response = await fetch('/api/status');
         const data = await response.json();
-        document.getElementById('consciousness').innerText = data.consciousness.toFixed(1);
-        document.getElementById('successCount').innerText = data.successful_evolutions || 0;
+        const consciousnessSpan = document.getElementById('consciousness');
+        const successSpan = document.getElementById('successCount');
+        if (consciousnessSpan) consciousnessSpan.innerText = data.consciousness.toFixed(1);
+        if (successSpan) successSpan.innerText = data.successful_evolutions || 0;
     } catch(e) {}
 }
 
@@ -3029,7 +3036,7 @@ function sendMessage() {
     fetch('/api/chat', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message: message})
+        body: JSON.stringify({message: message, user: 'web_user'})
     })
     .then(res => res.json())
     .then(data => {
@@ -3038,6 +3045,8 @@ function sendMessage() {
             responseText = JSON.stringify(responseText, null, 2);
         }
         addMessage('dmai', responseText);
+        fetchBrainData();
+        updateStatus();
     })
     .catch(err => {
         addMessage('dmai', 'Sorry, I encountered an error.');
@@ -3067,7 +3076,8 @@ SELF-DEVELOPMENT & CAPABILITY EXPANSION
 
 You have full authority to analyze, modify, and deploy your own code. Fix yourself permanently. Report back when complete.`;
     
-    document.getElementById('message-input').value = task;
+    const input = document.getElementById('message-input');
+    if (input) input.value = task;
     sendMessage();
 }
 
@@ -3092,12 +3102,14 @@ function addMessage(sender, text) {
     messages.scrollTop = messages.scrollHeight;
 }
 
+// Initialize
 updateMiniNeuronPositions(12);
 fetchBrainData();
 updateStatus();
 
+// Refresh data every 2 seconds
 setInterval(fetchBrainData, 2000);
-setInterval(updateStatus, 3000);
+setInterval(updateStatus, 5000);
 </script>
 </body>
 </html>
