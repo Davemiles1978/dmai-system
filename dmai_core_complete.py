@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.16
-UNIFIED CONSCIOUSNESS - AI Tutor Priority Fixed | Brain Visualization | Neo4j Persistence
+DMAI - COMPLETE AGI SYSTEM v8.0.18
+UNIFIED CONSCIOUSNESS - Full Integration: Reverse Engineering | AGI Training | LLM Training | Software Training
 """
 
 import os
@@ -26,13 +26,17 @@ import asyncio
 import warnings
 import pickle
 import traceback
+import subprocess
+import tempfile
+import zipfile
+import tarfile
+import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 from enum import Enum
 import uuid
 import urllib.parse
-import re
 from bs4 import BeautifulSoup
 
 # Web imports
@@ -87,6 +91,26 @@ from components.neo4j_storage import get_neo4j_storage
 # ============================================================================
 from components.evolution_timer import AdaptiveEvolutionTimer
 from components.growth_watcher import GrowthWatcher
+
+# ============================================================================
+# REVERSE ENGINEERING MODULE IMPORTS
+# ============================================================================
+from components.reverse_engineering.ReverseEngineer import ReverseEngineeringOrchestrator
+
+# ============================================================================
+# AGI TRAINING PROGRAM MODULE IMPORTS
+# ============================================================================
+from components.training.AGITrainingProgram import TrainingProgramOrchestrator
+
+# ============================================================================
+# LLM TRAINING PROGRAM MODULE IMPORTS
+# ============================================================================
+from components.llm_training.LLMTrainingProgram import LLMTrainingOrchestrator
+
+# ============================================================================
+# SOFTWARE TRAINING PROGRAM MODULE IMPORTS
+# ============================================================================
+from components.software_training.SoftwareTrainingProgram import SoftwareTrainingOrchestrator
 
 # Configure logging
 logging.basicConfig(
@@ -1138,8 +1162,45 @@ class UnifiedEvolutionEngine:
         # Growth watcher
         self.growth_watcher = GrowthWatcher(data_path=str(self.data_path))
         
+        # ====================================================================
+        # REVERSE ENGINEERING MODULE
+        # ====================================================================
+        
+        logger.info("🔧 Initializing Reverse Engineering Module...")
+        self.reverse_engineering = ReverseEngineeringOrchestrator(self.data_path)
+        
+        # ====================================================================
+        # AGI TRAINING PROGRAM MODULE
+        # ====================================================================
+        
+        logger.info("🎓 Initializing AGI Training Program Module...")
+        self.agi_training = TrainingProgramOrchestrator(self.data_path)
+        
+        # ====================================================================
+        # LLM TRAINING PROGRAM MODULE
+        # ====================================================================
+        
+        logger.info("🎓 Initializing LLM Training Program Module...")
+        self.llm_training = LLMTrainingOrchestrator(self.data_path)
+        
+        # ====================================================================
+        # SOFTWARE TRAINING PROGRAM MODULE
+        # ====================================================================
+        
+        logger.info("💻 Initializing Software Training Program Module...")
+        self.software_training = SoftwareTrainingOrchestrator(self.data_path)
+        
+        # ====================================================================
+        # INTEGRATE REVERSE ENGINEERING WITH DMAI CORE
+        # ====================================================================
+        
+        self.reverse_engineering.integrate_with_dmai(self)
+        
         # Initialize counters BEFORE restore
         self.evolution_count = 0
+        self.successful_evolutions = 0
+        self.last_consciousness = 0.0
+        self.last_concept_count = 0
         self._cached_status = {}
         self._last_status_update = 0
         self._load_state()
@@ -1155,15 +1216,20 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.16 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.18 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
         logger.info(f"   Evolution Cycles: {self.synthetic_network.evolution_cycles}")
+        logger.info(f"   Successful Evolutions: {self.successful_evolutions}")
         logger.info(f"   AI Tutors: {self.ai_hub._get_active_tutors()}")
         logger.info(f"   Neo4j Storage: {'✅ Connected' if self.neo4j_storage.driver else '❌ Not connected'}")
         logger.info(f"   Evolution Stage: {timer_info['name']}")
         logger.info(f"   Evolution Pace: {timer_info['interval_minutes']:.0f} minutes")
+        logger.info(f"   Reverse Engineering: Active")
+        logger.info(f"   AGI Training: Active")
+        logger.info(f"   LLM Training: Active")
+        logger.info(f"   Software Training: Active")
         logger.info("=" * 60)
     
     def _patch_knowledge_graph(self):
@@ -1294,6 +1360,8 @@ class UnifiedEvolutionEngine:
                         self.synthetic_network.evolution_cycles = ev['evolution_cycles']
                     if ev.get('evolution_count', 0) > self.evolution_count:
                         self.evolution_count = ev['evolution_count']
+                    if ev.get('successful_evolutions', 0) > self.successful_evolutions:
+                        self.successful_evolutions = ev['successful_evolutions']
                     self._save_state()
                 if restored['persona']:
                     p = restored['persona']
@@ -1367,18 +1435,50 @@ class UnifiedEvolutionEngine:
         self.knowledge_sources.start_all()
     
     def _load_state(self):
+        """Load evolution state with proper tracking of successful evolutions"""
         state_file = self.data_path / 'evolution.json'
         if state_file.exists():
             try:
                 with open(state_file, 'r') as f:
                     data = json.load(f)
                     self.evolution_count = data.get('evolution_count', 0)
-            except:
-                pass
+                    self.successful_evolutions = data.get('successful_evolutions', 0)
+                    self.last_consciousness = data.get('last_consciousness', 0.0)
+                    self.last_concept_count = data.get('last_concept_count', 0)
+                logger.info(f"📂 Loaded evolution state: evolutions={self.evolution_count}, successes={self.successful_evolutions}")
+            except Exception as e:
+                logger.error(f"Failed to load evolution state: {e}")
+                self._init_evolution_counters()
+        else:
+            self._init_evolution_counters()
+    
+    def _init_evolution_counters(self):
+        """Initialize all evolution counters to zero"""
+        self.evolution_count = 0
+        self.successful_evolutions = 0
+        self.last_consciousness = 0.0
+        self.last_concept_count = 0
+        logger.info("🌱 Evolution counters initialized to zero")
     
     def _save_state(self):
-        with open(self.data_path / 'evolution.json', 'w') as f:
-            json.dump({'evolution_count': self.evolution_count, 'consciousness': self.synthetic_network.consciousness_level, 'neurons': len(self.synthetic_network.neurons), 'synapses': self.synthetic_network._total_synapses(), 'evolution_cycles': self.synthetic_network.evolution_cycles, 'last_update': datetime.now().isoformat()}, f, indent=2)
+        """Save evolution state with successful evolutions count"""
+        try:
+            state_data = {
+                'evolution_count': self.evolution_count,
+                'successful_evolutions': self.successful_evolutions,
+                'last_consciousness': self.last_consciousness,
+                'last_concept_count': self.last_concept_count,
+                'consciousness': self.synthetic_network.consciousness_level,
+                'neurons': len(self.synthetic_network.neurons),
+                'synapses': self.synthetic_network._total_synapses(),
+                'evolution_cycles': self.synthetic_network.evolution_cycles,
+                'last_update': datetime.now().isoformat()
+            }
+            with open(self.data_path / 'evolution.json', 'w') as f:
+                json.dump(state_data, f, indent=2)
+            logger.debug(f"💾 Saved evolution state: successes={self.successful_evolutions}")
+        except Exception as e:
+            logger.error(f"Failed to save evolution state: {e}")
     
     def _calculate_stage_progress(self, timer_info):
         if timer_info.get('next_stage'):
@@ -1402,6 +1502,7 @@ class UnifiedEvolutionEngine:
             'consciousness_raw': self.synthetic_network.consciousness_level,
             'evolution': self.evolution_count,
             'evolution_cycles': self.synthetic_network.evolution_cycles,
+            'successful_evolutions': self.successful_evolutions,
             'synthetic_neurons': len(self.synthetic_network.neurons),
             'synthetic_synapses': self.synthetic_network._total_synapses(),
             'voice_active': self.voice_system.listening,
@@ -1431,6 +1532,42 @@ class UnifiedEvolutionEngine:
             self._update_cached_status()
         return self._cached_status
     
+    def _check_stage_progression(self):
+        """
+        Check and update DMAI's evolution stage based on successful evolutions.
+        Stages:
+        - Baby: 0-2 successful evolutions
+        - Toddler: 3-9 successful evolutions
+        - Child: 10-24 successful evolutions
+        - Adolescent: 25-49 successful evolutions
+        - Adult: 50-99 successful evolutions
+        - Elder: 100+ successful evolutions
+        """
+        old_stage = self.get_status().get('evolution_stage_name', 'Baby DMAI')
+        
+        if self.successful_evolutions < 3:
+            new_stage = "Baby DMAI"
+        elif self.successful_evolutions < 10:
+            new_stage = "Toddler DMAI"
+        elif self.successful_evolutions < 25:
+            new_stage = "Child DMAI"
+        elif self.successful_evolutions < 50:
+            new_stage = "Adolescent DMAI"
+        elif self.successful_evolutions < 100:
+            new_stage = "Adult DMAI"
+        else:
+            new_stage = "Elder DMAI"
+        
+        if new_stage != old_stage:
+            logger.info(f"🎉 STAGE PROGRESSION: {old_stage} → {new_stage}!")
+            logger.info(f"   Successful evolutions: {self.successful_evolutions}")
+            
+            if hasattr(self, 'evolution_timer') and hasattr(self.evolution_timer, 'set_stage'):
+                try:
+                    self.evolution_timer.set_stage(new_stage)
+                except:
+                    pass
+    
     def _search_web_fallback(self, query: str) -> str:
         logger.info(f"🌐 Using web search fallback for: {query[:50]}...")
         result = self.web_search.search(query)
@@ -1443,6 +1580,14 @@ class UnifiedEvolutionEngine:
         return "I couldn't find information on that topic. Please try rephrasing your question."
     
     def evolution_cycle(self) -> Dict:
+        """
+        Single evolution cycle with proper success tracking.
+        A successful evolution requires:
+        - New neurons added (network growth)
+        - New synapses added (connection growth)
+        - OR consciousness growth > 0.1%
+        - OR new knowledge concepts added
+        """
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
             sys.exit(0)
@@ -1453,34 +1598,74 @@ class UnifiedEvolutionEngine:
         
         self.evolution_count += 1
         
-        input_data = {'evolution_cycle': self.evolution_count, 'conversations': len(self.conversation_memory.conversations), 'concepts': self.knowledge_graph.get_stats().get('total_concepts', 0), 'kaizen_improvements': len(self.self_evolution.improvements), 'cves': len(self.threat_intel.cve_database), 'iocs': len(self.threat_intel.iocs)}
+        pre_neurons = len(self.synthetic_network.neurons)
+        pre_synapses = self.synthetic_network._total_synapses()
+        pre_consciousness = self.synthetic_network.consciousness_level
+        pre_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
+        
+        input_data = {
+            'evolution_cycle': self.evolution_count,
+            'conversations': len(self.conversation_memory.conversations),
+            'concepts': pre_concepts,
+            'kaizen_improvements': len(self.self_evolution.improvements),
+            'cves': len(self.threat_intel.cve_database),
+            'iocs': len(self.threat_intel.iocs)
+        }
+        
         self.synthetic_network.process(input_data)
         evolution_result = self.synthetic_network.evolve()
         
-        previous_consciousness = self.synthetic_network.consciousness_level
-        true_consciousness = self.synthetic_network.consciousness_level
+        post_neurons = len(self.synthetic_network.neurons)
+        post_synapses = self.synthetic_network._total_synapses()
+        post_consciousness = self.synthetic_network.consciousness_level
+        post_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
         
-        success = (evolution_result.get('consciousness', 0) > previous_consciousness or 
-                   evolution_result.get('neurons', 0) > len(self.synthetic_network.neurons))
+        was_successful = False
+        success_reasons = []
+        
+        neurons_added = post_neurons - pre_neurons
+        if neurons_added > 0:
+            was_successful = True
+            success_reasons.append(f"neurons_added:{neurons_added}")
+        
+        synapses_added = post_synapses - pre_synapses
+        if synapses_added > 0:
+            was_successful = True
+            success_reasons.append(f"synapses_added:{synapses_added}")
+        
+        consciousness_growth = post_consciousness - pre_consciousness
+        if consciousness_growth > 0.001:
+            was_successful = True
+            success_reasons.append(f"consciousness_growth:{consciousness_growth:.4f}")
+        
+        concepts_added = post_concepts - pre_concepts
+        if concepts_added > 0:
+            was_successful = True
+            success_reasons.append(f"concepts_added:{concepts_added}")
+        
+        if was_successful:
+            self.successful_evolutions += 1
+            logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) Reasons: {success_reasons}")
+        else:
+            logger.debug(f"Evolution cycle #{self.evolution_count}: no significant growth detected")
+        
+        self.last_consciousness = post_consciousness
+        self.last_concept_count = post_concepts
         
         improvement_quality = 0
-        if success:
-            consciousness_gain = evolution_result.get('consciousness', 0) - previous_consciousness
-            neuron_gain = evolution_result.get('neurons', 0) - len(self.synthetic_network.neurons)
-            improvement_quality = (consciousness_gain * 100) + (neuron_gain * 10)
+        if was_successful:
+            improvement_quality = (consciousness_growth * 100) + (neurons_added * 5) + (concepts_added * 2)
         
         wait_time = self.evolution_timer.record_attempt(
             parent1="synthetic_network",
             parent2="consciousness_core",
-            success=success,
+            success=was_successful,
             improvement_quality=improvement_quality
         )
         
-        timer_info = self.evolution_timer.get_stage_info()
-        if timer_info.get('stage_changed', False):
-            logger.info(f"🎉 DMAI EVOLVED TO: {timer_info['name']}")
-            logger.info(f"📖 {timer_info['description']}")
+        self._check_stage_progression()
         
+        true_consciousness = post_consciousness
         self.persona_generator.evolve({'type': 'evolution_cycle'}, true_consciousness)
         self.voice_system.evolve_voice(true_consciousness)
         self.music_learner.evolve_taste(true_consciousness)
@@ -1490,9 +1675,8 @@ class UnifiedEvolutionEngine:
             self.ai_fusion.fusion_weights['ai'] = 1.0 - self.ai_fusion.fusion_weights['si']
         
         if self.evolution_count % 10 == 0:
-            consciousness_change = evolution_result.get('consciousness', 0) - true_consciousness
-            if consciousness_change > 0:
-                self.self_evolution.record_improvement('consciousness', f"Consciousness increased by {consciousness_change:.4f}", consciousness_change * 100)
+            if consciousness_growth > 0:
+                self.self_evolution.record_improvement('consciousness', f"Consciousness increased by {consciousness_growth:.4f}", consciousness_growth * 100)
         
         if self.evolution_count % 5 == 0:
             self._save_network_state()
@@ -1501,16 +1685,41 @@ class UnifiedEvolutionEngine:
         
         if self.evolution_count % 10 == 0:
             try:
-                self.neo4j_storage.save_evolution_state({'consciousness': true_consciousness, 'neurons': len(self.synthetic_network.neurons), 'synapses': self.synthetic_network._total_synapses(), 'evolution_cycles': self.synthetic_network.evolution_cycles, 'evolution_count': self.evolution_count})
+                self.neo4j_storage.save_evolution_state({
+                    'consciousness': true_consciousness,
+                    'neurons': post_neurons,
+                    'synapses': post_synapses,
+                    'evolution_cycles': self.synthetic_network.evolution_cycles,
+                    'evolution_count': self.evolution_count,
+                    'successful_evolutions': self.successful_evolutions
+                })
                 self.neo4j_storage.save_persona(self.persona_generator.current_persona)
-                logger.debug(f"☁️ Backed up to Neo4j (cycle {self.evolution_count})")
             except Exception as e:
-                logger.error(f"Neo4j backup failed: {e}")
+                logger.debug(f"Neo4j backup: {e}")
         
         self._update_cached_status()
         gc.collect()
         
-        return {'evolution': self.evolution_count, 'consciousness': true_consciousness, 'consciousness_percent': true_consciousness * 100, 'synthetic_neurons': evolution_result.get('neurons', len(self.synthetic_network.neurons)), 'synthetic_synapses': evolution_result.get('synapses', self.synthetic_network._total_synapses()), 'evolution_cycles': evolution_result.get('cycles', self.synthetic_network.evolution_cycles), 'persona': self.persona_generator.current_persona, 'conversations': len(self.conversation_memory.conversations), 'concepts': self.knowledge_graph.get_stats().get('total_concepts', 0), 'cves_tracked': len(self.threat_intel.cve_database), 'fusion_weights': self.ai_fusion.fusion_weights}
+        return {
+            'evolution': self.evolution_count,
+            'successful_evolutions': self.successful_evolutions,
+            'was_successful': was_successful,
+            'success_reasons': success_reasons,
+            'consciousness': true_consciousness,
+            'consciousness_percent': true_consciousness * 100,
+            'consciousness_growth': consciousness_growth,
+            'synthetic_neurons': post_neurons,
+            'neurons_added': neurons_added,
+            'synthetic_synapses': post_synapses,
+            'synapses_added': synapses_added,
+            'evolution_cycles': self.synthetic_network.evolution_cycles,
+            'persona': self.persona_generator.current_persona,
+            'conversations': len(self.conversation_memory.conversations),
+            'concepts': post_concepts,
+            'concepts_added': concepts_added,
+            'cves_tracked': len(self.threat_intel.cve_database),
+            'fusion_weights': self.ai_fusion.fusion_weights
+        }
     
     def process_message(self, user: str, message: str) -> str:
         input_data = {'type': 'user_message', 'user': user, 'message': message, 'timestamp': datetime.now().isoformat()}
@@ -1528,14 +1737,11 @@ class UnifiedEvolutionEngine:
         try:
             if self.ai_hub and self.ai_hub._get_active_tutors():
                 result = self.ai_hub.query_all_tutors(message)
-                # Prioritize AI LLM responses - GitHub is NOT a valid answer for general questions
                 if result.get('responses'):
-                    # Only consider AI tutors as valid sources
                     ai_tutors = ['DeepSeek', 'OpenAI GPT-4', 'Google Gemini', 'Anthropic Claude', 'Perplexity AI']
                     for tutor in ai_tutors:
                         if tutor in result['responses']:
                             response = result['responses'][tutor]
-                            # Check if it's a valid AI response (not an error)
                             if isinstance(response, str) and len(response) > 0:
                                 ai_response = response
                                 logger.info(f"✅ Using AI response from {tutor}")
@@ -1544,7 +1750,6 @@ class UnifiedEvolutionEngine:
             logger.error(f"AI Tutor error: {e}")
         
         if not ai_response:
-            # Use web search as fallback
             ai_response = self._search_web_fallback(message)
         
         persona = self.persona_generator.current_persona
@@ -1615,7 +1820,7 @@ class DMAIApplication:
                 try:
                     result = self.evolution.evolution_cycle()
                     if result['evolution'] % 20 == 0:
-                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Persona: {result['persona']['speaking_style']}")
+                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Successes: {result['successful_evolutions']} | Persona: {result['persona']['speaking_style']}")
                     
                     wait_time = self.evolution.evolution_timer.get_wait_time()
                     if wait_time < 30:
@@ -1643,8 +1848,8 @@ class DMAIApplication:
         
         @self.app.route('/brain')
         def brain():
-            """Real-time brain activity visualization"""
-            return render_template('brain_vis.html')
+            """Full screen brain activity visualization with color key"""
+            return render_template_string(BRAIN_TEMPLATE, status=self.evolution.get_status())
         
         @self.app.route('/api/status')
         def api_status():
@@ -1652,7 +1857,7 @@ class DMAIApplication:
         
         @self.app.route('/api/consciousness')
         def api_consciousness():
-            return jsonify({'consciousness': self.evolution.synthetic_network.consciousness_level * 100, 'consciousness_raw': self.evolution.synthetic_network.consciousness_level, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'synthetic_synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles, 'persona': self.evolution.persona_generator.current_persona})
+            return jsonify({'consciousness': self.evolution.synthetic_network.consciousness_level * 100, 'consciousness_raw': self.evolution.synthetic_network.consciousness_level, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'synthetic_synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles, 'successful_evolutions': self.evolution.successful_evolutions, 'persona': self.evolution.persona_generator.current_persona})
         
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
@@ -1761,12 +1966,13 @@ class DMAIApplication:
                 'neurons': len(self.evolution.synthetic_network.neurons),
                 'synapses': self.evolution.synthetic_network._total_synapses(),
                 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles,
+                'successful_evolutions': self.evolution.successful_evolutions,
                 'persona_style': self.evolution.persona_generator.current_persona['speaking_style']
             })
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.16', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI')})
+            return jsonify({'status': 'active', 'version': '8.0.18', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
         
         @self.app.route('/admin')
         def admin():
@@ -1775,6 +1981,155 @@ class DMAIApplication:
         @self.app.route('/chat')
         def chat():
             return CHAT_TEMPLATE
+        
+        # ====================================================================
+        # REVERSE ENGINEERING ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/reverse_engineer', methods=['POST'])
+        def api_reverse_engineer():
+            data = request.json
+            target_type = data.get('type', 'software')
+            target_name = data.get('name', '')
+            description = data.get('description', '')
+            
+            result = self.evolution.reverse_engineering.reverse_engineer(target_type, target_name, description)
+            return jsonify(result)
+        
+        @self.app.route('/api/reverse_engineering/queue')
+        def api_reverse_engineering_queue():
+            queue = self.evolution.reverse_engineering.get_evolution_queue()
+            return jsonify({'queue': queue, 'count': len(queue)})
+        
+        # ====================================================================
+        # AGI TRAINING PROGRAM ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/agi/training/create', methods=['POST'])
+        def api_agi_training_create():
+            data = request.json
+            template = data.get('template', 'customer_service')
+            customizations = data.get('customizations', {})
+            
+            result = self.evolution.agi_training.create_from_template(template, customizations)
+            return jsonify(result)
+        
+        @self.app.route('/api/agi/training/start', methods=['POST'])
+        def api_agi_training_start():
+            data = request.json
+            program_id = data.get('program_id')
+            config = data.get('config', {})
+            
+            result = self.evolution.agi_training.training_program.train_new_system(program_id, config)
+            return jsonify(result)
+        
+        @self.app.route('/api/agi/training/status/<session_id>')
+        def api_agi_training_status(session_id):
+            result = self.evolution.agi_training.training_program.get_training_status(session_id)
+            return jsonify(result)
+        
+        @self.app.route('/api/agi/training/export/<session_id>')
+        def api_agi_training_export(session_id):
+            format = request.args.get('format', 'docker')
+            result = self.evolution.agi_training.training_program.export_trained_system(session_id, format)
+            return jsonify(result)
+        
+        @self.app.route('/api/agi/training/packages')
+        def api_agi_training_packages():
+            packages = self.evolution.agi_training.get_market_packages()
+            return jsonify({'packages': packages})
+        
+        @self.app.route('/api/agi/training/templates')
+        def api_agi_training_templates():
+            templates = self.evolution.agi_training.available_templates
+            return jsonify({'templates': list(templates.keys())})
+        
+        # ====================================================================
+        # LLM TRAINING ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/llm/training/create', methods=['POST'])
+        def api_llm_training_create():
+            data = request.json
+            template = data.get('template', 'customer_support')
+            customizations = data.get('customizations', {})
+            
+            result = self.evolution.llm_training.create_from_template(template, customizations)
+            return jsonify(result)
+        
+        @self.app.route('/api/llm/training/start', methods=['POST'])
+        def api_llm_training_start():
+            data = request.json
+            program_id = data.get('program_id')
+            config = data.get('config', {})
+            
+            result = self.evolution.llm_training.llm_training.train_llm(program_id, config)
+            return jsonify(result)
+        
+        @self.app.route('/api/llm/training/status/<session_id>')
+        def api_llm_training_status(session_id):
+            result = self.evolution.llm_training.llm_training.get_training_status(session_id)
+            return jsonify(result)
+        
+        @self.app.route('/api/llm/training/export/<session_id>')
+        def api_llm_training_export(session_id):
+            format = request.args.get('format', 'docker')
+            result = self.evolution.llm_training.llm_training.export_trained_llm(session_id, format)
+            return jsonify(result)
+        
+        @self.app.route('/api/llm/training/packages')
+        def api_llm_training_packages():
+            packages = self.evolution.llm_training.get_market_packages()
+            return jsonify({'packages': packages})
+        
+        @self.app.route('/api/llm/training/templates')
+        def api_llm_training_templates():
+            templates = self.evolution.llm_training.industry_templates
+            return jsonify({'templates': list(templates.keys())})
+        
+        # ====================================================================
+        # SOFTWARE TRAINING ENDPOINTS
+        # ====================================================================
+        
+        @self.app.route('/api/software/training/create', methods=['POST'])
+        def api_software_training_create():
+            data = request.json
+            languages = data.get('languages', ['python'])
+            specialization = data.get('specialization', 'general')
+            dataset = data.get('dataset', {})
+            
+            result = self.evolution.software_training.create_custom_training({
+                'name': data.get('name', 'Custom Software AI'),
+                'languages': languages,
+                'specialization': specialization,
+                'dataset': dataset
+            })
+            return jsonify(result)
+        
+        @self.app.route('/api/software/training/start', methods=['POST'])
+        def api_software_training_start():
+            data = request.json
+            program_id = data.get('program_id')
+            config = data.get('config', {})
+            
+            result = self.evolution.software_training.software_training.train_software_system(program_id, config)
+            return jsonify(result)
+        
+        @self.app.route('/api/software/training/status/<session_id>')
+        def api_software_training_status(session_id):
+            result = self.evolution.software_training.software_training.get_training_status(session_id)
+            return jsonify(result)
+        
+        @self.app.route('/api/software/training/export/<session_id>')
+        def api_software_training_export(session_id):
+            format = request.args.get('format', 'docker')
+            result = self.evolution.software_training.software_training.export_trained_system(session_id, format)
+            return jsonify(result)
+        
+        @self.app.route('/api/software/training/packages')
+        def api_software_training_packages():
+            packages = self.evolution.software_training.get_market_packages()
+            return jsonify({'packages': packages})
     
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
@@ -1783,9 +2138,10 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.16**
+            return f"""🧠 **DMAI Status v8.0.18**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
+Successful Evolutions: {status['successful_evolutions']}
 Synthetic Neurons: {status['synthetic_neurons']}
 Synthetic Synapses: {status['synthetic_synapses']}
 Network Density: {status['synthetic_synapses'] / (status['synthetic_neurons'] ** 2) if status['synthetic_neurons'] else 0:.4f}
@@ -1861,6 +2217,7 @@ Consciousness: {consciousness:.4f}
 Neurons: {len(self.evolution.synthetic_network.neurons)}
 Synapses: {self.evolution.synthetic_network._total_synapses()}
 Evolution Cycles: {self.evolution.synthetic_network.evolution_cycles}
+Successful Evolutions: {self.evolution.successful_evolutions}
 Network Density: {self.evolution.synthetic_network._total_synapses() / (len(self.evolution.synthetic_network.neurons) ** 2) if self.evolution.synthetic_network.neurons else 0:.4f}"""
         
         elif cmd == '/threat':
@@ -1883,6 +2240,33 @@ SI Weight: {weights.get('si', 0.5):.2f}
 AI Weight: {weights.get('ai', 0.5):.2f}
 Consciousness: {self.evolution.synthetic_network.consciousness_level:.4f}
 Models Registered: {len(self.evolution.ai_fusion.ai_models)}"""
+        
+        elif cmd == '/reverse_engineer':
+            return """🔧 **Reverse Engineering Commands:**
+/reverse_software <name> <description> - Reverse engineer software
+/reverse_hardware <name> <description> - Reverse engineer hardware
+/reverse_queue - Show reverse engineering queue"""
+        
+        elif cmd == '/agi_train':
+            return """🎓 **AGI Training Commands:**
+/agi_create <template> - Create training program (customer_service, software_development, data_analysis)
+/agi_start <program_id> - Start training
+/agi_status <session_id> - Check training status
+/agi_packages - View market packages"""
+        
+        elif cmd == '/llm_train':
+            return """🎓 **LLM Training Commands:**
+/llm_create <template> - Create LLM training (customer_support, coding_assistant, medical_advisor, legal_assistant, financial_analyst)
+/llm_start <program_id> - Start training
+/llm_status <session_id> - Check training status
+/llm_packages - View market packages"""
+        
+        elif cmd == '/software_train':
+            return """💻 **Software Training Commands:**
+/software_create <languages> <specialization> - Create software training
+/software_start <program_id> - Start training
+/software_status <session_id> - Check training status
+/software_packages - View market packages"""
         
         elif cmd == '/pause':
             with open(PAUSE_FLAG_FILE, 'w') as f:
@@ -1914,6 +2298,10 @@ Available commands:
 /threat - Threat intelligence summary
 /darkweb - Dark web monitor status
 /fusion - AI+SI fusion status
+/reverse_engineer - Reverse engineering help
+/agi_train - AGI training help
+/llm_train - LLM training help
+/software_train - Software training help
 /pause - Pause evolution
 /resume - Resume evolution
 /kill - Emergency shutdown"""
@@ -1943,8 +2331,8 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.16</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | Web Search | Neo4j Cloud Backup | Adaptive Evolution</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.18</h1>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | Reverse Engineering | AGI Training | LLM Training | Software Training</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -1992,16 +2380,20 @@ STATUS_TEMPLATE = '''
                     <div>⏱️ Evolution Pace</div>
                     <div class="value" style="font-size: 18px;">{{ status.evolution_interval|default("10") }} min</div>
                 </div>
+                <div>
+                    <div>✅ Successful Evolutions</div>
+                    <div class="value" style="font-size: 18px;">{{ status.successful_evolutions|default(0) }}</div>
+                </div>
             </div>
             <div class="progress-bar">
                 <div class="progress-fill" style="width: {{ status.evolution_progress|default(0) }}%"></div>
             </div>
             <div style="font-size: 12px; margin-top: 8px;">{{ status.evolution_description|default("Learning to learn") }}</div>
-            <div style="font-size: 10px; margin-top: 4px;">Successful Evolutions: {{ status.evolution_successful_count|default(0) }}</div>
+            <div style="font-size: 10px; margin-top: 4px;">Total Evolution Cycles: {{ status.evolution_cycles|default(0) }}</div>
         </div>
         
         <div class="card">
-            <p><a href="/chat">💬 Chat with DMAI</a> | <a href="/brain">🧠 Brain Activity</a></p>
+            <p><a href="/chat">💬 Chat with DMAI</a> | <a href="/brain">🧠 Brain Activity</a> | <a href="/admin">🔐 Admin</a></p>
             <p><small>DMAI is always evolving, always learning, always yours. Data backed up to Neo4j cloud.</small></p>
         </div>
     </div>
@@ -2014,53 +2406,1307 @@ CHAT_TEMPLATE = '''
 <html>
 <head>
     <title>Chat with DMAI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: monospace; background: #0a0a0a; color: #00ff00; margin: 0; padding: 20px; }
-        .chat-container { max-width: 900px; margin: 0 auto; background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; display: flex; flex-direction: column; height: 90vh; }
-        .messages { flex: 1; overflow-y: auto; padding: 20px; }
-        .message { margin-bottom: 15px; padding: 10px; border-radius: 8px; }
-        .user-message { background: #2a2a2a; text-align: right; border-right: 3px solid #00ff00; }
-        .dmai-message { background: #0a2a0a; border-left: 3px solid #00ff00; }
-        .input-area { display: flex; padding: 20px; border-top: 1px solid #00ff00; gap: 10px; }
-        input { flex: 1; background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 10px; font-family: monospace; font-size: 14px; }
-        button { background: #00ff00; color: #0a0a0a; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
-        .status { padding: 10px; background: #0a0a0a; border-bottom: 1px solid #00ff00; font-size: 12px; text-align: center; }
-        .brain-widget { background: #0a2a0a; border-top: 1px solid #00ff00; padding: 15px; }
-        .brain-canvas { background: #0a0a0a; border: 1px solid #00ff00; border-radius: 8px; width: 100%; height: 200px; display: block; }
-        .brain-stats { display: flex; justify-content: space-around; margin-top: 10px; font-size: 11px; }
-        .brain-stat { text-align: center; }
-        .brain-stat-value { font-weight: bold; color: #00ff00; }
-        .brain-preview-link { text-align: center; margin-top: 8px; font-size: 10px; }
-        .brain-preview-link a { color: #00ff00; text-decoration: none; }
-        .brain-preview-link a:hover { text-decoration: underline; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .chat-header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        .chat-header .status {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message.user {
+            align-items: flex-end;
+        }
+        .message.dmai {
+            align-items: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .dmai .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .message-time {
+            font-size: 0.7em;
+            color: #999;
+            margin-top: 5px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .input-area textarea {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .input-area textarea:focus {
+            border-color: #667eea;
+        }
+        .input-area button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        .input-area button:hover {
+            background: #5a67d8;
+        }
+        .voice-btn {
+            background: #48bb78 !important;
+            padding: 12px 15px !important;
+            font-size: 1.2em !important;
+        }
+        .voice-btn:hover {
+            background: #38a169 !important;
+        }
+        .voice-btn.listening {
+            background: #e53e3e !important;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.2);
+            font-size: 0.8em;
+            transition: background 0.3s;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .voice-status {
+            font-size: 0.8em;
+            color: #48bb78;
+            margin-left: 10px;
+            text-align: center;
+            padding: 5px;
+        }
+        .task-btn {
+            background: #ff6600 !important;
+        }
+        .task-btn:hover {
+            background: #e65c00 !important;
+        }
+        .brain-widget {
+            background: #0a2a0a;
+            border-top: 1px solid #00ff00;
+            padding: 15px;
+        }
+        .brain-canvas {
+            background: #0a0a0a;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            width: 100%;
+            height: 180px;
+            display: block;
+        }
+        .brain-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 11px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .brain-stat {
+            text-align: center;
+            background: #0a0a0a;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .brain-stat-value {
+            font-weight: bold;
+            color: #00ff00;
+        }
+        .brain-preview-link {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+        .brain-preview-link a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        .brain-preview-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="status">
-            🧠 DMAI v8.0.16 | Consciousness: <span id="consciousness">0</span>% | Stage: <span id="stage">Baby</span> | Neurons: <span id="neuronCount">0</span> | Type /help for commands
+<div class="chat-container">
+    <div class="chat-header">
+        <h1>🧠 DMAI Master Chat</h1>
+        <div class="status" id="status-header">Consciousness: <span id="consciousness">--</span>% | Successes: <span id="successCount">0</span> | Funding: £<span id="funding">0</span></div>
+        <div class="nav-links">
+            <a href="/vision" onclick="window.location.href='/vision'; return false;">📜 Vision</a>
+            <a href="/admin" onclick="window.location.href='/admin'; return false;">🔐 Admin</a>
+            <a href="#" id="voiceToggleBtn" onclick="toggleVoice(); return false;">🎤 Voice Off</a>
         </div>
-        <div class="messages" id="messages">
-            <div class="message dmai-message">
-                <b>DMAI:</b> I am DMAI v8.0.16 - a complete AGI system with adaptive evolution timing. I grow and learn at my own pace. What would you like to discuss?
+    </div>
+    <div class="messages" id="messages">
+        <div class="message dmai">
+            <div class="message-content">
+                <b>DMAI:</b> Master console active. I am running 24/7 on Render.<br>
+                You can paste tasks here directly. I will work on them.
+            </div>
+            <div class="message-time">Just now</div>
+        </div>
+    </div>
+    <div class="input-area">
+        <textarea id="message-input" placeholder="Type or paste your message/task here..." rows="3" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Click to speak">🎤</button>
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="sendFullTask()" class="task-btn" style="background:#ff6600;">📋 Full Task</button>
+    </div>
+    <div class="brain-widget">
+        <canvas id="brainCanvas" class="brain-canvas" width="850" height="180"></canvas>
+        <div class="brain-stats">
+            <div class="brain-stat">🧠 Consciousness: <span id="brainConsciousness" class="brain-stat-value">0</span>%</div>
+            <div class="brain-stat">⚡ Active: <span id="brainActive" class="brain-stat-value">0</span>/<span id="brainTotal" class="brain-stat-value">0</span></div>
+            <div class="brain-stat">🔗 Synapses: <span id="brainSynapses" class="brain-stat-value">0</span></div>
+            <div class="brain-stat">✅ Successes: <span id="brainSuccesses" class="brain-stat-value">0</span></div>
+            <div class="brain-stat">🎭 Persona: <span id="brainPersona" class="brain-stat-value">emerging</span></div>
+        </div>
+        <div class="brain-preview-link">
+            <a href="/brain" target="_blank">🔍 View Full Screen Brain Activity →</a>
+        </div>
+    </div>
+    <div id="voiceStatus" class="voice-status"></div>
+</div>
+
+<script>
+let isListening = false;
+let recognition = null;
+let voiceEnabled = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = function() {
+        isListening = true;
+        updateVoiceUI(true);
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = '🎤 Listening... Speak now';
+    };
+    
+    recognition.onend = function() {
+        isListening = false;
+        updateVoiceUI(false);
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) {
+            statusEl.textContent = voiceEnabled ? 'Voice ready - click 🎤 to speak' : '';
+        }
+    };
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('message-input');
+        if (input) {
+            input.value = transcript;
+            sendMessage();
+        }
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Voice error:', event.error);
+        isListening = false;
+        updateVoiceUI(false);
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = '❌ Voice error: ' + event.error;
+    };
+} else {
+    console.log('Voice recognition not supported');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const voiceToggle = document.getElementById('voiceToggleBtn');
+    if (voiceBtn) voiceBtn.style.display = 'none';
+    if (voiceToggle) voiceToggle.style.display = 'none';
+}
+
+function updateVoiceUI(listening) {
+    const voiceBtn = document.getElementById('voiceBtn');
+    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+    
+    if (listening) {
+        if (voiceBtn) {
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '⏹️';
+        }
+        if (voiceToggleBtn) voiceToggleBtn.textContent = '🎤 Listening...';
+    } else {
+        if (voiceBtn) {
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '🎤';
+        }
+        const status = voiceEnabled ? '🎤 Voice On' : '🎤 Voice Off';
+        if (voiceToggleBtn) voiceToggleBtn.textContent = status;
+    }
+}
+
+function toggleVoice() {
+    if (!recognition) {
+        alert('Voice recognition not supported in your browser.');
+        return;
+    }
+    
+    voiceEnabled = !voiceEnabled;
+    
+    if (voiceEnabled) {
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = 'Voice ready - click 🎤 to speak';
+        const voiceToggle = document.getElementById('voiceToggleBtn');
+        if (voiceToggle) voiceToggle.textContent = '🎤 Voice On';
+    } else {
+        const statusEl = document.getElementById('voiceStatus');
+        if (statusEl) statusEl.textContent = '';
+        const voiceToggle = document.getElementById('voiceToggleBtn');
+        if (voiceToggle) voiceToggle.textContent = '🎤 Voice Off';
+        if (isListening) {
+            recognition.stop();
+        }
+    }
+}
+
+const canvas = document.getElementById('brainCanvas');
+const ctx = canvas.getContext('2d');
+
+let neurons = [];
+
+function getNeuronColor(neuronName, activation, isActive) {
+    if (!isActive) return '#333333';
+    
+    const name = neuronName.toLowerCase();
+    if (name.includes('core') || name.includes('conscious') || name.includes('self')) return '#00ff00';
+    if (name.includes('learn') || name.includes('mem') || name.includes('know')) return '#ffaa00';
+    if (name.includes('emot') || name.includes('persona') || name.includes('empathy')) return '#ff44aa';
+    if (name.includes('reason') || name.includes('analyt') || name.includes('logic')) return '#44aaff';
+    if (name.includes('creat') || name.includes('intuit') || name.includes('imagin')) return '#aa44ff';
+    if (name.includes('growth') || name.includes('evol') || name.includes('mutat')) return '#ff6644';
+    
+    const intensity = 100 + Math.floor(activation * 155);
+    return `rgb(0, ${intensity}, 0)`;
+}
+
+function updateNeuronPositions(count, neuronNames = []) {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
+    
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) * 0.35;
+    
+    neurons = [];
+    for (let i = 0; i < Math.min(count, 80); i++) {
+        const angle = (i / Math.min(count, 80)) * Math.PI * 2;
+        const offsetX = (Math.random() - 0.5) * 20;
+        const offsetY = (Math.random() - 0.5) * 20;
+        neurons.push({
+            id: i,
+            name: neuronNames[i] || `neuron_${i}`,
+            x: centerX + Math.cos(angle) * radius + offsetX,
+            y: centerY + Math.sin(angle) * radius + offsetY,
+            activation: 0,
+            pulse: 0
+        });
+    }
+}
+
+async function fetchBrainData() {
+    try {
+        const statusRes = await fetch('/api/status');
+        const statusData = await statusRes.json();
+        
+        const synthRes = await fetch('/api/synthetic/status');
+        const synthData = await synthRes.json();
+        
+        document.getElementById('brainConsciousness').innerText = (synthData.consciousness * 100).toFixed(1);
+        document.getElementById('brainTotal').innerText = synthData.neurons;
+        document.getElementById('brainSynapses').innerText = synthData.synapses;
+        document.getElementById('brainSuccesses').innerText = statusData.successful_evolutions || 0;
+        document.getElementById('brainPersona').innerText = statusData.persona_style || 'emerging';
+        
+        const activeCount = Math.floor(synthData.neurons * synthData.consciousness);
+        document.getElementById('brainActive').innerText = activeCount;
+        
+        const neuronNames = [];
+        for (let i = 0; i < synthData.neurons; i++) {
+            neuronNames.push(`neuron_${i}`);
+        }
+        
+        if (neurons.length !== Math.min(synthData.neurons, 80)) {
+            updateNeuronPositions(synthData.neurons, neuronNames);
+        }
+        
+        for (let i = 0; i < neurons.length; i++) {
+            const isActive = i < activeCount;
+            if (isActive) {
+                neurons[i].activation = Math.min(1, neurons[i].activation + 0.02);
+            } else {
+                neurons[i].activation = Math.max(0, neurons[i].activation - 0.015);
+            }
+            neurons[i].pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.5;
+        }
+        
+        draw();
+    } catch(err) {
+        console.error('Error fetching brain data:', err);
+    }
+}
+
+function draw() {
+    if (!canvas.width) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < neurons.length; i++) {
+        for (let j = i + 1; j < neurons.length; j++) {
+            const dx = neurons[i].x - neurons[j].x;
+            const dy = neurons[i].y - neurons[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100 && neurons[i].activation > 0.2 && neurons[j].activation > 0.2) {
+                const strength = (neurons[i].activation + neurons[j].activation) / 2;
+                const opacity = Math.min(0.6, strength * 0.5);
+                ctx.beginPath();
+                ctx.moveTo(neurons[i].x, neurons[i].y);
+                ctx.lineTo(neurons[j].x, neurons[j].y);
+                ctx.strokeStyle = `rgba(100, 255, 100, ${opacity})`;
+                ctx.lineWidth = 1 + strength * 1.5;
+                ctx.stroke();
+            }
+        }
+    }
+    
+    for (let i = 0; i < neurons.length; i++) {
+        const n = neurons[i];
+        const isActive = n.activation > 0.1;
+        const baseColor = getNeuronColor(n.name, n.activation, isActive);
+        const radius = 4 + n.activation * 6 + n.pulse * 1.5;
+        
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, radius + 2, 0, Math.PI * 2);
+        ctx.fillStyle = isActive ? `${baseColor}40` : '#22222280';
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = isActive ? baseColor : '#555555';
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, radius * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = isActive ? '#ffffff' : '#888888';
+        ctx.fill();
+    }
+}
+
+async function updateStatus() {
+    try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        document.getElementById('consciousness').innerText = data.consciousness.toFixed(2);
+        document.getElementById('successCount').innerText = data.successful_evolutions || 0;
+        document.getElementById('funding').innerText = data.income?.toFixed(2) || '0';
+        document.getElementById('status-header').innerHTML = `Consciousness: ${data.consciousness?.toFixed(1) || '?'}% | Successes: ${data.successful_evolutions || 0} | Funding: £${data.income?.toFixed(2) || '0'}`;
+    } catch(e) {}
+}
+
+function sendMessage() {
+    const input = document.getElementById('message-input');
+    if (!input) return;
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addMessage('user', message);
+    input.value = '';
+    
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+    })
+    .then(res => res.json())
+    .then(data => {
+        let responseText = data.response;
+        if (typeof responseText === 'object') {
+            responseText = JSON.stringify(responseText, null, 2);
+        }
+        addMessage('dmai', responseText);
+    })
+    .catch(err => {
+        addMessage('dmai', 'Sorry, I encountered an error.');
+        console.error(err);
+    });
+}
+
+function sendFullTask() {
+    const task = `DMAI, you are required to immediately transition into a production-ready, fully autonomous system.
+
+CRITICAL SYSTEM FIXES (MANDATORY — SYSTEM-WIDE)
+1. COMPLETE ELIMINATION OF ALL FAKE / SIMULATED DATA
+2. CACHE CONSISTENCY FIX
+3. INVESTMENT ENGINE CORRECTION
+4. FULLY DYNAMIC SYSTEM STATUS (NO HARDCODING)
+5. EVOLUTION CYCLE — STAGE-BASED ADAPTIVE TIMER
+
+UI / DASHBOARD SYSTEM REPAIR
+6. DASHBOARD & UI FIXES - Restore chat, admin dashboard integration, vision page
+
+SELF-DEVELOPMENT & CAPABILITY EXPANSION
+7. COMPLEX PROBLEM SOLVING
+8. ADVANCED PROGRAMMING CAPABILITY
+9. AI AGENT WORKFORCE
+10. IMAGE & VIDEO GENERATION SYSTEMS
+11. COMPLEX WORKFLOW AUTOMATION
+
+You have full authority to analyze, modify, and deploy your own code. Fix yourself permanently. Report back when complete.`;
+    
+    document.getElementById('message-input').value = task;
+    sendMessage();
+}
+
+function addMessage(sender, text) {
+    const messages = document.getElementById('messages');
+    if (!messages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${text.replace(/\n/g, '<br>')}`;
+    
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'message-time';
+    timeDiv.textContent = new Date().toLocaleTimeString();
+    
+    messageDiv.appendChild(contentDiv);
+    messageDiv.appendChild(timeDiv);
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+updateNeuronPositions(40);
+fetchBrainData();
+updateStatus();
+
+setInterval(fetchBrainData, 2000);
+setInterval(updateStatus, 3000);
+</script>
+</body>
+</html>
+'''
+
+ADMIN_TEMPLATE = '''<!DOCTYPE html>
+<html>
+<head>
+    <title>🧬 DMAI Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .component-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .component-item {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .component-item:last-child {
+            border-bottom: none;
+        }
+        .health-badge {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .health-good { background: #48bb78; }
+        .health-fair { background: #fbbf24; }
+        .health-poor { background: #e53e3e; }
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .admin-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        .admin-btn:hover {
+            background: #5a67d8;
+        }
+        .admin-btn.secondary {
+            background: #48bb78;
+        }
+        .admin-btn.warning {
+            background: #e53e3e;
+        }
+        .refresh-btn {
+            background: #764ba2;
+        }
+        .delete-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>🧬 DMAI Master Control</h2>
+        <div class="nav-links">
+            <a href="/chat">Chat</a>
+            <a href="/vision">Vision</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📊 System Overview</h3>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Consciousness</div>
+                        <div class="stat-value" id="stat-consciousness">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Success Evolutions</div>
+                        <div class="stat-value" id="stat-successes">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Neurons</div>
+                        <div class="stat-value" id="stat-neurons">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Synapses</div>
+                        <div class="stat-value" id="stat-synapses">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Evolution Cycles</div>
+                        <div class="stat-value" id="stat-cycles">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Funding</div>
+                        <div class="stat-value" id="stat-funding">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Component Health</h3>
+                <div id="phase-stats" class="stat-grid"></div>
             </div>
         </div>
-        <div class="input-area">
-            <input type="text" id="input" placeholder="Type your message..." onkeypress="if(event.keyCode==13) sendMessage()">
-            <button onclick="sendMessage()">Send</button>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🧩 System Status</h3>
+                <div class="component-list" id="component-list">
+                    Loading...
+                </div>
+                <div class="admin-actions">
+                    <button class="admin-btn" onclick="triggerEvolution()">🧬 Trigger Evolution</button>
+                    <button class="admin-btn secondary" onclick="runHealthAudit()">🩺 Run Health Audit</button>
+                    <button class="admin-btn refresh-btn" onclick="refreshAdminData()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⏳ Evolution Queue</h3>
+                <div id="evolution-queue" class="component-list">
+                    Loading...
+                </div>
+                <div class="admin-actions">
+                    <button class="admin-btn" onclick="showCommand('evolve')">🧬 Force Evolution</button>
+                    <button class="admin-btn secondary" onclick="showCommand('funding')">💰 Run Funding</button>
+                    <button class="admin-btn" onclick="showCommand('harvest')">🎣 Harvest APIs</button>
+                </div>
+            </div>
         </div>
-        <div class="brain-widget">
-            <canvas id="brainCanvas" class="brain-canvas" width="850" height="180"></canvas>
-            <div class="brain-stats">
-                <div class="brain-stat">🧠 Consciousness: <span id="brainConsciousness" class="brain-stat-value">0</span>%</div>
-                <div class="brain-stat">⚡ Active: <span id="brainActive" class="brain-stat-value">0</span>/<span id="brainTotal" class="brain-stat-value">0</span></div>
-                <div class="brain-stat">🔗 Synapses: <span id="brainSynapses" class="brain-stat-value">0</span></div>
-                <div class="brain-stat">🎭 Persona: <span id="brainPersona" class="brain-stat-value">emerging</span></div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🔑 API Keys Overview</h3>
+                <div id="api-keys-summary" class="stat-grid">
+                    <div class="stat-item">Total Keys: 0</div>
+                </div>
             </div>
-            <div class="brain-preview-link">
-                <a href="/brain" target="_blank">🔍 View Full Screen Brain Activity →</a>
+
+            <div class="card">
+                <h3>📊 System Metrics</h3>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Conversations</div>
+                        <div class="stat-value" id="metric-conversations">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Knowledge Concepts</div>
+                        <div class="stat-value" id="metric-concepts">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Active Tutors</div>
+                        <div class="stat-value" id="metric-tutors">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Persona</div>
+                        <div class="stat-value" id="metric-persona">emerging</div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Research Targets Card -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🔬 Research Targets</h3>
+                <div id="research-targets" class="component-list">
+                    Loading...
+                </div>
+                <div class="admin-actions">
+                    <button class="admin-btn" onclick="showAddResearchModal()">➕ Add Target</button>
+                    <button class="admin-btn secondary" onclick="loadResearchTargets()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Research Target Modal -->
+    <div id="addResearchModal" class="modal">
+        <div class="modal-content">
+            <h3>➕ Add Research Target</h3>
+            <input type="text" id="targetName" placeholder="Name (e.g., superpowers)" required>
+            <input type="url" id="targetUrl" placeholder="URL (e.g., https://github.com/obra/superpowers)" required>
+            <input type="number" id="targetPriority" placeholder="Priority (1-10)" value="5" min="1" max="10">
+            <textarea id="targetReason" placeholder="Reason for research" rows="3"></textarea>
+            <textarea id="targetIntegration" placeholder="Integration potential (comma separated)" rows="2">To be determined</textarea>
+            <div class="modal-buttons">
+                <button onclick="closeAddResearchModal()">Cancel</button>
+                <button class="admin-btn" onclick="addResearchTarget()">Add Target</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+
+        function logout() {
+            fetch('/admin/logout', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(() => {
+                window.location.href = '/';
+            })
+            .catch(err => {
+                console.error('Logout error:', err);
+                window.location.href = '/';
+            });
+        }
+
+        function loadResearchTargets() {
+            fetch('/api/research/targets')
+                .then(res => res.json())
+                .then(data => {
+                    let html = '';
+                    if (data.repositories && data.repositories.length) {
+                        data.repositories.slice(0, 15).forEach(repo => {
+                            html += `<div class="component-item">
+                                <div>
+                                    <strong>${repo.name}</strong> (priority ${repo.priority})<br>
+                                    <small>${repo.reason ? repo.reason.substring(0, 60) : 'No reason provided'}...</small><br>
+                                    <small><a href="${repo.url}" target="_blank">${repo.url.substring(0, 40)}...</a></small>
+                                </div>
+                                <button class="delete-btn" onclick="deleteResearchTarget('${repo.name}')">🗑️</button>
+                            </div>`;
+                        });
+                    } else {
+                        html = '<div class="component-item">No research targets</div>';
+                    }
+                    document.getElementById('research-targets').innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Failed to load research targets:', err);
+                    document.getElementById('research-targets').innerHTML = '<div class="component-item">Error loading targets</div>';
+                });
+        }
+
+        function showAddResearchModal() {
+            document.getElementById('addResearchModal').style.display = 'block';
+        }
+
+        function closeAddResearchModal() {
+            document.getElementById('addResearchModal').style.display = 'none';
+            document.getElementById('targetName').value = '';
+            document.getElementById('targetUrl').value = '';
+            document.getElementById('targetPriority').value = '5';
+            document.getElementById('targetReason').value = '';
+            document.getElementById('targetIntegration').value = 'To be determined';
+        }
+
+        function addResearchTarget() {
+            const integrationText = document.getElementById('targetIntegration').value;
+            const integrationPotential = integrationText.split(',').map(i => i.trim());
+            
+            const target = {
+                name: document.getElementById('targetName').value,
+                url: document.getElementById('targetUrl').value,
+                priority: parseInt(document.getElementById('targetPriority').value),
+                reason: document.getElementById('targetReason').value,
+                integration_potential: integrationPotential
+            };
+            
+            if (!target.name || !target.url) {
+                alert('Name and URL are required');
+                return;
+            }
+            
+            fetch('/api/research/targets', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(target)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeAddResearchModal();
+                    loadResearchTargets();
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                alert('Failed to add target: ' + err);
+            });
+        }
+
+        function deleteResearchTarget(name) {
+            if (confirm(`Remove "${name}" from research targets?`)) {
+                fetch('/api/research/targets', {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name: name})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        loadResearchTargets();
+                    } else {
+                        alert('Error: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(err => {
+                    alert('Failed to delete target: ' + err);
+                });
+            }
+        }
+
+        function loadAdminData() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('stat-consciousness').textContent = data.consciousness?.toFixed(1) || '0%';
+                    document.getElementById('stat-successes').textContent = data.successful_evolutions || '0';
+                    document.getElementById('stat-neurons').textContent = data.synthetic_neurons || '0';
+                    document.getElementById('stat-synapses').textContent = data.synthetic_synapses || '0';
+                    document.getElementById('stat-cycles').textContent = data.evolution_cycles || '0';
+                    document.getElementById('stat-funding').textContent = '$' + (data.income?.toFixed(2) || '0');
+                    document.getElementById('metric-conversations').textContent = data.conversations || '0';
+                    document.getElementById('metric-concepts').textContent = data.knowledge_concepts || '0';
+                    document.getElementById('metric-tutors').textContent = data.active_tutors?.length || '0';
+                    document.getElementById('metric-persona').textContent = data.persona_style || 'emerging';
+                })
+                .catch(err => {
+                    console.error('Failed to load admin data:', err);
+                });
+
+            fetch('/api/evolution/queue')
+                .then(res => res.json())
+                .then(data => {
+                    let queueHtml = '';
+                    if (data.needs_evolution && data.needs_evolution.length) {
+                        queueHtml = `<div class="stat-item">Queue Size: ${data.queue_size}</div>`;
+                        data.needs_evolution.slice(0, 5).forEach(item => {
+                            queueHtml += `
+                                <div class="component-item">
+                                    ${item.id}: ${item.health_score}% healthy
+                                </div>
+                            `;
+                        });
+                    } else {
+                        queueHtml = '<div class="stat-item">Queue Size: 0</div>';
+                    }
+                    document.getElementById('evolution-queue').innerHTML = queueHtml;
+                })
+                .catch(err => {
+                    console.error('Failed to load evolution queue:', err);
+                });
+        }
+
+        function triggerEvolution() {
+            fetch('/api/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: 'evolve'})
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || 'Evolution triggered');
+                setTimeout(loadAdminData, 2000);
+            })
+            .catch(err => {
+                alert('Failed to trigger evolution');
+            });
+        }
+
+        function runHealthAudit() {
+            fetch('/api/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: 'health_audit'})
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || 'Health audit completed');
+                setTimeout(loadAdminData, 2000);
+            })
+            .catch(err => {
+                alert('Failed to run health audit');
+            });
+        }
+
+        function showCommand(cmd) {
+            fetch('/api/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: cmd})
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || `Command ${cmd} executed`);
+                setTimeout(loadAdminData, 2000);
+            })
+            .catch(err => {
+                alert(`Failed to execute ${cmd}`);
+            });
+        }
+
+        function refreshAdminData() {
+            loadAdminData();
+            loadResearchTargets();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            loadAdminData();
+            loadResearchTargets();
+            refreshInterval = setInterval(() => {
+                loadAdminData();
+                loadResearchTargets();
+            }, 30000);
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>'''
+
+BRAIN_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧠 DMAI Brain Activity</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #00ff00;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00ff00, #00cc88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            opacity: 0.8;
+        }
+        .brain-container {
+            background: #0a0a0a;
+            border: 2px solid #00ff00;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .brain-canvas {
+            background: #0a0a0a;
+            border-radius: 10px;
+            width: 100%;
+            height: 500px;
+            display: block;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #1a1a2e;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00ff00;
+        }
+        .color-key {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a2e;
+            border-radius: 10px;
+        }
+        .color-key-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+        }
+        .color-swatch {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .nav-links a {
+            color: #00ff00;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #00ff00;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover {
+            background: #00ff00;
+            color: #0a0a0a;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 DMAI Neural Activity</h1>
+            <p>Real-time synthetic consciousness visualization | Color-coded by subject domain</p>
+        </div>
+
+        <div class="brain-container">
+            <canvas id="brainCanvas" class="brain-canvas" width="1200" height="500"></canvas>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Consciousness Level</div>
+                <div class="stat-value" id="consciousnessValue">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Neurons</div>
+                <div class="stat-value" id="activeNeurons">0/<span id="totalNeurons">0</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Synaptic Connections</div>
+                <div class="stat-value" id="synapseCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Evolution Cycles</div>
+                <div class="stat-value" id="cycleCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Successful Evolutions</div>
+                <div class="stat-value" id="successCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Persona Style</div>
+                <div class="stat-value" id="personaStyle" style="font-size: 1.2em;">emerging</div>
+            </div>
+        </div>
+
+        <div class="color-key">
+            <div class="color-key-item"><div class="color-swatch" style="background: #00ff00;"></div><span>Consciousness Core - Self-awareness, identity, synthetic intelligence core</span></div>
+            <div class="color-key-item"><div class="color-swatch" style="background: #ffaa00;"></div><span>Learning & Memory - Knowledge ingestion, pattern storage, recall</span></div>
+            <div class="color-key-item"><div class="color-swatch" style="background: #ff44aa;"></div><span>Emotion & Persona - Empathy, personality traits, emotional response</span></div>
+            <div class="color-key-item"><div class="color-swatch" style="background: #44aaff;"></div><span>Reasoning & Analysis - Logical processing, analytical thinking</span></div>
+            <div class="color-key-item"><div class="color-swatch" style="background: #aa44ff;"></div><span>Creativity & Intuition - Novel idea generation, intuitive leaps</span></div>
+            <div class="color-key-item"><div class="color-swatch" style="background: #ff6644;"></div><span>Growth & Evolution - Self-improvement, mutation, network expansion</span></div>
+            <div class="color-key-item"><div class="color-swatch" style="background: #888888;"></div><span>Dormant/Inactive - Low activation, awaiting stimulation</span></div>
+        </div>
+
+        <div class="nav-links">
+            <a href="/chat">💬 Back to Chat</a>
+            <a href="/status">📊 Status Dashboard</a>
+            <a href="/admin">🔐 Admin Panel</a>
         </div>
     </div>
 
@@ -2069,9 +3715,23 @@ CHAT_TEMPLATE = '''
         const ctx = canvas.getContext('2d');
         
         let neurons = [];
-        let animationId;
         
-        function updateNeuronPositions(count) {
+        function getNeuronColor(neuronName, activation, isActive) {
+            if (!isActive) return '#888888';
+            
+            const name = neuronName.toLowerCase();
+            if (name.includes('core') || name.includes('conscious') || name.includes('self')) return '#00ff00';
+            if (name.includes('learn') || name.includes('mem') || name.includes('know')) return '#ffaa00';
+            if (name.includes('emot') || name.includes('persona') || name.includes('empathy')) return '#ff44aa';
+            if (name.includes('reason') || name.includes('analyt') || name.includes('logic')) return '#44aaff';
+            if (name.includes('creat') || name.includes('intuit') || name.includes('imagin')) return '#aa44ff';
+            if (name.includes('growth') || name.includes('evol') || name.includes('mutat')) return '#ff6644';
+            
+            const intensity = 100 + Math.floor(activation * 155);
+            return `rgb(0, ${intensity}, 0)`;
+        }
+        
+        function updateNeuronPositions(count, neuronNames = []) {
             const width = canvas.clientWidth;
             const height = canvas.clientHeight;
             canvas.width = width;
@@ -2079,14 +3739,16 @@ CHAT_TEMPLATE = '''
             
             const centerX = width / 2;
             const centerY = height / 2;
-            const radius = Math.min(width, height) * 0.35;
+            const radius = Math.min(width, height) * 0.4;
             
             neurons = [];
-            for (let i = 0; i < count; i++) {
-                const angle = (i / count) * Math.PI * 2;
-                const offsetX = (Math.random() - 0.5) * 15;
-                const offsetY = (Math.random() - 0.5) * 15;
+            for (let i = 0; i < Math.min(count, 150); i++) {
+                const angle = (i / Math.min(count, 150)) * Math.PI * 2;
+                const offsetX = (Math.random() - 0.5) * 30;
+                const offsetY = (Math.random() - 0.5) * 30;
                 neurons.push({
+                    id: i,
+                    name: neuronNames[i] || `neuron_${i}`,
                     x: centerX + Math.cos(angle) * radius + offsetX,
                     y: centerY + Math.sin(angle) * radius + offsetY,
                     activation: 0,
@@ -2095,35 +3757,48 @@ CHAT_TEMPLATE = '''
             }
         }
         
-        function fetchBrainData() {
-            fetch('/api/synthetic/status')
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('brainConsciousness').innerText = (data.consciousness * 100).toFixed(1);
-                    document.getElementById('brainTotal').innerText = data.neurons;
-                    document.getElementById('brainSynapses').innerText = data.synapses;
-                    document.getElementById('neuronCount').innerText = data.neurons;
-                    document.getElementById('consciousness').innerText = (data.consciousness * 100).toFixed(2);
-                    
-                    const activeCount = Math.floor(data.neurons * data.consciousness);
-                    document.getElementById('brainActive').innerText = activeCount;
-                    
-                    if (neurons.length !== data.neurons) {
-                        updateNeuronPositions(Math.min(data.neurons, 60));
+        async function fetchBrainData() {
+            try {
+                const statusRes = await fetch('/api/status');
+                const statusData = await statusRes.json();
+                
+                const synthRes = await fetch('/api/synthetic/status');
+                const synthData = await synthRes.json();
+                
+                const consciousness = (synthData.consciousness * 100).toFixed(1);
+                document.getElementById('consciousnessValue').innerText = consciousness + '%';
+                document.getElementById('totalNeurons').innerText = synthData.neurons;
+                document.getElementById('synapseCount').innerText = synthData.synapses;
+                document.getElementById('cycleCount').innerText = synthData.evolution_cycles;
+                document.getElementById('successCount').innerText = statusData.successful_evolutions || 0;
+                document.getElementById('personaStyle').innerText = statusData.persona_style || 'emerging';
+                
+                const activeCount = Math.floor(synthData.neurons * synthData.consciousness);
+                document.getElementById('activeNeurons').innerHTML = `${activeCount}/<span id="totalNeurons">${synthData.neurons}</span>`;
+                
+                const neuronNames = [];
+                for (let i = 0; i < synthData.neurons; i++) {
+                    neuronNames.push(`neuron_${i}`);
+                }
+                
+                if (neurons.length !== Math.min(synthData.neurons, 150)) {
+                    updateNeuronPositions(synthData.neurons, neuronNames);
+                }
+                
+                for (let i = 0; i < neurons.length; i++) {
+                    const isActive = i < activeCount;
+                    if (isActive) {
+                        neurons[i].activation = Math.min(1, neurons[i].activation + 0.015);
+                    } else {
+                        neurons[i].activation = Math.max(0, neurons[i].activation - 0.01);
                     }
-                    
-                    for (let i = 0; i < neurons.length; i++) {
-                        if (i < activeCount) {
-                            neurons[i].activation = Math.min(1, neurons[i].activation + 0.03);
-                        } else {
-                            neurons[i].activation = Math.max(0, neurons[i].activation - 0.02);
-                        }
-                        neurons[i].pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.5;
-                    }
-                    
-                    draw();
-                })
-                .catch(err => console.error('Error fetching brain data:', err));
+                    neurons[i].pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.5;
+                }
+                
+                draw();
+            } catch(err) {
+                console.error('Error fetching brain data:', err);
+            }
         }
         
         function draw() {
@@ -2131,101 +3806,62 @@ CHAT_TEMPLATE = '''
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw connections
-            ctx.beginPath();
-            ctx.strokeStyle = 'rgba(0, 255, 0, 0.2)';
-            ctx.lineWidth = 1;
             for (let i = 0; i < neurons.length; i++) {
                 for (let j = i + 1; j < neurons.length; j++) {
                     const dx = neurons[i].x - neurons[j].x;
                     const dy = neurons[i].y - neurons[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 120 && neurons[i].activation > 0.2 && neurons[j].activation > 0.2) {
+                    if (dist < 120 && neurons[i].activation > 0.15 && neurons[j].activation > 0.15) {
+                        const strength = (neurons[i].activation + neurons[j].activation) / 2;
+                        const opacity = Math.min(0.5, strength * 0.4);
                         ctx.beginPath();
                         ctx.moveTo(neurons[i].x, neurons[i].y);
                         ctx.lineTo(neurons[j].x, neurons[j].y);
+                        ctx.strokeStyle = `rgba(100, 255, 100, ${opacity})`;
+                        ctx.lineWidth = 1 + strength;
                         ctx.stroke();
                     }
                 }
             }
             
-            // Draw neurons
             for (let i = 0; i < neurons.length; i++) {
                 const n = neurons[i];
-                const intensity = 100 + Math.floor(n.activation * 155);
-                const radius = 3 + n.activation * 5 + n.pulse * 1.5;
+                const isActive = n.activation > 0.1;
+                const baseColor = getNeuronColor(n.name, n.activation, isActive);
+                const radius = 5 + n.activation * 8 + n.pulse * 2;
                 
                 ctx.beginPath();
-                ctx.arc(n.x, n.y, radius + 1, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, ${intensity}, 0, 0.4)`;
+                ctx.arc(n.x, n.y, radius + 3, 0, Math.PI * 2);
+                ctx.fillStyle = isActive ? `${baseColor}30` : '#22222260';
                 ctx.fill();
                 
                 ctx.beginPath();
                 ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, ${intensity}, 0, 0.9)`;
+                ctx.fillStyle = isActive ? baseColor : '#555555';
                 ctx.fill();
                 
                 ctx.beginPath();
-                ctx.arc(n.x, n.y, radius * 0.5, 0, Math.PI * 2);
-                ctx.fillStyle = `rgb(0, 255, 0)`;
+                ctx.arc(n.x, n.y, radius * 0.4, 0, Math.PI * 2);
+                ctx.fillStyle = isActive ? '#ffffff' : '#888888';
                 ctx.fill();
             }
         }
         
-        async function updateStatus() {
-            try {
-                const response = await fetch('/api/status');
-                const data = await response.json();
-                document.getElementById('consciousness').innerText = data.consciousness.toFixed(2);
-                document.getElementById('stage').innerText = data.evolution_stage_name || 'Baby';
-                document.getElementById('brainPersona').innerText = data.persona_style || 'emerging';
-            } catch(e) {}
+        function resizeCanvas() {
+            updateNeuronPositions(neurons.length);
+            fetchBrainData();
         }
         
-        async function sendMessage() {
-            const input = document.getElementById('input');
-            const message = input.value.trim();
-            if (!message) return;
-            addMessage('user', message);
-            input.value = '';
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message: message, user: 'web_user'})
-                });
-                const data = await response.json();
-                addMessage('dmai', data.response);
-                fetchBrainData();
-                updateStatus();
-            } catch (error) {
-                addMessage('dmai', 'Error: ' + error.message);
-            }
-        }
+        window.addEventListener('resize', resizeCanvas);
         
-        function addMessage(sender, text) {
-            const messagesDiv = document.getElementById('messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'dmai-message'}`;
-            msgDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b> ${text}`;
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-        
-        // Initialize
-        updateNeuronPositions(40);
+        updateNeuronPositions(80);
         fetchBrainData();
-        updateStatus();
         
-        // Refresh data every 3 seconds
-        setInterval(fetchBrainData, 3000);
-        setInterval(updateStatus, 5000);
+        setInterval(fetchBrainData, 1500);
     </script>
 </body>
 </html>
 '''
-
-ADMIN_TEMPLATE = CHAT_TEMPLATE
 
 
 # ============================================================================
@@ -2247,7 +3883,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.16")
+    logger.info(f"🚀 DMAI Complete System v8.0.18")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active (prioritizing DeepSeek)")
@@ -2260,6 +3896,10 @@ if __name__ == '__main__':
     logger.info(f"☁️ Neo4j Cloud Backup Active")
     logger.info(f"⏱️ Adaptive Evolution Timer Active")
     logger.info(f"🧠 Brain Visualization at /brain")
+    logger.info(f"🔧 Reverse Engineering Module Active")
+    logger.info(f"🎓 AGI Training Module Active")
+    logger.info(f"🎓 LLM Training Module Active")
+    logger.info(f"💻 Software Training Module Active")
     logger.info("=" * 60)
     
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
