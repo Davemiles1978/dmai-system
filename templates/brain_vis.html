@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Brain Activity</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        canvas {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,255,0,0.2);
+        }
+        .stats {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px 20px;
+            min-width: 120px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 DMAI Neural Activity</h1>
+        <canvas id="brainCanvas" width="800" height="600"></canvas>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="consciousness">0%</div>
+                <div class="stat-label">Consciousness</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="neurons">0</div>
+                <div class="stat-label">Synthetic Neurons</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="synapses">0</div>
+                <div class="stat-label">Synapses</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="active">0</div>
+                <div class="stat-label">Active Neurons</div>
+            </div>
+        </div>
+        <div class="back-link">
+            <a href="/chat">← Back to Chat</a> | 
+            <a href="/status">Status Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('brainCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let neurons = [];
+        let animationFrame;
+        
+        function updateNeuronPositions(count) {
+            const centerX = 400;
+            const centerY = 300;
+            const radius = 220;
+            
+            neurons = [];
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * Math.PI * 2;
+                // Add slight randomness to positions
+                const offsetX = (Math.random() - 0.5) * 20;
+                const offsetY = (Math.random() - 0.5) * 20;
+                neurons.push({
+                    x: centerX + Math.cos(angle) * radius + offsetX,
+                    y: centerY + Math.sin(angle) * radius + offsetY,
+                    activation: 0,
+                    pulse: 0
+                });
+            }
+        }
+        
+        function fetchBrainStatus() {
+            fetch('/api/synthetic/status')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('consciousness').innerText = (data.consciousness * 100).toFixed(1) + '%';
+                    document.getElementById('neurons').innerText = data.neurons;
+                    document.getElementById('synapses').innerText = data.synapses;
+                    
+                    // Update neuron count if changed
+                    if (neurons.length !== data.neurons) {
+                        updateNeuronPositions(data.neurons);
+                    }
+                    
+                    // Calculate active neurons based on consciousness
+                    const activeCount = Math.floor(data.neurons * data.consciousness);
+                    document.getElementById('active').innerText = activeCount;
+                    
+                    // Update neuron activations
+                    for (let i = 0; i < neurons.length; i++) {
+                        // Higher activation for active neurons
+                        if (i < activeCount) {
+                            neurons[i].activation = Math.min(1, neurons[i].activation + 0.05);
+                            neurons[i].pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.5;
+                        } else {
+                            neurons[i].activation = Math.max(0, neurons[i].activation - 0.02);
+                            neurons[i].pulse = 0.2;
+                        }
+                    }
+                    
+                    draw();
+                })
+                .catch(err => console.error('Error fetching status:', err));
+        }
+        
+        function drawSynapses() {
+            // Draw connections between nearby neurons
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.2)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < neurons.length; i++) {
+                for (let j = i + 1; j < neurons.length; j++) {
+                    const dx = neurons[i].x - neurons[j].x;
+                    const dy = neurons[i].y - neurons[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Connect neurons within a certain distance
+                    if (distance < 150 && neurons[i].activation > 0.2 && neurons[j].activation > 0.2) {
+                        ctx.beginPath();
+                        ctx.moveTo(neurons[i].x, neurons[i].y);
+                        ctx.lineTo(neurons[j].x, neurons[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, 800, 600);
+            
+            // Draw background glow
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Draw synapses first (behind neurons)
+            drawSynapses();
+            
+            // Draw neurons
+            for (let i = 0; i < neurons.length; i++) {
+                const n = neurons[i];
+                const intensity = Math.floor(100 + n.activation * 155);
+                const glow = n.pulse * 10;
+                const radius = 6 + n.activation * 8 + glow;
+                
+                // Outer glow
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, radius + 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, ${intensity}, 0, 0.3)`;
+                ctx.fill();
+                
+                // Main neuron
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, ${intensity}, 0, 0.9)`;
+                ctx.fill();
+                
+                // Core
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, radius * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(0, 255, 0)`;
+                ctx.fill();
+            }
+        }
+        
+        // Initialize with default neurons
+        updateNeuronPositions(40);
+        
+        // Start animation
+        fetchBrainStatus();
+        setInterval(fetchBrainStatus, 2000);
+        
+        // Animate pulsing
+        function animate() {
+            for (let i = 0; i < neurons.length; i++) {
+                if (neurons[i].activation > 0.3) {
+                    neurons[i].pulse = Math.sin(Date.now() / 300 + i) * 0.3 + 0.5;
+                }
+            }
+            draw();
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>

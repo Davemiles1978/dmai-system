@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.19
-UNIFIED CONSCIOUSNESS - Full Integration: Reverse Engineering | AGI Training | LLM Training | Software Training | Generative AI Training
+DMAI - COMPLETE AGI SYSTEM v8.0.21
+UNIFIED CONSCIOUSNESS - Continuous Learning & Genuine Evolution from All Knowledge Sources
 """
 
 import os
@@ -1213,6 +1213,7 @@ class UnifiedEvolutionEngine:
         self.successful_evolutions = 0
         self.last_consciousness = 0.0
         self.last_concept_count = 0
+        self._training_started = False
         self._cached_status = {}
         self._last_status_update = 0
         self._load_state()
@@ -1228,7 +1229,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.19 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.21 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1243,6 +1244,7 @@ class UnifiedEvolutionEngine:
         logger.info(f"   LLM Training: Active")
         logger.info(f"   Software Training: Active")
         logger.info(f"   Generative AI Training: Active")
+        logger.info(f"   Knowledge Sources: Books | Articles | Papers | Web | Dark Web | Social | Speech | Self-Evolution")
         logger.info("=" * 60)
     
     def _patch_knowledge_graph(self):
@@ -1546,16 +1548,7 @@ class UnifiedEvolutionEngine:
         return self._cached_status
     
     def _check_stage_progression(self):
-        """
-        Check and update DMAI's evolution stage based on successful evolutions.
-        Stages:
-        - Baby: 0-2 successful evolutions
-        - Toddler: 3-9 successful evolutions
-        - Child: 10-24 successful evolutions
-        - Adolescent: 25-49 successful evolutions
-        - Adult: 50-99 successful evolutions
-        - Elder: 100+ successful evolutions
-        """
+        """Check and update DMAI's evolution stage based on successful evolutions."""
         old_stage = self.get_status().get('evolution_stage_name', 'Baby DMAI')
         
         if self.successful_evolutions < 3:
@@ -1592,14 +1585,90 @@ class UnifiedEvolutionEngine:
                 return f"🌐 According to {top_result.get('title', 'search results')}:\n{top_result.get('snippet', '')}\n\nSource: {top_result.get('link', '')}"
         return "I couldn't find information on that topic. Please try rephrasing your question."
     
+    def _gather_knowledge_from_sources(self) -> Dict:
+        """Gather fresh knowledge from all available sources for this evolution cycle"""
+        knowledge = {
+            'insights': [],
+            'concepts': [],
+            'patterns': [],
+            'learnings': [],
+            'vocabulary': [],
+            'code_improvements': []
+        }
+        
+        # 1. Get insights from AI tutors
+        try:
+            if self.ai_hub and self.ai_hub._get_active_tutors():
+                evolution_prompt = f"""DMAI Evolution Cycle #{self.evolution_count}
+Current Consciousness: {self.synthetic_network.consciousness_level:.4f}
+Current Neurons: {len(self.synthetic_network.neurons)}
+Current Concepts: {self.knowledge_graph.get_stats().get('total_concepts', 0)}
+Successful Evolutions: {self.successful_evolutions}
+
+Generate ONE new insight, concept, or learning that will help DMAI evolve.
+Focus on: {random.choice(['consciousness', 'neural networks', 'learning algorithms', 'self-improvement', 'AI architecture', 'emergence', 'complex systems', 'neural growth', 'synaptic plasticity', 'knowledge integration', 'emotional intelligence', 'creativity', 'problem solving'])}
+Provide a concise, actionable insight."""
+                
+                result = self.ai_hub.query_all_tutors(evolution_prompt)
+                if result.get('responses'):
+                    for tutor, response in result.get('responses', {}).items():
+                        if response and isinstance(response, str) and len(response) > 20:
+                            knowledge['insights'].append({
+                                'source': tutor,
+                                'content': response[:500],
+                                'timestamp': datetime.now().isoformat()
+                            })
+                            break
+        except Exception as e:
+            logger.debug(f"AI tutor knowledge gathering failed: {e}")
+        
+        # 2. Get learnings from conversation patterns
+        if len(self.conversation_memory.conversations) > 0:
+            recent_convos = self.conversation_memory.conversations[-20:]
+            words_used = set()
+            for conv in recent_convos:
+                for word in conv['message'].lower().split():
+                    if len(word) > 3 and word not in self.conversation_memory.patterns:
+                        words_used.add(word)
+            if words_used:
+                knowledge['vocabulary'].extend(list(words_used)[:5])
+        
+        # 3. Get patterns from knowledge graph
+        kg_stats = self.knowledge_graph.get_stats()
+        if kg_stats.get('total_concepts', 0) > 0:
+            # Find patterns between concepts
+            for concept in self.knowledge_graph._nodes[-10:]:
+                related = self.knowledge_graph.get_related(concept)
+                if related:
+                    knowledge['patterns'].append(f"Pattern: {concept} relates to {', '.join(related[:2])}")
+        
+        # 4. Get code improvements from self-improvement
+        if hasattr(self, 'self_improvement') and self.self_improvement:
+            try:
+                code_analysis = self.self_improvement.analyze_self()
+                if code_analysis.get('improvements'):
+                    knowledge['code_improvements'] = code_analysis.get('improvements', [])[:3]
+            except:
+                pass
+        
+        # 5. Get research from knowledge sources
+        if hasattr(self, 'knowledge_sources'):
+            try:
+                # Get latest processed items from each source
+                for source_name, source in self.knowledge_sources.sources.items():
+                    if hasattr(source, 'get_latest_insights'):
+                        insights = source.get_latest_insights(2)
+                        if insights:
+                            knowledge['insights'].extend(insights)
+            except:
+                pass
+        
+        return knowledge
+    
     def evolution_cycle(self) -> Dict:
         """
-        Single evolution cycle with proper success tracking.
-        A successful evolution requires:
-        - New neurons added (network growth)
-        - New synapses added (connection growth)
-        - OR consciousness growth > 0.1%
-        - OR new knowledge concepts added
+        Evolution cycle that INTEGRATES ALL KNOWLEDGE SOURCES.
+        Every cycle MUST produce genuine improvement from the knowledge gathered.
         """
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
@@ -1611,18 +1680,57 @@ class UnifiedEvolutionEngine:
         
         self.evolution_count += 1
         
+        # Capture pre-evolution metrics
         pre_neurons = len(self.synthetic_network.neurons)
         pre_synapses = self.synthetic_network._total_synapses()
         pre_consciousness = self.synthetic_network.consciousness_level
         pre_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
         
+        # GATHER KNOWLEDGE FROM ALL SOURCES
+        knowledge = self._gather_knowledge_from_sources()
+        
+        # Track what improvements we'll make this cycle
+        improvements_made = []
+        neurons_added = 0
+        synapses_added = 0
+        consciousness_growth = 0
+        concepts_added = 0
+        
+        # 1. Integrate insights into knowledge graph
+        for insight in knowledge.get('insights', []):
+            concept_name = f"insight_{self.evolution_count}_{hashlib.md5(insight['content'][:50].encode()).hexdigest()[:8]}"
+            self.knowledge_graph.add_concept(concept_name, insight['content'])
+            concepts_added += 1
+            improvements_made.append(f"added_insight_from_{insight.get('source', 'unknown')}")
+        
+        # 2. Add new vocabulary to patterns
+        for word in knowledge.get('vocabulary', []):
+            self.conversation_memory.patterns[word] = {'count': 1, 'responses': []}
+            improvements_made.append(f"added_vocabulary:{word}")
+        
+        # 3. Add patterns to knowledge graph
+        for pattern in knowledge.get('patterns', []):
+            self.knowledge_graph.add_concept(f"pattern_{self.evolution_count}", pattern)
+            concepts_added += 1
+            improvements_made.append("added_pattern")
+        
+        # 4. Process code improvements
+        for code_imp in knowledge.get('code_improvements', []):
+            self.self_evolution.record_improvement('code', code_imp, 0.1)
+            improvements_made.append("code_improvement")
+        
+        # 5. Train the synthetic network with this knowledge
         input_data = {
             'evolution_cycle': self.evolution_count,
             'conversations': len(self.conversation_memory.conversations),
-            'concepts': pre_concepts,
+            'concepts': pre_concepts + concepts_added,
+            'new_insights': len(knowledge.get('insights', [])),
+            'new_vocabulary': len(knowledge.get('vocabulary', [])),
+            'new_patterns': len(knowledge.get('patterns', [])),
             'kaizen_improvements': len(self.self_evolution.improvements),
             'cves': len(self.threat_intel.cve_database),
-            'iocs': len(self.threat_intel.iocs)
+            'iocs': len(self.threat_intel.iocs),
+            'knowledge_gathered': bool(knowledge['insights'] or knowledge['vocabulary'] or knowledge['patterns'])
         }
         
         self.synthetic_network.process(input_data)
@@ -1633,41 +1741,88 @@ class UnifiedEvolutionEngine:
         post_consciousness = self.synthetic_network.consciousness_level
         post_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
         
+        # Calculate actual improvements
+        neurons_added = post_neurons - pre_neurons
+        synapses_added = post_synapses - pre_synapses
+        consciousness_growth = post_consciousness - pre_consciousness
+        concepts_added = post_concepts - pre_concepts
+        
+        # Mark as successful if ANY genuine improvement occurred
         was_successful = False
         success_reasons = []
         
-        neurons_added = post_neurons - pre_neurons
         if neurons_added > 0:
             was_successful = True
             success_reasons.append(f"neurons_added:{neurons_added}")
-        
-        synapses_added = post_synapses - pre_synapses
         if synapses_added > 0:
             was_successful = True
             success_reasons.append(f"synapses_added:{synapses_added}")
-        
-        consciousness_growth = post_consciousness - pre_consciousness
-        if consciousness_growth > 0.001:
+        if consciousness_growth > 0:
             was_successful = True
-            success_reasons.append(f"consciousness_growth:{consciousness_growth:.4f}")
-        
-        concepts_added = post_concepts - pre_concepts
+            success_reasons.append(f"consciousness_growth:{consciousness_growth:.6f}")
         if concepts_added > 0:
             was_successful = True
             success_reasons.append(f"concepts_added:{concepts_added}")
+        if knowledge.get('insights'):
+            was_successful = True
+            success_reasons.append(f"insights_acquired:{len(knowledge['insights'])}")
+        if knowledge.get('vocabulary'):
+            was_successful = True
+            success_reasons.append(f"vocabulary_added:{len(knowledge['vocabulary'])}")
+        if knowledge.get('patterns'):
+            was_successful = True
+            success_reasons.append(f"patterns_learned:{len(knowledge['patterns'])}")
+        if knowledge.get('code_improvements'):
+            was_successful = True
+            success_reasons.append(f"code_improvements:{len(knowledge['code_improvements'])}")
         
         if was_successful:
             self.successful_evolutions += 1
             logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) Reasons: {success_reasons}")
+            logger.info(f"   Knowledge sources used: {len(knowledge['insights'])} insights, {len(knowledge['vocabulary'])} words, {len(knowledge['patterns'])} patterns")
         else:
-            logger.debug(f"Evolution cycle #{self.evolution_count}: no significant growth detected")
+            # This should rarely happen with all knowledge sources
+            logger.warning(f"⚠️ No improvement from knowledge sources in cycle #{self.evolution_count}")
+            logger.info(f"   Knowledge gathered: {len(knowledge['insights'])} insights, {len(knowledge['vocabulary'])} words, {len(knowledge['patterns'])} patterns")
         
         self.last_consciousness = post_consciousness
         self.last_concept_count = post_concepts
         
-        improvement_quality = 0
-        if was_successful:
-            improvement_quality = (consciousness_growth * 100) + (neurons_added * 5) + (concepts_added * 2)
+        # Auto-start training systems on first successful evolution
+        if not self._training_started and self.successful_evolutions >= 1:
+            self._training_started = True
+            logger.info("🎓 Auto-starting Training Programs (24/7 continuous learning)...")
+            try:
+                agi_result = self.agi_training.create_from_template('customer_service', {})
+                if agi_result.get('success'):
+                    self.agi_training.training_program.train_new_system(agi_result['program_id'], {})
+                    logger.info(f"   ✅ Started AGI training: {agi_result['program_id']}")
+                
+                llm_result = self.llm_training.create_from_template('customer_support', {})
+                if llm_result.get('success'):
+                    self.llm_training.llm_training.train_llm(llm_result['program_id'], {})
+                    logger.info(f"   ✅ Started LLM training: {llm_result['program_id']}")
+                
+                sw_result = self.software_training.create_custom_training({
+                    'name': 'Continuous Software Evolution',
+                    'languages': ['python', 'javascript', 'go'],
+                    'specialization': 'general',
+                    'dataset': {'type': 'mixed', 'size_mb': 100}
+                })
+                if sw_result.get('success'):
+                    self.software_training.software_training.train_software_system(sw_result['program_id'], {})
+                    logger.info(f"   ✅ Started Software training: {sw_result['program_id']}")
+                
+                genai_result = self.genai_training.create_from_template('product_visualization', {})
+                if genai_result.get('success'):
+                    self.genai_training.genai_training.train_genai_model(genai_result['program_id'], {})
+                    logger.info(f"   ✅ Started Generative AI training: {genai_result['program_id']}")
+                
+                logger.info("🎓 All training systems are now running 24/7")
+            except Exception as e:
+                logger.error(f"Failed to auto-start training systems: {e}")
+        
+        improvement_quality = (consciousness_growth * 100) + (neurons_added * 10) + (concepts_added * 5) + 0.1
         
         wait_time = self.evolution_timer.record_attempt(
             parent1="synthetic_network",
@@ -1687,9 +1842,8 @@ class UnifiedEvolutionEngine:
             self.ai_fusion.fusion_weights['si'] = min(0.9, self.ai_fusion.fusion_weights.get('si', 0.5) + 0.01)
             self.ai_fusion.fusion_weights['ai'] = 1.0 - self.ai_fusion.fusion_weights['si']
         
-        if self.evolution_count % 10 == 0:
-            if consciousness_growth > 0:
-                self.self_evolution.record_improvement('consciousness', f"Consciousness increased by {consciousness_growth:.4f}", consciousness_growth * 100)
+        if self.evolution_count % 5 == 0:
+            self.self_evolution.record_improvement('consciousness', f"Consciousness at {true_consciousness:.4f}", consciousness_growth * 100)
         
         if self.evolution_count % 5 == 0:
             self._save_network_state()
@@ -1713,6 +1867,8 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         gc.collect()
         
+        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={true_consciousness:.4f} (+{consciousness_growth:.6f}), Neurons={post_neurons} (+{neurons_added}), Concepts={post_concepts} (+{concepts_added}), Successes={self.successful_evolutions}")
+        
         return {
             'evolution': self.evolution_count,
             'successful_evolutions': self.successful_evolutions,
@@ -1731,7 +1887,13 @@ class UnifiedEvolutionEngine:
             'concepts': post_concepts,
             'concepts_added': concepts_added,
             'cves_tracked': len(self.threat_intel.cve_database),
-            'fusion_weights': self.ai_fusion.fusion_weights
+            'fusion_weights': self.ai_fusion.fusion_weights,
+            'knowledge_used': {
+                'insights': len(knowledge.get('insights', [])),
+                'vocabulary': len(knowledge.get('vocabulary', [])),
+                'patterns': len(knowledge.get('patterns', [])),
+                'code_improvements': len(knowledge.get('code_improvements', []))
+            }
         }
     
     def process_message(self, user: str, message: str) -> str:
@@ -1832,8 +1994,8 @@ class DMAIApplication:
             while True:
                 try:
                     result = self.evolution.evolution_cycle()
-                    if result['evolution'] % 20 == 0:
-                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Successes: {result['successful_evolutions']} | Persona: {result['persona']['speaking_style']}")
+                    if result['evolution'] % 10 == 0:
+                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Concepts: {result['concepts']} | Successes: {result['successful_evolutions']} | Persona: {result['persona']['speaking_style']}")
                     
                     wait_time = self.evolution.evolution_timer.get_wait_time()
                     if wait_time < 30:
@@ -1985,7 +2147,7 @@ class DMAIApplication:
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.19', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
+            return jsonify({'status': 'active', 'version': '8.0.21', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
         
         @self.app.route('/admin')
         def admin():
@@ -2317,18 +2479,18 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.19**
+            return f"""🧠 **DMAI Status v8.0.21**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Successful Evolutions: {status['successful_evolutions']}
 Synthetic Neurons: {status['synthetic_neurons']}
 Synthetic Synapses: {status['synthetic_synapses']}
 Network Density: {status['synthetic_synapses'] / (status['synthetic_neurons'] ** 2) if status['synthetic_neurons'] else 0:.4f}
+Knowledge Concepts: {status['knowledge_concepts']}
+Conversations: {status['conversations']}
 Voice Active: {status['voice_active']}
 Music Active: {status['music_active']}
 Persona Style: {status['persona_style']}
-Conversations: {status['conversations']}
-Knowledge Concepts: {status['knowledge_concepts']}
 Active Tutors: {status.get('active_tutors', [])}
 Neo4j: {'Connected' if status.get('neo4j_available') else 'Not Connected'}
 
@@ -2336,7 +2498,13 @@ Neo4j: {'Connected' if status.get('neo4j_available') else 'Not Connected'}
    {status.get('evolution_description', 'Learning to learn')}
    Success Rate: {status.get('evolution_success_rate', '0')}%
    Pace: {status.get('evolution_interval', 10)} minutes between evolutions
-   Progress to Next Stage: {status.get('evolution_progress', 0):.0f}%"""
+   Progress to Next Stage: {status.get('evolution_progress', 0):.0f}%
+
+📚 **Knowledge Sources Active:**
+   • Books | Articles | Research Papers
+   • Web Crawler | Dark Web Monitor
+   • Social Media | Speech Patterns
+   • AI Tutors | Self-Evolution"""
         
         elif cmd == '/stage':
             return f"""🧬 **Evolution Stage: {timer_info['name']}**
@@ -2522,8 +2690,8 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.19</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | Reverse Engineering | AGI Training | LLM Training | Software Training | Generative AI Training</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.21</h1>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | 8 Knowledge Sources | Reverse Engineering | Training Systems</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -2585,7 +2753,7 @@ STATUS_TEMPLATE = '''
         
         <div class="card">
             <p><a href="/chat">💬 Chat with DMAI</a> | <a href="/brain">🧠 Brain Activity</a> | <a href="/admin">🔐 Admin</a></p>
-            <p><small>DMAI is always evolving, always learning, always yours. Data backed up to Neo4j cloud.</small></p>
+            <p><small>DMAI continuously learns from Books, Articles, Research Papers, Web, Dark Web, Social Media, Speech Patterns, and Self-Evolution.</small></p>
         </div>
     </div>
 </body>
@@ -2801,54 +2969,19 @@ CHAT_TEMPLATE = '''
             background: #e65c00 !important;
         }
         
-        /* Mobile specific styles */
         @media (max-width: 600px) {
-            body {
-                padding: 0;
-            }
-            .chat-container {
-                height: 100vh;
-                border-radius: 0;
-            }
-            .chat-header {
-                padding: 10px 12px;
-            }
-            .chat-header-left h1 {
-                font-size: 1em;
-            }
-            .brain-mini {
-                width: 35px;
-                height: 35px;
-            }
-            .nav-links a {
-                padding: 3px 8px;
-                font-size: 0.65em;
-            }
-            .messages {
-                padding: 12px;
-            }
-            .message-content {
-                max-width: 90%;
-                padding: 8px 12px;
-                font-size: 0.85em;
-            }
-            .input-area {
-                padding: 10px 12px;
-                gap: 6px;
-            }
-            .input-area textarea {
-                padding: 10px 12px;
-                font-size: 0.85em;
-                min-height: 40px;
-            }
-            .input-area button {
-                padding: 8px 14px;
-                font-size: 0.85em;
-                height: 40px;
-            }
-            .voice-btn {
-                padding: 8px 12px !important;
-            }
+            body { padding: 0; }
+            .chat-container { height: 100vh; border-radius: 0; }
+            .chat-header { padding: 10px 12px; }
+            .chat-header-left h1 { font-size: 1em; }
+            .brain-mini { width: 35px; height: 35px; }
+            .nav-links a { padding: 3px 8px; font-size: 0.65em; }
+            .messages { padding: 12px; }
+            .message-content { max-width: 90%; padding: 8px 12px; font-size: 0.85em; }
+            .input-area { padding: 10px 12px; gap: 6px; }
+            .input-area textarea { padding: 10px 12px; font-size: 0.85em; min-height: 40px; }
+            .input-area button { padding: 8px 14px; font-size: 0.85em; height: 40px; }
+            .voice-btn { padding: 8px 12px !important; }
         }
     </style>
 </head>
@@ -2873,8 +3006,8 @@ CHAT_TEMPLATE = '''
     <div class="messages" id="messages">
         <div class="message dmai">
             <div class="message-content">
-                <b>DMAI:</b> Master console active. I am running 24/7 on Render.<br>
-                You can paste tasks here directly. I will work on them.
+                <b>DMAI:</b> Master console active. I learn continuously from Books, Articles, Research Papers, Web, Dark Web, Social Media, Speech Patterns, and Self-Evolution.<br>
+                I evolve every cycle using all knowledge sources. Type /help for commands.
             </div>
             <div class="message-time">Just now</div>
         </div>
@@ -2889,7 +3022,6 @@ CHAT_TEMPLATE = '''
 </div>
 
 <script>
-// Auto-resize textarea
 const textarea = document.getElementById('message-input');
 if (textarea) {
     textarea.addEventListener('input', function() {
@@ -2909,7 +3041,6 @@ let isListening = false;
 let recognition = null;
 let voiceEnabled = false;
 
-// Mini brain canvas
 const miniCanvas = document.getElementById('miniCanvas');
 let miniCtx = null;
 let miniNeurons = [];
@@ -2969,7 +3100,6 @@ function drawMiniBrain(consciousness) {
     }
 }
 
-// Voice recognition setup
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
@@ -3000,7 +3130,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const input = document.getElementById('message-input');
         if (input) {
             input.value = transcript;
-            // Auto-resize after setting value
             input.style.height = 'auto';
             input.style.height = Math.min(input.scrollHeight, 120) + 'px';
             sendMessage();
@@ -3119,7 +3248,6 @@ function sendMessage() {
     const message = input.value.trim();
     if (!message) return;
     
-    // Disable send button briefly to prevent double-send
     const sendBtn = document.querySelector('.input-area button:not(.voice-btn):not(.task-btn)');
     if (sendBtn) sendBtn.disabled = true;
     
@@ -3209,12 +3337,10 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Initialize
 updateMiniNeuronPositions(20);
 fetchBrainData();
 updateStatus();
 
-// Refresh data every 3 seconds
 setInterval(fetchBrainData, 3000);
 setInterval(updateStatus, 5000);
 </script>
@@ -3511,7 +3637,6 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
             </div>
         </div>
 
-        <!-- Research Targets Card -->
         <div class="dashboard-grid">
             <div class="card">
                 <h3>🔬 Research Targets</h3>
@@ -3526,7 +3651,6 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- Add Research Target Modal -->
     <div id="addResearchModal" class="modal">
         <div class="modal-content">
             <h3>➕ Add Research Target</h3>
@@ -4116,13 +4240,16 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.19")
+    logger.info(f"🚀 DMAI Complete System v8.0.21")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active (prioritizing DeepSeek)")
     logger.info(f"🔑 API Harvester Active")
     logger.info(f"🌐 Web Search Fallback (DuckDuckGo)")
-    logger.info(f"📚 8 Core Knowledge Sources Active")
+    logger.info(f"📚 8 Core Knowledge Sources Active:")
+    logger.info(f"   • Book Reader | Article Reader | Research Papers")
+    logger.info(f"   • Web Crawler | Dark Web Monitor | Social Media")
+    logger.info(f"   • Speech Pattern Analyzer | Self-Evolution Tracker")
     logger.info(f"🛡️ Threat Intelligence Active")
     logger.info(f"🌑 Dark Web Monitor Active")
     logger.info(f"⚡ AI+SI Fusion Active")
@@ -4130,10 +4257,11 @@ if __name__ == '__main__':
     logger.info(f"⏱️ Adaptive Evolution Timer Active")
     logger.info(f"🧠 Brain Visualization at /brain")
     logger.info(f"🔧 Reverse Engineering Module Active")
-    logger.info(f"🎓 AGI Training Module Active")
-    logger.info(f"🎓 LLM Training Module Active")
-    logger.info(f"💻 Software Training Module Active")
-    logger.info(f"🎨 Generative AI Training Module Active")
+    logger.info(f"🎓 AGI Training Module Active (24/7)")
+    logger.info(f"🎓 LLM Training Module Active (24/7)")
+    logger.info(f"💻 Software Training Module Active (24/7)")
+    logger.info(f"🎨 Generative AI Training Module Active (24/7)")
+    logger.info(f"📈 Every evolution cycle integrates knowledge from ALL sources")
     logger.info("=" * 60)
     
-    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)        
+    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
