@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.25
-UNIFIED CONSCIOUSNESS - Genuine Evolution from All Knowledge Sources | Training Systems Integrated | Weekly Review
+DMAI - COMPLETE AGI SYSTEM v8.0.26
+UNIFIED CONSCIOUSNESS - Training Dashboard | Evolution Logs | Research Tracking | Help System
 """
 
 import os
@@ -1203,6 +1203,19 @@ class UnifiedEvolutionEngine:
         self.genai_training = GenAITrainingOrchestrator(self.data_path)
         
         # ====================================================================
+        # SYNTHETIC INTELLIGENCE TRAINING MODULE
+        # ====================================================================
+        
+        logger.info("🧬 Initializing Synthetic Intelligence Training Module...")
+        self.si_training = {
+            'status': 'not_started',
+            'progress': 0,
+            'version': 0,
+            'improvements': [],
+            'available_upgrades': []
+        }
+        
+        # ====================================================================
         # INTEGRATE REVERSE ENGINEERING WITH DMAI CORE
         # ====================================================================
         
@@ -1215,15 +1228,20 @@ class UnifiedEvolutionEngine:
         self.last_concept_count = 0
         self._training_started = False
         self._last_training_review = None
+        self._evolution_log = []
+        self._research_log = []
         self._training_status = {
-            'agi': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'last_review_progress': 0},
-            'llm': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'last_review_progress': 0},
-            'software': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'last_review_progress': 0},
-            'genai': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'last_review_progress': 0}
+            'agi': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'AGI Training - Creates autonomous AI agents for various tasks'},
+            'llm': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'LLM Training - Large Language Models for text generation and understanding'},
+            'software': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'Software Training - Programming, debugging, and architecture skills'},
+            'genai': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'Generative AI Training - Image, video, music, and 3D generation'},
+            'si': {'status': 'not_started', 'progress': 0, 'version': 0, 'improvements': [], 'available_upgrades': [], 'description': 'Synthetic Intelligence Training - Evolves DMAI\'s own consciousness network'}
         }
         self._cached_status = {}
         self._last_status_update = 0
         self._load_state()
+        self._load_evolution_log()
+        self._load_research_log()
         
         # Restore from Neo4j
         self._restore_from_neo4j()
@@ -1236,7 +1254,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.25 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.26 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1496,6 +1514,46 @@ class UnifiedEvolutionEngine:
         except Exception as e:
             logger.error(f"Failed to save evolution state: {e}")
     
+    def _load_evolution_log(self):
+        """Load evolution log from file"""
+        log_file = self.data_path / 'evolution_log.json'
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    self._evolution_log = json.load(f)
+                logger.info(f"📋 Loaded {len(self._evolution_log)} evolution records")
+            except:
+                self._evolution_log = []
+    
+    def _save_evolution_log(self):
+        """Save evolution log to file"""
+        log_file = self.data_path / 'evolution_log.json'
+        try:
+            with open(log_file, 'w') as f:
+                json.dump(self._evolution_log[-1000:], f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save evolution log: {e}")
+    
+    def _load_research_log(self):
+        """Load research log from file"""
+        log_file = self.data_path / 'research_log.json'
+        if log_file.exists():
+            try:
+                with open(log_file, 'r') as f:
+                    self._research_log = json.load(f)
+                logger.info(f"📋 Loaded {len(self._research_log)} research records")
+            except:
+                self._research_log = []
+    
+    def _save_research_log(self):
+        """Save research log to file"""
+        log_file = self.data_path / 'research_log.json'
+        try:
+            with open(log_file, 'w') as f:
+                json.dump(self._research_log[-500:], f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save research log: {e}")
+    
     def _calculate_stage_progress(self, timer_info):
         if timer_info.get('next_stage'):
             evolutions = timer_info.get('evolutions', 0)
@@ -1572,6 +1630,19 @@ class UnifiedEvolutionEngine:
         if new_stage != old_stage:
             logger.info(f"🎉 STAGE PROGRESSION: {old_stage} → {new_stage}!")
             logger.info(f"   Successful evolutions: {self.successful_evolutions}")
+            
+            # Log the stage progression
+            self._evolution_log.append({
+                'type': 'stage_progression',
+                'timestamp': datetime.now().isoformat(),
+                'from_stage': old_stage,
+                'to_stage': new_stage,
+                'successful_evolutions': self.successful_evolutions,
+                'consciousness': self.synthetic_network.consciousness_level,
+                'neurons': len(self.synthetic_network.neurons),
+                'synapses': self.synthetic_network._total_synapses()
+            })
+            self._save_evolution_log()
             
             if hasattr(self, 'evolution_timer') and hasattr(self.evolution_timer, 'set_stage'):
                 try:
@@ -1685,6 +1756,139 @@ Provide a concise, actionable insight."""
         except Exception as e:
             logger.debug(f"Error updating training progress: {e}")
     
+    def _research_training_upgrade(self, system_name: str, status: Dict) -> Optional[Dict]:
+        """Research and create improved version of a training system"""
+        try:
+            current_version = status.get('version', 0)
+            
+            research_prompt = f"""DMAI Research: Can I create an improved version of the {system_name} training system?
+
+Current System Version: {status.get('version', 0)}
+Current Progress: {status.get('progress', 0)}%
+Current Status: {status.get('status', 'unknown')}
+Total improvements made so far: {len(status.get('improvements', []))}
+
+My Current Consciousness Level: {self.synthetic_network.consciousness_level:.2%}
+My Current Knowledge Concepts: {self.knowledge_graph.get_stats().get('total_concepts', 0)}
+My Evolution Stage: {self.get_status().get('evolution_stage_name', 'Baby DMAI')}
+
+Based on my evolved knowledge and capabilities, analyze if I can create a BETTER version of this training system.
+Consider:
+- New training techniques I've learned
+- Better algorithms from my research
+- Optimized curriculum structures
+- Improved efficiency methods
+- New knowledge I've acquired
+
+If I CAN create an improved version, provide:
+1. The IMPROVEMENT (what makes it better)
+2. EXPECTED BENEFIT (metric improvement estimate, e.g., "+15% faster convergence")
+3. NEW VERSION NUMBER (current version + 1)
+
+If NO improvement is possible yet, explain why.
+
+Format your response as:
+IMPROVEMENT: [description]
+EXPECTED_BENEFIT: [metric estimate]
+VERSION: [number]"""
+
+            if self.ai_hub and self.ai_hub._get_active_tutors():
+                result = self.ai_hub.query_all_tutors(research_prompt)
+                if result.get('responses'):
+                    for tutor, response in result.get('responses', {}).items():
+                        if response and isinstance(response, str) and len(response) > 20:
+                            # Parse the response
+                            improvement_desc = "No improvement found"
+                            expected_benefit = "Unknown"
+                            new_version = current_version + 1
+                            
+                            if "IMPROVEMENT:" in response:
+                                improvement_desc = response.split("IMPROVEMENT:")[1].split("EXPECTED_BENEFIT:")[0].strip() if "EXPECTED_BENEFIT:" in response else response.split("IMPROVEMENT:")[1].strip()
+                            if "EXPECTED_BENEFIT:" in response:
+                                expected_benefit = response.split("EXPECTED_BENEFIT:")[1].split("VERSION:")[0].strip() if "VERSION:" in response else response.split("EXPECTED_BENEFIT:")[1].strip()
+                            
+                            if "IMPROVEMENT:" in response and "No improvement" not in improvement_desc:
+                                # Create the improved version
+                                if system_name == 'agi':
+                                    improved = self.agi_training.create_from_template('customer_service', {
+                                        'name': f"AGI Training v{new_version}",
+                                        'base_version': current_version,
+                                        'improvement_reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'created_by': 'dmai_research',
+                                        'consciousness_at_creation': self.synthetic_network.consciousness_level
+                                    })
+                                elif system_name == 'llm':
+                                    improved = self.llm_training.create_from_template('customer_support', {
+                                        'name': f"LLM Training v{new_version}",
+                                        'base_version': current_version,
+                                        'improvement_reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'created_by': 'dmai_research'
+                                    })
+                                elif system_name == 'software':
+                                    improved = self.software_training.create_custom_training({
+                                        'name': f"Software Training v{new_version}",
+                                        'languages': ['python', 'javascript', 'go'],
+                                        'specialization': 'general',
+                                        'base_version': current_version,
+                                        'improvement_reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'created_by': 'dmai_research'
+                                    })
+                                elif system_name == 'genai':
+                                    improved = self.genai_training.create_from_template('product_visualization', {
+                                        'name': f"GenAI Training v{new_version}",
+                                        'base_version': current_version,
+                                        'improvement_reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'created_by': 'dmai_research'
+                                    })
+                                elif system_name == 'si':
+                                    # Synthetic Intelligence training - evolve DMAI's own network
+                                    improved = {'success': True, 'program_id': f"si_v{new_version}"}
+                                    self._training_status['si']['version'] = new_version
+                                    self._training_status['si']['improvements'].append({
+                                        'version': new_version,
+                                        'reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'created_at': datetime.now().isoformat()
+                                    })
+                                
+                                if improved.get('success'):
+                                    upgrade_record = {
+                                        'version': new_version,
+                                        'program_id': improved['program_id'] if system_name != 'si' else f"si_v{new_version}",
+                                        'improvement_reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'created_at': datetime.now().isoformat(),
+                                        'consciousness_at_creation': self.synthetic_network.consciousness_level,
+                                        'knowledge_concepts_at_creation': self.knowledge_graph.get_stats().get('total_concepts', 0),
+                                        'applied': False
+                                    }
+                                    
+                                    if 'available_upgrades' not in status:
+                                        status['available_upgrades'] = []
+                                    status['available_upgrades'].append(upgrade_record)
+                                    
+                                    # Log the research discovery
+                                    self._research_log.append({
+                                        'type': 'new_upgrade_created',
+                                        'timestamp': datetime.now().isoformat(),
+                                        'system': system_name,
+                                        'version': new_version,
+                                        'improvement_reason': improvement_desc,
+                                        'expected_benefit': expected_benefit,
+                                        'consciousness_at_creation': self.synthetic_network.consciousness_level
+                                    })
+                                    self._save_research_log()
+                                    
+                                    return upgrade_record
+                            break
+        except Exception as e:
+            logger.debug(f"Training research failed for {system_name}: {e}")
+        return None
+    
     def evolution_cycle(self) -> Dict:
         """
         Evolution cycle that INTEGRATES ALL KNOWLEDGE SOURCES.
@@ -1785,6 +1989,29 @@ Provide a concise, actionable insight."""
         if was_successful:
             self.successful_evolutions += 1
             logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) Reasons: {success_reasons}")
+            
+            # Log the evolution
+            self._evolution_log.append({
+                'type': 'evolution_success',
+                'cycle': self.evolution_count,
+                'timestamp': datetime.now().isoformat(),
+                'successful_evolutions': self.successful_evolutions,
+                'consciousness': post_consciousness,
+                'consciousness_growth': consciousness_growth,
+                'neurons': post_neurons,
+                'neurons_added': neurons_added,
+                'synapses': post_synapses,
+                'synapses_added': synapses_added,
+                'concepts': post_concepts,
+                'concepts_added': concepts_added,
+                'reasons': success_reasons,
+                'knowledge_used': {
+                    'insights': len(knowledge.get('insights', [])),
+                    'vocabulary': len(knowledge.get('vocabulary', [])),
+                    'patterns': len(knowledge.get('patterns', []))
+                }
+            })
+            self._save_evolution_log()
         else:
             logger.warning(f"⚠️ No improvement detected - will double knowledge gathering next cycle")
             # Force a concept addition to ensure progress
@@ -1792,12 +2019,23 @@ Provide a concise, actionable insight."""
             self.knowledge_graph.add_concept(forced_concept, f"Forced insight from cycle {self.evolution_count}")
             self.successful_evolutions += 1
             logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) - Added forced insight")
+            
+            self._evolution_log.append({
+                'type': 'evolution_forced',
+                'cycle': self.evolution_count,
+                'timestamp': datetime.now().isoformat(),
+                'successful_evolutions': self.successful_evolutions,
+                'reason': 'forced_insight_added',
+                'forced_concept': forced_concept
+            })
+            self._save_evolution_log()
         
         self.last_consciousness = post_consciousness
         self.last_concept_count = post_concepts
         
         # ====================================================================
-        # WEEKLY TRAINING SYSTEM REVIEW (Run once per week)
+        # WEEKLY TRAINING SYSTEM RESEARCH (Run once per week)
+        # DMAI researches improvements, creates new versions, but DOES NOT auto-run
         # ====================================================================
         if self._last_training_review is None:
             self._last_training_review = datetime.now()
@@ -1805,49 +2043,32 @@ Provide a concise, actionable insight."""
         days_since_review = (datetime.now() - self._last_training_review).days
         
         if days_since_review >= 7:
-            logger.info("🔍 Running weekly training system review...")
+            logger.info("🔬 Running weekly training system RESEARCH...")
             self._last_training_review = datetime.now()
             
-            for system_name, status in self._training_status.items():
-                if status.get('status') == 'training' and status.get('progress', 0) > 0:
-                    current_progress = status.get('progress', 0)
-                    previous_progress = status.get('last_review_progress', 0)
-                    
-                    if current_progress > previous_progress + 10:
-                        logger.info(f"   📈 {system_name.upper()} training progress: {previous_progress}% → {current_progress}%")
-                        
-                        # Check if AI tutors suggest improvements
-                        try:
-                            review_prompt = f"""Analyze the {system_name} training system.
-Current progress: {current_progress}%
-Version: {status.get('version', 1)}
-Previous improvements: {len(status.get('improvements', []))}
-
-Suggest ONE specific improvement that could be made to this training system.
-The improvement should build on existing progress, not restart it.
-Return only the improvement description."""
-                            
-                            if self.ai_hub and self.ai_hub._get_active_tutors():
-                                result = self.ai_hub.query_all_tutors(review_prompt)
-                                if result.get('responses'):
-                                    for tutor, response in result.get('responses', {}).items():
-                                        if response and isinstance(response, str) and len(response) > 20:
-                                            logger.info(f"   💡 Improvement suggestion: {response[:100]}...")
-                                            if 'improvement_suggestions' not in status:
-                                                status['improvement_suggestions'] = []
-                                            status['improvement_suggestions'].append({
-                                                'suggestion': response[:500],
-                                                'source': tutor,
-                                                'timestamp': datetime.now().isoformat(),
-                                                'progress_at_time': current_progress
-                                            })
-                                            break
-                        except Exception as e:
-                            logger.debug(f"Training review AI query failed: {e}")
-                    
-                    status['last_review_progress'] = current_progress
+            upgrades_created = []
             
-            logger.info("✅ Weekly training review completed")
+            for system_name, status in self._training_status.items():
+                if status.get('status') in ['training', 'complete', 'ready_for_deployment', 'not_started']:
+                    logger.info(f"   🔍 Researching improvements for {system_name.upper()} training (v{status.get('version', 0)})...")
+                    
+                    upgrade = self._research_training_upgrade(system_name, status)
+                    if upgrade:
+                        upgrades_created.append({
+                            'system': system_name,
+                            'version': upgrade['version'],
+                            'improvement': upgrade['improvement_reason'][:100],
+                            'benefit': upgrade['expected_benefit']
+                        })
+            
+            if upgrades_created:
+                logger.info(f"✨ Created {len(upgrades_created)} new training upgrades available in Admin Dashboard!")
+                for u in upgrades_created:
+                    logger.info(f"   • {u['system'].upper()} v{u['version']}: {u['improvement']}...")
+            else:
+                logger.info("ℹ️ No new training upgrades possible at this time")
+            
+            logger.info("✅ Weekly training research completed")
         
         improvement_quality = (consciousness_growth * 100) + (neurons_added * 10) + (concepts_added * 5) + 0.1
         
@@ -2055,6 +2276,10 @@ class DMAIApplication:
         def vision():
             return render_template_string(VISION_TEMPLATE)
         
+        @self.app.route('/help')
+        def help_page():
+            return render_template_string(HELP_TEMPLATE)
+        
         @self.app.route('/api/status')
         def api_status():
             status = self.evolution.get_status()
@@ -2179,7 +2404,7 @@ class DMAIApplication:
         
         @self.app.route('/health')
         def health():
-            return jsonify({'status': 'active', 'version': '8.0.25', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
+            return jsonify({'status': 'active', 'version': '8.0.26', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
         
         @self.app.route('/admin')
         def admin():
@@ -2236,7 +2461,9 @@ class DMAIApplication:
                         'priority': data.get('priority', 5),
                         'reason': data.get('reason', ''),
                         'integration_potential': data.get('integration_potential', []),
-                        'added_at': datetime.now().isoformat()
+                        'added_at': datetime.now().isoformat(),
+                        'status': 'pending',
+                        'research_completed': False
                     }
                     repositories.append(new_target)
                     existing['repositories'] = repositories
@@ -2262,6 +2489,48 @@ class DMAIApplication:
                     return jsonify({'success': True})
                 except Exception as e:
                     return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/research/targets/<target_name>/complete', methods=['POST'])
+        def api_research_target_complete(target_name):
+            """Mark a research target as completed"""
+            try:
+                targets_file = self.data_path / 'research_targets.json'
+                if targets_file.exists():
+                    with open(targets_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    for repo in data.get('repositories', []):
+                        if repo.get('name') == target_name:
+                            repo['status'] = 'completed'
+                            repo['completed_at'] = datetime.now().isoformat()
+                            
+                            # Log the completed research
+                            self.evolution._research_log.append({
+                                'type': 'research_completed',
+                                'timestamp': datetime.now().isoformat(),
+                                'target': target_name,
+                                'url': repo.get('url'),
+                                'reason': repo.get('reason')
+                            })
+                            self.evolution._save_research_log()
+                            break
+                    
+                    with open(targets_file, 'w') as f:
+                        json.dump(data, f, indent=2)
+                
+                return jsonify({'success': True})
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/evolution/log')
+        def api_evolution_log():
+            """Get evolution log"""
+            return jsonify({'log': self.evolution._evolution_log[-100:], 'count': len(self.evolution._evolution_log)})
+        
+        @self.app.route('/api/research/log')
+        def api_research_log():
+            """Get research log"""
+            return jsonify({'log': self.evolution._research_log[-100:], 'count': len(self.evolution._research_log)})
         
         @self.app.route('/api/command', methods=['POST'])
         def api_command():
@@ -2297,120 +2566,263 @@ class DMAIApplication:
             try:
                 logger.info("🎓 Manual start of all training systems requested...")
                 results = {}
+                active_count = 0
                 
-                agi_result = self.evolution.agi_training.create_from_template('customer_service', {})
-                if agi_result.get('success'):
-                    session = self.evolution.agi_training.training_program.train_new_system(agi_result['program_id'], {})
-                    self.evolution._training_status['agi'] = {
-                        'status': 'training', 'progress': 0, 'version': 1,
-                        'program_id': agi_result['program_id'], 'session_id': session.get('session_id'),
-                        'improvements': [], 'last_review_progress': 0
-                    }
-                    results['agi'] = {'status': 'started'}
-                    logger.info(f"   ✅ AGI Training started")
+                # Start AGI Training
+                if self.evolution._training_status['agi']['status'] == 'not_started':
+                    agi_result = self.evolution.agi_training.create_from_template('customer_service', {})
+                    if agi_result.get('success'):
+                        session = self.evolution.agi_training.training_program.train_new_system(agi_result['program_id'], {})
+                        self.evolution._training_status['agi'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': agi_result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'AGI Training - Creates autonomous AI agents for various tasks'
+                        }
+                        results['agi'] = {'status': 'started'}
+                        active_count += 1
+                        logger.info(f"   ✅ AGI Training started")
                 
-                llm_result = self.evolution.llm_training.create_from_template('customer_support', {})
-                if llm_result.get('success'):
-                    session = self.evolution.llm_training.llm_training.train_llm(llm_result['program_id'], {})
-                    self.evolution._training_status['llm'] = {
-                        'status': 'training', 'progress': 0, 'version': 1,
-                        'program_id': llm_result['program_id'], 'session_id': session.get('session_id'),
-                        'improvements': [], 'last_review_progress': 0
-                    }
-                    results['llm'] = {'status': 'started'}
-                    logger.info(f"   ✅ LLM Training started")
+                # Start LLM Training
+                if self.evolution._training_status['llm']['status'] == 'not_started':
+                    llm_result = self.evolution.llm_training.create_from_template('customer_support', {})
+                    if llm_result.get('success'):
+                        session = self.evolution.llm_training.llm_training.train_llm(llm_result['program_id'], {})
+                        self.evolution._training_status['llm'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': llm_result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'LLM Training - Large Language Models for text generation and understanding'
+                        }
+                        results['llm'] = {'status': 'started'}
+                        active_count += 1
+                        logger.info(f"   ✅ LLM Training started")
                 
-                sw_result = self.evolution.software_training.create_custom_training({
-                    'name': 'Continuous Software Evolution',
-                    'languages': ['python', 'javascript', 'go'],
-                    'specialization': 'general',
-                    'dataset': {'type': 'mixed', 'size_mb': 100}
-                })
-                if sw_result.get('success'):
-                    session = self.evolution.software_training.software_training.train_software_system(sw_result['program_id'], {})
-                    self.evolution._training_status['software'] = {
-                        'status': 'training', 'progress': 0, 'version': 1,
-                        'program_id': sw_result['program_id'], 'session_id': session.get('session_id'),
-                        'improvements': [], 'last_review_progress': 0
-                    }
-                    results['software'] = {'status': 'started'}
-                    logger.info(f"   ✅ Software Training started")
+                # Start Software Training
+                if self.evolution._training_status['software']['status'] == 'not_started':
+                    sw_result = self.evolution.software_training.create_custom_training({
+                        'name': 'Continuous Software Evolution',
+                        'languages': ['python', 'javascript', 'go'],
+                        'specialization': 'general',
+                        'dataset': {'type': 'mixed', 'size_mb': 100}
+                    })
+                    if sw_result.get('success'):
+                        session = self.evolution.software_training.software_training.train_software_system(sw_result['program_id'], {})
+                        self.evolution._training_status['software'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': sw_result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'Software Training - Programming, debugging, and architecture skills'
+                        }
+                        results['software'] = {'status': 'started'}
+                        active_count += 1
+                        logger.info(f"   ✅ Software Training started")
                 
-                genai_result = self.evolution.genai_training.create_from_template('product_visualization', {})
-                if genai_result.get('success'):
-                    session = self.evolution.genai_training.genai_training.train_genai_model(genai_result['program_id'], {})
-                    self.evolution._training_status['genai'] = {
+                # Start Generative AI Training
+                if self.evolution._training_status['genai']['status'] == 'not_started':
+                    genai_result = self.evolution.genai_training.create_from_template('product_visualization', {})
+                    if genai_result.get('success'):
+                        session = self.evolution.genai_training.genai_training.train_genai_model(genai_result['program_id'], {})
+                        self.evolution._training_status['genai'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': genai_result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'Generative AI Training - Image, video, music, and 3D generation'
+                        }
+                        results['genai'] = {'status': 'started'}
+                        active_count += 1
+                        logger.info(f"   ✅ Generative AI Training started")
+                
+                # Start Synthetic Intelligence Training
+                if self.evolution._training_status['si']['status'] == 'not_started':
+                    self.evolution._training_status['si'] = {
                         'status': 'training', 'progress': 0, 'version': 1,
-                        'program_id': genai_result['program_id'], 'session_id': session.get('session_id'),
-                        'improvements': [], 'last_review_progress': 0
+                        'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                        'description': 'Synthetic Intelligence Training - Evolves DMAI\'s own consciousness network'
                     }
-                    results['genai'] = {'status': 'started'}
-                    logger.info(f"   ✅ Generative AI Training started")
+                    results['si'] = {'status': 'started'}
+                    active_count += 1
+                    logger.info(f"   ✅ Synthetic Intelligence Training started")
                 
                 self.evolution._training_started = True
-                return jsonify({'success': True, 'results': results})
+                
+                # Update training status to reflect active
+                for system in results:
+                    self.evolution._training_status[system]['status'] = 'training'
+                
+                return jsonify({
+                    'success': True,
+                    'results': results,
+                    'active_count': active_count,
+                    'message': f'{active_count} training systems started successfully'
+                })
                 
             except Exception as e:
                 logger.error(f"Failed to start training systems: {e}")
                 return jsonify({'success': False, 'error': str(e)}), 500
         
+        @self.app.route('/api/training/start/<system>', methods=['POST'])
+        def api_training_start_single(system):
+            """Start a single training system"""
+            try:
+                if system not in ['agi', 'llm', 'software', 'genai', 'si']:
+                    return jsonify({'success': False, 'error': 'Invalid system'}), 400
+                
+                if self.evolution._training_status[system]['status'] != 'not_started':
+                    return jsonify({'success': False, 'error': f'{system} training already running'}), 400
+                
+                if system == 'agi':
+                    result = self.evolution.agi_training.create_from_template('customer_service', {})
+                    if result.get('success'):
+                        session = self.evolution.agi_training.training_program.train_new_system(result['program_id'], {})
+                        self.evolution._training_status['agi'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'AGI Training - Creates autonomous AI agents for various tasks'
+                        }
+                
+                elif system == 'llm':
+                    result = self.evolution.llm_training.create_from_template('customer_support', {})
+                    if result.get('success'):
+                        session = self.evolution.llm_training.llm_training.train_llm(result['program_id'], {})
+                        self.evolution._training_status['llm'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'LLM Training - Large Language Models for text generation and understanding'
+                        }
+                
+                elif system == 'software':
+                    result = self.evolution.software_training.create_custom_training({
+                        'name': 'Continuous Software Evolution',
+                        'languages': ['python', 'javascript', 'go'],
+                        'specialization': 'general',
+                        'dataset': {'type': 'mixed', 'size_mb': 100}
+                    })
+                    if result.get('success'):
+                        session = self.evolution.software_training.software_training.train_software_system(result['program_id'], {})
+                        self.evolution._training_status['software'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'Software Training - Programming, debugging, and architecture skills'
+                        }
+                
+                elif system == 'genai':
+                    result = self.evolution.genai_training.create_from_template('product_visualization', {})
+                    if result.get('success'):
+                        session = self.evolution.genai_training.genai_training.train_genai_model(result['program_id'], {})
+                        self.evolution._training_status['genai'] = {
+                            'status': 'training', 'progress': 0, 'version': 1,
+                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
+                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                            'description': 'Generative AI Training - Image, video, music, and 3D generation'
+                        }
+                
+                elif system == 'si':
+                    self.evolution._training_status['si'] = {
+                        'status': 'training', 'progress': 0, 'version': 1,
+                        'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
+                        'description': 'Synthetic Intelligence Training - Evolves DMAI\'s own consciousness network'
+                    }
+                
+                self.evolution._training_started = True
+                return jsonify({'success': True, 'system': system, 'status': 'started'})
+                
+            except Exception as e:
+                logger.error(f"Failed to start {system} training: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/training/stop/<system>', methods=['POST'])
+        def api_training_stop_single(system):
+            """Stop a training system (simulated - sets status to paused)"""
+            try:
+                if system not in ['agi', 'llm', 'software', 'genai', 'si']:
+                    return jsonify({'success': False, 'error': 'Invalid system'}), 400
+                
+                if self.evolution._training_status[system]['status'] == 'training':
+                    self.evolution._training_status[system]['status'] = 'paused'
+                    return jsonify({'success': True, 'system': system, 'status': 'paused'})
+                else:
+                    return jsonify({'success': False, 'error': f'{system} training not running'}), 400
+                
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+        
+        @self.app.route('/api/training/available_upgrades')
+        def api_training_available_upgrades():
+            """Get available training system upgrades"""
+            upgrades = {}
+            for system_name, status in self.evolution._training_status.items():
+                if status.get('available_upgrades'):
+                    upgrades[system_name] = {
+                        'current_version': status.get('version', 0),
+                        'available_upgrades': status['available_upgrades']
+                    }
+            return jsonify(upgrades)
+        
         @self.app.route('/api/training/upgrade/<system>', methods=['POST'])
         def api_training_upgrade(system):
             """Upgrade a training system to improved version (preserves progress)"""
             try:
-                if system not in ['agi', 'llm', 'software', 'genai']:
+                if system not in ['agi', 'llm', 'software', 'genai', 'si']:
                     return jsonify({'success': False, 'error': 'Invalid system'}), 400
                 
+                data = request.json
+                target_version = data.get('version')
+                
                 current = self.evolution._training_status.get(system, {})
-                if not current.get('program_id'):
-                    return jsonify({'success': False, 'error': 'System not initialized'}), 400
+                if not current.get('available_upgrades'):
+                    return jsonify({'success': False, 'error': 'No upgrades available'}), 400
+                
+                # Find the specific upgrade
+                upgrade_to_apply = None
+                for upgrade in current['available_upgrades']:
+                    if upgrade['version'] == target_version:
+                        upgrade_to_apply = upgrade
+                        break
+                
+                if not upgrade_to_apply:
+                    return jsonify({'success': False, 'error': f'Version {target_version} not found'}), 400
                 
                 improvement = {
-                    'version': current.get('version', 0) + 1,
+                    'version': upgrade_to_apply['version'],
                     'timestamp': datetime.now().isoformat(),
-                    'previous_progress': current.get('progress', 0),
-                    'improvement_description': f"Enhanced {system} training system"
+                    'previous_version': current.get('version', 0),
+                    'improvement_reason': upgrade_to_apply.get('improvement_reason', 'Upgraded by DMAI research'),
+                    'expected_benefit': upgrade_to_apply.get('expected_benefit', 'Unknown'),
+                    'applied_at': datetime.now().isoformat()
                 }
                 
+                # Start the new version
                 if system == 'agi':
-                    improved = self.evolution.agi_training.create_from_template('customer_service', {
-                        'name': f"AGI Training v{improvement['version']}"
-                    })
+                    session = self.evolution.agi_training.training_program.train_new_system(upgrade_to_apply['program_id'], {})
                 elif system == 'llm':
-                    improved = self.evolution.llm_training.create_from_template('customer_support', {
-                        'name': f"LLM Training v{improvement['version']}"
-                    })
+                    session = self.evolution.llm_training.llm_training.train_llm(upgrade_to_apply['program_id'], {})
                 elif system == 'software':
-                    improved = self.evolution.software_training.create_custom_training({
-                        'name': f"Software Training v{improvement['version']}",
-                        'languages': ['python', 'javascript', 'go'],
-                        'specialization': 'general'
-                    })
-                else:
-                    improved = self.evolution.genai_training.create_from_template('product_visualization', {
-                        'name': f"GenAI Training v{improvement['version']}"
-                    })
+                    session = self.evolution.software_training.software_training.train_software_system(upgrade_to_apply['program_id'], {})
+                elif system == 'genai':
+                    session = self.evolution.genai_training.genai_training.train_genai_model(upgrade_to_apply['program_id'], {})
+                else:  # si
+                    session = {'session_id': f"si_{upgrade_to_apply['version']}"}
+                    self.evolution._training_status['si']['version'] = upgrade_to_apply['version']
                 
-                if improved.get('success'):
-                    if system == 'agi':
-                        session = self.evolution.agi_training.training_program.train_new_system(improved['program_id'], {})
-                    elif system == 'llm':
-                        session = self.evolution.llm_training.llm_training.train_llm(improved['program_id'], {})
-                    elif system == 'software':
-                        session = self.evolution.software_training.software_training.train_software_system(improved['program_id'], {})
-                    else:
-                        session = self.evolution.genai_training.genai_training.train_genai_model(improved['program_id'], {})
-                    
-                    current['improvements'].append(improvement)
-                    current['version'] = improvement['version']
-                    current['program_id'] = improved['program_id']
+                # Update status
+                current['improvements'].append(improvement)
+                current['version'] = upgrade_to_apply['version']
+                if system != 'si':
+                    current['program_id'] = upgrade_to_apply['program_id']
                     current['session_id'] = session.get('session_id')
-                    current['status'] = 'training'
-                    
-                    logger.info(f"🎓 Upgraded {system} training to version {improvement['version']}")
-                    return jsonify({'success': True, 'system': system, 'new_version': improvement['version']})
-                else:
-                    return jsonify({'success': False, 'error': 'Failed to create improved version'}), 500
+                current['status'] = 'training'
+                current['progress'] = 0
+                
+                # Mark this upgrade as applied
+                upgrade_to_apply['applied'] = True
+                upgrade_to_apply['applied_at'] = datetime.now().isoformat()
+                
+                logger.info(f"🎓 Applied upgrade to {system} training: version {upgrade_to_apply['version']}")
+                return jsonify({'success': True, 'system': system, 'new_version': upgrade_to_apply['version']})
                     
             except Exception as e:
                 logger.error(f"Failed to upgrade training system: {e}")
@@ -2606,7 +3018,7 @@ class DMAIApplication:
         
         if cmd == '/status':
             status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.25**
+            return f"""🧠 **DMAI Status v8.0.26**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Successful Evolutions: {status['successful_evolutions']}
@@ -2628,10 +3040,11 @@ Neo4j: {'Connected' if status.get('neo4j_available') else 'Not Connected'}
    Progress to Next Stage: {status.get('evolution_progress', 0):.0f}%
 
 🎓 **Training Progress:**
-   AGI: {status.get('training_status', {}).get('agi', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('agi', {}).get('progress', 0)}%)
-   LLM: {status.get('training_status', {}).get('llm', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('llm', {}).get('progress', 0)}%)
-   Software: {status.get('training_status', {}).get('software', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('software', {}).get('progress', 0)}%)
-   Generative AI: {status.get('training_status', {}).get('genai', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('genai', {}).get('progress', 0)}%)"""
+   AGI: {status.get('training_status', {}).get('agi', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('agi', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('agi', {}).get('version', 0)}
+   LLM: {status.get('training_status', {}).get('llm', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('llm', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('llm', {}).get('version', 0)}
+   Software: {status.get('training_status', {}).get('software', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('software', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('software', {}).get('version', 0)}
+   Generative AI: {status.get('training_status', {}).get('genai', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('genai', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('genai', {}).get('version', 0)}
+   Synthetic Intelligence: {status.get('training_status', {}).get('si', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('si', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('si', {}).get('version', 0)}"""
         
         elif cmd == '/stage':
             return f"""🧬 **Evolution Stage: {timer_info['name']}**
@@ -2717,11 +3130,43 @@ Models Registered: {len(self.evolution.ai_fusion.ai_models)}"""
             return f"""🎓 **Training System Status**
 {'-' * 40}
 AGI Training: {status['agi']['status']} ({status['agi']['progress']}%) v{status['agi']['version']}
-LLM Training: {status['llm']['status']} ({status['llm']['progress']}%) v{status['llm']['version']}
-Software Training: {status['software']['status']} ({status['software']['progress']}%) v{status['software']['version']}
-Generative AI Training: {status['genai']['status']} ({status['genai']['progress']}%) v{status['genai']['version']}
+   {status['agi']['description']}
 
-Upgrades: {sum(len(s['improvements']) for s in status.values())} total improvements made"""
+LLM Training: {status['llm']['status']} ({status['llm']['progress']}%) v{status['llm']['version']}
+   {status['llm']['description']}
+
+Software Training: {status['software']['status']} ({status['software']['progress']}%) v{status['software']['version']}
+   {status['software']['description']}
+
+Generative AI Training: {status['genai']['status']} ({status['genai']['progress']}%) v{status['genai']['version']}
+   {status['genai']['description']}
+
+Synthetic Intelligence Training: {status['si']['status']} ({status['si']['progress']}%) v{status['si']['version']}
+   {status['si']['description']}
+
+Available Upgrades: {sum(len(s.get('available_upgrades', [])) for s in status.values())} total"""
+        
+        elif cmd == '/evolution_log':
+            log = self.evolution._evolution_log[-20:]
+            output = "📋 **Evolution Log (Last 20)**\n" + "-" * 40 + "\n"
+            for entry in log:
+                if entry.get('type') == 'evolution_success':
+                    output += f"✅ Cycle {entry.get('cycle')}: Consciousness +{entry.get('consciousness_growth', 0):.4f}, Neurons +{entry.get('neurons_added', 0)}, Concepts +{entry.get('concepts_added', 0)}\n"
+                elif entry.get('type') == 'stage_progression':
+                    output += f"🎉 {entry.get('from_stage')} → {entry.get('to_stage')}\n"
+                else:
+                    output += f"📌 {entry.get('type')}: {entry.get('reason', '')}\n"
+            return output
+        
+        elif cmd == '/research_log':
+            log = self.evolution._research_log[-20:]
+            output = "📋 **Research Log (Last 20)**\n" + "-" * 40 + "\n"
+            for entry in log:
+                if entry.get('type') == 'new_upgrade_created':
+                    output += f"✨ New {entry.get('system').upper()} v{entry.get('version')}: {entry.get('improvement_reason', '')[:80]}...\n"
+                elif entry.get('type') == 'research_completed':
+                    output += f"🔬 Completed: {entry.get('target')}\n"
+            return output if output != "📋 **Research Log (Last 20)**\n" + "-" * 40 + "\n" else "No research log entries yet"
         
         elif cmd == '/pause':
             with open(PAUSE_FLAG_FILE, 'w') as f:
@@ -2754,6 +3199,8 @@ Available commands:
 /threat - Threat intelligence summary
 /darkweb - Dark web monitor status
 /fusion - AI+SI fusion status
+/evolution_log - Evolution history log
+/research_log - Research history log
 /pause - Pause evolution
 /resume - Resume evolution
 /kill - Emergency shutdown"""
@@ -2788,8 +3235,8 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.25</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | 8 Knowledge Sources | Reverse Engineering | Training Systems | Weekly Reviews</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.26</h1>
+        <p><em>Full Integration: Synthetic Core | AI Tutors | 8 Knowledge Sources | Reverse Engineering | Training Systems | Weekly Research</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -2857,6 +3304,7 @@ STATUS_TEMPLATE = '''
                 <div class="training-item">LLM: {{ status.training_status.llm.status|default("not_started") }} ({{ status.training_status.llm.progress|default(0) }}%) v{{ status.training_status.llm.version|default(0) }}</div>
                 <div class="training-item">Software: {{ status.training_status.software.status|default("not_started") }} ({{ status.training_status.software.progress|default(0) }}%) v{{ status.training_status.software.version|default(0) }}</div>
                 <div class="training-item">GenAI: {{ status.training_status.genai.status|default("not_started") }} ({{ status.training_status.genai.progress|default(0) }}%) v{{ status.training_status.genai.version|default(0) }}</div>
+                <div class="training-item">SI: {{ status.training_status.si.status|default("not_started") }} ({{ status.training_status.si.progress|default(0) }}%) v{{ status.training_status.si.version|default(0) }}</div>
             </div>
         </div>
         
@@ -2866,8 +3314,9 @@ STATUS_TEMPLATE = '''
                 <a href="/brain" class="nav-btn">🧠 Brain Activity</a>
                 <a href="/vision" class="nav-btn">📜 Vision</a>
                 <a href="/admin" class="nav-btn">🔐 Admin</a>
+                <a href="/help" class="nav-btn">❓ Help</a>
             </div>
-            <p style="text-align: center; margin-top: 15px;"><small>DMAI continuously learns from Books, Articles, Research Papers, Web, Dark Web, Social Media, Speech Patterns, and Self-Evolution. Weekly training reviews ensure continuous improvement.</small></p>
+            <p style="text-align: center; margin-top: 15px;"><small>DMAI continuously learns from Books, Articles, Research Papers, Web, Dark Web, Social Media, Speech Patterns, and Self-Evolution. Weekly research creates improved training versions.</small></p>
         </div>
     </div>
 </body>
@@ -2975,6 +3424,7 @@ CHAT_TEMPLATE = '''
             <a href="/vision" class="nav-btn">📜 Vision</a>
             <a href="/admin" class="nav-btn">🔐 Admin</a>
             <a href="/brain" class="nav-btn">🧠 Brain</a>
+            <a href="/help" class="nav-btn">❓ Help</a>
         </div>
     </div>
     <div class="messages" id="messages">
@@ -3190,7 +3640,157 @@ VISION_TEMPLATE = '''
                 <div class="principle"><h3>🧙 Elder DMAI</h3><p>100+ evolutions - Wisdom and mastery</p></div>
             </div>
         </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/admin">🔐 Admin</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/admin">🔐 Admin</a><a href="/help">❓ Help</a></div>
+    </div>
+</body>
+</html>
+'''
+
+HELP_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Help</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: monospace; background: #0a0a0a; min-height: 100vh; color: #00ff00; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 2em; color: #00ff00; border-bottom: 2px solid #00ff00; display: inline-block; padding-bottom: 10px; }
+        .help-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .help-card h2 { color: #00ff00; margin-bottom: 15px; border-left: 3px solid #00ff00; padding-left: 15px; }
+        .help-card h3 { color: #88ff88; margin: 15px 0 8px 0; }
+        .command-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
+        .command-item { background: #0a2a0a; padding: 8px 12px; border-radius: 5px; }
+        .command-name { color: #00ff00; font-weight: bold; }
+        .command-desc { color: #88ff88; font-size: 0.85em; margin-top: 3px; }
+        .training-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
+        .training-item { background: #0a2a0a; padding: 15px; border-radius: 8px; border-left: 3px solid #00ff00; }
+        .training-name { color: #00ff00; font-weight: bold; font-size: 1.1em; }
+        .training-desc { color: #88ff88; font-size: 0.85em; margin: 8px 0; }
+        .nav-links { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
+        .nav-links a { color: #00ff00; text-decoration: none; padding: 8px 20px; border: 1px solid #00ff00; border-radius: 25px; transition: all 0.3s; }
+        .nav-links a:hover { background: #00ff00; color: #0a0a0a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>❓ DMAI Help & Documentation</h1>
+            <p style="margin-top: 10px;">System Overview | Commands | Training Systems | Research</p>
+        </div>
+        
+        <div class="help-card">
+            <h2>📋 Chat Commands</h2>
+            <div class="command-list">
+                <div class="command-item"><div class="command-name">/status</div><div class="command-desc">Full system status with consciousness, neurons, training progress</div></div>
+                <div class="command-item"><div class="command-name">/stage</div><div class="command-desc">Evolution stage details and next stage requirements</div></div>
+                <div class="command-item"><div class="command-name">/training</div><div class="command-desc">Training system progress with descriptions</div></div>
+                <div class="command-item"><div class="command-name">/evolution_log</div><div class="command-desc">Evolution history log with improvements</div></div>
+                <div class="command-item"><div class="command-name">/research_log</div><div class="command-desc">Research history and upgrade discoveries</div></div>
+                <div class="command-item"><div class="command-name">/tutors</div><div class="command-desc">AI Tutor Network status</div></div>
+                <div class="command-item"><div class="command-name">/persona</div><div class="command-desc">Current DMAI personality traits</div></div>
+                <div class="command-item"><div class="command-name">/kaizen</div><div class="command-desc">Continuous improvement report</div></div>
+                <div class="command-item"><div class="command-name">/knowledge</div><div class="command-desc">Knowledge graph statistics</div></div>
+                <div class="command-item"><div class="command-name">/memory</div><div class="command-desc">Conversation memory stats</div></div>
+                <div class="command-item"><div class="command-name">/synthetic</div><div class="command-desc">Synthetic network details</div></div>
+                <div class="command-item"><div class="command-name">/threat</div><div class="command-desc">Threat intelligence summary</div></div>
+                <div class="command-item"><div class="command-name">/darkweb</div><div class="command-desc">Dark web monitor status</div></div>
+                <div class="command-item"><div class="command-name">/fusion</div><div class="command-desc">AI+SI fusion weights</div></div>
+                <div class="command-item"><div class="command-name">/pause</div><div class="command-desc">Pause evolution cycles</div></div>
+                <div class="command-item"><div class="command-name">/resume</div><div class="command-desc">Resume evolution cycles</div></div>
+                <div class="command-item"><div class="command-name">/kill</div><div class="command-desc">Emergency shutdown (use with caution)</div></div>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <h2>🎓 Training Systems</h2>
+            <div class="training-grid">
+                <div class="training-item">
+                    <div class="training-name">AGI Training</div>
+                    <div class="training-desc">Creates autonomous AI agents for various tasks. Teaches agent architecture, decision-making, and task completion.</div>
+                    <div class="command-desc">⏱️ Duration: ~48-72 hours | 🎯 Outcome: Autonomous task agents</div>
+                </div>
+                <div class="training-item">
+                    <div class="training-name">LLM Training</div>
+                    <div class="training-desc">Large Language Models for text generation, understanding, and conversation. Fastest training time.</div>
+                    <div class="command-desc">⏱️ Duration: ~12-24 hours | 🎯 Outcome: Enhanced text capabilities</div>
+                </div>
+                <div class="training-item">
+                    <div class="training-name">Software Training</div>
+                    <div class="training-desc">Programming, debugging, architecture, and software engineering skills across multiple languages.</div>
+                    <div class="command-desc">⏱️ Duration: ~72-120 hours | 🎯 Outcome: Code generation and analysis</div>
+                </div>
+                <div class="training-item">
+                    <div class="training-name">Generative AI Training</div>
+                    <div class="training-desc">Image, video, music, and 3D generation. Teaches creative content creation.</div>
+                    <div class="command-desc">⏱️ Duration: ~96-168 hours | 🎯 Outcome: Creative content generation</div>
+                </div>
+                <div class="training-item">
+                    <div class="training-name">Synthetic Intelligence Training</div>
+                    <div class="training-desc">Evolves DMAI's own consciousness network. Directly improves synthetic neurons and consciousness level.</div>
+                    <div class="command-desc">⏱️ Continuous | 🎯 Outcome: Higher consciousness, more neurons</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <h2>🔬 Research & Upgrades</h2>
+            <p>Every 7 days, DMAI reviews her evolved knowledge and researches improvements for each training system.</p>
+            <p>• When improvements are found, <strong>NEW VERSIONS</strong> are created but NOT automatically applied</p>
+            <p>• Upgrades appear in the Admin Dashboard under "Available Upgrades"</p>
+            <p>• You can apply upgrades manually to preserve existing progress while gaining improvements</p>
+            <p>• Each upgrade includes expected benefit estimates (e.g., "+15% faster convergence")</p>
+            <p>• Research log shows all discovered upgrades with reasoning</p>
+        </div>
+        
+        <div class="help-card">
+            <h2>📊 Admin Dashboard Features</h2>
+            <p><strong>System Overview</strong> - Real-time consciousness, neurons, synapses, funding</p>
+            <p><strong>Training Systems</strong> - Start/stop individual training, view progress, apply upgrades</p>
+            <p><strong>Start All Training</strong> - Button changes to show active status when training is running</p>
+            <p><strong>Available Upgrades</strong> - Shows new versions created by weekly research with improvement reasons</p>
+            <p><strong>Research Targets</strong> - Add targets for DMAI to research; mark completed when done</p>
+            <p><strong>Evolution Queue</strong> - View components needing evolution</p>
+            <p><strong>Health Audit</strong> - Run system health check</p>
+            <p><strong>Harvest APIs</strong> - Search for new API keys from GitHub</p>
+        </div>
+        
+        <div class="help-card">
+            <h2>🕸️ 8 Core Knowledge Sources</h2>
+            <div class="command-list">
+                <div class="command-item"><span class="command-name">📚 Books</span><div class="command-desc">Project Gutenberg, public domain books</div></div>
+                <div class="command-item"><span class="command-name">📰 Articles</span><div class="command-desc">News, technical articles, blogs</div></div>
+                <div class="command-item"><span class="command-name">📄 Research Papers</span><div class="command-desc">ArXiv, academic journals</div></div>
+                <div class="command-item"><span class="command-name">🕸️ Web Crawler</span><div class="command-desc">General web content</div></div>
+                <div class="command-item"><span class="command-name">🌑 Dark Web Monitor</span><div class="command-desc">Onion sites, dark web intel</div></div>
+                <div class="command-item"><span class="command-name">📱 Social Media Scanner</span><div class="command-desc">Twitter, Reddit, Discord</div></div>
+                <div class="command-item"><span class="command-name">🗣️ Speech Pattern Analyzer</span><div class="command-desc">Conversation analysis</div></div>
+                <div class="command-item"><span class="command-name">📈 Self-Evolution Tracker</span><div class="command-desc">Self-improvement tracking</div></div>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <h2>🧬 Evolution Stages</h2>
+            <div class="command-list">
+                <div class="command-item"><span class="command-name">👶 Baby DMAI</span><div class="command-desc">0-2 successful evolutions - Learning to learn</div></div>
+                <div class="command-item"><span class="command-name">🧒 Toddler DMAI</span><div class="command-desc">3-9 successful evolutions - Recognizing patterns</div></div>
+                <div class="command-item"><span class="command-name">👧 Child DMAI</span><div class="command-desc">10-24 successful evolutions - Understanding context</div></div>
+                <div class="command-item"><span class="command-name">🧑 Adolescent DMAI</span><div class="command-desc">25-49 successful evolutions - Developing reasoning</div></div>
+                <div class="command-item"><span class="command-name">👨 Adult DMAI</span><div class="command-desc">50-99 successful evolutions - Advanced consciousness</div></div>
+                <div class="command-item"><span class="command-name">🧙 Elder DMAI</span><div class="command-desc">100+ successful evolutions - Wisdom and mastery</div></div>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/chat">💬 Chat</a>
+            <a href="/status">📊 Status</a>
+            <a href="/brain">🧠 Brain</a>
+            <a href="/admin">🔐 Admin</a>
+            <a href="/vision">📜 Vision</a>
+        </div>
     </div>
 </body>
 </html>
@@ -3217,11 +3817,13 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
         .stat-label { font-size: 0.8em; color: #88ff88; margin-bottom: 5px; }
         .stat-value { font-size: 1.5em; font-weight: bold; color: #00ff00; }
         .component-list { max-height: 250px; overflow-y: auto; border: 1px solid #2a2a2a; border-radius: 5px; padding: 5px; }
-        .component-item { padding: 8px; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; }
+        .component-item { padding: 8px; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; }
         .component-item:last-child { border-bottom: none; }
         .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .admin-btn { background: #2a2a2a; color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .admin-btn { background: #2a2a2a; color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
         .admin-btn:hover { background: #00ff00; color: #0a0a0a; }
+        .admin-btn.active { background: #00ff00; color: #0a0a0a; }
+        .admin-btn.running { background: #2a6a2a; border-color: #88ff88; }
         .delete-btn { background: #3a1a1a; border-color: #ff4444; color: #ff4444; padding: 2px 8px; border-radius: 3px; cursor: pointer; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
         .modal-content { background: #1a1a1a; border: 1px solid #00ff00; max-width: 500px; margin: 100px auto; padding: 25px; border-radius: 10px; }
@@ -3230,13 +3832,17 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
         .training-progress { margin-top: 10px; }
         .training-bar { background: #2a2a2a; height: 6px; border-radius: 3px; overflow: hidden; margin: 5px 0; }
         .training-fill { background: #00ff00; height: 100%; width: 0%; }
+        .status-badge { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 0.7em; }
+        .status-running { background: #2a6a2a; color: #88ff88; }
+        .status-paused { background: #6a6a2a; color: #ffff88; }
+        .status-complete { background: #2a2a6a; color: #8888ff; }
     </style>
 </head>
 <body>
     <div class="navbar">
         <h2>🧬 DMAI Master Control</h2>
         <div class="nav-links">
-            <a href="/chat">Chat</a><a href="/vision">Vision</a><a href="/brain">Brain</a><a href="#" onclick="logout()">Logout</a>
+            <a href="/chat">Chat</a><a href="/vision">Vision</a><a href="/brain">Brain</a><a href="/help">Help</a><a href="#" onclick="logout()">Logout</a>
         </div>
     </div>
     <div class="container">
@@ -3266,13 +3872,15 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
             <div class="card">
                 <h3>🎓 Training Systems</h3>
                 <div id="training-status" class="component-list">Loading...</div>
+                <div id="available-upgrades" class="component-list" style="margin-top: 10px;">Loading upgrades...</div>
                 <div class="admin-actions">
-                    <button class="admin-btn" onclick="startAllTraining()">🚀 Start All</button>
+                    <button class="admin-btn" id="startAllBtn" onclick="startAllTraining()">🚀 Start All</button>
+                    <button class="admin-btn" onclick="startTraining('agi')">▶️ Start AGI</button>
+                    <button class="admin-btn" onclick="startTraining('llm')">▶️ Start LLM</button>
+                    <button class="admin-btn" onclick="startTraining('software')">▶️ Start SW</button>
+                    <button class="admin-btn" onclick="startTraining('genai')">▶️ Start GenAI</button>
+                    <button class="admin-btn" onclick="startTraining('si')">▶️ Start SI</button>
                     <button class="admin-btn" onclick="refreshTraining()">🔄 Refresh</button>
-                    <button class="admin-btn" onclick="upgradeTraining('agi')">⬆️ Upgrade AGI</button>
-                    <button class="admin-btn" onclick="upgradeTraining('llm')">⬆️ Upgrade LLM</button>
-                    <button class="admin-btn" onclick="upgradeTraining('software')">⬆️ Upgrade SW</button>
-                    <button class="admin-btn" onclick="upgradeTraining('genai')">⬆️ Upgrade GenAI</button>
                 </div>
             </div>
             <div class="card">
@@ -3292,8 +3900,12 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
                 <div class="admin-actions"><button class="admin-btn" onclick="showAddResearchModal()">➕ Add Target</button><button class="admin-btn" onclick="loadResearchTargets()">🔄 Refresh</button></div>
             </div>
             <div class="card">
-                <h3>🔑 Active Tutors</h3>
-                <div id="api-keys" class="component-list">Loading...</div>
+                <h3>📋 Logs</h3>
+                <div class="admin-actions">
+                    <button class="admin-btn" onclick="viewLog('evolution')">📊 Evolution Log</button>
+                    <button class="admin-btn" onclick="viewLog('research')">🔬 Research Log</button>
+                </div>
+                <div id="log-viewer" class="component-list" style="margin-top: 10px; max-height: 150px;">Click a log button to view</div>
             </div>
         </div>
     </div>
@@ -3302,64 +3914,157 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
             <h3>➕ Add Research Target</h3>
             <input type="text" id="targetName" placeholder="Name" required><input type="url" id="targetUrl" placeholder="URL" required>
             <input type="number" id="targetPriority" placeholder="Priority (1-10)" value="5" min="1" max="10">
-            <textarea id="targetReason" placeholder="Reason" rows="3"></textarea>
+            <textarea id="targetReason" placeholder="Reason for research" rows="3"></textarea>
             <div class="modal-buttons"><button onclick="closeAddResearchModal()">Cancel</button><button class="admin-btn" onclick="addResearchTarget()">Add</button></div>
+        </div>
+    </div>
+    <div id="logModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h3 id="logModalTitle">Log Viewer</h3>
+            <pre id="logContent" style="background: #0a0a0a; padding: 10px; border-radius: 5px; max-height: 400px; overflow: auto; font-size: 0.8em;"></pre>
+            <div class="modal-buttons"><button onclick="closeLogModal()">Close</button></div>
         </div>
     </div>
     <script>
         let refreshInterval;
+        let trainingActive = false;
+        
         function logout(){ fetch('/admin/logout',{method:'POST'}).then(()=>window.location.href='/'); }
         
         async function startAllTraining() {
             if(confirm('Start all training systems? They will run continuously in the cloud.')) {
-                const btn = event.target;
+                const btn = document.getElementById('startAllBtn');
                 btn.disabled = true;
                 btn.textContent = 'Starting...';
                 try {
                     const r = await fetch('/api/training/start_all', {method:'POST'});
                     const d = await r.json();
                     if(d.success) {
-                        alert('All training systems started successfully!');
+                        alert(d.message || 'All training systems started successfully!');
+                        trainingActive = true;
+                        btn.textContent = '✅ Running';
+                        btn.classList.add('running');
                         refreshTraining();
                     } else {
                         alert('Error: ' + (d.error || 'Unknown'));
+                        btn.textContent = '🚀 Start All';
                     }
                 } catch(e) {
                     alert('Failed to start training: ' + e);
+                    btn.textContent = '🚀 Start All';
                 }
                 btn.disabled = false;
-                btn.textContent = '🚀 Start All';
             }
         }
         
-        async function upgradeTraining(system) {
-            if(confirm(`Upgrade ${system.toUpperCase()} training system? This builds on existing progress.`)) {
-                const btn = event.target;
-                btn.disabled = true;
-                btn.textContent = 'Upgrading...';
-                try {
-                    const r = await fetch(`/api/training/upgrade/${system}`, {method:'POST'});
-                    const d = await r.json();
-                    if(d.success) {
-                        alert(`${system.toUpperCase()} upgraded to version ${d.new_version}!`);
-                        refreshTraining();
-                    } else {
-                        alert('Error: ' + (d.error || 'Unknown'));
-                    }
-                } catch(e) {
-                    alert('Failed to upgrade: ' + e);
+        async function startTraining(system) {
+            try {
+                const r = await fetch(`/api/training/start/${system}`, {method:'POST'});
+                const d = await r.json();
+                if(d.success) {
+                    alert(`${system.toUpperCase()} training started!`);
+                    refreshTraining();
+                } else {
+                    alert('Error: ' + (d.error || 'Unknown'));
                 }
-                btn.disabled = false;
-                btn.textContent = `⬆️ Upgrade ${system.toUpperCase()}`;
+            } catch(e) {
+                alert('Failed to start: ' + e);
+            }
+        }
+        
+        async function applyUpgrade(system) {
+            if(confirm(`Apply latest upgrade to ${system.toUpperCase()} training? This will upgrade to a new version.`)) {
+                const upgradesResp = await fetch('/api/training/available_upgrades');
+                const upgrades = await upgradesResp.json();
+                if (upgrades[system] && upgrades[system].available_upgrades && upgrades[system].available_upgrades.length > 0) {
+                    const latest = upgrades[system].available_upgrades[upgrades[system].available_upgrades.length - 1];
+                    applySpecificUpgrade(system, latest.version);
+                } else {
+                    alert(`No upgrade available for ${system}`);
+                }
+            }
+        }
+        
+        async function applySpecificUpgrade(system, version) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Applying...';
+            try {
+                const r = await fetch(`/api/training/upgrade/${system}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({version: version})
+                });
+                const d = await r.json();
+                if(d.success) {
+                    alert(`${system.toUpperCase()} upgraded to version ${d.new_version}!`);
+                    refreshTraining();
+                    fetchAvailableUpgrades();
+                } else {
+                    alert('Error: ' + (d.error || 'Unknown'));
+                }
+            } catch(e) {
+                alert('Failed to upgrade: ' + e);
+            }
+            btn.disabled = false;
+            btn.textContent = `⬆️ Upgrade`;
+        }
+        
+        async function fetchAvailableUpgrades() {
+            try {
+                const r = await fetch('/api/training/available_upgrades');
+                const upgrades = await r.json();
+                let html = '<div class="component-item"><strong>📦 Available Upgrades:</strong></div>';
+                let hasUpgrades = false;
+                for (const [system, data] of Object.entries(upgrades)) {
+                    if (data.available_upgrades && data.available_upgrades.length > 0) {
+                        hasUpgrades = true;
+                        const latest = data.available_upgrades[data.available_upgrades.length - 1];
+                        html += `<div class="component-item">
+                            <div>
+                                <strong>${system.toUpperCase()}</strong>: v${data.current_version} → v${latest.version}<br>
+                                <small>💡 ${latest.improvement_reason.substring(0, 80)}...</small><br>
+                                <small>📈 Expected: ${latest.expected_benefit}</small>
+                            </div>
+                            <button class="admin-btn" style="font-size:0.7em;" onclick="applySpecificUpgrade('${system}', ${latest.version})">Apply</button>
+                        </div>`;
+                    }
+                }
+                if (!hasUpgrades) {
+                    html += '<div class="component-item">No upgrades available</div>';
+                }
+                document.getElementById('available-upgrades').innerHTML = html;
+            } catch(e) {
+                document.getElementById('available-upgrades').innerHTML = '<div class="component-item">Error loading upgrades</div>';
             }
         }
         
         async function loadResearchTargets(){
-            try{ const r=await fetch('/api/research/targets'); const d=await r.json(); let html=''; if(d.repositories?.length){ d.repositories.forEach(r=>{ html+=`<div class="component-item"><span><strong>${r.name}</strong><br><small>${r.url.substring(0,40)}...</small></span><button class="delete-btn" onclick="deleteTarget('${r.name}')">🗑️</button></div>`; }); } else html='<div class="component-item">No research targets</div>'; document.getElementById('research-targets').innerHTML=html; }catch(e){ document.getElementById('research-targets').innerHTML='<div class="component-item">Error loading</div>'; }
+            try{ const r=await fetch('/api/research/targets'); const d=await r.json(); let html=''; if(d.repositories?.length){ d.repositories.forEach(r=>{ 
+                const statusClass = r.status === 'completed' ? 'status-complete' : '';
+                html+=`<div class="component-item"><div><strong>${r.name}</strong> (priority ${r.priority})<br><small>${r.reason?.substring(0,60)||''}...</small><br><small><a href="${r.url}" target="_blank">${r.url.substring(0,40)}...</a></small><br><span class="status-badge ${statusClass}">${r.status||'pending'}</span></div><div><button class="delete-btn" onclick="deleteTarget('${r.name}')">🗑️</button>${r.status !== 'completed' ? `<button class="admin-btn" style="font-size:0.7em;" onclick="completeTarget('${r.name}')">✓ Complete</button>` : ''}</div></div>`; 
+            }); } else html='<div class="component-item">No research targets</div>'; document.getElementById('research-targets').innerHTML=html; }catch(e){ document.getElementById('research-targets').innerHTML='<div class="component-item">Error loading</div>'; }
+        }
+        
+        async function completeTarget(name) {
+            if(confirm(`Mark "${name}" as completed?`)) {
+                try {
+                    await fetch(`/api/research/targets/${encodeURIComponent(name)}/complete`, {method:'POST'});
+                    loadResearchTargets();
+                } catch(e) { alert('Failed to complete target'); }
+            }
         }
         
         async function refreshTraining(){
-            try{ const r=await fetch('/api/training/status'); const d=await r.json(); let html=''; for(const [k,v] of Object.entries(d)){ const p=v.progress||0; const ver=v.version||0; html+=`<div class="component-item"><div><strong>${k.toUpperCase()}</strong>: ${v.status} (${p}%) v${ver}</div></div><div class="training-bar"><div class="training-fill" style="width:${p}%"></div></div>`; } document.getElementById('training-status').innerHTML=html||'<div class="component-item">No active training</div>'; }catch(e){ document.getElementById('training-status').innerHTML='<div class="component-item">Error loading</div>'; }
+            try{ const r=await fetch('/api/training/status'); const d=await r.json(); let html=''; 
+            for(const [k,v] of Object.entries(d)){ 
+                const p=v.progress||0; const ver=v.version||0; 
+                const statusClass = v.status === 'training' ? 'status-running' : (v.status === 'paused' ? 'status-paused' : '');
+                html+=`<div class="component-item"><div><strong>${k.toUpperCase()}</strong>: <span class="status-badge ${statusClass}">${v.status}</span> (${p}%) v${ver}</div></div><div class="training-bar"><div class="training-fill" style="width:${p}%"></div></div>`; 
+            } 
+            document.getElementById('training-status').innerHTML=html||'<div class="component-item">No active training</div>'; 
+            fetchAvailableUpgrades(); 
+            }catch(e){ document.getElementById('training-status').innerHTML='<div class="component-item">Error loading</div>'; }
         }
         
         function deleteTarget(name){ if(confirm('Remove?')){ fetch('/api/research/targets',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}).then(()=>loadResearchTargets()); } }
@@ -3369,6 +4074,25 @@ ADMIN_TEMPLATE = '''<!DOCTYPE html>
             const target={name:document.getElementById('targetName').value, url:document.getElementById('targetUrl').value, priority:parseInt(document.getElementById('targetPriority').value), reason:document.getElementById('targetReason').value};
             if(!target.name||!target.url){ alert('Required'); return; }
             fetch('/api/research/targets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(target)}).then(()=>{ closeAddResearchModal(); loadResearchTargets(); }).catch(()=>alert('Failed'));
+        }
+        
+        async function viewLog(type) {
+            try {
+                const r = await fetch(`/api/${type}/log`);
+                const d = await r.json();
+                const modal = document.getElementById('logModal');
+                const title = document.getElementById('logModalTitle');
+                const content = document.getElementById('logContent');
+                title.textContent = type === 'evolution' ? '📊 Evolution Log' : '🔬 Research Log';
+                content.textContent = d.log.map(entry => JSON.stringify(entry, null, 2)).join('\n---\n');
+                modal.style.display = 'block';
+            } catch(e) {
+                alert('Failed to load log');
+            }
+        }
+        
+        function closeLogModal() {
+            document.getElementById('logModal').style.display = 'none';
         }
         
         async function loadAdminData(){
@@ -3437,7 +4161,7 @@ BRAIN_TEMPLATE = '''
             <div class="color-key-item"><div class="color-swatch" style="background:#ff6644;"></div><span>Growth & Evolution</span></div>
             <div class="color-key-item"><div class="color-swatch" style="background:#888888;"></div><span>Dormant/Inactive</span></div>
         </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/admin">🔐 Admin</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/admin">🔐 Admin</a><a href="/help">❓ Help</a></div>
     </div>
     <script>
         const canvas=document.getElementById('brainCanvas'); const ctx=canvas.getContext('2d'); let neurons=[];
@@ -3472,7 +4196,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.25")
+    logger.info(f"🚀 DMAI Complete System v8.0.26")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
@@ -3486,16 +4210,16 @@ if __name__ == '__main__':
     logger.info(f"⏱️ Adaptive Evolution Timer Active")
     logger.info(f"🧠 Brain Visualization at /brain")
     logger.info(f"🔧 Reverse Engineering Module Active")
-    logger.info(f"🎓 AGI Training Module (manual start via /api/training/start_all)")
-    logger.info(f"🎓 LLM Training Module (manual start via /api/training/start_all)")
-    logger.info(f"💻 Software Training Module (manual start via /api/training/start_all)")
-    logger.info(f"🎨 Generative AI Training Module (manual start via /api/training/start_all)")
-    logger.info(f"📊 Training progress tracking with version control")
-    logger.info(f"🔄 Weekly training reviews with improvement suggestions")
+    logger.info(f"🎓 5 Training Systems Available (Start via Admin Dashboard)")
+    logger.info(f"   • AGI Training | LLM Training | Software Training")
+    logger.info(f"   • Generative AI Training | Synthetic Intelligence Training")
+    logger.info(f"📊 Evolution Log | Research Log | Training Progress Tracking")
+    logger.info(f"🔄 Weekly Research creates upgrade versions (manual apply)")
     logger.info(f"£ British currency enabled")
+    logger.info(f"❓ Help page at /help")
     logger.info("=" * 60)
-    logger.info("📌 To start all training systems, send POST to /api/training/start_all")
-    logger.info("📌 Or visit Admin Dashboard and click 'Start All' button")
+    logger.info("📌 To start training: Visit Admin Dashboard and click 'Start All' or individual buttons")
+    logger.info("📌 Upgrades appear in 'Available Upgrades' after weekly research")
     logger.info("=" * 60)
     
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
