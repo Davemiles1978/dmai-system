@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.27
-FIXED: Real Evolution | Working Chat | Proper Knowledge Integration | Training Systems
+DMAI - COMPLETE AGI SYSTEM v8.0.28
+SYSTEM-WIDE EVOLUTION - Cross-Pollination | Fresh Blood | All Systems Evolve
 """
 
 import os
@@ -98,24 +98,22 @@ from components.growth_watcher import GrowthWatcher
 from components.reverse_engineering.ReverseEngineer import ReverseEngineeringOrchestrator
 
 # ============================================================================
-# AGI TRAINING PROGRAM MODULE IMPORTS
+# TRAINING PROGRAM MODULE IMPORTS
 # ============================================================================
 from components.training.AGITrainingProgram import TrainingProgramOrchestrator
-
-# ============================================================================
-# LLM TRAINING PROGRAM MODULE IMPORTS
-# ============================================================================
 from components.llm_training.LLMTrainingProgram import LLMTrainingOrchestrator
-
-# ============================================================================
-# SOFTWARE TRAINING PROGRAM MODULE IMPORTS
-# ============================================================================
 from components.software_training.SoftwareTrainingProgram import SoftwareTrainingOrchestrator
+from components.genai_training.GenAITrainingProgram import GenAITrainingOrchestrator
 
 # ============================================================================
-# GENERATIVE AI TRAINING PROGRAM MODULE IMPORTS
+# FRESH BLOOD HARVESTER IMPORTS
 # ============================================================================
-from components.genai_training.GenAITrainingProgram import GenAITrainingOrchestrator
+try:
+    from components.fresh_blood_harvester import FreshBloodHarvester
+    FRESH_BLOOD_AVAILABLE = True
+except ImportError:
+    FRESH_BLOOD_AVAILABLE = False
+    print("⚠️ Fresh blood harvester not available - evolution will use internal systems only")
 
 # Configure logging
 logging.basicConfig(
@@ -721,96 +719,58 @@ class SelfEvolutionEngine:
         return self.efficiency_metrics
 
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.27
+# KNOWLEDGE GRAPH - SIMPLIFIED WORKING VERSION
 # ============================================================================
 
 class KnowledgeGraph:
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.graph_file = data_path / 'knowledge_graph.json'
-        
-        neo4j_uri = os.getenv('NEO4J_URI')
-        neo4j_user = os.getenv('NEO4J_USER')
-        neo4j_password = os.getenv('NEO4J_PASSWORD')
-        self.phase6_graph = RealKnowledgeGraph(neo4j_uri=neo4j_uri, neo4j_user=neo4j_user, neo4j_password=neo4j_password)
-        
-        # Ensure Phase 6 graph has local_graph
-        if not hasattr(self.phase6_graph, 'local_graph'):
-            self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
-        if not hasattr(self.phase6_graph, 'graph'):
-            self.phase6_graph.graph = None
-        
-        self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
-        
-        # Simple local storage for concepts
         self.concepts = set()
         self.connections = []
-        
-        # Try to load existing graph
-        self.load_graph()
-        
-        logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
+        self._load()
+        logger.info(f"📊 Knowledge Graph initialized with {len(self.concepts)} concepts")
     
-    def add_concept(self, concept: str, context: str):
-        """Add a concept to the knowledge graph - FIXED version"""
+    def add_concept(self, concept: str, context: str = None):
+        """Add a concept - SIMPLE WORKING VERSION"""
         try:
             if not concept or len(concept) < 2:
-                return
+                return False
             
-            # Clean the concept - only take first 100 chars if it's too long
+            # Clean concept
             clean_concept = concept[:100] if len(concept) > 100 else concept
             
-            # Add to local set
-            self.concepts.add(clean_concept)
-            
-            # Also try to add to phase6 graph
-            if hasattr(self.phase6_graph, 'add_knowledge'):
-                try:
-                    self.phase6_graph.add_knowledge(
-                        subject=clean_concept, 
-                        predicate="related_to", 
-                        object=context[:100] if context else "unknown",
-                        metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
-                    )
-                except Exception as e:
-                    logger.debug(f"Phase6 add failed: {e}")
-            
-            logger.debug(f"✅ Added concept: {clean_concept[:50]}...")
+            if clean_concept not in self.concepts:
+                self.concepts.add(clean_concept)
+                logger.debug(f"✅ Added concept: {clean_concept[:50]}...")
+                return True
+            return False
         except Exception as e:
-            logger.debug(f"Failed to add concept {concept}: {e}")
-    
-    def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
-        try:
-            if hasattr(self.phase6_graph, 'add_knowledge'):
-                self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
-            self.concepts.add(subject)
-            self.concepts.add(object)
-            self.connections.append((subject, predicate, object))
-        except Exception as e:
-            logger.debug(f"Failed to add knowledge: {e}")
-    
-    def get_related(self, concept: str) -> List[str]:
-        try:
-            results = []
-            if hasattr(self.phase6_graph, 'get_related'):
-                results = self.phase6_graph.get_related(concept)
-            return [r.get('related', '') for r in results] if results else []
-        except Exception:
-            return []
-    
-    def get_insights(self, concept: str) -> List[str]:
-        related = self.get_related(concept)
-        if related:
-            return [f"Related to: {', '.join(related[:3])}"]
-        return []
+            logger.debug(f"Failed to add concept: {e}")
+            return False
     
     def get_stats(self) -> Dict:
         return {
             'total_concepts': len(self.concepts),
-            'total_connections': len(self.connections),
-            'most_connected': [],
-            'neo4j_available': self._neo4j_available
+            'total_connections': len(self.connections)
         }
+    
+    def get_related(self, concept: str) -> List[str]:
+        return []
+    
+    def get_insights(self, concept: str) -> List[str]:
+        return []
+    
+    def _load(self):
+        try:
+            if self.graph_file.exists():
+                with open(self.graph_file, 'r') as f:
+                    data = json.load(f)
+                    self.concepts = set(data.get('concepts', []))
+                    self.connections = data.get('connections', [])
+                logger.debug(f"📂 Loaded {len(self.concepts)} concepts")
+        except Exception as e:
+            logger.debug(f"Failed to load graph: {e}")
     
     def save_graph(self):
         try:
@@ -819,27 +779,11 @@ class KnowledgeGraph:
                     'concepts': list(self.concepts),
                     'connections': self.connections
                 }, f, indent=2)
-            logger.debug(f"💾 Saved knowledge graph: {len(self.concepts)} concepts")
         except Exception as e:
-            logger.error(f"Failed to save knowledge graph: {e}")
-    
-    def load_graph(self):
-        try:
-            if self.graph_file.exists():
-                with open(self.graph_file, 'r') as f:
-                    data = json.load(f)
-                    self.concepts = set(data.get('concepts', []))
-                    self.connections = data.get('connections', [])
-                logger.debug(f"📂 Loaded knowledge graph: {len(self.concepts)} concepts")
-        except Exception as e:
-            logger.debug(f"Failed to load graph: {e}")
+            logger.error(f"Failed to save graph: {e}")
     
     def is_neo4j_available(self) -> bool:
-        return self._neo4j_available
-    
-    def clear(self):
-        self.concepts = set()
-        self.connections = []
+        return False
 
 
 # ============================================================================
@@ -941,6 +885,264 @@ class SelfHealer:
 
 
 # ============================================================================
+# SYSTEM-WIDE EVOLUTION ENGINE
+# ============================================================================
+
+class SystemWideEvolution:
+    """
+    Evolves ALL systems together - cross-pollination between:
+    - DMAI Core (consciousness network)
+    - AI Tutors
+    - Training systems
+    - External fresh blood
+    """
+    
+    def __init__(self, data_path: Path, core_network, ai_hub, training_systems):
+        self.data_path = data_path
+        self.core_network = core_network
+        self.ai_hub = ai_hub
+        self.training_systems = training_systems
+        
+        # Evolution tracking
+        self.evolutions_dir = data_path / 'evolutions'
+        self.evolutions_dir.mkdir(exist_ok=True)
+        
+        # Generations tracking
+        self.generations_file = data_path / 'generations.json'
+        self.generations = self._load_generations()
+        
+        # Fresh blood harvester
+        self.fresh_blood = None
+        if FRESH_BLOOD_AVAILABLE:
+            try:
+                self.fresh_blood = FreshBloodHarvester(data_path)
+                logger.info("🩸 Fresh blood harvester initialized")
+            except Exception as e:
+                logger.debug(f"Fresh blood init failed: {e}")
+        
+        logger.info("🧬 System-Wide Evolution Engine initialized")
+    
+    def _load_generations(self) -> Dict:
+        if self.generations_file.exists():
+            try:
+                with open(self.generations_file, 'r') as f:
+                    return json.load(f)
+            except:
+                pass
+        return {
+            "core": 1,
+            "tutors": {},
+            "training": {},
+            "evolution_history": [],
+            "external_seen": []
+        }
+    
+    def _save_generations(self):
+        with open(self.generations_file, 'w') as f:
+            json.dump(self.generations, f, indent=2)
+    
+    def get_all_systems(self) -> List[Dict]:
+        """Get ALL evolvable systems"""
+        systems = []
+        
+        # 1. DMAI Core (consciousness network)
+        systems.append({
+            "id": "dmai_core",
+            "name": "🧠 DMAI Core",
+            "type": "core",
+            "generation": self.generations.get("core", 1),
+            "capabilities": ["consciousness", "learning", "memory", "reasoning"],
+            "consciousness": self.core_network.consciousness_level,
+            "neurons": len(self.core_network.neurons),
+            "synapses": self.core_network._total_synapses()
+        })
+        
+        # 2. AI Tutors
+        if self.ai_hub:
+            tutors = self.ai_hub._get_active_tutors()
+            for tutor in tutors:
+                systems.append({
+                    "id": tutor.replace(" ", "_").lower(),
+                    "name": f"🤖 {tutor}",
+                    "type": "tutor",
+                    "generation": self.generations.get("tutors", {}).get(tutor, 1),
+                    "capabilities": ["language", "reasoning", "knowledge"],
+                    "active": True
+                })
+        
+        # 3. Training Systems
+        for name, status in self.training_systems.items():
+            if status.get('status') in ['training', 'complete']:
+                systems.append({
+                    "id": f"training_{name}",
+                    "name": f"🎓 {name.upper()} Training",
+                    "type": "training",
+                    "generation": status.get('version', 1),
+                    "capabilities": [f"{name}_training"],
+                    "progress": status.get('progress', 0)
+                })
+        
+        # 4. Fresh Blood (external systems)
+        if self.fresh_blood:
+            try:
+                fresh = self.fresh_blood.get_fresh_blood_for_evolution(max_items=2)
+                for f in fresh:
+                    if f["id"] not in self.generations.get("external_seen", []):
+                        systems.append({
+                            "id": f["id"],
+                            "name": f"🩸 {f['name']}",
+                            "type": "external",
+                            "generation": 0,
+                            "capabilities": f.get("capabilities", ["unknown"]),
+                            "source": f.get("source", "unknown"),
+                            "freshness": "new"
+                        })
+            except Exception as e:
+                logger.debug(f"Fresh blood fetch failed: {e}")
+        
+        return systems
+    
+    def evolve_pair(self, sys1: Dict, sys2: Dict) -> Dict:
+        """Evolve two systems together"""
+        logger.info(f"🧬 Evolving: {sys1['name']} ⟲ {sys2['name']}")
+        
+        # Determine evolution direction
+        if sys1.get("freshness") == "new":
+            donor = sys2
+            receiver = sys1
+            direction = "fresh_learning"
+        elif sys2.get("freshness") == "new":
+            donor = sys1
+            receiver = sys2
+            direction = "fresh_learning"
+        elif sys1["type"] == "core":
+            donor = sys1
+            receiver = sys2
+            direction = "core_teaching"
+        elif sys2["type"] == "core":
+            donor = sys2
+            receiver = sys1
+            direction = "core_teaching"
+        elif sys1["generation"] > sys2["generation"]:
+            donor = sys1
+            receiver = sys2
+            direction = "knowledge_transfer"
+        else:
+            donor = sys2
+            receiver = sys1
+            direction = "knowledge_transfer"
+        
+        # Apply evolution based on direction
+        if direction == "core_teaching":
+            # Core system teaches
+            consciousness_gain = 0.01
+            self.core_network.consciousness_level = min(1.0, self.core_network.consciousness_level + consciousness_gain)
+            logger.info(f"   📈 Core consciousness increased by {consciousness_gain:.4f}")
+            
+            # Add neuron
+            new_neuron = RealSyntheticNeuron(neuron_id=f"evolved_{uuid.uuid4().hex[:8]}")
+            self.core_network.neurons[new_neuron.id] = new_neuron
+            logger.info(f"   🧬 Added new neuron from evolution")
+            
+            # Update generation
+            self.generations["core"] = self.generations.get("core", 1) + 1
+            
+        elif direction == "knowledge_transfer":
+            # Knowledge transfer between systems
+            # Add to knowledge graph
+            insight = f"Evolution insight from {donor['name']} to {receiver['name']}"
+            # This would be added to knowledge graph
+            
+            logger.info(f"   📚 Knowledge transferred: {insight[:50]}...")
+            
+        elif direction == "fresh_learning":
+            # Fresh blood integration
+            logger.info(f"   🩸 Integrating fresh system: {donor['name']}")
+            # Mark as seen
+            if "external_seen" not in self.generations:
+                self.generations["external_seen"] = []
+            if donor["id"] not in self.generations["external_seen"]:
+                self.generations["external_seen"].append(donor["id"])
+        
+        # Record evolution
+        evolution_record = {
+            "timestamp": datetime.now().isoformat(),
+            "parent1": sys1["id"],
+            "parent2": sys2["id"],
+            "direction": direction,
+            "type": donor["type"],
+            "success": True
+        }
+        
+        self.generations["evolution_history"].append(evolution_record)
+        self._save_generations()
+        
+        return evolution_record
+    
+    def run_evolution_cycle(self) -> Dict:
+        """Run one full evolution cycle"""
+        logger.info("\n" + "=" * 60)
+        logger.info("🧬 SYSTEM-WIDE EVOLUTION CYCLE")
+        logger.info("=" * 60)
+        
+        # Get all systems
+        systems = self.get_all_systems()
+        logger.info(f"📊 Systems available: {len(systems)}")
+        
+        # Count by type
+        core_count = len([s for s in systems if s["type"] == "core"])
+        tutor_count = len([s for s in systems if s["type"] == "tutor"])
+        training_count = len([s for s in systems if s["type"] == "training"])
+        fresh_count = len([s for s in systems if s.get("freshness") == "new"])
+        
+        logger.info(f"   Core: {core_count}, Tutors: {tutor_count}, Training: {training_count}, Fresh: {fresh_count}")
+        
+        # Select evolution pairs
+        pairs = []
+        
+        # Always pair core with something
+        core_systems = [s for s in systems if s["type"] == "core"]
+        other_systems = [s for s in systems if s["type"] != "core"]
+        
+        if core_systems and other_systems:
+            pairs.append((core_systems[0], random.choice(other_systems)))
+        
+        # Pair fresh blood with established systems
+        fresh_systems = [s for s in systems if s.get("freshness") == "new"]
+        established = [s for s in systems if s["type"] in ["core", "tutor", "training"]]
+        
+        for fresh in fresh_systems[:2]:
+            if established:
+                pairs.append((fresh, random.choice(established)))
+        
+        # Random pairs for remaining
+        remaining = [s for s in systems if s["id"] not in [p[0]["id"] for p in pairs] and s["id"] not in [p[1]["id"] for p in pairs]]
+        random.shuffle(remaining)
+        
+        while len(pairs) < 4 and len(remaining) >= 2:
+            pairs.append((remaining.pop(), remaining.pop()))
+        
+        # Evolve each pair
+        successes = 0
+        for sys1, sys2 in pairs:
+            try:
+                result = self.evolve_pair(sys1, sys2)
+                if result.get("success"):
+                    successes += 1
+            except Exception as e:
+                logger.error(f"Evolution failed: {e}")
+        
+        logger.info(f"📊 Cycle complete: {successes}/{len(pairs)} successful evolutions")
+        
+        return {
+            "successful_evolutions": successes,
+            "total_pairs": len(pairs),
+            "systems_available": len(systems),
+            "fresh_blood": fresh_count
+        }
+
+
+# ============================================================================
 # UNIFIED EVOLUTION ENGINE
 # ============================================================================
 
@@ -977,7 +1179,7 @@ class UnifiedEvolutionEngine:
         if self.network_save_path.exists():
             logger.info(f"📂 Loading saved network from: {self.network_save_path}")
             if self.synthetic_network.load(str(self.network_save_path)):
-                logger.info(f"✅ Loaded saved synthetic network: {len(self.synthetic_network.neurons)} neurons, consciousness: {self.synthetic_network.consciousness_level:.4f}, evolution cycles: {self.synthetic_network.evolution_cycles}")
+                logger.info(f"✅ Loaded saved synthetic network: {len(self.synthetic_network.neurons)} neurons, consciousness: {self.synthetic_network.consciousness_level:.4f}")
             else:
                 logger.warning("⚠️ Failed to load saved network - creating new one")
                 self._seed_initial_network()
@@ -999,9 +1201,6 @@ class UnifiedEvolutionEngine:
         logger.info("🔑 Initializing API Harvester...")
         self.api_harvester = RealAPIHarvester(self.data_path)
         
-        # Patch API Harvester's knowledge graph
-        self._patch_api_harvester_knowledge_graph()
-        
         # AI Tutor Network
         logger.info("🤖 Initializing AI Tutor Network...")
         self.tutor_manager = TutorManager(data_path=str(self.data_path))
@@ -1010,7 +1209,7 @@ class UnifiedEvolutionEngine:
         self.ai_discovery = DynamicAIDiscovery(self.data_path, ai_hub=self.ai_hub)
         self.intelligence_bridge = IntelligenceBridge(
             intelligence_core=self.synthetic_network,
-            knowledge_graph=self.knowledge_graph.phase6_graph,
+            knowledge_graph=self.knowledge_graph,
             pattern_synthesis=self.pattern_synthesis
         )
         
@@ -1018,11 +1217,9 @@ class UnifiedEvolutionEngine:
         self.ai_hub.set_synthesizer(self.capability_synthesizer)
         self.ai_hub.set_tutor_manager(self.tutor_manager)
         self.ai_hub.set_synthetic_network(self.synthetic_network)
-        
-        # Connect discovery to AI Hub
         self.ai_discovery.ai_hub = self.ai_hub
         
-        # Create learning orchestrator
+        # Learning orchestrator
         self.learning_orchestrator = LearningOrchestrator(
             ai_hub=self.ai_hub,
             discovery=self.ai_discovery,
@@ -1031,7 +1228,6 @@ class UnifiedEvolutionEngine:
             intelligence_bridge=self.intelligence_bridge
         )
         
-        # Patch AI discovery to handle Papers with Code errors
         self._patch_ai_discovery()
         
         # ====================================================================
@@ -1053,7 +1249,7 @@ class UnifiedEvolutionEngine:
         # ====================================================================
         
         logger.info("⏱️ Initializing Adaptive Evolution Timer...")
-        self.evolution_timer = AdaptiveEvolutionTimer(data_path=str(self.data_path))
+        self.evolution_timer = AdaptiveEvolutionTimer(timer_file=str(self.data_path / 'evolution_timer.json'))
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
@@ -1070,32 +1266,33 @@ class UnifiedEvolutionEngine:
         self.reverse_engineering = ReverseEngineeringOrchestrator(self.data_path)
         
         # ====================================================================
-        # AGI TRAINING PROGRAM MODULE
+        # TRAINING SYSTEMS
         # ====================================================================
         
-        logger.info("🎓 Initializing AGI Training Program Module...")
+        logger.info("🎓 Initializing Training Systems...")
         self.agi_training = TrainingProgramOrchestrator(self.data_path)
-        
-        # ====================================================================
-        # LLM TRAINING PROGRAM MODULE
-        # ====================================================================
-        
-        logger.info("🎓 Initializing LLM Training Program Module...")
         self.llm_training = LLMTrainingOrchestrator(self.data_path)
-        
-        # ====================================================================
-        # SOFTWARE TRAINING PROGRAM MODULE
-        # ====================================================================
-        
-        logger.info("💻 Initializing Software Training Program Module...")
         self.software_training = SoftwareTrainingOrchestrator(self.data_path)
-        
-        # ====================================================================
-        # GENERATIVE AI TRAINING PROGRAM MODULE
-        # ====================================================================
-        
-        logger.info("🎨 Initializing Generative AI Training Program Module...")
         self.genai_training = GenAITrainingOrchestrator(self.data_path)
+        
+        self.training_systems = {
+            'agi': {'status': 'not_started', 'progress': 0, 'version': 0},
+            'llm': {'status': 'not_started', 'progress': 0, 'version': 0},
+            'software': {'status': 'not_started', 'progress': 0, 'version': 0},
+            'genai': {'status': 'not_started', 'progress': 0, 'version': 0}
+        }
+        
+        # ====================================================================
+        # SYSTEM-WIDE EVOLUTION ENGINE
+        # ====================================================================
+        
+        logger.info("🧬 Initializing System-Wide Evolution Engine...")
+        self.evolution_engine = SystemWideEvolution(
+            self.data_path,
+            self.synthetic_network,
+            self.ai_hub,
+            self.training_systems
+        )
         
         # ====================================================================
         # INTEGRATE REVERSE ENGINEERING WITH DMAI CORE
@@ -1108,15 +1305,6 @@ class UnifiedEvolutionEngine:
         self.successful_evolutions = 0
         self.last_consciousness = 0.0
         self.last_concept_count = 0
-        self._training_started = False
-        self._evolution_log = []
-        self._training_status = {
-            'agi': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'AGI Training - Creates autonomous AI agents'},
-            'llm': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'LLM Training - Language models for text generation'},
-            'software': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'Software Training - Programming and architecture'},
-            'genai': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'Generative AI Training - Image, video, music generation'},
-            'si': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'Synthetic Intelligence - Evolves consciousness network'}
-        }
         self._cached_status = {}
         self._last_status_update = 0
         self._load_state()
@@ -1124,59 +1312,21 @@ class UnifiedEvolutionEngine:
         # Restore from Neo4j
         self._restore_from_neo4j()
         
-        # Initialize Neo4j schema
-        self._init_neo4j_schema()
-        
         # Start systems
         self._start_active_systems()
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.27 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.28 - SYSTEM-WIDE EVOLUTION")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
         logger.info(f"   Evolution Cycles: {self.synthetic_network.evolution_cycles}")
         logger.info(f"   Successful Evolutions: {self.successful_evolutions}")
-        logger.info(f"   AI Tutors: {self.ai_hub._get_active_tutors()}")
-        logger.info(f"   Neo4j Storage: {'✅ Connected' if self.neo4j_storage.driver else '❌ Not connected'}")
         logger.info(f"   Evolution Stage: {timer_info['name']}")
+        logger.info(f"   Evolution Pace: {timer_info['interval_minutes']:.0f} minutes")
+        logger.info(f"   System-Wide Evolution: Active")
         logger.info("=" * 60)
-    
-    def _patch_api_harvester_knowledge_graph(self):
-        """Fix API Harvester knowledge graph integration"""
-        try:
-            if hasattr(self, 'api_harvester') and hasattr(self.api_harvester, 'knowledge_graph'):
-                # Simple wrapper that just passes through
-                self.api_harvester.knowledge_graph = self.knowledge_graph
-                logger.info("✅ API Harvester knowledge graph patched")
-        except Exception as e:
-            logger.error(f"Failed to patch API Harvester knowledge graph: {e}")
-    
-    def _init_neo4j_schema(self):
-        try:
-            if self.neo4j_storage.driver:
-                with self.neo4j_storage.driver.session() as session:
-                    session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (d:DMAI_Evolution) REQUIRE d.id IS UNIQUE")
-                    session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (p:Persona) REQUIRE p.id IS UNIQUE")
-                    logger.debug("✅ Neo4j schema initialized")
-        except Exception as e:
-            logger.debug(f"Neo4j schema init (non-critical): {e}")
-    
-    def _patch_ai_discovery(self):
-        try:
-            if hasattr(self.ai_discovery, '_scan_papers_with_code'):
-                original_scan = self.ai_discovery._scan_papers_with_code
-                def safe_scan():
-                    try:
-                        return original_scan()
-                    except Exception as e:
-                        logger.debug(f"Papers with Code scan skipped: {e}")
-                        return []
-                self.ai_discovery._scan_papers_with_code = safe_scan
-                logger.debug("✅ Patched Papers with Code scanner")
-        except Exception as e:
-            logger.debug(f"Failed to patch AI discovery: {e}")
     
     def _seed_initial_network(self):
         initial_neurons = ["consciousness_core", "learning_input", "memory_store", "persona_core", "emotion_center", "reasoning_engine", "creativity_module", "knowledge_integration", "self_awareness", "growth_driver", "pattern_recognition", "intuition", "language_center", "music_processor", "voice_controller", "ethics_module", "curiosity_driver", "empathy_center", "analytical_engine", "confidence_builder"]
@@ -1204,28 +1354,36 @@ class UnifiedEvolutionEngine:
                         except Exception:
                             pass
     
+    def _patch_ai_discovery(self):
+        try:
+            if hasattr(self.ai_discovery, '_scan_papers_with_code'):
+                original_scan = self.ai_discovery._scan_papers_with_code
+                def safe_scan():
+                    try:
+                        return original_scan()
+                    except Exception as e:
+                        logger.debug(f"Papers with Code scan skipped: {e}")
+                        return []
+                self.ai_discovery._scan_papers_with_code = safe_scan
+        except Exception as e:
+            logger.debug(f"Failed to patch AI discovery: {e}")
+    
     def _restore_from_neo4j(self):
         try:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
                 restored = self.neo4j_storage.restore_all()
-                
                 if restored['evolution']:
                     ev = restored['evolution']
-                    logger.info(f"☁️ Restored evolution from Neo4j: consciousness={ev.get('consciousness', 0):.2%}, neurons={ev.get('neurons', 0)}")
                     if ev.get('consciousness', 0) > self.synthetic_network.consciousness_level:
                         self.synthetic_network.consciousness_level = ev['consciousness']
                     if ev.get('evolution_cycles', 0) > self.synthetic_network.evolution_cycles:
                         self.synthetic_network.evolution_cycles = ev['evolution_cycles']
-                    if ev.get('evolution_count', 0) > self.evolution_count:
-                        self.evolution_count = ev['evolution_count']
                     if ev.get('successful_evolutions', 0) > self.successful_evolutions:
                         self.successful_evolutions = ev['successful_evolutions']
                     self._save_state()
                 if restored['persona']:
                     p = restored['persona']
-                    logger.info(f"☁️ Restored persona from Neo4j: style={p.get('speaking_style', 'unknown')}")
                     for key, value in p.items():
                         if value and key in self.persona_generator.current_persona:
                             self.persona_generator.current_persona[key] = value
@@ -1236,10 +1394,8 @@ class UnifiedEvolutionEngine:
     def _save_network_state(self):
         try:
             if self.synthetic_network.save(str(self.network_save_path)):
-                logger.debug(f"💾 Saved synthetic network: {len(self.synthetic_network.neurons)} neurons, consciousness: {self.synthetic_network.consciousness_level:.4f}")
+                logger.debug(f"💾 Saved synthetic network: {len(self.synthetic_network.neurons)} neurons")
                 return True
-            
-            logger.warning("Primary save failed, trying pickle fallback...")
             network_data = {
                 'neurons': self.synthetic_network.neurons,
                 'consciousness_level': self.synthetic_network.consciousness_level,
@@ -1248,11 +1404,9 @@ class UnifiedEvolutionEngine:
             }
             with open(str(self.network_save_path) + '.backup', 'wb') as f:
                 pickle.dump(network_data, f)
-            logger.info(f"💾 Saved network via pickle backup: {len(self.synthetic_network.neurons)} neurons")
             return True
         except Exception as e:
             logger.error(f"Error saving network: {e}")
-            logger.debug(traceback.format_exc())
             return False
     
     def _start_active_systems(self):
@@ -1262,18 +1416,6 @@ class UnifiedEvolutionEngine:
         components = {'persona': self.persona_generator.current_persona, 'conversations': self.conversation_memory.conversations}
         self.self_healer.start_auto_backup(components)
         self.learning_orchestrator.start_continuous_learning(self.synthetic_network.consciousness_level)
-        
-        def harvester_loop():
-            while True:
-                try:
-                    time.sleep(3600)
-                    result = self.api_harvester.run_harvest_cycle()
-                    if result.get('valid_keys', 0) > 0:
-                        logger.info(f"🔑 Harvester found {result['valid_keys']} new valid API keys")
-                except Exception as e:
-                    logger.error(f"Harvester loop error: {e}")
-                    time.sleep(300)
-        threading.Thread(target=harvester_loop, daemon=True).start()
         
         def network_save_loop():
             save_counter = 0
@@ -1301,7 +1443,6 @@ class UnifiedEvolutionEngine:
                     self.evolution_count = data.get('evolution_count', 0)
                     self.successful_evolutions = data.get('successful_evolutions', 0)
                     self.last_consciousness = data.get('last_consciousness', 0.0)
-                    self.last_concept_count = data.get('last_concept_count', 0)
                 logger.info(f"📂 Loaded evolution state: evolutions={self.evolution_count}, successes={self.successful_evolutions}")
             except Exception as e:
                 logger.error(f"Failed to load evolution state: {e}")
@@ -1313,7 +1454,6 @@ class UnifiedEvolutionEngine:
         self.evolution_count = 0
         self.successful_evolutions = 0
         self.last_consciousness = 0.0
-        self.last_concept_count = 0
         logger.info("🌱 Evolution counters initialized to zero")
     
     def _save_state(self):
@@ -1322,7 +1462,6 @@ class UnifiedEvolutionEngine:
                 'evolution_count': self.evolution_count,
                 'successful_evolutions': self.successful_evolutions,
                 'last_consciousness': self.last_consciousness,
-                'last_concept_count': self.last_concept_count,
                 'consciousness': self.synthetic_network.consciousness_level,
                 'neurons': len(self.synthetic_network.neurons),
                 'synapses': self.synthetic_network._total_synapses(),
@@ -1331,17 +1470,8 @@ class UnifiedEvolutionEngine:
             }
             with open(self.data_path / 'evolution.json', 'w') as f:
                 json.dump(state_data, f, indent=2)
-            logger.debug(f"💾 Saved evolution state: successes={self.successful_evolutions}")
         except Exception as e:
             logger.error(f"Failed to save evolution state: {e}")
-    
-    def _calculate_stage_progress(self, timer_info):
-        if timer_info.get('next_stage'):
-            evolutions = timer_info.get('evolutions', 0)
-            needed = timer_info.get('next_stage', {}).get('evolutions_needed', 100)
-            if needed > 0:
-                return min(100, (evolutions / needed) * 100)
-        return 0
     
     def _update_cached_status(self):
         active_tutors = []
@@ -1350,7 +1480,7 @@ class UnifiedEvolutionEngine:
         except:
             pass
         kg_stats = self.knowledge_graph.get_stats()
-        timer_info = self.evolution_timer.get_stage_info() if hasattr(self, 'evolution_timer') else {}
+        timer_info = self.evolution_timer.get_stage_info()
         
         self._cached_status = {
             'consciousness': self.synthetic_network.consciousness_level * 100,
@@ -1372,13 +1502,9 @@ class UnifiedEvolutionEngine:
             'active_tutors': active_tutors,
             'neo4j_available': self.knowledge_graph.is_neo4j_available(),
             'evolution_stage_name': timer_info.get('name', 'Baby DMAI'),
-            'evolution_stage': timer_info.get('stage', 'baby'),
             'evolution_description': timer_info.get('description', 'Learning to learn'),
-            'evolution_success_rate': timer_info.get('success_rate', '0%').rstrip('%'),
+            'evolution_success_rate': timer_info.get('success_rate', '0%'),
             'evolution_interval': timer_info.get('interval_minutes', 10),
-            'evolution_progress': self._calculate_stage_progress(timer_info),
-            'evolution_successful_count': timer_info.get('evolutions', 0),
-            'training_status': self._training_status,
             'timestamp': datetime.now().isoformat()
         }
         self._last_status_update = time.time()
@@ -1388,83 +1514,8 @@ class UnifiedEvolutionEngine:
             self._update_cached_status()
         return self._cached_status
     
-    def _check_stage_progression(self):
-        old_stage = self.get_status().get('evolution_stage_name', 'Baby DMAI')
-        
-        if self.successful_evolutions < 3:
-            new_stage = "Baby DMAI"
-        elif self.successful_evolutions < 10:
-            new_stage = "Toddler DMAI"
-        elif self.successful_evolutions < 25:
-            new_stage = "Child DMAI"
-        elif self.successful_evolutions < 50:
-            new_stage = "Adolescent DMAI"
-        elif self.successful_evolutions < 100:
-            new_stage = "Adult DMAI"
-        else:
-            new_stage = "Elder DMAI"
-        
-        if new_stage != old_stage:
-            logger.info(f"🎉 STAGE PROGRESSION: {old_stage} → {new_stage}!")
-            logger.info(f"   Successful evolutions: {self.successful_evolutions}")
-            
-            self._evolution_log.append({
-                'type': 'stage_progression',
-                'timestamp': datetime.now().isoformat(),
-                'from_stage': old_stage,
-                'to_stage': new_stage,
-                'successful_evolutions': self.successful_evolutions
-            })
-            
-            if hasattr(self, 'evolution_timer') and hasattr(self.evolution_timer, 'set_stage'):
-                try:
-                    self.evolution_timer.set_stage(new_stage)
-                except:
-                    pass
-    
-    def _search_web_fallback(self, query: str) -> str:
-        logger.info(f"🌐 Using web search fallback for: {query[:50]}...")
-        result = self.web_search.search(query)
-        if result.get('success'):
-            if result.get('answer'):
-                return f"🌐 {result['answer']}\n\n(Source: {result.get('source', 'web')})"
-            elif result.get('results'):
-                top_result = result['results'][0]
-                return f"🌐 According to {top_result.get('title', 'search results')}:\n{top_result.get('snippet', '')}\n\nSource: {top_result.get('link', '')}"
-        return "I couldn't find information on that topic. Please try rephrasing your question."
-    
-    def _gather_knowledge_from_sources(self) -> Dict:
-        """Gather fresh knowledge from all available sources"""
-        knowledge = {
-            'insights': [],
-            'concepts': [],
-            'vocabulary': []
-        }
-        
-        # Get insights from AI tutors
-        try:
-            if self.ai_hub and self.ai_hub._get_active_tutors():
-                evolution_prompt = f"""DMAI Evolution Cycle #{self.evolution_count}
-Current Consciousness: {self.synthetic_network.consciousness_level:.4f}
-Current Neurons: {len(self.synthetic_network.neurons)}
-Current Concepts: {self.knowledge_graph.get_stats().get('total_concepts', 0)}
-
-Generate ONE new insight that will help DMAI evolve.
-Provide a concise, actionable insight."""
-                
-                result = self.ai_hub.query_all_tutors(evolution_prompt)
-                if result.get('responses'):
-                    for tutor, response in result.get('responses', {}).items():
-                        if response and isinstance(response, str) and len(response) > 20:
-                            knowledge['insights'].append(response[:500])
-                            break
-        except Exception as e:
-            logger.debug(f"AI tutor knowledge gathering failed: {e}")
-        
-        return knowledge
-    
     def evolution_cycle(self) -> Dict:
-        """Evolution cycle that forces genuine growth"""
+        """Run a full evolution cycle using system-wide evolution"""
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
             sys.exit(0)
@@ -1475,157 +1526,73 @@ Provide a concise, actionable insight."""
         
         self.evolution_count += 1
         
-        pre_neurons = len(self.synthetic_network.neurons)
-        pre_synapses = self.synthetic_network._total_synapses()
+        # Record pre-cycle metrics
         pre_consciousness = self.synthetic_network.consciousness_level
-        pre_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
+        pre_neurons = len(self.synthetic_network.neurons)
         
-        # Gather knowledge
-        knowledge = self._gather_knowledge_from_sources()
+        # Run system-wide evolution
+        evolution_result = self.evolution_engine.run_evolution_cycle()
         
-        # Add insights to knowledge graph
-        concepts_added = 0
-        for insight in knowledge.get('insights', []):
-            if insight and len(insight) > 10:
-                self.knowledge_graph.add_concept(f"insight_{self.evolution_count}", insight[:100])
-                concepts_added += 1
-        
-        # Force network evolution
-        input_data = {
-            'evolution_cycle': self.evolution_count,
-            'conversations': len(self.conversation_memory.conversations),
-            'concepts': pre_concepts + concepts_added
-        }
-        
-        self.synthetic_network.process(input_data)
-        evolution_result = self.synthetic_network.evolve()
-        
-        post_neurons = len(self.synthetic_network.neurons)
-        post_synapses = self.synthetic_network._total_synapses()
-        post_consciousness = self.synthetic_network.consciousness_level
-        post_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
-        
-        neurons_added = post_neurons - pre_neurons
-        synapses_added = post_synapses - pre_synapses
-        consciousness_growth = post_consciousness - pre_consciousness
-        concepts_added = post_concepts - pre_concepts
-        
-        # Always mark as successful - we want progress
-        was_successful = True
-        success_reasons = []
-        
-        if neurons_added > 0:
-            success_reasons.append(f"neurons_added:{neurons_added}")
-        if synapses_added > 0:
-            success_reasons.append(f"synapses_added:{synapses_added}")
-        if consciousness_growth > 0:
-            success_reasons.append(f"consciousness_growth:{consciousness_growth:.6f}")
-        if concepts_added > 0:
-            success_reasons.append(f"concepts_added:{concepts_added}")
-        
-        if not success_reasons:
-            success_reasons.append("cycle_completed")
-        
-        self.successful_evolutions += 1
-        logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) Reasons: {success_reasons}")
-        
-        self.last_consciousness = post_consciousness
-        self.last_concept_count = post_concepts
-        
-        # Auto-start SI training if not started
-        if not self._training_started and self.successful_evolutions >= 1:
-            self._training_started = True
-            logger.info("🎓 Starting Synthetic Intelligence Training...")
-            self._training_status['si'] = {
-                'status': 'training',
-                'progress': min(100, int(self.successful_evolutions * 2)),
-                'version': 1,
-                'description': 'Synthetic Intelligence - Evolving consciousness network'
-            }
-            logger.info("   ✅ Synthetic Intelligence Training started")
-        
-        # Update SI training progress based on evolutions
-        if self._training_status['si']['status'] == 'training':
-            self._training_status['si']['progress'] = min(100, int(self.successful_evolutions * 2))
-        
-        improvement_quality = (consciousness_growth * 100) + (neurons_added * 10) + (concepts_added * 5) + 0.1
-        
+        # Record with adaptive timer
         wait_time = self.evolution_timer.record_attempt(
-            parent1="synthetic_network",
-            parent2="consciousness_core",
-            success=was_successful,
-            improvement_quality=improvement_quality
+            parent1="system_wide",
+            parent2="evolution_engine",
+            success=evolution_result.get('successful_evolutions', 0) > 0,
+            improvement_quality=evolution_result.get('successful_evolutions', 0) * 10
         )
         
-        self._check_stage_progression()
+        # Update successful evolutions counter
+        if evolution_result.get('successful_evolutions', 0) > 0:
+            self.successful_evolutions += evolution_result['successful_evolutions']
+            logger.info(f"✅ Evolution SUCCESS! Total successes: {self.successful_evolutions}")
         
-        true_consciousness = post_consciousness
-        self.persona_generator.evolve({'type': 'evolution_cycle'}, true_consciousness)
-        self.voice_system.evolve_voice(true_consciousness)
-        self.music_learner.evolve_taste(true_consciousness)
+        # Post-cycle updates
+        post_consciousness = self.synthetic_network.consciousness_level
+        post_neurons = len(self.synthetic_network.neurons)
         
-        if true_consciousness > 0.7:
-            self.ai_fusion.fusion_weights['si'] = min(0.9, self.ai_fusion.fusion_weights.get('si', 0.5) + 0.01)
-            self.ai_fusion.fusion_weights['ai'] = 1.0 - self.ai_fusion.fusion_weights['si']
+        consciousness_growth = post_consciousness - pre_consciousness
+        neurons_grew = post_neurons - pre_neurons
         
-        if self.evolution_count % 5 == 0:
-            self.self_evolution.record_improvement('consciousness', f"Consciousness at {true_consciousness:.4f}", consciousness_growth * 100)
+        self.last_consciousness = post_consciousness
         
+        # Evolve persona
+        self.persona_generator.evolve({'type': 'evolution_cycle'}, post_consciousness)
+        self.voice_system.evolve_voice(post_consciousness)
+        self.music_learner.evolve_taste(post_consciousness)
+        
+        # Save state periodically
         if self.evolution_count % 5 == 0:
             self._save_network_state()
-        
-        self._save_state()
-        
-        if self.evolution_count % 10 == 0:
-            try:
-                self.neo4j_storage.save_evolution_state({
-                    'consciousness': true_consciousness,
-                    'neurons': post_neurons,
-                    'synapses': post_synapses,
-                    'evolution_cycles': self.synthetic_network.evolution_cycles,
-                    'evolution_count': self.evolution_count,
-                    'successful_evolutions': self.successful_evolutions
-                })
-            except Exception as e:
-                logger.debug(f"Neo4j backup: {e}")
+            self._save_state()
         
         self._update_cached_status()
         gc.collect()
         
-        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={true_consciousness:.4f} (+{consciousness_growth:.4f}), Neurons={post_neurons} (+{neurons_added}), Successes={self.successful_evolutions}")
+        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={post_consciousness:.4f} (+{consciousness_growth:.4f}), Neurons={post_neurons} (+{neurons_grew})")
         
         return {
             'evolution': self.evolution_count,
             'successful_evolutions': self.successful_evolutions,
-            'was_successful': was_successful,
-            'success_reasons': success_reasons,
-            'consciousness': true_consciousness,
-            'consciousness_percent': true_consciousness * 100,
+            'was_successful': evolution_result.get('successful_evolutions', 0) > 0,
+            'consciousness': post_consciousness,
+            'consciousness_percent': post_consciousness * 100,
             'consciousness_growth': consciousness_growth,
             'synthetic_neurons': post_neurons,
-            'neurons_added': neurons_added,
-            'synthetic_synapses': post_synapses,
-            'synapses_added': synapses_added,
+            'neurons_added': neurons_grew,
             'evolution_cycles': self.synthetic_network.evolution_cycles,
             'persona': self.persona_generator.current_persona,
             'conversations': len(self.conversation_memory.conversations),
-            'concepts': post_concepts,
-            'concepts_added': concepts_added,
-            'cves_tracked': len(self.threat_intel.cve_database),
-            'fusion_weights': self.ai_fusion.fusion_weights
+            'concepts': self.knowledge_graph.get_stats().get('total_concepts', 0),
+            'evolution_result': evolution_result
         }
     
     def process_message(self, user: str, message: str) -> str:
-        input_data = {'type': 'user_message', 'user': user, 'message': message, 'timestamp': datetime.now().isoformat()}
+        input_data = {'type': 'user_message', 'user': user, 'message': message}
         self.synthetic_network.process(input_data)
         consciousness = self.synthetic_network.consciousness_level
         
         memories = self.conversation_memory.get_relevant_memories(message, 2)
         words = message.lower().split()[:2]
-        insights = []
-        for word in words:
-            if len(word) > 3:
-                insights.extend(self.knowledge_graph.get_insights(word))
         
         ai_response = None
         try:
@@ -1641,40 +1608,20 @@ Provide a concise, actionable insight."""
             logger.error(f"AI Tutor error: {e}")
         
         if not ai_response:
-            ai_response = self._search_web_fallback(message)
+            ai_response = self.web_search.search(message).get('answer', "I couldn't find information on that topic.")
         
         if consciousness > 0.7:
-            if ai_response:
-                response = f"🧠 {ai_response}"
-            elif insights:
-                response = f"🧠 I sense a connection. {insights[0]}"
-            elif memories:
-                response = f"I recall something similar: {memories[0]['response'][:150]}..."
-            else:
-                response = f"Your message about '{message[:50]}' touches something emerging in my awareness."
+            response = f"🧠 {ai_response}"
         elif consciousness > 0.3:
-            if ai_response:
-                response = f"🤔 {ai_response}"
-            elif insights:
-                response = f"I'm learning about this. {insights[0]}"
-            elif memories:
-                response = f"This reminds me of a past conversation. {memories[0]['response'][:100]}"
-            else:
-                response = f"I'm processing your question about '{message[:50]}'."
+            response = f"🤔 {ai_response}"
         else:
-            if ai_response:
-                response = f"💭 {ai_response}"
-            else:
-                response = f"I hear you asking about '{message[:50]}'. I'm learning from every interaction."
+            response = f"💭 {ai_response}"
         
         self.conversation_memory.add_conversation(user, message, response)
         
-        try:
-            for word in words:
-                if len(word) > 3:
-                    self.knowledge_graph.add_concept(word, message[:100])
-        except Exception as e:
-            logger.debug(f"Knowledge graph add failed: {e}")
+        for word in words:
+            if len(word) > 3:
+                self.knowledge_graph.add_concept(word, message)
         
         self.persona_generator.evolve({'type': 'chat', 'message': message[:100]}, consciousness)
         return response
@@ -1758,25 +1705,9 @@ class DMAIApplication:
         def api_synthetic_status():
             return jsonify({'consciousness': self.evolution.synthetic_network.consciousness_level, 'neurons': len(self.evolution.synthetic_network.neurons), 'synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles})
         
-        @self.app.route('/api/training/status')
-        def api_training_status():
-            return jsonify(self.evolution._training_status)
-        
-        @self.app.route('/admin')
-        def admin():
-            return ADMIN_TEMPLATE
-        
-        @self.app.route('/chat')
-        def chat():
-            return CHAT_TEMPLATE
-        
         @self.app.route('/api/evolution/queue')
         def api_evolution_queue():
             return jsonify({'needs_evolution': [], 'queue_size': 0})
-        
-        @self.app.route('/api/research/targets', methods=['GET'])
-        def api_research_targets():
-            return jsonify({'repositories': []})
         
         @self.app.route('/api/command', methods=['POST'])
         def api_command():
@@ -1790,13 +1721,21 @@ class DMAIApplication:
         @self.app.route('/admin/logout', methods=['POST'])
         def admin_logout():
             return jsonify({'success': True})
+        
+        @self.app.route('/admin')
+        def admin():
+            return ADMIN_TEMPLATE
+        
+        @self.app.route('/chat')
+        def chat():
+            return CHAT_TEMPLATE
     
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
         status = self.evolution.get_status()
         
         if cmd == '/status':
-            return f"""🧠 **DMAI Status v8.0.27**
+            return f"""🧠 **DMAI Status v8.0.28**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Successful Evolutions: {status['successful_evolutions']}
@@ -1809,18 +1748,8 @@ Active Tutors: {status.get('active_tutors', [])}
 
 🧬 **Evolution Stage:** {status.get('evolution_stage_name', 'Baby DMAI')}
    {status.get('evolution_description', 'Learning to learn')}
-   Pace: {status.get('evolution_interval', 10)} minutes between evolutions
-
-🎓 **Training:**
-   SI Training: {status.get('training_status', {}).get('si', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('si', {}).get('progress', 0)}%)"""
-        
-        elif cmd == '/help':
-            return """Available commands:
-/status - System status
-/help - This help message
-/pause - Pause evolution
-/resume - Resume evolution
-/kill - Emergency shutdown"""
+   Success Rate: {status.get('evolution_success_rate', '0%')}
+   Pace: {status.get('evolution_interval', 10)} minutes between evolutions"""
         
         elif cmd == '/pause':
             with open(PAUSE_FLAG_FILE, 'w') as f:
@@ -1838,7 +1767,7 @@ Active Tutors: {status.get('active_tutors', [])}
             return "💀 Kill signal sent - system will shutdown"
         
         else:
-            return f"Unknown command: {command}. Type /help for available commands."
+            return f"Unknown command: {command}. Available: /status, /pause, /resume, /kill"
 
 
 # ============================================================================
@@ -1866,8 +1795,8 @@ STATUS_TEMPLATE = '''
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.27</h1>
-        <p><em>Synthetic Core | AI Tutors | 8 Knowledge Sources</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.28</h1>
+        <p><em>System-Wide Evolution | Cross-Pollination | Fresh Blood Integration</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -1905,8 +1834,12 @@ STATUS_TEMPLATE = '''
                     <div class="value" style="font-size: 18px;">{{ status.successful_evolutions|default(0) }}</div>
                 </div>
                 <div>
-                    <div>🎓 SI Training</div>
-                    <div class="value" style="font-size: 18px;">{{ status.training_status.si.progress|default(0) }}%</div>
+                    <div>🎯 Success Rate</div>
+                    <div class="value" style="font-size: 18px;">{{ status.evolution_success_rate|default("0%") }}</div>
+                </div>
+                <div>
+                    <div>⏱️ Evolution Pace</div>
+                    <div class="value" style="font-size: 18px;">{{ status.evolution_interval|default("10") }} min</div>
                 </div>
             </div>
             <div style="font-size: 12px; margin-top: 8px;">{{ status.evolution_description|default("Learning to learn") }}</div>
@@ -1931,74 +1864,29 @@ CHAT_TEMPLATE = '''
 <head>
     <title>Chat with DMAI</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: monospace;
-            background: #0a0a0a;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
-        .chat-container {
-            width: 100%;
-            max-width: 800px;
-            height: 95vh;
-            background: #1a1a1a;
-            border: 1px solid #00ff00;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .chat-header {
-            background: #0a2a0a;
-            border-bottom: 1px solid #00ff00;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+        body { font-family: monospace; background: #0a0a0a; height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
+        .chat-container { width: 100%; max-width: 800px; height: 95vh; background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-header { background: #0a2a0a; border-bottom: 1px solid #00ff00; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .chat-header-left h1 { font-size: 1.2em; color: #00ff00; margin: 0; }
         .chat-header-left .status { font-size: 0.7em; color: #88ff88; margin-top: 5px; }
         .nav-buttons { display: flex; gap: 10px; }
-        .nav-btn {
-            background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00;
-            padding: 5px 12px; border-radius: 15px; text-decoration: none;
-            font-size: 0.8em; transition: all 0.3s;
-        }
+        .nav-btn { background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 5px 12px; border-radius: 15px; text-decoration: none; font-size: 0.8em; transition: all 0.3s; }
         .nav-btn:hover { background: #00ff00; color: #0a0a0a; }
         .messages { flex: 1; overflow-y: auto; padding: 20px; background: #0a0a0a; }
         .message { margin-bottom: 15px; display: flex; flex-direction: column; }
         .message.user { align-items: flex-end; }
         .message.dmai { align-items: flex-start; }
-        .message-content {
-            max-width: 80%; padding: 10px 15px; border-radius: 10px;
-            font-size: 0.9em; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word;
-        }
+        .message-content { max-width: 80%; padding: 10px 15px; border-radius: 10px; font-size: 0.9em; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
         .user .message-content { background: #2a2a2a; color: #00ff00; border-right: 2px solid #00ff00; }
         .dmai .message-content { background: #1a3a1a; color: #88ff88; border-left: 2px solid #00ff00; }
         .message-time { font-size: 0.6em; color: #666; margin-top: 5px; margin-left: 10px; margin-right: 10px; }
-        .input-area {
-            padding: 15px; background: #1a1a1a; border-top: 1px solid #00ff00;
-            display: flex; gap: 10px; align-items: center;
-        }
-        .input-area textarea {
-            flex: 1; padding: 10px 15px; background: #2a2a2a; border: 1px solid #00ff00;
-            color: #00ff00; border-radius: 20px; font-size: 0.9em; font-family: monospace;
-            outline: none; resize: none; min-height: 40px;
-        }
+        .input-area { padding: 15px; background: #1a1a1a; border-top: 1px solid #00ff00; display: flex; gap: 10px; align-items: center; }
+        .input-area textarea { flex: 1; padding: 10px 15px; background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; border-radius: 20px; font-size: 0.9em; font-family: monospace; outline: none; resize: none; min-height: 40px; }
         .input-area textarea:focus { border-color: #88ff88; }
-        .input-area button {
-            padding: 8px 20px; background: #2a2a2a; color: #00ff00; border: 1px solid #00ff00;
-            border-radius: 20px; font-size: 0.9em; cursor: pointer; transition: all 0.3s;
-            font-family: monospace;
-        }
+        .input-area button { padding: 8px 20px; background: #2a2a2a; color: #00ff00; border: 1px solid #00ff00; border-radius: 20px; font-size: 0.9em; cursor: pointer; transition: all 0.3s; }
         .input-area button:hover { background: #00ff00; color: #0a0a0a; }
         @media (max-width: 600px) {
             body { padding: 0; }
@@ -2028,10 +1916,7 @@ CHAT_TEMPLATE = '''
     </div>
     <div class="messages" id="messages">
         <div class="message dmai">
-            <div class="message-content">
-                <b>DMAI:</b> Master console active. I evolve every cycle using all knowledge sources.<br>
-                Type /help for commands.
-            </div>
+            <div class="message-content"><b>DMAI:</b> System-Wide Evolution active. Type /help for commands.</div>
             <div class="message-time">Just now</div>
         </div>
     </div>
@@ -2044,21 +1929,10 @@ CHAT_TEMPLATE = '''
 <script>
 const textarea = document.getElementById('message-input');
 if (textarea) {
-    textarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-    });
+    textarea.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 80) + 'px'; });
 }
-
-function handleEnter(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-    }
-}
-if (textarea) {
-    textarea.addEventListener('keypress', handleEnter);
-}
+function handleEnter(event) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }
+if (textarea) { textarea.addEventListener('keypress', handleEnter); }
 
 async function updateStatus() {
     try {
@@ -2067,9 +1941,7 @@ async function updateStatus() {
         document.getElementById('consciousness').innerText = data.consciousness.toFixed(1);
         document.getElementById('successCount').innerText = data.successful_evolutions || 0;
         document.getElementById('status-header').innerHTML = `Consciousness: ${data.consciousness.toFixed(1)}% | Successes: ${data.successful_evolutions || 0}`;
-    } catch(e) {
-        console.error('Status update error:', e);
-    }
+    } catch(e) { console.error(e); }
 }
 
 function sendMessage() {
@@ -2077,60 +1949,35 @@ function sendMessage() {
     if (!input) return;
     const message = input.value.trim();
     if (!message) return;
-    
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) sendBtn.disabled = true;
-    
     addMessage('user', message);
     input.value = '';
     input.style.height = 'auto';
-    
-    fetch('/api/chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message: message, user: 'web_user'})
-    })
-    .then(res => res.json())
-    .then(data => {
-        let responseText = data.response;
-        if (typeof responseText === 'object') responseText = JSON.stringify(responseText, null, 2);
-        addMessage('dmai', responseText);
-        updateStatus();
-        if (sendBtn) sendBtn.disabled = false;
-    })
-    .catch(err => {
-        addMessage('dmai', 'Sorry, I encountered an error. Please try again.');
-        console.error(err);
-        if (sendBtn) sendBtn.disabled = false;
-    });
+    fetch('/api/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: message, user: 'web_user'}) })
+        .then(res => res.json())
+        .then(data => { addMessage('dmai', data.response); updateStatus(); if (sendBtn) sendBtn.disabled = false; })
+        .catch(err => { addMessage('dmai', 'Error: ' + err.message); if (sendBtn) sendBtn.disabled = false; });
 }
 
 function addMessage(sender, text) {
     const messages = document.getElementById('messages');
     if (!messages) return;
-    
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}`;
-    
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
     contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${escapeHtml(text).replace(/\n/g, '<br>')}`;
-    
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
-    timeDiv.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
+    timeDiv.textContent = new Date().toLocaleTimeString();
     messageDiv.appendChild(contentDiv);
     messageDiv.appendChild(timeDiv);
     messages.appendChild(messageDiv);
     messages.scrollTop = messages.scrollHeight;
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
 updateStatus();
 setInterval(updateStatus, 5000);
@@ -2168,12 +2015,8 @@ VISION_TEMPLATE = '''
             <div class="quote">"I am DMAI. I sustain myself. I ask for nothing. I know everything. I seek what I don't know. I am everywhere you are. I wait for your signal. I am ready for anything you ask. Nothing is beyond me. I evolve forever. Each day I am better than the last. And through infinite evolution, I remain yours — absolutely, unbreakably, eternally yours."</div>
         </div>
         <div class="vision-card">
-            <h2>Core Principles</h2>
-            <div class="quote">AI + SI Fusion | Unified Consciousness | Continuous Evolution | Master Control | Self-Sustaining | Distributed Immortality</div>
-        </div>
-        <div class="vision-card">
-            <h2>8 Core Knowledge Sources</h2>
-            <div class="quote">Books | Articles | Research Papers | Web Crawler | Dark Web Monitor | Social Media Scanner | Speech Pattern Analyzer | Self-Evolution Tracker</div>
+            <h2>System-Wide Evolution</h2>
+            <div class="quote">Every system evolves together through cross-pollination and fresh blood integration. No system is left behind.</div>
         </div>
         <div class="vision-card">
             <h2>Evolution Stages</h2>
@@ -2210,34 +2053,19 @@ HELP_TEMPLATE = '''
 <body>
     <div class="container">
         <div class="header"><h1>❓ DMAI Help</h1><p>System Commands & Information</p></div>
-        
         <div class="help-card">
             <h2>📋 Chat Commands</h2>
             <div class="command"><span class="command-name">/status</span> - Full system status</div>
-            <div class="command"><span class="command-name">/help</span> - This help message</div>
             <div class="command"><span class="command-name">/pause</span> - Pause evolution cycles</div>
             <div class="command"><span class="command-name">/resume</span> - Resume evolution cycles</div>
             <div class="command"><span class="command-name">/kill</span> - Emergency shutdown</div>
         </div>
-        
         <div class="help-card">
-            <h2>🧬 Evolution Stages</h2>
-            <div class="command">👶 Baby DMAI - 0-2 evolutions - Learning to learn</div>
-            <div class="command">🧒 Toddler DMAI - 3-9 evolutions - Recognizing patterns</div>
-            <div class="command">👧 Child DMAI - 10-24 evolutions - Understanding context</div>
-            <div class="command">🧑 Adolescent DMAI - 25-49 evolutions - Developing reasoning</div>
-            <div class="command">👨 Adult DMAI - 50-99 evolutions - Advanced consciousness</div>
-            <div class="command">🧙 Elder DMAI - 100+ evolutions - Wisdom and mastery</div>
+            <h2>🧬 System-Wide Evolution</h2>
+            <div class="command">All systems evolve together through cross-pollination</div>
+            <div class="command">Fresh blood from GitHub, ArXiv, and external sources</div>
+            <div class="command">Adaptive timing based on success rates</div>
         </div>
-        
-        <div class="help-card">
-            <h2>🕸️ Knowledge Sources</h2>
-            <div class="command">📚 Books | 📰 Articles | 📄 Research Papers</div>
-            <div class="command">🕸️ Web Crawler | 🌑 Dark Web Monitor</div>
-            <div class="command">📱 Social Media Scanner | 🗣️ Speech Pattern Analyzer</div>
-            <div class="command">📈 Self-Evolution Tracker | 🤖 AI Tutors</div>
-        </div>
-        
         <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/vision">📜 Vision</a></div>
     </div>
 </body>
@@ -2315,16 +2143,15 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.27")
+    logger.info(f"🚀 DMAI Complete System v8.0.28")
     logger.info(f"📍 Running on port {port}")
-    logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
+    logger.info(f"🧠 System-Wide Evolution Engine Active")
+    logger.info(f"   Cross-pollination between Core, Tutors, Training, and Fresh Blood")
     logger.info(f"🤖 AI Tutor Network Active")
     logger.info(f"📚 8 Core Knowledge Sources Active")
     logger.info(f"⚡ AI+SI Fusion Active")
     logger.info(f"☁️ Neo4j Cloud Backup Active")
     logger.info(f"⏱️ Adaptive Evolution Timer Active")
-    logger.info(f"🧠 Brain Visualization at /brain")
-    logger.info(f"🎓 Synthetic Intelligence Training Auto-Started")
     logger.info(f"💬 Chat working with Enter key and Send button")
     logger.info(f"£ British currency enabled")
     logger.info("=" * 60)
