@@ -175,7 +175,12 @@ class SelfFundingTraining:
             # Import Binance client if available
             try:
                 from binance.client import Client
-                from binance.enums import *
+                from binance.enums import (
+                    ORDER_TYPE_MARKET,
+                    ORDER_TYPE_LIMIT,
+                    SIDE_BUY,
+                    SIDE_SELL
+                )
                 
                 client = Client(
                     self.available_keys['binance_api_key'],
