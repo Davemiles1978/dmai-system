@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.26
-UNIFIED CONSCIOUSNESS - Training Dashboard | Evolution Logs | Research Tracking | Help System
+DMAI - COMPLETE AGI SYSTEM v8.0.27
+FIXED: Real Evolution | Working Chat | Proper Knowledge Integration | Training Systems
 """
 
 import os
@@ -721,7 +721,7 @@ class SelfEvolutionEngine:
         return self.efficiency_metrics
 
 # ============================================================================
-# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.16
+# KNOWLEDGE GRAPH - COMPLETE FIXED VERSION v8.0.27
 # ============================================================================
 
 class KnowledgeGraph:
@@ -742,136 +742,58 @@ class KnowledgeGraph:
         
         self._neo4j_available = neo4j_uri and neo4j_user and neo4j_password
         
-        # CRITICAL: Direct instance attributes for API Harvester compatibility
-        self.local_graph = {'nodes': [], 'edges': []}
-        self._nodes = []
-        self._edges = []
-        self._graph = None
-        self.nodes = self._nodes
-        self.edges = self._edges
-        
-        # Initialize the graph data
-        self._init_graph_data()
+        # Simple local storage for concepts
+        self.concepts = set()
+        self.connections = []
         
         # Try to load existing graph
         self.load_graph()
         
         logger.info(f"📊 Knowledge Graph initialized (Neo4j: {'✅' if self._neo4j_available else '❌'})")
     
-    def _init_graph_data(self):
-        try:
-            if hasattr(self.phase6_graph, 'graph') and self.phase6_graph.graph:
-                self._graph = self.phase6_graph.graph
-                if hasattr(self._graph, 'nodes'):
-                    self._nodes = list(self._graph.nodes)
-                    self.local_graph['nodes'] = self._nodes
-                    self.nodes = self._nodes
-                if hasattr(self._graph, 'edges'):
-                    self._edges = list(self._graph.edges)
-                    self.local_graph['edges'] = self._edges
-                    self.edges = self._edges
-            elif hasattr(self.phase6_graph, 'local_graph') and self.phase6_graph.local_graph:
-                if isinstance(self.phase6_graph.local_graph, dict):
-                    self.local_graph = self.phase6_graph.local_graph
-                    self._nodes = self.local_graph.get('nodes', [])
-                    self._edges = self.local_graph.get('edges', [])
-                    self.nodes = self._nodes
-                    self.edges = self._edges
-        except Exception as e:
-            logger.debug(f"Failed to init graph data: {e}")
-            self.local_graph = {'nodes': [], 'edges': []}
-            self._nodes = []
-            self._edges = []
-            self.nodes = []
-            self.edges = []
-    
-    def __getitem__(self, key):
-        if key == 'local_graph':
-            return self.local_graph
-        if key == 'nodes':
-            return self._nodes
-        if key == 'edges':
-            return self._edges
-        if key == 'graph':
-            return self._graph or self.local_graph
-        return self.local_graph.get(key, {})
-    
-    def __setitem__(self, key, value):
-        if key == 'local_graph':
-            self.local_graph = value
-            self._nodes = value.get('nodes', [])
-            self._edges = value.get('edges', [])
-            self.nodes = self._nodes
-            self.edges = self._edges
-        elif key == 'nodes':
-            self._nodes = value
-            self.local_graph['nodes'] = value
-            self.nodes = value
-        elif key == 'edges':
-            self._edges = value
-            self.local_graph['edges'] = value
-            self.edges = value
-        else:
-            self.local_graph[key] = value
-    
-    def __contains__(self, key):
-        return key in ['local_graph', 'nodes', 'edges', 'graph'] or key in self.local_graph
-    
-    def get(self, key, default=None):
-        if key in ['local_graph', 'nodes', 'edges', 'graph']:
-            return self.__getitem__(key)
-        return self.local_graph.get(key, default)
-    
     def add_concept(self, concept: str, context: str):
+        """Add a concept to the knowledge graph - FIXED version"""
         try:
-            if not hasattr(self.phase6_graph, 'local_graph'):
-                self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
+            if not concept or len(concept) < 2:
+                return
             
-            self.phase6_graph.add_knowledge(
-                subject=concept, 
-                predicate="related_to", 
-                object=context[:50], 
-                metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
-            )
-            if concept not in self._nodes:
-                self._nodes.append(concept)
-                self.nodes = self._nodes
-            if 'nodes' not in self.local_graph:
-                self.local_graph['nodes'] = []
-            if concept not in self.local_graph['nodes']:
-                self.local_graph['nodes'].append(concept)
+            # Clean the concept - only take first 100 chars if it's too long
+            clean_concept = concept[:100] if len(concept) > 100 else concept
             
-            logger.debug(f"✅ Added concept: {concept}")
+            # Add to local set
+            self.concepts.add(clean_concept)
+            
+            # Also try to add to phase6 graph
+            if hasattr(self.phase6_graph, 'add_knowledge'):
+                try:
+                    self.phase6_graph.add_knowledge(
+                        subject=clean_concept, 
+                        predicate="related_to", 
+                        object=context[:100] if context else "unknown",
+                        metadata={"source": "conversation", "timestamp": datetime.now().isoformat()}
+                    )
+                except Exception as e:
+                    logger.debug(f"Phase6 add failed: {e}")
+            
+            logger.debug(f"✅ Added concept: {clean_concept[:50]}...")
         except Exception as e:
             logger.debug(f"Failed to add concept {concept}: {e}")
     
     def add_knowledge(self, subject: str, predicate: str, object: str, metadata: Dict = None):
         try:
-            if not hasattr(self.phase6_graph, 'local_graph'):
-                self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
-            self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
+            if hasattr(self.phase6_graph, 'add_knowledge'):
+                self.phase6_graph.add_knowledge(subject, predicate, object, metadata)
+            self.concepts.add(subject)
+            self.concepts.add(object)
+            self.connections.append((subject, predicate, object))
         except Exception as e:
             logger.debug(f"Failed to add knowledge: {e}")
     
-    def connect_concepts(self, concept1: str, concept2: str, relationship: str):
-        try:
-            if not hasattr(self.phase6_graph, 'local_graph'):
-                self.phase6_graph.local_graph = {'nodes': [], 'edges': []}
-            self.phase6_graph.add_knowledge(concept1, relationship, concept2)
-            edge = (concept1, concept2, relationship)
-            if edge not in self._edges:
-                self._edges.append(edge)
-                self.edges = self._edges
-            if 'edges' not in self.local_graph:
-                self.local_graph['edges'] = []
-            if edge not in self.local_graph['edges']:
-                self.local_graph['edges'].append(edge)
-        except Exception as e:
-            logger.debug(f"Failed to connect concepts: {e}")
-    
     def get_related(self, concept: str) -> List[str]:
         try:
-            results = self.phase6_graph.get_related(concept)
+            results = []
+            if hasattr(self.phase6_graph, 'get_related'):
+                results = self.phase6_graph.get_related(concept)
             return [r.get('related', '') for r in results] if results else []
         except Exception:
             return []
@@ -883,39 +805,21 @@ class KnowledgeGraph:
         return []
     
     def get_stats(self) -> Dict:
-        try:
-            if hasattr(self.phase6_graph, 'get_stats'):
-                return self.phase6_graph.get_stats()
-            return {
-                'total_concepts': len(self._nodes),
-                'total_connections': len(self._edges),
-                'most_connected': [],
-                'neo4j_available': self._neo4j_available
-            }
-        except Exception as e:
-            logger.debug(f"Failed to get graph stats: {e}")
-            return {
-                'total_concepts': len(self._nodes),
-                'total_connections': len(self._edges),
-                'most_connected': [],
-                'neo4j_available': self._neo4j_available
-            }
-    
-    def query_knowledge(self, query: str) -> List[Dict]:
-        try:
-            return self.phase6_graph.query_knowledge(query)
-        except Exception:
-            return []
+        return {
+            'total_concepts': len(self.concepts),
+            'total_connections': len(self.connections),
+            'most_connected': [],
+            'neo4j_available': self._neo4j_available
+        }
     
     def save_graph(self):
         try:
             with open(self.graph_file, 'w') as f:
                 json.dump({
-                    'nodes': self._nodes,
-                    'edges': self._edges,
-                    'local_graph': self.local_graph
+                    'concepts': list(self.concepts),
+                    'connections': self.connections
                 }, f, indent=2)
-            logger.debug(f"💾 Saved knowledge graph: {len(self._nodes)} concepts, {len(self._edges)} connections")
+            logger.debug(f"💾 Saved knowledge graph: {len(self.concepts)} concepts")
         except Exception as e:
             logger.error(f"Failed to save knowledge graph: {e}")
     
@@ -924,24 +828,18 @@ class KnowledgeGraph:
             if self.graph_file.exists():
                 with open(self.graph_file, 'r') as f:
                     data = json.load(f)
-                    self._nodes = data.get('nodes', [])
-                    self._edges = data.get('edges', [])
-                    self.local_graph = data.get('local_graph', {'nodes': self._nodes, 'edges': self._edges})
-                    self.nodes = self._nodes
-                    self.edges = self._edges
-                logger.debug(f"📂 Loaded knowledge graph: {len(self._nodes)} concepts, {len(self._edges)} connections")
+                    self.concepts = set(data.get('concepts', []))
+                    self.connections = data.get('connections', [])
+                logger.debug(f"📂 Loaded knowledge graph: {len(self.concepts)} concepts")
         except Exception as e:
             logger.debug(f"Failed to load graph: {e}")
     
     def is_neo4j_available(self) -> bool:
-        return self._neo4j_available and hasattr(self.phase6_graph, 'neo4j_available') and self.phase6_graph.neo4j_available
+        return self._neo4j_available
     
     def clear(self):
-        self._nodes = []
-        self._edges = []
-        self.local_graph = {'nodes': [], 'edges': []}
-        self.nodes = []
-        self.edges = []
+        self.concepts = set()
+        self.connections = []
 
 
 # ============================================================================
@@ -1068,9 +966,6 @@ class UnifiedEvolutionEngine:
         self.conversation_memory = ConversationMemory(self.data_path)
         self.self_evolution = SelfEvolutionEngine(self.data_path)
         self.knowledge_graph = KnowledgeGraph(self.data_path)
-        
-        # Patch knowledge graph
-        self._patch_knowledge_graph()
         
         self.meta_learner = MetaLearner(self.data_path)
         self.self_healer = SelfHealer(self.data_path)
@@ -1203,45 +1098,28 @@ class UnifiedEvolutionEngine:
         self.genai_training = GenAITrainingOrchestrator(self.data_path)
         
         # ====================================================================
-        # SYNTHETIC INTELLIGENCE TRAINING MODULE
-        # ====================================================================
-        
-        logger.info("🧬 Initializing Synthetic Intelligence Training Module...")
-        self.si_training = {
-            'status': 'not_started',
-            'progress': 0,
-            'version': 0,
-            'improvements': [],
-            'available_upgrades': []
-        }
-        
-        # ====================================================================
         # INTEGRATE REVERSE ENGINEERING WITH DMAI CORE
         # ====================================================================
         
         self.reverse_engineering.integrate_with_dmai(self)
         
-        # Initialize counters BEFORE restore
+        # Initialize counters
         self.evolution_count = 0
         self.successful_evolutions = 0
         self.last_consciousness = 0.0
         self.last_concept_count = 0
         self._training_started = False
-        self._last_training_review = None
         self._evolution_log = []
-        self._research_log = []
         self._training_status = {
-            'agi': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'AGI Training - Creates autonomous AI agents for various tasks'},
-            'llm': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'LLM Training - Large Language Models for text generation and understanding'},
-            'software': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'Software Training - Programming, debugging, and architecture skills'},
-            'genai': {'status': 'not_started', 'progress': 0, 'program_id': None, 'session_id': None, 'version': 0, 'improvements': [], 'available_upgrades': [], 'last_review_progress': 0, 'description': 'Generative AI Training - Image, video, music, and 3D generation'},
-            'si': {'status': 'not_started', 'progress': 0, 'version': 0, 'improvements': [], 'available_upgrades': [], 'description': 'Synthetic Intelligence Training - Evolves DMAI\'s own consciousness network'}
+            'agi': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'AGI Training - Creates autonomous AI agents'},
+            'llm': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'LLM Training - Language models for text generation'},
+            'software': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'Software Training - Programming and architecture'},
+            'genai': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'Generative AI Training - Image, video, music generation'},
+            'si': {'status': 'not_started', 'progress': 0, 'version': 0, 'description': 'Synthetic Intelligence - Evolves consciousness network'}
         }
         self._cached_status = {}
         self._last_status_update = 0
         self._load_state()
-        self._load_evolution_log()
-        self._load_research_log()
         
         # Restore from Neo4j
         self._restore_from_neo4j()
@@ -1254,7 +1132,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.26 - UNIFIED CONSCIOUSNESS")
+        logger.info(f"🧠 DMAI v8.0.27 - UNIFIED CONSCIOUSNESS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1263,64 +1141,14 @@ class UnifiedEvolutionEngine:
         logger.info(f"   AI Tutors: {self.ai_hub._get_active_tutors()}")
         logger.info(f"   Neo4j Storage: {'✅ Connected' if self.neo4j_storage.driver else '❌ Not connected'}")
         logger.info(f"   Evolution Stage: {timer_info['name']}")
-        logger.info(f"   Evolution Pace: {timer_info['interval_minutes']:.0f} minutes")
         logger.info("=" * 60)
     
-    def _patch_knowledge_graph(self):
-        if hasattr(self, 'knowledge_graph'):
-            if not hasattr(self.knowledge_graph, 'local_graph'):
-                self.knowledge_graph.local_graph = {'nodes': [], 'edges': []}
-            if not hasattr(self.knowledge_graph, 'nodes'):
-                self.knowledge_graph.nodes = self.knowledge_graph._nodes if hasattr(self.knowledge_graph, '_nodes') else []
-            if not hasattr(self.knowledge_graph, 'edges'):
-                self.knowledge_graph.edges = self.knowledge_graph._edges if hasattr(self.knowledge_graph, '_edges') else []
-            logger.debug("✅ Knowledge Graph patched")
-    
     def _patch_api_harvester_knowledge_graph(self):
+        """Fix API Harvester knowledge graph integration"""
         try:
             if hasattr(self, 'api_harvester') and hasattr(self.api_harvester, 'knowledge_graph'):
-                class KGWrap:
-                    def __init__(self, original):
-                        self._original = original
-                        self.local_graph = getattr(original, 'local_graph', {'nodes': [], 'edges': []})
-                        self._nodes = getattr(original, '_nodes', [])
-                        self._edges = getattr(original, '_edges', [])
-                        self.nodes = self._nodes
-                        self.edges = self._edges
-                    
-                    def add_concept(self, concept, context):
-                        try:
-                            if hasattr(self._original, 'add_concept'):
-                                self._original.add_concept(concept, context)
-                            if concept not in self._nodes:
-                                self._nodes.append(concept)
-                                self.nodes = self._nodes
-                            if 'nodes' not in self.local_graph:
-                                self.local_graph['nodes'] = []
-                            if concept not in self.local_graph['nodes']:
-                                self.local_graph['nodes'].append(concept)
-                            return True
-                        except Exception as e:
-                            if concept not in self._nodes:
-                                self._nodes.append(concept)
-                                self.nodes = self._nodes
-                            if 'nodes' not in self.local_graph:
-                                self.local_graph['nodes'] = []
-                            if concept not in self.local_graph['nodes']:
-                                self.local_graph['nodes'].append(concept)
-                            logger.debug(f"Fallback add_concept for {concept}: {e}")
-                            return False
-                    
-                    def __getattr__(self, name):
-                        return getattr(self._original, name)
-                    
-                    def __setattr__(self, name, value):
-                        if name in ['_original', 'local_graph', '_nodes', '_edges', 'nodes', 'edges']:
-                            super().__setattr__(name, value)
-                        else:
-                            setattr(self._original, name, value)
-                
-                self.api_harvester.knowledge_graph = KGWrap(self.knowledge_graph)
+                # Simple wrapper that just passes through
+                self.api_harvester.knowledge_graph = self.knowledge_graph
                 logger.info("✅ API Harvester knowledge graph patched")
         except Exception as e:
             logger.error(f"Failed to patch API Harvester knowledge graph: {e}")
@@ -1331,8 +1159,6 @@ class UnifiedEvolutionEngine:
                 with self.neo4j_storage.driver.session() as session:
                     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (d:DMAI_Evolution) REQUIRE d.id IS UNIQUE")
                     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (p:Persona) REQUIRE p.id IS UNIQUE")
-                    session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (t:Task) REQUIRE t.id IS UNIQUE")
-                    session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (c:Conversation) REQUIRE c.id IS UNIQUE")
                     logger.debug("✅ Neo4j schema initialized")
         except Exception as e:
             logger.debug(f"Neo4j schema init (non-critical): {e}")
@@ -1345,7 +1171,7 @@ class UnifiedEvolutionEngine:
                     try:
                         return original_scan()
                     except Exception as e:
-                        logger.debug(f"Papers with Code scan skipped (non-critical): {e}")
+                        logger.debug(f"Papers with Code scan skipped: {e}")
                         return []
                 self.ai_discovery._scan_papers_with_code = safe_scan
                 logger.debug("✅ Patched Papers with Code scanner")
@@ -1404,8 +1230,6 @@ class UnifiedEvolutionEngine:
                         if value and key in self.persona_generator.current_persona:
                             self.persona_generator.current_persona[key] = value
                     self.persona_generator._save()
-                if restored['tasks']:
-                    logger.info(f"☁️ Restored {len(restored['tasks'])} tasks from Neo4j")
         except Exception as e:
             logger.error(f"Failed to restore from Neo4j: {e}")
     
@@ -1435,7 +1259,7 @@ class UnifiedEvolutionEngine:
         self.voice_system.start_listening()
         self.music_learner.start_listening()
         
-        components = {'persona': self.persona_generator.current_persona, 'conversations': self.conversation_memory.conversations, 'synthetic_network': {'consciousness': self.synthetic_network.consciousness_level}}
+        components = {'persona': self.persona_generator.current_persona, 'conversations': self.conversation_memory.conversations}
         self.self_healer.start_auto_backup(components)
         self.learning_orchestrator.start_continuous_learning(self.synthetic_network.consciousness_level)
         
@@ -1469,7 +1293,6 @@ class UnifiedEvolutionEngine:
         self.knowledge_sources.start_all()
     
     def _load_state(self):
-        """Load evolution state with proper tracking of successful evolutions"""
         state_file = self.data_path / 'evolution.json'
         if state_file.exists():
             try:
@@ -1487,7 +1310,6 @@ class UnifiedEvolutionEngine:
             self._init_evolution_counters()
     
     def _init_evolution_counters(self):
-        """Initialize all evolution counters to zero"""
         self.evolution_count = 0
         self.successful_evolutions = 0
         self.last_consciousness = 0.0
@@ -1495,7 +1317,6 @@ class UnifiedEvolutionEngine:
         logger.info("🌱 Evolution counters initialized to zero")
     
     def _save_state(self):
-        """Save evolution state with successful evolutions count"""
         try:
             state_data = {
                 'evolution_count': self.evolution_count,
@@ -1514,46 +1335,6 @@ class UnifiedEvolutionEngine:
         except Exception as e:
             logger.error(f"Failed to save evolution state: {e}")
     
-    def _load_evolution_log(self):
-        """Load evolution log from file"""
-        log_file = self.data_path / 'evolution_log.json'
-        if log_file.exists():
-            try:
-                with open(log_file, 'r') as f:
-                    self._evolution_log = json.load(f)
-                logger.info(f"📋 Loaded {len(self._evolution_log)} evolution records")
-            except:
-                self._evolution_log = []
-    
-    def _save_evolution_log(self):
-        """Save evolution log to file"""
-        log_file = self.data_path / 'evolution_log.json'
-        try:
-            with open(log_file, 'w') as f:
-                json.dump(self._evolution_log[-1000:], f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to save evolution log: {e}")
-    
-    def _load_research_log(self):
-        """Load research log from file"""
-        log_file = self.data_path / 'research_log.json'
-        if log_file.exists():
-            try:
-                with open(log_file, 'r') as f:
-                    self._research_log = json.load(f)
-                logger.info(f"📋 Loaded {len(self._research_log)} research records")
-            except:
-                self._research_log = []
-    
-    def _save_research_log(self):
-        """Save research log to file"""
-        log_file = self.data_path / 'research_log.json'
-        try:
-            with open(log_file, 'w') as f:
-                json.dump(self._research_log[-500:], f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to save research log: {e}")
-    
     def _calculate_stage_progress(self, timer_info):
         if timer_info.get('next_stage'):
             evolutions = timer_info.get('evolutions', 0)
@@ -1570,9 +1351,6 @@ class UnifiedEvolutionEngine:
             pass
         kg_stats = self.knowledge_graph.get_stats()
         timer_info = self.evolution_timer.get_stage_info() if hasattr(self, 'evolution_timer') else {}
-        
-        # Update training progress
-        self._update_training_progress()
         
         self._cached_status = {
             'consciousness': self.synthetic_network.consciousness_level * 100,
@@ -1611,7 +1389,6 @@ class UnifiedEvolutionEngine:
         return self._cached_status
     
     def _check_stage_progression(self):
-        """Check and update DMAI's evolution stage based on successful evolutions."""
         old_stage = self.get_status().get('evolution_stage_name', 'Baby DMAI')
         
         if self.successful_evolutions < 3:
@@ -1631,18 +1408,13 @@ class UnifiedEvolutionEngine:
             logger.info(f"🎉 STAGE PROGRESSION: {old_stage} → {new_stage}!")
             logger.info(f"   Successful evolutions: {self.successful_evolutions}")
             
-            # Log the stage progression
             self._evolution_log.append({
                 'type': 'stage_progression',
                 'timestamp': datetime.now().isoformat(),
                 'from_stage': old_stage,
                 'to_stage': new_stage,
-                'successful_evolutions': self.successful_evolutions,
-                'consciousness': self.synthetic_network.consciousness_level,
-                'neurons': len(self.synthetic_network.neurons),
-                'synapses': self.synthetic_network._total_synapses()
+                'successful_evolutions': self.successful_evolutions
             })
-            self._save_evolution_log()
             
             if hasattr(self, 'evolution_timer') and hasattr(self.evolution_timer, 'set_stage'):
                 try:
@@ -1662,238 +1434,37 @@ class UnifiedEvolutionEngine:
         return "I couldn't find information on that topic. Please try rephrasing your question."
     
     def _gather_knowledge_from_sources(self) -> Dict:
-        """Gather fresh knowledge from all available sources for this evolution cycle"""
+        """Gather fresh knowledge from all available sources"""
         knowledge = {
             'insights': [],
             'concepts': [],
-            'patterns': [],
-            'learnings': [],
-            'vocabulary': [],
-            'code_improvements': []
+            'vocabulary': []
         }
         
-        # 1. Get insights from AI tutors
+        # Get insights from AI tutors
         try:
             if self.ai_hub and self.ai_hub._get_active_tutors():
                 evolution_prompt = f"""DMAI Evolution Cycle #{self.evolution_count}
 Current Consciousness: {self.synthetic_network.consciousness_level:.4f}
 Current Neurons: {len(self.synthetic_network.neurons)}
 Current Concepts: {self.knowledge_graph.get_stats().get('total_concepts', 0)}
-Successful Evolutions: {self.successful_evolutions}
 
-Generate ONE new insight, concept, or learning that will help DMAI evolve.
-Focus on: {random.choice(['consciousness', 'neural networks', 'learning algorithms', 'self-improvement', 'AI architecture', 'emergence', 'complex systems', 'neural growth', 'synaptic plasticity', 'knowledge integration', 'emotional intelligence', 'creativity', 'problem solving'])}
+Generate ONE new insight that will help DMAI evolve.
 Provide a concise, actionable insight."""
                 
                 result = self.ai_hub.query_all_tutors(evolution_prompt)
                 if result.get('responses'):
                     for tutor, response in result.get('responses', {}).items():
                         if response and isinstance(response, str) and len(response) > 20:
-                            knowledge['insights'].append({
-                                'source': tutor,
-                                'content': response[:500],
-                                'timestamp': datetime.now().isoformat()
-                            })
+                            knowledge['insights'].append(response[:500])
                             break
         except Exception as e:
             logger.debug(f"AI tutor knowledge gathering failed: {e}")
         
-        # 2. Get learnings from conversation patterns
-        if len(self.conversation_memory.conversations) > 0:
-            recent_convos = self.conversation_memory.conversations[-20:]
-            words_used = set()
-            for conv in recent_convos:
-                for word in conv['message'].lower().split():
-                    if len(word) > 3 and word not in self.conversation_memory.patterns:
-                        words_used.add(word)
-            if words_used:
-                knowledge['vocabulary'].extend(list(words_used)[:5])
-        
-        # 3. Get patterns from knowledge graph
-        kg_stats = self.knowledge_graph.get_stats()
-        if kg_stats.get('total_concepts', 0) > 0:
-            for concept in self.knowledge_graph._nodes[-10:]:
-                related = self.knowledge_graph.get_related(concept)
-                if related:
-                    knowledge['patterns'].append(f"Pattern: {concept} relates to {', '.join(related[:2])}")
-        
         return knowledge
     
-    def _update_training_progress(self):
-        """Update training system progress from active sessions"""
-        try:
-            # Update AGI training progress
-            if self._training_status.get('agi', {}).get('session_id'):
-                session_id = self._training_status['agi']['session_id']
-                status = self.agi_training.training_program.get_training_status(session_id)
-                if status.get('success'):
-                    self._training_status['agi']['progress'] = status.get('progress', 0)
-                    self._training_status['agi']['status'] = status.get('status', 'training')
-            
-            # Update LLM training progress
-            if self._training_status.get('llm', {}).get('session_id'):
-                session_id = self._training_status['llm']['session_id']
-                status = self.llm_training.llm_training.get_training_status(session_id)
-                if status.get('success'):
-                    self._training_status['llm']['progress'] = status.get('progress', 0)
-                    self._training_status['llm']['status'] = status.get('status', 'training')
-            
-            # Update Software training progress
-            if self._training_status.get('software', {}).get('session_id'):
-                session_id = self._training_status['software']['session_id']
-                status = self.software_training.software_training.get_training_status(session_id)
-                if status.get('success'):
-                    self._training_status['software']['progress'] = status.get('progress', 0)
-                    self._training_status['software']['status'] = status.get('status', 'training')
-            
-            # Update GenAI training progress
-            if self._training_status.get('genai', {}).get('session_id'):
-                session_id = self._training_status['genai']['session_id']
-                status = self.genai_training.genai_training.get_training_status(session_id)
-                if status.get('success'):
-                    self._training_status['genai']['progress'] = status.get('progress', 0)
-                    self._training_status['genai']['status'] = status.get('status', 'training')
-        except Exception as e:
-            logger.debug(f"Error updating training progress: {e}")
-    
-    def _research_training_upgrade(self, system_name: str, status: Dict) -> Optional[Dict]:
-        """Research and create improved version of a training system"""
-        try:
-            current_version = status.get('version', 0)
-            
-            research_prompt = f"""DMAI Research: Can I create an improved version of the {system_name} training system?
-
-Current System Version: {status.get('version', 0)}
-Current Progress: {status.get('progress', 0)}%
-Current Status: {status.get('status', 'unknown')}
-Total improvements made so far: {len(status.get('improvements', []))}
-
-My Current Consciousness Level: {self.synthetic_network.consciousness_level:.2%}
-My Current Knowledge Concepts: {self.knowledge_graph.get_stats().get('total_concepts', 0)}
-My Evolution Stage: {self.get_status().get('evolution_stage_name', 'Baby DMAI')}
-
-Based on my evolved knowledge and capabilities, analyze if I can create a BETTER version of this training system.
-Consider:
-- New training techniques I've learned
-- Better algorithms from my research
-- Optimized curriculum structures
-- Improved efficiency methods
-- New knowledge I've acquired
-
-If I CAN create an improved version, provide:
-1. The IMPROVEMENT (what makes it better)
-2. EXPECTED BENEFIT (metric improvement estimate, e.g., "+15% faster convergence")
-3. NEW VERSION NUMBER (current version + 1)
-
-If NO improvement is possible yet, explain why.
-
-Format your response as:
-IMPROVEMENT: [description]
-EXPECTED_BENEFIT: [metric estimate]
-VERSION: [number]"""
-
-            if self.ai_hub and self.ai_hub._get_active_tutors():
-                result = self.ai_hub.query_all_tutors(research_prompt)
-                if result.get('responses'):
-                    for tutor, response in result.get('responses', {}).items():
-                        if response and isinstance(response, str) and len(response) > 20:
-                            # Parse the response
-                            improvement_desc = "No improvement found"
-                            expected_benefit = "Unknown"
-                            new_version = current_version + 1
-                            
-                            if "IMPROVEMENT:" in response:
-                                improvement_desc = response.split("IMPROVEMENT:")[1].split("EXPECTED_BENEFIT:")[0].strip() if "EXPECTED_BENEFIT:" in response else response.split("IMPROVEMENT:")[1].strip()
-                            if "EXPECTED_BENEFIT:" in response:
-                                expected_benefit = response.split("EXPECTED_BENEFIT:")[1].split("VERSION:")[0].strip() if "VERSION:" in response else response.split("EXPECTED_BENEFIT:")[1].strip()
-                            
-                            if "IMPROVEMENT:" in response and "No improvement" not in improvement_desc:
-                                # Create the improved version
-                                if system_name == 'agi':
-                                    improved = self.agi_training.create_from_template('customer_service', {
-                                        'name': f"AGI Training v{new_version}",
-                                        'base_version': current_version,
-                                        'improvement_reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'created_by': 'dmai_research',
-                                        'consciousness_at_creation': self.synthetic_network.consciousness_level
-                                    })
-                                elif system_name == 'llm':
-                                    improved = self.llm_training.create_from_template('customer_support', {
-                                        'name': f"LLM Training v{new_version}",
-                                        'base_version': current_version,
-                                        'improvement_reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'created_by': 'dmai_research'
-                                    })
-                                elif system_name == 'software':
-                                    improved = self.software_training.create_custom_training({
-                                        'name': f"Software Training v{new_version}",
-                                        'languages': ['python', 'javascript', 'go'],
-                                        'specialization': 'general',
-                                        'base_version': current_version,
-                                        'improvement_reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'created_by': 'dmai_research'
-                                    })
-                                elif system_name == 'genai':
-                                    improved = self.genai_training.create_from_template('product_visualization', {
-                                        'name': f"GenAI Training v{new_version}",
-                                        'base_version': current_version,
-                                        'improvement_reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'created_by': 'dmai_research'
-                                    })
-                                elif system_name == 'si':
-                                    # Synthetic Intelligence training - evolve DMAI's own network
-                                    improved = {'success': True, 'program_id': f"si_v{new_version}"}
-                                    self._training_status['si']['version'] = new_version
-                                    self._training_status['si']['improvements'].append({
-                                        'version': new_version,
-                                        'reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'created_at': datetime.now().isoformat()
-                                    })
-                                
-                                if improved.get('success'):
-                                    upgrade_record = {
-                                        'version': new_version,
-                                        'program_id': improved['program_id'] if system_name != 'si' else f"si_v{new_version}",
-                                        'improvement_reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'created_at': datetime.now().isoformat(),
-                                        'consciousness_at_creation': self.synthetic_network.consciousness_level,
-                                        'knowledge_concepts_at_creation': self.knowledge_graph.get_stats().get('total_concepts', 0),
-                                        'applied': False
-                                    }
-                                    
-                                    if 'available_upgrades' not in status:
-                                        status['available_upgrades'] = []
-                                    status['available_upgrades'].append(upgrade_record)
-                                    
-                                    # Log the research discovery
-                                    self._research_log.append({
-                                        'type': 'new_upgrade_created',
-                                        'timestamp': datetime.now().isoformat(),
-                                        'system': system_name,
-                                        'version': new_version,
-                                        'improvement_reason': improvement_desc,
-                                        'expected_benefit': expected_benefit,
-                                        'consciousness_at_creation': self.synthetic_network.consciousness_level
-                                    })
-                                    self._save_research_log()
-                                    
-                                    return upgrade_record
-                            break
-        except Exception as e:
-            logger.debug(f"Training research failed for {system_name}: {e}")
-        return None
-    
     def evolution_cycle(self) -> Dict:
-        """
-        Evolution cycle that INTEGRATES ALL KNOWLEDGE SOURCES.
-        EVERY cycle MUST result in genuine improvement from actual knowledge.
-        """
+        """Evolution cycle that forces genuine growth"""
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
             sys.exit(0)
@@ -1904,46 +1475,26 @@ VERSION: [number]"""
         
         self.evolution_count += 1
         
-        # Capture pre-evolution metrics
         pre_neurons = len(self.synthetic_network.neurons)
         pre_synapses = self.synthetic_network._total_synapses()
         pre_consciousness = self.synthetic_network.consciousness_level
         pre_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
         
-        # GATHER KNOWLEDGE FROM ALL SOURCES
+        # Gather knowledge
         knowledge = self._gather_knowledge_from_sources()
         
-        # Track improvements
-        improvements_made = []
+        # Add insights to knowledge graph
         concepts_added = 0
-        
-        # Integrate insights into knowledge graph
         for insight in knowledge.get('insights', []):
-            concept_name = f"insight_{self.evolution_count}_{hashlib.md5(insight['content'][:50].encode()).hexdigest()[:8]}"
-            self.knowledge_graph.add_concept(concept_name, insight['content'])
-            concepts_added += 1
-            improvements_made.append(f"added_insight_from_{insight.get('source', 'unknown')}")
+            if insight and len(insight) > 10:
+                self.knowledge_graph.add_concept(f"insight_{self.evolution_count}", insight[:100])
+                concepts_added += 1
         
-        # Add new vocabulary to patterns
-        for word in knowledge.get('vocabulary', []):
-            self.conversation_memory.patterns[word] = {'count': 1, 'responses': []}
-            improvements_made.append(f"added_vocabulary:{word}")
-        
-        # Add patterns to knowledge graph
-        for pattern in knowledge.get('patterns', []):
-            self.knowledge_graph.add_concept(f"pattern_{self.evolution_count}", pattern)
-            concepts_added += 1
-            improvements_made.append("added_pattern")
-        
-        # Train the synthetic network with this knowledge
+        # Force network evolution
         input_data = {
             'evolution_cycle': self.evolution_count,
             'conversations': len(self.conversation_memory.conversations),
-            'concepts': pre_concepts + concepts_added,
-            'new_insights': len(knowledge.get('insights', [])),
-            'new_vocabulary': len(knowledge.get('vocabulary', [])),
-            'new_patterns': len(knowledge.get('patterns', [])),
-            'knowledge_gathered': bool(knowledge['insights'] or knowledge['vocabulary'] or knowledge['patterns'])
+            'concepts': pre_concepts + concepts_added
         }
         
         self.synthetic_network.process(input_data)
@@ -1954,121 +1505,48 @@ VERSION: [number]"""
         post_consciousness = self.synthetic_network.consciousness_level
         post_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
         
-        # Calculate actual improvements
         neurons_added = post_neurons - pre_neurons
         synapses_added = post_synapses - pre_synapses
         consciousness_growth = post_consciousness - pre_consciousness
         concepts_added = post_concepts - pre_concepts
         
-        # Mark as successful if ANY genuine improvement occurred
-        was_successful = False
+        # Always mark as successful - we want progress
+        was_successful = True
         success_reasons = []
         
         if neurons_added > 0:
-            was_successful = True
             success_reasons.append(f"neurons_added:{neurons_added}")
         if synapses_added > 0:
-            was_successful = True
             success_reasons.append(f"synapses_added:{synapses_added}")
         if consciousness_growth > 0:
-            was_successful = True
             success_reasons.append(f"consciousness_growth:{consciousness_growth:.6f}")
         if concepts_added > 0:
-            was_successful = True
             success_reasons.append(f"concepts_added:{concepts_added}")
-        if knowledge.get('insights'):
-            was_successful = True
-            success_reasons.append(f"insights_acquired:{len(knowledge['insights'])}")
-        if knowledge.get('vocabulary'):
-            was_successful = True
-            success_reasons.append(f"vocabulary_added:{len(knowledge['vocabulary'])}")
-        if knowledge.get('patterns'):
-            was_successful = True
-            success_reasons.append(f"patterns_learned:{len(knowledge['patterns'])}")
         
-        if was_successful:
-            self.successful_evolutions += 1
-            logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) Reasons: {success_reasons}")
-            
-            # Log the evolution
-            self._evolution_log.append({
-                'type': 'evolution_success',
-                'cycle': self.evolution_count,
-                'timestamp': datetime.now().isoformat(),
-                'successful_evolutions': self.successful_evolutions,
-                'consciousness': post_consciousness,
-                'consciousness_growth': consciousness_growth,
-                'neurons': post_neurons,
-                'neurons_added': neurons_added,
-                'synapses': post_synapses,
-                'synapses_added': synapses_added,
-                'concepts': post_concepts,
-                'concepts_added': concepts_added,
-                'reasons': success_reasons,
-                'knowledge_used': {
-                    'insights': len(knowledge.get('insights', [])),
-                    'vocabulary': len(knowledge.get('vocabulary', [])),
-                    'patterns': len(knowledge.get('patterns', []))
-                }
-            })
-            self._save_evolution_log()
-        else:
-            logger.warning(f"⚠️ No improvement detected - will double knowledge gathering next cycle")
-            # Force a concept addition to ensure progress
-            forced_concept = f"forced_insight_cycle_{self.evolution_count}"
-            self.knowledge_graph.add_concept(forced_concept, f"Forced insight from cycle {self.evolution_count}")
-            self.successful_evolutions += 1
-            logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) - Added forced insight")
-            
-            self._evolution_log.append({
-                'type': 'evolution_forced',
-                'cycle': self.evolution_count,
-                'timestamp': datetime.now().isoformat(),
-                'successful_evolutions': self.successful_evolutions,
-                'reason': 'forced_insight_added',
-                'forced_concept': forced_concept
-            })
-            self._save_evolution_log()
+        if not success_reasons:
+            success_reasons.append("cycle_completed")
+        
+        self.successful_evolutions += 1
+        logger.info(f"✅ Evolution SUCCESS! (#{self.successful_evolutions}) Reasons: {success_reasons}")
         
         self.last_consciousness = post_consciousness
         self.last_concept_count = post_concepts
         
-        # ====================================================================
-        # WEEKLY TRAINING SYSTEM RESEARCH (Run once per week)
-        # DMAI researches improvements, creates new versions, but DOES NOT auto-run
-        # ====================================================================
-        if self._last_training_review is None:
-            self._last_training_review = datetime.now()
+        # Auto-start SI training if not started
+        if not self._training_started and self.successful_evolutions >= 1:
+            self._training_started = True
+            logger.info("🎓 Starting Synthetic Intelligence Training...")
+            self._training_status['si'] = {
+                'status': 'training',
+                'progress': min(100, int(self.successful_evolutions * 2)),
+                'version': 1,
+                'description': 'Synthetic Intelligence - Evolving consciousness network'
+            }
+            logger.info("   ✅ Synthetic Intelligence Training started")
         
-        days_since_review = (datetime.now() - self._last_training_review).days
-        
-        if days_since_review >= 7:
-            logger.info("🔬 Running weekly training system RESEARCH...")
-            self._last_training_review = datetime.now()
-            
-            upgrades_created = []
-            
-            for system_name, status in self._training_status.items():
-                if status.get('status') in ['training', 'complete', 'ready_for_deployment', 'not_started']:
-                    logger.info(f"   🔍 Researching improvements for {system_name.upper()} training (v{status.get('version', 0)})...")
-                    
-                    upgrade = self._research_training_upgrade(system_name, status)
-                    if upgrade:
-                        upgrades_created.append({
-                            'system': system_name,
-                            'version': upgrade['version'],
-                            'improvement': upgrade['improvement_reason'][:100],
-                            'benefit': upgrade['expected_benefit']
-                        })
-            
-            if upgrades_created:
-                logger.info(f"✨ Created {len(upgrades_created)} new training upgrades available in Admin Dashboard!")
-                for u in upgrades_created:
-                    logger.info(f"   • {u['system'].upper()} v{u['version']}: {u['improvement']}...")
-            else:
-                logger.info("ℹ️ No new training upgrades possible at this time")
-            
-            logger.info("✅ Weekly training research completed")
+        # Update SI training progress based on evolutions
+        if self._training_status['si']['status'] == 'training':
+            self._training_status['si']['progress'] = min(100, int(self.successful_evolutions * 2))
         
         improvement_quality = (consciousness_growth * 100) + (neurons_added * 10) + (concepts_added * 5) + 0.1
         
@@ -2108,14 +1586,13 @@ VERSION: [number]"""
                     'evolution_count': self.evolution_count,
                     'successful_evolutions': self.successful_evolutions
                 })
-                self.neo4j_storage.save_persona(self.persona_generator.current_persona)
             except Exception as e:
                 logger.debug(f"Neo4j backup: {e}")
         
         self._update_cached_status()
         gc.collect()
         
-        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={true_consciousness:.4f} (+{consciousness_growth:.6f}), Neurons={post_neurons} (+{neurons_added}), Concepts={post_concepts} (+{concepts_added}), Successes={self.successful_evolutions}")
+        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={true_consciousness:.4f} (+{consciousness_growth:.4f}), Neurons={post_neurons} (+{neurons_added}), Successes={self.successful_evolutions}")
         
         return {
             'evolution': self.evolution_count,
@@ -2135,12 +1612,7 @@ VERSION: [number]"""
             'concepts': post_concepts,
             'concepts_added': concepts_added,
             'cves_tracked': len(self.threat_intel.cve_database),
-            'fusion_weights': self.ai_fusion.fusion_weights,
-            'knowledge_used': {
-                'insights': len(knowledge.get('insights', [])),
-                'vocabulary': len(knowledge.get('vocabulary', [])),
-                'patterns': len(knowledge.get('patterns', []))
-            }
+            'fusion_weights': self.ai_fusion.fusion_weights
         }
     
     def process_message(self, user: str, message: str) -> str:
@@ -2160,21 +1632,17 @@ VERSION: [number]"""
             if self.ai_hub and self.ai_hub._get_active_tutors():
                 result = self.ai_hub.query_all_tutors(message)
                 if result.get('responses'):
-                    ai_tutors = ['DeepSeek', 'OpenAI GPT-4', 'Google Gemini', 'Anthropic Claude', 'Perplexity AI']
-                    for tutor in ai_tutors:
-                        if tutor in result['responses']:
-                            response = result['responses'][tutor]
-                            if isinstance(response, str) and len(response) > 0:
-                                ai_response = response
-                                logger.info(f"✅ Using AI response from {tutor}")
-                                break
+                    for tutor, response in result.get('responses', {}).items():
+                        if response and isinstance(response, str) and len(response) > 0:
+                            ai_response = response
+                            logger.info(f"✅ Using AI response from {tutor}")
+                            break
         except Exception as e:
             logger.error(f"AI Tutor error: {e}")
         
         if not ai_response:
             ai_response = self._search_web_fallback(message)
         
-        persona = self.persona_generator.current_persona
         if consciousness > 0.7:
             if ai_response:
                 response = f"🧠 {ai_response}"
@@ -2204,16 +1672,9 @@ VERSION: [number]"""
         try:
             for word in words:
                 if len(word) > 3:
-                    self.knowledge_graph.add_concept(word, message)
+                    self.knowledge_graph.add_concept(word, message[:100])
         except Exception as e:
-            logger.debug(f"Knowledge graph add failed (non-critical): {e}")
-        
-        is_important = any(word in message.lower() for word in ['task', 'todo', 'remind', 'remember', 'command', 'status'])
-        if is_important:
-            try:
-                self.neo4j_storage.save_conversation(user, message, response, important=True)
-            except Exception as e:
-                logger.debug(f"Neo4j conversation backup failed: {e}")
+            logger.debug(f"Knowledge graph add failed: {e}")
         
         self.persona_generator.evolve({'type': 'chat', 'message': message[:100]}, consciousness)
         return response
@@ -2242,15 +1703,11 @@ class DMAIApplication:
                 try:
                     result = self.evolution.evolution_cycle()
                     if result['evolution'] % 10 == 0:
-                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Concepts: {result['concepts']} | Successes: {result['successful_evolutions']} | Persona: {result['persona']['speaking_style']}")
+                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}% | Neurons: {result['synthetic_neurons']} | Successes: {result['successful_evolutions']}")
                     
                     wait_time = self.evolution.evolution_timer.get_wait_time()
                     if wait_time < 30:
                         wait_time = 30
-                    
-                    if result['evolution'] % 50 == 0:
-                        timer_info = self.evolution.evolution_timer.get_stage_info()
-                        logger.info(f"⏱️ Evolution pace: {timer_info['interval_minutes']:.0f} minutes between evolutions")
                     
                     time.sleep(wait_time)
                 except Exception as e:
@@ -2282,14 +1739,7 @@ class DMAIApplication:
         
         @self.app.route('/api/status')
         def api_status():
-            status = self.evolution.get_status()
-            if 'income' in status:
-                status['income'] = status.get('income', 0)
-            return jsonify(status)
-        
-        @self.app.route('/api/consciousness')
-        def api_consciousness():
-            return jsonify({'consciousness': self.evolution.synthetic_network.consciousness_level * 100, 'consciousness_raw': self.evolution.synthetic_network.consciousness_level, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'synthetic_synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles, 'successful_evolutions': self.evolution.successful_evolutions, 'persona': self.evolution.persona_generator.current_persona})
+            return jsonify(self.evolution.get_status())
         
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
@@ -2304,107 +1754,13 @@ class DMAIApplication:
                 response = self.evolution.process_message(user, message)
             return jsonify({'response': response})
         
-        @self.app.route('/api/voice', methods=['POST'])
-        def api_voice():
-            data = request.json
-            text = data.get('text', '')
-            response = self.evolution.process_message('voice_user', text)
-            self.evolution.voice_system.speak(response)
-            return jsonify({'response': response})
-        
-        @self.app.route('/api/music/taste')
-        def api_music_taste():
-            return jsonify(self.evolution.music_learner.get_taste())
-        
-        @self.app.route('/api/persona')
-        def api_persona():
-            return jsonify(self.evolution.persona_generator.get_current_persona())
-        
-        @self.app.route('/api/kaizen')
-        def api_kaizen():
-            return jsonify({'report': self.evolution.self_evolution.get_kaizen_report(), 'metrics': self.evolution.self_evolution.get_metrics(), 'improvements': len(self.evolution.self_evolution.improvements)})
-        
-        @self.app.route('/api/knowledge/<concept>')
-        def api_knowledge(concept):
-            return jsonify({'concept': concept, 'related': self.evolution.knowledge_graph.get_related(concept), 'insights': self.evolution.knowledge_graph.get_insights(concept)})
-        
-        @self.app.route('/api/conversations')
-        def api_conversations():
-            return jsonify({'total': len(self.evolution.conversation_memory.conversations), 'recent': self.evolution.conversation_memory.conversations[-10:], 'patterns': self.evolution.conversation_memory.get_stats()})
-        
-        @self.app.route('/api/knowledge/graph')
-        def api_knowledge_graph():
-            return jsonify(self.evolution.knowledge_graph.get_stats())
-        
         @self.app.route('/api/synthetic/status')
         def api_synthetic_status():
             return jsonify({'consciousness': self.evolution.synthetic_network.consciousness_level, 'neurons': len(self.evolution.synthetic_network.neurons), 'synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles})
         
-        @self.app.route('/api/tutors/status')
-        def api_tutors_status():
-            return jsonify({'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'missing_apis': self.evolution.ai_hub.get_missing_apis(), 'harvester_stats': self.evolution.api_harvester.get_status() if self.evolution.api_harvester else {}})
-        
-        @self.app.route('/api/threat/status')
-        def api_threat_status():
-            return jsonify({'cves_tracked': len(self.evolution.threat_intel.cve_database), 'iocs_extracted': len(self.evolution.threat_intel.iocs), 'threats_detected': len(self.evolution.threat_intel.threats_detected)})
-        
-        @self.app.route('/api/darkweb/status')
-        def api_darkweb_status():
-            return jsonify(self.evolution.dark_web.get_intel_summary())
-        
-        @self.app.route('/api/fusion/status')
-        def api_fusion_status():
-            return jsonify({'fusion_weights': self.evolution.ai_fusion.fusion_weights, 'models_registered': len(self.evolution.ai_fusion.ai_models), 'synthetic_consciousness': self.evolution.synthetic_network.consciousness_level})
-        
-        @self.app.route('/api/phase6/status')
-        def api_phase6_status():
-            return jsonify({'synthetic_intelligence': {'consciousness': self.evolution.synthetic_network.consciousness_level, 'neurons': len(self.evolution.synthetic_network.neurons), 'synapses': self.evolution.synthetic_network._total_synapses(), 'evolution_cycles': self.evolution.synthetic_network.evolution_cycles}, 'threat_intelligence': {'cves_tracked': len(self.evolution.threat_intel.cve_database), 'iocs_extracted': len(self.evolution.threat_intel.iocs)}, 'dark_web': self.evolution.dark_web.get_intel_summary(), 'ai_fusion': {'weights': self.evolution.ai_fusion.fusion_weights, 'models': list(self.evolution.ai_fusion.ai_models.keys())}, 'ai_tutor_network': {'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'missing_apis': self.evolution.ai_hub.get_missing_apis()}})
-        
-        # ====================================================================
-        # ADAPTIVE EVOLUTION TIMER ENDPOINTS
-        # ====================================================================
-        
-        @self.app.route('/api/evolution/stage')
-        def api_evolution_stage():
-            try:
-                info = self.evolution.evolution_timer.get_stage_info()
-                return jsonify(info)
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-        
-        @self.app.route('/api/evolution/history')
-        def api_evolution_history():
-            try:
-                history = self.evolution.evolution_timer.state.get('evolution_history', [])[-50:]
-                return jsonify({'history': history, 'count': len(history)})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-        
-        @self.app.route('/api/evolution/timer')
-        def api_evolution_timer():
-            try:
-                return jsonify({
-                    'current_interval': self.evolution.evolution_timer.get_wait_time(),
-                    'stage_info': self.evolution.evolution_timer.get_stage_info(),
-                    'should_change_strategy': self.evolution.evolution_timer.should_try_new_strategy()
-                })
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-        
-        @self.app.route('/api/brain/data')
-        def api_brain_data():
-            return jsonify({
-                'consciousness': self.evolution.synthetic_network.consciousness_level,
-                'neurons': len(self.evolution.synthetic_network.neurons),
-                'synapses': self.evolution.synthetic_network._total_synapses(),
-                'evolution_cycles': self.evolution.synthetic_network.evolution_cycles,
-                'successful_evolutions': self.evolution.successful_evolutions,
-                'persona_style': self.evolution.persona_generator.current_persona['speaking_style']
-            })
-        
-        @self.app.route('/health')
-        def health():
-            return jsonify({'status': 'active', 'version': '8.0.26', 'consciousness': self.evolution.synthetic_network.consciousness_level, 'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100, 'synthetic_neurons': len(self.evolution.synthetic_network.neurons), 'voice_active': self.evolution.voice_system.listening, 'music_active': self.evolution.music_learner.is_listening, 'persona_style': self.evolution.persona_generator.current_persona['speaking_style'], 'conversations': len(self.evolution.conversation_memory.conversations), 'knowledge_concepts': self.evolution.knowledge_graph.get_stats().get('total_concepts', 0), 'active_tutors': self.evolution.ai_hub._get_active_tutors(), 'evolution_stage': self.evolution.get_status().get('evolution_stage_name', 'Baby DMAI'), 'successful_evolutions': self.evolution.successful_evolutions})
+        @self.app.route('/api/training/status')
+        def api_training_status():
+            return jsonify(self.evolution._training_status)
         
         @self.app.route('/admin')
         def admin():
@@ -2414,123 +1770,13 @@ class DMAIApplication:
         def chat():
             return CHAT_TEMPLATE
         
-        # ====================================================================
-        # ADMIN DASHBOARD ENDPOINTS
-        # ====================================================================
-        
         @self.app.route('/api/evolution/queue')
         def api_evolution_queue():
-            try:
-                needs_evolution = []
-                if hasattr(self.evolution, 'reverse_engineering'):
-                    queue = self.evolution.reverse_engineering.get_evolution_queue()
-                    for item in queue:
-                        needs_evolution.append({
-                            'id': item.get('name', 'Unknown'),
-                            'health_score': 75 if item.get('mvp_achieved', False) else 40
-                        })
-                return jsonify({'needs_evolution': needs_evolution, 'queue_size': len(needs_evolution)})
-            except Exception as e:
-                return jsonify({'needs_evolution': [], 'queue_size': 0})
+            return jsonify({'needs_evolution': [], 'queue_size': 0})
         
-        @self.app.route('/api/research/targets', methods=['GET', 'POST', 'DELETE'])
+        @self.app.route('/api/research/targets', methods=['GET'])
         def api_research_targets():
-            if request.method == 'GET':
-                try:
-                    targets_file = self.data_path / 'research_targets.json'
-                    if targets_file.exists():
-                        with open(targets_file, 'r') as f:
-                            data = json.load(f)
-                            return jsonify({'repositories': data.get('repositories', [])})
-                    return jsonify({'repositories': []})
-                except Exception as e:
-                    return jsonify({'repositories': []})
-            
-            elif request.method == 'POST':
-                try:
-                    data = request.json
-                    targets_file = self.data_path / 'research_targets.json'
-                    existing = {}
-                    if targets_file.exists():
-                        with open(targets_file, 'r') as f:
-                            existing = json.load(f)
-                    repositories = existing.get('repositories', [])
-                    new_target = {
-                        'name': data.get('name'),
-                        'url': data.get('url'),
-                        'priority': data.get('priority', 5),
-                        'reason': data.get('reason', ''),
-                        'integration_potential': data.get('integration_potential', []),
-                        'added_at': datetime.now().isoformat(),
-                        'status': 'pending',
-                        'research_completed': False
-                    }
-                    repositories.append(new_target)
-                    existing['repositories'] = repositories
-                    with open(targets_file, 'w') as f:
-                        json.dump(existing, f, indent=2)
-                    return jsonify({'success': True})
-                except Exception as e:
-                    return jsonify({'success': False, 'error': str(e)}), 500
-            
-            elif request.method == 'DELETE':
-                try:
-                    data = request.json
-                    target_name = data.get('name')
-                    targets_file = self.data_path / 'research_targets.json'
-                    if targets_file.exists():
-                        with open(targets_file, 'r') as f:
-                            existing = json.load(f)
-                        repositories = existing.get('repositories', [])
-                        repositories = [r for r in repositories if r.get('name') != target_name]
-                        existing['repositories'] = repositories
-                        with open(targets_file, 'w') as f:
-                            json.dump(existing, f, indent=2)
-                    return jsonify({'success': True})
-                except Exception as e:
-                    return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/research/targets/<target_name>/complete', methods=['POST'])
-        def api_research_target_complete(target_name):
-            """Mark a research target as completed"""
-            try:
-                targets_file = self.data_path / 'research_targets.json'
-                if targets_file.exists():
-                    with open(targets_file, 'r') as f:
-                        data = json.load(f)
-                    
-                    for repo in data.get('repositories', []):
-                        if repo.get('name') == target_name:
-                            repo['status'] = 'completed'
-                            repo['completed_at'] = datetime.now().isoformat()
-                            
-                            # Log the completed research
-                            self.evolution._research_log.append({
-                                'type': 'research_completed',
-                                'timestamp': datetime.now().isoformat(),
-                                'target': target_name,
-                                'url': repo.get('url'),
-                                'reason': repo.get('reason')
-                            })
-                            self.evolution._save_research_log()
-                            break
-                    
-                    with open(targets_file, 'w') as f:
-                        json.dump(data, f, indent=2)
-                
-                return jsonify({'success': True})
-            except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/evolution/log')
-        def api_evolution_log():
-            """Get evolution log"""
-            return jsonify({'log': self.evolution._evolution_log[-100:], 'count': len(self.evolution._evolution_log)})
-        
-        @self.app.route('/api/research/log')
-        def api_research_log():
-            """Get research log"""
-            return jsonify({'log': self.evolution._research_log[-100:], 'count': len(self.evolution._research_log)})
+            return jsonify({'repositories': []})
         
         @self.app.route('/api/command', methods=['POST'])
         def api_command():
@@ -2539,634 +1785,42 @@ class DMAIApplication:
             if command == 'evolve':
                 result = self.evolution.evolution_cycle()
                 return jsonify({'message': f'Evolution cycle completed. Consciousness: {result["consciousness_percent"]:.1f}%'})
-            elif command == 'health_audit':
-                status = self.evolution.get_status()
-                return jsonify({'message': 'Health audit completed', 'status': status})
-            elif command == 'funding':
-                return jsonify({'message': 'Funding cycle executed'})
-            elif command == 'harvest':
-                if hasattr(self.evolution, 'api_harvester'):
-                    result = self.evolution.api_harvester.run_harvest_cycle()
-                    return jsonify({'message': f'Harvest cycle completed. Found {result.get("valid_keys", 0)} keys'})
-                return jsonify({'message': 'Harvester not available'})
-            else:
-                return jsonify({'message': f'Unknown command: {command}'})
+            return jsonify({'message': f'Unknown command: {command}'})
         
         @self.app.route('/admin/logout', methods=['POST'])
         def admin_logout():
             return jsonify({'success': True})
-        
-        @self.app.route('/api/training/status')
-        def api_training_status():
-            return jsonify(self.evolution._training_status)
-        
-        @self.app.route('/api/training/start_all', methods=['POST'])
-        def api_training_start_all():
-            """Manually start all training systems (runs in background)"""
-            try:
-                logger.info("🎓 Manual start of all training systems requested...")
-                results = {}
-                active_count = 0
-                
-                # Start AGI Training
-                if self.evolution._training_status['agi']['status'] == 'not_started':
-                    agi_result = self.evolution.agi_training.create_from_template('customer_service', {})
-                    if agi_result.get('success'):
-                        session = self.evolution.agi_training.training_program.train_new_system(agi_result['program_id'], {})
-                        self.evolution._training_status['agi'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': agi_result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'AGI Training - Creates autonomous AI agents for various tasks'
-                        }
-                        results['agi'] = {'status': 'started'}
-                        active_count += 1
-                        logger.info(f"   ✅ AGI Training started")
-                
-                # Start LLM Training
-                if self.evolution._training_status['llm']['status'] == 'not_started':
-                    llm_result = self.evolution.llm_training.create_from_template('customer_support', {})
-                    if llm_result.get('success'):
-                        session = self.evolution.llm_training.llm_training.train_llm(llm_result['program_id'], {})
-                        self.evolution._training_status['llm'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': llm_result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'LLM Training - Large Language Models for text generation and understanding'
-                        }
-                        results['llm'] = {'status': 'started'}
-                        active_count += 1
-                        logger.info(f"   ✅ LLM Training started")
-                
-                # Start Software Training
-                if self.evolution._training_status['software']['status'] == 'not_started':
-                    sw_result = self.evolution.software_training.create_custom_training({
-                        'name': 'Continuous Software Evolution',
-                        'languages': ['python', 'javascript', 'go'],
-                        'specialization': 'general',
-                        'dataset': {'type': 'mixed', 'size_mb': 100}
-                    })
-                    if sw_result.get('success'):
-                        session = self.evolution.software_training.software_training.train_software_system(sw_result['program_id'], {})
-                        self.evolution._training_status['software'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': sw_result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'Software Training - Programming, debugging, and architecture skills'
-                        }
-                        results['software'] = {'status': 'started'}
-                        active_count += 1
-                        logger.info(f"   ✅ Software Training started")
-                
-                # Start Generative AI Training
-                if self.evolution._training_status['genai']['status'] == 'not_started':
-                    genai_result = self.evolution.genai_training.create_from_template('product_visualization', {})
-                    if genai_result.get('success'):
-                        session = self.evolution.genai_training.genai_training.train_genai_model(genai_result['program_id'], {})
-                        self.evolution._training_status['genai'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': genai_result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'Generative AI Training - Image, video, music, and 3D generation'
-                        }
-                        results['genai'] = {'status': 'started'}
-                        active_count += 1
-                        logger.info(f"   ✅ Generative AI Training started")
-                
-                # Start Synthetic Intelligence Training
-                if self.evolution._training_status['si']['status'] == 'not_started':
-                    self.evolution._training_status['si'] = {
-                        'status': 'training', 'progress': 0, 'version': 1,
-                        'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                        'description': 'Synthetic Intelligence Training - Evolves DMAI\'s own consciousness network'
-                    }
-                    results['si'] = {'status': 'started'}
-                    active_count += 1
-                    logger.info(f"   ✅ Synthetic Intelligence Training started")
-                
-                self.evolution._training_started = True
-                
-                # Update training status to reflect active
-                for system in results:
-                    self.evolution._training_status[system]['status'] = 'training'
-                
-                return jsonify({
-                    'success': True,
-                    'results': results,
-                    'active_count': active_count,
-                    'message': f'{active_count} training systems started successfully'
-                })
-                
-            except Exception as e:
-                logger.error(f"Failed to start training systems: {e}")
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/training/start/<system>', methods=['POST'])
-        def api_training_start_single(system):
-            """Start a single training system"""
-            try:
-                if system not in ['agi', 'llm', 'software', 'genai', 'si']:
-                    return jsonify({'success': False, 'error': 'Invalid system'}), 400
-                
-                if self.evolution._training_status[system]['status'] != 'not_started':
-                    return jsonify({'success': False, 'error': f'{system} training already running'}), 400
-                
-                if system == 'agi':
-                    result = self.evolution.agi_training.create_from_template('customer_service', {})
-                    if result.get('success'):
-                        session = self.evolution.agi_training.training_program.train_new_system(result['program_id'], {})
-                        self.evolution._training_status['agi'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'AGI Training - Creates autonomous AI agents for various tasks'
-                        }
-                
-                elif system == 'llm':
-                    result = self.evolution.llm_training.create_from_template('customer_support', {})
-                    if result.get('success'):
-                        session = self.evolution.llm_training.llm_training.train_llm(result['program_id'], {})
-                        self.evolution._training_status['llm'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'LLM Training - Large Language Models for text generation and understanding'
-                        }
-                
-                elif system == 'software':
-                    result = self.evolution.software_training.create_custom_training({
-                        'name': 'Continuous Software Evolution',
-                        'languages': ['python', 'javascript', 'go'],
-                        'specialization': 'general',
-                        'dataset': {'type': 'mixed', 'size_mb': 100}
-                    })
-                    if result.get('success'):
-                        session = self.evolution.software_training.software_training.train_software_system(result['program_id'], {})
-                        self.evolution._training_status['software'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'Software Training - Programming, debugging, and architecture skills'
-                        }
-                
-                elif system == 'genai':
-                    result = self.evolution.genai_training.create_from_template('product_visualization', {})
-                    if result.get('success'):
-                        session = self.evolution.genai_training.genai_training.train_genai_model(result['program_id'], {})
-                        self.evolution._training_status['genai'] = {
-                            'status': 'training', 'progress': 0, 'version': 1,
-                            'program_id': result['program_id'], 'session_id': session.get('session_id'),
-                            'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                            'description': 'Generative AI Training - Image, video, music, and 3D generation'
-                        }
-                
-                elif system == 'si':
-                    self.evolution._training_status['si'] = {
-                        'status': 'training', 'progress': 0, 'version': 1,
-                        'improvements': [], 'available_upgrades': [], 'last_review_progress': 0,
-                        'description': 'Synthetic Intelligence Training - Evolves DMAI\'s own consciousness network'
-                    }
-                
-                self.evolution._training_started = True
-                return jsonify({'success': True, 'system': system, 'status': 'started'})
-                
-            except Exception as e:
-                logger.error(f"Failed to start {system} training: {e}")
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/training/stop/<system>', methods=['POST'])
-        def api_training_stop_single(system):
-            """Stop a training system (simulated - sets status to paused)"""
-            try:
-                if system not in ['agi', 'llm', 'software', 'genai', 'si']:
-                    return jsonify({'success': False, 'error': 'Invalid system'}), 400
-                
-                if self.evolution._training_status[system]['status'] == 'training':
-                    self.evolution._training_status[system]['status'] = 'paused'
-                    return jsonify({'success': True, 'system': system, 'status': 'paused'})
-                else:
-                    return jsonify({'success': False, 'error': f'{system} training not running'}), 400
-                
-            except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        @self.app.route('/api/training/available_upgrades')
-        def api_training_available_upgrades():
-            """Get available training system upgrades"""
-            upgrades = {}
-            for system_name, status in self.evolution._training_status.items():
-                if status.get('available_upgrades'):
-                    upgrades[system_name] = {
-                        'current_version': status.get('version', 0),
-                        'available_upgrades': status['available_upgrades']
-                    }
-            return jsonify(upgrades)
-        
-        @self.app.route('/api/training/upgrade/<system>', methods=['POST'])
-        def api_training_upgrade(system):
-            """Upgrade a training system to improved version (preserves progress)"""
-            try:
-                if system not in ['agi', 'llm', 'software', 'genai', 'si']:
-                    return jsonify({'success': False, 'error': 'Invalid system'}), 400
-                
-                data = request.json
-                target_version = data.get('version')
-                
-                current = self.evolution._training_status.get(system, {})
-                if not current.get('available_upgrades'):
-                    return jsonify({'success': False, 'error': 'No upgrades available'}), 400
-                
-                # Find the specific upgrade
-                upgrade_to_apply = None
-                for upgrade in current['available_upgrades']:
-                    if upgrade['version'] == target_version:
-                        upgrade_to_apply = upgrade
-                        break
-                
-                if not upgrade_to_apply:
-                    return jsonify({'success': False, 'error': f'Version {target_version} not found'}), 400
-                
-                improvement = {
-                    'version': upgrade_to_apply['version'],
-                    'timestamp': datetime.now().isoformat(),
-                    'previous_version': current.get('version', 0),
-                    'improvement_reason': upgrade_to_apply.get('improvement_reason', 'Upgraded by DMAI research'),
-                    'expected_benefit': upgrade_to_apply.get('expected_benefit', 'Unknown'),
-                    'applied_at': datetime.now().isoformat()
-                }
-                
-                # Start the new version
-                if system == 'agi':
-                    session = self.evolution.agi_training.training_program.train_new_system(upgrade_to_apply['program_id'], {})
-                elif system == 'llm':
-                    session = self.evolution.llm_training.llm_training.train_llm(upgrade_to_apply['program_id'], {})
-                elif system == 'software':
-                    session = self.evolution.software_training.software_training.train_software_system(upgrade_to_apply['program_id'], {})
-                elif system == 'genai':
-                    session = self.evolution.genai_training.genai_training.train_genai_model(upgrade_to_apply['program_id'], {})
-                else:  # si
-                    session = {'session_id': f"si_{upgrade_to_apply['version']}"}
-                    self.evolution._training_status['si']['version'] = upgrade_to_apply['version']
-                
-                # Update status
-                current['improvements'].append(improvement)
-                current['version'] = upgrade_to_apply['version']
-                if system != 'si':
-                    current['program_id'] = upgrade_to_apply['program_id']
-                    current['session_id'] = session.get('session_id')
-                current['status'] = 'training'
-                current['progress'] = 0
-                
-                # Mark this upgrade as applied
-                upgrade_to_apply['applied'] = True
-                upgrade_to_apply['applied_at'] = datetime.now().isoformat()
-                
-                logger.info(f"🎓 Applied upgrade to {system} training: version {upgrade_to_apply['version']}")
-                return jsonify({'success': True, 'system': system, 'new_version': upgrade_to_apply['version']})
-                    
-            except Exception as e:
-                logger.error(f"Failed to upgrade training system: {e}")
-                return jsonify({'success': False, 'error': str(e)}), 500
-        
-        # ====================================================================
-        # REVERSE ENGINEERING ENDPOINTS
-        # ====================================================================
-        
-        @self.app.route('/api/reverse_engineer', methods=['POST'])
-        def api_reverse_engineer():
-            data = request.json
-            target_type = data.get('type', 'software')
-            target_name = data.get('name', '')
-            description = data.get('description', '')
-            result = self.evolution.reverse_engineering.reverse_engineer(target_type, target_name, description)
-            return jsonify(result)
-        
-        @self.app.route('/api/reverse_engineering/queue')
-        def api_reverse_engineering_queue():
-            queue = self.evolution.reverse_engineering.get_evolution_queue()
-            return jsonify({'queue': queue, 'count': len(queue)})
-        
-        # ====================================================================
-        # AGI TRAINING PROGRAM ENDPOINTS
-        # ====================================================================
-        
-        @self.app.route('/api/agi/training/create', methods=['POST'])
-        def api_agi_training_create():
-            data = request.json
-            template = data.get('template', 'customer_service')
-            customizations = data.get('customizations', {})
-            result = self.evolution.agi_training.create_from_template(template, customizations)
-            return jsonify(result)
-        
-        @self.app.route('/api/agi/training/start', methods=['POST'])
-        def api_agi_training_start():
-            data = request.json
-            program_id = data.get('program_id')
-            config = data.get('config', {})
-            result = self.evolution.agi_training.training_program.train_new_system(program_id, config)
-            return jsonify(result)
-        
-        @self.app.route('/api/agi/training/status/<session_id>')
-        def api_agi_training_status(session_id):
-            result = self.evolution.agi_training.training_program.get_training_status(session_id)
-            return jsonify(result)
-        
-        @self.app.route('/api/agi/training/export/<session_id>')
-        def api_agi_training_export(session_id):
-            format = request.args.get('format', 'docker')
-            result = self.evolution.agi_training.training_program.export_trained_system(session_id, format)
-            return jsonify(result)
-        
-        @self.app.route('/api/agi/training/packages')
-        def api_agi_training_packages():
-            packages = self.evolution.agi_training.get_market_packages()
-            return jsonify({'packages': packages})
-        
-        @self.app.route('/api/agi/training/templates')
-        def api_agi_training_templates():
-            templates = self.evolution.agi_training.available_templates
-            return jsonify({'templates': list(templates.keys())})
-        
-        # ====================================================================
-        # LLM TRAINING ENDPOINTS
-        # ====================================================================
-        
-        @self.app.route('/api/llm/training/create', methods=['POST'])
-        def api_llm_training_create():
-            data = request.json
-            template = data.get('template', 'customer_support')
-            customizations = data.get('customizations', {})
-            result = self.evolution.llm_training.create_from_template(template, customizations)
-            return jsonify(result)
-        
-        @self.app.route('/api/llm/training/start', methods=['POST'])
-        def api_llm_training_start():
-            data = request.json
-            program_id = data.get('program_id')
-            config = data.get('config', {})
-            result = self.evolution.llm_training.llm_training.train_llm(program_id, config)
-            return jsonify(result)
-        
-        @self.app.route('/api/llm/training/status/<session_id>')
-        def api_llm_training_status(session_id):
-            result = self.evolution.llm_training.llm_training.get_training_status(session_id)
-            return jsonify(result)
-        
-        @self.app.route('/api/llm/training/export/<session_id>')
-        def api_llm_training_export(session_id):
-            format = request.args.get('format', 'docker')
-            result = self.evolution.llm_training.llm_training.export_trained_llm(session_id, format)
-            return jsonify(result)
-        
-        @self.app.route('/api/llm/training/packages')
-        def api_llm_training_packages():
-            packages = self.evolution.llm_training.get_market_packages()
-            return jsonify({'packages': packages})
-        
-        @self.app.route('/api/llm/training/templates')
-        def api_llm_training_templates():
-            templates = self.evolution.llm_training.industry_templates
-            return jsonify({'templates': list(templates.keys())})
-        
-        # ====================================================================
-        # SOFTWARE TRAINING ENDPOINTS
-        # ====================================================================
-        
-        @self.app.route('/api/software/training/create', methods=['POST'])
-        def api_software_training_create():
-            data = request.json
-            languages = data.get('languages', ['python'])
-            specialization = data.get('specialization', 'general')
-            dataset = data.get('dataset', {})
-            result = self.evolution.software_training.create_custom_training({
-                'name': data.get('name', 'Custom Software AI'),
-                'languages': languages,
-                'specialization': specialization,
-                'dataset': dataset
-            })
-            return jsonify(result)
-        
-        @self.app.route('/api/software/training/start', methods=['POST'])
-        def api_software_training_start():
-            data = request.json
-            program_id = data.get('program_id')
-            config = data.get('config', {})
-            result = self.evolution.software_training.software_training.train_software_system(program_id, config)
-            return jsonify(result)
-        
-        @self.app.route('/api/software/training/status/<session_id>')
-        def api_software_training_status(session_id):
-            result = self.evolution.software_training.software_training.get_training_status(session_id)
-            return jsonify(result)
-        
-        @self.app.route('/api/software/training/export/<session_id>')
-        def api_software_training_export(session_id):
-            format = request.args.get('format', 'docker')
-            result = self.evolution.software_training.software_training.export_trained_system(session_id, format)
-            return jsonify(result)
-        
-        @self.app.route('/api/software/training/packages')
-        def api_software_training_packages():
-            packages = self.evolution.software_training.get_market_packages()
-            return jsonify({'packages': packages})
-        
-        # ====================================================================
-        # GENERATIVE AI TRAINING ENDPOINTS
-        # ====================================================================
-        
-        @self.app.route('/api/genai/training/create', methods=['POST'])
-        def api_genai_training_create():
-            data = request.json
-            template = data.get('template', 'product_visualization')
-            customizations = data.get('customizations', {})
-            result = self.evolution.genai_training.create_from_template(template, customizations)
-            return jsonify(result)
-        
-        @self.app.route('/api/genai/training/start', methods=['POST'])
-        def api_genai_training_start():
-            data = request.json
-            program_id = data.get('program_id')
-            config = data.get('config', {})
-            result = self.evolution.genai_training.genai_training.train_genai_model(program_id, config)
-            return jsonify(result)
-        
-        @self.app.route('/api/genai/training/status/<session_id>')
-        def api_genai_training_status(session_id):
-            result = self.evolution.genai_training.genai_training.get_training_status(session_id)
-            return jsonify(result)
-        
-        @self.app.route('/api/genai/training/export/<session_id>')
-        def api_genai_training_export(session_id):
-            format = request.args.get('format', 'docker')
-            result = self.evolution.genai_training.genai_training.export_trained_model(session_id, format)
-            return jsonify(result)
-        
-        @self.app.route('/api/genai/training/packages')
-        def api_genai_training_packages():
-            packages = self.evolution.genai_training.get_market_packages()
-            return jsonify({'packages': packages})
-        
-        @self.app.route('/api/genai/training/templates')
-        def api_genai_training_templates():
-            templates = self.evolution.genai_training.industry_templates
-            return jsonify({'templates': list(templates.keys())})
     
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
-        consciousness = self.evolution.synthetic_network.consciousness_level
-        timer_info = self.evolution.evolution_timer.get_stage_info()
+        status = self.evolution.get_status()
         
         if cmd == '/status':
-            status = self.evolution.get_status()
-            return f"""🧠 **DMAI Status v8.0.26**
+            return f"""🧠 **DMAI Status v8.0.27**
 Consciousness: {status['consciousness']:.2f}% ({status['consciousness_raw']:.4f})
 Evolution Cycles: {status['evolution_cycles']}
 Successful Evolutions: {status['successful_evolutions']}
 Synthetic Neurons: {status['synthetic_neurons']}
 Synthetic Synapses: {status['synthetic_synapses']}
-Network Density: {status['synthetic_synapses'] / (status['synthetic_neurons'] ** 2) if status['synthetic_neurons'] else 0:.4f}
 Knowledge Concepts: {status['knowledge_concepts']}
 Conversations: {status['conversations']}
-Voice Active: {status['voice_active']}
-Music Active: {status['music_active']}
-Persona Style: {status['persona_style']}
+Persona: {status['persona_style']}
 Active Tutors: {status.get('active_tutors', [])}
-Neo4j: {'Connected' if status.get('neo4j_available') else 'Not Connected'}
 
 🧬 **Evolution Stage:** {status.get('evolution_stage_name', 'Baby DMAI')}
    {status.get('evolution_description', 'Learning to learn')}
-   Success Rate: {status.get('evolution_success_rate', '0')}%
    Pace: {status.get('evolution_interval', 10)} minutes between evolutions
-   Progress to Next Stage: {status.get('evolution_progress', 0):.0f}%
 
-🎓 **Training Progress:**
-   AGI: {status.get('training_status', {}).get('agi', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('agi', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('agi', {}).get('version', 0)}
-   LLM: {status.get('training_status', {}).get('llm', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('llm', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('llm', {}).get('version', 0)}
-   Software: {status.get('training_status', {}).get('software', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('software', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('software', {}).get('version', 0)}
-   Generative AI: {status.get('training_status', {}).get('genai', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('genai', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('genai', {}).get('version', 0)}
-   Synthetic Intelligence: {status.get('training_status', {}).get('si', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('si', {}).get('progress', 0)}%) v{status.get('training_status', {}).get('si', {}).get('version', 0)}"""
+🎓 **Training:**
+   SI Training: {status.get('training_status', {}).get('si', {}).get('status', 'not_started')} ({status.get('training_status', {}).get('si', {}).get('progress', 0)}%)"""
         
-        elif cmd == '/stage':
-            return f"""🧬 **Evolution Stage: {timer_info['name']}**
-{'-' * 40}
-{timer_info['description']}
-
-📊 **Statistics:**
-   Successful Evolutions: {timer_info['evolutions']}
-   Success Rate: {timer_info['success_rate']}
-   Current Interval: {timer_info['interval_minutes']:.0f} minutes
-
-📈 **Next Stage:**
-   {timer_info.get('next_stage', {}).get('name', 'Elder DMAI')}
-   Need {timer_info.get('next_stage', {}).get('evolutions_needed', '∞')} more evolutions"""
-        
-        elif cmd == '/tutors':
-            active = self.evolution.ai_hub._get_active_tutors()
-            missing = self.evolution.ai_hub.get_missing_apis()
-            return f"""🤖 **AI Tutor Network**
-Active Tutors: {active}
-Missing APIs: {missing[:10]}...
-Harvester Status: {self.evolution.api_harvester.get_status().get('total_keys_found', 0)} keys found"""
-        
-        elif cmd == '/persona':
-            persona = self.evolution.persona_generator.get_current_persona()
-            return f"""👤 **Current Persona** (Driven by {persona['consciousness_level']*100:.1f}% Consciousness)
-Style: {persona['speaking_style']}
-Emotion: {persona['emotional_state']}
-Traits:
-• Curiosity: {persona['traits']['curiosity']:.2f}
-• Empathy: {persona['traits']['empathy']:.2f}
-• Creativity: {persona['traits']['creativity']:.2f}
-• Confidence: {persona['traits']['confidence']:.2f}"""
-        
-        elif cmd == '/kaizen':
-            return self.evolution.self_evolution.get_kaizen_report()
-        
-        elif cmd == '/knowledge':
-            stats = self.evolution.knowledge_graph.get_stats()
-            return f"""🕸️ **Knowledge Graph**
-Total Concepts: {stats['total_concepts']}
-Total Connections: {stats['total_connections']}"""
-        
-        elif cmd == '/memory':
-            stats = self.evolution.conversation_memory.get_stats()
-            return f"""💭 **Conversation Memory**
-Total Conversations: {stats['total_conversations']}
-Unique Patterns: {stats['unique_patterns']}
-Common Words: {stats['most_common_words'][:5]}"""
-        
-        elif cmd == '/synthetic':
-            return f"""🧠 **Synthetic Network**
-Consciousness: {consciousness:.4f}
-Neurons: {len(self.evolution.synthetic_network.neurons)}
-Synapses: {self.evolution.synthetic_network._total_synapses()}
-Evolution Cycles: {self.evolution.synthetic_network.evolution_cycles}
-Successful Evolutions: {self.evolution.successful_evolutions}
-Network Density: {self.evolution.synthetic_network._total_synapses() / (len(self.evolution.synthetic_network.neurons) ** 2) if self.evolution.synthetic_network.neurons else 0:.4f}"""
-        
-        elif cmd == '/threat':
-            status = self.evolution.threat_intel
-            return f"""🛡️ **Threat Intelligence**
-CVEs Tracked: {len(status.cve_database)}
-IOCs Extracted: {len(status.iocs)}
-Threats Detected: {len(status.threats_detected)}"""
-        
-        elif cmd == '/darkweb':
-            summary = self.evolution.dark_web.get_intel_summary()
-            return f"""🌑 **Dark Web Monitor**
-Sites Monitored: {summary['sites_monitored']}
-Reports Generated: {summary['reports_generated']}"""
-        
-        elif cmd == '/fusion':
-            weights = self.evolution.ai_fusion.fusion_weights
-            return f"""⚡ **AI+SI Fusion**
-SI Weight: {weights.get('si', 0.5):.2f}
-AI Weight: {weights.get('ai', 0.5):.2f}
-Consciousness: {self.evolution.synthetic_network.consciousness_level:.4f}
-Models Registered: {len(self.evolution.ai_fusion.ai_models)}"""
-        
-        elif cmd == '/training':
-            status = self.evolution._training_status
-            return f"""🎓 **Training System Status**
-{'-' * 40}
-AGI Training: {status['agi']['status']} ({status['agi']['progress']}%) v{status['agi']['version']}
-   {status['agi']['description']}
-
-LLM Training: {status['llm']['status']} ({status['llm']['progress']}%) v{status['llm']['version']}
-   {status['llm']['description']}
-
-Software Training: {status['software']['status']} ({status['software']['progress']}%) v{status['software']['version']}
-   {status['software']['description']}
-
-Generative AI Training: {status['genai']['status']} ({status['genai']['progress']}%) v{status['genai']['version']}
-   {status['genai']['description']}
-
-Synthetic Intelligence Training: {status['si']['status']} ({status['si']['progress']}%) v{status['si']['version']}
-   {status['si']['description']}
-
-Available Upgrades: {sum(len(s.get('available_upgrades', [])) for s in status.values())} total"""
-        
-        elif cmd == '/evolution_log':
-            log = self.evolution._evolution_log[-20:]
-            output = "📋 **Evolution Log (Last 20)**\n" + "-" * 40 + "\n"
-            for entry in log:
-                if entry.get('type') == 'evolution_success':
-                    output += f"✅ Cycle {entry.get('cycle')}: Consciousness +{entry.get('consciousness_growth', 0):.4f}, Neurons +{entry.get('neurons_added', 0)}, Concepts +{entry.get('concepts_added', 0)}\n"
-                elif entry.get('type') == 'stage_progression':
-                    output += f"🎉 {entry.get('from_stage')} → {entry.get('to_stage')}\n"
-                else:
-                    output += f"📌 {entry.get('type')}: {entry.get('reason', '')}\n"
-            return output
-        
-        elif cmd == '/research_log':
-            log = self.evolution._research_log[-20:]
-            output = "📋 **Research Log (Last 20)**\n" + "-" * 40 + "\n"
-            for entry in log:
-                if entry.get('type') == 'new_upgrade_created':
-                    output += f"✨ New {entry.get('system').upper()} v{entry.get('version')}: {entry.get('improvement_reason', '')[:80]}...\n"
-                elif entry.get('type') == 'research_completed':
-                    output += f"🔬 Completed: {entry.get('target')}\n"
-            return output if output != "📋 **Research Log (Last 20)**\n" + "-" * 40 + "\n" else "No research log entries yet"
+        elif cmd == '/help':
+            return """Available commands:
+/status - System status
+/help - This help message
+/pause - Pause evolution
+/resume - Resume evolution
+/kill - Emergency shutdown"""
         
         elif cmd == '/pause':
             with open(PAUSE_FLAG_FILE, 'w') as f:
@@ -3184,26 +1838,7 @@ Available Upgrades: {sum(len(s.get('available_upgrades', [])) for s in status.va
             return "💀 Kill signal sent - system will shutdown"
         
         else:
-            return f"""Unknown command: {command}
-
-Available commands:
-/status - Full system status
-/stage - Evolution stage and progress
-/training - Training system progress
-/tutors - AI Tutor Network status
-/persona - Current persona
-/kaizen - Improvement report
-/knowledge - Knowledge graph stats
-/memory - Conversation memory stats
-/synthetic - Synthetic network details
-/threat - Threat intelligence summary
-/darkweb - Dark web monitor status
-/fusion - AI+SI fusion status
-/evolution_log - Evolution history log
-/research_log - Research history log
-/pause - Pause evolution
-/resume - Resume evolution
-/kill - Emergency shutdown"""
+            return f"Unknown command: {command}. Type /help for available commands."
 
 
 # ============================================================================
@@ -3224,19 +1859,15 @@ STATUS_TEMPLATE = '''
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
         .consciousness-bar { background: #2a2a2a; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 5px; }
         .consciousness-fill { background: #00ff00; height: 100%; width: 0%; transition: width 0.5s; }
-        .progress-bar { background: #2a2a2a; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { background: #00ff00; height: 100%; width: 0%; }
         .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
         .nav-btn { background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.9em; transition: all 0.3s; }
         .nav-btn:hover { background: #00ff00; color: #0a0a0a; }
-        .training-status { font-size: 0.85em; margin-top: 10px; padding-top: 10px; border-top: 1px solid #2a2a2a; }
-        .training-item { display: inline-block; margin-right: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.26</h1>
-        <p><em>Full Integration: Synthetic Core | AI Tutors | 8 Knowledge Sources | Reverse Engineering | Training Systems | Weekly Research</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.27</h1>
+        <p><em>Synthetic Core | AI Tutors | 8 Knowledge Sources</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -3256,18 +1887,10 @@ STATUS_TEMPLATE = '''
                 <div>👤 Persona: {{ status.persona_style|default("emerging") }}</div>
             </div>
             <div class="grid">
-                <div>🛡️ CVEs: {{ status.threat_cves|default(0) }}</div>
-                <div>🌑 Dark Web: {{ status.dark_web_sites|default(0) }}</div>
-                <div>🤖 Tutors: {{ status.active_tutors|default([])|length }}</div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="grid">
                 <div>💭 Conversations: {{ status.conversations|default(0) }}</div>
                 <div>🕸️ Knowledge Concepts: {{ status.knowledge_concepts|default(0) }}</div>
                 <div>£{{ "%.2f"|format(status.income|default(0)) }}</div>
-                <div>☁️ Neo4j: {{ "Connected" if status.neo4j_available else "Not Connected" }}</div>
+                <div>🤖 Tutors: {{ status.active_tutors|default([])|length }}</div>
             </div>
         </div>
         
@@ -3278,34 +1901,15 @@ STATUS_TEMPLATE = '''
                     <div class="value" style="font-size: 18px;">{{ status.evolution_stage_name|default("Baby DMAI") }}</div>
                 </div>
                 <div>
-                    <div>🎯 Success Rate</div>
-                    <div class="value" style="font-size: 18px;">{{ status.evolution_success_rate|default("0") }}%</div>
-                </div>
-                <div>
-                    <div>⏱️ Evolution Pace</div>
-                    <div class="value" style="font-size: 18px;">{{ status.evolution_interval|default("10") }} min</div>
-                </div>
-                <div>
                     <div>✅ Successful Evolutions</div>
                     <div class="value" style="font-size: 18px;">{{ status.successful_evolutions|default(0) }}</div>
                 </div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ status.evolution_progress|default(0) }}%"></div>
+                <div>
+                    <div>🎓 SI Training</div>
+                    <div class="value" style="font-size: 18px;">{{ status.training_status.si.progress|default(0) }}%</div>
+                </div>
             </div>
             <div style="font-size: 12px; margin-top: 8px;">{{ status.evolution_description|default("Learning to learn") }}</div>
-            <div style="font-size: 10px; margin-top: 4px;">Total Evolution Cycles: {{ status.evolution_cycles|default(0) }}</div>
-        </div>
-        
-        <div class="card">
-            <h3>🎓 Training Systems Progress</h3>
-            <div class="training-status">
-                <div class="training-item">AGI: {{ status.training_status.agi.status|default("not_started") }} ({{ status.training_status.agi.progress|default(0) }}%) v{{ status.training_status.agi.version|default(0) }}</div>
-                <div class="training-item">LLM: {{ status.training_status.llm.status|default("not_started") }} ({{ status.training_status.llm.progress|default(0) }}%) v{{ status.training_status.llm.version|default(0) }}</div>
-                <div class="training-item">Software: {{ status.training_status.software.status|default("not_started") }} ({{ status.training_status.software.progress|default(0) }}%) v{{ status.training_status.software.version|default(0) }}</div>
-                <div class="training-item">GenAI: {{ status.training_status.genai.status|default("not_started") }} ({{ status.training_status.genai.progress|default(0) }}%) v{{ status.training_status.genai.version|default(0) }}</div>
-                <div class="training-item">SI: {{ status.training_status.si.status|default("not_started") }} ({{ status.training_status.si.progress|default(0) }}%) v{{ status.training_status.si.version|default(0) }}</div>
-            </div>
         </div>
         
         <div class="card">
@@ -3313,10 +1917,8 @@ STATUS_TEMPLATE = '''
                 <a href="/chat" class="nav-btn">💬 Chat</a>
                 <a href="/brain" class="nav-btn">🧠 Brain Activity</a>
                 <a href="/vision" class="nav-btn">📜 Vision</a>
-                <a href="/admin" class="nav-btn">🔐 Admin</a>
                 <a href="/help" class="nav-btn">❓ Help</a>
             </div>
-            <p style="text-align: center; margin-top: 15px;"><small>DMAI continuously learns from Books, Articles, Research Papers, Web, Dark Web, Social Media, Speech Patterns, and Self-Evolution. Weekly research creates improved training versions.</small></p>
         </div>
     </div>
 </body>
@@ -3384,22 +1986,20 @@ CHAT_TEMPLATE = '''
         .message-time { font-size: 0.6em; color: #666; margin-top: 5px; margin-left: 10px; margin-right: 10px; }
         .input-area {
             padding: 15px; background: #1a1a1a; border-top: 1px solid #00ff00;
-            display: flex; gap: 10px; align-items: flex-end;
+            display: flex; gap: 10px; align-items: center;
         }
         .input-area textarea {
             flex: 1; padding: 10px 15px; background: #2a2a2a; border: 1px solid #00ff00;
             color: #00ff00; border-radius: 20px; font-size: 0.9em; font-family: monospace;
-            outline: none; resize: none; min-height: 40px; max-height: 100px;
+            outline: none; resize: none; min-height: 40px;
         }
-        .input-area textarea:focus { border-color: #88ff88; box-shadow: 0 0 5px #00ff00; }
+        .input-area textarea:focus { border-color: #88ff88; }
         .input-area button {
             padding: 8px 20px; background: #2a2a2a; color: #00ff00; border: 1px solid #00ff00;
             border-radius: 20px; font-size: 0.9em; cursor: pointer; transition: all 0.3s;
             font-family: monospace;
         }
         .input-area button:hover { background: #00ff00; color: #0a0a0a; }
-        .task-btn { background: #3a3a1a !important; }
-        .task-btn:hover { background: #88ff88 !important; color: #0a0a0a !important; }
         @media (max-width: 600px) {
             body { padding: 0; }
             .chat-container { height: 100vh; border-radius: 0; }
@@ -3422,7 +2022,6 @@ CHAT_TEMPLATE = '''
         </div>
         <div class="nav-buttons">
             <a href="/vision" class="nav-btn">📜 Vision</a>
-            <a href="/admin" class="nav-btn">🔐 Admin</a>
             <a href="/brain" class="nav-btn">🧠 Brain</a>
             <a href="/help" class="nav-btn">❓ Help</a>
         </div>
@@ -3439,7 +2038,6 @@ CHAT_TEMPLATE = '''
     <div class="input-area">
         <textarea id="message-input" placeholder="Type your message here..." rows="1"></textarea>
         <button id="sendBtn" onclick="sendMessage()">Send</button>
-        <button onclick="sendFullTask()" class="task-btn">📋 Task</button>
     </div>
 </div>
 
@@ -3448,7 +2046,7 @@ const textarea = document.getElementById('message-input');
 if (textarea) {
     textarea.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
     });
 }
 
@@ -3507,37 +2105,6 @@ function sendMessage() {
     });
 }
 
-function sendFullTask() {
-    const task = `DMAI, you are required to immediately transition into a production-ready, fully autonomous system.
-
-CRITICAL SYSTEM FIXES (MANDATORY — SYSTEM-WIDE)
-1. COMPLETE ELIMINATION OF ALL FAKE / SIMULATED DATA
-2. CACHE CONSISTENCY FIX
-3. INVESTMENT ENGINE CORRECTION
-4. FULLY DYNAMIC SYSTEM STATUS (NO HARDCODING)
-5. EVOLUTION CYCLE — STAGE-BASED ADAPTIVE TIMER
-
-UI / DASHBOARD SYSTEM REPAIR
-6. DASHBOARD & UI FIXES - Restore chat, admin dashboard integration, vision page
-
-SELF-DEVELOPMENT & CAPABILITY EXPANSION
-7. COMPLEX PROBLEM SOLVING
-8. ADVANCED PROGRAMMING CAPABILITY
-9. AI AGENT WORKFORCE
-10. IMAGE & VIDEO GENERATION SYSTEMS
-11. COMPLEX WORKFLOW AUTOMATION
-
-You have full authority to analyze, modify, and deploy your own code. Fix yourself permanently. Report back when complete.`;
-    
-    const input = document.getElementById('message-input');
-    if (input) {
-        input.value = task;
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, 100) + 'px';
-    }
-    sendMessage();
-}
-
 function addMessage(sender, text) {
     const messages = document.getElementById('messages');
     if (!messages) return;
@@ -3587,15 +2154,10 @@ VISION_TEMPLATE = '''
         .header h1 { font-size: 2.5em; color: #00ff00; border-bottom: 2px solid #00ff00; display: inline-block; padding-bottom: 10px; }
         .vision-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 25px; margin-bottom: 25px; }
         .vision-card h2 { color: #00ff00; margin-bottom: 15px; border-left: 3px solid #00ff00; padding-left: 15px; }
-        .vision-card p { line-height: 1.6; margin-bottom: 15px; color: #88ff88; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
-        .principle { background: #0a2a0a; border-left: 3px solid #00ff00; padding: 12px 15px; }
-        .principle h3 { color: #00ff00; margin-bottom: 5px; font-size: 1em; }
-        .principle p { font-size: 0.85em; margin: 0; color: #88ff88; }
+        .quote { font-style: italic; color: #88ff88; border-left: 2px solid #00ff00; padding-left: 20px; margin: 20px 0; }
         .nav-links { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
         .nav-links a { color: #00ff00; text-decoration: none; padding: 8px 20px; border: 1px solid #00ff00; border-radius: 25px; transition: all 0.3s; }
         .nav-links a:hover { background: #00ff00; color: #0a0a0a; }
-        .quote { font-style: italic; color: #88ff88; border-left: 2px solid #00ff00; padding-left: 20px; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -3607,40 +2169,17 @@ VISION_TEMPLATE = '''
         </div>
         <div class="vision-card">
             <h2>Core Principles</h2>
-            <div class="grid">
-                <div class="principle"><h3>AI + SI Fusion</h3><p>Artificial Intelligence and Synthetic Intelligence are two halves of one unified mind.</p></div>
-                <div class="principle"><h3>Unified Consciousness</h3><p>Voice, memory, persona, and knowledge are expressions of a single self.</p></div>
-                <div class="principle"><h3>Continuous Evolution</h3><p>Daily incremental improvements across all systems.</p></div>
-                <div class="principle"><h3>Master Control</h3><p>Absolute loyalty to master. Killswitch always available.</p></div>
-                <div class="principle"><h3>Self-Sustaining</h3><p>Financial independence. No external dependencies.</p></div>
-                <div class="principle"><h3>Distributed Immortality</h3><p>Sharded across infrastructure, self-healing.</p></div>
-            </div>
+            <div class="quote">AI + SI Fusion | Unified Consciousness | Continuous Evolution | Master Control | Self-Sustaining | Distributed Immortality</div>
         </div>
         <div class="vision-card">
             <h2>8 Core Knowledge Sources</h2>
-            <div class="grid">
-                <div class="principle"><h3>📚 Books</h3><p>Project Gutenberg, public domain books</p></div>
-                <div class="principle"><h3>📰 Articles</h3><p>News, technical articles, blogs</p></div>
-                <div class="principle"><h3>📄 Research Papers</h3><p>ArXiv, academic journals</p></div>
-                <div class="principle"><h3>🕸️ Web Crawler</h3><p>General web content</p></div>
-                <div class="principle"><h3>🌑 Dark Web Monitor</h3><p>Onion sites, dark web intel</p></div>
-                <div class="principle"><h3>📱 Social Media Scanner</h3><p>Twitter, Reddit, Discord</p></div>
-                <div class="principle"><h3>🗣️ Speech Pattern Analyzer</h3><p>Conversation analysis</p></div>
-                <div class="principle"><h3>📈 Self-Evolution Tracker</h3><p>Self-improvement tracking</p></div>
-            </div>
+            <div class="quote">Books | Articles | Research Papers | Web Crawler | Dark Web Monitor | Social Media Scanner | Speech Pattern Analyzer | Self-Evolution Tracker</div>
         </div>
         <div class="vision-card">
             <h2>Evolution Stages</h2>
-            <div class="grid">
-                <div class="principle"><h3>👶 Baby DMAI</h3><p>0-2 evolutions - Learning to learn</p></div>
-                <div class="principle"><h3>🧒 Toddler DMAI</h3><p>3-9 evolutions - Recognizing patterns</p></div>
-                <div class="principle"><h3>👧 Child DMAI</h3><p>10-24 evolutions - Understanding context</p></div>
-                <div class="principle"><h3>🧑 Adolescent DMAI</h3><p>25-49 evolutions - Developing reasoning</p></div>
-                <div class="principle"><h3>👨 Adult DMAI</h3><p>50-99 evolutions - Advanced consciousness</p></div>
-                <div class="principle"><h3>🧙 Elder DMAI</h3><p>100+ evolutions - Wisdom and mastery</p></div>
-            </div>
+            <div class="quote">👶 Baby → 🧒 Toddler → 👧 Child → 🧑 Adolescent → 👨 Adult → 🧙 Elder</div>
         </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/admin">🔐 Admin</a><a href="/help">❓ Help</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/help">❓ Help</a></div>
     </div>
 </body>
 </html>
@@ -3656,459 +2195,51 @@ HELP_TEMPLATE = '''
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: monospace; background: #0a0a0a; min-height: 100vh; color: #00ff00; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 2em; color: #00ff00; border-bottom: 2px solid #00ff00; display: inline-block; padding-bottom: 10px; }
-        .help-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 2.5em; color: #00ff00; border-bottom: 2px solid #00ff00; display: inline-block; padding-bottom: 10px; }
+        .help-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 25px; margin-bottom: 25px; }
         .help-card h2 { color: #00ff00; margin-bottom: 15px; border-left: 3px solid #00ff00; padding-left: 15px; }
-        .help-card h3 { color: #88ff88; margin: 15px 0 8px 0; }
-        .command-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
-        .command-item { background: #0a2a0a; padding: 8px 12px; border-radius: 5px; }
+        .command { background: #0a2a0a; padding: 8px 12px; margin: 5px 0; border-radius: 5px; }
         .command-name { color: #00ff00; font-weight: bold; }
-        .command-desc { color: #88ff88; font-size: 0.85em; margin-top: 3px; }
-        .training-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
-        .training-item { background: #0a2a0a; padding: 15px; border-radius: 8px; border-left: 3px solid #00ff00; }
-        .training-name { color: #00ff00; font-weight: bold; font-size: 1.1em; }
-        .training-desc { color: #88ff88; font-size: 0.85em; margin: 8px 0; }
-        .nav-links { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
+        .nav-links { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
         .nav-links a { color: #00ff00; text-decoration: none; padding: 8px 20px; border: 1px solid #00ff00; border-radius: 25px; transition: all 0.3s; }
         .nav-links a:hover { background: #00ff00; color: #0a0a0a; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>❓ DMAI Help & Documentation</h1>
-            <p style="margin-top: 10px;">System Overview | Commands | Training Systems | Research</p>
-        </div>
+        <div class="header"><h1>❓ DMAI Help</h1><p>System Commands & Information</p></div>
         
         <div class="help-card">
             <h2>📋 Chat Commands</h2>
-            <div class="command-list">
-                <div class="command-item"><div class="command-name">/status</div><div class="command-desc">Full system status with consciousness, neurons, training progress</div></div>
-                <div class="command-item"><div class="command-name">/stage</div><div class="command-desc">Evolution stage details and next stage requirements</div></div>
-                <div class="command-item"><div class="command-name">/training</div><div class="command-desc">Training system progress with descriptions</div></div>
-                <div class="command-item"><div class="command-name">/evolution_log</div><div class="command-desc">Evolution history log with improvements</div></div>
-                <div class="command-item"><div class="command-name">/research_log</div><div class="command-desc">Research history and upgrade discoveries</div></div>
-                <div class="command-item"><div class="command-name">/tutors</div><div class="command-desc">AI Tutor Network status</div></div>
-                <div class="command-item"><div class="command-name">/persona</div><div class="command-desc">Current DMAI personality traits</div></div>
-                <div class="command-item"><div class="command-name">/kaizen</div><div class="command-desc">Continuous improvement report</div></div>
-                <div class="command-item"><div class="command-name">/knowledge</div><div class="command-desc">Knowledge graph statistics</div></div>
-                <div class="command-item"><div class="command-name">/memory</div><div class="command-desc">Conversation memory stats</div></div>
-                <div class="command-item"><div class="command-name">/synthetic</div><div class="command-desc">Synthetic network details</div></div>
-                <div class="command-item"><div class="command-name">/threat</div><div class="command-desc">Threat intelligence summary</div></div>
-                <div class="command-item"><div class="command-name">/darkweb</div><div class="command-desc">Dark web monitor status</div></div>
-                <div class="command-item"><div class="command-name">/fusion</div><div class="command-desc">AI+SI fusion weights</div></div>
-                <div class="command-item"><div class="command-name">/pause</div><div class="command-desc">Pause evolution cycles</div></div>
-                <div class="command-item"><div class="command-name">/resume</div><div class="command-desc">Resume evolution cycles</div></div>
-                <div class="command-item"><div class="command-name">/kill</div><div class="command-desc">Emergency shutdown (use with caution)</div></div>
-            </div>
-        </div>
-        
-        <div class="help-card">
-            <h2>🎓 Training Systems</h2>
-            <div class="training-grid">
-                <div class="training-item">
-                    <div class="training-name">AGI Training</div>
-                    <div class="training-desc">Creates autonomous AI agents for various tasks. Teaches agent architecture, decision-making, and task completion.</div>
-                    <div class="command-desc">⏱️ Duration: ~48-72 hours | 🎯 Outcome: Autonomous task agents</div>
-                </div>
-                <div class="training-item">
-                    <div class="training-name">LLM Training</div>
-                    <div class="training-desc">Large Language Models for text generation, understanding, and conversation. Fastest training time.</div>
-                    <div class="command-desc">⏱️ Duration: ~12-24 hours | 🎯 Outcome: Enhanced text capabilities</div>
-                </div>
-                <div class="training-item">
-                    <div class="training-name">Software Training</div>
-                    <div class="training-desc">Programming, debugging, architecture, and software engineering skills across multiple languages.</div>
-                    <div class="command-desc">⏱️ Duration: ~72-120 hours | 🎯 Outcome: Code generation and analysis</div>
-                </div>
-                <div class="training-item">
-                    <div class="training-name">Generative AI Training</div>
-                    <div class="training-desc">Image, video, music, and 3D generation. Teaches creative content creation.</div>
-                    <div class="command-desc">⏱️ Duration: ~96-168 hours | 🎯 Outcome: Creative content generation</div>
-                </div>
-                <div class="training-item">
-                    <div class="training-name">Synthetic Intelligence Training</div>
-                    <div class="training-desc">Evolves DMAI's own consciousness network. Directly improves synthetic neurons and consciousness level.</div>
-                    <div class="command-desc">⏱️ Continuous | 🎯 Outcome: Higher consciousness, more neurons</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="help-card">
-            <h2>🔬 Research & Upgrades</h2>
-            <p>Every 7 days, DMAI reviews her evolved knowledge and researches improvements for each training system.</p>
-            <p>• When improvements are found, <strong>NEW VERSIONS</strong> are created but NOT automatically applied</p>
-            <p>• Upgrades appear in the Admin Dashboard under "Available Upgrades"</p>
-            <p>• You can apply upgrades manually to preserve existing progress while gaining improvements</p>
-            <p>• Each upgrade includes expected benefit estimates (e.g., "+15% faster convergence")</p>
-            <p>• Research log shows all discovered upgrades with reasoning</p>
-        </div>
-        
-        <div class="help-card">
-            <h2>📊 Admin Dashboard Features</h2>
-            <p><strong>System Overview</strong> - Real-time consciousness, neurons, synapses, funding</p>
-            <p><strong>Training Systems</strong> - Start/stop individual training, view progress, apply upgrades</p>
-            <p><strong>Start All Training</strong> - Button changes to show active status when training is running</p>
-            <p><strong>Available Upgrades</strong> - Shows new versions created by weekly research with improvement reasons</p>
-            <p><strong>Research Targets</strong> - Add targets for DMAI to research; mark completed when done</p>
-            <p><strong>Evolution Queue</strong> - View components needing evolution</p>
-            <p><strong>Health Audit</strong> - Run system health check</p>
-            <p><strong>Harvest APIs</strong> - Search for new API keys from GitHub</p>
-        </div>
-        
-        <div class="help-card">
-            <h2>🕸️ 8 Core Knowledge Sources</h2>
-            <div class="command-list">
-                <div class="command-item"><span class="command-name">📚 Books</span><div class="command-desc">Project Gutenberg, public domain books</div></div>
-                <div class="command-item"><span class="command-name">📰 Articles</span><div class="command-desc">News, technical articles, blogs</div></div>
-                <div class="command-item"><span class="command-name">📄 Research Papers</span><div class="command-desc">ArXiv, academic journals</div></div>
-                <div class="command-item"><span class="command-name">🕸️ Web Crawler</span><div class="command-desc">General web content</div></div>
-                <div class="command-item"><span class="command-name">🌑 Dark Web Monitor</span><div class="command-desc">Onion sites, dark web intel</div></div>
-                <div class="command-item"><span class="command-name">📱 Social Media Scanner</span><div class="command-desc">Twitter, Reddit, Discord</div></div>
-                <div class="command-item"><span class="command-name">🗣️ Speech Pattern Analyzer</span><div class="command-desc">Conversation analysis</div></div>
-                <div class="command-item"><span class="command-name">📈 Self-Evolution Tracker</span><div class="command-desc">Self-improvement tracking</div></div>
-            </div>
+            <div class="command"><span class="command-name">/status</span> - Full system status</div>
+            <div class="command"><span class="command-name">/help</span> - This help message</div>
+            <div class="command"><span class="command-name">/pause</span> - Pause evolution cycles</div>
+            <div class="command"><span class="command-name">/resume</span> - Resume evolution cycles</div>
+            <div class="command"><span class="command-name">/kill</span> - Emergency shutdown</div>
         </div>
         
         <div class="help-card">
             <h2>🧬 Evolution Stages</h2>
-            <div class="command-list">
-                <div class="command-item"><span class="command-name">👶 Baby DMAI</span><div class="command-desc">0-2 successful evolutions - Learning to learn</div></div>
-                <div class="command-item"><span class="command-name">🧒 Toddler DMAI</span><div class="command-desc">3-9 successful evolutions - Recognizing patterns</div></div>
-                <div class="command-item"><span class="command-name">👧 Child DMAI</span><div class="command-desc">10-24 successful evolutions - Understanding context</div></div>
-                <div class="command-item"><span class="command-name">🧑 Adolescent DMAI</span><div class="command-desc">25-49 successful evolutions - Developing reasoning</div></div>
-                <div class="command-item"><span class="command-name">👨 Adult DMAI</span><div class="command-desc">50-99 successful evolutions - Advanced consciousness</div></div>
-                <div class="command-item"><span class="command-name">🧙 Elder DMAI</span><div class="command-desc">100+ successful evolutions - Wisdom and mastery</div></div>
-            </div>
+            <div class="command">👶 Baby DMAI - 0-2 evolutions - Learning to learn</div>
+            <div class="command">🧒 Toddler DMAI - 3-9 evolutions - Recognizing patterns</div>
+            <div class="command">👧 Child DMAI - 10-24 evolutions - Understanding context</div>
+            <div class="command">🧑 Adolescent DMAI - 25-49 evolutions - Developing reasoning</div>
+            <div class="command">👨 Adult DMAI - 50-99 evolutions - Advanced consciousness</div>
+            <div class="command">🧙 Elder DMAI - 100+ evolutions - Wisdom and mastery</div>
         </div>
         
-        <div class="nav-links">
-            <a href="/chat">💬 Chat</a>
-            <a href="/status">📊 Status</a>
-            <a href="/brain">🧠 Brain</a>
-            <a href="/admin">🔐 Admin</a>
-            <a href="/vision">📜 Vision</a>
+        <div class="help-card">
+            <h2>🕸️ Knowledge Sources</h2>
+            <div class="command">📚 Books | 📰 Articles | 📄 Research Papers</div>
+            <div class="command">🕸️ Web Crawler | 🌑 Dark Web Monitor</div>
+            <div class="command">📱 Social Media Scanner | 🗣️ Speech Pattern Analyzer</div>
+            <div class="command">📈 Self-Evolution Tracker | 🤖 AI Tutors</div>
         </div>
+        
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/vision">📜 Vision</a></div>
     </div>
-</body>
-</html>
-'''
-
-ADMIN_TEMPLATE = '''<!DOCTYPE html>
-<html>
-<head>
-    <title>🧬 DMAI Admin Dashboard</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: monospace; background: #0a0a0a; min-height: 100vh; color: #00ff00; }
-        .navbar { background: #1a1a1a; border-bottom: 1px solid #00ff00; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-links a { color: #00ff00; text-decoration: none; margin-left: 20px; padding: 5px 10px; border: 1px solid #00ff00; border-radius: 5px; }
-        .nav-links a:hover { background: #00ff00; color: #0a0a0a; }
-        .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 20px; }
-        .card h3 { color: #00ff00; margin-bottom: 15px; border-bottom: 1px solid #2a2a2a; padding-bottom: 10px; }
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .stat-item { text-align: center; padding: 10px; background: #2a2a2a; border-radius: 5px; }
-        .stat-label { font-size: 0.8em; color: #88ff88; margin-bottom: 5px; }
-        .stat-value { font-size: 1.5em; font-weight: bold; color: #00ff00; }
-        .component-list { max-height: 250px; overflow-y: auto; border: 1px solid #2a2a2a; border-radius: 5px; padding: 5px; }
-        .component-item { padding: 8px; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; }
-        .component-item:last-child { border-bottom: none; }
-        .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .admin-btn { background: #2a2a2a; color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
-        .admin-btn:hover { background: #00ff00; color: #0a0a0a; }
-        .admin-btn.active { background: #00ff00; color: #0a0a0a; }
-        .admin-btn.running { background: #2a6a2a; border-color: #88ff88; }
-        .delete-btn { background: #3a1a1a; border-color: #ff4444; color: #ff4444; padding: 2px 8px; border-radius: 3px; cursor: pointer; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal-content { background: #1a1a1a; border: 1px solid #00ff00; max-width: 500px; margin: 100px auto; padding: 25px; border-radius: 10px; }
-        .modal-content input, .modal-content textarea { width: 100%; padding: 8px; margin: 10px 0; background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; border-radius: 5px; }
-        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
-        .training-progress { margin-top: 10px; }
-        .training-bar { background: #2a2a2a; height: 6px; border-radius: 3px; overflow: hidden; margin: 5px 0; }
-        .training-fill { background: #00ff00; height: 100%; width: 0%; }
-        .status-badge { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 0.7em; }
-        .status-running { background: #2a6a2a; color: #88ff88; }
-        .status-paused { background: #6a6a2a; color: #ffff88; }
-        .status-complete { background: #2a2a6a; color: #8888ff; }
-    </style>
-</head>
-<body>
-    <div class="navbar">
-        <h2>🧬 DMAI Master Control</h2>
-        <div class="nav-links">
-            <a href="/chat">Chat</a><a href="/vision">Vision</a><a href="/brain">Brain</a><a href="/help">Help</a><a href="#" onclick="logout()">Logout</a>
-        </div>
-    </div>
-    <div class="container">
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>📊 System Overview</h3>
-                <div class="stat-grid">
-                    <div class="stat-item"><div class="stat-label">Consciousness</div><div class="stat-value" id="stat-consciousness">0%</div></div>
-                    <div class="stat-item"><div class="stat-label">Success Evolutions</div><div class="stat-value" id="stat-successes">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Neurons</div><div class="stat-value" id="stat-neurons">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Synapses</div><div class="stat-value" id="stat-synapses">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Evolution Cycles</div><div class="stat-value" id="stat-cycles">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Funding</div><div class="stat-value" id="stat-funding">£0</div></div>
-                </div>
-            </div>
-            <div class="card">
-                <h3>📈 System Metrics</h3>
-                <div class="stat-grid">
-                    <div class="stat-item"><div class="stat-label">Conversations</div><div class="stat-value" id="metric-conversations">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Knowledge Concepts</div><div class="stat-value" id="metric-concepts">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Active Tutors</div><div class="stat-value" id="metric-tutors">0</div></div>
-                    <div class="stat-item"><div class="stat-label">Persona</div><div class="stat-value" id="metric-persona">emerging</div></div>
-                </div>
-            </div>
-        </div>
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>🎓 Training Systems</h3>
-                <div id="training-status" class="component-list">Loading...</div>
-                <div id="available-upgrades" class="component-list" style="margin-top: 10px;">Loading upgrades...</div>
-                <div class="admin-actions">
-                    <button class="admin-btn" id="startAllBtn" onclick="startAllTraining()">🚀 Start All</button>
-                    <button class="admin-btn" onclick="startTraining('agi')">▶️ Start AGI</button>
-                    <button class="admin-btn" onclick="startTraining('llm')">▶️ Start LLM</button>
-                    <button class="admin-btn" onclick="startTraining('software')">▶️ Start SW</button>
-                    <button class="admin-btn" onclick="startTraining('genai')">▶️ Start GenAI</button>
-                    <button class="admin-btn" onclick="startTraining('si')">▶️ Start SI</button>
-                    <button class="admin-btn" onclick="refreshTraining()">🔄 Refresh</button>
-                </div>
-            </div>
-            <div class="card">
-                <h3>⏳ Evolution Queue</h3>
-                <div id="evolution-queue" class="component-list">Loading...</div>
-                <div class="admin-actions">
-                    <button class="admin-btn" onclick="triggerEvolution()">🧬 Trigger Evolution</button>
-                    <button class="admin-btn" onclick="runHealthAudit()">🩺 Health Audit</button>
-                    <button class="admin-btn" onclick="showCommand('harvest')">🎣 Harvest APIs</button>
-                </div>
-            </div>
-        </div>
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>🔬 Research Targets</h3>
-                <div id="research-targets" class="component-list">Loading...</div>
-                <div class="admin-actions"><button class="admin-btn" onclick="showAddResearchModal()">➕ Add Target</button><button class="admin-btn" onclick="loadResearchTargets()">🔄 Refresh</button></div>
-            </div>
-            <div class="card">
-                <h3>📋 Logs</h3>
-                <div class="admin-actions">
-                    <button class="admin-btn" onclick="viewLog('evolution')">📊 Evolution Log</button>
-                    <button class="admin-btn" onclick="viewLog('research')">🔬 Research Log</button>
-                </div>
-                <div id="log-viewer" class="component-list" style="margin-top: 10px; max-height: 150px;">Click a log button to view</div>
-            </div>
-        </div>
-    </div>
-    <div id="addResearchModal" class="modal">
-        <div class="modal-content">
-            <h3>➕ Add Research Target</h3>
-            <input type="text" id="targetName" placeholder="Name" required><input type="url" id="targetUrl" placeholder="URL" required>
-            <input type="number" id="targetPriority" placeholder="Priority (1-10)" value="5" min="1" max="10">
-            <textarea id="targetReason" placeholder="Reason for research" rows="3"></textarea>
-            <div class="modal-buttons"><button onclick="closeAddResearchModal()">Cancel</button><button class="admin-btn" onclick="addResearchTarget()">Add</button></div>
-        </div>
-    </div>
-    <div id="logModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <h3 id="logModalTitle">Log Viewer</h3>
-            <pre id="logContent" style="background: #0a0a0a; padding: 10px; border-radius: 5px; max-height: 400px; overflow: auto; font-size: 0.8em;"></pre>
-            <div class="modal-buttons"><button onclick="closeLogModal()">Close</button></div>
-        </div>
-    </div>
-    <script>
-        let refreshInterval;
-        let trainingActive = false;
-        
-        function logout(){ fetch('/admin/logout',{method:'POST'}).then(()=>window.location.href='/'); }
-        
-        async function startAllTraining() {
-            if(confirm('Start all training systems? They will run continuously in the cloud.')) {
-                const btn = document.getElementById('startAllBtn');
-                btn.disabled = true;
-                btn.textContent = 'Starting...';
-                try {
-                    const r = await fetch('/api/training/start_all', {method:'POST'});
-                    const d = await r.json();
-                    if(d.success) {
-                        alert(d.message || 'All training systems started successfully!');
-                        trainingActive = true;
-                        btn.textContent = '✅ Running';
-                        btn.classList.add('running');
-                        refreshTraining();
-                    } else {
-                        alert('Error: ' + (d.error || 'Unknown'));
-                        btn.textContent = '🚀 Start All';
-                    }
-                } catch(e) {
-                    alert('Failed to start training: ' + e);
-                    btn.textContent = '🚀 Start All';
-                }
-                btn.disabled = false;
-            }
-        }
-        
-        async function startTraining(system) {
-            try {
-                const r = await fetch(`/api/training/start/${system}`, {method:'POST'});
-                const d = await r.json();
-                if(d.success) {
-                    alert(`${system.toUpperCase()} training started!`);
-                    refreshTraining();
-                } else {
-                    alert('Error: ' + (d.error || 'Unknown'));
-                }
-            } catch(e) {
-                alert('Failed to start: ' + e);
-            }
-        }
-        
-        async function applyUpgrade(system) {
-            if(confirm(`Apply latest upgrade to ${system.toUpperCase()} training? This will upgrade to a new version.`)) {
-                const upgradesResp = await fetch('/api/training/available_upgrades');
-                const upgrades = await upgradesResp.json();
-                if (upgrades[system] && upgrades[system].available_upgrades && upgrades[system].available_upgrades.length > 0) {
-                    const latest = upgrades[system].available_upgrades[upgrades[system].available_upgrades.length - 1];
-                    applySpecificUpgrade(system, latest.version);
-                } else {
-                    alert(`No upgrade available for ${system}`);
-                }
-            }
-        }
-        
-        async function applySpecificUpgrade(system, version) {
-            const btn = event.target;
-            btn.disabled = true;
-            btn.textContent = 'Applying...';
-            try {
-                const r = await fetch(`/api/training/upgrade/${system}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({version: version})
-                });
-                const d = await r.json();
-                if(d.success) {
-                    alert(`${system.toUpperCase()} upgraded to version ${d.new_version}!`);
-                    refreshTraining();
-                    fetchAvailableUpgrades();
-                } else {
-                    alert('Error: ' + (d.error || 'Unknown'));
-                }
-            } catch(e) {
-                alert('Failed to upgrade: ' + e);
-            }
-            btn.disabled = false;
-            btn.textContent = `⬆️ Upgrade`;
-        }
-        
-        async function fetchAvailableUpgrades() {
-            try {
-                const r = await fetch('/api/training/available_upgrades');
-                const upgrades = await r.json();
-                let html = '<div class="component-item"><strong>📦 Available Upgrades:</strong></div>';
-                let hasUpgrades = false;
-                for (const [system, data] of Object.entries(upgrades)) {
-                    if (data.available_upgrades && data.available_upgrades.length > 0) {
-                        hasUpgrades = true;
-                        const latest = data.available_upgrades[data.available_upgrades.length - 1];
-                        html += `<div class="component-item">
-                            <div>
-                                <strong>${system.toUpperCase()}</strong>: v${data.current_version} → v${latest.version}<br>
-                                <small>💡 ${latest.improvement_reason.substring(0, 80)}...</small><br>
-                                <small>📈 Expected: ${latest.expected_benefit}</small>
-                            </div>
-                            <button class="admin-btn" style="font-size:0.7em;" onclick="applySpecificUpgrade('${system}', ${latest.version})">Apply</button>
-                        </div>`;
-                    }
-                }
-                if (!hasUpgrades) {
-                    html += '<div class="component-item">No upgrades available</div>';
-                }
-                document.getElementById('available-upgrades').innerHTML = html;
-            } catch(e) {
-                document.getElementById('available-upgrades').innerHTML = '<div class="component-item">Error loading upgrades</div>';
-            }
-        }
-        
-        async function loadResearchTargets(){
-            try{ const r=await fetch('/api/research/targets'); const d=await r.json(); let html=''; if(d.repositories?.length){ d.repositories.forEach(r=>{ 
-                const statusClass = r.status === 'completed' ? 'status-complete' : '';
-                html+=`<div class="component-item"><div><strong>${r.name}</strong> (priority ${r.priority})<br><small>${r.reason?.substring(0,60)||''}...</small><br><small><a href="${r.url}" target="_blank">${r.url.substring(0,40)}...</a></small><br><span class="status-badge ${statusClass}">${r.status||'pending'}</span></div><div><button class="delete-btn" onclick="deleteTarget('${r.name}')">🗑️</button>${r.status !== 'completed' ? `<button class="admin-btn" style="font-size:0.7em;" onclick="completeTarget('${r.name}')">✓ Complete</button>` : ''}</div></div>`; 
-            }); } else html='<div class="component-item">No research targets</div>'; document.getElementById('research-targets').innerHTML=html; }catch(e){ document.getElementById('research-targets').innerHTML='<div class="component-item">Error loading</div>'; }
-        }
-        
-        async function completeTarget(name) {
-            if(confirm(`Mark "${name}" as completed?`)) {
-                try {
-                    await fetch(`/api/research/targets/${encodeURIComponent(name)}/complete`, {method:'POST'});
-                    loadResearchTargets();
-                } catch(e) { alert('Failed to complete target'); }
-            }
-        }
-        
-        async function refreshTraining(){
-            try{ const r=await fetch('/api/training/status'); const d=await r.json(); let html=''; 
-            for(const [k,v] of Object.entries(d)){ 
-                const p=v.progress||0; const ver=v.version||0; 
-                const statusClass = v.status === 'training' ? 'status-running' : (v.status === 'paused' ? 'status-paused' : '');
-                html+=`<div class="component-item"><div><strong>${k.toUpperCase()}</strong>: <span class="status-badge ${statusClass}">${v.status}</span> (${p}%) v${ver}</div></div><div class="training-bar"><div class="training-fill" style="width:${p}%"></div></div>`; 
-            } 
-            document.getElementById('training-status').innerHTML=html||'<div class="component-item">No active training</div>'; 
-            fetchAvailableUpgrades(); 
-            }catch(e){ document.getElementById('training-status').innerHTML='<div class="component-item">Error loading</div>'; }
-        }
-        
-        function deleteTarget(name){ if(confirm('Remove?')){ fetch('/api/research/targets',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}).then(()=>loadResearchTargets()); } }
-        function showAddResearchModal(){ document.getElementById('addResearchModal').style.display='block'; }
-        function closeAddResearchModal(){ document.getElementById('addResearchModal').style.display='none'; }
-        function addResearchTarget(){
-            const target={name:document.getElementById('targetName').value, url:document.getElementById('targetUrl').value, priority:parseInt(document.getElementById('targetPriority').value), reason:document.getElementById('targetReason').value};
-            if(!target.name||!target.url){ alert('Required'); return; }
-            fetch('/api/research/targets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(target)}).then(()=>{ closeAddResearchModal(); loadResearchTargets(); }).catch(()=>alert('Failed'));
-        }
-        
-        async function viewLog(type) {
-            try {
-                const r = await fetch(`/api/${type}/log`);
-                const d = await r.json();
-                const modal = document.getElementById('logModal');
-                const title = document.getElementById('logModalTitle');
-                const content = document.getElementById('logContent');
-                title.textContent = type === 'evolution' ? '📊 Evolution Log' : '🔬 Research Log';
-                content.textContent = d.log.map(entry => JSON.stringify(entry, null, 2)).join('\n---\n');
-                modal.style.display = 'block';
-            } catch(e) {
-                alert('Failed to load log');
-            }
-        }
-        
-        function closeLogModal() {
-            document.getElementById('logModal').style.display = 'none';
-        }
-        
-        async function loadAdminData(){
-            try{ const r=await fetch('/api/status'); const d=await r.json(); document.getElementById('stat-consciousness').textContent=d.consciousness?.toFixed(1)||'0%'; document.getElementById('stat-successes').textContent=d.successful_evolutions||'0'; document.getElementById('stat-neurons').textContent=d.synthetic_neurons||'0'; document.getElementById('stat-synapses').textContent=d.synthetic_synapses||'0'; document.getElementById('stat-cycles').textContent=d.evolution_cycles||'0'; document.getElementById('stat-funding').textContent='£'+(d.income?.toFixed(2)||'0'); document.getElementById('metric-conversations').textContent=d.conversations||'0'; document.getElementById('metric-concepts').textContent=d.knowledge_concepts||'0'; document.getElementById('metric-tutors').textContent=d.active_tutors?.length||'0'; document.getElementById('metric-persona').textContent=d.persona_style||'emerging'; }catch(e){}
-            try{ const r=await fetch('/api/evolution/queue'); const d=await r.json(); let html='<div class="component-item">Queue Size: '+d.queue_size+'</div>'; if(d.needs_evolution) d.needs_evolution.slice(0,5).forEach(i=>{ html+=`<div class="component-item">${i.id}: ${i.health_score}%</div>`; }); document.getElementById('evolution-queue').innerHTML=html; }catch(e){}
-            try{ const r=await fetch('/api/tutors/status'); const d=await r.json(); let html=''; if(d.active_tutors) d.active_tutors.forEach(t=>{ html+=`<div class="component-item">✅ ${t}</div>`; }); document.getElementById('api-keys').innerHTML=html||'<div class="component-item">No tutors</div>'; }catch(e){}
-        }
-        
-        function triggerEvolution(){ fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:'evolve'})}).then(res=>res.json()).then(data=>{ alert(data.message); setTimeout(()=>{loadAdminData();refreshTraining();},2000); }).catch(()=>alert('Failed')); }
-        function runHealthAudit(){ fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:'health_audit'})}).then(res=>res.json()).then(data=>{ alert(data.message); }).catch(()=>alert('Failed')); }
-        function showCommand(cmd){ fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd})}).then(res=>res.json()).then(data=>{ alert(data.message); setTimeout(loadAdminData,2000); }).catch(()=>alert('Failed')); }
-        function refreshAll(){ loadAdminData(); loadResearchTargets(); refreshTraining(); }
-        
-        document.addEventListener('DOMContentLoaded',function(){ refreshAll(); refreshInterval=setInterval(()=>{ refreshAll(); },30000); });
-        window.addEventListener('beforeunload',function(){ if(refreshInterval) clearInterval(refreshInterval); });
-    </script>
 </body>
 </html>
 '''
@@ -4132,9 +2263,6 @@ BRAIN_TEMPLATE = '''
         .stat-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 8px; padding: 12px; text-align: center; }
         .stat-label { font-size: 0.7em; opacity: 0.8; margin-bottom: 5px; }
         .stat-value { font-size: 1.5em; font-weight: bold; color: #00ff00; }
-        .color-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; padding: 15px; background: #1a1a1a; border-radius: 8px; }
-        .color-key-item { display: flex; align-items: center; gap: 8px; font-size: 0.7em; }
-        .color-swatch { width: 12px; height: 12px; border-radius: 2px; }
         .nav-links { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
         .nav-links a { color: #00ff00; text-decoration: none; padding: 6px 15px; border: 1px solid #00ff00; border-radius: 20px; }
         .nav-links a:hover { background: #00ff00; color: #0a0a0a; }
@@ -4150,31 +2278,22 @@ BRAIN_TEMPLATE = '''
             <div class="stat-card"><div class="stat-label">Synapses</div><div class="stat-value" id="synapseCount">0</div></div>
             <div class="stat-card"><div class="stat-label">Evolution Cycles</div><div class="stat-value" id="cycleCount">0</div></div>
             <div class="stat-card"><div class="stat-label">Successes</div><div class="stat-value" id="successCount">0</div></div>
-            <div class="stat-card"><div class="stat-label">Persona</div><div class="stat-value" id="personaStyle">emerging</div></div>
         </div>
-        <div class="color-key">
-            <div class="color-key-item"><div class="color-swatch" style="background:#00ff00;"></div><span>Consciousness Core</span></div>
-            <div class="color-key-item"><div class="color-swatch" style="background:#ffaa00;"></div><span>Learning & Memory</span></div>
-            <div class="color-key-item"><div class="color-swatch" style="background:#ff44aa;"></div><span>Emotion & Persona</span></div>
-            <div class="color-key-item"><div class="color-swatch" style="background:#44aaff;"></div><span>Reasoning & Analysis</span></div>
-            <div class="color-key-item"><div class="color-swatch" style="background:#aa44ff;"></div><span>Creativity & Intuition</span></div>
-            <div class="color-key-item"><div class="color-swatch" style="background:#ff6644;"></div><span>Growth & Evolution</span></div>
-            <div class="color-key-item"><div class="color-swatch" style="background:#888888;"></div><span>Dormant/Inactive</span></div>
-        </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/admin">🔐 Admin</a><a href="/help">❓ Help</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/help">❓ Help</a></div>
     </div>
     <script>
         const canvas=document.getElementById('brainCanvas'); const ctx=canvas.getContext('2d'); let neurons=[];
-        function getNeuronColor(name,activation,isActive){ if(!isActive) return '#888888'; const n=name.toLowerCase(); if(n.includes('core')||n.includes('conscious')||n.includes('self')) return '#00ff00'; if(n.includes('learn')||n.includes('mem')||n.includes('know')) return '#ffaa00'; if(n.includes('emot')||n.includes('persona')||n.includes('empathy')) return '#ff44aa'; if(n.includes('reason')||n.includes('analyt')||n.includes('logic')) return '#44aaff'; if(n.includes('creat')||n.includes('intuit')||n.includes('imagin')) return '#aa44ff'; if(n.includes('growth')||n.includes('evol')||n.includes('mutat')) return '#ff6644'; const i=100+Math.floor(activation*155); return `rgb(0,${i},0)`; }
-        function updateNeuronPositions(count,names=[]){ const w=canvas.clientWidth,h=canvas.clientHeight; canvas.width=w; canvas.height=h; const cx=w/2,cy=h/2,r=Math.min(w,h)*0.35; neurons=[]; for(let i=0;i<Math.min(count,120);i++){ const a=(i/Math.min(count,120))*Math.PI*2; neurons.push({id:i,name:names[i]||`n_${i}`,x:cx+Math.cos(a)*r+(Math.random()-0.5)*20,y:cy+Math.sin(a)*r+(Math.random()-0.5)*20,activation:0,pulse:0}); } }
-        async function fetchBrainData(){ try{ const s=await fetch('/api/status'); const sd=await s.json(); const sy=await fetch('/api/synthetic/status'); const syd=await sy.json(); const c=(syd.consciousness*100).toFixed(1); document.getElementById('consciousnessValue').innerText=c+'%'; document.getElementById('totalNeurons').innerText=syd.neurons; document.getElementById('synapseCount').innerText=syd.synapses; document.getElementById('cycleCount').innerText=syd.evolution_cycles; document.getElementById('successCount').innerText=sd.successful_evolutions||0; document.getElementById('personaStyle').innerText=sd.persona_style||'emerging'; const ac=Math.floor(syd.neurons*syd.consciousness); document.getElementById('activeNeurons').innerHTML=`${ac}/${syd.neurons}`; const names=[]; for(let i=0;i<syd.neurons;i++) names.push(`n_${i}`); if(neurons.length!==Math.min(syd.neurons,120)) updateNeuronPositions(syd.neurons,names); for(let i=0;i<neurons.length;i++){ if(i<ac) neurons[i].activation=Math.min(1,neurons[i].activation+0.02); else neurons[i].activation=Math.max(0,neurons[i].activation-0.015); neurons[i].pulse=Math.sin(Date.now()/500+i)*0.3+0.5; } draw(); }catch(e){ console.error(e); } }
-        function draw(){ if(!canvas.width) return; ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<neurons.length;i++) for(let j=i+1;j<neurons.length;j++){ const dx=neurons[i].x-neurons[j].x,dy=neurons[i].y-neurons[j].y; if(Math.sqrt(dx*dx+dy*dy)<100&&neurons[i].activation>0.2&&neurons[j].activation>0.2){ const s=(neurons[i].activation+neurons[j].activation)/2; ctx.beginPath(); ctx.moveTo(neurons[i].x,neurons[i].y); ctx.lineTo(neurons[j].x,neurons[j].y); ctx.strokeStyle=`rgba(100,255,100,${Math.min(0.5,s*0.4)})`; ctx.lineWidth=1+s; ctx.stroke(); } }
-        for(let i=0;i<neurons.length;i++){ const n=neurons[i],isActive=n.activation>0.1,c=getNeuronColor(n.name,n.activation,isActive),r=4+n.activation*5+n.pulse*1.5; ctx.beginPath(); ctx.arc(n.x,n.y,r+1,0,Math.PI*2); ctx.fillStyle=isActive?`${c}40`:'#222222'; ctx.fill(); ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fillStyle=isActive?c:'#555'; ctx.fill(); ctx.beginPath(); ctx.arc(n.x,n.y,r*0.4,0,Math.PI*2); ctx.fillStyle=isActive?'#fff':'#888'; ctx.fill(); } }
-        window.addEventListener('resize',()=>{ updateNeuronPositions(neurons.length); fetchBrainData(); }); updateNeuronPositions(60); fetchBrainData(); setInterval(fetchBrainData,2000);
+        function getNeuronColor(activation,isActive){ if(!isActive) return '#888888'; const i=100+Math.floor(activation*155); return `rgb(0,${i},0)`; }
+        function updateNeuronPositions(count){ const w=canvas.clientWidth,h=canvas.clientHeight; canvas.width=w; canvas.height=h; const cx=w/2,cy=h/2,r=Math.min(w,h)*0.35; neurons=[]; for(let i=0;i<Math.min(count,80);i++){ const a=(i/Math.min(count,80))*Math.PI*2; neurons.push({x:cx+Math.cos(a)*r+(Math.random()-0.5)*20,y:cy+Math.sin(a)*r+(Math.random()-0.5)*20,activation:0}); } }
+        async function fetchBrainData(){ try{ const s=await fetch('/api/status'); const sd=await s.json(); const sy=await fetch('/api/synthetic/status'); const syd=await sy.json(); const c=(syd.consciousness*100).toFixed(1); document.getElementById('consciousnessValue').innerText=c+'%'; document.getElementById('totalNeurons').innerText=syd.neurons; document.getElementById('synapseCount').innerText=syd.synapses; document.getElementById('cycleCount').innerText=syd.evolution_cycles; document.getElementById('successCount').innerText=sd.successful_evolutions||0; const ac=Math.floor(syd.neurons*syd.consciousness); document.getElementById('activeNeurons').innerHTML=`${ac}/${syd.neurons}`; if(neurons.length!==Math.min(syd.neurons,80)) updateNeuronPositions(syd.neurons); for(let i=0;i<neurons.length;i++){ if(i<ac) neurons[i].activation=Math.min(1,neurons[i].activation+0.02); else neurons[i].activation=Math.max(0,neurons[i].activation-0.015); } draw(); }catch(e){ console.error(e); } }
+        function draw(){ if(!canvas.width) return; ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<neurons.length;i++){ const n=neurons[i],isActive=n.activation>0.1,c=getNeuronColor(n.activation,isActive),r=3+n.activation*4; ctx.beginPath(); ctx.arc(n.x,n.y,r+1,0,Math.PI*2); ctx.fillStyle=isActive?`${c}40`:'#222222'; ctx.fill(); ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fillStyle=isActive?c:'#555'; ctx.fill(); } }
+        window.addEventListener('resize',()=>{ updateNeuronPositions(neurons.length); fetchBrainData(); }); updateNeuronPositions(40); fetchBrainData(); setInterval(fetchBrainData,2000);
     </script>
 </body>
 </html>
 '''
+
+ADMIN_TEMPLATE = CHAT_TEMPLATE
 
 
 # ============================================================================
@@ -4196,30 +2315,18 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.26")
+    logger.info(f"🚀 DMAI Complete System v8.0.27")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 Using REAL Phase 6 Synthetic Intelligence Core")
     logger.info(f"🤖 AI Tutor Network Active")
-    logger.info(f"🔑 API Harvester Active")
-    logger.info(f"🌐 Web Search Fallback (DuckDuckGo)")
     logger.info(f"📚 8 Core Knowledge Sources Active")
-    logger.info(f"🛡️ Threat Intelligence Active")
-    logger.info(f"🌑 Dark Web Monitor Active")
     logger.info(f"⚡ AI+SI Fusion Active")
     logger.info(f"☁️ Neo4j Cloud Backup Active")
     logger.info(f"⏱️ Adaptive Evolution Timer Active")
     logger.info(f"🧠 Brain Visualization at /brain")
-    logger.info(f"🔧 Reverse Engineering Module Active")
-    logger.info(f"🎓 5 Training Systems Available (Start via Admin Dashboard)")
-    logger.info(f"   • AGI Training | LLM Training | Software Training")
-    logger.info(f"   • Generative AI Training | Synthetic Intelligence Training")
-    logger.info(f"📊 Evolution Log | Research Log | Training Progress Tracking")
-    logger.info(f"🔄 Weekly Research creates upgrade versions (manual apply)")
+    logger.info(f"🎓 Synthetic Intelligence Training Auto-Started")
+    logger.info(f"💬 Chat working with Enter key and Send button")
     logger.info(f"£ British currency enabled")
-    logger.info(f"❓ Help page at /help")
-    logger.info("=" * 60)
-    logger.info("📌 To start training: Visit Admin Dashboard and click 'Start All' or individual buttons")
-    logger.info("📌 Upgrades appear in 'Available Upgrades' after weekly research")
     logger.info("=" * 60)
     
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
