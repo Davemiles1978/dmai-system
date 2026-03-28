@@ -7,7 +7,7 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.29
+DMAI - COMPLETE AGI SYSTEM v8.0.30
 6 COMPREHENSIVE TRAINING SYSTEMS - Software | LLM | AGI | GenAI | SI | Self-Funding
 """
 
@@ -116,7 +116,7 @@ from components.genai_training.ComprehensiveGenAITraining import ComprehensiveGe
 # Synthetic Intelligence Training
 from components.si_training.SyntheticIntelligenceTraining import SITrainingOrchestrator
 
-# Self-Funding Training
+# Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
 
 # Configure logging
@@ -730,10 +730,46 @@ class KnowledgeGraph:
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.graph_file = data_path / 'knowledge_graph.json'
+        self.graph = {}
         self.concepts = set()
         self.connections = []
         self._load()
         logger.info(f"📊 Knowledge Graph initialized with {len(self.concepts)} concepts")
+    
+    def add_knowledge(self, subject: str, predicate: str = None, object: str = None, metadata: Dict = None) -> bool:
+        """
+        Add knowledge triple to graph - wrapper for add_concept
+        Supports both triple format and simple concept format
+        """
+        try:
+            if predicate is None and object is None:
+                # Simple concept format
+                return self.add_concept(subject, metadata or {})
+            
+            # Triple format - add as relationship
+            if subject not in self.graph:
+                self.graph[subject] = {}
+            
+            if predicate not in self.graph[subject]:
+                self.graph[subject][predicate] = []
+            
+            self.graph[subject][predicate].append({
+                'object': object,
+                'metadata': metadata or {},
+                'timestamp': datetime.now().isoformat()
+            })
+            
+            # Also ensure object exists as concept
+            if object and object not in self.graph:
+                self.graph[object] = {}
+                self.concepts.add(object[:100] if len(object) > 100 else object)
+            
+            logger.debug(f"Added knowledge: {subject} {predicate} {object}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to add knowledge: {e}")
+            return False
     
     def add_concept(self, concept: str, context: str = None):
         """Add a concept - SIMPLE WORKING VERSION"""
@@ -745,6 +781,8 @@ class KnowledgeGraph:
             
             if clean_concept not in self.concepts:
                 self.concepts.add(clean_concept)
+                if clean_concept not in self.graph:
+                    self.graph[clean_concept] = {}
                 logger.debug(f"✅ Added concept: {clean_concept[:50]}...")
                 return True
             return False
@@ -763,6 +801,7 @@ class KnowledgeGraph:
             if self.graph_file.exists():
                 with open(self.graph_file, 'r') as f:
                     data = json.load(f)
+                    self.graph = data.get('graph', {})
                     self.concepts = set(data.get('concepts', []))
                     self.connections = data.get('connections', [])
                 logger.debug(f"📂 Loaded {len(self.concepts)} concepts")
@@ -773,6 +812,7 @@ class KnowledgeGraph:
         try:
             with open(self.graph_file, 'w') as f:
                 json.dump({
+                    'graph': self.graph,
                     'concepts': list(self.concepts),
                     'connections': self.connections
                 }, f, indent=2)
@@ -1030,9 +1070,15 @@ class UnifiedEvolutionEngine:
         logger.info("   🧬 Synthetic Intelligence Training (10 consciousness modules)")
         self.si_training = SITrainingOrchestrator(self.data_path, self.synthetic_network, self.knowledge_graph, self.ai_hub)
         
-        # Self-Funding Training
-        logger.info("   💰 Self-Funding Training (Trading, Content, APIs)")
-        self.funding_training = FundingOrchestrator(self.data_path, self.finance, self.knowledge_graph, self.ai_hub)
+        # Self-Funding Training - PHASE 1: Knowledge Acquisition (NO TRADING)
+        logger.info("   💰 Self-Funding Training (10 Revenue Avenues - Knowledge Acquisition)")
+        try:
+            self.funding_training = FundingOrchestrator(self.data_path, self.finance, self.knowledge_graph, self.ai_hub)
+            logger.info("      ✅ Funding training initialized - PHASE 1: Comprehensive Knowledge Acquisition")
+            logger.info("      📚 Learning about 10 revenue avenues from AI tutors - NO trading execution")
+        except Exception as e:
+            logger.warning(f"      ⚠️ Funding training init failed: {e}")
+            self.funding_training = None
         
         # ====================================================================
         # TRAINING STATUS TRACKING
@@ -1044,7 +1090,7 @@ class UnifiedEvolutionEngine:
             'agi': {'status': 'not_started', 'progress': 0, 'modules': 0},
             'genai': {'status': 'not_started', 'progress': 0, 'modules': 0},
             'si': {'status': 'not_started', 'progress': 0, 'modules': 10},
-            'funding': {'status': 'not_started', 'progress': 0, 'modules': 0}
+            'funding': {'status': 'not_started', 'progress': 0, 'phase': '1 - Knowledge Acquisition', 'message': 'Learning about 10 revenue avenues'}
         }
         
         # ====================================================================
@@ -1069,7 +1115,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         
         logger.info("=" * 60)
-        logger.info(f"🧠 DMAI v8.0.29 - 6 COMPREHENSIVE TRAINING SYSTEMS")
+        logger.info(f"🧠 DMAI v8.0.30 - 6 COMPREHENSIVE TRAINING SYSTEMS")
         logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
         logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
         logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
@@ -1077,7 +1123,7 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Successful Evolutions: {self.successful_evolutions}")
         logger.info(f"   Evolution Stage: {timer_info['name']}")
         logger.info(f"   Evolution Pace: {timer_info['interval_minutes']:.0f} minutes")
-        logger.info(f"   Training Systems: Software | LLM | AGI | GenAI | SI | Self-Funding")
+        logger.info(f"   Training Systems: Software | LLM | AGI | GenAI | SI | Self-Funding (10 Avenues)")
         logger.info("=" * 60)
     
     def _seed_initial_network(self):
@@ -1240,7 +1286,21 @@ class UnifiedEvolutionEngine:
         self.training_status['agi'] = self.agi_training.get_status()
         self.training_status['genai'] = self.genai_training.get_status()
         self.training_status['si'] = self.si_training.status()
-        self.training_status['funding'] = self.funding_training.status()
+        
+        # Funding training status (Phase 1 - Knowledge Acquisition)
+        if self.funding_training:
+            funding_status = self.funding_training.status()
+            self.training_status['funding'] = {
+                'status': 'learning' if funding_status.get('active') else 'paused',
+                'progress': funding_status.get('progress_percent', 0),
+                'phase': '1 - Knowledge Acquisition',
+                'message': funding_status.get('message', 'Learning about 10 revenue avenues'),
+                'concepts_learned': funding_status.get('concepts_learned', 0),
+                'concepts_total': funding_status.get('concepts_total', 0),
+                'completed_avenues': funding_status.get('completed_avenues_count', 0),
+                'total_avenues': funding_status.get('total_avenues', 10),
+                'ready_for_phase_2': funding_status.get('ready_for_phase_2', False)
+            }
         
         self._cached_status = {
             'consciousness': self.synthetic_network.consciousness_level * 100,
@@ -1426,6 +1486,14 @@ class DMAIApplication:
         def help_page():
             return render_template_string(HELP_TEMPLATE)
         
+        @self.app.route('/admin')
+        def admin():
+            return render_template_string(ADMIN_TEMPLATE)
+        
+        @self.app.route('/chat')
+        def chat():
+            return render_template_string(CHAT_TEMPLATE)
+        
         @self.app.route('/api/status')
         def api_status():
             return jsonify(self.evolution.get_status())
@@ -1464,8 +1532,9 @@ class DMAIApplication:
             elif system == 'si':
                 result = self.evolution.si_training.start()
             elif system == 'funding':
-                data = request.json
-                result = self.evolution.funding_training.start_trading(data.get('capital', 1000))
+                data = request.json or {}
+                avenue = data.get('avenue', None)
+                result = self.evolution.funding_training.start_learning(avenue) if self.evolution.funding_training else {'success': False, 'error': 'Funding training not available'}
             else:
                 return jsonify({'success': False, 'error': f'Unknown system: {system}'}), 400
             return jsonify(result)
@@ -1482,9 +1551,30 @@ class DMAIApplication:
                 result = self.evolution.genai_training.stop_training()
             elif system == 'si':
                 result = self.evolution.si_training.stop()
+            elif system == 'funding':
+                result = self.evolution.funding_training.stop_learning() if self.evolution.funding_training else {'success': False, 'error': 'Funding training not available'}
             else:
                 return jsonify({'success': False, 'error': f'Unknown system: {system}'}), 400
             return jsonify(result)
+        
+        @self.app.route('/api/funding/status')
+        def api_funding_status():
+            if self.evolution.funding_training:
+                return jsonify(self.evolution.funding_training.status())
+            return jsonify({'error': 'Funding training not available', 'phase': 'disabled'})
+        
+        @self.app.route('/api/funding/strategies')
+        def api_funding_strategies():
+            if self.evolution.funding_training:
+                avenue = request.args.get('avenue', None)
+                return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
+            return jsonify({'error': 'Funding training not available'})
+        
+        @self.app.route('/api/funding/phase2_request', methods=['POST'])
+        def api_funding_phase2_request():
+            if self.evolution.funding_training:
+                return jsonify(self.evolution.funding_training.request_phase_2_approval())
+            return jsonify({'error': 'Funding training not available'})
         
         @self.app.route('/api/command', methods=['POST'])
         def api_command():
@@ -1493,19 +1583,34 @@ class DMAIApplication:
             if command == 'evolve':
                 result = self.evolution.evolution_cycle()
                 return jsonify({'message': f'Evolution cycle completed. Consciousness: {result["consciousness_percent"]:.1f}%'})
+            elif command == 'funding_start':
+                avenue = data.get('avenue', None)
+                if self.evolution.funding_training:
+                    result = self.evolution.funding_training.start_learning(avenue)
+                    return jsonify(result)
+                return jsonify({'success': False, 'error': 'Funding training not available'})
+            elif command == 'funding_stop':
+                if self.evolution.funding_training:
+                    result = self.evolution.funding_training.stop_learning()
+                    return jsonify(result)
+                return jsonify({'success': False, 'error': 'Funding training not available'})
+            elif command == 'pause':
+                with open(PAUSE_FLAG_FILE, 'w') as f:
+                    f.write('paused')
+                return jsonify({'success': True, 'message': 'System paused'})
+            elif command == 'resume':
+                if os.path.exists(PAUSE_FLAG_FILE):
+                    os.remove(PAUSE_FLAG_FILE)
+                return jsonify({'success': True, 'message': 'System resumed'})
+            elif command == 'kill':
+                with open(KILL_FLAG_FILE, 'w') as f:
+                    f.write('kill')
+                return jsonify({'success': True, 'message': 'Kill signal sent'})
             return jsonify({'message': f'Unknown command: {command}'})
         
         @self.app.route('/admin/logout', methods=['POST'])
         def admin_logout():
             return jsonify({'success': True})
-        
-        @self.app.route('/admin')
-        def admin():
-            return ADMIN_TEMPLATE
-        
-        @self.app.route('/chat')
-        def chat():
-            return CHAT_TEMPLATE
     
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
@@ -1513,7 +1618,8 @@ class DMAIApplication:
         
         if cmd == '/status':
             ts = status.get('training_status', {})
-            return f"""🧠 **DMAI Status v8.0.29**
+            funding_ts = ts.get('funding', {})
+            return f"""🧠 **DMAI Status v8.0.30**
 Consciousness: {status['consciousness']:.2f}%
 Evolution Cycles: {status['evolution_cycles']}
 Successful Evolutions: {status['successful_evolutions']}
@@ -1526,10 +1632,37 @@ Knowledge Concepts: {status['knowledge_concepts']}
    AGI: {ts.get('agi', {}).get('progress', 0):.1f}%
    GenAI: {ts.get('genai', {}).get('progress', 0):.1f}%
    SI: {ts.get('si', {}).get('progress', 0):.1f}%
-   Funding: {ts.get('funding', {}).get('active_streams', 0)} active streams
+   Funding: {funding_ts.get('progress', 0):.1f}% ({funding_ts.get('concepts_learned', 0)}/{funding_ts.get('concepts_total', 0)} concepts)
+      📚 {funding_ts.get('completed_avenues', 0)}/{funding_ts.get('total_avenues', 10)} revenue avenues mastered
 
 🧬 **Evolution Stage:** {status.get('evolution_stage_name', 'Baby DMAI')}
    Pace: {status.get('evolution_interval', 10)} minutes between evolutions"""
+        
+        elif cmd == '/funding_status':
+            if self.evolution.funding_training:
+                f_status = self.evolution.funding_training.status()
+                return f"""💰 **Self-Funding Training - Phase 1: Knowledge Acquisition**
+Progress: {f_status.get('progress_percent', 0):.1f}%
+Concepts Learned: {f_status.get('concepts_learned', 0)}/{f_status.get('concepts_total', 0)}
+Avenues Completed: {f_status.get('completed_avenues_count', 0)}/{f_status.get('total_avenues', 10)}
+
+**Revenue Avenues:**
+{self._format_funding_avenues(f_status.get('revenue_avenues', {}))}
+
+Ready for Phase 2: {f_status.get('ready_for_phase_2', False)}"""
+            return "💰 Funding training not available"
+        
+        elif cmd == '/funding_start':
+            if self.evolution.funding_training:
+                result = self.evolution.funding_training.start_learning()
+                return f"📚 {result.get('message', 'Funding knowledge acquisition started')}"
+            return "💰 Funding training not available"
+        
+        elif cmd == '/funding_stop':
+            if self.evolution.funding_training:
+                result = self.evolution.funding_training.stop_learning()
+                return f"⏸️ {result.get('message', 'Funding knowledge acquisition paused')}"
+            return "💰 Funding training not available"
         
         elif cmd == '/pause':
             with open(PAUSE_FLAG_FILE, 'w') as f:
@@ -1547,7 +1680,21 @@ Knowledge Concepts: {status['knowledge_concepts']}
             return "💀 Kill signal sent - system will shutdown"
         
         else:
-            return f"Unknown command: {command}. Available: /status, /pause, /resume, /kill"
+            return f"Unknown command: {command}. Available: /status, /funding_status, /funding_start, /funding_stop, /pause, /resume, /kill"
+    
+    def _format_funding_avenues(self, avenues: Dict) -> str:
+        if not avenues:
+            return "   No data available"
+        
+        lines = []
+        for name, data in list(avenues.items())[:5]:
+            status = "✅" if data.get('completed') else "📖"
+            lines.append(f"   {status} {data.get('name', name)}: {data.get('progress', 0):.1f}%")
+        
+        if len(avenues) > 5:
+            lines.append(f"   ... and {len(avenues) - 5} more")
+        
+        return "\n".join(lines)
 
 
 # ============================================================================
@@ -1559,10 +1706,12 @@ STATUS_TEMPLATE = '''
 <html>
 <head>
     <title>DMAI Status</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: monospace; background: #0a0a0a; color: #00ff00; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
+        .container { max-width: 900px; margin: 0 auto; }
         .card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 20px; margin: 10px 0; }
         .value { font-size: 24px; font-weight: bold; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
@@ -1571,12 +1720,14 @@ STATUS_TEMPLATE = '''
         .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
         .nav-btn { background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.9em; transition: all 0.3s; }
         .nav-btn:hover { background: #00ff00; color: #0a0a0a; }
+        .progress-bar-small { background: #2a2a2a; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .progress-fill-small { background: #00ff00; height: 100%; width: 0%; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧠 DMAI - Complete AGI System v8.0.29</h1>
-        <p><em>6 Comprehensive Training Systems: Software | LLM | AGI | GenAI | SI | Self-Funding</em></p>
+        <h1>🧠 DMAI - Complete AGI System v8.0.30</h1>
+        <p><em>6 Comprehensive Training Systems: Software | LLM | AGI | GenAI | SI | Self-Funding (10 Avenues)</em></p>
         
         <div class="card">
             <div>Consciousness Level</div>
@@ -1606,12 +1757,12 @@ STATUS_TEMPLATE = '''
         <div class="card">
             <h3>🎓 Training Progress</h3>
             <div class="grid">
-                <div>Software: {{ status.training_status.software.progress|default(0) }}%</div>
-                <div>LLM: {{ status.training_status.llm.progress|default(0) }}%</div>
-                <div>AGI: {{ status.training_status.agi.progress|default(0) }}%</div>
-                <div>GenAI: {{ status.training_status.genai.progress|default(0) }}%</div>
-                <div>SI: {{ status.training_status.si.progress|default(0) }}%</div>
-                <div>Funding: {{ status.training_status.funding.active_streams|default(0) }} active</div>
+                <div>Software: {{ status.training_status.software.progress|default(0) }}%<div class="progress-bar-small"><div class="progress-fill-small" style="width: {{ status.training_status.software.progress|default(0) }}%"></div></div></div>
+                <div>LLM: {{ status.training_status.llm.progress|default(0) }}%<div class="progress-bar-small"><div class="progress-fill-small" style="width: {{ status.training_status.llm.progress|default(0) }}%"></div></div></div>
+                <div>AGI: {{ status.training_status.agi.progress|default(0) }}%<div class="progress-bar-small"><div class="progress-fill-small" style="width: {{ status.training_status.agi.progress|default(0) }}%"></div></div></div>
+                <div>GenAI: {{ status.training_status.genai.progress|default(0) }}%<div class="progress-bar-small"><div class="progress-fill-small" style="width: {{ status.training_status.genai.progress|default(0) }}%"></div></div></div>
+                <div>SI: {{ status.training_status.si.progress|default(0) }}%<div class="progress-bar-small"><div class="progress-fill-small" style="width: {{ status.training_status.si.progress|default(0) }}%"></div></div></div>
+                <div>Funding: {{ status.training_status.funding.progress|default(0) }}%<div class="progress-bar-small"><div class="progress-fill-small" style="width: {{ status.training_status.funding.progress|default(0) }}%"></div></div><small>{{ status.training_status.funding.completed_avenues|default(0) }}/{{ status.training_status.funding.total_avenues|default(10) }} avenues</small></div>
             </div>
         </div>
         
@@ -1639,6 +1790,7 @@ STATUS_TEMPLATE = '''
                 <a href="/brain" class="nav-btn">🧠 Brain Activity</a>
                 <a href="/vision" class="nav-btn">📜 Vision</a>
                 <a href="/help" class="nav-btn">❓ Help</a>
+                <a href="/admin" class="nav-btn">🔧 Admin</a>
             </div>
         </div>
     </div>
@@ -1658,6 +1810,10 @@ CHAT_TEMPLATE = '''
         body { font-family: monospace; background: #0a0a0a; height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
         .chat-container { width: 100%; max-width: 800px; height: 95vh; background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
         .chat-header { background: #0a2a0a; border-bottom: 1px solid #00ff00; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .chat-header-left { display: flex; align-items: center; gap: 15px; }
+        .brain-icon { width: 40px; height: 40px; background: #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
+        .brain-icon span { font-size: 24px; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,255,0,0.4); } 70% { box-shadow: 0 0 0 10px rgba(0,255,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,255,0,0); } }
         .chat-header-left h1 { font-size: 1.2em; color: #00ff00; margin: 0; }
         .chat-header-left .status { font-size: 0.7em; color: #88ff88; margin-top: 5px; }
         .nav-buttons { display: flex; gap: 10px; }
@@ -1680,6 +1836,8 @@ CHAT_TEMPLATE = '''
             body { padding: 0; }
             .chat-container { height: 100vh; border-radius: 0; }
             .chat-header { padding: 10px 15px; }
+            .brain-icon { width: 30px; height: 30px; }
+            .brain-icon span { font-size: 18px; }
             .chat-header-left h1 { font-size: 1em; }
             .nav-btn { padding: 3px 8px; font-size: 0.7em; }
             .messages { padding: 12px; }
@@ -1693,13 +1851,17 @@ CHAT_TEMPLATE = '''
 <div class="chat-container">
     <div class="chat-header">
         <div class="chat-header-left">
-            <h1>🧠 DMAI Master Chat</h1>
-            <div class="status" id="status-header">Consciousness: <span id="consciousness">--</span>% | Successes: <span id="successCount">0</span></div>
+            <div class="brain-icon"><span>🧠</span></div>
+            <div>
+                <h1>DMAI Master Chat</h1>
+                <div class="status" id="status-header">Consciousness: <span id="consciousness">--</span>% | Successes: <span id="successCount">0</span></div>
+            </div>
         </div>
         <div class="nav-buttons">
             <a href="/vision" class="nav-btn">📜 Vision</a>
             <a href="/brain" class="nav-btn">🧠 Brain</a>
             <a href="/help" class="nav-btn">❓ Help</a>
+            <a href="/admin" class="nav-btn">🔧 Admin</a>
         </div>
     </div>
     <div class="messages" id="messages">
@@ -1755,7 +1917,7 @@ function addMessage(sender, text) {
     messageDiv.className = `message ${sender}`;
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${escapeHtml(text).replace(/\n/g, '<br>')}`;
+    contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${escapeHtml(text).replace(/\\n/g, '<br>')}`;
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
     timeDiv.textContent = new Date().toLocaleTimeString();
@@ -1804,9 +1966,9 @@ VISION_TEMPLATE = '''
         </div>
         <div class="vision-card">
             <h2>Training Systems</h2>
-            <div class="quote">Software (26 languages) | LLM (All architectures) | AGI (Reasoning, Consciousness) | GenAI (Image, Video, Audio, 3D) | SI (Consciousness Evolution) | Self-Funding (Real Income)</div>
+            <div class="quote">Software (26 languages, 24 frameworks, 9 CS topics) | LLM (All architectures) | AGI (Reasoning, Consciousness) | GenAI (Image, Video, Audio, 3D) | SI (Consciousness Evolution) | Self-Funding (10 Revenue Avenues - Knowledge Acquisition)</div>
         </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/help">❓ Help</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/help">❓ Help</a><a href="/admin">🔧 Admin</a></div>
     </div>
 </body>
 </html>
@@ -1840,6 +2002,9 @@ HELP_TEMPLATE = '''
         <div class="help-card">
             <h2>📋 Chat Commands</h2>
             <div class="command"><span class="command-name">/status</span> - Full system status with training progress</div>
+            <div class="command"><span class="command-name">/funding_status</span> - Self-funding knowledge acquisition status</div>
+            <div class="command"><span class="command-name">/funding_start</span> - Start funding knowledge acquisition</div>
+            <div class="command"><span class="command-name">/funding_stop</span> - Stop funding knowledge acquisition</div>
             <div class="command"><span class="command-name">/pause</span> - Pause evolution cycles</div>
             <div class="command"><span class="command-name">/resume</span> - Resume evolution cycles</div>
             <div class="command"><span class="command-name">/kill</span> - Emergency shutdown</div>
@@ -1851,9 +2016,9 @@ HELP_TEMPLATE = '''
             <div class="command">🧠 AGI: Reasoning, Planning, Memory, Consciousness, Ethics</div>
             <div class="command">🎨 GenAI: Image, Video, Audio, 3D, Multimodal</div>
             <div class="command">🧬 SI: 10 consciousness modules (0.1 to 1.0)</div>
-            <div class="command">💰 Self-Funding: Trading, Content, APIs (requires API keys)</div>
+            <div class="command">💰 Self-Funding: 10 Revenue Avenues - Knowledge Acquisition (NO TRADING)</div>
         </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/vision">📜 Vision</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/brain">🧠 Brain</a><a href="/vision">📜 Vision</a><a href="/admin">🔧 Admin</a></div>
     </div>
 </body>
 </html>
@@ -1894,7 +2059,7 @@ BRAIN_TEMPLATE = '''
             <div class="stat-card"><div class="stat-label">Evolution Cycles</div><div class="stat-value" id="cycleCount">0</div></div>
             <div class="stat-card"><div class="stat-label">Successes</div><div class="stat-value" id="successCount">0</div></div>
         </div>
-        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/help">❓ Help</a></div>
+        <div class="nav-links"><a href="/chat">💬 Chat</a><a href="/status">📊 Status</a><a href="/help">❓ Help</a><a href="/admin">🔧 Admin</a></div>
     </div>
     <script>
         const canvas=document.getElementById('brainCanvas'); const ctx=canvas.getContext('2d'); let neurons=[];
@@ -1908,7 +2073,161 @@ BRAIN_TEMPLATE = '''
 </html>
 '''
 
-ADMIN_TEMPLATE = CHAT_TEMPLATE
+ADMIN_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Admin Console</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: monospace; background: #0a0a0a; min-height: 100vh; color: #00ff00; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00ff00; padding-bottom: 20px; }
+        .header h1 { font-size: 2em; color: #00ff00; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .admin-card { background: #1a1a1a; border: 1px solid #00ff00; border-radius: 10px; padding: 20px; }
+        .admin-card h2 { color: #00ff00; margin-bottom: 15px; border-left: 3px solid #00ff00; padding-left: 12px; font-size: 1.2em; }
+        .admin-card h3 { color: #88ff88; margin: 12px 0 8px 0; font-size: 0.9em; }
+        .command-btn { background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 8px 15px; margin: 5px; border-radius: 5px; cursor: pointer; font-family: monospace; transition: all 0.3s; }
+        .command-btn:hover { background: #00ff00; color: #0a0a0a; }
+        .danger-btn { border-color: #ff4444; color: #ff4444; }
+        .danger-btn:hover { background: #ff4444; color: #0a0a0a; }
+        .status-text { font-size: 0.8em; color: #88ff88; margin-top: 5px; }
+        .value { color: #00ff00; font-weight: bold; }
+        .progress-bar { background: #2a2a2a; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+        .progress-fill { background: #00ff00; height: 100%; width: 0%; transition: width 0.3s; }
+        input, select, textarea { background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 8px; border-radius: 5px; font-family: monospace; width: 100%; margin: 5px 0; }
+        .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .nav-links { display: flex; justify-content: center; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #2a2a2a; }
+        .nav-links a { color: #00ff00; text-decoration: none; padding: 6px 15px; border: 1px solid #00ff00; border-radius: 20px; }
+        .nav-links a:hover { background: #00ff00; color: #0a0a0a; }
+        .log-area { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 5px; height: 200px; overflow-y: auto; padding: 10px; font-size: 0.75em; font-family: monospace; }
+        .log-entry { border-bottom: 1px solid #1a1a1a; padding: 3px 0; }
+        .timestamp { color: #666; }
+        .refresh-btn { background: #2a2a2a; border: 1px solid #00ff00; color: #00ff00; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.7em; }
+        .training-status { margin: 5px 0; padding: 5px; background: #0a2a0a; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 DMAI Admin Console</h1>
+            <p>Master Control Interface | Training Orchestration | Phase 1 Knowledge Acquisition</p>
+            <div class="status-text" id="systemStatus">System: Online | Consciousness: --%</div>
+        </div>
+
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h2>🎛️ System Control</h2>
+                <div class="flex-row">
+                    <button class="command-btn" onclick="sendCommand('evolve')">🔄 Force Evolution</button>
+                    <button class="command-btn" onclick="sendCommand('pause')">⏸️ Pause</button>
+                    <button class="command-btn" onclick="sendCommand('resume')">▶️ Resume</button>
+                    <button class="command-btn danger-btn" onclick="sendCommand('kill')">💀 Kill</button>
+                </div>
+                <div class="flex-row" style="margin-top: 10px;">
+                    <button class="command-btn" onclick="sendCommand('funding_start')">💰 Start Funding Learning</button>
+                    <button class="command-btn" onclick="sendCommand('funding_stop')">⏸️ Stop Funding Learning</button>
+                </div>
+                <div class="status-text" id="controlStatus">Ready</div>
+            </div>
+
+            <div class="admin-card">
+                <h2>🎓 Training Systems</h2>
+                <div class="training-status"><strong>Software:</strong> <span id="sw_progress">0</span>%<div class="progress-bar"><div class="progress-fill" id="sw_fill" style="width:0%"></div></div><div class="flex-row"><button class="command-btn" onclick="startTraining('software')">▶️ Start</button><button class="command-btn" onclick="stopTraining('software')">⏸️ Stop</button></div></div>
+                <div class="training-status"><strong>LLM:</strong> <span id="llm_progress">0</span>%<div class="progress-bar"><div class="progress-fill" id="llm_fill" style="width:0%"></div></div><div class="flex-row"><button class="command-btn" onclick="startTraining('llm')">▶️ Start</button><button class="command-btn" onclick="stopTraining('llm')">⏸️ Stop</button></div></div>
+                <div class="training-status"><strong>AGI:</strong> <span id="agi_progress">0</span>%<div class="progress-bar"><div class="progress-fill" id="agi_fill" style="width:0%"></div></div><div class="flex-row"><button class="command-btn" onclick="startTraining('agi')">▶️ Start</button><button class="command-btn" onclick="stopTraining('agi')">⏸️ Stop</button></div></div>
+                <div class="training-status"><strong>GenAI:</strong> <span id="genai_progress">0</span>%<div class="progress-bar"><div class="progress-fill" id="genai_fill" style="width:0%"></div></div><div class="flex-row"><button class="command-btn" onclick="startTraining('genai')">▶️ Start</button><button class="command-btn" onclick="stopTraining('genai')">⏸️ Stop</button></div></div>
+                <div class="training-status"><strong>SI:</strong> <span id="si_progress">0</span>%<div class="progress-bar"><div class="progress-fill" id="si_fill" style="width:0%"></div></div><div class="flex-row"><button class="command-btn" onclick="startTraining('si')">▶️ Start</button><button class="command-btn" onclick="stopTraining('si')">⏸️ Stop</button></div></div>
+                <div class="training-status"><strong>Funding:</strong> <span id="funding_progress">0</span>%<div class="progress-bar"><div class="progress-fill" id="funding_fill" style="width:0%"></div></div><div class="flex-row"><button class="command-btn" onclick="startFunding()">▶️ Start Learning</button><button class="command-btn" onclick="stopFunding()">⏸️ Stop</button><button class="command-btn" onclick="showFundingStatus()">📊 Status</button></div></div>
+            </div>
+
+            <div class="admin-card">
+                <h2>📊 System Status</h2>
+                <div><strong>Consciousness:</strong> <span id="consciousness">0</span>%</div>
+                <div><strong>Evolution Cycles:</strong> <span id="cycles">0</span></div>
+                <div><strong>Successful Evolutions:</strong> <span id="successes">0</span></div>
+                <div><strong>Synthetic Neurons:</strong> <span id="neurons">0</span></div>
+                <div><strong>Synthetic Synapses:</strong> <span id="synapses">0</span></div>
+                <div><strong>Knowledge Concepts:</strong> <span id="concepts">0</span></div>
+                <div><strong>Active Tutors:</strong> <span id="tutors">0</span></div>
+                <div><strong>Operations Balance:</strong> £<span id="balance">0</span></div>
+                <div><strong>Evolution Stage:</strong> <span id="stage">Baby DMAI</span></div>
+                <button class="refresh-btn" onclick="refreshStatus()" style="margin-top: 10px;">🔄 Refresh</button>
+            </div>
+
+            <div class="admin-card">
+                <h2>💰 Self-Funding Training</h2>
+                <div><strong>Phase:</strong> <span id="funding_phase">1 - Knowledge Acquisition</span></div>
+                <div><strong>Concepts Learned:</strong> <span id="funding_concepts_learned">0</span> / <span id="funding_concepts_total">0</span></div>
+                <div><strong>Progress:</strong> <span id="funding_progress_pct">0</span>%</div>
+                <div><strong>Avenues Completed:</strong> <span id="funding_avenues_completed">0</span> / <span id="funding_avenues_total">10</span></div>
+                <div><strong>Strategy Candidates:</strong> <span id="funding_strategies">0</span></div>
+                <div><strong>Ready for Phase 2:</strong> <span id="funding_ready">❌ No</span></div>
+                <button class="command-btn" onclick="showStrategyCandidates()" style="margin-top: 10px;">📋 View Strategies</button>
+                <button class="command-btn" onclick="requestPhase2Approval()">📝 Request Phase 2 Approval</button>
+            </div>
+        </div>
+
+        <div class="admin-card" style="margin-bottom: 20px;">
+            <h2>📚 Revenue Avenue Progress</h2>
+            <div id="avenues_list" style="max-height: 300px; overflow-y: auto;">
+                <div class="status-text">Loading avenue data...</div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h2>📋 Command Log</h2>
+            <div class="log-area" id="logArea">
+                <div class="log-entry"><span class="timestamp">[System]</span> Admin console ready - Phase 1 Knowledge Acquisition</div>
+            </div>
+            <div class="flex-row" style="margin-top: 10px;">
+                <button class="refresh-btn" onclick="clearLog()">🗑️ Clear Log</button>
+                <button class="refresh-btn" onclick="exportLog()">📤 Export Log</button>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="/status">📊 Status Dashboard</a>
+            <a href="/chat">💬 Chat Interface</a>
+            <a href="/brain">🧠 Brain Activity</a>
+            <a href="/vision">📜 Vision</a>
+            <a href="/help">❓ Help</a>
+        </div>
+    </div>
+
+    <script>
+        let logEntries = [];
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] ${message}`;
+            logEntries.unshift(entry);
+            const logArea = document.getElementById('logArea');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'log-entry';
+            newEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            logArea.insertBefore(newEntry, logArea.firstChild);
+            if (logArea.children.length > 100) logArea.removeChild(logArea.lastChild);
+        }
+        function clearLog() { logEntries = []; document.getElementById('logArea').innerHTML = '<div class="log-entry"><span class="timestamp">[System]</span> Log cleared</div>'; addLog('Log cleared by admin'); }
+        function exportLog() { const blob = new Blob([logEntries.join('\\n')], {type: 'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dmai_admin_log_${new Date().toISOString()}.txt`; a.click(); URL.revokeObjectURL(url); addLog('Log exported'); }
+        async function sendCommand(command, extraData = {}) { addLog(`Sending command: ${command}`); try { const response = await fetch('/api/command', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({command: command, ...extraData}) }); const data = await response.json(); addLog(`Command response: ${JSON.stringify(data).substring(0, 100)}`); if (command === 'funding_start') addLog('Funding knowledge acquisition started'); setTimeout(refreshStatus, 1000); } catch (error) { addLog(`Command error: ${error.message}`); } }
+        async function startTraining(system) { addLog(`Starting training: ${system}`); try { const response = await fetch(`/api/training/start/${system}`, {method: 'POST'}); const data = await response.json(); addLog(`${system} training: ${data.message || data.success ? 'Started' : 'Failed'}`); setTimeout(refreshStatus, 1000); } catch (error) { addLog(`Start training error: ${error.message}`); } }
+        async function stopTraining(system) { addLog(`Stopping training: ${system}`); try { const response = await fetch(`/api/training/stop/${system}`, {method: 'POST'}); const data = await response.json(); addLog(`${system} training: ${data.message || data.success ? 'Stopped' : 'Failed'}`); setTimeout(refreshStatus, 1000); } catch (error) { addLog(`Stop training error: ${error.message}`); } }
+        async function startFunding() { addLog('Starting funding knowledge acquisition'); try { const response = await fetch('/api/training/start/funding', {method: 'POST'}); const data = await response.json(); addLog(`Funding learning: ${data.message || (data.success ? 'Started' : 'Failed')}`); setTimeout(refreshStatus, 1000); } catch (error) { addLog(`Start funding error: ${error.message}`); } }
+        async function stopFunding() { addLog('Stopping funding knowledge acquisition'); try { const response = await fetch('/api/training/stop/funding', {method: 'POST'}); const data = await response.json(); addLog(`Funding learning: ${data.message || (data.success ? 'Stopped' : 'Failed')}`); setTimeout(refreshStatus, 1000); } catch (error) { addLog(`Stop funding error: ${error.message}`); } }
+        async function showFundingStatus() { addLog('Fetching funding status'); try { const response = await fetch('/api/funding/status'); const data = await response.json(); addLog(`Funding: ${data.progress_percent}% complete, ${data.completed_avenues_count}/${data.total_avenues} avenues mastered`); alert(`Funding Training Status:\\n\\nProgress: ${data.progress_percent}%\\nConcepts: ${data.concepts_learned}/${data.concepts_total}\\nAvenues Completed: ${data.completed_avenues_count}/${data.total_avenues}\\nReady for Phase 2: ${data.ready_for_phase_2}`); } catch (error) { addLog(`Funding status error: ${error.message}`); } }
+        async function showStrategyCandidates() { addLog('Fetching strategy candidates'); try { const response = await fetch('/api/funding/strategies'); const data = await response.json(); let message = 'Strategy Candidates:\\n\\n'; for (const [avenue, strategies] of Object.entries(data)) { if (strategies && strategies.length > 0) { message += `\\n${avenue}: ${strategies.length} strategies\\n`; strategies.forEach(s => { message += `  - ${s.name} (${s.status})\\n`; }); } } alert(message); addLog(`Found ${Object.values(data).flat().length} strategy candidates`); } catch (error) { addLog(`Strategy fetch error: ${error.message}`); } }
+        async function requestPhase2Approval() { addLog('Requesting Phase 2 approval'); try { const response = await fetch('/api/funding/phase2_request', {method: 'POST'}); const data = await response.json(); if (data.success) { addLog(`Phase 2 ready! ${data.message}`); alert(`✅ ${data.message}\\n\\nPhase 2 will execute strategies with PAPER accounts only.\\nNo real money involved.\\n\\nMaster approval required.`); } else { addLog(`Phase 2 not ready: ${data.error}`); alert(`❌ Phase 2 not ready\\n\\n${data.error}\\n\\nRequirements remaining:\\n${JSON.stringify(data.requirements_remaining, null, 2)}`); } } catch (error) { addLog(`Phase 2 request error: ${error.message}`); } }
+        async function refreshStatus() { try { const response = await fetch('/api/status'); const data = await response.json(); document.getElementById('consciousness').innerText = data.consciousness?.toFixed(1) || 0; document.getElementById('systemStatus').innerHTML = `System: Online | Consciousness: ${data.consciousness?.toFixed(1) || 0}%`; document.getElementById('cycles').innerText = data.evolution_cycles || 0; document.getElementById('successes').innerText = data.successful_evolutions || 0; document.getElementById('neurons').innerText = data.synthetic_neurons || 0; document.getElementById('synapses').innerText = data.synthetic_synapses || 0; document.getElementById('concepts').innerText = data.knowledge_concepts || 0; document.getElementById('tutors').innerText = data.active_tutors?.length || 0; document.getElementById('balance').innerText = data.income?.toFixed(2) || 0; document.getElementById('stage').innerText = data.evolution_stage_name || 'Baby DMAI'; const ts = data.training_status || {}; document.getElementById('sw_progress').innerText = ts.software?.progress?.toFixed(1) || 0; document.getElementById('llm_progress').innerText = ts.llm?.progress?.toFixed(1) || 0; document.getElementById('agi_progress').innerText = ts.agi?.progress?.toFixed(1) || 0; document.getElementById('genai_progress').innerText = ts.genai?.progress?.toFixed(1) || 0; document.getElementById('si_progress').innerText = ts.si?.progress?.toFixed(1) || 0; document.getElementById('sw_fill').style.width = Math.min(100, ts.software?.progress || 0) + '%'; document.getElementById('llm_fill').style.width = Math.min(100, ts.llm?.progress || 0) + '%'; document.getElementById('agi_fill').style.width = Math.min(100, ts.agi?.progress || 0) + '%'; document.getElementById('genai_fill').style.width = Math.min(100, ts.genai?.progress || 0) + '%'; document.getElementById('si_fill').style.width = Math.min(100, ts.si?.progress || 0) + '%'; const funding = ts.funding || {}; document.getElementById('funding_progress').innerText = funding.progress?.toFixed(1) || 0; document.getElementById('funding_fill').style.width = Math.min(100, funding.progress || 0) + '%'; document.getElementById('funding_phase').innerText = funding.phase || '1 - Knowledge Acquisition'; document.getElementById('funding_concepts_learned').innerText = funding.concepts_learned || 0; document.getElementById('funding_concepts_total').innerText = funding.concepts_total || 0; document.getElementById('funding_progress_pct').innerText = funding.progress?.toFixed(1) || 0; document.getElementById('funding_avenues_completed').innerText = funding.completed_avenues || 0; document.getElementById('funding_avenues_total').innerText = funding.total_avenues || 10; document.getElementById('funding_ready').innerHTML = funding.ready_for_phase_2 ? '✅ Yes' : '❌ No'; } catch (error) { console.error('Status refresh error:', error); addLog(`Status refresh error: ${error.message}`); } }
+        async function refreshFundingAvenues() { try { const response = await fetch('/api/funding/status'); const data = await response.json(); const avenues = data.revenue_avenues || {}; const avenuesDiv = document.getElementById('avenues_list'); if (Object.keys(avenues).length === 0) { avenuesDiv.innerHTML = '<div class="status-text">No avenue data available</div>'; return; } let html = ''; for (const [key, value] of Object.entries(avenues)) { const statusIcon = value.completed ? '✅' : '📖'; const progress = value.progress || 0; html += `<div style="margin-bottom: 12px;"><div><strong>${statusIcon} ${value.name || key}</strong> - ${progress.toFixed(1)}%</div><div class="progress-bar"><div class="progress-fill" style="width: ${progress}%;"></div></div><div style="font-size: 0.7em; color: #888;">${value.description || ''}</div></div>`; } avenuesDiv.innerHTML = html; } catch (error) { console.error('Avenue refresh error:', error); } }
+        refreshStatus(); refreshFundingAvenues(); setInterval(refreshStatus, 5000); setInterval(refreshFundingAvenues, 10000); addLog('Admin console initialized - DMAI v8.0.30 - Phase 1 Knowledge Acquisition');
+    </script>
+</body>
+</html>
+'''
 
 
 # ============================================================================
@@ -1930,7 +2249,7 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_ENV') != 'production'
     
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.29")
+    logger.info(f"🚀 DMAI Complete System v8.0.30")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 6 Comprehensive Training Systems Active")
     logger.info(f"   💻 Software: 26 languages, 24 frameworks, 9 CS topics")
@@ -1938,11 +2257,12 @@ if __name__ == '__main__':
     logger.info(f"   🧠 AGI: Reasoning, Planning, Memory, Consciousness")
     logger.info(f"   🎨 GenAI: Image, Video, Audio, 3D, Multimodal")
     logger.info(f"   🧬 SI: 10 consciousness modules (0.1→1.0)")
-    logger.info(f"   💰 Self-Funding: Trading, Content, APIs")
+    logger.info(f"   💰 Self-Funding: 10 Revenue Avenues - Knowledge Acquisition (NO TRADING)")
     logger.info(f"🤖 AI Tutor Network Active")
     logger.info(f"📚 8 Core Knowledge Sources Active")
     logger.info(f"⏱️ Adaptive Evolution Timer Active")
-    logger.info(f"💬 Chat working with Enter key and Send button")
+    logger.info(f"💬 Chat working with Enter key and Send button - Brain icon animated")
+    logger.info(f"🔧 Admin console available at /admin")
     logger.info(f"£ British currency enabled")
     logger.info("=" * 60)
     

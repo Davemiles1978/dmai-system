@@ -118,15 +118,15 @@ class ComprehensiveSoftwareTraining:
         # Build modules list from all topics
         self.modules = []
         
-        # Add language modules
+        # Add language modules - FIXED: Use .get() with fallbacks to prevent KeyError
         for lang_name, lang_data in self.languages.items():
             self.modules.append({
                 'id': f'lang_{lang_name}',
                 'name': f'{lang_name.upper()} Language',
                 'type': 'language',
-                'topics': lang_data['frameworks'] + lang_data['paradigms'],
-                'target': lang_data['level'],
-                'applications': lang_data['applications']
+                'topics': lang_data.get('frameworks', []) + lang_data.get('paradigms', []),
+                'target': lang_data.get('level', 'proficient'),
+                'applications': lang_data.get('applications', [])
             })
         
         # Add framework modules
