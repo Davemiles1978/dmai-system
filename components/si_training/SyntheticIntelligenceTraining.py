@@ -1,4 +1,4 @@
-k#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 SYNTHETIC INTELLIGENCE TRAINING
 Trains DMAI's own consciousness network through REAL neural evolution
