@@ -119,6 +119,27 @@ from components.si_training.SyntheticIntelligenceTraining import SITrainingOrche
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
 
+# ============================================================================
+# AUTONOMOUS ACCOUNT CREATOR (Optional - requires playwright)
+# ============================================================================
+# Check if playwright is available before importing
+PLAYWRIGHT_AVAILABLE = False
+try:
+    import playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+
+if PLAYWRIGHT_AVAILABLE:
+    try:
+        from components.automation.AutonomousAccountCreator import AutonomousAccountCreator
+        ACCOUNT_CREATOR_AVAILABLE = True
+    except ImportError:
+        ACCOUNT_CREATOR_AVAILABLE = False
+        logger.warning("⚠️ AutonomousAccountCreator module not found")
+else:
+    ACCOUNT_CREATOR_AVAILABLE = False
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -1062,6 +1083,21 @@ class UnifiedEvolutionEngine:
             logger.warning(f"      ⚠️ Funding training init failed: {e}")
             self.funding_training = None
 
+        # ============================================================================
+        # AUTONOMOUS ACCOUNT CREATOR (Optional)
+        # ============================================================================
+        logger.info("🤖 Initializing Autonomous Account Creator...")
+        if ACCOUNT_CREATOR_AVAILABLE:
+            try:
+                self.account_creator = AutonomousAccountCreator(self.data_path)
+                logger.info("   ✅ Account Creator ready")
+            except Exception as e:
+                logger.warning(f"   ⚠️ Account Creator init failed: {e}")
+                self.account_creator = None
+        else:
+            self.account_creator = None
+            logger.info("   📋 Account Creator disabled (playwright not installed)")
+
         # ====================================================================
         # CRASH RECOVERY: Auto-resume any training that was active before crash
         # ====================================================================
@@ -1127,6 +1163,10 @@ class UnifiedEvolutionEngine:
             logger.info(f"🔄 Crash recovery resumed: {', '.join(crash_recovery_results)}")
         else:
             logger.info("📋 No training systems required crash recovery - all in clean state")
+
+        # Ensure account_creator attribute exists even if disabled
+        if not hasattr(self, 'account_creator'):
+            self.account_creator = None
 
         # TRAINING STATUS TRACKING
         self.training_status = {
@@ -2039,6 +2079,7 @@ class DMAIApplication:
         threading.Thread(target=evolve, daemon=True).start()
         logger.info("🔄 Evolution thread started")
 
+
     def _setup_routes(self):
         @self.app.route('/')
         def index():
@@ -2219,6 +2260,48 @@ class DMAIApplication:
             if self.evolution.funding_training:
                 return jsonify(self.evolution.funding_training.request_phase_2_approval())
             return jsonify({'error': 'Funding training not available'})
+
+        # ============================================================================
+        # ACCOUNT CREATOR ROUTES
+        # ============================================================================
+        @self.app.route('/api/account/create', methods=['POST'])
+        def api_account_create():
+            """Queue account creation for a platform"""
+            if not self.evolution.account_creator:
+                return jsonify({'success': False, 'error': 'Account creator not available'})
+            
+            data = request.json
+            platform = data.get('platform')
+            email = data.get('email')
+            
+            if not platform or not email:
+                return jsonify({'success': False, 'error': 'Platform and email required'})
+            
+            result = self.evolution.account_creator.queue_account_creation(platform, email)
+            return jsonify(result)
+
+        @self.app.route('/api/account/submit_key', methods=['POST'])
+        def api_account_submit_key():
+            """Submit API key for a platform"""
+            if not self.evolution.account_creator:
+                return jsonify({'success': False, 'error': 'Account creator not available'})
+            
+            data = request.json
+            platform = data.get('platform')
+            api_key = data.get('api_key')
+            
+            if not platform or not api_key:
+                return jsonify({'success': False, 'error': 'Platform and API key required'})
+            
+            result = self.evolution.account_creator.submit_api_key(platform, api_key)
+            return jsonify(result)
+
+        @self.app.route('/api/account/status')
+        def api_account_status():
+            """Get account creation status"""
+            if not self.evolution.account_creator:
+                return jsonify({'available': False, 'message': 'Account creator not available'})
+            return jsonify(self.evolution.account_creator.get_status())
 
         @self.app.route('/api/code/modify', methods=['POST'])
         def api_code_modify():
@@ -2464,6 +2547,7 @@ STATUS_TEMPLATE = '''
 </body>
 </html>
 '''
+
 
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
