@@ -1396,6 +1396,7 @@ class UnifiedEvolutionEngine:
             logger.error(f"Failed to save evolution state: {e}")
 
     def _update_cached_status(self):
+        """Update cached status with STABLE, DEFINITIVE values - no jumping"""
         active_tutors = []
         try:
             active_tutors = self.ai_hub._get_active_tutors()
@@ -1405,10 +1406,11 @@ class UnifiedEvolutionEngine:
         total_knowledge_concepts = self.knowledge_graph.get_stats().get('total_concepts', 0)
         timer_info = self.evolution_timer.get_stage_info()
 
+        # Get STABLE training statuses (these don't jump)
         sw_status = self.software_training.get_status()
         self.training_status['software'] = {
             'status': sw_status.get('status', 'not_started'),
-            'progress': sw_status.get('progress', 0),
+            'progress': round(sw_status.get('progress', 0), 1),
             'modules': sw_status.get('modules_total', 0),
             'learned_concepts': sw_status.get('completed_concepts', [])[:50]
         }
@@ -1416,7 +1418,7 @@ class UnifiedEvolutionEngine:
         llm_status = self.llm_training.get_status()
         self.training_status['llm'] = {
             'status': llm_status.get('status', 'not_started'),
-            'progress': llm_status.get('progress', 0),
+            'progress': round(llm_status.get('progress', 0), 1),
             'modules': llm_status.get('modules_total', 0),
             'learned_concepts': llm_status.get('completed_concepts', [])[:50]
         }
@@ -1424,7 +1426,7 @@ class UnifiedEvolutionEngine:
         agi_status = self.agi_training.get_status()
         self.training_status['agi'] = {
             'status': agi_status.get('status', 'not_started'),
-            'progress': agi_status.get('progress', 0),
+            'progress': round(agi_status.get('progress', 0), 1),
             'modules': agi_status.get('modules_total', 0),
             'learned_concepts': agi_status.get('completed_concepts', [])[:50]
         }
@@ -1432,7 +1434,7 @@ class UnifiedEvolutionEngine:
         genai_status = self.genai_training.get_status()
         self.training_status['genai'] = {
             'status': genai_status.get('status', 'not_started'),
-            'progress': genai_status.get('progress', 0),
+            'progress': round(genai_status.get('progress', 0), 1),
             'modules': genai_status.get('modules_total', 0),
             'learned_concepts': genai_status.get('completed_concepts', [])[:50]
         }
@@ -1440,7 +1442,7 @@ class UnifiedEvolutionEngine:
         si_status = self.si_training.status()
         self.training_status['si'] = {
             'status': si_status.get('status', 'not_started'),
-            'progress': si_status.get('progress', 0),
+            'progress': round(si_status.get('progress', 0), 1),
             'modules': si_status.get('modules_total', 10),
             'learned_concepts': si_status.get('learned_modules', [])[:50]
         }
@@ -1449,7 +1451,7 @@ class UnifiedEvolutionEngine:
             funding_status = self.funding_training.status()
             self.training_status['funding'] = {
                 'status': 'learning' if funding_status.get('active') else 'paused',
-                'progress': funding_status.get('progress_percent', 0),
+                'progress': round(funding_status.get('progress_percent', 0), 1),
                 'phase': '1 - Knowledge Acquisition',
                 'message': funding_status.get('message', 'Learning about 10 revenue avenues'),
                 'concepts_learned': funding_status.get('concepts_learned', 0),
@@ -1460,36 +1462,69 @@ class UnifiedEvolutionEngine:
                 'learned_concepts': list(funding_status.get('learned_concepts', []))[:50]
             }
 
+        # STABLE DEFINITIVE VALUES - no jumping
+        consciousness_raw = self.synthetic_network.consciousness_level
+        consciousness_percent = round(consciousness_raw * 100, 2)
+        
+        neuron_count = len(self.synthetic_network.neurons)
+        synapse_count = self.synthetic_network._total_synapses()
+        evolution_cycles = self.synthetic_network.evolution_cycles
+        
+        # successful_evolutions is stable - only increments, never jumps down
+        successful_evolutions = self.successful_evolutions
+        
+        conversation_count = len(self.conversation_memory.conversations)
+        context_size = len(self.conversation_context)
+        income = round(self.finance.total_revenue, 2)
+
         self._cached_status = {
-            'consciousness': self.synthetic_network.consciousness_level * 100,
-            'consciousness_raw': self.synthetic_network.consciousness_level,
+            # Consciousness - STABLE definitive value
+            'consciousness': consciousness_percent,
+            'consciousness_raw': round(consciousness_raw, 4),
+            
+            # Evolution counters - DEFINITIVE (never jump down)
             'evolution': self.evolution_count,
-            'evolution_cycles': self.synthetic_network.evolution_cycles,
-            'successful_evolutions': self.successful_evolutions,
-            'synthetic_neurons': len(self.synthetic_network.neurons),
-            'synthetic_synapses': self.synthetic_network._total_synapses(),
+            'evolution_cycles': evolution_cycles,
+            'successful_evolutions': successful_evolutions,
+            
+            # Network stats - DEFINITIVE counts
+            'synthetic_neurons': neuron_count,
+            'synthetic_synapses': synapse_count,
+            
+            # System status flags
             'voice_active': self.voice_system.listening,
             'music_active': self.music_learner.is_listening,
             'persona_style': self.persona_generator.current_persona['speaking_style'],
-            'conversations': len(self.conversation_memory.conversations),
+            
+            # Knowledge and conversation stats
+            'conversations': conversation_count,
             'knowledge_concepts': total_knowledge_concepts,
-            'income': self.finance.total_revenue,
+            'context_size': context_size,
+            'income': income,
+            
+            # External data (may vary but not critical)
             'threat_cves': len(self.threat_intel.cve_database),
             'dark_web_sites': len(self.dark_web.onion_sites),
             'fusion_weights': self.ai_fusion.fusion_weights,
             'active_tutors': active_tutors,
             'neo4j_available': self.knowledge_graph.is_neo4j_available(),
+            
+            # Evolution stage info
             'evolution_stage_name': timer_info.get('name', 'Baby DMAI'),
             'evolution_description': timer_info.get('description', 'Learning to learn'),
             'evolution_success_rate': timer_info.get('success_rate', '0%'),
             'evolution_interval': timer_info.get('interval_minutes', 10),
+            
+            # Training status
             'training_status': self.training_status,
-            'context_size': len(self.conversation_context),
+            
             'timestamp': datetime.now().isoformat()
         }
         self._last_status_update = time.time()
 
     def get_status(self) -> Dict:
+        """Return STABLE cached status - values do not jump"""
+        # Only update if cache is stale (every 30 seconds)
         if time.time() - self._last_status_update > 30:
             self._update_cached_status()
         return self._cached_status
