@@ -1062,6 +1062,72 @@ class UnifiedEvolutionEngine:
             logger.warning(f"      ⚠️ Funding training init failed: {e}")
             self.funding_training = None
 
+        # ====================================================================
+        # CRASH RECOVERY: Auto-resume any training that was active before crash
+        # ====================================================================
+        logger.info("🔄 Checking for training systems that need crash recovery...")
+        crash_recovery_results = []
+        
+        # Software Training
+        try:
+            result = self.software_training.crash_recovery()
+            if result.get('recovered'):
+                logger.info(f"   ✅ Software Training: {result.get('message', 'Resumed')}")
+                crash_recovery_results.append('software')
+        except Exception as e:
+            logger.error(f"   ⚠️ Software Training crash recovery error: {e}")
+        
+        # LLM Training
+        try:
+            result = self.llm_training.crash_recovery()
+            if result.get('recovered'):
+                logger.info(f"   ✅ LLM Training: {result.get('message', 'Resumed')}")
+                crash_recovery_results.append('llm')
+        except Exception as e:
+            logger.error(f"   ⚠️ LLM Training crash recovery error: {e}")
+        
+        # AGI Training
+        try:
+            result = self.agi_training.crash_recovery()
+            if result.get('recovered'):
+                logger.info(f"   ✅ AGI Training: {result.get('message', 'Resumed')}")
+                crash_recovery_results.append('agi')
+        except Exception as e:
+            logger.error(f"   ⚠️ AGI Training crash recovery error: {e}")
+        
+        # GenAI Training
+        try:
+            result = self.genai_training.crash_recovery()
+            if result.get('recovered'):
+                logger.info(f"   ✅ GenAI Training: {result.get('message', 'Resumed')}")
+                crash_recovery_results.append('genai')
+        except Exception as e:
+            logger.error(f"   ⚠️ GenAI Training crash recovery error: {e}")
+        
+        # SI Training
+        try:
+            result = self.si_training.crash_recovery()
+            if result.get('recovered'):
+                logger.info(f"   ✅ SI Training: {result.get('message', 'Resumed')}")
+                crash_recovery_results.append('si')
+        except Exception as e:
+            logger.error(f"   ⚠️ SI Training crash recovery error: {e}")
+        
+        # Self-Funding Training
+        if self.funding_training:
+            try:
+                result = self.funding_training.crash_recovery()
+                if result.get('recovered'):
+                    logger.info(f"   ✅ Self-Funding Training: {result.get('message', 'Resumed')}")
+                    crash_recovery_results.append('funding')
+            except Exception as e:
+                logger.error(f"   ⚠️ Self-Funding Training crash recovery error: {e}")
+        
+        if crash_recovery_results:
+            logger.info(f"🔄 Crash recovery resumed: {', '.join(crash_recovery_results)}")
+        else:
+            logger.info("📋 No training systems required crash recovery - all in clean state")
+
         # TRAINING STATUS TRACKING
         self.training_status = {
             'software': {'status': 'not_started', 'progress': 0, 'modules': 0, 'learned_concepts': []},

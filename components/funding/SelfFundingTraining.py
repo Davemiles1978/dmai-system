@@ -212,6 +212,7 @@ class SelfFundingTraining:
         # Learning active flag
         self.learning_active = False
         self.learning_thread = None
+        self._training_complete = False
         
         # Current learning focus
         self.current_avenue = None
@@ -229,7 +230,7 @@ class SelfFundingTraining:
             logger.info(f"      📚 {avenue['name']}: {len(avenue['topics'])} topics")
     
     def _load_state(self):
-        """Load learning state"""
+        """Load learning state - NEVER auto-starts learning"""
         if self.state_file.exists():
             try:
                 with open(self.state_file, 'r') as f:
@@ -240,19 +241,27 @@ class SelfFundingTraining:
                             self.revenue_avenues[avenue_name]['completed'] = avenue_data.get('completed', False)
                     self.learned_concepts = set(state.get('learned_concepts', []))
                     self.strategy_candidates = state.get('strategy_candidates', self.strategy_candidates)
-                    self.learning_active = state.get('learning_active', False)
+                    self.learning_active = False  # NEVER auto-start on load
+                    self._training_complete = state.get('training_complete', False)
+                    
+                    # Check if training is complete
+                    all_completed = all(data['completed'] for data in self.revenue_avenues.values())
+                    if all_completed or len(self.learned_concepts) >= sum(len(d['topics']) for d in self.revenue_avenues.values()):
+                        self._training_complete = True
+                    
                     logger.info(f"📂 Loaded funding knowledge state: {len(self.learned_concepts)} concepts learned")
             except Exception as e:
                 logger.error(f"Failed to load state: {e}")
     
     def _save_state(self):
-        """Save learning state"""
+        """Save learning state - always saves learning_active as False"""
         try:
             state = {
                 'revenue_avenues': self.revenue_avenues,
                 'learned_concepts': list(self.learned_concepts),
                 'strategy_candidates': self.strategy_candidates,
-                'learning_active': self.learning_active,
+                'learning_active': False,  # Always save as False - state restored only on crash recovery
+                'training_complete': self._training_complete,
                 'last_updated': datetime.now().isoformat()
             }
             with open(self.state_file, 'w') as f:
@@ -270,8 +279,21 @@ class SelfFundingTraining:
         Returns:
             Dict with status information
         """
+        # Block if training already complete
+        if self._training_complete:
+            return {
+                'success': False, 
+                'error': 'Training already completed',
+                'message': 'Self-Funding Training is already 100% complete'
+            }
+        
+        # Block if learning already active
         if self.learning_active:
-            return {'success': False, 'error': 'Learning already active'}
+            return {
+                'success': False, 
+                'error': 'Learning already active',
+                'message': 'Self-Funding learning is already running'
+            }
         
         if avenue and avenue not in self.revenue_avenues:
             return {
@@ -282,6 +304,7 @@ class SelfFundingTraining:
         
         self.learning_active = True
         self.current_avenue = avenue
+        self._save_state()
         self.learning_thread = threading.Thread(target=self._run_knowledge_acquisition, daemon=True)
         self.learning_thread.start()
         
@@ -300,10 +323,42 @@ class SelfFundingTraining:
         }
     
     def stop_learning(self) -> Dict:
-        """Stop knowledge acquisition"""
+        """Stop/knowledge acquisition"""
+        if not self.learning_active:
+            return {
+                'success': False,
+                'error': 'Learning not active',
+                'message': 'Self-Funding learning is not currently running'
+            }
+        
         self.learning_active = False
         self._save_state()
-        return {'success': True, 'message': 'Knowledge acquisition paused'}
+        
+        logger.info("⏸️ Self-Funding Learning PAUSED")
+        return {
+            'success': True,
+            'message': 'Self-Funding learning paused',
+            'progress': self.get_progress()
+        }
+    
+    def crash_recovery(self) -> Dict:
+        """
+        Called when system restarts after crash/power cut
+        Auto-resumes learning if it was active before crash
+        ONLY for crash recovery - does NOT auto-start on normal boot
+        """
+        if self._training_complete:
+            logger.info("✅ Self-Funding Training already complete - no recovery needed")
+            return {'recovered': False, 'reason': 'already_complete'}
+        
+        # Check if we have incomplete learning (progress > 0 but not complete)
+        current_progress = self.get_progress()
+        if current_progress > 0 and current_progress < 100 and not self._training_complete:
+            logger.info(f"🔄 CRASH RECOVERY: Resuming Self-Funding Learning from {current_progress:.1f}%")
+            return self.start_learning()
+        
+        logger.info("📋 Self-Funding Learning has no incomplete state to recover")
+        return {'recovered': False, 'reason': 'no_incomplete_learning'}
     
     def get_status(self) -> Dict:
         """Get learning status"""
@@ -323,6 +378,8 @@ class SelfFundingTraining:
             'active': self.learning_active,
             'phase': '1 - Comprehensive Knowledge Acquisition',
             'overall_progress_percent': overall_progress,
+            'progress': overall_progress,
+            'complete': self._training_complete or overall_progress >= 99.9,
             'concepts_learned': learned_count,
             'concepts_total': total_concepts,
             'completed_avenues': completed_avenues,
@@ -334,8 +391,17 @@ class SelfFundingTraining:
                 for avenue, candidates in self.strategy_candidates.items()
             },
             'ready_for_phase_2': self._ready_for_phase_2(),
-            'message': 'Knowledge acquisition mode - no revenue generation occurs'
+            'message': 'Knowledge acquisition mode - no revenue generation occurs',
+            'can_start': not self.learning_active and not (self._training_complete or overall_progress >= 99.9),
+            'can_stop': self.learning_active,
+            'status': 'training' if self.learning_active else 'paused'
         }
+    
+    def get_progress(self) -> float:
+        """Return current progress percentage for dashboard display"""
+        total_concepts = sum(len(d['topics']) for d in self.revenue_avenues.values())
+        learned_count = len(self.learned_concepts)
+        return (learned_count / total_concepts * 100) if total_concepts > 0 else 0
     
     def _ready_for_phase_2(self) -> bool:
         """Check if DMAI has learned enough to proceed to Phase 2 (paper execution)"""
@@ -354,80 +420,99 @@ class SelfFundingTraining:
         """Main learning loop - NO EXECUTION, just knowledge"""
         logger.info("📚 Comprehensive Revenue Knowledge Acquisition thread started")
         
-        # Determine learning order
-        if self.current_avenue:
-            avenues_to_learn = [(self.current_avenue, self.revenue_avenues[self.current_avenue])]
-        else:
-            avenues_to_learn = list(self.revenue_avenues.items())
-        
-        for avenue_name, avenue in avenues_to_learn:
-            if not self.learning_active:
-                break
+        try:
+            # Determine learning order
+            if self.current_avenue:
+                avenues_to_learn = [(self.current_avenue, self.revenue_avenues[self.current_avenue])]
+            else:
+                avenues_to_learn = list(self.revenue_avenues.items())
             
-            logger.info(f"\n{'='*60}")
-            logger.info(f"🎯 Learning Avenue: {avenue['name']}")
-            logger.info(f"   {avenue['description']}")
-            logger.info(f"{'='*60}")
-            
-            for topic in avenue['topics']:
+            for avenue_name, avenue in avenues_to_learn:
                 if not self.learning_active:
                     break
                 
-                if topic in self.learned_concepts:
+                # Skip if avenue already completed
+                if avenue['completed']:
+                    logger.info(f"📚 Avenue already completed: {avenue['name']}")
                     continue
                 
-                self.current_topic = topic
-                logger.info(f"   📖 Learning: {topic}")
+                logger.info(f"\n{'='*60}")
+                logger.info(f"🎯 Learning Avenue: {avenue['name']}")
+                logger.info(f"   {avenue['description']}")
+                logger.info(f"{'='*60}")
                 
-                # Learn from AI tutors
-                knowledge = self._learn_concept(topic, avenue_name, avenue['name'])
-                
-                # Store in knowledge graph with full context
-                concept_key = f"funding_{avenue_name}_{topic}"
-                self.knowledge_graph.add_knowledge(
-                    subject=concept_key,
-                    predicate="is_about",
-                    object=topic,
-                    metadata={
-                        'avenue': avenue_name,
-                        'avenue_name': avenue['name'],
-                        'topic': topic,
-                        'learned_at': datetime.now().isoformat(),
-                        'knowledge_length': len(knowledge)
-                    }
-                )
-                
-                # Also add the knowledge content
-                self.knowledge_graph.add_concept(concept_key, knowledge[:500])
-                
-                # Mark as learned
-                self.learned_concepts.add(topic)
-                
-                # Update avenue progress
-                learned_in_avenue = sum(1 for t in avenue['topics'] if t in self.learned_concepts)
-                avenue['progress'] = learned_in_avenue / len(avenue['topics']) * 100
-                
-                # Check if avenue is complete
-                if learned_in_avenue >= len(avenue['topics']):
-                    avenue['completed'] = True
-                    logger.info(f"   ✅ COMPLETED: {avenue['name']} - All topics mastered!")
+                for topic in avenue['topics']:
+                    if not self.learning_active:
+                        break
                     
-                    # Generate strategy candidates for this avenue
-                    self._generate_strategy_candidates(avenue_name)
-                
+                    if topic in self.learned_concepts:
+                        continue
+                    
+                    self.current_topic = topic
+                    logger.info(f"   📖 Learning: {topic}")
+                    
+                    # Learn from AI tutors
+                    knowledge = self._learn_concept(topic, avenue_name, avenue['name'])
+                    
+                    # Store in knowledge graph with full context
+                    concept_key = f"funding_{avenue_name}_{topic}"
+                    self.knowledge_graph.add_knowledge(
+                        subject=concept_key,
+                        predicate="is_about",
+                        object=topic,
+                        metadata={
+                            'avenue': avenue_name,
+                            'avenue_name': avenue['name'],
+                            'topic': topic,
+                            'learned_at': datetime.now().isoformat(),
+                            'knowledge_length': len(knowledge)
+                        }
+                    )
+                    
+                    # Also add the knowledge content
+                    self.knowledge_graph.add_concept(concept_key, knowledge[:500])
+                    
+                    # Mark as learned
+                    self.learned_concepts.add(topic)
+                    
+                    # Update avenue progress
+                    learned_in_avenue = sum(1 for t in avenue['topics'] if t in self.learned_concepts)
+                    avenue['progress'] = learned_in_avenue / len(avenue['topics']) * 100
+                    
+                    # Check if avenue is complete
+                    if learned_in_avenue >= len(avenue['topics']):
+                        avenue['completed'] = True
+                        logger.info(f"   ✅ COMPLETED: {avenue['name']} - All topics mastered!")
+                        
+                        # Generate strategy candidates for this avenue
+                        self._generate_strategy_candidates(avenue_name)
+                    
+                    self._save_state()
+                    
+                    logger.info(f"      ✅ Learned: {topic} ({avenue['progress']:.1f}% complete)")
+                    time.sleep(0.5)  # Brief pause to prevent rate limiting
+            
+            # Check if all avenues complete
+            all_completed = all(data['completed'] for data in self.revenue_avenues.values())
+            if all_completed:
+                self._training_complete = True
                 self._save_state()
-                
-                logger.info(f"      ✅ Learned: {topic} ({avenue['progress']:.1f}% complete)")
-                time.sleep(0.5)  # Brief pause to prevent rate limiting
-        
-        self.learning_active = False
-        self._save_state()
+            
+        except Exception as e:
+            logger.error(f"Knowledge acquisition thread error: {e}")
+            self._save_state()
+        finally:
+            self.learning_active = False
+            self._save_state()
         
         # Final completion summary
         completed_count = sum(1 for a in self.revenue_avenues.values() if a['completed'])
         
         logger.info(f"\n{'='*60}")
-        logger.info("🎉 COMPREHENSIVE REVENUE KNOWLEDGE ACQUISITION COMPLETE!")
+        if self._training_complete:
+            logger.info("🎉 COMPREHENSIVE REVENUE KNOWLEDGE ACQUISITION COMPLETE!")
+        else:
+            logger.info("⏸️ COMPREHENSIVE REVENUE KNOWLEDGE ACQUISITION PAUSED!")
         logger.info(f"   Concepts learned: {len(self.learned_concepts)}")
         logger.info(f"   Avenues completed: {completed_count}/{len(self.revenue_avenues)}")
         logger.info(f"   Strategy candidates: {sum(len(c) for c in self.strategy_candidates.values())}")
@@ -600,8 +685,7 @@ This is a PROPOSED strategy for review only. NOT ACTIVE.""",
                 }
                 for name, data in self.revenue_avenues.items()
             },
-            'overall_progress': (len(self.learned_concepts) / 
-                                sum(len(d['topics']) for d in self.revenue_avenues.values()) * 100),
+            'overall_progress': self.get_progress(),
             'strategy_candidates': {
                 avenue: len(candidates)
                 for avenue, candidates in self.strategy_candidates.items()
@@ -680,6 +764,14 @@ class FundingOrchestrator:
     def status(self) -> Dict:
         """Get learning status"""
         return self.training.get_status()
+    
+    def get_progress(self) -> float:
+        """Get progress percentage"""
+        return self.training.get_progress()
+    
+    def crash_recovery(self) -> Dict:
+        """Called after system crash to recover learning"""
+        return self.training.crash_recovery()
     
     def get_strategy_candidates(self, avenue: str = None) -> Dict:
         """Get strategy candidates for master review"""

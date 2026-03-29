@@ -1,4 +1,3 @@
-# components/training/ComprehensiveAGITraining.py
 """
 COMPREHENSIVE AGI TRAINING - REAL Knowledge Acquisition
 Matches placeholder coverage: Reasoning, Planning, Decision Making, Learning, Memory, etc.
@@ -37,6 +36,7 @@ class ComprehensiveAGITraining:
         self.progress = 0
         self.current_module = 0
         self.completed_concepts = set()
+        self._training_complete = False
         
         # ====================================================================
         # COMPREHENSIVE REASONING MODULES
@@ -177,6 +177,7 @@ class ComprehensiveAGITraining:
         logger.info(f"🧠 AGI Training initialized with {len(self.modules)} modules")
     
     def _load_state(self):
+        """Load saved training state - NEVER auto-starts training"""
         if self.state_file.exists():
             try:
                 with open(self.state_file, 'r') as f:
@@ -184,17 +185,26 @@ class ComprehensiveAGITraining:
                     self.progress = state.get('progress', 0)
                     self.current_module = state.get('current_module', 0)
                     self.completed_concepts = set(state.get('completed_concepts', []))
-                    self.training_active = state.get('training_active', False)
+                    self.training_active = False  # NEVER auto-start on load
+                    self._training_complete = state.get('training_complete', False)
+                    
+                    # If progress is 100% or all modules completed, mark as complete
+                    if self.progress >= 99.9 or self.current_module >= len(self.modules):
+                        self._training_complete = True
+                        self.progress = 100
+                        
             except Exception as e:
                 logger.error(f"Failed to load state: {e}")
     
     def _save_state(self):
+        """Save current training state - always saves training_active as False"""
         try:
             state = {
                 'progress': self.progress,
                 'current_module': self.current_module,
                 'completed_concepts': list(self.completed_concepts),
-                'training_active': self.training_active,
+                'training_active': False,  # Always save as False - state restored only on crash recovery
+                'training_complete': self._training_complete,
                 'last_updated': datetime.now().isoformat()
             }
             with open(self.state_file, 'w') as f:
@@ -203,22 +213,75 @@ class ComprehensiveAGITraining:
             logger.error(f"Failed to save state: {e}")
     
     def start_training(self):
-        if self.training_active:
-            return {'success': False, 'error': 'Training already active'}
+        """Start training - ONLY called when user clicks Start button"""
+        # Block if training already complete
+        if self._training_complete or self.progress >= 99.9:
+            return {
+                'success': False, 
+                'error': 'Training already completed',
+                'message': 'AGI Training is already 100% complete'
+            }
         
+        # Block if training already active
+        if self.training_active:
+            return {
+                'success': False, 
+                'error': 'Training already active',
+                'message': 'AGI Training is already running'
+            }
+        
+        # Start training
         self.training_active = True
+        self._save_state()
         self.training_thread = threading.Thread(target=self._run_training, daemon=True)
         self.training_thread.start()
         
-        logger.info("🧠 AGI Training STARTED")
-        return {'success': True, 'message': 'AGI Training started'}
+        logger.info(f"🧠 AGI Training STARTED (resuming from {self.progress:.1f}%)")
+        return {
+            'success': True, 
+            'message': f'AGI Training started/resumed from {self.progress:.1f}%',
+            'progress': self.progress
+        }
     
     def stop_training(self):
+        """Stop/pause training"""
+        if not self.training_active:
+            return {
+                'success': False,
+                'error': 'Training not active',
+                'message': 'AGI Training is not currently running'
+            }
+        
         self.training_active = False
         self._save_state()
-        return {'success': True, 'message': 'AGI Training paused'}
+        
+        logger.info("🧠 AGI Training PAUSED")
+        return {
+            'success': True,
+            'message': 'AGI Training paused',
+            'progress': self.progress
+        }
+    
+    def crash_recovery(self):
+        """
+        Called when system restarts after crash/power cut
+        Auto-resumes training if it was active before crash
+        ONLY for crash recovery - does NOT auto-start on normal boot
+        """
+        if self._training_complete:
+            logger.info("✅ AGI Training already complete - no recovery needed")
+            return {'recovered': False, 'reason': 'already_complete'}
+        
+        # Check if we have incomplete training (progress > 0 but not complete)
+        if self.progress > 0 and self.progress < 100 and not self._training_complete:
+            logger.info(f"🔄 CRASH RECOVERY: Resuming AGI Training from {self.progress:.1f}%")
+            return self.start_training()
+        
+        logger.info("📋 AGI Training has no incomplete state to recover")
+        return {'recovered': False, 'reason': 'no_incomplete_training'}
     
     def get_status(self) -> Dict:
+        """Get detailed training status for UI"""
         current_module_info = None
         if self.current_module < len(self.modules):
             current_module_info = self.modules[self.current_module]
@@ -226,56 +289,76 @@ class ComprehensiveAGITraining:
         return {
             'active': self.training_active,
             'progress': self.progress,
+            'complete': self._training_complete or self.progress >= 99.9,
             'current_module': self.current_module,
             'current_module_name': current_module_info['name'] if current_module_info else 'Complete',
             'current_module_type': current_module_info['type'] if current_module_info else None,
             'concepts_learned': len(self.completed_concepts),
             'modules_completed': self.current_module,
             'modules_total': len(self.modules),
-            'status': 'training' if self.training_active else 'paused'
+            'status': 'training' if self.training_active else 'paused',
+            'can_start': not self.training_active and not (self._training_complete or self.progress >= 99.9),
+            'can_stop': self.training_active,
+            'message': 'Training complete' if (self._training_complete or self.progress >= 99.9) else None
         }
     
+    def get_progress(self) -> float:
+        """Return current progress percentage for dashboard display"""
+        return self.progress
+    
     def _run_training(self):
+        """Main training loop - runs in background thread"""
         logger.info("🧠 AGI Training thread started")
         
-        while self.training_active and self.current_module < len(self.modules):
-            module = self.modules[self.current_module]
+        try:
+            while self.training_active and self.current_module < len(self.modules):
+                module = self.modules[self.current_module]
+                
+                logger.info(f"📚 Learning Module {self.current_module + 1}/{len(self.modules)}: {module['name']} ({module['type']})")
+                
+                for topic in module['topics']:
+                    if topic in self.completed_concepts:
+                        continue
+                    
+                    if not self.training_active:
+                        break
+                    
+                    logger.info(f"   Learning: {topic}")
+                    
+                    knowledge = self._learn_topic(topic, module['name'])
+                    concept_name = f"agi_{module['id']}_{topic}".replace(' ', '_').replace('/', '_')
+                    self.knowledge_graph.add_concept(concept_name[:100], knowledge[:500])
+                    self.completed_concepts.add(topic)
+                    self._save_state()
+                    
+                    total_topics = sum(len(m['topics']) for m in self.modules)
+                    self.progress = (len(self.completed_concepts) / total_topics) * 100
+                    
+                    logger.info(f"   ✅ Learned: {topic}")
+                    time.sleep(0.5)
+                
+                if self.training_active:
+                    logger.info(f"✅ Module {self.current_module + 1} COMPLETE: {module['name']}")
+                    self.current_module += 1
+                    self._save_state()
             
-            logger.info(f"📚 Learning Module {self.current_module + 1}/{len(self.modules)}: {module['name']} ({module['type']})")
-            
-            for topic in module['topics']:
-                if topic in self.completed_concepts:
-                    continue
-                
-                if not self.training_active:
-                    break
-                
-                logger.info(f"   Learning: {topic}")
-                
-                knowledge = self._learn_topic(topic, module['name'])
-                concept_name = f"agi_{module['id']}_{topic}".replace(' ', '_').replace('/', '_')
-                self.knowledge_graph.add_concept(concept_name[:100], knowledge[:500])
-                self.completed_concepts.add(topic)
+            # Training completed
+            if self.current_module >= len(self.modules) or self.progress >= 99.9:
+                self.progress = 100
+                self._training_complete = True
                 self._save_state()
-                
-                total_topics = sum(len(m['topics']) for m in self.modules)
-                self.progress = (len(self.completed_concepts) / total_topics) * 100
-                
-                logger.info(f"   ✅ Learned: {topic}")
-                time.sleep(0.5)
+                logger.info("🎉 AGI TRAINING COMPLETE!")
+                logger.info(f"   Concepts Learned: {len(self.completed_concepts)}")
             
-            if self.training_active:
-                logger.info(f"✅ Module {self.current_module + 1} COMPLETE: {module['name']}")
-                self.current_module += 1
-                self._save_state()
-        
-        self.training_active = False
-        self.progress = 100
-        self._save_state()
-        logger.info("🎉 AGI TRAINING COMPLETE!")
-        logger.info(f"   Concepts Learned: {len(self.completed_concepts)}")
+        except Exception as e:
+            logger.error(f"AGI Training thread error: {e}")
+            self._save_state()
+        finally:
+            self.training_active = False
+            self._save_state()
     
     def _learn_topic(self, topic: str, module_name: str) -> str:
+        """Learn a topic from AI tutors - REAL knowledge acquisition"""
         try:
             if self.ai_hub and self.ai_hub._get_active_tutors():
                 prompt = f"""Teach me about {topic} in {module_name} for Artificial General Intelligence.
