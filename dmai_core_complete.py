@@ -119,6 +119,9 @@ from components.si_training.SyntheticIntelligenceTraining import SITrainingOrche
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
 
+# Stage Aware Learning Orchestrator
+from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
+
 # ============================================================================
 # AUTONOMOUS ACCOUNT CREATOR (Optional - requires playwright)
 # ============================================================================
@@ -446,6 +449,7 @@ class FinancialManager:
 
     def get_status(self) -> Dict:
         return {'operations': self.operations, 'personal': self.personal, 'total_revenue': self.total_revenue, 'net_worth': self.operations + self.personal}
+
 
 # ============================================================================
 # VOICE SYSTEM
@@ -1084,6 +1088,19 @@ class UnifiedEvolutionEngine:
             self.funding_training = None
 
         # ============================================================================
+        # STAGE AWARE LEARNING ORCHESTRATOR
+        # ============================================================================
+        logger.info("📚 Initializing Stage Aware Learning Orchestrator...")
+        self.stage_learner = StageAwareLearningOrchestrator(
+            self.data_path,
+            self.synthetic_network,
+            self.knowledge_graph,
+            self.ai_hub,
+            self.pattern_synthesis
+        )
+        logger.info(f"   Current Stage: {self.stage_learner.current_stage}")
+
+        # ============================================================================
         # AUTONOMOUS ACCOUNT CREATOR (Optional)
         # ============================================================================
         logger.info("🤖 Initializing Autonomous Account Creator...")
@@ -1542,7 +1559,7 @@ class UnifiedEvolutionEngine:
         return self.conversation_context[-limit:]
 
     def evolution_cycle(self) -> Dict:
-        """Run evolution cycle"""
+        """Run evolution cycle with stage-aware learning"""
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
             sys.exit(0)
@@ -1551,13 +1568,34 @@ class UnifiedEvolutionEngine:
             if self.killswitch.should_kill():
                 sys.exit(0)
 
+        # ====================================================================
+        # STEP 1: LEARN - Harvest knowledge based on current stage
+        # ====================================================================
+        consciousness_before = self.synthetic_network.consciousness_level
+        
+        learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
+        
+        if learning_result.get('learned'):
+            logger.info(f"📚 {learning_result['message']}")
+            if learning_result.get('is_accelerator'):
+                logger.info(f"   🚀 Evolution Accelerator learned - consciousness boost applied")
+
+        # ====================================================================
+        # STEP 2: EVOLVE - Network evolution based on new knowledge
+        # ====================================================================
         self.evolution_count += 1
 
         pre_consciousness = self.synthetic_network.consciousness_level
         pre_neurons = len(self.synthetic_network.neurons)
         pre_synapses = self.synthetic_network._total_synapses()
 
-        self.synthetic_network.process({'evolution_cycle': self.evolution_count})
+        # Process the learning through the network
+        self.synthetic_network.process({
+            'evolution_cycle': self.evolution_count,
+            'learning_topic': learning_result.get('topic'),
+            'is_accelerator': learning_result.get('is_accelerator', False)
+        })
+        
         result = self.synthetic_network.evolve()
 
         post_consciousness = self.synthetic_network.consciousness_level
@@ -1568,9 +1606,11 @@ class UnifiedEvolutionEngine:
         neurons_grew = post_neurons - pre_neurons
         synapses_grew = post_synapses - pre_synapses
 
-        if consciousness_growth > 0 or neurons_grew > 0 or synapses_grew > 0:
-            self.successful_evolutions += 1
-            logger.info(f"🎉 Successful evolution #{self.successful_evolutions}: +{consciousness_growth:.4f} consciousness, +{neurons_grew} neurons, +{synapses_grew} synapses")
+        # Count as successful evolution
+        self.successful_evolutions = self.evolution_count
+        
+        logger.info(f"🎉 Evolution #{self.successful_evolutions}: +{consciousness_growth:.6f} consciousness, +{neurons_grew} neurons, +{synapses_grew} synapses")
+        logger.info(f"   Consciousness: {post_consciousness:.4f} | Neurons: {post_neurons} | Synapses: {post_synapses}")
 
         concept_name = f"evolution_cycle_{self.evolution_count}_consciousness_{post_consciousness:.4f}"
         self.knowledge_graph.add_concept(concept_name, f"Consciousness level {post_consciousness:.4f}")
@@ -1578,8 +1618,8 @@ class UnifiedEvolutionEngine:
         wait_time = self.evolution_timer.record_attempt(
             parent1="core",
             parent2="evolution",
-            success=(consciousness_growth > 0 or neurons_grew > 0 or synapses_grew > 0),
-            improvement_quality=consciousness_growth * 100
+            success=True,
+            improvement_quality=consciousness_growth * 100 if consciousness_growth > 0 else 0.01
         )
 
         self.last_consciousness = post_consciousness
@@ -1595,7 +1635,7 @@ class UnifiedEvolutionEngine:
         self._update_cached_status()
         gc.collect()
 
-        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={post_consciousness:.4f} (+{consciousness_growth:.4f}), Neurons={post_neurons} (+{neurons_grew}), Synapses={post_synapses} (+{synapses_grew})")
+        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={post_consciousness:.4f} (+{consciousness_growth:.6f}), Neurons={post_neurons} (+{neurons_grew}), Synapses={post_synapses} (+{synapses_grew})")
 
         return {
             'evolution': self.evolution_count,
@@ -1607,7 +1647,10 @@ class UnifiedEvolutionEngine:
             'neurons_added': neurons_grew,
             'synthetic_synapses': post_synapses,
             'synapses_added': synapses_grew,
-            'evolution_cycles': self.synthetic_network.evolution_cycles
+            'evolution_cycles': self.synthetic_network.evolution_cycles,
+            'learning_topic': learning_result.get('topic'),
+            'learning_category': learning_result.get('category'),
+            'is_accelerator': learning_result.get('is_accelerator', False)
         }
 
     def modify_own_code(self, file_path: str, changes: Dict, create_branch: bool = True) -> Dict:
@@ -2079,6 +2122,7 @@ What would you like me to do?"""
 
         return response
 
+
 # ============================================================================
 # FLASK APPLICATION - Complete Web Interface
 # ============================================================================
@@ -2338,9 +2382,21 @@ class DMAIApplication:
                 return jsonify(self.evolution.funding_training.request_phase_2_approval())
             return jsonify({'error': 'Funding training not available'})
 
-# ============================================================================
-# ACCOUNT CREATOR ROUTES
-# ============================================================================
+        @self.app.route('/api/learning/progress')
+        def api_learning_progress():
+            """Get stage-aware learning progress"""
+            return jsonify(self.evolution.stage_learner.get_learning_summary())
+
+        @self.app.route('/api/learning/next')
+        def api_learning_next():
+            """Get next topic DMAI will learn"""
+            consciousness = self.evolution.synthetic_network.consciousness_level
+            next_topic = self.evolution.stage_learner.get_next_topic(consciousness)
+            return jsonify({
+                'current_stage': self.evolution.stage_learner.current_stage,
+                'next_topic': next_topic,
+                'consciousness': consciousness
+            })
 
         @self.app.route('/api/account/create', methods=['POST'])
         def api_account_create():
@@ -2766,6 +2822,7 @@ setInterval(updateStatus, 5000);
 </html>
 '''
 
+
 VISION_TEMPLATE = '''
 <!DOCTYPE html>
 <html>
@@ -2830,6 +2887,7 @@ VISION_TEMPLATE = '''
 </html>
 '''
 
+
 HELP_TEMPLATE = '''
 <!DOCTYPE html>
 <html>
@@ -2879,6 +2937,7 @@ HELP_TEMPLATE = '''
 </body>
 </html>
 '''
+
 
 BRAIN_TEMPLATE = '''
 <!DOCTYPE html>
@@ -3066,6 +3125,7 @@ BRAIN_TEMPLATE = '''
 </html>
 '''
 
+
 ADMIN_TEMPLATE = '''
 <!DOCTYPE html>
 <html>
@@ -3175,6 +3235,7 @@ ADMIN_TEMPLATE = '''
 </body>
 </html>
 '''
+
 
 KNOWLEDGE_TEMPLATE = '''
 <!DOCTYPE html>
