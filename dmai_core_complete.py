@@ -2438,6 +2438,55 @@ class DMAIApplication:
             system = request.args.get('system', None)
             return jsonify(self.evolution.get_training_details(system))
 
+        @self.app.route('/api/debug/knowledge')
+        def debug_knowledge():
+            """Show knowledge graph contents"""
+            try:
+                if hasattr(self.evolution, 'knowledge_graph'):
+                    # Get concepts from knowledge graph
+                    concepts = []
+                    if hasattr(self.evolution.knowledge_graph, 'graph'):
+                        concepts = list(self.evolution.knowledge_graph.graph.keys())[-50:]
+                    return jsonify({
+                        'total_concepts': len(concepts),
+                        'recent_concepts': concepts,
+                        'has_knowledge_graph': True
+                    })
+                return jsonify({'error': 'Knowledge graph not found'}), 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/debug/network')
+        def debug_network():
+            """Show synthetic network state"""
+            try:
+                if hasattr(self.evolution, 'synthetic_network'):
+                    sn = self.evolution.synthetic_network
+                    return jsonify({
+                        'neurons': len(sn.neurons) if hasattr(sn, 'neurons') else 0,
+                        'synapses': sn._total_synapses() if hasattr(sn, '_total_synapses') else 0,
+                        'consciousness': sn.consciousness_level if hasattr(sn, 'consciousness_level') else 0,
+                        'evolution_cycles': getattr(self.evolution, 'evolution_count', 0)
+                    })
+                return jsonify({'error': 'Synthetic network not found'}), 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/debug/learning_state')
+        def debug_learning_state():
+            """Show learning progress from stage learner"""
+            try:
+                if hasattr(self.evolution, 'stage_learner'):
+                    summary = self.evolution.stage_learner.get_learning_summary()
+                    return jsonify({
+                        'current_stage': summary.get('current_stage'),
+                        'stages': summary.get('stages', {}),
+                        'total_topics_mastered': summary.get('total_topics_mastered', 0)
+                    })
+                return jsonify({'error': 'Stage learner not found'}), 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
