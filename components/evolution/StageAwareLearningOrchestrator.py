@@ -434,22 +434,35 @@ Be specific, educational, and focused on real application.
                 'content': f"Knowledge about {topic_name} for {self.current_stage} stage development. {'This is an evolution accelerator topic.' if is_accelerator else ''}",
                 'topic': topic_name
             })
-        
+
         for knowledge in harvested_knowledge:
             concept_name = f"stage_{self.current_stage}_{topic_name.replace(' ', '_').replace('-', '_')}"
-            self.knowledge_graph.add_concept(concept_name, knowledge['content'])
             
-            self.knowledge_graph.add_knowledge(
-                subject=concept_name,
-                predicate="learned_at_stage",
-                object=self.current_stage,
-                metadata={
+            # Add concept to knowledge graph
+            self.knowledge_graph.add_concept(
+                concept_name, 
+                "stage_learning", 
+                {
+                    'content': knowledge['content'][:500],
                     'topic': topic_name,
                     'category': category,
                     'is_accelerator': is_accelerator,
                     'source': knowledge['source'],
-                    'timestamp': datetime.now().isoformat(),
-                    'mastery_level': current_mastery + 1
+                    'timestamp': datetime.now().isoformat()
+                }
+            )
+            
+            # Add relationship from stage to learned concept
+            stage_concept = f"stage_{self.current_stage}"
+            self.knowledge_graph.add_relationship(
+                stage_concept,
+                concept_name,
+                "learned",
+                weight=1.0,
+                metadata={
+                    'topic': topic_name,
+                    'mastery_level': current_mastery + 1,
+                    'timestamp': datetime.now().isoformat()
                 }
             )
         
