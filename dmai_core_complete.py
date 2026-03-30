@@ -1640,6 +1640,10 @@ class UnifiedEvolutionEngine:
 
  # Activate training systems based on consciousness
         self._activate_training_systems()
+        
+        # Update progress for all active training systems
+        self._update_training_progress()
+        
         return {
             'evolution': self.evolution_count,
             'successful_evolutions': self.successful_evolutions,
@@ -1660,61 +1664,98 @@ class UnifiedEvolutionEngine:
         """Activate training systems based on consciousness thresholds"""
         consciousness = self.synthetic_network.consciousness_level
         
-        # Funding Training - Start at 25%
-        if consciousness >= 0.25 and hasattr(self, 'funding_training') and self.funding_training:
+        # Helper function to get status string from any training object
+        def get_status_string(training_obj):
             try:
-                if hasattr(self.funding_training, 'status') and callable(self.funding_training.status):
-                    current_status = self.funding_training.status()
-                else:
-                    current_status = getattr(self.funding_training, 'status', 'paused')
-                
-                if current_status == 'paused':
-                    self.funding_training.start()
-                    logger.info(f"💰 Funding Training activated at {consciousness*100:.1f}% consciousness")
-            except Exception as e:
-                logger.debug(f"Funding activation: {e}")
+                # Try status() first (SI, Funding)
+                if hasattr(training_obj, 'status') and callable(training_obj.status):
+                    result = training_obj.status()
+                    if isinstance(result, dict):
+                        return result.get('status', 'paused')
+                    return result
+                # Try get_status() second (LLM, Software, AGI, GenAI)
+                if hasattr(training_obj, 'get_status') and callable(training_obj.get_status):
+                    result = training_obj.get_status()
+                    if isinstance(result, dict):
+                        return result.get('status', 'paused')
+                    return result
+                return getattr(training_obj, 'status', 'paused')
+            except Exception:
+                return 'paused'
         
-        # SI Training - Start at 30%
-        if consciousness >= 0.30 and hasattr(self, 'si_training') and self.si_training:
-            try:
-                if hasattr(self.si_training, 'status') and callable(self.si_training.status):
-                    current_status = self.si_training.status()
-                else:
-                    current_status = getattr(self.si_training, 'status', 'paused')
-                
+        # Helper function to start training
+        def try_start(training_obj, name, threshold):
+            if training_obj and consciousness >= threshold:
+                current_status = get_status_string(training_obj)
                 if current_status == 'paused':
-                    self.si_training.start()
-                    logger.info(f"🧠 SI Training activated at {consciousness*100:.1f}% consciousness")
-            except Exception as e:
-                logger.debug(f"SI activation: {e}")
+                    try:
+                        if hasattr(training_obj, 'start'):
+                            training_obj.start()
+                            logger.info(f"{name} Training activated at {consciousness*100:.1f}% consciousness")
+                            return True
+                    except Exception as e:
+                        logger.debug(f"{name} activation error: {e}")
+            return False
+        
+        # LLM Training - Compulsory from 0% (no consciousness check)
+        if hasattr(self, 'llm_training') and self.llm_training:
+            if get_status_string(self.llm_training) == 'paused':
+                try:
+                    self.llm_training.start()
+                    logger.info(f"🎓 LLM Training activated (compulsory)")
+                except Exception as e:
+                    logger.debug(f"LLM activation error: {e}")
+        
+        # Software Training - Start at 50%
+        try_start(getattr(self, 'software_training', None), '💻 Software/Coding', 0.50)
         
         # AGI Training - Start at 35%
-        if consciousness >= 0.35 and hasattr(self, 'agi_training') and self.agi_training:
-            try:
-                if hasattr(self.agi_training, 'status') and callable(self.agi_training.status):
-                    current_status = self.agi_training.status()
-                else:
-                    current_status = getattr(self.agi_training, 'status', 'paused')
-                
-                if current_status == 'paused':
-                    self.agi_training.start()
-                    logger.info(f"🤖 AGI Training activated at {consciousness*100:.1f}% consciousness")
-            except Exception as e:
-                logger.debug(f"AGI activation: {e}")
+        try_start(getattr(self, 'agi_training', None), '🤖 AGI', 0.35)
         
         # GenAI Training - Start at 40%
-        if consciousness >= 0.40 and hasattr(self, 'genai_training') and self.genai_training:
-            try:
-                if hasattr(self.genai_training, 'status') and callable(self.genai_training.status):
-                    current_status = self.genai_training.status()
-                else:
-                    current_status = getattr(self.genai_training, 'status', 'paused')
-                
-                if current_status == 'paused':
-                    self.genai_training.start()
-                    logger.info(f"🎨 GenAI Training activated at {consciousness*100:.1f}% consciousness")
-            except Exception as e:
-                logger.debug(f"GenAI activation: {e}")
+        try_start(getattr(self, 'genai_training', None), '🎨 GenAI', 0.40)
+        
+        # SI Training - Start at 30%
+        try_start(getattr(self, 'si_training', None), '🧠 SI', 0.30)
+        
+        # Funding Training - Start at 25%
+        try_start(getattr(self, 'funding_training', None), '💰 Funding', 0.25)
+
+    def _update_training_progress(self):
+        """Update progress for all active training systems"""
+        try:
+            # Update LLM Training
+            if hasattr(self, 'llm_training') and self.llm_training:
+                if hasattr(self.llm_training, 'update'):
+                    self.llm_training.update()
+            
+            # Update Software Training
+            if hasattr(self, 'software_training') and self.software_training:
+                if hasattr(self.software_training, 'update'):
+                    self.software_training.update()
+            
+            # Update AGI Training
+            if hasattr(self, 'agi_training') and self.agi_training:
+                if hasattr(self.agi_training, 'update'):
+                    self.agi_training.update()
+            
+            # Update GenAI Training
+            if hasattr(self, 'genai_training') and self.genai_training:
+                if hasattr(self.genai_training, 'update'):
+                    self.genai_training.update()
+            
+            # Update SI Training
+            if hasattr(self, 'si_training') and self.si_training:
+                if hasattr(self.si_training, 'update'):
+                    self.si_training.update()
+            
+            # Update Funding Training
+            if hasattr(self, 'funding_training') and self.funding_training:
+                if hasattr(self.funding_training, 'update'):
+                    self.funding_training.update()
+                    
+        except Exception as e:
+            logger.debug(f"Training progress update error: {e}")
 
     def modify_own_code(self, file_path: str, changes: Dict, create_branch: bool = True) -> Dict:
         """Modify DMAI's own code with branching support"""

@@ -100,87 +100,14 @@ class ComprehensiveLLMTraining:
             'model_compression': ['quantization_inference', 'fp16', 'bf16', 'int8_inference', 'sparse_inference']
         }
         
-        # ====================================================================
-        # COMPREHENSIVE APPLICATIONS
-        # ====================================================================
-        self.applications = {
-            'code_generation': ['code_completion', 'code_explanation', 'code_review', 'bug_fixing', 'code_translation', 'code_documentation'],
-            'reasoning': ['chain_of_thought', 'tree_of_thought', 'self_consistency', 'reflection', 'react', 'pal', 'program_aided'],
-            'agentic': ['tool_use', 'function_calling', 'web_browsing', 'api_integration', 'multi_agent', 'autonomous_agents'],
-            'rag': ['retrieval_augmented_generation', 'vector_databases', 'embedding_models', 'reranking', 'hybrid_search'],
-            'multimodal': ['vision_language', 'image_generation', 'video_understanding', 'audio_processing', 'document_analysis'],
-            'specialized': ['medical_llm', 'legal_llm', 'financial_llm', 'scientific_llm', 'creative_writing']
-        }
-        
-        # ====================================================================
-        # COMPREHENSIVE EVALUATION
-        # ====================================================================
-        self.evaluation = {
-            'benchmarks': ['mmlu', 'human_eval', 'helms', 'lmsys_chatbot_arena', 'alpaca_eval', 'mt_bench', 'big_bench', 'truthful_qa'],
-            'metrics': ['perplexity', 'accuracy', 'bleu', 'rouge', 'bert_score', 'llm_as_judge', 'g_eval'],
-            'safety': ['harmlessness', 'helpfulness', 'honesty', 'toxicity_detection', 'bias_evaluation', 'adversarial_robustness']
-        }
-        
-        # Build modules list
-        self.modules = []
-        
-        # Add architecture modules
-        for arch_name, arch_data in self.architectures.items():
-            self.modules.append({
-                'id': f'arch_{arch_name}',
-                'name': f'{arch_name.upper()} Architecture',
-                'type': 'architecture',
-                'topics': list(arch_data.values())[0] if isinstance(arch_data, dict) else arch_data,
-                'target': 'expert'
-            })
-        
-        # Add training technique modules
-        for tech_name, tech_topics in self.training_techniques.items():
-            self.modules.append({
-                'id': f'tech_{tech_name}',
-                'name': f'{tech_name.replace("_", " ").title()}',
-                'type': 'training',
-                'topics': tech_topics,
-                'target': 'expert'
-            })
-        
-        # Add inference optimization modules
-        for opt_name, opt_topics in self.inference_optimization.items():
-            self.modules.append({
-                'id': f'inf_{opt_name}',
-                'name': f'{opt_name.replace("_", " ").title()}',
-                'type': 'inference',
-                'topics': opt_topics,
-                'target': 'expert'
-            })
-        
-        # Add application modules
-        for app_name, app_topics in self.applications.items():
-            self.modules.append({
-                'id': f'app_{app_name}',
-                'name': f'{app_name.replace("_", " ").title()}',
-                'type': 'application',
-                'topics': app_topics,
-                'target': 'expert'
-            })
-        
-        # Add evaluation modules
-        for eval_name, eval_topics in self.evaluation.items():
-            self.modules.append({
-                'id': f'eval_{eval_name}',
-                'name': f'{eval_name.replace("_", " ").title()}',
-                'type': 'evaluation',
-                'topics': eval_topics,
-                'target': 'expert'
-            })
-        
+        # Load saved state
         self.state_file = self.training_dir / 'training_state.json'
         self._load_state()
         
-        logger.info(f"🤖 LLM Training initialized with {len(self.modules)} modules")
+        logger.info(f"📚 Comprehensive LLM Training initialized")
     
     def _load_state(self):
-        """Load training state - NEVER auto-starts training"""
+        """Load training state from disk - NEVER auto-starts training"""
         if self.state_file.exists():
             try:
                 with open(self.state_file, 'r') as f:
@@ -188,25 +115,23 @@ class ComprehensiveLLMTraining:
                     self.progress = state.get('progress', 0)
                     self.current_module = state.get('current_module', 0)
                     self.completed_concepts = set(state.get('completed_concepts', []))
-                    self.training_active = False  # NEVER auto-start on load
                     self._training_complete = state.get('training_complete', False)
                     
-                    # If progress is 100% or all modules completed, mark as complete
-                    if self.progress >= 99.9 or self.current_module >= len(self.modules):
+                    if self.progress >= 99.9:
                         self._training_complete = True
                         self.progress = 100
-                        
+                    
+                    logger.info(f"📂 Loaded LLM training state: {self.progress}% complete")
             except Exception as e:
                 logger.error(f"Failed to load state: {e}")
     
     def _save_state(self):
-        """Save training state - always saves training_active as False"""
+        """Save training state to disk"""
         try:
             state = {
                 'progress': self.progress,
                 'current_module': self.current_module,
                 'completed_concepts': list(self.completed_concepts),
-                'training_active': False,  # Always save as False - state restored only on crash recovery
                 'training_complete': self._training_complete,
                 'last_updated': datetime.now().isoformat()
             }
@@ -215,143 +140,131 @@ class ComprehensiveLLMTraining:
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
     
-    def start_training(self):
-        """Start training - ONLY called when user clicks Start button"""
-        # Block if training already complete
-        if self._training_complete or self.progress >= 99.9:
-            return {
-                'success': False, 
-                'error': 'Training already completed',
-                'message': 'LLM Training is already 100% complete'
-            }
-        
-        # Block if training already active
-        if self.training_active:
-            return {
-                'success': False, 
-                'error': 'Training already active',
-                'message': 'LLM Training is already running'
-            }
-        
-        # Start training
-        self.training_active = True
-        self._save_state()
-        self.training_thread = threading.Thread(target=self._run_training, daemon=True)
-        self.training_thread.start()
-        
-        logger.info(f"🤖 LLM Training STARTED (resuming from {self.progress:.1f}%)")
-        return {
-            'success': True, 
-            'message': f'LLM Training started/resumed from {self.progress:.1f}%',
-            'progress': self.progress
-        }
+    # ====================================================================
+    # STANDARDIZED METHODS - Called by main system
+    # ====================================================================
     
-    def stop_training(self):
-        """Stop/pause training"""
+    def start(self):
+        """Standardized start method - starts or resumes training"""
+        return self.start_training()
+    
+    def update(self):
+        """Standardized update method - called during evolution cycles"""
         if not self.training_active:
-            return {
-                'success': False,
-                'error': 'Training not active',
-                'message': 'LLM Training is not currently running'
-            }
+            return
         
-        self.training_active = False
+        # Update progress calculation
+        self._calculate_progress()
         self._save_state()
-        
-        logger.info("⏸️ LLM Training PAUSED")
-        return {
-            'success': True,
-            'message': 'LLM Training paused',
-            'progress': self.progress
-        }
-    
-    def crash_recovery(self):
-        """
-        Called when system restarts after crash/power cut
-        Auto-resumes training if it was active before crash
-        ONLY for crash recovery - does NOT auto-start on normal boot
-        """
-        if self._training_complete:
-            logger.info("✅ LLM Training already complete - no recovery needed")
-            return {'recovered': False, 'reason': 'already_complete'}
-        
-        # Check if we have incomplete training (progress > 0 but not complete)
-        if self.progress > 0 and self.progress < 100 and not self._training_complete:
-            logger.info(f"🔄 CRASH RECOVERY: Resuming LLM Training from {self.progress:.1f}%")
-            return self.start_training()
-        
-        logger.info("📋 LLM Training has no incomplete state to recover")
-        return {'recovered': False, 'reason': 'no_incomplete_training'}
     
     def get_status(self) -> Dict:
-        """Get training status for UI"""
-        current_module_info = None
-        if self.current_module < len(self.modules):
-            current_module_info = self.modules[self.current_module]
-        
+        """Get current training status for UI"""
         return {
             'active': self.training_active,
             'progress': self.progress,
             'complete': self._training_complete or self.progress >= 99.9,
             'current_module': self.current_module,
-            'current_module_name': current_module_info['name'] if current_module_info else 'Complete',
-            'current_module_type': current_module_info['type'] if current_module_info else None,
-            'concepts_learned': len(self.completed_concepts),
-            'modules_completed': self.current_module,
-            'modules_total': len(self.modules),
             'status': 'training' if self.training_active else 'paused',
-            'can_start': not self.training_active and not (self._training_complete or self.progress >= 99.9),
-            'can_stop': self.training_active,
-            'message': 'Training complete' if (self._training_complete or self.progress >= 99.9) else None
+            'can_start': not self.training_active and not self._training_complete,
+            'can_stop': self.training_active
         }
     
-    def get_progress(self) -> float:
-        """Return current progress percentage for dashboard display"""
-        return self.progress
+    def _calculate_progress(self):
+        """Calculate overall progress based on modules and concepts learned"""
+        total_modules = len(self.architectures) + len(self.training_techniques) + len(self.inference_optimization)
+        total_concepts = 0
+        for arch in self.architectures.values():
+            total_concepts += len(arch.get('components', [])) + len(arch.get('variants', [])) + len(arch.get('models', [])) + len(arch.get('features', []))
+        for technique in self.training_techniques.values():
+            total_concepts += len(technique)
+        for opt in self.inference_optimization.values():
+            total_concepts += len(opt)
+        
+        if total_concepts > 0:
+            self.progress = (len(self.completed_concepts) / total_concepts) * 100
+            self.progress = min(100, self.progress)
+            
+            if self.progress >= 99.9:
+                self._training_complete = True
+                self.training_active = False
+    
+    # ====================================================================
+    # ORIGINAL METHODS (preserved)
+    # ====================================================================
+    
+    def start_training(self):
+        """Start training - ONLY called when user clicks Start button or via standardized start()"""
+        if self._training_complete or self.progress >= 99.9:
+            return {
+                'success': False, 
+                'error': 'Training already completed'
+            }
+        
+        if self.training_active:
+            return {
+                'success': False, 
+                'error': 'Training already active'
+            }
+        
+        self.training_active = True
+        self._save_state()
+        self.training_thread = threading.Thread(target=self._run_training, daemon=True)
+        self.training_thread.start()
+        
+        logger.info(f"📚 LLM Training STARTED (resuming from {self.progress:.1f}%)")
+        return {'success': True, 'message': f'LLM Training started from {self.progress:.1f}%'}
+    
+    def stop_training(self):
+        """Stop/pause training"""
+        if not self.training_active:
+            return {'success': False, 'error': 'Training not active'}
+        
+        self.training_active = False
+        self._save_state()
+        logger.info("⏸️ LLM Training PAUSED")
+        return {'success': True, 'message': 'LLM Training paused'}
     
     def _run_training(self):
-        """Main training loop"""
-        logger.info("🤖 LLM Training thread started")
+        """Main training loop - learns from AI tutors"""
+        logger.info("📚 LLM Training thread started")
+        
+        all_modules = []
+        for name, data in self.architectures.items():
+            all_modules.append(('architecture', name, data))
+        for name, data in self.training_techniques.items():
+            all_modules.append(('technique', name, data))
+        for name, data in self.inference_optimization.items():
+            all_modules.append(('optimization', name, data))
         
         try:
-            while self.training_active and self.current_module < len(self.modules):
-                module = self.modules[self.current_module]
+            while self.training_active and self.current_module < len(all_modules):
+                module_type, module_name, module_data = all_modules[self.current_module]
                 
-                logger.info(f"📚 Learning Module {self.current_module + 1}/{len(self.modules)}: {module['name']} ({module['type']})")
+                logger.info(f"📚 Training Module {self.current_module + 1}/{len(all_modules)}: {module_name}")
                 
-                for topic in module['topics']:
-                    if topic in self.completed_concepts:
-                        continue
-                    
-                    if not self.training_active:
-                        break
-                    
-                    logger.info(f"   Learning: {topic}")
-                    
-                    knowledge = self._learn_topic(topic, module['name'])
-                    concept_name = f"llm_{module['id']}_{topic}".replace(' ', '_').replace('/', '_')
-                    self.knowledge_graph.add_concept(concept_name[:100], knowledge[:500])
-                    self.completed_concepts.add(topic)
-                    self._save_state()
-                    
-                    total_topics = sum(len(m['topics']) for m in self.modules)
-                    self.progress = (len(self.completed_concepts) / total_topics) * 100
-                    
-                    logger.info(f"   ✅ Learned: {topic}")
-                    time.sleep(0.5)
+                # Learn from AI tutors
+                insights = self._get_module_insights(module_type, module_name, module_data)
                 
-                if self.training_active:
-                    logger.info(f"✅ Module {self.current_module + 1} COMPLETE: {module['name']}")
-                    self.current_module += 1
-                    self._save_state()
+                # Add insights to knowledge graph
+                for insight in insights:
+                    concept_id = f"llm_{module_name}_{hashlib.md5(insight[:50].encode()).hexdigest()[:8]}"
+                    if concept_id not in self.completed_concepts:
+                        self.knowledge_graph.add_concept(concept_id, insight)
+                        self.completed_concepts.add(concept_id)
+                        logger.debug(f"   📚 Learned: {insight[:80]}...")
+                
+                self._calculate_progress()
+                self._save_state()
+                
+                self.current_module += 1
+                time.sleep(2)
             
             # Training completed
-            if self.current_module >= len(self.modules) or self.progress >= 99.9:
-                self.progress = 100
-                self._training_complete = True
-                self._save_state()
-                logger.info("🎉 LLM TRAINING COMPLETE!")
-                logger.info(f"   Concepts Learned: {len(self.completed_concepts)}")
+            self._training_complete = True
+            self.training_active = False
+            self.progress = 100
+            self._save_state()
+            logger.info("🎉 LLM TRAINING COMPLETE!")
             
         except Exception as e:
             logger.error(f"LLM Training thread error: {e}")
@@ -360,28 +273,47 @@ class ComprehensiveLLMTraining:
             self.training_active = False
             self._save_state()
     
-    def _learn_topic(self, topic: str, module_name: str) -> str:
-        """Learn a topic from AI tutors - REAL knowledge acquisition"""
+    def _get_module_insights(self, module_type: str, module_name: str, module_data: Dict) -> List[str]:
+        """Get REAL insights from AI tutors"""
+        insights = []
+        
         try:
             if self.ai_hub and self.ai_hub._get_active_tutors():
-                prompt = f"""Teach me about {topic} in {module_name} for Large Language Models.
+                prompt = f"""DMAI is training to become an LLM expert.
+Current Module: {module_name}
+Type: {module_type}
+Details: {json.dumps(module_data, indent=2)[:500]}
 
-Provide comprehensive knowledge including:
-1. Core concepts and how they work
-2. Mathematical foundations
-3. Implementation details and code examples
-4. Best practices
-5. Recent research and developments
-6. Practical applications
-
-Be detailed and educational."""
+Provide ONE specific insight about {module_name} that will help DMAI understand this topic deeply.
+Focus on practical, actionable knowledge. Keep it concise."""
                 
                 result = self.ai_hub.query_all_tutors(prompt)
                 if result.get('responses'):
                     for tutor, response in result.get('responses', {}).items():
-                        if response and isinstance(response, str) and len(response) > 50:
-                            return response[:2000]
+                        if response and isinstance(response, str) and len(response) > 20:
+                            insights.append(response[:500])
+                            break
         except Exception as e:
-            logger.debug(f"AI tutor learning failed: {e}")
+            logger.debug(f"AI tutor insight failed: {e}")
         
-        return f"Comprehensive knowledge about {topic} in {module_name}. [Will be populated by AI tutors when available]"
+        # Fallback insights
+        if not insights:
+            fallback = f"Learned about {module_name}: {list(module_data.keys())[:3] if isinstance(module_data, dict) else module_data}"
+            insights.append(fallback)
+        
+        return insights
+    
+    def crash_recovery(self) -> Dict:
+        """Called after system crash to recover training"""
+        if self._training_complete:
+            return {'recovered': False, 'reason': 'already_complete'}
+        
+        if self.progress > 0 and self.progress < 100 and not self._training_complete:
+            logger.info(f"🔄 CRASH RECOVERY: Resuming LLM Training from {self.progress:.1f}%")
+            return self.start_training()
+        
+        return {'recovered': False, 'reason': 'no_incomplete_training'}
+    
+    def get_progress(self) -> float:
+        """Return current progress percentage"""
+        return self.progress

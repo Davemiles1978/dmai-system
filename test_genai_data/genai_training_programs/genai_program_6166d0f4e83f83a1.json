@@ -1,0 +1,56 @@
+{
+  "program_id": "6166d0f4e83f83a1",
+  "name": "Product Visualization AI",
+  "architecture": {
+    "name": "SDXL",
+    "type": "image",
+    "size": "2.6B parameters",
+    "requirements": "24GB VRAM, 64GB RAM",
+    "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+  },
+  "domain": "ecommerce",
+  "generation_type": "image",
+  "created_at": "2026-03-28T08:10:12.407184",
+  "dataset_config": {
+    "type": "product_photos",
+    "size_gb": 20,
+    "quality": "high",
+    "features": [
+      "360_views",
+      "lifestyle",
+      "studio"
+    ]
+  },
+  "training_config": {
+    "learning_rate": 5e-06,
+    "batch_size": 2,
+    "gradient_accumulation": 8,
+    "resolution": 1024,
+    "train_text_encoder": true,
+    "train_unet": true,
+    "use_ema": true,
+    "mixed_precision": "bf16",
+    "epochs": 30,
+    "warmup_steps": 15000,
+    "requirements": "High-end GPU (RTX 4090/A6000), 32GB+ RAM"
+  },
+  "fine_tuning_method": {
+    "method": "full",
+    "description": "Full fine-tuning for large datasets",
+    "lora_rank": null,
+    "lora_alpha": null,
+    "target_modules": null
+  },
+  "evaluation_metrics": {
+    "fid_target": 25.0,
+    "clip_score_target": 0.3,
+    "inception_score_target": 25.0,
+    "user_preference_target": 0.75,
+    "fid": 0.0,
+    "clip_score": 0.0,
+    "aesthetic_score": 0.0,
+    "prompt_alignment": 0.0
+  },
+  "status": "ready",
+  "trained_models": []
+}

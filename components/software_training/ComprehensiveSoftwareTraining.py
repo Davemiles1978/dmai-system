@@ -190,6 +190,70 @@ class ComprehensiveSoftwareTraining:
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
     
+    # ====================================================================
+    # STANDARDIZED METHODS - Called by main system
+    # ====================================================================
+    
+    def start(self):
+        """Standardized start method - starts or resumes training"""
+        return self.start_training()
+    
+    def update(self):
+        """Standardized update method - called during evolution cycles"""
+        if not self.training_active:
+            return
+        
+        # Update progress calculation
+        total_topics = sum(len(m['topics']) for m in self.modules)
+        if total_topics > 0:
+            self.progress = (len(self.completed_concepts) / total_topics) * 100
+            self.progress = min(100, self.progress)
+            self._save_state()
+            
+            if self.progress >= 99.9:
+                self._training_complete = True
+                self.training_active = False
+                logger.info("💻 Software Training COMPLETE!")
+    
+    def get_status(self) -> Dict:
+        current_module_info = None
+        if self.current_module < len(self.modules):
+            current_module_info = self.modules[self.current_module]
+        
+        return {
+            'active': self.training_active,
+            'progress': self.progress,
+            'complete': self._training_complete or self.progress >= 99.9,
+            'current_module': self.current_module,
+            'current_module_name': current_module_info['name'] if current_module_info else 'Complete',
+            'current_module_type': current_module_info['type'] if current_module_info else None,
+            'concepts_learned': len(self.completed_concepts),
+            'modules_completed': self.current_module,
+            'modules_total': len(self.modules),
+            'languages_covered': len(self.languages),
+            'frameworks_covered': len(self.frameworks),
+            'cs_topics_covered': len(self.computer_science_topics),
+            'status': 'training' if self.training_active else 'paused',
+            'can_start': not self.training_active and not (self._training_complete or self.progress >= 99.9),
+            'can_stop': self.training_active,
+            'message': 'Training complete' if (self._training_complete or self.progress >= 99.9) else None
+        }
+    
+    def get_progress(self) -> float:
+        """Return current progress percentage for dashboard display"""
+        return self.progress
+    
+    def get_training_plan(self) -> Dict:
+        """Return comprehensive training plan for external use"""
+        return {
+            'languages': self.languages,
+            'frameworks': self.frameworks,
+            'computer_science': self.computer_science_topics,
+            'total_modules': len(self.modules),
+            'estimated_time_hours': 500,
+            'certification_levels': ['proficient', 'expert']
+        }
+    
     def start_training(self):
         """Start training - ONLY called when user clicks Start button"""
         # Block if training already complete
@@ -257,45 +321,6 @@ class ComprehensiveSoftwareTraining:
         
         logger.info("📋 Software Training has no incomplete state to recover")
         return {'recovered': False, 'reason': 'no_incomplete_training'}
-    
-    def get_status(self) -> Dict:
-        current_module_info = None
-        if self.current_module < len(self.modules):
-            current_module_info = self.modules[self.current_module]
-        
-        return {
-            'active': self.training_active,
-            'progress': self.progress,
-            'complete': self._training_complete or self.progress >= 99.9,
-            'current_module': self.current_module,
-            'current_module_name': current_module_info['name'] if current_module_info else 'Complete',
-            'current_module_type': current_module_info['type'] if current_module_info else None,
-            'concepts_learned': len(self.completed_concepts),
-            'modules_completed': self.current_module,
-            'modules_total': len(self.modules),
-            'languages_covered': len(self.languages),
-            'frameworks_covered': len(self.frameworks),
-            'cs_topics_covered': len(self.computer_science_topics),
-            'status': 'training' if self.training_active else 'paused',
-            'can_start': not self.training_active and not (self._training_complete or self.progress >= 99.9),
-            'can_stop': self.training_active,
-            'message': 'Training complete' if (self._training_complete or self.progress >= 99.9) else None
-        }
-    
-    def get_progress(self) -> float:
-        """Return current progress percentage for dashboard display"""
-        return self.progress
-    
-    def get_training_plan(self) -> Dict:
-        """Return comprehensive training plan for external use"""
-        return {
-            'languages': self.languages,
-            'frameworks': self.frameworks,
-            'computer_science': self.computer_science_topics,
-            'total_modules': len(self.modules),
-            'estimated_time_hours': 500,
-            'certification_levels': ['proficient', 'expert']
-        }
     
     def _run_training(self):
         """Main training loop - runs in background thread"""

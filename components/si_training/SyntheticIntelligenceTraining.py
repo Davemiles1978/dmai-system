@@ -170,6 +170,34 @@ class SyntheticIntelligenceTraining:
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
     
+    # ====================================================================
+    # STANDARDIZED METHODS - Called by main system
+    # ====================================================================
+    
+    def start(self):
+        """Standardized start method - starts or resumes training"""
+        return self.start_training()
+    
+    def update(self):
+        """Standardized update method - called during evolution cycles"""
+        if not self.training_active:
+            return
+        
+        # Update progress calculation based on consciousness level
+        if self.current_module < len(self.modules):
+            target_consciousness = self.modules[self.current_module]['target_consciousness']
+            if target_consciousness > 0:
+                current_consciousness = self.synthetic_network.consciousness_level
+                module_progress = min(100, (current_consciousness / target_consciousness) * 100)
+                self.progress = ((self.current_module * 100) + module_progress) / len(self.modules)
+                self.progress = min(100, self.progress)
+                self._save_state()
+                
+                if self.progress >= 99.9:
+                    self._training_complete = True
+                    self.training_active = False
+                    logger.info("🧠 SI Training COMPLETE!")
+    
     def start_training(self):
         """Start training - ONLY called when user clicks Start button"""
         # Block if training already complete
@@ -467,3 +495,7 @@ class SITrainingOrchestrator:
     def get_progress(self) -> float:
         """Get progress percentage"""
         return self.training.get_progress()
+    
+    def update(self) -> None:
+        """Standardized update method - called during evolution cycles"""
+        self.training.update()

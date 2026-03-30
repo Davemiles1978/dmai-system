@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 SELF-FUNDING TRAINING - PHASE 1: COMPREHENSIVE KNOWLEDGE ACQUISITION
 Teaches DMAI about ALL potential revenue streams through AI tutor learning.
@@ -268,6 +267,39 @@ class SelfFundingTraining:
                 json.dump(state, f, indent=2)
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
+    
+    # ====================================================================
+    # STANDARDIZED METHODS - Called by main system
+    # ====================================================================
+    
+    def start(self):
+        """Standardized start method - starts or resumes learning"""
+        return self.start_learning()
+    
+    def update(self):
+        """Standardized update method - called during evolution cycles"""
+        if not self.learning_active:
+            return
+        
+        # Update progress calculation
+        total_concepts = sum(len(d['topics']) for d in self.revenue_avenues.values())
+        if total_concepts > 0:
+            progress = (len(self.learned_concepts) / total_concepts) * 100
+            progress = min(100, progress)
+            
+            # Update each avenue's progress
+            for avenue_name, avenue in self.revenue_avenues.items():
+                learned_in_avenue = sum(1 for t in avenue['topics'] if t in self.learned_concepts)
+                avenue['progress'] = learned_in_avenue / len(avenue['topics']) * 100
+                if learned_in_avenue >= len(avenue['topics']):
+                    avenue['completed'] = True
+            
+            self._save_state()
+            
+            if progress >= 99.9:
+                self._training_complete = True
+                self.learning_active = False
+                logger.info("💰 Self-Funding Training COMPLETE!")
     
     def start_learning(self, avenue: str = None) -> Dict:
         """
@@ -752,6 +784,14 @@ class FundingOrchestrator:
     def __init__(self, data_path: Path, financial_manager, knowledge_graph, ai_hub):
         self.data_path = data_path
         self.training = SelfFundingTraining(data_path, financial_manager, knowledge_graph, ai_hub)
+    
+    def start(self) -> Dict:
+        """Standardized start method - starts or resumes learning"""
+        return self.training.start_learning()
+    
+    def update(self) -> None:
+        """Standardized update method - called during evolution cycles"""
+        self.training.update()
     
     def start_learning(self, avenue: str = None) -> Dict:
         """Start knowledge acquisition (Phase 1)"""

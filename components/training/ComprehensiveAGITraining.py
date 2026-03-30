@@ -212,6 +212,31 @@ class ComprehensiveAGITraining:
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
     
+    # ====================================================================
+    # STANDARDIZED METHODS - Called by main system
+    # ====================================================================
+    
+    def start(self):
+        """Standardized start method - starts or resumes training"""
+        return self.start_training()
+    
+    def update(self):
+        """Standardized update method - called during evolution cycles"""
+        if not self.training_active:
+            return
+        
+        # Update progress calculation
+        total_topics = sum(len(m['topics']) for m in self.modules)
+        if total_topics > 0:
+            self.progress = (len(self.completed_concepts) / total_topics) * 100
+            self.progress = min(100, self.progress)
+            self._save_state()
+            
+            if self.progress >= 99.9:
+                self._training_complete = True
+                self.training_active = False
+                logger.info("🧠 AGI Training COMPLETE!")
+    
     def start_training(self):
         """Start training - ONLY called when user clicks Start button"""
         # Block if training already complete

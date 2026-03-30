@@ -1,0 +1,199 @@
+{
+  "program_id": "154232eefea4e317",
+  "name": "Test Software AI",
+  "languages": [
+    "python"
+  ],
+  "specialization": "general",
+  "frameworks": {
+    "python": [
+      "django",
+      "flask",
+      "fastapi",
+      "tensorflow",
+      "pytorch"
+    ]
+  },
+  "created_at": "2026-03-28T08:10:02.375814",
+  "dataset_config": {
+    "type": "mixed",
+    "size_mb": 10
+  },
+  "curriculum": [
+    {
+      "module_id": "core_001",
+      "name": "Programming Fundamentals",
+      "topics": [
+        "variables",
+        "data_types",
+        "control_flow",
+        "functions",
+        "error_handling"
+      ],
+      "duration_hours": 20,
+      "languages": [
+        "python"
+      ]
+    },
+    {
+      "module_id": "core_002",
+      "name": "Data Structures & Algorithms",
+      "topics": [
+        "arrays",
+        "linked_lists",
+        "trees",
+        "graphs",
+        "sorting",
+        "searching"
+      ],
+      "duration_hours": 40,
+      "languages": [
+        "python"
+      ]
+    },
+    {
+      "module_id": "core_003",
+      "name": "Object-Oriented Programming",
+      "topics": [
+        "classes",
+        "inheritance",
+        "polymorphism",
+        "encapsulation",
+        "design_patterns"
+      ],
+      "duration_hours": 30,
+      "languages": [
+        "python"
+      ]
+    },
+    {
+      "module_id": "core_004",
+      "name": "Software Architecture",
+      "topics": [
+        "MVC",
+        "microservices",
+        "monolith",
+        "clean_architecture",
+        "ddd"
+      ],
+      "duration_hours": 35,
+      "languages": [
+        "architecture"
+      ]
+    },
+    {
+      "module_id": "core_005",
+      "name": "Testing & Quality Assurance",
+      "topics": [
+        "unit_tests",
+        "integration_tests",
+        "tdd",
+        "code_coverage",
+        "static_analysis"
+      ],
+      "duration_hours": 25,
+      "languages": [
+        "python"
+      ]
+    },
+    {
+      "module_id": "lang_python",
+      "name": "PYTHON Advanced",
+      "topics": [
+        "async/await",
+        "decorators",
+        "generators",
+        "context_managers",
+        "metaclasses",
+        "type_hints"
+      ],
+      "duration_hours": 30,
+      "languages": [
+        "python"
+      ]
+    },
+    {
+      "module_id": "spec_general",
+      "name": "Advanced Software Engineering",
+      "topics": [
+        "system_design",
+        "code_review",
+        "technical_debt",
+        "team_collaboration"
+      ],
+      "duration_hours": 40
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex_001",
+      "name": "Hello World",
+      "description": "Write a program that prints \"Hello, World!\"",
+      "difficulty": 1,
+      "test_cases": [
+        {
+          "input": "",
+          "expected_output": "Hello, World!"
+        }
+      ],
+      "hints": [
+        "Use print() function"
+      ]
+    },
+    {
+      "id": "ex_002",
+      "name": "FizzBuzz",
+      "description": "Print numbers 1-100, replacing multiples of 3 with \"Fizz\", 5 with \"Buzz\", 15 with \"FizzBuzz\"",
+      "difficulty": 2,
+      "test_cases": [
+        {
+          "input": "15",
+          "expected_output": "FizzBuzz"
+        }
+      ]
+    },
+    {
+      "id": "ex_003",
+      "name": "Palindrome Checker",
+      "description": "Check if a string is a palindrome",
+      "difficulty": 2,
+      "test_cases": [
+        {
+          "input": "racecar",
+          "expected_output": "True"
+        },
+        {
+          "input": "hello",
+          "expected_output": "False"
+        }
+      ]
+    },
+    {
+      "id": "ex_004",
+      "name": "Binary Search Tree",
+      "description": "Implement a binary search tree with insert, search, and delete methods",
+      "difficulty": 3,
+      "languages": [
+        "python"
+      ]
+    },
+    {
+      "id": "ex_005",
+      "name": "REST API Client",
+      "description": "Create a client that fetches and displays data from a REST API",
+      "difficulty": 3,
+      "languages": [
+        "python"
+      ]
+    }
+  ],
+  "evaluation_metrics": {
+    "code_quality_target": 0.85,
+    "test_coverage_target": 0.8,
+    "bug_rate_target": 0.05,
+    "performance_target": 0.9,
+    "documentation_target": 0.85
+  },
+  "status": "ready",
+  "trained_systems": []
+}
