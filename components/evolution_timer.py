@@ -4,8 +4,13 @@
 import json
 import os
 import time
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+
+# Setup logger
+logger = logging.getLogger(__name__)
+
 
 class AdaptiveEvolutionTimer:
     """
@@ -13,20 +18,20 @@ class AdaptiveEvolutionTimer:
     Gets smarter about pacing as she evolves.
     """
     
-def __init__(self, timer_file="data/evolution/timer_state.json", data_path=None, learning_callback=None):
-    """
-    Initialize the timer.
-    
-    Args:
-        timer_file: Direct path to timer state file (used if data_path not provided)
-        data_path: Alternative: base path where timer_state.json will be stored
-        learning_callback: Function that returns True if current stage's learning is complete
-    """
-    # Handle data_path parameter for compatibility with dmai_core_complete.py
-    if data_path is not None:
-        timer_file = Path(data_path) / "timer_state.json"
-    
-    self.learning_callback = learning_callback
+    def __init__(self, timer_file="data/evolution/timer_state.json", data_path=None, learning_callback=None):
+        """
+        Initialize the timer.
+        
+        Args:
+            timer_file: Direct path to timer state file (used if data_path not provided)
+            data_path: Alternative: base path where timer_state.json will be stored
+            learning_callback: Function that returns True if current stage's learning is complete
+        """
+        # Handle data_path parameter for compatibility with dmai_core_complete.py
+        if data_path is not None:
+            timer_file = Path(data_path) / "timer_state.json"
+        
+        self.learning_callback = learning_callback
         
         self.timer_file = Path(timer_file)
         self.timer_file.parent.mkdir(parents=True, exist_ok=True)
@@ -158,55 +163,51 @@ def __init__(self, timer_file="data/evolution/timer_state.json", data_path=None,
         
         return self.get_wait_time()
     
-def is_stage_learning_complete(self, stage_name: str) -> bool:
-    """Check if all priority topics for a stage are mastered"""
-    if not self.learning_callback:
-        return True  # No learning tracker, assume complete
-    return self.learning_callback(stage_name)
-
-def _adjust_sdef is_stage_learning_complete(self, stage_name: str) -> bool:
-    """Check if all priority topics for a stage are mastered"""
-    if not self.learning_callback:
-        return True  # No learning tracker, assume complete
-    return self.learning_callback(stage_name)tage(self):
-    """Determine DMAI's current evolutionary stage based on evolutions AND learning completion"""
-    successes = self.state["successful_evolutions"]
-    current_stage = self.state["current_stage"]
+    def is_stage_learning_complete(self, stage_name: str) -> bool:
+        """Check if all priority topics for a stage are mastered"""
+        if not self.learning_callback:
+            return True  # No learning tracker, assume complete
+        return self.learning_callback(stage_name)
     
-    # Get list of stages in order
-    stages = list(self.evolution_stages.keys())
-    current_index = stages.index(current_stage)
-    
-    # Check if we can advance to next stage
-    next_index = current_index + 1
-    can_advance = False
-    
-    if next_index < len(stages):
-        next_stage = stages[next_index]
+    def _adjust_stage(self):
+        """Determine DMAI's current evolutionary stage based on evolutions AND learning completion"""
+        successes = self.state["successful_evolutions"]
+        current_stage = self.state["current_stage"]
         
-        # Check evolution count requirement
-        if successes >= self.evolution_stages[next_stage]["max_evolutions"]:
-            can_advance = True
+        # Get list of stages in order
+        stages = list(self.evolution_stages.keys())
+        current_index = stages.index(current_stage)
         
-        # Check learning completion requirement (if callback exists)
-        if can_advance and self.learning_callback:
-            learning_complete = self.learning_callback(current_stage)
-            if not learning_complete:
-                can_advance = False
-                logger.info(f"📚 Cannot advance to {next_stage}: {current_stage} stage learning not complete")
+        # Check if we can advance to next stage
+        next_index = current_index + 1
+        can_advance = False
         
-        if can_advance:
-            self.state["current_stage"] = next_stage
-            self._on_stage_change(next_stage)
-            logger.info(f"🎉 Stage advanced: {current_stage} → {next_stage}")
-            return
-    
-    # If we can't advance, ensure current stage is still correct based on evolutions
-    for stage, config in self.evolution_stages.items():
-        if successes <= config["max_evolutions"]:
-            if self.state["current_stage"] != stage:
-                self.state["current_stage"] = stage
-            break
+        if next_index < len(stages):
+            next_stage = stages[next_index]
+            
+            # Check evolution count requirement
+            if successes >= self.evolution_stages[next_stage]["max_evolutions"]:
+                can_advance = True
+            
+            # Check learning completion requirement (if callback exists)
+            if can_advance and self.learning_callback:
+                learning_complete = self.learning_callback(current_stage)
+                if not learning_complete:
+                    can_advance = False
+                    logger.info(f"📚 Cannot advance to {next_stage}: {current_stage} stage learning not complete")
+            
+            if can_advance:
+                self.state["current_stage"] = next_stage
+                self._on_stage_change(next_stage)
+                logger.info(f"🎉 Stage advanced: {current_stage} → {next_stage}")
+                return
+        
+        # If we can't advance, ensure current stage is still correct based on evolutions
+        for stage, config in self.evolution_stages.items():
+            if successes <= config["max_evolutions"]:
+                if self.state["current_stage"] != stage:
+                    self.state["current_stage"] = stage
+                break
     
     def _on_stage_change(self, new_stage):
         """Celebrate when DMAI reaches a new stage"""
@@ -264,28 +265,28 @@ def _adjust_sdef is_stage_learning_complete(self, stage_name: str) -> bool:
         """Get the current recommended wait time in seconds"""
         return self.state["current_interval"]
     
-def get_stage_info(self):
-    """Get human-readable stage information"""
-    stage = self.state["current_stage"]
-    config = self.evolution_stages[stage]
-    
-    info = {
-        "stage": stage,
-        "name": config["name"],
-        "description": config["description"],
-        "evolutions": self.state["successful_evolutions"],
-        "next_stage": self._get_next_stage(),
-        "interval_minutes": self.state["current_interval"] / 60,
-        "success_rate": f"{self.state['average_success_rate']*100:.1f}%",
-        "preferred_pairs": self._get_preferred_pairs()
-    }
-    
-    # Add learning progress if callback exists
-    if self.learning_callback:
-        info["learning_complete"] = self.learning_callback(stage)
-        info["next_stage_requires_learning"] = True
-    
-    return info
+    def get_stage_info(self):
+        """Get human-readable stage information"""
+        stage = self.state["current_stage"]
+        config = self.evolution_stages[stage]
+        
+        info = {
+            "stage": stage,
+            "name": config["name"],
+            "description": config["description"],
+            "evolutions": self.state["successful_evolutions"],
+            "next_stage": self._get_next_stage(),
+            "interval_minutes": self.state["current_interval"] / 60,
+            "success_rate": f"{self.state['average_success_rate']*100:.1f}%",
+            "preferred_pairs": self._get_preferred_pairs()
+        }
+        
+        # Add learning progress if callback exists
+        if self.learning_callback:
+            info["learning_complete"] = self.is_stage_learning_complete(stage)
+            info["next_stage_requires_learning"] = True
+        
+        return info
     
     def _get_next_stage(self):
         """Determine what stage comes next"""
@@ -325,6 +326,7 @@ def get_stage_info(self):
             print("🔄 Changing strategy - too many failures")
             return True
         return False
+
 
 # If run directly, show current status
 if __name__ == "__main__":
