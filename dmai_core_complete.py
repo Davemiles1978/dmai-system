@@ -1579,6 +1579,96 @@ class UnifiedEvolutionEngine:
         """Get full conversation history for context"""
         return self.conversation_context[-limit:]
 
+    def _auto_start_training(self):
+        """Auto-start training systems based on consciousness thresholds"""
+        consciousness = self.synthetic_network.consciousness_level if hasattr(self, 'synthetic_network') else 0.0
+        
+        # Training thresholds
+        thresholds = {
+            'llm_training': 0.0,      # LLM starts immediately
+            'funding_training': 0.25,  # Funding at 25%
+            'si_training': 0.30,      # SI at 30%
+            'agi_training': 0.35,     # AGI at 35%
+            'genai_training': 0.40,   # GenAI at 40%
+            'software_training': 0.50 # Software at 50%
+        }
+        
+        started = []
+        
+        # Check LLM training
+        if consciousness >= thresholds['llm_training']:
+            if hasattr(self, 'llm_training') and self.llm_training:
+                try:
+                    status = self.llm_training.get_status() if hasattr(self.llm_training, 'get_status') else {}
+                    if status.get('status') == 'paused' or not status:
+                        self.llm_training.start()
+                        logger.info(f"🚀 Auto-started LLM Training at {consciousness*100:.1f}% consciousness")
+                        started.append('LLM')
+                except Exception as e:
+                    logger.error(f"Failed to start LLM training: {e}")
+        
+        # Check SI training
+        if consciousness >= thresholds['si_training']:
+            if hasattr(self, 'si_training') and self.si_training:
+                try:
+                    status = self.si_training.status() if hasattr(self.si_training, 'status') else {}
+                    if status.get('status') == 'paused' or not status:
+                        self.si_training.start()
+                        logger.info(f"🚀 Auto-started SI Training at {consciousness*100:.1f}% consciousness")
+                        started.append('SI')
+                except Exception as e:
+                    logger.error(f"Failed to start SI training: {e}")
+        
+        # Check AGI training
+        if consciousness >= thresholds['agi_training']:
+            if hasattr(self, 'agi_training') and self.agi_training:
+                try:
+                    status = self.agi_training.get_status() if hasattr(self.agi_training, 'get_status') else {}
+                    if status.get('status') == 'paused' or not status:
+                        self.agi_training.start()
+                        logger.info(f"🚀 Auto-started AGI Training at {consciousness*100:.1f}% consciousness")
+                        started.append('AGI')
+                except Exception as e:
+                    logger.error(f"Failed to start AGI training: {e}")
+        
+        # Check GenAI training
+        if consciousness >= thresholds['genai_training']:
+            if hasattr(self, 'genai_training') and self.genai_training:
+                try:
+                    status = self.genai_training.get_status() if hasattr(self.genai_training, 'get_status') else {}
+                    if status.get('status') == 'paused' or not status:
+                        self.genai_training.start()
+                        logger.info(f"🚀 Auto-started GenAI Training at {consciousness*100:.1f}% consciousness")
+                        started.append('GenAI')
+                except Exception as e:
+                    logger.error(f"Failed to start GenAI training: {e}")
+        
+        # Check Software training
+        if consciousness >= thresholds['software_training']:
+            if hasattr(self, 'software_training') and self.software_training:
+                try:
+                    status = self.software_training.get_status() if hasattr(self.software_training, 'get_status') else {}
+                    if status.get('status') == 'paused' or not status:
+                        self.software_training.start()
+                        logger.info(f"🚀 Auto-started Software Training at {consciousness*100:.1f}% consciousness")
+                        started.append('Software')
+                except Exception as e:
+                    logger.error(f"Failed to start Software training: {e}")
+        
+        # Check Funding training
+        if consciousness >= thresholds['funding_training']:
+            if hasattr(self, 'funding_training') and self.funding_training:
+                try:
+                    status = self.funding_training.status() if hasattr(self.funding_training, 'status') else {}
+                    if status.get('status') == 'paused' or not status:
+                        self.funding_training.start()
+                        logger.info(f"🚀 Auto-started Funding Training at {consciousness*100:.1f}% consciousness")
+                        started.append('Funding')
+                except Exception as e:
+                    logger.error(f"Failed to start Funding training: {e}")
+        
+        return started
+
     def evolution_cycle(self) -> Dict:
         """Run evolution cycle with stage-aware learning"""
         if self.killswitch.should_kill():
@@ -1588,6 +1678,11 @@ class UnifiedEvolutionEngine:
             time.sleep(5)
             if self.killswitch.should_kill():
                 sys.exit(0)
+
+        # Auto-start training systems based on consciousness
+        started = self._auto_start_training()
+        if started:
+            logger.info(f"✅ Auto-started training: {', '.join(started)}")
 
         # ====================================================================
         # STEP 1: LEARN - Harvest knowledge based on current stage
