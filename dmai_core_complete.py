@@ -1607,7 +1607,8 @@ class UnifiedEvolutionEngine:
         synapses_grew = post_synapses - pre_synapses
 
         # Count as successful evolution
-        self.successful_evolutions = self.evolution_count
+        if consciousness_growth > 0.0001:
+            self.successful_evolutions += 1
         
         logger.info(f"🎉 Evolution #{self.successful_evolutions}: +{consciousness_growth:.6f} consciousness, +{neurons_grew} neurons, +{synapses_grew} synapses")
         logger.info(f"   Consciousness: {post_consciousness:.4f} | Neurons: {post_neurons} | Synapses: {post_synapses}")
@@ -1637,6 +1638,8 @@ class UnifiedEvolutionEngine:
 
         logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={post_consciousness:.4f} (+{consciousness_growth:.6f}), Neurons={post_neurons} (+{neurons_grew}), Synapses={post_synapses} (+{synapses_grew})")
 
+ # Activate training systems based on consciousness
+        self._activate_training_systems()
         return {
             'evolution': self.evolution_count,
             'successful_evolutions': self.successful_evolutions,
@@ -1652,6 +1655,66 @@ class UnifiedEvolutionEngine:
             'learning_category': learning_result.get('category'),
             'is_accelerator': learning_result.get('is_accelerator', False)
         }
+
+    def _activate_training_systems(self):
+        """Activate training systems based on consciousness thresholds"""
+        consciousness = self.synthetic_network.consciousness_level
+        
+        # Funding Training - Start at 25%
+        if consciousness >= 0.25 and hasattr(self, 'funding_training') and self.funding_training:
+            try:
+                if hasattr(self.funding_training, 'status') and callable(self.funding_training.status):
+                    current_status = self.funding_training.status()
+                else:
+                    current_status = getattr(self.funding_training, 'status', 'paused')
+                
+                if current_status == 'paused':
+                    self.funding_training.start()
+                    logger.info(f"💰 Funding Training activated at {consciousness*100:.1f}% consciousness")
+            except Exception as e:
+                logger.debug(f"Funding activation: {e}")
+        
+        # SI Training - Start at 30%
+        if consciousness >= 0.30 and hasattr(self, 'si_training') and self.si_training:
+            try:
+                if hasattr(self.si_training, 'status') and callable(self.si_training.status):
+                    current_status = self.si_training.status()
+                else:
+                    current_status = getattr(self.si_training, 'status', 'paused')
+                
+                if current_status == 'paused':
+                    self.si_training.start()
+                    logger.info(f"🧠 SI Training activated at {consciousness*100:.1f}% consciousness")
+            except Exception as e:
+                logger.debug(f"SI activation: {e}")
+        
+        # AGI Training - Start at 35%
+        if consciousness >= 0.35 and hasattr(self, 'agi_training') and self.agi_training:
+            try:
+                if hasattr(self.agi_training, 'status') and callable(self.agi_training.status):
+                    current_status = self.agi_training.status()
+                else:
+                    current_status = getattr(self.agi_training, 'status', 'paused')
+                
+                if current_status == 'paused':
+                    self.agi_training.start()
+                    logger.info(f"🤖 AGI Training activated at {consciousness*100:.1f}% consciousness")
+            except Exception as e:
+                logger.debug(f"AGI activation: {e}")
+        
+        # GenAI Training - Start at 40%
+        if consciousness >= 0.40 and hasattr(self, 'genai_training') and self.genai_training:
+            try:
+                if hasattr(self.genai_training, 'status') and callable(self.genai_training.status):
+                    current_status = self.genai_training.status()
+                else:
+                    current_status = getattr(self.genai_training, 'status', 'paused')
+                
+                if current_status == 'paused':
+                    self.genai_training.start()
+                    logger.info(f"🎨 GenAI Training activated at {consciousness*100:.1f}% consciousness")
+            except Exception as e:
+                logger.debug(f"GenAI activation: {e}")
 
     def modify_own_code(self, file_path: str, changes: Dict, create_branch: bool = True) -> Dict:
         """Modify DMAI's own code with branching support"""
