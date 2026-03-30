@@ -1730,7 +1730,7 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Consciousness: {post_consciousness:.4f} | Neurons: {post_neurons} | Synapses: {post_synapses}")
 
         concept_name = f"evolution_cycle_{self.evolution_count}_consciousness_{post_consciousness:.4f}"
-        self.knowledge_graph.add_concept(concept_name, f"Consciousness level {post_consciousness:.4f}")
+        self.knowledge_graph.add_concept(concept_name, "evolution_cycle", {'description': f"Consciousness level {post_consciousness:.4f}"})
 
         wait_time = self.evolution_timer.record_attempt(
             parent1="core",
