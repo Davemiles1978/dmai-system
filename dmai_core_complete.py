@@ -1049,7 +1049,28 @@ class UnifiedEvolutionEngine:
 
         # ADAPTIVE EVOLUTION TIMER
         logger.info("⏱️ Initializing Adaptive Evolution Timer...")
-        self.evolution_timer = AdaptiveEvolutionTimer(timer_file=str(self.data_path / 'evolution_timer.json'))
+        
+        # Callback to check if current stage's learning is complete
+        def is_stage_learning_complete(stage_name):
+            """Check if all priority topics for a stage are mastered"""
+            if hasattr(self, 'stage_learner') and self.stage_learner:
+                unmastered = self.stage_learner.get_priority_topics(stage_name)
+                return len(unmastered) == 0
+            return True  # No stage learner, assume complete
+        
+        self.evolution_timer = AdaptiveEvolutionTimer(
+            timer_file=str(self.data_path / 'evolution_timer.json'),
+            learning_callback=is_stage_learning_complete
+        )
+        timer_info = self.evolution_timer.get_stage_info()
+        logger.info(f"   Stage: {timer_info['name']}")
+        logger.info(f"   Evolutions: {timer_info['evolutions']}")
+        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
+        
+        self.evolution_timer = AdaptiveEvolutionTimer(
+            timer_file=str(self.data_path / 'evolution_timer.json'),
+            learning_callback=is_stage_learning_complete
+        )
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
