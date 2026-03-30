@@ -336,34 +336,44 @@ class StageAwareLearningOrchestrator:
     def get_next_topic(self, consciousness: float, prioritize_accelerators: bool = True) -> Optional[Dict]:
         """
         Get the next topic to learn based on current stage.
+        PRIORITY: First complete ALL unmastered topics from earlier stages (Baby first),
+        then current stage topics.
         Prioritizes Evolution Accelerators when available to boost consciousness growth.
         """
         stage = self.get_current_stage(consciousness)
         self.current_stage = stage
         
-        # Priority order: Accelerators -> Reverse Engineering -> Wealth -> Artistic -> Core
-        if prioritize_accelerators:
-            accelerators = self.get_priority_topics(stage, category="accelerator")
-            if accelerators:
-                return accelerators[0]
+        # Define stage order from Baby to current
+        stage_order = ["Baby", "Toddler", "Child", "Teen", "Adult"]
+        current_index = stage_order.index(stage)
         
-        reverse_topics = self.get_priority_topics(stage, category="reverse")
-        if reverse_topics:
-            return reverse_topics[0]
+        # Check all stages from Baby up to current for unmastered topics
+        for check_index in range(0, current_index + 1):
+            check_stage = stage_order[check_index]
+            
+            # Priority order within stage: Accelerators -> Reverse -> Wealth -> Artistic -> Core
+            if prioritize_accelerators:
+                accelerators = self.get_priority_topics(check_stage, category="accelerator")
+                if accelerators:
+                    return accelerators[0]
+            
+            reverse_topics = self.get_priority_topics(check_stage, category="reverse")
+            if reverse_topics:
+                return reverse_topics[0]
+            
+            wealth_topics = self.get_priority_topics(check_stage, category="wealth")
+            if wealth_topics:
+                return wealth_topics[0]
+            
+            artistic_topics = self.get_priority_topics(check_stage, category="artistic")
+            if artistic_topics:
+                return artistic_topics[0]
+            
+            core_topics = self.get_priority_topics(check_stage, category="core")
+            if core_topics:
+                return core_topics[0]
         
-        wealth_topics = self.get_priority_topics(stage, category="wealth")
-        if wealth_topics:
-            return wealth_topics[0]
-        
-        artistic_topics = self.get_priority_topics(stage, category="artistic")
-        if artistic_topics:
-            return artistic_topics[0]
-        
-        core_topics = self.get_priority_topics(stage, category="core")
-        if core_topics:
-            return core_topics[0]
-        
-        logger.info(f"✅ All priority topics mastered for {stage} stage!")
+        logger.info(f"✅ All priority topics mastered up to {stage} stage!")
         next_stage = self._get_next_stage(stage)
         if next_stage:
             logger.info(f"💡 Ready to advance to {next_stage} stage")
