@@ -2590,6 +2590,21 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/check_paths')
+        def debug_check_paths():
+            """Check all network save paths"""
+            try:
+                result = {
+                    'network_save_path': str(self.evolution.network_save_path) if hasattr(self.evolution, 'network_save_path') else None,
+                    'phase6_path': str(self.evolution.phase6_path) if hasattr(self.evolution, 'phase6_path') else None,
+                }
+                # Also list files in phase6_path using pathlib
+                if hasattr(self.evolution, 'phase6_path') and self.evolution.phase6_path.exists():
+                    result['files_in_phase6'] = [f.name for f in self.evolution.phase6_path.iterdir() if f.is_file()]
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
