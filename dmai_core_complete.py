@@ -2570,6 +2570,26 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/read_network')
+        def debug_read_network():
+            """Read and return the saved network state"""
+            try:
+                import pickle
+                network_path = self.evolution.network_save_path if hasattr(self.evolution, 'network_save_path') else None
+                if network_path and network_path.exists():
+                    with open(network_path, 'rb') as f:
+                        data = pickle.load(f)
+                    return jsonify({
+                        'exists': True,
+                        'path': str(network_path),
+                        'neurons': len(data.get('neurons', {})),
+                        'consciousness': data.get('consciousness_level', 0),
+                        'evolution_cycles': data.get('evolution_cycles', 0)
+                    })
+                return jsonify({'exists': False, 'path': str(network_path) if network_path else None})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
