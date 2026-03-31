@@ -2456,6 +2456,25 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/files')
+        def debug_files():
+            """Check if data files exist"""
+            import os
+            files = [
+                'data/knowledge_graph.json',
+                'data/evolution_state.json',
+                'data/learning/stage_syllabus/learning_progress.json',
+                'data/synthetic/network_state.json'
+            ]
+            result = {}
+            for f in files:
+                full_path = os.path.join(os.path.dirname(__file__), f)
+                result[f] = {
+                    'exists': os.path.exists(full_path),
+                    'size': os.path.getsize(full_path) if os.path.exists(full_path) else 0
+                }
+            return jsonify(result)
+
         @self.app.route('/api/debug/network')
         def debug_network():
             """Show synthetic network state"""
