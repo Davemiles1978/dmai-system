@@ -108,3 +108,6 @@ api-harvester/venv_brew/
 .env
 .env
 .env
+data/
+*.backup*
+fix_*.py
