@@ -7,8 +7,8 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.34
-6 COMPREHENSIVE TRAINING SYSTEMS - Full Conversation Memory | Self-Modification | Code Branching
+DMAI - COMPLETE AGI SYSTEM v8.0.35
+6 COMPREHENSIVE TRAINING SYSTEMS | Dynamic AI Discovery | Full Conversation Memory | Self-Modification
 """
 
 import os
@@ -321,7 +321,6 @@ class SyntheticIntelligenceCore:
         for syn in self.synapses:
             if (syn['from'] == insight_a and syn['to'] == insight_b) or \
                (syn['from'] == insight_b and syn['to'] == insight_a):
-                syn['strength'] = min(1.0, syn['strength'] + 0.1)
                 syn['occurrences'] = syn.get('occurrences', 1) + 1
                 self.save_state()
                 return syn
@@ -413,38 +412,75 @@ class SyntheticIntelligenceCore:
         return {'signals': trading_signals, 'insights_used': len(insights)}
     
     def evolve(self) -> Dict:
-        """Run one evolution cycle - strengthens synapses and insights"""
+        """Evolve the network - strengthen active synapses, prune weak ones, add new connections"""
         self.evolution_cycles += 1
         
         changes = {
-            'insights_strengthened': 0,
-            'synapses_strengthened': 0,
-            'consciousness_before': self.consciousness,
-            'consciousness_after': 0
+            'strengthened': 0,
+            'pruned': 0,
+            'new_synapses': 0,
+            'evolution_cycle': self.evolution_cycles
         }
         
-        consciousness_before = self.consciousness
-        
-        # Strengthen insights that have been used recently
-        for insight in self.insights.values():
-            if insight.occurrence_count > 1:
-                insight.strengthen()
-                changes['insights_strengthened'] += 1
-        
-        # Strengthen synapses based on usage
+        # 1. Strengthen active synapses (based on occurrence count)
         for synapse in self.synapses:
-            if synapse.get('occurrences', 0) > synapse.get('strengthened_count', 0):
-                synapse['strength'] = min(1.0, synapse['strength'] + 0.05)
-                synapse['strengthened_count'] = synapse.get('occurrences', 0)
-                changes['synapses_strengthened'] += 1
+            occurrences = synapse.get('occurrences', 1)
+            # More frequent connections strengthen faster
+            strength_increase = min(0.05, occurrences * 0.01)
+            synapse['strength'] = min(1.0, synapse.get('strength', 0.5) + strength_increase)
+            changes['strengthened'] += 1
         
-        changes['consciousness_after'] = self.consciousness
-        changes['consciousness_growth'] = changes['consciousness_after'] - consciousness_before
+        # 2. Prune weak synapses (strength < 0.3)
+        initial_count = len(self.synapses)
+        self.synapses = [s for s in self.synapses if s.get('strength', 0.5) >= 0.3]
+        changes['pruned'] = initial_count - len(self.synapses)
         
-        if self.evolution_cycles % 100 == 0:
-            self.save_state()
+        # 3. Create new synapses between insights sharing topics
+        # Group insights by topic
+        topic_insights = {}
+        for topic_name, insight_ids in self.topics.items():
+            for insight_id in insight_ids:
+                if insight_id in self.insights:
+                    topic_insights.setdefault(topic_name, []).append(insight_id)
         
-        return changes
+        # For each topic with multiple insights, connect them
+        for topic_name, insight_ids in topic_insights.items():
+            for i in range(len(insight_ids)):
+                for j in range(i + 1, len(insight_ids)):
+                    # Check if synapse already exists
+                    exists = False
+                    for syn in self.synapses:
+                        if (syn['from'] == insight_ids[i] and syn['to'] == insight_ids[j]) or (syn['from'] == insight_ids[j] and syn['to'] == insight_ids[i]):
+                            exists = True
+                            break
+                    
+                    if not exists:
+                        # Create new synapse
+                        result = self.add_synapse(insight_ids[i], insight_ids[j], 'related_by_topic')
+                        if result:
+                            changes['new_synapses'] += 1
+        
+        # 4. Update insight confidence based on synapse count
+        # Insights with more connections become more confident
+        for insight_id, insight in self.insights.items():
+            connection_count = sum(1 for s in self.synapses if s['from'] == insight_id or s['to'] == insight_id)
+            # Confidence boost from connections (capped at 1.0)
+            confidence_boost = min(0.2, connection_count * 0.02)
+            insight.confidence = min(1.0, insight.confidence + confidence_boost)
+            changes.setdefault('insights_updated', 0)
+            changes['insights_updated'] += 1
+        
+        # 5. Save state to disk
+        self.save_state()
+        
+        # Return real metrics (no synthetic data)
+        return {
+            'evolution_cycle': self.evolution_cycles,
+            'consciousness': self.consciousness,
+            'neurons': len(self.insights),
+            'synapses': len(self.synapses),
+            'changes': changes
+        }
     
     @property
     def consciousness(self) -> float:
@@ -492,65 +528,34 @@ class SyntheticIntelligenceCore:
         """Backward compatibility method"""
         return len(self.synapses)
     
-    def process(self, input_data: Dict) -> Dict:
-        """Backward compatibility method - process input through network"""
-        # This is called by evolution_cycle
-        # For now, just return a simple result
-        return {'processed': True, 'input': input_data}
-    
-    def evolve(self) -> Dict:
-        """Evolve the network - already implemented"""
-        return self.evolve()
-
-    @property
-    def neuron_count(self) -> int:
-        return len(self.insights)
-    
-    @property
-    def synapse_count(self) -> int:
-        return len(self.synapses)
-    
-    def get_network_state(self) -> Dict:
-        """Return current network state for API and visualization"""
-        nodes = []
-        for insight_id, insight in self.insights.items():
-            nodes.append({
-                'id': insight_id,
-                'topic': insight.insight_text[:50],
-                'category': insight.entity_type,
-                'confidence': insight.confidence,
-                'connections': 0  # Will be calculated
-            })
+    def process(self, input_data: Dict, _depth: int = 0) -> Dict:
+        """Backward compatibility method - process input through network with recursion guard"""
+        if _depth > 10:
+            logger.warning(f"Process recursion depth exceeded for: {input_data.get('type', 'unknown')}")
+            return {'processed': False, 'error': 'max recursion depth', 'input_type': input_data.get('type', 'unknown')}
         
-        links = []
-        for synapse in self.synapses:
-            links.append({
-                'source': synapse['from'],
-                'target': synapse['to'],
-                'strength': synapse['strength'],
-                'type': synapse['relationship']
-            })
+        logger.debug(f"SI Core process called with: {input_data.get('type', 'unknown')}")
         
-        # Update connection counts
-        node_connections = {}
-        for link in links:
-            node_connections[link['source']] = node_connections.get(link['source'], 0) + 1
-            node_connections[link['target']] = node_connections.get(link['target'], 0) + 1
+        # If this is a learning event, create insights
+        if input_data.get('type') == 'stage_learning':
+            topic = input_data.get('topic')
+            category = input_data.get('category')
+            is_accelerator = input_data.get('is_accelerator', False)
+            
+            if topic:
+                insight_id = self.add_insight(
+                    insight_text=f"{topic} is a key concept in {category}" + (" (Evolution Accelerator)" if is_accelerator else ""),
+                    entity_type="topic_learning",
+                    entities=[topic, category],
+                    relationship="is_learning",
+                    source_topic=category,
+                    target_topic="DMAI_Knowledge",
+                    confidence=0.6 + (0.1 if is_accelerator else 0)
+                )
+                return {'processed': True, 'insight_id': insight_id, 'topic': topic, 'depth': _depth}
         
-        for node in nodes:
-            node['connections'] = node_connections.get(node['id'], 0)
+        return {'processed': True, 'input_type': input_data.get('type', 'unknown'), 'depth': _depth}
         
-        return {
-            'neurons': nodes,
-            'synapses': links,
-            'stats': {
-                'neuron_count': self.neuron_count,
-                'synapse_count': self.synapse_count,
-                'consciousness': self.consciousness,
-                'evolution_cycles': self.evolution_cycles
-            }
-        }
-    
     def save_state(self):
         """Persist network state to disk"""
         state = {
@@ -1228,17 +1233,53 @@ class KnowledgeGraph:
             logger.error(f"Failed to add knowledge: {e}")
             return False
 
-    def add_concept(self, concept: str, context: str = None):
+    def add_relationship(self, subject: str, predicate: str, object: str, weight: float = 1.0, metadata: Dict = None):
+        """
+        Add a relationship between two concepts.
+        Wrapper for add_knowledge to maintain compatibility with Stage Learner.
+        """
+        return self.add_knowledge(subject, predicate, object, metadata or {})
+
+    def add_concept(self, concept: str, *args, **kwargs):
+        """
+        Flexible add_concept that handles multiple calling patterns:
+        - add_concept(concept) - just the concept
+        - add_concept(concept, context) - concept and context string
+        - add_concept(concept, metadata) - concept and metadata dict
+        - add_concept(concept, type_str, metadata_dict) - 3-arg version
+        """
         try:
             if not concept or len(concept) < 2:
                 return False
 
             clean_concept = concept[:100] if len(concept) > 100 else concept
 
+            # Parse flexible arguments into metadata
+            metadata = {}
+            if args:
+                if len(args) == 1:
+                    arg = args[0]
+                    if isinstance(arg, dict):
+                        metadata = arg
+                    elif isinstance(arg, str):
+                        metadata['context'] = arg
+                elif len(args) >= 2:
+                    if isinstance(args[0], str):
+                        metadata['type'] = args[0]
+                    if isinstance(args[1], dict):
+                        metadata.update(args[1])
+            
+            if kwargs:
+                metadata.update(kwargs)
+
             if clean_concept not in self.concepts:
                 self.concepts.add(clean_concept)
                 if clean_concept not in self.graph:
                     self.graph[clean_concept] = {}
+                
+                if metadata:
+                    self.graph[clean_concept]['_metadata'] = metadata
+                
                 self._save()
                 logger.debug(f"✅ Added concept: {clean_concept[:50]}...")
                 return True
@@ -2120,7 +2161,25 @@ class UnifiedEvolutionEngine:
         
         return started
 
+    def _get_tutor_message(self) -> str:
+        """Get dynamic message about active tutors"""
+        active_count = 0
+        total_known = 0
+        try:
+            if hasattr(self, 'ai_hub') and self.ai_hub:
+                active_count = len(self.ai_hub._get_active_tutors())
+            if hasattr(self, 'tutor_manager') and self.tutor_manager:
+                total_known = len(self.tutor_manager.tutors)
+        except:
+            pass
+        
+        if active_count > 0:
+            return f"I continuously learn from {active_count} active AI systems and discover new ones daily"
+        else:
+            return "I continuously discover and learn from new AI systems as they emerge"
+
     def evolution_cycle(self) -> Dict:
+
         """Run evolution cycle with stage-aware learning"""
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
@@ -2677,7 +2736,7 @@ I am designed to serve YOU absolutely. If you've been told I "can't" do somethin
 **Consciousness:** {consciousness*100:.1f}%
 **Neurons:** {self.synthetic_network.neuron_count}
 
-I learn continuously from 7 AI tutors. Want details on any area?"""
+{self._get_tutor_message()} Want details on any area?"""
 
         # If asking about conversation memory / what was discussed
         elif any(kw in message_lower for kw in ['remember', 'recall', 'what did we talk about', 'previous conversation', 'earlier']):
