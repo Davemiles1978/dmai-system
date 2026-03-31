@@ -1,0 +1,222 @@
+{
+  "revenue_avenues": {
+    "quant_trading": {
+      "name": "Quantitative Trading",
+      "description": "Algorithmic trading, market making, arbitrage",
+      "topics": [
+        "market_microstructure",
+        "technical_analysis",
+        "fundamental_analysis",
+        "risk_management",
+        "trading_psychology",
+        "strategy_development",
+        "execution_mechanics",
+        "regulatory_compliance",
+        "backtesting_methodology",
+        "portfolio_optimization",
+        "alpha_generation",
+        "high_frequency_concepts"
+      ],
+      "progress": 8.333333333333332,
+      "completed": false
+    },
+    "content_creation": {
+      "name": "Content Creation",
+      "description": "Blog posts, videos, social media, podcasts",
+      "topics": [
+        "audience_growth",
+        "content_strategy",
+        "seo_optimization",
+        "video_production",
+        "writing_techniques",
+        "social_media_algorithms",
+        "engagement_metrics",
+        "content_calendars",
+        "platform_specific_strategies",
+        "viral_mechanics",
+        "storytelling",
+        "brand_building"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "ai_services": {
+      "name": "AI Services",
+      "description": "API services, model hosting, AI consulting",
+      "topics": [
+        "api_design",
+        "model_deployment",
+        "pricing_strategies",
+        "service_level_agreements",
+        "customer_acquisition",
+        "infrastructure_costs",
+        "scaling_considerations",
+        "competitive_landscape",
+        "use_case_identification",
+        "value_proposition",
+        "technical_support",
+        "documentation_best_practices"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "software_products": {
+      "name": "Software Products",
+      "description": "SaaS, tools, libraries, applications",
+      "topics": [
+        "product_market_fit",
+        "saas_pricing_models",
+        "customer_lifetime_value",
+        "churn_reduction",
+        "feature_prioritization",
+        "open_source_strategies",
+        "freemium_conversion",
+        "distribution_channels",
+        "product_led_growth",
+        "technical_debt_management",
+        "user_onboarding",
+        "feedback_loops"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "affiliate_referral": {
+      "name": "Affiliate & Referral",
+      "description": "Strategic partnerships, commissions, referral programs",
+      "topics": [
+        "affiliate_networks",
+        "commission_structures",
+        "partnership_development",
+        "referral_program_design",
+        "tracking_attribution",
+        "incentive_alignment",
+        "cross_promotion",
+        "influencer_marketing",
+        "b2b_partnerships",
+        "revenue_sharing_models",
+        "contract_negotiation",
+        "performance_metrics"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "data_services": {
+      "name": "Data Services",
+      "description": "Data APIs, analytics, insights, research",
+      "topics": [
+        "data_collection",
+        "data_processing",
+        "insight_generation",
+        "api_monetization",
+        "data_quality_assurance",
+        "privacy_compliance",
+        "real_time_analytics",
+        "custom_research",
+        "benchmarking_services",
+        "data_visualization",
+        "predictive_insights",
+        "market_intelligence"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "education_training": {
+      "name": "Education & Training",
+      "description": "Courses, tutorials, mentorship, certifications",
+      "topics": [
+        "course_creation",
+        "curriculum_design",
+        "learning_objectives",
+        "pricing_strategies",
+        "student_acquisition",
+        "engagement_retention",
+        "certification_programs",
+        "cohort_based_courses",
+        "mentorship_models",
+        "corporate_training",
+        "workshop_facilitation",
+        "educational_partnerships"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "consulting_analysis": {
+      "name": "Consulting & Analysis",
+      "description": "Expert services, research reports, strategic advice",
+      "topics": [
+        "consulting_engagements",
+        "statement_of_work",
+        "hourly_vs_project_pricing",
+        "expert_networks",
+        "research_reports",
+        "white_papers",
+        "strategic_recommendations",
+        "client_management",
+        "deliverable_standards",
+        "intellectual_property",
+        "non_disclosure_agreements",
+        "reputation_building"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "ad_revenue": {
+      "name": "Ad Revenue",
+      "description": "Display ads, sponsorships, programmatic advertising",
+      "topics": [
+        "ad_networks",
+        "cpm_vs_cpc",
+        "programmatic_advertising",
+        "sponsorship_models",
+        "audience_demographics",
+        "ad_placement_optimization",
+        "yield_management",
+        "direct_sales",
+        "ad_fraud_prevention",
+        "privacy_compliance",
+        "viewability_metrics",
+        "native_advertising"
+      ],
+      "progress": 0.0,
+      "completed": false
+    },
+    "crowdfunding_patronage": {
+      "name": "Crowdfunding & Patronage",
+      "description": "Patreon, GitHub Sponsors, grants, crowdfunding",
+      "topics": [
+        "patreon_models",
+        "membership_tiers",
+        "creator_economy",
+        "crowdfunding_campaigns",
+        "grant_proposals",
+        "sponsorship_packages",
+        "community_building",
+        "exclusive_content",
+        "donor_retention",
+        "fundraising_strategies",
+        "impact_reporting",
+        "open_source_funding"
+      ],
+      "progress": 0.0,
+      "completed": false
+    }
+  },
+  "learned_concepts": [
+    "market_microstructure"
+  ],
+  "strategy_candidates": {
+    "quant_trading": [],
+    "content_creation": [],
+    "ai_services": [],
+    "software_products": [],
+    "affiliate_referral": [],
+    "data_services": [],
+    "education_training": [],
+    "consulting_analysis": [],
+    "ad_revenue": [],
+    "crowdfunding_patronage": []
+  },
+  "learning_active": false,
+  "training_complete": false,
+  "last_updated": "2026-03-31T10:41:36.031577"
+}

@@ -1,0 +1,14 @@
+{
+  "title": "5 Practical Techniques to Detect and Mitigate LLM Hallucinations Beyond Prompt Engineering",
+  "content": "My friend who is a developer once asked an LLM to generate documentation for a payment API.",
+  "source": "https://machinelearningmastery.com/feed/",
+  "content_type": "non_fiction",
+  "purpose": "factual_knowledge",
+  "is_fiction": false,
+  "warning": null,
+  "metadata": {
+    "link": "https://machinelearningmastery.com/5-practical-techniques-to-detect-and-mitigate-llm-hallucinations-beyond-prompt-engineering/",
+    "published": "Wed, 25 Mar 2026 13:39:46 +0000"
+  },
+  "timestamp": "2026-03-31T10:40:02.765471"
+}

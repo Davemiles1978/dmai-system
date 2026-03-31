@@ -1,0 +1,14 @@
+{
+  "title": "TRACER: Learn-to-Defer for LLM Classification with Formal Teacher-Agreement Guarantees",
+  "content": "I'm releasing TRACER (Trace-Based Adaptive Cost-Efficient Routing), a library for learning cost-efficient routing policies from LLM traces.\n\nThe setup: you have an LLM handling classification tasks. You want to replace a fraction of calls with a cheap local surrogate, with a formal guarantee that the surrogate agrees with the LLM at least X% of the time on handled traffic.\n\nTechnical core:\n\n* Three pipeline families: Global (accept-all), L2D (surrogate + conformal acceptor gate), RSB (Residual S",
+  "source": "reddit",
+  "content_type": "social",
+  "purpose": "pattern_recognition",
+  "is_fiction": false,
+  "warning": null,
+  "metadata": {
+    "url": "https://github.com/adrida/tracer",
+    "score": 3
+  },
+  "timestamp": "2026-03-31T10:39:53.836863"
+}

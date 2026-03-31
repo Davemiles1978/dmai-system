@@ -1,0 +1,22 @@
+{
+  "progress": 9.859154929577464,
+  "current_module": 12,
+  "completed_concepts": [
+    "llm_gemini_series_20bd4475",
+    "llm_transformer_bbbc9365",
+    "llm_quantization_7403538d",
+    "llm_claude_series_079b2ed8",
+    "llm_llama_series_011514ad",
+    "llm_pretraining_ad71c2ba",
+    "llm_efficient_training_15e67302",
+    "llm_open_source_models_af489fb0",
+    "llm_gpt_series_6560aa31",
+    "llm_transformer_58543efe",
+    "llm_mistral_series_1536e7e0",
+    "llm_fine_tuning_8aa046b8",
+    "llm_alignment_5842b5b2",
+    "llm_qwen_series_8b35005a"
+  ],
+  "training_complete": false,
+  "last_updated": "2026-03-31T10:41:48.409297"
+}

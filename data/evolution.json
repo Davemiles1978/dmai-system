@@ -2,9 +2,9 @@
   "evolution_count": 2020,
   "successful_evolutions": 0,
   "last_consciousness": 0.05,
-  "consciousness": 0.3377689141448791,
-  "neurons": 40,
-  "synapses": 144,
+  "consciousness": 0.0,
+  "neurons": 0,
+  "synapses": 0,
   "evolution_cycles": 3663,
-  "last_update": "2026-03-30T06:25:02.635213"
+  "last_update": "2026-03-31T10:39:56.099568"
 }

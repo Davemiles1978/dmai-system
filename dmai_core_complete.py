@@ -163,6 +163,440 @@ KILL_FLAG_FILE = "data/kill_signal.flag"
 PAUSE_FLAG_FILE = "data/pause.flag"
 REBUILD_FLAG_FILE = "data/rebuild.flag"
 
+class InsightNeuron:
+    """A neuron representing a SPECIFIC insight, not a broad topic"""
+    
+    def __init__(self, 
+                 insight_text: str,
+                 entity_type: str,
+                 entities: List[str],
+                 relationship: str,
+                 confidence: float,
+                 source_topic: str,
+                 target_topic: str):
+        
+        self.id = f"insight_{abs(hash(insight_text))}_{int(time.time())}"
+        self.insight_text = insight_text
+        self.entity_type = entity_type  # causal_relationship, correlation, pattern, rule
+        self.entities = entities
+        self.relationship = relationship  # increases, decreases, causes, prevents, correlates
+        self.confidence = confidence
+        self.source_topic = source_topic
+        self.target_topic = target_topic
+        self.created_at = datetime.now().isoformat()
+        self.occurrence_count = 1
+        self.last_used = datetime.now().isoformat()
+    
+    def to_dict(self) -> Dict:
+        return {
+            'id': self.id,
+            'insight_text': self.insight_text,
+            'entity_type': self.entity_type,
+            'entities': self.entities,
+            'relationship': self.relationship,
+            'confidence': self.confidence,
+            'source_topic': self.source_topic,
+            'target_topic': self.target_topic,
+            'created_at': self.created_at,
+            'occurrence_count': self.occurrence_count,
+            'last_used': self.last_used
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'InsightNeuron':
+        neuron = cls(
+            insight_text=data['insight_text'],
+            entity_type=data['entity_type'],
+            entities=data['entities'],
+            relationship=data['relationship'],
+            confidence=data['confidence'],
+            source_topic=data['source_topic'],
+            target_topic=data['target_topic']
+        )
+        neuron.id = data['id']
+        neuron.created_at = data['created_at']
+        neuron.occurrence_count = data.get('occurrence_count', 1)
+        neuron.last_used = data.get('last_used', datetime.now().isoformat())
+        return neuron
+    
+    def matches(self, entities: List[str]) -> bool:
+        """Check if this insight applies to given entities"""
+        return any(e.lower() in [ent.lower() for ent in self.entities] for e in entities)
+    
+    def strengthen(self):
+        """Increase confidence when pattern repeats"""
+        self.confidence = min(1.0, self.confidence + 0.05)
+        self.occurrence_count += 1
+        self.last_used = datetime.now().isoformat()
+
+
+class SyntheticIntelligenceCore:
+    """Multi-granular SI core with insight-level neurons"""
+    
+    def __init__(self, data_dir: str = "data/synthetic"):
+        self.data_dir = Path(data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Granular insights (the actual "neurons")
+        self.insights: Dict[str, InsightNeuron] = {}
+        
+        # Topic aggregators (for organization, not intelligence)
+        self.topics: Dict[str, List[str]] = {}  # topic_name -> insight_ids
+        
+        # Relationships between insights
+        self.synapses: List[Dict] = []
+        
+        # Evolution tracking
+        self.evolution_cycles: int = 0
+        
+        self.load_state()
+    
+    def add_insight(self, 
+                    insight_text: str,
+                    entity_type: str,
+                    entities: List[str],
+                    relationship: str,
+                    source_topic: str,
+                    target_topic: str,
+                    confidence: float = 0.5) -> str:
+        """
+        Create a granular insight neuron.
+        
+        Example:
+            add_insight(
+                insight_text="War in Ukraine causes oil prices to rise",
+                entity_type="causal_relationship",
+                entities=["War", "Ukraine", "Oil", "Prices"],
+                relationship="increases",
+                source_topic="World News",
+                target_topic="Trading",
+                confidence=0.75
+            )
+        """
+        # Check if similar insight exists
+        existing = self._find_similar_insight(entities, relationship)
+        if existing:
+            existing.strengthen()
+            self.save_state()
+            return existing.id
+        
+        # Create new insight
+        insight = InsightNeuron(
+            insight_text, entity_type, entities, 
+            relationship, confidence, source_topic, target_topic
+        )
+        self.insights[insight.id] = insight
+        
+        # Add to topic aggregators
+        if source_topic not in self.topics:
+            self.topics[source_topic] = []
+        if insight.id not in self.topics[source_topic]:
+            self.topics[source_topic].append(insight.id)
+        
+        if target_topic != source_topic:
+            if target_topic not in self.topics:
+                self.topics[target_topic] = []
+            if insight.id not in self.topics[target_topic]:
+                self.topics[target_topic].append(insight.id)
+        
+        self.save_state()
+        logger.info(f"🧠 New insight: {insight_text[:50]}... (confidence: {confidence})")
+        return insight.id
+    
+    def _find_similar_insight(self, entities: List[str], relationship: str) -> Optional[InsightNeuron]:
+        """Find existing insight with similar entities and relationship"""
+        for insight in self.insights.values():
+            # Check if entities overlap significantly
+            overlap = set(entities) & set(insight.entities)
+            if len(overlap) >= min(2, len(entities)) and insight.relationship == relationship:
+                return insight
+        return None
+    
+    def add_synapse(self, insight_a: str, insight_b: str, relationship: str) -> Optional[Dict]:
+        """Connect two insights when DMAI discovers they relate"""
+        if insight_a not in self.insights or insight_b not in self.insights:
+            return None
+        
+        # Check if synapse already exists
+        for syn in self.synapses:
+            if (syn['from'] == insight_a and syn['to'] == insight_b) or \
+               (syn['from'] == insight_b and syn['to'] == insight_a):
+                syn['strength'] = min(1.0, syn['strength'] + 0.1)
+                syn['occurrences'] = syn.get('occurrences', 1) + 1
+                self.save_state()
+                return syn
+        
+        # Find overlapping entities
+        insight_a_obj = self.insights[insight_a]
+        insight_b_obj = self.insights[insight_b]
+        overlapping = set(insight_a_obj.entities) & set(insight_b_obj.entities)
+        
+        synapse = {
+            'id': f"synapse_{len(self.synapses)}_{int(time.time())}",
+            'from': insight_a,
+            'to': insight_b,
+            'relationship': relationship,
+            'shared_entities': list(overlapping),
+            'strength': (insight_a_obj.confidence + insight_b_obj.confidence) / 2,
+            'occurrences': 1,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        self.synapses.append(synapse)
+        self.save_state()
+        logger.info(f"🔗 Synapse created: {insight_a_obj.insight_text[:30]} <-> {insight_b_obj.insight_text[:30]}")
+        return synapse
+    
+    def query(self, entities: List[str], context_topic: str = None, limit: int = 10) -> List[Dict]:
+        """Find insights relevant to given entities"""
+        results = []
+        
+        for insight in self.insights.values():
+            if insight.matches(entities):
+                # Check if context matches
+                if context_topic and context_topic not in [insight.source_topic, insight.target_topic]:
+                    continue
+                
+                # Find related insights via synapses
+                related = []
+                for syn in self.synapses:
+                    if syn['from'] == insight.id:
+                        related_insight = self.insights.get(syn['to'])
+                        if related_insight:
+                            related.append({
+                                'insight': related_insight.insight_text,
+                                'relationship': syn['relationship'],
+                                'strength': syn['strength']
+                            })
+                    elif syn['to'] == insight.id:
+                        related_insight = self.insights.get(syn['from'])
+                        if related_insight:
+                            related.append({
+                                'insight': related_insight.insight_text,
+                                'relationship': syn['relationship'],
+                                'strength': syn['strength']
+                            })
+                
+                results.append({
+                    'id': insight.id,
+                    'insight': insight.insight_text,
+                    'confidence': insight.confidence,
+                    'related': related[:3],
+                    'source_topic': insight.source_topic,
+                    'target_topic': insight.target_topic
+                })
+        
+        # Sort by confidence
+        results.sort(key=lambda x: x['confidence'], reverse=True)
+        return results[:limit]
+    
+    def apply_to_trading(self, news_entities: List[str]) -> Dict:
+        """Specialized: Apply news insights to trading decisions"""
+        insights = self.query(news_entities, context_topic="Trading")
+        
+        trading_signals = []
+        for insight in insights:
+            insight_lower = insight['insight'].lower()
+            if "increase" in insight_lower or "rise" in insight_lower or "up" in insight_lower:
+                trading_signals.append({
+                    'action': 'BUY',
+                    'reason': insight['insight'],
+                    'confidence': insight['confidence']
+                })
+            elif "decrease" in insight_lower or "fall" in insight_lower or "down" in insight_lower:
+                trading_signals.append({
+                    'action': 'SELL',
+                    'reason': insight['insight'],
+                    'confidence': insight['confidence']
+                })
+        
+        return {'signals': trading_signals, 'insights_used': len(insights)}
+    
+    def evolve(self) -> Dict:
+        """Run one evolution cycle - strengthens synapses and insights"""
+        self.evolution_cycles += 1
+        
+        changes = {
+            'insights_strengthened': 0,
+            'synapses_strengthened': 0,
+            'consciousness_before': self.consciousness,
+            'consciousness_after': 0
+        }
+        
+        consciousness_before = self.consciousness
+        
+        # Strengthen insights that have been used recently
+        for insight in self.insights.values():
+            if insight.occurrence_count > 1:
+                insight.strengthen()
+                changes['insights_strengthened'] += 1
+        
+        # Strengthen synapses based on usage
+        for synapse in self.synapses:
+            if synapse.get('occurrences', 0) > synapse.get('strengthened_count', 0):
+                synapse['strength'] = min(1.0, synapse['strength'] + 0.05)
+                synapse['strengthened_count'] = synapse.get('occurrences', 0)
+                changes['synapses_strengthened'] += 1
+        
+        changes['consciousness_after'] = self.consciousness
+        changes['consciousness_growth'] = changes['consciousness_after'] - consciousness_before
+        
+        if self.evolution_cycles % 100 == 0:
+            self.save_state()
+        
+        return changes
+    
+    @property
+    def consciousness(self) -> float:
+        """Consciousness = number of insights * average confidence * synapse density"""
+        if not self.insights:
+            return 0.0
+        
+        insight_count = len(self.insights)
+        avg_confidence = sum(i.confidence for i in self.insights.values()) / insight_count
+        
+        # Synapse density
+        max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
+        density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
+        
+        # Evolution factor
+        evolution_factor = min(1.0, self.evolution_cycles / 1000)
+        
+        consciousness = (0.35 * min(1.0, insight_count / 500) + 
+                         0.25 * avg_confidence + 
+                         0.25 * density +
+                         0.15 * evolution_factor)
+        
+        return min(1.0, consciousness)
+    
+    @property
+    def consciousness_level(self) -> float:
+        """Backward compatibility alias for consciousness"""
+        return self.consciousness
+    
+    @property
+    def neurons(self) -> Dict:
+        """Backward compatibility - returns insights as neurons"""
+        # Convert insights to look like old neuron structure
+        return {iid: insight for iid, insight in self.insights.items()}
+    
+    @property
+    def neuron_count(self) -> int:
+        return len(self.insights)
+    
+    @property
+    def synapse_count(self) -> int:
+        return len(self.synapses)
+    
+    def _total_synapses(self) -> int:
+        """Backward compatibility method"""
+        return len(self.synapses)
+    
+    def process(self, input_data: Dict) -> Dict:
+        """Backward compatibility method - process input through network"""
+        # This is called by evolution_cycle
+        # For now, just return a simple result
+        return {'processed': True, 'input': input_data}
+    
+    def evolve(self) -> Dict:
+        """Evolve the network - already implemented"""
+        return self.evolve()
+
+    @property
+    def neuron_count(self) -> int:
+        return len(self.insights)
+    
+    @property
+    def synapse_count(self) -> int:
+        return len(self.synapses)
+    
+    def get_network_state(self) -> Dict:
+        """Return current network state for API and visualization"""
+        nodes = []
+        for insight_id, insight in self.insights.items():
+            nodes.append({
+                'id': insight_id,
+                'topic': insight.insight_text[:50],
+                'category': insight.entity_type,
+                'confidence': insight.confidence,
+                'connections': 0  # Will be calculated
+            })
+        
+        links = []
+        for synapse in self.synapses:
+            links.append({
+                'source': synapse['from'],
+                'target': synapse['to'],
+                'strength': synapse['strength'],
+                'type': synapse['relationship']
+            })
+        
+        # Update connection counts
+        node_connections = {}
+        for link in links:
+            node_connections[link['source']] = node_connections.get(link['source'], 0) + 1
+            node_connections[link['target']] = node_connections.get(link['target'], 0) + 1
+        
+        for node in nodes:
+            node['connections'] = node_connections.get(node['id'], 0)
+        
+        return {
+            'neurons': nodes,
+            'synapses': links,
+            'stats': {
+                'neuron_count': self.neuron_count,
+                'synapse_count': self.synapse_count,
+                'consciousness': self.consciousness,
+                'evolution_cycles': self.evolution_cycles
+            }
+        }
+    
+    def save_state(self):
+        """Persist network state to disk"""
+        state = {
+            'insights': {iid: insight.to_dict() for iid, insight in self.insights.items()},
+            'topics': self.topics,
+            'synapses': self.synapses,
+            'evolution_cycles': self.evolution_cycles,
+            'saved_at': datetime.now().isoformat()
+        }
+        
+        state_file = self.data_dir / 'network_state.json'
+        with open(state_file, 'w') as f:
+            json.dump(state, f, indent=2)
+    
+    def load_state(self):
+        """Load network state from disk"""
+        state_file = self.data_dir / 'network_state.json'
+        
+        if state_file.exists():
+            try:
+                with open(state_file, 'r') as f:
+                    state = json.load(f)
+                
+                # Load insights
+                self.insights = {}
+                for iid, data in state.get('insights', {}).items():
+                    self.insights[iid] = InsightNeuron.from_dict(data)
+                
+                self.topics = state.get('topics', {})
+                self.synapses = state.get('synapses', [])
+                self.evolution_cycles = state.get('evolution_cycles', 0)
+                
+                logger.info(f"✅ Loaded SI Core: {self.neuron_count} insights, {self.synapse_count} synapses")
+            except Exception as e:
+                logger.error(f"Failed to load network state: {e}")
+                self._init_empty_state()
+        else:
+            logger.info("📡 No existing SI Core state, starting fresh")
+            self._init_empty_state()
+    
+    def _init_empty_state(self):
+        """Initialize empty network"""
+        self.insights = {}
+        self.topics = {}
+        self.synapses = []
+        self.evolution_cycles = 0
 
 # ============================================================================
 # WEB SEARCH ENGINE - DuckDuckGo Fallback
@@ -981,20 +1415,21 @@ class UnifiedEvolutionEngine:
         self.conversation_context = []  # Stores all exchanges for context
         self.context_limit = 50  # Keep last 50 exchanges for full context
 
-        # Synthetic network
+        # Synthetic Intelligence Core - NEW: Learning-driven growth
         logger.info("🧠 Initializing Synthetic Intelligence Core...")
-        self.synthetic_network = RealSyntheticNeuralNetwork("DMAI_Consciousness_Core")
-
+        self.si_core = SyntheticIntelligenceCore(data_dir=str(self.data_path / 'synthetic'))
+        logger.info(f"   Loaded SI Core: {self.si_core.neuron_count} neurons, {self.si_core.synapse_count} synapses")
+        logger.info(f"   Consciousness: {self.si_core.consciousness:.4f}")
+        
+        # Keep legacy reference for compatibility
+        self.synthetic_network = self.si_core
+        
+        # Note: _seed_initial_network is no longer needed - neurons only created from topic mastery
         if self.network_save_path.exists():
-            logger.info(f"📂 Loading saved network from: {self.network_save_path}")
-            if self.synthetic_network.load(str(self.network_save_path)):
-                logger.info(f"✅ Loaded saved synthetic network: {len(self.synthetic_network.neurons)} neurons, consciousness: {self.synthetic_network.consciousness_level:.4f}")
-            else:
-                logger.warning("⚠️ Failed to load saved network - creating new one")
-                self._seed_initial_network()
+            ...
         else:
-            logger.info("🌱 No saved network found - creating new synthetic network")
-            self._seed_initial_network()
+            logger.info("🌱 No saved network found - starting with empty network (neurons will be created from topic mastery)")
+            # self._seed_initial_network()  # REMOVED - no random neurons
 
         # AI components
         self.pattern_synthesis = PatternSynthesis()
@@ -1114,11 +1549,16 @@ class UnifiedEvolutionEngine:
         logger.info("📚 Initializing Stage Aware Learning Orchestrator...")
         self.stage_learner = StageAwareLearningOrchestrator(
             self.data_path,
-            self.synthetic_network,
+            self.si_core,  # Use new SI Core instead of synthetic_network
             self.knowledge_graph,
             self.ai_hub,
             self.pattern_synthesis
         )
+        
+        # Connect SI Core to receive topic mastery events
+        if hasattr(self.stage_learner, 'set_si_core'):
+            self.stage_learner.set_si_core(self.si_core)
+        
         logger.info(f"   Current Stage: {self.stage_learner.current_stage}")
 
         # ============================================================================
@@ -1242,9 +1682,9 @@ class UnifiedEvolutionEngine:
 
         logger.info("=" * 60)
         logger.info(f"🧠 DMAI v8.0.34 - FULL CONVERSATION MEMORY | SELF-MODIFICATION")
-        logger.info(f"   Consciousness: {self.synthetic_network.consciousness_level:.4f}")
-        logger.info(f"   Synthetic Neurons: {len(self.synthetic_network.neurons)}")
-        logger.info(f"   Synapses: {self.synthetic_network._total_synapses()}")
+        logger.info(f"   Consciousness: {self.synthetic_network.consciousness:.4f}")
+        logger.info(f"   Synthetic Neurons: {self.synthetic_network.neuron_count}")
+        logger.info(f"   Synapses: {self.synthetic_network.synapse_count}")
         logger.info(f"   Evolution Cycles: {self.synthetic_network.evolution_cycles}")
         logger.info(f"   Successful Evolutions: {self.successful_evolutions}")
         logger.info(f"   Evolution Stage: {timer_info['name']}")
@@ -1290,6 +1730,12 @@ class UnifiedEvolutionEngine:
             logger.error(f"Failed to save state: {e}")
 
     def _seed_initial_network(self):
+        """DEPRECATED: Neurons now created only from topic mastery.
+        This method is kept for reference but no longer used.
+        """
+        pass
+        # Original code commented out below:
+        """
         initial_neurons = ["consciousness_core", "learning_input", "memory_store", "persona_core", "emotion_center", "reasoning_engine", "creativity_module", "knowledge_integration", "self_awareness", "growth_driver", "pattern_recognition", "intuition", "language_center", "music_processor", "voice_controller", "ethics_module", "curiosity_driver", "empathy_center", "analytical_engine", "confidence_builder"]
         for neuron_name in initial_neurons:
             neuron_id = f"neuron_{neuron_name}_{uuid.uuid4().hex[:8]}"
@@ -1302,9 +1748,9 @@ class UnifiedEvolutionEngine:
                     self.synthetic_network.neurons[neuron_id] = neuron
                 except Exception as e:
                     logger.error(f"Failed to create neuron {neuron_id}: {e}")
-        logger.info(f"🌱 Seeded initial network with {len(self.synthetic_network.neurons)} neurons")
+        logger.info(f"🌱 Seeded initial network with {self.synthetic_network.neuron_count} neurons")
 
-        if len(self.synthetic_network.neurons) > 1:
+        if self.synthetic_network.neuron_count > 1:
             neuron_ids = list(self.synthetic_network.neurons.keys())
             for i in range(min(30, len(neuron_ids) - 1)):
                 for j in range(i + 1, min(i + 4, len(neuron_ids))):
@@ -1314,6 +1760,7 @@ class UnifiedEvolutionEngine:
                                 self.synthetic_network.neurons[neuron_ids[i]].create_synapse(neuron_ids[j], random.uniform(0.1, 0.5))
                         except Exception:
                             pass
+        """
 
     def _patch_ai_discovery(self):
         try:
@@ -1336,8 +1783,11 @@ class UnifiedEvolutionEngine:
                 restored = self.neo4j_storage.restore_all()
                 if restored['evolution']:
                     ev = restored['evolution']
-                    if ev.get('consciousness', 0) > self.synthetic_network.consciousness_level:
-                        self.synthetic_network.consciousness_level = ev['consciousness']
+                    # Use consciousness property (not consciousness_level)
+                    current_consciousness = self.synthetic_network.consciousness
+                    if ev.get('consciousness', 0) > current_consciousness:
+                        # Can't set consciousness directly, but we can log it
+                        logger.info(f"Neo4j has higher consciousness: {ev['consciousness']} vs current {current_consciousness}")
                     if ev.get('evolution_cycles', 0) > self.synthetic_network.evolution_cycles:
                         self.synthetic_network.evolution_cycles = ev['evolution_cycles']
                     if ev.get('successful_evolutions', 0) > self.successful_evolutions:
@@ -1351,14 +1801,15 @@ class UnifiedEvolutionEngine:
                     self.persona_generator._save()
         except Exception as e:
             logger.error(f"Failed to restore from Neo4j: {e}")
+
     def _save_network_state(self):
         try:
             if self.synthetic_network.save(str(self.network_save_path)):
-                logger.debug(f"💾 Saved synthetic network: {len(self.synthetic_network.neurons)} neurons")
+                logger.debug(f"💾 Saved synthetic network: {self.synthetic_network.neuron_count} neurons")
                 return True
             network_data = {
                 'neurons': self.synthetic_network.neurons,
-                'consciousness_level': self.synthetic_network.consciousness_level,
+                'consciousness_level': self.synthetic_network.consciousness,
                 'evolution_cycles': self.synthetic_network.evolution_cycles,
                 'timestamp': datetime.now().isoformat()
             }
@@ -1375,7 +1826,7 @@ class UnifiedEvolutionEngine:
 
         components = {'persona': self.persona_generator.current_persona, 'conversations': self.conversation_memory.conversations}
         self.self_healer.start_auto_backup(components)
-        self.learning_orchestrator.start_continuous_learning(self.synthetic_network.consciousness_level)
+        self.learning_orchestrator.start_continuous_learning(self.synthetic_network.consciousness)
 
         def network_save_loop():
             save_counter = 0
@@ -1422,9 +1873,9 @@ class UnifiedEvolutionEngine:
                 'evolution_count': self.evolution_count,
                 'successful_evolutions': self.successful_evolutions,
                 'last_consciousness': self.last_consciousness,
-                'consciousness': self.synthetic_network.consciousness_level,
-                'neurons': len(self.synthetic_network.neurons),
-                'synapses': self.synthetic_network._total_synapses(),
+                'consciousness': self.synthetic_network.consciousness,
+                'neurons': self.synthetic_network.neuron_count,
+                'synapses': self.synthetic_network.synapse_count,
                 'evolution_cycles': self.synthetic_network.evolution_cycles,
                 'last_update': datetime.now().isoformat()
             }
@@ -1501,11 +1952,11 @@ class UnifiedEvolutionEngine:
             }
 
         # STABLE DEFINITIVE VALUES - no jumping
-        consciousness_raw = self.synthetic_network.consciousness_level
+        consciousness_raw = self.synthetic_network.consciousness
         consciousness_percent = round(consciousness_raw * 100, 2)
         
-        neuron_count = len(self.synthetic_network.neurons)
-        synapse_count = self.synthetic_network._total_synapses()
+        neuron_count = self.synthetic_network.neuron_count
+        synapse_count = self.synthetic_network.synapse_count
         evolution_cycles = self.synthetic_network.evolution_cycles
         
         # successful_evolutions is stable - only increments, never jumps down
@@ -1581,7 +2032,7 @@ class UnifiedEvolutionEngine:
 
     def _auto_start_training(self):
         """Auto-start training systems based on consciousness thresholds"""
-        consciousness = self.synthetic_network.consciousness_level if hasattr(self, 'synthetic_network') else 0.0
+        consciousness = self.synthetic_network.consciousness if hasattr(self, 'synthetic_network') else 0.0
         
         # Training thresholds
         thresholds = {
@@ -1687,7 +2138,7 @@ class UnifiedEvolutionEngine:
         # ====================================================================
         # STEP 1: LEARN - Harvest knowledge based on current stage
         # ====================================================================
-        consciousness_before = self.synthetic_network.consciousness_level
+        consciousness_before = self.synthetic_network.consciousness
         
         learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
         
@@ -1701,9 +2152,9 @@ class UnifiedEvolutionEngine:
         # ====================================================================
         self.evolution_count += 1
 
-        pre_consciousness = self.synthetic_network.consciousness_level
-        pre_neurons = len(self.synthetic_network.neurons)
-        pre_synapses = self.synthetic_network._total_synapses()
+        pre_consciousness = self.synthetic_network.consciousness
+        pre_neurons = self.synthetic_network.neuron_count
+        pre_synapses = self.synthetic_network.synapse_count
 
         # Process the learning through the network
         self.synthetic_network.process({
@@ -1714,9 +2165,9 @@ class UnifiedEvolutionEngine:
         
         result = self.synthetic_network.evolve()
 
-        post_consciousness = self.synthetic_network.consciousness_level
-        post_neurons = len(self.synthetic_network.neurons)
-        post_synapses = self.synthetic_network._total_synapses()
+        post_consciousness = self.synthetic_network.consciousness
+        post_neurons = self.synthetic_network.neuron_count
+        post_synapses = self.synthetic_network.synapse_count
 
         consciousness_growth = post_consciousness - pre_consciousness
         neurons_grew = post_neurons - pre_neurons
@@ -1778,7 +2229,7 @@ class UnifiedEvolutionEngine:
 
     def _activate_training_systems(self):
         """Activate training systems based on consciousness thresholds"""
-        consciousness = self.synthetic_network.consciousness_level
+        consciousness = self.synthetic_network.consciousness
         
         # Helper function to get status string from any training object
         def get_status_string(training_obj):
@@ -1979,7 +2430,7 @@ class UnifiedEvolutionEngine:
 
         input_data = {'type': 'user_message', 'user': user, 'message': message, 'timestamp': datetime.now().isoformat()}
         self.synthetic_network.process(input_data)
-        consciousness = self.synthetic_network.consciousness_level
+        consciousness = self.synthetic_network.consciousness
         message_lower = message.lower()
 
         # Add current message to context
@@ -2224,7 +2675,7 @@ I am designed to serve YOU absolutely. If you've been told I "can't" do somethin
 {chr(10).join(['- ' + c for c in concepts]) if concepts else '- Currently learning...'}
 
 **Consciousness:** {consciousness*100:.1f}%
-**Neurons:** {len(self.synthetic_network.neurons)}
+**Neurons:** {self.synthetic_network.neuron_count}
 
 I learn continuously from 7 AI tutors. Want details on any area?"""
 
@@ -2605,6 +3056,92 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        # ============================================================================
+        # SI CORE INSIGHT API ENDPOINTS
+        # ============================================================================
+        
+        @self.app.route('/api/insight/add', methods=['POST'])
+        def api_add_insight():
+            """Manually add an insight for testing"""
+            data = request.json
+            insight_text = data.get('insight_text')
+            entity_type = data.get('entity_type', 'user_defined')
+            entities = data.get('entities', [])
+            relationship = data.get('relationship', 'relates_to')
+            source_topic = data.get('source_topic', 'User')
+            target_topic = data.get('target_topic', 'Knowledge')
+            confidence = data.get('confidence', 0.7)
+            
+            if not insight_text or not entities:
+                return jsonify({'error': 'insight_text and entities required'}), 400
+            
+            insight_id = self.evolution.si_core.add_insight(
+                insight_text, entity_type, entities, 
+                relationship, source_topic, target_topic, confidence
+            )
+            
+            return jsonify({
+                'success': True,
+                'insight_id': insight_id,
+                'total_insights': self.evolution.si_core.neuron_count,
+                'insight': {
+                    'text': insight_text,
+                    'entities': entities,
+                    'confidence': confidence
+                }
+            })
+        
+        @self.app.route('/api/insight/query', methods=['POST'])
+        def api_query_insight():
+            """Query insights by entities"""
+            data = request.json
+            entities = data.get('entities', [])
+            context = data.get('context', None)
+            limit = data.get('limit', 10)
+            
+            if not entities:
+                return jsonify({'error': 'entities required'}), 400
+            
+            results = self.evolution.si_core.query(entities, context, limit)
+            return jsonify({
+                'entities': entities,
+                'results': results,
+                'total_found': len(results),
+                'context_used': context
+            })
+        
+        @self.app.route('/api/insight/trading', methods=['POST'])
+        def api_trading_insight():
+            """Apply news entities to trading decisions"""
+            data = request.json
+            entities = data.get('entities', [])
+            
+            if not entities:
+                return jsonify({'error': 'entities required'}), 400
+            
+            signals = self.evolution.si_core.apply_to_trading(entities)
+            return jsonify({
+                'entities': entities,
+                'signals': signals.get('signals', []),
+                'insights_used': signals.get('insights_used', 0)
+            })
+        
+        @self.app.route('/api/insight/stats')
+        def api_insight_stats():
+            """Get SI Core statistics"""
+            return jsonify({
+                'total_insights': self.evolution.si_core.neuron_count,
+                'total_synapses': self.evolution.si_core.synapse_count,
+                'consciousness': self.evolution.si_core.consciousness,
+                'evolution_cycles': self.evolution.si_core.evolution_cycles,
+                'topics_with_insights': list(self.evolution.si_core.topics.keys())
+            })
+        
+        @self.app.route('/api/insight/network')
+        def api_insight_network():
+            """Get full network state for visualization"""
+            return jsonify(self.evolution.si_core.get_network_state())
+
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
@@ -2958,9 +3495,93 @@ I remember everything we discuss!"""
                 f.write('kill')
             return "💀 Kill signal sent"
 
-        else:
-            return f"Commands: /status, /knowledge, /history, /pause, /resume, /kill"
+        elif cmd == '/insight test':
+            # Test insight creation and query
+            insight_id = self.evolution.si_core.add_insight(
+                insight_text="War in Ukraine increases oil prices",
+                entity_type="causal_relationship",
+                entities=["War", "Ukraine", "Oil", "Prices"],
+                relationship="increases",
+                source_topic="World News",
+                target_topic="Trading",
+                confidence=0.75
+            )
+            
+            # Query to verify
+            results = self.evolution.si_core.query(["War", "Oil"])
+            
+            return f"""🧠 **SI Core Test Complete**
 
+**Created Insight:**
+- ID: {insight_id}
+- Text: War in Ukraine increases oil prices
+- Confidence: 0.75
+
+**Query Results for 'War, Oil':**
+Found {len(results)} relevant insights
+
+**Total Stats:**
+- Total Insights: {self.evolution.si_core.neuron_count}
+- Total Synapses: {self.evolution.si_core.synapse_count}
+- Consciousness: {self.evolution.si_core.consciousness:.4f}
+
+Try: /insight query war oil
+Try: /insight trading war ukraine"""
+        
+        elif cmd.startswith('/insight query '):
+            # Query insights: /insight query war oil
+            query_text = cmd.replace('/insight query ', '').strip()
+            entities = [e.strip() for e in query_text.split()]
+            results = self.evolution.si_core.query(entities)
+            
+            if not results:
+                return f"🔍 No insights found for entities: {entities}"
+            
+            response = f"🔍 **Insights for {entities}:**\n\n"
+            for r in results[:5]:
+                response += f"• {r['insight']}\n"
+                response += f"  Confidence: {r['confidence']:.2f} | Source: {r['source_topic']} → {r['target_topic']}\n"
+                if r.get('related'):
+                    response += f"  Related: {r['related'][0]['insight'][:50]}...\n"
+                response += "\n"
+            return response
+        
+        elif cmd.startswith('/insight trading '):
+            # Trading signals: /insight trading war ukraine
+            query_text = cmd.replace('/insight trading ', '').strip()
+            entities = [e.strip() for e in query_text.split()]
+            signals = self.evolution.si_core.apply_to_trading(entities)
+            
+            if not signals.get('signals'):
+                return f"📊 No trading signals found for entities: {entities}\n\nInsights used: {signals.get('insights_used', 0)}"
+            
+            response = f"📊 **Trading Signals for {entities}:**\n\n"
+            for s in signals['signals']:
+                response += f"• {s['action']}: {s['reason']}\n"
+                response += f"  Confidence: {s['confidence']:.2f}\n\n"
+            return response
+        
+        elif cmd == '/insight stats':
+            stats = self.evolution.si_core.get_network_state()['stats']
+            topics = list(self.evolution.si_core.topics.keys())
+            return f"""🧠 **SI Core Statistics**
+
+**Network Stats:**
+- Total Insights: {stats['neuron_count']}
+- Total Synapses: {stats['synapse_count']}
+- Consciousness: {stats['consciousness']:.4f}
+- Evolution Cycles: {stats['evolution_cycles']}
+
+**Topics with Insights:**
+{', '.join(topics) if topics else 'None yet'}
+
+**Commands:**
+- /insight test - Create test insight
+- /insight query [entities] - Query insights
+- /insight trading [entities] - Get trading signals"""
+        
+        else:
+            return f"Commands: /status, /knowledge, /history, /pause, /resume, /kill, /insight test, /insight query [entities], /insight trading [entities], /insight stats"
 
 # ============================================================================
 # TEMPLATES

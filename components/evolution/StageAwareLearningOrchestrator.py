@@ -34,6 +34,7 @@ class StageAwareLearningOrchestrator:
         self.knowledge_graph = knowledge_graph
         self.ai_hub = ai_hub
         self.pattern_synthesis = pattern_synthesis
+        self.si_core = None  # Will be set via set_si_core() method
         
         self.learning_dir = data_path / 'learning' / 'stage_syllabus'
         self.learning_dir.mkdir(parents=True, exist_ok=True)
@@ -276,6 +277,11 @@ class StageAwareLearningOrchestrator:
     # CORE METHODS
     # ============================================================================
     
+    def set_si_core(self, si_core):
+        """Connect the SI Core to receive topic mastery events"""
+        self.si_core = si_core
+        logger.info("🔗 SI Core connected to Stage Learner")
+    
     def _load_state(self):
         """Load learning progress from disk"""
         if self.state_file.exists():
@@ -496,6 +502,41 @@ Be specific, educational, and focused on real application.
             })
         
         is_mastered = (current_mastery + 1) >= threshold
+        
+        # ====================================================================
+        # CREATE INSIGHT NEURON IN SI CORE WHEN TOPIC IS MASTERED
+        # ====================================================================
+        if is_mastered and hasattr(self, 'si_core') and self.si_core:
+            try:
+                # Create base insight from mastered topic
+                insight_id = self.si_core.add_insight(
+                    insight_text=f"{topic_name} is mastered in {category} at stage {self.current_stage}",
+                    entity_type="topic_mastery",
+                    entities=[topic_name, category, self.current_stage],
+                    relationship="is_mastered",
+                    source_topic=category,
+                    target_topic="DMAI_Knowledge",
+                    confidence=0.7 + (min(current_mastery + 1, threshold) / threshold) * 0.3
+                )
+                logger.info(f"🧠 Created insight neuron for mastered topic: {topic_name}")
+                
+                # Check for relationships with previously mastered topics in same category
+                if self.current_stage in self.learned_topics:
+                    for prev_topic, prev_mastery in self.learned_topics[self.current_stage].items():
+                        if prev_topic != topic_name and prev_mastery >= threshold:
+                            # Create relationship insight
+                            self.si_core.add_insight(
+                                insight_text=f"{prev_topic} relates to {topic_name} in {category}",
+                                entity_type="topic_relationship",
+                                entities=[prev_topic, topic_name, category],
+                                relationship="relates_to",
+                                source_topic=category,
+                                target_topic=category,
+                                confidence=0.5
+                            )
+                            logger.info(f"🔗 Created relationship insight: {prev_topic} <-> {topic_name}")
+            except Exception as e:
+                logger.error(f"Failed to create insight for {topic_name}: {e}")
         
         return {
             'success': True,
