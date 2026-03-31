@@ -2556,6 +2556,20 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/manual_save')
+        def manual_save():
+            """Manually trigger network save"""
+            try:
+                result = self.evolution._save_network_state()
+                return jsonify({
+                    'saved': result,
+                    'path': str(self.evolution.network_save_path),
+                    'neurons': len(self.evolution.synthetic_network.neurons),
+                    'synapses': self.evolution.synthetic_network._total_synapses()
+                })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
