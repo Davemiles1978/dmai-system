@@ -2491,6 +2491,25 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/network_state')
+        def debug_network_state():
+            """Show what's in the saved network state"""
+            try:
+                import pickle
+                network_path = self.evolution.network_save_path if hasattr(self.evolution, 'network_save_path') else None
+                if network_path and network_path.exists():
+                    with open(network_path, 'rb') as f:
+                        network_data = pickle.load(f)
+                    return jsonify({
+                        'exists': True,
+                        'path': str(network_path),
+                        'neurons': len(network_data.get('neurons', {})) if isinstance(network_data, dict) else 'unknown',
+                        'keys': list(network_data.keys()) if isinstance(network_data, dict) else ['pickle_object']
+                    })
+                return jsonify({'exists': False, 'path': str(network_path) if network_path else None})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/debug/learning_state')
         def debug_learning_state():
             """Show learning progress from stage learner"""
