@@ -2525,6 +2525,37 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/phase6_dir')
+        def debug_phase6_dir():
+            """Check phase6 directory and save path"""
+            import os
+            try:
+                phase6_path = self.evolution.phase6_path if hasattr(self.evolution, 'phase6_path') else None
+                result = {
+                    'phase6_path': str(phase6_path) if phase6_path else None,
+                    'exists': phase6_path and phase6_path.exists() if phase6_path else False,
+                    'is_dir': phase6_path and phase6_path.is_dir() if phase6_path else False,
+                    'writable': False,
+                    'files': []
+                }
+                if phase6_path and phase6_path.exists():
+                    # Test writability by trying to create a test file
+                    test_file = phase6_path / 'test_write.tmp'
+                    try:
+                        test_file.write_text('test')
+                        test_file.unlink()
+                        result['writable'] = True
+                    except Exception as e:
+                        result['writable'] = False
+                        result['write_error'] = str(e)
+                    
+                    # List files in directory
+                    result['files'] = [f.name for f in phase6_path.iterdir() if f.is_file()]
+                
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
