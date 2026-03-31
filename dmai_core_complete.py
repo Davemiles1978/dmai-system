@@ -1745,9 +1745,9 @@ class UnifiedEvolutionEngine:
         self.voice_system.evolve_voice(post_consciousness)
         self.music_learner.evolve_taste(post_consciousness)
 
-        if self.evolution_count % 5 == 0:
-            self._save_network_state()
-            self._save_state()
+        # Save network state after every evolution cycle
+        self._save_network_state()
+        self._save_state()
 
         self._update_cached_status()
         gc.collect()
