@@ -3007,6 +3007,20 @@ class DMAIApplication:
         def api_status():
             return jsonify(self.evolution.get_status())
 
+
+        @self.app.route('/api/debug/env', methods=['GET'])
+        def debug_env():
+            """Debug endpoint to check environment variables"""
+            import os
+            import time
+            bypass_until = os.environ.get('TRAINING_BYPASS_UNTIL', 'not_set')
+            return jsonify({
+                'TRAINING_BYPASS_UNTIL': bypass_until,
+                'bypass_active': bypass_until != 'not_set',
+                'current_time': time.time(),
+                'bypass_remaining': float(bypass_until) - time.time() if bypass_until != 'not_set' else None
+            })
+
         @self.app.route('/api/knowledge')
         def api_knowledge():
             limit = request.args.get('limit', 100, type=int)
