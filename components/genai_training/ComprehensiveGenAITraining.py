@@ -276,7 +276,7 @@ class ComprehensiveGenAITraining:
                     concept_name = f"genai_{module['id']}_{topic}".replace(' ', '_').replace('/', '_')
                     self.knowledge_graph.add_concept(concept_name[:100], knowledge[:500])
                     # Notify UnifiedLearningOrchestrator
-                    if hasattr(self, \'unified_learning\'):
+                    if hasattr(self, 'unified_learning'):
                         self.unified_learning.on_concept_mastered("genai", topic, {\'category\': module[\'name\']})
                     self.completed_concepts.add(topic)
                     self._save_state()

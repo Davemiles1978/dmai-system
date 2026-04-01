@@ -506,7 +506,7 @@ class SelfFundingTraining:
                     
                     # Notify UnifiedLearningOrchestrator
                     
-                    if hasattr(self, \'unified_learning\'):
+                    if hasattr(self, 'unified_learning'):
                     
                         self.unified_learning.on_concept_mastered("funding", topic, {\'avenue\': avenue_name})
                     

@@ -251,7 +251,7 @@ class ComprehensiveLLMTraining:
                     if concept_id not in self.completed_concepts:
                         self.knowledge_graph.add_concept(concept_id, insight)
                         # Notify UnifiedLearningOrchestrator
-                        if hasattr(self, \'unified_learning\'):
+                        if hasattr(self, 'unified_learning'):
                             self.unified_learning.on_concept_mastered("llm", concept_id, {})
                         self.completed_concepts.add(concept_id)
                         logger.debug(f"   📚 Learned: {insight[:80]}...")
