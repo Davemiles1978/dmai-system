@@ -1561,6 +1561,13 @@ class UnifiedEvolutionEngine:
         self.reverse_engineering = ReverseEngineeringOrchestrator(self.data_path)
 
         # COMPREHENSIVE TRAINING SYSTEMS
+        self.unified_learning = UnifiedLearningOrchestrator(
+            si_core=self.si_core,
+            evolution_engine=self,
+            knowledge_graph=self.knowledge_graph
+        )
+        logger.info("🧠 Unified Learning Orchestrator initialized")
+
         logger.info("🎓 Initializing Comprehensive Training Systems...")
         logger.info("   💻 Software Training (26 languages, 24 frameworks, 9 CS topics)")
         self.software_training = ComprehensiveSoftwareTraining(self.data_path, self.knowledge_graph, self.ai_hub)
@@ -1591,13 +1598,6 @@ class UnifiedEvolutionEngine:
             self.funding_training = None
 
         # Unified Learning Orchestrator - bridges all learning to SI Core
-        self.unified_learning = UnifiedLearningOrchestrator(
-            si_core=self.si_core,
-            evolution_engine=self,
-            knowledge_graph=self.knowledge_graph
-        )
-        logger.info("🧠 Unified Learning Orchestrator initialized")
-
 
         # ============================================================================
         # STAGE AWARE LEARNING ORCHESTRATOR
