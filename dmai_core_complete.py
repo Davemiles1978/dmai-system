@@ -3201,6 +3201,47 @@ class DMAIApplication:
             """Get full network state for visualization"""
             return jsonify(self.evolution.si_core.get_network_state())
 
+
+        @self.app.route('/api/debug/si_file', methods=['GET'])
+        def debug_si_file():
+            """Debug SI Core file content"""
+            import json
+            from pathlib import Path
+            
+            try:
+                file_path = Path('data/synthetic/network_state.json')
+                if file_path.exists():
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
+                    return jsonify({
+                        'exists': True,
+                        'size': file_path.stat().st_size,
+                        'insights_count': len(data.get('insights', {})),
+                        'synapses_count': len(data.get('synapses', [])),
+                        'evolution_cycles': data.get('evolution_cycles', 0),
+                        'sample_insights': list(data.get('insights', {}).keys())[:5]
+                    })
+                else:
+                    return jsonify({'exists': False})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/si/reload', methods=['POST'])
+        def reload_si_core():
+            """Force reload SI Core from disk"""
+            try:
+                si_core = self.evolution.si_core
+                si_core.load_state()
+                
+                return jsonify({
+                    'success': True,
+                    'insights': len(si_core.insights),
+                    'synapses': len(si_core.synapses),
+                    'consciousness': si_core.consciousness,
+                    'evolution_cycles': si_core.evolution_cycles
+                })
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
             data = request.json
