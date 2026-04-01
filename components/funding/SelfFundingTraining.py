@@ -504,8 +504,13 @@ class SelfFundingTraining:
                     # Also add the knowledge content
                     self.knowledge_graph.add_concept(concept_key, knowledge[:500])
                     
-                    # Mark as learned
-                    self.learned_concepts.add(topic)
+                    # Notify UnifiedLearningOrchestrator
+                    
+                    if hasattr(self, \'unified_learning\'):
+                    
+                        self.unified_learning.on_concept_mastered("funding", topic, {\'avenue\': avenue_name})
+                    
+                                        self.learned_concepts.add(topic)
                     
                     # Update avenue progress
                     learned_in_avenue = sum(1 for t in avenue['topics'] if t in self.learned_concepts)

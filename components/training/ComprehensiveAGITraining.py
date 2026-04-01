@@ -353,6 +353,9 @@ class ComprehensiveAGITraining:
                     knowledge = self._learn_topic(topic, module['name'])
                     concept_name = f"agi_{module['id']}_{topic}".replace(' ', '_').replace('/', '_')
                     self.knowledge_graph.add_concept(concept_name[:100], knowledge[:500])
+                    # Notify UnifiedLearningOrchestrator
+                    if hasattr(self, \'unified_learning\'):
+                        self.unified_learning.on_concept_mastered("agi", topic, {\'category\': module[\'name\']})
                     self.completed_concepts.add(topic)
                     self._save_state()
                     

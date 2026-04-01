@@ -118,6 +118,7 @@ from components.si_training.SyntheticIntelligenceTraining import SITrainingOrche
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
+from components.unified_learning_orchestrator import UnifiedLearningOrchestrator
 
 # Stage Aware Learning Orchestrator
 from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
@@ -1566,23 +1567,37 @@ class UnifiedEvolutionEngine:
 
         logger.info("   🤖 LLM Training (Architectures, Techniques, Inference, Applications)")
         self.llm_training = ComprehensiveLLMTraining(self.data_path, self.knowledge_graph, self.ai_hub)
+        self.llm_training.unified_learning = self.unified_learning
 
         logger.info("   🧠 AGI Training (Reasoning, Planning, Decision Making, Memory, Consciousness)")
         self.agi_training = ComprehensiveAGITraining(self.data_path, self.knowledge_graph, self.ai_hub)
+        self.agi_training.unified_learning = self.unified_learning
 
         logger.info("   🎨 Generative AI Training (Image, Video, Audio, 3D, Multimodal)")
         self.genai_training = ComprehensiveGenAITraining(self.data_path, self.knowledge_graph, self.ai_hub)
+        self.genai_training.unified_learning = self.unified_learning
 
         logger.info("   🧬 Synthetic Intelligence Training (10 consciousness modules)")
         self.si_training = SITrainingOrchestrator(self.data_path, self.synthetic_network, self.knowledge_graph, self.ai_hub)
+        self.si_training.unified_learning = self.unified_learning
 
         logger.info("   💰 Self-Funding Training (10 Revenue Avenues - Knowledge Acquisition)")
         try:
             self.funding_training = FundingOrchestrator(self.data_path, self.finance, self.knowledge_graph, self.ai_hub)
+            self.funding_training.unified_learning = self.unified_learning
             logger.info("      ✅ Funding training initialized - PHASE 1: Comprehensive Knowledge Acquisition")
         except Exception as e:
             logger.warning(f"      ⚠️ Funding training init failed: {e}")
             self.funding_training = None
+
+        # Unified Learning Orchestrator - bridges all learning to SI Core
+        self.unified_learning = UnifiedLearningOrchestrator(
+            si_core=self.si_core,
+            evolution_engine=self,
+            knowledge_graph=self.knowledge_graph
+        )
+        logger.info("🧠 Unified Learning Orchestrator initialized")
+
 
         # ============================================================================
         # STAGE AWARE LEARNING ORCHESTRATOR

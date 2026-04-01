@@ -250,6 +250,9 @@ class ComprehensiveLLMTraining:
                     concept_id = f"llm_{module_name}_{hashlib.md5(insight[:50].encode()).hexdigest()[:8]}"
                     if concept_id not in self.completed_concepts:
                         self.knowledge_graph.add_concept(concept_id, insight)
+                        # Notify UnifiedLearningOrchestrator
+                        if hasattr(self, \'unified_learning\'):
+                            self.unified_learning.on_concept_mastered("llm", concept_id, {})
                         self.completed_concepts.add(concept_id)
                         logger.debug(f"   📚 Learned: {insight[:80]}...")
                 
