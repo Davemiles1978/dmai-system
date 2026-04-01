@@ -510,7 +510,7 @@ class SelfFundingTraining:
                     
                         self.unified_learning.on_concept_mastered("funding", topic, {'avenue': avenue_name})
                     
-                                        self.learned_concepts.add(topic)
+                    self.learned_concepts.add(topic)
                     
                     # Update avenue progress
                     learned_in_avenue = sum(1 for t in avenue['topics'] if t in self.learned_concepts)
