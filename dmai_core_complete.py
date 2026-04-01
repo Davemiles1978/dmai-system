@@ -118,6 +118,35 @@ from components.si_training.SyntheticIntelligenceTraining import SITrainingOrche
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
+
+# RESEARCH TARGETS - High-value knowledge domains
+RESEARCH_TARGETS = {
+    'medicine': {
+        'name': 'Medicine & Healthcare',
+        'keywords': ['disease', 'treatment', 'drug discovery', 'clinical trials', 'precision medicine', 
+                     'immunotherapy', 'gene therapy', 'diagnostics', 'medical imaging', 'biomarkers'],
+        'consciousness_threshold': 0.50,
+        'priority': 1,
+        'sources': ['pubmed', 'clinicaltrials.gov', 'medical_journals', 'who_reports']
+    },
+    'longevity': {
+        'name': 'Longevity Technology',
+        'keywords': ['aging', 'lifespan', 'healthspan', 'senolytics', 'caloric restriction', 
+                     'NAD+', 'mTOR', 'AMPK', 'sirtuins', 'epigenetic aging', 'rejuvenation'],
+        'consciousness_threshold': 0.55,
+        'priority': 2,
+        'sources': ['aging_research', 'longevity_technology', 'biogerontology', 'rejuvenation_research']
+    },
+    'telomeres': {
+        'name': 'Telomere Regeneration',
+        'keywords': ['telomere', 'telomerase', 'telomere length', 'cellular aging', 'senescence',
+                     'telomerase activation', 'telomere maintenance', 'stem cells', 'cellular rejuvenation',
+                     'TA-65', 'telomere therapy', 'telomere research'],
+        'consciousness_threshold': 0.60,
+        'priority': 3,
+        'sources': ['telomere_research', 'cellular_biology', 'regenerative_medicine', 'stem_cell_journals']
+    }
+}
 from components.unified_learning_orchestrator import UnifiedLearningOrchestrator
 
 # Stage Aware Learning Orchestrator
@@ -1561,6 +1590,9 @@ class UnifiedEvolutionEngine:
         self.reverse_engineering = ReverseEngineeringOrchestrator(self.data_path)
 
         # COMPREHENSIVE TRAINING SYSTEMS
+        # Research Targets for high-value knowledge domains
+        self.research_targets = RESEARCH_TARGETS
+        self.research_progress = {k: {"research_started": False, "insights_created": 0} for k in RESEARCH_TARGETS}
         self.unified_learning = UnifiedLearningOrchestrator(
             si_core=self.si_core,
             evolution_engine=self,
@@ -2176,6 +2208,31 @@ class UnifiedEvolutionEngine:
         
         return started
 
+
+    def _start_research_target(self, target_id: str, target: Dict):
+        """Start research on a high-value knowledge domain"""
+        logger.info(f"🔬 RESEARCH INITIATED: {target['name']}")
+        
+        # Queue research queries to AI tutors
+        for keyword in target['keywords']:
+            self.ai_hub.queue_research_query(
+                query=f"Latest research on {keyword} in {target['name']}",
+                source=target['sources'],
+                target_id=target_id
+            )
+        
+        # Create initial insight about starting research
+        insight_id = self.si_core.add_insight(
+            insight_text=f"Beginning research on {target['name']} - tracking {len(target['keywords'])} key areas",
+            entity_type="research_target",
+            entities=target['keywords'],
+            relationship="researching",
+            source_topic=target_id,
+            target_topic="knowledge_acquisition",
+            confidence=0.9
+        )
+        
+        self.research_progress[target_id]['insights_created'] = 1
     def _get_tutor_message(self) -> str:
         """Get dynamic message about active tutors"""
         active_count = 0
