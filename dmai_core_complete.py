@@ -2205,6 +2205,14 @@ class UnifiedEvolutionEngine:
                 sys.exit(0)
 
         # Auto-start training systems based on consciousness
+        # Check for training bypass
+        bypass_until = os.environ.get("TRAINING_BYPASS_UNTIL")
+        if bypass_until:
+            try:
+                if time.time() < float(bypass_until):
+                    logger.info(f"🔓 TRAINING BYPASS ACTIVE until {datetime.fromtimestamp(float(bypass_until)).isoformat()}")
+            except:
+                pass
         started = self._auto_start_training()
         if started:
             logger.info(f"✅ Auto-started training: {', '.join(started)}")
