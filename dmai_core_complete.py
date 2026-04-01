@@ -2267,6 +2267,27 @@ class UnifiedEvolutionEngine:
         if bypass_until:
             try:
                 if time.time() < float(bypass_until):
+                    logger.info("🔓 BYPASS MODE: Starting all training systems")
+                    # Start each training system
+                    for sys_name, sys_obj in [
+                        ("software", self.software_training),
+                        ("agi", self.agi_training),
+                        ("genai", self.genai_training),
+                        ("si", self.si_training),
+                        ("llm", self.llm_training),
+                    ]:
+                        if sys_obj and hasattr(sys_obj, "start"):
+                            try:
+                                sys_obj.start()
+                                logger.info(f"   ✅ Started {sys_name} training")
+                            except Exception as e:
+                                logger.warning(f"   ⚠️ Failed to start {sys_name}: {e}")
+                    if self.funding_training and hasattr(self.funding_training, "start"):
+                        try:
+                            self.funding_training.start()
+                            logger.info("   ✅ Started funding training")
+                        except Exception as e:
+                            logger.warning(f"   ⚠️ Failed to start funding: {e}")
                     logger.info(f"🔓 TRAINING BYPASS ACTIVE until {datetime.fromtimestamp(float(bypass_until)).isoformat()}")
             except:
                 pass
