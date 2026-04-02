@@ -3137,6 +3137,29 @@ class DMAIApplication:
                 training_details=self.evolution.get_training_details())
 
         @self.app.route('/api/status')
+        
+        @self.app.route('/api/simple/version')
+        def simple_version():
+            """Simple version endpoint"""
+            return jsonify({
+                'version': 'v8.0.37',
+                'commit': '777a9ae15',
+                'timestamp': '2026-04-02'
+            })
+
+        
+        @self.app.route('/api/debug/neo4j_env', methods=['GET'])
+        def debug_neo4j_env():
+            """Check Neo4j environment variables"""
+            import os
+            # Only show if set, not the actual values
+            return jsonify({
+                'NEO4J_URI_set': bool(os.environ.get('NEO4J_URI')),
+                'NEO4J_USER_set': bool(os.environ.get('NEO4J_USER')),
+                'NEO4J_PASSWORD_set': bool(os.environ.get('NEO4J_PASSWORD')),
+                'all_vars': [k for k in os.environ.keys() if 'NEO4J' in k or 'neo4j' in k]
+            })
+
         def api_status():
             return jsonify(self.evolution.get_status())
 
