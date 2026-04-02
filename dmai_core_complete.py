@@ -115,6 +115,7 @@ from components.genai_training.ComprehensiveGenAITraining import ComprehensiveGe
 
 # Synthetic Intelligence Training
 from components.si_training.SyntheticIntelligenceTraining import SITrainingOrchestrator
+from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
@@ -1599,6 +1600,21 @@ class UnifiedEvolutionEngine:
             knowledge_graph=self.knowledge_graph
         )
         logger.info("🧠 Unified Learning Orchestrator initialized")
+
+        # Evolution Training System - integral to consciousness
+        self.evolution_training = EvolutionTrainingSystem(
+            si_core=self.si_core,
+            knowledge_graph=self.knowledge_graph,
+            training_systems={
+                "software": self.software_training,
+                "agi": self.agi_training,
+                "genai": self.genai_training,
+                "si": self.si_training,
+                "llm": self.llm_training,
+                "funding": self.funding_training
+            }
+        )
+        logger.info("🧬 Evolution Training System integrated into consciousness")
 
         logger.info("🎓 Initializing Comprehensive Training Systems...")
         logger.info("   💻 Software Training (26 languages, 24 frameworks, 9 CS topics)")
