@@ -3063,38 +3063,6 @@ class DMAIApplication:
             system = request.args.get('system', None)
             return jsonify(self.evolution.get_training_details(system))
 
-
-        @self.app.route('/api/training/start', methods=['POST'])
-        def api_training_start():
-            """Start a specific training system"""
-            data = request.json
-            system = data.get('system', '').lower()
-            
-            system_map = {
-                'software': self.evolution.software_training,
-                'agi': self.evolution.agi_training,
-                'genai': self.evolution.genai_training,
-                'si': self.evolution.si_training,
-                'llm': self.evolution.llm_training,
-                'funding': self.evolution.funding_training
-            }
-            
-            if system not in system_map:
-                return jsonify({'error': f'Unknown system: {system}', 'available': list(system_map.keys())}), 400
-            
-            training_obj = system_map[system]
-            if training_obj is None:
-                return jsonify({'error': f'Training system {system} not initialized'}), 400
-            
-            if hasattr(training_obj, 'start_training'):
-                result = training_obj.start_training()
-            elif hasattr(training_obj, 'start'):
-                result = training_obj.start()
-            else:
-                return jsonify({'error': f'Training system {system} has no start method'}), 500
-            
-            return jsonify(result)
-
         @self.app.route('/api/debug/knowledge')
         def debug_knowledge():
             """Show knowledge graph contents"""
