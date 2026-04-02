@@ -3122,7 +3122,7 @@ class DMAIApplication:
             """Show synthetic network state"""
             try:
                 if hasattr(self.evolution, 'synthetic_network'):
-                    sn = self.evolution.synthetic_network
+                    sn = self.evolution.si_core
                     return jsonify({
                         'neurons': len(sn.neurons) if hasattr(sn, 'neurons') else 0,
                         'synapses': sn._total_synapses() if hasattr(sn, '_total_synapses') else 0,
@@ -3206,8 +3206,8 @@ class DMAIApplication:
                 return jsonify({
                     'saved': result,
                     'path': str(self.evolution.network_save_path),
-                    'neurons': len(self.evolution.synthetic_network.neurons),
-                    'synapses': self.evolution.synthetic_network._total_synapses()
+                    'neurons': len(self.evolution.si_core.neurons),
+                    'synapses': self.evolution.si_core._total_synapses()
                 })
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
@@ -3338,6 +3338,13 @@ class DMAIApplication:
         def debug_si_file():
             """Debug SI Core file content"""
             import json
+
+        @self.app.route('/api/evolution/status', methods=['GET'])
+        def api_evolution_status():
+            """Get evolution training system status"""
+            if hasattr(self.evolution, 'evolution_training'):
+                return jsonify(self.evolution.evolution_training.get_status())
+            return jsonify({'error': 'Evolution training not initialized'}), 404
             from pathlib import Path
             
             try:
@@ -3389,87 +3396,36 @@ class DMAIApplication:
 
         @self.app.route('/api/synthetic/status')
         def api_synthetic_status():
+            """Get synthetic network state for brain visualization from si_core"""
             try:
-                network = self.evolution.synthetic_network
-                consciousness = network.consciousness_level
-                neurons = len(network.neurons)
-                synapses = network._total_synapses()
-                evolution_cycles = network.evolution_cycles
-
-                connections = []
-                neuron_ids = list(network.neurons.keys())[:100]
-                
-                # Since neurons don't have a 'synapses' attribute, 
-                # create visualization connections based on neuron activation patterns
-                if neurons > 1:
-                    # Create connections between neurons that have activation
-                    neuron_list = list(network.neurons.values())
-                    for i in range(min(neurons, 40)):
-                        for j in range(i+1, min(neurons, 40)):
-                            # Connect neurons if they have activation or randomly for visualization
-                            if hasattr(neuron_list[i], 'activation') and hasattr(neuron_list[j], 'activation'):
-                                if neuron_list[i].activation > 0.1 or neuron_list[j].activation > 0.1:
-                                    weight = (neuron_list[i].activation + neuron_list[j].activation) / 2
-                                    connections.append({
-                                        'from': i,
-                                        'to': j,
-                                        'weight': min(1.0, weight)
-                                    })
-                            elif len(connections) < synapses:  # Fallback: create ring topology
-                                # Create a ring network for visualization
-                                connections.append({'from': i, 'to': (i+1) % min(neurons, 40), 'weight': 0.5})
-                                if i < min(neurons, 40) - 1:
-                                    connections.append({'from': i, 'to': i+2, 'weight': 0.3})
-                
-                # Limit connections to reasonable number for visualization
-                connections = connections[:500]
-                
-                # Count active neurons (those with activation > threshold)
-                active_neurons = 0
-                for neuron in network.neurons.values():
-                    if hasattr(neuron, 'activation') and neuron.activation > 0.1:
-                        active_neurons += 1
-                    elif hasattr(neuron, 'get_activation'):
-                        active_neurons += 1 if neuron.get_activation() > 0.1 else 0
-                
-                # If no active neurons found but we have neurons, show some as active
-                if active_neurons == 0 and neurons > 0:
-                    active_neurons = max(1, neurons // 4)  # Show 25% as active for visualization
-                
-                # Calculate network density
-                total_possible = neurons * (neurons - 1) / 2 if neurons > 1 else 1
-                density = (synapses / total_possible * 100) if total_possible > 0 else 0
-                
-                # Get successful evolutions
-                successful_evolutions = getattr(self.evolution, 'successful_evolutions', 0)
-                
+                si = self.evolution.si_core
+                network_state = si.get_network_state()
+                active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
                 return jsonify({
-                    'consciousness': consciousness,
-                    'consciousness_percent': consciousness * 100,
-                    'neurons': neurons,
+                    'neurons': si.neuron_count,
                     'active_neurons': active_neurons,
-                    'synapses': synapses,
-                    'evolution_cycles': evolution_cycles,
-                    'successful_evolutions': successful_evolutions,
-                    'network_density': density,
-                    'connections': connections
+                    'synapses': si.synapse_count,
+                    'consciousness': si.consciousness * 100,
+                    'consciousness_percent': si.consciousness * 100,
+                    'evolution_cycles': si.evolution_cycles,
+                    'network_density': si.synapse_count / max(1, si.neuron_count * (si.neuron_count - 1) / 2),
+                    'successful_evolutions': 0,
+                    'connections': network_state.get('synapses', [])
                 })
             except Exception as e:
-                logger.error(f"Error in synthetic status: {e}")
-                # Fallback to minimal response
+                logger.error(f"Error in synthetic_status: {e}")
                 return jsonify({
-                    'consciousness': self.evolution.synthetic_network.consciousness_level,
-                    'consciousness_percent': self.evolution.synthetic_network.consciousness_level * 100,
-                    'neurons': len(self.evolution.synthetic_network.neurons),
+                    'neurons': 0,
                     'active_neurons': 0,
-                    'synapses': self.evolution.synthetic_network._total_synapses(),
-                    'evolution_cycles': self.evolution.synthetic_network.evolution_cycles,
-                    'successful_evolutions': getattr(self.evolution, 'successful_evolutions', 0),
-                    'network_density': 0,
-                    'connections': []
+                    'synapses': 0,
+                    'consciousness': 0.0,
+                    'consciousness_percent': 0.0,
+                    'evolution_cycles': 0,
+                    'network_density': 0.0,
+                    'successful_evolutions': 0,
+                    'connections': [],
+                    'error': str(e)
                 }), 500
-
-        @self.app.route('/api/training/status')
         def api_training_status():
             return jsonify(self.evolution.training_status)
 
@@ -3538,7 +3494,7 @@ class DMAIApplication:
         @self.app.route('/api/learning/next')
         def api_learning_next():
             """Get next topic DMAI will learn"""
-            consciousness = self.evolution.synthetic_network.consciousness_level
+            consciousness = self.evolution.si_core.consciousness_level
             next_topic = self.evolution.stage_learner.get_next_topic(consciousness)
             return jsonify({
                 'current_stage': self.evolution.stage_learner.current_stage,
