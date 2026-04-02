@@ -3367,17 +3367,40 @@ class DMAIApplication:
 
         @self.app.route('/api/si/reload', methods=['POST'])
         def reload_si_core():
-            """Force reload SI Core from disk"""
+            """Force reload SI Core from disk - DIRECT FILE READ"""
+            import json
+            from pathlib import Path
+            
             try:
-                si_core = self.evolution.si_core
-                si_core.load_state()
+                # Direct file read - bypass broken load_state()
+                file_path = Path('data/synthetic/network_state.json')
+                if not file_path.exists():
+                    return jsonify({'error': 'File not found', 'path': str(file_path)}), 404
                 
+                with open(file_path, 'r') as f:
+                    disk_data = json.load(f)
+                
+                si = self.evolution.si_core
+                
+                # Directly load insights from disk data
+                si.insights = {}
+                for iid, data in disk_data.get('insights', {}).items():
+                    si.insights[iid] = InsightNeuron.from_dict(data)
+                
+                si.topics = disk_data.get('topics', {})
+                si.synapses = disk_data.get('synapses', [])
+                si.evolution_cycles = disk_data.get('evolution_cycles', 0)
+                
+                # Save to ensure disk consistency
+                si.save_state()
+                
+                # Convert to serializable types
                 return jsonify({
                     'success': True,
-                    'insights': len(si_core.insights),
-                    'synapses': len(si_core.synapses),
-                    'consciousness': si_core.consciousness,
-                    'evolution_cycles': si_core.evolution_cycles
+                    'insights': int(len(si.insights)),
+                    'synapses': int(len(si.synapses)),
+                    'consciousness': float(si.consciousness),
+                    'evolution_cycles': int(si.evolution_cycles)
                 })
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
