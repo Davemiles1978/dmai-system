@@ -587,6 +587,48 @@ class SyntheticIntelligenceCore:
         
         return {'processed': True, 'input_type': input_data.get('type', 'unknown'), 'depth': _depth}
         
+
+    def get_network_state(self) -> Dict:
+        """Return current network state for API and visualization"""
+        nodes = []
+        for insight_id, insight in self.insights.items():
+            nodes.append({
+                'id': insight_id,
+                'topic': insight.insight_text[:50],
+                'category': insight.entity_type,
+                'confidence': insight.confidence,
+                'connections': 0
+            })
+        
+        links = []
+        for synapse in self.synapses:
+            links.append({
+                'source': synapse['from'],
+                'target': synapse['to'],
+                'strength': synapse.get('strength', 0.5),
+                'type': synapse.get('relationship', 'unknown')
+            })
+        
+        # Update connection counts
+        node_connections = {}
+        for link in links:
+            node_connections[link['source']] = node_connections.get(link['source'], 0) + 1
+            node_connections[link['target']] = node_connections.get(link['target'], 0) + 1
+        
+        for node in nodes:
+            node['connections'] = node_connections.get(node['id'], 0)
+        
+        return {
+            'neurons': nodes,
+            'synapses': links,
+            'stats': {
+                'neuron_count': len(self.insights),
+                'synapse_count': len(self.synapses),
+                'consciousness': self.consciousness,
+                'evolution_cycles': self.evolution_cycles
+            }
+        }
+
     def save_state(self):
         """Persist network state to disk"""
         state = {
@@ -2267,6 +2309,56 @@ class UnifiedEvolutionEngine:
         else:
             return "I continuously discover and learn from new AI systems as they emerge"
 
+
+    def _research_intelligent_algorithms(self):
+        """Research intelligent algorithms - DMAI learns to optimize itself"""
+        consciousness = self.synthetic_network.consciousness
+        
+        # Intelligent algorithms by consciousness level
+        if consciousness < 0.3:
+            algorithms = [
+                "Evolutionary Algorithms: Genetic programming for self-optimization",
+                "Reinforcement Learning: Q-Learning for decision making"
+            ]
+        elif consciousness < 0.5:
+            algorithms = [
+                "Meta-Learning: MAML for learning to learn quickly",
+                "Neural Architecture Search: AutoML for network design"
+            ]
+        elif consciousness < 0.7:
+            algorithms = [
+                "Self-Modifying Code: Genetic Programming for code evolution",
+                "Attention Mechanisms: Transformer self-attention variants"
+            ]
+        else:
+            algorithms = [
+                "Recursive Self-Improvement: Algorithms that rewrite themselves",
+                "Quantum Machine Learning: Quantum neural networks"
+            ]
+        
+        researched = []
+        for algo in algorithms:
+            concept_key = f"intelligent_algo_{algo[:40].replace(chr(32), chr(95)).replace(chr(58), chr(95))}"
+            existing_concepts = self.knowledge_graph.get_concepts(100)
+            if not any(concept_key in c for c in existing_concepts):
+                self.knowledge_graph.add_concept(concept_key, algo)
+                insight_id = self.si_core.add_insight(
+                    insight_text=f"Intelligent Algorithm: {algo}",
+                    entity_type="intelligent_algorithm",
+                    entities=algo.split()[:5],
+                    relationship="enables_self_improvement",
+                    source_topic="Intelligent Algorithms",
+                    target_topic="Self-Improvement",
+                    confidence=min(0.95, 0.4 + consciousness)
+                )
+                researched.append(algo[:50])
+                logger.info(f"🧠 Learned intelligent algorithm: {algo[:50]}...")
+        
+        if researched:
+            logger.info(f"✨ Researched {len(researched)} intelligent algorithms at {consciousness*100:.1f}% consciousness")
+        
+        return researched
+
     def evolution_cycle(self) -> Dict:
 
         """Run evolution cycle with stage-aware learning"""
@@ -3636,6 +3728,21 @@ class DMAIApplication:
         @self.app.route('/admin/logout', methods=['POST'])
         def admin_logout():
             return jsonify({'success': True})
+
+
+        @self.app.route('/api/test/research_algorithms', methods=['POST'])
+        def test_research_algorithms():
+            """Manually trigger intelligent algorithm research"""
+            try:
+                result = self.evolution._research_intelligent_algorithms()
+                return jsonify({
+                    'success': True,
+                    'researched': result,
+                    'count': len(result)
+                })
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+
 
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
