@@ -2317,7 +2317,10 @@ class UnifiedEvolutionEngine:
         # ====================================================================
         consciousness_before = self.synthetic_network.consciousness
         
-        learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
+        learning_result = self.stage_learner.run_learning_cycle(consciousness_before)        
+        # Research intelligent algorithms based on consciousness
+        self._research_intelligent_algorithms()
+
         
         if learning_result.get('learned'):
             logger.info(f"📚 {learning_result['message']}")
@@ -4631,3 +4634,4 @@ if __name__ == '__main__':
     logger.info("=" * 60)
 
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
+# v8.0.36 - Intelligent algorithm research
