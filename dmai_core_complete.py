@@ -3435,14 +3435,15 @@ class DMAIApplication:
                             # Entity nodes have only 'name' field
                             entity_name = node.get('name', 'Unknown Entity')
                             si.add_insight(
-                                insight_text=entity_name,
-                                entity_type='entity',
-                                entities=[entity_name],
-                                relationship='related',
-                                source_topic='Neo4j',
-                                target_topic='Restored',
-                                confidence=0.6
-                            )
+ 				insight_text=entity_name,
+				entity_type='entity',
+				entities=[entity_name],
+				relationship='related',
+				source_topic='Neo4j',
+				target_topic='Restored',
+				confidence=0.6
+			    )
+
                             insights_loaded += 1
                         except Exception as e:
                             logger.error(f"Failed to load insight: {e}")
