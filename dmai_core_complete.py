@@ -3219,6 +3219,36 @@ class DMAIApplication:
         @self.app.route('/api/debug/neo4j_insights', methods=['GET'])
         
         @self.app.route('/api/debug/neo4j_nodes', methods=['GET'])
+        
+        @self.app.route('/api/neo4j/count', methods=['GET'])
+        def neo4j_count():
+            """Count nodes in Neo4j by type"""
+            try:
+                storage = self.evolution.neo4j_storage
+                if not storage or not storage.is_available():
+                    return jsonify({'error': 'Neo4j not available'})
+                
+                driver = storage.driver
+                if not driver:
+                    return jsonify({'error': 'No driver'})
+                
+                with driver.session() as session:
+                    # Count Insight nodes
+                    result = session.run("MATCH (i:Insight) RETURN count(i) as count")
+                    insight_count = result.single()["count"]
+                    
+                    # Count Evolution nodes
+                    result2 = session.run("MATCH (e:Evolution) RETURN count(e) as count")
+                    evolution_count = result2.single()["count"]
+                    
+                    return jsonify({
+                        'insight_nodes': insight_count,
+                        'evolution_nodes': evolution_count,
+                        'total_nodes': insight_count + evolution_count
+                    })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         def debug_neo4j_nodes():
             """List all node types and counts in Neo4j"""
             try:
