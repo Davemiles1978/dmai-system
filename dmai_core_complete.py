@@ -1825,18 +1825,8 @@ class UnifiedEvolutionEngine:
         # Restore from Neo4j
         self._restore_from_neo4j()
 
-        # Force load SI Core data from Neo4j
-        try:
-            if self.neo4j_storage and self.neo4j_storage.is_available():
-                restored = self.neo4j_storage.restore_all()
-                if restored.get('evolution'):
-                    ev = restored['evolution']
-                    if ev.get('neurons', 0) > 0:
-                        logger.info(f"📀 Loading SI Core from Neo4j: {ev.get('neurons', 0)} neurons, {ev.get('consciousness', 0)} consciousness")
-                        # Note: SI Core should already have this data from _restore_from_neo4j
-        except Exception as e:
-            logger.error(f"Force Neo4j load failed: {e}")
-
+        # Load insights from Neo4j into SI Core
+        self._load_insights_from_neo4j()
 
         # Start systems
         self._start_active_systems()
@@ -1966,6 +1956,55 @@ class UnifiedEvolutionEngine:
                     self.persona_generator._save()
         except Exception as e:
             logger.error(f"Failed to restore from Neo4j: {e}")
+
+    def _load_insights_from_neo4j(self):
+        """Load insights from Neo4j into SI Core"""
+        try:
+            if not hasattr(self, 'neo4j_storage') or not self.neo4j_storage:
+                logger.warning("Neo4j storage not available")
+                return 0
+            
+            if not self.neo4j_storage.is_available():
+                logger.warning("Neo4j not connected")
+                return 0
+            
+            driver = self.neo4j_storage.driver
+            if not driver:
+                logger.warning("Neo4j driver not available")
+                return 0
+            
+            with driver.session() as session:
+                # Get all insight nodes
+                result = session.run("MATCH (i:Insight) RETURN i")
+                insights = []
+                for record in result:
+                    node = record["i"]
+                    insight_data = dict(node.items())
+                    insights.append(insight_data)
+                
+                # Add each insight to si_core
+                loaded_count = 0
+                for insight_data in insights:
+                    try:
+                        self.si_core.add_insight(
+                            insight_text=insight_data.get('insight_text', ''),
+                            entity_type=insight_data.get('entity_type', 'unknown'),
+                            entities=insight_data.get('entities', []),
+                            relationship=insight_data.get('relationship', 'related'),
+                            source_topic=insight_data.get('source_topic', 'Neo4j'),
+                            target_topic=insight_data.get('target_topic', 'Restored'),
+                            confidence=insight_data.get('confidence', 0.5)
+                        )
+                        loaded_count += 1
+                    except Exception as e:
+                        logger.debug(f"Failed to load insight: {e}")
+                
+                logger.info(f"📀 Loaded {loaded_count} insights from Neo4j into SI Core")
+                return loaded_count
+                
+        except Exception as e:
+            logger.error(f"Failed to load insights from Neo4j: {e}")
+            return 0
 
     def _save_network_state(self):
         try:
@@ -3176,6 +3215,23 @@ class DMAIApplication:
         @self.app.route('/api/debug/neo4j_detail', methods=['GET'])
         
         @self.app.route('/api/debug/neo4j_data', methods=['GET'])
+        
+        @self.app.route('/api/debug/neo4j_insights', methods=['GET'])
+        def debug_neo4j_insights():
+            """Check how many insights are in Neo4j"""
+            try:
+                if self.evolution.neo4j_storage and self.evolution.neo4j_storage.is_available():
+                    # Try to count insight nodes
+                    driver = self.evolution.neo4j_storage.driver
+                    if driver:
+                        with driver.session() as session:
+                            result = session.run("MATCH (i:Insight) RETURN count(i) as count")
+                            count = result.single()["count"]
+                            return jsonify({'insights_in_neo4j': count})
+                return jsonify({'error': 'Neo4j not available'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         def debug_neo4j_data():
             """See what data Neo4j actually returns"""
             try:
