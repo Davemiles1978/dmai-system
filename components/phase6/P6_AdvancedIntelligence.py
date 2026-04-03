@@ -1764,7 +1764,7 @@ class Phase6Manager:
         
         # 5. Save state
         if self.synthetic_network.evolution_cycles % 10 == 0:
-            self.synthetic_network.save()
+            self.synthetic_network.save_state()
         
         return results
     

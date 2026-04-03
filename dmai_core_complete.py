@@ -629,6 +629,11 @@ class SyntheticIntelligenceCore:
             }
         }
 
+    
+    def save(self):
+        """Alias for save_state for backward compatibility"""
+        return self.save_state()
+
     def save_state(self):
         """Persist network state to disk"""
         state = {
