@@ -16,9 +16,9 @@ class Neo4jStorage:
     """Persistent storage for DMAI using Neo4j"""
     
     def __init__(self):
-        self.uri = os.getenv('NEO4J_URI', 'neo4j+s://caf7818d.databases.neo4j.io')
-        self.user = os.getenv('NEO4J_USER', 'caf7818d')
-        self.password = os.getenv('NEO4J_PASSWORD', 'Fqh95qz2CI5yO_FNEPWhoQ-gtgU_JNte0odcjLsKAXE')
+        self.uri = os.getenv('NEO4J_URI')
+        self.user = os.getenv('NEO4J_USER')
+        self.password = os.getenv('NEO4J_PASSWORD')
         self.driver = None
         self._connect()
         
@@ -31,6 +31,13 @@ class Neo4jStorage:
             logger.error(f"❌ Neo4j connection failed: {e}")
             self.driver = None
             
+
+    def is_available(self) -> bool:
+        """Check if Neo4j connection is available"""
+        if not self.driver:
+            self._connect()
+        return self.driver is not None
+
     def close(self):
         """Close Neo4j connection"""
         if self.driver:
