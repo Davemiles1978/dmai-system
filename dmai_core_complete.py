@@ -7,7 +7,7 @@
 ██████╔╝██║ ╚═╝ ██║██║  ██║██║
 ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.35
+DMAI - COMPLETE AGI SYSTEM v8.0.38
 6 COMPREHENSIVE TRAINING SYSTEMS | Dynamic AI Discovery | Full Conversation Memory | Self-Modification
 """
 
@@ -262,17 +262,6 @@ class InsightNeuron:
 
 
 class SyntheticIntelligenceCore:
-
-    def _save_to_neo4j(self, insight):
-        """Save insight to Neo4j for persistence"""
-        try:
-            from components.neo4j_storage import get_neo4j_storage
-            storage = get_neo4j_storage()
-            if storage.is_available():
-                storage.save_insight(insight.to_dict())
-        except Exception as e:
-            logger.debug(f"Neo4j save failed: {e}")
-
     """Multi-granular SI core with insight-level neurons"""
     
     def __init__(self, data_dir: str = "data/synthetic"):
@@ -1835,7 +1824,6 @@ class UnifiedEvolutionEngine:
 
         # Restore from Neo4j
         self._restore_from_neo4j()
-        self._load_from_neo4j()
 
         # Start systems
         self._start_active_systems()
@@ -1939,17 +1927,6 @@ class UnifiedEvolutionEngine:
                 self.ai_discovery._scan_papers_with_code = safe_scan
         except Exception as e:
             logger.debug(f"Failed to patch AI discovery: {e}")
-
-    
-    def _load_from_neo4j(self):
-        """Force load data from Neo4j on startup"""
-        try:
-            if self.neo4j_storage and self.neo4j_storage.is_available():
-                restored = self.neo4j_storage.restore_all()
-                if restored.get('evolution') and restored['evolution'].get('consciousness', 0) > 0:
-                    logger.info(f"✅ Loaded consciousness: {restored['evolution']['consciousness']}")
-        except Exception as e:
-            logger.error(f"Neo4j load error: {e}")
 
     def _restore_from_neo4j(self):
         try:
@@ -3168,12 +3145,6 @@ class DMAIApplication:
 
         @self.app.route('/api/status')
         def api_status():
-
-        # Ensure SI Core has data (load from Neo4j if empty)
-        if len(self.evolution.si_core.insights) == 0:
-            self.evolution.si_core.load_state()
-            logger.info("🔄 Reloaded SI Core from disk on request")
-
             """Return DMAI system status"""
             return jsonify(self.evolution.get_status())
 
@@ -3181,7 +3152,7 @@ class DMAIApplication:
         def simple_version():
             """Simple version endpoint"""
             return jsonify({
-                'version': 'v8.0.37',
+                'version': 'v8.0.38',
                 'commit': '777a9ae15',
                 'timestamp': '2026-04-02'
             })
@@ -3190,24 +3161,6 @@ class DMAIApplication:
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
         
         @self.app.route('/api/debug/neo4j_detail', methods=['GET'])
-        
-        @self.app.route('/api/debug/neo4j_package', methods=['GET'])
-        def debug_neo4j_package():
-            """Check if neo4j package is installed"""
-            import importlib
-            result = {
-                'neo4j_installed': False,
-                'version': None,
-                'error': None
-            }
-            try:
-                neo4j = importlib.import_module('neo4j')
-                result['neo4j_installed'] = True
-                result['version'] = neo4j.__version__
-            except ImportError as e:
-                result['error'] = str(e)
-            return jsonify(result)
-
         def debug_neo4j_detail():
             """Detailed Neo4j connection debug"""
             import os
@@ -3255,12 +3208,6 @@ class DMAIApplication:
             })
 
         def api_status():
-
-        # Ensure SI Core has data (load from Neo4j if empty)
-        if len(self.evolution.si_core.insights) == 0:
-            self.evolution.si_core.load_state()
-            logger.info("🔄 Reloaded SI Core from disk on request")
-
             return jsonify(self.evolution.get_status())
 
 
