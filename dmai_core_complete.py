@@ -1960,27 +1960,30 @@ class UnifiedEvolutionEngine:
     def _load_insights_from_neo4j(self):
         """Load insights from Neo4j into SI Core"""
         try:
-            if not hasattr(self, 'neo4j_storage') or not self.neo4j_storage:
+            if not hasattr(self, 'neo4j_storage') or not self.neo4j_storage:  
                 logger.warning("Neo4j storage not available")
                 return 0
-            
+
             if not self.neo4j_storage.is_available():
                 logger.warning("Neo4j not connected")
                 return 0
-            
+        
             driver = self.neo4j_storage.driver
             if not driver:
                 logger.warning("Neo4j driver not available")
                 return 0
-            
+        
             with driver.session() as session:
-                # Get all insight nodes
-                result = session.run("MATCH (i:Insight) RETURN i")
+                # CRITICAL FIX: Your data uses Entity label, not Insight (3,533 nodes)
+                result = session.run("MATCH (i:Entity) RETURN i")
                 insights = []
                 for record in result:
                     node = record["i"]
                     insight_data = dict(node.items())
                     insights.append(insight_data)
+                
+                logger.info(f"✅ Loaded {len(insights)} insights from Neo4j (Entity nodes)")
+                return insights
                 
                 # Add each insight to si_core
                 loaded_count = 0
@@ -3193,8 +3196,6 @@ class DMAIApplication:
                 concepts=self.evolution.get_knowledge_concepts(200),
                 training_details=self.evolution.get_training_details())
 
-        
-
         @self.app.route('/api/status')
         def api_status():
             """Return DMAI system status"""
@@ -3209,18 +3210,104 @@ class DMAIApplication:
                 'timestamp': '2026-04-02'
             })
 
-        
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
+        def debug_neo4j_env():
+            """Check Neo4j environment variables"""
+            import os
+            return jsonify({
+                'NEO4J_URI_set': bool(os.environ.get('NEO4J_URI')),
+                'NEO4J_USER_set': bool(os.environ.get('NEO4J_USER')),
+                'NEO4J_PASSWORD_set': bool(os.environ.get('NEO4J_PASSWORD')),
+                'all_vars': [k for k in os.environ.keys() if 'NEO4J' in k or 'neo4j' in k]
+            })
         
         @self.app.route('/api/debug/neo4j_detail', methods=['GET'])
+        def debug_neo4j_detail():
+            """Detailed Neo4j connection debug"""
+            import os
+            import traceback
+            result = {
+                'env_vars_set': {
+                    'NEO4J_URI': bool(os.environ.get('NEO4J_URI')),
+                    'NEO4J_USER': bool(os.environ.get('NEO4J_USER')),
+                    'NEO4J_PASSWORD': bool(os.environ.get('NEO4J_PASSWORD'))
+                },
+                'neo4j_storage_exists': hasattr(self.evolution, 'neo4j_storage'),
+                'connection_error': None
+            }
+            
+            if hasattr(self.evolution, 'neo4j_storage'):
+                try:
+                    storage = self.evolution.neo4j_storage
+                    if hasattr(storage, 'is_available'):
+                        result['is_available'] = storage.is_available()
+                    if hasattr(storage, '_driver') and storage._driver:
+                        result['driver_created'] = True
+                        try:
+                            with storage._driver.session() as session:
+                                test = session.run("RETURN 1 as test").single()["test"]
+                                result['test_query'] = True
+                        except Exception as e:
+                            result['test_query_error'] = str(e)
+                except Exception as e:
+                    result['connection_error'] = str(e)
+                    result['traceback'] = traceback.format_exc()
+            
+            return jsonify(result)
         
         @self.app.route('/api/debug/neo4j_data', methods=['GET'])
+        def debug_neo4j_data():
+            """See what data Neo4j actually returns"""
+            try:
+                if self.evolution.neo4j_storage and self.evolution.neo4j_storage.is_available():
+                    restored = self.evolution.neo4j_storage.restore_all()
+                    return jsonify({
+                        'evolution': restored.get('evolution'),
+                        'has_evolution': restored.get('evolution') is not None,
+                        'neurons': restored.get('evolution', {}).get('neurons', 0) if restored.get('evolution') else 0,
+                        'consciousness': restored.get('evolution', {}).get('consciousness', 0) if restored.get('evolution') else 0
+                    })
+                return jsonify({'error': 'Neo4j not available'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
         
         @self.app.route('/api/debug/neo4j_insights', methods=['GET'])
+        def debug_neo4j_insights():
+            """Check how many insights are in Neo4j"""
+            try:
+                if self.evolution.neo4j_storage and self.evolution.neo4j_storage.is_available():
+                    driver = self.evolution.neo4j_storage.driver
+                    if driver:
+                        with driver.session() as session:
+                            result = session.run("MATCH (i:Insight) RETURN count(i) as count")
+                            count = result.single()["count"]
+                            return jsonify({'insights_in_neo4j': count})
+                return jsonify({'error': 'Neo4j not available'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
         
         @self.app.route('/api/debug/neo4j_nodes', methods=['GET'])
+        def debug_neo4j_nodes():
+            """List all node types and counts in Neo4j"""
+            try:
+                if not self.evolution.neo4j_storage or not self.evolution.neo4j_storage.is_available():
+                    return jsonify({'error': 'Neo4j not available'})
+                
+                driver = self.evolution.neo4j_storage.driver
+                if not driver:
+                    return jsonify({'error': 'No driver'})
+                
+                with driver.session() as session:
+                    result = session.run("MATCH (n) RETURN labels(n) as labels, count(n) as count")
+                    nodes = []
+                    for record in result:
+                        nodes.append({'labels': record['labels'], 'count': record['count']})
+                    
+                    return jsonify({'node_types': nodes, 'total_nodes': sum(n['count'] for n in nodes)})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
         
-        @self.app.route('/api/neo4j/count', methods=['GET'])
+        @self.app.route('/api/neo4j/count', methods=['GET'])        
         def neo4j_count():
             """Count nodes in Neo4j by type"""
             try:
@@ -3281,15 +3368,11 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-        @self.app.route('/api/force/load', methods=['POST'])
-        def force_load_from_neo4j():
-            """Force load all data from Neo4j into SI Core"""
-            result = {'success': False, 'insights_loaded': 0}
-            
+        @self.app.route('/api/debug/entity_sample', methods=['GET'])
+        def debug_entity_sample():
+            """Show sample Entity node structure"""
             try:
-                si = self.evolution.si_core
                 storage = self.evolution.neo4j_storage
-                
                 if not storage or not storage.is_available():
                     return jsonify({'error': 'Neo4j not available'})
                 
@@ -3298,15 +3381,60 @@ class DMAIApplication:
                     return jsonify({'error': 'No driver'})
                 
                 with driver.session() as session:
-                    # Load all insights
-                    insight_result = session.run("MATCH (i:Insight) RETURN i")
+                    # Get one Entity node
+                    result = session.run("MATCH (i:Entity) RETURN i LIMIT 1")
+                    record = result.single()
+                    if record:
+                        node = dict(record['i'].items())
+                        return jsonify({
+                            'has_entity_nodes': True,
+                            'sample_node_keys': list(node.keys()),
+                            'sample_node': {k: str(v)[:200] for k, v in node.items()}
+                        })
+                    else:
+                        # Try to find any node
+                        result2 = session.run("MATCH (n) RETURN n LIMIT 1")
+                        record2 = result2.single()
+                        if record2:
+                            node2 = dict(record2['n'].items())
+                            return jsonify({
+                                'has_entity_nodes': False,
+                                'has_other_nodes': True,
+                                'other_node_labels': list(record2['n'].labels),
+                                'other_node_keys': list(node2.keys()),
+                                'other_node_sample': {k: str(v)[:200] for k, v in node2.items()}
+                            })
+                        else:
+                            return jsonify({'has_entity_nodes': False, 'has_other_nodes': False})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/force/load', methods=['POST'])
+        def force_load_from_neo4j():
+            """Force load all data from Neo4j into SI Core - FIXED: uses Entity label"""
+            result = {'success': False, 'insights_loaded': 0}
+                    
+            try:        
+                si = self.evolution.si_core
+                storage = self.evolution.neo4j_storage 
+                        
+                if not storage or not storage.is_available():
+                    return jsonify({'error': 'Neo4j not available'})
+            
+                driver = storage.driver
+                if not driver:
+                    return jsonify({'error': 'No driver'})
+            
+                with driver.session() as session:
+                    # CRITICAL FIX: Your data uses Entity label (3,533 nodes), not Insight
+                    insight_result = session.run("MATCH (i:Entity) RETURN i")
                     insights_loaded = 0
                     for record in insight_result:
                         node = dict(record['i'].items())
                         try:
                             si.add_insight(
-                                insight_text=node.get('insight_text', ''),
-                                entity_type=node.get('entity_type', 'unknown'),
+                                insight_text=node.get('text', node.get('insight_text', '')),
+                                entity_type=node.get('category', node.get('entity_type', 'unknown')),
                                 entities=node.get('entities', []),
                                 relationship=node.get('relationship', 'related'),
                                 source_topic=node.get('source_topic', 'Neo4j'),
@@ -3316,18 +3444,18 @@ class DMAIApplication:
                             insights_loaded += 1
                         except Exception as e:
                             logger.error(f"Failed to load insight: {e}")
-                    
+                        
                     result['insights_loaded'] = insights_loaded
                     result['success'] = True
                     result['consciousness'] = si.consciousness
                     result['neurons'] = si.neuron_count
-                    
-                    logger.info(f"✅ Force loaded {insights_loaded} insights from Neo4j")
-                    
+                        
+                    logger.info(f"✅ Force loaded {insights_loaded} insights from Neo4j (Entity nodes)")
+                      
             except Exception as e:
                 result['error'] = str(e)
                 logger.error(f"Force load failed: {e}")
-            
+        
             return jsonify(result)
 
         def debug_neo4j_insights():
