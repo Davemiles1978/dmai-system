@@ -3460,31 +3460,6 @@ class DMAIApplication:
         
             return jsonify(result)
 
-        @self.app.route('/api/debug/entity_sample', methods=['GET'])
-        def debug_entity_sample():
-            """Show first Entity node's structure"""
-            try:
-                storage = self.evolution.neo4j_storage
-                if not storage or not storage.is_available():
-                    return jsonify({'error': 'Neo4j not available'})
-                
-                driver = storage.driver
-                if not driver:
-                    return jsonify({'error': 'No driver'})
-                
-                with driver.session() as session:
-                    result = session.run("MATCH (e:Entity) RETURN e LIMIT 1")
-                    record = result.single()
-                    if record:
-                        node = dict(record['e'].items())
-                        return jsonify({
-                            'node_keys': list(node.keys()),
-                            'sample': {k: str(v)[:100] for k, v in node.items()}
-                        })
-                    return jsonify({'error': 'No Entity nodes found'})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
             try:
