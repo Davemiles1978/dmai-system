@@ -2148,7 +2148,7 @@ class UnifiedEvolutionEngine:
             'dark_web_sites': len(self.dark_web.onion_sites),
             'fusion_weights': self.ai_fusion.fusion_weights,
             'active_tutors': active_tutors,
-            'neo4j_available': self.knowledge_graph.is_neo4j_available(),
+            'neo4j_available': self.neo4j_storage.is_available() if hasattr(self, 'neo4j_storage') and self.neo4j_storage else False,
             
             # Evolution stage info
             'evolution_stage_name': timer_info.get('name', 'Baby DMAI'),
