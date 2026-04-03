@@ -3481,10 +3481,17 @@ class DMAIApplication:
                 entity_keywords = []
                 
                 for insight in insights_list:
-                    # Extract text from various possible field names
-                    name = insight.get('insight_text', insight.get('text', insight.get('name', '')))
-                    insight_id = insight.get('id', insight.get('insight_id'))
+                    # Handle both dict and InsightNeuron objects
+                    if hasattr(insight, 'get'):  # It's a dict
+                        name = insight.get('insight_text', insight.get('text', insight.get('name', '')))
+                        insight_id = insight.get('id', insight.get('insight_id'))
+                    else:  # It's an InsightNeuron object
+                        # Try common attribute names
+                        name = getattr(insight, 'insight_text', None) or getattr(insight, 'text', None) or getattr(insight, 'name', '')
+                        insight_id = getattr(insight, 'id', None) or getattr(insight, 'insight_id', None)
                     
+                    if not name or not insight_id:
+                        continue
                     words = set(name.lower().split())
                     stop_words = {'the', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'for', 'with', 'on', 'at', 'by', 'is', 'are', 'be', 'was', 'were'}
                     keywords = [w for w in words if w not in stop_words and len(w) > 2]
@@ -3504,10 +3511,28 @@ class DMAIApplication:
                             strength = min(0.5, 0.2 + (len(overlap) * 0.05))
                             
                             try:
-                                si.add_synapse(
-                                    source_id=entity_keywords[i]['id'],
-                                    target_id=entity_keywords[j]['id'],
-                                    strength=strength,
+                                # Check if add_synapse or create_synapse method exists
+                                if hasattr(si, 'add_synapse'):
+                                    si.add_synapse(
+                                        source_id=entity_keywords[i]['id'],
+                                        target_id=entity_keywords[j]['id'],
+                                        strength=strength,
+                                        metadata={
+                                            'type': 'seeded',
+                                            'overlap_keywords': list(overlap),
+                                            'organic_strength': 0,
+                                            'co_activation_count': 0
+                                        }
+                                    )
+                                elif hasattr(si, 'create_synapse'):
+                                    si.create_synapse(
+                                        source_id=entity_keywords[i]['id'],
+                                        target_id=entity_keywords[j]['id'],
+                                        strength=strength
+                                    )
+                                else:
+                                    logger.warning("No synapse creation method found in SI Core")
+                                    continue
                                     metadata={
                                         'type': 'seeded',
                                         'overlap_keywords': list(overlap),
