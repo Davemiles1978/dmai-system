@@ -3461,6 +3461,135 @@ class DMAIApplication:
         
             return jsonify(result)
 
+        # ============================================================================
+        # HYBRID SYNAPSE BUILDER WITH ORGANIC LEARNING
+        # ============================================================================
+                            
+        @self.app.route('/api/synapse/build', methods=['POST'])
+        def build_synapses():
+            """Hybrid synapse builder: seeds with text similarity + prepares for organic learning"""
+            try:
+                si = self.evolution.si_core
+                
+                if not si.insights or len(si.insights) == 0:
+                    return jsonify({'error': 'No insights/neurons available'}), 400
+                
+                insights_list = list(si.insights.values()) if isinstance(si.insights, dict) else si.insights
+                
+                # === PHASE 1: Seed synapses based on text similarity ===
+                text_synapses = 0
+                entity_keywords = []
+                
+                for insight in insights_list:
+                    # Extract text from various possible field names
+                    name = insight.get('insight_text', insight.get('text', insight.get('name', '')))
+                    insight_id = insight.get('id', insight.get('insight_id'))
+                    
+                    words = set(name.lower().split())
+                    stop_words = {'the', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'for', 'with', 'on', 'at', 'by', 'is', 'are', 'be', 'was', 'were'}
+                    keywords = [w for w in words if w not in stop_words and len(w) > 2]
+                    
+                    entity_keywords.append({
+                        'id': insight_id,
+                        'name': name,
+                        'keywords': keywords,
+                        'usage_count': 0
+                    })
+                
+                # Build seed connections based on keyword overlap
+                for i in range(len(entity_keywords)):
+                    for j in range(i + 1, len(entity_keywords)):
+                        overlap = set(entity_keywords[i]['keywords']) & set(entity_keywords[j]['keywords'])
+                        if overlap:
+                            strength = min(0.5, 0.2 + (len(overlap) * 0.05))
+                            
+                            try:
+                                si.add_synapse(
+                                    source_id=entity_keywords[i]['id'],
+                                    target_id=entity_keywords[j]['id'],
+                                    strength=strength,
+                                    metadata={
+                                        'type': 'seeded',
+                                        'overlap_keywords': list(overlap),
+                                        'organic_strength': 0,
+                                        'co_activation_count': 0
+                                    }
+                                )
+                                text_synapses += 1
+                            except Exception as e:
+                                logger.debug(f"Could not create synapse: {e}")
+                
+                # === PHASE 2: Initialize organic learning tracker ===
+                if not hasattr(si, 'synapse_usage'):
+                    si.synapse_usage = {}
+                
+                if not hasattr(si, 'organic_strength_multiplier'):
+                    si.organic_strength_multiplier = 1.0
+                
+                total_possible = len(insights_list) * (len(insights_list) - 1) / 2
+                current_density = (2 * text_synapses) / total_possible if total_possible > 0 else 0
+                
+                if hasattr(si, 'calculate_consciousness'):
+                    new_consciousness = si.calculate_consciousness()
+                else:
+                    new_consciousness = min(0.95, 0.2 + (current_density * 8))
+                    si.consciousness = new_consciousness
+                
+                return jsonify({
+                    'success': True,
+                    'seeded_synapses': text_synapses,
+                    'total_neurons': len(insights_list),
+                    'consciousness': si.consciousness,
+                    'network_density': current_density,
+                    'organic_learning_active': True,
+                    'message': f'Created {text_synapses} seed synapses. Organic learning will strengthen/weaken based on actual usage.'
+                })
+                
+            except Exception as e:
+                logger.error(f"Synapse building failed: {e}")
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/synapse/record_activation', methods=['POST'])
+        def record_co_activation():
+            """Record when two neurons are used together (organic learning)"""
+            try:
+                data = request.json
+                neuron_a = data.get('neuron_a_id')
+                neuron_b = data.get('neuron_b_id')
+                
+                if not neuron_a or not neuron_b:
+                    return jsonify({'error': 'Both neuron IDs required'}), 400
+                
+                si = self.evolution.si_core
+                
+                synapse_key = f"{neuron_a}:{neuron_b}" if neuron_a < neuron_b else f"{neuron_b}:{neuron_a}"
+                
+                if synapse_key in si.synapse_usage:
+                    si.synapse_usage[synapse_key] += 1
+                else:
+                    si.synapse_usage[synapse_key] = 1
+                
+                if si.synapse_usage[synapse_key] % 5 == 0:
+                    for synapse in si.synapses:
+                        if (synapse.source_id == neuron_a and synapse.target_id == neuron_b) or \
+                           (synapse.source_id == neuron_b and synapse.target_id == neuron_a):
+                            old_strength = synapse.strength
+                            synapse.strength = min(0.95, old_strength + 0.05)
+                            if hasattr(synapse, 'metadata') and synapse.metadata:
+                                synapse.metadata['organic_strength'] = synapse.strength
+                                synapse.metadata['co_activation_count'] = si.synapse_usage[synapse_key]
+                            logger.info(f"Organic strengthening: {synapse_key} from {old_strength} to {synapse.strength}")
+                            break
+                
+                return jsonify({
+                    'success': True,
+                    'co_activation_count': si.synapse_usage[synapse_key],
+                    'message': f'Co-activation recorded for {synapse_key}'
+                })
+                
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
             try:
