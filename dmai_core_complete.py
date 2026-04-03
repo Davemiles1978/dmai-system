@@ -3524,23 +3524,17 @@ class DMAIApplication:
                                             'co_activation_count': 0
                                         }
                                     )
+                                    text_synapses += 1
                                 elif hasattr(si, 'create_synapse'):
                                     si.create_synapse(
                                         source_id=entity_keywords[i]['id'],
                                         target_id=entity_keywords[j]['id'],
                                         strength=strength
                                     )
+                                    text_synapses += 1
                                 else:
                                     logger.warning("No synapse creation method found in SI Core")
                                     continue
-                                    metadata={
-                                        'type': 'seeded',
-                                        'overlap_keywords': list(overlap),
-                                        'organic_strength': 0,
-                                        'co_activation_count': 0
-                                    }
-                                )
-                                text_synapses += 1
                             except Exception as e:
                                 logger.debug(f"Could not create synapse: {e}")
                 
