@@ -3217,6 +3217,40 @@ class DMAIApplication:
         @self.app.route('/api/debug/neo4j_data', methods=['GET'])
         
         @self.app.route('/api/debug/neo4j_insights', methods=['GET'])
+        
+        @self.app.route('/api/debug/neo4j_nodes', methods=['GET'])
+        def debug_neo4j_nodes():
+            """List all node types and counts in Neo4j"""
+            try:
+                if not self.evolution.neo4j_storage or not self.evolution.neo4j_storage.is_available():
+                    return jsonify({'error': 'Neo4j not available'})
+                
+                driver = self.evolution.neo4j_storage.driver
+                if not driver:
+                    return jsonify({'error': 'No driver'})
+                
+                with driver.session() as session:
+                    # Get all node labels and counts
+                    result = session.run("MATCH (n) RETURN labels(n) as labels, count(n) as count")
+                    nodes = []
+                    for record in result:
+                        nodes.append({'labels': record['labels'], 'count': record['count']})
+                    
+                    # Get sample Insight if any
+                    insight_sample = []
+                    result2 = session.run("MATCH (i:Insight) RETURN i LIMIT 3")
+                    for record in result2:
+                        node = dict(record['i'].items())
+                        insight_sample.append({k: str(v)[:100] for k, v in node.items()})
+                    
+                    return jsonify({
+                        'node_types': nodes,
+                        'insight_count': len(insight_sample),
+                        'insight_sample': insight_sample
+                    })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
             try:
