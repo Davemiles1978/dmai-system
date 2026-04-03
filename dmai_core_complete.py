@@ -1825,6 +1825,19 @@ class UnifiedEvolutionEngine:
         # Restore from Neo4j
         self._restore_from_neo4j()
 
+        # Force load SI Core data from Neo4j
+        try:
+            if self.neo4j_storage and self.neo4j_storage.is_available():
+                restored = self.neo4j_storage.restore_all()
+                if restored.get('evolution'):
+                    ev = restored['evolution']
+                    if ev.get('neurons', 0) > 0:
+                        logger.info(f"📀 Loading SI Core from Neo4j: {ev.get('neurons', 0)} neurons, {ev.get('consciousness', 0)} consciousness")
+                        # Note: SI Core should already have this data from _restore_from_neo4j
+        except Exception as e:
+            logger.error(f"Force Neo4j load failed: {e}")
+
+
         # Start systems
         self._start_active_systems()
         self._update_cached_status()
@@ -3161,6 +3174,23 @@ class DMAIApplication:
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
         
         @self.app.route('/api/debug/neo4j_detail', methods=['GET'])
+        
+        @self.app.route('/api/debug/neo4j_data', methods=['GET'])
+        def debug_neo4j_data():
+            """See what data Neo4j actually returns"""
+            try:
+                if self.evolution.neo4j_storage and self.evolution.neo4j_storage.is_available():
+                    restored = self.evolution.neo4j_storage.restore_all()
+                    return jsonify({
+                        'evolution': restored.get('evolution'),
+                        'has_evolution': restored.get('evolution') is not None,
+                        'neurons': restored.get('evolution', {}).get('neurons', 0) if restored.get('evolution') else 0,
+                        'consciousness': restored.get('evolution', {}).get('consciousness', 0) if restored.get('evolution') else 0
+                    })
+                return jsonify({'error': 'Neo4j not available'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         def debug_neo4j_detail():
             """Detailed Neo4j connection debug"""
             import os
