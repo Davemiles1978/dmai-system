@@ -3251,6 +3251,55 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/force/load', methods=['POST'])
+        def force_load_from_neo4j():
+            """Force load all data from Neo4j into SI Core"""
+            result = {'success': False, 'insights_loaded': 0}
+            
+            try:
+                si = self.evolution.si_core
+                storage = self.evolution.neo4j_storage
+                
+                if not storage or not storage.is_available():
+                    return jsonify({'error': 'Neo4j not available'})
+                
+                driver = storage.driver
+                if not driver:
+                    return jsonify({'error': 'No driver'})
+                
+                with driver.session() as session:
+                    # Load all insights
+                    insight_result = session.run("MATCH (i:Insight) RETURN i")
+                    insights_loaded = 0
+                    for record in insight_result:
+                        node = dict(record['i'].items())
+                        try:
+                            si.add_insight(
+                                insight_text=node.get('insight_text', ''),
+                                entity_type=node.get('entity_type', 'unknown'),
+                                entities=node.get('entities', []),
+                                relationship=node.get('relationship', 'related'),
+                                source_topic=node.get('source_topic', 'Neo4j'),
+                                target_topic=node.get('target_topic', 'Restored'),
+                                confidence=float(node.get('confidence', 0.5))
+                            )
+                            insights_loaded += 1
+                        except Exception as e:
+                            logger.error(f"Failed to load insight: {e}")
+                    
+                    result['insights_loaded'] = insights_loaded
+                    result['success'] = True
+                    result['consciousness'] = si.consciousness
+                    result['neurons'] = si.neuron_count
+                    
+                    logger.info(f"✅ Force loaded {insights_loaded} insights from Neo4j")
+                    
+            except Exception as e:
+                result['error'] = str(e)
+                logger.error(f"Force load failed: {e}")
+            
+            return jsonify(result)
+
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
             try:
