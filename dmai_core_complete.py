@@ -3136,8 +3136,13 @@ class DMAIApplication:
                 concepts=self.evolution.get_knowledge_concepts(200),
                 training_details=self.evolution.get_training_details())
 
-        @self.app.route('/api/status')
         
+
+        @self.app.route('/api/status')
+        def api_status():
+            """Return DMAI system status"""
+            return jsonify(self.evolution.get_status())
+
         @self.app.route('/api/simple/version')
         def simple_version():
             """Simple version endpoint"""
@@ -3149,6 +3154,43 @@ class DMAIApplication:
 
         
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
+        
+        @self.app.route('/api/debug/neo4j_detail', methods=['GET'])
+        def debug_neo4j_detail():
+            """Detailed Neo4j connection debug"""
+            import os
+            import traceback
+            result = {
+                'env_vars_set': {
+                    'NEO4J_URI': bool(os.environ.get('NEO4J_URI')),
+                    'NEO4J_USER': bool(os.environ.get('NEO4J_USER')),
+                    'NEO4J_PASSWORD': bool(os.environ.get('NEO4J_PASSWORD'))
+                },
+                'neo4j_storage_exists': hasattr(self.evolution, 'neo4j_storage'),
+                'connection_error': None
+            }
+            
+            if hasattr(self.evolution, 'neo4j_storage'):
+                try:
+                    # Try to test connection
+                    storage = self.evolution.neo4j_storage
+                    if hasattr(storage, 'is_available'):
+                        result['is_available'] = storage.is_available()
+                    if hasattr(storage, '_driver') and storage._driver:
+                        result['driver_created'] = True
+                        # Try a simple query
+                        try:
+                            with storage._driver.session() as session:
+                                result = session.run("RETURN 1 as test").single()["test"]
+                            result['test_query'] = True
+                        except Exception as e:
+                            result['test_query_error'] = str(e)
+                except Exception as e:
+                    result['connection_error'] = str(e)
+                    result['traceback'] = traceback.format_exc()
+            
+            return jsonify(result)
+
         def debug_neo4j_env():
             """Check Neo4j environment variables"""
             import os
