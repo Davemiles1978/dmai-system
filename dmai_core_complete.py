@@ -3411,7 +3411,7 @@ class DMAIApplication:
 
         @self.app.route('/api/force/load', methods=['POST'])
         def force_load_from_neo4j():
-            """Force load all data from Neo4j into SI Core - FIXED: uses Entity label"""
+            """Force load all Entity nodes from Neo4j into SI Core"""
             result = {'success': False, 'insights_loaded': 0}
                     
             try:        
@@ -3426,20 +3426,22 @@ class DMAIApplication:
                     return jsonify({'error': 'No driver'})
             
                 with driver.session() as session:
-                    # CRITICAL FIX: Your data uses Entity label (3,533 nodes), not Insight
-                    insight_result = session.run("MATCH (i:Entity) RETURN i")
+                    # FIXED: Query Entity nodes with 'name' field
+                    insight_result = session.run("MATCH (e:Entity) RETURN e")
                     insights_loaded = 0
                     for record in insight_result:
-                        node = dict(record['i'].items())
+                        node = dict(record['e'].items())
                         try:
+                            # Entity nodes have only 'name' field
+                            entity_name = node.get('name', 'Unknown Entity')
                             si.add_insight(
-                                insight_text=node.get('text', node.get('insight_text', '')),
-                                entity_type=node.get('category', node.get('entity_type', 'unknown')),
-                                entities=node.get('entities', []),
-                                relationship=node.get('relationship', 'related'),
-                                source_topic=node.get('source_topic', 'Neo4j'),
-                                target_topic=node.get('target_topic', 'Restored'),
-                                confidence=float(node.get('confidence', 0.5))
+                                insight_text=entity_name,
+                                entity_type='entity',
+                                entities=[entity_name],
+                                relationship='related',
+                                source_topic='Neo4j',
+                                target_topic='Restored',
+                                confidence=0.6
                             )
                             insights_loaded += 1
                         except Exception as e:
@@ -3450,13 +3452,38 @@ class DMAIApplication:
                     result['consciousness'] = si.consciousness
                     result['neurons'] = si.neuron_count
                         
-                    logger.info(f"✅ Force loaded {insights_loaded} insights from Neo4j (Entity nodes)")
+                    logger.info(f"✅ Force loaded {insights_loaded} Entity nodes as insights")
                       
             except Exception as e:
                 result['error'] = str(e)
                 logger.error(f"Force load failed: {e}")
         
             return jsonify(result)
+
+        @self.app.route('/api/debug/entity_sample', methods=['GET'])
+        def debug_entity_sample():
+            """Show first Entity node's structure"""
+            try:
+                storage = self.evolution.neo4j_storage
+                if not storage or not storage.is_available():
+                    return jsonify({'error': 'Neo4j not available'})
+                
+                driver = storage.driver
+                if not driver:
+                    return jsonify({'error': 'No driver'})
+                
+                with driver.session() as session:
+                    result = session.run("MATCH (e:Entity) RETURN e LIMIT 1")
+                    record = result.single()
+                    if record:
+                        node = dict(record['e'].items())
+                        return jsonify({
+                            'node_keys': list(node.keys()),
+                            'sample': {k: str(v)[:100] for k, v in node.items()}
+                        })
+                    return jsonify({'error': 'No Entity nodes found'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
