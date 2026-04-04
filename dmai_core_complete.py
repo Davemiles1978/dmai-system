@@ -5713,32 +5713,6 @@ class DMAIApplication:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
 
-        @self.app.route('/api/debug/evolution_status', methods=['GET'])
-        def debug_evolution_status():
-            """Check why evolutions are failing"""
-            try:
-                result = {}
-                
-                if hasattr(self.evolution, 'get_status'):
-                    status = self.evolution.get_status()
-                    result['evolution_cycles'] = status.get('evolution_cycles', 0)
-                    result['successful_evolutions'] = status.get('successful_evolutions', 0)
-                    result['consciousness'] = status.get('consciousness', 0)
-                    result['synthetic_neurons'] = status.get('synthetic_neurons', 0)
-                
-                if hasattr(self.evolution, 'evolution_timer'):
-                    timer = self.evolution.evolution_timer
-                    result['timer_stage'] = getattr(timer, 'current_stage', 'unknown')
-                    result['timer_evolutions'] = getattr(timer, 'evolutions', 0)
-                    result['wait_time'] = getattr(timer, 'wait_time', 0)
-                
-                if hasattr(self.evolution, 'evolution_cycle'):
-                    result['has_evolution_cycle'] = True
-                
-                return jsonify(result)
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
         @self.app.route('/api/evolution/trigger', methods=['POST'])
         def trigger_evolution():
             """Manually trigger an evolution cycle"""
