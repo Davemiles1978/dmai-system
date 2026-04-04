@@ -4375,51 +4375,55 @@ class DMAIApplication:
         def brain_3d_data():
             """Return 3D brain network data for visualization"""
             try:
-                si = self.evolution.si_core
                 neurons = []
                 synapses = []
+                consciousness = 0.0
                 
-                # Debug: Log what we have
-                logger.info(f"SI Core type: {type(si)}")
-                logger.info(f"Has insights: {hasattr(si, 'insights')}")
-                logger.info(f"Has neuron_count: {hasattr(si, 'neuron_count')}")
+                # Try multiple possible locations for neuron data
+                neuron_source = None
+                synapse_source = None
                 
-                # Try different possible storage locations
-                insights_data = None
+                # Check evolution.si_core
+                if hasattr(self.evolution, 'si_core') and self.evolution.si_core:
+                    if hasattr(self.evolution.si_core, 'neuron_count') and self.evolution.si_core.neuron_count > 0:
+                        neuron_source = self.evolution.si_core
+                        synapse_source = self.evolution.si_core
+                        consciousness = getattr(self.evolution.si_core, 'consciousness', 0.0)
+                        logger.info(f"Using si_core: {self.evolution.si_core.neuron_count} neurons")
                 
-                # Check for insights attribute
-                if hasattr(si, 'insights'):
-                    insights_data = si.insights
-                    logger.info(f"insights type: {type(insights_data)}, length: {len(insights_data) if insights_data else 0}")
+                # Check evolution directly (for get_status)
+                if (not neuron_source or neuron_source.neuron_count == 0) and hasattr(self.evolution, 'get_status'):
+                    status = self.evolution.get_status()
+                    if status.get('synthetic_neurons', 0) > 0:
+                        # Need to extract from knowledge graph or training systems
+                        logger.info(f"Status shows {status.get('synthetic_neurons')} neurons, looking elsewhere")
+                        # Try to get from knowledge graph
+                        if hasattr(self.evolution, 'knowledge_graph') and self.evolution.knowledge_graph:
+                            kg_stats = self.evolution.knowledge_graph.get_stats() if hasattr(self.evolution.knowledge_graph, 'get_stats') else {}
+                            if kg_stats.get('total_concepts', 0) > 0:
+                                # Create synthetic neurons from knowledge graph concepts
+                                concepts = self.evolution.knowledge_graph.get_all_concepts() if hasattr(self.evolution.knowledge_graph, 'get_all_concepts') else []
+                                for i, concept in enumerate(concepts[:200]):  # Limit for performance
+                                    neurons.append({
+                                        'id': f"kg_{i}",
+                                        'label': concept[:50] if isinstance(concept, str) else str(concept),
+                                        'category': 'general',
+                                        'confidence': 0.6
+                                    })
+                                logger.info(f"Created {len(neurons)} neurons from knowledge graph")
                 
-                # If insights is empty, check for neurons attribute
-                if not insights_data or len(insights_data) == 0:
-                    if hasattr(si, 'neurons'):
-                        insights_data = si.neurons
-                        logger.info(f"neurons type: {type(insights_data)}, length: {len(insights_data) if insights_data else 0}")
-                
-                # If still empty, check for _insights
-                if not insights_data or len(insights_data) == 0:
-                    if hasattr(si, '_insights'):
-                        insights_data = si._insights
-                        logger.info(f"_insights type: {type(insights_data)}, length: {len(insights_data) if insights_data else 0}")
-                
-                # Process neurons if we found any
-                if insights_data and len(insights_data) > 0:
-                    for insight_id, insight in insights_data.items():
-                        # Handle both dict and object
-                        if hasattr(insight, 'get'):
-                            # It's a dict
-                            label = insight.get('insight_text', insight.get('text', insight.get('name', str(insight_id))))
-                            category = insight.get('category', insight.get('entity_type', 'general'))
-                            confidence = insight.get('confidence', 0.5)
-                        elif hasattr(insight, '__dict__'):
-                            # It's an object
+                # If we have a neuron source with insights
+                if neuron_source and hasattr(neuron_source, 'insights') and neuron_source.insights:
+                    for insight_id, insight in neuron_source.insights.items():
+                        if hasattr(insight, '__dict__'):
                             label = getattr(insight, 'insight_text', getattr(insight, 'text', getattr(insight, 'name', str(insight_id))))
                             category = getattr(insight, 'category', getattr(insight, 'entity_type', 'general'))
                             confidence = getattr(insight, 'confidence', 0.5)
+                        elif isinstance(insight, dict):
+                            label = insight.get('insight_text', insight.get('text', insight.get('name', str(insight_id))))
+                            category = insight.get('category', insight.get('entity_type', 'general'))
+                            confidence = insight.get('confidence', 0.5)
                         else:
-                            # Fallback
                             label = str(insight_id)
                             category = 'general'
                             confidence = 0.5
@@ -4431,15 +4435,9 @@ class DMAIApplication:
                             'confidence': float(confidence)
                         })
                 
-                # Process synapses
-                synapses_data = None
-                if hasattr(si, 'synapses'):
-                    synapses_data = si.synapses
-                elif hasattr(si, '_synapses'):
-                    synapses_data = si._synapses
-                
-                if synapses_data and len(synapses_data) > 0:
-                    for synapse in synapses_data:
+                # If we have a synapse source
+                if synapse_source and hasattr(synapse_source, 'synapses') and synapse_source.synapses:
+                    for synapse in synapse_source.synapses:
                         if hasattr(synapse, 'source_id') and hasattr(synapse, 'target_id'):
                             synapses.append({
                                 'source': str(synapse.source_id),
@@ -4453,14 +4451,27 @@ class DMAIApplication:
                                 'strength': float(synapse.get('strength', 0.5))
                             })
                 
-                # Get consciousness
-                consciousness = 0.0
-                if hasattr(si, 'consciousness'):
-                    consciousness = si.consciousness
-                elif hasattr(si, 'consciousness_level'):
-                    consciousness = si.consciousness_level
+                # Also try to get from evolution's synthetic_network
+                if len(neurons) == 0 and hasattr(self.evolution, 'synthetic_network') and self.evolution.synthetic_network:
+                    sn = self.evolution.synthetic_network
+                    if hasattr(sn, 'neurons') and sn.neurons:
+                        for neuron_id, neuron in sn.neurons.items():
+                            neurons.append({
+                                'id': str(neuron_id),
+                                'label': getattr(neuron, 'name', str(neuron_id))[:50],
+                                'category': 'general',
+                                'confidence': getattr(neuron, 'activation', 0.5)
+                            })
+                    if hasattr(sn, 'synapses') and sn.synapses:
+                        for synapse in sn.synapses:
+                            if hasattr(synapse, 'source') and hasattr(synapse, 'target'):
+                                synapses.append({
+                                    'source': str(synapse.source),
+                                    'target': str(synapse.target),
+                                    'strength': getattr(synapse, 'strength', 0.5)
+                                })
                 
-                logger.info(f"Returning {len(neurons)} neurons, {len(synapses)} synapses")
+                logger.info(f"Final: {len(neurons)} neurons, {len(synapses)} synapses")
                 
                 return jsonify({
                     'success': True,
