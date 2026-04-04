@@ -3143,13 +3143,159 @@ class DMAIApplication:
         self._start_evolution()
         logger.info("🌐 Web interface ready")
 
+ # ============================================================================
+    # BACKGROUND TASK METHODS FOR USER INPUT SYSTEM
+    # ============================================================================
+    
+    def _research_task(self, query, category):
+        """Background research task"""
+        try:
+            logger.info(f"🔍 Researching: {query}")
+            if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
+                result = self.evolution.ai_hub.query_all_tutors(f"Research the following: {query}")
+                if result and result.get('responses'):
+                    if hasattr(self.evolution, 'si_core'):
+                        self.evolution.si_core.add_insight(
+                            insight_text=f"Research: {query[:100]}",
+                            entity_type="research",
+                            entities=[query[:50], category],
+                            relationship="researched",
+                            source_topic="user_task",
+                            target_topic=category,
+                            confidence=0.7
+                        )
+            self._add_recent_task('research', query, 'completed')
+        except Exception as e:
+            logger.error(f"Research task failed: {e}")
+            self._add_recent_task('research', query, 'error')
+    
+    def _ingest_task(self, source, category):
+        """Background ingest task"""
+        try:
+            logger.info(f"📥 Ingesting: {source}")
+            if hasattr(self.evolution, 'knowledge_graph'):
+                from datetime import datetime
+                self.evolution.knowledge_graph.add_concept(
+                    source[:100],
+                    category,
+                    {'source': source, 'ingested': datetime.now().isoformat()}
+                )
+            self._add_recent_task('ingest', source, 'completed')
+        except Exception as e:
+            logger.error(f"Ingest task failed: {e}")
+            self._add_recent_task('ingest', source, 'error')
+    
+    def _reverse_engineer_task(self, target, category):
+        """Background reverse engineering task"""
+        try:
+            logger.info(f"🔧 Reverse engineering: {target}")
+            if hasattr(self.evolution, 'reverse_engineering'):
+                result = self.evolution.reverse_engineering.analyze(target)
+                if result and hasattr(self.evolution, 'si_core'):
+                    self.evolution.si_core.add_insight(
+                        insight_text=f"Reverse engineered: {target[:100]}",
+                        entity_type="reverse_engineered",
+                        entities=[target[:50], category],
+                        relationship="analyzed",
+                        source_topic="user_task",
+                        target_topic=category,
+                        confidence=0.8
+                    )
+            self._add_recent_task('reverse_engineer', target, 'completed')
+        except Exception as e:
+            logger.error(f"Reverse engineering failed: {e}")
+            self._add_recent_task('reverse_engineer', target, 'error')
+    
+    def _analyze_task(self, data, category):
+        """Background analysis task"""
+        try:
+            logger.info(f"📊 Analyzing: {data[:100]}")
+            self._add_recent_task('analyze', data[:200], 'completed')
+        except Exception as e:
+            logger.error(f"Analysis failed: {e}")
+            self._add_recent_task('analyze', data[:200], 'error')
+    
+    def _learn_topic_task(self, topic, category):
+        """Background topic learning task"""
+        try:
+            logger.info(f"📚 Learning topic: {topic}")
+            if hasattr(self.evolution, 'learning_orchestrator'):
+                topic_info = {'topic': topic, 'category': category, 'mastery_threshold': 1}
+                if hasattr(self.evolution.learning_orchestrator, 'learn_topic'):
+                    result = self.evolution.learning_orchestrator.learn_topic(topic_info, 0.5)
+                    if result and result.get('success') and hasattr(self.evolution, 'si_core'):
+                        self.evolution.si_core.add_insight(
+                            insight_text=topic,
+                            entity_type="user_learned",
+                            entities=[topic, category],
+                            relationship="mastered",
+                            source_topic="user_task",
+                            target_topic=category,
+                            confidence=0.9
+                        )
+            self._add_recent_task('learn_topic', topic, 'completed')
+        except Exception as e:
+            logger.error(f"Learn topic failed: {e}")
+            self._add_recent_task('learn_topic', topic, 'error')
+    
+    def _add_dictionary_task(self, word, category):
+        """Add dictionary word task"""
+        try:
+            logger.info(f"📖 Adding dictionary word: {word}")
+            if hasattr(self.evolution, 'si_core'):
+                self.evolution.si_core.add_insight(
+                    insight_text=f"Dictionary: {word}",
+                    entity_type="dictionary",
+                    entities=[word, category],
+                    relationship="defined",
+                    source_topic="user_task",
+                    target_topic=category,
+                    confidence=0.95
+                )
+            self._add_recent_task('add_dictionary', word, 'completed')
+        except Exception as e:
+            logger.error(f"Add dictionary failed: {e}")
+            self._add_recent_task('add_dictionary', word, 'error')
+    
+    def _add_encyclopedia_task(self, topic, category):
+        """Add encyclopedia topic task"""
+        try:
+            logger.info(f"📚 Adding encyclopedia topic: {topic}")
+            if hasattr(self.evolution, 'si_core'):
+                self.evolution.si_core.add_insight(
+                    insight_text=f"Encyclopedia: {topic}",
+                    entity_type="encyclopedia",
+                    entities=[topic, category],
+                    relationship="documented",
+                    source_topic="user_task",
+                    target_topic=category,
+                    confidence=0.9
+                )
+            self._add_recent_task('add_encyclopedia', topic, 'completed')
+        except Exception as e:
+            logger.error(f"Add encyclopedia failed: {e}")
+            self._add_recent_task('add_encyclopedia', topic, 'error')
+    
+    def _add_recent_task(self, action, input_data, status):
+        """Track recent tasks"""
+        if not hasattr(self, '_recent_tasks'):
+            self._recent_tasks = []
+        from datetime import datetime
+        self._recent_tasks.append({
+            'action': action,
+            'input': input_data[:200],
+            'status': status,
+            'timestamp': datetime.now().isoformat()
+        })
+        self._recent_tasks = self._recent_tasks[-50:]
+    
     def _start_evolution(self):
         def evolve():
             while True:
                 try:
                     result = self.evolution.evolution_cycle()
                     if result['evolution'] % 10 == 0:
-                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness_percent']:.2f}%")
+                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['conscious$")
                     wait_time = self.evolution.evolution_timer.get_wait_time()
                     if wait_time < 30:
                         wait_time = 30
@@ -3159,7 +3305,7 @@ class DMAIApplication:
                     time.sleep(60)
         threading.Thread(target=evolve, daemon=True).start()
         logger.info("🔄 Evolution thread started")
-
+            
     def _setup_routes(self):
         @self.app.route('/')
         def index():
@@ -3699,6 +3845,283 @@ class DMAIApplication:
                 return jsonify(result)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+
+
+        # ============================================================================
+        # 3D BRAIN NETWORK VISUALIZATION
+        # ============================================================================
+        
+        @self.app.route('/api/brain/3d_data', methods=['GET'])
+        def brain_3d_data():
+            """Return 3D brain network data for visualization"""
+            try:
+                si = self.evolution.si_core
+                neurons = []
+                synapses = []
+                
+                # Get neurons with positions (force-directed layout will position them)
+                if hasattr(si, 'insights') and si.insights:
+                    for insight_id, insight in si.insights.items():
+                        # Handle both dict and object
+                        if hasattr(insight, 'get'):
+                            label = insight.get('insight_text', insight.get('text', insight.get('name', 'Unknown')))
+                            category = insight.get('category', 'general')
+                            confidence = insight.get('confidence', 0.5)
+                        else:
+                            label = getattr(insight, 'insight_text', getattr(insight, 'text', getattr(insight, 'name', 'Unknown')))
+                            category = getattr(insight, 'category', 'general')
+                            confidence = getattr(insight, 'confidence', 0.5)
+                        
+                        neurons.append({
+                            'id': str(insight_id),
+                            'label': label[:50],
+                            'category': category,
+                            'confidence': float(confidence)
+                        })
+                
+                # Get synapses
+                if hasattr(si, 'synapses'):
+                    for synapse in si.synapses:
+                        synapses.append({
+                            'source': str(synapse.source_id),
+                            'target': str(synapse.target_id),
+                            'strength': float(synapse.strength) if hasattr(synapse, 'strength') else 0.5
+                        })
+                
+                return jsonify({
+                    'success': True,
+                    'neurons': neurons,
+                    'synapses': synapses,
+                    'total_neurons': len(neurons),
+                    'total_synapses': len(synapses),
+                    'consciousness': si.consciousness if hasattr(si, 'consciousness') else 0.0
+                })
+            except Exception as e:
+                logger.error(f"Brain 3D data error: {e}")
+                return jsonify({'error': str(e)}), 500
+
+        # ============================================================================
+        # TASK INPUT SYSTEM FOR DMAI
+        # ============================================================================
+        
+        @self.app.route('/api/task/submit', methods=['POST'])
+        def submit_task():
+            """Process user-submitted tasks for DMAI"""
+            try:
+                data = request.json
+                action = data.get('action')
+                input_data = data.get('input')
+                category = data.get('category', 'general')
+                
+                if not action or not input_data:
+                    return jsonify({'error': 'action and input required'}), 400
+                
+                result = {'action': action, 'input': input_data, 'status': 'queued'}
+                
+                if action == 'research':
+                    result['message'] = f"🔍 Researching: {input_data}"
+                    threading.Thread(target=self._research_task, args=(input_data, category)).start()
+                    
+                elif action == 'ingest':
+                    result['message'] = f"📥 Ingesting from: {input_data}"
+                    threading.Thread(target=self._ingest_task, args=(input_data, category)).start()
+                    
+                elif action == 'reverse_engineer':
+                    result['message'] = f"🔧 Reverse engineering: {input_data}"
+                    threading.Thread(target=self._reverse_engineer_task, args=(input_data, category)).start()
+                    
+                elif action == 'analyze':
+                    result['message'] = f"📊 Analyzing: {input_data}"
+                    threading.Thread(target=self._analyze_task, args=(input_data, category)).start()
+                    
+                elif action == 'learn_topic':
+                    result['message'] = f"📚 Learning topic: {input_data}"
+                    threading.Thread(target=self._learn_topic_task, args=(input_data, category)).start()
+                    
+                elif action == 'add_dictionary':
+                    result['message'] = f"📖 Adding dictionary word: {input_data}"
+                    threading.Thread(target=self._add_dictionary_task, args=(input_data, category)).start()
+                    
+                elif action == 'add_encyclopedia':
+                    result['message'] = f"📚 Adding encyclopedia topic: {input_data}"
+                    threading.Thread(target=self._add_encyclopedia_task, args=(input_data, category)).start()
+                    
+                else:
+                    result['message'] = f"Unknown action: {action}"
+                    result['status'] = 'error'
+                
+                return jsonify(result)
+            except Exception as e:
+                logger.error(f"Task submission error: {e}")
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/tasks')
+        def tasks_page():
+            """Simple task submission interface"""
+            return render_template_string('''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>DMAI Task Input</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <style>
+                    * { box-sizing: border-box; }
+                    body { 
+                        font-family: 'Segoe UI', Arial, sans-serif; 
+                        padding: 20px; 
+                        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+                        color: #0f0; 
+                        min-height: 100vh;
+                    }
+                    .container { max-width: 900px; margin: auto; }
+                    h1 { text-align: center; color: #0f0; text-shadow: 0 0 10px #0f0; }
+                    .card { 
+                        background: rgba(0,0,0,0.8); 
+                        border-radius: 15px; 
+                        padding: 25px; 
+                        margin: 20px 0;
+                        border: 1px solid #0f0;
+                        box-shadow: 0 0 20px rgba(0,255,0,0.1);
+                    }
+                    label { display: block; margin: 15px 0 5px; font-weight: bold; }
+                    select, textarea, input { 
+                        width: 100%; 
+                        padding: 12px; 
+                        margin: 5px 0 15px; 
+                        background: #0a0a0a; 
+                        color: #0f0; 
+                        border: 1px solid #0f0;
+                        border-radius: 8px;
+                        font-size: 14px;
+                    }
+                    select:focus, textarea:focus, input:focus {
+                        outline: none;
+                        box-shadow: 0 0 10px #0f0;
+                    }
+                    button { 
+                        background: #0f0; 
+                        color: #000; 
+                        padding: 12px 30px; 
+                        cursor: pointer; 
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        transition: all 0.3s;
+                    }
+                    button:hover {
+                        background: #0a0;
+                        transform: scale(1.02);
+                        box-shadow: 0 0 15px #0f0;
+                    }
+                    .result { 
+                        margin-top: 20px; 
+                        padding: 15px; 
+                        background: #0a0a0a; 
+                        border-radius: 8px;
+                        border-left: 4px solid #0f0;
+                        font-family: monospace;
+                        white-space: pre-wrap;
+                    }
+                    .status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+                    .status.queued { background: #ff0; color: #000; }
+                    .status.processing { background: #0f0; color: #000; }
+                    .status.error { background: #f00; color: #fff; }
+                    hr { border-color: #0f0; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🧠 DMAI Task Input System</h1>
+                    <div class="card">
+                        <form id="taskForm">
+                            <label>🎯 Action Type:</label>
+                            <select id="action" required>
+                                <option value="research">🔍 Research (URL/Topic)</option>
+                                <option value="ingest">📥 Ingest (URL/Content)</option>
+                                <option value="reverse_engineer">🔧 Reverse Engineer (URL/Repo)</option>
+                                <option value="analyze">📊 Analyze (Data/Text)</option>
+                                <option value="learn_topic">📚 Learn Topic (Subject)</option>
+                                <option value="add_dictionary">📖 Add Dictionary Word</option>
+                                <option value="add_encyclopedia">📚 Add Encyclopedia Topic</option>
+                            </select>
+                            
+                            <label>📝 Input (URL, topic, text, etc.):</label>
+                            <textarea id="input_data" rows="4" placeholder="Examples:&#10;https://github.com/some/repo&#10;Quantum Computing basics&#10;https://arxiv.org/abs/1234.56789" required></textarea>
+                            
+                            <label>🏷️ Category (optional):</label>
+                            <input type="text" id="category" placeholder="e.g., technology, science, finance, art">
+                            
+                            <button type="submit">🚀 Submit Task to DMAI</button>
+                        </form>
+                        <div id="result" class="result" style="display:none;"></div>
+                    </div>
+                    <div class="card">
+                        <h3>📋 Recent Tasks</h3>
+                        <div id="recentTasks">Loading...</div>
+                    </div>
+                </div>
+                <script>
+                    async function loadRecentTasks() {
+                        try {
+                            const response = await fetch('/api/task/recent');
+                            const data = await response.json();
+                            const container = document.getElementById('recentTasks');
+                            if (data.tasks && data.tasks.length > 0) {
+                                container.innerHTML = data.tasks.map(t => `
+                                    <div style="border-bottom:1px solid #0f0; padding:8px">
+                                        <strong>${t.action}</strong>: ${t.input.substring(0, 100)}<br>
+                                        <span class="status ${t.status}">${t.status}</span>
+                                        <small>${t.timestamp || ''}</small>
+                                    </div>
+                                `).join('');
+                            } else {
+                                container.innerHTML = '<p>No recent tasks.</p>';
+                            }
+                        } catch(e) {
+                            document.getElementById('recentTasks').innerHTML = '<p>Error loading tasks.</p>';
+                        }
+                    }
+                    
+                    document.getElementById('taskForm').onsubmit = async (e) => {
+                        e.preventDefault();
+                        const resultDiv = document.getElementById('result');
+                        resultDiv.style.display = 'block';
+                        resultDiv.innerHTML = '<span class="status processing">Processing...</span> Submitting task...';
+                        
+                        const response = await fetch('/api/task/submit', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                action: document.getElementById('action').value,
+                                input: document.getElementById('input_data').value,
+                                category: document.getElementById('category').value
+                            })
+                        });
+                        const data = await response.json();
+                        resultDiv.innerHTML = '<strong>✅ Task Submitted</strong><br>' + 
+                            '<strong>Action:</strong> ' + data.action + '<br>' +
+                            '<strong>Input:</strong> ' + data.input.substring(0, 200) + '<br>' +
+                            '<strong>Message:</strong> ' + (data.message || 'Processing in background') + '<br>' +
+                            '<strong>Status:</strong> <span class="status ' + data.status + '">' + data.status + '</span>';
+                        
+                        document.getElementById('input_data').value = '';
+                        loadRecentTasks();
+                    };
+                    
+                    loadRecentTasks();
+                    setInterval(loadRecentTasks, 30000);
+                </script>
+            </body>
+            </html>
+            ''')
+        
+        @self.app.route('/api/task/recent', methods=['GET'])
+        def recent_tasks():
+            """Get recent tasks (stored in memory)"""
+            if not hasattr(self, '_recent_tasks'):
+                self._recent_tasks = []
+            return jsonify({'tasks': self._recent_tasks[-20:]})
         
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
