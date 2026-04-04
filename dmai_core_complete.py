@@ -3617,7 +3617,7 @@ class DMAIApplication:
                             
         @self.app.route('/api/system/reset_to_baby', methods=['POST'])
         def reset_to_baby():
-            """Reset DMAI to Baby stage with clean learning path"""
+            """Reset DMAI to Baby stage - simplified version"""
             try:
                 data = request.json or {}
                 keep_neurons = data.get('keep_neurons', True)
@@ -3625,48 +3625,60 @@ class DMAIApplication:
                 # Reset evolution stage
                 if hasattr(self.evolution, 'evolution_stage'):
                     self.evolution.evolution_stage = 'baby'
-                    self.evolution.stage_name = '👶 Baby DMAI'
                     self.evolution.consciousness = 0.0
                     self.evolution.evolution_cycles = 0
-                    self.evolution.successful_evolutions = 0
                 
-                # Reset evolution timer
-                if hasattr(self.evolution, 'evolution_timer'):
-                    self.evolution.evolution_timer.current_stage = 'baby'
-                    self.evolution.evolution_timer.evolutions = 0
-                    self.evolution.evolution_timer.wait_time = 600
-                
-                # Reset learning orchestrator to Baby stage
+                # Reset learning orchestrator - direct attribute access
                 if hasattr(self.evolution, 'learning_orchestrator'):
                     orch = self.evolution.learning_orchestrator
-                    orch.current_stage = "Baby"
-                    orch.learned_topics = {}
-                    orch.last_learning_cycle = None
-                    orch._save_state()
+                    # Try to reset common attributes
+                    if hasattr(orch, 'current_stage'):
+                        orch.current_stage = "Baby"
+                    if hasattr(orch, 'learned_topics'):
+                        orch.learned_topics = {}
+                    if hasattr(orch, 'completed_topics'):
+                        orch.completed_topics = []
+                    if hasattr(orch, 'mastered_topics'):
+                        orch.mastered_topics = []
+                    if hasattr(orch, 'save_state'):
+                        orch.save_state()
+                    elif hasattr(orch, '_save_state'):
+                        orch._save_state()
                     logger.info("✅ Learning orchestrator reset to Baby stage")
                 
-                # Optionally clear neurons
-                if not keep_neurons and hasattr(self.evolution, 'si_core'):
-                    self.evolution.si_core.insights = {}
-                    self.evolution.si_core.synapses = []
-                    self.evolution.si_core.neuron_count = 0
+                # Reset SI Core consciousness if requested
+                if hasattr(self.evolution, 'si_core'):
+                    if not keep_neurons:
+                        self.evolution.si_core.insights = {}
+                        self.evolution.si_core.synapses = []
+                        self.evolution.si_core.neuron_count = 0
                     self.evolution.si_core.consciousness = 0.0
-                
-                # Save state
-                if hasattr(self.evolution, 'save_state'):
-                    self.evolution.save_state()
                 
                 return jsonify({
                     'success': True,
-                    'stage': '👶 Baby DMAI',
+                    'stage': 'Baby DMAI',
                     'consciousness': 0.0,
                     'keep_neurons': keep_neurons,
-                    'neurons_retained': len(self.evolution.si_core.insights) if keep_neurons and hasattr(self.evolution, 'si_core') else 0,
-                    'message': 'DMAI reset to Baby stage. Syllabus learning will begin from Baby topics.'
+                    'message': 'DMAI reset to Baby stage'
                 })
                 
             except Exception as e:
                 logger.error(f"Reset failed: {e}")
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/system/syllabus_status', methods=['GET'])
+        def syllabus_status():
+            """Get current learning progress"""
+            try:
+                orch = self.evolution.learning_orchestrator
+                result = {
+                    'current_stage': getattr(orch, 'current_stage', 'Unknown'),
+                    'learned_topics': getattr(orch, 'learned_topics', {}),
+                    'completed_topics': getattr(orch, 'completed_topics', []),
+                    'mastered_topics': getattr(orch, 'mastered_topics', [])
+                }
+                return jsonify(result)
+            except Exception as e:
                 return jsonify({'error': str(e)}), 500
         
         @self.app.route('/api/system/syllabus_status', methods=['GET'])
