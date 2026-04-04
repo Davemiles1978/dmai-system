@@ -4737,75 +4737,126 @@ class DMAIApplication:
         
         @self.app.route('/api/brain/3d_data', methods=['GET'])
         def brain_3d_data():
-            """Return 3D brain network data - reads from same source as /api/status"""
+            """Return hierarchical brain data: groups at top level, neurons on demand"""
             try:
-                # Get status which has the correct neuron count
-                status = self.evolution.get_status()
-                neuron_count = status.get('synthetic_neurons', 0)
+                # Get all neurons from self.neurons (3540 available)
+                neurons = getattr(self, 'neurons', {})
+                if not neurons:
+                    # Try to get from evolution
+                    if hasattr(self.evolution, 'neurons'):
+                        neurons = self.evolution.neurons
+                    else:
+                        return jsonify({'success': False, 'error': 'No neurons loaded'}), 404
                 
-                neurons = []
-                synapses = []
+                # Group neurons by category
+                groups = {}
+                for neuron_id, neuron in neurons.items():
+                    category = neuron.get('category', 'general')
+                    if category not in groups:
+                        groups[category] = {
+                            'id': category,
+                            'name': category.replace('_', ' ').title(),
+                            'category': category,
+                            'count': 0,
+                            'neurons': [],  # Store limited neuron data for zoom
+                            'position': {
+                                'x': (hash(category) % 200) / 10 - 10,
+                                'y': (hash(category + 'y') % 200) / 10 - 10,
+                                'z': (hash(category + 'z') % 200) / 10 - 10
+                            },
+                            'color': self._get_category_color(category)
+                        }
+                    groups[category]['count'] += 1
+                    # Store only essential data for zoom level
+                    groups[category]['neurons'].append({
+                        'id': neuron_id,
+                        'name': neuron.get('name', 'Unknown'),
+                        'confidence': neuron.get('confidence', 0.5)
+                    })
                 
-                # Try to get from si_core.insights (where force_load puts them)
-                if hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'insights'):
-                    insights = self.evolution.si_core.insights
-                    if insights and len(insights) > 0:
-                        for insight_id, insight in insights.items():
-                            if hasattr(insight, '__dict__'):
-                                label = getattr(insight, 'insight_text', getattr(insight, 'text', getattr(insight, 'name', str(insight_id))))
-                                category = getattr(insight, 'category', getattr(insight, 'entity_type', 'general'))
-                                confidence = getattr(insight, 'confidence', 0.5)
-                            elif isinstance(insight, dict):
-                                label = insight.get('insight_text', insight.get('text', insight.get('name', str(insight_id))))
-                                category = insight.get('category', insight.get('entity_type', 'general'))
-                                confidence = insight.get('confidence', 0.5)
-                            else:
-                                label = str(insight_id)
-                                category = 'general'
-                                confidence = 0.5
-                            
-                            neurons.append({
-                                'id': str(insight_id),
-                                'label': label[:50],
-                                'category': category.lower(),
-                                'confidence': float(confidence)
-                            })
+                # Convert to list and limit neurons per group for performance
+                groups_list = []
+                for group in groups.values():
+                    # Only send first 30 neurons per group for initial load
+                    if len(group['neurons']) > 30:
+                        group['neurons'] = group['neurons'][:30]
+                        group['has_more'] = True
+                    groups_list.append(group)
                 
-                # If still no neurons but status says there are, create placeholder neurons
-                if len(neurons) == 0 and neuron_count > 0:
-                    for i in range(min(neuron_count, 500)):
-                        neurons.append({
-                            'id': f'neuron_{i}',
-                            'label': f'Neuron {i+1}',
-                            'category': 'general',
-                            'confidence': 0.6
-                        })
-                
-                # Get synapses similarly
-                if hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'synapses'):
-                    syn_list = self.evolution.si_core.synapses
-                    if syn_list:
-                        for synapse in syn_list[:2000]:
-                            if hasattr(synapse, 'source_id') and hasattr(synapse, 'target_id'):
-                                synapses.append({
-                                    'source': str(synapse.source_id),
-                                    'target': str(synapse.target_id),
-                                    'strength': float(synapse.strength) if hasattr(synapse, 'strength') else 0.5
-                                })
-                
-                consciousness = status.get('consciousness_raw', 0.0)
-                
+                # Calculate consciousness level
+                consciousness = 0.0
+                if hasattr(self.evolution, 'si_core'):
+                    consciousness = getattr(self.evolution.si_core, 'consciousness', 0.0)
+
                 return jsonify({
                     'success': True,
-                    'neurons': neurons,
-                    'synapses': synapses,
+                    'groups': groups_list,
                     'total_neurons': len(neurons),
-                    'total_synapses': len(synapses),
-                    'consciousness': float(consciousness)
+                    'total_groups': len(groups_list),
+                    'consciousness': consciousness,
+                    'message': f'Brain organized into {len(groups_list)} knowledge groups'
                 })
+
             except Exception as e:
                 logger.error(f"Brain 3D data error: {e}")
                 return jsonify({'error': str(e), 'success': False}), 500
+        
+        @self.app.route('/api/brain/group/<group_id>', methods=['GET'])
+        def brain_group_detail(self, group_id):
+            """Return all neurons in a specific group for zoomed-in view"""
+            try:
+                neurons = getattr(self, 'neurons', {})
+                if not neurons and hasattr(self.evolution, 'neurons'):
+                    neurons = self.evolution.neurons
+                
+                group_neurons = []
+                for neuron_id, neuron in neurons.items():
+                    if neuron.get('category', 'general') == group_id:
+                        # Generate position if not exists
+                        position = neuron.get('position')
+                        if not position:
+                            position = {
+                                'x': (hash(neuron_id) % 1000) / 10 - 50,
+                                'y': (hash(neuron.get('name', '')) % 1000) / 10 - 50,
+                                'z': (hash(group_id) % 1000) / 10 - 50
+                            }
+                        
+                        group_neurons.append({
+                            'id': neuron_id,
+                            'name': neuron.get('name', 'Unknown'),
+                            'confidence': neuron.get('confidence', 0.5),
+                            'category': neuron.get('category', 'general'),
+                            'position': position
+                        })
+                
+                return jsonify({
+                    'success': True,
+                    'group_id': group_id,
+                    'neurons': group_neurons,
+                    'count': len(group_neurons),
+                    'color': self._get_category_color(group_id)
+                })
+            except Exception as e:
+                return jsonify({'error': str(e), 'success': False}), 500
+    
+    def _get_category_color(self, category):
+        """Return color for category (preserving your existing scheme)"""
+        colors = {
+            'core': '#ff3333',      # Red - Core Knowledge
+            'artistic': '#33ff33',  # Green - Artistic/Creative
+            'creative': '#33ff33',  # Green - Artistic/Creative
+            'wealth': '#3399ff',    # Blue - Wealth/Finance
+            'finance': '#3399ff',   # Blue - Wealth/Finance
+            'evolution': '#ff9933', # Orange - Evolution Accelerator
+            'reverse': '#ff9933',   # Orange - Evolution Accelerator
+            'research': '#33cccc',  # Teal - Research
+            'entity': '#ffff33',    # Yellow - Entity/General
+            'general': '#ffff33',   # Yellow - Entity/General
+        }
+        for key, color in colors.items():
+            if key in category.lower():
+                return color
+        return '#888888'  # Gray default
 
         # ============================================================================
         # TASK INPUT SYSTEM FOR DMAI
