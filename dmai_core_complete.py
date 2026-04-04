@@ -4327,6 +4327,66 @@ class DMAIApplication:
         # 3D BRAIN NETWORK VISUALIZATION
         # ============================================================================
         
+        @self.app.route('/api/debug/trace_neurons', methods=['GET'])
+        def debug_trace_neurons():
+            """Trace where the 55 neurons are stored"""
+            try:
+                result = {}
+                
+                # Check evolution.get_status()
+                if hasattr(self.evolution, 'get_status'):
+                    status = self.evolution.get_status()
+                    result['status_neurons'] = status.get('synthetic_neurons', 0)
+                    result['status_consciousness'] = status.get('consciousness', 0)
+                    result['status_synapses'] = status.get('synthetic_synapses', 0)
+                
+                # Check evolution.knowledge_graph
+                if hasattr(self.evolution, 'knowledge_graph'):
+                    kg = self.evolution.knowledge_graph
+                    result['has_knowledge_graph'] = True
+                    if hasattr(kg, 'get_stats'):
+                        result['kg_stats'] = kg.get_stats()
+                    if hasattr(kg, 'concepts'):
+                        result['kg_concepts_count'] = len(kg.concepts) if kg.concepts else 0
+                
+                # Check evolution.synthetic_network
+                if hasattr(self.evolution, 'synthetic_network'):
+                    sn = self.evolution.synthetic_network
+                    result['has_synthetic_network'] = True
+                    if hasattr(sn, 'neuron_count'):
+                        result['sn_neuron_count'] = sn.neuron_count
+                    if hasattr(sn, 'neurons'):
+                        result['sn_neurons_count'] = len(sn.neurons) if sn.neurons else 0
+                    if hasattr(sn, 'consciousness'):
+                        result['sn_consciousness'] = sn.consciousness
+                
+                # Check evolution.learning_orchestrator
+                if hasattr(self.evolution, 'learning_orchestrator'):
+                    lo = self.evolution.learning_orchestrator
+                    result['has_learning_orchestrator'] = True
+                    if hasattr(lo, 'learned_topics'):
+                        total = 0
+                        for stage, topics in lo.learned_topics.items():
+                            total += len(topics) if topics else 0
+                        result['lo_learned_topics_count'] = total
+                
+                # Check evolution.si_core
+                if hasattr(self.evolution, 'si_core'):
+                    si = self.evolution.si_core
+                    result['si_core_attributes'] = [a for a in dir(si) if not a.startswith('_') and not callable(getattr(si, a))]
+                    for attr in ['insights', 'neurons', 'knowledge', 'concepts']:
+                        if hasattr(si, attr):
+                            val = getattr(si, attr)
+                            if val is not None:
+                                result[f'si_core_{attr}_type'] = str(type(val))
+                                if hasattr(val, '__len__'):
+                                    result[f'si_core_{attr}_len'] = len(val)
+                
+                return jsonify(result)
+            except Exception as e:
+                import traceback
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+        
         @self.app.route('/api/debug/si_direct', methods=['GET'])
         def debug_si_direct():
             """Direct inspection of SI Core"""
