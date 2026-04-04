@@ -3681,21 +3681,6 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
         
-        @self.app.route('/api/system/syllabus_status', methods=['GET'])
-        def syllabus_status():
-            """Check current syllabus progress"""
-            try:
-                orch = self.evolution.learning_orchestrator
-                return jsonify({
-                    'current_stage': orch.current_stage,
-                    'learned_topics_by_stage': orch.learned_topics,
-                    'total_topics_mastered': sum(len(v) for v in orch.learned_topics.values()),
-                    'available_stages': list(orch.STAGES.keys()),
-                    'next_stage': orch._get_next_stage(orch.current_stage) if hasattr(orch, '_get_next_stage') else None
-                })
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
             try:
