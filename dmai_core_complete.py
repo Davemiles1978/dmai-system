@@ -3159,6 +3159,67 @@ class DMAIApplication:
         except Exception as e:
             logger.error(f"Auto-load failed: {e}")
 
+    def _classify_neurons_by_layer(self):
+        """Classify existing neurons into functional layers for multi-layer brain"""
+        try:
+            if not hasattr(self.evolution, 'si_core'):
+                return
+            
+            si = self.evolution.si_core
+            if not hasattr(si, 'insights') or not si.insights:
+                return
+            
+            # Layer classification rules (preserves your color scheme)
+            layer_mapping = {}
+            
+            for insight_id, insight in si.insights.items():
+                # Get category and confidence
+                if hasattr(insight, '__dict__'):
+                    category = getattr(insight, 'category', getattr(insight, 'entity_type', 'general'))
+                    confidence = getattr(insight, 'confidence', 0.5)
+                    text = getattr(insight, 'insight_text', getattr(insight, 'text', ''))
+                elif isinstance(insight, dict):
+                    category = insight.get('category', insight.get('entity_type', 'general'))
+                    confidence = insight.get('confidence', 0.5)
+                    text = insight.get('insight_text', insight.get('text', ''))
+                else:
+                    continue
+                
+                # Determine layer based on category and confidence
+                # (Preserves your color scheme - layers add structure, not replace colors)
+                if category in ['core', 'logical', 'causal', 'reverse']:
+                    layer = 'reasoning'
+                elif category in ['artistic', 'creative']:
+                    layer = 'abstraction'
+                elif category in ['wealth', 'finance', 'action']:
+                    layer = 'output'
+                elif category in ['entity', 'general', 'research']:
+                    layer = 'input'
+                elif confidence > 0.7:
+                    layer = 'reasoning'
+                elif confidence > 0.4:
+                    layer = 'pattern'
+                else:
+                    layer = 'input'
+                
+                # Store layer assignment (adds structural info without changing colors)
+                if hasattr(insight, '__dict__'):
+                    insight.layer = layer
+                elif isinstance(insight, dict):
+                    insight['layer'] = layer
+                
+                layer_mapping[insight_id] = layer
+            
+            # Save the layer assignments
+            if hasattr(si, 'save_state'):
+                si.save_state()
+            
+            logger.info(f"✅ Classified {len(layer_mapping)} neurons into layers")
+            return layer_mapping
+        except Exception as e:
+            logger.error(f"Layer classification failed: {e}")
+            return {}
+
  # ============================================================================
  # BACKGROUND TASK METHODS FOR USER INPUT SYSTEM
  # ============================================================================
@@ -3849,6 +3910,19 @@ class DMAIApplication:
                 'commit': '777a9ae15',
                 'timestamp': '2026-04-02'
             })
+
+        @self.app.route('/api/brain/classify_layers', methods=['POST'])
+        def classify_layers():
+            """Trigger layer classification for multi-layer brain"""
+            try:
+                layers = self._classify_neurons_by_layer()
+                return jsonify({
+                    'success': True,
+                    'neurons_classified': len(layers),
+                    'message': f'Classified {len(layers)} neurons into layers'
+                })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
         def debug_neo4j_env():
