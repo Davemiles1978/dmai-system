@@ -3621,6 +3621,7 @@ class DMAIApplication:
                                     
                                     const label = new CSS2DObject(div);
                                     label.position.set(pos.x, pos.y + 0.6, pos.z);
+                                    label.visible = false;  // Start hidden until zoomed in
                                     scene.add(label);
                                     
                                     neuronObjects.set(neuron.id, { mesh: sphere, label: label, labelDiv: div });
