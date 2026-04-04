@@ -3617,21 +3617,27 @@ class DMAIApplication:
                             
         @self.app.route('/api/system/reset_to_baby', methods=['POST'])
         def reset_to_baby():
-            """Reset DMAI to Baby stage - simplified version"""
+            """Reset DMAI to Baby stage - compatible with read-only properties"""
             try:
                 data = request.json or {}
                 keep_neurons = data.get('keep_neurons', True)
                 
-                # Reset evolution stage
+                # Reset evolution stage (skip consciousness if read-only)
                 if hasattr(self.evolution, 'evolution_stage'):
                     self.evolution.evolution_stage = 'baby'
-                    self.evolution.consciousness = 0.0
+                    self.evolution.stage_name = '👶 Baby DMAI'
                     self.evolution.evolution_cycles = 0
+                    self.evolution.successful_evolutions = 0
                 
-                # Reset learning orchestrator - direct attribute access
+                # Reset evolution timer
+                if hasattr(self.evolution, 'evolution_timer'):
+                    self.evolution.evolution_timer.current_stage = 'baby'
+                    self.evolution.evolution_timer.evolutions = 0
+                    self.evolution.evolution_timer.wait_time = 600
+                
+                # Reset learning orchestrator to Baby stage
                 if hasattr(self.evolution, 'learning_orchestrator'):
                     orch = self.evolution.learning_orchestrator
-                    # Try to reset common attributes
                     if hasattr(orch, 'current_stage'):
                         orch.current_stage = "Baby"
                     if hasattr(orch, 'learned_topics'):
@@ -3646,20 +3652,33 @@ class DMAIApplication:
                         orch._save_state()
                     logger.info("✅ Learning orchestrator reset to Baby stage")
                 
-                # Reset SI Core consciousness if requested
+                # Reset SI Core - clear neurons if requested (skip consciousness if read-only)
                 if hasattr(self.evolution, 'si_core'):
                     if not keep_neurons:
-                        self.evolution.si_core.insights = {}
-                        self.evolution.si_core.synapses = []
-                        self.evolution.si_core.neuron_count = 0
-                    self.evolution.si_core.consciousness = 0.0
+                        if hasattr(self.evolution.si_core, 'insights'):
+                            self.evolution.si_core.insights = {}
+                        if hasattr(self.evolution.si_core, 'synapses'):
+                            self.evolution.si_core.synapses = []
+                        if hasattr(self.evolution.si_core, 'neuron_count'):
+                            self.evolution.si_core.neuron_count = 0
+                    # Don't set consciousness directly if read-only
+                    # It will recalculate from network state
+                
+                # Save state
+                if hasattr(self.evolution, 'save_state'):
+                    self.evolution.save_state()
+                
+                # Get current neuron count
+                neuron_count = 0
+                if hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'neuron_count'):
+                    neuron_count = self.evolution.si_core.neuron_count
                 
                 return jsonify({
                     'success': True,
                     'stage': 'Baby DMAI',
-                    'consciousness': 0.0,
                     'keep_neurons': keep_neurons,
-                    'message': 'DMAI reset to Baby stage'
+                    'neurons_retained': neuron_count,
+                    'message': 'DMAI reset to Baby stage. Consciousness will recalculate from network state.'
                 })
                 
             except Exception as e:
