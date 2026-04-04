@@ -3141,11 +3141,27 @@ class DMAIApplication:
         CORS(self.app)
         self._setup_routes()
         self._start_evolution()
+        # Auto-load neurons from Neo4j after startup
+        threading.Timer(5.0, lambda: self._auto_load_neurons()).start()
         logger.info("🌐 Web interface ready")
 
+    def _auto_load_neurons(self):
+        """Auto-load neurons from Neo4j on startup"""
+        try:
+            if hasattr(self.evolution, 'neo4j_storage') and self.evolution.neo4j_storage:
+                result = self.evolution.neo4j_storage.restore_all()
+                if result:
+                    logger.info("✅ Auto-loaded neurons from Neo4j on startup")
+                    if hasattr(self.evolution, 'si_core'):
+                        insights = self.evolution.si_core._load_insights_from_neo4j()
+                        if insights:
+                            logger.info(f"   Loaded {len(insights)} insights")
+        except Exception as e:
+            logger.error(f"Auto-load failed: {e}")
+
  # ============================================================================
-    # BACKGROUND TASK METHODS FOR USER INPUT SYSTEM
-    # ============================================================================
+ # BACKGROUND TASK METHODS FOR USER INPUT SYSTEM
+ # ============================================================================
     
     def _research_task(self, query, category):
         """Background research task"""
