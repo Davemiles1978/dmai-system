@@ -4323,10 +4323,53 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-
         # ============================================================================
         # 3D BRAIN NETWORK VISUALIZATION
         # ============================================================================
+        
+        @self.app.route('/api/debug/si_direct', methods=['GET'])
+        def debug_si_direct():
+            """Direct inspection of SI Core"""
+            try:
+                si = self.evolution.si_core
+                result = {
+                    'si_type': str(type(si)),
+                    'dir_sample': [a for a in dir(si) if not a.startswith('_')][:30],
+                    'has_insights': hasattr(si, 'insights'),
+                    'has_neurons': hasattr(si, 'neurons'),
+                    'has_neuron_count': hasattr(si, 'neuron_count'),
+                    'has_synapses': hasattr(si, 'synapses'),
+                }
+                
+                # Try to get count from various attributes
+                if hasattr(si, 'insights') and si.insights:
+                    result['insights_length'] = len(si.insights)
+                    result['insights_type'] = str(type(si.insights))
+                    first_key = list(si.insights.keys())[0] if si.insights else None
+                    result['first_insight_key'] = first_key
+                    if first_key:
+                        first_val = si.insights[first_key]
+                        result['first_insight_type'] = str(type(first_val))
+                        if hasattr(first_val, '__dict__'):
+                            result['first_insight_attrs'] = list(first_val.__dict__.keys())
+                        elif isinstance(first_val, dict):
+                            result['first_insight_dict_keys'] = list(first_val.keys())
+                
+                if hasattr(si, 'neuron_count'):
+                    result['neuron_count_value'] = si.neuron_count
+                
+                if hasattr(si, 'synapses') and si.synapses:
+                    result['synapses_length'] = len(si.synapses)
+                    first_syn = si.synapses[0] if si.synapses else None
+                    if first_syn:
+                        result['first_synapse_type'] = str(type(first_syn))
+                        if hasattr(first_syn, '__dict__'):
+                            result['first_synapse_attrs'] = list(first_syn.__dict__.keys())
+                
+                return jsonify(result)
+            except Exception as e:
+                import traceback
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
         
         @self.app.route('/api/brain/3d_data', methods=['GET'])
         def brain_3d_data():
