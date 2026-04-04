@@ -3295,7 +3295,7 @@ class DMAIApplication:
                 try:
                     result = self.evolution.evolution_cycle()
                     if result['evolution'] % 10 == 0:
-                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['conscious$")
+                        logger.info(f"Cycle {result['evolution']}: Consciousness {result['consciousness']}")
                     wait_time = self.evolution.evolution_timer.get_wait_time()
                     if wait_time < 30:
                         wait_time = 30
