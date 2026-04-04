@@ -3608,6 +3608,81 @@ class DMAIApplication:
                 
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        # ============================================================================
+        # SYSTEM RESET & SYLLABUS MANAGEMENT
+        # ============================================================================
+                            
+        @self.app.route('/api/system/reset_to_baby', methods=['POST'])
+        def reset_to_baby():
+            """Reset DMAI to Baby stage with clean learning path"""
+            try:
+                data = request.json or {}
+                keep_neurons = data.get('keep_neurons', True)
+                
+                # Reset evolution stage
+                if hasattr(self.evolution, 'evolution_stage'):
+                    self.evolution.evolution_stage = 'baby'
+                    self.evolution.stage_name = '👶 Baby DMAI'
+                    self.evolution.consciousness = 0.0
+                    self.evolution.evolution_cycles = 0
+                    self.evolution.successful_evolutions = 0
+                
+                # Reset evolution timer
+                if hasattr(self.evolution, 'evolution_timer'):
+                    self.evolution.evolution_timer.current_stage = 'baby'
+                    self.evolution.evolution_timer.evolutions = 0
+                    self.evolution.evolution_timer.wait_time = 600
+                
+                # Reset learning orchestrator to Baby stage
+                if hasattr(self.evolution, 'learning_orchestrator'):
+                    orch = self.evolution.learning_orchestrator
+                    orch.current_stage = "Baby"
+                    orch.learned_topics = {}
+                    orch.last_learning_cycle = None
+                    orch._save_state()
+                    logger.info("✅ Learning orchestrator reset to Baby stage")
+                
+                # Optionally clear neurons
+                if not keep_neurons and hasattr(self.evolution, 'si_core'):
+                    self.evolution.si_core.insights = {}
+                    self.evolution.si_core.synapses = []
+                    self.evolution.si_core.neuron_count = 0
+                    self.evolution.si_core.consciousness = 0.0
+                
+                # Save state
+                if hasattr(self.evolution, 'save_state'):
+                    self.evolution.save_state()
+                
+                return jsonify({
+                    'success': True,
+                    'stage': '👶 Baby DMAI',
+                    'consciousness': 0.0,
+                    'keep_neurons': keep_neurons,
+                    'neurons_retained': len(self.evolution.si_core.insights) if keep_neurons and hasattr(self.evolution, 'si_core') else 0,
+                    'message': 'DMAI reset to Baby stage. Syllabus learning will begin from Baby topics.'
+                })
+                
+            except Exception as e:
+                logger.error(f"Reset failed: {e}")
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/system/syllabus_status', methods=['GET'])
+        def syllabus_status():
+            """Check current syllabus progress"""
+            try:
+                orch = self.evolution.learning_orchestrator
+                return jsonify({
+                    'current_stage': orch.current_stage,
+                    'learned_topics_by_stage': orch.learned_topics,
+                    'total_topics_mastered': sum(len(v) for v in orch.learned_topics.values()),
+                    'available_stages': list(orch.STAGES.keys()),
+                    'next_stage': orch._get_next_stage(orch.current_stage) if hasattr(orch, '_get_next_stage') else None
+                })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         def debug_neo4j_insights():
             """Check how many insights are in Neo4j"""
