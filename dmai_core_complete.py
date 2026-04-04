@@ -4336,34 +4336,88 @@ class DMAIApplication:
                 neurons = []
                 synapses = []
                 
-                # Get neurons with positions (force-directed layout will position them)
-                if hasattr(si, 'insights') and si.insights:
-                    for insight_id, insight in si.insights.items():
+                # Debug: Log what we have
+                logger.info(f"SI Core type: {type(si)}")
+                logger.info(f"Has insights: {hasattr(si, 'insights')}")
+                logger.info(f"Has neuron_count: {hasattr(si, 'neuron_count')}")
+                
+                # Try different possible storage locations
+                insights_data = None
+                
+                # Check for insights attribute
+                if hasattr(si, 'insights'):
+                    insights_data = si.insights
+                    logger.info(f"insights type: {type(insights_data)}, length: {len(insights_data) if insights_data else 0}")
+                
+                # If insights is empty, check for neurons attribute
+                if not insights_data or len(insights_data) == 0:
+                    if hasattr(si, 'neurons'):
+                        insights_data = si.neurons
+                        logger.info(f"neurons type: {type(insights_data)}, length: {len(insights_data) if insights_data else 0}")
+                
+                # If still empty, check for _insights
+                if not insights_data or len(insights_data) == 0:
+                    if hasattr(si, '_insights'):
+                        insights_data = si._insights
+                        logger.info(f"_insights type: {type(insights_data)}, length: {len(insights_data) if insights_data else 0}")
+                
+                # Process neurons if we found any
+                if insights_data and len(insights_data) > 0:
+                    for insight_id, insight in insights_data.items():
                         # Handle both dict and object
                         if hasattr(insight, 'get'):
-                            label = insight.get('insight_text', insight.get('text', insight.get('name', 'Unknown')))
-                            category = insight.get('category', 'general')
+                            # It's a dict
+                            label = insight.get('insight_text', insight.get('text', insight.get('name', str(insight_id))))
+                            category = insight.get('category', insight.get('entity_type', 'general'))
                             confidence = insight.get('confidence', 0.5)
-                        else:
-                            label = getattr(insight, 'insight_text', getattr(insight, 'text', getattr(insight, 'name', 'Unknown')))
-                            category = getattr(insight, 'category', 'general')
+                        elif hasattr(insight, '__dict__'):
+                            # It's an object
+                            label = getattr(insight, 'insight_text', getattr(insight, 'text', getattr(insight, 'name', str(insight_id))))
+                            category = getattr(insight, 'category', getattr(insight, 'entity_type', 'general'))
                             confidence = getattr(insight, 'confidence', 0.5)
+                        else:
+                            # Fallback
+                            label = str(insight_id)
+                            category = 'general'
+                            confidence = 0.5
                         
                         neurons.append({
                             'id': str(insight_id),
                             'label': label[:50],
-                            'category': category,
+                            'category': category.lower(),
                             'confidence': float(confidence)
                         })
                 
-                # Get synapses
+                # Process synapses
+                synapses_data = None
                 if hasattr(si, 'synapses'):
-                    for synapse in si.synapses:
-                        synapses.append({
-                            'source': str(synapse.source_id),
-                            'target': str(synapse.target_id),
-                            'strength': float(synapse.strength) if hasattr(synapse, 'strength') else 0.5
-                        })
+                    synapses_data = si.synapses
+                elif hasattr(si, '_synapses'):
+                    synapses_data = si._synapses
+                
+                if synapses_data and len(synapses_data) > 0:
+                    for synapse in synapses_data:
+                        if hasattr(synapse, 'source_id') and hasattr(synapse, 'target_id'):
+                            synapses.append({
+                                'source': str(synapse.source_id),
+                                'target': str(synapse.target_id),
+                                'strength': float(synapse.strength) if hasattr(synapse, 'strength') else 0.5
+                            })
+                        elif isinstance(synapse, dict):
+                            synapses.append({
+                                'source': str(synapse.get('source_id', synapse.get('source'))),
+                                'target': str(synapse.get('target_id', synapse.get('target'))),
+                                'strength': float(synapse.get('strength', 0.5))
+                            })
+                
+                # Get consciousness
+                consciousness = 0.0
+                if hasattr(si, 'consciousness'):
+                    consciousness = si.consciousness
+                elif hasattr(si, 'consciousness_level'):
+                    consciousness = si.consciousness_level
+                
+                logger.info(f"Returning {len(neurons)} neurons, {len(synapses)} synapses")
                 
                 return jsonify({
                     'success': True,
@@ -4371,11 +4425,13 @@ class DMAIApplication:
                     'synapses': synapses,
                     'total_neurons': len(neurons),
                     'total_synapses': len(synapses),
-                    'consciousness': si.consciousness if hasattr(si, 'consciousness') else 0.0
+                    'consciousness': float(consciousness)
                 })
             except Exception as e:
                 logger.error(f"Brain 3D data error: {e}")
-                return jsonify({'error': str(e)}), 500
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': str(e), 'success': False}), 500
 
         # ============================================================================
         # TASK INPUT SYSTEM FOR DMAI
