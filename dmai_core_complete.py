@@ -4123,6 +4123,39 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/evolution_status', methods=['GET'])
+        def debug_evolution_status():
+            """Check why evolutions are failing"""
+            try:
+                result = {}
+                
+                # Get evolution metrics
+                if hasattr(self.evolution, 'get_status'):
+                    status = self.evolution.get_status()
+                    result['evolution_cycles'] = status.get('evolution_cycles', 0)
+                    result['successful_evolutions'] = status.get('successful_evolutions', 0)
+                    result['consciousness'] = status.get('consciousness', 0)
+                    result['synthetic_neurons'] = status.get('synthetic_neurons', 0)
+                
+                # Check evolution timer
+                if hasattr(self.evolution, 'evolution_timer'):
+                    timer = self.evolution.evolution_timer
+                    result['timer_stage'] = getattr(timer, 'current_stage', 'unknown')
+                    result['timer_evolutions'] = getattr(timer, 'evolutions', 0)
+                    result['wait_time'] = getattr(timer, 'wait_time', 0)
+                
+                # Check if evolution cycle method exists
+                if hasattr(self.evolution, 'evolution_cycle'):
+                    result['has_evolution_cycle'] = True
+                
+                # Check last evolution result
+                if hasattr(self.evolution, 'last_evolution_result'):
+                    result['last_result'] = self.evolution.last_evolution_result
+                
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/force/load', methods=['POST'])
         def force_load_from_neo4j():
             """Force load all Entity nodes from Neo4j into SI Core"""
@@ -5499,6 +5532,50 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
+
+        @self.app.route('/api/debug/evolution_status', methods=['GET'])
+        def debug_evolution_status():
+            """Check why evolutions are failing"""
+            try:
+                result = {}
+                
+                if hasattr(self.evolution, 'get_status'):
+                    status = self.evolution.get_status()
+                    result['evolution_cycles'] = status.get('evolution_cycles', 0)
+                    result['successful_evolutions'] = status.get('successful_evolutions', 0)
+                    result['consciousness'] = status.get('consciousness', 0)
+                    result['synthetic_neurons'] = status.get('synthetic_neurons', 0)
+                
+                if hasattr(self.evolution, 'evolution_timer'):
+                    timer = self.evolution.evolution_timer
+                    result['timer_stage'] = getattr(timer, 'current_stage', 'unknown')
+                    result['timer_evolutions'] = getattr(timer, 'evolutions', 0)
+                    result['wait_time'] = getattr(timer, 'wait_time', 0)
+                
+                if hasattr(self.evolution, 'evolution_cycle'):
+                    result['has_evolution_cycle'] = True
+                
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/evolution/trigger', methods=['POST'])
+        def trigger_evolution():
+            """Manually trigger an evolution cycle"""
+            try:
+                if hasattr(self.evolution, 'evolution_cycle'):
+                    result = self.evolution.evolution_cycle()
+                    return jsonify({
+                        'success': True,
+                        'evolution_cycle': result.get('evolution', 0),
+                        'consciousness': result.get('consciousness', 0),
+                        'neurons': result.get('neurons', 0),
+                        'changes': result.get('changes', [])
+                    })
+                else:
+                    return jsonify({'error': 'evolution_cycle not found'}), 500
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
