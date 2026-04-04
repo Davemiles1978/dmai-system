@@ -1958,7 +1958,7 @@ class UnifiedEvolutionEngine:
             logger.error(f"Failed to restore from Neo4j: {e}")
 
     def _load_insights_from_neo4j(self):
-        """Load insights from Neo4j into SI Core"""
+        """Load insights from Neo4j into SI Core AND brain neurons"""
         try:
             if not hasattr(self, 'neo4j_storage') or not self.neo4j_storage:  
                 logger.warning("Neo4j storage not available")
@@ -1974,35 +1974,72 @@ class UnifiedEvolutionEngine:
                 return 0
         
             with driver.session() as session:
-                # CRITICAL FIX: Your data uses Entity label, not Insight (3,533 nodes)
-                result = session.run("MATCH (i:Entity) RETURN i")
+                # Query Entity nodes (3,533 available)
+                result = session.run("MATCH (e:Entity) RETURN e")
                 insights = []
                 for record in result:
-                    node = record["i"]
+                    node = record["e"]
                     insight_data = dict(node.items())
                     insights.append(insight_data)
                 
                 logger.info(f"✅ Loaded {len(insights)} insights from Neo4j (Entity nodes)")
-                return insights
                 
-                # Add each insight to si_core
+                # Add each insight to si_core AND brain neurons
                 loaded_count = 0
                 for insight_data in insights:
                     try:
+                        # Extract entity data (handle both old and new schema)
+                        entity_name = insight_data.get('name', insight_data.get('insight_text', 'Unknown Entity'))
+                        entity_type = insight_data.get('category', insight_data.get('entity_type', 'entity'))
+                        confidence = float(insight_data.get('confidence', 0.5))
+                        entity_id = insight_data.get('id', f"entity_{loaded_count}")
+                        
+                        # Add to SI Core
                         self.si_core.add_insight(
-                            insight_text=insight_data.get('insight_text', ''),
-                            entity_type=insight_data.get('entity_type', 'unknown'),
-                            entities=insight_data.get('entities', []),
+                            insight_text=entity_name,
+                            entity_type=entity_type,
+                            entities=[entity_name],
                             relationship=insight_data.get('relationship', 'related'),
                             source_topic=insight_data.get('source_topic', 'Neo4j'),
                             target_topic=insight_data.get('target_topic', 'Restored'),
-                            confidence=insight_data.get('confidence', 0.5)
+                            confidence=confidence
                         )
+                        
+                        # Add to brain neurons if dmai_core has neurons dict
+                        if hasattr(self, 'neurons'):
+                            target_neurons = self.neurons
+                        elif hasattr(self, '_parent') and hasattr(self._parent, 'neurons'):
+                            target_neurons = self._parent.neurons
+                        else:
+                            # Create neurons dict if it doesn't exist
+                            if hasattr(self, 'evolution') and hasattr(self.evolution, 'neurons'):
+                                target_neurons = self.evolution.neurons
+                            else:
+                                target_neurons = {}
+                                if hasattr(self, 'evolution'):
+                                    self.evolution.neurons = target_neurons
+                        
+                        # Create neuron object for visualization
+                        neuron = {
+                            'id': entity_id,
+                            'name': entity_name,
+                            'category': entity_type,
+                            'confidence': confidence,
+                            'activation': 0.5,
+                            'synapses': [],
+                            'position': {
+                                'x': (hash(entity_id) % 1000) / 10 - 50,
+                                'y': (hash(entity_name) % 1000) / 10 - 50,
+                                'z': (hash(entity_type) % 1000) / 10 - 50
+                            }
+                        }
+                        target_neurons[entity_id] = neuron
+                        
                         loaded_count += 1
                     except Exception as e:
                         logger.debug(f"Failed to load insight: {e}")
                 
-                logger.info(f"📀 Loaded {loaded_count} insights from Neo4j into SI Core")
+                logger.info(f"📀 Loaded {loaded_count} insights/neurons from Neo4j into SI Core")
                 return loaded_count
                 
         except Exception as e:
@@ -3146,18 +3183,132 @@ class DMAIApplication:
         logger.info("🌐 Web interface ready")
 
     def _auto_load_neurons(self):
-        """Auto-load neurons from Neo4j on startup"""
+        """Auto-load neurons from Neo4j Entity nodes into brain visualization"""
         try:
+            # Check if we have Neo4j access through evolution
+            neo4j_available = False
+            neo4j_driver = None
+            
+            # Try to get Neo4j driver from evolution
             if hasattr(self.evolution, 'neo4j_storage') and self.evolution.neo4j_storage:
-                result = self.evolution.neo4j_storage.restore_all()
-                if result:
-                    logger.info("✅ Auto-loaded neurons from Neo4j on startup")
-                    if hasattr(self.evolution, 'si_core'):
-                        insights = self.evolution.si_core._load_insights_from_neo4j()
-                        if insights:
-                            logger.info(f"   Loaded {len(insights)} insights")
+                if hasattr(self.evolution.neo4j_storage, 'driver') and self.evolution.neo4j_storage.driver:
+                    neo4j_driver = self.evolution.neo4j_storage.driver
+                    neo4j_available = True
+            
+            if not neo4j_available:
+                logger.warning("Neo4j not available for auto-load")
+                return 0
+            
+            loaded_count = 0
+            with neo4j_driver.session() as session:
+                # Query ALL Entity nodes with names
+                result = session.run("""
+                    MATCH (e:Entity)
+                    WHERE e.name IS NOT NULL OR e.id IS NOT NULL
+                    RETURN e.id as id, e.name as name, e.category as category, 
+                           e.confidence as confidence, e.embedding as embedding
+                    LIMIT 100
+                """)
+                
+                # Initialize neurons dict if needed
+                if not hasattr(self, 'neurons'):
+                    self.neurons = {}
+                
+                for record in result:
+                    neuron_id = record['id'] or f"entity_{loaded_count}"
+                    neuron_name = record['name'] or f"Entity {loaded_count}"
+                    category = record['category'] or 'general'
+                    confidence = float(record['confidence']) if record['confidence'] else 0.5
+                    
+                    # Create neuron object for brain visualization
+                    neuron = {
+                        'id': neuron_id,
+                        'name': neuron_name,
+                        'category': category,
+                        'confidence': confidence,
+                        'activation': 0.0,
+                        'synapses': [],
+                        'position': {
+                            'x': (hash(neuron_id) % 1000) / 10 - 50,  # Generate deterministic position
+                            'y': (hash(neuron_name) % 1000) / 10 - 50,
+                            'z': (hash(category) % 1000) / 10 - 50
+                        }
+                    }
+                    
+                    self.neurons[neuron_id] = neuron
+                    loaded_count += 1
+                    
+                    # Also add to SI Core if available
+                    if hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'add_insight'):
+                        try:
+                            self.evolution.si_core.add_insight(
+                                insight_text=neuron_name,
+                                entity_type=category,
+                                entities=[neuron_name],
+                                relationship='loaded_from_neo4j',
+                                source_topic='AutoLoad',
+                                target_topic='Brain',
+                                confidence=confidence
+                            )
+                        except:
+                            pass
+                
+                logger.info(f"✅ Auto-loaded {loaded_count} neurons from Neo4j Entity nodes")
+                
+                # Now load synapses between neurons
+                self._load_synapses_from_neo4j(neo4j_driver)
+                
+                return loaded_count
+                
         except Exception as e:
             logger.error(f"Auto-load failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return 0
+    
+    def _load_synapses_from_neo4j(self, neo4j_driver):
+        """Load synapses from Neo4j relationships between Entity nodes"""
+        try:
+            if not hasattr(self, 'neurons'):
+                self.neurons = {}
+                return 0
+            
+            with neo4j_driver.session() as session:
+                # Find relationships between entities
+                result = session.run("""
+                    MATCH (e1:Entity)-[r]-(e2:Entity)
+                    WHERE e1.id IS NOT NULL AND e2.id IS NOT NULL
+                    RETURN e1.id as source_id, e2.id as target_id, type(r) as rel_type, 
+                           r.strength as strength
+                    LIMIT 500
+                """)
+                
+                synapse_count = 0
+                for record in result:
+                    source_id = record['source_id']
+                    target_id = record['target_id']
+                    
+                    # Only create synapse if both neurons exist
+                    if source_id in self.neurons and target_id in self.neurons:
+                        strength = float(record['strength']) if record['strength'] else 0.5
+                        
+                        synapse = {
+                            'source': source_id,
+                            'target': target_id,
+                            'strength': strength,
+                            'type': record['rel_type'] or 'related'
+                        }
+                        
+                        # Add to neuron's synapse list
+                        self.neurons[source_id]['synapses'].append(synapse)
+                        synapse_count += 1
+                
+                logger.info(f"✅ Loaded {synapse_count} synapses from Neo4j relationships")
+                return synapse_count
+                
+        except Exception as e:
+            logger.error(f"Failed to load synapses: {e}")
+            return 0
 
     def _classify_neurons_by_layer(self):
         """Classify existing neurons into functional layers for multi-layer brain"""
@@ -4158,8 +4309,8 @@ class DMAIApplication:
 
         @self.app.route('/api/force/load', methods=['POST'])
         def force_load_from_neo4j():
-            """Force load all Entity nodes from Neo4j into SI Core"""
-            result = {'success': False, 'insights_loaded': 0}
+            """Force load all Entity nodes from Neo4j into SI Core AND brain neurons"""
+            result = {'success': False, 'insights_loaded': 0, 'neurons_loaded': 0}
                     
             try:        
                 si = self.evolution.si_core
@@ -4173,39 +4324,68 @@ class DMAIApplication:
                     return jsonify({'error': 'No driver'})
             
                 with driver.session() as session:
-                    # FIXED: Query Entity nodes with 'name' field
+                    # Query Entity nodes with all available fields
                     insight_result = session.run("MATCH (e:Entity) RETURN e")
                     insights_loaded = 0
+                    neurons_loaded = 0
+                    
+                    # Initialize neurons dict if needed
+                    if not hasattr(self, 'neurons'):
+                        self.neurons = {}
+                    
                     for record in insight_result:
                         node = dict(record['e'].items())
                         try:
-                            # Entity nodes have only 'name' field
-                            entity_name = node.get('name', 'Unknown Entity')
+                            # Extract entity data (handle both old and new schema)
+                            entity_name = node.get('name', node.get('insight_text', 'Unknown Entity'))
+                            entity_id = node.get('id', f"entity_{insights_loaded}")
+                            category = node.get('category', node.get('entity_type', 'entity'))
+                            confidence = float(node.get('confidence', 0.6))
+                            
+                            # Add to SI Core
                             si.add_insight(
- 				insight_text=entity_name,
-				entity_type='entity',
-				entities=[entity_name],
-				relationship='related',
-				source_topic='Neo4j',
-				target_topic='Restored',
-				confidence=0.6
-			    )
-
+                                insight_text=entity_name,
+                                entity_type=category,
+                                entities=[entity_name],
+                                relationship='related',
+                                source_topic='Neo4j',
+                                target_topic='Restored',
+                                confidence=confidence
+                            )
                             insights_loaded += 1
+                            
+                            # Add to brain neurons for visualization
+                            neuron = {
+                                'id': entity_id,
+                                'name': entity_name,
+                                'category': category,
+                                'confidence': confidence,
+                                'activation': 0.5,
+                                'synapses': [],
+                                'position': {
+                                    'x': (hash(entity_id) % 1000) / 10 - 50,
+                                    'y': (hash(entity_name) % 1000) / 10 - 50,
+                                    'z': (hash(category) % 1000) / 10 - 50
+                                }
+                            }
+                            self.neurons[entity_id] = neuron
+                            neurons_loaded += 1
+                            
                         except Exception as e:
-                            logger.error(f"Failed to load insight: {e}")
-                        
+                            logger.debug(f"Failed to load entity: {e}")
+                    
                     result['insights_loaded'] = insights_loaded
+                    result['neurons_loaded'] = neurons_loaded
                     result['success'] = True
-                    result['consciousness'] = si.consciousness
-                    result['neurons'] = si.neuron_count
+                    result['consciousness'] = si.consciousness if hasattr(si, 'consciousness') else 0.0
+                    result['neurons'] = len(self.neurons)
                         
-                    logger.info(f"✅ Force loaded {insights_loaded} Entity nodes as insights")
+                    logger.info(f"✅ Force loaded {insights_loaded} insights and {neurons_loaded} neurons from Neo4j")
                       
             except Exception as e:
                 result['error'] = str(e)
                 logger.error(f"Force load failed: {e}")
-        
+            
             return jsonify(result)
 
         # ============================================================================
