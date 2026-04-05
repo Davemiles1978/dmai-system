@@ -298,6 +298,9 @@ class APIKeyHarvester:
         """Validate multiple keys in parallel"""
         valid_keys = []
         
+        if not keys:
+            return valid_keys
+        
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_key = {
                 executor.submit(self.validate_key, key): key
@@ -372,7 +375,14 @@ class APIKeyHarvester:
     
     def _store_in_neo4j(self, keys: List[APIKey]):
         """Store validated keys in Neo4j"""
-        if not self.neo4j or not self.neo4j.is_available():
+        # Safe check for neo4j availability
+        if not self.neo4j:
+            return
+        
+        # Check if neo4j has driver and is available
+        has_driver = hasattr(self.neo4j, 'driver') and self.neo4j.driver is not None
+        if not has_driver:
+            logger.warning("Neo4j driver not available")
             return
         
         try:
@@ -426,17 +436,29 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
     harvester = APIKeyHarvester()
-    print("API Key Harvester initialized")
+    print("=" * 50)
+    print("API Key Harvester Test")
+    print("=" * 50)
     print(f"Supported services: {list(harvester.KEY_PATTERNS.keys())}")
     
-    # Test key extraction
+    # Test key extraction with realistic-looking keys
     test_text = """
-    OPENAI_API_KEY=sk-abc123xyz456
-    export ANTHROPIC_API_KEY="sk-ant-abc123"
-    GITHUB_TOKEN=ghp_abc123
+    OPENAI_API_KEY=sk-proj-abc123def456ghi789jkl012mno345pqr678stu
+    export ANTHROPIC_API_KEY="sk-ant-api03-abc123def456ghi789jkl012mno345"
+    GITHUB_TOKEN=ghp_abc123def456ghi789jkl012mno345pqr678
+    GOOGLE_API_KEY=AIzaSyAbcDefGhiJklMnoPqrStuVwxYz12345678
+    HUGGINGFACE_TOKEN=hf_AbcDefGhiJklMnoPqrStuVwxYz12345678
     """
     
     keys = harvester.extract_keys_from_text(test_text, "test")
-    print(f"Extracted {len(keys)} keys from test text")
+    print(f"\n📋 Extracted {len(keys)} keys from test text")
     for key in keys:
-        print(f"  - {key.service}: {key.key[:20]}...")
+        print(f"  - {key.service}: {key.key[:20]}... from {key.source}")
+    
+    # Test validation (will fail but should not crash)
+    print("\n🔍 Testing validation (expected to fail for fake keys)...")
+    for key in keys:
+        result = harvester.validate_key(key)
+        print(f"  - {key.service}: {'✅ Valid' if result else '❌ Invalid'}")
+    
+    print("\n✅ API Key Harvester ready")
