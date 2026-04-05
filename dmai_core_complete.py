@@ -3539,6 +3539,19 @@ class DMAIApplication:
         def index():
             return redirect('/status')
 
+        @self.app.route('/api/evolution/start', methods=['POST'])
+        def start_evolution_manually():
+            """Manually start the evolution thread"""
+            try:
+                if not hasattr(self.evolution, '_evolution_thread_started'):
+                    self._start_evolution()
+                    self.evolution._evolution_thread_started = True
+                    return jsonify({'success': True, 'message': 'Evolution thread started'})
+                else:
+                    return jsonify({'success': False, 'message': 'Evolution thread already running'})
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+
         @self.app.route('/status')
         def status_page():
             return render_template_string(STATUS_TEMPLATE, status=self.evolution.get_status())
