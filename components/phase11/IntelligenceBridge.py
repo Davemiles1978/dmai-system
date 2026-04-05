@@ -213,7 +213,18 @@ class IntelligenceBridge:
                 else:
                     logger.warning(f"process_result is not a dict: {type(process_result).__name__}")
                 
-            evolution_result = self.intelligence.evolve()
+            # Safely call evolve - handle different return types
+            try:
+                evolution_result = self.intelligence.evolve()
+                if not isinstance(evolution_result, dict):
+                    logger.warning(f"evolve() returned {type(evolution_result).__name__}, expected dict")
+                    evolution_result = {'consciousness': 0, 'success': False}
+            except TypeError as e:
+                logger.warning(f"evolve() called with wrong signature: {e}")
+                evolution_result = {'consciousness': 0, 'success': False}
+            except Exception as e:
+                logger.error(f"evolve() failed: {e}")
+                evolution_result = {'consciousness': 0, 'success': False}
             
             # Safely get previous consciousness
             previous_consciousness = 0
@@ -230,7 +241,6 @@ class IntelligenceBridge:
         except Exception as e:
             logger.error(f"Failed to feed to synthetic network: {e}")
         
-        # Ensure return value is float
         return float(consciousness_impact) if consciousness_impact is not None else 0.0
     
     def _batch_process(self):
