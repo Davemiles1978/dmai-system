@@ -63,6 +63,12 @@ class IntelligenceBridge:
         }
         
         try:
+            # Validate packet type
+            if not isinstance(knowledge_packet, dict):
+                logger.warning(f"Expected dict packet, got {type(knowledge_packet).__name__}")
+                result['errors'].append(f"Invalid packet type: {type(knowledge_packet).__name__}")
+                return result
+            
             if self.knowledge_graph:
                 concepts_added = self._add_to_knowledge_graph(knowledge_packet)
                 result['concepts_added'] = concepts_added
@@ -96,7 +102,17 @@ class IntelligenceBridge:
     def _add_to_knowledge_graph(self, packet: Dict) -> int:
         """Add concepts and relationships to knowledge graph"""
         concepts_added = 0
+        
+        # Validate packet type
+        if not isinstance(packet, dict):
+            logger.warning(f"Cannot add to knowledge graph: packet is {type(packet).__name__}")
+            return 0
+            
         concepts = packet.get('concepts', {})
+        
+        if not isinstance(concepts, dict):
+            logger.warning(f"Concepts is not a dict: {type(concepts).__name__}")
+            return 0
         
         if not self.knowledge_graph:
             return 0
@@ -124,7 +140,17 @@ class IntelligenceBridge:
     def _feed_patterns(self, packet: Dict) -> int:
         """Feed discovered patterns to pattern synthesis system"""
         patterns_fed = 0
+        
+        # Validate packet type
+        if not isinstance(packet, dict):
+            logger.warning(f"Cannot feed patterns: packet is {type(packet).__name__}")
+            return 0
+            
         patterns = packet.get('patterns', [])
+        
+        if not isinstance(patterns, list):
+            logger.warning(f"Patterns is not a list: {type(patterns).__name__}")
+            return 0
         
         if not self.pattern_synthesis:
             return 0
@@ -146,12 +172,33 @@ class IntelligenceBridge:
         """Convert knowledge to neural signals and feed to synthetic network"""
         consciousness_impact = 0.0
         
+        # Guard against incorrect packet type
+        if not isinstance(packet, dict):
+            logger.warning(f"Expected dict packet for synthetic network, got {type(packet).__name__}: {packet}")
+            return 0.0
+        
         if not self.intelligence:
             return 0.0
             
         importance = packet.get('importance', 0.5)
         complexity = packet.get('complexity', 1)
-        insights_count = len(packet.get('insights', []))
+        insights = packet.get('insights', [])
+        
+        # Ensure insights is a list
+        if not isinstance(insights, list):
+            logger.warning(f"Insights is not a list: {type(insights).__name__}, treating as empty")
+            insights = []
+            
+        insights_count = len(insights)
+        
+        # Validate and sanitize numeric values
+        try:
+            importance = float(importance) if importance is not None else 0.5
+            complexity = int(complexity) if complexity is not None else 1
+        except (TypeError, ValueError):
+            logger.warning(f"Invalid numeric values: importance={importance}, complexity={complexity}")
+            importance = 0.5
+            complexity = 1
         
         signal_strength = importance
         signal_strength += min(0.3, complexity / 100)
@@ -159,16 +206,32 @@ class IntelligenceBridge:
         signal_strength = min(1.0, signal_strength)
         
         try:
-            for _ in range(min(5, complexity)):
+            for _ in range(min(5, max(1, complexity))):
                 process_result = self.intelligence.process(signal_strength)
-                consciousness_impact += process_result.get('consciousness', 0)
+                if isinstance(process_result, dict):
+                    consciousness_impact += process_result.get('consciousness', 0)
+                else:
+                    logger.warning(f"process_result is not a dict: {type(process_result).__name__}")
                 
             evolution_result = self.intelligence.evolve()
-            consciousness_impact = evolution_result.get('consciousness', 0) - packet.get('previous_consciousness', 0)
+            
+            # Safely get previous consciousness
+            previous_consciousness = 0
+            if isinstance(packet, dict):
+                previous_consciousness = packet.get('previous_consciousness', 0)
+                if not isinstance(previous_consciousness, (int, float)):
+                    previous_consciousness = 0
+            
+            if isinstance(evolution_result, dict):
+                consciousness_impact = evolution_result.get('consciousness', 0) - previous_consciousness
+            else:
+                logger.warning(f"evolution_result is not a dict: {type(evolution_result).__name__}")
+                
         except Exception as e:
             logger.error(f"Failed to feed to synthetic network: {e}")
         
-        return consciousness_impact
+        # Ensure return value is float
+        return float(consciousness_impact) if consciousness_impact is not None else 0.0
     
     def _batch_process(self):
         """Process queued knowledge and evolve"""
@@ -180,19 +243,34 @@ class IntelligenceBridge:
         all_patterns = []
         all_concepts = {}
         total_importance = 0
+        valid_packets = []
         
+        # Filter and validate packets
         for packet in self.synthesis_queue:
-            all_patterns.extend(packet.get('patterns', []))
-            total_importance += packet.get('importance', 0.5)
-            
-            for concept, data in packet.get('concepts', {}).items():
-                if concept not in all_concepts:
-                    all_concepts[concept] = data
+            if isinstance(packet, dict):
+                valid_packets.append(packet)
+                all_patterns.extend(packet.get('patterns', []))
+                importance = packet.get('importance', 0.5)
+                if isinstance(importance, (int, float)):
+                    total_importance += importance
+                else:
+                    total_importance += 0.5
+                
+                concepts = packet.get('concepts', {})
+                if isinstance(concepts, dict):
+                    for concept, data in concepts.items():
+                        if concept not in all_concepts:
+                            all_concepts[concept] = data
+        
+        if not valid_packets:
+            self.synthesis_queue = []
+            self.bridge_stats['queue_size'] = 0
+            return
         
         batch_packet = {
             'concepts': all_concepts,
             'patterns': all_patterns,
-            'importance': total_importance / max(1, len(self.synthesis_queue)),
+            'importance': total_importance / max(1, len(valid_packets)),
             'complexity': len(all_patterns) + len(all_concepts),
             'insights': [],
             'source': 'batch_processing'
@@ -206,20 +284,27 @@ class IntelligenceBridge:
         
         if self.intelligence:
             for _ in range(3):
-                self.intelligence.evolve()
+                try:
+                    self.intelligence.evolve()
+                except Exception as e:
+                    logger.error(f"Batch evolution failed: {e}")
         
         logger.info("🌉 Batch processing complete")
     
     def flush_queue(self):
         """Force immediate batch processing"""
+        queue_size = len(self.synthesis_queue)
         self._batch_process()
-        return {'flushed': True, 'queue_was_size': len(self.synthesis_queue)}
+        return {'flushed': True, 'queue_was_size': queue_size}
     
     def get_bridge_status(self) -> Dict:
         """Get status of the intelligence bridge"""
         consciousness = 0.0
         if self.intelligence and hasattr(self.intelligence, 'consciousness_level'):
-            consciousness = self.intelligence.consciousness_level
+            try:
+                consciousness = float(self.intelligence.consciousness_level) if self.intelligence.consciousness_level is not None else 0.0
+            except (TypeError, ValueError):
+                consciousness = 0.0
             
         return {
             'connected_components': {
