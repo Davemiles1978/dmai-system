@@ -270,7 +270,8 @@ class SyntheticIntelligenceCore:
         
         # Granular insights (the actual "neurons")
         self.insights: Dict[str, InsightNeuron] = {}
-        
+        self.insights_lock = threading.Lock()        
+
         # Topic aggregators (for organization, not intelligence)
         self.topics: Dict[str, List[str]] = {}  # topic_name -> insight_ids
         
@@ -316,31 +317,34 @@ class SyntheticIntelligenceCore:
             insight_text, entity_type, entities, 
             relationship, confidence, source_topic, target_topic
         )
-        self.insights[insight.id] = insight
         
-        # Add to topic aggregators
-        if source_topic not in self.topics:
-            self.topics[source_topic] = []
-        if insight.id not in self.topics[source_topic]:
-            self.topics[source_topic].append(insight.id)
+        # Lock when modifying the dictionary
+        with self.insights_lock:
+            self.insights[insight.id] = insight
+            
+            # Add to topic aggregators
+            if source_topic not in self.topics:
+                self.topics[source_topic] = []
+            if insight.id not in self.topics[source_topic]:
+                self.topics[source_topic].append(insight.id)
+            
+            if target_topic != source_topic:
+                if target_topic not in self.topics:
+                    self.topics[target_topic] = []
+                if insight.id not in self.topics[target_topic]:
+                    self.topics[target_topic].append(insight.id)
         
-        if target_topic != source_topic:
-            if target_topic not in self.topics:
-                self.topics[target_topic] = []
-            if insight.id not in self.topics[target_topic]:
-                self.topics[target_topic].append(insight.id)
-        
-        self.save_state()
         logger.info(f"🧠 New insight: {insight_text[:50]}... (confidence: {confidence})")
         return insight.id
     
     def _find_similar_insight(self, entities: List[str], relationship: str) -> Optional[InsightNeuron]:
         """Find existing insight with similar entities and relationship"""
-        for insight in self.insights.values():
-            # Check if entities overlap significantly
-            overlap = set(entities) & set(insight.entities)
-            if len(overlap) >= min(2, len(entities)) and insight.relationship == relationship:
-                return insight
+        with self.insights_lock:
+            for insight in self.insights.values():
+                # Check if entities overlap significantly
+                overlap = set(entities) & set(insight.entities)
+                if len(overlap) >= min(2, len(entities)) and insight.relationship == relationship:
+                    return insight
         return None
     
     def add_synapse(self, insight_a: str, insight_b: str, relationship: str) -> Optional[Dict]:
@@ -381,41 +385,17 @@ class SyntheticIntelligenceCore:
         """Find insights relevant to given entities"""
         results = []
         
-        for insight in self.insights.values():
-            if insight.matches(entities):
-                # Check if context matches
-                if context_topic and context_topic not in [insight.source_topic, insight.target_topic]:
-                    continue
+        with self.insights_lock:
+            for insight in self.insights.values():
+                if insight.matches(entities):
+                    # Check if context matches
+                    if context_topic and context_topic not in [insight.source_topic, insight.target_topic]:
+                        continue
+                    results.append(insight.to_dict())
+                    if len(results) >= limit:
+                        break
+        return results
                 
-                # Find related insights via synapses
-                related = []
-                for syn in self.synapses:
-                    if syn['from'] == insight.id:
-                        related_insight = self.insights.get(syn['to'])
-                        if related_insight:
-                            related.append({
-                                'insight': related_insight.insight_text,
-                                'relationship': syn['relationship'],
-                                'strength': syn['strength']
-                            })
-                    elif syn['to'] == insight.id:
-                        related_insight = self.insights.get(syn['from'])
-                        if related_insight:
-                            related.append({
-                                'insight': related_insight.insight_text,
-                                'relationship': syn['relationship'],
-                                'strength': syn['strength']
-                            })
-                
-                results.append({
-                    'id': insight.id,
-                    'insight': insight.insight_text,
-                    'confidence': insight.confidence,
-                    'related': related[:3],
-                    'source_topic': insight.source_topic,
-                    'target_topic': insight.target_topic
-                })
-        
         # Sort by confidence
         results.sort(key=lambda x: x['confidence'], reverse=True)
         return results[:limit]
@@ -516,15 +496,18 @@ class SyntheticIntelligenceCore:
     @property
     def consciousness(self) -> float:
         """Consciousness = number of insights * average confidence * synapse density"""
-        if not self.insights:
-            return 0.0
+        with self.insights_lock:
+            if not self.insights:
+                return 0.0
+            
+            insight_count = len(self.insights)
+            avg_confidence = sum(i.confidence for i in self.insights.values()) / insight_count
+            
+            # Synapse density
+            max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
+            density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
         
-        insight_count = len(self.insights)
-        avg_confidence = sum(i.confidence for i in self.insights.values()) / insight_count
-        
-        # Synapse density
-        max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
-        density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
+        return insight_count * avg_confidence * density
         
         # Evolution factor
         evolution_factor = min(1.0, self.evolution_cycles / 1000)
@@ -657,10 +640,11 @@ class SyntheticIntelligenceCore:
                 with open(state_file, 'r') as f:
                     state = json.load(f)
                 
-                # Load insights
+                # Load insights with lock protection
                 self.insights = {}
-                for iid, data in state.get('insights', {}).items():
-                    self.insights[iid] = InsightNeuron.from_dict(data)
+                with self.insights_lock:
+                    for iid, data in state.get('insights', {}).items():
+                        self.insights[iid] = InsightNeuron.from_dict(data)
                 
                 self.topics = state.get('topics', {})
                 self.synapses = state.get('synapses', [])
@@ -5497,10 +5481,11 @@ class DMAIApplication:
                 
                 si = self.evolution.si_core
                 
-                # Directly load insights from disk data
+                # Directly load insights from disk data with lock protection
                 si.insights = {}
-                for iid, data in disk_data.get('insights', {}).items():
-                    si.insights[iid] = InsightNeuron.from_dict(data)
+                with si.insights_lock:
+                    for iid, data in disk_data.get('insights', {}).items():
+                        si.insights[iid] = InsightNeuron.from_dict(data)
                 
                 si.topics = disk_data.get('topics', {})
                 si.synapses = disk_data.get('synapses', [])
