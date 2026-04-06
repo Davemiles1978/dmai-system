@@ -7067,7 +7067,7 @@ if __name__ == '__main__':
     # AUTO-START EVOLUTION THREAD
     try:
         # Get the evolution instance and start it
-        evolution = app.dmai_app.evolution if hasattr(app, 'dmai_app') else None
+        evolution = app.evolution if hasattr(app, 'evolution') else None
         if evolution and hasattr(evolution, '_start_evolution'):
             evolution._start_evolution()
             logger.info("🔄 Evolution thread auto-started on boot")
