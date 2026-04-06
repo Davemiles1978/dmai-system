@@ -3414,6 +3414,10 @@ class DMAIApplication:
         CORS(self.app)
         self._setup_routes()
         self._start_evolution()
+
+        # AUTO-START EVOLUTION THREAD
+        self._start_evolution()
+
         # Auto-load neurons from Neo4j after startup
         threading.Timer(5.0, lambda: self._auto_load_neurons()).start()
         logger.info("🌐 Web interface ready")
