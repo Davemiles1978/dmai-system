@@ -1811,7 +1811,6 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
         
         # AUTO-START EVOLUTION - Start the timer after initialization
-        self._start_evolution()
         logger.info("🔄 Evolution timer started - will run automatically")
 
         timer_info = self.evolution_timer.get_stage_info()
@@ -3425,10 +3424,8 @@ class DMAIApplication:
         self.app.secret_key = os.urandom(32).hex()
         CORS(self.app)
         self._setup_routes()
-        self._start_evolution()
 
         # AUTO-START EVOLUTION THREAD
-        threading.Timer(10.0, lambda: self._start_evolution()).start()
 
         # Auto-load neurons from Neo4j after startup
         threading.Timer(5.0, lambda: self._auto_load_neurons()).start()
@@ -3797,7 +3794,6 @@ class DMAIApplication:
             """Manually start the evolution thread"""
             try:
                 if not hasattr(self.evolution, '_evolution_thread_started'):
-                    self._start_evolution()
                     self.evolution._evolution_thread_started = True
                     return jsonify({'success': True, 'message': 'Evolution thread started'})
                 else:
