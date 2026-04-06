@@ -2806,7 +2806,7 @@ class UnifiedEvolutionEngine:
         if success_reasons:
             # Convert to int to avoid formatting errors
             evo_num = int(self.successful_evolutions) if isinstance(self.successful_evolutions, (int, float)) else 0
-            logger.info(f"🎉 Evolution #{evo_num}: {' + '.join(success_reasons)}")
+            logger.info(f"🎉 Evolution #{evo_num}: {', '.join(success_reasons)}")
         else:
             logger.debug(f"Evolution cycle {self.evolution_count}: no measurable improvement")
 
