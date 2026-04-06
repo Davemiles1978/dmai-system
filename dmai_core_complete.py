@@ -1798,10 +1798,22 @@ class UnifiedEvolutionEngine:
                 return len(unmastered) == 0
             return True  # No stage learner, assume complete
         
+        # Initialize evolution timer
         self.evolution_timer = AdaptiveEvolutionTimer(
             timer_file=str(self.data_path / 'evolution_timer.json'),
             learning_callback=is_stage_learning_complete
         )
+        
+        # Get and log timer info
+        timer_info = self.evolution_timer.get_stage_info()
+        logger.info(f"   Stage: {timer_info['name']}")
+        logger.info(f"   Evolutions: {timer_info['evolutions']}")
+        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
+        
+        # AUTO-START EVOLUTION - Start the timer after initialization
+        self.evolution_timer.start()
+        logger.info("🔄 Evolution timer started - will run automatically")
+
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
