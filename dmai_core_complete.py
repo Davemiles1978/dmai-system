@@ -1811,7 +1811,7 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
         
         # AUTO-START EVOLUTION - Start the timer after initialization
-        self.evolution_timer.start()
+        self._start_evolution()
         logger.info("🔄 Evolution timer started - will run automatically")
 
         timer_info = self.evolution_timer.get_stage_info()
