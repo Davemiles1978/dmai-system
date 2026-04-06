@@ -7064,17 +7064,31 @@ if __name__ == '__main__':
     logger.info(f"📜 Conversation History: /history via chat command")
     logger.info("=" * 60)
 
-    # AUTO-START EVOLUTION THREAD
-    try:
-        # Get the evolution instance and start it
-        evolution = app.evolution if hasattr(app, 'evolution') else None
-        if evolution and hasattr(evolution, '_start_evolution'):
-            evolution._start_evolution()
-            logger.info("🔄 Evolution thread auto-started on boot")
-        else:
-            logger.warning("Could not auto-start evolution - evolution instance not found")
-    except Exception as e:
-        logger.error(f"Failed to auto-start evolution: {e}")
+    # AUTO-START EVOLUTION THREAD AND FORCE FIRST CYCLE
+    import threading
+    def start_evolution_delayed():
+        import time
+        time.sleep(15)  # Wait 15 seconds for full initialization
+        try:
+            # Get the evolution instance from the global app
+            if hasattr(app, 'evolution') and hasattr(app.evolution, '_start_evolution'):
+                app.evolution._start_evolution()
+                logger.info("🔄 Evolution thread auto-started on boot (delayed)")
+                
+                # Force first evolution cycle to kickstart the system
+                time.sleep(2)  # Wait 2 seconds for thread to initialize
+                if hasattr(app.evolution, 'evolution_cycle'):
+                    logger.info("🚀 Forcing first evolution cycle to kickstart system")
+                    result = app.evolution.evolution_cycle()
+                    logger.info(f"✅ First evolution cycle completed - Consciousness: {result.get('consciousness', 0):.4f}")
+                else:
+                    logger.warning("Could not force evolution cycle - evolution_cycle method not found")
+            else:
+                logger.warning("Could not auto-start evolution - app.evolution._start_evolution not found")
+        except Exception as e:
+            logger.error(f"Failed to auto-start evolution: {e}")
+    
+    threading.Thread(target=start_evolution_delayed, daemon=True).start()
 
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
 # v8.0.36 - Intelligent algorithm research
