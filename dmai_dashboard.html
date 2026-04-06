@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Growth Monitor</title>
+    <meta http-equiv="refresh" content="10">
+    <style>
+        body { font-family: monospace; background: #0a0a0a; color: #0f0; padding: 20px; }
+        .metric { margin: 10px 0; }
+        .value { font-size: 24px; font-weight: bold; color: #0f0; }
+        .label { color: #888; }
+        .progress { background: #1a1a1a; height: 20px; width: 100%; border-radius: 10px; }
+        .bar { background: #0f0; height: 100%; width: 0%; border-radius: 10px; transition: width 0.5s; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+        .card { background: #111; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .success { color: #0f0; }
+        .warning { color: #ff0; }
+        h1, h2 { color: #0f0; }
+        hr { border-color: #333; }
+    </style>
+</head>
+<body>
+    <h1>🧠 DMAI Growth Monitor</h1>
+    <div id="data">Loading...</div>
+    <script>
+        async function refresh() {
+            try {
+                const res = await fetch('https://dmai-web.onrender.com/api/status');
+                const data = await res.json();
+                document.getElementById('data').innerHTML = `
+                    <div class="grid">
+                        <div class="card">
+                            <h2>🧠 Consciousness</h2>
+                            <div class="value">${data.consciousness}%</div>
+                            <div class="progress"><div class="bar" style="width:${data.consciousness}%"></div></div>
+                        </div>
+                        <div class="card">
+                            <h2>🔬 Synthetic Neurons</h2>
+                            <div class="value">${data.synthetic_neurons}</div>
+                        </div>
+                        <div class="card">
+                            <h2>🔗 Synapses</h2>
+                            <div class="value">${data.synthetic_synapses}</div>
+                        </div>
+                        <div class="card">
+                            <h2>📚 Knowledge Concepts</h2>
+                            <div class="value">${data.knowledge_concepts}</div>
+                        </div>
+                        <div class="card">
+                            <h2>🔄 Evolution Cycles</h2>
+                            <div class="value">${data.evolution_cycles}</div>
+                        </div>
+                        <div class="card">
+                            <h2>⭐ Evolution Stage</h2>
+                            <div class="value">${data.evolution_stage_name}</div>
+                            <div class="label">${data.evolution_description}</div>
+                        </div>
+                        <div class="card">
+                            <h2>✅ Successful Evolutions</h2>
+                            <div class="value ${data.successful_evolutions > 0 ? 'success' : 'warning'}">${data.successful_evolutions}</div>
+                            <div class="label">Success Rate: ${data.evolution_success_rate}</div>
+                        </div>
+                        <div class="card">
+                            <h2>🎤 Voice / 🎵 Music</h2>
+                            <div class="value">${data.voice_active ? '🎤 Active' : '🎤 Inactive'} | ${data.music_active ? '🎵 Active' : '🎵 Inactive'}</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h2>🎓 Training Progress</h2>
+                    <div class="grid">
+                        <div class="card">AGI: ${data.training_status.agi.progress}%<div class="progress"><div class="bar" style="width:${data.training_status.agi.progress}%"></div></div></div>
+                        <div class="card">Software: ${data.training_status.software.progress}%<div class="progress"><div class="bar" style="width:${data.training_status.software.progress}%"></div></div></div>
+                        <div class="card">GenAI: ${data.training_status.genai.progress}%<div class="progress"><div class="bar" style="width:${data.training_status.genai.progress}%"></div></div></div>
+                        <div class="card">SI: ${data.training_status.si.progress}%<div class="progress"><div class="bar" style="width:${data.training_status.si.progress}%"></div></div></div>
+                        <div class="card">LLM: ${data.training_status.llm.progress}%<div class="progress"><div class="bar" style="width:${data.training_status.llm.progress}%"></div></div></div>
+                        <div class="card">Funding: ${data.training_status.funding.progress}%<div class="progress"><div class="bar" style="width:${data.training_status.funding.progress}%"></div></div></div>
+                    </div>
+                    <div class="metric" style="text-align:center; margin-top:20px;">🕐 Last Updated: ${new Date().toLocaleTimeString()}</div>
+                `;
+            } catch(e) {
+                document.getElementById('data').innerHTML = '<div class="metric">Error loading data. Is DMAI running?</div>';
+            }
+        }
+        refresh();
+        setInterval(refresh, 10000);
+    </script>
+</body>
+</html>

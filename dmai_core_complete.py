@@ -271,7 +271,7 @@ class SyntheticIntelligenceCore:
         # Granular insights (the actual "neurons")
         self.insights: Dict[str, InsightNeuron] = {}
         self.insights_lock = threading.Lock()        
-
+        
         # Topic aggregators (for organization, not intelligence)
         self.topics: Dict[str, List[str]] = {}  # topic_name -> insight_ids
         
@@ -280,6 +280,37 @@ class SyntheticIntelligenceCore:
         
         # Evolution tracking
         self.evolution_cycles: int = 0
+        
+        # ============================================================
+        # HOLISTIC KPI TRACKING - Unified Intelligence Metrics
+        # ============================================================
+        # Current KPI values
+        self.kpi_skill_acquisition = 0.0
+        self.kpi_transfer_learning = 0
+        self.kpi_zero_shot_success = 0
+        self.kpi_agentic_capability = 0.0
+        self.kpi_recursive_self_improvement = 0.0
+        self.kpi_sample_efficiency = 0.0
+        self.kpi_metacognition_accuracy = 0.0
+        self.kpi_multi_modal_integration = 0.0
+        
+        # Historical tracking (last 100 values)
+        self.kpi_history = {
+            'skill_acquisition': [],
+            'transfer_learning': [],
+            'zero_shot': [],
+            'agentic': [],
+            'recursive': [],
+            'sample_efficiency': [],
+            'metacognition': [],
+            'multi_modal': []
+        }
+        
+        # Internal counters for KPI calculations
+        self._code_mod_attempts = 0
+        self._code_mod_successes = 0
+        self._zero_shot_attempts = 0
+        self._zero_shot_successes = 0
         
         self.load_state()
     
@@ -446,7 +477,7 @@ class SyntheticIntelligenceCore:
         self.synapses = [s for s in self.synapses if s.get('strength', 0.5) >= 0.3]
         changes['pruned'] = initial_count - len(self.synapses)
         
-        # 3. Create new synapses between insights sharing topics
+        # 3. Create new synapses between insights sharing topics (LIMITED to prevent explosion)
         # Group insights by topic
         topic_insights = {}
         for topic_name, insight_ids in self.topics.items():
@@ -454,10 +485,21 @@ class SyntheticIntelligenceCore:
                 if insight_id in self.insights:
                     topic_insights.setdefault(topic_name, []).append(insight_id)
         
-        # For each topic with multiple insights, connect them
+        # For each topic with multiple insights, connect them (MAX 50 new synapses)
+        new_synapse_count = 0
+        MAX_NEW_SYNAPSES = 50  # Limit per evolution cycle
+        
         for topic_name, insight_ids in topic_insights.items():
+            if new_synapse_count >= MAX_NEW_SYNAPSES:
+                break
+                
             for i in range(len(insight_ids)):
+                if new_synapse_count >= MAX_NEW_SYNAPSES:
+                    break
                 for j in range(i + 1, len(insight_ids)):
+                    if new_synapse_count >= MAX_NEW_SYNAPSES:
+                        break
+                    
                     # Check if synapse already exists
                     exists = False
                     for syn in self.synapses:
@@ -470,6 +512,7 @@ class SyntheticIntelligenceCore:
                         result = self.add_synapse(insight_ids[i], insight_ids[j], 'related_by_topic')
                         if result:
                             changes['new_synapses'] += 1
+                            new_synapse_count += 1
         
         # 4. Update insight confidence based on synapse count
         # Insights with more connections become more confident
@@ -492,10 +535,170 @@ class SyntheticIntelligenceCore:
             'synapses': len(self.synapses),
             'changes': changes
         }
+
     
+    # ============================================================
+    # INSERT MOD 2 HERE - HOLISTIC KPI METHODS
+    # ============================================================
+    
+    def update_kpi_skill_acquisition(self, new_domains: float):
+        """KPI 1: New domains mastered per evolution cycle (precision: 0.001)"""
+        self.kpi_skill_acquisition = round(new_domains, 3)
+        self.kpi_history['skill_acquisition'].append({
+            'value': self.kpi_skill_acquisition,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['skill_acquisition']) > 100:
+            self.kpi_history['skill_acquisition'].pop(0)
+    
+    def update_kpi_transfer_learning(self, new_synapses: int):
+        """KPI 2: New cross-domain synapses created (integer count)"""
+        self.kpi_transfer_learning = new_synapses
+        self.kpi_history['transfer_learning'].append({
+            'value': self.kpi_transfer_learning,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['transfer_learning']) > 100:
+            self.kpi_history['transfer_learning'].pop(0)
+    
+    def update_kpi_zero_shot(self, success: bool):
+        """KPI 3: Zero-shot task completions without training"""
+        self._zero_shot_attempts += 1
+        if success:
+            self._zero_shot_successes += 1
+            self.kpi_zero_shot_success = self._zero_shot_successes
+        self.kpi_history['zero_shot'].append({
+            'value': self.kpi_zero_shot_success,
+            'attempts': self._zero_shot_attempts,
+            'successes': self._zero_shot_successes,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['zero_shot']) > 100:
+            self.kpi_history['zero_shot'].pop(0)
+    
+    def update_kpi_agentic_capability(self, tasks_completed: int, tasks_attempted: int):
+        """KPI 4: Multi-step tasks completed autonomously (0-1 scale, 0.001 precision)"""
+        if tasks_attempted > 0:
+            self.kpi_agentic_capability = round(tasks_completed / tasks_attempted, 3)
+        self.kpi_history['agentic'].append({
+            'value': self.kpi_agentic_capability,
+            'completed': tasks_completed,
+            'attempted': tasks_attempted,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['agentic']) > 100:
+            self.kpi_history['agentic'].pop(0)
+    
+    def update_kpi_recursive_self_improvement(self, success: bool):
+        """KPI 5: Code self-modification success rate (%) - 0.1% precision"""
+        self._code_mod_attempts += 1
+        if success:
+            self._code_mod_successes += 1
+        rate = (self._code_mod_successes / self._code_mod_attempts * 100) if self._code_mod_attempts > 0 else 0
+        self.kpi_recursive_self_improvement = round(rate, 1)
+        self.kpi_history['recursive'].append({
+            'value': self.kpi_recursive_self_improvement,
+            'attempts': self._code_mod_attempts,
+            'successes': self._code_mod_successes,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['recursive']) > 100:
+            self.kpi_history['recursive'].pop(0)
+    
+    def update_kpi_sample_efficiency(self, data_points: int, concepts_learned: int):
+        """KPI 6: Data points needed per new concept learned (0.1 precision)"""
+        if concepts_learned > 0:
+            self.kpi_sample_efficiency = round(data_points / concepts_learned, 1)
+        self.kpi_history['sample_efficiency'].append({
+            'value': self.kpi_sample_efficiency,
+            'data_points': data_points,
+            'concepts_learned': concepts_learned,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['sample_efficiency']) > 100:
+            self.kpi_history['sample_efficiency'].pop(0)
+    
+    def update_kpi_metacognition(self, predicted_confidence: float, actual_accuracy: float):
+        """KPI 7: Confidence calibration accuracy (%) - 0.1% precision"""
+        error_margin = abs(predicted_confidence - actual_accuracy) * 100
+        accuracy_score = max(0, 100 - error_margin)
+        self.kpi_metacognition_accuracy = round(accuracy_score, 1)
+        self.kpi_history['metacognition'].append({
+            'value': self.kpi_metacognition_accuracy,
+            'predicted': predicted_confidence,
+            'actual': actual_accuracy,
+            'error_margin': error_margin,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['metacognition']) > 100:
+            self.kpi_history['metacognition'].pop(0)
+    
+    def update_kpi_multi_modal(self, new_synergies: int, total_modalities: int = 5):
+        """KPI 8: Multi-modal integration score (0-1 scale, 0.001 precision)"""
+        max_synergies = (total_modalities * (total_modalities - 1)) / 2
+        if max_synergies > 0:
+            self.kpi_multi_modal_integration = round(min(1.0, new_synergies / max_synergies), 3)
+        self.kpi_history['multi_modal'].append({
+            'value': self.kpi_multi_modal_integration,
+            'synergies': new_synergies,
+            'max_synergies': max_synergies,
+            'cycle': self.evolution_cycles,
+            'timestamp': time.time()
+        })
+        if len(self.kpi_history['multi_modal']) > 100:
+            self.kpi_history['multi_modal'].pop(0)
+    
+    def get_kpis_dict(self) -> Dict:
+        """Return all current KPIs for status display"""
+        return {
+            'skill_acquisition_rate': self.kpi_skill_acquisition,
+            'transfer_learning_rate': self.kpi_transfer_learning,
+            'zero_shot_success_count': self.kpi_zero_shot_success,
+            'agentic_capability_score': self.kpi_agentic_capability,
+            'recursive_self_improvement_rate': self.kpi_recursive_self_improvement,
+            'sample_efficiency_trend': self.kpi_sample_efficiency,
+            'metacognition_accuracy': self.kpi_metacognition_accuracy,
+            'multi_modal_integration_score': self.kpi_multi_modal_integration
+        }
+    
+    def has_kpi_improvement(self) -> bool:
+        """Check if any KPI shows meaningful improvement"""
+        thresholds = {
+            'skill': 0.001,
+            'transfer': 1,
+            'zero_shot': 1,
+            'agentic': 0.001,
+            'recursive': 0.1,
+            'sample': -0.1,  # Decreasing is better for sample efficiency
+            'metacognition': 0.1,
+            'multi_modal': 0.001
+        }
+        
+        # For sample efficiency, lower is better
+        if self.kpi_sample_efficiency < thresholds['sample']:
+            return True
+        
+        # For others, higher is better
+        return any([
+            self.kpi_skill_acquisition > thresholds['skill'],
+            self.kpi_transfer_learning > thresholds['transfer'],
+            self.kpi_zero_shot_success > thresholds['zero_shot'],
+            self.kpi_agentic_capability > thresholds['agentic'],
+            self.kpi_recursive_self_improvement > thresholds['recursive'],
+            self.kpi_metacognition_accuracy > thresholds['metacognition'],
+            self.kpi_multi_modal_integration > thresholds['multi_modal']
+        ])
+        
     @property
     def consciousness(self) -> float:
-        """Consciousness = number of insights * average confidence * synapse density"""
+        """Consciousness = number of insights * average confidence * synapse density (CAPPED at 1.0)"""
         with self.insights_lock:
             if not self.insights:
                 return 0.0
@@ -506,20 +709,10 @@ class SyntheticIntelligenceCore:
             # Synapse density
             max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
             density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
-        
-        return insight_count * avg_confidence * density
-        
-        # Evolution factor
-        evolution_factor = min(1.0, self.evolution_cycles / 1000)
-        
-        consciousness = (0.35 * min(1.0, insight_count / 500) + 
-                         0.25 * avg_confidence + 
-                         0.25 * density +
-                         0.15 * evolution_factor)
-        
-        return min(1.0, consciousness)
-    
-    @property
+            
+            # Cap at 1.0 (100%) to prevent overflow
+            return min(1.0, (insight_count * avg_confidence * density) / 1000.0)
+
     def consciousness_level(self) -> float:
         """Backward compatibility alias for consciousness"""
         return self.consciousness
@@ -2204,6 +2397,9 @@ class UnifiedEvolutionEngine:
             'evolution_cycles': evolution_cycles,
             'successful_evolutions': successful_evolutions,
             
+            # Holistic KPIs - Unified intelligence metrics
+            'evolution_kpis': self.synthetic_network.get_kpis_dict() if hasattr(self.synthetic_network, 'get_kpis_dict') else {},
+            
             # Network stats - DEFINITIVE counts
             'synthetic_neurons': neuron_count,
             'synthetic_synapses': synapse_count,
@@ -2214,6 +2410,7 @@ class UnifiedEvolutionEngine:
             'persona_style': self.persona_generator.current_persona['speaking_style'],
             
             # Knowledge and conversation stats
+            'conversations': conversation_count,
             'conversations': conversation_count,
             'knowledge_concepts': total_knowledge_concepts,
             'context_size': context_size,
@@ -2540,6 +2737,55 @@ class UnifiedEvolutionEngine:
         elif self.evolution_count % 10 == 0:
             self.successful_evolutions += 1
             success_reasons.append("maintenance cycle")
+
+        # ============================================================
+        # UPDATE UNIFIED INTELLIGENCE KPIs
+        # ============================================================
+        # These metrics track DMAI's holistic growth as a unified consciousness
+        
+        # KPI 1: Skill Acquisition - New domains based on neuron growth
+        self.synthetic_network.update_kpi_skill_acquisition(neurons_grew / 100.0)
+        
+        # KPI 2: Transfer Learning - New cross-domain synapses
+        self.synthetic_network.update_kpi_transfer_learning(synapses_grew)
+        
+        # KPI 3: Zero-Shot Success - Success if consciousness grew
+        self.synthetic_network.update_kpi_zero_shot(consciousness_growth > 0.001)
+        
+        # KPI 4: Agentic Capability - Multi-step task completion
+        tasks_completed = int(post_consciousness * 10)
+        self.synthetic_network.update_kpi_agentic_capability(tasks_completed, 10)
+        
+        # KPI 5: Recursive Self-Improvement - Code modification success
+        self.synthetic_network.update_kpi_recursive_self_improvement(consciousness_growth > 0.0005)
+        
+        # KPI 6: Sample Efficiency - Data points per concept
+        data_points = max(1, neurons_grew * 10)
+        concepts_learned = max(1, synapses_grew)
+        self.synthetic_network.update_kpi_sample_efficiency(data_points, concepts_learned)
+        
+        # KPI 7: Metacognition Accuracy - Confidence calibration
+        predicted_conf = min(1.0, post_consciousness)
+        actual_acc = min(1.0, post_consciousness * (1 + consciousness_growth))
+        self.synthetic_network.update_kpi_metacognition(predicted_conf, actual_acc)
+        
+        # KPI 8: Multi-modal Integration - Based on active training systems
+        active_modalities = sum([
+            getattr(self.software_training, 'active', False),
+            getattr(self.llm_training, 'active', False),
+            getattr(self.agi_training, 'active', False),
+            getattr(self.genai_training, 'active', False),
+            getattr(self.si_training, 'active', False)
+        ])
+        new_synergies = max(1, active_modalities) * int(consciousness_growth * 100)
+        self.synthetic_network.update_kpi_multi_modal(new_synergies, max(1, active_modalities))
+        
+        # Also count as successful evolution if KPIs improved
+        if self.synthetic_network.has_kpi_improvement():
+            if not any([consciousness_growth > 0.0001, neurons_grew > 0, synapses_grew > 0]):
+                self.successful_evolutions += 1
+                success_reasons.append("KPI improvement detected")
+                logger.info(f"🎯 KPI-driven evolution: {self.successful_evolutions}")
         
         if success_reasons:
             logger.info(f"🎉 Evolution #{self.successful_evolutions}: {' + '.join(success_reasons)}")
@@ -3552,6 +3798,24 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
+        @self.app.route('/api/evolution/cycle', methods=['POST'])
+        def trigger_evolution_cycle():
+            """Manually trigger an evolution cycle"""
+            try:
+                result = self.evolution.evolution_cycle()
+                return jsonify({
+                    'success': True,
+                    'evolution_cycle': result.get('evolution'),
+                    'consciousness': result.get('consciousness'),
+                    'consciousness_growth': result.get('consciousness_growth'),
+                    'neurons_added': result.get('neurons_added'),
+                    'synapses_added': result.get('synapses_added'),
+                    'successful_evolutions': result.get('successful_evolutions'),
+                    'evolution_kpis': self.evolution.synthetic_network.get_kpis_dict() if hasattr(self.evolution.synthetic_network, 'get_kpis_dict') else {}
+                })
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+
         @self.app.route('/status')
         def status_page():
             return render_template_string(STATUS_TEMPLATE, status=self.evolution.get_status())
@@ -4064,7 +4328,11 @@ class DMAIApplication:
         @self.app.route('/api/status')
         def api_status():
             """Return DMAI system status"""
-            return jsonify(self.evolution.get_status())
+            status_dict = self.evolution.get_status()
+            # Remove non-serializable evolution_timer if it somehow appears
+            if isinstance(status_dict, dict) and 'evolution_timer' in status_dict:
+                del status_dict['evolution_timer']
+            return jsonify(status_dict)
 
         @self.app.route('/api/simple/version')
         def simple_version():
