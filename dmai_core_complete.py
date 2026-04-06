@@ -1807,12 +1807,10 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
         
-        self.evolution_timer = AdaptiveEvolutionTimer(
-            timer_file=str(self.data_path / 'evolution_timer.json'),
-            learning_callback=is_stage_learning_complete
-        )
-        timer_info = self.evolution_timer.get_stage_info()
-        logger.info(f"   Stage: {timer_info['name']}")
+        
+        # AUTO-START EVOLUTION THREAD
+        self._start_evolution()
+
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
 
