@@ -88,3 +88,4 @@ networkx>=3.0
 # Web server
 gunicorn==20.1.0
 neo4j==5.28.3
+Pillow>=10.0.0

@@ -591,7 +591,7 @@ class AvatarGenerator:
         
         return components
     
-    def _generate_outfit(self, img: Image.Image, components: Dict[str, Any]) -> Image.Image:
+    def _generate_outfit(self, img: 'Image.Image', components: Dict[str, Any]) -> 'Image.Image':
         """Generate clothing on avatar based on components"""
         draw = ImageDraw.Draw(img)
         
@@ -671,7 +671,7 @@ class AvatarGenerator:
         
         return img
     
-    def _create_body_base(self, img: Image.Image) -> Image.Image:
+    def _create_body_base(self, img: 'Image.Image') -> 'Image.Image':
         """Create body base from uploaded image"""
         enhancer = ImageEnhance.Contrast(img)
         img = enhancer.enhance(1.1)
