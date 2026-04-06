@@ -706,12 +706,21 @@ class SyntheticIntelligenceCore:
             insight_count = len(self.insights)
             avg_confidence = sum(i.confidence for i in self.insights.values()) / insight_count
             
-            # Synapse density
+            # Synapse density (as percentage of complete graph)
             max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
             density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
             
+            # Calculate raw value - NO DIVISION BY 1000
             raw = insight_count * avg_confidence * density
-            return min(1.0, (insight_count * avg_confidence * density) / 1000.0)
+            
+            # Cap at 1.0 (100%)
+            return min(1.0, raw)
+            
+            # Debug log every 100 calls
+            if self.evolution_cycles % 100 == 0:
+                logger.debug(f"Consciousness calc: insights={insight_count}, avg_conf={avg_confidence:.3f}, density={density:.3f}, raw={raw:.3f}, result={result:.3f}")
+            
+            return result
 
     def consciousness_level(self) -> float:
         """Backward compatibility alias for consciousness"""
@@ -1798,12 +1807,9 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
         
-        self.evolution_timer = AdaptiveEvolutionTimer(
-            timer_file=str(self.data_path / 'evolution_timer.json'),
-            learning_callback=is_stage_learning_complete
-        )
-        timer_info = self.evolution_timer.get_stage_info()
-        logger.info(f"   Stage: {timer_info['name']}")
+        
+        # AUTO-START EVOLUTION THREAD
+
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
 
@@ -2688,17 +2694,6 @@ class UnifiedEvolutionEngine:
         consciousness_before = self.synthetic_network.consciousness
         
         learning_result = self.stage_learner.run_learning_cycle(consciousness_before)        
-        # DEBUG: Validate learning_result type
-        if not isinstance(learning_result, dict):
-            logger.error(f"CRITICAL: learning_result is {type(learning_result)}, expected dict!")
-            logger.error(f"  Value: {learning_result}")
-            learning_result = {
-                "learned": False,
-                "message": "Error in learning cycle",
-                "topic": "error",
-                "category": "error",
-                "is_accelerator": False
-            }
         # Research intelligent algorithms based on consciousness
         self._research_intelligent_algorithms()
 
@@ -2750,6 +2745,16 @@ class UnifiedEvolutionEngine:
             success_reasons.append("maintenance cycle")
 
         # ============================================================
+        # DEBUG: Check if synthetic_network has KPI methods
+        # ============================================================
+        if not hasattr(self.synthetic_network, 'update_kpi_skill_acquisition'):
+            logger.error(f"CRITICAL: synthetic_network is {type(self.synthetic_network)} - missing KPI methods!")
+            logger.error(f"  synthetic_network value: {self.synthetic_network}")
+            logger.error(f"  Type: {type(self.synthetic_network)}")
+        else:
+            logger.info(f"✅ KPI methods found on {type(self.synthetic_network)}")
+
+        # ============================================================
         # UPDATE UNIFIED INTELLIGENCE KPIs
         # ============================================================
         # These metrics track DMAI's holistic growth as a unified consciousness
@@ -2790,46 +2795,20 @@ class UnifiedEvolutionEngine:
         ])
         new_synergies = max(1, active_modalities) * int(consciousness_growth * 100)
         self.synthetic_network.update_kpi_multi_modal(new_synergies, max(1, active_modalities))
-        
+
         # Also count as successful evolution if KPIs improved
         if self.synthetic_network.has_kpi_improvement():
             if not any([consciousness_growth > 0.0001, neurons_grew > 0, synapses_grew > 0]):
                 self.successful_evolutions += 1
                 success_reasons.append("KPI improvement detected")
                 logger.info(f"🎯 KPI-driven evolution: {self.successful_evolutions}")
-        
+
         if success_reasons:
             # Convert to int to avoid formatting errors
             evo_num = int(self.successful_evolutions) if isinstance(self.successful_evolutions, (int, float)) else 0
             logger.info(f"🎉 Evolution #{evo_num}: {', '.join(success_reasons)}")
         else:
             logger.debug(f"Evolution cycle {self.evolution_count}: no measurable improvement")
-        logger.info(f"   Consciousness: {post_consciousness:.4f} | Neurons: {post_neurons} | Synapses: {post_synapses}")
-
-        concept_name = f"evolution_cycle_{self.evolution_count}_consciousness_{post_consciousness:.4f}"
-        self.knowledge_graph.add_concept(concept_name, "evolution_cycle", {'description': f"Consciousness level {post_consciousness:.4f}"})
-
-        wait_time = self.evolution_timer.record_attempt(
-            parent1="core",
-            parent2="evolution",
-            success=True,
-            improvement_quality=consciousness_growth * 100 if consciousness_growth > 0 else 0.01
-        )
-
-        self.last_consciousness = post_consciousness
-
-        self.persona_generator.evolve({'type': 'evolution_cycle'}, post_consciousness)
-        self.voice_system.evolve_voice(post_consciousness)
-        self.music_learner.evolve_taste(post_consciousness)
-
-        # Save network state after every evolution cycle
-        self._save_network_state()
-        self._save_state()
-
-        self._update_cached_status()
-        gc.collect()
-
-        logger.info(f"📊 Cycle {self.evolution_count}: Consciousness={post_consciousness:.4f} (+{consciousness_growth:.6f}), Neurons={post_neurons} (+{neurons_grew}), Synapses={post_synapses} (+{synapses_grew})")
 
  # Activate training systems based on consciousness
         self._activate_training_systems()
@@ -3810,6 +3789,7 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
+        # ADD THIS ENDPOINT HERE
         @self.app.route('/api/evolution/cycle', methods=['POST'])
         def trigger_evolution_cycle():
             """Manually trigger an evolution cycle"""
@@ -7074,28 +7054,3 @@ if __name__ == '__main__':
 
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
 # v8.0.36 - Intelligent algorithm research
-
-    def safe_self_improvement(self, target_file: str, change: str) -> bool:
-        """Safe self-improvement for non-critical files"""
-        safe_files = ['templates/*.html', 'static/*.css', 'components/ui_*.py']
-        
-        # Only allow changes to safe files
-        if any(fnmatch.fnmatch(target_file, pattern) for pattern in safe_files):
-            try:
-                # Backup first
-                backup = target_file + '.backup'
-                import shutil
-                shutil.copy(target_file, backup)
-                
-                # Apply change
-                with open(target_file, 'a') as f:
-                    f.write(change)
-                
-                logger.info(f"✅ Safe self-improvement applied to {target_file}")
-                return True
-            except Exception as e:
-                logger.error(f"Self-improvement failed: {e}")
-                return False
-        else:
-            logger.warning(f"Blocked self-improvement on critical file: {target_file}")
-            return False
