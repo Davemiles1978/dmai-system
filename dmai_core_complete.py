@@ -710,7 +710,7 @@ class SyntheticIntelligenceCore:
             max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
             density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
             
-            # Cap at 1.0 (100%) to prevent overflow
+            raw = insight_count * avg_confidence * density
             return min(1.0, (insight_count * avg_confidence * density) / 1000.0)
 
     def consciousness_level(self) -> float:
@@ -2688,6 +2688,17 @@ class UnifiedEvolutionEngine:
         consciousness_before = self.synthetic_network.consciousness
         
         learning_result = self.stage_learner.run_learning_cycle(consciousness_before)        
+        # DEBUG: Validate learning_result type
+        if not isinstance(learning_result, dict):
+            logger.error(f"CRITICAL: learning_result is {type(learning_result)}, expected dict!")
+            logger.error(f"  Value: {learning_result}")
+            learning_result = {
+                "learned": False,
+                "message": "Error in learning cycle",
+                "topic": "error",
+                "category": "error",
+                "is_accelerator": False
+            }
         # Research intelligent algorithms based on consciousness
         self._research_intelligent_algorithms()
 
@@ -7063,3 +7074,28 @@ if __name__ == '__main__':
 
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
 # v8.0.36 - Intelligent algorithm research
+
+    def safe_self_improvement(self, target_file: str, change: str) -> bool:
+        """Safe self-improvement for non-critical files"""
+        safe_files = ['templates/*.html', 'static/*.css', 'components/ui_*.py']
+        
+        # Only allow changes to safe files
+        if any(fnmatch.fnmatch(target_file, pattern) for pattern in safe_files):
+            try:
+                # Backup first
+                backup = target_file + '.backup'
+                import shutil
+                shutil.copy(target_file, backup)
+                
+                # Apply change
+                with open(target_file, 'a') as f:
+                    f.write(change)
+                
+                logger.info(f"✅ Safe self-improvement applied to {target_file}")
+                return True
+            except Exception as e:
+                logger.error(f"Self-improvement failed: {e}")
+                return False
+        else:
+            logger.warning(f"Blocked self-improvement on critical file: {target_file}")
+            return False
