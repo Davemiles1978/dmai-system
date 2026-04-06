@@ -119,6 +119,8 @@ from components.evolution_training.EvolutionTrainingSystem import EvolutionTrain
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingTraining import FundingOrchestrator
+from components.avatar_generator import AvatarGenerator
+from components.uncensored_video_research import UncensoredVideoResearcher
 
 # RESEARCH TARGETS - High-value knowledge domains
 RESEARCH_TARGETS = {
@@ -6065,6 +6067,26 @@ class DMAIApplication:
                     })
                 else:
                     return jsonify({'error': 'evolution_cycle not found'}), 500
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/avatar/generate', methods=['POST'])
+        def generate_avatar():
+            try:
+                data = request.get_json() or {}
+                description = data.get('description', 'DMAI avatar')
+                result = self.evolution.avatar_generator.generate_autonomous_avatar(description)
+                return jsonify({'success': True, 'avatar': result})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/avatar/status', methods=['GET'])
+        def avatar_status():
+            try:
+                latest = self.evolution.avatar_generator.get_latest_avatar()
+                if latest:
+                    return jsonify({'success': True, 'avatar': latest})
+                return jsonify({'error': 'No avatars found'}), 404
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
