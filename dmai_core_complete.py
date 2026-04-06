@@ -2788,11 +2788,11 @@ class UnifiedEvolutionEngine:
                 logger.info(f"🎯 KPI-driven evolution: {self.successful_evolutions}")
         
         if success_reasons:
-            evo_num = int(self.successful_evolutions) if hasattr(self, 'successful_evolutions') else 0
-logger.info(f"🎉 Evolution #{evo_num}: {' + '.join(success_reasons)}")
+            # Convert to int to avoid formatting errors
+            evo_num = int(self.successful_evolutions) if isinstance(self.successful_evolutions, (int, float)) else 0
+            logger.info(f"🎉 Evolution #{evo_num}: {', '.join(success_reasons)}")
         else:
             logger.debug(f"Evolution cycle {self.evolution_count}: no measurable improvement")
-        
         logger.info(f"   Consciousness: {post_consciousness:.4f} | Neurons: {post_neurons} | Synapses: {post_synapses}")
 
         concept_name = f"evolution_cycle_{self.evolution_count}_consciousness_{post_consciousness:.4f}"
