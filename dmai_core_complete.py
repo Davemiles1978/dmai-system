@@ -1809,7 +1809,6 @@ class UnifiedEvolutionEngine:
         
         
         # AUTO-START EVOLUTION THREAD
-        self._start_evolution()
 
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
