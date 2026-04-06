@@ -3416,7 +3416,7 @@ class DMAIApplication:
         self._start_evolution()
 
         # AUTO-START EVOLUTION THREAD
-        self._start_evolution()
+        threading.Timer(10.0, lambda: self._start_evolution()).start()
 
         # Auto-load neurons from Neo4j after startup
         threading.Timer(5.0, lambda: self._auto_load_neurons()).start()
