@@ -7056,5 +7056,17 @@ if __name__ == '__main__':
     logger.info(f"📜 Conversation History: /history via chat command")
     logger.info("=" * 60)
 
+    # AUTO-START EVOLUTION THREAD
+    try:
+        # Get the evolution instance and start it
+        evolution = app.dmai_app.evolution if hasattr(app, 'dmai_app') else None
+        if evolution and hasattr(evolution, '_start_evolution'):
+            evolution._start_evolution()
+            logger.info("🔄 Evolution thread auto-started on boot")
+        else:
+            logger.warning("Could not auto-start evolution - evolution instance not found")
+    except Exception as e:
+        logger.error(f"Failed to auto-start evolution: {e}")
+
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
 # v8.0.36 - Intelligent algorithm research
