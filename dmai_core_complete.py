@@ -3792,6 +3792,7 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
+        # ADD THIS ENDPOINT HERE
         @self.app.route('/api/evolution/cycle', methods=['POST'])
         def trigger_evolution_cycle():
             """Manually trigger an evolution cycle"""
