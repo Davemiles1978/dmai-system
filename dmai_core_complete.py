@@ -706,13 +706,15 @@ class SyntheticIntelligenceCore:
             insight_count = len(self.insights)
             avg_confidence = sum(i.confidence for i in self.insights.values()) / insight_count
             
-            # Synapse density
+            # Synapse density (as percentage of complete graph)
             max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
             density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
             
-            # Calculate raw value
-            raw = (insight_count * avg_confidence * density) / 1000.0
-            result = min(1.0, raw)
+            # Calculate raw value - NO DIVISION BY 1000
+            raw = insight_count * avg_confidence * density
+            
+            # Cap at 1.0 (100%)
+            return min(1.0, raw)
             
             # Debug log every 100 calls
             if self.evolution_cycles % 100 == 0:
