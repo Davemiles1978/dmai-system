@@ -3459,17 +3459,19 @@ What would you like me to do?"""
 
 class DMAIApplication:
     def __init__(self):
-        self.base_path = Path(__file__).parent
-        self.data_path = self.base_path / 'data'
-        self.data_path.mkdir(exist_ok=True)
-        self.evolution = UnifiedEvolutionEngine(self.base_path)
-        self.app = Flask(__name__, template_folder=self.base_path / 'templates')
-        self.app.secret_key = os.urandom(32).hex()
-        CORS(self.app)
-        self._setup_routes()
-
-        # Initialize avatar generator
-        self.avatar_generator = AvatarGenerator()
+    self.base_path = Path(__file__).parent
+    self.data_path = self.base_path / 'data'
+    self.data_path.mkdir(exist_ok=True)
+    self.evolution = UnifiedEvolutionEngine(self.base_path)
+    self.app = Flask(__name__, template_folder=self.base_path / 'templates')
+    self.app.secret_key = os.urandom(32).hex()
+    CORS(self.app)
+    
+    # Initialize avatar generator FIRST
+    self.avatar_generator = AvatarGenerator()
+    
+    # THEN setup routes (so avatar_generator exists when routes reference it)
+    self._setup_routes()
 
         # AUTO-START EVOLUTION THREAD
 
@@ -6145,6 +6147,44 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+        @self.app.route('/api/avatar/generate', methods=['POST'])
+        def generate_avatar():
+            try:
+                data = request.get_json() or {}
+                description = data.get('description', 'DMAI avatar')
+                result = self.avatar_generator.generate_autonomous_avatar(description)
+                return jsonify({'success': True, 'avatar': result})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/avatar/status', methods=['GET'])
+        def avatar_status():
+            try:
+                latest = self.avatar_generator.get_latest_avatar()
+                if latest:
+                    return jsonify({'success': True, 'avatar': latest})
+                return jsonify({'error': 'No avatars found'}), 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/avatar/upload', methods=['POST'])
+        def upload_avatar():
+            try:
+                if 'photo' not in request.files:
+                    return jsonify({'error': 'No photo provided'}), 400
+                photo = request.files['photo']
+                if photo.filename == '':
+                    return jsonify({'error': 'Empty filename'}), 400
+                image_data = photo.read()
+                result = self.avatar_generator.upload_and_generate(image_data, photo.filename)
+                return jsonify({'success': True, 'avatar': result})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/avatars/<path:filename>')
+        def serve_avatar(filename):
+            from flask import send_from_directory
+            return send_from_directory(str(self.avatar_generator.storage_path), filename)
 
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()

@@ -238,13 +238,14 @@ class IntelligenceBridge:
             elif isinstance(evolution_result, (int, float)):
                 # If evolve() returned a number, treat it as the consciousness value
                 consciousness_impact = evolution_result - previous_consciousness
-                logger.warning(f"evolve() returned number {evolution_result}, treating as consciousness value")
+                # SAFE FORMATTING - convert to string first to avoid format errors
+                logger.warning(f"evolve() returned number {str(evolution_result)}, treating as consciousness value")
             else:
                 logger.warning(f"evolution_result is not a dict or number: {type(evolution_result).__name__}")
                 consciousness_impact = 0
                 
         except Exception as e:
-            logger.error(f"Failed to feed to synthetic network: {e}")
+            logger.error(f"Failed to feed to synthetic network: {str(e)}")
         
         return float(consciousness_impact) if consciousness_impact is not None else 0.0
     
