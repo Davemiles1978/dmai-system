@@ -6147,16 +6147,7 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
-        @self.app.route('/api/avatar/generate', methods=['POST'])
-        def generate_avatar():
-            try:
-                data = request.get_json() or {}
-                description = data.get('description', 'DMAI avatar')
-                result = self.avatar_generator.generate_autonomous_avatar(description)
-                return jsonify({'success': True, 'avatar': result})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-        
+
         @self.app.route('/api/avatar/status', methods=['GET'])
         def avatar_status():
             try:
