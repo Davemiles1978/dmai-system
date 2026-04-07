@@ -6090,6 +6090,18 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/avatar', methods=['GET'])
+        def debug_avatar():
+            try:
+                has_avatar = hasattr(self.evolution, 'avatar_generator')
+                return jsonify({
+                    'has_avatar_generator': has_avatar,
+                    'avatar_type': str(type(self.evolution.avatar_generator)) if has_avatar else None,
+                    'evolution_attrs': dir(self.evolution)[:20]
+                })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
         status = self.evolution.get_status()
