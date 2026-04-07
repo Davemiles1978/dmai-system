@@ -6140,7 +6140,7 @@ class DMAIApplication:
                 has_avatar = hasattr(self, 'avatar_generator')
                 return jsonify({
                     'has_avatar_generator': has_avatar,
-                    'avatar_type': str(type(self.evolution.avatar_generator)) if has_avatar else None,
+                    'avatar_type': str(type(self.avatar_generator)) if has_avatar else None,
                     'evolution_attrs': dir(self.evolution)[:20]
                 })
             except Exception as e:
