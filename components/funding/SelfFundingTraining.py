@@ -393,41 +393,87 @@ class SelfFundingTraining:
         return {'recovered': False, 'reason': 'no_incomplete_learning'}
     
     def get_status(self) -> Dict:
-        """Get learning status"""
-        total_concepts = sum(len(d['topics']) for d in self.revenue_avenues.values())
-        learned_count = len(self.learned_concepts)
-        
-        # Calculate overall progress
-        overall_progress = (learned_count / total_concepts * 100) if total_concepts > 0 else 0
-        
-        # Determine which avenues are complete
-        completed_avenues = [
-            name for name, data in self.revenue_avenues.items()
-            if data['completed']
-        ]
-        
-        return {
-            'active': self.learning_active,
-            'phase': '1 - Comprehensive Knowledge Acquisition',
-            'overall_progress_percent': overall_progress,
-            'progress': overall_progress,
-            'complete': self._training_complete or overall_progress >= 99.9,
-            'concepts_learned': learned_count,
-            'concepts_total': total_concepts,
-            'completed_avenues': completed_avenues,
-            'completed_avenues_count': len(completed_avenues),
-            'total_avenues': len(self.revenue_avenues),
-            'revenue_avenues': self.revenue_avenues,
-            'strategy_candidates': {
-                avenue: len(candidates) 
-                for avenue, candidates in self.strategy_candidates.items()
-            },
-            'ready_for_phase_2': self._ready_for_phase_2(),
-            'message': 'Knowledge acquisition mode - no revenue generation occurs',
-            'can_start': not self.learning_active and not (self._training_complete or overall_progress >= 99.9),
-            'can_stop': self.learning_active,
-            'status': 'training' if self.learning_active else 'paused'
-        }
+        """Get learning status - reads directly from state file for accuracy"""
+        try:
+            # Always read from the actual state file
+            if self.state_path and Path(self.state_path).exists():
+                with open(self.state_path, 'r') as f:
+                    state = json.load(f)
+                
+                learned_concepts = state.get('learned_concepts', [])
+                revenue_avenues = state.get('revenue_avenues', {})
+                completed_avenues = [k for k, v in revenue_avenues.items() if v.get('completed', False)]
+                total_concepts = sum(len(v.get('topics', [])) for v in revenue_avenues.values())
+                learned_count = len(learned_concepts)
+                overall_progress = (learned_count / total_concepts * 100) if total_concepts > 0 else 0
+                
+                # Get strategy counts from state
+                strategy_candidates = state.get('strategy_candidates', {})
+                
+                return {
+                    'active': self.learning_active,
+                    'phase': state.get('phase', '1 - Comprehensive Knowledge Acquisition'),
+                    'overall_progress_percent': overall_progress,
+                    'progress': overall_progress,
+                    'complete': state.get('training_complete', False) or overall_progress >= 99.9,
+                    'concepts_learned': learned_count,
+                    'concepts_total': total_concepts,
+                    'completed_avenues': completed_avenues,
+                    'completed_avenues_count': len(completed_avenues),
+                    'total_avenues': len(revenue_avenues),
+                    'revenue_avenues': revenue_avenues,
+                    'strategy_candidates': {
+                        avenue: len(candidates) if isinstance(candidates, list) else 0
+                        for avenue, candidates in strategy_candidates.items()
+                    },
+                    'ready_for_phase_2': state.get('ready_for_phase_2', False),
+                    'message': 'Knowledge acquisition mode - no revenue generation occurs',
+                    'can_start': not self.learning_active and not (state.get('training_complete', False) or overall_progress >= 99.9),
+                    'can_stop': self.learning_active,
+                    'status': 'training' if self.learning_active else 'paused'
+                }
+            else:
+                # Fallback to in-memory if file doesn't exist
+                total_concepts = sum(len(d['topics']) for d in self.revenue_avenues.values())
+                learned_count = len(self.learned_concepts)
+                overall_progress = (learned_count / total_concepts * 100) if total_concepts > 0 else 0
+                
+                return {
+                    'active': self.learning_active,
+                    'phase': '1 - Comprehensive Knowledge Acquisition',
+                    'overall_progress_percent': overall_progress,
+                    'progress': overall_progress,
+                    'complete': self._training_complete or overall_progress >= 99.9,
+                    'concepts_learned': learned_count,
+                    'concepts_total': total_concepts,
+                    'completed_avenues': [name for name, data in self.revenue_avenues.items() if data['completed']],
+                    'completed_avenues_count': len([name for name, data in self.revenue_avenues.items() if data['completed']]),
+                    'total_avenues': len(self.revenue_avenues),
+                    'revenue_avenues': self.revenue_avenues,
+                    'strategy_candidates': {avenue: len(candidates) for avenue, candidates in self.strategy_candidates.items()},
+                    'ready_for_phase_2': self._ready_for_phase_2(),
+                    'message': 'Knowledge acquisition mode - no revenue generation occurs',
+                    'can_start': not self.learning_active and not (self._training_complete or overall_progress >= 99.9),
+                    'can_stop': self.learning_active,
+                    'status': 'training' if self.learning_active else 'paused'
+                }
+        except Exception as e:
+            logger.error(f"Status read error: {e}")
+            # Return cached status as fallback
+            total_concepts = sum(len(d['topics']) for d in self.revenue_avenues.values())
+            learned_count = len(self.learned_concepts)
+            overall_progress = (learned_count / total_concepts * 100) if total_concepts > 0 else 0
+            return {
+                'active': self.learning_active,
+                'phase': '1 - Comprehensive Knowledge Acquisition',
+                'overall_progress_percent': overall_progress,
+                'progress': overall_progress,
+                'complete': self._training_complete or overall_progress >= 99.9,
+                'concepts_learned': learned_count,
+                'concepts_total': total_concepts,
+                'message': 'Knowledge acquisition mode - no revenue generation occurs (fallback)',
+                'status': 'training' if self.learning_active else 'paused'
+            }
     
     def get_progress(self) -> float:
         """Return current progress percentage for dashboard display"""
