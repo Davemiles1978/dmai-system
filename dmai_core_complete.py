@@ -5947,16 +5947,46 @@ class DMAIApplication:
 
         @self.app.route('/api/funding/strategies')
         def api_funding_strategies():
-            if self.evolution.funding_training:
-                avenue = request.args.get('avenue', None)
-                return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
-            return jsonify({'error': 'Funding training not available'})
+            # Try to initialize if missing
+            if not self.evolution.funding_training:
+                try:
+                    from components.funding.SelfFundingTraining import FundingOrchestrator
+                    self.evolution.funding_training = FundingOrchestrator(
+                        self.evolution.data_path,
+                        self.evolution.finance,
+                        self.evolution.knowledge_graph,
+                        self.evolution.ai_hub
+                    )
+                    if hasattr(self.evolution.funding_training, 'unified_learning'):
+                        self.evolution.funding_training.unified_learning = self.evolution.unified_learning
+                    logger.info("✅ Funding training initialized on-demand")
+                except Exception as e:
+                    logger.error(f"Failed to init funding training: {e}")
+                    return jsonify({'error': 'Funding training not available', 'details': str(e)}), 503
+            
+            avenue = request.args.get('avenue', None)
+            return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
 
         @self.app.route('/api/funding/phase2_request', methods=['POST'])
         def api_funding_phase2_request():
-            if self.evolution.funding_training:
-                return jsonify(self.evolution.funding_training.request_phase_2_approval())
-            return jsonify({'error': 'Funding training not available'})
+            # Try to initialize if missing
+            if not self.evolution.funding_training:
+                try:
+                    from components.funding.SelfFundingTraining import FundingOrchestrator
+                    self.evolution.funding_training = FundingOrchestrator(
+                        self.evolution.data_path,
+                        self.evolution.finance,
+                        self.evolution.knowledge_graph,
+                        self.evolution.ai_hub
+                    )
+                    if hasattr(self.evolution.funding_training, 'unified_learning'):
+                        self.evolution.funding_training.unified_learning = self.evolution.unified_learning
+                    logger.info("✅ Funding training initialized on-demand")
+                except Exception as e:
+                    logger.error(f"Failed to init funding training: {e}")
+                    return jsonify({'error': 'Funding training not available', 'details': str(e)}), 503
+            
+            return jsonify(self.evolution.funding_training.request_phase_2_approval())
 
         @self.app.route('/api/learning/progress')
         def api_learning_progress():
