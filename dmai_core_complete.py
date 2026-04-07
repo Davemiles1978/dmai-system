@@ -3427,6 +3427,9 @@ class DMAIApplication:
         CORS(self.app)
         self._setup_routes()
 
+        # Initialize avatar generator
+        self.avatar_generator = AvatarGenerator()
+
         # AUTO-START EVOLUTION THREAD
 
         # Auto-load neurons from Neo4j after startup
