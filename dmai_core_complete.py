@@ -2706,10 +2706,18 @@ class UnifiedEvolutionEngine:
         # ====================================================================
         consciousness_before = self.synthetic_network.consciousness
         
-        learning_result = self.stage_learner.run_learning_cycle(consciousness_before)        
+        learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
+        
+        # DEBUG: Log what learning_result actually is to identify the float error
+        logger.info(f"🔍 DEBUG: learning_result type = {type(learning_result)}")
+        logger.info(f"🔍 DEBUG: learning_result = {learning_result}")
+        if isinstance(learning_result, float):
+            logger.error(f"❌ CRITICAL: learning_result is a FLOAT! Value: {learning_result}")
+            # Convert float to empty dict to prevent crash
+            learning_result = {}
+        
         # Research intelligent algorithms based on consciousness
         self._research_intelligent_algorithms()
-
         
         if learning_result.get('learned'):
             logger.info(f"📚 {learning_result['message']}")
