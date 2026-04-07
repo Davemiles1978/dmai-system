@@ -2244,7 +2244,7 @@ class UnifiedEvolutionEngine:
 
     def _save_network_state(self):
         try:
-            if self.synthetic_network.save(str(self.network_save_path)):
+            if self.synthetic_network.save():
                 logger.debug(f"💾 Saved synthetic network: {self.synthetic_network.neuron_count} neurons")
                 return True
             network_data = {
