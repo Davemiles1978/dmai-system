@@ -3459,19 +3459,19 @@ What would you like me to do?"""
 
 class DMAIApplication:
     def __init__(self):
-    self.base_path = Path(__file__).parent
-    self.data_path = self.base_path / 'data'
-    self.data_path.mkdir(exist_ok=True)
-    self.evolution = UnifiedEvolutionEngine(self.base_path)
-    self.app = Flask(__name__, template_folder=self.base_path / 'templates')
-    self.app.secret_key = os.urandom(32).hex()
-    CORS(self.app)
-    
-    # Initialize avatar generator FIRST
-    self.avatar_generator = AvatarGenerator()
-    
-    # THEN setup routes (so avatar_generator exists when routes reference it)
-    self._setup_routes()
+        self.base_path = Path(__file__).parent
+        self.data_path = self.base_path / 'data'
+        self.data_path.mkdir(exist_ok=True)
+        self.evolution = UnifiedEvolutionEngine(self.base_path)
+        self.app = Flask(__name__, template_folder=self.base_path / 'templates')
+        self.app.secret_key = os.urandom(32).hex()
+        CORS(self.app)
+        
+        # Initialize avatar generator FIRST
+        self.avatar_generator = AvatarGenerator()
+        
+        # THEN setup routes (so avatar_generator exists when routes reference it)
+        self._setup_routes()
 
         # AUTO-START EVOLUTION THREAD
 
