@@ -6119,7 +6119,7 @@ class DMAIApplication:
             try:
                 data = request.get_json() or {}
                 description = data.get('description', 'DMAI avatar')
-                result = self.evolution.avatar_generator.generate_autonomous_avatar(description)
+                result = self.avatar_generator.generate_autonomous_avatar(description)
                 return jsonify({'success': True, 'avatar': result})
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
@@ -6127,7 +6127,7 @@ class DMAIApplication:
         @self.app.route('/api/avatar/status', methods=['GET'])
         def avatar_status():
             try:
-                latest = self.evolution.avatar_generator.get_latest_avatar()
+                latest = self.avatar_generator.get_latest_avatar()
                 if latest:
                     return jsonify({'success': True, 'avatar': latest})
                 return jsonify({'error': 'No avatars found'}), 404
@@ -6137,7 +6137,7 @@ class DMAIApplication:
         @self.app.route('/api/debug/avatar', methods=['GET'])
         def debug_avatar():
             try:
-                has_avatar = hasattr(self.evolution, 'avatar_generator')
+                has_avatar = hasattr(self, 'avatar_generator')
                 return jsonify({
                     'has_avatar_generator': has_avatar,
                     'avatar_type': str(type(self.evolution.avatar_generator)) if has_avatar else None,
