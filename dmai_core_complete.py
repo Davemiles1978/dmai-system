@@ -3833,6 +3833,42 @@ class DMAIApplication:
         logger.info("🔄 Evolution thread started")
             
     def _setup_routes(self):
+        # ============================================================
+        # FUNDING ROUTES - REGISTER FIRST
+        # ============================================================
+        
+        @self.app.route('/api/funding/status')
+        def api_funding_status():
+            if self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training:
+                return jsonify(self.evolution.funding_training.status())
+            return jsonify({'error': 'Funding training not available', 'phase': 'disabled'})
+        
+        @self.app.route('/api/funding/strategies')
+        def api_funding_strategies():
+            if self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training:
+                avenue = request.args.get('avenue', None)
+                return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
+            return jsonify({'error': 'Funding training not available'}), 503
+        
+        @self.app.route('/api/funding/phase2_request', methods=['POST'])
+        def api_funding_phase2_request():
+            if self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training:
+                return jsonify(self.evolution.funding_training.request_phase_2_approval())
+            return jsonify({'error': 'Funding training not available'}), 503
+        
+        @self.app.route('/api/funding/debug', methods=['GET'])
+        def api_funding_debug():
+            has_funding = self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training is not None
+            return jsonify({
+                'has_funding_training': has_funding,
+                'evolution_exists': self.evolution is not None,
+                'funding_type': str(type(self.evolution.funding_training)) if has_funding else None
+            })
+        
+        # ============================================================
+        # MAIN ROUTES
+        # ============================================================
+        
         @self.app.route('/')
         def index():
             return redirect('/status')
