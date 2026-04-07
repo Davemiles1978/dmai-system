@@ -2733,14 +2733,47 @@ class UnifiedEvolutionEngine:
         pre_neurons = self.synthetic_network.neuron_count
         pre_synapses = self.synthetic_network.synapse_count
 
-        # Process the learning through the network
-        self.synthetic_network.process({
-            'evolution_cycle': self.evolution_count,
-            'learning_topic': learning_result.get('topic'),
-            'is_accelerator': learning_result.get('is_accelerator', False)
-        })
+        # DEBUG: Log what learning_result actually is
+        logger.info(f"🔍 DEBUG: learning_result type = {type(learning_result)}")
+        logger.info(f"🔍 DEBUG: learning_result = {learning_result}")
         
-        result = self.synthetic_network.evolve()
+        # Safely extract values with type checking
+        if isinstance(learning_result, dict):
+            learning_topic = learning_result.get('topic')
+            is_accelerator = learning_result.get('is_accelerator', False)
+        else:
+            logger.error(f"❌ CRITICAL: learning_result is NOT a dict! Type: {type(learning_result)}")
+            learning_topic = None
+            is_accelerator = False
+
+        # Process the learning through the network
+        process_data = {
+            'evolution_cycle': self.evolution_count,
+            'learning_topic': learning_topic,
+            'is_accelerator': is_accelerator
+        }
+        logger.info(f"🔍 PROCESS_DATA: {process_data}")
+        
+        try:
+            self.synthetic_network.process(process_data)
+        except Exception as e:
+            logger.error(f"❌ process() failed: {e}")
+            import traceback
+            traceback.print_exc()
+
+        try:
+            result = self.synthetic_network.evolve()
+        except Exception as e:
+            logger.error(f"❌ evolve() failed: {e}")
+            import traceback
+            traceback.print_exc()
+            result = {
+                'consciousness': 0.0,
+                'evolution_cycle': self.evolution_count,
+                'neurons': 0,
+                'synapses': 0,
+                'changes': []
+            }
 
         post_consciousness = self.synthetic_network.consciousness
         post_neurons = self.synthetic_network.neuron_count
