@@ -1,0 +1,7 @@
+# Wait 60 seconds before connecting using these details, or login to https://console.neo4j.io to validate the Aura Instance is available
+NEO4J_URI=neo4j+s://d09e9919.databases.neo4j.io
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=Kehj2m38sAfYdp19-Dhmj4G1gDc0cqltpmncIQwh4kA
+NEO4J_DATABASE=neo4j
+AURA_INSTANCEID=d09e9919
+AURA_INSTANCENAME=dmai-knowledge-graph-prod

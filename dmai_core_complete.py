@@ -199,6 +199,15 @@ REBUILD_FLAG_FILE = "data/rebuild.flag"
 class InsightNeuron:
     """A neuron representing a SPECIFIC insight, not a broad topic"""
     
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, 
                  insight_text: str,
                  entity_type: str,
@@ -266,6 +275,15 @@ class InsightNeuron:
 class SyntheticIntelligenceCore:
     """Multi-granular SI core with insight-level neurons"""
     
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_dir: str = "data/synthetic"):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
@@ -874,6 +892,15 @@ class SyntheticIntelligenceCore:
 # ============================================================================
 
 class WebSearchEngine:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self):
         self.user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
         self.session = requests.Session()
@@ -953,6 +980,15 @@ class WebSearchEngine:
 # ============================================================================
 
 class KillswitchMonitor:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self):
         self.paused = False
         self.kill_requested = False
@@ -1035,6 +1071,15 @@ class KillswitchMonitor:
 # ============================================================================
 
 class IdentityManager:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.identity_file = data_path / 'identity.json'
@@ -1080,6 +1125,15 @@ class IdentityManager:
 # ============================================================================
 
 class FinancialManager:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.finance_file = data_path / 'finance.json'
@@ -1161,6 +1215,15 @@ class FinancialManager:
 # ============================================================================
 
 class VoiceSystem:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.voice_file = data_path / 'voice_profile.json'
@@ -1225,6 +1288,15 @@ class VoiceSystem:
 # ============================================================================
 
 class MusicLearner:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.music_file = data_path / 'music_taste.json'
@@ -1284,6 +1356,15 @@ class MusicLearner:
 # ============================================================================
 
 class PersonaGenerator:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.persona_file = data_path / 'persona.json'
@@ -1344,6 +1425,15 @@ class PersonaGenerator:
 # ============================================================================
 
 class ConversationMemory:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.memory_file = data_path / 'conversation_memory.json'
@@ -1404,6 +1494,15 @@ class ConversationMemory:
 # ============================================================================
 
 class SelfEvolutionEngine:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.evolution_file = data_path / 'self_evolution.json'
@@ -1461,6 +1560,15 @@ class SelfEvolutionEngine:
 # ============================================================================
 
 class KnowledgeGraph:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.graph_file = data_path / 'knowledge_graph.json'
@@ -1595,6 +1703,15 @@ class KnowledgeGraph:
 # ============================================================================
 
 class MetaLearner:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.meta_file = data_path / 'meta_learning.json'
@@ -1644,6 +1761,15 @@ class MetaLearner:
 # ============================================================================
 
 class SelfHealer:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.backup_path = data_path / 'backups'
@@ -1693,6 +1819,15 @@ class SelfHealer:
 # ============================================================================
 
 class UnifiedEvolutionEngine:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self, base_path: Path):
         self.base_path = base_path
         self.data_path = base_path / 'data'
@@ -3458,6 +3593,15 @@ What would you like me to do?"""
 # ============================================================================
 
 class DMAIApplication:
+    
+    def __del__(self):
+        """Clean up Neo4j connections on shutdown"""
+        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
+            try:
+                self.neo4j_driver.close()
+            except:
+                pass
+
     def __init__(self):
         self.base_path = Path(__file__).parent
         self.data_path = self.base_path / 'data'
@@ -3504,7 +3648,7 @@ class DMAIApplication:
                     WHERE e.name IS NOT NULL OR e.id IS NOT NULL
                     RETURN e.id as id, e.name as name, e.category as category, 
                            e.confidence as confidence, e.embedding as embedding
-                    LIMIT 100
+                    LIMIT 50
                 """)
                 
                 # Initialize neurons dict if needed
@@ -3577,7 +3721,7 @@ class DMAIApplication:
                     WHERE e1.id IS NOT NULL AND e2.id IS NOT NULL
                     RETURN e1.id as source_id, e2.id as target_id, type(r) as rel_type, 
                            r.strength as strength
-                    LIMIT 500
+                    LIMIT 100
                 """)
                 
                 synapse_count = 0
@@ -3834,15 +3978,56 @@ class DMAIApplication:
             
     def _setup_routes(self):
         # ============================================================
+        # CHAT ENDPOINT - MUST BE FIRST TO AVOID OVERWRITE
+        # ============================================================
+        
+        @self.app.route('/api/chat', methods=['POST'])
+        def api_chat():
+            """Process chat messages with DMAI"""
+            try:
+                data = request.get_json()
+                if not data:
+                    return jsonify({'error': 'No JSON data provided'}), 400
+                
+                message = data.get('message', '')
+                user = data.get('user', 'anonymous')
+                
+                if not message or not message.strip():
+                    return jsonify({'response': 'Please enter a message.'})
+                
+                # Process the message through DMAI's conversation system
+                response = self.evolution.process_message(user, message.strip())
+                
+                return jsonify({
+                    'response': response,
+                    'status': 'success'
+                })
+            except Exception as e:
+                logger.error(f"Chat error: {e}")
+                import traceback
+                traceback.print_exc()
+                return jsonify({
+                    'response': f"I encountered an error: {str(e)}",
+                    'status': 'error'
+                }), 500
+        
+        # ============================================================
         # FUNDING ROUTES - REGISTER FIRST
         # ============================================================
         
-        @self.app.route('/api/funding/status')
+        @self.app.route('/api/funding/status', methods=['GET'])
         def api_funding_status():
-            if self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training:
-                return jsonify(self.evolution.funding_training.status())
-            return jsonify({'error': 'Funding training not available', 'phase': 'disabled'})
-        
+            """Get self-funding training status"""
+            try:
+                if hasattr(self, 'evolution') and self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training:
+                    status = self.evolution.funding_training.status()
+                    return jsonify(status)
+                else:
+                    return jsonify({'error': 'Funding orchestrator not initialized', 'phase': '1 - Knowledge Acquisition', 'ready_for_phase_2': False})
+            except Exception as e:
+                logger.error(f"Funding status error: {e}")
+                return jsonify({'error': str(e), 'phase': '1 - Knowledge Acquisition', 'ready_for_phase_2': False})
+
         @self.app.route('/api/funding/strategies')
         def api_funding_strategies():
             if self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training:
@@ -5889,18 +6074,6 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
-        @self.app.route('/api/chat', methods=['POST'])
-        def api_chat():
-            data = request.json
-            message = data.get('message', '')
-            user = data.get('user', 'anonymous')
-            if not message:
-                return jsonify({'response': 'No message received'})
-            if message.startswith('/'):
-                response = self._handle_command(message)
-            else:
-                response = self.evolution.process_message(user, message)
-            return jsonify({'response': response})
 
         @self.app.route('/api/synthetic/status')
         def api_synthetic_status():

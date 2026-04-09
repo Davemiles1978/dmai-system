@@ -261,6 +261,8 @@ class SelfFundingTraining:
                 'strategy_candidates': self.strategy_candidates,
                 'learning_active': False,  # Always save as False - state restored only on crash recovery
                 'training_complete': self._training_complete,
+                'phase': '2 - Paper Execution (Strategy Testing)' if self._ready_for_phase_2() else '1 - Comprehensive Knowledge Acquisition',
+                'ready_for_phase_2': self._ready_for_phase_2(),
                 'last_updated': datetime.now().isoformat()
             }
             with open(self.state_file, 'w') as f:
@@ -396,8 +398,8 @@ class SelfFundingTraining:
         """Get learning status - reads directly from state file for accuracy"""
         try:
             # Always read from the actual state file
-            if self.state_path and Path(self.state_path).exists():
-                with open(self.state_path, 'r') as f:
+            if self.state_file and self.state_file.exists():
+                with open(self.state_file, 'r') as f:
                     state = json.load(f)
                 
                 learned_concepts = state.get('learned_concepts', [])
