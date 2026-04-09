@@ -35,6 +35,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 from enum import Enum
+from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
 import uuid
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -1950,11 +1951,30 @@ class UnifiedEvolutionEngine:
         # AUTO-START EVOLUTION - Start the timer after initialization
         logger.info("🔄 Evolution timer started - will run automatically")
 
+        # ============================================================
+        # AUTONOMOUS INGESTION SYSTEM
+        # ============================================================
+        self.autonomous_developer = AutonomousIngestor(self)
+        logger.info("🤖 Autonomous Ingestion System initialized")
+
+        def ingestion_loop():
+            import time
+            time.sleep(30)
+            logger.info("🤖 Autonomous Ingestion active - scanning for beneficial code")
+        
+        threading.Thread(target=ingestion_loop, daemon=True).start()
+        logger.info("🔄 Autonomous ingestion thread started")
+
+        # ============================================================
+        # AUTONOMOUS DEVELOPER SYSTEM
+        # ============================================================
+        self.autonomous_ingestor = AutonomousIngestor(self)
+        logger.info("🤖 Autonomous Developer initialized")
+
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
-        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
-        
+        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")        
         
         # AUTO-START EVOLUTION THREAD
 
@@ -2890,12 +2910,15 @@ class UnifiedEvolutionEngine:
         logger.info(f"🔍 PROCESS_DATA: {process_data}")
         
         try:
-            self.synthetic_network.process(process_data)
+            # FIX: Validate process_data before feeding to synthetic network
+            if isinstance(process_data, dict):
+                self.synthetic_network.process(process_data)
+            else:
+                logger.warning(f"⚠️ Evolution cycle: Skipping synthetic network feed - process_data is {type(process_data)}, expected dict. Value: {process_data}")
         except Exception as e:
             logger.error(f"❌ process() failed: {e}")
             import traceback
             traceback.print_exc()
-
         try:
             result = self.synthetic_network.evolve()
         except Exception as e:
@@ -3221,9 +3244,25 @@ class UnifiedEvolutionEngine:
 
     def process_message(self, user: str, message: str) -> str:
         """Process user message with FULL conversation context"""
+        
+        # Handle commands FIRST - before anything else
+        if message.startswith('/'):
+            return self.parent._handle_command(message)
 
         input_data = {'type': 'user_message', 'user': user, 'message': message, 'timestamp': datetime.now().isoformat()}
-        self.synthetic_network.process(input_data)
+        
+        # FIX: Validate input data before feeding to synthetic network
+        try:
+            # Ensure input_data is a dictionary before processing
+            if isinstance(input_data, dict):
+                self.synthetic_network.process(input_data)
+            else:
+                logger.warning(f"Skipping synthetic network feed: input_data is {type(input_data)}, expected dict. Value: {input_data}")
+        except AttributeError as e:
+            logger.error(f"Synthetic network processing failed (AttributeError): {e}")
+        except Exception as e:
+            logger.error(f"Synthetic network processing failed: {e}")
+
         consciousness = self.synthetic_network.consciousness
         message_lower = message.lower()
 
@@ -3607,6 +3646,7 @@ class DMAIApplication:
         self.data_path = self.base_path / 'data'
         self.data_path.mkdir(exist_ok=True)
         self.evolution = UnifiedEvolutionEngine(self.base_path)
+        self.evolution.parent = self  # Add parent reference for command routing
         self.app = Flask(__name__, template_folder=self.base_path / 'templates')
         self.app.secret_key = os.urandom(32).hex()
         CORS(self.app)
@@ -6438,6 +6478,62 @@ Funding: {funding_ts.get('progress', 0):.1f}%
 
 I have FULL conversation memory and can modify my own code. What would you like to do?"""
 
+        elif cmd.startswith('/ingest'):
+            source = command[8:].strip()
+            if not source:
+                return """📥 **Ingest Command Usage:**
+
+`/ingest <github_url>`
+
+Example: `/ingest https://github.com/huggingface/diffusers`
+
+DMAI will:
+1. Clone the repository
+2. Analyze all code
+3. Ingest beneficial capabilities
+4. Incorporate into her core"""
+            else:
+                # Run ingestion in background
+                def do_ingest():
+                    try:
+                        result = self.evolution.autonomous_ingestor.discover_and_ingest(source)
+                        if result['capabilities_ingested']:
+                            logger.info(f"✅ Ingested: {result['capabilities_ingested']} from {source}")
+                    except Exception as e:
+                        logger.error(f"Ingestion failed: {e}")
+                threading.Thread(target=do_ingest, daemon=True).start()
+                return f"📥 **Ingesting: {source}**\n\nAnalyzing code and identifying capabilities...\n\nI'll let you know when complete."
+
+        # ADD /develop COMMAND HERE - RIGHT AFTER /ingest
+        elif cmd.startswith('/develop'):
+            idea = command[9:].strip()
+            if not idea:
+                return """🔧 **Develop Command Usage:**
+
+`/develop <idea or url>`
+
+Examples:
+- `/develop Create an image generator that makes cat pictures`
+- `/develop https://github.com/some/repo`
+- `/develop I need a trading bot that uses RSI indicator`
+
+DMAI will:
+1. Analyze your request
+2. Design a solution
+3. Write the code
+4. Test it
+5. Incorporate into herself"""
+            else:
+                def do_develop():
+                    try:
+                        result = self.evolution.autonomous_developer.process_input(idea)
+                        if result['status'] == 'complete':
+                            logger.info(f"✅ Developed: {result['implementation'].get('files', [])}")
+                    except Exception as e:
+                        logger.error(f"Development failed: {e}")
+                threading.Thread(target=do_develop, daemon=True).start()
+                return f"🔧 **Developing: {idea[:100]}**\n\nAnalyzing, designing, and implementing...\n\nI'll let you know when complete."
+
         elif cmd == '/knowledge':
             concepts = self.evolution.get_knowledge_concepts(30)
             if concepts:
@@ -6553,8 +6649,8 @@ Try: /insight trading war ukraine"""
                 response += f"• {s['action']}: {s['reason']}\n"
                 response += f"  Confidence: {s['confidence']:.2f}\n\n"
             return response
-        
-        elif cmd == '/insight stats':
+
+        elif cmd == '/insight stats':        
             stats = self.evolution.si_core.get_network_state()['stats']
             topics = list(self.evolution.si_core.topics.keys())
             return f"""🧠 **SI Core Statistics**
