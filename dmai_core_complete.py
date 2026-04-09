@@ -2907,7 +2907,10 @@ class UnifiedEvolutionEngine:
             'learning_topic': learning_topic,
             'is_accelerator': is_accelerator
         }
-        logger.info(f"🔍 PROCESS_DATA: {process_data}")
+        try:
+            logger.info(f"🔍 PROCESS_DATA: {process_data}")
+        except Exception as fmt_err:
+            logger.warning(f"Format error in PROCESS_DATA: {fmt_err}, value: {process_data}")
         
         try:
             # FIX: Validate process_data before feeding to synthetic network
