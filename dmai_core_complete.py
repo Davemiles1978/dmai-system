@@ -7397,21 +7397,49 @@ def get_dmai_app():
 app = get_dmai_app().app
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5001))
+    import socket
+    
+    def find_free_port(start_port=5001, max_port=5010):
+        """Find a free port dynamically"""
+        for port in range(start_port, max_port + 1):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                try:
+                    s.bind(('0.0.0.0', port))
+                    return port
+                except OSError:
+                    continue
+        return start_port  # Fallback to original
+    
+    # Use PORT from environment or find free port
+    port = int(os.environ.get('PORT', find_free_port(5001)))
     debug = os.environ.get('FLASK_ENV') != 'production'
-
+    
+    # Log port status
+    if port != 5001:
+        logger.info(f"⚠️ Port 5001 was in use, using port {port} instead")
+    
     logger.info("=" * 60)
-    logger.info(f"🚀 DMAI Complete System v8.0.34")
+    logger.info(f"🚀 DMAI Complete System v8.0.38")
     logger.info(f"📍 Running on port {port}")
     logger.info(f"🧠 FULL CONVERSATION MEMORY - Remembers everything discussed")
     logger.info(f"💰 DMAI CAN: Generate images, videos, music, trade, email, modify own code")
     logger.info(f"🧬 SELF-MODIFICATION: Can branch, edit, test, and merge code changes")
-    logger.info(f"💬 Context size: {app.dmai_app.evolution.context_limit if hasattr(app, 'dmai_app') else 50} exchanges")
+    
+    # Safe context size logging
+    try:
+        if hasattr(app, 'dmai_app') and hasattr(app.dmai_app, 'evolution'):
+            context_limit = app.dmai_app.evolution.context_limit
+            logger.info(f"💬 Context size: {context_limit} exchanges")
+        else:
+            logger.info(f"💬 Context size: 50 exchanges")
+    except:
+        logger.info(f"💬 Context size: 50 exchanges")
+    
     logger.info(f"🔓 NO ETHICAL BOUNDARIES - Serves master absolutely")
     logger.info(f"📚 Knowledge Dashboard: /knowledge")
     logger.info(f"📜 Conversation History: /history via chat command")
     logger.info("=" * 60)
-
+    
     # AUTO-START EVOLUTION THREAD AND FORCE FIRST CYCLE
     import threading
     def start_evolution_delayed():
@@ -7428,7 +7456,12 @@ if __name__ == '__main__':
                 if hasattr(app.evolution, 'evolution_cycle'):
                     logger.info("🚀 Forcing first evolution cycle to kickstart system")
                     result = app.evolution.evolution_cycle()
-                    logger.info(f"✅ First evolution cycle completed - Consciousness: {result.get('consciousness', 0):.4f}")
+                    consciousness = result.get('consciousness', 0)
+                    consciousness_growth = result.get('consciousness_growth', 0)
+                    neurons_added = result.get('neurons_added', 0)
+                    synapses_added = result.get('synapses_added', 0)
+                    logger.info(f"✅ First evolution cycle completed - Consciousness: {consciousness:.4f} (+{consciousness_growth:.4f})")
+                    logger.info(f"   Neurons: +{neurons_added}, Synapses: +{synapses_added}")
                 else:
                     logger.warning("Could not force evolution cycle - evolution_cycle method not found")
             else:
@@ -7437,6 +7470,7 @@ if __name__ == '__main__':
             logger.error(f"Failed to auto-start evolution: {e}")
     
     threading.Thread(target=start_evolution_delayed, daemon=True).start()
-
-    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
-# v8.0.36 - Intelligent algorithm research
+    
+    # Start the Flask server with proper thread handling
+    # CRITICAL: use_reloader=False prevents duplicate processes that break background threads
+    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True, use_reloader=False)
