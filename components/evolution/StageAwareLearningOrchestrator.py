@@ -400,7 +400,18 @@ class StageAwareLearningOrchestrator:
         """
         topic_name = topic_info["topic"]
         category = topic_info.get("category", "core")
-        is_accelerator = topic_info.get("is_accelerator", False)
+        
+        # PERMANENT FIX: Convert is_accelerator to proper boolean
+        raw_accelerator = topic_info.get("is_accelerator", False)
+        if isinstance(raw_accelerator, (int, float)):
+            is_accelerator = raw_accelerator == 1.0 or raw_accelerator == 1
+        elif isinstance(raw_accelerator, bool):
+            is_accelerator = raw_accelerator
+        elif isinstance(raw_accelerator, str):
+            is_accelerator = raw_accelerator.lower() in ('true', 'yes', '1', 'on')
+        else:
+            is_accelerator = False
+        
         sources = topic_info.get("harvest_sources", ["ai_tutors"])
         current_mastery = self.learned_topics.get(self.current_stage, {}).get(topic_name, 0)
         threshold = topic_info.get("mastery_threshold", 3)
@@ -542,14 +553,12 @@ Be specific, educational, and focused on real application.
             'success': True,
             'topic': topic_name,
             'category': category,
-            'is_accelerator': is_accelerator,
+            'is_accelerator': is_accelerator,  # Now guaranteed to be boolean
             'stage': self.current_stage,
             'mastery_level': current_mastery + 1,
             'mastery_threshold': threshold,
             'is_mastered': is_mastered,
             'consciousness_boost': consciousness_boost,
-            'sources_used': [k['source'] for k in harvested_knowledge],
-            'knowledge_length': sum(len(k['content']) for k in harvested_knowledge)
         }
     
     def run_learning_cycle(self, consciousness: float) -> Dict:
@@ -578,14 +587,11 @@ Be specific, educational, and focused on real application.
             'learned': True,
             'topic': result['topic'],
             'category': result['category'],
-            'is_accelerator': result['is_accelerator'],
+            'is_accelerator': bool(result.get('is_accelerator', False)) if isinstance(result.get('is_accelerator'), (bool, int, float)) else False,
             'stage': result['stage'],
             'mastery_progress': f"{result['mastery_level']}/{result['mastery_threshold']}",
             'is_mastered': result['is_mastered'],
             'consciousness_boost': result['consciousness_boost'],
-            'sources': result['sources_used'],
-            'current_stage': self.current_stage,
-            'message': f"Learned about {result['topic']} ({result['mastery_level']}/{result['mastery_threshold']} mastery)"
         }
     
     def get_learning_summary(self) -> Dict:
