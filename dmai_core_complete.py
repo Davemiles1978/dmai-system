@@ -332,16 +332,65 @@ class SyntheticIntelligenceCore:
         self._code_mod_successes = 0
         self._zero_shot_attempts = 0
         self._zero_shot_successes = 0
-        
+
         self.load_state()
+        
+        # PERMANENT FIX: Sync with Neo4j on every startup to ensure all insights are loaded
+        self._sync_with_neo4j()
     
-    def add_insight(self, 
+    def _sync_with_neo4j(self):
+        """Synchronize with Neo4j database on startup - ensures all 3588 insights are loaded"""
+        try:
+            import os
+            from neo4j import GraphDatabase
+            
+            uri = os.environ.get('NEO4J_URI')
+            user = os.environ.get('NEO4J_USER')
+            password = os.environ.get('NEO4J_PASSWORD')
+            
+            if not uri or not user or not password:
+                logger.warning("Neo4j credentials not available, skipping sync")
+                return
+            
+            driver = GraphDatabase.driver(uri, auth=(user, password))
+            with driver.session() as session:
+                result = session.run("""
+                    MATCH (e:Entity)
+                    WHERE e.name IS NOT NULL OR e.id IS NOT NULL
+                    RETURN e.id as id, e.name as name, e.category as category, 
+                           e.confidence as confidence
+                    LIMIT 5000
+                """)
+                insights = list(result)
+                
+                added_count = 0
+                for insight in insights:
+                    insight_id = insight['id'] or insight['name']
+                    if insight_id not in self.insights:
+                        self.add_insight(
+                            insight_text=insight['name'] or insight_id,
+                            entity_type=insight['category'] or 'entity',
+                            entities=[insight['name']] if insight['name'] else [],
+                            relationship='stored',
+                            source_topic='neo4j_sync',
+                            target_topic='knowledge_base',
+                            confidence=float(insight['confidence']) if insight['confidence'] else 0.5
+                        )
+                        added_count += 1
+                
+                logger.info(f"🔄 Synced {added_count} insights from Neo4j to SI Core")
+                self.save_state()
+            driver.close()
+        except Exception as e:
+            logger.error(f"Neo4j sync failed: {e}")
+    
+    def add_insight(self,
                     insight_text: str,
                     entity_type: str,
                     entities: List[str],
                     relationship: str,
                     source_topic: str,
-                    target_topic: str,
+                    target_topic: str,   
                     confidence: float = 0.5) -> str:
         """
         Create a granular insight neuron.
