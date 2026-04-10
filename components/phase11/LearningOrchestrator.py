@@ -82,11 +82,21 @@ class LearningOrchestrator:
     
     def _get_current_consciousness(self) -> float:
         """Get current consciousness level from intelligence bridge or synthetic network"""
-        if self.intelligence_bridge and hasattr(self.intelligence_bridge, 'intelligence'):
-            if self.intelligence_bridge.intelligence:
-                return self.intelligence_bridge.intelligence.consciousness_level
-        elif self.synthetic_network and hasattr(self.synthetic_network, 'consciousness_level'):
-            return self.synthetic_network.consciousness_level
+        try:
+            if self.intelligence_bridge and hasattr(self.intelligence_bridge, 'intelligence'):
+                if self.intelligence_bridge.intelligence:
+                    consciousness_val = self.intelligence_bridge.intelligence.consciousness_level
+                    # If it's a method, call it; if it's a property, use it directly
+                    if callable(consciousness_val):
+                        consciousness_val = consciousness_val()
+                    return float(consciousness_val) if consciousness_val is not None else 0.0
+            elif self.synthetic_network and hasattr(self.synthetic_network, 'consciousness_level'):
+                consciousness_val = self.synthetic_network.consciousness_level
+                if callable(consciousness_val):
+                    consciousness_val = consciousness_val()
+                return float(consciousness_val) if consciousness_val is not None else 0.0
+        except Exception as e:
+            logger.warning(f"Failed to get consciousness: {e}")
         return 0.0
         
     def evolution_cycle(self, consciousness: float = None) -> Dict:
@@ -254,7 +264,8 @@ class LearningOrchestrator:
                 results['errors'].append(f"Discovery error: {e}")
         
         # 7. Get final consciousness
-        final_consciousness = self._get_current_consciousness()
+        final_consciousness_raw = self._get_current_consciousness()
+        final_consciousness = final_consciousness_raw if isinstance(final_consciousness_raw, (int, float)) else 0.0
         results['consciousness_end'] = final_consciousness
         
         # Record consciousness history
