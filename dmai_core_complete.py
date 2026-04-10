@@ -768,16 +768,19 @@ class SyntheticIntelligenceCore:
     def process(self, input_data: Dict, _depth: int = 0) -> Dict:
         """Backward compatibility method - process input through network with recursion guard"""
         
-        # CRITICAL FIX: Validate input_data type before any .get() calls
+        # CRITICAL FIX: Log the caller when input is not a dict
         if not isinstance(input_data, dict):
-            logger.error(f"❌ process() received {type(input_data)} instead of dict: {input_data}")
-            # Return a safe default response instead of crashing
-            return {
-                'processed': False, 
-                'error': f'Invalid input type: {type(input_data)}', 
-                'input_type': 'invalid',
-                'depth': _depth
-            }
+            import traceback
+            stack = traceback.extract_stack()
+            # Get the caller (the line that called this method)
+            if len(stack) >= 2:
+                caller = stack[-2]
+                logger.error(f"❌ process() received {type(input_data)} from {caller.filename}:{caller.lineno} in {caller.name}")
+            else:
+                logger.error(f"❌ process() received {type(input_data)} from unknown source")
+            logger.error(f"   Value: {input_data}")
+            # Return a safe response instead of crashing
+            return {'processed': False, 'error': f'Invalid input type: {type(input_data)}', 'input_type': 'invalid'}
         
         if _depth > 10:
             logger.warning(f"Process recursion depth exceeded for: {input_data.get('type', 'unknown')}")
@@ -803,7 +806,7 @@ class SyntheticIntelligenceCore:
                 )
                 return {'processed': True, 'insight_id': insight_id, 'topic': topic, 'depth': _depth}
         
-        return {'processed': True, 'input_type': input_data.get('type', 'unknown'), 'depth': _depth}        
+        return {'processed': True, 'input_type': input_data.get('type', 'unknown'), 'depth': _depth}
 
     def get_network_state(self) -> Dict:
         """Return current network state for API and visualization"""
