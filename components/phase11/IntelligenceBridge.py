@@ -207,7 +207,14 @@ class IntelligenceBridge:
         
         try:
             for _ in range(min(5, max(1, complexity))):
-                process_result = self.intelligence.process(signal_strength)
+                # FIX: Wrap float signal_strength in a dictionary with proper structure
+                process_payload = {
+                    'type': 'consciousness_signal',
+                    'signal_strength': float(signal_strength),
+                    'complexity': complexity,
+                    'insights_count': insights_count
+                }
+                process_result = self.intelligence.process(process_payload)
                 if isinstance(process_result, dict):
                     consciousness_impact += process_result.get('consciousness', 0)
                 else:
