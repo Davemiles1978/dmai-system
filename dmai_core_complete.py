@@ -767,6 +767,18 @@ class SyntheticIntelligenceCore:
     
     def process(self, input_data: Dict, _depth: int = 0) -> Dict:
         """Backward compatibility method - process input through network with recursion guard"""
+        
+        # CRITICAL FIX: Validate input_data type before any .get() calls
+        if not isinstance(input_data, dict):
+            logger.error(f"❌ process() received {type(input_data)} instead of dict: {input_data}")
+            # Return a safe default response instead of crashing
+            return {
+                'processed': False, 
+                'error': f'Invalid input type: {type(input_data)}', 
+                'input_type': 'invalid',
+                'depth': _depth
+            }
+        
         if _depth > 10:
             logger.warning(f"Process recursion depth exceeded for: {input_data.get('type', 'unknown')}")
             return {'processed': False, 'error': 'max recursion depth', 'input_type': input_data.get('type', 'unknown')}
@@ -791,8 +803,7 @@ class SyntheticIntelligenceCore:
                 )
                 return {'processed': True, 'insight_id': insight_id, 'topic': topic, 'depth': _depth}
         
-        return {'processed': True, 'input_type': input_data.get('type', 'unknown'), 'depth': _depth}
-        
+        return {'processed': True, 'input_type': input_data.get('type', 'unknown'), 'depth': _depth}        
 
     def get_network_state(self) -> Dict:
         """Return current network state for API and visualization"""
@@ -2860,22 +2871,31 @@ class UnifiedEvolutionEngine:
         # STEP 1: LEARN - Harvest knowledge based on current stage
         # ====================================================================
         consciousness_before = self.synthetic_network.consciousness
-        
+
         learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
+
+        # FORCE VALIDATION: Ensure learning_result is a dictionary (fixes float/string errors)
+        if not isinstance(learning_result, dict):
+            logger.warning(f"⚠️ stage_learner returned {type(learning_result)}, converting to dict")
+            if isinstance(learning_result, str):
+                learning_result = {'topic': learning_result[:200], 'is_accelerator': False, 'learned': True, 'message': learning_result[:200]}
+            elif isinstance(learning_result, (float, int, bool)):
+                learning_result = {'topic': f"Value: {learning_result}", 'is_accelerator': False, 'learned': False, 'message': f"Received {type(learning_result).__name__} value"}
+            elif learning_result is None:
+                learning_result = {'topic': "No learning data", 'is_accelerator': False, 'learned': False, 'message': "No data from stage learner"}
+            else:
+                learning_result = {'topic': str(learning_result)[:200], 'is_accelerator': False, 'learned': True, 'message': str(learning_result)[:200]}
         
-        # DEBUG: Log what learning_result actually is to identify the float error
+        # DEBUG: Log what learning_result actually is after validation
         logger.info(f"🔍 DEBUG: learning_result type = {type(learning_result)}")
         logger.info(f"🔍 DEBUG: learning_result = {learning_result}")
-        if isinstance(learning_result, float):
-            logger.error(f"❌ CRITICAL: learning_result is a FLOAT! Value: {learning_result}")
-            # Convert float to empty dict to prevent crash
-            learning_result = {}
-        
+
         # Research intelligent algorithms based on consciousness
         self._research_intelligent_algorithms()
-        
+
+        # Safely check if learning happened (learning_result is now guaranteed to be a dict)
         if learning_result.get('learned'):
-            logger.info(f"📚 {learning_result['message']}")
+            logger.info(f"📚 {learning_result.get('message', 'Learning completed')}")
             if learning_result.get('is_accelerator'):
                 logger.info(f"   🚀 Evolution Accelerator learned - consciousness boost applied")
 
