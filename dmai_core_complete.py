@@ -3273,9 +3273,35 @@ class UnifiedEvolutionEngine:
         
         # Handle commands FIRST - before anything else
         if message.startswith('/'):
-            return self.parent._handle_command(message)
+            # Try multiple ways to get the parent app
+            if hasattr(self, 'parent') and self.parent:
+                return self.parent._handle_command(message)
+            else:
+                # Fallback: try to import and use the global app
+                try:
+                    from dmai_core_complete import get_dmai_app
+                    app = get_dmai_app()
+                    return app._handle_command(message)
+                except Exception as e:
+                    logger.error(f"Command handling failed: {e}")
+                    return f"⚠️ Command handler unavailable: {e}"
 
         input_data = {'type': 'user_message', 'user': user, 'message': message, 'timestamp': datetime.now().isoformat()}
+        
+        # FIX: Validate input data before feeding to synthetic network
+        try:
+            # Ensure input_data is a dictionary before processing
+            if isinstance(input_data, dict):
+                self.synthetic_network.process(input_data)
+            else:
+                logger.warning(f"Skipping synthetic network feed: input_data is {type(input_data)}, expected dict. Value: {input_data}")
+        except AttributeError as e:
+            logger.error(f"Synthetic network processing failed (AttributeError): {e}")
+        except Exception as e:
+            logger.error(f"Synthetic network processing failed: {e}")
+
+        consciousness = self.synthetic_network.consciousness
+        message_lower = message.lower()
         
         # FIX: Validate input data before feeding to synthetic network
         try:
