@@ -495,22 +495,32 @@ Be specific, educational, and focused on real application.
         
         if self.current_stage not in self.learned_topics:
             self.learned_topics[self.current_stage] = {}
-        
+                
         self.learned_topics[self.current_stage][topic_name] = current_mastery + 1
         self._save_state()
-        
+                    
         consciousness_boost = 0.005 if is_accelerator else 0.001
-        
+                    
         for knowledge in harvested_knowledge:
-            self.synthetic_network.process({
+            # Build the payload with validated types
+            process_payload = {
                 'type': 'stage_learning',
-                'stage': self.current_stage,
-                'topic': topic_name,
-                'category': category,
-                'is_accelerator': is_accelerator,
-                'consciousness_boost': consciousness_boost,
-                'knowledge_sample': knowledge['content'][:500]
-            })
+                'stage': str(self.current_stage),
+                'topic': str(topic_name),
+                'category': str(category),
+                'is_accelerator': bool(is_accelerator),
+                'consciousness_boost': float(consciousness_boost),
+                'knowledge_sample': str(knowledge['content'][:500])
+            }
+            
+            # Final safety check before sending
+            if isinstance(process_payload, dict):
+                try:
+                    self.synthetic_network.process(process_payload)
+                except Exception as e:
+                    logger.error(f"Failed to process learning payload for {topic_name}: {e}")
+            else:
+                logger.error(f"Cannot process payload: expected dict, got {type(process_payload)}")
         
         is_mastered = (current_mastery + 1) >= threshold
         
