@@ -950,29 +950,45 @@ class WebSearchEngine:
             logger.error(f"Web search error: {e}")
             return {'success': False, 'error': str(e)}
 
-    def _search_wikipedia(self, query: str) -> Dict:
+    def _search_web(self, query: str) -> Dict:
+        """Search the web using DuckDuckGo (no API key required)"""
         try:
-            encoded_query = urllib.parse.quote_plus(query.replace(' ', '_'))
-            url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{encoded_query}"
-            response = self.session.get(url, timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('extract'):
-                    return {'success': True, 'answer': data.get('extract'), 'source': 'wikipedia', 'title': data.get('title', query)}
-
-            search_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote_plus(query)}&format=json&origin=*"
-            response = self.session.get(search_url, timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                results = data.get('query', {}).get('search', [])
-                if results:
-                    title = results[0].get('title')
-                    snippet = results[0].get('snippet', '').replace('<span class="searchmatch">', '').replace('</span>', '')
-                    return {'success': True, 'answer': f"According to Wikipedia: {snippet}...", 'source': 'wikipedia', 'title': title}
-            return {'success': False}
+            import requests
+            from bs4 import BeautifulSoup
+            
+            # Use DuckDuckGo HTML search
+            url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote_plus(query)}"
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            results = soup.find_all('a', class_='result__a')
+            
+            if results:
+                # Get first result's text and link
+                answer_text = results[0].get_text()
+                # Also try to get a snippet
+                snippet_elem = soup.find('a', class_='result__snippet')
+                snippet = snippet_elem.get_text() if snippet_elem else answer_text
+                
+                return {
+                    'success': True, 
+                    'answer': f"According to web search: {snippet[:500]}", 
+                    'source': 'web_search', 
+                    'title': query
+                }
+            
+            return {'success': False, 'error': 'No results found'}
         except Exception as e:
-            logger.debug(f"Wikipedia search error: {e}")
-            return {'success': False}
+            logger.error(f"Web search failed: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    # Keep old method name for compatibility but use new search
+    def _search_wikipedia(self, query: str) -> Dict:
+        """Backward compatibility - now uses web search"""
+        return self._search_web(query)
 
     def _get_instant_answer(self, query: str, soup: BeautifulSoup) -> Optional[str]:
         try:
