@@ -209,8 +209,12 @@ class LearningOrchestrator:
                             results['bridge_feed_results'].append(feed_result)
 
                             # Update consciousness for next iteration
-                            if feed_result and feed_result.get('consciousness_impact', 0) > 0:
-                                consciousness += feed_result.get('consciousness_impact', 0)
+                            if feed_result and isinstance(feed_result, dict):
+                                impact = feed_result.get('consciousness_impact', 0)
+                                if isinstance(impact, (int, float)):
+                                    consciousness += impact
+                                else:
+                                    logger.warning(f"consciousness_impact is {type(impact)}, expected number, value: {impact}")
 
                 except Exception as e:
                     results['errors'].append(f"Error with prompt '{prompt[:30]}': {e}")
@@ -271,11 +275,14 @@ class LearningOrchestrator:
         
         self.evolution_history.append(results)
         
-        logger.info(f"✅ Evolution cycle complete: {len(results['new_insights'])} insights, "
+        try:
+            logger.info(f"✅ Evolution cycle complete: {len(results['new_insights'])} insights, "
                    f"{len(results['new_concepts'])} concepts, "
                    f"{len(results['surpassed_tutors'])} tutors surpassed, "
                    f"{len(results['new_tutors'])} new tutors discovered, "
                    f"Consciousness: {final_consciousness:.4f}")
+        except Exception as fmt_err:
+            logger.info(f"✅ Evolution cycle complete (format error suppressed: {fmt_err})")
                        
         return results
     
@@ -303,7 +310,9 @@ class LearningOrchestrator:
                 consciousness = result.get('consciousness_end', 0.0)
                 time.sleep(self.learning_interval)
             except Exception as e:
-                logger.error(f"Continuous learning error: {e}")
+                logger.error(f"Continuous learning error: {type(e).__name__}: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 time.sleep(60)  # Wait a minute before retrying
                 
     def stop_continuous_learning(self):
