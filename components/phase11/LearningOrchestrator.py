@@ -158,27 +158,64 @@ class LearningOrchestrator:
                             
                             # 3. FEED TO INTELLIGENCE BRIDGE (Phase 6)
                             if self.intelligence_bridge:
-                                # Create knowledge packet from this prompt's synthesis
+                                # Create knowledge packet from this prompt's synthesis with type validation
+                                
+                                # Validate and sanitize extracted_concepts
+                                extracted_concepts = synthesis.get('extracted_concepts', {})
+                                if not isinstance(extracted_concepts, dict):
+                                    logger.warning(f"extracted_concepts is {type(extracted_concepts)}, converting to dict")
+                                    extracted_concepts = {}
+                                
+                                # Validate and sanitize patterns
+                                patterns = synthesis.get('patterns', [])
+                                if not isinstance(patterns, list):
+                                    logger.warning(f"patterns is {type(patterns)}, converting to list")
+                                    patterns = []
+                                
+                                # Validate and sanitize insights
+                                insights = synthesis.get('novel_insights', [])
+                                if not isinstance(insights, list):
+                                    logger.warning(f"insights is {type(insights)}, converting to list")
+                                    insights = [str(insights)] if insights else []
+                                
+                                # Validate and sanitize importance
+                                importance = synthesis.get('importance', 0.5)
+                                try:
+                                    importance = float(importance) if importance is not None else 0.5
+                                    importance = min(1.0, max(0.0, importance))
+                                except (TypeError, ValueError):
+                                    logger.warning(f"Invalid importance value: {importance}, using 0.5")
+                                    importance = 0.5
+                                
+                                # Validate and sanitize complexity
+                                complexity = synthesis.get('complexity', 1)
+                                try:
+                                    complexity = int(complexity) if complexity is not None else 1
+                                    complexity = max(1, complexity)
+                                except (TypeError, ValueError):
+                                    logger.warning(f"Invalid complexity value: {complexity}, using 1")
+                                    complexity = 1
+                                
                                 knowledge_packet = {
-                                    'concepts': synthesis.get('extracted_concepts', {}),
-                                    'patterns': synthesis.get('patterns', []),
-                                    'insights': synthesis.get('novel_insights', []),
-                                    'importance': min(1.0, len(synthesis.get('novel_insights', [])) / 10),
-                                    'complexity': len(synthesis.get('patterns', [])) + len(synthesis.get('extracted_concepts', {})),
+                                    'concepts': extracted_concepts,
+                                    'patterns': patterns,
+                                    'insights': insights,
+                                    'importance': importance,
+                                    'complexity': complexity,
                                     'source': f"tutor_prompt_{prompt[:20]}",
                                     'previous_consciousness': consciousness
                                 }
-                                
+
                                 feed_result = self.intelligence_bridge.feed_knowledge(knowledge_packet)
                                 results['bridge_feed_results'].append(feed_result)
-                                
+
                                 # Update consciousness for next iteration
-                                if feed_result.get('consciousness_impact', 0) > 0:
-                                    consciousness += feed_result['consciousness_impact']
-                                    
-                    except Exception as e:
-                        results['errors'].append(f"Error with prompt '{prompt[:30]}': {e}")
-                        logger.error(f"Evolution cycle error: {e}")
+                                if feed_result and feed_result.get('consciousness_impact', 0) > 0:
+                                    consciousness += feed_result.get('consciousness_impact', 0)
+
+                except Exception as e:
+                    results['errors'].append(f"Error with prompt '{prompt[:30]}': {e}")
+                    logger.error(f"Evolution cycle error: {e}")
             
             # 4. Add all gathered concepts to results
             results['new_concepts'] = list(total_concepts.keys())[:20]  # Limit to 20

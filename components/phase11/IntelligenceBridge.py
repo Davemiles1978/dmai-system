@@ -80,6 +80,20 @@ class IntelligenceBridge:
                 self.bridge_stats['total_patterns_fed'] += patterns_fed
             
             if self.intelligence:
+                # FIX: Validate knowledge_packet is a dict before passing
+                if not isinstance(knowledge_packet, dict):
+                    logger.error(f"❌ knowledge_packet is {type(knowledge_packet)} instead of dict: {knowledge_packet}")
+                    # Convert float to proper packet structure
+                    if isinstance(knowledge_packet, (int, float)):
+                        knowledge_packet = {
+                            'type': 'signal_packet',
+                            'value': float(knowledge_packet),
+                            'importance': 0.5,
+                            'complexity': 1
+                        }
+                    else:
+                        knowledge_packet = {'type': 'unknown', 'value': str(knowledge_packet), 'importance': 0.5, 'complexity': 1}
+                
                 consciousness_impact = self._feed_to_synthetic_network(knowledge_packet)
                 result['consciousness_impact'] = consciousness_impact
             
