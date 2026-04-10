@@ -114,174 +114,169 @@ class LearningOrchestrator:
             'errors': []
         }
         
-        try:
-            # Track total knowledge gathered this cycle
-            total_concepts = {}
-            total_insights = []
-            total_patterns = []
-            
-            # 1. Query all available tutors
-            if self.ai_hub:
-                logger.info("📚 Querying AI tutors...")
-                for prompt in self.learning_prompts[:4]:  # Use 4 prompts per cycle
-                    try:
-                        tutor_responses = self.ai_hub.query_all_tutors(prompt)
+        # Track total knowledge gathered this cycle
+        total_concepts = {}
+        total_insights = []
+        total_patterns = []
+        
+        # 1. Query all available tutors
+        if self.ai_hub:
+            logger.info("📚 Querying AI tutors...")
+            for prompt in self.learning_prompts[:4]:  # Use 4 prompts per cycle
+                try:
+                    tutor_responses = self.ai_hub.query_all_tutors(prompt)
+                    
+                    # 2. Synthesize responses into insights
+                    if self.ai_hub.capability_synthesizer:
+                        synthesis = self.ai_hub.capability_synthesizer.synthesize(
+                            tutor_responses.get('responses', {}),
+                            prompt
+                        )
                         
-                        # 2. Synthesize responses into insights
-                        if self.ai_hub.capability_synthesizer:
-                            synthesis = self.ai_hub.capability_synthesizer.synthesize(
-                                tutor_responses.get('responses', {}),
-                                prompt
-                            )
+                        # Extract insights
+                        if synthesis.get('novel_insights'):
+                            results['new_insights'].extend(synthesis['novel_insights'])
+                            total_insights.extend(synthesis['novel_insights'])
+                        
+                        # Extract concepts
+                        if synthesis.get('extracted_concepts'):
+                            for concept, data in synthesis['extracted_concepts'].items():
+                                if concept not in total_concepts:
+                                    total_concepts[concept] = data
+                                else:
+                                    # Merge confidence (take higher)
+                                    if 'confidence' in data and 'confidence' in total_concepts[concept]:
+                                        total_concepts[concept]['confidence'] = max(
+                                            total_concepts[concept]['confidence'],
+                                            data['confidence']
+                                        )
+                        
+                        # Extract patterns
+                        if synthesis.get('patterns'):
+                            total_patterns.extend(synthesis['patterns'])
+                        
+                        # 3. FEED TO INTELLIGENCE BRIDGE (Phase 6)
+                        if self.intelligence_bridge:
+                            # Create knowledge packet from this prompt's synthesis with type validation
                             
-                            # Extract insights
-                            if synthesis.get('novel_insights'):
-                                results['new_insights'].extend(synthesis['novel_insights'])
-                                total_insights.extend(synthesis['novel_insights'])
+                            # Validate and sanitize extracted_concepts
+                            extracted_concepts = synthesis.get('extracted_concepts', {})
+                            if not isinstance(extracted_concepts, dict):
+                                logger.warning(f"extracted_concepts is {type(extracted_concepts)}, converting to dict")
+                                extracted_concepts = {}
                             
-                            # Extract concepts
-                            if synthesis.get('extracted_concepts'):
-                                for concept, data in synthesis['extracted_concepts'].items():
-                                    if concept not in total_concepts:
-                                        total_concepts[concept] = data
-                                    else:
-                                        # Merge confidence (take higher)
-                                        if 'confidence' in data and 'confidence' in total_concepts[concept]:
-                                            total_concepts[concept]['confidence'] = max(
-                                                total_concepts[concept]['confidence'],
-                                                data['confidence']
-                                            )
+                            # Validate and sanitize patterns
+                            patterns = synthesis.get('patterns', [])
+                            if not isinstance(patterns, list):
+                                logger.warning(f"patterns is {type(patterns)}, converting to list")
+                                patterns = []
                             
-                            # Extract patterns
-                            if synthesis.get('patterns'):
-                                total_patterns.extend(synthesis['patterns'])
+                            # Validate and sanitize insights
+                            insights = synthesis.get('novel_insights', [])
+                            if not isinstance(insights, list):
+                                logger.warning(f"insights is {type(insights)}, converting to list")
+                                insights = [str(insights)] if insights else []
                             
-                            # 3. FEED TO INTELLIGENCE BRIDGE (Phase 6)
-                            if self.intelligence_bridge:
-                                # Create knowledge packet from this prompt's synthesis with type validation
-                                
-                                # Validate and sanitize extracted_concepts
-                                extracted_concepts = synthesis.get('extracted_concepts', {})
-                                if not isinstance(extracted_concepts, dict):
-                                    logger.warning(f"extracted_concepts is {type(extracted_concepts)}, converting to dict")
-                                    extracted_concepts = {}
-                                
-                                # Validate and sanitize patterns
-                                patterns = synthesis.get('patterns', [])
-                                if not isinstance(patterns, list):
-                                    logger.warning(f"patterns is {type(patterns)}, converting to list")
-                                    patterns = []
-                                
-                                # Validate and sanitize insights
-                                insights = synthesis.get('novel_insights', [])
-                                if not isinstance(insights, list):
-                                    logger.warning(f"insights is {type(insights)}, converting to list")
-                                    insights = [str(insights)] if insights else []
-                                
-                                # Validate and sanitize importance
-                                importance = synthesis.get('importance', 0.5)
-                                try:
-                                    importance = float(importance) if importance is not None else 0.5
-                                    importance = min(1.0, max(0.0, importance))
-                                except (TypeError, ValueError):
-                                    logger.warning(f"Invalid importance value: {importance}, using 0.5")
-                                    importance = 0.5
-                                
-                                # Validate and sanitize complexity
-                                complexity = synthesis.get('complexity', 1)
-                                try:
-                                    complexity = int(complexity) if complexity is not None else 1
-                                    complexity = max(1, complexity)
-                                except (TypeError, ValueError):
-                                    logger.warning(f"Invalid complexity value: {complexity}, using 1")
-                                    complexity = 1
-                                
-                                knowledge_packet = {
-                                    'concepts': extracted_concepts,
-                                    'patterns': patterns,
-                                    'insights': insights,
-                                    'importance': importance,
-                                    'complexity': complexity,
-                                    'source': f"tutor_prompt_{prompt[:20]}",
-                                    'previous_consciousness': consciousness
-                                }
+                            # Validate and sanitize importance
+                            importance = synthesis.get('importance', 0.5)
+                            try:
+                                importance = float(importance) if importance is not None else 0.5
+                                importance = min(1.0, max(0.0, importance))
+                            except (TypeError, ValueError):
+                                logger.warning(f"Invalid importance value: {importance}, using 0.5")
+                                importance = 0.5
+                            
+                            # Validate and sanitize complexity
+                            complexity = synthesis.get('complexity', 1)
+                            try:
+                                complexity = int(complexity) if complexity is not None else 1
+                                complexity = max(1, complexity)
+                            except (TypeError, ValueError):
+                                logger.warning(f"Invalid complexity value: {complexity}, using 1")
+                                complexity = 1
+                            
+                            knowledge_packet = {
+                                'concepts': extracted_concepts,
+                                'patterns': patterns,
+                                'insights': insights,
+                                'importance': importance,
+                                'complexity': complexity,
+                                'source': f"tutor_prompt_{prompt[:20]}",
+                                'previous_consciousness': consciousness
+                            }
 
-                                feed_result = self.intelligence_bridge.feed_knowledge(knowledge_packet)
-                                results['bridge_feed_results'].append(feed_result)
+                            feed_result = self.intelligence_bridge.feed_knowledge(knowledge_packet)
+                            results['bridge_feed_results'].append(feed_result)
 
-                                # Update consciousness for next iteration
-                                if feed_result and feed_result.get('consciousness_impact', 0) > 0:
-                                    consciousness += feed_result.get('consciousness_impact', 0)
+                            # Update consciousness for next iteration
+                            if feed_result and feed_result.get('consciousness_impact', 0) > 0:
+                                consciousness += feed_result.get('consciousness_impact', 0)
 
                 except Exception as e:
                     results['errors'].append(f"Error with prompt '{prompt[:30]}': {e}")
-                    logger.error(f"Evolution cycle error: {e}")
+                    logger.error(f"Evolution cycle error with prompt {prompt[:30]}: {e}")
+        
+        # 4. Add all gathered concepts to results
+        results['new_concepts'] = list(total_concepts.keys())[:20]  # Limit to 20
+        results['new_patterns'] = total_patterns[:10]  # Limit to 10
+        
+        # 5. Check for surpassed tutors
+        if self.tutor_manager:
+            logger.info("📊 Evaluating tutor performance...")
+            surpass_progress = self.tutor_manager.get_surpass_progress()
             
-            # 4. Add all gathered concepts to results
-            results['new_concepts'] = list(total_concepts.keys())[:20]  # Limit to 20
-            results['new_patterns'] = total_patterns[:10]  # Limit to 10
-            
-            # 5. Check for surpassed tutors
-            if self.tutor_manager:
-                logger.info("📊 Evaluating tutor performance...")
-                surpass_progress = self.tutor_manager.get_surpass_progress()
-                
-                for tutor_name, progress in surpass_progress.items():
-                    if isinstance(progress, dict) and progress.get('progress_percent', 0) >= 100:
-                        should_discard, reason = self.tutor_manager.should_discard_tutor(tutor_name)
-                        if should_discard:
-                            self.tutor_manager.discard_tutor(tutor_name, reason)
-                            results['surpassed_tutors'].append(tutor_name)
-                            
-            # 6. Discover new tutors
-            if self.discovery and self.discovery.discovery_active:
-                logger.info("🔍 Discovering new AI systems...")
-                try:
-                    new_ais = self.discovery.discover_new_ai()
-                    if new_ais:
-                        for ai_system in new_ais[:5]:  # Add up to 5 new tutors per cycle
-                            self.tutor_manager.add_tutor(
-                                name=ai_system.get('name', 'Unknown'),
-                                capabilities=ai_system.get('capabilities', ['general']),
-                                api_endpoint=ai_system.get('api_endpoint'),
-                                is_available=False  # Initially unavailable until keys found
-                            )
-                            results['new_tutors'].append(ai_system.get('name'))
-                except Exception as e:
-                    results['errors'].append(f"Discovery error: {e}")
-            
-            # 7. Get final consciousness
-            final_consciousness = self._get_current_consciousness()
-            results['consciousness_end'] = final_consciousness
-            
-            # Record consciousness history
-            self.consciousness_history.append({
-                'timestamp': datetime.now().isoformat(),
-                'consciousness': final_consciousness,
-                'insights_gained': len(results['new_insights']),
-                'concepts_gained': len(results['new_concepts'])
-            })
-            
-            # Trim history
-            if len(self.consciousness_history) > 100:
-                self.consciousness_history = self.consciousness_history[-100:]
-            
-            # 8. Record cycle completion
-            cycle_duration = time.time() - cycle_start
-            results['duration_seconds'] = cycle_duration
-            
-            self.evolution_history.append(results)
-            
-            logger.info(f"✅ Evolution cycle complete: {len(results['new_insights'])} insights, "
-                       f"{len(results['new_concepts'])} concepts, "
-                       f"{len(results['surpassed_tutors'])} tutors surpassed, "
-                       f"{len(results['new_tutors'])} new tutors discovered, "
-                       f"Consciousness: {final_consciousness:.4f}")
+            for tutor_name, progress in surpass_progress.items():
+                if isinstance(progress, dict) and progress.get('progress_percent', 0) >= 100:
+                    should_discard, reason = self.tutor_manager.should_discard_tutor(tutor_name)
+                    if should_discard:
+                        self.tutor_manager.discard_tutor(tutor_name, reason)
+                        results['surpassed_tutors'].append(tutor_name)
+                        
+        # 6. Discover new tutors
+        if self.discovery and self.discovery.discovery_active:
+            logger.info("🔍 Discovering new AI systems...")
+            try:
+                new_ais = self.discovery.discover_new_ai()
+                if new_ais:
+                    for ai_system in new_ais[:5]:  # Add up to 5 new tutors per cycle
+                        self.tutor_manager.add_tutor(
+                            name=ai_system.get('name', 'Unknown'),
+                            capabilities=ai_system.get('capabilities', ['general']),
+                            api_endpoint=ai_system.get('api_endpoint'),
+                            is_available=False  # Initially unavailable until keys found
+                        )
+                        results['new_tutors'].append(ai_system.get('name'))
+            except Exception as e:
+                results['errors'].append(f"Discovery error: {e}")
+        
+        # 7. Get final consciousness
+        final_consciousness = self._get_current_consciousness()
+        results['consciousness_end'] = final_consciousness
+        
+        # Record consciousness history
+        self.consciousness_history.append({
+            'timestamp': datetime.now().isoformat(),
+            'consciousness': final_consciousness,
+            'insights_gained': len(results['new_insights']),
+            'concepts_gained': len(results['new_concepts'])
+        })
+        
+        # Trim history
+        if len(self.consciousness_history) > 100:
+            self.consciousness_history = self.consciousness_history[-100:]
+        
+        # 8. Record cycle completion
+        cycle_duration = time.time() - cycle_start
+        results['duration_seconds'] = cycle_duration
+        
+        self.evolution_history.append(results)
+        
+        logger.info(f"✅ Evolution cycle complete: {len(results['new_insights'])} insights, "
+                   f"{len(results['new_concepts'])} concepts, "
+                   f"{len(results['surpassed_tutors'])} tutors surpassed, "
+                   f"{len(results['new_tutors'])} new tutors discovered, "
+                   f"Consciousness: {final_consciousness:.4f}")
                        
-        except Exception as e:
-            logger.error(f"Evolution cycle failed: {e}")
-            results['errors'].append(str(e))
-            
         return results
     
     def start_continuous_learning(self, consciousness: float = None):
