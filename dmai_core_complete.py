@@ -3616,14 +3616,20 @@ Respond as DMAI - confident, capable, taking action. Do not repeat questions you
         # ====================================================================
         # IMAGE GENERATION - Highest priority (check for generation commands first)
         # ====================================================================
+
         if any(kw in message_lower for kw in ['generate', 'create', 'make']) and any(kw in message_lower for kw in ['image', 'picture', 'photo', 'robot', 'cat', 'dog']):
-            # Extract the prompt
+            # Extract the prompt - remove command words as WHOLE words only
             clean_prompt = message
-            for word in ['generate', 'create', 'make', 'an', 'a', 'image', 'picture', 'of', 'video', 'avatar']:
-                clean_prompt = clean_prompt.replace(word, '')
-            clean_prompt = clean_prompt.strip()
+            # List of words to remove (as whole words)
+            import re
+            remove_words = ['generate', 'create', 'make', 'an', 'a', 'image', 'picture', 'of', 'video', 'avatar']
+            for word in remove_words:
+                # Replace whole word only (with word boundaries)
+                clean_prompt = re.sub(rf'\b{word}\b', '', clean_prompt, flags=re.IGNORECASE)
+            clean_prompt = ' '.join(clean_prompt.split()).strip()  # Clean up extra spaces
             
             # DEBUG: Log what prompt we're sending
+            logger.info(f"🎨 Original message: {message}")
             logger.info(f"🎨 Cleaned prompt: {clean_prompt}")
 
             if not clean_prompt:
