@@ -3342,11 +3342,11 @@ class UnifiedEvolutionEngine:
             import time
             import uuid
             
-            comfy_url = "http://127.0.0.1:8188"
+            comfy_url = "https://c3b3-150-228-79-246.ngrok-free.app"
             
             # Check if ComfyUI is running
             try:
-                requests.get(f"{comfy_url}/system_stats", timeout=2)
+                requests.get(f"{comfy_url}/system_stats", timeout=2, verify=False)
             except:
                 return {"success": False, "error": "ComfyUI not running"}
             
