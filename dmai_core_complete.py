@@ -393,6 +393,36 @@ class SyntheticIntelligenceCore:
                     target_topic: str,   
                     confidence: float = 0.5) -> str:
         """
+
+        # ============================================================
+        # QUALITY FILTER - Reject garbage insights
+        # ============================================================
+        if not insight_text or len(insight_text) < 50:
+            logger.debug(f"Rejected insight: too short")
+            return None
+        
+        code_indicators = ["def __init__", "class ", "import ", "self.", "return "]
+        if any(indicator in insight_text for indicator in code_indicators):
+            logger.debug(f"Rejected insight: contains code")
+            return None
+        
+        word_count = len(insight_text.split())
+        if word_count < 10:
+            logger.debug(f"Rejected insight: too few words")
+            return None
+        
+        if not any(insight_text.rstrip().endswith(p) for p in [".", "!", "?", "\"", "'"]):
+            if word_count < 15:
+                logger.debug(f"Rejected insight: no ending punctuation")
+                return None
+        
+        if len(insight_text) < 100 and word_count < 5:
+            logger.debug(f"Rejected insight: too short for meaningful knowledge")
+            return None
+        # ============================================================
+        # END QUALITY FILTER
+        # ============================================================
+
         Create a granular insight neuron.
         
         Example:
