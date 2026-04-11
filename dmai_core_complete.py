@@ -3357,7 +3357,7 @@ class UnifiedEvolutionEngine:
                 return {"success": False, "error": "ComfyUI not running"}
 
             if workflow_type == "image":
-            logger.info(f"🎨 ComfyUI generating with prompt: {prompt}")
+                logger.info(f"🎨 ComfyUI generating with prompt: {prompt}")
                 workflow = {
                     "3": {
                         "class_type": "KSampler",
