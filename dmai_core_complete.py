@@ -3342,7 +3342,7 @@ class UnifiedEvolutionEngine:
             import time
             import uuid
 
-            comfy_url = "https://c3b3-150-228-79-246.ngrok-free.app"
+            comfy_url = "https://017d-150-228-79-246.ngrok-free.app"
             
             # Headers to bypass ngrok warning page
             headers = {
@@ -3611,6 +3611,30 @@ Respond as DMAI - confident, capable, taking action. Do not repeat questions you
                     self.conversation_context = self.conversation_context[-self.context_limit:]
 
                 return response
+
+        # ====================================================================
+        # IMAGE GENERATION - Highest priority (check for generation commands first)
+        # ====================================================================
+        if any(kw in message_lower for kw in ['generate', 'create', 'make']) and any(kw in message_lower for kw in ['image', 'picture', 'photo', 'robot', 'cat', 'dog']):
+            # Extract the prompt
+            clean_prompt = message
+            for word in ['generate', 'create', 'make', 'an', 'a', 'image', 'picture', 'of', 'video', 'avatar']:
+                clean_prompt = clean_prompt.replace(word, '')
+            clean_prompt = clean_prompt.strip()
+            
+            if not clean_prompt:
+                response = "What would you like me to generate? Please describe the image."
+            else:
+                result = self.generate_with_comfyui(clean_prompt, "image")
+                if result.get('success'):
+                    from flask import make_response
+                    binary_response = make_response(result.get('data'))
+                    binary_response.headers['Content-Type'] = result.get('mime_type', 'image/png')
+                    binary_response.headers['X-Media-Type'] = 'generated'
+                    binary_response.headers['X-Prompt'] = clean_prompt
+                    return binary_response
+                else:
+                    response = f"❌ Generation failed: {result.get('error')}"
 
         # ====================================================================
         # KNOWLEDGE CHECK FIRST - Use SI Core knowledge before anything else
