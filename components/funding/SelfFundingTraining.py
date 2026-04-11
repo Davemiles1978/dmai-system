@@ -228,8 +228,121 @@ class SelfFundingTraining:
         for avenue_name, avenue in self.revenue_avenues.items():
             logger.info(f"      📚 {avenue['name']}: {len(avenue['topics'])} topics")
     
+    # ====================================================================
+    # NEO4J PERSISTENCE METHODS
+    # ====================================================================
+    
+    def _save_to_neo4j(self):
+        """Save funding state to Neo4j for persistence across restarts"""
+        try:
+            from neo4j import GraphDatabase
+            
+            uri = os.environ.get('NEO4J_URI')
+            user = os.environ.get('NEO4J_USER')
+            password = os.environ.get('NEO4J_PASSWORD')
+            
+            if not uri or not user or not password:
+                logger.debug("Neo4j credentials not available, skipping funding state save")
+                return
+            
+            driver = GraphDatabase.driver(uri, auth=(user, password))
+            with driver.session() as session:
+                # Save main funding state
+                session.run("""
+                    MERGE (f:FundingState {id: 'core'})
+                    SET f.completed_avenues = $completed_avenues,
+                        f.concepts_learned = $concepts_learned,
+                        f.concepts_total = $concepts_total,
+                        f.learning_active = $learning_active,
+                        f.training_complete = $training_complete,
+                        f.progress = $progress,
+                        f.updated_at = datetime()
+                """, {
+                    'completed_avenues': [name for name, data in self.revenue_avenues.items() if data.get('completed', False)],
+                    'concepts_learned': len(self.learned_concepts),
+                    'concepts_total': sum(len(d['topics']) for d in self.revenue_avenues.values()),
+                    'learning_active': self.learning_active,
+                    'training_complete': self._training_complete,
+                    'progress': self.get_progress()
+                })
+                
+                # Save each avenue's progress
+                for avenue_name, avenue in self.revenue_avenues.items():
+                    session.run("""
+                        MERGE (a:FundingAvenue {id: $avenue_name})
+                        SET a.name = $name,
+                            a.progress = $progress,
+                            a.completed = $completed,
+                            a.updated_at = datetime()
+                    """, {
+                        'avenue_name': avenue_name,
+                        'name': avenue['name'],
+                        'progress': avenue.get('progress', 0),
+                        'completed': avenue.get('completed', False)
+                    })
+                
+                # Save learned concepts as nodes
+                for concept in self.learned_concepts:
+                    session.run("""
+                        MERGE (c:FundingConcept {id: $concept})
+                        SET c.learned_at = datetime()
+                    """, {'concept': concept})
+                
+            driver.close()
+            logger.debug(f"✅ Funding state saved to Neo4j: {len(self.learned_concepts)} concepts, {self.get_progress():.1f}% complete")
+        except Exception as e:
+            logger.error(f"Failed to save funding state to Neo4j: {e}")
+    
+    def _load_from_neo4j(self) -> bool:
+        """Load funding state from Neo4j"""
+        try:
+            from neo4j import GraphDatabase
+            
+            uri = os.environ.get('NEO4J_URI')
+            user = os.environ.get('NEO4J_USER')
+            password = os.environ.get('NEO4J_PASSWORD')
+            
+            if not uri or not user or not password:
+                return False
+            
+            driver = GraphDatabase.driver(uri, auth=(user, password))
+            with driver.session() as session:
+                # Load main funding state
+                result = session.run("MATCH (f:FundingState {id: 'core'}) RETURN f")
+                record = result.single()
+                if record:
+                    data = record['f']
+                    # Restore learned concepts count and completion status
+                    self._training_complete = data.get('training_complete', False)
+                    
+                    # Load avenue progress
+                    avenue_result = session.run("MATCH (a:FundingAvenue) RETURN a.id as id, a.progress as progress, a.completed as completed")
+                    for avenue in avenue_result:
+                        if avenue['id'] in self.revenue_avenues:
+                            self.revenue_avenues[avenue['id']]['progress'] = avenue['progress'] or 0
+                            self.revenue_avenues[avenue['id']]['completed'] = avenue['completed'] or False
+                    
+                    # Load learned concepts
+                    concept_result = session.run("MATCH (c:FundingConcept) RETURN c.id as concept")
+                    for concept in concept_result:
+                        self.learned_concepts.add(concept['concept'])
+                    
+                    logger.info(f"✅ Funding state loaded from Neo4j: {len(self.learned_concepts)} concepts, {self.get_progress():.1f}% complete")
+                    driver.close()
+                    return True
+            driver.close()
+        except Exception as e:
+            logger.error(f"Failed to load funding state from Neo4j: {e}")
+        return False
+    
     def _load_state(self):
-        """Load learning state - NEVER auto-starts learning"""
+        """Load learning state - tries Neo4j first, then local file"""
+        # Try Neo4j first for persistence across deployments
+        if self._load_from_neo4j():
+            self._save_state()  # Sync local file with Neo4j data
+            return
+        
+        # Fallback to local file
         if self.state_file.exists():
             try:
                 with open(self.state_file, 'r') as f:
@@ -248,13 +361,14 @@ class SelfFundingTraining:
                     if all_completed or len(self.learned_concepts) >= sum(len(d['topics']) for d in self.revenue_avenues.values()):
                         self._training_complete = True
                     
-                    logger.info(f"📂 Loaded funding knowledge state: {len(self.learned_concepts)} concepts learned")
+                    logger.info(f"📂 Loaded funding knowledge state from local file: {len(self.learned_concepts)} concepts learned")
             except Exception as e:
                 logger.error(f"Failed to load state: {e}")
     
     def _save_state(self):
-        """Save learning state - always saves learning_active as False"""
+        """Save learning state - saves to both local file AND Neo4j for persistence"""
         try:
+            # Save to local file
             state = {
                 'revenue_avenues': self.revenue_avenues,
                 'learned_concepts': list(self.learned_concepts),
@@ -267,6 +381,9 @@ class SelfFundingTraining:
             }
             with open(self.state_file, 'w') as f:
                 json.dump(state, f, indent=2)
+            
+            # Also save to Neo4j for cross-deployment persistence
+            self._save_to_neo4j()
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
     
