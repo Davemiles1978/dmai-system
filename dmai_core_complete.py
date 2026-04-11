@@ -3357,6 +3357,7 @@ class UnifiedEvolutionEngine:
                 return {"success": False, "error": "ComfyUI not running"}
 
             if workflow_type == "image":
+            logger.info(f"🎨 ComfyUI generating with prompt: {prompt}")
                 workflow = {
                     "3": {
                         "class_type": "KSampler",
@@ -3622,6 +3623,9 @@ Respond as DMAI - confident, capable, taking action. Do not repeat questions you
                 clean_prompt = clean_prompt.replace(word, '')
             clean_prompt = clean_prompt.strip()
             
+            # DEBUG: Log what prompt we're sending
+            logger.info(f"🎨 Cleaned prompt: {clean_prompt}")
+
             if not clean_prompt:
                 response = "What would you like me to generate? Please describe the image."
             else:
