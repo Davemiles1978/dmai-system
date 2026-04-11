@@ -3333,6 +3333,107 @@ class UnifiedEvolutionEngine:
         else:
             return "I'll take care of that. What would you like me to do specifically?"
 
+    def generate_with_comfyui(self, prompt: str, workflow_type: str = "image") -> Dict:
+        """Generate images/videos using local ComfyUI and return raw binary data"""
+        try:
+            import requests
+            import json
+            import random
+            import time
+            import uuid
+            
+            comfy_url = "http://127.0.0.1:8188"
+            
+            # Check if ComfyUI is running
+            try:
+                requests.get(f"{comfy_url}/system_stats", timeout=2)
+            except:
+                return {"success": False, "error": "ComfyUI not running"}
+            
+            if workflow_type == "image":
+                workflow = {
+                    "3": {
+                        "class_type": "KSampler",
+                        "inputs": {
+                            "seed": random.randint(1, 999999),
+                            "steps": 20,
+                            "cfg": 7.0,
+                            "sampler_name": "euler",
+                            "scheduler": "normal",
+                            "denoise": 1,
+                            "model": ["4", 0],
+                            "positive": ["6", 0],
+                            "negative": ["7", 0],
+                            "latent_image": ["5", 0]
+                        }
+                    },
+                    "4": {
+                        "class_type": "CheckpointLoaderSimple",
+                        "inputs": {"ckpt_name": "v1-5-pruned-emaonly.safetensors"}
+                    },
+                    "5": {
+                        "class_type": "EmptyLatentImage",
+                        "inputs": {"width": 512, "height": 512, "batch_size": 1}
+                    },
+                    "6": {
+                        "class_type": "CLIPTextEncode",
+                        "inputs": {"text": prompt, "clip": ["4", 1]}
+                    },
+                    "7": {
+                        "class_type": "CLIPTextEncode",
+                        "inputs": {"text": "", "clip": ["4", 1]}
+                    },
+                    "8": {
+                        "class_type": "VAEDecode",
+                        "inputs": {"samples": ["3", 0], "vae": ["4", 2]}
+                    },
+                    "9": {
+                        "class_type": "SaveImage",
+                        "inputs": {"filename_prefix": f"DMAI_{uuid.uuid4().hex[:8]}", "images": ["8", 0]}
+                    }
+                }
+                
+                # Queue the prompt
+                response = requests.post(f"{comfy_url}/prompt", json={"prompt": workflow})
+                if response.status_code != 200:
+                    return {"success": False, "error": f"ComfyUI error: {response.status_code}"}
+                
+                result = response.json()
+                prompt_id = result.get('prompt_id')
+                
+                # Wait for completion and get the image
+                max_wait = 120
+                start_time = time.time()
+                
+                while time.time() - start_time < max_wait:
+                    history_response = requests.get(f"{comfy_url}/history")
+                    if history_response.status_code == 200:
+                        history = history_response.json()
+                        if prompt_id in history:
+                            outputs = history[prompt_id].get('outputs', {})
+                            for node_id, node_output in outputs.items():
+                                if 'images' in node_output:
+                                    for img in node_output['images']:
+                                        filename = img['filename']
+                                        # Download the image as raw bytes
+                                        img_response = requests.get(f"{comfy_url}/view?filename={filename}")
+                                        if img_response.status_code == 200:
+                                            return {
+                                                "success": True,
+                                                "data": img_response.content,  # Raw bytes
+                                                "mime_type": "image/png",
+                                                "filename": filename,
+                                                "prompt": prompt
+                                            }
+                    time.sleep(2)
+                
+                return {"success": False, "error": "Generation timed out"}
+                    
+            return {"success": False, "error": f"Workflow type {workflow_type} not yet implemented"}
+            
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
     def _query_si_core_knowledge(self, query: str) -> Optional[str]:
         """Query SI Core for relevant knowledge based on user question"""
         try:
@@ -3580,23 +3681,41 @@ Shall I create a detailed procurement plan?"""
 
         # If asking about image/video creation
         elif any(kw in message_lower for kw in ['image', 'picture', 'video', 'avatar', 'create', 'generate']):
-            response = f"""🎨 **I can generate images, videos, and avatars locally!**
+            # Check if this is an actual generation request
+            if any(kw in message_lower for kw in ['generate', 'create', 'make']):
+                # Extract the prompt (remove command words)
+                clean_prompt = message
+                for word in ['generate', 'create', 'make', 'an', 'a', 'image', 'picture', 'of', 'video', 'avatar']:
+                    clean_prompt = clean_prompt.replace(word, '')
+                clean_prompt = clean_prompt.strip()
+                
+                if not clean_prompt:
+                    response = "What would you like me to generate? Please describe the image or video you want."
+                else:
+                    result = self.generate_with_comfyui(clean_prompt, "image")
+                    if result.get('success'):
+                        # Return binary image data directly
+                        from flask import make_response
+                        binary_response = make_response(result.get('data'))
+                        binary_response.headers['Content-Type'] = result.get('mime_type', 'image/png')
+                        binary_response.headers['X-Media-Type'] = 'generated'
+                        binary_response.headers['X-Prompt'] = clean_prompt
+                        return binary_response
+                    else:
+                        response = f"❌ Generation failed: {result.get('error')}\n\n**To fix:**\n1. Start ComfyUI: `cd ~/ComfyUI/ComfyUI && python main.py`\n2. Make sure you have models in `models/checkpoints/`\n3. Try again"
+            else:
+                response = """🎨 **I can generate images using local ComfyUI!**
 
-**Local Generation (No API needed):**
-- **Images:** Stable Diffusion, Flux, SDXL, ControlNet
-- **Videos:** AnimateDiff, Stable Video Diffusion
-- **Avatars:** FaceSwap, Roop, InsightFace
+**To generate an image, say:** "Generate an image of a cat sitting on a chair"
 
-**Requirements:**
-- GPU with 8GB+ VRAM (RTX 3070/4060 or better)
-- ComfyUI or Automatic1111 WebUI installed
+**Examples:**
+- "Create a picture of a futuristic city"
+- "Generate a photo of a robot painting"
+- "Make an image of a sunset over mountains"
 
-**To Set Up Local Generation:**
-1. Install ComfyUI: `git clone https://github.com/comfyanonymous/ComfyUI`
-2. Download models from HuggingFace or Civitai
-3. Run: `python main.py`
+**Requirements:** ComfyUI running on your local machine
 
-Would you like me to help set up local image/video generation?"""
+What would you like me to generate?"""
 
         # If asking about email
         elif any(kw in message_lower for kw in ['email', 'send email', 'mail']):
@@ -4123,10 +4242,16 @@ class DMAIApplication:
                     return jsonify({'response': 'Please enter a message.'})
                 
                 # Process the message through DMAI's conversation system
-                response = self.evolution.process_message(user, message.strip())
+                result = self.evolution.process_message(user, message.strip())
                 
+                # Check if result is a Flask response (for binary data like images)
+                from flask import Response
+                if isinstance(result, Response):
+                    return result
+                
+                # Otherwise return JSON
                 return jsonify({
-                    'response': response,
+                    'response': result,
                     'status': 'success'
                 })
             except Exception as e:
@@ -6966,20 +7091,60 @@ function sendMessage() {
     addMessage('user', message);
     input.value = '';
     input.style.height = 'auto';
-    fetch('/api/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: message, user: 'web_user'}) })
-        .then(res => res.json())
-        .then(data => { addMessage('dmai', data.response); updateStatus(); if (sendBtn) sendBtn.disabled = false; })
-        .catch(err => { addMessage('dmai', 'Error: ' + err.message); if (sendBtn) sendBtn.disabled = false; });
+    
+    fetch('/api/chat', { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({message: message, user: 'web_user'}) 
+    })
+    .then(async res => {
+        const contentType = res.headers.get('Content-Type');
+        
+        // Check if response is binary (image/video)
+        if (contentType && (contentType.startsWith('image/') || contentType.startsWith('video/'))) {
+            const blob = await res.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            
+            // Create media element
+            let mediaHtml;
+            if (contentType.startsWith('image/')) {
+                mediaHtml = `<img src="${objectUrl}" style="max-width:100%; border-radius:8px; margin:10px 0;" onclick="window.open('${objectUrl}')">`;
+            } else {
+                mediaHtml = `<video controls style="max-width:100%; border-radius:8px; margin:10px 0;" src="${objectUrl}"></video>`;
+            }
+            
+            // Add download link
+            const fileExt = contentType.split('/')[1];
+            mediaHtml += `<br><a href="${objectUrl}" download="DMAI_${Date.now()}.${fileExt}" style="color:#4CAF50;">📥 Download</a>`;
+            
+            addMessage('dmai', mediaHtml, true);
+            if (sendBtn) sendBtn.disabled = false;
+            updateStatus();
+        } else {
+            const data = await res.json();
+            addMessage('dmai', data.response);
+            if (sendBtn) sendBtn.disabled = false;
+            updateStatus();
+        }
+    })
+    .catch(err => { 
+        addMessage('dmai', 'Error: ' + err.message); 
+        if (sendBtn) sendBtn.disabled = false; 
+    });
 }
 
-function addMessage(sender, text) {
+function addMessage(sender, text, isHtml = false) {
     const messages = document.getElementById('messages');
     if (!messages) return;
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}`;
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${escapeHtml(text).replace(/\\n/g, '<br>')}`;
+    if (isHtml) {
+        contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${text}`;
+    } else {
+        contentDiv.innerHTML = `<b>${sender === 'user' ? 'You' : 'DMAI'}:</b><br>${escapeHtml(text).replace(/\\n/g, '<br>')}`;
+    }
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
     timeDiv.textContent = new Date().toLocaleTimeString();
