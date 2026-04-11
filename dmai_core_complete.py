@@ -3341,15 +3341,21 @@ class UnifiedEvolutionEngine:
             import random
             import time
             import uuid
-            
+
             comfy_url = "https://c3b3-150-228-79-246.ngrok-free.app"
             
+            # Headers to bypass ngrok warning page
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                'ngrok-skip-browser-warning': 'true'
+            }
+
             # Check if ComfyUI is running
             try:
-                requests.get(f"{comfy_url}/system_stats", timeout=2, verify=False)
+                requests.get(f"{comfy_url}/system_stats", timeout=2, verify=False, headers=headers)
             except:
                 return {"success": False, "error": "ComfyUI not running"}
-            
+
             if workflow_type == "image":
                 workflow = {
                     "3": {
@@ -3394,7 +3400,7 @@ class UnifiedEvolutionEngine:
                 }
                 
                 # Queue the prompt
-                response = requests.post(f"{comfy_url}/prompt", json={"prompt": workflow})
+                response = requests.post(f"{comfy_url}/prompt", json={"prompt": workflow}, headers=headers)
                 if response.status_code != 200:
                     return {"success": False, "error": f"ComfyUI error: {response.status_code}"}
                 
@@ -3406,7 +3412,7 @@ class UnifiedEvolutionEngine:
                 start_time = time.time()
                 
                 while time.time() - start_time < max_wait:
-                    history_response = requests.get(f"{comfy_url}/history")
+                    history_response = requests.get(f"{comfy_url}/history", headers=headers)
                     if history_response.status_code == 200:
                         history = history_response.json()
                         if prompt_id in history:
@@ -3415,12 +3421,11 @@ class UnifiedEvolutionEngine:
                                 if 'images' in node_output:
                                     for img in node_output['images']:
                                         filename = img['filename']
-                                        # Download the image as raw bytes
-                                        img_response = requests.get(f"{comfy_url}/view?filename={filename}")
+                                        img_response = requests.get(f"{comfy_url}/view?filename={filename}", headers=headers)
                                         if img_response.status_code == 200:
                                             return {
                                                 "success": True,
-                                                "data": img_response.content,  # Raw bytes
+                                                "data": img_response.content,
                                                 "mime_type": "image/png",
                                                 "filename": filename,
                                                 "prompt": prompt
