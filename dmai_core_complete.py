@@ -6929,7 +6929,7 @@ DMAI will:
                 # Run ingestion in background
                 def do_ingest():
                     try:
-                        result = self.evolution.autonomous_ingestor.discover_and_ingest(source)
+                        result = self.autonomous_ingestor.discover_and_ingest(source)
                         if result['capabilities_ingested']:
                             logger.info(f"✅ Ingested: {result['capabilities_ingested']} from {source}")
                     except Exception as e:
@@ -6959,7 +6959,7 @@ DMAI will:
             else:
                 def do_develop():
                     try:
-                        result = self.evolution.autonomous_developer.process_input(idea)
+                        result = self.autonomous_developer.process_input(idea)
                         if result['status'] == 'complete':
                             logger.info(f"✅ Developed: {result['implementation'].get('files', [])}")
                     except Exception as e:
