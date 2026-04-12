@@ -5808,54 +5808,110 @@ class DMAIApplication:
         
         @self.app.route('/api/brain/3d_data', methods=['GET'])
         def brain_3d_data():
-            """Return brain data from SI Core insights"""
+            """Return brain data from SI Core insights with positions and edges"""
             try:
                 import json
                 import os
+                import hashlib
                 network_file = "data/synthetic/network_state.json"
                 if os.path.exists(network_file):
                     with open(network_file, "r") as f:
                         data = json.load(f)
+                    
                     insights = data.get("insights", {})
                     synapses = data.get("synapses", [])
-                    neurons = {}
-                    for insight_id, insight in insights.items():
+                    
+                    # Color mapping for categories
+                    category_colors = {
+                        "llm": "#00ff00",
+                        "core": "#00ccff", 
+                        "artistic": "#ff00ff",
+                        "wealth": "#ffcc00",
+                        "accelerator": "#ff6600",
+                        "reverse": "#9900ff",
+                        "research": "#00ffcc",
+                        "general": "#888888",
+                        "knowledge": "#00ff00"
+                    }
+                    default_color = "#00ff00"
+                    
+                    # Build neurons with positions
+                    neurons = []
+                    for idx, (insight_id, insight) in enumerate(insights.items()):
                         text = insight.get("insight_text", str(insight)) if isinstance(insight, dict) else str(insight)
-                        neurons[insight_id] = {
-                            "name": text[:50],
-                            "insight_text": text,
-                            "category": insight.get("entity_type", "knowledge") if isinstance(insight, dict) else "knowledge",
-                            "confidence": insight.get("confidence", 0.5) if isinstance(insight, dict) else 0.5
-                        }
+                        category = insight.get("entity_type", "llm") if isinstance(insight, dict) else "llm"
+                        color = category_colors.get(category, default_color)
+                        
+                        # Generate deterministic position
+                        h = int(hashlib.md5(insight_id.encode()).hexdigest()[:8], 16)
+                        phi = (h % 360) * 3.14159 / 180
+                        theta = ((h // 360) % 180) * 3.14159 / 180
+                        r = 4 + (idx % 6)
+                        x = r * (phi / 3.14159) * 2 - r
+                        y = r * (theta / 3.14159) * 2 - r
+                        z = (hashlib.md5((insight_id + 'z').encode()).hexdigest()[:4], 16)[0] % 10 - 5
+                        
+                        neurons.append({
+                            "id": insight_id,
+                            "name": text[:60],
+                            "full_text": text,
+                            "category": category,
+                            "color": color,
+                            "confidence": insight.get("confidence", 0.5) if isinstance(insight, dict) else 0.5,
+                            "x": x,
+                            "y": y,
+                            "z": z,
+                            "size": 0.5 + (insight.get("confidence", 0.5) if isinstance(insight, dict) else 0.5)
+                        })
+                    
+                    # Build edges from synapses
+                    edges = []
+                    for syn in synapses:
+                        from_id = syn.get("from", "")
+                        to_id = syn.get("to", "")
+                        weight = syn.get("weight", 0.5)
+                        if from_id and to_id:
+                            edges.append({
+                                "source": from_id,
+                                "target": to_id,
+                                "weight": weight,
+                                "strength": "weak" if weight < 0.3 else "medium" if weight < 0.6 else "strong"
+                            })
+                    
+                    # Group by category for filters
                     groups = {}
-                    for neuron_id, neuron in neurons.items():
-                        category = neuron.get("category", "general")
-                        if category not in groups:
-                            groups[category] = {
-                                "id": category,
-                                "name": category.replace("_", " ").title(),
-                                "category": category,
+                    for neuron in neurons:
+                        cat = neuron["category"]
+                        if cat not in groups:
+                            groups[cat] = {
+                                "id": cat,
+                                "name": cat.title(),
+                                "category": cat,
+                                "color": category_colors.get(cat, default_color),
                                 "count": 0,
-                                "neurons": [],
-                                "color": "#00ff00"
+                                "neurons": []
                             }
-                        groups[category]["count"] += 1
-                        groups[category]["neurons"].append({
-                            "id": neuron_id,
-                            "name": neuron["name"],
+                        groups[cat]["count"] += 1
+                        groups[cat]["neurons"].append({
+                            "id": neuron["id"],
+                            "name": neuron["name"][:40],
                             "confidence": neuron["confidence"]
                         })
+                    
                     return jsonify({
                         "success": True,
+                        "neurons": neurons,
+                        "edges": edges,
                         "groups": list(groups.values()),
                         "total_neurons": len(neurons),
-                        "total_synapses": len(synapses)
+                        "total_synapses": len(edges),
+                        "category_colors": category_colors
                     })
                 else:
                     return jsonify({"success": False, "error": "Network state file not found"}), 404
             except Exception as e:
                 return jsonify({"success": False, "error": str(e)}), 500
-        @self.app.route('/api/brain/group/<group_id>', methods=['GET'])
+
         def brain_group_detail(self, group_id):
             """Return all neurons in a specific group for zoomed-in view"""
             try:
