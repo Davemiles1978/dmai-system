@@ -4072,6 +4072,11 @@ DMAI will analyze and learn from the repository."""
             import threading
             threading.Thread(target=do_ingest, daemon=True).start()
             return f"📥 **Ingesting: {source}**\n\nAnalyzing code and learning...\n\nI'll add what I learn to my knowledge base."
+
+        elif cmd == '/neurons':
+            if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
+                return f"🧠 Neurons: {len(self.evolution.si_core.insights)}, Synapses: {self.evolution.si_core.synapse_count}"
+            return "SI Core not available"
         
         elif cmd == '/help':
             return """**Available Commands:**
@@ -5793,13 +5798,15 @@ class DMAIApplication:
             """Return hierarchical brain data: groups at top level, neurons on demand"""
             try:
                 # Get all neurons from self.neurons (3540 available)
-                neurons = getattr(self, 'neurons', {})
+                # Get neurons from SI Core
+                neurons = {}
+                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
+                    insights = self.evolution.si_core.insights
+                    for insight_id, insight in insights.items():
+                        text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
+                        neurons[insight_id] = {'name': text[:50], 'category': 'knowledge', 'confidence': 0.8}
                 if not neurons:
-                    # Try to get from evolution
-                    if hasattr(self.evolution, 'neurons'):
-                        neurons = self.evolution.neurons
-                    else:
-                        return jsonify({'success': False, 'error': 'No neurons loaded'}), 404
+                    return jsonify({'success': False, 'error': 'No neurons loaded'}), 404
                 
                 # Group neurons by category
                 groups = {}
