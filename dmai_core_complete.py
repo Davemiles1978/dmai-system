@@ -5808,72 +5808,53 @@ class DMAIApplication:
         
         @self.app.route('/api/brain/3d_data', methods=['GET'])
         def brain_3d_data():
-            """Return hierarchical brain data: groups at top level, neurons on demand"""
+            """Return brain data from SI Core insights"""
             try:
-                # Get all neurons from self.neurons (3540 available)
-                # Get neurons from SI Core
-                neurons = {}
-                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
-                    insights = self.evolution.si_core.insights
+                import json
+                import os
+                network_file = "data/synthetic/network_state.json"
+                if os.path.exists(network_file):
+                    with open(network_file, "r") as f:
+                        data = json.load(f)
+                    insights = data.get("insights", {})
+                    synapses = data.get("synapses", [])
+                    neurons = {}
                     for insight_id, insight in insights.items():
-                        text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
-                        neurons[insight_id] = {'name': text[:50], 'category': 'knowledge', 'confidence': 0.8}
-                if not neurons:
-                    return jsonify({'success': False, 'error': 'No neurons loaded'}), 404
-                
-                # Group neurons by category
-                groups = {}
-                for neuron_id, neuron in neurons.items():
-                    category = neuron.get('category', 'general')
-                    if category not in groups:
-                        groups[category] = {
-                            'id': category,
-                            'name': category.replace('_', ' ').title(),
-                            'category': category,
-                            'count': 0,
-                            'neurons': [],  # Store limited neuron data for zoom
-                            'position': {
-                                'x': (hash(category) % 200) / 10 - 10,
-                                'y': (hash(category + 'y') % 200) / 10 - 10,
-                                'z': (hash(category + 'z') % 200) / 10 - 10
-                            },
-                            'color': self._get_category_color(category)
+                        text = insight.get("insight_text", str(insight)) if isinstance(insight, dict) else str(insight)
+                        neurons[insight_id] = {
+                            "name": text[:50],
+                            "insight_text": text,
+                            "category": insight.get("entity_type", "knowledge") if isinstance(insight, dict) else "knowledge",
+                            "confidence": insight.get("confidence", 0.5) if isinstance(insight, dict) else 0.5
                         }
-                    groups[category]['count'] += 1
-                    # Store only essential data for zoom level
-                    groups[category]['neurons'].append({
-                        'id': neuron_id,
-                        'name': neuron.get('name', 'Unknown'),
-                        'confidence': neuron.get('confidence', 0.5)
+                    groups = {}
+                    for neuron_id, neuron in neurons.items():
+                        category = neuron.get("category", "general")
+                        if category not in groups:
+                            groups[category] = {
+                                "id": category,
+                                "name": category.replace("_", " ").title(),
+                                "category": category,
+                                "count": 0,
+                                "neurons": [],
+                                "color": "#00ff00"
+                            }
+                        groups[category]["count"] += 1
+                        groups[category]["neurons"].append({
+                            "id": neuron_id,
+                            "name": neuron["name"],
+                            "confidence": neuron["confidence"]
+                        })
+                    return jsonify({
+                        "success": True,
+                        "groups": list(groups.values()),
+                        "total_neurons": len(neurons),
+                        "total_synapses": len(synapses)
                     })
-                
-                # Convert to list and limit neurons per group for performance
-                groups_list = []
-                for group in groups.values():
-                    # Only send first 30 neurons per group for initial load
-                    if len(group['neurons']) > 30:
-                        group['neurons'] = group['neurons'][:30]
-                        group['has_more'] = True
-                    groups_list.append(group)
-                
-                # Calculate consciousness level
-                consciousness = 0.0
-                if hasattr(self.evolution, 'si_core'):
-                    consciousness = getattr(self.evolution.si_core, 'consciousness', 0.0)
-
-                return jsonify({
-                    'success': True,
-                    'groups': groups_list,
-                    'total_neurons': len(neurons),
-                    'total_groups': len(groups_list),
-                    'consciousness': consciousness,
-                    'message': f'Brain organized into {len(groups_list)} knowledge groups'
-                })
-
+                else:
+                    return jsonify({"success": False, "error": "Network state file not found"}), 404
             except Exception as e:
-                logger.error(f"Brain 3D data error: {e}")
-                return jsonify({'error': str(e), 'success': False}), 500
-        
+                return jsonify({"success": False, "error": str(e)}), 500
         @self.app.route('/api/brain/group/<group_id>', methods=['GET'])
         def brain_group_detail(self, group_id):
             """Return all neurons in a specific group for zoomed-in view"""
