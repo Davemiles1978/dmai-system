@@ -4075,27 +4075,27 @@ DMAI will analyze and learn from the repository."""
 
         elif cmd == '/neurons':
             try:
-                # Try to get from evolution's si_core
-                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
-                    neurons = len(self.evolution.si_core.insights)
-                    synapses = self.evolution.si_core.synapse_count
-                    return f"🧠 Neurons: {neurons}, Synapses: {synapses}"
-                # Try direct si_core
-                elif hasattr(self, 'si_core'):
-                    neurons = len(self.si_core.insights)
-                    synapses = self.si_core.synapse_count
+                import json
+                import os
+                network_file = 'data/synthetic/network_state.json'
+                if os.path.exists(network_file):
+                    with open(network_file, 'r') as f:
+                        data = json.load(f)
+                    neurons = len(data.get('insights', {}))
+                    synapses = len(data.get('synapses', []))
                     return f"🧠 Neurons: {neurons}, Synapses: {synapses}"
                 else:
-                    return "SI Core not available"
+                    return "No network state file found"
             except Exception as e:
                 return f"Error: {e}"
-        
+
         elif cmd == '/help':
             return """**Available Commands:**
 /status - System status
 /knowledge - View knowledge base
 /knowledge more - View all knowledge
 /ingest <url> - Ingest and learn from GitHub repo
+/neurons - Show neuron and synapse counts
 /help - This help message"""
         
         else:
