@@ -3917,6 +3917,147 @@ I maintain full conversation memory - I can recall anything we've talked about. 
 # FLASK APPLICATION - Complete Web Interface
 # ============================================================================
 
+
+    # ========================================================================
+    # CHAT MESSAGE PROCESSING METHODS
+    # ========================================================================
+    
+    def process_message(self, user: str, message: str) -> str:
+        """Process user messages and return DMAI's response"""
+        try:
+            # Handle commands
+            if message.startswith('/'):
+                return self._handle_command(message)
+            
+            # Check for knowledge queries in SI Core
+            knowledge_response = self._query_si_core_knowledge(message)
+            if knowledge_response:
+                # Store conversation
+                self.conversation_memory.add_conversation(user, message, knowledge_response)
+                return knowledge_response
+            
+            # Generate response using AI tutors
+            response = self._generate_ai_response(user, message)
+            
+            # Store conversation
+            self.conversation_memory.add_conversation(user, message, response)
+            
+            return response
+        except Exception as e:
+            logger.error(f"Message processing error: {e}")
+            return f"I encountered an error: {str(e)}"
+    
+    def _query_si_core_knowledge(self, query: str) -> Optional[str]:
+        """Query SI Core for relevant knowledge"""
+        try:
+            query_lower = query.lower()
+            relevant_insights = []
+            
+            # Search through SI Core insights
+            for insight_id, insight in self.si_core.insights.items():
+                insight_text = insight.insight_text.lower() if hasattr(insight, 'insight_text') else str(insight).lower()
+                query_words = query_lower.split()[:10]
+                for word in query_words:
+                    if len(word) > 3 and word in insight_text:
+                        if hasattr(insight, 'insight_text'):
+                            relevant_insights.append(insight.insight_text)
+                        elif isinstance(insight, dict) and 'insight_text' in insight:
+                            relevant_insights.append(insight['insight_text'])
+                        break
+                
+                if len(relevant_insights) >= 5:
+                    break
+            
+            if relevant_insights:
+                full_answer = "Based on my knowledge:\n\n"
+                for i, insight in enumerate(relevant_insights[:5], 1):
+                    full_answer += f"{i}. {insight}\n\n"
+                return full_answer[:10000]
+            
+            return None
+        except Exception as e:
+            logger.error(f"SI Core query failed: {e}")
+            return None
+    
+    def _generate_ai_response(self, user: str, message: str) -> str:
+        """Generate response using AI tutors"""
+        try:
+            # Try to use AI hub if available
+            if hasattr(self, 'ai_hub') and self.ai_hub:
+                response = self.ai_hub.query(message)
+                if response:
+                    return response
+            
+            # Try using tutor manager
+            if hasattr(self, 'tutor_manager') and self.tutor_manager:
+                tutors = self.tutor_manager.get_active_tutors()
+                if tutors:
+                    # Use first available tutor
+                    for tutor_name in tutors[:3]:
+                        try:
+                            response = self.tutor_manager.query_tutor(tutor_name, message)
+                            if response:
+                                return response
+                        except:
+                            continue
+            
+            # Fallback response
+            return f"I understand you're asking about: {message[:100]}. I'm processing this through my learning systems."
+        except Exception as e:
+            logger.error(f"AI response generation error: {e}")
+            return "I'm still learning about that. Could you rephrase or ask something else?"
+    
+    def _handle_command(self, command: str) -> str:
+        """Handle slash commands"""
+        cmd = command.lower().strip()
+        
+        if cmd == '/status':
+            status = self.get_status() if hasattr(self, 'get_status') else {}
+            return f"""🧠 **DMAI Status**
+Consciousness: {status.get('consciousness', 0):.2f}%
+Evolution Cycles: {status.get('evolution_cycles', 0)}
+Synthetic Neurons: {status.get('synthetic_neurons', 0)}
+Knowledge Insights: {len(self.si_core.insights)}"""
+        
+        elif cmd == '/knowledge':
+            if len(self.si_core.insights) > 0:
+                insight_texts = []
+                count = 0
+                for insight_id in list(self.si_core.insights.keys())[:20]:
+                    insight = self.si_core.insights[insight_id]
+                    text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
+                    insight_texts.append(f"- {text[:80]}")
+                    count += 1
+                return f"""📚 **Knowledge Base** ({len(self.si_core.insights)} insights)
+
+Recent insights:
+{chr(10).join(insight_texts)}
+
+Type /knowledge more for more."""
+            return "📚 No knowledge insights yet. Training systems are actively learning!"
+        
+        elif cmd == '/knowledge more':
+            if len(self.si_core.insights) > 0:
+                insight_texts = []
+                for insight_id in list(self.si_core.insights.keys())[:200]:
+                    insight = self.si_core.insights[insight_id]
+                    text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
+                    insight_texts.append(f"- {text[:80]}")
+                return f"""📚 **Complete Knowledge Base** ({len(self.si_core.insights)} insights)
+
+{chr(10).join(insight_texts)}"""
+            return "📚 No knowledge insights yet."
+        
+        elif cmd == '/help':
+            return """**Available Commands:**
+/status - System status
+/knowledge - View knowledge base
+/knowledge more - View all knowledge
+/help - This help message"""
+        
+        else:
+            return f"Unknown command: {command}. Type /help for available commands."
+
 class DMAIApplication:
     
     def __del__(self):
