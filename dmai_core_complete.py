@@ -4048,11 +4048,37 @@ Type /knowledge more for more."""
 {chr(10).join(insight_texts)}"""
             return "📚 No knowledge insights yet."
         
+        elif cmd.startswith('/ingest'):
+            source = command[8:].strip()
+            if not source:
+                return """📥 **Ingest Command Usage:**
+
+`/ingest <github_url>`
+
+Example: `/ingest https://github.com/huggingface/diffusers`
+
+DMAI will analyze and learn from the repository."""
+            
+            # Run ingestion in background
+            def do_ingest():
+                try:
+                    if hasattr(self, 'evolution') and hasattr(self.evolution, 'autonomous_ingestor'):
+                        result = self.evolution.autonomous_ingestor.discover_and_ingest(source)
+                        if result and result.get('capabilities_ingested'):
+                            print(f"✅ Ingested: {result['capabilities_ingested']} from {source}")
+                except Exception as e:
+                    print(f"Ingestion failed: {e}")
+            
+            import threading
+            threading.Thread(target=do_ingest, daemon=True).start()
+            return f"📥 **Ingesting: {source}**\n\nAnalyzing code and learning...\n\nI'll add what I learn to my knowledge base."
+        
         elif cmd == '/help':
             return """**Available Commands:**
 /status - System status
 /knowledge - View knowledge base
 /knowledge more - View all knowledge
+/ingest <url> - Ingest and learn from GitHub repo
 /help - This help message"""
         
         else:
