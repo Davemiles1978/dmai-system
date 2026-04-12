@@ -4074,9 +4074,21 @@ DMAI will analyze and learn from the repository."""
             return f"📥 **Ingesting: {source}**\n\nAnalyzing code and learning...\n\nI'll add what I learn to my knowledge base."
 
         elif cmd == '/neurons':
-            if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
-                return f"🧠 Neurons: {len(self.evolution.si_core.insights)}, Synapses: {self.evolution.si_core.synapse_count}"
-            return "SI Core not available"
+            try:
+                # Try to get from evolution's si_core
+                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
+                    neurons = len(self.evolution.si_core.insights)
+                    synapses = self.evolution.si_core.synapse_count
+                    return f"🧠 Neurons: {neurons}, Synapses: {synapses}"
+                # Try direct si_core
+                elif hasattr(self, 'si_core'):
+                    neurons = len(self.si_core.insights)
+                    synapses = self.si_core.synapse_count
+                    return f"🧠 Neurons: {neurons}, Synapses: {synapses}"
+                else:
+                    return "SI Core not available"
+            except Exception as e:
+                return f"Error: {e}"
         
         elif cmd == '/help':
             return """**Available Commands:**
