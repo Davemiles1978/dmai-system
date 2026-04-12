@@ -6893,27 +6893,6 @@ class DMAIApplication:
         cmd = command.lower().strip()
         status = self.evolution.get_status()
 
-            # Handle commands
-            if message.startswith('/'):
-                # Direct handler for /ingest
-                if message.startswith('/ingest'):
-                    parts = message.split(maxsplit=1)
-                    if len(parts) < 2:
-                        return "📥 Usage: /ingest <github_url>"
-                    source = parts[1]
-                    import threading
-                    def do_ingest():
-                        try:
-                            if hasattr(self, 'autonomous_ingestor'):
-                                result = self.autonomous_ingestor.discover_and_ingest(source)
-                                print(f"Ingested: {source}")
-                        except Exception as e:
-                            print(f"Ingest error: {e}")
-                    threading.Thread(target=do_ingest, daemon=True).start()
-                    return f"📥 Ingesting: {source}..."
-                
-                return self._handle_command(message)
-
         if cmd == '/status':
             ts = status.get('training_status', {})
             funding_ts = ts.get('funding', {})
