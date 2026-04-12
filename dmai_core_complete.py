@@ -4077,7 +4077,8 @@ DMAI will analyze and learn from the repository."""
             try:
                 import json
                 import os
-                network_file = 'data/synthetic/network_state.json'
+                # Use the exact path where the data lives
+                network_file = '/opt/render/project/src/data/synthetic/network_state.json'
                 if os.path.exists(network_file):
                     with open(network_file, 'r') as f:
                         data = json.load(f)
