@@ -2732,9 +2732,22 @@ class UnifiedEvolutionEngine:
         return self.training_status
 
     def get_knowledge_concepts(self, limit: int = 200) -> List[str]:
-        return self.knowledge_graph.get_concepts(limit)
+        """Get concepts from SI Core insights instead of empty knowledge_graph.json"""
+        try:
+            if hasattr(self, "si_core") and hasattr(self.si_core, "insights"):
+                # Extract insight texts from SI Core
+                insights = []
+                for insight_id, insight in self.si_core.insights.items():
+                    if hasattr(insight, "insight_text"):
+                        insights.append(insight.insight_text)
+                    elif isinstance(insight, dict) and "insight_text" in insight:
+                        insights.append(insight["insight_text"])
+                return insights[:limit]
+            return []
+        except Exception as e:
+            logger.error(f"Failed to get knowledge concepts: {e}")
+            return []
 
-    def get_conversation_history(self, limit: int = 30) -> List[Dict]:
         """Get full conversation history for context"""
         return self.conversation_context[-limit:]
 
@@ -3486,22 +3499,20 @@ class UnifiedEvolutionEngine:
                         relevant_insights.append(insight.insight_text)
                         break
                 
-                if len(relevant_insights) >= 3:
+                if len(relevant_insights) >= 5:
                     break
             
             if relevant_insights:
-                answer = "Based on my knowledge: " + " ".join(relevant_insights[:3])
-                return answer[:500]
+                # Return full insights without truncation
+                full_answer = "Based on my knowledge:\n\n"
+                for i, insight in enumerate(relevant_insights[:5], 1):
+                    full_answer += f"{i}. {insight}\n\n"
+                return full_answer[:10000]
             
             return None
         except Exception as e:
             logger.error(f"SI Core query failed: {e}")
             return None
-
-    def process_message(self, user: str, message: str) -> str:
-        """Process user message with FULL conversation context"""
-        # ... rest of the method
-        
         # Handle commands FIRST - before anything else
         if message.startswith('/'):
             # Try multiple ways to get the parent app
