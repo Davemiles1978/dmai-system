@@ -4811,15 +4811,77 @@ class DMAIApplication:
                         if (!isActive) return 0x666666;
                         
                         // Subject matter color mapping
-                        const categoryColors = {
-                            'core': 0x33ff33,        // Green - core knowledge
-                            'artistic': 0xff33ff,    // Pink/purple - artistic
-                            'wealth': 0xffcc33,      // Gold - wealth/finance
-                            'accelerator': 0x33ccff, // Blue - evolution accelerators
-                            'reverse': 0xff6633,     // Orange - reverse engineering
-                            'research': 0x33ffcc,    // Teal - research
-                            'entity': 0x99ff99,      // Pale green - entities
-                            'general': 0x88ff88,     // Light green - general
+                                                const categoryColors = {
+                            // Core Knowledge (Green)
+                            'core': 0x33ff33,
+                            'meta_learning': 0x33ff33,
+                            'pattern_recognition': 0x33ff33,
+                            'reasoning': 0x33ff33,
+                            'knowledge_graph': 0x33ff33,
+                            'memory': 0x33ff33,
+                            'attention': 0x33ff33,
+                            'emotional_intelligence': 0x33ff33,
+                            'consciousness': 0x33ff33,
+                            'autonomous_learning': 0x33ff33,
+                            'strategic_planning': 0x33ff33,
+                            'wisdom': 0x33ff33,
+                            
+                            // Artistic/Creative (Magenta)
+                            'artistic': 0xff33ff,
+                            'music': 0xff33ff,
+                            'image': 0xff33ff,
+                            'video': 0xff33ff,
+                            'speech': 0xff33ff,
+                            'creative': 0xff33ff,
+                            'multimodal': 0xff33ff,
+                            
+                            // Wealth/Finance (Gold)
+                            'wealth': 0xffcc33,
+                            'finance': 0xffcc33,
+                            'trading': 0xffcc33,
+                            'funding': 0xffcc33,
+                            'revenue': 0xffcc33,
+                            'marketing': 0xffcc33,
+                            'investment': 0xffcc33,
+                            
+                            // Reverse Engineering (Orange)
+                            'reverse': 0xff6633,
+                            'decompilation': 0xff6633,
+                            'api_analysis': 0xff6633,
+                            'protocol_analysis': 0xff6633,
+                            'binary_analysis': 0xff6633,
+                            'hardware': 0xff6633,
+                            'firmware': 0xff6633,
+                            
+                            // Evolution Accelerator (Blue)
+                            'accelerator': 0x33ccff,
+                            'evolution': 0x33ccff,
+                            'self_improvement': 0x33ccff,
+                            'optimization': 0x33ccff,
+                            'recursive': 0x33ccff,
+                            'consciousness_measurement': 0x33ccff,
+                            
+                            // Research (Teal)
+                            'research': 0x33ffcc,
+                            'paper': 0x33ffcc,
+                            'academic': 0x33ffcc,
+                            'arxiv': 0x33ffcc,
+                            
+                            // LLM/ML (Bright Green)
+                            'llm': 0x00ff00,
+                            'ml': 0x00ff00,
+                            'quantization': 0x00ff00,
+                            'distillation': 0x00ff00,
+                            'pruning': 0x00ff00,
+                            'neural_network': 0x00ff00,
+                            'deep_learning': 0x00ff00,
+                            
+                            // Entity/General
+                            'entity': 0x99ff99,
+                            'general': 0x88ff88,
+                            'knowledge': 0x88ff88,
+                            
+                            // Default
                             'default': 0x88ff88
                         };
                         
