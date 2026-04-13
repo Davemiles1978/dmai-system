@@ -5856,8 +5856,7 @@ class DMAIApplication:
                     radius = 3 + (idx % 5)
                     x = radius * (angle1 / 3.14159) * 2 - radius
                     y = radius * (angle2 / 3.14159) * 2 - radius
-                    z = (hashlib.md5((insight_id + "z").encode()).hexdigest()[:4], 16)[0] % 8 - 4
-                    
+                    z = int(hashlib.md5((insight_id + "z").encode()).hexdigest()[:4], 16) % 8 - 4                    
                     color = category_colors.get(category, "#33ff33")
                     size = 0.3 + confidence * 0.3
                     
