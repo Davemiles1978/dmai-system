@@ -7028,6 +7028,201 @@ class DMAIApplication:
             from flask import send_from_directory
             return send_from_directory(str(self.avatar_generator.storage_path), filename)
 
+
+        @self.app.route('/api/simple_status')
+        def simple_status():
+            """Simple status that reads the actual file"""
+            try:
+                import json
+                import os
+                network_file = 'data/synthetic/network_state.json'
+                if os.path.exists(network_file):
+                    with open(network_file, 'r') as f:
+                        net = json.load(f)
+                    return jsonify({
+                        'neurons': len(net.get('insights', {})),
+                        'synapses': len(net.get('synapses', [])),
+                        'consciousness': net.get('consciousness', 0)
+                    })
+                return jsonify({'error': 'No file'}), 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/knowledge-graph')
+        def knowledge_graph():
+            return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Synthetic Brain</title>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; overflow: hidden; color: #ffffff; }
+        #info { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); padding: 12px 20px; border-radius: 8px; z-index: 100; pointer-events: none; backdrop-filter: blur(5px); border-left: 3px solid #0f0; }
+        #info h1 { font-size: 1rem; margin-bottom: 4px; color: #ffffff; }
+        #info p { font-size: 0.7rem; opacity: 0.8; color: #dddddd; }
+        #stats { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.85); padding: 12px 20px; border-radius: 8px; z-index: 100; text-align: right; backdrop-filter: blur(5px); font-family: monospace; min-width: 160px; }
+        .stat-row { margin-bottom: 6px; }
+        .stat-emoji { font-size: 1rem; margin-right: 6px; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; color: #0f0; }
+        .stat-label { font-size: 0.7rem; opacity: 0.8; color: #dddddd; margin-left: 4px; }
+        .legend { position: absolute; bottom: 20px; right: 20px; background: rgba(0,0,0,0.85); padding: 12px 18px; border-radius: 8px; font-size: 0.7rem; backdrop-filter: blur(5px); max-width: 220px; z-index: 100; pointer-events: none; color: #ffffff; }
+        .legend h3 { font-size: 0.75rem; margin-bottom: 8px; color: #ffffff; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 4px; color: #dddddd; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; margin-right: 8px; }
+        hr { border-color: #333; margin: 6px 0; }
+        .instruction { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.5); padding: 5px 12px; border-radius: 15px; font-size: 0.6rem; z-index: 100; pointer-events: none; color: #dddddd; }
+    </style>
+</head>
+<body>
+    <div id="info"><h1>🧠 DMAI Synthetic Brain</h1><p>3D Neural Network | Subject matter color-coded | Force-directed layout</p></div>
+    <div id="stats"><div class="stat-row"><span class="stat-emoji">🧬</span><span class="stat-value" id="neuronCount">0</span><span class="stat-label">Neurons</span></div><div class="stat-row"><span class="stat-emoji">🔗</span><span class="stat-value" id="synapseCount">0</span><span class="stat-label">Synapses</span></div><div class="stat-row"><span class="stat-emoji">✨</span><span class="stat-value" id="consciousness">0%</span><span class="stat-label">Consciousness</span></div><div class="stat-row"><span class="stat-emoji">⚡</span><span id="activeNeurons" class="stat-value">0</span>/<span id="totalNeurons" class="stat-value">0</span><span class="stat-label">Active</span></div><div class="stat-row" style="margin-top:8px; font-size:0.6rem;"><span class="stat-emoji">📡</span><span id="lastUpdate" style="color:#dddddd;">-</span></div></div>
+    <div class="legend"><h3>🎨 Subject Matter Colors</h3><div class="legend-item"><div class="legend-color" style="background:#33ff33;"></div> Core Knowledge</div><div class="legend-item"><div class="legend-color" style="background:#ff33ff;"></div> Artistic/Creative</div><div class="legend-item"><div class="legend-color" style="background:#ffcc33;"></div> Wealth/Finance</div><div class="legend-item"><div class="legend-color" style="background:#33ccff;"></div> Evolution Accelerator</div><div class="legend-item"><div class="legend-color" style="background:#ff6633;"></div> Reverse Engineering</div><div class="legend-item"><div class="legend-color" style="background:#33ffcc;"></div> Research</div><div class="legend-item"><div class="legend-color" style="background:#88ff88;"></div> Entity/General</div><hr><div class="legend-item"><div class="legend-color" style="background:#ff3333;"></div> Low Confidence</div><div class="legend-item"><div class="legend-color" style="background:#ffaa33;"></div> Medium Confidence</div><div class="legend-item"><div class="legend-color" style="background:#33ff33;"></div> High Confidence</div><div class="legend-item"><div class="legend-color" style="background:#aa44ff;"></div> Very High Confidence</div><hr><div class="legend-item"><div class="legend-color" style="background:#88ff88;"></div> Weak Synapse (0.0-0.3)</div><div class="legend-item"><div class="legend-color" style="background:#aaffaa;"></div> Medium Synapse (0.3-0.6)</div><div class="legend-item"><div class="legend-color" style="background:#ccffcc;"></div> Strong Synapse (0.6-1.0)</div></div>
+    <div class="instruction">🖱️ Drag to rotate | Scroll to zoom | Right-click to pan</div>
+    <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+        
+        const API_URL = '/api/brain/3d_data';
+        
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050510);
+        scene.fog = new THREE.FogExp2(0x050510, 0.003);
+        
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(18, 14, 22);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        document.body.appendChild(labelRenderer.domElement);
+        
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.8;
+        controls.enableZoom = true;
+        
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+        mainLight.position.set(2, 5, 3);
+        scene.add(mainLight);
+        
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = [];
+        for (let i = 0; i < 1500; i++) {
+            starPositions.push((Math.random() - 0.5) * 300);
+            starPositions.push((Math.random() - 0.5) * 200);
+            starPositions.push((Math.random() - 0.5) * 150 - 50);
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starPositions), 3));
+        const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0x448844, size: 0.15 }));
+        scene.add(stars);
+        
+        const categoryColors = { 'llm':0x33ff33,'core':0x33ff33,'artistic':0xff33ff,'wealth':0xffcc33,'accelerator':0x33ccff,'reverse':0xff6633,'research':0x33ffcc,'general':0x88ff88,'entity':0x99ff99 };
+        
+        let neuronObjects = new Map();
+        let synapseLines = [];
+        
+        function hexToRgb(hex) { return { r:((hex>>16)&255)/255, g:((hex>>8)&255)/255, b:(hex&255)/255 }; }
+        
+        function cleanLabel(text) {
+            if (!text) return 'Concept';
+            let cleaned = text.replace(/_[a-f0-9]{8,}/g, '').replace(/concept mastered in (llm )?training/gi, '').replace(/concept mastered in/gi, '').replace(/concept /gi, '').trim();
+            if (cleaned.length === 0) return text.substring(0, 25);
+            return cleaned.length > 25 ? cleaned.substring(0, 22) + '...' : cleaned;
+        }
+        
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                if (!data.success || !data.neurons) return;
+                
+                document.getElementById('neuronCount').textContent = data.total_neurons || 0;
+                document.getElementById('synapseCount').textContent = data.total_synapses || 0;
+                document.getElementById('consciousness').textContent = ((data.total_neurons || 0) / 10).toFixed(1) + '%';
+                document.getElementById('totalNeurons').textContent = data.total_neurons || 0;
+                const activeCount = (data.neurons || []).filter(n => n.confidence > 0.5).length;
+                document.getElementById('activeNeurons').textContent = activeCount;
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                
+                if (data.neurons.length === 0) return;
+                
+                neuronObjects.forEach(obj => { scene.remove(obj.mesh); if (obj.label) scene.remove(obj.label); });
+                neuronObjects.clear();
+                synapseLines.forEach(line => scene.remove(line));
+                synapseLines = [];
+                
+                data.neurons.forEach(neuron => {
+                    const color = categoryColors[neuron.category] || 0x33ff33;
+                    const size = 0.35 + (neuron.confidence || 0.5) * 0.25;
+                    const sphere = new THREE.Mesh(new THREE.SphereGeometry(size, 48, 48), new THREE.MeshStandardMaterial({ color: color, emissive: 0x113311, emissiveIntensity: 0.15 }));
+                    sphere.position.set(neuron.x || 0, neuron.y || 0, neuron.z || 0);
+                    scene.add(sphere);
+                    
+                    const rgb = hexToRgb(color);
+                    const textColor = `rgb(${rgb.r*255}, ${rgb.g*255}, ${rgb.b*255})`;
+                    const div = document.createElement('div');
+                    div.textContent = cleanLabel(neuron.label || neuron.name);
+                    div.style.cssText = `color:${textColor};font-size:10px;font-family:monospace;background:rgba(0,0,0,0.85);padding:2px 6px;border-radius:12px;border:1px solid ${textColor};white-space:nowrap;font-weight:500;`;
+                    const label = new CSS2DObject(div);
+                    label.position.set(neuron.x || 0, (neuron.y || 0) + 0.7, neuron.z || 0);
+                    scene.add(label);
+                    neuronObjects.set(neuron.id, { mesh: sphere, label: label });
+                });
+                
+                if (data.synapses) {
+                    data.synapses.forEach(syn => {
+                        const src = neuronObjects.get(syn.source);
+                        const tgt = neuronObjects.get(syn.target);
+                        if (src && tgt) {
+                            const points = [src.mesh.position.clone(), tgt.mesh.position.clone()];
+                            const weight = syn.weight || 0.5;
+                            const lineColor = weight < 0.3 ? 0x88ff88 : (weight < 0.6 ? 0xaaffaa : 0xccffcc);
+                            const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: lineColor, linewidth: 2 }));
+                            scene.add(line);
+                            synapseLines.push(line);
+                        }
+                    });
+                }
+            } catch(e) { console.error(e); }
+        }
+        
+        fetchData();
+        setInterval(fetchData, 10000);
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            stars.rotation.y += 0.0003;
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
+            ''')
+
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
         status = self.evolution.get_status()
