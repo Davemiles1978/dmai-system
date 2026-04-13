@@ -5154,6 +5154,65 @@ class DMAIApplication:
             </html>
             ''')
 
+        @self.app.route('/knowledge-graph')
+        def knowledge_graph():
+            return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Synthetic Brain</title>
+    <meta charset="UTF-8">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',monospace;background:#0a0a0a;overflow:hidden;color:#fff}
+        #info{position:absolute;top:20px;left:20px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:8px;z-index:100;pointer-events:none;backdrop-filter:blur(5px);border-left:3px solid #0f0}
+        #info h1{font-size:1rem;margin-bottom:4px;color:#fff}#info p{font-size:0.7rem;opacity:0.8;color:#ddd}
+        #stats{position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:8px;z-index:100;text-align:right;backdrop-filter:blur(5px);font-family:monospace;min-width:160px}
+        .stat-row{margin-bottom:6px}.stat-emoji{font-size:1rem;margin-right:6px}.stat-value{font-size:1.2rem;font-weight:bold;color:#0f0}
+        .stat-label{font-size:0.7rem;opacity:0.8;color:#ddd;margin-left:4px}
+        .legend{position:absolute;bottom:20px;right:20px;background:rgba(0,0,0,0.85);padding:12px 18px;border-radius:8px;font-size:0.7rem;backdrop-filter:blur(5px);max-width:220px;z-index:100;pointer-events:none;color:#fff}
+        .legend h3{font-size:0.75rem;margin-bottom:8px;color:#fff}.legend-item{display:flex;align-items:center;margin-bottom:4px;color:#ddd}
+        .legend-color{width:12px;height:12px;border-radius:2px;margin-right:8px}hr{border-color:#333;margin:6px 0}
+        .instruction{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.5);padding:5px 12px;border-radius:15px;font-size:0.6rem;z-index:100;pointer-events:none;color:#ddd}
+    </style>
+</head>
+<body>
+<div id="info"><h1>🧠 DMAI Synthetic Brain</h1><p>3D Neural Network | Subject matter color-coded | Force-directed layout</p></div>
+<div id="stats"><div class="stat-row"><span class="stat-emoji">🧬</span><span class="stat-value" id="neuronCount">0</span><span class="stat-label">Neurons</span></div><div class="stat-row"><span class="stat-emoji">🔗</span><span class="stat-value" id="synapseCount">0</span><span class="stat-label">Synapses</span></div><div class="stat-row"><span class="stat-emoji">✨</span><span class="stat-value" id="consciousness">0%</span><span class="stat-label">Consciousness</span></div><div class="stat-row"><span class="stat-emoji">⚡</span><span id="activeNeurons" class="stat-value">0</span>/<span id="totalNeurons" class="stat-value">0</span><span class="stat-label">Active</span></div><div class="stat-row" style="margin-top:8px"><span class="stat-emoji">📡</span><span id="lastUpdate" style="color:#ddd">-</span></div></div>
+<div class="legend"><h3>🎨 Subject Matter Colors</h3><div class="legend-item"><div class="legend-color" style="background:#33ff33"></div> Core Knowledge</div><div class="legend-item"><div class="legend-color" style="background:#ff33ff"></div> Artistic/Creative</div><div class="legend-item"><div class="legend-color" style="background:#ffcc33"></div> Wealth/Finance</div><div class="legend-item"><div class="legend-color" style="background:#33ccff"></div> Evolution Accelerator</div><div class="legend-item"><div class="legend-color" style="background:#ff6633"></div> Reverse Engineering</div><div class="legend-item"><div class="legend-color" style="background:#33ffcc"></div> Research</div><div class="legend-item"><div class="legend-color" style="background:#88ff88"></div> Entity/General</div><hr><div class="legend-item"><div class="legend-color" style="background:#ff3333"></div> Low Confidence</div><div class="legend-item"><div class="legend-color" style="background:#ffaa33"></div> Medium Confidence</div><div class="legend-item"><div class="legend-color" style="background:#33ff33"></div> High Confidence</div><div class="legend-item"><div class="legend-color" style="background:#aa44ff"></div> Very High Confidence</div><hr><div class="legend-item"><div class="legend-color" style="background:#88ff88"></div> Weak Synapse (0.0-0.3)</div><div class="legend-item"><div class="legend-color" style="background:#aaffaa"></div> Medium Synapse (0.3-0.6)</div><div class="legend-item"><div class="legend-color" style="background:#ccffcc"></div> Strong Synapse (0.6-1.0)</div></div>
+<div class="instruction">🖱️ Drag to rotate | Scroll to zoom | Right-click to pan</div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+const API_URL='/api/brain/3d_data';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x050510);scene.fog=new THREE.FogExp2(0x050510,0.003);
+const camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);camera.position.set(18,14,22);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(window.innerWidth,window.innerHeight);document.body.appendChild(renderer.domElement);
+const labelRenderer=new CSS2DRenderer();labelRenderer.setSize(window.innerWidth,window.innerHeight);labelRenderer.domElement.style.position='absolute';labelRenderer.domElement.style.top='0px';labelRenderer.domElement.style.left='0px';labelRenderer.domElement.style.pointerEvents='none';document.body.appendChild(labelRenderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.autoRotate=true;controls.autoRotateSpeed=0.8;controls.enableZoom=true;
+const ambientLight=new THREE.AmbientLight(0x404060);scene.add(ambientLight);
+const mainLight=new THREE.DirectionalLight(0xffffff,1);mainLight.position.set(2,5,3);scene.add(mainLight);
+const starGeometry=new THREE.BufferGeometry();const starPositions=[];for(let i=0;i<1500;i++){starPositions.push((Math.random()-0.5)*300,(Math.random()-0.5)*200,(Math.random()-0.5)*150-50);}
+starGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(starPositions),3));const stars=new THREE.Points(starGeometry,new THREE.PointsMaterial({color:0x448844,size:0.15}));scene.add(stars);
+const categoryColors={llm:0x33ff33,core:0x33ff33,artistic:0xff33ff,wealth:0xffcc33,accelerator:0x33ccff,reverse:0xff6633,research:0x33ffcc,general:0x88ff88,entity:0x99ff99};
+let neuronObjects=new Map();let synapseLines=[];
+function hexToRgb(hex){return{r:((hex>>16)&255)/255,g:((hex>>8)&255)/255,b:(hex&255)/255};}
+function cleanLabel(t){if(!t)return'Concept';let c=t.replace(/_[a-f0-9]{8,}/g,'').replace(/concept mastered in (llm )?training/gi,'').replace(/concept mastered in/gi,'').replace(/concept /gi,'').trim();if(c.length===0)return t.substring(0,25);return c.length>25?c.substring(0,22)+'...':c;}
+async function fetchData(){try{const r=await fetch(API_URL);const d=await r.json();if(!d.success||!d.neurons)return;
+document.getElementById('neuronCount').textContent=d.total_neurons||0;document.getElementById('synapseCount').textContent=d.total_synapses||0;document.getElementById('consciousness').textContent=((d.total_neurons||0)/10).toFixed(1)+'%';document.getElementById('totalNeurons').textContent=d.total_neurons||0;const ac=(d.neurons||[]).filter(n=>n.confidence>0.5).length;document.getElementById('activeNeurons').textContent=ac;document.getElementById('lastUpdate').textContent=new Date().toLocaleTimeString();
+if(d.neurons.length===0)return;neuronObjects.forEach(o=>{scene.remove(o.mesh);if(o.label)scene.remove(o.label);});neuronObjects.clear();synapseLines.forEach(l=>scene.remove(l));synapseLines=[];
+d.neurons.forEach(n=>{const c=categoryColors[n.category]||0x33ff33;const s=0.35+(n.confidence||0.5)*0.25;const sphere=new THREE.Mesh(new THREE.SphereGeometry(s,48,48),new THREE.MeshStandardMaterial({color:c,emissive:0x113311,emissiveIntensity:0.15}));sphere.position.set(n.x||0,n.y||0,n.z||0);scene.add(sphere);
+const rgb=hexToRgb(c);const tc=`rgb(${rgb.r*255},${rgb.g*255},${rgb.b*255})`;const div=document.createElement('div');div.textContent=cleanLabel(n.label||n.name);div.style.cssText=`color:${tc};font-size:10px;font-family:monospace;background:rgba(0,0,0,0.85);padding:2px 6px;border-radius:12px;border:1px solid ${tc};white-space:nowrap;font-weight:500;`;const label=new CSS2DObject(div);label.position.set(n.x||0,(n.y||0)+0.7,n.z||0);scene.add(label);neuronObjects.set(n.id,{mesh:sphere,label:label});});
+if(d.synapses){d.synapses.forEach(s=>{const src=neuronObjects.get(s.source);const tgt=neuronObjects.get(s.target);if(src&&tgt){const pts=[src.mesh.position.clone(),tgt.mesh.position.clone()];const w=s.weight||0.5;const lc=w<0.3?0x88ff88:(w<0.6?0xaaffaa:0xccffcc);const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:lc,linewidth:2}));scene.add(line);synapseLines.push(line);}});}}catch(e){console.error(e);}}
+fetchData();setInterval(fetchData,10000);
+function animate(){requestAnimationFrame(animate);controls.update();stars.rotation.y+=0.0003;renderer.render(scene,camera);labelRenderer.render(scene,camera);}animate();
+window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);labelRenderer.setSize(window.innerWidth,window.innerHeight);});
+</script>
+</body>
+</html>
+            ''')
+
         @self.app.route('/vision')
         def vision():
             return render_template_string(VISION_TEMPLATE)
