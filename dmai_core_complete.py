@@ -4082,12 +4082,12 @@ DMAI will analyze and learn from the repository."""
             def do_ingest():
                 try:
                     logger.info(f"📥 Starting ingestion of: {source}")
-                    
+                                
                     # First, create an insight about the ingestion itself
-                    if hasattr(self.evolution, 'si_core'):
-                        self.evolution.si_core.add_insight(
-                            insight_text=f"Ingested and analyzed repository: {source}",
-                            entity_type="repository_ingestion",
+                    if hasattr(self, 'si_core'):
+                        self.si_core.add_insight(
+                            insight_text=f"Ingested and analyzed repository: {source}",  
+                            entity_type="repository_ingestion",   
                             entities=["code", "repository", source.split('/')[-1]],
                             relationship="analyzed",
                             source_topic="code_analysis",
@@ -4100,23 +4100,23 @@ DMAI will analyze and learn from the repository."""
                         logger.info(f"✅ Created ingestion insight for: {source}")
                     
                     # Then run the actual ingestion
-                    if hasattr(self.evolution, 'autonomous_ingestor'):
-                        result = self.evolution.autonomous_ingestor.discover_and_ingest(source)
+                    if hasattr(self, 'autonomous_ingestor'):
+                        result = self.autonomous_ingestor.discover_and_ingest(source)
                         if result:
                             capabilities = result.get('capabilities_ingested', 0)
-                            logger.info(f"✅ Ingested {capabilities} capabilities from {source}")
-                            
+                            logger.info(f"✅ Ingested {capabilities} capabilities from {source}") 
+            
                             # Create insight for each capability
-                            if hasattr(self.evolution, 'si_core') and result.get('details'):
+                            if hasattr(self, 'si_core') and result.get('details'):
                                 for detail in result['details'][:10]:  # Limit to 10 insights
-                                    self.evolution.si_core.add_insight(
+                                    self.si_core.add_insight(  
                                         insight_text=f"Learned from {source}: {detail.get('description', 'code pattern')}",
                                         entity_type="code_learning",
                                         entities=["code", detail.get('type', 'pattern')],
                                         relationship="implements",
                                         source_topic="software_development",
                                         target_topic="code_knowledge",
-                                        confidence=0.7,
+                                        confidence=0.7,  
                                         source_url=source,
                                         source_title=f"GitHub: {source.split('/')[-1]}",
                                         source_type="github_ingest"
