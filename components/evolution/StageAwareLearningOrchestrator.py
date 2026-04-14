@@ -539,6 +539,32 @@ Be specific, educational, and focused on real application.
                     target_topic="DMAI_Knowledge",
                     confidence=0.7 + (min(current_mastery + 1, threshold) / threshold) * 0.3
                 )
+                
+                # TRIGGER COMPREHENSIVE TOPIC RESEARCH for deep mastery
+                # Check if topic_researcher is available (through parent dmai_app)
+                if hasattr(self, 'dmai_app') and self.dmai_app:
+                    if hasattr(self.dmai_app, 'topic_researcher') and self.dmai_app.topic_researcher:
+                        # Syllabus topics require COMPREHENSIVE depth (not just standard)
+                        import threading
+                        def research():
+                            self.dmai_app.topic_researcher.research_topic(
+                                topic_name, 
+                                depth="comprehensive", 
+                                source=f"syllabus_{self.current_stage}"
+                            )
+                        threading.Thread(target=research, daemon=True).start()
+                        logger.info(f"🔬 Scheduled comprehensive research for mastered topic: {topic_name}")
+                elif hasattr(self, 'topic_researcher') and self.topic_researcher:
+                    # Direct access if topic_researcher is on self
+                    import threading
+                    def research():
+                        self.topic_researcher.research_topic(
+                            topic_name, 
+                            depth="comprehensive", 
+                            source=f"syllabus_{self.current_stage}"
+                        )
+                    threading.Thread(target=research, daemon=True).start()
+                    logger.info(f"🔬 Scheduled comprehensive research for mastered topic: {topic_name}")
                 logger.info(f"🧠 Created insight neuron for mastered topic: {topic_name}")
                 
                 # Check for relationships with previously mastered topics in same category

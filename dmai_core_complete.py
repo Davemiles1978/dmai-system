@@ -1103,6 +1103,390 @@ class WebSearchEngine:
         except Exception:
             return None
 
+# ============================================================================
+# TOPIC RESEARCH ORCHESTRATOR - Comprehensive Knowledge Expansion
+# ============================================================================
+
+class TopicResearchOrchestrator:
+    """Expands any topic into comprehensive knowledge acquisition"""
+    
+    def __init__(self, si_core, ai_hub=None, knowledge_graph=None, dmai_app=None):
+        self.si_core = si_core
+        self.ai_hub = ai_hub
+        self.knowledge_graph = knowledge_graph
+        self.dmai_app = dmai_app
+        self.researched_topics = set()
+        self.research_queue = []
+        self.research_history = []
+        
+        # Category detection patterns
+        self.geography_indicators = [
+            'country', 'city', 'capital', 'population', 'geography', 'climate',
+            'culture', 'language', 'government', 'economy', 'region', 'state',
+            'province', 'territory', 'island', 'continent', 'nation'
+        ]
+        self.technology_indicators = [
+            'ai', 'software', 'hardware', 'algorithm', 'programming', 'code',
+            'technology', 'tech', 'computer', 'digital', 'automation', 'system',
+            'framework', 'library', 'api', 'database', 'network', 'cloud'
+        ]
+        self.person_indicators = [
+            'who is', 'biography', 'born', 'died', 'author', 'founder', 'ceo',
+            'president', 'leader', 'scientist', 'artist', 'musician', 'writer'
+        ]
+        
+        logger.info("🔬 Topic Research Orchestrator initialized")
+    
+    def research_topic(self, topic: str, depth: str = "comprehensive", source: str = "user_query") -> Dict:
+        """
+        Depth levels:
+        - "basic": Core facts only (3-5 insights)
+        - "standard": Facts + context + related topics (10-15 insights)
+        - "comprehensive": Expert-level mastery (20-30 insights)
+        - "expert": Teaching-level understanding (40+ insights)
+        """
+        
+        if topic in self.researched_topics:
+            logger.info(f"📚 Topic already researched: {topic}")
+            return {"status": "already_researched", "topic": topic}
+        
+        logger.info(f"🔬 Starting {depth} research on: {topic} (source: {source})")
+        self.researched_topics.add(topic)
+        
+        try:
+            # Step 1: Generate research plan
+            research_plan = self._generate_research_plan(topic, depth)
+            
+            # Step 2: Execute each research branch
+            total_insights = 0
+            for branch in research_plan['branches']:
+                insights = self._research_branch(topic, branch, depth)
+                total_insights += insights
+            
+            # Step 3: Synthesize cross-connections
+            synthesis = self._synthesize_knowledge(topic, research_plan)
+            if synthesis:
+                total_insights += 1
+            
+            # Step 4: Record in history
+            result = {
+                "topic": topic,
+                "depth": depth,
+                "source": source,
+                "category": research_plan['category'],
+                "branches": len(research_plan['branches']),
+                "insights_created": total_insights,
+                "completed_at": datetime.now().isoformat()
+            }
+            self.research_history.append(result)
+            
+            logger.info(f"✅ Completed research on {topic}: {total_insights} insights created")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Research failed for {topic}: {e}")
+            self.researched_topics.discard(topic)
+            return {"status": "failed", "topic": topic, "error": str(e)}
+    
+    def _generate_research_plan(self, topic: str, depth: str) -> Dict:
+        """Generate comprehensive research branches based on topic type"""
+        
+        # Detect topic category
+        category = self._detect_category(topic)
+        
+        # Base branches for ALL topics (scaled by depth)
+        depth_multiplier = {"basic": 1, "standard": 2, "comprehensive": 3, "expert": 4}
+        multiplier = depth_multiplier.get(depth, 2)
+        
+        branches = [
+            {"name": "core_definition", "queries": [f"What is {topic}?", f"Definition of {topic}"]},
+            {"name": "history_origin", "queries": [f"History of {topic}", f"Origin of {topic}", f"Evolution of {topic}"]},
+            {"name": "key_figures", "queries": [f"Important people in {topic}", f"Key figures in {topic}"]},
+            {"name": "current_state", "queries": [f"Current state of {topic}", f"{topic} today", f"Latest {topic} developments"]},
+            {"name": "future_trends", "queries": [f"Future of {topic}", f"{topic} predictions", f"{topic} trends"]},
+        ]
+        
+        # Category-specific branches
+        if category == "geography":
+            branches.extend([
+                {"name": "demographics", "queries": [
+                    f"Population of {topic}", f"People of {topic}", f"Demographics of {topic}"
+                ]},
+                {"name": "economy", "queries": [
+                    f"Economy of {topic}", f"Industries in {topic}", f"GDP of {topic}"
+                ]},
+                {"name": "culture", "queries": [
+                    f"Culture of {topic}", f"Traditions in {topic}", f"Arts in {topic}", f"Food of {topic}"
+                ]},
+                {"name": "government", "queries": [
+                    f"Government of {topic}", f"Politics of {topic}", f"Leadership of {topic}"
+                ]},
+                {"name": "geography", "queries": [
+                    f"Geography of {topic}", f"Climate of {topic}", f"Location of {topic}"
+                ]},
+                {"name": "language", "queries": [
+                    f"Language of {topic}", f"Official language of {topic}"
+                ]},
+                {"name": "cities", "queries": [
+                    f"Major cities in {topic}", f"Capital of {topic}", f"Important places in {topic}"
+                ]},
+                {"name": "tourism", "queries": [
+                    f"Tourism in {topic}", f"Attractions in {topic}", f"Visit {topic}"
+                ]},
+            ])
+        elif category == "technology":
+            branches.extend([
+                {"name": "how_it_works", "queries": [
+                    f"How {topic} works", f"{topic} explained", f"{topic} mechanism"
+                ]},
+                {"name": "applications", "queries": [
+                    f"Applications of {topic}", f"Uses of {topic}", f"{topic} examples"
+                ]},
+                {"name": "comparisons", "queries": [
+                    f"{topic} vs alternatives", f"Competitors to {topic}", f"{topic} comparison"
+                ]},
+                {"name": "implementation", "queries": [
+                    f"How to implement {topic}", f"{topic} tutorial", f"{topic} guide"
+                ]},
+                {"name": "limitations", "queries": [
+                    f"Limitations of {topic}", f"{topic} challenges", f"{topic} problems"
+                ]},
+                {"name": "best_practices", "queries": [
+                    f"{topic} best practices", f"{topic} tips", f"{topic} optimization"
+                ]},
+                {"name": "tools", "queries": [
+                    f"{topic} tools", f"{topic} software", f"{topic} frameworks"
+                ]},
+            ])
+        elif category == "person":
+            branches.extend([
+                {"name": "biography", "queries": [
+                    f"Biography of {topic}", f"{topic} life story", f"{topic} background"
+                ]},
+                {"name": "achievements", "queries": [
+                    f"Achievements of {topic}", f"{topic} contributions", f"{topic} awards"
+                ]},
+                {"name": "influence", "queries": [
+                    f"Influence of {topic}", f"{topic} legacy", f"{topic} impact"
+                ]},
+                {"name": "works", "queries": [
+                    f"Works by {topic}", f"{topic} publications", f"{topic} creations"
+                ]},
+                {"name": "quotes", "queries": [
+                    f"Quotes by {topic}", f"{topic} sayings", f"{topic} philosophy"
+                ]},
+                {"name": "personal_life", "queries": [
+                    f"{topic} personal life", f"{topic} family", f"{topic} education"
+                ]},
+            ])
+        elif category == "concept":
+            branches.extend([
+                {"name": "examples", "queries": [
+                    f"Examples of {topic}", f"{topic} in practice", f"{topic} illustration"
+                ]},
+                {"name": "related_concepts", "queries": [
+                    f"Related concepts to {topic}", f"{topic} and similar ideas"
+                ]},
+                {"name": "importance", "queries": [
+                    f"Importance of {topic}", f"Why {topic} matters", f"{topic} significance"
+                ]},
+                {"name": "criticism", "queries": [
+                    f"Criticism of {topic}", f"{topic} controversy", f"{topic} debate"
+                ]},
+            ])
+        
+        # Scale queries by depth
+        if multiplier > 1:
+            for branch in branches:
+                # Add more specific queries for deeper research
+                base_query = branch['queries'][0]
+                if depth == "expert":
+                    branch['queries'].append(f"{base_query} advanced")
+                    branch['queries'].append(f"{base_query} detailed analysis")
+                elif depth == "comprehensive":
+                    branch['queries'].append(f"{base_query} in depth")
+        
+        return {
+            "topic": topic,
+            "category": category,
+            "depth": depth,
+            "branches": branches[:int(len(branches) * min(multiplier, 1.5))],  # Cap at 1.5x
+            "estimated_insights": len(branches) * 3
+        }
+    
+    def _detect_category(self, topic: str) -> str:
+        """Detect the category of a topic"""
+        topic_lower = topic.lower()
+        
+        # Check geography indicators
+        if any(ind in topic_lower for ind in self.geography_indicators):
+            return "geography"
+        
+        # Check technology indicators
+        if any(ind in topic_lower for ind in self.technology_indicators):
+            return "technology"
+        
+        # Check person indicators
+        if any(ind in topic_lower for ind in self.person_indicators):
+            return "person"
+        
+        # Check if it looks like a person's name (capitalized words)
+        words = topic.split()
+        if len(words) >= 2 and all(w[0].isupper() for w in words if w):
+            return "person"
+        
+        # Use AI for classification if available
+        if self.ai_hub:
+            try:
+                prompt = f"""Classify this topic into ONE word: Geography, Technology, Person, Concept, Event, or Other.
+Topic: {topic}
+Category (one word):"""
+                
+                result = self.ai_hub.query_all_tutors(prompt)
+                response = result.get('synthesis', 'Other').strip().lower()
+                
+                if 'geography' in response or 'place' in response:
+                    return "geography"
+                elif 'tech' in response:
+                    return "technology"
+                elif 'person' in response:
+                    return "person"
+                elif 'concept' in response:
+                    return "concept"
+                elif 'event' in response:
+                    return "event"
+            except:
+                pass
+        
+        return "other"
+    
+    def _research_branch(self, topic: str, branch: Dict, depth: str) -> int:
+        """Research a single branch and create insights"""
+        insights_created = 0
+        
+        for query in branch['queries'][:5]:  # Limit to 5 queries per branch
+            try:
+                # Query AI tutors
+                if self.ai_hub:
+                    result = self.ai_hub.query_all_tutors(query)
+                    
+                    if result and result.get('synthesis'):
+                        response_text = result['synthesis']
+                        
+                        # Create insight
+                        insight_text = f"{topic} - {branch['name']}: {response_text[:300]}"
+                        
+                        self.si_core.add_insight(
+                            insight_text=insight_text,
+                            entity_type=f"research_{branch['name']}",
+                            entities=[topic, branch['name']],
+                            relationship="describes",
+                            source_topic=topic,
+                            target_topic=branch['name'],
+                            confidence=0.75,
+                            source_url="AI Tutor Network",
+                            source_title=f"Research: {topic} - {branch['name']}",
+                            source_type="topic_research"
+                        )
+                        insights_created += 1
+                        logger.debug(f"   ✅ Created insight for: {topic} - {branch['name']}")
+                
+                # Small delay to avoid rate limits
+                time.sleep(0.5)
+                
+            except Exception as e:
+                logger.error(f"Failed to research branch {branch['name']}: {e}")
+        
+        return insights_created
+    
+    def _synthesize_knowledge(self, topic: str, plan: Dict) -> bool:
+        """Synthesize cross-connections between branches"""
+        try:
+            if not self.ai_hub:
+                return False
+            
+            prompt = f"""Synthesize a comprehensive summary of {topic} covering:
+Category: {plan['category']}
+Depth: {plan['depth']}
+
+Provide a 2-3 paragraph expert summary."""
+            
+            result = self.ai_hub.query_all_tutors(prompt)
+            
+            if result and result.get('synthesis'):
+                synthesis = result['synthesis']
+                
+                self.si_core.add_insight(
+                    insight_text=f"COMPREHENSIVE SYNTHESIS: {topic}\n\n{synthesis[:500]}",
+                    entity_type="synthesis",
+                    entities=[topic, plan['category']],
+                    relationship="summarizes",
+                    source_topic=topic,
+                    target_topic="comprehensive_knowledge",
+                    confidence=0.9,
+                    source_url="AI Tutor Network",
+                    source_title=f"Synthesis: {topic}",
+                    source_type="topic_synthesis"
+                )
+                return True
+                
+        except Exception as e:
+            logger.error(f"Synthesis failed for {topic}: {e}")
+        
+        return False
+    
+    def extract_topic_from_question(self, question: str) -> str:
+        """Extract the main topic from a user question"""
+        try:
+            if self.ai_hub:
+                prompt = f"""Extract the MAIN topic (2-5 words) from this question. Return ONLY the topic, nothing else.
+Question: {question}
+Topic:"""
+                
+                result = self.ai_hub.query_all_tutors(prompt)
+                topic = result.get('synthesis', question[:50]).strip()
+                
+                # Clean up
+                topic = topic.replace('Topic:', '').strip()
+                if len(topic) > 50:
+                    topic = topic[:50]
+                
+                return topic
+        except:
+            pass
+        
+        # Fallback: simple extraction
+        words = question.lower().replace('what is', '').replace('who is', '').replace('tell me about', '')
+        words = words.replace('?', '').strip()
+        return words[:50]
+    
+    def queue_topic_for_research(self, topic: str, depth: str = "standard", source: str = "queued"):
+        """Add topic to research queue"""
+        self.research_queue.append({
+            "topic": topic,
+            "depth": depth,
+            "source": source,
+            "queued_at": datetime.now().isoformat()
+        })
+        logger.info(f"📋 Queued topic for research: {topic}")
+    
+    def process_queue(self, max_items: int = 5):
+        """Process queued research items"""
+        processed = 0
+        while self.research_queue and processed < max_items:
+            item = self.research_queue.pop(0)
+            self.research_topic(item['topic'], item['depth'], item['source'])
+            processed += 1
+        return processed
+    
+    def get_status(self) -> Dict:
+        """Get orchestrator status"""
+        return {
+            "researched_topics": len(self.researched_topics),
+            "queue_size": len(self.research_queue),
+            "history": self.research_history[-10:],
+            "total_insights_created": sum(h.get('insights_created', 0) for h in self.research_history)
+        }
 
 # ============================================================================
 # KILLSWITCH MONITOR
@@ -2042,6 +2426,18 @@ class UnifiedEvolutionEngine:
             tutor_manager=self.tutor_manager,
             intelligence_bridge=self.intelligence_bridge
         )
+
+
+        # ============================================================
+        # TOPIC RESEARCH ORCHESTRATOR - Comprehensive Knowledge Expansion
+        # ============================================================
+        self.topic_researcher = TopicResearchOrchestrator(
+            si_core=self.si_core,
+            ai_hub=self.ai_hub,
+            knowledge_graph=self.knowledge_graph,
+            dmai_app=self
+        )
+        logger.info("🔬 Topic Research Orchestrator initialized")
 
         self._patch_ai_discovery()
 
@@ -4087,11 +4483,23 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                         source_type=source_type
                     )
                     logger.info(f"📚 Saved external response to knowledge base: {source_type}")
+                    
+                    # TRIGGER TOPIC RESEARCH for comprehensive learning
+                    if hasattr(self, 'topic_researcher') and self.topic_researcher:
+                        topic = self.topic_researcher.extract_topic_from_question(message)
+                        if topic and len(topic) > 2:
+                            import threading
+                            def research():
+                                self.topic_researcher.research_topic(topic, depth="standard", source="user_question")
+                            threading.Thread(target=research, daemon=True).start()
+                            logger.info(f"🔬 Scheduled topic research: {topic}")
+                            
                 except Exception as e:
                     logger.error(f"Failed to save external knowledge: {e}")
             
             # Return the response or initiate research
             if response:
+                return f"{response}\n\n_[Learned from {source_type}]_"
                 return f"{response}\n\n_[Learned from {source_type}]_"
             
             # FIFTH: Initiate deep research for next time
