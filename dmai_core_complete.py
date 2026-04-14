@@ -1488,6 +1488,291 @@ Topic:"""
             "total_insights_created": sum(h.get('insights_created', 0) for h in self.research_history)
         }
 
+
+# ============================================================================
+# KNOWLEDGE GAP ANALYZER - Autonomous Self-Learning & Verification
+# ============================================================================
+
+class KnowledgeGapAnalyzer:
+    """Identifies and fills gaps in DMAI's knowledge autonomously"""
+    
+    def __init__(self, si_core, topic_researcher=None, ai_hub=None, knowledge_graph=None, dmai_app=None):
+        self.si_core = si_core
+        self.topic_researcher = topic_researcher
+        self.ai_hub = ai_hub
+        self.knowledge_graph = knowledge_graph
+        self.dmai_app = dmai_app
+        
+        # Track ingestion attempts for retry
+        self.ingestion_attempts = {}  # url -> {attempts, last_attempt, status, insights_count}
+        self.pending_retries = []
+        
+        # Core knowledge domains DMAI should master
+        self.core_domains = [
+            "artificial_intelligence", "machine_learning", "neural_networks",
+            "natural_language_processing", "computer_vision", "robotics",
+            "self_improving_systems", "autonomous_agents", "agi_architecture",
+            "knowledge_representation", "reasoning_systems", "planning_algorithms",
+            "self_funding_systems", "cryptocurrency", "smart_contracts",
+            "web_development", "api_design", "database_systems",
+            "security", "encryption", "privacy", "ethics", "alignment",
+            "mcp", "agent_protocol", "inter_agent_communication"
+        ]
+        
+        # Load saved state if exists
+        self._load_state()
+        
+        logger.info("🔍 Knowledge Gap Analyzer initialized")
+    
+    def _load_state(self):
+        """Load saved analyzer state"""
+        try:
+            state_file = Path("data/gap_analyzer_state.json")
+            if state_file.exists():
+                with open(state_file, 'r') as f:
+                    data = json.load(f)
+                    self.ingestion_attempts = data.get('ingestion_attempts', {})
+                    logger.info(f"📂 Loaded gap analyzer state: {len(self.ingestion_attempts)} tracked ingestions")
+        except Exception as e:
+            logger.warning(f"Could not load gap analyzer state: {e}")
+    
+    def _save_state(self):
+        """Save analyzer state"""
+        try:
+            state_file = Path("data/gap_analyzer_state.json")
+            state_file.parent.mkdir(exist_ok=True)
+            with open(state_file, 'w') as f:
+                json.dump({
+                    'ingestion_attempts': self.ingestion_attempts,
+                    'last_updated': datetime.now().isoformat()
+                }, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save gap analyzer state: {e}")
+    
+    def analyze_and_fill_gaps(self) -> Dict:
+        """Main entry point - analyze gaps and queue research"""
+        logger.info("🔍 Starting knowledge gap analysis...")
+        
+        # 1. Check ingestion completeness
+        ingestion_results = self._check_pending_ingestions()
+        
+        # 2. Analyze knowledge gaps
+        gaps = self._identify_knowledge_gaps()
+        
+        # 3. Queue research for gaps
+        research_queued = 0
+        if self.topic_researcher:
+            for gap in gaps[:5]:  # Limit per cycle
+                self.topic_researcher.queue_topic_for_research(
+                    gap['topic'], 
+                    depth=gap.get('depth', 'standard'),
+                    source="gap_analysis"
+                )
+                research_queued += 1
+        
+        # 4. Check syllabus progress
+        syllabus_status = self._check_syllabus_progress()
+        
+        # 5. Verify existing knowledge quality
+        quality_issues = self._verify_knowledge_quality()
+        
+        # 6. Save state
+        self._save_state()
+        
+        result = {
+            "ingestions_checked": len(ingestion_results),
+            "ingestions_retried": sum(1 for r in ingestion_results if r.get('retried')),
+            "gaps_identified": len(gaps),
+            "research_queued": research_queued,
+            "quality_issues": len(quality_issues),
+            "syllabus_status": syllabus_status,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        logger.info(f"✅ Gap analysis complete: {result['gaps_identified']} gaps, {result['quality_issues']} quality issues")
+        return result
+    
+    def _check_pending_ingestions(self) -> List[Dict]:
+        """Check if previous ingestions need retry"""
+        results = []
+        
+        for url, attempt_info in list(self.ingestion_attempts.items()):
+            # Count insights for this URL
+            insights_count = self._count_insights_for_source(url)
+            attempt_info['insights_count'] = insights_count
+            
+            # Shallow ingestion threshold: less than 3 insights
+            if insights_count < 3 and attempt_info.get('attempts', 0) < 5:
+                logger.info(f"🔄 Shallow ingestion detected for {url} ({insights_count} insights)")
+                
+                attempt_info['attempts'] = attempt_info.get('attempts', 0) + 1
+                attempt_info['last_attempt'] = datetime.now().isoformat()
+                attempt_info['status'] = 'retrying'
+                
+                results.append({
+                    'url': url,
+                    'retried': True,
+                    'attempts': attempt_info['attempts'],
+                    'previous_insights': insights_count
+                })
+                
+                self.pending_retries.append(url)
+            
+            # Remove from tracking if fully ingested
+            if insights_count >= 10:
+                attempt_info['status'] = 'complete'
+        
+        return results
+    
+    def _count_insights_for_source(self, source_url: str) -> int:
+        """Count how many insights reference a given source URL"""
+        count = 0
+        for insight in self.si_core.insights.values():
+            if hasattr(insight, 'source_url') and insight.source_url == source_url:
+                count += 1
+            elif hasattr(insight, 'insight_text') and source_url in insight.insight_text:
+                count += 1
+        return count
+    
+    def _identify_knowledge_gaps(self) -> List[Dict]:
+        """Identify missing or weak knowledge areas"""
+        gaps = []
+        
+        # Get all current insights
+        insights = list(self.si_core.insights.values())
+        insight_texts = [i.insight_text.lower() for i in insights]
+        all_text = " ".join(insight_texts)
+        
+        # Check each core domain
+        for domain in self.core_domains:
+            domain_formatted = domain.replace('_', ' ')
+            domain_present = any(domain_formatted in text for text in insight_texts)
+            
+            if not domain_present:
+                gaps.append({
+                    'topic': domain_formatted.title(),
+                    'depth': 'comprehensive',
+                    'reason': 'missing_core_domain',
+                    'priority': 'high'
+                })
+            else:
+                # Check depth
+                domain_insights = [i for i in insights if domain_formatted in i.insight_text.lower()]
+                if len(domain_insights) < 5:
+                    gaps.append({
+                        'topic': domain_formatted.title(),
+                        'depth': 'standard',
+                        'reason': 'shallow_coverage',
+                        'priority': 'medium',
+                        'current_insights': len(domain_insights)
+                    })
+        
+        return gaps
+    
+    def _check_syllabus_progress(self) -> Dict:
+        """Check syllabus learning progress"""
+        try:
+            if self.dmai_app and hasattr(self.dmai_app.evolution, 'stage_learner'):
+                learner = self.dmai_app.evolution.stage_learner
+                return {
+                    "current_stage": getattr(learner, 'current_stage', 'Unknown'),
+                    "mastered_topics": sum(len(v) for v in getattr(learner, 'learned_topics', {}).values()),
+                    "unmastered_count": len(learner.get_priority_topics(learner.current_stage) if hasattr(learner, 'get_priority_topics') else [])
+                }
+        except Exception as e:
+            logger.error(f"Failed to check syllabus: {e}")
+        
+        return {"status": "unavailable"}
+    
+    def _verify_knowledge_quality(self) -> List[Dict]:
+        """Verify existing knowledge quality"""
+        issues = []
+        
+        for insight_id, insight in self.si_core.insights.items():
+            # Check for placeholder/incomplete insights
+            text = insight.insight_text.lower()
+            if len(text) < 50:
+                issues.append({
+                    'insight_id': insight_id,
+                    'issue': 'too_short',
+                    'text': text[:50]
+                })
+            elif 'error' in text or 'failed' in text:
+                issues.append({
+                    'insight_id': insight_id,
+                    'issue': 'error_content',
+                    'text': text[:100]
+                })
+        
+        return issues
+    
+    def record_ingestion_attempt(self, url: str, status: str = "pending") -> Dict:
+        """Record an ingestion attempt for later verification"""
+        if url not in self.ingestion_attempts:
+            self.ingestion_attempts[url] = {
+                'attempts': 1,
+                'first_attempt': datetime.now().isoformat(),
+                'last_attempt': datetime.now().isoformat(),
+                'status': status,
+                'insights_count': 0
+            }
+        else:
+            self.ingestion_attempts[url]['attempts'] += 1
+            self.ingestion_attempts[url]['last_attempt'] = datetime.now().isoformat()
+            self.ingestion_attempts[url]['status'] = status
+        
+        self._save_state()
+        logger.info(f"📝 Recorded ingestion: {url} (attempt #{self.ingestion_attempts[url]['attempts']})")
+        
+        return self.ingestion_attempts[url]
+    
+    def get_pending_retries(self) -> List[str]:
+        """Get list of URLs that need retry"""
+        return self.pending_retries
+    
+    def get_status(self) -> Dict:
+        """Get analyzer status"""
+        return {
+            "tracked_ingestions": len(self.ingestion_attempts),
+            "pending_retries": len(self.pending_retries),
+            "shallow_ingestions": sum(1 for v in self.ingestion_attempts.values() 
+                                     if v.get('insights_count', 0) < 3),
+            "complete_ingestions": sum(1 for v in self.ingestion_attempts.values() 
+                                      if v.get('insights_count', 0) >= 10),
+            "core_domains_covered": self._calculate_domain_coverage()
+        }
+    
+    def _calculate_domain_coverage(self) -> float:
+        """Calculate percentage of core domains covered"""
+        insights = list(self.si_core.insights.values())
+        insight_texts = [i.insight_text.lower() for i in insights]
+        all_text = " ".join(insight_texts)
+        
+        covered = 0
+        for domain in self.core_domains:
+            if domain.replace('_', ' ') in all_text:
+                covered += 1
+        
+        return round((covered / len(self.core_domains)) * 100, 1) if self.core_domains else 0
+    
+    def run_daily_analysis(self):
+        """Run in background thread - daily analysis"""
+        import threading
+        import time
+        
+        def analysis_loop():
+            while True:
+                time.sleep(86400)  # 24 hours
+                try:
+                    self.analyze_and_fill_gaps()
+                except Exception as e:
+                    logger.error(f"Daily gap analysis failed: {e}")
+        
+        thread = threading.Thread(target=analysis_loop, daemon=True)
+        thread.start()
+        logger.info("📅 Daily gap analysis scheduled")
+        return thread
+
 # ============================================================================
 # KILLSWITCH MONITOR
 # ============================================================================
@@ -2438,6 +2723,22 @@ class UnifiedEvolutionEngine:
             dmai_app=self
         )
         logger.info("🔬 Topic Research Orchestrator initialized")
+
+
+        # ============================================================
+        # KNOWLEDGE GAP ANALYZER - Autonomous Self-Learning & Verification
+        # ============================================================
+        self.gap_analyzer = KnowledgeGapAnalyzer(
+            si_core=self.si_core,
+            topic_researcher=self.topic_researcher,
+            ai_hub=self.ai_hub,
+            knowledge_graph=self.knowledge_graph,
+            dmai_app=self
+        )
+        logger.info("🔍 Knowledge Gap Analyzer initialized")
+        
+        # Start daily gap analysis in background
+        self.gap_analyzer.run_daily_analysis()
 
         self._patch_ai_discovery()
 
@@ -4621,6 +4922,48 @@ Type /knowledge more for more."""
 
 {chr(10).join(insight_texts)}"""
             return "📚 No knowledge insights yet."
+
+        
+        elif cmd == '/gaps':
+            if hasattr(self, 'evolution') and hasattr(self.evolution, 'gap_analyzer'):
+                status = self.evolution.gap_analyzer.get_status()
+                return f"""🔍 **Knowledge Gap Analysis**
+
+**Tracked Ingestions:** {status['tracked_ingestions']}
+**Pending Retries:** {status['pending_retries']}
+**Shallow Ingestions:** {status['shallow_ingestions']}
+**Complete Ingestions:** {status['complete_ingestions']}
+**Core Domains Covered:** {status['core_domains_covered']}%
+
+Use `/gaps analyze` to run analysis now."""
+            elif hasattr(self, 'gap_analyzer'):
+                status = self.gap_analyzer.get_status()
+                return f"""🔍 **Knowledge Gap Analysis**
+
+**Tracked Ingestions:** {status['tracked_ingestions']}
+**Pending Retries:** {status['pending_retries']}
+**Shallow Ingestions:** {status['shallow_ingestions']}
+**Complete Ingestions:** {status['complete_ingestions']}
+**Core Domains Covered:** {status['core_domains_covered']}%"""
+            else:
+                return "🔍 Gap analyzer not initialized."
+        
+        elif cmd == '/gaps analyze':
+            if hasattr(self, 'evolution') and hasattr(self.evolution, 'gap_analyzer'):
+                result = self.evolution.gap_analyzer.analyze_and_fill_gaps()
+                return f"""🔍 **Gap Analysis Complete**
+
+**Ingestions Checked:** {result['ingestions_checked']}
+**Ingestions Retried:** {result['ingestions_retried']}
+**Gaps Identified:** {result['gaps_identified']}
+**Research Queued:** {result['research_queued']}
+**Quality Issues:** {result['quality_issues']}
+**Syllabus:** {result['syllabus_status'].get('current_stage', 'Unknown')} - {result['syllabus_status'].get('mastered_topics', 0)} topics mastered"""
+            elif hasattr(self, 'gap_analyzer'):
+                result = self.gap_analyzer.analyze_and_fill_gaps()
+                return f"🔍 Gap analysis complete. {result['gaps_identified']} gaps identified, {result['research_queued']} queued."
+            else:
+                return "🔍 Gap analyzer not initialized."
         
         elif cmd.startswith('/ingest'):
             source = command[8:].strip()
@@ -4653,6 +4996,12 @@ DMAI will analyze and learn from the repository."""
                             source_type="github_ingest"
                         )
                         logger.info(f"✅ Created ingestion insight for: {source}")
+                        
+                        # Track ingestion attempt for gap analyzer
+                        if hasattr(self, 'evolution') and hasattr(self.evolution, 'gap_analyzer'):
+                            self.evolution.gap_analyzer.record_ingestion_attempt(source, "pending")
+                        elif hasattr(self, 'gap_analyzer'):
+                            self.gap_analyzer.record_ingestion_attempt(source, "pending")
                     
                     # Then run the actual ingestion
                     if hasattr(self, 'autonomous_ingestor'):
@@ -4711,6 +5060,8 @@ DMAI will analyze and learn from the repository."""
 /knowledge more - View all knowledge
 /ingest <url> - Ingest and learn from GitHub repo
 /neurons - Show neuron and synapse counts
+/gaps - Show knowledge gap analysis status
+/gaps analyze - Run gap analysis now
 /help - This help message"""
         
         else:
