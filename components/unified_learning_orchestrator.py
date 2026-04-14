@@ -65,13 +65,16 @@ class UnifiedLearningOrchestrator:
         try:
             # 1. Create insight neuron in SI Core
             insight_id = self.si_core.add_insight(
-                insight_text=insight_text,
+ 	        insight_text=insight_text,
                 entity_type=system,
                 entities=[concept] + details.get('tags', []),
                 relationship="mastered",
                 source_topic=system,
                 target_topic=details.get('category', 'general'),
-                confidence=details.get('confidence', 0.85)
+                confidence=details.get('confidence', 0.85),
+                source_url=details.get('source_url'),
+                source_title=f"{system}: {concept}",
+                source_type=system
             )
             
             # 2. Add to knowledge graph
@@ -131,7 +134,10 @@ class UnifiedLearningOrchestrator:
             relationship="contains",
             source_topic=system,
             target_topic=category or "knowledge_cluster",
-            confidence=0.7
+            confidence=0.7,
+            source_url=None,
+            source_title=f"Compressed {system} knowledge cluster #{cluster_num}",
+            source_type=f"{system}_compressed"
         )
         
         logger.info(f"📦 Created compressed insight for {len(concepts)} {system} concepts: {insight_id}")

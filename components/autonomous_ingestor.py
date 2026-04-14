@@ -499,7 +499,10 @@ class {name}:
                     relationship="implemented",
                     source_topic="AutonomousDeveloper",
                     target_topic="DMAI_Capabilities",
-                    confidence=0.9
+                    confidence=0.9,
+                    source_url=None,
+                    source_title=f"Autonomous Implementation: {filename}",
+                    source_type="autonomous_developer"
                 )
                 result['insights_created'].append(insight_id)
         
