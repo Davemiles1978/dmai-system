@@ -4067,10 +4067,17 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             # If we got a response from external source, SAVE IT as knowledge
             if response and source_type and hasattr(self, 'si_core') and self.si_core:
                 try:
+                    # Ensure response is a string
+                    response_str = str(response) if not isinstance(response, str) else response
+                    
+                    # Create safe entity strings (first few words only)
+                    message_entity = message[:30].strip()
+                    response_entity = response_str[:30].strip().replace('\n', ' ')
+                    
                     self.si_core.add_insight(
-                        insight_text=f"Q: {message[:100]} A: {response[:200]}",
+                        insight_text=f"Q: {message[:100]} A: {response_str[:200]}",
                         entity_type="learned_response",
-                        entities=[message[:50], response[:50]],
+                        entities=[message_entity, response_entity],
                         relationship="answers",
                         source_topic="user_query",
                         target_topic="knowledge_acquisition",
