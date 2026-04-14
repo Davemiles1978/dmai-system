@@ -200,15 +200,6 @@ REBUILD_FLAG_FILE = "data/rebuild.flag"
 class InsightNeuron:
     """A neuron representing a SPECIFIC insight, not a broad topic"""
     
-    
-    def __del__(self):
-        """Clean up Neo4j connections on shutdown"""
-        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
-            try:
-                self.neo4j_driver.close()
-            except:
-                pass
-
     def __init__(self, 
                  insight_text: str,
                  entity_type: str,
@@ -216,16 +207,22 @@ class InsightNeuron:
                  relationship: str,
                  confidence: float,
                  source_topic: str,
-                 target_topic: str):
+                 target_topic: str,
+                 source_url: str = None,      # NEW: Where this knowledge came from
+                 source_title: str = None,    # NEW: Title of the source
+                 source_type: str = None):    # NEW: book/article/web/research/ingest
         
         self.id = f"insight_{abs(hash(insight_text))}_{int(time.time())}"
         self.insight_text = insight_text
-        self.entity_type = entity_type  # causal_relationship, correlation, pattern, rule
+        self.entity_type = entity_type
         self.entities = entities
-        self.relationship = relationship  # increases, decreases, causes, prevents, correlates
+        self.relationship = relationship
         self.confidence = confidence
         self.source_topic = source_topic
         self.target_topic = target_topic
+        self.source_url = source_url          # NEW
+        self.source_title = source_title      # NEW
+        self.source_type = source_type        # NEW
         self.created_at = datetime.now().isoformat()
         self.occurrence_count = 1
         self.last_used = datetime.now().isoformat()
@@ -240,6 +237,9 @@ class InsightNeuron:
             'confidence': self.confidence,
             'source_topic': self.source_topic,
             'target_topic': self.target_topic,
+            'source_url': self.source_url,           # NEW
+            'source_title': self.source_title,       # NEW
+            'source_type': self.source_type,         # NEW
             'created_at': self.created_at,
             'occurrence_count': self.occurrence_count,
             'last_used': self.last_used
@@ -254,7 +254,10 @@ class InsightNeuron:
             relationship=data['relationship'],
             confidence=data['confidence'],
             source_topic=data['source_topic'],
-            target_topic=data['target_topic']
+            target_topic=data['target_topic'],
+            source_url=data.get('source_url'),        # NEW
+            source_title=data.get('source_title'),    # NEW
+            source_type=data.get('source_type')       # NEW
         )
         neuron.id = data['id']
         neuron.created_at = data['created_at']
@@ -271,7 +274,6 @@ class InsightNeuron:
         self.confidence = min(1.0, self.confidence + 0.05)
         self.occurrence_count += 1
         self.last_used = datetime.now().isoformat()
-
 
 class SyntheticIntelligenceCore:
     """Multi-granular SI core with insight-level neurons"""
@@ -374,7 +376,10 @@ class SyntheticIntelligenceCore:
                             relationship='stored',
                             source_topic='neo4j_sync',
                             target_topic='knowledge_base',
-                            confidence=float(insight['confidence']) if insight['confidence'] else 0.5
+                            confidence=float(insight['confidence']) if insight['confidence'] else 0.5,
+                            source_url=None,
+                            source_title='Neo4j Database Sync',
+                            source_type='neo4j_import'
                         )
                         added_count += 1
                 
@@ -385,13 +390,16 @@ class SyntheticIntelligenceCore:
             logger.error(f"Neo4j sync failed: {e}")
     
     def add_insight(self,
-                    insight_text: str,
-                    entity_type: str,
-                    entities: List[str],
-                    relationship: str,
-                    source_topic: str,
-                    target_topic: str,   
-                    confidence: float = 0.5) -> str:
+                insight_text: str,
+                entity_type: str,
+                entities: List[str],
+                relationship: str,
+                source_topic: str,
+                target_topic: str,   
+                confidence: float = 0.5,
+                source_url: str = None,      # NEW
+                source_title: str = None,    # NEW
+                source_type: str = None) -> str:  # NEW
         """
 
         # ============================================================
@@ -456,7 +464,8 @@ class SyntheticIntelligenceCore:
         # Create new insight
         insight = InsightNeuron(
             insight_text, entity_type, entities, 
-            relationship, confidence, source_topic, target_topic
+            relationship, confidence, source_topic, target_topic,
+            source_url, source_title, source_type
         )
         
         # Lock when modifying the dictionary
@@ -4069,19 +4078,59 @@ Example: `/ingest https://github.com/huggingface/diffusers`
 
 DMAI will analyze and learn from the repository."""
             
-            # Run ingestion in background
+            # Run ingestion in background with proper insight creation
             def do_ingest():
                 try:
-                    if hasattr(self, 'evolution') and hasattr(self.evolution, 'autonomous_ingestor'):
+                    logger.info(f"📥 Starting ingestion of: {source}")
+                    
+                    # First, create an insight about the ingestion itself
+                    if hasattr(self.evolution, 'si_core'):
+                        self.evolution.si_core.add_insight(
+                            insight_text=f"Ingested and analyzed repository: {source}",
+                            entity_type="repository_ingestion",
+                            entities=["code", "repository", source.split('/')[-1]],
+                            relationship="analyzed",
+                            source_topic="code_analysis",
+                            target_topic="knowledge_acquisition",
+                            confidence=0.9,
+                            source_url=source,
+                            source_title=f"GitHub: {source.split('/')[-1]}",
+                            source_type="github_ingest"
+                        )
+                        logger.info(f"✅ Created ingestion insight for: {source}")
+                    
+                    # Then run the actual ingestion
+                    if hasattr(self.evolution, 'autonomous_ingestor'):
                         result = self.evolution.autonomous_ingestor.discover_and_ingest(source)
-                        if result and result.get('capabilities_ingested'):
-                            print(f"✅ Ingested: {result['capabilities_ingested']} from {source}")
+                        if result:
+                            capabilities = result.get('capabilities_ingested', 0)
+                            logger.info(f"✅ Ingested {capabilities} capabilities from {source}")
+                            
+                            # Create insight for each capability
+                            if hasattr(self.evolution, 'si_core') and result.get('details'):
+                                for detail in result['details'][:10]:  # Limit to 10 insights
+                                    self.evolution.si_core.add_insight(
+                                        insight_text=f"Learned from {source}: {detail.get('description', 'code pattern')}",
+                                        entity_type="code_learning",
+                                        entities=["code", detail.get('type', 'pattern')],
+                                        relationship="implements",
+                                        source_topic="software_development",
+                                        target_topic="code_knowledge",
+                                        confidence=0.7,
+                                        source_url=source,
+                                        source_title=f"GitHub: {source.split('/')[-1]}",
+                                        source_type="github_ingest"
+                                    )
+                        else:
+                            logger.warning(f"No capabilities ingested from {source}")
                 except Exception as e:
-                    print(f"Ingestion failed: {e}")
+                    logger.error(f"Ingestion failed for {source}: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
             
             import threading
             threading.Thread(target=do_ingest, daemon=True).start()
-            return f"📥 **Ingesting: {source}**\n\nAnalyzing code and learning...\n\nI'll add what I learn to my knowledge base."
+            return f"📥 **Ingesting: {source}**\n\nAnalyzing code and learning...\n\nI'll create insights from what I learn."
 
         elif cmd == '/neurons':
             try:
