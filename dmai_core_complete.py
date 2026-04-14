@@ -5461,118 +5461,6 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e), 'success': False}), 500
 
-        @self.app.route('/knowledge-graph')
-        def knowledge_graph(self):
-            from flask import render_template_string
-            return render_template_string('''
-<!DOCTYPE html>
-<html>
-<head>
-    <title>DMAI Synthetic Brain</title>
-    <meta charset="UTF-8">
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:monospace;background:#0a0a0a;overflow:hidden;color:#fff}
-        #info{position:absolute;top:20px;left:20px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:8px;border-left:3px solid #0f0}
-        #stats{position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:8px;text-align:right}
-        .stat-value{font-size:1.2rem;font-weight:bold;color:#0f0}
-        .legend{position:absolute;bottom:20px;right:20px;background:rgba(0,0,0,0.85);padding:12px 18px;border-radius:8px;font-size:0.7rem}
-        .legend-color{width:12px;height:12px;border-radius:2px;margin-right:8px;display:inline-block}
-        .instruction{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.5);padding:5px 12px;border-radius:15px;font-size:0.6rem}
-    </style>
-</head>
-<body>
-<div id="info"><h1>🧠 DMAI Synthetic Brain</h1><p>3D Neural Network | Subject matter color-coded</p></div>
-<div id="stats"><div><span class="stat-value" id="neuronCount">0</span> Neurons</div><div><span class="stat-value" id="synapseCount">0</span> Synapses</div><div><span id="lastUpdate">-</span></div></div>
-<div class="legend"><h3>🎨 Colors</h3><div><span class="legend-color" style="background:#33ff33"></span> Core/LLM</div><div><span class="legend-color" style="background:#ff33ff"></span> Artistic</div><div><span class="legend-color" style="background:#ffcc33"></span> Wealth</div><div><span class="legend-color" style="background:#33ccff"></span> Accelerator</div></div>
-<div class="instruction">🖱️ Drag to rotate | Scroll to zoom</div>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}</script>
-<script type="module">
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
-const API_URL = "/api/brain/3d_data";
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050510);
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(18, 14, 22);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-const labelRenderer = new CSS2DRenderer();
-labelRenderer.setSize(window.innerWidth, window.innerHeight);
-labelRenderer.domElement.style.position = "absolute";
-document.body.appendChild(labelRenderer.domElement);
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.autoRotate = true;
-controls.enableZoom = true;
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(2, 5, 3);
-scene.add(light);
-let neuronMap = new Map();
-let lines = [];
-async function fetchData() {
-    try {
-        const r = await fetch(API_URL);
-        const d = await r.json();
-        if (!d.success || !d.neurons) return;
-        document.getElementById("neuronCount").textContent = d.total_neurons || 0;
-        document.getElementById("synapseCount").textContent = d.total_synapses || 0;
-        document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString();
-        neuronMap.forEach(obj => { scene.remove(obj.mesh); if (obj.label) scene.remove(obj.label); });
-        neuronMap.clear();
-        lines.forEach(l => scene.remove(l));
-        lines = [];
-        d.neurons.forEach(neuron => {
-            const color = 0x33ff33;
-            const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), new THREE.MeshStandardMaterial({ color: color }));
-            sphere.position.set(neuron.x || 0, neuron.y || 0, neuron.z || 0);
-            scene.add(sphere);
-            const div = document.createElement("div");
-            let labelText = neuron.label || "Neuron";
-            if (labelText.length > 30) labelText = labelText.substring(0, 27) + "...";
-            div.textContent = labelText;
-            div.style.cssText = "color:#0f0;font-size:10px;background:rgba(0,0,0,0.8);padding:2px 6px;border-radius:12px;border:1px solid #0f0;white-space:nowrap;";
-            const label = new CSS2DObject(div);
-            label.position.set(neuron.x || 0, (neuron.y || 0) + 0.7, neuron.z || 0);
-            scene.add(label);
-            neuronMap.set(neuron.id, { mesh: sphere, label: label });
-        });
-        if (d.synapses) {
-            d.synapses.forEach(syn => {
-                const src = neuronMap.get(syn.source);
-                const tgt = neuronMap.get(syn.target);
-                if (src && tgt) {
-                    const points = [src.mesh.position.clone(), tgt.mesh.position.clone()];
-                    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0x88ff88, linewidth: 2 }));
-                    scene.add(line);
-                    lines.push(line);
-                }
-            });
-        }
-    } catch(e) { console.error(e); }
-}
-fetchData();
-setInterval(fetchData, 10000);
-function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-    labelRenderer.render(scene, camera);
-}
-animate();
-window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    labelRenderer.setSize(window.innerWidth, window.innerHeight);
-});
-</script>
-</body>
-</html>
-            ''')
-    
     def _get_category_color(self, category):
         """Return color for category (preserving your existing scheme)"""
         colors = {
@@ -7691,6 +7579,118 @@ def get_dmai_app():
     return _dmai_app_instance
 
 app = get_dmai_app().app
+
+@app.route('/knowledge-graph')
+def knowledge_graph():
+    from flask import render_template_string
+    return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMAI Synthetic Brain</title>
+    <meta charset="UTF-8">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:monospace;background:#0a0a0a;overflow:hidden;color:#fff}
+        #info{position:absolute;top:20px;left:20px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:8px;border-left:3px solid #0f0}
+        #stats{position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:8px;text-align:right}
+        .stat-value{font-size:1.2rem;font-weight:bold;color:#0f0}
+        .legend{position:absolute;bottom:20px;right:20px;background:rgba(0,0,0,0.85);padding:12px 18px;border-radius:8px;font-size:0.7rem}
+        .legend-color{width:12px;height:12px;border-radius:2px;margin-right:8px;display:inline-block}
+        .instruction{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.5);padding:5px 12px;border-radius:15px;font-size:0.6rem}
+    </style>
+</head>
+<body>
+<div id="info"><h1>🧠 DMAI Synthetic Brain</h1><p>3D Neural Network | Subject matter color-coded</p></div>
+<div id="stats"><div><span class="stat-value" id="neuronCount">0</span> Neurons</div><div><span class="stat-value" id="synapseCount">0</span> Synapses</div><div><span id="lastUpdate">-</span></div></div>
+<div class="legend"><h3>🎨 Colors</h3><div><span class="legend-color" style="background:#33ff33"></span> Core/LLM</div><div><span class="legend-color" style="background:#ff33ff"></span> Artistic</div><div><span class="legend-color" style="background:#ffcc33"></span> Wealth</div><div><span class="legend-color" style="background:#33ccff"></span> Accelerator</div></div>
+<div class="instruction">🖱️ Drag to rotate | Scroll to zoom</div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+const API_URL = "/api/brain/3d_data";
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050510);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(18, 14, 22);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = "absolute";
+document.body.appendChild(labelRenderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.autoRotate = true;
+controls.enableZoom = true;
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(2, 5, 3);
+scene.add(light);
+let neuronMap = new Map();
+let lines = [];
+async function fetchData() {
+    try {
+        const r = await fetch(API_URL);
+        const d = await r.json();
+        if (!d.success || !d.neurons) return;
+        document.getElementById("neuronCount").textContent = d.total_neurons || 0;
+        document.getElementById("synapseCount").textContent = d.total_synapses || 0;
+        document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString();
+        neuronMap.forEach(obj => { scene.remove(obj.mesh); if (obj.label) scene.remove(obj.label); });
+        neuronMap.clear();
+        lines.forEach(l => scene.remove(l));
+        lines = [];
+        d.neurons.forEach(neuron => {
+            const color = 0x33ff33;
+            const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), new THREE.MeshStandardMaterial({ color: color }));
+            sphere.position.set(neuron.x || 0, neuron.y || 0, neuron.z || 0);
+            scene.add(sphere);
+            const div = document.createElement("div");
+            let labelText = neuron.label || "Neuron";
+            if (labelText.length > 30) labelText = labelText.substring(0, 27) + "...";
+            div.textContent = labelText;
+            div.style.cssText = "color:#0f0;font-size:10px;background:rgba(0,0,0,0.8);padding:2px 6px;border-radius:12px;border:1px solid #0f0;white-space:nowrap;";
+            const label = new CSS2DObject(div);
+            label.position.set(neuron.x || 0, (neuron.y || 0) + 0.7, neuron.z || 0);
+            scene.add(label);
+            neuronMap.set(neuron.id, { mesh: sphere, label: label });
+        });
+        if (d.synapses) {
+            d.synapses.forEach(syn => {
+                const src = neuronMap.get(syn.source);
+                const tgt = neuronMap.get(syn.target);
+                if (src && tgt) {
+                    const points = [src.mesh.position.clone(), tgt.mesh.position.clone()];
+                    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0x88ff88, linewidth: 2 }));
+                    scene.add(line);
+                    lines.push(line);
+                }
+            });
+        }
+    } catch(e) { console.error(e); }
+}
+fetchData();
+setInterval(fetchData, 10000);
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+}
+animate();
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
+    ''')
 
 if __name__ == '__main__':
     import socket
