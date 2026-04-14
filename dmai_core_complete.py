@@ -3999,15 +3999,22 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             return None
     
     def _generate_ai_response(self, user: str, message: str) -> str:
-        """Generate response using AI tutors"""
+        """Generate response using own knowledge first, then AI tutors"""
         try:
-            # Try to use AI hub if available
+            # FIRST: Check own knowledge base
+            if hasattr(self, 'si_core') and self.si_core:
+                # Search insights for relevant knowledge
+                relevant = self._query_knowledge_base(message)
+                if relevant:
+                    return relevant
+            
+            # SECOND: Try to use AI hub if available
             if hasattr(self, 'ai_hub') and self.ai_hub:
                 response = self.ai_hub.query(message)
                 if response:
                     return response
             
-            # Try using tutor manager
+            # THIRD: Try using tutor manager
             if hasattr(self, 'tutor_manager') and self.tutor_manager:
                 tutors = self.tutor_manager.get_active_tutors()
                 if tutors:
@@ -4020,11 +4027,43 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                         except:
                             continue
             
-            # Fallback response
+            # FOURTH: Fallback response
             return f"I understand you're asking about: {message[:100]}. I'm processing this through my learning systems."
         except Exception as e:
             logger.error(f"AI response generation error: {e}")
             return "I'm still learning about that. Could you rephrase or ask something else?"
+    
+    def _query_knowledge_base(self, message: str) -> str:
+        """Query DMAI's own knowledge base for relevant insights"""
+        try:
+            if not hasattr(self, 'si_core') or not self.si_core:
+                return None
+            
+            # Get all insights
+            insights = list(self.si_core.insights.values())
+            if not insights:
+                return None
+            
+            # Simple keyword matching (can be improved later)
+            message_lower = message.lower()
+            matched_insights = []
+            
+            for insight in insights:
+                insight_text = insight.insight_text.lower()
+                # Check if any word from message appears in insight
+                words = message_lower.split()
+                if any(word in insight_text for word in words if len(word) > 3):
+                    matched_insights.append(insight.insight_text[:200])
+            
+            if matched_insights:
+                # Return up to 3 most relevant insights
+                insights_text = "\n\n".join([f"• {text}" for text in matched_insights[:3]])
+                return f"Based on my knowledge:\n\n{insights_text}"
+            
+            return None
+        except Exception as e:
+            logger.error(f"Knowledge base query failed: {e}")
+            return None
     
     def _handle_command(self, command: str) -> str:
         """Handle slash commands"""
