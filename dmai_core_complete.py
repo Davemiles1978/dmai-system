@@ -3999,40 +3999,112 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             return None
     
     def _generate_ai_response(self, user: str, message: str) -> str:
-        """Generate response using own knowledge first, then AI tutors"""
+        """Generate response and learn from external sources"""
         try:
             # FIRST: Check own knowledge base
             if hasattr(self, 'si_core') and self.si_core:
-                # Search insights for relevant knowledge
                 relevant = self._query_knowledge_base(message)
                 if relevant:
                     return relevant
             
+            response = None
+            source_type = None
+            source_url = None
+            
             # SECOND: Try to use AI hub if available
-            if hasattr(self, 'ai_hub') and self.ai_hub:
-                response = self.ai_hub.query(message)
-                if response:
-                    return response
+            if not response and hasattr(self, 'ai_hub') and self.ai_hub:
+                result = self.ai_hub.query_all_tutors(message)
+                if result and result.get('synthesis'):
+                    response = result['synthesis']
+                    source_type = "ai_tutor"
+                    source_url = "AI Tutor Network"
+                elif result:
+                    for tutor, resp in result.items():
+                        if tutor != 'synthesis' and resp:
+                            response = resp
+                            source_type = f"ai_tutor_{tutor}"
+                            source_url = f"AI Tutor: {tutor}"
+                            break
             
             # THIRD: Try using tutor manager
-            if hasattr(self, 'tutor_manager') and self.tutor_manager:
+            if not response and hasattr(self, 'tutor_manager') and self.tutor_manager:
                 tutors = self.tutor_manager.get_active_tutors()
                 if tutors:
-                    # Use first available tutor
                     for tutor_name in tutors[:3]:
                         try:
-                            response = self.tutor_manager.query_tutor(tutor_name, message)
-                            if response:
-                                return response
+                            resp = self.tutor_manager.query_tutor(tutor_name, message)
+                            if resp:
+                                response = resp
+                                source_type = f"tutor_{tutor_name}"
+                                source_url = f"Tutor: {tutor_name}"
+                                break
                         except:
                             continue
             
-            # FOURTH: Fallback response
-            return f"I understand you're asking about: {message[:100]}. I'm processing this through my learning systems."
+            # FOURTH: Regular internet search
+            if not response:
+                try:
+                    import urllib.parse
+                    import requests
+                    query = urllib.parse.quote(message[:200])
+                    resp = requests.get(
+                        f"https://api.duckduckgo.com/?q={query}&format=json&no_html=1",
+                        timeout=10
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data.get('AbstractText'):
+                            response = data['AbstractText']
+                            source_type = "web_search"
+                            source_url = data.get('AbstractURL', 'DuckDuckGo')
+                        elif data.get('Answer'):
+                            response = data['Answer']
+                            source_type = "web_search"
+                            source_url = "DuckDuckGo"
+                except:
+                    pass
+            
+            # If we got a response from external source, SAVE IT as knowledge
+            if response and source_type and hasattr(self, 'si_core') and self.si_core:
+                try:
+                    self.si_core.add_insight(
+                        insight_text=f"Q: {message[:100]} A: {response[:200]}",
+                        entity_type="learned_response",
+                        entities=[message[:50], response[:50]],
+                        relationship="answers",
+                        source_topic="user_query",
+                        target_topic="knowledge_acquisition",
+                        confidence=0.7,
+                        source_url=source_url,
+                        source_title=f"External: {source_type}",
+                        source_type=source_type
+                    )
+                    logger.info(f"📚 Saved external response to knowledge base: {source_type}")
+                except Exception as e:
+                    logger.error(f"Failed to save external knowledge: {e}")
+            
+            # Return the response or initiate research
+            if response:
+                return f"{response}\n\n_[Learned from {source_type}]_"
+            
+            # FIFTH: Initiate deep research for next time
+            if hasattr(self, 'evolution') and hasattr(self.evolution, 'autonomous_ingestor'):
+                try:
+                    import threading
+                    def research_task():
+                        logger.info(f"🔬 Initiating deep research on: {message[:50]}")
+                        # This will research and save for future queries
+                        self.evolution.autonomous_ingestor.process_input(message, "idea")
+                    threading.Thread(target=research_task, daemon=True).start()
+                except:
+                    pass
+            
+            return f"I'm researching '{message[:100]}' now. Please ask me again in a few minutes."
+            
         except Exception as e:
             logger.error(f"AI response generation error: {e}")
-            return "I'm still learning about that. Could you rephrase or ask something else?"
-    
+            return "I encountered an error. Please try again."
+
     def _query_knowledge_base(self, message: str) -> str:
         """Query DMAI's own knowledge base for relevant insights"""
         try:
