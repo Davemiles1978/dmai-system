@@ -395,30 +395,40 @@ class SyntheticIntelligenceCore:
         """
 
         # ============================================================
-        # QUALITY FILTER - Reject garbage insights
+        # QUALITY FILTER - Reject garbage insights, accept valid knowledge
         # ============================================================
-        if not insight_text or len(insight_text) < 50:
-            logger.debug(f"Rejected insight: too short")
+        
+        # Only reject completely empty insights
+        if not insight_text or len(insight_text.strip()) < 5:
+            logger.debug(f"Rejected insight: empty or too short (<5 chars)")
             return None
         
-        code_indicators = ["def __init__", "class ", "import ", "self.", "return "]
-        if any(indicator in insight_text for indicator in code_indicators):
-            logger.debug(f"Rejected insight: contains code")
-            return None
+        # Check for obvious garbage (random characters, URLs without context)
+        garbage_indicators = [
+            "http://", "https://",  # URLs alone aren't insights
+            "click here", "subscribe",  # Marketing spam
+        ]
         
-        word_count = len(insight_text.split())
-        if word_count < 10:
-            logger.debug(f"Rejected insight: too few words")
-            return None
-        
-        if not any(insight_text.rstrip().endswith(p) for p in [".", "!", "?", "\"", "'"]):
-            if word_count < 15:
-                logger.debug(f"Rejected insight: no ending punctuation")
+        insight_lower = insight_text.lower()
+        for indicator in garbage_indicators:
+            if indicator in insight_lower and len(insight_text) < 30:
+                logger.debug(f"Rejected insight: garbage indicator '{indicator}'")
                 return None
         
-        if len(insight_text) < 100 and word_count < 5:
-            logger.debug(f"Rejected insight: too short for meaningful knowledge")
+        # For training/ingestion sources, be more lenient with code
+        # Only reject if it's PURE code with no explanatory text
+        code_indicators = ["def ", "class ", "import ", "return "]
+        code_matches = sum(1 for ind in code_indicators if ind in insight_text)
+        
+        # If more than 2 code indicators AND no punctuation (likely raw code block)
+        if code_matches >= 3 and not any(p in insight_text for p in [".", "?", "!", ":"]):
+            logger.debug(f"Rejected insight: appears to be raw code block")
             return None
+        
+        # ACCEPT insights that were previously rejected:
+        # - Short but meaningful insights (was <50 chars)
+        # - Insights containing quoted code references
+        # - Insights without ending punctuation
         # ============================================================
         # END QUALITY FILTER
         # ============================================================
