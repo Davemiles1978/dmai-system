@@ -4123,19 +4123,19 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             if not insights:
                 return None
             
-            # Simple keyword matching (can be improved later)
+            # Simple keyword matching
             message_lower = message.lower()
             matched_insights = []
             
             for insight in insights:
                 insight_text = insight.insight_text.lower()
-                # Check if any word from message appears in insight
                 words = message_lower.split()
                 if any(word in insight_text for word in words if len(word) > 3):
-                    matched_insights.append(insight.insight_text[:200])
+                    # Extract clean answer from the insight
+                    clean_text = self._extract_clean_answer(insight.insight_text)
+                    matched_insights.append(clean_text[:500])
             
             if matched_insights:
-                # Return up to 3 most relevant insights
                 insights_text = "\n\n".join([f"• {text}" for text in matched_insights[:3]])
                 return f"Based on my knowledge:\n\n{insights_text}"
             
@@ -4143,6 +4143,35 @@ I maintain full conversation memory - I can recall anything we've talked about. 
         except Exception as e:
             logger.error(f"Knowledge base query failed: {e}")
             return None
+    
+    def _extract_clean_answer(self, insight_text: str) -> str:
+        """Extract clean answer from stored insight text"""
+        try:
+            # If it's a Q&A format, extract just the answer
+            if insight_text.startswith("Q: ") and " A: " in insight_text:
+                answer_part = insight_text.split(" A: ", 1)[1]
+                
+                # Try to parse as dict if it looks like one
+                if answer_part.startswith("{'success': True, 'unified_answer':"):
+                    import ast
+                    try:
+                        data = ast.literal_eval(answer_part)
+                        if isinstance(data, dict):
+                            # Extract unified_answer or synthesis
+                            clean = data.get('unified_answer') or data.get('synthesis') or ''
+                            # Remove the "Based on synthesis..." prefix
+                            if clean.startswith('Based on synthesis'):
+                                clean = clean.split('\n\n', 1)[-1] if '\n\n' in clean else clean
+                            return clean
+                    except:
+                        pass
+                
+                return answer_part
+            
+            # Otherwise return as-is
+            return insight_text
+        except:
+            return insight_text
     
     def _handle_command(self, command: str) -> str:
         """Handle slash commands"""
