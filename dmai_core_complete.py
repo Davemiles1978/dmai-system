@@ -4961,6 +4961,36 @@ DMAI will extract and integrate actual capabilities from the repository."""
             except Exception as e:
                 return f"Error: {e}"
 
+        elif cmd == '/ingest_status':
+            if hasattr(self, '_last_ingestion_result'):
+                result = self._last_ingestion_result
+                integrated = result.get('capabilities_integrated', [])
+                
+                lines = [
+                    f"**Last Ingestion:** {result.get('repo_name', 'Unknown')}",
+                    f"**URL:** {result.get('repo_url', 'Unknown')}",
+                    "",
+                    f"**Capabilities Found:** {len(result.get('capabilities_found', []))}",
+                    f"**Integrated:** {len(integrated)}",
+                    f"**Skipped:** {len(result.get('capabilities_skipped', []))}",
+                    f"**Neurons Created:** {len(result.get('neurons_created', []))}",
+                    ""
+                ]
+                
+                if integrated:
+                    lines.append("**New Capabilities:**")
+                    for cap in integrated[:10]:
+                        mode = "🤖 24/7" if cap.get('runtime_mode') == 'autonomous' else "📞 On-demand"
+                        lines.append(f"  • {cap['capability_name']} ({cap['capability_type']}) - {mode}")
+                
+                return "\n".join(lines)
+            else:
+                return "No ingestion has been run yet. Use `/ingest <url>` to start."
+
+        elif cmd == '/neurons':
+            try:
+                import json
+
         elif cmd == '/help':
             return """**Available Commands:**
 /status - System status
