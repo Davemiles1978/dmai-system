@@ -36,6 +36,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 from enum import Enum
 from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
+from components.capability_integrator import CapabilityIntegrator
 import uuid
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -2628,10 +2629,16 @@ class UnifiedEvolutionEngine:
         self.autonomous_ingestor = AutonomousIngestor(self)
         logger.info("🤖 Autonomous Developer initialized")
 
+        # ============================================================
+        # CAPABILITY INTEGRATOR - For actual code extraction & integration
+        # ============================================================
+        self.capability_integrator = CapabilityIntegrator(self)
+        logger.info("🔧 Capability Integrator initialized")
+
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
-        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")        
+        logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
         
         # AUTO-START EVOLUTION THREAD
 
@@ -4806,69 +4813,52 @@ Use `/gaps analyze` to run analysis now."""
 
 Example: `/ingest https://github.com/huggingface/diffusers`
 
-DMAI will analyze and learn from the repository."""
+DMAI will extract and integrate actual capabilities from the repository."""
             
-            # Run ingestion in background with proper insight creation
+            # Run ingestion in background with CapabilityIntegrator
             def do_ingest():
                 try:
-                    logger.info(f"📥 Starting ingestion of: {source}")
-                                
-                    # First, create an insight about the ingestion itself
-                    if hasattr(self, 'si_core'):
-                        self.si_core.add_insight(
-                            insight_text=f"Ingested and analyzed repository: {source}",  
-                            entity_type="repository_ingestion",   
-                            entities=["code", "repository", source.split('/')[-1]],
-                            relationship="analyzed",
-                            source_topic="code_analysis",
-                            target_topic="knowledge_acquisition",
-                            confidence=0.9,
-                            source_url=source,
-                            source_title=f"GitHub: {source.split('/')[-1]}",
-                            source_type="github_ingest"
-                        )
-                        logger.info(f"✅ Created ingestion insight for: {source}")
-                        
-                        # Track ingestion attempt for gap analyzer
-                        if hasattr(self, 'evolution') and hasattr(self.evolution, 'gap_analyzer'):
-                            self.evolution.gap_analyzer.record_ingestion_attempt(source, "pending")
-                        elif hasattr(self, 'gap_analyzer'):
-                            self.gap_analyzer.record_ingestion_attempt(source, "pending")
+                    logger.info(f"📥 Starting capability extraction from: {source}")
                     
-                    # Then run the actual ingestion
-                    if hasattr(self, 'autonomous_ingestor'):
-                        # Detect source type
-                        if "github.com" in source:
-                            input_type = "github"
-                        elif "huggingface.co" in source:
-                            input_type = "huggingface"
-                        elif source.startswith("http"):
-                            input_type = "url"
-                        else:
-                            input_type = "auto"
+                    # Use CapabilityIntegrator for actual code integration
+                    if hasattr(self, 'capability_integrator'):
+                        result = self.capability_integrator.process_repository(source)
                         
-                        result = self.autonomous_ingestor.process_input(source, input_type)
-                        if result:
-                            capabilities = result.get('capabilities_ingested', 0)
-                            logger.info(f"✅ Ingested {capabilities} capabilities from {source}") 
-            
-                            # Create insight for each capability
-                            if hasattr(self, 'si_core') and result.get('details'):
-                                for detail in result['details'][:10]:  # Limit to 10 insights
-                                    self.si_core.add_insight(  
-                                        insight_text=f"Learned from {source}: {detail.get('description', 'code pattern')}",
-                                        entity_type="code_learning",
-                                        entities=["code", detail.get('type', 'pattern')],
-                                        relationship="implements",
-                                        source_topic="software_development",
-                                        target_topic="code_knowledge",
-                                        confidence=0.7,  
-                                        source_url=source,
-                                        source_title=f"GitHub: {source.split('/')[-1]}",
-                                        source_type="github_ingest"
-                                    )
+                        if result.get('success'):
+                            capabilities_found = len(result.get('capabilities_found', []))
+                            capabilities_integrated = len(result.get('capabilities_integrated', []))
+                            capabilities_skipped = len(result.get('capabilities_skipped', []))
+                            neurons_created = len(result.get('neurons_created', []))
+                            
+                            logger.info(f"✅ Ingested {capabilities_integrated} new capabilities from {source}")
+                            logger.info(f"🧠 Created {neurons_created} neurons")
+                            
+                            # Store result for status reporting
+                            self._last_ingestion_result = result
+                            
+                            # Log autonomous capabilities that need to be started
+                            auto_caps = [
+                                cap for cap in result.get('capabilities_integrated', [])
+                                if cap.get('runtime_mode') == 'autonomous'
+                            ]
+                            if auto_caps:
+                                logger.info(f"🤖 {len(auto_caps)} autonomous capabilities ready to start")
                         else:
-                            logger.warning(f"No capabilities ingested from {source}")
+                            logger.error(f"Ingestion failed: {result.get('errors', ['Unknown error'])}")
+                    else:
+                        logger.error("CapabilityIntegrator not initialized")
+                        
+                        # Fallback to old autonomous_ingestor for backward compatibility
+                        if hasattr(self, 'autonomous_ingestor'):
+                            logger.info("Falling back to autonomous_ingestor...")
+                            if "github.com" in source:
+                                input_type = "github"
+                            elif source.startswith("http"):
+                                input_type = "url"
+                            else:
+                                input_type = "auto"
+                            result = self.autonomous_ingestor.process_input(source, input_type)
+                            
                 except Exception as e:
                     logger.error(f"Ingestion failed for {source}: {e}")
                     import traceback
@@ -4876,7 +4866,83 @@ DMAI will analyze and learn from the repository."""
             
             import threading
             threading.Thread(target=do_ingest, daemon=True).start()
-            return f"📥 **Ingesting: {source}**\n\nAnalyzing code and learning...\n\nI'll create insights from what I learn."
+            
+            repo_name = source.split('/')[-1].replace('.git', '')
+            return f"""📥 **Ingesting: {source}**
+
+**Repository:** {repo_name}
+
+🔍 Extracting actual capabilities...
+🧠 Creating neurons for each new capability...
+🤖 Identifying autonomous vs on-demand functions...
+
+*Use `/capabilities` to see what I've learned*
+*Use `/ingest_status` to check progress*"""
+
+        elif cmd == '/capabilities':
+            if hasattr(self, 'capability_integrator'):
+                status = self.capability_integrator.get_status()
+                return f"""🔧 **DMAI Capabilities**
+
+**Total:** {status['total_capabilities']}
+**Autonomous (24/7):** {status['autonomous_count']}
+**On-Demand:** {status['ondemand_count']}
+
+**By Type:**
+{chr(10).join(f'  • {k}: {v}' for k, v in status.get('capabilities_by_type', {}).items())}
+
+**Sources Processed:** {status['sources_processed']}
+**Last Updated:** {status.get('last_updated', 'Never')}
+
+*Use `/capabilities list` to see all capabilities*"""
+            else:
+                return "🔧 Capability Integrator not initialized."
+
+        elif cmd.startswith('/capabilities list'):
+            if hasattr(self, 'capability_integrator'):
+                caps = self.capability_integrator.registry.get('capabilities', {})
+                if not caps:
+                    return "No capabilities registered yet. Use `/ingest <url>` to integrate new capabilities."
+                
+                lines = ["**Registered Capabilities:**", ""]
+                for cap_id, cap in list(caps.items())[:20]:
+                    mode = "🤖" if cap.get('runtime_mode') == 'autonomous' else "📞"
+                    lines.append(f"{mode} **{cap['name']}** ({cap['capability_type']})")
+                    lines.append(f"   Source: {cap['source_repo']}")
+                    lines.append("")
+                
+                if len(caps) > 20:
+                    lines.append(f"... and {len(caps) - 20} more")
+                
+                return "\n".join(lines)
+            else:
+                return "🔧 Capability Integrator not initialized."
+
+        elif cmd == '/ingest_status':
+            if hasattr(self, '_last_ingestion_result'):
+                result = self._last_ingestion_result
+                integrated = result.get('capabilities_integrated', [])
+                
+                lines = [
+                    f"**Last Ingestion:** {result.get('repo_name', 'Unknown')}",
+                    f"**URL:** {result.get('repo_url', 'Unknown')}",
+                    "",
+                    f"**Capabilities Found:** {len(result.get('capabilities_found', []))}",
+                    f"**Integrated:** {len(integrated)}",
+                    f"**Skipped:** {len(result.get('capabilities_skipped', []))}",
+                    f"**Neurons Created:** {len(result.get('neurons_created', []))}",
+                    ""
+                ]
+                
+                if integrated:
+                    lines.append("**New Capabilities:**")
+                    for cap in integrated[:10]:
+                        mode = "🤖 24/7" if cap.get('runtime_mode') == 'autonomous' else "📞 On-demand"
+                        lines.append(f"  • {cap['capability_name']} ({cap['capability_type']}) - {mode}")
+                
+                return "\n".join(lines)
+            else:
+                return "No ingestion has been run yet. Use `/ingest <url>` to start."
 
         elif cmd == '/neurons':
             try:
@@ -4900,7 +4966,10 @@ DMAI will analyze and learn from the repository."""
 /status - System status
 /knowledge - View knowledge base
 /knowledge more - View all knowledge
-/ingest <url> - Ingest and learn from GitHub repo
+/ingest <url> - Extract & integrate capabilities from GitHub repo
+/capabilities - Show integrated capabilities
+/capabilities list - List all capabilities
+/ingest_status - Show last ingestion results
 /neurons - Show neuron and synapse counts
 /gaps - Show knowledge gap analysis status
 /gaps analyze - Run gap analysis now
