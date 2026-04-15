@@ -354,70 +354,47 @@ class CapabilityIntegrator:
         return self._parse_js_ts_common(file_path, source_url, 'javascript')
     
     def _parse_js_ts_common(self, file_path: Path, source_url: str, lang: str) -> List[Dict]:
-        """Common parser for JavaScript and TypeScript"""
+        """Common parser for JavaScript and TypeScript with comprehensive pattern matching"""
         capabilities = []
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
             
-            # Extract classes
-            class_pattern = r'(?:export\s+)?(?:abstract\s+)?class\s+(\w+)(?:\s+extends\s+\w+)?(?:\s+implements\s+[^{]+)?\s*\{'
+            # ============================================================
+            # CLASSES - handles all variations:
+            # class Name { }
+            # export class Name { }
+            # export default class Name { }
+            # abstract class Name { }
+            # class Name extends Base { }
+            # class Name implements Interface { }
+            # class Name extends Base implements Interface { }
+            # ============================================================
+            class_pattern = r'(?:export\s+(?:default\s+)?)?(?:abstract\s+)?class\s+(\w+)\s*(?:extends\s+\w+\s*)?(?:implements\s*[^{]+)?\s*\{'
             for match in re.finditer(class_pattern, content, re.MULTILINE):
                 class_name = match.group(1)
                 if not class_name.startswith('_'):
-                    methods = []
-                    method_pattern = r'(?:public|private|protected|async)?\s*(\w+)\s*\([^)]*\)\s*[:{]\s*(?:[^{}]*|\{[^{}]*\})*?\}'
-                    
                     capabilities.append({
-                        'id': hashlib.md5(f"{class_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'id': hashlib.md5(f"class_{class_name}_{file_path.stem}".encode()).hexdigest()[:12],
                         'name': class_name,
                         'type': 'class',
-                        'capability_type': self._infer_capability_type(class_name, methods, ""),
+                        'capability_type': self._infer_capability_type(class_name, [], ""),
                         'description': f"{lang} class: {class_name}",
                         'source_file': str(file_path),
                         'source_code': match.group(0)[:500],
                         'source_url': source_url,
-                        'methods': methods,
                         'language': lang
                     })
             
-            # Extract exported functions
-            func_pattern = r'(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)'
-            for match in re.finditer(func_pattern, content):
-                func_name = match.group(1)
-                if not func_name.startswith('_'):
-                    capabilities.append({
-                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
-                        'name': func_name,
-                        'type': 'function',
-                        'capability_type': self._infer_capability_type(func_name, [], ""),
-                        'description': f"{lang} function: {func_name}",
-                        'source_file': str(file_path),
-                        'source_code': match.group(0),
-                        'source_url': source_url,
-                        'language': lang
-                    })
-            
-            # Extract const arrow functions
-            arrow_pattern = r'(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>'
-            for match in re.finditer(arrow_pattern, content):
-                func_name = match.group(1)
-                if not func_name.startswith('_'):
-                    capabilities.append({
-                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
-                        'name': func_name,
-                        'type': 'function',
-                        'capability_type': self._infer_capability_type(func_name, [], ""),
-                        'description': f"{lang} arrow function: {func_name}",
-                        'source_file': str(file_path),
-                        'source_code': match.group(0),
-                        'source_url': source_url,
-                        'language': lang
-                    })
-            
-            # Extract interfaces (TypeScript)
-            interface_pattern = r'(?:export\s+)?interface\s+(\w+)'
-            for match in re.finditer(interface_pattern, content):
+            # ============================================================
+            # INTERFACES (TypeScript only)
+            # interface Name { }
+            # export interface Name { }
+            # export default interface Name { }
+            # interface Name extends Other { }
+            # ============================================================
+            interface_pattern = r'(?:export\s+(?:default\s+)?)?interface\s+(\w+)\s*(?:extends\s*[^{]+)?\s*\{'
+            for match in re.finditer(interface_pattern, content, re.MULTILINE):
                 interface_name = match.group(1)
                 capabilities.append({
                     'id': hashlib.md5(f"interface_{interface_name}_{file_path.stem}".encode()).hexdigest()[:12],
@@ -429,6 +406,123 @@ class CapabilityIntegrator:
                     'source_url': source_url,
                     'language': lang
                 })
+            
+            # ============================================================
+            # TYPE ALIASES (TypeScript only)
+            # type Name = ...
+            # export type Name = ...
+            # ============================================================
+            type_pattern = r'(?:export\s+)?type\s+(\w+)\s*='
+            for match in re.finditer(type_pattern, content, re.MULTILINE):
+                type_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"type_{type_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': type_name,
+                    'type': 'type_alias',
+                    'capability_type': 'data_structure',
+                    'description': f"{lang} type: {type_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': lang
+                })
+            
+            # ============================================================
+            # ENUMS (TypeScript only)
+            # enum Name { }
+            # export enum Name { }
+            # const enum Name { }
+            # ============================================================
+            enum_pattern = r'(?:export\s+)?(?:const\s+)?enum\s+(\w+)\s*\{'
+            for match in re.finditer(enum_pattern, content, re.MULTILINE):
+                enum_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"enum_{enum_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': enum_name,
+                    'type': 'enum',
+                    'capability_type': 'configuration',
+                    'description': f"{lang} enum: {enum_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': lang
+                })
+            
+            # ============================================================
+            # FUNCTIONS - handles:
+            # function name() { }
+            # export function name() { }
+            # export default function name() { }
+            # async function name() { }
+            # export async function name() { }
+            # ============================================================
+            func_pattern = r'(?:export\s+(?:default\s+)?)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)'
+            for match in re.finditer(func_pattern, content, re.MULTILINE):
+                func_name = match.group(1)
+                if not func_name.startswith('_'):
+                    capabilities.append({
+                        'id': hashlib.md5(f"func_{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"{lang} function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': lang
+                    })
+            
+            # ============================================================
+            # ARROW FUNCTIONS (assigned to const/let/var)
+            # const name = () => { }
+            # export const name = () => { }
+            # const name = async () => { }
+            # export const name = async () => { }
+            # const name = (param: Type): ReturnType => { }
+            # ============================================================
+            arrow_pattern = r'(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*(?::\s*[^=]+)?\s*=>'
+            for match in re.finditer(arrow_pattern, content, re.MULTILINE):
+                func_name = match.group(1)
+                if not func_name.startswith('_'):
+                    capabilities.append({
+                        'id': hashlib.md5(f"arrow_{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"{lang} arrow function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': lang
+                    })
+            
+            # ============================================================
+            # CLASS METHODS (for more granular capability extraction)
+            # public methodName() { }
+            # private methodName() { }
+            # protected methodName() { }
+            # async methodName() { }
+            # static methodName() { }
+            # ============================================================
+            method_pattern = r'(?:public|private|protected|async|static|\s)+(\w+)\s*\([^)]*\)\s*[:{]\s*(?:[^{}]*|\{[^{}]*\})*?\}'
+            
+            # ============================================================
+            # EXPORTED CONSTANTS (configuration values)
+            # export const NAME = value;
+            # export const NAME: Type = value;
+            # ============================================================
+            const_pattern = r'(?:export\s+)?const\s+(\w+)\s*(?::\s*[^=]+)?\s*='
+            for match in re.finditer(const_pattern, content, re.MULTILINE):
+                const_name = match.group(1)
+                if const_name.isupper() or 'CONFIG' in const_name or 'DEFAULT' in const_name:
+                    capabilities.append({
+                        'id': hashlib.md5(f"const_{const_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': const_name,
+                        'type': 'constant',
+                        'capability_type': 'configuration',
+                        'description': f"{lang} constant: {const_name}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': lang
+                    })
                     
         except Exception as e:
             logger.debug(f"JS/TS parse error {file_path}: {e}")
@@ -440,47 +534,29 @@ class CapabilityIntegrator:
     # ============================================================
     
     def _parse_go_file(self, file_path: Path, source_url: str) -> List[Dict]:
-        """Parse Go file"""
+        """Parse Go file with comprehensive patterns"""
         capabilities = []
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
             
-            # Extract structs
-            struct_pattern = r'type\s+(\w+)\s+struct\s*\{([^}]*)\}'
-            for match in re.finditer(struct_pattern, content, re.DOTALL):
+            # Structs - type Name struct { }
+            struct_pattern = r'type\s+(\w+)\s+struct\s*\{'
+            for match in re.finditer(struct_pattern, content):
                 struct_name = match.group(1)
                 if struct_name and struct_name[0].isupper():
                     capabilities.append({
-                        'id': hashlib.md5(f"{struct_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'id': hashlib.md5(f"struct_{struct_name}_{file_path.stem}".encode()).hexdigest()[:12],
                         'name': struct_name,
                         'type': 'struct',
                         'capability_type': self._infer_capability_type(struct_name, [], ""),
                         'description': f"Go struct: {struct_name}",
                         'source_file': str(file_path),
-                        'source_code': match.group(0)[:500],
                         'source_url': source_url,
                         'language': 'go'
                     })
             
-            # Extract functions
-            func_pattern = r'func\s+(?:\([^)]+\)\s+)?(\w+)\s*\([^)]*\)'
-            for match in re.finditer(func_pattern, content):
-                func_name = match.group(1)
-                if func_name and func_name[0].isupper():
-                    capabilities.append({
-                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
-                        'name': func_name,
-                        'type': 'function',
-                        'capability_type': self._infer_capability_type(func_name, [], ""),
-                        'description': f"Go function: {func_name}",
-                        'source_file': str(file_path),
-                        'source_code': match.group(0),
-                        'source_url': source_url,
-                        'language': 'go'
-                    })
-            
-            # Extract interfaces
+            # Interfaces - type Name interface { }
             interface_pattern = r'type\s+(\w+)\s+interface\s*\{'
             for match in re.finditer(interface_pattern, content):
                 interface_name = match.group(1)
@@ -495,6 +571,40 @@ class CapabilityIntegrator:
                         'source_url': source_url,
                         'language': 'go'
                     })
+            
+            # Functions - func Name() { } and func (r Receiver) Name() { }
+            func_pattern = r'func\s+(?:\([^)]+\)\s+)?(\w+)\s*\([^)]*\)'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                if func_name and func_name[0].isupper():
+                    capabilities.append({
+                        'id': hashlib.md5(f"func_{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"Go function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': 'go'
+                    })
+            
+            # Constants - const Name = value
+            const_pattern = r'const\s+(\w+)\s*='
+            for match in re.finditer(const_pattern, content):
+                const_name = match.group(1)
+                if const_name[0].isupper():
+                    capabilities.append({
+                        'id': hashlib.md5(f"const_{const_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': const_name,
+                        'type': 'constant',
+                        'capability_type': 'configuration',
+                        'description': f"Go constant: {const_name}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': 'go'
+                    })
+                    
         except Exception as e:
             logger.debug(f"Go parse error {file_path}: {e}")
         
@@ -505,63 +615,44 @@ class CapabilityIntegrator:
     # ============================================================
     
     def _parse_rust_file(self, file_path: Path, source_url: str) -> List[Dict]:
-        """Parse Rust file"""
+        """Parse Rust file with comprehensive patterns"""
         capabilities = []
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
             
-            # Extract structs
-            struct_pattern = r'(?:pub\s+)?struct\s+(\w+)\s*\{'
+            # Structs - pub struct Name { } or struct Name { }
+            struct_pattern = r'(?:pub(?:\s*\(\s*crate\s*\))?\s+)?struct\s+(\w+)\s*(?:<[^>]+>)?\s*\{'
             for match in re.finditer(struct_pattern, content):
                 struct_name = match.group(1)
                 capabilities.append({
-                    'id': hashlib.md5(f"{struct_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'id': hashlib.md5(f"struct_{struct_name}_{file_path.stem}".encode()).hexdigest()[:12],
                     'name': struct_name,
                     'type': 'struct',
                     'capability_type': self._infer_capability_type(struct_name, [], ""),
                     'description': f"Rust struct: {struct_name}",
                     'source_file': str(file_path),
-                    'source_code': match.group(0),
                     'source_url': source_url,
                     'language': 'rust'
                 })
             
-            # Extract impl blocks
-            impl_pattern = r'impl\s+(?:(\w+)\s+for\s+)?(\w+)\s*\{'
-            for match in re.finditer(impl_pattern, content):
-                trait_name = match.group(1)
-                type_name = match.group(2)
-                impl_name = f"{trait_name}_for_{type_name}" if trait_name else type_name
+            # Enums - pub enum Name { } or enum Name { }
+            enum_pattern = r'(?:pub(?:\s*\(\s*crate\s*\))?\s+)?enum\s+(\w+)\s*\{'
+            for match in re.finditer(enum_pattern, content):
+                enum_name = match.group(1)
                 capabilities.append({
-                    'id': hashlib.md5(f"impl_{impl_name}_{file_path.stem}".encode()).hexdigest()[:12],
-                    'name': f"{impl_name}Impl",
-                    'type': 'impl',
-                    'capability_type': self._infer_capability_type(type_name, [], ""),
-                    'description': f"Rust impl for: {impl_name}",
+                    'id': hashlib.md5(f"enum_{enum_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': enum_name,
+                    'type': 'enum',
+                    'capability_type': 'data_structure',
+                    'description': f"Rust enum: {enum_name}",
                     'source_file': str(file_path),
                     'source_url': source_url,
                     'language': 'rust'
                 })
             
-            # Extract pub functions
-            func_pattern = r'pub\s+(?:async\s+)?fn\s+(\w+)\s*\([^)]*\)'
-            for match in re.finditer(func_pattern, content):
-                func_name = match.group(1)
-                capabilities.append({
-                    'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
-                    'name': func_name,
-                    'type': 'function',
-                    'capability_type': self._infer_capability_type(func_name, [], ""),
-                    'description': f"Rust function: {func_name}",
-                    'source_file': str(file_path),
-                    'source_code': match.group(0),
-                    'source_url': source_url,
-                    'language': 'rust'
-                })
-            
-            # Extract traits
-            trait_pattern = r'pub\s+trait\s+(\w+)'
+            # Traits - pub trait Name { } or trait Name { }
+            trait_pattern = r'(?:pub(?:\s*\(\s*crate\s*\))?\s+)?trait\s+(\w+)\s*\{'
             for match in re.finditer(trait_pattern, content):
                 trait_name = match.group(1)
                 capabilities.append({
@@ -574,6 +665,71 @@ class CapabilityIntegrator:
                     'source_url': source_url,
                     'language': 'rust'
                 })
+            
+            # Impl blocks - impl Name { } or impl Trait for Name { }
+            impl_pattern = r'impl\s*(?:<[^>]+>\s*)?(?:(\w+)\s+for\s+)?(\w+)\s*(?:<[^>]+>)?\s*\{'
+            for match in re.finditer(impl_pattern, content):
+                trait_name = match.group(1)
+                type_name = match.group(2)
+                impl_name = f"{trait_name}_for_{type_name}" if trait_name else type_name
+                capabilities.append({
+                    'id': hashlib.md5(f"impl_{impl_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': impl_name,
+                    'type': 'impl',
+                    'capability_type': self._infer_capability_type(type_name, [], ""),
+                    'description': f"Rust impl for: {impl_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+            
+            # Functions - pub fn name() { } or pub async fn name() { }
+            func_pattern = r'pub(?:\s*\(\s*crate\s*\))?\s+(?:async\s+)?fn\s+(\w+)\s*(?:<[^>]+>)?\s*\([^)]*\)'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                if not func_name.startswith('_'):
+                    capabilities.append({
+                        'id': hashlib.md5(f"func_{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"Rust function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': 'rust'
+                    })
+            
+            # Constants - pub const NAME: Type = value;
+            const_pattern = r'pub(?:\s*\(\s*crate\s*\))?\s+const\s+(\w+)\s*:'
+            for match in re.finditer(const_pattern, content):
+                const_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"const_{const_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': const_name,
+                    'type': 'constant',
+                    'capability_type': 'configuration',
+                    'description': f"Rust constant: {const_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+            
+            # Type aliases - pub type Name = ...;
+            type_pattern = r'pub(?:\s*\(\s*crate\s*\))?\s+type\s+(\w+)\s*='
+            for match in re.finditer(type_pattern, content):
+                type_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"type_{type_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': type_name,
+                    'type': 'type_alias',
+                    'capability_type': 'data_structure',
+                    'description': f"Rust type alias: {type_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+                    
         except Exception as e:
             logger.debug(f"Rust parse error {file_path}: {e}")
         
