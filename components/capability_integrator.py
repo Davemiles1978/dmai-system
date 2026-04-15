@@ -1246,10 +1246,6 @@ class DMAI_{capability['name']}:
             return None
 '''
             return header + wrapper
-        
-        return header
-    
-    def _create_capability_neuron(self, integration_result: Dict, source_url: str) -> Optional[str]:
 
     def _create_capability_neuron(self, integration_result: Dict, source_url: str) -> Optional[str]:
         """Create a neuron in SI Core for the integrated capability"""
