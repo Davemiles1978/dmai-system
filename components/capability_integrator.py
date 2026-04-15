@@ -1,19 +1,32 @@
 # components/capability_integrator.py
 """
 DMAI Capability Integrator - Extracts and integrates actual capabilities from repositories
+Supports: Python, TypeScript, JavaScript, Go, Rust, Java, C, C++, Shell, JSON, YAML, TOML, XML, Markdown, Text
 """
 
 import os
 import ast
 import json
+import re
 import shutil
 import tempfile
 import subprocess
+import hashlib
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
-import hashlib
-import logging
+
+# Optional imports with fallbacks
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+try:
+    import xml.etree.ElementTree as ET
+except ImportError:
+    ET = None
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +34,8 @@ logger = logging.getLogger(__name__)
 class CapabilityIntegrator:
     """
     Extracts actual functions/classes from repositories and integrates them into DMAI.
-    
-    Unlike AutonomousDeveloper which generates placeholder stubs, this system:
-    1. Clones and analyzes ALL Python files in a repo
-    2. Extracts actual implemented classes and functions
-    3. Compares against existing capabilities
-    4. Integrates missing capabilities into components/capabilities/
-    5. Registers them as callable functions
-    6. Creates proper SI Core neurons for each capability
-    7. Tracks runtime mode (autonomous 24/7 vs on-demand)
+    Supports multiple languages: Python, TypeScript, JavaScript, Go, Rust, Java, C/C++, Shell,
+    and configuration files: JSON, YAML, TOML, XML, Markdown, Text.
     """
     
     def __init__(self, dmai_app):
@@ -43,8 +49,8 @@ class CapabilityIntegrator:
         self.registry = self._load_registry()
         
         # Runtime mode tracking
-        self.autonomous_capabilities = []  # Run 24/7
-        self.ondemand_capabilities = []    # Run when requested
+        self.autonomous_capabilities = []
+        self.ondemand_capabilities = []
         
     def _load_registry(self) -> Dict:
         """Load existing capability registry"""
@@ -104,7 +110,7 @@ class CapabilityIntegrator:
                 result['errors'].append(f"Clone failed: {clone_result.stderr}")
                 return result
             
-            # Step 2: Extract all capabilities from Python files
+            # Step 2: Extract all capabilities from ALL supported file types
             extracted = self._extract_capabilities_from_repo(temp_dir, repo_url)
             result['capabilities_found'] = extracted
             
@@ -152,70 +158,108 @@ class CapabilityIntegrator:
         return result
     
     def _extract_capabilities_from_repo(self, repo_path: str, source_url: str) -> List[Dict]:
-        """Extract all classes and functions from Python files in the repository"""
+        """Extract capabilities from all supported file types in the repository"""
         capabilities = []
         
-        for py_file in Path(repo_path).rglob('*.py'):
-            # Skip test files, __init__.py, and virtual environments
-            if 'test' in str(py_file).lower():
-                continue
-            if 'venv' in str(py_file) or 'env' in str(py_file):
-                continue
-            if '__pycache__' in str(py_file):
+        # Define file patterns and their parsers
+        parsers = {
+            # Code files
+            '.py': self._parse_python_file,
+            '.ts': self._parse_typescript_file,
+            '.tsx': self._parse_typescript_file,
+            '.js': self._parse_javascript_file,
+            '.jsx': self._parse_javascript_file,
+            '.go': self._parse_go_file,
+            '.rs': self._parse_rust_file,
+            '.java': self._parse_java_file,
+            '.cpp': self._parse_cpp_file,
+            '.cc': self._parse_cpp_file,
+            '.cxx': self._parse_cpp_file,
+            '.c': self._parse_c_file,
+            '.h': self._parse_header_file,
+            '.hpp': self._parse_header_file,
+            '.sh': self._parse_shell_file,
+            '.bash': self._parse_shell_file,
+            
+            # Configuration files
+            '.json': self._parse_json_file,
+            '.yaml': self._parse_yaml_file,
+            '.yml': self._parse_yaml_file,
+            '.toml': self._parse_toml_file,
+            '.xml': self._parse_xml_file,
+            
+            # Documentation files
+            '.md': self._parse_markdown_file,
+            '.markdown': self._parse_markdown_file,
+            '.txt': self._parse_text_file,
+            '.rst': self._parse_rst_file,
+        }
+        
+        # Walk through all files
+        for file_path in Path(repo_path).rglob('*'):
+            if not file_path.is_file():
                 continue
             
-            try:
-                with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                
-                tree = ast.parse(content)
-                
-                # Get module docstring for description
-                module_doc = ast.get_docstring(tree) or ""
-                
-                # Extract all classes
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.ClassDef):
-                        capability = self._extract_class_capability(
-                            node, py_file, content, module_doc, source_url
-                        )
-                        if capability:
-                            capabilities.append(capability)
-                    
-                    elif isinstance(node, ast.FunctionDef):
-                        # Only extract top-level functions (not methods inside classes)
-                        if self._is_top_level_function(node, tree):
-                            capability = self._extract_function_capability(
-                                node, py_file, content, module_doc, source_url
-                            )
-                            if capability:
-                                capabilities.append(capability)
-                                
-            except Exception as e:
-                logger.warning(f"Could not parse {py_file}: {e}")
+            # Skip test files, virtual environments, and cache
+            path_str = str(file_path).lower()
+            if any(skip in path_str for skip in ['test', 'spec', '__pycache__', 'node_modules', 
+                                                  'venv', 'env', '.git', 'dist', 'build']):
+                continue
+            
+            suffix = file_path.suffix.lower()
+            if suffix in parsers:
+                try:
+                    extracted = parsers[suffix](file_path, source_url)
+                    if extracted:
+                        capabilities.extend(extracted)
+                except Exception as e:
+                    logger.warning(f"Could not parse {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # PYTHON PARSER (AST-based)
+    # ============================================================
+    
+    def _parse_python_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse Python file using AST"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            tree = ast.parse(content)
+            module_doc = ast.get_docstring(tree) or ""
+            
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and not node.name.startswith('_'):
+                    cap = self._extract_python_class(node, file_path, content, module_doc, source_url)
+                    if cap:
+                        capabilities.append(cap)
+                elif isinstance(node, ast.FunctionDef) and self._is_top_level_function(node, tree):
+                    if not node.name.startswith('_'):
+                        cap = self._extract_python_function(node, file_path, content, module_doc, source_url)
+                        if cap:
+                            capabilities.append(cap)
+        except Exception as e:
+            logger.debug(f"Python parse error {file_path}: {e}")
         
         return capabilities
     
-    def _extract_class_capability(self, node: ast.ClassDef, filepath: Path, 
-                                   content: str, module_doc: str, source_url: str) -> Optional[Dict]:
-        """Extract a class as a capability"""
+    def _extract_python_class(self, node: ast.ClassDef, filepath: Path, 
+                               content: str, module_doc: str, source_url: str) -> Optional[Dict]:
+        """Extract a Python class as a capability"""
         class_name = node.name
         
-        # Skip private classes and base classes that look abstract
         if class_name.startswith('_'):
             return None
-        if 'Abstract' in class_name or 'Base' in class_name and len(node.bases) > 0:
-            # Still include if it has concrete methods
-            pass
         
-        # Get class docstring
         docstring = ast.get_docstring(node) or f"Class {class_name} from {filepath.name}"
         
-        # Extract methods
         methods = []
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                if not item.name.startswith('_'):  # Skip private methods
+                if not item.name.startswith('_'):
                     methods.append({
                         'name': item.name,
                         'docstring': ast.get_docstring(item) or "",
@@ -223,13 +267,8 @@ class CapabilityIntegrator:
                         'is_async': isinstance(item, ast.AsyncFunctionDef)
                     })
         
-        # Get the actual source code for this class
         class_source = self._get_node_source(content, node)
-        
-        # Determine capability type from class name and methods
         capability_type = self._infer_capability_type(class_name, methods, module_doc)
-        
-        # Calculate a unique ID based on name and source
         capability_id = hashlib.md5(f"{class_name}_{filepath.stem}".encode()).hexdigest()[:12]
         
         return {
@@ -243,27 +282,21 @@ class CapabilityIntegrator:
             'source_code': class_source,
             'source_url': source_url,
             'dependencies': self._extract_dependencies(filepath),
-            'imports': self._extract_imports(content)
+            'imports': self._extract_imports(content),
+            'language': 'python'
         }
     
-    def _extract_function_capability(self, node: ast.FunctionDef, filepath: Path,
-                                      content: str, module_doc: str, source_url: str) -> Optional[Dict]:
-        """Extract a function as a capability"""
+    def _extract_python_function(self, node: ast.FunctionDef, filepath: Path,
+                                  content: str, module_doc: str, source_url: str) -> Optional[Dict]:
+        """Extract a Python function as a capability"""
         func_name = node.name
         
-        # Skip private functions
         if func_name.startswith('_'):
             return None
         
-        # Get function docstring
         docstring = ast.get_docstring(node) or f"Function {func_name} from {filepath.name}"
-        
-        # Get the actual source code
         func_source = self._get_node_source(content, node)
-        
-        # Determine capability type
         capability_type = self._infer_capability_type(func_name, [], module_doc)
-        
         capability_id = hashlib.md5(f"{func_name}_{filepath.stem}".encode()).hexdigest()[:12]
         
         return {
@@ -278,11 +311,12 @@ class CapabilityIntegrator:
             'is_async': isinstance(node, ast.AsyncFunctionDef),
             'args': [arg.arg for arg in node.args.args],
             'dependencies': self._extract_dependencies(filepath),
-            'imports': self._extract_imports(content)
+            'imports': self._extract_imports(content),
+            'language': 'python'
         }
     
     def _is_top_level_function(self, node: ast.FunctionDef, tree: ast.Module) -> bool:
-        """Check if function is defined at module level (not inside a class)"""
+        """Check if function is defined at module level"""
         for item in tree.body:
             if isinstance(item, ast.FunctionDef) and item == node:
                 return True
@@ -294,6 +328,615 @@ class CapabilityIntegrator:
         start_line = node.lineno - 1
         end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line + 10
         return '\n'.join(lines[start_line:end_line])
+
+    # ============================================================
+    # JAVASCRIPT / TYPESCRIPT PARSERS
+    # ============================================================
+    
+    def _parse_typescript_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse TypeScript file using regex patterns"""
+        return self._parse_js_ts_common(file_path, source_url, 'typescript')
+    
+    def _parse_javascript_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse JavaScript file using regex patterns"""
+        return self._parse_js_ts_common(file_path, source_url, 'javascript')
+    
+    def _parse_js_ts_common(self, file_path: Path, source_url: str, lang: str) -> List[Dict]:
+        """Common parser for JavaScript and TypeScript"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract classes
+            class_pattern = r'(?:export\s+)?(?:abstract\s+)?class\s+(\w+)(?:\s+extends\s+\w+)?(?:\s+implements\s+[^{]+)?\s*\{'
+            for match in re.finditer(class_pattern, content, re.MULTILINE):
+                class_name = match.group(1)
+                if not class_name.startswith('_'):
+                    methods = []
+                    method_pattern = r'(?:public|private|protected|async)?\s*(\w+)\s*\([^)]*\)\s*[:{]\s*(?:[^{}]*|\{[^{}]*\})*?\}'
+                    
+                    capabilities.append({
+                        'id': hashlib.md5(f"{class_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': class_name,
+                        'type': 'class',
+                        'capability_type': self._infer_capability_type(class_name, methods, ""),
+                        'description': f"{lang} class: {class_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0)[:500],
+                        'source_url': source_url,
+                        'methods': methods,
+                        'language': lang
+                    })
+            
+            # Extract exported functions
+            func_pattern = r'(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                if not func_name.startswith('_'):
+                    capabilities.append({
+                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"{lang} function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': lang
+                    })
+            
+            # Extract const arrow functions
+            arrow_pattern = r'(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>'
+            for match in re.finditer(arrow_pattern, content):
+                func_name = match.group(1)
+                if not func_name.startswith('_'):
+                    capabilities.append({
+                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"{lang} arrow function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': lang
+                    })
+            
+            # Extract interfaces (TypeScript)
+            interface_pattern = r'(?:export\s+)?interface\s+(\w+)'
+            for match in re.finditer(interface_pattern, content):
+                interface_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"interface_{interface_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': interface_name,
+                    'type': 'interface',
+                    'capability_type': 'data_structure',
+                    'description': f"{lang} interface: {interface_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': lang
+                })
+                    
+        except Exception as e:
+            logger.debug(f"JS/TS parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # GO PARSER
+    # ============================================================
+    
+    def _parse_go_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse Go file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract structs
+            struct_pattern = r'type\s+(\w+)\s+struct\s*\{([^}]*)\}'
+            for match in re.finditer(struct_pattern, content, re.DOTALL):
+                struct_name = match.group(1)
+                if struct_name and struct_name[0].isupper():
+                    capabilities.append({
+                        'id': hashlib.md5(f"{struct_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': struct_name,
+                        'type': 'struct',
+                        'capability_type': self._infer_capability_type(struct_name, [], ""),
+                        'description': f"Go struct: {struct_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0)[:500],
+                        'source_url': source_url,
+                        'language': 'go'
+                    })
+            
+            # Extract functions
+            func_pattern = r'func\s+(?:\([^)]+\)\s+)?(\w+)\s*\([^)]*\)'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                if func_name and func_name[0].isupper():
+                    capabilities.append({
+                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"Go function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_code': match.group(0),
+                        'source_url': source_url,
+                        'language': 'go'
+                    })
+            
+            # Extract interfaces
+            interface_pattern = r'type\s+(\w+)\s+interface\s*\{'
+            for match in re.finditer(interface_pattern, content):
+                interface_name = match.group(1)
+                if interface_name[0].isupper():
+                    capabilities.append({
+                        'id': hashlib.md5(f"interface_{interface_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': interface_name,
+                        'type': 'interface',
+                        'capability_type': 'data_structure',
+                        'description': f"Go interface: {interface_name}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': 'go'
+                    })
+        except Exception as e:
+            logger.debug(f"Go parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # RUST PARSER
+    # ============================================================
+    
+    def _parse_rust_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse Rust file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract structs
+            struct_pattern = r'(?:pub\s+)?struct\s+(\w+)\s*\{'
+            for match in re.finditer(struct_pattern, content):
+                struct_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"{struct_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': struct_name,
+                    'type': 'struct',
+                    'capability_type': self._infer_capability_type(struct_name, [], ""),
+                    'description': f"Rust struct: {struct_name}",
+                    'source_file': str(file_path),
+                    'source_code': match.group(0),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+            
+            # Extract impl blocks
+            impl_pattern = r'impl\s+(?:(\w+)\s+for\s+)?(\w+)\s*\{'
+            for match in re.finditer(impl_pattern, content):
+                trait_name = match.group(1)
+                type_name = match.group(2)
+                impl_name = f"{trait_name}_for_{type_name}" if trait_name else type_name
+                capabilities.append({
+                    'id': hashlib.md5(f"impl_{impl_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': f"{impl_name}Impl",
+                    'type': 'impl',
+                    'capability_type': self._infer_capability_type(type_name, [], ""),
+                    'description': f"Rust impl for: {impl_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+            
+            # Extract pub functions
+            func_pattern = r'pub\s+(?:async\s+)?fn\s+(\w+)\s*\([^)]*\)'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': func_name,
+                    'type': 'function',
+                    'capability_type': self._infer_capability_type(func_name, [], ""),
+                    'description': f"Rust function: {func_name}",
+                    'source_file': str(file_path),
+                    'source_code': match.group(0),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+            
+            # Extract traits
+            trait_pattern = r'pub\s+trait\s+(\w+)'
+            for match in re.finditer(trait_pattern, content):
+                trait_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"trait_{trait_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': trait_name,
+                    'type': 'trait',
+                    'capability_type': 'interface',
+                    'description': f"Rust trait: {trait_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'rust'
+                })
+        except Exception as e:
+            logger.debug(f"Rust parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # JAVA PARSER
+    # ============================================================
+    
+    def _parse_java_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse Java file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract public classes
+            class_pattern = r'public\s+(?:abstract\s+)?(?:final\s+)?class\s+(\w+)'
+            for match in re.finditer(class_pattern, content):
+                class_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"{class_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': class_name,
+                    'type': 'class',
+                    'capability_type': self._infer_capability_type(class_name, [], ""),
+                    'description': f"Java class: {class_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'java'
+                })
+            
+            # Extract interfaces
+            interface_pattern = r'public\s+interface\s+(\w+)'
+            for match in re.finditer(interface_pattern, content):
+                interface_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"interface_{interface_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': interface_name,
+                    'type': 'interface',
+                    'capability_type': 'data_structure',
+                    'description': f"Java interface: {interface_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'java'
+                })
+        except Exception as e:
+            logger.debug(f"Java parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # C / C++ PARSERS
+    # ============================================================
+    
+    def _parse_cpp_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse C++ file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract classes
+            class_pattern = r'class\s+(\w+)'
+            for match in re.finditer(class_pattern, content):
+                class_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"{class_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': class_name,
+                    'type': 'class',
+                    'capability_type': self._infer_capability_type(class_name, [], ""),
+                    'description': f"C++ class: {class_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'cpp'
+                })
+        except Exception as e:
+            logger.debug(f"C++ parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_c_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse C file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract functions
+            func_pattern = r'(?:static\s+)?(?:inline\s+)?\w+\s*\*?\s+(\w+)\s*\([^)]*\)\s*\{'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                if not func_name.startswith('_'):
+                    capabilities.append({
+                        'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': func_name,
+                        'type': 'function',
+                        'capability_type': self._infer_capability_type(func_name, [], ""),
+                        'description': f"C function: {func_name}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': 'c'
+                    })
+        except Exception as e:
+            logger.debug(f"C parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_header_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse C/C++ header file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract function declarations
+            func_pattern = r'(?:extern\s+)?\w+\s*\*?\s+(\w+)\s*\([^)]*\)\s*;'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': func_name,
+                    'type': 'function_declaration',
+                    'capability_type': self._infer_capability_type(func_name, [], ""),
+                    'description': f"Header function: {func_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'c'
+                })
+        except Exception as e:
+            logger.debug(f"Header parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # SHELL SCRIPT PARSER
+    # ============================================================
+    
+    def _parse_shell_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse shell script"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract functions
+            func_pattern = r'(?:function\s+)?(\w+)\s*\(\)\s*\{'
+            for match in re.finditer(func_pattern, content):
+                func_name = match.group(1)
+                capabilities.append({
+                    'id': hashlib.md5(f"{func_name}_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': func_name,
+                    'type': 'shell_function',
+                    'capability_type': 'automation',
+                    'description': f"Shell function: {func_name}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'shell'
+                })
+        except Exception as e:
+            logger.debug(f"Shell parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # CONFIGURATION FILE PARSERS
+    # ============================================================
+    
+    def _parse_json_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse JSON configuration file"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                data = json.load(f)
+            
+            if isinstance(data, dict):
+                for key in list(data.keys())[:20]:
+                    capabilities.append({
+                        'id': hashlib.md5(f"{key}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': key,
+                        'type': 'config',
+                        'capability_type': 'configuration',
+                        'description': f"JSON configuration: {key}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': 'json',
+                        'schema': type(data[key]).__name__ if data[key] else 'unknown'
+                    })
+        except Exception as e:
+            logger.debug(f"JSON parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_yaml_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse YAML configuration file"""
+        capabilities = []
+        if yaml is None:
+            return capabilities
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                data = yaml.safe_load(f)
+            
+            if isinstance(data, dict):
+                for key in list(data.keys())[:20]:
+                    capabilities.append({
+                        'id': hashlib.md5(f"{key}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': key,
+                        'type': 'config',
+                        'capability_type': 'configuration',
+                        'description': f"YAML configuration: {key}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': 'yaml'
+                    })
+        except Exception as e:
+            logger.debug(f"YAML parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_toml_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse TOML configuration file"""
+        capabilities = []
+        try:
+            import sys
+            if sys.version_info >= (3, 11):
+                import tomllib
+                with open(file_path, 'rb') as f:
+                    data = tomllib.load(f)
+                
+                if isinstance(data, dict):
+                    for key in list(data.keys())[:20]:
+                        capabilities.append({
+                            'id': hashlib.md5(f"{key}_{file_path.stem}".encode()).hexdigest()[:12],
+                            'name': key,
+                            'type': 'config',
+                            'capability_type': 'configuration',
+                            'description': f"TOML configuration: {key}",
+                            'source_file': str(file_path),
+                            'source_url': source_url,
+                            'language': 'toml'
+                        })
+        except Exception as e:
+            logger.debug(f"TOML parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_xml_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse XML configuration file"""
+        capabilities = []
+        if ET is None:
+            return capabilities
+        
+        try:
+            tree = ET.parse(file_path)
+            root = tree.getroot()
+            
+            capabilities.append({
+                'id': hashlib.md5(f"{root.tag}_{file_path.stem}".encode()).hexdigest()[:12],
+                'name': root.tag,
+                'type': 'config',
+                'capability_type': 'configuration',
+                'description': f"XML root: {root.tag}",
+                'source_file': str(file_path),
+                'source_url': source_url,
+                'language': 'xml'
+            })
+        except Exception as e:
+            logger.debug(f"XML parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # DOCUMENTATION PARSERS
+    # ============================================================
+    
+    def _parse_markdown_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse Markdown documentation"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Extract headers as knowledge topics
+            header_pattern = r'^#+\s+(.+)$'
+            headers = re.findall(header_pattern, content, re.MULTILINE)
+            
+            if headers:
+                capabilities.append({
+                    'id': hashlib.md5(f"doc_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': file_path.stem,
+                    'type': 'documentation',
+                    'capability_type': 'knowledge',
+                    'description': f"Documentation: {headers[0][:100] if headers else file_path.stem}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'markdown',
+                    'topics': headers[:10]
+                })
+        except Exception as e:
+            logger.debug(f"Markdown parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_text_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse text file (requirements, readme, etc.)"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Check if it's a requirements file
+            if 'requirements' in file_path.name.lower() or file_path.name in ['README.txt', 'readme.txt']:
+                pkg_pattern = r'^([a-zA-Z0-9_-]+)[=<>~!]'
+                packages = re.findall(pkg_pattern, content, re.MULTILINE)
+                
+                for pkg in packages[:20]:
+                    capabilities.append({
+                        'id': hashlib.md5(f"req_{pkg}_{file_path.stem}".encode()).hexdigest()[:12],
+                        'name': pkg,
+                        'type': 'dependency',
+                        'capability_type': 'requirement',
+                        'description': f"Required package: {pkg}",
+                        'source_file': str(file_path),
+                        'source_url': source_url,
+                        'language': 'text'
+                    })
+            
+            # General text file - capture as knowledge
+            first_line = content.split('\n')[0][:200] if content else ""
+            if first_line:
+                capabilities.append({
+                    'id': hashlib.md5(f"txt_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': file_path.stem,
+                    'type': 'documentation',
+                    'capability_type': 'knowledge',
+                    'description': first_line,
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'text'
+                })
+        except Exception as e:
+            logger.debug(f"Text parse error {file_path}: {e}")
+        
+        return capabilities
+    
+    def _parse_rst_file(self, file_path: Path, source_url: str) -> List[Dict]:
+        """Parse reStructuredText documentation"""
+        capabilities = []
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            header_pattern = r'^(.+)\n[=~`\'\^*-]+\s*$'
+            headers = re.findall(header_pattern, content, re.MULTILINE)
+            
+            if headers:
+                capabilities.append({
+                    'id': hashlib.md5(f"rst_{file_path.stem}".encode()).hexdigest()[:12],
+                    'name': file_path.stem,
+                    'type': 'documentation',
+                    'capability_type': 'knowledge',
+                    'description': f"RST doc: {headers[0][:100] if headers else file_path.stem}",
+                    'source_file': str(file_path),
+                    'source_url': source_url,
+                    'language': 'rst',
+                    'topics': headers[:10]
+                })
+        except Exception as e:
+            logger.debug(f"RST parse error {file_path}: {e}")
+        
+        return capabilities
+
+    # ============================================================
+    # UTILITY METHODS
+    # ============================================================
     
     def _infer_capability_type(self, name: str, methods: List[Dict], module_doc: str) -> str:
         """Infer what kind of capability this is based on naming and context"""
@@ -301,29 +944,29 @@ class CapabilityIntegrator:
         doc_lower = module_doc.lower()
         
         # Check for funding/financial capabilities
-        if any(word in name_lower for word in ['fund', 'revenue', 'money', 'payment', 'finance', 'profit']):
+        if any(word in name_lower for word in ['fund', 'revenue', 'money', 'payment', 'finance', 'profit', 'credit', 'wallet']):
             return 'funding'
         if any(word in doc_lower for word in ['fund', 'revenue', 'payment', 'finance']):
             return 'funding'
         
         # Check for replication/distribution
-        if any(word in name_lower for word in ['replicat', 'clone', 'spawn', 'distribute', 'deploy']):
+        if any(word in name_lower for word in ['replicat', 'clone', 'spawn', 'distribute', 'deploy', 'child']):
             return 'replication'
         
         # Check for identity/authentication
-        if any(word in name_lower for word in ['identity', 'auth', 'login', 'credential', 'wallet']):
+        if any(word in name_lower for word in ['identity', 'auth', 'login', 'credential', 'wallet', 'key', 'sign']):
             return 'identity'
         
         # Check for AI/ML capabilities
-        if any(word in name_lower for word in ['model', 'train', 'predict', 'inference', 'neural', 'ai']):
+        if any(word in name_lower for word in ['model', 'train', 'predict', 'inference', 'neural', 'ai', 'llm']):
             return 'ai_model'
         
         # Check for automation
-        if any(word in name_lower for word in ['auto', 'schedule', 'cron', 'worker', 'task']):
+        if any(word in name_lower for word in ['auto', 'schedule', 'cron', 'worker', 'task', 'daemon']):
             return 'automation'
         
         # Check for API/web
-        if any(word in name_lower for word in ['api', 'endpoint', 'route', 'server', 'http', 'web']):
+        if any(word in name_lower for word in ['api', 'endpoint', 'route', 'server', 'http', 'web', 'router']):
             return 'api'
         
         # Check for trading/arbitrage
@@ -331,8 +974,16 @@ class CapabilityIntegrator:
             return 'trading'
         
         # Check for generation capabilities
-        if any(word in name_lower for word in ['generate', 'create', 'synthesize', 'build']):
+        if any(word in name_lower for word in ['generate', 'create', 'synthesize', 'build', 'make']):
             return 'generation'
+        
+        # Check for survival/monitoring
+        if any(word in name_lower for word in ['survive', 'monitor', 'health', 'heartbeat', 'check']):
+            return 'survival'
+        
+        # Check for on-chain/blockchain
+        if any(word in name_lower for word in ['chain', 'blockchain', 'ethereum', 'solana', 'contract', 'web3']):
+            return 'blockchain'
         
         # Default
         return 'utility'
@@ -353,7 +1004,7 @@ class CapabilityIntegrator:
         return []
     
     def _extract_imports(self, content: str) -> List[str]:
-        """Extract import statements from code"""
+        """Extract import statements from Python code"""
         imports = []
         try:
             tree = ast.parse(content)
@@ -391,7 +1042,8 @@ class CapabilityIntegrator:
         result['runtime_mode'] = runtime_mode
         
         # Create the capability file
-        capability_filename = f"{capability['name'].lower()}_{capability_id}.py"
+        language = capability.get('language', 'unknown')
+        capability_filename = f"{capability['name'].lower()}_{capability_id}.{self._get_extension(language)}"
         target_path = self.capabilities_dir / capability_filename
         
         # Build the full module with imports and the extracted code
@@ -417,7 +1069,8 @@ class CapabilityIntegrator:
                 'integrated_at': datetime.now().isoformat(),
                 'methods': capability.get('methods', []),
                 'is_async': capability.get('is_async', False),
-                'args': capability.get('args', [])
+                'args': capability.get('args', []),
+                'language': language
             }
             
             # Track in runtime mode lists
@@ -426,7 +1079,7 @@ class CapabilityIntegrator:
             else:
                 self.ondemand_capabilities.append(capability_id)
             
-            logger.info(f"✅ Integrated capability: {capability['name']} ({runtime_mode})")
+            logger.info(f"✅ Integrated capability: {capability['name']} ({runtime_mode}) [{language}]")
             
         except Exception as e:
             result['reason'] = f"Failed to write file: {e}"
@@ -434,21 +1087,41 @@ class CapabilityIntegrator:
         
         return result
     
+    def _get_extension(self, language: str) -> str:
+        """Get file extension for a language"""
+        ext_map = {
+            'python': 'py',
+            'typescript': 'ts',
+            'javascript': 'js',
+            'go': 'go',
+            'rust': 'rs',
+            'java': 'java',
+            'cpp': 'cpp',
+            'c': 'c',
+            'shell': 'sh',
+            'json': 'json',
+            'yaml': 'yaml',
+            'toml': 'toml',
+            'xml': 'xml',
+            'markdown': 'md',
+            'text': 'txt',
+            'rst': 'rst'
+        }
+        return ext_map.get(language, 'txt')
+    
     def _determine_runtime_mode(self, capability: Dict) -> str:
         """
         Determine if capability should run autonomously (24/7) or on-demand.
-        
-        Autonomous: funding, replication, monitoring, continuous learning
-        On-demand: generation, API endpoints, utilities
         """
-        auto_types = ['funding', 'replication', 'automation', 'trading']
+        auto_types = ['funding', 'replication', 'automation', 'trading', 'survival']
         
         if capability['capability_type'] in auto_types:
             return 'autonomous'
         
         # Check name for autonomous indicators
         name_lower = capability['name'].lower()
-        auto_keywords = ['monitor', 'watch', 'daemon', 'worker', 'cron', 'scheduler', 'replicat']
+        auto_keywords = ['monitor', 'watch', 'daemon', 'worker', 'cron', 'scheduler', 
+                        'replicat', 'heartbeat', 'survival', 'fund']
         
         for keyword in auto_keywords:
             if keyword in name_lower:
@@ -457,14 +1130,32 @@ class CapabilityIntegrator:
         return 'ondemand'
     
     def _build_capability_module(self, capability: Dict, repo_name: str) -> str:
-        """Build a complete Python module for the capability"""
+        """Build a complete Python module (or documentation file) for the capability"""
+        language = capability.get('language', 'python')
+        
+        if language in ['markdown', 'text', 'rst', 'json', 'yaml', 'toml', 'xml']:
+            # For documentation/config files, store as-is with a header
+            header = f"""# DMAI Capability: {capability['name']}
+# Type: {capability['type']}
+# Category: {capability['capability_type']}
+# Source: {capability['source_url']}
+# Repository: {repo_name}
+# Integrated: {datetime.now().isoformat()}
+# Language: {language}
+# Description: {capability['description']}
+
+"""
+            return header + capability.get('source_code', '')
+        
+        # For code files, build a proper module
         header = f'''"""
-Capability: {capability['name']}
+DMAI Capability: {capability['name']}
 Type: {capability['type']}
 Category: {capability['capability_type']}
 Source: {capability['source_url']}
 Repository: {repo_name}
 Integrated: {datetime.now().isoformat()}
+Language: {language}
 Description: {capability['description']}
 """
 
@@ -474,18 +1165,19 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# Original imports from source
 '''
         
-        # Add extracted imports
-        for imp in capability.get('imports', [])[:20]:  # Limit imports
-            header += f"import {imp}\n"
+        # Add extracted imports for Python
+        if language == 'python':
+            for imp in capability.get('imports', [])[:20]:
+                header += f"import {imp}\n"
         
         header += f"\n# === Capability: {capability['name']} ===\n\n"
-        header += capability['source_code']
+        header += capability.get('source_code', '')
         
-        # Add a wrapper class for easy invocation
-        wrapper = f'''
+        # Add a wrapper class for Python capabilities
+        if language == 'python':
+            wrapper = f'''
 
 # === DMAI Integration Wrapper ===
 
@@ -515,10 +1207,9 @@ class DMAI_{capability['name']}:
             'initialized': self.initialized
         }}
 '''
-        
-        # Add method wrappers if it's a class
-        if capability['type'] == 'class' and capability.get('methods'):
-            wrapper += f'''
+            
+            if capability['type'] == 'class' and capability.get('methods'):
+                wrapper += f'''
     def call(self, method: str, *args, **kwargs) -> Any:
         """Call a method on the underlying capability"""
         try:
@@ -532,8 +1223,8 @@ class DMAI_{capability['name']}:
             logger.error(f"Error calling {{method}}: {{e}}")
             return None
 '''
-        elif capability['type'] == 'function':
-            wrapper += f'''
+            elif capability['type'] == 'function':
+                wrapper += f'''
     def execute(self, *args, **kwargs) -> Any:
         """Execute the capability function"""
         try:
@@ -542,8 +1233,9 @@ class DMAI_{capability['name']}:
             logger.error(f"Error executing {capability['name']}: {{e}}")
             return None
 '''
+            return header + wrapper
         
-        return header + wrapper
+        return header
     
     def _create_capability_neuron(self, integration_result: Dict, source_url: str) -> Optional[str]:
         """Create a neuron in SI Core for the integrated capability"""
@@ -558,7 +1250,6 @@ class DMAI_{capability['name']}:
             
             insight_text = f"Acquired capability: {capability_name} ({capability_type}) - runs {runtime_mode}"
             
-            # Create entities based on capability
             entities = [
                 capability_name,
                 capability_type,
@@ -626,7 +1317,6 @@ class DMAI_{capability['name']}:
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             
-            # Use the wrapper class
             wrapper_class = getattr(module, f"DMAI_{cap_info['name']}", None)
             if wrapper_class:
                 wrapper = wrapper_class()
@@ -635,7 +1325,6 @@ class DMAI_{capability['name']}:
                 else:
                     return wrapper.execute(*args, **kwargs)
             
-            # Fallback: try direct invocation
             if cap_info['type'] == 'function':
                 func = getattr(module, cap_info['name'], None)
                 if func:
