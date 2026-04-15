@@ -336,7 +336,37 @@ class SyntheticIntelligenceCore:
         self._zero_shot_attempts = 0
         self._zero_shot_successes = 0
 
-        self.load_state()
+        # ============================================================
+        # SQLITE PERSISTENCE - PRIMARY STORAGE (Guaranteed survival)
+        # ============================================================
+        try:
+            from components.sqlite_persistence import SQLitePersistence
+            self.sqlite = SQLitePersistence(data_dir=str(self.data_dir.parent))
+            
+            # TRY SQLITE FIRST (primary persistence)
+            sqlite_insights = self.sqlite.load_all_insights()
+            if sqlite_insights:
+                self.insights = sqlite_insights
+                self.topics = self.sqlite.load_all_topics()
+                self.synapses = self.sqlite.load_all_synapses()
+                logger.info(f"✅ Loaded {len(self.insights)} insights from SQLite (primary)")
+            else:
+                # Fallback to JSON
+                logger.info("📡 No SQLite data, trying JSON fallback...")
+                self.load_state()
+                
+                # If JSON has data, migrate it to SQLite
+                if self.insights:
+                    logger.info(f"🔄 Migrating {len(self.insights)} insights from JSON to SQLite...")
+                    for insight in self.insights.values():
+                        self.sqlite.save_insight(insight)
+                    for synapse in self.synapses:
+                        self.sqlite.save_synapse(synapse)
+                    logger.info("✅ Migration to SQLite complete")
+        except Exception as e:
+            logger.warning(f"SQLite initialization failed, falling back to JSON: {e}")
+            self.sqlite = None
+            self.load_state()
         
         # PERMANENT FIX: Sync with Neo4j on every startup to ensure all insights are loaded
         self._sync_with_neo4j()
@@ -398,9 +428,9 @@ class SyntheticIntelligenceCore:
                 source_topic: str,
                 target_topic: str,   
                 confidence: float = 0.5,
-                source_url: str = None,      # NEW
-                source_title: str = None,    # NEW
-                source_type: str = None) -> str:  # NEW
+                source_url: str = None,
+                source_title: str = None,
+                source_type: str = None) -> str:
         """
 
         # ============================================================
@@ -460,6 +490,12 @@ class SyntheticIntelligenceCore:
         if existing:
             existing.strengthen()
             self.save_state()
+            # Also update in SQLite
+            if hasattr(self, 'sqlite') and self.sqlite:
+                try:
+                    self.sqlite.save_insight(existing)
+                except Exception as e:
+                    logger.error(f"SQLite update failed: {e}")
             return existing.id
         
         # Create new insight
@@ -485,6 +521,15 @@ class SyntheticIntelligenceCore:
                 if insight.id not in self.topics[target_topic]:
                     self.topics[target_topic].append(insight.id)
         
+        # ============================================================
+        # PERSISTENCE GUARANTEE: Save to SQLite immediately
+        # ============================================================
+        if hasattr(self, 'sqlite') and self.sqlite:
+            try:
+                self.sqlite.save_insight(insight)
+            except Exception as e:
+                logger.error(f"SQLite save failed (continuing): {e}")
+        
         logger.info(f"🧠 New insight: {insight_text[:50]}... (confidence: {confidence})")
         return insight.id
     
@@ -509,6 +554,12 @@ class SyntheticIntelligenceCore:
                (syn['from'] == insight_b and syn['to'] == insight_a):
                 syn['occurrences'] = syn.get('occurrences', 1) + 1
                 self.save_state()
+                # Also update in SQLite
+                if hasattr(self, 'sqlite') and self.sqlite:
+                    try:
+                        self.sqlite.save_synapse(syn)
+                    except Exception as e:
+                        logger.error(f"SQLite synapse update failed: {e}")
                 return syn
         
         # Find overlapping entities
@@ -529,9 +580,19 @@ class SyntheticIntelligenceCore:
         
         self.synapses.append(synapse)
         self.save_state()
+        
+        # ============================================================
+        # PERSISTENCE GUARANTEE: Save synapse to SQLite
+        # ============================================================
+        if hasattr(self, 'sqlite') and self.sqlite:
+            try:
+                self.sqlite.save_synapse(synapse)
+            except Exception as e:
+                logger.error(f"SQLite synapse save failed: {e}")
+        
         logger.info(f"🔗 Synapse created: {insight_a_obj.insight_text[:30]} <-> {insight_b_obj.insight_text[:30]}")
         return synapse
-    
+
     def query(self, entities: List[str], context_topic: str = None, limit: int = 10) -> List[Dict]:
         """Find insights relevant to given entities"""
         results = []
