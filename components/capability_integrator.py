@@ -73,8 +73,20 @@ class CapabilityIntegrator:
         self.registry['last_updated'] = datetime.now().isoformat()
         self.registry['total_capabilities'] = len(self.registry['capabilities'])
         
+        # Save to JSON
         with open(self.registry_file, 'w') as f:
             json.dump(self.registry, f, indent=2, default=str)
+        
+        # ============================================================
+        # PERSISTENCE GUARANTEE: Also save to SQLite
+        # ============================================================
+        if hasattr(self.dmai, 'si_core') and hasattr(self.dmai.si_core, 'sqlite') and self.dmai.si_core.sqlite:
+            try:
+                for cap_id, cap in self.registry['capabilities'].items():
+                    self.dmai.si_core.sqlite.save_capability(cap_id, cap)
+                logger.info(f"💾 Saved {len(self.registry['capabilities'])} capabilities to SQLite")
+            except Exception as e:
+                logger.error(f"SQLite capability save failed: {e}")
     
     def process_repository(self, repo_url: str) -> Dict:
         """
@@ -1238,6 +1250,8 @@ class DMAI_{capability['name']}:
         return header
     
     def _create_capability_neuron(self, integration_result: Dict, source_url: str) -> Optional[str]:
+
+    def _create_capability_neuron(self, integration_result: Dict, source_url: str) -> Optional[str]:
         """Create a neuron in SI Core for the integrated capability"""
         if not hasattr(self.dmai, 'si_core') or not self.dmai.si_core:
             logger.warning("SI Core not available for neuron creation")
@@ -1247,8 +1261,35 @@ class DMAI_{capability['name']}:
             capability_name = integration_result['capability_name']
             capability_type = integration_result['capability_type']
             runtime_mode = integration_result['runtime_mode']
+            description = integration_result.get('description', '')
             
-            insight_text = f"Acquired capability: {capability_name} ({capability_type}) - runs {runtime_mode}"
+            # Create DESCRIPTIVE insight text based on capability type
+            if capability_type == 'funding':
+                insight_text = f"Self-funding capability: {capability_name} - generates revenue autonomously"
+            elif capability_type == 'replication':
+                insight_text = f"Self-replication capability: {capability_name} - spawns and manages child instances"
+            elif capability_type == 'identity':
+                insight_text = f"Identity management: {capability_name} - handles authentication and on-chain identity"
+            elif capability_type == 'survival':
+                insight_text = f"Survival mechanism: {capability_name} - monitors resources and ensures continued operation"
+            elif capability_type == 'automation':
+                insight_text = f"Automation capability: {capability_name} - executes tasks without human intervention"
+            elif capability_type == 'ai_model':
+                insight_text = f"AI model: {capability_name} - machine learning inference and training"
+            elif capability_type == 'blockchain':
+                insight_text = f"Blockchain integration: {capability_name} - on-chain transactions and contracts"
+            elif capability_type == 'api':
+                insight_text = f"API endpoint: {capability_name} - handles external service communication"
+            elif capability_type == 'generation':
+                insight_text = f"Content generation: {capability_name} - creates images, text, or media"
+            elif capability_type == 'data_structure':
+                insight_text = f"Data structure: {capability_name} - organizes and manages data efficiently"
+            elif capability_type == 'configuration':
+                insight_text = f"Configuration: {capability_name} - manages system settings and parameters"
+            elif capability_type == 'knowledge':
+                insight_text = f"Knowledge module: {capability_name} - stores and retrieves learned information"
+            else:
+                insight_text = f"Capability: {capability_name} ({capability_type}) - {description[:100] if description else 'enables new functionality'}"
             
             entities = [
                 capability_name,
@@ -1270,7 +1311,25 @@ class DMAI_{capability['name']}:
                 source_type="capability_integration"
             )
             
-            logger.info(f"🧠 Created neuron for capability: {capability_name}")
+            # Create synapses to related topics
+            if hasattr(self.dmai, 'si_core') and insight_id:
+                try:
+                    # Connect to funding topic
+                    if capability_type == 'funding':
+                        self.dmai.si_core.add_synapse(insight_id, 'self_funding', 'enables')
+                    # Connect to survival topic
+                    if capability_type in ['survival', 'replication', 'funding']:
+                        self.dmai.si_core.add_synapse(insight_id, 'autonomous_survival', 'contributes_to')
+                    # Connect automation capabilities
+                    if capability_type == 'automation':
+                        self.dmai.si_core.add_synapse(insight_id, 'task_execution', 'handles')
+                    # Connect identity capabilities
+                    if capability_type == 'identity':
+                        self.dmai.si_core.add_synapse(insight_id, 'authentication', 'manages')
+                except Exception as syn_e:
+                    logger.debug(f"Synapse creation failed (non-critical): {syn_e}")
+            
+            logger.info(f"🧠 Created neuron for capability: {capability_name} ({capability_type})")
             return insight_id
             
         except Exception as e:
