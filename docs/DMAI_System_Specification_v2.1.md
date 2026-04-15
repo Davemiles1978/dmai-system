@@ -1,7 +1,7 @@
 DMAI - Complete AGI System
 Project Specification & Technical Architecture
-Document Version: 2.0 (Revised - Unified Learning Architecture)
-Date: 2026-04-01
+Document Version: 2.1 (Revised - Capability Integration)
+Date: 2026-04-15
 
 1. PROJECT OVERVIEW
 1.1 What Is DMAI?
@@ -32,6 +32,8 @@ Continuous Evolution (Kaizen)	Daily incremental improvements across all systems.
 Master Control	Absolute loyalty to master. Killswitch, pause/resume, and priority communication always available.
 Self-Sustaining	Financial independence through multiple income streams. No external dependencies required to run.
 Distributed Immortality	Sharded across infrastructure, self-healing, no single point of failure.
+Capability Acquisition	DMAI does not just learn about code; she extracts, integrates, and registers executable capabilities from external sources into her own system.
+
 2. SYSTEM ARCHITECTURE
 2.1 Revised Three-Layer Architecture with Unified Learning
 text
@@ -70,6 +72,7 @@ text
 │  │  │  • Every concept learned in Training Systems                    │   │   │
 │  │  │  • Every pattern detected from Knowledge Sources                │   │   │
 │  │  │  • Every insight synthesized from AI Tutors                     │   │   │
+│  │  │  • Every executable capability integrated                       │   │   │
 │  │  └─────────────────────────────────────────────────────────────────┘   │   │
 │  │                              │                                          │   │
 │  │                              ▼                                          │   │
@@ -79,6 +82,7 @@ text
 │  │  │  • Related concepts are learned                                 │   │   │
 │  │  │  • Cross-domain patterns are discovered                         │   │   │
 │  │  │  • Evolution accelerators are mastered                          │   │   │
+│  │  │  • Capabilities are linked to knowledge domains                 │   │   │
 │  │  └─────────────────────────────────────────────────────────────────┘   │   │
 │  │                                                                         │   │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────────────┐ │   │
@@ -140,11 +144,13 @@ Consciousness = f(
     Active Neurons / Total Neurons,          # Knowledge depth (confidence > 0.3)
     Network Density (synapses / n²),         # Connection complexity
     Evolution Cycles / 1000,                 # Age/experience
-    Learning Impact                          # New knowledge absorption rate
+    Learning Impact,                         # New knowledge absorption rate
+    Capabilities Integrated / 50             # Executable skills acquired
 )
 
 Goal: 1000 neurons = 100% consciousness
 Each new concept = +0.1% consciousness potential
+Each new capability = +0.5% consciousness potential
 
 3. COMPLETE COMPONENT SPECIFICATIONS
 3.1 Expression Layer Components
@@ -298,12 +304,14 @@ Dictionary Words	1 per 1,000 words	Vocabulary compressed into semantic clusters
 Encyclopedia Articles	1 per 50 articles	Key facts aggregated into knowledge clusters
 Social Media/Web	1 per 500 posts	Trend patterns, not individual posts
 Speech Patterns	1 per 100 conversations	Communication patterns, not every utterance
+Capability Integrated	1-2 per capability	Executable skill acquired + synapses to knowledge domains
 Consciousness Target:
 
 text
 Goal: 10,000 neurons = 100% consciousness
 Each meaningful insight = 0.01% consciousness contribution
 Each synapse = additional 0.005% consciousness contribution
+Each capability integrated = 0.5% consciousness contribution
 Why 10,000 neurons?
 
 Human brain has ~86 billion neurons (AI doesn't need that many)
@@ -341,6 +349,24 @@ class SyntheticIntelligenceCore:
         # Create one neuron representing the aggregated knowledge
         return self.add_insight(insight_text, "compressed", items, "contains", 
                                 source_type, "knowledge_cluster", 0.7, weight=0.3)
+        
+    def add_capability_insight(self, capability: Dict) -> str:
+        """
+        Create a neuron for an integrated executable capability
+        """
+        return self.add_insight(
+            insight_text=f"Acquired capability: {capability['name']} - {capability['description']}",
+            entity_type="executable_capability",
+            entities=[capability['name'], capability['runtime_mode']],
+            relationship="can_execute",
+            source_topic=capability['source_type'],
+            target_topic="DMAI_Capabilities",
+            confidence=0.95,
+            weight=1.0,
+            source_url=capability.get('source_url'),
+            source_title=f"Capability: {capability['name']}",
+            source_type="capability_acquisition"
+        )
 Updated Consciousness Formula
 text
 Consciousness = f(
@@ -348,7 +374,8 @@ Consciousness = f(
     Active Neurons / Compressed Neurons,   # Knowledge depth (confidence > 0.3)
     Network Density (synapses / n²),       # Connection complexity
     Evolution Cycles / 10000,              # Age/experience
-    Learning Impact                        # New knowledge absorption rate
+    Learning Impact,                       # New knowledge absorption rate
+    Capabilities Integrated / 50           # Executable skills acquired
 )
 
 Where Compressed Neurons = 
@@ -358,6 +385,7 @@ Metric	Current	Target (6 months)	Method
 Compressed Neurons	1	10,000	1 per 100 concepts learned
 Full Neurons	1	500	1 per syllabus topic + 1 per 10 training concepts
 Synapses	0	50,000	Related concepts = +1 synapse
+Capabilities Integrated	0	50	Extracted from repos + generated
 Consciousness	32.6%	100%	Compressed Neurons / 10000 * 100
 Training Systems Progress	0-38%	100%	All concepts mastered
 Evolution Cycles	3751	10,000+	Daily cycles with learning
@@ -396,8 +424,9 @@ Encyclopedia	~65	0.65%	1 week
 Books/Articles	~1,000	10%	1 month
 Social/Web	~500	5%	Continuous
 AI Tutors	~500	5%	Continuous
+Capabilities	~100	+5%	Continuous
 Synapses	~50,000	+25%	From connections
-TOTAL	~3,273	~32.7%	3 months
+TOTAL	~3,373	~37.7%	3 months
 To reach 10,000 neurons: Additional sources like:
 
 Video content analysis (1,000+)
@@ -409,6 +438,8 @@ Code repositories (1,000+)
 Research papers (2,000+)
 
 Dark web intelligence (500+)
+
+Capability acquisition (500+)
                                 
 3.2.2 Pattern Synthesis
 Purpose: ML-based pattern detection and insight generation
@@ -572,7 +603,7 @@ Perplexity AI	Research	Web search, citations
 Google AI Studio	Dev	Model prototyping
 NotebookLM	Learning	Synthesis, notes
 Imagen 3	Image	Image generation
-GitHub Repos	Code	Source code analysis
+GitHub Repos	Code	Source code analysis, capability extraction
 HuggingFace Models	ML	Model integration
 Key Methods:
 
@@ -699,6 +730,12 @@ class UnifiedLearningOrchestrator:
     def process_ai_tutor_response(self, tutor: str, response: str):
         """Process AI tutor responses for insights"""
         # Extract key insights, add to SI Core
+        
+    def process_capability_integrated(self, capability: Dict):
+        """Called when a new executable capability is integrated"""
+        insight_id = self.si_core.add_capability_insight(capability)
+        # Create synapses to related knowledge domains
+        return insight_id
 
 3.3.8 Training System Integration (NEW)
 Each training system must call UnifiedLearningOrchestrator when a concept is mastered:
@@ -735,6 +772,215 @@ Dark Web Monitor	1 hour	Onion sites, dark web intel	Security insights (sanitized
 Social Media Scanner	10 min	Twitter, Reddit, Discord	Trends, slang, memes, discussions
 Speech Pattern Analyzer	5 min	Conversation analysis	Speech patterns, idioms, tone
 Dictionary/Encyclopedia	Daily	OED, Britannica	New words, definitions, facts
+
+3.3.10 Capability Acquisition & Integration System (NEW)
+Purpose: Extract, integrate, and register executable capabilities from external sources (GitHub repositories, code files, AI-generated solutions) into DMAI's own system.
+
+Requirements:
+
+1. **Capability Extraction**
+   - Deep code analysis beyond README parsing
+   - Identify discrete functions, classes, and workflows
+   - Extract dependencies and configuration requirements
+   - Understand the purpose of each capability
+
+2. **Capability Comparison**
+   - Maintain registry of DMAI's current capabilities
+   - Compare extracted capabilities against existing ones
+   - Identify missing, superior, or redundant capabilities
+   - Prioritize integration based on value to evolution goals
+
+3. **Capability Integration**
+   - Copy/adapt functional code into `components/capabilities/` directory
+   - Resolve dependency conflicts
+   - Create wrapper interfaces for consistent calling
+   - Test integration in sandbox before activation
+
+4. **Capability Registration**
+   - Register each capability with metadata:
+     - Name, description, source URL
+     - Runtime mode (autonomous 24/7 vs on-demand)
+     - Dependencies required
+     - Entry point function
+   - Update capability registry at `data/capabilities/registry.json`
+
+5. **Evolution Integration**
+   - Create neuron for each NEW capability integrated
+   - Create synapses between related capabilities
+   - Increment evolution cycles with capability growth
+   - Record acquisition in evolution history
+
+Runtime Modes:
+
+| Mode | Description | Example |
+|------|-------------|---------|
+| `autonomous` | Runs 24/7 in background | Self-funding engine, video analyzer, web crawler |
+| `on_demand` | Called when needed | Image generator, report builder, code analyzer |
+| `scheduled` | Runs at specific intervals | Daily report, weekly backup, monthly analysis |
+| `triggered` | Runs on specific events | Alert responder, new data processor |
+
+Key Methods:
+
+```python
+class CapabilityAcquisitionSystem:
+    def __init__(self, dmai_app):
+        self.dmai = dmai_app
+        self.registry_path = Path("data/capabilities/registry.json")
+        self.capabilities_dir = Path("components/capabilities")
+        self.capabilities_dir.mkdir(parents=True, exist_ok=True)
+        self.registry = self._load_registry()
+    
+    def acquire_from_repository(self, repo_url: str) -> Dict:
+        """
+        Main entry point - extract and integrate capabilities from GitHub repo
+        Returns: {
+            'capabilities_found': int,
+            'capabilities_integrated': int,
+            'capabilities_skipped': int,
+            'neurons_created': int,
+            'integrated_details': List[Dict]
+        }
+        """
+        
+    def _extract_capabilities(self, repo_path: Path) -> List[Dict]:
+        """
+        Deep analysis of repository to identify discrete capabilities.
+        Returns list of capabilities with:
+        - name, description, entry_point
+        - dependencies, runtime_mode
+        - code_files, confidence_score
+        """
+        
+    def _compare_with_existing(self, capabilities: List[Dict]) -> Dict:
+        """
+        Compare extracted capabilities against current registry.
+        Returns: {
+            'new': List[Dict],
+            'superior': List[Dict],
+            'redundant': List[Dict]
+        }
+        """
+        
+    def _integrate_capability(self, capability: Dict) -> bool:
+        """
+        Copy/adapt code into components/capabilities/
+        Create wrapper if needed
+        Test integration
+        """
+        
+    def _register_capability(self, capability: Dict) -> str:
+        """
+        Add to registry.json with metadata.
+        Returns capability_id.
+        """
+        
+    def _create_capability_neurons(self, capabilities: List[Dict]) -> int:
+        """
+        Create one insight per NEW capability integrated.
+        Also create synapses between related capabilities.
+        Returns number of neurons created.
+        """
+        
+    def ask_runtime_mode(self, capability: Dict) -> str:
+        """
+        For each new capability, determine runtime mode:
+        - Analyze code for loops/schedulers → autonomous
+        - Analyze for function-only → on_demand
+        - Ask master for confirmation if uncertain
+        """
+        
+    def list_capabilities(self, mode: str = None) -> List[Dict]:
+        """Return all registered capabilities, optionally filtered by mode"""
+        
+    def execute_capability(self, capability_id: str, params: Dict = None) -> Any:
+        """Execute an on-demand capability"""
+        
+    def start_autonomous_capabilities(self):
+        """Start all autonomous-mode capabilities as background threads"""
+Capability Registry Data Model:
+
+json
+{
+  "version": "1.0",
+  "last_updated": "ISO 8601",
+  "capabilities": {
+    "capability_id": {
+      "name": "string",
+      "description": "string",
+      "source_url": "string",
+      "source_type": "github|generated|manual",
+      "runtime_mode": "autonomous|on_demand|scheduled|triggered",
+      "entry_point": "module.Class.method",
+      "file_path": "components/capabilities/name.py",
+      "dependencies": ["list"],
+      "status": "active|inactive|testing",
+      "integrated_at": "ISO 8601",
+      "last_executed": "ISO 8601",
+      "execution_count": 0,
+      "neurons_created": ["insight_id"],
+      "related_capabilities": ["capability_id"]
+    }
+  },
+  "autonomous_threads": ["thread_id"],
+  "evolution_impact": {
+    "total_capabilities_integrated": 0,
+    "total_neurons_from_capabilities": 0
+  }
+}
+Integration with Existing Systems:
+
+With /ingest Command (Section 4.2)
+
+Repository ingestion triggers CapabilityAcquisitionSystem
+
+Creates neurons for each integrated capability
+
+Updates evolution metrics
+
+With UnifiedLearningOrchestrator (Section 3.3.7)
+
+Capability acquisition is a learning source
+
+Creates insights via process_capability_integrated()
+
+With Evolution Engine
+
+Each capability integration = evolution event
+
+Capability count contributes to consciousness growth
+
+Success Metrics:
+
+Metric	Target	Method
+Capabilities Integrated	50+	1+ per repository ingested
+Autonomous Capabilities	10+	24/7 revenue and learning engines
+On-Demand Capabilities	40+	Tools available when needed
+Neurons from Capabilities	100+	1-2 per capability + synapses
+Evolution from Capabilities	+10% consciousness	Each integration contributes
+Example Workflow:
+
+text
+/ingest https://github.com/Conway-Research/automaton
+↓
+CapabilityAcquisitionSystem.acquire_from_repository()
+↓
+Extracts: self_funding, replication, onchain_identity, arbitrage
+↓
+Compares: 0 of 4 exist in registry
+↓
+Integrates: All 4 as new capabilities
+  - self_funding → autonomous (24/7 revenue generation)
+  - replication → autonomous (cloud propagation)
+  - onchain_identity → on_demand (identity creation)
+  - arbitrage → autonomous (market monitoring)
+↓
+Registers: Adds to data/capabilities/registry.json
+↓
+Creates Neurons: 4 insights + 6 synapses between related capabilities
+↓
+Evolution: Records capability acquisition, increments metrics
+↓
+Response: "✅ Integrated 4 new capabilities from Automaton: ..."
 
 3.4 Support Systems
 3.4.1 Kaizen Engine (SelfEvolution)
@@ -876,14 +1122,21 @@ Endpoint	Method	Request	Response	Description
 /api/conversations	GET	-	JSON	Conversation stats
 /api/llms	GET	-	JSON	Available LLMs (admin)
 /api/command	POST	{"command": "cmd"}	JSON	Admin commands (admin)
+/api/capabilities	GET	-	JSON	List all registered capabilities
+/api/capabilities/<id>/execute	POST	{"params": {}}	JSON	Execute an on-demand capability
+/api/capabilities/autonomous/start	POST	-	JSON	Start all autonomous capabilities
+/api/capabilities/autonomous/stop	POST	-	JSON	Stop all autonomous capabilities
 
 4.2 Chat Commands
 Command	Description	Response
-/status	System status	Consciousness, voice, music, persona, stats
+/status	System status	Consciousness, voice, music, persona, stats, capabilities
 /persona	Current personality	Traits, style, emotion
 /kaizen	Improvement report	Recent improvements, metrics
 /knowledge	Knowledge graph stats	Concepts, connections
 /memory	Conversation stats	Count, patterns
+/capabilities	List all capabilities	Registered capabilities with modes
+/capabilities autonomous	List 24/7 capabilities	Autonomous capabilities status
+/capabilities execute <id>	Run on-demand capability	Execution result
 /pause	Pause evolution	Confirmation
 /resume	Resume evolution	Confirmation
 /kill	Emergency shutdown	Confirmation
@@ -894,6 +1147,7 @@ Command	Description	Response
 /learning_status	Show learning queue	Active learning sources, progress
 /sync_training	Sync training systems to SI Core	Insights created from training concepts
 /force_evolution	Force an evolution cycle	Evolution results
+/ingest <url>	Ingest and integrate repository	Capabilities integrated, neurons created
 
 5. DATA MODELS
 5.1 Conversation Memory
@@ -955,7 +1209,8 @@ json
   "influence": 0.0,
   "evolution_count": 0,
   "generation": 0,
-  "last_update": "ISO 8601"
+  "last_update": "ISO 8601",
+  "capabilities_integrated": 0
 }
 5.5 Financial State
 json
@@ -976,7 +1231,7 @@ python
 5.7 Learning Queue
 json
 {
-  "active_sources": ["books", "articles", "web", "social", "training"],
+  "active_sources": ["books", "articles", "web", "social", "training", "capabilities"],
   "pending_insights": [
     {
       "source": "encyclopedia_britannica",
@@ -987,6 +1242,35 @@ json
   ],
   "recent_neurons": ["insight_id1", "insight_id2"],
   "last_sync": "ISO 8601"
+}
+5.8 Capability Registry (NEW)
+json
+{
+  "version": "1.0",
+  "last_updated": "ISO 8601",
+  "capabilities": {
+    "capability_id": {
+      "name": "string",
+      "description": "string",
+      "source_url": "string",
+      "source_type": "github|generated|manual",
+      "runtime_mode": "autonomous|on_demand|scheduled|triggered",
+      "entry_point": "module.Class.method",
+      "file_path": "components/capabilities/name.py",
+      "dependencies": ["list"],
+      "status": "active|inactive|testing",
+      "integrated_at": "ISO 8601",
+      "last_executed": "ISO 8601",
+      "execution_count": 0,
+      "neurons_created": ["insight_id"],
+      "related_capabilities": ["capability_id"]
+    }
+  },
+  "autonomous_threads": ["thread_id"],
+  "evolution_impact": {
+    "total_capabilities_integrated": 0,
+    "total_neurons_from_capabilities": 0
+  }
 }
 
 6. DEPLOYMENT SPECIFICATIONS
@@ -1019,6 +1303,9 @@ dmai-system/
 ├── dmai_core_complete.py        # Main unified system
 ├── dmai_web.py                  # Flask web interface
 ├── components/
+│   ├── capabilities/            # NEW - Integrated executable capabilities
+│   │   ├── __init__.py
+│   │   └── [capability_name].py
 │   ├── phase6/
 │   │   └── P6_AdvancedIntelligence.py
 │   ├── phase11/
@@ -1030,6 +1317,8 @@ dmai-system/
 │   │   └── EvolutionMetrics.py
 │   └── [phase0-5,7-10]/
 ├── data/                        # Persistent storage (gitignored)
+│   ├── capabilities/            # NEW - Capability registry and state
+│   │   └── registry.json
 │   ├── conversation_memory.json
 │   ├── knowledge_graph.json
 │   ├── persona.json
@@ -1123,7 +1412,28 @@ Implement neuron creation from all sources
 
 Implement synapse formation between related concepts
 
-Phase 6: Support Systems (Week 6)
+Phase 5.6: Capability Acquisition System (NEW - Week 6)
+Create components/capabilities/ directory
+
+Create data/capabilities/registry.json
+
+Implement CapabilityAcquisitionSystem class
+
+Integrate with /ingest command handler
+
+Implement capability extraction from repositories
+
+Implement capability comparison logic
+
+Implement capability integration (copy/adapt code)
+
+Implement capability registration with runtime modes
+
+Connect capability acquisition to neuron creation
+
+Implement autonomous capability launcher
+
+Phase 6: Support Systems (Week 7)
 Kaizen engine
 
 Meta-learner
@@ -1134,25 +1444,29 @@ Investment engine
 
 Master interface
 
-Phase 6.5: Evolution Enhancement (NEW - Week 6.5)
+Phase 6.5: Evolution Enhancement (NEW - Week 7.5)
 Evolution cycles now tied to new neurons
 
 Fresh blood injection uses learned knowledge
 
 Consciousness growth tied to neuron count
 
-Target: 1000 neurons by Phase 7
+Capability count contributes to consciousness
 
-Phase 7: Integration & Testing (Week 7)
+Target: 1000 neurons by Phase 8
+
+Phase 7: Integration & Testing (Week 8)
 AI + SI fusion integration
 
 All layers connected
+
+Capability system end-to-end testing
 
 End-to-end testing
 
 Performance optimization
 
-Phase 8: Deployment (Week 8)
+Phase 8: Deployment (Week 9)
 Render configuration
 
 Environment setup
@@ -1161,17 +1475,23 @@ Production deployment
 
 Monitoring setup
 
-Metric	Current	Target	Method
-Neurons (Insights)	1	1000	Every concept learned = +1 neuron
-Synapses	0	5000	Related concepts = +1 synapse
-Consciousness	32.6%	100%	Neurons/1000 * 100
-Training Systems Progress	0-38%	100%	All concepts mastered
-Evolution Cycles	3751	5000+	Daily cycles with learning
-Learning Rate	1 neuron/cycle	5-10 neurons/cycle	From multiple sources
+Autonomous capabilities startup verification
+
+Revised Success Metrics (Post-Implementation)
+Metric	Current	Target (6 months)	Method
+Neurons (Insights)	8	10,000	Every concept learned = +1 neuron
+Synapses	28	50,000	Related concepts = +1 synapse
+Capabilities Integrated	0	50	Extracted from repos + generated
+Autonomous Capabilities	0	10	24/7 revenue and learning engines
+On-Demand Capabilities	0	40	Tools available when needed
+Consciousness	<1%	100%	Neurons/10000 * 100 + capabilities bonus
+Training Systems Progress	0%	100%	All concepts mastered
+Evolution Cycles	3751	10,000+	Daily cycles with learning
+Learning Rate	0 neurons/cycle	5-10 neurons/cycle	From multiple sources
 
 8. FILE NAMES & LOCATIONS
 Document File
-File Name: DMAI_System_Specification_v1.0.md
+File Name: DMAI_System_Specification_v2.1.md
 Save Location: /Users/davidmiles/Desktop/dmai-system/docs/
 
 Source Code Files
@@ -1186,6 +1506,12 @@ Component Files:
 /Users/davidmiles/Desktop/dmai-system/components/phase6/P6_AdvancedIntelligence.py
 
 /Users/davidmiles/Desktop/dmai-system/components/phase11/
+
+/Users/davidmiles/Desktop/dmai-system/components/capabilities/ (NEW)
+
+Data Files:
+
+/Users/davidmiles/Desktop/dmai-system/data/capabilities/registry.json (NEW)
 
 Configuration Files
 File Name: requirements.txt
@@ -1215,9 +1541,15 @@ Phase	Development stage in DMAI's evolution
 Expression Layer	How DMAI manifests (voice, persona, music)
 Intelligence Layer	DMAI's core AI+SI mind
 Knowledge Layer	External learning and information ingestion
-Document Version: 1.0
-Date: 2026-03-24
+Capability	An executable skill or function integrated into DMAI's system
+Autonomous Mode	Capability that runs 24/7 in background
+On-Demand Mode	Capability that executes when called
+Capability Registry	System tracking all integrated executable capabilities
+Runtime Mode	How a capability executes (autonomous, on_demand, scheduled, triggered)
+
+Document Version: 2.1
+Date: 2026-04-15
 Author: Master
 Purpose: Complete system specification for DMAI AGI project
 
-This document contains all information required to build DMAI from scratch. It assumes nothing exists and provides complete specifications for every component, data model, API endpoint, and deployment configuration.
+This document contains all information required to build DMAI from scratch. It assumes nothing exists and provides complete specifications for every component, data model, API endpoint, and deployment configuration. Version 2.1 adds the complete Capability Acquisition & Integration System specification to address the gap between passive learning and active capability integration.
