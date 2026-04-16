@@ -5104,8 +5104,6 @@ DMAI will extract and integrate actual capabilities from the repository."""
             else:
                 return "🔧 Capability Integrator not initialized."
 
-        elif cmd == '/help':
-
         elif cmd == '/force_save_registry':
             if hasattr(self, 'capability_integrator'):
                 try:
