@@ -6415,71 +6415,93 @@ class DMAIApplication:
                             FROM insights
                         ''')
                         
-                        # Group by category for clustered positioning
-                        category_groups = {}
                         all_rows = list(cursor)
                         
-                        for row in all_rows:
-                            insight_id, text, category, confidence = row
-                            category = category or "unknown"
-                            if category not in category_groups:
-                                category_groups[category] = []
-                            category_groups[category].append((insight_id, text, category, confidence or 0.5))
+                        # Extract capability type from insight text and group
+                        category_groups = {}
                         
-                        # Define base positions for each category (spread in a circle)
+                        for row in all_rows:
+                            insight_id, text, entity_type, confidence = row
+                            
+                            # Extract capability type from text (first word before colon)
+                            if ':' in text:
+                                extracted_type = text.split(':')[0].strip()
+                            else:
+                                extracted_type = entity_type or "unknown"
+                            
+                            if extracted_type not in category_groups:
+                                category_groups[extracted_type] = []
+                            category_groups[extracted_type].append((insight_id, text, extracted_type, confidence or 0.5))
+                        
+                        # Color mapping based on extracted capability type
+                        def get_color_for_type(cap_type):
+                            color_map = {
+                                "Self-funding capability": "#ffcc33",
+                                "Self-replication capability": "#33ccff",
+                                "Survival mechanism": "#ff3333",
+                                "Automation capability": "#9933ff",
+                                "AI model": "#66ff66",
+                                "Blockchain integration": "#cc9900",
+                                "Identity management": "#00cc99",
+                                "API endpoint": "#ff99cc",
+                                "Content generation": "#ff99ff",
+                                "Data structure": "#6699ff",
+                                "Configuration": "#88aaff",
+                                "Knowledge module": "#33ffcc",
+                                "Capability": "#aaaaaa",
+                                "llm": "#33ff33"
+                            }
+                            # Try exact match first
+                            if cap_type in color_map:
+                                return color_map[cap_type]
+                            # Try partial match
+                            for key, color in color_map.items():
+                                if key.lower() in cap_type.lower():
+                                    return color
+                            return "#ff6633"  # Default orange
+                        
+                        # Calculate positions - spread categories in a larger circle
                         category_list = list(category_groups.keys())
                         category_positions = {}
+                        
                         for i, cat in enumerate(category_list):
-                            angle = (i / len(category_list)) * 2 * math.pi
-                            radius = 8.0
+                            angle = (i / max(1, len(category_list))) * 2 * math.pi
+                            radius = 15.0  # Larger radius for better separation
                             category_positions[cat] = {
                                 'x': math.cos(angle) * radius,
                                 'y': math.sin(angle) * radius,
-                                'z': (i % 3 - 1) * 3  # Spread vertically
+                                'z': (i % 5 - 2) * 4  # More vertical spread
                             }
                         
-                        # Color palette
-                        category_colors = {
-                            "llm": "#33ff33",
-                            "acquired_capability": "#ff6633",
-                            "knowledge": "#33ffcc",
-                            "configuration": "#88aaff",
-                            "funding": "#ffcc33",
-                            "replication": "#33ccff",
-                            "survival": "#ff3333",
-                            "automation": "#9933ff",
-                            "trading": "#ff6600",
-                            "ai_model": "#66ff66",
-                            "api": "#ff99cc",
-                            "generation": "#ff99ff",
-                            "blockchain": "#cc9900",
-                            "data_structure": "#6699ff",
-                            "identity": "#00cc99",
-                            "utility": "#aaaaaa",
-                            "general": "#cccccc",
-                            "unknown": "#ffffff"
-                        }
-                        
-                        # Generate neurons with clustered positions
+                        # Generate neurons with spread-out positions
                         for category, items in category_groups.items():
                             base = category_positions.get(category, {'x': 0, 'y': 0, 'z': 0})
-                            color = category_colors.get(category, "#cccccc")
+                            color = get_color_for_type(category)
                             
                             for j, (insight_id, text, cat, confidence) in enumerate(items):
-                                # Spread within cluster
-                                cluster_spread = 2.5
-                                offset_angle1 = (j * 137.5) * math.pi / 180  # Golden angle
-                                offset_angle2 = (j * 83.3) * math.pi / 180
+                                # MUCH larger cluster spread for visibility
+                                cluster_spread = 5.0
                                 
-                                x = base['x'] + math.cos(offset_angle1) * math.sin(offset_angle2) * cluster_spread
-                                y = base['y'] + math.sin(offset_angle1) * math.sin(offset_angle2) * cluster_spread
-                                z = base['z'] + math.cos(offset_angle2) * cluster_spread * 0.5
+                                # Use golden ratio for even distribution
+                                golden_angle = j * 2.39996  # 137.5 degrees in radians
+                                elevation = math.asin(-1.0 + 2.0 * j / max(1, len(items)))
                                 
-                                # Size based on confidence (0.3 to 1.2)
-                                size = 0.4 + confidence * 0.8
+                                x = base['x'] + math.cos(golden_angle) * cluster_spread * math.cos(elevation)
+                                y = base['y'] + math.sin(golden_angle) * cluster_spread * math.cos(elevation)
+                                z = base['z'] + math.sin(elevation) * cluster_spread * 1.5
                                 
-                                # Short label for display, full text for hover
-                                short_label = text[:40] + "..." if len(text) > 40 else text
+                                # Add small random jitter for natural look
+                                import random
+                                random.seed(insight_id)
+                                x += random.uniform(-0.5, 0.5)
+                                y += random.uniform(-0.5, 0.5)
+                                z += random.uniform(-0.3, 0.3)
+                                
+                                # Size based on confidence (0.5 to 1.5)
+                                size = 0.5 + (confidence or 0.5) * 1.0
+                                
+                                # Short label for display
+                                short_label = text[:35] + "..." if len(text) > 35 else text
                                 
                                 neurons_list.append({
                                     "id": insight_id,
@@ -6494,14 +6516,15 @@ class DMAIApplication:
                                     "size": round(size, 3)
                                 })
                         
-                        # Read synapses
+                        # Read synapses with strength
                         cursor = conn.execute('SELECT id, from_insight, to_insight, weight FROM synapses')
                         for row in cursor:
                             syn_id, from_id, to_id, weight = row
                             synapses_list.append({
                                 "source": from_id,
                                 "target": to_id,
-                                "weight": weight or 0.5
+                                "weight": weight or 0.5,
+                                "strength": "strong" if (weight or 0.5) > 0.7 else "medium" if (weight or 0.5) > 0.4 else "weak"
                             })
                         
                         conn.close()
@@ -6518,70 +6541,48 @@ class DMAIApplication:
                             })
                     except Exception as e:
                         logger.warning(f"SQLite brain data failed: {e}")
+                        import traceback
+                        traceback.print_exc()
                 
-                # FALLBACK: Read from live SI Core memory
+                # FALLBACK: Read from live SI Core memory (simplified)
                 if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
                     insights = getattr(self.evolution.si_core, 'insights', {})
                     synapses = getattr(self.evolution.si_core, 'synapses', [])
                     
                     if insights:
-                        category_groups = {}
-                        for insight_id, insight in insights.items():
+                        for idx, (insight_id, insight) in enumerate(insights.items()):
                             text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
-                            category = insight.entity_type if hasattr(insight, 'entity_type') else "llm"
                             confidence = insight.confidence if hasattr(insight, 'confidence') else 0.5
                             
-                            if category not in category_groups:
-                                category_groups[category] = []
-                            category_groups[category].append((insight_id, text, category, confidence))
-                        
-                        category_list = list(category_groups.keys())
-                        category_positions = {}
-                        for i, cat in enumerate(category_list):
-                            angle = (i / max(1, len(category_list))) * 2 * math.pi
-                            radius = 8.0
-                            category_positions[cat] = {
-                                'x': math.cos(angle) * radius,
-                                'y': math.sin(angle) * radius,
-                                'z': (i % 3 - 1) * 3
-                            }
-                        
-                        category_colors = {
-                            "llm": "#33ff33", "acquired_capability": "#ff6633",
-                            "funding": "#ffcc33", "replication": "#33ccff",
-                            "survival": "#ff3333", "automation": "#9933ff",
-                            "data_structure": "#6699ff", "configuration": "#88aaff",
-                            "utility": "#aaaaaa", "unknown": "#ffffff"
-                        }
-                        
-                        for category, items in category_groups.items():
-                            base = category_positions.get(category, {'x': 0, 'y': 0, 'z': 0})
-                            color = category_colors.get(category, "#cccccc")
+                            # Extract type from text
+                            if ':' in text:
+                                cat = text.split(':')[0].strip()
+                            else:
+                                cat = insight.entity_type if hasattr(insight, 'entity_type') else "llm"
                             
-                            for j, (insight_id, text, cat, confidence) in enumerate(items):
-                                cluster_spread = 2.5
-                                offset_angle1 = (j * 137.5) * math.pi / 180
-                                offset_angle2 = (j * 83.3) * math.pi / 180
-                                
-                                x = base['x'] + math.cos(offset_angle1) * math.sin(offset_angle2) * cluster_spread
-                                y = base['y'] + math.sin(offset_angle1) * math.sin(offset_angle2) * cluster_spread
-                                z = base['z'] + math.cos(offset_angle2) * cluster_spread * 0.5
-                                
-                                size = 0.4 + confidence * 0.8
-                                short_label = text[:40] + "..." if len(text) > 40 else text
-                                
-                                neurons_list.append({
-                                    "id": insight_id,
-                                    "label": short_label,
-                                    "full_text": text,
-                                    "category": cat,
-                                    "confidence": confidence,
-                                    "color": color,
-                                    "x": round(x, 3),
-                                    "y": round(y, 3),
-                                    "z": round(z, 3),
-                                    "size": round(size, 3)
-                                })
+                            # Simple positioning
+                            angle = (idx * 137.5) * math.pi / 180
+                            radius = 10.0 + (idx % 5) * 2
+                            x = math.cos(angle) * radius
+                            y = math.sin(angle) * radius
+                            z = (idx % 7 - 3) * 2
+                            
+                            color = get_color_for_type(cat) if 'get_color_for_type' in dir() else "#ff6633"
+                            size = 0.5 + confidence * 1.0
+                            short_label = text[:35] + "..." if len(text) > 35 else text
+                            
+                            neurons_list.append({
+                                "id": insight_id,
+                                "label": short_label,
+                                "full_text": text,
+                                "category": cat,
+                                "confidence": confidence,
+                                "color": color,
+                                "x": round(x, 3),
+                                "y": round(y, 3),
+                                "z": round(z, 3),
+                                "size": round(size, 3)
+                            })
                         
                         for syn in synapses:
                             synapses_list.append({
