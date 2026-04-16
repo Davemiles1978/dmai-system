@@ -5081,24 +5081,25 @@ DMAI will extract and integrate actual capabilities from the repository."""
             if hasattr(self, 'capability_integrator'):
                 try:
                     count = 0
+                    synapse_count = 0
                     for cap_id, cap in self.capability_integrator.registry.get('capabilities', {}).items():
-                        insight_id = self.si_core.add_insight(
-                            insight_text=f"Acquired capability: {cap['name']} ({cap['capability_type']}) - runs {cap['runtime_mode']}",
-                            entity_type="acquired_capability",
-                            entities=[cap['name'], cap['capability_type'], f"{cap['runtime_mode']}_capability"],
-                            relationship="enables",
-                            source_topic="repository_ingestion",
-                            target_topic=f"capability_{cap['capability_type']}",
-                            confidence=0.95,
-                            source_url=cap.get('source_url', ''),
-                            source_title=f"Integrated Capability: {cap['name']}",
-                            source_type="capability_integration"
+                        # Build an integration_result dict that matches what _create_capability_neuron expects
+                        integration_result = {
+                            'capability_name': cap['name'],
+                            'capability_type': cap['capability_type'],
+                            'runtime_mode': cap['runtime_mode'],
+                            'description': cap.get('description', '')
+                        }
+                        # Use the proper method that creates descriptive text AND synapses!
+                        insight_id = self.capability_integrator._create_capability_neuron(
+                            integration_result, 
+                            cap.get('source_url', '')
                         )
                         if insight_id:
                             count += 1
                     
                     self.si_core.save_state()
-                    return f"🔄 Synced {count} capabilities to SI Core. Total neurons: {self.si_core.neuron_count}"
+                    return f"🔄 Synced {count} capabilities to SI Core with descriptive titles and synapses. Total neurons: {self.si_core.neuron_count}"
                 except Exception as e:
                     return f"❌ Sync failed: {e}"
             else:
