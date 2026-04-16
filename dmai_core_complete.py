@@ -1029,7 +1029,7 @@ class SyntheticIntelligenceCore:
             json.dump(state, f, indent=2)
     
     def load_state(self):
-        """Load network state from disk"""
+        """Load network state from disk - MERGES with existing, does NOT wipe"""
         state_file = self.data_dir / 'network_state.json'
         
         if state_file.exists():
@@ -1037,26 +1037,44 @@ class SyntheticIntelligenceCore:
                 with open(state_file, 'r') as f:
                     state = json.load(f)
                 
-                # Load insights with lock protection
-                self.insights = {}
+                # MERGE insights - DO NOT WIPE EXISTING
                 with self.insights_lock:
                     for iid, data in state.get('insights', {}).items():
-                        self.insights[iid] = InsightNeuron.from_dict(data)
+                        if iid not in self.insights:  # Only add if not already present
+                            try:
+                                self.insights[iid] = InsightNeuron.from_dict(data)
+                            except Exception as e:
+                                logger.debug(f"Failed to load insight {iid}: {e}")
                 
-                self.topics = state.get('topics', {})
-                self.synapses = state.get('synapses', [])
-                self.evolution_cycles = state.get('evolution_cycles', 0)
+                # MERGE topics
+                for topic, insight_ids in state.get('topics', {}).items():
+                    if topic not in self.topics:
+                        self.topics[topic] = []
+                    for iid in insight_ids:
+                        if iid not in self.topics[topic]:
+                            self.topics[topic].append(iid)
                 
-                logger.info(f"✅ Loaded SI Core: {self.neuron_count} insights, {self.synapse_count} synapses")
+                # MERGE synapses
+                existing_synapse_ids = {s.get('id') for s in self.synapses if s.get('id')}
+                for syn in state.get('synapses', []):
+                    if syn.get('id') not in existing_synapse_ids:
+                        self.synapses.append(syn)
+                
+                self.evolution_cycles = max(self.evolution_cycles, state.get('evolution_cycles', 0))
+                
+                logger.info(f"✅ Merged JSON state: now have {len(self.insights)} insights, {len(self.synapses)} synapses")
             except Exception as e:
                 logger.error(f"Failed to load network state: {e}")
-                self._init_empty_state()
+                # DO NOT call _init_empty_state() - that wipes everything!
         else:
-            logger.info("📡 No existing SI Core state, starting fresh")
-            self._init_empty_state()
+            logger.info("📡 No JSON state file, keeping existing insights")
+            # DO NOT call _init_empty_state()!
     
     def _init_empty_state(self):
-        """Initialize empty network"""
+        """Initialize empty network - ONLY use when absolutely necessary"""
+        if len(self.insights) > 0:
+            logger.warning(f"⚠️ Refusing to wipe {len(self.insights)} existing insights!")
+            return
         self.insights = {}
         self.topics = {}
         self.synapses = []
@@ -7093,42 +7111,86 @@ class DMAIApplication:
                 return jsonify({'error': str(e)}), 500
 
         @self.app.route('/api/si/reload', methods=['POST'])
+        @self.app.route('/api/si/reload', methods=['POST'])
         def reload_si_core():
-            """Force reload SI Core from disk - DIRECT FILE READ"""
+            """Force reload SI Core from SQLite (primary) or JSON (fallback) - MERGES, does NOT wipe"""
             import json
             from pathlib import Path
             
             try:
-                # Direct file read - bypass broken load_state()
-                file_path = Path('data/synthetic/network_state.json')
-                if not file_path.exists():
-                    return jsonify({'error': 'File not found', 'path': str(file_path)}), 404
-                
-                with open(file_path, 'r') as f:
-                    disk_data = json.load(f)
-                
                 si = self.evolution.si_core
+                loaded_count = 0
                 
-                # Directly load insights from disk data with lock protection
-                si.insights = {}
-                with si.insights_lock:
-                    for iid, data in disk_data.get('insights', {}).items():
-                        si.insights[iid] = InsightNeuron.from_dict(data)
+                # ============================================================
+                # PRIMARY: Try SQLite first
+                # ============================================================
+                if hasattr(si, 'sqlite') and si.sqlite:
+                    try:
+                        sqlite_insights = si.sqlite.load_all_insights()
+                        if sqlite_insights:
+                            with si.insights_lock:
+                                for iid, insight in sqlite_insights.items():
+                                    if iid not in si.insights:
+                                        si.insights[iid] = insight
+                                        loaded_count += 1
+                            
+                            si.topics = si.sqlite.load_all_topics()
+                            
+                            # Merge synapses
+                            sqlite_synapses = si.sqlite.load_all_synapses()
+                            existing_ids = {s.get('id') for s in si.synapses if s.get('id')}
+                            for syn in sqlite_synapses:
+                                if syn.get('id') not in existing_ids:
+                                    si.synapses.append(syn)
+                            
+                            logger.info(f"✅ Reloaded {loaded_count} insights from SQLite")
+                    except Exception as e:
+                        logger.warning(f"SQLite reload failed: {e}")
                 
-                si.topics = disk_data.get('topics', {})
-                si.synapses = disk_data.get('synapses', [])
-                si.evolution_cycles = disk_data.get('evolution_cycles', 0)
+                # ============================================================
+                # FALLBACK: Merge from JSON (DO NOT WIPE)
+                # ============================================================
+                if loaded_count == 0:
+                    file_path = Path('data/synthetic/network_state.json')
+                    if file_path.exists():
+                        with open(file_path, 'r') as f:
+                            disk_data = json.load(f)
+                        
+                        with si.insights_lock:
+                            for iid, data in disk_data.get('insights', {}).items():
+                                if iid not in si.insights:
+                                    try:
+                                        si.insights[iid] = InsightNeuron.from_dict(data)
+                                        loaded_count += 1
+                                    except:
+                                        pass
+                        
+                        # Merge topics
+                        for topic, insight_ids in disk_data.get('topics', {}).items():
+                            if topic not in si.topics:
+                                si.topics[topic] = []
+                            for iid in insight_ids:
+                                if iid not in si.topics[topic]:
+                                    si.topics[topic].append(iid)
+                        
+                        # Merge synapses
+                        existing_ids = {s.get('id') for s in si.synapses if s.get('id')}
+                        for syn in disk_data.get('synapses', []):
+                            if syn.get('id') not in existing_ids:
+                                si.synapses.append(syn)
+                        
+                        logger.info(f"✅ Reloaded {loaded_count} insights from JSON fallback")
                 
                 # Save to ensure disk consistency
                 si.save_state()
                 
-                # Convert to serializable types
                 return jsonify({
                     'success': True,
                     'insights': int(len(si.insights)),
                     'synapses': int(len(si.synapses)),
                     'consciousness': float(si.consciousness),
-                    'evolution_cycles': int(si.evolution_cycles)
+                    'evolution_cycles': int(si.evolution_cycles),
+                    'loaded_from': 'sqlite' if loaded_count > 0 else 'none'
                 })
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
