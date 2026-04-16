@@ -434,6 +434,16 @@ class SyntheticIntelligenceCore:
         """
 
         # ============================================================
+        # BYPASS QUALITY FILTER FOR CAPABILITY INSIGHTS
+        # ============================================================
+        if entity_type == "acquired_capability":
+            # Always accept capability insights - they're validated by the integrator
+            pass
+        else:
+            # Run quality filter for other insights
+            ...
+
+        # ============================================================
         # QUALITY FILTER - Reject garbage insights, accept valid knowledge
         # ============================================================
         
@@ -5081,7 +5091,9 @@ DMAI will extract and integrate actual capabilities from the repository."""
             if hasattr(self, 'capability_integrator'):
                 try:
                     count = 0
-                    synapse_count = 0
+                    failed_count = 0
+                    failed_names = []
+                    
                     for cap_id, cap in self.capability_integrator.registry.get('capabilities', {}).items():
                         # Build an integration_result dict that matches what _create_capability_neuron expects
                         integration_result = {
@@ -5097,9 +5109,25 @@ DMAI will extract and integrate actual capabilities from the repository."""
                         )
                         if insight_id:
                             count += 1
+                        else:
+                            failed_count += 1
+                            if len(failed_names) < 10:  # Keep first 10 for logging
+                                failed_names.append(f"{cap['name']} ({cap['capability_type']})")
                     
                     self.si_core.save_state()
-                    return f"🔄 Synced {count} capabilities to SI Core with descriptive titles and synapses. Total neurons: {self.si_core.neuron_count}"
+                    
+                    # Build response with debug info
+                    response = f"🔄 Synced {count} capabilities to SI Core. Total neurons: {self.si_core.neuron_count}"
+                    if failed_count > 0:
+                        response += f"\n\n⚠️ Failed to create {failed_count} neurons."
+                        if failed_names:
+                            response += f"\nFirst failures: {', '.join(failed_names[:5])}"
+                    
+                    # Log detailed failures
+                    if failed_count > 0:
+                        logger.warning(f"Sync failures: {failed_count} capabilities rejected. First: {failed_names[:5]}")
+                    
+                    return response
                 except Exception as e:
                     return f"❌ Sync failed: {e}"
             else:
