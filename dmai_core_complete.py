@@ -495,18 +495,19 @@ class SyntheticIntelligenceCore:
                 confidence=0.75
             )
         """
-        # Check if similar insight exists
-        existing = self._find_similar_insight(entities, relationship)
-        if existing:
-            existing.strengthen()
-            self.save_state()
-            # Also update in SQLite
-            if hasattr(self, 'sqlite') and self.sqlite:
-                try:
-                    self.sqlite.save_insight(existing)
-                except Exception as e:
-                    logger.error(f"SQLite update failed: {e}")
-            return existing.id
+        # Check if similar insight exists (SKIP for acquired_capability - each is unique!)
+        if entity_type != "acquired_capability":
+            existing = self._find_similar_insight(entities, relationship)
+            if existing:
+                existing.strengthen()
+                self.save_state()
+                # Also update in SQLite
+                if hasattr(self, 'sqlite') and self.sqlite:
+                    try:
+                        self.sqlite.save_insight(existing)
+                    except Exception as e:
+                        logger.error(f"SQLite update failed: {e}")
+                return existing.id
         
         # Create new insight
         insight = InsightNeuron(
