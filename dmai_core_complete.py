@@ -5094,15 +5094,23 @@ DMAI will extract and integrate actual capabilities from the repository."""
                     failed_count = 0
                     failed_names = []
                     
-                    for cap_id, cap in self.capability_integrator.registry.get('capabilities', {}).items():
-                        # Build an integration_result dict that matches what _create_capability_neuron expects
+                    # Get capabilities from memory registry OR SQLite
+                    capabilities = self.capability_integrator.registry.get('capabilities', {})
+                    
+                    # If memory registry is empty, try loading from SQLite
+                    if not capabilities and hasattr(self.capability_integrator, '_load_registry'):
+                        logger.info("Memory registry empty, loading from SQLite...")
+                        self.capability_integrator.registry = self.capability_integrator._load_registry()
+                        capabilities = self.capability_integrator.registry.get('capabilities', {})
+                        logger.info(f"Loaded {len(capabilities)} capabilities from SQLite")
+                    
+                    for cap_id, cap in capabilities.items():
                         integration_result = {
                             'capability_name': cap['name'],
                             'capability_type': cap['capability_type'],
                             'runtime_mode': cap['runtime_mode'],
                             'description': cap.get('description', '')
                         }
-                        # Use the proper method that creates descriptive text AND synapses!
                         insight_id = self.capability_integrator._create_capability_neuron(
                             integration_result, 
                             cap.get('source_url', '')
@@ -5111,19 +5119,17 @@ DMAI will extract and integrate actual capabilities from the repository."""
                             count += 1
                         else:
                             failed_count += 1
-                            if len(failed_names) < 10:  # Keep first 10 for logging
+                            if len(failed_names) < 10:
                                 failed_names.append(f"{cap['name']} ({cap['capability_type']})")
                     
                     self.si_core.save_state()
                     
-                    # Build response with debug info
                     response = f"🔄 Synced {count} capabilities to SI Core. Total neurons: {self.si_core.neuron_count}"
                     if failed_count > 0:
                         response += f"\n\n⚠️ Failed to create {failed_count} neurons."
                         if failed_names:
                             response += f"\nFirst failures: {', '.join(failed_names[:5])}"
                     
-                    # Log detailed failures
                     if failed_count > 0:
                         logger.warning(f"Sync failures: {failed_count} capabilities rejected. First: {failed_names[:5]}")
                     
