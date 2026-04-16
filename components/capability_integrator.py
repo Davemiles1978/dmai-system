@@ -63,21 +63,51 @@ class CapabilityIntegrator:
         self.fully_incorporated = []
         
     def _load_registry(self) -> Dict:
-        """Load existing capability registry"""
-        if self.registry_file.exists():
-            try:
-                with open(self.registry_file, 'r') as f:
-                    return json.load(f)
-            except:
-                pass
-        
-        return {
+        """Load existing capability registry - SQLite PRIMARY, JSON fallback"""
+        registry = {
             'capabilities': {},
             'sources': {},
             'last_updated': None,
             'total_capabilities': 0,
             'fully_incorporated': []
         }
+        
+        # ============================================================
+        # PRIMARY: Try to load from SQLite first (survives deploys)
+        # ============================================================
+        if hasattr(self.dmai, 'si_core') and hasattr(self.dmai.si_core, 'sqlite') and self.dmai.si_core.sqlite:
+            try:
+                sqlite_caps = self.dmai.si_core.sqlite.load_all_capabilities()
+                if sqlite_caps:
+                    registry['capabilities'] = sqlite_caps
+                    logger.info(f"📂 Loaded {len(sqlite_caps)} capabilities from SQLite")
+                    return registry
+            except Exception as e:
+                logger.warning(f"SQLite registry load failed, trying JSON: {e}")
+        
+        # ============================================================
+        # FALLBACK: Load from JSON file
+        # ============================================================
+        if self.registry_file.exists():
+            try:
+                with open(self.registry_file, 'r') as f:
+                    json_reg = json.load(f)
+                    if json_reg.get('capabilities'):
+                        registry = json_reg
+                        logger.info(f"📂 Loaded {len(registry.get('capabilities', {}))} capabilities from JSON")
+                        
+                        # Migrate to SQLite for future persistence
+                        if hasattr(self.dmai, 'si_core') and hasattr(self.dmai.si_core, 'sqlite') and self.dmai.si_core.sqlite:
+                            for cap_id, cap in registry['capabilities'].items():
+                                try:
+                                    self.dmai.si_core.sqlite.save_capability(cap_id, cap)
+                                except:
+                                    pass
+                            logger.info("🔄 Migrated capabilities from JSON to SQLite")
+            except Exception as e:
+                logger.error(f"JSON registry load failed: {e}")
+        
+        return registry
     
     def _save_registry(self):
         """Save capability registry"""
