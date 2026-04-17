@@ -8915,7 +8915,25 @@ def knowledge_graph():
 <body>
 <div id="info"><h1>🧠 DMAI Synthetic Brain</h1><p>3D Neural Network | Subject matter color-coded | Force-directed layout</p></div>
 <div id="stats"><div class="stat-row"><span class="stat-emoji">🧬</span><span class="stat-value" id="neuronCount">0</span><span class="stat-label">Neurons</span></div><div class="stat-row"><span class="stat-emoji">🔗</span><span class="stat-value" id="synapseCount">0</span><span class="stat-label">Synapses</span></div><div class="stat-row"><span class="stat-emoji">✨</span><span class="stat-value" id="consciousness">0%</span><span class="stat-label">Consciousness</span></div><div class="stat-row"><span class="stat-emoji">⚡</span><span id="activeNeurons" class="stat-value">0</span>/<span id="totalNeurons" class="stat-value">0</span><span class="stat-label">Active</span></div><div class="stat-row" style="margin-top:8px"><span class="stat-emoji">📡</span><span id="lastUpdate" style="color:#ddd">-</span></div></div>
-<div class="legend"><h3>🎨 Subject Matter Colors</h3><div class="legend-item"><div class="legend-color" style="background:#33ff33"></div> Core Knowledge</div><div class="legend-item"><div class="legend-color" style="background:#ff33ff"></div> Artistic/Creative</div><div class="legend-item"><div class="legend-color" style="background:#ffcc33"></div> Wealth/Finance</div><div class="legend-item"><div class="legend-color" style="background:#33ccff"></div> Evolution Accelerator</div><div class="legend-item"><div class="legend-color" style="background:#ff6633"></div> Reverse Engineering</div><div class="legend-item"><div class="legend-color" style="background:#33ffcc"></div> Research</div><div class="legend-item"><div class="legend-color" style="background:#88ff88"></div> Entity/General</div><hr><div class="legend-item"><div class="legend-color" style="background:#ff3333"></div> Low Confidence</div><div class="legend-item"><div class="legend-color" style="background:#ffaa33"></div> Medium Confidence</div><div class="legend-item"><div class="legend-color" style="background:#33ff33"></div> High Confidence</div><div class="legend-item"><div class="legend-color" style="background:#aa44ff"></div> Very High Confidence</div><hr><div class="legend-item"><div class="legend-color" style="background:#88ff88"></div> Weak Synapse (0.0-0.3)</div><div class="legend-item"><div class="legend-color" style="background:#aaffaa"></div> Medium Synapse (0.3-0.6)</div><div class="legend-item"><div class="legend-color" style="background:#ccffcc"></div> Strong Synapse (0.6-1.0)</div></div>
+<div class="legend"><h3>🎨 Subject Matter Colors</h3>
+<div class="legend-item"><div class="legend-color" style="background:#88aaff"></div> Configuration</div>
+<div class="legend-item"><div class="legend-color" style="background:#33ffcc"></div> Knowledge Module</div>
+<div class="legend-item"><div class="legend-color" style="background:#66ff66"></div> AI Model</div>
+<div class="legend-item"><div class="legend-color" style="background:#ff6633"></div> Capability</div>
+<div class="legend-item"><div class="legend-color" style="background:#6699ff"></div> Data Structure</div>
+<div class="legend-item"><div class="legend-color" style="background:#ff99ff"></div> Content Generation</div>
+<div class="legend-item"><div class="legend-color" style="background:#ff3333"></div> Survival Mechanism</div>
+<div class="legend-item"><div class="legend-color" style="background:#ffcc33"></div> Self-funding</div>
+<div class="legend-item"><div class="legend-color" style="background:#cc9900"></div> Blockchain</div>
+<div class="legend-item"><div class="legend-color" style="background:#ff99cc"></div> API Endpoint</div>
+<div class="legend-item"><div class="legend-color" style="background:#00cc99"></div> Identity Management</div>
+<div class="legend-item"><div class="legend-color" style="background:#9933ff"></div> Automation</div>
+<div class="legend-item"><div class="legend-color" style="background:#33ccff"></div> Self-replication</div>
+<hr>
+<div class="legend-item"><div class="legend-color" style="background:#88ff88"></div> Weak Synapse</div>
+<div class="legend-item"><div class="legend-color" style="background:#aaffaa"></div> Medium Synapse</div>
+<div class="legend-item"><div class="legend-color" style="background:#ccffcc"></div> Strong Synapse</div>
+</div>
 <div class="instruction">🖱️ Drag to rotate | Scroll to zoom | Right-click to pan</div>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.128.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.128.0/examples/jsm/"}}</script>
 <script type="module">
@@ -8943,6 +8961,40 @@ controls.enableDamping = true;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.8;
 controls.enableZoom = true;
+
+// Zoom-based label visibility
+let influenceThresholds = { high: 0.5, medium: 0.2 };
+let currentZoom = camera.position.length();
+
+function updateLabelVisibility() {
+    const zoom = camera.position.length();
+    const highThreshold = influenceThresholds.high || 0.5;
+    const mediumThreshold = influenceThresholds.medium || 0.2;
+    
+    neuronObjects.forEach((obj, id) => {
+        if (!obj.label) return;
+        const influence = obj.influence || 0;
+        
+        // Show labels based on zoom level and influence
+        if (zoom < 25 && influence >= highThreshold) {
+            obj.label.visible = true;
+        } else if (zoom < 45 && influence >= mediumThreshold) {
+            obj.label.visible = true;
+        } else if (zoom < 70) {
+            obj.label.visible = true;
+        } else {
+            obj.label.visible = false;
+        }
+    });
+}
+
+controls.addEventListener('change', function() {
+    const newZoom = camera.position.length();
+    if (Math.abs(newZoom - currentZoom) > 1.5) {
+        currentZoom = newZoom;
+        updateLabelVisibility();
+    }
+});
 const ambientLight = new THREE.AmbientLight(0x404060);
 scene.add(ambientLight);
 const mainLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -8988,7 +9040,12 @@ async function fetchData() {
         document.getElementById('activeNeurons').textContent = activeCount;
         document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
         
-        if (d.neurons.length === 0) return;
+        // Store influence thresholds from backend
+        if (d.influence_thresholds) {
+            influenceThresholds = d.influence_thresholds;
+        }
+        
+        if (d.neurons.length === 0) return;      
         
         neuronObjects.forEach(obj => { scene.remove(obj.mesh); if (obj.label) scene.remove(obj.label); });
         neuronObjects.clear();
