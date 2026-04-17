@@ -8958,21 +8958,28 @@ for (let i = 0; i < 1500; i++) {
 starGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starPositions), 3));
 const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0x448844, size: 0.15 }));
 scene.add(stars);
-const categoryColors = { 'llm':0x33ff33,'core':0x33ff33,'artistic':0xff33ff,'wealth':0xffcc33,'accelerator':0x33ccff,'reverse':0xff6633,'research':0x33ffcc,'general':0x88ff88,'entity':0x99ff99 };
+const categoryColors = { 'llm':0x33ff33,'core':0x33ff33,'artistic':0xff33ff,'wealth':0xffcc33,'accelerator':0x33ccff,'reverse':0xff6633,'research':0x33ffcc,'general':0x88ff88,'entity':0x99ff999 };
 let neuronObjects = new Map();
 let synapseLines = [];
+
 function hexToRgb(hex) { return { r:((hex>>16)&255)/255, g:((hex>>8)&255)/255, b:(hex&255)/255 }; }
-function cleanLabel(text) {
-    if (!text) return 'Concept';
-    let cleaned = text.replace(/_[a-f0-9]{8,}/g, '').replace(/concept mastered in (llm )?training/gi, '').replace(/concept mastered in/gi, '').replace(/concept /gi, '').trim();
-    if (cleaned.length === 0) return text.substring(0, 25);
-    return cleaned.length > 25 ? cleaned.substring(0, 22) + '...' : cleaned;
+
+function hexStringToHex(hexString) {
+    return parseInt(hexString.replace('#', '0x'));
 }
+
+function getCleanLabel(neuron) {
+    if (neuron.clean_label) return neuron.clean_label;
+    if (neuron.label) return neuron.label;
+    return neuron.name || 'Concept';
+}
+
 async function fetchData() {
     try {
         const r = await fetch(API_URL);
         const d = await r.json();
         if (!d.success || !d.neurons) return;
+        
         document.getElementById('neuronCount').textContent = d.total_neurons || 0;
         document.getElementById('synapseCount').textContent = d.total_synapses || 0;
         document.getElementById('consciousness').textContent = ((d.total_neurons || 0) / 10).toFixed(1) + '%';
@@ -8980,27 +8987,54 @@ async function fetchData() {
         const activeCount = (d.neurons || []).filter(n => n.confidence > 0.5).length;
         document.getElementById('activeNeurons').textContent = activeCount;
         document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        
         if (d.neurons.length === 0) return;
+        
         neuronObjects.forEach(obj => { scene.remove(obj.mesh); if (obj.label) scene.remove(obj.label); });
         neuronObjects.clear();
         synapseLines.forEach(line => scene.remove(line));
         synapseLines = [];
+        
+        // Get influence thresholds for label visibility
+        const highThreshold = d.influence_thresholds?.high || 0.5;
+        const mediumThreshold = d.influence_thresholds?.medium || 0.2;
+        
         d.neurons.forEach(neuron => {
-            const color = categoryColors[neuron.category] || 0x33ff33;
-            const size = 0.35 + (neuron.confidence || 0.5) * 0.25;
-            const sphere = new THREE.Mesh(new THREE.SphereGeometry(size, 48, 48), new THREE.MeshStandardMaterial({ color: color, emissive: 0x113311, emissiveIntensity: 0.15 }));
+            // USE COLOR FROM BACKEND!
+            let colorHex;
+            if (neuron.color) {
+                colorHex = hexStringToHex(neuron.color);
+            } else {
+                colorHex = categoryColors[neuron.category] || 0xff6633;
+            }
+            
+            // USE SIZE FROM BACKEND (based on influence)!
+            const size = neuron.size || (0.35 + (neuron.confidence || 0.5) * 0.25);
+            
+            const sphere = new THREE.Mesh(
+                new THREE.SphereGeometry(size, 48, 48), 
+                new THREE.MeshStandardMaterial({ color: colorHex, emissive: 0x113311, emissiveIntensity: 0.15 })
+            );
             sphere.position.set(neuron.x || 0, neuron.y || 0, neuron.z || 0);
             scene.add(sphere);
-            const rgb = hexToRgb(color);
-            const textColor = `rgb(${rgb.r*255}, ${rgb.g*255}, ${rgb.b*255})`;
-            const div = document.createElement('div');
-            div.textContent = cleanLabel(neuron.label || neuron.name);
-            div.style.cssText = `color:${textColor};font-size:10px;font-family:monospace;background:rgba(0,0,0,0.85);padding:2px 6px;border-radius:12px;border:1px solid ${textColor};white-space:nowrap;font-weight:500;`;
-            const label = new CSS2DObject(div);
-            label.position.set(neuron.x || 0, (neuron.y || 0) + 0.7, neuron.z || 0);
-            scene.add(label);
-            neuronObjects.set(neuron.id, { mesh: sphere, label: label });
+            
+            // Only show label for high-influence neurons (reduces clutter!)
+            const influence = neuron.influence || 0;
+            if (influence >= highThreshold) {
+                const rgb = hexToRgb(colorHex);
+                const textColor = `rgb(${rgb.r*255}, ${rgb.g*255}, ${rgb.b*255})`;
+                const div = document.createElement('div');
+                div.textContent = getCleanLabel(neuron);
+                div.style.cssText = `color:${textColor};font-size:10px;font-family:monospace;background:rgba(0,0,0,0.85);padding:2px 6px;border-radius:12px;border:1px solid ${textColor};white-space:nowrap;font-weight:500;`;
+                const label = new CSS2DObject(div);
+                label.position.set(neuron.x || 0, (neuron.y || 0) + size + 0.3, neuron.z || 0);
+                scene.add(label);
+                neuronObjects.set(neuron.id, { mesh: sphere, label: label, influence: influence });
+            } else {
+                neuronObjects.set(neuron.id, { mesh: sphere, label: null, influence: influence });
+            }
         });
+        
         if (d.synapses) {
             d.synapses.forEach(syn => {
                 const src = neuronObjects.get(syn.source);
