@@ -6392,12 +6392,14 @@ class DMAIApplication:
         
         @self.app.route('/api/brain/3d_data', methods=['GET'])
         def brain_3d_data():
-            """Return brain data for 3D visualization from SQLite"""
+            """Return brain data for 3D visualization from SQLite with centrality scoring"""
             try:
                 import json
                 import os
                 import hashlib
                 import math
+                import random
+                from collections import defaultdict
                 
                 neurons_list = []
                 synapses_list = []
@@ -6417,8 +6419,18 @@ class DMAIApplication:
                         
                         all_rows = list(cursor)
                         
+                        # Read synapses to calculate centrality
+                        syn_cursor = conn.execute('SELECT from_insight, to_insight FROM synapses')
+                        connections = defaultdict(int)
+                        for from_id, to_id in syn_cursor:
+                            connections[from_id] += 1
+                            connections[to_id] += 1
+                        
+                        # Calculate max connections for normalization
+                        max_connections = max(connections.values()) if connections else 1
+                        
                         # Extract capability type from insight text and group
-                        category_groups = {}
+                        category_groups = defaultdict(list)
                         
                         for row in all_rows:
                             insight_id, text, entity_type, confidence = row
@@ -6429,48 +6441,93 @@ class DMAIApplication:
                             else:
                                 extracted_type = entity_type or "unknown"
                             
-                            if extracted_type not in category_groups:
-                                category_groups[extracted_type] = []
-                            category_groups[extracted_type].append((insight_id, text, extracted_type, confidence or 0.5))
+                            # Clean label - remove category prefix for display
+                            if ': ' in text:
+                                clean_label = text.split(': ', 1)[1]
+                            else:
+                                clean_label = text
+                            
+                            # Truncate for display
+                            short_label = clean_label[:40] + "..." if len(clean_label) > 40 else clean_label
+                            
+                            # Calculate influence score
+                            influence = connections.get(insight_id, 0) / max_connections if max_connections > 0 else 0
+                            
+                            category_groups[extracted_type].append({
+                                'id': insight_id,
+                                'text': text,
+                                'clean_label': clean_label,
+                                'short_label': short_label,
+                                'extracted_type': extracted_type,
+                                'confidence': confidence or 0.5,
+                                'influence': influence,
+                                'connections': connections.get(insight_id, 0)
+                            })
                         
-                        # Color mapping based on extracted capability type
+                        # ============================================================
+                        # COMPLETE COLOR MAPPING - 25+ Categories
+                        # ============================================================
                         def get_color_for_type(cap_type):
                             color_map = {
+                                # Core Intelligence
+                                "Synthetic Intelligence": "#ff3366",
+                                "Evolution": "#33ff99",
+                                "Consciousness": "#ff66ff",
+                                "Self-Improvement": "#66ff33",
+                                "Testing": "#ffff33",
+                                "Reverse Engineering": "#cc66ff",
+                                "Threat Intelligence": "#ff6600",
+                                "Meta-Learning": "#33cccc",
+                                
+                                # Autonomous Survival
                                 "Self-funding capability": "#ffcc33",
                                 "Self-replication capability": "#33ccff",
                                 "Survival mechanism": "#ff3333",
                                 "Automation capability": "#9933ff",
+                                
+                                # Functional
                                 "AI model": "#66ff66",
-                                "Blockchain integration": "#cc9900",
-                                "Identity management": "#00cc99",
                                 "API endpoint": "#ff99cc",
                                 "Content generation": "#ff99ff",
+                                "Blockchain integration": "#cc9900",
+                                "Identity management": "#00cc99",
+                                
+                                # Data & Knowledge
                                 "Data structure": "#6699ff",
                                 "Configuration": "#88aaff",
                                 "Knowledge module": "#33ffcc",
-                                "Capability": "#aaaaaa",
-                                "llm": "#33ff33"
+                                "Capability": "#ff6633",
+                                
+                                # Legacy
+                                "llm": "#33ff33",
+                                "acquired_capability": "#ff6633",
+                                "utility": "#aaaaaa",
+                                "general": "#cccccc"
                             }
-                            # Try exact match first
+                            
+                            # Exact match
                             if cap_type in color_map:
                                 return color_map[cap_type]
-                            # Try partial match
+                            
+                            # Partial match
+                            cap_lower = cap_type.lower()
                             for key, color in color_map.items():
-                                if key.lower() in cap_type.lower():
+                                if key.lower() in cap_lower or cap_lower in key.lower():
                                     return color
+                            
                             return "#ff6633"  # Default orange
-                        
-                        # Calculate positions - spread categories in a larger circle
+        
+                        # Calculate positions - spread categories in a large circle
                         category_list = list(category_groups.keys())
                         category_positions = {}
                         
                         for i, cat in enumerate(category_list):
                             angle = (i / max(1, len(category_list))) * 2 * math.pi
-                            radius = 15.0  # Larger radius for better separation
+                            radius = 18.0  # Large radius for separation
                             category_positions[cat] = {
                                 'x': math.cos(angle) * radius,
                                 'y': math.sin(angle) * radius,
-                                'z': (i % 5 - 2) * 4  # More vertical spread
+                                'z': (i % 7 - 3) * 3.5  # Vertical spread
                             }
                         
                         # Generate neurons with spread-out positions
@@ -6478,37 +6535,39 @@ class DMAIApplication:
                             base = category_positions.get(category, {'x': 0, 'y': 0, 'z': 0})
                             color = get_color_for_type(category)
                             
-                            for j, (insight_id, text, cat, confidence) in enumerate(items):
-                                # MUCH larger cluster spread for visibility
-                                cluster_spread = 5.0
+                            # Sort by influence for better layout
+                            items.sort(key=lambda x: x['influence'], reverse=True)
+                            
+                            for j, item in enumerate(items):
+                                # Larger spread for better visibility
+                                cluster_spread = 6.0
                                 
-                                # Use golden ratio for even distribution
-                                golden_angle = j * 2.39996  # 137.5 degrees in radians
+                                # Golden ratio distribution
+                                golden_angle = j * 2.39996
                                 elevation = math.asin(-1.0 + 2.0 * j / max(1, len(items)))
                                 
                                 x = base['x'] + math.cos(golden_angle) * cluster_spread * math.cos(elevation)
                                 y = base['y'] + math.sin(golden_angle) * cluster_spread * math.cos(elevation)
                                 z = base['z'] + math.sin(elevation) * cluster_spread * 1.5
                                 
-                                # Add small random jitter for natural look
-                                import random
-                                random.seed(insight_id)
-                                x += random.uniform(-0.5, 0.5)
-                                y += random.uniform(-0.5, 0.5)
-                                z += random.uniform(-0.3, 0.3)
+                                # Small jitter for natural look
+                                random.seed(item['id'])
+                                x += random.uniform(-0.8, 0.8)
+                                y += random.uniform(-0.8, 0.8)
+                                z += random.uniform(-0.5, 0.5)
                                 
-                                # Size based on confidence (0.5 to 1.5)
-                                size = 0.5 + (confidence or 0.5) * 1.0
-                                
-                                # Short label for display
-                                short_label = text[:35] + "..." if len(text) > 35 else text
+                                # Size based on influence (0.4 to 2.0)
+                                size = 0.5 + item['influence'] * 1.5
                                 
                                 neurons_list.append({
-                                    "id": insight_id,
-                                    "label": short_label,
-                                    "full_text": text or "",
-                                    "category": cat,
-                                    "confidence": confidence,
+                                    "id": item['id'],
+                                    "label": item['short_label'],
+                                    "full_text": item['text'],
+                                    "clean_label": item['clean_label'],
+                                    "category": category,
+                                    "confidence": item['confidence'],
+                                    "influence": round(item['influence'], 3),
+                                    "connections": item['connections'],
                                     "color": color,
                                     "x": round(x, 3),
                                     "y": round(y, 3),
@@ -6517,19 +6576,25 @@ class DMAIApplication:
                                 })
                         
                         # Read synapses with strength
-                        cursor = conn.execute('SELECT id, from_insight, to_insight, weight FROM synapses')
-                        for row in cursor:
+                        syn_cursor = conn.execute('SELECT id, from_insight, to_insight, weight FROM synapses')
+                        for row in syn_cursor:
                             syn_id, from_id, to_id, weight = row
+                            w = weight or 0.5
                             synapses_list.append({
                                 "source": from_id,
                                 "target": to_id,
-                                "weight": weight or 0.5,
-                                "strength": "strong" if (weight or 0.5) > 0.7 else "medium" if (weight or 0.5) > 0.4 else "weak"
+                                "weight": w,
+                                "strength": "strong" if w > 0.7 else "medium" if w > 0.4 else "weak"
                             })
                         
                         conn.close()
                         
                         if neurons_list:
+                            # Calculate influence percentiles for frontend
+                            influences = sorted([n['influence'] for n in neurons_list])
+                            p90 = influences[int(len(influences) * 0.9)] if len(influences) > 10 else 0.5
+                            p50 = influences[int(len(influences) * 0.5)] if len(influences) > 10 else 0.2
+                            
                             return jsonify({
                                 "success": True,
                                 "source": "sqlite",
@@ -6537,7 +6602,11 @@ class DMAIApplication:
                                 "synapses": synapses_list,
                                 "total_neurons": len(neurons_list),
                                 "total_synapses": len(synapses_list),
-                                "consciousness": min(1.0, len(neurons_list) / 1000.0)
+                                "consciousness": min(1.0, len(neurons_list) / 1000.0),
+                                "influence_thresholds": {
+                                    "high": round(p90, 3),
+                                    "medium": round(p50, 3)
+                                }
                             })
                     except Exception as e:
                         logger.warning(f"SQLite brain data failed: {e}")
@@ -6554,34 +6623,35 @@ class DMAIApplication:
                             text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
                             confidence = insight.confidence if hasattr(insight, 'confidence') else 0.5
                             
-                            # Extract type from text
                             if ':' in text:
                                 cat = text.split(':')[0].strip()
+                                clean = text.split(': ', 1)[1] if ': ' in text else text
                             else:
                                 cat = insight.entity_type if hasattr(insight, 'entity_type') else "llm"
+                                clean = text
                             
-                            # Simple positioning
+                            short_label = clean[:40] + "..." if len(clean) > 40 else clean
+                            
                             angle = (idx * 137.5) * math.pi / 180
-                            radius = 10.0 + (idx % 5) * 2
+                            radius = 12.0 + (idx % 7) * 2
                             x = math.cos(angle) * radius
                             y = math.sin(angle) * radius
-                            z = (idx % 7 - 3) * 2
-                            
-                            color = get_color_for_type(cat) if 'get_color_for_type' in dir() else "#ff6633"
-                            size = 0.5 + confidence * 1.0
-                            short_label = text[:35] + "..." if len(text) > 35 else text
+                            z = (idx % 9 - 4) * 2
                             
                             neurons_list.append({
                                 "id": insight_id,
                                 "label": short_label,
                                 "full_text": text,
+                                "clean_label": clean,
                                 "category": cat,
                                 "confidence": confidence,
-                                "color": color,
+                                "influence": 0.5,
+                                "connections": 0,
+                                "color": "#ff6633",
                                 "x": round(x, 3),
                                 "y": round(y, 3),
                                 "z": round(z, 3),
-                                "size": round(size, 3)
+                                "size": 0.8
                             })
                         
                         for syn in synapses:
