@@ -5794,10 +5794,9 @@ class DMAIApplication:
             try:
                 si = self.evolution.si_core
                 samples = []
-                stats = {'total': 0, 'prefixes': {}}
+                stats = {'total': 0, 'prefixes': {}, 'repository_count': 0}
                 
                 if hasattr(si, 'sqlite') and si.sqlite:
-                    # Get connection using the correct method
                     conn = si.sqlite._get_connection()
                     cursor = conn.cursor()
                     
@@ -5805,18 +5804,21 @@ class DMAIApplication:
                     cursor.execute('SELECT COUNT(*) FROM insights')
                     stats['total'] = cursor.fetchone()[0]
                     
-                    # Sample various prefixes
-                    cursor.execute('SELECT id, insight_text FROM insights LIMIT 50')
-                    for row in cursor.fetchall():
-                        text = row[1]
-                        prefix = text.split(':')[0] if ':' in text else 'NO_PREFIX'
-                        stats['prefixes'][prefix] = stats['prefixes'].get(prefix, 0) + 1
-                        samples.append({'id': row[0], 'text': text[:100]})
+                    # Search for repository/automaton
+                    cursor.execute('''
+                        SELECT id, insight_text FROM insights 
+                        WHERE insight_text LIKE '%automaton%' OR insight_text LIKE '%Repository%'
+                        LIMIT 20
+                    ''')
+                    repo_rows = cursor.fetchall()
+                    stats['repository_count'] = len(repo_rows)
+                    for row in repo_rows:
+                        samples.append({'id': row[0], 'text': row[1][:100]})
                 
                 return jsonify({
                     'total_insights': stats['total'],
-                    'prefix_distribution': stats['prefixes'],
-                    'samples': samples[:20]
+                    'repository_matches': stats['repository_count'],
+                    'repository_samples': samples
                 })
             except Exception as e:
                 import traceback
