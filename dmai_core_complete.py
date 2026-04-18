@@ -5797,16 +5797,16 @@ class DMAIApplication:
                 stats = {'total': 0, 'prefixes': {}}
                 
                 if hasattr(si, 'sqlite') and si.sqlite:
+                    # Get connection using the correct method
+                    conn = si.sqlite._get_connection()
+                    cursor = conn.cursor()
+                    
                     # Get total count
-                    count_cursor = si.sqlite.conn.execute('SELECT COUNT(*) FROM insights')
-                    stats['total'] = count_cursor.fetchone()[0]
+                    cursor.execute('SELECT COUNT(*) FROM insights')
+                    stats['total'] = cursor.fetchone()[0]
                     
                     # Sample various prefixes
-                    cursor = si.sqlite.conn.execute('''
-                        SELECT id, insight_text FROM insights 
-                        LIMIT 50
-                    ''')
-                    
+                    cursor.execute('SELECT id, insight_text FROM insights LIMIT 50')
                     for row in cursor.fetchall():
                         text = row[1]
                         prefix = text.split(':')[0] if ':' in text else 'NO_PREFIX'
