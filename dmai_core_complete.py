@@ -5788,6 +5788,40 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/debug/insights/sample')
+        def debug_insights_sample():
+            """Temporary: Sample insights to see their format"""
+            try:
+                si = self.evolution.si_core
+                samples = []
+                stats = {'total': 0, 'prefixes': {}}
+                
+                if hasattr(si, 'sqlite') and si.sqlite:
+                    # Get total count
+                    count_cursor = si.sqlite.conn.execute('SELECT COUNT(*) FROM insights')
+                    stats['total'] = count_cursor.fetchone()[0]
+                    
+                    # Sample various prefixes
+                    cursor = si.sqlite.conn.execute('''
+                        SELECT id, insight_text FROM insights 
+                        LIMIT 50
+                    ''')
+                    
+                    for row in cursor.fetchall():
+                        text = row[1]
+                        prefix = text.split(':')[0] if ':' in text else 'NO_PREFIX'
+                        stats['prefixes'][prefix] = stats['prefixes'].get(prefix, 0) + 1
+                        samples.append({'id': row[0], 'text': text[:100]})
+                
+                return jsonify({
+                    'total_insights': stats['total'],
+                    'prefix_distribution': stats['prefixes'],
+                    'samples': samples[:20]
+                })
+            except Exception as e:
+                import traceback
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
         def debug_neo4j_env():
             """Check Neo4j environment variables"""
