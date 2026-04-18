@@ -2725,7 +2725,7 @@ class UnifiedEvolutionEngine:
 
         # 8 CORE KNOWLEDGE SOURCES
         logger.info("📚 Initializing 8 Core Knowledge Sources...")
-        self.knowledge_sources = CoreKnowledgeSources(self.base_path, self.si_core)
+        self.knowledge_sources = CoreKnowledgeSources(self.base_path, self.evolution.si_core)
 
         # NEO4J PERSISTENT STORAGE
         logger.info("☁️ Initializing Neo4j persistent storage...")
