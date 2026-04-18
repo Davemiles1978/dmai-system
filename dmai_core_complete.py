@@ -6505,14 +6505,39 @@ class DMAIApplication:
                         db_path = self.evolution.si_core.sqlite.db_path
                         conn = sqlite3.connect(str(db_path))
                         
-                        # Read insights - filter for Repository macro neurons
+                        # Read ALL insights (no filter)
                         cursor = conn.execute('''
                             SELECT id, insight_text, entity_type, confidence 
                             FROM insights
-                            WHERE insight_text LIKE 'Repository:%'
                         ''')
                         
                         all_rows = list(cursor)
+                        
+                        # GROUP BY PREFIX to create virtual macro nodes
+                        macro_groups = {}
+                        for row in all_rows:
+                            insight_id, text, entity_type, confidence = row
+                            prefix = text.split(':')[0] if ':' in text else 'Other'
+                            
+                            if prefix not in macro_groups:
+                                macro_groups[prefix] = {
+                                    'id': f"macro_{prefix.replace(' ', '_').replace('-', '_')}",
+                                    'text': f"{prefix}: Group of {prefix} concepts",
+                                    'clean_label': prefix,
+                                    'count': 0
+                                }
+                            macro_groups[prefix]['count'] += 1
+                        
+                        # Use macro groups as the neurons to display
+                        all_rows = []
+                        for prefix, group in macro_groups.items():
+                            # Create a synthetic row for each macro neuron
+                            all_rows.append((
+                                group['id'],
+                                f"{prefix}: {group['count']} concepts",
+                                'macro_group',
+                                0.9
+                            ))
                         
                         # Read synapses to calculate centrality
                         syn_cursor = conn.execute('SELECT from_insight, to_insight FROM synapses')
