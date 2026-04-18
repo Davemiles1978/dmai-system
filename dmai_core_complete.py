@@ -6469,11 +6469,11 @@ class DMAIApplication:
                         db_path = self.evolution.si_core.sqlite.db_path
                         conn = sqlite3.connect(str(db_path))
                         
-                        # Read insights
+                        # Read insights - filter for Repository macro neurons
                         cursor = conn.execute('''
                             SELECT id, insight_text, entity_type, confidence 
                             FROM insights
-                            WHERE neuron_level = 'macro' AND is_visible_at_top_level = 1
+                            WHERE insight_text LIKE 'Repository:%'
                         ''')
                         
                         all_rows = list(cursor)
