@@ -7508,11 +7508,10 @@ class DMAIApplication:
                 network_state = si.get_network_state()
                 active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
                 
-                # NEW: Get actual macro nodes from database
+                # Get actual macro nodes from database
                 macro_nodes = []
                 if hasattr(si, 'sqlite') and si.sqlite:
                     try:
-                        # Query macro neurons that should be visible at top level
                         macro_query = """
                             SELECT id, insight_text, neuron_level, 
                                    (SELECT COUNT(*) FROM insights WHERE parent_macro_id = insights.id) as children_count
@@ -7527,7 +7526,7 @@ class DMAIApplication:
                                 'name': row[1][:50] + ('...' if len(row[1]) > 50 else ''),
                                 'level': row[2],
                                 'children_count': row[3],
-                                'color': '#ffd700'  # Gold for macro nodes
+                                'color': '#ffd700'
                             })
                     except Exception as e:
                         logger.error(f"Error fetching macro nodes: {e}")
@@ -7602,6 +7601,7 @@ class DMAIApplication:
                     'error': str(e),
                     'children': []
                 }), 500
+
 
         @self.app.route('/api/synthetic/node/<node_id>/children')
         def api_synthetic_node_children(node_id):
