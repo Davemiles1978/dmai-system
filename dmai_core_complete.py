@@ -6672,72 +6672,35 @@ class DMAIApplication:
                         import traceback
                         traceback.print_exc()
                 
-                # FALLBACK: Read from live SI Core memory (simplified)
-                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core'):
-                    insights = getattr(self.evolution.si_core, 'insights', {})
-                    synapses = getattr(self.evolution.si_core, 'synapses', [])
-                    
-                    if insights:
-                        for idx, (insight_id, insight) in enumerate(insights.items()):
-                            text = insight.insight_text if hasattr(insight, 'insight_text') else str(insight)
-                            confidence = insight.confidence if hasattr(insight, 'confidence') else 0.5
-                            
-                            if ':' in text:
-                                cat = text.split(':')[0].strip()
-                                clean = text.split(': ', 1)[1] if ': ' in text else text
-                            else:
-                                cat = insight.entity_type if hasattr(insight, 'entity_type') else "llm"
-                                clean = text
-                            
-                            short_label = clean[:40] + "..." if len(clean) > 40 else clean
-                            
-                            angle = (idx * 137.5) * math.pi / 180
-                            radius = 12.0 + (idx % 7) * 2
-                            x = math.cos(angle) * radius
-                            y = math.sin(angle) * radius
-                            z = (idx % 9 - 4) * 2
-                            
-                            neurons_list.append({
-                                "id": insight_id,
-                                "label": short_label,
-                                "full_text": text,
-                                "clean_label": clean,
-                                "category": cat,
-                                "confidence": confidence,
-                                "influence": 0.5,
-                                "connections": 0,
-                                "color": "#ff6633",
-                                "x": round(x, 3),
-                                "y": round(y, 3),
-                                "z": round(z, 3),
-                                "size": 0.8
-                            })
-                        
-                        for syn in synapses:
-                            synapses_list.append({
-                                "source": syn.get("from", ""),
-                                "target": syn.get("to", ""),
-                                "weight": syn.get("weight", 0.5)
-                            })
-                        
-                        return jsonify({
-                            "success": True,
-                            "source": "memory",
-                            "neurons": neurons_list,
-                            "synapses": synapses_list,
-                            "total_neurons": len(neurons_list),
-                            "total_synapses": len(synapses_list),
-                            "consciousness": min(1.0, len(neurons_list) / 1000.0)
-                        })
+                # If SQLite failed and no data was loaded, return error
+                if not neurons_list:
+                    return jsonify({
+                        "success": False,
+                        "source": "error",
+                        "error": "Failed to load brain data from SQLite",
+                        "neurons": [],
+                        "synapses": [],
+                        "total_neurons": 0,
+                        "total_synapses": 0
+                    }), 500
                 
-                return jsonify({"success": False, "error": "No data source available"}), 404
+                # Should never reach here if SQLite worked
+                return jsonify({
+                    "success": False,
+                    "source": "error",
+                    "error": "Unknown error in brain data loading"
+                }), 500
                 
             except Exception as e:
-                import traceback
-                traceback.print_exc()
-                return jsonify({"success": False, "error": str(e)}), 500
+                logger.error(f"Brain 3D data endpoint failed: {e}")
+                return jsonify({
+                    "success": False,
+                    "source": "error",
+                    "error": str(e)
+                }), 500
 
-        def brain_group_detail(self, group_id):
+        @self.app.route('/api/brain/group/<group_id>')
+        def brain_group_detail(group_id):
             """Return all neurons in a specific group for zoomed-in view"""
             try:
                 neurons = getattr(self, 'neurons', {})
