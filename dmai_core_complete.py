@@ -7500,65 +7500,108 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
-@self.app.route('/api/synthetic/status')
-def api_synthetic_status():
-    """Get synthetic network state for brain visualization from si_core"""
-    try:
-        si = self.evolution.si_core
-        network_state = si.get_network_state()
-        active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
-        
-        # NEW: Get actual macro nodes from database
-        macro_nodes = []
-        if hasattr(si, 'sqlite') and si.sqlite:
+        @self.app.route('/api/synthetic/status')
+        def api_synthetic_status():
+            """Get synthetic network state for brain visualization from si_core"""
             try:
-                # Query macro neurons that should be visible at top level
-                macro_query = """
-                    SELECT id, insight_text, neuron_level, 
-                           (SELECT COUNT(*) FROM insights WHERE parent_macro_id = insights.id) as children_count
-                    FROM insights 
-                    WHERE neuron_level = 'macro' AND is_visible_at_top_level = 1
-                    ORDER BY created_at DESC
-                """
-                macro_results = si.sqlite.conn.execute(macro_query).fetchall()
-                for row in macro_results:
-                    macro_nodes.append({
-                        'id': row[0],
-                        'name': row[1][:50] + ('...' if len(row[1]) > 50 else ''),  # Truncate long names
-                        'level': row[2],
-                        'children_count': row[3],
-                        'color': '#ffd700'  # Gold for macro nodes
-                    })
+                si = self.evolution.si_core
+                network_state = si.get_network_state()
+                active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
+                
+                # NEW: Get actual macro nodes from database
+                macro_nodes = []
+                if hasattr(si, 'sqlite') and si.sqlite:
+                    try:
+                        # Query macro neurons that should be visible at top level
+                        macro_query = """
+                            SELECT id, insight_text, neuron_level, 
+                                   (SELECT COUNT(*) FROM insights WHERE parent_macro_id = insights.id) as children_count
+                            FROM insights 
+                            WHERE neuron_level = 'macro' AND is_visible_at_top_level = 1
+                            ORDER BY created_at DESC
+                        """
+                        macro_results = si.sqlite.conn.execute(macro_query).fetchall()
+                        for row in macro_results:
+                            macro_nodes.append({
+                                'id': row[0],
+                                'name': row[1][:50] + ('...' if len(row[1]) > 50 else ''),
+                                'level': row[2],
+                                'children_count': row[3],
+                                'color': '#ffd700'  # Gold for macro nodes
+                            })
+                    except Exception as e:
+                        logger.error(f"Error fetching macro nodes: {e}")
+                
+                return jsonify({
+                    'neurons': si.neuron_count,
+                    'active_neurons': active_neurons,
+                    'synapses': si.synapse_count,
+                    'consciousness': si.consciousness * 100,
+                    'consciousness_percent': si.consciousness * 100,
+                    'evolution_cycles': si.evolution_cycles,
+                    'network_density': si.synapse_count / max(1, si.neuron_count * (si.neuron_count - 1) / 2),
+                    'successful_evolutions': 0,
+                    'connections': network_state.get('synapses', []),
+                    'macro_nodes': macro_nodes
+                })
             except Exception as e:
-                logger.error(f"Error fetching macro nodes: {e}")
-        
-        return jsonify({
-            'neurons': si.neuron_count,
-            'active_neurons': active_neurons,
-            'synapses': si.synapse_count,
-            'consciousness': si.consciousness * 100,
-            'consciousness_percent': si.consciousness * 100,
-            'evolution_cycles': si.evolution_cycles,
-            'network_density': si.synapse_count / max(1, si.neuron_count * (si.neuron_count - 1) / 2),
-            'successful_evolutions': 0,
-            'connections': network_state.get('synapses', []),
-            'macro_nodes': macro_nodes  # NEW: Actual node objects for visualization
-        })
-    except Exception as e:
-        logger.error(f"Error in synthetic_status: {e}")
-        return jsonify({
-            'neurons': 0,
-            'active_neurons': 0,
-            'synapses': 0,
-            'consciousness': 0.0,
-            'consciousness_percent': 0.0,
-            'evolution_cycles': 0,
-            'network_density': 0.0,
-            'successful_evolutions': 0,
-            'connections': [],
-            'macro_nodes': [],
-            'error': str(e)
-        }), 500
+                logger.error(f"Error in synthetic_status: {e}")
+                return jsonify({
+                    'neurons': 0,
+                    'active_neurons': 0,
+                    'synapses': 0,
+                    'consciousness': 0.0,
+                    'consciousness_percent': 0.0,
+                    'evolution_cycles': 0,
+                    'network_density': 0.0,
+                    'successful_evolutions': 0,
+                    'connections': [],
+                    'macro_nodes': [],
+                    'error': str(e)
+                }), 500
+
+        @self.app.route('/api/synthetic/node/<node_id>/children')
+        def api_synthetic_node_children(node_id):
+            """Get micro neurons for a specific macro node"""
+            try:
+                si = self.evolution.si_core
+                micro_nodes = []
+                
+                if hasattr(si, 'sqlite') and si.sqlite:
+                    micro_query = """
+                        SELECT id, insight_text, neuron_level, confidence,
+                               source_topic, target_topic
+                        FROM insights 
+                        WHERE parent_macro_id = ? AND neuron_level = 'micro'
+                        ORDER BY confidence DESC
+                        LIMIT 200
+                    """
+                    micro_results = si.sqlite.conn.execute(micro_query, (node_id,)).fetchall()
+                    
+                    for row in micro_results:
+                        micro_nodes.append({
+                            'id': row[0],
+                            'name': row[1][:40] + ('...' if len(row[1]) > 40 else ''),
+                            'level': row[2],
+                            'confidence': row[3],
+                            'source_topic': row[4],
+                            'target_topic': row[5],
+                            'color': '#00ffff'
+                        })
+                
+                return jsonify({
+                    'success': True,
+                    'parent_id': node_id,
+                    'children': micro_nodes,
+                    'count': len(micro_nodes)
+                })
+            except Exception as e:
+                logger.error(f"Error fetching node children: {e}")
+                return jsonify({
+                    'success': False,
+                    'error': str(e),
+                    'children': []
+                }), 500
 
         @self.app.route('/api/synthetic/node/<node_id>/children')
         def api_synthetic_node_children(node_id):
