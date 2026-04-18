@@ -209,9 +209,13 @@ class InsightNeuron:
                  confidence: float,
                  source_topic: str,
                  target_topic: str,
-                 source_url: str = None,      # NEW: Where this knowledge came from
-                 source_title: str = None,    # NEW: Title of the source
-                 source_type: str = None):    # NEW: book/article/web/research/ingest
+                 source_url: str = None,      # Where this knowledge came from
+                 source_title: str = None,    # Title of the source
+                 source_type: str = None,     # book/article/web/research/ingest
+                 neuron_level: str = 'micro',           # NEW: 'macro' or 'micro'
+                 cluster_id: str = None,                # NEW: Groups micro neurons
+                 parent_macro_id: str = None,           # NEW: Parent macro neuron
+                 is_visible_at_top_level: bool = True): # NEW: Show at default zoom
         
         self.id = f"insight_{abs(hash(insight_text))}_{int(time.time())}"
         self.insight_text = insight_text
@@ -221,9 +225,13 @@ class InsightNeuron:
         self.confidence = confidence
         self.source_topic = source_topic
         self.target_topic = target_topic
-        self.source_url = source_url          # NEW
-        self.source_title = source_title      # NEW
-        self.source_type = source_type        # NEW
+        self.source_url = source_url
+        self.source_title = source_title
+        self.source_type = source_type
+        self.neuron_level = neuron_level                # NEW
+        self.cluster_id = cluster_id                    # NEW
+        self.parent_macro_id = parent_macro_id          # NEW
+        self.is_visible_at_top_level = is_visible_at_top_level  # NEW
         self.created_at = datetime.now().isoformat()
         self.occurrence_count = 1
         self.last_used = datetime.now().isoformat()
@@ -238,9 +246,13 @@ class InsightNeuron:
             'confidence': self.confidence,
             'source_topic': self.source_topic,
             'target_topic': self.target_topic,
-            'source_url': self.source_url,           # NEW
-            'source_title': self.source_title,       # NEW
-            'source_type': self.source_type,         # NEW
+            'source_url': self.source_url,
+            'source_title': self.source_title,
+            'source_type': self.source_type,
+            'neuron_level': self.neuron_level,           # NEW
+            'cluster_id': self.cluster_id,               # NEW
+            'parent_macro_id': self.parent_macro_id,     # NEW
+            'is_visible_at_top_level': self.is_visible_at_top_level,  # NEW
             'created_at': self.created_at,
             'occurrence_count': self.occurrence_count,
             'last_used': self.last_used
@@ -256,14 +268,18 @@ class InsightNeuron:
             confidence=data['confidence'],
             source_topic=data['source_topic'],
             target_topic=data['target_topic'],
-            source_url=data.get('source_url'),        # NEW
-            source_title=data.get('source_title'),    # NEW
-            source_type=data.get('source_type')       # NEW
+            source_url=data.get('source_url'),
+            source_title=data.get('source_title'),
+            source_type=data.get('source_type'),
+            neuron_level=data.get('neuron_level', 'micro'),      # NEW with default
+            cluster_id=data.get('cluster_id'),                   # NEW
+            parent_macro_id=data.get('parent_macro_id'),         # NEW
+            is_visible_at_top_level=data.get('is_visible_at_top_level', True)  # NEW
         )
         neuron.id = data['id']
         neuron.created_at = data['created_at']
-        neuron.occurrence_count = data.get('occurrence_count', 1)
-        neuron.last_used = data.get('last_used', datetime.now().isoformat())
+        neuron.occurrence_count = data['occurrence_count']
+        neuron.last_used = data['last_used']
         return neuron
     
     def matches(self, entities: List[str]) -> bool:
@@ -430,9 +446,66 @@ class SyntheticIntelligenceCore:
                 confidence: float = 0.5,
                 source_url: str = None,
                 source_title: str = None,
-                source_type: str = None) -> str:
+                source_type: str = None,
+                neuron_level: str = 'micro',           # NEW: 'macro' or 'micro'
+                cluster_id: str = None,                # NEW: Groups micro neurons
+                parent_macro_id: str = None,           # NEW: Parent macro neuron
+                is_visible_at_top_level: bool = None) -> str:  # NEW: Auto-detect if None
         """
-
+        Create a granular insight neuron.
+        
+        NEW hierarchical parameters:
+        - neuron_level: 'macro' for top-level repo/framework, 'micro' for drill-down
+        - cluster_id: Groups micro neurons together (usually = parent_macro_id)
+        - parent_macro_id: The macro neuron this belongs to
+        - is_visible_at_top_level: Auto-set based on neuron_level if None
+        
+        Example (Repository - MACRO neuron):
+            add_insight(
+                insight_text="Repository: Automaton - Funding arbitrage system",
+                entity_type="macro_repository",
+                entities=["Automaton", "Funding", "Arbitrage"],
+                relationship="contains",
+                source_topic="repository_ingestion",
+                target_topic="Automaton",
+                neuron_level='macro',
+                is_visible_at_top_level=True
+            )
+        
+        Example (Repository - MICRO neuron):
+            add_insight(
+                insight_text="arbitrage_scanner.py - Scans Polymarket for opportunities",
+                entity_type="micro_capability",
+                entities=["arbitrage_scanner", "Polymarket"],
+                relationship="implements",
+                source_topic="Automaton",
+                target_topic="arbitrage_scanner",
+                neuron_level='micro',
+                cluster_id='macro_insight_123',
+                parent_macro_id='macro_insight_123',
+                is_visible_at_top_level=False
+            )
+        
+        Example (Research finding):
+            add_insight(
+                insight_text="AI innovation from HuggingFace: transformer, llm",
+                entity_type="web_research_finding",
+                entities=["transformer", "llm", "HuggingFace"],
+                relationship="discovered_from",
+                source_topic="web_research",
+                target_topic="ai_innovation",
+                source_url="https://huggingface.co/models",
+                source_type="web_research",
+                neuron_level='micro',
+                cluster_id='web_research_cluster',
+                is_visible_at_top_level=False
+            )
+        """
+        
+        # Auto-detect visibility based on neuron_level
+        if is_visible_at_top_level is None:
+            is_visible_at_top_level = (neuron_level == 'macro')
+        
         # ============================================================
         # BYPASS QUALITY FILTER FOR CAPABILITY INSIGHTS
         # ============================================================
@@ -441,62 +514,36 @@ class SyntheticIntelligenceCore:
             pass
         else:
             # Run quality filter for other insights
-            ...
-
-        # ============================================================
-        # QUALITY FILTER - Reject garbage insights, accept valid knowledge
-        # ============================================================
-        
-        # Only reject completely empty insights
-        if not insight_text or len(insight_text.strip()) < 5:
-            logger.debug(f"Rejected insight: empty or too short (<5 chars)")
-            return None
-        
-        # Check for obvious garbage (random characters, URLs without context)
-        garbage_indicators = [
-            "http://", "https://",  # URLs alone aren't insights
-            "click here", "subscribe",  # Marketing spam
-        ]
-        
-        insight_lower = insight_text.lower()
-        for indicator in garbage_indicators:
-            if indicator in insight_lower and len(insight_text) < 30:
-                logger.debug(f"Rejected insight: garbage indicator '{indicator}'")
+            
+            # Only reject completely empty insights
+            if not insight_text or len(insight_text.strip()) < 5:
+                logger.debug(f"Rejected insight: empty or too short (<5 chars)")
+                return None
+            
+            # Check for obvious garbage (random characters, URLs without context)
+            garbage_indicators = [
+                "http://", "https://",  # URLs alone aren't insights
+                "click here", "subscribe",  # Marketing spam
+            ]
+            
+            insight_lower = insight_text.lower()
+            for indicator in garbage_indicators:
+                if indicator in insight_lower and len(insight_text) < 30:
+                    logger.debug(f"Rejected insight: garbage indicator '{indicator}'")
+                    return None
+            
+            # For training/ingestion sources, be more lenient with code
+            # Only reject if it's PURE code with no explanatory text
+            code_indicators = ["def ", "class ", "import ", "return "]
+            code_matches = sum(1 for ind in code_indicators if ind in insight_text)
+            
+            # If more than 2 code indicators AND no punctuation (likely raw code block)
+            if code_matches >= 3 and not any(p in insight_text for p in [".", "?", "!", ":"]):
+                logger.debug(f"Rejected insight: appears to be raw code block")
                 return None
         
-        # For training/ingestion sources, be more lenient with code
-        # Only reject if it's PURE code with no explanatory text
-        code_indicators = ["def ", "class ", "import ", "return "]
-        code_matches = sum(1 for ind in code_indicators if ind in insight_text)
-        
-        # If more than 2 code indicators AND no punctuation (likely raw code block)
-        if code_matches >= 3 and not any(p in insight_text for p in [".", "?", "!", ":"]):
-            logger.debug(f"Rejected insight: appears to be raw code block")
-            return None
-        
-        # ACCEPT insights that were previously rejected:
-        # - Short but meaningful insights (was <50 chars)
-        # - Insights containing quoted code references
-        # - Insights without ending punctuation
-        # ============================================================
-        # END QUALITY FILTER
-        # ============================================================
-
-        Create a granular insight neuron.
-        
-        Example:
-            add_insight(
-                insight_text="War in Ukraine causes oil prices to rise",
-                entity_type="causal_relationship",
-                entities=["War", "Ukraine", "Oil", "Prices"],
-                relationship="increases",
-                source_topic="World News",
-                target_topic="Trading",
-                confidence=0.75
-            )
-        """
-        # Check if similar insight exists (SKIP for acquired_capability - each is unique!)
-        if entity_type != "acquired_capability":
+        # Check if similar insight exists (SKIP for acquired_capability, macro_repository, micro_capability - each is unique!)
+        if entity_type not in ["acquired_capability", "macro_repository", "micro_capability", "web_research_finding"]:
             existing = self._find_similar_insight(entities, relationship)
             if existing:
                 existing.strengthen()
@@ -509,11 +556,22 @@ class SyntheticIntelligenceCore:
                         logger.error(f"SQLite update failed: {e}")
                 return existing.id
         
-        # Create new insight
+        # Create new insight with hierarchical fields
         insight = InsightNeuron(
-            insight_text, entity_type, entities, 
-            relationship, confidence, source_topic, target_topic,
-            source_url, source_title, source_type
+            insight_text=insight_text,
+            entity_type=entity_type,
+            entities=entities,
+            relationship=relationship,
+            confidence=confidence,
+            source_topic=source_topic,
+            target_topic=target_topic,
+            source_url=source_url,
+            source_title=source_title,
+            source_type=source_type,
+            neuron_level=neuron_level,                # NEW
+            cluster_id=cluster_id,                    # NEW
+            parent_macro_id=parent_macro_id,          # NEW
+            is_visible_at_top_level=is_visible_at_top_level  # NEW
         )
         
         # Lock when modifying the dictionary
@@ -541,7 +599,7 @@ class SyntheticIntelligenceCore:
             except Exception as e:
                 logger.error(f"SQLite save failed (continuing): {e}")
         
-        logger.info(f"🧠 New insight: {insight_text[:50]}... (confidence: {confidence})")
+        logger.info(f"🧠 New {neuron_level} insight: {insight_text[:50]}... (confidence: {confidence})")
         return insight.id
     
     def _find_similar_insight(self, entities: List[str], relationship: str) -> Optional[InsightNeuron]:
@@ -6415,6 +6473,7 @@ class DMAIApplication:
                         cursor = conn.execute('''
                             SELECT id, insight_text, entity_type, confidence 
                             FROM insights
+                            WHERE neuron_level = 'macro' AND is_visible_at_top_level = 1
                         ''')
                         
                         all_rows = list(cursor)
@@ -7441,38 +7500,110 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
-        @self.app.route('/api/synthetic/status')
-        def api_synthetic_status():
-            """Get synthetic network state for brain visualization from si_core"""
+@self.app.route('/api/synthetic/status')
+def api_synthetic_status():
+    """Get synthetic network state for brain visualization from si_core"""
+    try:
+        si = self.evolution.si_core
+        network_state = si.get_network_state()
+        active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
+        
+        # NEW: Get actual macro nodes from database
+        macro_nodes = []
+        if hasattr(si, 'sqlite') and si.sqlite:
+            try:
+                # Query macro neurons that should be visible at top level
+                macro_query = """
+                    SELECT id, insight_text, neuron_level, 
+                           (SELECT COUNT(*) FROM insights WHERE parent_macro_id = insights.id) as children_count
+                    FROM insights 
+                    WHERE neuron_level = 'macro' AND is_visible_at_top_level = 1
+                    ORDER BY created_at DESC
+                """
+                macro_results = si.sqlite.conn.execute(macro_query).fetchall()
+                for row in macro_results:
+                    macro_nodes.append({
+                        'id': row[0],
+                        'name': row[1][:50] + ('...' if len(row[1]) > 50 else ''),  # Truncate long names
+                        'level': row[2],
+                        'children_count': row[3],
+                        'color': '#ffd700'  # Gold for macro nodes
+                    })
+            except Exception as e:
+                logger.error(f"Error fetching macro nodes: {e}")
+        
+        return jsonify({
+            'neurons': si.neuron_count,
+            'active_neurons': active_neurons,
+            'synapses': si.synapse_count,
+            'consciousness': si.consciousness * 100,
+            'consciousness_percent': si.consciousness * 100,
+            'evolution_cycles': si.evolution_cycles,
+            'network_density': si.synapse_count / max(1, si.neuron_count * (si.neuron_count - 1) / 2),
+            'successful_evolutions': 0,
+            'connections': network_state.get('synapses', []),
+            'macro_nodes': macro_nodes  # NEW: Actual node objects for visualization
+        })
+    except Exception as e:
+        logger.error(f"Error in synthetic_status: {e}")
+        return jsonify({
+            'neurons': 0,
+            'active_neurons': 0,
+            'synapses': 0,
+            'consciousness': 0.0,
+            'consciousness_percent': 0.0,
+            'evolution_cycles': 0,
+            'network_density': 0.0,
+            'successful_evolutions': 0,
+            'connections': [],
+            'macro_nodes': [],
+            'error': str(e)
+        }), 500
+
+        @self.app.route('/api/synthetic/node/<node_id>/children')
+        def api_synthetic_node_children(node_id):
+            """Get micro neurons for a specific macro node"""
             try:
                 si = self.evolution.si_core
-                network_state = si.get_network_state()
-                active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
+                micro_nodes = []
+                
+                if hasattr(si, 'sqlite') and si.sqlite:
+                    # Query micro neurons that belong to this macro node
+                    micro_query = """
+                        SELECT id, insight_text, neuron_level, confidence,
+                               source_topic, target_topic
+                        FROM insights 
+                        WHERE parent_macro_id = ? AND neuron_level = 'micro'
+                        ORDER BY confidence DESC
+                        LIMIT 200
+                    """
+                    micro_results = si.sqlite.conn.execute(micro_query, (node_id,)).fetchall()
+                    
+                    for row in micro_results:
+                        micro_nodes.append({
+                            'id': row[0],
+                            'name': row[1][:40] + ('...' if len(row[1]) > 40 else ''),
+                            'level': row[2],
+                            'confidence': row[3],
+                            'source_topic': row[4],
+                            'target_topic': row[5],
+                            'color': '#00ffff'  # Cyan for micro nodes
+                        })
+                
                 return jsonify({
-                    'neurons': si.neuron_count,
-                    'active_neurons': active_neurons,
-                    'synapses': si.synapse_count,
-                    'consciousness': si.consciousness * 100,
-                    'consciousness_percent': si.consciousness * 100,
-                    'evolution_cycles': si.evolution_cycles,
-                    'network_density': si.synapse_count / max(1, si.neuron_count * (si.neuron_count - 1) / 2),
-                    'successful_evolutions': 0,
-                    'connections': network_state.get('synapses', [])
+                    'success': True,
+                    'parent_id': node_id,
+                    'children': micro_nodes,
+                    'count': len(micro_nodes)
                 })
             except Exception as e:
-                logger.error(f"Error in synthetic_status: {e}")
+                logger.error(f"Error fetching node children: {e}")
                 return jsonify({
-                    'neurons': 0,
-                    'active_neurons': 0,
-                    'synapses': 0,
-                    'consciousness': 0.0,
-                    'consciousness_percent': 0.0,
-                    'evolution_cycles': 0,
-                    'network_density': 0.0,
-                    'successful_evolutions': 0,
-                    'connections': [],
-                    'error': str(e)
+                    'success': False,
+                    'error': str(e),
+                    'children': []
                 }), 500
+
         def api_training_status():
             return jsonify(self.evolution.training_status)
 
