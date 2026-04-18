@@ -6546,7 +6546,7 @@ class DMAIApplication:
                 synapses_list = []
                 
                 # PRIMARY: Read from SQLite
-                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core') and hasattr(self.si_core, 'sqlite') and self.evolution.si_core.sqlite:
+                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core') and hasattr(self.si_core, 'sqlite') and self.si_core.sqlite:
                     try:
                         import sqlite3
                         db_path = self.si_core.sqlite.db_path
