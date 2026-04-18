@@ -5790,11 +5790,11 @@ class DMAIApplication:
 
         @self.app.route('/api/debug/insights/sample')
         def debug_insights_sample():
-            """Temporary: Sample insights to see their format"""
+            """Sample insights with source breakdown"""
             try:
                 si = self.evolution.si_core
                 samples = []
-                stats = {'total': 0, 'prefixes': {}, 'repository_count': 0}
+                stats = {'total': 0, 'by_source_type': {}, 'by_entity_type': {}, 'columns': []}
                 
                 if hasattr(si, 'sqlite') and si.sqlite:
                     conn = si.sqlite._get_connection()
@@ -5804,25 +5804,72 @@ class DMAIApplication:
                     cursor.execute('SELECT COUNT(*) FROM insights')
                     stats['total'] = cursor.fetchone()[0]
                     
-                    # Search for repository/automaton
+                    # Check columns
+                    cursor.execute("PRAGMA table_info(insights)")
+                    stats['columns'] = [col[1] for col in cursor.fetchall()]
+                    
+                    # Breakdown by source_type (if column exists)
+                    if 'source_type' in stats['columns']:
+                        cursor.execute('''
+                            SELECT source_type, COUNT(*) 
+                            FROM insights 
+                            WHERE source_type IS NOT NULL
+                            GROUP BY source_type
+                        ''')
+                        stats['by_source_type'] = dict(cursor.fetchall())
+                    
+                    # Breakdown by entity_type
                     cursor.execute('''
-                        SELECT id, insight_text FROM insights 
-                        WHERE insight_text LIKE '%automaton%' OR insight_text LIKE '%Repository%'
-                        LIMIT 20
+                        SELECT entity_type, COUNT(*) 
+                        FROM insights 
+                        GROUP BY entity_type
+                        LIMIT 15
                     ''')
-                    repo_rows = cursor.fetchall()
-                    stats['repository_count'] = len(repo_rows)
-                    for row in repo_rows:
-                        samples.append({'id': row[0], 'text': row[1][:100]})
+                    stats['by_entity_type'] = dict(cursor.fetchall())
+                    
+                    # Get recent insights
+                    created_col = 'created_at' if 'created_at' in stats['columns'] else 'id'
+                    cursor.execute(f'''
+                        SELECT id, insight_text, entity_type, 
+                               source_type, {created_col}
+                        FROM insights 
+                        ORDER BY {created_col} DESC
+                        LIMIT 10
+                    ''')
+                    for row in cursor.fetchall():
+                        samples.append({
+                            'id': row[0],
+                            'text': row[1][:80],
+                            'entity_type': row[2],
+                            'source_type': row[3] if len(row) > 3 else None,
+                            'created': row[4] if len(row) > 4 else None
+                        })
                 
                 return jsonify({
                     'total_insights': stats['total'],
-                    'repository_matches': stats['repository_count'],
-                    'repository_samples': samples
+                    'columns': stats['columns'],
+                    'by_source_type': stats['by_source_type'],
+                    'by_entity_type': stats['by_entity_type'],
+                    'recent_insights': samples
                 })
             except Exception as e:
                 import traceback
                 return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+        @self.app.route('/api/debug/disk', methods=['GET'])
+        def debug_disk():
+            """Check disk and database status"""
+            import os
+            db_path = '/opt/render/project/src/data/dmai_knowledge.db'
+            data_dir = '/opt/render/project/src/data'
+            return jsonify({
+                'db_exists': os.path.exists(db_path),
+                'db_size_mb': round(os.path.getsize(db_path) / (1024*1024), 2) if os.path.exists(db_path) else 0,
+                'data_dir_exists': os.path.exists(data_dir),
+                'data_dir_contents': os.listdir(data_dir) if os.path.exists(data_dir) else [],
+                'cwd': os.getcwd(),
+                'disk_usage': os.popen('df -h /opt/render/project/src/data 2>/dev/null || echo "N/A"').read().strip()
+            })
 
         @self.app.route('/api/debug/neo4j_env', methods=['GET'])
         def debug_neo4j_env():
