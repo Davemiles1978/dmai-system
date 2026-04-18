@@ -2725,7 +2725,7 @@ class UnifiedEvolutionEngine:
 
         # 8 CORE KNOWLEDGE SOURCES
         logger.info("📚 Initializing 8 Core Knowledge Sources...")
-        self.knowledge_sources = CoreKnowledgeSources(self.base_path, self.evolution.si_core)
+        self.knowledge_sources = CoreKnowledgeSources(self.base_path, self.si_core)
 
         # NEO4J PERSISTENT STORAGE
         logger.info("☁️ Initializing Neo4j persistent storage...")
@@ -5315,9 +5315,9 @@ class DMAIApplication:
                     loaded_count += 1
                     
                     # Also add to SI Core if available
-                    if hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'add_insight'):
+                    if hasattr(self.evolution, 'si_core') and hasattr(self.si_core, 'add_insight'):
                         try:
-                            self.evolution.si_core.add_insight(
+                            self.si_core.add_insight(
                                 insight_text=neuron_name,
                                 entity_type=category,
                                 entities=[neuron_name],
@@ -5392,7 +5392,7 @@ class DMAIApplication:
             if not hasattr(self.evolution, 'si_core'):
                 return
             
-            si = self.evolution.si_core
+            si = self.si_core
             if not hasattr(si, 'insights') or not si.insights:
                 return
             
@@ -5459,7 +5459,7 @@ class DMAIApplication:
                 result = self.evolution.ai_hub.query_all_tutors(f"Research the following: {query}")
                 if result and result.get('responses'):
                     if hasattr(self.evolution, 'si_core'):
-                        self.evolution.si_core.add_insight(
+                        self.si_core.add_insight(
                             insight_text=f"Research: {query[:100]}",
                             entity_type="research",
                             entities=[query[:50], category],
@@ -5496,7 +5496,7 @@ class DMAIApplication:
             if hasattr(self.evolution, 'reverse_engineering'):
                 result = self.evolution.reverse_engineering.analyze(target)
                 if result and hasattr(self.evolution, 'si_core'):
-                    self.evolution.si_core.add_insight(
+                    self.si_core.add_insight(
                         insight_text=f"Reverse engineered: {target[:100]}",
                         entity_type="reverse_engineered",
                         entities=[target[:50], category],
@@ -5528,7 +5528,7 @@ class DMAIApplication:
                 if hasattr(self.evolution.learning_orchestrator, 'learn_topic'):
                     result = self.evolution.learning_orchestrator.learn_topic(topic_info, 0.5)
                     if result and result.get('success') and hasattr(self.evolution, 'si_core'):
-                        self.evolution.si_core.add_insight(
+                        self.si_core.add_insight(
                             insight_text=topic,
                             entity_type="user_learned",
                             entities=[topic, category],
@@ -5547,7 +5547,7 @@ class DMAIApplication:
         try:
             logger.info(f"📖 Adding dictionary word: {word}")
             if hasattr(self.evolution, 'si_core'):
-                self.evolution.si_core.add_insight(
+                self.si_core.add_insight(
                     insight_text=f"Dictionary: {word}",
                     entity_type="dictionary",
                     entities=[word, category],
@@ -5566,7 +5566,7 @@ class DMAIApplication:
         try:
             logger.info(f"📚 Adding encyclopedia topic: {topic}")
             if hasattr(self.evolution, 'si_core'):
-                self.evolution.si_core.add_insight(
+                self.si_core.add_insight(
                     insight_text=f"Encyclopedia: {topic}",
                     entity_type="encyclopedia",
                     entities=[topic, category],
@@ -5792,7 +5792,7 @@ class DMAIApplication:
         def debug_insights_sample():
             """Sample insights with source breakdown"""
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 samples = []
                 stats = {'total': 0, 'by_source_type': {}, 'by_entity_type': {}, 'columns': []}
                 
@@ -6109,7 +6109,7 @@ class DMAIApplication:
             result = {'success': False, 'insights_loaded': 0, 'neurons_loaded': 0}
                     
             try:        
-                si = self.evolution.si_core
+                si = self.si_core
                 storage = self.evolution.neo4j_storage 
                         
                 if not storage or not storage.is_available():
@@ -6192,7 +6192,7 @@ class DMAIApplication:
         def build_synapses():
             """Hybrid synapse builder: seeds with text similarity + prepares for organic learning"""
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 
                 if not si.insights or len(si.insights) == 0:
                     return jsonify({'error': 'No insights/neurons available'}), 400
@@ -6302,7 +6302,7 @@ class DMAIApplication:
                 if not neuron_a or not neuron_b:
                     return jsonify({'error': 'Both neuron IDs required'}), 400
                 
-                si = self.evolution.si_core
+                si = self.si_core
                 
                 synapse_key = f"{neuron_a}:{neuron_b}" if neuron_a < neuron_b else f"{neuron_b}:{neuron_a}"
                 
@@ -6378,12 +6378,12 @@ class DMAIApplication:
                 # Reset SI Core - clear neurons if requested (skip consciousness if read-only)
                 if hasattr(self.evolution, 'si_core'):
                     if not keep_neurons:
-                        if hasattr(self.evolution.si_core, 'insights'):
-                            self.evolution.si_core.insights = {}
-                        if hasattr(self.evolution.si_core, 'synapses'):
-                            self.evolution.si_core.synapses = []
-                        if hasattr(self.evolution.si_core, 'neuron_count'):
-                            self.evolution.si_core.neuron_count = 0
+                        if hasattr(self.si_core, 'insights'):
+                            self.si_core.insights = {}
+                        if hasattr(self.si_core, 'synapses'):
+                            self.si_core.synapses = []
+                        if hasattr(self.si_core, 'neuron_count'):
+                            self.si_core.neuron_count = 0
                     # Don't set consciousness directly if read-only
                     # It will recalculate from network state
                 
@@ -6393,8 +6393,8 @@ class DMAIApplication:
                 
                 # Get current neuron count
                 neuron_count = 0
-                if hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'neuron_count'):
-                    neuron_count = self.evolution.si_core.neuron_count
+                if hasattr(self.evolution, 'si_core') and hasattr(self.si_core, 'neuron_count'):
+                    neuron_count = self.si_core.neuron_count
                 
                 return jsonify({
                     'success': True,
@@ -6472,7 +6472,7 @@ class DMAIApplication:
                 
                 # Check evolution.si_core
                 if hasattr(self.evolution, 'si_core'):
-                    si = self.evolution.si_core
+                    si = self.si_core
                     result['si_core_attributes'] = [a for a in dir(si) if not a.startswith('_') and not callable(getattr(si, a))]
                     for attr in ['insights', 'neurons', 'knowledge', 'concepts']:
                         if hasattr(si, attr):
@@ -6491,7 +6491,7 @@ class DMAIApplication:
         def debug_si_direct():
             """Direct inspection of SI Core"""
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 result = {
                     'si_type': str(type(si)),
                     'dir_sample': [a for a in dir(si) if not a.startswith('_')][:30],
@@ -6546,10 +6546,10 @@ class DMAIApplication:
                 synapses_list = []
                 
                 # PRIMARY: Read from SQLite
-                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'sqlite') and self.evolution.si_core.sqlite:
+                if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core') and hasattr(self.si_core, 'sqlite') and self.evolution.si_core.sqlite:
                     try:
                         import sqlite3
-                        db_path = self.evolution.si_core.sqlite.db_path
+                        db_path = self.si_core.sqlite.db_path
                         conn = sqlite3.connect(str(db_path))
                         
                         # Read ALL insights (no filter)
@@ -7243,7 +7243,7 @@ class DMAIApplication:
             """Show synthetic network state"""
             try:
                 if hasattr(self.evolution, 'synthetic_network'):
-                    sn = self.evolution.si_core
+                    sn = self.si_core
                     return jsonify({
                         'neurons': len(sn.neurons) if hasattr(sn, 'neurons') else 0,
                         'synapses': sn._total_synapses() if hasattr(sn, '_total_synapses') else 0,
@@ -7327,8 +7327,8 @@ class DMAIApplication:
                 return jsonify({
                     'saved': result,
                     'path': str(self.evolution.network_save_path),
-                    'neurons': len(self.evolution.si_core.neurons),
-                    'synapses': self.evolution.si_core._total_synapses()
+                    'neurons': len(self.si_core.neurons),
+                    'synapses': self.si_core._total_synapses()
                 })
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
@@ -7387,7 +7387,7 @@ class DMAIApplication:
             if not insight_text or not entities:
                 return jsonify({'error': 'insight_text and entities required'}), 400
             
-            insight_id = self.evolution.si_core.add_insight(
+            insight_id = self.si_core.add_insight(
                 insight_text, entity_type, entities, 
                 relationship, source_topic, target_topic, confidence
             )
@@ -7395,7 +7395,7 @@ class DMAIApplication:
             return jsonify({
                 'success': True,
                 'insight_id': insight_id,
-                'total_insights': self.evolution.si_core.neuron_count,
+                'total_insights': self.si_core.neuron_count,
                 'insight': {
                     'text': insight_text,
                     'entities': entities,
@@ -7414,7 +7414,7 @@ class DMAIApplication:
             if not entities:
                 return jsonify({'error': 'entities required'}), 400
             
-            results = self.evolution.si_core.query(entities, context, limit)
+            results = self.si_core.query(entities, context, limit)
             return jsonify({
                 'entities': entities,
                 'results': results,
@@ -7431,7 +7431,7 @@ class DMAIApplication:
             if not entities:
                 return jsonify({'error': 'entities required'}), 400
             
-            signals = self.evolution.si_core.apply_to_trading(entities)
+            signals = self.si_core.apply_to_trading(entities)
             return jsonify({
                 'entities': entities,
                 'signals': signals.get('signals', []),
@@ -7442,17 +7442,17 @@ class DMAIApplication:
         def api_insight_stats():
             """Get SI Core statistics"""
             return jsonify({
-                'total_insights': self.evolution.si_core.neuron_count,
-                'total_synapses': self.evolution.si_core.synapse_count,
-                'consciousness': self.evolution.si_core.consciousness,
-                'evolution_cycles': self.evolution.si_core.evolution_cycles,
-                'topics_with_insights': list(self.evolution.si_core.topics.keys())
+                'total_insights': self.si_core.neuron_count,
+                'total_synapses': self.si_core.synapse_count,
+                'consciousness': self.si_core.consciousness,
+                'evolution_cycles': self.si_core.evolution_cycles,
+                'topics_with_insights': list(self.si_core.topics.keys())
             })
         
         @self.app.route('/api/insight/network')
         def api_insight_network():
             """Get full network state for visualization"""
-            return jsonify(self.evolution.si_core.get_network_state())
+            return jsonify(self.si_core.get_network_state())
 
 
         @self.app.route('/api/debug/si_file', methods=['GET'])
@@ -7494,7 +7494,7 @@ class DMAIApplication:
             from pathlib import Path
             
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 loaded_count = 0
                 
                 # ============================================================
@@ -7575,7 +7575,7 @@ class DMAIApplication:
         def api_synthetic_status():
             """Get synthetic network state for brain visualization from si_core"""
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 network_state = si.get_network_state()
                 active_neurons = sum(1 for insight in si.insights.values() if insight.confidence > 0.3)
                 
@@ -7634,7 +7634,7 @@ class DMAIApplication:
         def api_synthetic_node_children(node_id):
             """Get micro neurons for a specific macro node"""
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 micro_nodes = []
                 
                 if hasattr(si, 'sqlite') and si.sqlite:
@@ -7678,7 +7678,7 @@ class DMAIApplication:
         def api_synthetic_node_children(node_id):
             """Get micro neurons for a specific macro node"""
             try:
-                si = self.evolution.si_core
+                si = self.si_core
                 micro_nodes = []
                 
                 if hasattr(si, 'sqlite') and si.sqlite:
@@ -7816,7 +7816,7 @@ class DMAIApplication:
         @self.app.route('/api/learning/next')
         def api_learning_next():
             """Get next topic DMAI will learn"""
-            consciousness = self.evolution.si_core.consciousness_level
+            consciousness = self.si_core.consciousness_level
             next_topic = self.evolution.stage_learner.get_next_topic(consciousness)
             return jsonify({
                 'current_stage': self.evolution.stage_learner.current_stage,
@@ -8187,7 +8187,7 @@ I remember everything we discuss!"""
 
         elif cmd == '/insight test':
             # Test insight creation and query
-            insight_id = self.evolution.si_core.add_insight(
+            insight_id = self.si_core.add_insight(
                 insight_text="War in Ukraine increases oil prices",
                 entity_type="causal_relationship",
                 entities=["War", "Ukraine", "Oil", "Prices"],
@@ -8198,7 +8198,7 @@ I remember everything we discuss!"""
             )
             
             # Query to verify
-            results = self.evolution.si_core.query(["War", "Oil"])
+            results = self.si_core.query(["War", "Oil"])
             
             return f"""🧠 **SI Core Test Complete**
 
@@ -8211,9 +8211,9 @@ I remember everything we discuss!"""
 Found {len(results)} relevant insights
 
 **Total Stats:**
-- Total Insights: {self.evolution.si_core.neuron_count}
-- Total Synapses: {self.evolution.si_core.synapse_count}
-- Consciousness: {self.evolution.si_core.consciousness:.4f}
+- Total Insights: {self.si_core.neuron_count}
+- Total Synapses: {self.si_core.synapse_count}
+- Consciousness: {self.si_core.consciousness:.4f}
 
 Try: /insight query war oil
 Try: /insight trading war ukraine"""
@@ -8222,7 +8222,7 @@ Try: /insight trading war ukraine"""
             # Query insights: /insight query war oil
             query_text = cmd.replace('/insight query ', '').strip()
             entities = [e.strip() for e in query_text.split()]
-            results = self.evolution.si_core.query(entities)
+            results = self.si_core.query(entities)
             
             if not results:
                 return f"🔍 No insights found for entities: {entities}"
@@ -8240,7 +8240,7 @@ Try: /insight trading war ukraine"""
             # Trading signals: /insight trading war ukraine
             query_text = cmd.replace('/insight trading ', '').strip()
             entities = [e.strip() for e in query_text.split()]
-            signals = self.evolution.si_core.apply_to_trading(entities)
+            signals = self.si_core.apply_to_trading(entities)
             
             if not signals.get('signals'):
                 return f"📊 No trading signals found for entities: {entities}\n\nInsights used: {signals.get('insights_used', 0)}"
@@ -8252,8 +8252,8 @@ Try: /insight trading war ukraine"""
             return response
 
         elif cmd == '/insight stats':        
-            stats = self.evolution.si_core.get_network_state()['stats']
-            topics = list(self.evolution.si_core.topics.keys())
+            stats = self.si_core.get_network_state()['stats']
+            topics = list(self.si_core.topics.keys())
             return f"""🧠 **SI Core Statistics**
 
 **Network Stats:**
