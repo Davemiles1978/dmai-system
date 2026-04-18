@@ -98,7 +98,8 @@ class KnowledgeItem:
 class BookReader:
     """Reads books from Project Gutenberg and public domain sources with fiction/non-fiction classification"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'books'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 3600  # 1 hour
@@ -479,10 +480,29 @@ class BookReader:
                 logger.debug(f"Reading Terry Pratchett book: {book['title']} - {book['reason']}")
             
     def _save_book(self, book: KnowledgeItem):
-        """Save book info to disk with classification"""
+        """Save book info to disk with classification and create SI Core insight"""
         filename = self.data_path / f"book_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(book.to_dict(), f, indent=2)
+        
+        # Create insight in SI Core
+        if self.si_core:
+            try:
+                author = book.metadata.get('author', 'Unknown')
+                self.si_core.add_insight(
+                    insight_text=f"Book: {book.title} by {author}",
+                    entity_type="book",
+                    entities=[author, book.title],
+                    relationship="wrote",
+                    confidence=0.9,
+                    source_topic="literature",
+                    target_topic="knowledge",
+                    source_url=book.source,
+                    source_title=book.title,
+                    source_type="book_reader"
+                )
+            except Exception as e:
+                logger.error(f"Failed to create insight for book: {e}")
             
     def get_status(self) -> Dict:
         return {
@@ -1076,21 +1096,22 @@ class CoreKnowledgeSources:
     Starts all background threads and provides status
     """
     
-    def __init__(self, base_path: Path):
+    def __init__(self, base_path: Path, si_core=None):
         self.base_path = base_path
         self.data_path = base_path / 'data' / 'knowledge_sources'
         self.data_path.mkdir(parents=True, exist_ok=True)
+        self.si_core = si_core
         
         # Initialize all 8 sources
         self.sources = {
-            'book_reader': BookReader(self.data_path),
-            'article_reader': ArticleReader(self.data_path),
-            'research_paper_reader': ResearchPaperReader(self.data_path),
-            'web_crawler': WebCrawler(self.data_path),
-            'dark_web_monitor': DarkWebMonitor(self.data_path),
-            'social_media_scanner': SocialMediaScanner(self.data_path),
-            'speech_pattern_analyzer': SpeechPatternAnalyzer(self.data_path),
-            'self_evolution_tracker': SelfEvolutionTracker(self.data_path)
+            'book_reader': BookReader(self.data_path, si_core),
+            'article_reader': ArticleReader(self.data_path, si_core),
+            'research_paper_reader': ResearchPaperReader(self.data_path, si_core),
+            'web_crawler': WebCrawler(self.data_path, si_core),
+            'dark_web_monitor': DarkWebMonitor(self.data_path, si_core),
+            'social_media_scanner': SocialMediaScanner(self.data_path, si_core),
+            'speech_pattern_analyzer': SpeechPatternAnalyzer(self.data_path, si_core),
+            'self_evolution_tracker': SelfEvolutionTracker(self.data_path, si_core)
         }
         
         logger.info("📚 8 Core Knowledge Sources initialized")
