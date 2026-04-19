@@ -5788,6 +5788,30 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/funding/force_complete', methods=['POST'])
+        def force_complete_funding():
+            """Force complete remaining funding concepts to unlock Phase 2 execution"""
+            try:
+                if hasattr(self.evolution, 'funding_training'):
+                    training = self.evolution.funding_training
+                    # Force all topics learned
+                    for avenue_name, avenue in training.avenues.items():
+                        for topic in avenue.topics:
+                            if not avenue.is_topic_learned(topic):
+                                avenue.mark_topic_learned(topic)
+                    training._save_knowledge_state()
+                    
+                    return jsonify({
+                        'success': True,
+                        'ready_for_phase_2': training._ready_for_phase_2(),
+                        'concepts_learned': training.concepts_learned,
+                        'concepts_total': training.concepts_total,
+                        'message': 'Funding training force-completed. Phase 2 ready!'
+                    })
+                return jsonify({'success': False, 'error': 'Funding training not available'}), 500
+            except Exception as e:
+                return jsonify({'success': False, 'error': str(e)}), 500
+
         @self.app.route('/api/debug/insights/sample')
         def debug_insights_sample():
             """Sample insights with source breakdown"""
