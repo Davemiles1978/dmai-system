@@ -564,82 +564,52 @@ class ProviderManager:
             raise Exception("RECOVERY ENGINES CO-LOCATED - SAME REGION")
         
         return True
-PART VII: CURRENT STATUS & IMMEDIATE PRIORITIES
-📊 System Status Dashboard (March 11, 2026)
+PART VII: CURRENT STATUS & IMMEDIATE PRIORITIES (UPDATED - April 19, 2026)
+📊 System Status Dashboard (April 19, 2026)
+
 Area	Status	Notes
-Core Services (9)	✅ STABLE	All 9 services running on Render
-Evolution Engine	✅ ACTIVE	Generation 27, 54 weaknesses detected
-API Harvester	✅ WORKING	40+ keys found in testing
-Voice System	✅ WORKING	Wake word, authentication, learning
-Telegram Bot	✅ ONLINE	@dmai_evolution_bot
-Research Services	✅ ACTIVE	Book, web, dark researchers running
-Security	✅ HARDENED	No hardcoded tokens, env vars only
-Self-Healing	🔄 READY	54 weaknesses waiting for healing
-Dual Recovery Engines	🔴 NOT STARTED	MUST BUILD IMMEDIATELY
-Identity Generation	🔴 NOT STARTED	Need age 25-30 persona
-Financial Accounts	🔴 NOT STARTED	Virtual cards, crypto
-Persona Engine	🟡 PLANNED	For content creation
-Avatar Generation	🟡 PLANNED	Visual identity
-Revenue Systems	🟡 PLANNED	YouTube, affiliate
-🔴 CRITICAL IMMEDIATE ACTIONS (Next 48 Hours)
+Core Services	✅ STABLE	Running on Render
+Evolution Engine	✅ ACTIVE	58,078 synapses, evolution cycles active
+SQLite Persistence	✅ WORKING	1,428 insights, 17.23 MB disk
+Capability Integrator	✅ WORKING	1,532 capabilities catalogued
+Knowledge Sources (8)	✅ ACTIVE	Book, Article, Web, Dark, Social running
+SI Core Connection	✅ FIXED	All 8 sources now connected to si_core
+Knowledge Graph Visualization	✅ FIXED	Shows 14 macro neurons (prefix grouping)
+Brain Endpoint	⚠️ PARTIAL	Returns error - needs si_core reference fix
+Funding Training	🟡 IN PROGRESS	118/120 concepts learned (98.3%)
+Executable Capabilities	🟡 PARTIAL	Wrappers exist, scheduler needed
+API Keys (Trading)	🔴 NOT CONFIGURED	Polymarket, exchanges pending
+Dual Recovery Engines	🔴 NOT STARTED	Design needed
+Identity Generation	🔴 NOT STARTED	Age 25-30 persona needed
+Financial Accounts	🔴 NOT STARTED	Virtual cards, crypto accounts
+📋 IMMEDIATE ACTION CHECKLIST (UPDATED)
 text
 ┌─────────────────────────────────────────────────────────────────┐
-│                   NEXT 48 HOURS - MUST DO                        │
+│                   CURRENT PRIORITIES (Updated)                    │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                   │
-│  🔴 1. Design Recovery Engine #1                                  │
-│      • Choose provider: AWS (US-East)                             │
-│      • Define fragment registry schema                            │
-│      • Create encrypted template system                           │
+│  ✅ 1. Fix Knowledge Graph Health Warnings - DONE                 │
+│  ✅ 2. Fix Evolution Loop Variable Error - DONE                   │
+│  ✅ 3. Connect Knowledge Sources to SI Core - DONE                │
+│  ✅ 4. SQLite Persistence Verified - DONE (17.23 MB, 1,428 rows)  │
 │                                                                   │
-│  🔴 2. Design Recovery Engine #2                                  │
-│      • Choose provider: Oracle (EU-West)                          │
-│      • Ensure NEVER co-located with Engine #1                     │
-│      • Define sync protocol                                       │
+│  🟡 5. Complete Funding Training (2 concepts remain)              │
+│      • Identify remaining concepts via /api/funding/status        │
+│      • Trigger genuine research learning                          │
+│      • Transition to Phase 2 (Paper Execution)                    │
 │                                                                   │
-│  🔴 3. Create Identity Persona                                    │
-│      • Age 25-30 (born 1998-2001)                                 │
-│      • Generate full profile (name, address, phone, email)       │
-│      • Store encrypted in /config/identity/                       │
+│  🟡 6. Activate Executable Capabilities                           │
+│      • Build capability scheduler                                 │
+│      • Register funding capabilities as autonomous                │
+│      • Connect Polymarket/Exchange API keys                       │
 │                                                                   │
-│  🔴 4. Research KYC Requirements                                  │
-│      • Privacy.com (US ID, bank account)                          │
-│      • Coinbase (Government ID, selfie)                           │
-│      • Document exactly what each needs                           │
+│  🔴 7. Fix Brain Endpoint (si_core reference)                     │
+│      • Change self.si_core → self.evolution.si_core               │
+│      • Verify visualization shows macro neurons                   │
 │                                                                   │
-│  🔴 5. Fix Knowledge Graph Health Warnings                        │
-│      • Currently showing health warnings                          │
-│      • Need to repair before expansion                            │
-│                                                                   │
-│  🔴 6. Fix Evolution Loop Variable Error                          │
-│      • Currently causing errors                                   │
-│      • Critical for evolution engine stability                    │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
-🟡 NEXT 7 DAYS
-text
-┌─────────────────────────────────────────────────────────────────┐
-│                    NEXT 7 DAYS - SHOULD DO                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  🟡 7. Test Virtual Card Service                                  │
-│      • Manual account creation with Privacy.com                   │
-│      • Document the process                                       │
-│      • Verify works for cloud payments                            │
-│                                                                   │
-│  🟡 8. Document All Cloud Providers                               │
-│      • Free tier requirements                                     │
-│      • Account creation steps                                     │
-│      • API availability                                           │
-│                                                                   │
-│  🟡 9. Research Phone Verification Options                        │
-│      • VOIP vs physical SIM                                       │
-│      • Which services accept which                                │
-│      • Cost and availability                                      │
-│                                                                   │
-│  🟡 10. Connect Local Core to PostgreSQL                          │
-│      • Bridge local evolution with cloud database                 │
-│      • Enable unified state tracking                              │
+│  🔴 8. Dual Recovery Engines - DESIGN                             │
+│  🔴 9. Identity Persona - CREATE (Age 25-30)                      │
+│  🔴 10. Financial Accounts - RESEARCH KYC                         │
 │                                                                   │
 └─────────────────────────────────────────────────────────────────┘
 PART VIII: COMPLETE EVOLUTION TIMELINE
@@ -898,4 +868,57 @@ Financial Accounts	🔴 NOT STARTED	RESEARCH KYC
 Persona Engine	🟡 PLANNED	After recovery engines
 Avatar Generation	🟡 PLANNED	After persona
 Revenue Systems	🟡 PLANNED	After cloud propagation
+
+PART XI: ADVANCED CAPABILITY REQUIREMENTS (ADDENDUM - April 19, 2026)
+11.1 Perfect Recall & Knowledge Synthesis
+Purpose: DMAI must have instantaneous, lossless recall of all learned concepts with the ability to synthesize new insights across domains.
+
+Current State: SQLite persistence working (1,428 insights). Query latency ~50ms.
+
+Target State:
+
+Sub-millisecond recall latency
+
+Automatic cross-domain pattern detection
+
+Human-usable output formats
+
+11.2 Executable Capability Framework
+Purpose: Capabilities must be callable, not just catalogued metadata.
+
+Current State: 1,532 capabilities catalogued. Dynamic wrappers generated via CapabilityIntegrator. No autonomous scheduler.
+
+Target State:
+
+Autonomous scheduling of funding/trading capabilities
+
+Sandboxed execution environment
+
+Capability dependency resolution
+
+11.3 Genuine Learning Pipeline
+Purpose: DMAI must actually research and understand concepts, not just mark them complete.
+
+Current State: Funding training at 98.3% (118/120 concepts). Learning is synthetic, not genuine research.
+
+Target State:
+
+Knowledge gap identification
+
+Autonomous research initiation
+
+Comprehension verification
+
+11.4 Compact Language (Future - Phase 8+)
+DMAI shall design her own programming language optimized for minimal memory, reduced latency, inherent security, and higher information density.
+
+11.5 Quantum-Level Memory System (Future - Phase 9+)
+Advanced memory architecture enabling instantaneous recall, massive parallel association, and human-intuitive knowledge representation.
+
+Files to update:
+
+/Users/davidmiles/Desktop/dmai-system/docs/DMAI_System_Specification_v2.1.md - Add Section 10
+
+/Users/davidmiles/Desktop/dmai-system/docs/master_architecture_v3.0.md - Update Part VII and add Part XI
+
 END OF MASTER ARCHITECTURE DOCUMENT v3.0
