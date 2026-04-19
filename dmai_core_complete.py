@@ -5836,6 +5836,20 @@ class DMAIApplication:
                 import traceback
                 return jsonify({'success': False, 'error': str(e), 'traceback': traceback.format_exc()}), 500
 
+        @self.app.route('/api/funding/phase2_request', methods=['POST'])
+        def api_funding_phase2_request():
+            """Request master approval for Phase 2 paper execution"""
+            try:
+                if hasattr(self.evolution, 'funding_training'):
+                    orchestrator = self.evolution.funding_training
+                    if hasattr(orchestrator, 'request_phase_2_approval'):
+                        result = orchestrator.request_phase_2_approval()
+                        return jsonify(result)
+                    return jsonify({'error': 'request_phase_2_approval not available'}), 500
+                return jsonify({'error': 'Funding training not available'}), 500
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/debug/insights/sample')
         def debug_insights_sample():
             """Sample insights with source breakdown"""
