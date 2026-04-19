@@ -5794,23 +5794,27 @@ class DMAIApplication:
             try:
                 if hasattr(self.evolution, 'funding_training'):
                     training = self.evolution.funding_training
-                    # Force all topics learned
-                    for avenue_name, avenue in training.avenues.items():
-                        for topic in avenue.topics:
-                            if not avenue.is_topic_learned(topic):
-                                avenue.mark_topic_learned(topic)
+                    # Force all topics learned across all revenue avenues
+                    for avenue_name, avenue in training.revenue_avenues.items():
+                        for topic in avenue.get('topics', []):
+                            if topic not in training.learned_concepts:
+                                training.learned_concepts.append(topic)
+                        avenue['completed'] = True
+                        avenue['progress'] = 100.0
+                    
                     training._save_knowledge_state()
                     
                     return jsonify({
                         'success': True,
                         'ready_for_phase_2': training._ready_for_phase_2(),
-                        'concepts_learned': training.concepts_learned,
-                        'concepts_total': training.concepts_total,
+                        'concepts_learned': len(training.learned_concepts),
+                        'concepts_total': sum(len(d['topics']) for d in training.revenue_avenues.values()),
                         'message': 'Funding training force-completed. Phase 2 ready!'
                     })
                 return jsonify({'success': False, 'error': 'Funding training not available'}), 500
             except Exception as e:
-                return jsonify({'success': False, 'error': str(e)}), 500
+                import traceback
+                return jsonify({'success': False, 'error': str(e), 'traceback': traceback.format_exc()}), 500
 
         @self.app.route('/api/debug/insights/sample')
         def debug_insights_sample():
