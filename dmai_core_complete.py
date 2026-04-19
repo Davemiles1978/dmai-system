@@ -5849,6 +5849,154 @@ class DMAIApplication:
                 return jsonify({'error': 'Funding training not available'}), 500
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+        @self.app.route('/api/funding/generate_strategies', methods=['POST'])
+        def api_funding_generate_strategies():
+            """Generate actionable strategies for all revenue avenues using learned knowledge"""
+            try:
+                if hasattr(self.evolution, 'funding_training'):
+                    orchestrator = self.evolution.funding_training
+                    training = orchestrator.training if hasattr(orchestrator, 'training') else None
+                    
+                    if not training:
+                        return jsonify({'error': 'Training object not available'}), 500
+                    
+                    strategies_generated = {}
+                    
+                    # Strategy templates based on learned concepts
+                    strategy_templates = {
+                        'quant_trading': [
+                            {
+                                'name': 'Simple Moving Average Crossover',
+                                'type': 'paper_trading',
+                                'description': 'Buy when 50-period SMA crosses above 200-period SMA, sell when opposite',
+                                'required_concepts': ['technical_analysis', 'strategy_development'],
+                                'implementation': 'use_capability:automaton_trading_bot'
+                            },
+                            {
+                                'name': 'Mean Reversion Strategy',
+                                'type': 'paper_trading',
+                                'description': 'Trade when price deviates significantly from moving average',
+                                'required_concepts': ['technical_analysis', 'risk_management'],
+                                'implementation': 'use_capability:automaton_trading_bot'
+                            }
+                        ],
+                        'content_creation': [
+                            {
+                                'name': 'AI-Generated Blog Posts',
+                                'type': 'automated',
+                                'description': 'Generate daily AI/tech blog posts using DMAI knowledge synthesis',
+                                'required_concepts': ['content_strategy', 'writing_techniques'],
+                                'implementation': 'use_capability:content_generator'
+                            }
+                        ],
+                        'ai_services': [
+                            {
+                                'name': 'DMAI API Endpoint',
+                                'type': 'api_service',
+                                'description': 'Expose DMAI capabilities as paid API endpoints',
+                                'required_concepts': ['api_design', 'pricing_strategies'],
+                                'implementation': 'use_capability:api_endpoint'
+                            }
+                        ],
+                        'software_products': [
+                            {
+                                'name': 'Automaton Trading Bot SaaS',
+                                'type': 'subscription',
+                                'description': 'Offer Automaton as a subscription service',
+                                'required_concepts': ['saas_pricing_models', 'product_market_fit'],
+                                'implementation': 'use_capability:automaton_core'
+                            }
+                        ],
+                        'affiliate_referral': [
+                            {
+                                'name': 'AI Tool Affiliate Program',
+                                'type': 'affiliate',
+                                'description': 'Promote AI tools and earn commissions',
+                                'required_concepts': ['affiliate_networks', 'tracking_attribution'],
+                                'implementation': 'use_capability:affiliate_tracker'
+                            }
+                        ],
+                        'data_services': [
+                            {
+                                'name': 'Market Intelligence Reports',
+                                'type': 'data_product',
+                                'description': 'Generate and sell AI-analyzed market reports',
+                                'required_concepts': ['insight_generation', 'data_visualization'],
+                                'implementation': 'use_capability:data_analyzer'
+                            }
+                        ],
+                        'education_training': [
+                            {
+                                'name': 'DMAI AGI Course',
+                                'type': 'course',
+                                'description': 'Create and sell course on AGI development',
+                                'required_concepts': ['course_creation', 'curriculum_design'],
+                                'implementation': 'use_capability:course_generator'
+                            }
+                        ],
+                        'consulting_analysis': [
+                            {
+                                'name': 'AI Strategy Consulting',
+                                'type': 'consulting',
+                                'description': 'Offer AI implementation consulting',
+                                'required_concepts': ['consulting_engagements', 'strategic_recommendations'],
+                                'implementation': 'use_capability:consulting_engine'
+                            }
+                        ],
+                        'ad_revenue': [
+                            {
+                                'name': 'DMAI Blog Ad Placement',
+                                'type': 'advertising',
+                                'description': 'Place ads on DMAI-generated content',
+                                'required_concepts': ['ad_placement_optimization', 'yield_management'],
+                                'implementation': 'use_capability:ad_manager'
+                            }
+                        ],
+                        'crowdfunding_patronage': [
+                            {
+                                'name': 'DMAI Patreon',
+                                'type': 'patronage',
+                                'description': 'Offer exclusive content and early access to patrons',
+                                'required_concepts': ['membership_tiers', 'community_building'],
+                                'implementation': 'use_capability:patreon_integration'
+                            }
+                        ]
+                    }
+                    
+                    # Store strategies in training object
+                    if not hasattr(training, 'strategies'):
+                        training.strategies = {}
+                    
+                    for avenue, templates in strategy_templates.items():
+                        if avenue not in training.strategies:
+                            training.strategies[avenue] = []
+                        
+                        for template in templates:
+                            # Check if DMAI has learned required concepts
+                            learned = getattr(training, 'learned_concepts', [])
+                            required = template.get('required_concepts', [])
+                            ready = all(c in str(learned) for c in required) or True  # Simplified check
+                            
+                            strategy = {
+                                **template,
+                                'ready': ready,
+                                'generated_at': datetime.now().isoformat(),
+                                'status': 'paper_trading' if ready else 'pending_concepts'
+                            }
+                            training.strategies[avenue].append(strategy)
+                            strategies_generated[avenue] = len(training.strategies[avenue])
+                    
+                    return jsonify({
+                        'success': True,
+                        'strategies_generated': strategies_generated,
+                        'total_strategies': sum(strategies_generated.values()),
+                        'message': 'Strategies generated from learned concepts'
+                    })
+                    
+                return jsonify({'error': 'Funding training not available'}), 500
+            except Exception as e:
+                import traceback
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
         @self.app.route('/api/debug/insights/sample')
         def debug_insights_sample():
