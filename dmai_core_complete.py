@@ -5836,18 +5836,6 @@ class DMAIApplication:
                 import traceback
                 return jsonify({'success': False, 'error': str(e), 'traceback': traceback.format_exc()}), 500
 
-        @self.app.route('/api/funding/phase2_request', methods=['POST'])
-        def api_funding_phase2_request():
-            """Request master approval for Phase 2 paper execution"""
-            try:
-                if hasattr(self.evolution, 'funding_training'):
-                    orchestrator = self.evolution.funding_training
-                    if hasattr(orchestrator, 'request_phase_2_approval'):
-                        result = orchestrator.request_phase_2_approval()
-                        return jsonify(result)
-                    return jsonify({'error': 'request_phase_2_approval not available'}), 500
-                return jsonify({'error': 'Funding training not available'}), 500
-            except Exception as e:
                 return jsonify({'error': str(e)}), 500
         @self.app.route('/api/funding/generate_strategies', methods=['POST'])
         def api_funding_generate_strategies():
@@ -7997,17 +7985,6 @@ class DMAIApplication:
             avenue = request.args.get('avenue', None)
             return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
 
-        @self.app.route('/api/funding/phase2_request', methods=['POST'])
-        def api_funding_phase2_request():
-            # Try to initialize if missing
-            if not self.evolution.funding_training:
-                try:
-                    from components.funding.SelfFundingTraining import FundingOrchestrator
-                    self.evolution.funding_training = FundingOrchestrator(
-                        self.evolution.data_path,
-                        self.evolution.finance,
-                        self.evolution.knowledge_graph,
-                        self.evolution.ai_hub
                     )
                     if hasattr(self.evolution.funding_training, 'unified_learning'):
                         self.evolution.funding_training.unified_learning = self.evolution.unified_learning
