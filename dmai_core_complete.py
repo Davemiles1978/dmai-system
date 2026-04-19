@@ -5788,6 +5788,24 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/api/funding/debug/attrs', methods=['GET'])
+        def debug_funding_attrs():
+            """Debug: See what attributes funding_training actually has"""
+            try:
+                if hasattr(self.evolution, 'funding_training'):
+                    training = self.evolution.funding_training
+                    attrs = [a for a in dir(training) if not a.startswith('_')]
+                    return jsonify({
+                        'type': str(type(training)),
+                        'attributes': attrs,
+                        'has_revenue_avenues': hasattr(training, 'revenue_avenues'),
+                        'has_avenues': hasattr(training, 'avenues'),
+                        'has_learned_concepts': hasattr(training, 'learned_concepts')
+                    })
+                return jsonify({'error': 'Funding training not available'}), 500
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/funding/force_complete', methods=['POST'])
         def force_complete_funding():
             """Force complete remaining funding concepts to unlock Phase 2 execution"""
