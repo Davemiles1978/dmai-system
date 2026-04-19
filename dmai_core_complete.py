@@ -5952,28 +5952,18 @@ class DMAIApplication:
                         ]
                     }
                     
-                    # Initialize strategy_candidates on orchestrator if not exists
-                    if not hasattr(orchestrator, 'strategy_candidates'):
-                        orchestrator.strategy_candidates = {}
+                    # Initialize strategy_candidates on training if not exists
+                    if not hasattr(training, 'strategy_candidates'):
+                        training.strategy_candidates = {}
                     
                     for avenue, templates in strategy_templates.items():
-                        if avenue not in orchestrator.strategy_candidates:
-                            orchestrator.strategy_candidates[avenue] = []
+                        if avenue not in training.strategy_candidates:
+                            training.strategy_candidates[avenue] = []
                         
                         for template in templates:
-                            # Check if DMAI has learned required concepts
-                            learned = getattr(training, 'learned_concepts', [])
-                            required = template.get('required_concepts', [])
-                            ready = all(c in str(learned) for c in required) or True  # Simplified check
-                            
-                            strategy = {
-                                **template,
-                                'ready': ready,
-                                'generated_at': datetime.now().isoformat(),
-                                'status': 'paper_trading' if ready else 'pending_concepts'
-                            }
-                            orchestrator.strategy_candidates[avenue].append(strategy)
-                            strategies_generated[avenue] = len(orchestrator.strategy_candidates[avenue])
+                            ...
+                            training.strategy_candidates[avenue].append(strategy)
+                            strategies_generated[avenue] = len(training.strategy_candidates[avenue])
                     
                     return jsonify({
                         'success': True,
