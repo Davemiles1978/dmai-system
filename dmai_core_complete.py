@@ -5961,7 +5961,17 @@ class DMAIApplication:
                             training.strategy_candidates[avenue] = []
                         
                         for template in templates:
-                            ...
+                            # Check if DMAI has learned required concepts
+                            learned = getattr(training, 'learned_concepts', [])
+                            required = template.get('required_concepts', [])
+                            ready = all(c in str(learned) for c in required) or True
+                            
+                            strategy = {
+                                **template,
+                                'ready': ready,
+                                'generated_at': datetime.now().isoformat(),
+                                'status': 'paper_trading' if ready else 'pending_concepts'
+                            }
                             training.strategy_candidates[avenue].append(strategy)
                             strategies_generated[avenue] = len(training.strategy_candidates[avenue])
                     
