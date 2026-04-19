@@ -7983,17 +7983,6 @@ class DMAIApplication:
                     return jsonify({'error': 'Funding training not available', 'details': str(e)}), 503
             
             avenue = request.args.get('avenue', None)
-            return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
-
-                    )
-                    if hasattr(self.evolution.funding_training, 'unified_learning'):
-                        self.evolution.funding_training.unified_learning = self.evolution.unified_learning
-                    logger.info("✅ Funding training initialized on-demand")
-                except Exception as e:
-                    logger.error(f"Failed to init funding training: {e}")
-                    return jsonify({'error': 'Funding training not available', 'details': str(e)}), 503
-            
-            return jsonify(self.evolution.funding_training.request_phase_2_approval())
 
         @self.app.route('/api/learning/progress')
         def api_learning_progress():
