@@ -5987,6 +5987,30 @@ class DMAIApplication:
                 import traceback
                 return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
+        @self.app.route('/api/funding/debug/strategies', methods=['GET'])
+        def debug_funding_strategies():
+            """Debug: See what's in strategy_candidates"""
+            try:
+                if hasattr(self.evolution, 'funding_training'):
+                    orchestrator = self.evolution.funding_training
+                    training = orchestrator.training if hasattr(orchestrator, 'training') else None
+                    
+                    result = {
+                        'orchestrator_has': hasattr(orchestrator, 'strategy_candidates'),
+                        'training_has': hasattr(training, 'strategy_candidates') if training else False,
+                    }
+                    
+                    if training and hasattr(training, 'strategy_candidates'):
+                        result['training_strategies'] = {
+                            avenue: len(candidates) 
+                            for avenue, candidates in training.strategy_candidates.items()
+                        }
+                    
+                    return jsonify(result)
+                return jsonify({'error': 'Not available'}), 500
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/debug/insights/sample')
         def debug_insights_sample():
             """Sample insights with source breakdown"""
