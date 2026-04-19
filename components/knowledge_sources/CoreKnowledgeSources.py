@@ -520,7 +520,8 @@ class BookReader:
 class ArticleReader:
     """Reads news, technical articles, and blogs with classification"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'articles'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 1800  # 30 minutes
@@ -655,11 +656,11 @@ class ArticleReader:
             'feeds_monitored': len(self.rss_feeds)
         }
 
-
 class ResearchPaperReader:
     """Reads research papers from ArXiv and academic journals"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'papers'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 7200  # 2 hours
@@ -727,11 +728,11 @@ class ResearchPaperReader:
             'interval': self.interval
         }
 
-
 class WebCrawler:
     """Crawls general web content for learning"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'web'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 900  # 15 minutes
@@ -829,11 +830,11 @@ class WebCrawler:
             'interval': self.interval
         }
 
-
 class DarkWebMonitor:
     """Monitors dark web for intelligence (requires Tor)"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'darkweb'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 3600  # 1 hour
@@ -909,11 +910,11 @@ class DarkWebMonitor:
             'interval': self.interval
         }
 
-
 class SocialMediaScanner:
     """Scans Twitter, Reddit, Discord for trends and discussions"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'social'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 600  # 10 minutes
@@ -986,11 +987,11 @@ class SocialMediaScanner:
 class SpeechPatternAnalyzer:
     """Analyzes conversation patterns and speech nuances"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'speech'
         self.data_path.mkdir(parents=True, exist_ok=True)
-        self.interval = 300  # 5 minutes
-        self.active = False
+        self.interval = 300  # 5 minutes        self.active = False
         self.patterns_identified = 0
         self.last_run = None
         
@@ -1035,11 +1036,11 @@ class SpeechPatternAnalyzer:
             'interval': self.interval
         }
 
-
 class SelfEvolutionTracker:
     """Tracks DMAI's own evolution and improvement"""
     
-    def __init__(self, data_path: Path):
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
         self.data_path = data_path / 'evolution'
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.interval = 300  # 5 minutes
