@@ -5837,6 +5837,7 @@ class DMAIApplication:
                 return jsonify({'success': False, 'error': str(e), 'traceback': traceback.format_exc()}), 500
 
                 return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/funding/generate_strategies', methods=['POST'])
         def api_funding_generate_strategies():
             """Generate actionable strategies for all revenue avenues using learned knowledge"""
@@ -5951,13 +5952,13 @@ class DMAIApplication:
                         ]
                     }
                     
-                    # Store strategies in training object
-                    if not hasattr(training, 'strategies'):
-                        training.strategies = {}
+                    # Initialize strategy_candidates on orchestrator if not exists
+                    if not hasattr(orchestrator, 'strategy_candidates'):
+                        orchestrator.strategy_candidates = {}
                     
                     for avenue, templates in strategy_templates.items():
-                        if avenue not in training.strategies:
-                            training.strategies[avenue] = []
+                        if avenue not in orchestrator.strategy_candidates:
+                            orchestrator.strategy_candidates[avenue] = []
                         
                         for template in templates:
                             # Check if DMAI has learned required concepts
@@ -5971,8 +5972,8 @@ class DMAIApplication:
                                 'generated_at': datetime.now().isoformat(),
                                 'status': 'paper_trading' if ready else 'pending_concepts'
                             }
-                            training.strategies[avenue].append(strategy)
-                            strategies_generated[avenue] = len(training.strategies[avenue])
+                            orchestrator.strategy_candidates[avenue].append(strategy)
+                            strategies_generated[avenue] = len(orchestrator.strategy_candidates[avenue])
                     
                     return jsonify({
                         'success': True,
