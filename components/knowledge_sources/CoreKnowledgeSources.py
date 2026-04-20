@@ -1079,20 +1079,64 @@ class SocialMediaScanner:
         }
 
 class SpeechPatternAnalyzer:
-    """Analyzes conversation patterns and speech nuances"""
+    """
+    Analyzes real conversation patterns from social media, forums, and transcripts.
+    Learns authentic speech patterns for Alex Riviera (age 28, female).
+    Creates SI Core neurons for learned patterns.
+    """
     
     def __init__(self, data_path: Path, si_core=None):
         self.si_core = si_core
         self.data_path = data_path / 'speech'
         self.data_path.mkdir(parents=True, exist_ok=True)
-        self.interval = 300  # 5 minutes        self.active = False
+        self.interval = 600  # 10 minutes
+        self.active = False
         self.patterns_identified = 0
         self.last_run = None
         
+        # Pattern categories to learn
+        self.pattern_categories = {
+            'slang': [],        # "no cap", "slay", "it's giving"
+            'idioms': [],       # "spill the tea", "living rent free"
+            'fillers': [],      # "like", "literally", "you know"
+            'emotional_cues': [], # "omg", "i can't even", "bestie"
+            'conversation_starters': [],
+            'reactions': [],    # "no way", "shut up", "wait really"
+            'age_appropriate_phrases': []  # Millennial/Gen Z cusp (born 1998)
+        }
+        
+        # Target age demographic (Alex: 28, female)
+        self.target_demographic = {
+            'age_range': (25, 35),
+            'gender': 'female',
+            'generation': 'zillennial',  # Cusp of Millennial/Gen Z
+            'birth_year': 1998
+        }
+        
+        # Sources to analyze (connected to SocialMediaScanner output)
+        self.source_patterns = self._load_patterns()
+        
+    def _load_patterns(self) -> Dict:
+        """Load saved patterns"""
+        pattern_file = self.data_path / 'learned_patterns.json'
+        if pattern_file.exists():
+            try:
+                with open(pattern_file, 'r') as f:
+                    return json.load(f)
+            except:
+                pass
+        return self.pattern_categories.copy()
+        
+    def _save_patterns(self):
+        """Save learned patterns"""
+        pattern_file = self.data_path / 'learned_patterns.json'
+        with open(pattern_file, 'w') as f:
+            json.dump(self.source_patterns, f, indent=2)
+    
     def start(self):
         self.active = True
         threading.Thread(target=self._run, daemon=True).start()
-        logger.info("🗣️ Speech Pattern Analyzer started")
+        logger.info("🗣️ Speech Pattern Analyzer started (Alex Riviera, age 28)")
         
     def _run(self):
         while self.active:
@@ -1102,30 +1146,221 @@ class SpeechPatternAnalyzer:
                 time.sleep(self.interval)
             except Exception as e:
                 logger.error(f"Speech Pattern Analyzer error: {e}")
-                time.sleep(60)
+                time.sleep(120)
                 
     def _analyze_patterns(self):
-        pattern = KnowledgeItem(
-            title=f"Speech Analysis Cycle {self.patterns_identified + 1}",
-            content="Analyzing conversation patterns",
-            source='DMAI_Internal',
-            content_type=ContentType.UNKNOWN,
-            purpose=ContentPurpose.PATTERN_RECOGNITION,
-            metadata={'patterns_identified': random.randint(0, 5)}
-        )
+        """Analyze conversation data for speech patterns"""
         
-        self.patterns_identified += pattern.metadata['patterns_identified']
-        self._save_pattern(pattern)
+        # Check for new social media content to analyze
+        social_data_path = self.data_path.parent / 'social'
+        if social_data_path.exists():
+            self._process_social_content(social_data_path)
         
-    def _save_pattern(self, pattern: KnowledgeItem):
-        filename = self.data_path / f"pattern_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(filename, 'w') as f:
-            json.dump(pattern.to_dict(), f, indent=2)
+        # Analyze any transcript files (YouTube, TikTok)
+        transcript_path = self.data_path.parent / 'transcripts'
+        if transcript_path.exists():
+            self._process_transcripts(transcript_path)
+        
+        # Create SI Core insights for high-value patterns
+        if self.si_core:
+            self._create_pattern_insights()
             
+        self.patterns_identified += 1
+        logger.debug(f"Speech pattern analysis cycle {self.patterns_identified} complete")
+        
+    def _process_social_content(self, social_path: Path):
+        """Extract speech patterns from social media content"""
+        for file in social_path.glob('*.json'):
+            try:
+                with open(file, 'r') as f:
+                    data = json.load(f)
+                    content = data.get('content', '')
+                    platform = data.get('platform', 'unknown')
+                    
+                    # Extract patterns based on platform
+                    if platform in ['twitter', 'tiktok', 'instagram', 'reddit']:
+                        self._extract_patterns_from_text(content, platform)
+                        
+            except Exception as e:
+                logger.debug(f"Error processing social file {file}: {e}")
+                
+    def _process_transcripts(self, transcript_path: Path):
+        """Extract speech patterns from video transcripts"""
+        for file in transcript_path.glob('*.txt'):
+            try:
+                with open(file, 'r') as f:
+                    content = f.read()
+                    self._extract_patterns_from_text(content, 'transcript')
+            except Exception as e:
+                logger.debug(f"Error processing transcript {file}: {e}")
+                
+    def _extract_patterns_from_text(self, text: str, source_type: str):
+        """Extract speech patterns from raw text"""
+        if not text or len(text) < 10:
+            return
+            
+        text_lower = text.lower()
+        
+        # Slang detection (age-appropriate for 28-year-old)
+        slang_patterns = {
+            'no cap': 'slang', 'fr fr': 'slang', 'slay': 'slang',
+            'it\'s giving': 'slang', 'ate': 'slang', 'left no crumbs': 'slang',
+            'periodt': 'slang', 'bestie': 'slang', 'main character': 'slang',
+            'living rent free': 'idioms', 'spill the tea': 'idioms',
+            'touch grass': 'idioms', 'chronically online': 'idioms',
+            'iykyk': 'slang', 'tfw': 'slang', 'ngl': 'slang',
+            'lowkey': 'slang', 'highkey': 'slang', 'rent free': 'idioms'
+        }
+        
+        for phrase, category in slang_patterns.items():
+            if phrase in text_lower:
+                if phrase not in self.source_patterns.get(category, []):
+                    self.source_patterns.setdefault(category, []).append({
+                        'phrase': phrase,
+                        'source': source_type,
+                        'first_seen': datetime.now().isoformat(),
+                        'occurrences': 1,
+                        'context': self._extract_context(text, phrase)
+                    })
+                else:
+                    # Increment occurrence count
+                    for p in self.source_patterns[category]:
+                        if isinstance(p, dict) and p.get('phrase') == phrase:
+                            p['occurrences'] = p.get('occurrences', 1) + 1
+        
+        # Conversation starters and reactions
+        conversation_markers = {
+            'omg': 'reactions', 'no way': 'reactions', 'shut up': 'reactions',
+            'wait really': 'reactions', 'i can\'t': 'emotional_cues',
+            'literally': 'fillers', 'you know': 'fillers', 'like': 'fillers',
+            'honestly': 'conversation_starters', 'so anyway': 'conversation_starters',
+            'okay but': 'conversation_starters', 'i mean': 'conversation_starters'
+        }
+        
+        for marker, category in conversation_markers.items():
+            if marker in text_lower:
+                self._add_pattern(marker, category, source_type, text)
+        
+        self._save_patterns()
+        
+    def _add_pattern(self, phrase: str, category: str, source: str, context: str):
+        """Add or update a pattern"""
+        for p in self.source_patterns.get(category, []):
+            if isinstance(p, dict) and p.get('phrase') == phrase:
+                p['occurrences'] = p.get('occurrences', 1) + 1
+                return
+                
+        self.source_patterns.setdefault(category, []).append({
+            'phrase': phrase,
+            'source': source,
+            'first_seen': datetime.now().isoformat(),
+            'occurrences': 1,
+            'context': self._extract_context(context, phrase)
+        })
+        
+    def _extract_context(self, text: str, phrase: str, window: int = 50) -> str:
+        """Extract surrounding context for a phrase"""
+        idx = text.lower().find(phrase.lower())
+        if idx >= 0:
+            start = max(0, idx - window)
+            end = min(len(text), idx + len(phrase) + window)
+            return text[start:end].strip()
+        return ""
+        
+    def _create_pattern_insights(self):
+        """Create SI Core neurons for learned patterns"""
+        if not self.si_core:
+            return
+            
+        for category, patterns in self.source_patterns.items():
+            for pattern in patterns:
+                if not isinstance(pattern, dict):
+                    continue
+                    
+                phrase = pattern.get('phrase', '')
+                occurrences = pattern.get('occurrences', 1)
+                
+                # Only create insights for patterns seen multiple times
+                if occurrences >= 2:
+                    confidence = min(0.7 + (occurrences * 0.05), 0.95)
+                    
+                    insight_text = f"Speech Pattern [{category}]: '{phrase}' - used {occurrences} times"
+                    
+                    self.si_core.add_insight(
+                        insight_text=insight_text,
+                        entity_type="speech_pattern",
+                        entities=[phrase, category],
+                        relationship="learned_pattern",
+                        source_topic="conversation_analysis",
+                        target_topic=f"alex_riviera_voice",
+                        confidence=confidence,
+                        weight=confidence * 0.5
+                    )
+                    
+    def generate_response_with_pattern(self, base_response: str) -> str:
+        """
+        Enhance a response with learned speech patterns.
+        Makes Alex sound like a real 28-year-old woman.
+        """
+        import random
+        
+        enhanced = base_response
+        
+        # Maybe add a filler
+        if random.random() < 0.3:
+            fillers = [p for p in self.source_patterns.get('fillers', []) if isinstance(p, dict)]
+            if fillers:
+                filler = random.choice(fillers)['phrase']
+                words = enhanced.split()
+                if len(words) > 5:
+                    insert_pos = random.randint(1, len(words) - 1)
+                    words.insert(insert_pos, filler)
+                    enhanced = ' '.join(words)
+        
+        # Maybe add a reaction starter
+        if random.random() < 0.2:
+            reactions = [p for p in self.source_patterns.get('reactions', []) if isinstance(p, dict)]
+            if reactions and not enhanced.startswith(('omg', 'no way', 'wait')):
+                reaction = random.choice(reactions)['phrase']
+                enhanced = f"{reaction}, {enhanced[0].lower() + enhanced[1:] if enhanced else ''}"
+        
+        # Maybe add slang
+        if random.random() < 0.15:
+            slang_terms = [p for p in self.source_patterns.get('slang', []) if isinstance(p, dict)]
+            if slang_terms:
+                slang = random.choice(slang_terms)['phrase']
+                if random.random() < 0.5:
+                    enhanced = f"{enhanced}, {slang}"
+                else:
+                    enhanced = f"{slang}, {enhanced}"
+        
+        return enhanced
+        
+    def get_persona_voice_profile(self) -> Dict:
+        """
+        Generate voice profile for Alex based on learned patterns.
+        """
+        return {
+            'age': 28,
+            'demographic': self.target_demographic,
+            'common_phrases': {
+                'slang': [p['phrase'] for p in self.source_patterns.get('slang', [])[:5] if isinstance(p, dict)],
+                'fillers': [p['phrase'] for p in self.source_patterns.get('fillers', [])[:3] if isinstance(p, dict)],
+                'reactions': [p['phrase'] for p in self.source_patterns.get('reactions', [])[:3] if isinstance(p, dict)]
+            },
+            'patterns_learned': sum(len(v) for v in self.source_patterns.values()),
+            'speaking_style': 'casual_friendly'  # Can evolve based on context
+        }
+        
     def get_status(self) -> Dict:
         return {
             'active': self.active,
             'patterns_identified': self.patterns_identified,
+            'total_patterns_learned': sum(len(v) for v in self.source_patterns.values()),
+            'categories': {
+                cat: len(patterns) 
+                for cat, patterns in self.source_patterns.items()
+            },
             'last_run': self.last_run.isoformat() if self.last_run else None,
             'interval': self.interval
         }
