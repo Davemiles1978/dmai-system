@@ -120,7 +120,7 @@ from components.si_training.SyntheticIntelligenceTraining import SITrainingOrche
 from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
-from components.funding.SelfFundingTraining import FundingOrchestrator
+from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator as FundingOrchestrator
 from components.avatar_generator import AvatarGenerator
 from components.uncensored_video_research import UncensoredVideoResearcher
 
@@ -5990,6 +5990,81 @@ class DMAIApplication:
             except Exception as e:
                 import traceback
                 return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+        # ============================================================
+        # PHASE 2 FUNDING ENDPOINTS
+        # ============================================================
+        
+        @self.app.route('/api/funding/phase2/transition', methods=['POST'])
+        def api_funding_phase2_transition():
+            """Transition from Phase 1 to Phase 2 (Paper Execution)"""
+            try:
+                if not hasattr(self.evolution, 'funding_training') or not self.evolution.funding_training:
+                    return jsonify({'error': 'Funding orchestrator not available'}), 503
+                
+                # Get approved strategies from request (optional)
+                data = request.get_json(silent=True) or {}
+                approved_strategies = data.get('approved_strategies', None)
+                
+                result = self.evolution.funding_training.transition_to_phase_2(approved_strategies)
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/funding/phase2/start', methods=['POST'])
+        def api_funding_phase2_start():
+            """Start Phase 2 paper execution"""
+            try:
+                if not hasattr(self.evolution, 'funding_training') or not self.evolution.funding_training:
+                    return jsonify({'error': 'Funding orchestrator not available'}), 503
+                
+                result = self.evolution.funding_training.start_phase_2()
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/funding/phase2/stop', methods=['POST'])
+        def api_funding_phase2_stop():
+            """Stop Phase 2 paper execution"""
+            try:
+                if not hasattr(self.evolution, 'funding_training') or not self.evolution.funding_training:
+                    return jsonify({'error': 'Funding orchestrator not available'}), 503
+                
+                result = self.evolution.funding_training.stop_phase_2()
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/funding/phase2/status', methods=['GET'])
+        def api_funding_phase2_status():
+            """Get Phase 2 status"""
+            try:
+                if not hasattr(self.evolution, 'funding_training') or not self.evolution.funding_training:
+                    return jsonify({'error': 'Funding orchestrator not available'}), 503
+                
+                result = self.evolution.funding_training.get_phase_2_status()
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        
+        @self.app.route('/api/funding/phase2/enable_strategy', methods=['POST'])
+        def api_funding_phase2_enable_strategy():
+            """Enable a specific strategy for Phase 2"""
+            try:
+                if not hasattr(self.evolution, 'funding_training') or not self.evolution.funding_training:
+                    return jsonify({'error': 'Funding orchestrator not available'}), 503
+                
+                data = request.get_json()
+                avenue = data.get('avenue')
+                strategy_id = data.get('strategy_id')
+                
+                if not avenue or not strategy_id:
+                    return jsonify({'error': 'Missing avenue or strategy_id'}), 400
+                
+                result = self.evolution.funding_training.enable_strategy(avenue, strategy_id)
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/api/funding/debug/strategies', methods=['GET'])
         def debug_funding_strategies():

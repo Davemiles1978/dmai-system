@@ -234,6 +234,11 @@ class SelfFundingOrchestrator:
             'phase_2_available': self.training._ready_for_phase_2(),
             'phase_3_available': self.paper and self.paper._execution_complete if self.paper else False
         }
+    def status(self) -> Dict:
+        """Backward compatibility alias - returns flat Phase 1 status"""
+        return self.training.get_status()
+
+
     
     def get_comprehensive_report(self) -> Dict:
         """Get comprehensive report across all phases"""
