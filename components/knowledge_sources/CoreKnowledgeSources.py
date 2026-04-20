@@ -931,6 +931,9 @@ class SocialMediaScanner:
             'instagram': {'reels': [], 'videos_analyzed': 0, 'hashtags': []},
             'youtube': {'trending': [], 'videos_analyzed': 0, 'categories': []}
         }
+
+        # TikTok trending URLs (can be populated manually or via discovery)
+        self.tiktok_trending_urls = []
         
     def start(self):
         self.active = True
@@ -981,12 +984,63 @@ class SocialMediaScanner:
                         
         except Exception as e:
             logger.error(f"Reddit scan error: {e}")
+         
+    def _get_youtube_trending_videos(self) -> List[Dict]:
+        """Get trending YouTube videos about AI/tech"""
+        videos = []
+        try:
+            feed_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg"
+            feed = feedparser.parse(feed_url)
             
+            for entry in feed.entries[:10]:
+                title = entry.get('title', '')
+                if any(kw in title.lower() for kw in self.keywords):
+                    videos.append({
+                        'title': title,
+                        'url': entry.get('link', ''),
+                        'published': entry.get('published', ''),
+                        'platform': 'youtube'
+                    })
+        except Exception as e:
+            logger.error(f"YouTube feed error: {e}")
+        
+        return videos
+   
     def _scan_video_platforms(self):
-        """Scan TikTok, Instagram, and YouTube for trending AI content"""
-        self._scan_youtube_trending()
-        # TikTok and Instagram require more complex API integration
-        # Will be implemented when video extraction capabilities are integrated
+        """Scan TikTok, Instagram, and YouTube for trending content and extract transcripts"""
+        
+        # YouTube - scan trending and extract transcripts
+        youtube_videos = self._get_youtube_trending_videos()
+        for video in youtube_videos[:3]:  # Limit to 3 per cycle
+            if self.si_core:
+                # Create insight first
+                self.si_core.add_insight(
+                    insight_text=f"YouTube Video: {video.get('title', 'Unknown')}",
+                    entity_type="video_content",
+                    entities=[video.get('title', ''), 'youtube'],
+                    relationship="discovered",
+                    confidence=0.8,
+                    source_topic="social_media",
+                    target_topic="video_transcript"
+                )
+            
+            # Extract and save transcript
+            transcript = self._extract_youtube_transcript(video.get('url', ''))
+            if transcript:
+                self._save_transcript('youtube', video.get('url', ''), transcript, video)
+                self.video_platforms['youtube']['videos_analyzed'] += 1
+                self.videos_analyzed += 1
+        
+        # TikTok - process any collected URLs
+        for url in self.tiktok_trending_urls[:3]:
+            transcript = self._extract_tiktok_transcript(url)
+            if transcript:
+                self._save_transcript('tiktok', url, transcript, {'url': url})
+                self.video_platforms['tiktok']['videos_analyzed'] += 1
+                self.videos_analyzed += 1
+        
+        # Clear processed URLs
+        self.tiktok_trending_urls = self.tiktok_trending_urls[3:]
         
     def _scan_youtube_trending(self):
         """Scan YouTube trending videos for AI-related content"""
@@ -1063,7 +1117,135 @@ class SocialMediaScanner:
         filename = self.data_path / f"video_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(video.to_dict(), f, indent=2)
+      
+    def _extract_youtube_transcript(self, video_url: str) -> Optional[str]:
+        """Extract transcript from YouTube video"""
+        try:
+            # Extract video ID from URL
+            import re
+            video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11})(?:[?&]|$)', video_url)
+            if not video_id_match:
+                return None
+                
+            video_id = video_id_match.group(1)
             
+            # Try youtube-transcript-api
+            try:
+                from youtube_transcript_api import YouTubeTranscriptApi
+                transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+                full_text = ' '.join([entry['text'] for entry in transcript_list])
+                logger.info(f"📝 Extracted YouTube transcript: {len(full_text)} chars")
+                return full_text
+            except ImportError:
+                # Fallback: use yt-dlp if available
+                return self._extract_with_ytdlp(video_url)
+                
+        except Exception as e:
+            logger.debug(f"YouTube transcript extraction failed: {e}")
+            return None
+            
+    def _extract_tiktok_transcript(self, video_url: str) -> Optional[str]:
+        """Extract transcript/captions from TikTok video"""
+        try:
+            # TikTok requires yt-dlp or similar tool
+            return self._extract_with_ytdlp(video_url, platform='tiktok')
+        except Exception as e:
+            logger.debug(f"TikTok transcript extraction failed: {e}")
+            return None
+            
+    def _extract_instagram_transcript(self, video_url: str) -> Optional[str]:
+        """Extract captions from Instagram Reel/Video"""
+        try:
+            return self._extract_with_ytdlp(video_url, platform='instagram')
+        except Exception as e:
+            logger.debug(f"Instagram transcript extraction failed: {e}")
+            return None
+            
+    def _extract_with_ytdlp(self, video_url: str, platform: str = 'youtube') -> Optional[str]:
+        """Use yt-dlp to download subtitles/transcript"""
+        import tempfile
+        import subprocess
+        
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                # Download subtitles only
+                cmd = [
+                    'yt-dlp',
+                    '--skip-download',
+                    '--write-subs',
+                    '--write-auto-subs',
+                    '--sub-lang', 'en',
+                    '--sub-format', 'vtt',
+                    '--output', f'{tmpdir}/%(id)s',
+                    video_url
+                ]
+                
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                
+                # Find and read subtitle file
+                import glob
+                subtitle_files = glob.glob(f'{tmpdir}/*.en.vtt') + glob.glob(f'{tmpdir}/*.vtt')
+                
+                if subtitle_files:
+                    with open(subtitle_files[0], 'r') as f:
+                        content = f.read()
+                        # Parse VTT to plain text
+                        text = self._parse_vtt(content)
+                        logger.info(f"📝 Extracted {platform} transcript: {len(text)} chars")
+                        return text
+                        
+        except Exception as e:
+            logger.debug(f"yt-dlp extraction failed: {e}")
+            
+        return None
+        
+    def _parse_vtt(self, vtt_content: str) -> str:
+        """Parse VTT subtitle format to plain text"""
+        import re
+        
+        lines = vtt_content.split('\n')
+        text_lines = []
+        
+        for line in lines:
+            # Skip timestamps and metadata
+            if '-->' in line or line.strip().isdigit() or line.strip() == 'WEBVTT':
+                continue
+            # Remove HTML tags
+            line = re.sub(r'<[^>]+>', '', line)
+            if line.strip():
+                text_lines.append(line.strip())
+                
+        return ' '.join(text_lines)
+        
+    def _save_transcript(self, platform: str, video_url: str, transcript: str, metadata: Dict = None):
+        """Save extracted transcript for SpeechPatternAnalyzer"""
+        transcript_path = self.data_path.parent / 'transcripts'
+        transcript_path.mkdir(parents=True, exist_ok=True)
+        
+        filename = transcript_path / f"{platform}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        
+        data = {
+            'platform': platform,
+            'url': video_url,
+            'transcript': transcript,
+            'extracted_at': datetime.now().isoformat(),
+            'metadata': metadata or {}
+        }
+        
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=2)
+            
+        logger.info(f"💾 Saved {platform} transcript: {filename}")
+        
+        # Also save as plain text for easy reading
+        txt_filename = transcript_path / f"{platform}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        with open(txt_filename, 'w') as f:
+            f.write(f"Platform: {platform}\n")
+            f.write(f"URL: {video_url}\n")
+            f.write(f"Extracted: {datetime.now().isoformat()}\n")
+            f.write("-" * 40 + "\n")
+            f.write(transcript)
+      
     def get_status(self) -> Dict:
         return {
             'active': self.active,

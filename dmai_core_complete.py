@@ -5869,7 +5869,7 @@ class DMAIApplication:
                                 avenue['completed'] = True
                                 avenue['progress'] = 100.0
                             
-                            training._save_knowledge_state()
+                            training._save_state()
                             
                             return jsonify({
                                 'success': True,
