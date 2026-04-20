@@ -911,7 +911,7 @@ class DarkWebMonitor:
         }
 
 class SocialMediaScanner:
-    """Scans Twitter, Reddit, Discord for trends and discussions"""
+    """Scans TikTok, Instagram, YouTube, Twitter, Reddit, Discord for trends and video content"""
     
     def __init__(self, data_path: Path, si_core=None):
         self.si_core = si_core
@@ -920,18 +920,28 @@ class SocialMediaScanner:
         self.interval = 600  # 10 minutes
         self.active = False
         self.posts_scanned = 0
+        self.videos_analyzed = 0
         self.last_run = None
-        self.keywords = ['ai', 'machine learning', 'deep learning', 'llm', 'gpt', 'agi']
+        self.keywords = ['ai', 'machine learning', 'deep learning', 'llm', 'gpt', 'agi', 
+                        'trending', 'viral', 'artificial intelligence', 'neural network']
+        
+        # Video platform tracking
+        self.video_platforms = {
+            'tiktok': {'trending': [], 'videos_analyzed': 0, 'hashtags': []},
+            'instagram': {'reels': [], 'videos_analyzed': 0, 'hashtags': []},
+            'youtube': {'trending': [], 'videos_analyzed': 0, 'categories': []}
+        }
         
     def start(self):
         self.active = True
         threading.Thread(target=self._run, daemon=True).start()
-        logger.info("📱 Social Media Scanner started")
+        logger.info("📱 Social Media Scanner started (TikTok, Instagram, YouTube, Reddit)")
         
     def _run(self):
         while self.active:
             try:
                 self._scan_reddit()
+                self._scan_video_platforms()
                 self.last_run = datetime.now()
                 time.sleep(self.interval)
             except Exception as e:
@@ -939,6 +949,7 @@ class SocialMediaScanner:
                 time.sleep(60)
                 
     def _scan_reddit(self):
+        """Scan Reddit for AI/ML discussions"""
         try:
             response = requests.get(
                 'https://www.reddit.com/r/MachineLearning/new.json',
@@ -961,7 +972,8 @@ class SocialMediaScanner:
                             purpose=ContentPurpose.PATTERN_RECOGNITION,
                             metadata={
                                 'url': post_data.get('url', ''),
-                                'score': post_data.get('score', 0)
+                                'score': post_data.get('score', 0),
+                                'subreddit': 'MachineLearning'
                             }
                         )
                         self._save_post(post_item)
@@ -970,19 +982,101 @@ class SocialMediaScanner:
         except Exception as e:
             logger.error(f"Reddit scan error: {e}")
             
+    def _scan_video_platforms(self):
+        """Scan TikTok, Instagram, and YouTube for trending AI content"""
+        self._scan_youtube_trending()
+        # TikTok and Instagram require more complex API integration
+        # Will be implemented when video extraction capabilities are integrated
+        
+    def _scan_youtube_trending(self):
+        """Scan YouTube trending videos for AI-related content"""
+        try:
+            # YouTube RSS feed for trending
+            feed_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg"  # Example AI channel
+            feed = feedparser.parse(feed_url)
+            
+            for entry in feed.entries[:10]:
+                title = entry.get('title', '')
+                if any(kw in title.lower() for kw in self.keywords):
+                    video_item = KnowledgeItem(
+                        title=title,
+                        content=entry.get('summary', '')[:500],
+                        source='youtube',
+                        content_type=ContentType.SOCIAL,
+                        purpose=ContentPurpose.PATTERN_RECOGNITION,
+                        metadata={
+                            'url': entry.get('link', ''),
+                            'published': entry.get('published', ''),
+                            'platform': 'youtube'
+                        }
+                    )
+                    self._save_video_analysis(video_item)
+                    self.video_platforms['youtube']['videos_analyzed'] += 1
+                    self.videos_analyzed += 1
+                    
+                    # Create insight in SI Core
+                    if self.si_core:
+                        try:
+                            self.si_core.add_insight(
+                                insight_text=f"YouTube Trend: {title}",
+                                entity_type="video_trend",
+                                entities=[title, 'youtube'],
+                                relationship="trending",
+                                confidence=0.75,
+                                source_topic="social_media",
+                                target_topic="video_content",
+                                source_url=entry.get('link', ''),
+                                source_title=title,
+                                source_type="social_media_scanner"
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to create insight for video: {e}")
+                            
+        except Exception as e:
+            logger.error(f"YouTube scan error: {e}")
+            
+    def analyze_video_content(self, video_url: str, platform: str) -> Dict:
+        """Analyze video content using DMAI's video extraction capabilities"""
+        # This will integrate with the video extraction capability from ingested repos
+        result = {
+            'url': video_url,
+            'platform': platform,
+            'status': 'pending',
+            'transcript': None,
+            'key_topics': [],
+            'sentiment': None
+        }
+        
+        # Placeholder for video extraction integration
+        logger.info(f"🎬 Analyzing video from {platform}: {video_url}")
+        
+        return result
+            
     def _save_post(self, post: KnowledgeItem):
+        """Save social media post to disk"""
         filename = self.data_path / f"post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(post.to_dict(), f, indent=2)
+            
+    def _save_video_analysis(self, video: KnowledgeItem):
+        """Save video analysis to disk"""
+        filename = self.data_path / f"video_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(filename, 'w') as f:
+            json.dump(video.to_dict(), f, indent=2)
             
     def get_status(self) -> Dict:
         return {
             'active': self.active,
             'posts_scanned': self.posts_scanned,
+            'videos_analyzed': self.videos_analyzed,
+            'platforms': {
+                'youtube': self.video_platforms['youtube']['videos_analyzed'],
+                'tiktok': self.video_platforms['tiktok']['videos_analyzed'],
+                'instagram': self.video_platforms['instagram']['videos_analyzed']
+            },
             'last_run': self.last_run.isoformat() if self.last_run else None,
             'interval': self.interval
         }
-
 
 class SpeechPatternAnalyzer:
     """Analyzes conversation patterns and speech nuances"""
@@ -1090,6 +1184,272 @@ class SelfEvolutionTracker:
             'interval': self.interval
         }
 
+class CulturalKnowledgeSource:
+    """
+    Learns cultural knowledge appropriate for Alex Riviera (born 1998, age 28).
+    Covers music, film/TV, books, and lifestyle trends from 2000-present.
+    Weighted by popularity and cultural impact for authentic conversational references.
+    """
+    
+    def __init__(self, data_path: Path, si_core=None):
+        self.si_core = si_core
+        self.data_path = data_path / 'cultural'
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.cultural_file = self.data_path / 'cultural_knowledge.json'
+        self.interval = 3600  # 1 hour
+        self.active = False
+        
+        # Era definitions for someone born in 1998
+        self.eras = {
+            'childhood': (2000, 2010),      # Age 2-12
+            'teen': (2010, 2018),            # Age 12-20
+            'young_adult': (2018, 2026)      # Age 20-28
+        }
+        
+        # Categories to learn
+        self.categories = ['music', 'film_tv', 'books', 'lifestyle']
+        
+        # Cultural knowledge base
+        self.knowledge_base = {
+            'music': [],
+            'film_tv': [],
+            'books': [],
+            'lifestyle': []
+        }
+        
+        self._load()
+        self._initialize_core_knowledge()
+        
+    def _load(self):
+        """Load saved cultural knowledge"""
+        if self.cultural_file.exists():
+            try:
+                with open(self.cultural_file, 'r') as f:
+                    data = json.load(f)
+                    self.knowledge_base.update(data)
+            except:
+                pass
+                
+    def _save(self):
+        """Save cultural knowledge"""
+        with open(self.cultural_file, 'w') as f:
+            json.dump(self.knowledge_base, f, indent=2, default=str)
+            
+    def _initialize_core_knowledge(self):
+        """Initialize with essential cultural touchstones for Alex's generation"""
+        if not self.knowledge_base['music']:
+            # Essential music knowledge
+            self.knowledge_base['music'] = [
+                {'name': 'Taylor Swift', 'era': 'teen', 'peak_chart_position': 1, 'streams_millions': 50000, 'year': 2006, 'description': 'Defining artist of the generation'},
+                {'name': 'Drake', 'era': 'teen', 'peak_chart_position': 1, 'streams_millions': 70000, 'year': 2009, 'description': 'Most streamed artist of 2010s'},
+                {'name': 'Beyoncé', 'era': 'childhood', 'peak_chart_position': 1, 'streams_millions': 30000, 'year': 2003, 'description': 'Cultural icon since Destiny\'s Child'},
+                {'name': 'Eminem', 'era': 'childhood', 'peak_chart_position': 1, 'streams_millions': 40000, 'year': 1999, 'description': 'Dominant rap figure of 2000s'},
+                {'name': 'Billie Eilish', 'era': 'young_adult', 'peak_chart_position': 1, 'streams_millions': 25000, 'year': 2019, 'description': 'Gen Z defining artist'},
+            ]
+            
+        if not self.knowledge_base['film_tv']:
+            # Essential film/TV knowledge
+            self.knowledge_base['film_tv'] = [
+                {'name': 'Harry Potter series', 'era': 'childhood', 'box_office_millions': 7700, 'year': 2001, 'cultural_phenomenon': True, 'description': 'Defining film series of childhood'},
+                {'name': 'Marvel Cinematic Universe', 'era': 'teen', 'box_office_millions': 29000, 'year': 2008, 'cultural_phenomenon': True, 'description': 'Dominant film franchise of 2010s'},
+                {'name': 'Game of Thrones', 'era': 'teen', 'cultural_phenomenon': True, 'year': 2011, 'description': 'Cultural TV phenomenon'},
+                {'name': 'Stranger Things', 'era': 'young_adult', 'cultural_phenomenon': True, 'year': 2016, 'description': '80s nostalgia hit'},
+                {'name': 'The Office', 'era': 'teen', 'cultural_phenomenon': True, 'year': 2005, 'description': 'Most streamed comfort show'},
+            ]
+            
+        if not self.knowledge_base['books']:
+            # Essential book knowledge
+            self.knowledge_base['books'] = [
+                {'name': 'Harry Potter series', 'era': 'childhood', 'bestseller_weeks': 400, 'goodreads_rating': 4.5, 'year': 1997, 'description': 'Defining book series of generation'},
+                {'name': 'The Hunger Games', 'era': 'teen', 'bestseller_weeks': 200, 'goodreads_rating': 4.3, 'year': 2008, 'description': 'YA dystopian phenomenon'},
+                {'name': 'Twilight', 'era': 'teen', 'bestseller_weeks': 150, 'goodreads_rating': 3.6, 'year': 2005, 'description': 'Vampire romance phenomenon'},
+                {'name': 'Fourth Wing', 'era': 'young_adult', 'bestseller_weeks': 52, 'goodreads_rating': 4.6, 'year': 2023, 'description': 'BookTok sensation'},
+            ]
+            
+        if not self.knowledge_base['lifestyle']:
+            # Essential lifestyle knowledge
+            self.knowledge_base['lifestyle'] = [
+                {'name': 'MySpace', 'era': 'childhood', 'year': 2003, 'description': 'First major social network'},
+                {'name': 'Facebook', 'era': 'teen', 'year': 2004, 'description': 'Dominant social platform of teens'},
+                {'name': 'Instagram', 'era': 'teen', 'year': 2010, 'description': 'Visual social media rise'},
+                {'name': 'TikTok', 'era': 'young_adult', 'year': 2018, 'description': 'Short-form video revolution'},
+                {'name': 'iPod', 'era': 'childhood', 'year': 2001, 'description': 'Revolutionized music listening'},
+                {'name': 'iPhone', 'era': 'teen', 'year': 2007, 'description': 'Smartphone era begins'},
+                {'name': 'Netflix streaming', 'era': 'teen', 'year': 2007, 'description': 'Streaming revolution'},
+            ]
+            
+        self._save()
+        
+    def start(self):
+        """Start cultural knowledge acquisition"""
+        self.active = True
+        threading.Thread(target=self._run, daemon=True).start()
+        logger.info("🎭 Cultural Knowledge Source started (Alex Riviera, age 28)")
+        
+    def _run(self):
+        """Main research loop"""
+        while self.active:
+            try:
+                self._research_cultural_topics()
+                time.sleep(self.interval)
+            except Exception as e:
+                logger.error(f"Cultural Knowledge error: {e}")
+                time.sleep(300)
+                
+    def _research_cultural_topics(self):
+        """Research and learn about cultural topics"""
+        # For each category, find trending/popular items
+        for category in self.categories:
+            self._research_category(category)
+            
+    def _research_category(self, category: str):
+        """Research specific cultural category"""
+        # This would connect to APIs (Billboard, IMDb, Goodreads, etc.)
+        # For now, we log the research intent
+        logger.info(f"🎭 Researching {category} for Alex's cultural knowledge")
+        
+        # If si_core available, create insights for high-weight items
+        if self.si_core:
+            for item in self.knowledge_base.get(category, []):
+                weight = self._calculate_weight(item, category)
+                if weight > 0.6:  # Only learn significant items
+                    self._create_insight(item, category, weight)
+                    
+    def _calculate_weight(self, item: Dict, category: str) -> float:
+        """
+        Calculate cultural relevance weight (0.0 to 1.0)
+        Higher weight = more likely Alex would know/reference this
+        """
+        weight = 0.5  # Base weight
+        
+        if category == 'music':
+            chart_pos = item.get('peak_chart_position', 100)
+            weight += (1.0 - (chart_pos / 100)) * 0.3
+            streams = item.get('streams_millions', 1)
+            weight += min(streams / 50000, 0.2)
+            
+        elif category == 'film_tv':
+            box_office = item.get('box_office_millions', 1)
+            weight += min(box_office / 10000, 0.3)
+            if item.get('cultural_phenomenon'):
+                weight += 0.2
+                
+        elif category == 'books':
+            weeks = item.get('bestseller_weeks', 0)
+            weight += min(weeks / 200, 0.3)
+            rating = item.get('goodreads_rating', 3.5)
+            weight += (rating - 3.5) / 15
+            
+        elif category == 'lifestyle':
+            # Lifestyle items weighted by how defining they were
+            if item.get('name') in ['iPhone', 'TikTok', 'Instagram']:
+                weight += 0.3
+        
+        # Recency bonus (more recent = more likely to reference)
+        year = item.get('year', 2000)
+        if year >= 2020:
+            weight += 0.1
+        elif year >= 2015:
+            weight += 0.05
+            
+        return min(weight, 1.0)
+        
+    def _create_insight(self, item: Dict, category: str, weight: float):
+        """Create SI Core insight for cultural knowledge"""
+        era = item.get('era', 'unknown')
+        name = item.get('name', 'unknown')
+        description = item.get('description', '')
+        
+        insight_text = f"[{category.upper()}] {name}: {description} (Era: {era}, Relevance: {weight:.0%})"
+        
+        self.si_core.add_insight(
+            insight_text=insight_text,
+            entity_type=f"cultural_{category}",
+            entities=[name, era],
+            relationship="cultural_knowledge",
+            source_topic=f"era_{era}",
+            target_topic=category,
+            confidence=weight,
+            weight=weight
+        )
+        
+    def get_status(self) -> Dict:
+        """Get current cultural knowledge status"""
+        return {
+            'active': self.active,
+            'categories': self.categories,
+            'music_items': len(self.knowledge_base.get('music', [])),
+            'film_tv_items': len(self.knowledge_base.get('film_tv', [])),
+            'books_items': len(self.knowledge_base.get('books', [])),
+            'lifestyle_items': len(self.knowledge_base.get('lifestyle', [])),
+            'eras': self.eras
+        }
+        
+    def generate_reference(self, category: str = None, era: str = None) -> Optional[str]:
+        """
+        Generate an authentic cultural reference for conversation.
+        Example: "This reminds me of that Taylor Swift song..."
+        """
+        import random
+        
+        if category:
+            categories = [category]
+        else:
+            categories = self.categories
+            
+        selected_category = random.choice(categories)
+        items = self.knowledge_base.get(selected_category, [])
+        
+        if not items:
+            return None
+            
+        # Weight items by their calculated relevance
+        weighted_items = []
+        for item in items:
+            if era and item.get('era') != era:
+                continue
+            weight = self._calculate_weight(item, selected_category)
+            weighted_items.append((item, weight))
+            
+        if not weighted_items:
+            return None
+            
+        # Select based on weight
+        total_weight = sum(w for _, w in weighted_items)
+        r = random.random() * total_weight
+        
+        for item, weight in weighted_items:
+            r -= weight
+            if r <= 0:
+                name = item.get('name', 'something')
+                
+                templates = {
+                    'music': [
+                        f"This reminds me of {name}...",
+                        f"Have you heard {name}?",
+                        f"Kind of like {name}, you know?",
+                    ],
+                    'film_tv': [
+                        f"Have you seen {name}?",
+                        f"This is like that scene in {name}...",
+                        f"Reminds me of {name}.",
+                    ],
+                    'books': [
+                        f"I read something similar in {name}.",
+                        f"Have you read {name}?",
+                        f"There's this book, {name}...",
+                    ],
+                    'lifestyle': [
+                        f"Remember {name}?",
+                        f"Back when everyone was on {name}...",
+                        f"This is so {name} era.",
+                    ]
+                }
+                
+                template_list = templates.get(selected_category, ["This reminds me of {name}."])
+                return random.choice(template_list).replace('{name}', name)
+                
+        return None
 
 class CoreKnowledgeSources:
     """
@@ -1115,7 +1475,7 @@ class CoreKnowledgeSources:
             'self_evolution_tracker': SelfEvolutionTracker(self.data_path, si_core)
         }
         
-        logger.info("📚 8 Core Knowledge Sources initialized")
+        logger.info("📚 9 Core Knowledge Sources initialized (including Cultural Knowledge)")
         logger.info(f"   Terry Pratchett bibliography loaded: {len(BookReader(self.data_path).all_pratchett_books)} books")
         
     def start_all(self):

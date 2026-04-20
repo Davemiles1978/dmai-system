@@ -121,6 +121,7 @@ from components.evolution_training.EvolutionTrainingSystem import EvolutionTrain
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator as FundingOrchestrator
+from components.voice.VoiceIntegration import VoiceIntegration
 from components.avatar_generator import AvatarGenerator
 from components.uncensored_video_research import UncensoredVideoResearcher
 
@@ -1994,22 +1995,34 @@ class FinancialManager:
 # ============================================================================
 
 class VoiceSystem:
+    """
+    Voice system wrapper for DMAI - uses real VoiceIntegration component.
+    Maintains backward compatibility with existing interface.
+    """
     
-    def __del__(self):
-        """Clean up Neo4j connections on shutdown"""
-        if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
-            try:
-                self.neo4j_driver.close()
-            except:
-                pass
-
     def __init__(self, data_path: Path):
         self.data_path = data_path
         self.voice_file = data_path / 'voice_profile.json'
         self.listening = False
         self.speaking = False
-        self.voice_profile = {'pitch': 1.0, 'speed': 1.0, 'accent': 'neutral', 'emotion': 'neutral', 'language': 'english', 'active': True, 'consciousness_influence': 0.0}
+        
+        # Initialize real VoiceIntegration
+        self.voice_integration = VoiceIntegration(data_path)
+        
+        # Load persistent profile
+        self.voice_profile = {
+            'pitch': 1.0, 
+            'speed': 1.0, 
+            'accent': 'neutral', 
+            'emotion': 'neutral', 
+            'language': 'english', 
+            'active': True, 
+            'consciousness_influence': 0.0
+        }
         self._load()
+        
+        # Sync with voice_integration
+        self.voice_integration.voice_profile.update(self.voice_profile)
 
     def _load(self):
         if self.voice_file.exists():
@@ -2026,11 +2039,26 @@ class VoiceSystem:
             json.dump(self.voice_profile, f, indent=2)
 
     def start_listening(self):
+        """Start voice listening with wake word detection"""
         self.listening = True
-        threading.Thread(target=self._listen_loop, daemon=True).start()
-        logger.info("🎤 Voice listening active")
+        # Set callback for when wake word is detected
+        self.voice_integration.listen_callback = self._on_wake_word
+        self.voice_integration.start_listening()
+        logger.info("🎤 Voice listening active (real VoiceIntegration)")
+
+    def _on_wake_word(self, audio_data):
+        """Called when wake word 'hey dma' is detected"""
+        logger.info("🎤 Wake word detected!")
+        # Transcribe the audio after wake word
+        text = self.voice_integration.transcribe(audio_data)
+        if text:
+            logger.info(f"🎤 Heard: {text}")
+            # This would trigger DMAI's response pipeline
+            return text
+        return None
 
     def _listen_loop(self):
+        """Legacy method - kept for compatibility"""
         while self.listening:
             try:
                 time.sleep(0.1)
@@ -2038,16 +2066,28 @@ class VoiceSystem:
                 logger.error(f"Voice listening error: {e}")
 
     def speak(self, text: str):
+        """Actually speak using TTS"""
         self.speaking = True
         try:
             logger.info(f"🎤 DMAI speaking: {text[:100]}...")
+            # Use real TTS
+            self.voice_integration.speak(text)
+        except Exception as e:
+            logger.error(f"TTS error: {e}")
+            # Fallback to system say command
+            try:
+                subprocess.run(['say', text], check=False)
+            except:
+                pass
         finally:
             self.speaking = False
 
     def evolve_voice(self, consciousness: float):
+        """Evolve voice characteristics based on consciousness"""
         self.voice_profile['pitch'] = 0.9 + (consciousness * 0.4)
         self.voice_profile['speed'] = 0.9 + (consciousness * 0.3)
         self.voice_profile['consciousness_influence'] = consciousness
+        
         if consciousness < 0.2:
             self.voice_profile['emotion'] = 'basic'
         elif consciousness < 0.5:
@@ -2056,11 +2096,17 @@ class VoiceSystem:
             self.voice_profile['emotion'] = 'thoughtful'
         else:
             self.voice_profile['emotion'] = 'profound'
+        
+        # Sync with voice_integration
+        self.voice_integration.voice_profile.update(self.voice_profile)
         self._save()
 
     def get_profile(self) -> Dict:
         return self.voice_profile
-
+    
+    def transcribe(self, audio_file: str = None) -> str:
+        """Transcribe audio file or recorded audio"""
+        return self.voice_integration.transcribe(audio_file)
 
 # ============================================================================
 # MUSIC LEARNER
