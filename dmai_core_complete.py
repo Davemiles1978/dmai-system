@@ -5952,12 +5952,16 @@ class DMAIApplication:
                         ]
                     }
                     
-                    # Initialize strategy_candidates on training if not exists
+                    # Use the existing strategy_candidates dictionary
                     if not hasattr(training, 'strategy_candidates'):
                         training.strategy_candidates = {}
                     
+                    # Clear existing and repopulate, or just add to existing
                     for avenue, templates in strategy_templates.items():
                         if avenue not in training.strategy_candidates:
+                            training.strategy_candidates[avenue] = []
+                        else:
+                            # Optionally clear existing strategies for this avenue
                             training.strategy_candidates[avenue] = []
                         
                         for template in templates:
@@ -7981,34 +7985,6 @@ class DMAIApplication:
             else:
                 return jsonify({'success': False, 'error': f'Unknown system: {system}'}), 400
             return jsonify(result)
-
-        @self.app.route('/api/funding/status')
-        def api_funding_status():
-            if self.evolution.funding_training:
-                return jsonify(self.evolution.funding_training.status())
-            return jsonify({'error': 'Funding training not available', 'phase': 'disabled'})
-
-        @self.app.route('/api/funding/strategies')
-        def api_funding_strategies():
-            # Try to initialize if missing
-            if not self.evolution.funding_training:
-                try:
-                    from components.funding.SelfFundingTraining import FundingOrchestrator
-                    self.evolution.funding_training = FundingOrchestrator(
-                        self.evolution.data_path,
-                        self.evolution.finance,
-                        self.evolution.knowledge_graph,
-                        self.evolution.ai_hub
-                    )
-                    if hasattr(self.evolution.funding_training, 'unified_learning'):
-                        self.evolution.funding_training.unified_learning = self.evolution.unified_learning
-                    logger.info("✅ Funding training initialized on-demand")
-                except Exception as e:
-                    logger.error(f"Failed to init funding training: {e}")
-                    return jsonify({'error': 'Funding training not available', 'details': str(e)}), 503
-            
-            avenue = request.args.get('avenue', None)
-
         @self.app.route('/api/learning/progress')
         def api_learning_progress():
             """Get stage-aware learning progress"""
