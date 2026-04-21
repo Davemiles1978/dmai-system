@@ -798,6 +798,48 @@ This is a PROPOSED strategy for review only. NOT ACTIVE.""",
             self.strategy_candidates[avenue_name].append(strategy)
         
         logger.info(f"      ✅ Generated {len(self.strategy_candidates[avenue_name])} strategy templates")
+
+    def fix_concept_counting(self) -> Dict:
+        """
+        Fix the concept counting by using unique topics instead of counting duplicates
+        """
+        # Calculate unique topics
+        unique_topics = set()
+        for avenue, data in self.revenue_avenues.items():
+            for topic in data['topics']:
+                unique_topics.add(topic)
+        
+        total_unique = len(unique_topics)
+        learned_unique = len(self.learned_concepts)
+        
+        logger.info(f"🔧 Fixing concept counting: {learned_unique}/{total_unique} unique concepts")
+        
+        # If learned_unique >= total_unique, mark as ready
+        if learned_unique >= total_unique:
+            self._training_complete = True
+            logger.info("✅ Phase 1 marked complete with unique concept counting")
+            
+            # Generate strategies if needed
+            for avenue_name in self.revenue_avenues.keys():
+                if len(self.strategy_candidates.get(avenue_name, [])) == 0:
+                    self._generate_strategy_candidates(avenue_name)
+            
+            self.save_state()
+            return {
+                'success': True,
+                'message': 'Phase 1 completed using unique concept counting',
+                'unique_concepts_total': total_unique,
+                'unique_concepts_learned': learned_unique,
+                'strategies_generated': sum(len(c) for c in self.strategy_candidates.values())
+            }
+        else:
+            return {
+                'success': False,
+                'message': f'Still missing {total_unique - learned_unique} concepts',
+                'unique_concepts_total': total_unique,
+                'unique_concepts_learned': learned_unique,
+                'missing_concepts': list(unique_topics - self.learned_concepts)
+            }
     
     def _parse_strategies(self, response: str, avenue_name: str) -> List[Dict]:
         """Parse AI response into structured strategy objects"""
