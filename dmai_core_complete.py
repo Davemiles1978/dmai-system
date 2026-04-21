@@ -5728,7 +5728,7 @@ class DMAIApplication:
 
         @self.app.route('/api/funding/complete_phase1', methods=['POST'])
         def api_funding_complete_phase1():
-            """Complete Phase 1 - step by step"""
+            """Complete Phase 1 - mark all concepts learned and create strategies"""
             try:
                 ft = self.evolution.funding_training
                 
@@ -5738,13 +5738,43 @@ class DMAIApplication:
                 else:
                     training = ft
                 
-                # Return the training info (call methods with parentheses)
+                # Get all unique topics
+                unique_topics = set()
+                for avenue in training.revenue_avenues.values():
+                    for topic in avenue['topics']:
+                        unique_topics.add(topic)
+                
+                # Mark all topics as learned
+                for topic in unique_topics:
+                    training.learned_concepts.add(topic)
+                
+                # Mark all avenues as completed
+                for avenue in training.revenue_avenues.values():
+                    avenue['completed'] = True
+                
+                # Create dummy strategies for each avenue
+                for avenue_name in training.revenue_avenues.keys():
+                    if len(training.strategy_candidates.get(avenue_name, [])) == 0:
+                        training.strategy_candidates[avenue_name] = [{
+                            'id': f"{avenue_name}_strategy_1",
+                            'name': f"{avenue_name.replace('_', ' ').title()} Strategy",
+                            'description': f"Paper execution strategy for {avenue_name}",
+                            'status': 'proposed',
+                            'paper_only': True,
+                            'created_at': datetime.now().isoformat()
+                        }]
+                
+                training._training_complete = True
+                training.learning_active = False
+                training.save_state()
+                
                 return jsonify({
                     'success': True,
-                    'training_type': type(training).__name__,
-                    'has_training_complete': hasattr(training, '_training_complete'),
-                    'current_complete_status': training._training_complete if hasattr(training, '_training_complete') else None,
-                    'current_ready_status': training._ready_for_phase_2() if hasattr(training, '_ready_for_phase_2') else None
+                    'message': 'Phase 1 completed',
+                    'concepts_learned': len(training.learned_concepts),
+                    'total_unique_topics': len(unique_topics),
+                    'strategies_created': sum(len(v) for v in training.strategy_candidates.values()),
+                    'ready_for_phase_2': training._ready_for_phase_2()
                 })
                 
             except Exception as e:
