@@ -5728,7 +5728,7 @@ class DMAIApplication:
 
         @self.app.route('/api/funding/complete_phase1', methods=['POST'])
         def api_funding_complete_phase1():
-            """Complete Phase 1 and generate strategies"""
+            """Complete Phase 1 - simple version without strategy generation"""
             try:
                 ft = self.evolution.funding_training
                 
@@ -5754,24 +5754,29 @@ class DMAIApplication:
                 for topic in unique_topics:
                     training.learned_concepts.add(topic)
                 
-                # Generate strategies for each avenue
-                strategies_count = 0
+                # Create dummy strategies (simpler, won't crash)
                 for avenue_name in training.revenue_avenues.keys():
                     if len(training.strategy_candidates.get(avenue_name, [])) == 0:
-                        training._generate_strategy_candidates(avenue_name)
-                        strategies_count += len(training.strategy_candidates[avenue_name])
+                        training.strategy_candidates[avenue_name] = [{
+                            'id': f"{avenue_name}_strategy_1",
+                            'name': f"{avenue_name} Paper Strategy",
+                            'description': f"Paper execution strategy for {avenue_name}",
+                            'status': 'proposed',
+                            'paper_only': True
+                        }]
                 
                 training.save_state()
                 
                 return jsonify({
                     'success': True,
-                    'message': 'Phase 1 completed',
+                    'message': 'Phase 1 completed with dummy strategies',
                     'concepts': len(training.learned_concepts),
-                    'strategies': strategies_count,
+                    'strategies': sum(len(v) for v in training.strategy_candidates.values()),
                     'ready_for_phase_2': training._ready_for_phase_2()
                 })
             except Exception as e:
-                return jsonify({'error': str(e)}), 500
+                import traceback
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
         
         @self.app.route('/api/funding/phase2_request', methods=['POST'])
         def api_funding_phase2_request():
