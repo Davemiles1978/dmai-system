@@ -68,6 +68,13 @@ class SelfFundingOrchestrator:
         """Get strategy candidates from Phase 1"""
         return self.training.get_strategy_candidates(avenue)
     
+    def fix_concept_counting(self) -> Dict:
+        """Fix concept counting - passes through to training"""
+        return self.training.fix_concept_counting()
+    
+    def get_phase_2_requirements(self) -> Dict:
+        return self.training.get_phase_2_requirements()
+    
     # ========================================================================
     # Phase 2: Paper Execution
     # ========================================================================
