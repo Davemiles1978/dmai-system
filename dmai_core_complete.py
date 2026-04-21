@@ -5721,6 +5721,10 @@ class DMAIApplication:
                 avenue = request.args.get('avenue', None)
                 return jsonify(self.evolution.funding_training.get_strategy_candidates(avenue))
             return jsonify({'error': 'Funding training not available'}), 503
+
+        @self.app.route('/api/funding/test', methods=['POST'])
+        def api_funding_test():
+            return jsonify({'success': True, 'message': 'Test endpoint works'})
         
         @self.app.route('/api/funding/phase2_request', methods=['POST'])
         def api_funding_phase2_request():
