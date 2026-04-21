@@ -5728,55 +5728,43 @@ class DMAIApplication:
 
         @self.app.route('/api/funding/complete_phase1', methods=['POST'])
         def api_funding_complete_phase1():
-            """Complete Phase 1 - simple version without strategy generation"""
+            """Debug version - test each step"""
+            response = {}
             try:
+                # Step 1: Check evolution
+                response['step1'] = 'Checking evolution'
+                if not hasattr(self, 'evolution'):
+                    return jsonify({'error': 'No evolution attribute', 'debug': response})
+                
+                response['step2'] = 'Evolution exists'
+                if not self.evolution:
+                    return jsonify({'error': 'Evolution is None', 'debug': response})
+                
+                response['step3'] = 'Checking funding_training'
+                if not hasattr(self.evolution, 'funding_training'):
+                    return jsonify({'error': 'No funding_training', 'debug': response})
+                
+                response['step4'] = 'Getting funding_training'
                 ft = self.evolution.funding_training
+                if not ft:
+                    return jsonify({'error': 'funding_training is None', 'debug': response})
                 
-                # Get to the training object
-                if hasattr(ft, 'training'):
-                    training = ft.training
-                else:
-                    training = ft
+                response['step5'] = f'ft type: {type(ft).__name__}'
                 
-                # Force complete Phase 1
-                training._training_complete = True
-                training.learning_active = False
-                
-                # Mark all avenues completed
-                for avenue in training.revenue_avenues.values():
-                    avenue['completed'] = True
-                
-                # Mark all topics as learned (118 unique topics)
-                unique_topics = set()
-                for avenue in training.revenue_avenues.values():
-                    for topic in avenue['topics']:
-                        unique_topics.add(topic)
-                for topic in unique_topics:
-                    training.learned_concepts.add(topic)
-                
-                # Create dummy strategies (simpler, won't crash)
-                for avenue_name in training.revenue_avenues.keys():
-                    if len(training.strategy_candidates.get(avenue_name, [])) == 0:
-                        training.strategy_candidates[avenue_name] = [{
-                            'id': f"{avenue_name}_strategy_1",
-                            'name': f"{avenue_name} Paper Strategy",
-                            'description': f"Paper execution strategy for {avenue_name}",
-                            'status': 'proposed',
-                            'paper_only': True
-                        }]
-                
-                training.save_state()
-                
+                # Return success so far
                 return jsonify({
                     'success': True,
-                    'message': 'Phase 1 completed with dummy strategies',
-                    'concepts': len(training.learned_concepts),
-                    'strategies': sum(len(v) for v in training.strategy_candidates.values()),
-                    'ready_for_phase_2': training._ready_for_phase_2()
+                    'debug': response,
+                    'message': 'Connection working, ready for next step'
                 })
+                
             except Exception as e:
                 import traceback
-                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+                return jsonify({
+                    'error': str(e),
+                    'traceback': traceback.format_exc(),
+                    'debug': response
+                }), 500
         
         @self.app.route('/api/funding/phase2_request', methods=['POST'])
         def api_funding_phase2_request():
