@@ -5725,6 +5725,53 @@ class DMAIApplication:
         @self.app.route('/api/funding/test', methods=['POST'])
         def api_funding_test():
             return jsonify({'success': True, 'message': 'Test endpoint works'})
+
+        @self.app.route('/api/funding/complete_phase1', methods=['POST'])
+        def api_funding_complete_phase1():
+            """Complete Phase 1 and generate strategies"""
+            try:
+                ft = self.evolution.funding_training
+                
+                # Get to the training object
+                if hasattr(ft, 'training'):
+                    training = ft.training
+                else:
+                    training = ft
+                
+                # Force complete Phase 1
+                training._training_complete = True
+                training.learning_active = False
+                
+                # Mark all avenues completed
+                for avenue in training.revenue_avenues.values():
+                    avenue['completed'] = True
+                
+                # Mark all topics as learned (118 unique topics)
+                unique_topics = set()
+                for avenue in training.revenue_avenues.values():
+                    for topic in avenue['topics']:
+                        unique_topics.add(topic)
+                for topic in unique_topics:
+                    training.learned_concepts.add(topic)
+                
+                # Generate strategies for each avenue
+                strategies_count = 0
+                for avenue_name in training.revenue_avenues.keys():
+                    if len(training.strategy_candidates.get(avenue_name, [])) == 0:
+                        training._generate_strategy_candidates(avenue_name)
+                        strategies_count += len(training.strategy_candidates[avenue_name])
+                
+                training.save_state()
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Phase 1 completed',
+                    'concepts': len(training.learned_concepts),
+                    'strategies': strategies_count,
+                    'ready_for_phase_2': training._ready_for_phase_2()
+                })
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
         
         @self.app.route('/api/funding/phase2_request', methods=['POST'])
         def api_funding_phase2_request():
