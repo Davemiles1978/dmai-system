@@ -5728,43 +5728,28 @@ class DMAIApplication:
 
         @self.app.route('/api/funding/complete_phase1', methods=['POST'])
         def api_funding_complete_phase1():
-            """Debug version - test each step"""
-            response = {}
+            """Complete Phase 1 - step by step"""
             try:
-                # Step 1: Check evolution
-                response['step1'] = 'Checking evolution'
-                if not hasattr(self, 'evolution'):
-                    return jsonify({'error': 'No evolution attribute', 'debug': response})
-                
-                response['step2'] = 'Evolution exists'
-                if not self.evolution:
-                    return jsonify({'error': 'Evolution is None', 'debug': response})
-                
-                response['step3'] = 'Checking funding_training'
-                if not hasattr(self.evolution, 'funding_training'):
-                    return jsonify({'error': 'No funding_training', 'debug': response})
-                
-                response['step4'] = 'Getting funding_training'
                 ft = self.evolution.funding_training
-                if not ft:
-                    return jsonify({'error': 'funding_training is None', 'debug': response})
                 
-                response['step5'] = f'ft type: {type(ft).__name__}'
+                # Get training object
+                if hasattr(ft, 'training'):
+                    training = ft.training
+                else:
+                    training = ft
                 
-                # Return success so far
+                # Just return the training type to verify
                 return jsonify({
                     'success': True,
-                    'debug': response,
-                    'message': 'Connection working, ready for next step'
+                    'training_type': type(training).__name__,
+                    'has_training_complete': hasattr(training, '_training_complete'),
+                    'current_complete_status': getattr(training, '_training_complete', None),
+                    'current_ready_status': getattr(training, '_ready_for_phase_2', None)
                 })
                 
             except Exception as e:
                 import traceback
-                return jsonify({
-                    'error': str(e),
-                    'traceback': traceback.format_exc(),
-                    'debug': response
-                }), 500
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
         
         @self.app.route('/api/funding/phase2_request', methods=['POST'])
         def api_funding_phase2_request():
