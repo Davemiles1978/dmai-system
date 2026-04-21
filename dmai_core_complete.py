@@ -5738,13 +5738,13 @@ class DMAIApplication:
                 else:
                     training = ft
                 
-                # Just return the training type to verify
+                # Return the training info (call methods with parentheses)
                 return jsonify({
                     'success': True,
                     'training_type': type(training).__name__,
                     'has_training_complete': hasattr(training, '_training_complete'),
-                    'current_complete_status': getattr(training, '_training_complete', None),
-                    'current_ready_status': getattr(training, '_ready_for_phase_2', None)
+                    'current_complete_status': training._training_complete if hasattr(training, '_training_complete') else None,
+                    'current_ready_status': training._ready_for_phase_2() if hasattr(training, '_ready_for_phase_2') else None
                 })
                 
             except Exception as e:
