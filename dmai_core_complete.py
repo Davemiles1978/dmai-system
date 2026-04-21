@@ -5728,6 +5728,29 @@ class DMAIApplication:
                 return jsonify(self.evolution.funding_training.request_phase_2_approval())
             return jsonify({'error': 'Funding training not available'}), 503
 
+        @self.app.route('/api/funding/fix_duplicate_topics', methods=['POST'])
+        def api_funding_fix_duplicate_topics():
+            """Properly fix duplicate topic counting and prepare Phase 2"""
+            try:
+                if not (self.evolution and hasattr(self.evolution, 'funding_training')):
+                    return jsonify({'error': 'Funding training not initialized'}), 500
+                
+                ft = self.evolution.funding_training
+                
+                # Navigate to training object
+                if hasattr(ft, 'training'):
+                    training = ft.training
+                else:
+                    training = ft
+                
+                result = training.fix_duplicate_topic_counting()
+                return jsonify(result)
+            except Exception as e:
+                logger.error(f"Fix duplicate topics error: {e}")
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
         @self.app.route('/api/funding/fix_counting', methods=['POST'])
         def api_funding_fix_counting():
             """Fix concept counting to use unique topics instead of duplicates"""

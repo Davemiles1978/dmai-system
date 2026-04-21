@@ -799,6 +799,125 @@ This is a PROPOSED strategy for review only. NOT ACTIVE.""",
         
         logger.info(f"      ✅ Generated {len(self.strategy_candidates[avenue_name])} strategy templates")
 
+    def get_unique_topics(self) -> set:
+        """Return set of unique topics across all avenues"""
+        unique = set()
+        for avenue, data in self.revenue_avenues.items():
+            for topic in data['topics']:
+                unique.add(topic)
+        return unique
+    
+    def get_missing_concepts(self) -> list:
+        """Return list of concepts that haven't been learned yet"""
+        unique_topics = self.get_unique_topics()
+        learned = self.learned_concepts
+        missing = list(unique_topics - learned)
+        return missing
+
+    def fix_duplicate_topic_counting(self) -> Dict:
+        """
+        Properly fix the duplicate topic counting issue.
+        Uses unique topics for total count instead of counting duplicates.
+        """
+        unique_topics = self.get_unique_topics()
+        total_unique = len(unique_topics)
+        learned_unique = len(self.learned_concepts)
+        
+        logger.info(f"🔧 Fixing duplicate topic counting...")
+        logger.info(f"   Unique topics total: {total_unique}")
+        logger.info(f"   Learned unique: {learned_unique}")
+        
+        missing = self.get_missing_concepts()
+        if missing:
+            logger.info(f"   Missing concepts: {missing}")
+            return {
+                'success': False,
+                'message': f'Still missing {len(missing)} concepts: {missing}',
+                'missing_concepts': missing,
+                'total_unique_topics': total_unique,
+                'learned_unique': learned_unique
+            }
+        
+        # All unique topics are learned - mark Phase 1 complete
+        self._training_complete = True
+        self.learning_active = False
+        
+        # Mark all avenues as completed
+        for avenue in self.revenue_avenues.values():
+            avenue['completed'] = True
+        
+        # Generate strategies for any avenue that doesn't have them
+        strategies_generated = 0
+        for avenue_name in self.revenue_avenues.keys():
+            if len(self.strategy_candidates.get(avenue_name, [])) == 0:
+                self._generate_strategy_candidates(avenue_name)
+                strategies_generated += len(self.strategy_candidates.get(avenue_name, []))
+                logger.info(f"   Generated {len(self.strategy_candidates[avenue_name])} strategies for {avenue_name}")
+        
+        self.save_state()
+        
+        return {
+            'success': True,
+            'message': 'Phase 1 completed using unique topic counting',
+            'total_unique_topics': total_unique,
+            'learned_unique': learned_unique,
+            'strategies_generated': strategies_generated,
+            'strategy_counts': {k: len(v) for k, v in self.strategy_candidates.items()},
+            'ready_for_phase_2': self._ready_for_phase_2()
+        }
+    
+    def fix_duplicate_topic_counting(self) -> Dict:
+        """
+        Properly fix the duplicate topic counting issue.
+        Uses unique topics for total count instead of counting duplicates.
+        """
+        unique_topics = self.get_unique_topics()
+        total_unique = len(unique_topics)
+        learned_unique = len(self.learned_concepts)
+        
+        logger.info(f"🔧 Fixing duplicate topic counting...")
+        logger.info(f"   Unique topics total: {total_unique}")
+        logger.info(f"   Learned unique: {learned_unique}")
+        
+        missing = self.get_missing_concepts()
+        if missing:
+            logger.info(f"   Missing concepts: {missing}")
+            return {
+                'success': False,
+                'message': f'Still missing {len(missing)} concepts: {missing}',
+                'missing_concepts': missing,
+                'total_unique_topics': total_unique,
+                'learned_unique': learned_unique
+            }
+        
+        # All unique topics are learned - mark Phase 1 complete
+        self._training_complete = True
+        self.learning_active = False
+        
+        # Mark all avenues as completed
+        for avenue in self.revenue_avenues.values():
+            avenue['completed'] = True
+        
+        # Generate strategies for any avenue that doesn't have them
+        strategies_generated = 0
+        for avenue_name in self.revenue_avenues.keys():
+            if len(self.strategy_candidates.get(avenue_name, [])) == 0:
+                self._generate_strategy_candidates(avenue_name)
+                strategies_generated += len(self.strategy_candidates.get(avenue_name, []))
+                logger.info(f"   Generated {len(self.strategy_candidates[avenue_name])} strategies for {avenue_name}")
+        
+        self.save_state()
+        
+        return {
+            'success': True,
+            'message': 'Phase 1 completed using unique topic counting',
+            'total_unique_topics': total_unique,
+            'learned_unique': learned_unique,
+            'strategies_generated': strategies_generated,
+            'strategy_counts': {k: len(v) for k, v in self.strategy_candidates.items()},
+            'ready_for_phase_2': self._ready_for_phase_2()
+        }
+
     def fix_concept_counting(self) -> Dict:
         """
         Fix the concept counting by using unique topics instead of counting duplicates
