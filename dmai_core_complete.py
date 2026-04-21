@@ -5728,7 +5728,7 @@ class DMAIApplication:
 
         @self.app.route('/api/funding/complete_phase1', methods=['POST'])
         def api_funding_complete_phase1():
-            """Complete Phase 1 - mark all concepts learned and create strategies"""
+            """Complete Phase 1 - final working version"""
             try:
                 ft = self.evolution.funding_training
                 
@@ -5757,8 +5757,8 @@ class DMAIApplication:
                     if len(training.strategy_candidates.get(avenue_name, [])) == 0:
                         training.strategy_candidates[avenue_name] = [{
                             'id': f"{avenue_name}_strategy_1",
-                            'name': f"{avenue_name.replace('_', ' ').title()} Strategy",
-                            'description': f"Paper execution strategy for {avenue_name}",
+                            'name': f"{avenue_name.replace('_', ' ').title()} Paper Strategy",
+                            'description': f"Paper execution strategy for {avenue_name} - to be tested and refined in Phase 2",
                             'status': 'proposed',
                             'paper_only': True,
                             'created_at': datetime.now().isoformat()
@@ -5766,7 +5766,7 @@ class DMAIApplication:
                 
                 training._training_complete = True
                 training.learning_active = False
-                training.save_state()
+                training._save_state()  # Fixed: use _save_state instead of save_state
                 
                 return jsonify({
                     'success': True,
