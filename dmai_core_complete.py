@@ -5728,6 +5728,37 @@ class DMAIApplication:
                 return jsonify(self.evolution.funding_training.request_phase_2_approval())
             return jsonify({'error': 'Funding training not available'}), 503
         
+@app.route('/api/funding/debug/learned_concepts', methods=['GET'])
+def funding_debug_learned_concepts():
+    """Debug endpoint to list all learned concepts"""
+    try:
+        if not hasattr(app, 'funding_training'):
+            return jsonify({'error': 'Funding training not initialized'}), 500
+        
+        learned = list(app.funding_training.learned_concepts)
+        learned.sort()
+        
+        # Compare with all topics
+        all_topics = []
+        for avenue, data in app.funding_training.revenue_avenues.items():
+            for topic in data['topics']:
+                all_topics.append(topic)
+        all_topics = list(set(all_topics))  # Remove duplicates
+        all_topics.sort()
+        
+        missing = [t for t in all_topics if t not in learned]
+        
+        return jsonify({
+            'learned_count': len(learned),
+            'learned_concepts': learned,
+            'total_unique_topics': len(all_topics),
+            'missing_concepts': missing,
+            'missing_count': len(missing)
+        })
+    except Exception as e:
+        logger.error(f"Debug endpoint error: {e}")
+        return jsonify({'error': str(e)}), 500
+
         @self.app.route('/api/funding/debug', methods=['GET'])
         def api_funding_debug():
             has_funding = self.evolution and hasattr(self.evolution, 'funding_training') and self.evolution.funding_training is not None
