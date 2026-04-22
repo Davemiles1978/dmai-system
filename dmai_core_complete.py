@@ -7531,6 +7531,41 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e), 'success': False}), 500
 
+        @self.app.route('/api/debug/fix_syllabus_levels', methods=['GET'])
+        def fix_syllabus_levels():
+            """One-time fix: Set neuron_level='macro' for syllabus topics"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core'):
+                    return jsonify({"error": "SI Core not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Update all syllabus topics to macro
+                cursor.execute('''
+                    UPDATE insights 
+                    SET neuron_level = 'macro'
+                    WHERE insight_text LIKE '[Baby]%'
+                       OR insight_text LIKE '[Toddler]%'
+                       OR insight_text LIKE '[Child]%'
+                       OR insight_text LIKE '[Teen]%'
+                       OR insight_text LIKE '[Adult]%'
+                ''')
+                
+                updated = cursor.rowcount
+                conn.commit()
+                conn.close()
+                
+                return jsonify({
+                    "success": True,
+                    "updated_to_macro": updated
+                })
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/syllabus_neurons', methods=['GET'])
         def debug_syllabus_neurons():
             """Debug endpoint to check syllabus neurons in database"""
