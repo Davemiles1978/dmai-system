@@ -547,15 +547,68 @@ class SyntheticIntelligenceCore:
         if entity_type not in ["acquired_capability", "macro_repository", "micro_capability", "web_research_finding"]:
             existing = self._find_similar_insight(entities, relationship)
             if existing:
+                # 1. Strengthen the macro neuron (existing behavior)
                 existing.strengthen()
                 self.save_state()
-                # Also update in SQLite
+                
+                # Update SQLite for macro neuron
                 if hasattr(self, 'sqlite') and self.sqlite:
                     try:
                         self.sqlite.save_insight(existing)
                     except Exception as e:
-                        logger.error(f"SQLite update failed: {e}")
-                return existing.id
+                        logger.error(f"SQLite macro update failed: {e}")
+                
+                # 2. Create a NEW micro neuron under this macro neuron (for this specific article)
+                micro_insight = InsightNeuron(
+                    insight_text=insight_text,
+                    entity_type=entity_type,
+                    entities=entities,
+                    relationship=relationship,
+                    confidence=confidence * 0.9,  # Slightly lower confidence for micro
+                    source_topic=source_topic,
+                    target_topic=target_topic,
+                    source_url=source_url,
+                    source_title=source_title,
+                    source_type=source_type,
+                    neuron_level='micro',                      # Always micro
+                    cluster_id=existing.id,                    # Group under the macro
+                    parent_macro_id=existing.id,               # Link to parent
+                    is_visible_at_top_level=False              # Don't show at top level
+                )
+                
+                # Save micro insight
+                with self.insights_lock:
+                    self.insights[micro_insight.id] = micro_insight
+                    # Add to same topics as parent
+                    if source_topic in self.topics:
+                        self.topics[source_topic].append(micro_insight.id)
+                    if target_topic != source_topic and target_topic in self.topics:
+                        self.topics[target_topic].append(micro_insight.id)
+                
+                # Save micro to SQLite
+                if hasattr(self, 'sqlite') and self.sqlite:
+                    try:
+                        self.sqlite.save_insight(micro_insight)
+                    except Exception as e:
+                        logger.error(f"SQLite micro save failed: {e}")
+                
+                # 3. Create/strengthen synapse between macro and related topics
+                # Find other insights with overlapping entities
+                related_insights = []
+                with self.insights_lock:
+                    for other_id, other in self.insights.items():
+                        if other_id != existing.id and other.neuron_level == 'macro':
+                            overlap = set(entities) & set(other.entities)
+                            if len(overlap) >= 1:
+                                related_insights.append(other_id)
+                
+                # Create synapses to related macro neurons
+                for related_id in related_insights[:3]:  # Limit to top 3 to avoid explosion
+                    self.add_synapse(existing.id, related_id, f"related_via_{source_topic}")
+                
+                logger.info(f"🧠 Strengthened macro '{existing.insight_text[:40]}...' + created micro + {len(related_insights[:3])} synapses")
+                
+                return existing.id  # Return macro ID (caller can also access micro if needed)
         
         # Create new insight with hierarchical fields
         insight = InsightNeuron(
