@@ -2740,6 +2740,17 @@ class UnifiedEvolutionEngine:
         self.si_core = SyntheticIntelligenceCore(data_dir=str(self.data_path / 'synthetic'))
         logger.info(f"   Loaded SI Core: {self.si_core.neuron_count} neurons, {self.si_core.synapse_count} synapses")
         logger.info(f"   Consciousness: {self.si_core.consciousness:.4f}")
+
+        # ============================================================
+        # SYLLABUS LOADER - Create macro neurons for all 143 topics
+        # ============================================================
+        try:
+            from components.syllabus_loader import initialize_syllabus
+            logger.info("📚 Initializing syllabus loader...")
+            syllabus_result = initialize_syllabus(self.si_core, data_dir="data", process_limit=None)
+            logger.info(f"📚 Syllabus initialized: {syllabus_result['macros_created']} macros, {syllabus_result['micros_created']} micros, {syllabus_result['synapses_created']} synapses")
+        except Exception as e:
+            logger.warning(f"⚠️ Syllabus loader not available: {e}")
         
         # Keep legacy reference for compatibility
         self.synthetic_network = self.si_core
