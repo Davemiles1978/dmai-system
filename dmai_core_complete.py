@@ -7539,6 +7539,37 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e), 'success': False}), 500
 
+@self.app.route('/api/debug/check_parent_links', methods=['GET'])
+def check_parent_links():
+    """Check if micro neurons have parent_macro_id set"""
+    try:
+        import sqlite3
+        db_path = self.evolution.si_core.sqlite.db_path
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Count micros with parent_macro_id
+        cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='micro' AND parent_macro_id IS NOT NULL AND parent_macro_id != ''")
+        with_parent = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='micro'")
+        total_micro = cursor.fetchone()[0]
+        
+        # Get sample of micros with their parent
+        cursor.execute("SELECT id, insight_text, parent_macro_id FROM insights WHERE neuron_level='micro' LIMIT 10")
+        samples = [{"id": r[0][:20], "text": r[1][:50], "parent": r[2][:20] if r[2] else None} for r in cursor.fetchall()]
+        
+        conn.close()
+        
+        return jsonify({
+            "total_micro": total_micro,
+            "with_parent": with_parent,
+            "without_parent": total_micro - with_parent,
+            "samples": samples
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/fix_syllabus_levels', methods=['GET'])
         def fix_syllabus_levels():
             """One-time fix: Set neuron_level='macro' for syllabus topics"""
