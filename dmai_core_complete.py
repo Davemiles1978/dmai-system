@@ -384,6 +384,50 @@ class SyntheticIntelligenceCore:
             logger.warning(f"SQLite initialization failed, falling back to JSON: {e}")
             self.sqlite = None
             self.load_state()
+
+        
+        # ============================================================
+        # SCHEMA MIGRATION: Add new columns if they don't exist
+        # ============================================================
+        if hasattr(self, 'sqlite') and self.sqlite:
+            try:
+                import sqlite3
+                db_path = self.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Check existing columns
+                cursor.execute("PRAGMA table_info(insights)")
+                columns = [row[1] for row in cursor.fetchall()]
+                
+                migrations_applied = []
+                
+                if 'neuron_level' not in columns:
+                    cursor.execute("ALTER TABLE insights ADD COLUMN neuron_level TEXT DEFAULT 'micro'")
+                    migrations_applied.append('neuron_level')
+                
+                if 'cluster_id' not in columns:
+                    cursor.execute("ALTER TABLE insights ADD COLUMN cluster_id TEXT")
+                    migrations_applied.append('cluster_id')
+                
+                if 'parent_macro_id' not in columns:
+                    cursor.execute("ALTER TABLE insights ADD COLUMN parent_macro_id TEXT")
+                    migrations_applied.append('parent_macro_id')
+                
+                if 'is_visible_at_top_level' not in columns:
+                    cursor.execute("ALTER TABLE insights ADD COLUMN is_visible_at_top_level INTEGER DEFAULT 1")
+                    migrations_applied.append('is_visible_at_top_level')
+                
+                conn.commit()
+                conn.close()
+                
+                if migrations_applied:
+                    logger.info(f"🔄 Schema migration applied: added {', '.join(migrations_applied)}")
+                else:
+                    logger.info("✅ Database schema is up to date")
+                    
+            except Exception as e:
+                logger.warning(f"Schema migration failed (continuing): {e}")
         
         # PERMANENT FIX: Sync with Neo4j on every startup to ensure all insights are loaded
         self._sync_with_neo4j()
