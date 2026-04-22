@@ -7129,8 +7129,7 @@ class DMAIApplication:
                             SELECT id, insight_text, entity_type, confidence, 
                                    occurrence_count, created_at
                             FROM insights 
-                            WHERE neuron_level = 'macro'
-                               OR insight_text LIKE '[Baby]%'
+                            WHERE insight_text LIKE '[Baby]%'
                                OR insight_text LIKE '[Toddler]%'
                                OR insight_text LIKE '[Child]%'
                                OR insight_text LIKE '[Teen]%'
