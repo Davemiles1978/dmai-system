@@ -7539,72 +7539,6 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e), 'success': False}), 500
 
-@self.app.route('/api/debug/check_parent_links', methods=['GET'])
-def check_parent_links():
-    """Check if micro neurons have parent_macro_id set"""
-    try:
-        import sqlite3
-        db_path = self.evolution.si_core.sqlite.db_path
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
-        
-        # Count micros with parent_macro_id
-        cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='micro' AND parent_macro_id IS NOT NULL AND parent_macro_id != ''")
-        with_parent = cursor.fetchone()[0]
-        
-        cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='micro'")
-        total_micro = cursor.fetchone()[0]
-        
-        # Get sample of micros with their parent
-        cursor.execute("SELECT id, insight_text, parent_macro_id FROM insights WHERE neuron_level='micro' LIMIT 10")
-        samples = [{"id": r[0][:20], "text": r[1][:50], "parent": r[2][:20] if r[2] else None} for r in cursor.fetchall()]
-        
-        conn.close()
-        
-        return jsonify({
-            "total_micro": total_micro,
-            "with_parent": with_parent,
-            "without_parent": total_micro - with_parent,
-            "samples": samples
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-        @self.app.route('/api/debug/fix_syllabus_levels', methods=['GET'])
-        def fix_syllabus_levels():
-            """One-time fix: Set neuron_level='macro' for syllabus topics"""
-            try:
-                import sqlite3
-                
-                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core'):
-                    return jsonify({"error": "SI Core not available"}), 500
-                
-                db_path = self.evolution.si_core.sqlite.db_path
-                conn = sqlite3.connect(str(db_path))
-                cursor = conn.cursor()
-                
-                # Update all syllabus topics to macro
-                cursor.execute('''
-                    UPDATE insights 
-                    SET neuron_level = 'macro'
-                    WHERE insight_text LIKE '[Baby]%'
-                       OR insight_text LIKE '[Toddler]%'
-                       OR insight_text LIKE '[Child]%'
-                       OR insight_text LIKE '[Teen]%'
-                       OR insight_text LIKE '[Adult]%'
-                ''')
-                
-                updated = cursor.rowcount
-                conn.commit()
-                conn.close()
-                
-                return jsonify({
-                    "success": True,
-                    "updated_to_macro": updated
-                })
-            except Exception as e:
-                return jsonify({"error": str(e)}), 500
-
         @self.app.route('/api/debug/syllabus_neurons', methods=['GET'])
         def debug_syllabus_neurons():
             """Debug endpoint to check syllabus neurons in database"""
@@ -7677,6 +7611,39 @@ def check_parent_links():
             if key in category.lower():
                 return color
         return '#888888'  # Gray default
+
+        @self.app.route('/api/debug/check_parent_links', methods=['GET'])
+        def check_parent_links():
+            """Check if micro neurons have parent_macro_id set"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='micro' AND parent_macro_id IS NOT NULL AND parent_macro_id != ''")
+                with_parent = cursor.fetchone()[0]
+                
+                cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='micro'")
+                total_micro = cursor.fetchone()[0]
+                
+                cursor.execute("SELECT id, insight_text, parent_macro_id FROM insights WHERE neuron_level='micro' LIMIT 10")
+                samples = [{"id": r[0][:20], "text": r[1][:50], "parent": r[2][:20] if r[2] else None} for r in cursor.fetchall()]
+                
+                conn.close()
+                
+                return jsonify({
+                    "total_micro": total_micro,
+                    "with_parent": with_parent,
+                    "without_parent": total_micro - with_parent,
+                    "samples": samples
+                })
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
 
         # ============================================================================
         # TASK INPUT SYSTEM FOR DMAI
