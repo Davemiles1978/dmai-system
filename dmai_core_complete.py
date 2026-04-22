@@ -7593,25 +7593,6 @@ class DMAIApplication:
                 import traceback
                 return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
-    def _get_category_color(self, category):
-        """Return color for category (preserving your existing scheme)"""
-        colors = {
-            'core': '#ff3333',      # Red - Core Knowledge
-            'artistic': '#33ff33',  # Green - Artistic/Creative
-            'creative': '#33ff33',  # Green - Artistic/Creative
-            'wealth': '#3399ff',    # Blue - Wealth/Finance
-            'finance': '#3399ff',   # Blue - Wealth/Finance
-            'evolution': '#ff9933', # Orange - Evolution Accelerator
-            'reverse': '#ff9933',   # Orange - Evolution Accelerator
-            'research': '#33cccc',  # Teal - Research
-            'entity': '#ffff33',    # Yellow - Entity/General
-            'general': '#ffff33',   # Yellow - Entity/General
-        }
-        for key, color in colors.items():
-            if key in category.lower():
-                return color
-        return '#888888'  # Gray default
-
         @self.app.route('/api/debug/check_parent_links', methods=['GET'])
         def check_parent_links():
             """Check if micro neurons have parent_macro_id set"""
@@ -7644,6 +7625,25 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
+    def _get_category_color(self, category):
+        """Return color for category (preserving your existing scheme)"""
+        colors = {
+            'core': '#ff3333',      # Red - Core Knowledge
+            'artistic': '#33ff33',  # Green - Artistic/Creative
+            'creative': '#33ff33',  # Green - Artistic/Creative
+            'wealth': '#3399ff',    # Blue - Wealth/Finance
+            'finance': '#3399ff',   # Blue - Wealth/Finance
+            'evolution': '#ff9933', # Orange - Evolution Accelerator
+            'reverse': '#ff9933',   # Orange - Evolution Accelerator
+            'research': '#33cccc',  # Teal - Research
+            'entity': '#ffff33',    # Yellow - Entity/General
+            'general': '#ffff33',   # Yellow - Entity/General
+        }
+        for key, color in colors.items():
+            if key in category.lower():
+                return color
+        return '#888888'  # Gray default
 
         # ============================================================================
         # TASK INPUT SYSTEM FOR DMAI
