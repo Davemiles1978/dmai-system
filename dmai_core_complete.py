@@ -7040,7 +7040,11 @@ class DMAIApplication:
         
         @self.app.route('/api/brain/3d_data', methods=['GET'])
         def brain_3d_data():
-            """Return brain data for 3D visualization from SQLite with centrality scoring"""
+            """
+            Return MACRO neurons only for clean 3D visualization.
+            Micro neurons are fetched on demand via /api/brain/macro/<macro_id>/micros
+            Synapse colors and distances reflect connection strength.
+            """
             try:
                 import json
                 import os
@@ -7049,270 +7053,402 @@ class DMAIApplication:
                 import random
                 from collections import defaultdict
                 
-                neurons_list = []
-                synapses_list = []
+                # ============================================================
+                # CATEGORY COLOR MAPPING
+                # ============================================================
+                CATEGORY_COLORS = {
+                    "Core": "#4477ff",        # Blue - Foundational knowledge
+                    "Artistic": "#ff44cc",    # Pink - Creative capabilities
+                    "Wealth": "#ffaa00",      # Gold - Self-funding
+                    "Reverse": "#aa44ff",     # Purple - System analysis
+                    "Accelerator": "#00cc88", # Teal - Consciousness growth
+                    "unknown": "#888888"      # Gray - Fallback
+                }
                 
-                # PRIMARY: Read from SQLite
+                def get_clean_topic_name(text):
+                    """Extract clean topic name from insight text.
+                    Example: '[Baby] Meta-Learning Fundamentals: How to identify...' 
+                             -> 'Meta-Learning Fundamentals'"""
+                    # Remove stage prefix like [Baby], [Toddler], etc.
+                    import re
+                    text = re.sub(r'^\[(Baby|Toddler|Child|Teen|Adult)\]\s*', '', text)
+                    # Remove "EVOLUTION: " prefix for accelerators
+                    text = text.replace("EVOLUTION: ", "")
+                    # Take only the topic name before the colon
+                    if ': ' in text:
+                        text = text.split(': ')[0]
+                    # Truncate if too long
+                    if len(text) > 35:
+                        text = text[:32] + "..."
+                    return text.strip()
+                
+                def get_category_from_entity_type(entity_type):
+                    """Map entity_type to syllabus category"""
+                    if 'Core' in entity_type or entity_type == 'syllabus_topic':
+                        return 'Core'
+                    elif 'Artistic' in entity_type:
+                        return 'Artistic'
+                    elif 'Wealth' in entity_type:
+                        return 'Wealth'
+                    elif 'Reverse' in entity_type:
+                        return 'Reverse'
+                    elif 'Accelerator' in entity_type:
+                        return 'Accelerator'
+                    else:
+                        return 'unknown'
+                
+                def get_synapse_properties(occurrence_count):
+                    """Return color, opacity, and distance modifier based on strength"""
+                    if occurrence_count <= 2:
+                        return {"color": "#88aaff", "opacity": 0.3, "distance_mod": 1.0}
+                    elif occurrence_count <= 5:
+                        return {"color": "#4488ff", "opacity": 0.5, "distance_mod": 0.9}
+                    elif occurrence_count <= 10:
+                        return {"color": "#2266cc", "opacity": 0.7, "distance_mod": 0.8}
+                    elif occurrence_count <= 20:
+                        return {"color": "#0044aa", "opacity": 0.9, "distance_mod": 0.7}
+                    else:
+                        return {"color": "#002266", "opacity": 1.0, "distance_mod": 0.6}
+                
+                # ============================================================
+                # QUERY MACRO NEURONS FROM SQLITE
+                # ============================================================
+                macros_list = []
+                synapses_list = []
+                macro_ids = set()
+                
                 if hasattr(self, 'evolution') and hasattr(self.evolution, 'si_core') and hasattr(self.evolution.si_core, 'sqlite') and self.evolution.si_core.sqlite:
                     try:
                         import sqlite3
                         db_path = self.evolution.si_core.sqlite.db_path
                         conn = sqlite3.connect(str(db_path))
+                        conn.row_factory = sqlite3.Row
                         
-                        # Read ALL insights (no filter)
+                        # Get ONLY macro neurons (neuron_level = 'macro')
                         cursor = conn.execute('''
-                            SELECT id, insight_text, entity_type, confidence 
-                            FROM insights
+                            SELECT id, insight_text, entity_type, confidence, 
+                                   occurrence_count, created_at
+                            FROM insights 
+                            WHERE neuron_level = 'macro'
+                               OR insight_text LIKE '[Baby]%'
+                               OR insight_text LIKE '[Toddler]%'
+                               OR insight_text LIKE '[Child]%'
+                               OR insight_text LIKE '[Teen]%'
+                               OR insight_text LIKE '[Adult]%'
+                            ORDER BY created_at DESC
                         ''')
                         
-                        all_rows = list(cursor)
+                        macro_rows = cursor.fetchall()
                         
-                        # GROUP BY PREFIX to create virtual macro nodes
-                        macro_groups = {}
-                        for row in all_rows:
-                            insight_id, text, entity_type, confidence = row
-                            prefix = text.split(':')[0] if ':' in text else 'Other'
-                            
-                            if prefix not in macro_groups:
-                                macro_groups[prefix] = {
-                                    'id': f"macro_{prefix.replace(' ', '_').replace('-', '_')}",
-                                    'text': f"{prefix}: Group of {prefix} concepts",
-                                    'clean_label': prefix,
-                                    'count': 0
-                                }
-                            macro_groups[prefix]['count'] += 1
+                        # Get micro counts per macro (for child_count display)
+                        micro_counts = {}
+                        micro_cursor = conn.execute('''
+                            SELECT parent_macro_id, COUNT(*) as count
+                            FROM insights
+                            WHERE neuron_level = 'micro' AND parent_macro_id IS NOT NULL
+                            GROUP BY parent_macro_id
+                        ''')
+                        for row in micro_cursor:
+                            micro_counts[row['parent_macro_id']] = row['count']
                         
-                        # Use macro groups as the neurons to display
-                        all_rows = []
-                        for prefix, group in macro_groups.items():
-                            # Create a synthetic row for each macro neuron
-                            all_rows.append((
-                                group['id'],
-                                f"{prefix}: {group['count']} concepts",
-                                'macro_group',
-                                0.9
-                            ))
+                        # Get connection counts for influence calculation
+                        conn_cursor = conn.execute('''
+                            SELECT from_insight, to_insight, occurrences
+                            FROM synapses
+                            WHERE occurrences > 0
+                        ''')
                         
-                        # Read synapses to calculate centrality
-                        syn_cursor = conn.execute('SELECT from_insight, to_insight FROM synapses')
                         connections = defaultdict(int)
-                        for from_id, to_id in syn_cursor:
-                            connections[from_id] += 1
-                            connections[to_id] += 1
+                        synapse_data = []  # Store for later
+                        for row in conn_cursor:
+                            from_id = row['from_insight']
+                            to_id = row['to_insight']
+                            occ = row['occurrences'] or 1
+                            connections[from_id] += occ
+                            connections[to_id] += occ
+                            synapse_data.append({
+                                'from': from_id,
+                                'to': to_id,
+                                'occurrences': occ
+                            })
                         
-                        # Calculate max connections for normalization
                         max_connections = max(connections.values()) if connections else 1
                         
-                        # Extract capability type from insight text and group
-                        category_groups = defaultdict(list)
-                        
-                        for row in all_rows:
-                            insight_id, text, entity_type, confidence = row
+                        # ============================================================
+                        # PROCESS MACRO NEURONS
+                        # ============================================================
+                        for row in macro_rows:
+                            macro_id = row['id']
+                            macro_ids.add(macro_id)
+                            insight_text = row['insight_text'] or ''
+                            entity_type = row['entity_type'] or 'syllabus_topic'
                             
-                            # Extract capability type from text (first word before colon)
-                            if ':' in text:
-                                extracted_type = text.split(':')[0].strip()
-                            else:
-                                extracted_type = entity_type or "unknown"
+                            # Extract category from the topic's actual category
+                            # Try to get from syllabus data or parse from text
+                            category = 'Core'  # Default
+                            if '[Baby]' in insight_text or '[Toddler]' in insight_text or '[Child]' in insight_text:
+                                # Try to determine from the text content
+                                text_lower = insight_text.lower()
+                                if 'evolution:' in text_lower or 'accelerator' in entity_type.lower():
+                                    category = 'Accelerator'
+                                elif 'wealth' in text_lower or 'trading' in text_lower or 'funding' in text_lower:
+                                    category = 'Wealth'
+                                elif 'reverse' in text_lower or 'engineering' in text_lower:
+                                    category = 'Reverse'
+                                elif 'music' in text_lower or 'art' in text_lower or 'image' in text_lower or 'video' in text_lower or 'creative' in text_lower:
+                                    category = 'Artistic'
+                                else:
+                                    category = 'Core'
                             
-                            # Clean label - remove category prefix for display
-                            if ': ' in text:
-                                clean_label = text.split(': ', 1)[1]
-                            else:
-                                clean_label = text
+                            clean_label = get_clean_topic_name(insight_text)
+                            influence = connections.get(macro_id, 0) / max_connections if max_connections > 0 else 0
+                            child_count = micro_counts.get(macro_id, 0)
                             
-                            # Truncate for display
-                            short_label = clean_label[:40] + "..." if len(clean_label) > 40 else clean_label
-                            
-                            # Calculate influence score
-                            influence = connections.get(insight_id, 0) / max_connections if max_connections > 0 else 0
-                            
-                            category_groups[extracted_type].append({
-                                'id': insight_id,
-                                'text': text,
-                                'clean_label': clean_label,
-                                'short_label': short_label,
-                                'extracted_type': extracted_type,
-                                'confidence': confidence or 0.5,
-                                'influence': influence,
-                                'connections': connections.get(insight_id, 0)
+                            macros_list.append({
+                                "id": macro_id,
+                                "label": clean_label,
+                                "full_text": insight_text[:100],
+                                "category": category,
+                                "color": CATEGORY_COLORS.get(category, "#888888"),
+                                "confidence": row['confidence'] or 0.8,
+                                "influence": round(influence, 3),
+                                "connections": connections.get(macro_id, 0),
+                                "child_count": child_count,
+                                "has_children": child_count > 0,
+                                "occurrence_count": row['occurrence_count'] or 1
                             })
                         
                         # ============================================================
-                        # COMPLETE COLOR MAPPING - 25+ Categories
+                        # CALCULATE POSITIONS - Spread by category
                         # ============================================================
-                        def get_color_for_type(cap_type):
-                            color_map = {
-                                # Core Intelligence
-                                "Synthetic Intelligence": "#ff3366",
-                                "Evolution": "#33ff99",
-                                "Consciousness": "#ff66ff",
-                                "Self-Improvement": "#66ff33",
-                                "Testing": "#ffff33",
-                                "Reverse Engineering": "#cc66ff",
-                                "Threat Intelligence": "#ff6600",
-                                "Meta-Learning": "#33cccc",
-                                
-                                # Autonomous Survival
-                                "Self-funding capability": "#ffcc33",
-                                "Self-replication capability": "#33ccff",
-                                "Survival mechanism": "#ff3333",
-                                "Automation capability": "#9933ff",
-                                
-                                # Functional
-                                "AI model": "#66ff66",
-                                "API endpoint": "#ff99cc",
-                                "Content generation": "#ff99ff",
-                                "Blockchain integration": "#cc9900",
-                                "Identity management": "#00cc99",
-                                
-                                # Data & Knowledge
-                                "Data structure": "#6699ff",
-                                "Configuration": "#88aaff",
-                                "Knowledge module": "#33ffcc",
-                                "Capability": "#ff6633",
-                                
-                                # Legacy
-                                "llm": "#33ff33",
-                                "acquired_capability": "#ff6633",
-                                "utility": "#aaaaaa",
-                                "general": "#cccccc"
-                            }
-                            
-                            # Exact match
-                            if cap_type in color_map:
-                                return color_map[cap_type]
-                            
-                            # Partial match
-                            cap_lower = cap_type.lower()
-                            for key, color in color_map.items():
-                                if key.lower() in cap_lower or cap_lower in key.lower():
-                                    return color
-                            
-                            return "#ff6633"  # Default orange
-        
-                        # Calculate positions - spread categories in a large circle
+                        # Group by category
+                        category_groups = defaultdict(list)
+                        for macro in macros_list:
+                            category_groups[macro['category']].append(macro)
+                        
                         category_list = list(category_groups.keys())
                         category_positions = {}
                         
                         for i, cat in enumerate(category_list):
                             angle = (i / max(1, len(category_list))) * 2 * math.pi
-                            radius = 18.0  # Large radius for separation
+                            radius = 22.0  # Large radius for separation
                             category_positions[cat] = {
                                 'x': math.cos(angle) * radius,
                                 'y': math.sin(angle) * radius,
-                                'z': (i % 7 - 3) * 3.5  # Vertical spread
+                                'z': (i % 5 - 2) * 4.0  # Vertical spread
                             }
                         
-                        # Generate neurons with spread-out positions
-                        for category, items in category_groups.items():
-                            base = category_positions.get(category, {'x': 0, 'y': 0, 'z': 0})
-                            color = get_color_for_type(category)
+                        # Position each macro within its category cluster
+                        for macro in macros_list:
+                            cat = macro['category']
+                            base = category_positions.get(cat, {'x': 0, 'y': 0, 'z': 0})
                             
-                            # Sort by influence for better layout
-                            items.sort(key=lambda x: x['influence'], reverse=True)
+                            # Sort by influence within category for better layout
+                            items_in_cat = category_groups[cat]
+                            items_in_cat.sort(key=lambda x: x['influence'], reverse=True)
+                            j = items_in_cat.index(macro)
                             
-                            for j, item in enumerate(items):
-                                # Larger spread for better visibility
-                                cluster_spread = 6.0
-                                
-                                # Golden ratio distribution
-                                golden_angle = j * 2.39996
-                                elevation = math.asin(-1.0 + 2.0 * j / max(1, len(items)))
-                                
-                                x = base['x'] + math.cos(golden_angle) * cluster_spread * math.cos(elevation)
-                                y = base['y'] + math.sin(golden_angle) * cluster_spread * math.cos(elevation)
-                                z = base['z'] + math.sin(elevation) * cluster_spread * 1.5
-                                
-                                # Small jitter for natural look
-                                random.seed(item['id'])
-                                x += random.uniform(-0.8, 0.8)
-                                y += random.uniform(-0.8, 0.8)
-                                z += random.uniform(-0.5, 0.5)
-                                
-                                # Size based on influence (0.4 to 2.0)
-                                size = 0.5 + item['influence'] * 1.5
-                                
-                                neurons_list.append({
-                                    "id": item['id'],
-                                    "label": item['short_label'],
-                                    "full_text": item['text'],
-                                    "clean_label": item['clean_label'],
-                                    "category": category,
-                                    "confidence": item['confidence'],
-                                    "influence": round(item['influence'], 3),
-                                    "connections": item['connections'],
-                                    "color": color,
-                                    "x": round(x, 3),
-                                    "y": round(y, 3),
-                                    "z": round(z, 3),
-                                    "size": round(size, 3)
-                                })
+                            cluster_spread = 8.0
+                            golden_angle = j * 2.39996
+                            elevation = math.asin(-1.0 + 2.0 * j / max(1, len(items_in_cat)))
+                            
+                            x = base['x'] + math.cos(golden_angle) * cluster_spread * math.cos(elevation)
+                            y = base['y'] + math.sin(golden_angle) * cluster_spread * math.cos(elevation)
+                            z = base['z'] + math.sin(elevation) * cluster_spread * 1.5
+                            
+                            # Small deterministic jitter based on ID
+                            import hashlib
+                            hash_val = int(hashlib.md5(macro['id'].encode()).hexdigest()[:8], 16)
+                            random.seed(hash_val)
+                            x += random.uniform(-1.0, 1.0)
+                            y += random.uniform(-1.0, 1.0)
+                            z += random.uniform(-0.8, 0.8)
+                            
+                            # Size based on influence + child count (0.5 to 2.5)
+                            size = 0.6 + (macro['influence'] * 1.2) + (min(macro['child_count'], 20) * 0.03)
+                            
+                            macro['x'] = round(x, 3)
+                            macro['y'] = round(y, 3)
+                            macro['z'] = round(z, 3)
+                            macro['size'] = round(min(size, 3.0), 3)
                         
-                        # Read synapses with strength
-                        syn_cursor = conn.execute('SELECT id, from_insight, to_insight, weight FROM synapses')
-                        for row in syn_cursor:
-                            syn_id, from_id, to_id, weight = row
-                            w = weight or 0.5
-                            synapses_list.append({
-                                "source": from_id,
-                                "target": to_id,
-                                "weight": w,
-                                "strength": "strong" if w > 0.7 else "medium" if w > 0.4 else "weak"
-                            })
+                        # ============================================================
+                        # PROCESS SYNAPSES WITH STRENGTH-BASED PROPERTIES
+                        # ============================================================
+                        base_distance = 35.0  # Base distance between nodes
+                        
+                        for syn in synapse_data:
+                            from_id = syn['from']
+                            to_id = syn['to']
+                            
+                            # Only include synapses where BOTH ends are macro neurons
+                            if from_id in macro_ids and to_id in macro_ids:
+                                occurrences = syn['occurrences']
+                                props = get_synapse_properties(occurrences)
+                                
+                                # Find the actual nodes to calculate distance modifier
+                                from_node = next((m for m in macros_list if m['id'] == from_id), None)
+                                to_node = next((m for m in macros_list if m['id'] == to_id), None)
+                                
+                                if from_node and to_node:
+                                    # Adjust positions based on synapse strength
+                                    # Stronger connections pull nodes closer
+                                    distance_mod = props['distance_mod']
+                                    
+                                    synapses_list.append({
+                                        "source": from_id,
+                                        "target": to_id,
+                                        "weight": min(1.0, occurrences / 25.0),
+                                        "occurrences": occurrences,
+                                        "color": props['color'],
+                                        "opacity": props['opacity'],
+                                        "strength": "strong" if occurrences > 10 else "medium" if occurrences > 3 else "weak",
+                                        "distance_mod": distance_mod
+                                    })
                         
                         conn.close()
                         
-                        if neurons_list:
-                            # Calculate influence percentiles for frontend
-                            influences = sorted([n['influence'] for n in neurons_list])
+                        # ============================================================
+                        # RETURN CLEAN VISUALIZATION DATA
+                        # ============================================================
+                        if macros_list:
+                            influences = sorted([n['influence'] for n in macros_list])
                             p90 = influences[int(len(influences) * 0.9)] if len(influences) > 10 else 0.5
                             p50 = influences[int(len(influences) * 0.5)] if len(influences) > 10 else 0.2
                             
+                            # Category summary
+                            category_counts = {}
+                            for macro in macros_list:
+                                cat = macro['category']
+                                category_counts[cat] = category_counts.get(cat, 0) + 1
+                            
                             return jsonify({
                                 "success": True,
-                                "source": "sqlite",
-                                "neurons": neurons_list,
-                                "synapses": synapses_list,
-                                "total_neurons": len(neurons_list),
+                                "source": "sqlite_macros",
+                                "nodes": macros_list,
+                                "edges": synapses_list,
+                                "total_macros": len(macros_list),
                                 "total_synapses": len(synapses_list),
-                                "consciousness": min(1.0, len(neurons_list) / 1000.0),
+                                "consciousness": min(1.0, len(macros_list) / 146.0),  # 146 syllabus topics = 100%
+                                "category_counts": category_counts,
+                                "category_colors": CATEGORY_COLORS,
                                 "influence_thresholds": {
                                     "high": round(p90, 3),
                                     "medium": round(p50, 3)
+                                },
+                                "synapse_rules": {
+                                    "weak": {"color": "#88aaff", "opacity": 0.3},
+                                    "medium": {"color": "#4488ff", "opacity": 0.5},
+                                    "strong": {"color": "#2266cc", "opacity": 0.7}
                                 }
                             })
+                            
                     except Exception as e:
                         logger.warning(f"SQLite brain data failed: {e}")
                         import traceback
                         traceback.print_exc()
                 
-                # If SQLite failed and no data was loaded, return error
-                if not neurons_list:
-                    return jsonify({
-                        "success": False,
-                        "source": "error",
-                        "error": "Failed to load brain data from SQLite",
-                        "neurons": [],
-                        "synapses": [],
-                        "total_neurons": 0,
-                        "total_synapses": 0
-                    }), 500
-                
-                # Should never reach here if SQLite worked
+                # Fallback: Return empty with error
                 return jsonify({
                     "success": False,
                     "source": "error",
-                    "error": "Unknown error in brain data loading"
+                    "error": "Failed to load brain data from SQLite",
+                    "nodes": [],
+                    "edges": [],
+                    "total_macros": 0,
+                    "total_synapses": 0,
+                    "consciousness": 0.0
                 }), 500
                 
             except Exception as e:
                 logger.error(f"Brain 3D data endpoint failed: {e}")
+                import traceback
+                traceback.print_exc()
                 return jsonify({
                     "success": False,
                     "source": "error",
                     "error": str(e)
                 }), 500
+
+        @self.app.route('/api/brain/macro/<macro_id>/micros', methods=['GET'])
+        def brain_macro_micros(macro_id):
+            """
+            Return micro neurons for a specific macro neuron.
+            Called when user zooms/clicks a macro node.
+            """
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core'):
+                    return jsonify({"success": False, "error": "SI Core not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                conn.row_factory = sqlite3.Row
+                
+                # Get the macro neuron info
+                macro_cursor = conn.execute('''
+                    SELECT id, insight_text FROM insights WHERE id = ?
+                ''', (macro_id,))
+                macro = macro_cursor.fetchone()
+                
+                if not macro:
+                    conn.close()
+                    return jsonify({"success": False, "error": "Macro neuron not found"}), 404
+                
+                # Get all micro neurons under this macro
+                micro_cursor = conn.execute('''
+                    SELECT id, insight_text, confidence, created_at
+                    FROM insights
+                    WHERE parent_macro_id = ? AND neuron_level = 'micro'
+                    ORDER BY confidence DESC, created_at DESC
+                    LIMIT 50
+                ''', (macro_id,))
+                
+                micros = []
+                for row in micro_cursor:
+                    insight_text = row['insight_text'] or ''
+                    
+                    # Extract clean principle name
+                    # Example: "Meta-Learning Fundamentals - Core principles of Meta-Learning"
+                    # -> "Core principles"
+                    clean_label = insight_text
+                    if ' - ' in insight_text:
+                        clean_label = insight_text.split(' - ', 1)[1]
+                        # Truncate
+                        if len(clean_label) > 30:
+                            clean_label = clean_label[:27] + "..."
+                    
+                    micros.append({
+                        "id": row['id'],
+                        "label": clean_label,
+                        "full_text": insight_text[:100],
+                        "confidence": row['confidence'] or 0.8,
+                        "x": 0,  # Will be positioned relative to macro by frontend
+                        "y": 0,
+                        "z": 0
+                    })
+                
+                conn.close()
+                
+                # Get macro name for display
+                macro_text = macro['insight_text'] or 'Unknown'
+                import re
+                macro_name = re.sub(r'^\[(Baby|Toddler|Child|Teen|Adult)\]\s*', '', macro_text)
+                if ': ' in macro_name:
+                    macro_name = macro_name.split(': ')[0]
+                
+                return jsonify({
+                    "success": True,
+                    "macro_id": macro_id,
+                    "macro_name": macro_name[:40],
+                    "micros": micros,
+                    "count": len(micros)
+                })
+                
+            except Exception as e:
+                logger.error(f"Micro neurons endpoint failed: {e}")
+                return jsonify({"success": False, "error": str(e)}), 500
 
         @self.app.route('/api/brain/group/<group_id>')
         def brain_group_detail(group_id):
