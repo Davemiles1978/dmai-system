@@ -19,7 +19,7 @@ class SyllabusLoader:
     def __init__(self, si_core, data_dir: str = "data"):
         self.si_core = si_core
         self.data_dir = Path(data_dir)
-        self.syllabus_path = self.data_dir / "syllabus_topics.json"
+        self.syllabus_path = Path("config") / "syllabus_topics.json"
         self.state_path = self.data_dir / "syllabus_loader_state.json"
         self.topics_processed = 0
         self.macros_created = 0
