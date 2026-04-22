@@ -7487,6 +7487,60 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e), 'success': False}), 500
 
+        @self.app.route('/api/debug/syllabus_neurons', methods=['GET'])
+        def debug_syllabus_neurons():
+            """Debug endpoint to check syllabus neurons in database"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                conn.row_factory = sqlite3.Row
+                
+                # Check what's actually in the database
+                cursor = conn.execute('''
+                    SELECT id, insight_text, neuron_level 
+                    FROM insights 
+                    WHERE insight_text LIKE '%Baby%' 
+                       OR insight_text LIKE '%Toddler%'
+                       OR insight_text LIKE '%Child%'
+                       OR insight_text LIKE '%Teen%'
+                       OR insight_text LIKE '%Adult%'
+                    LIMIT 20
+                ''')
+                rows = cursor.fetchall()
+                
+                # Also check total count with brackets
+                count_cursor = conn.execute('''
+                    SELECT COUNT(*) FROM insights 
+                    WHERE insight_text LIKE '[%]%'
+                ''')
+                total_brackets = count_cursor.fetchone()[0]
+                
+                # Check neuron_level distribution
+                level_cursor = conn.execute('''
+                    SELECT neuron_level, COUNT(*) as cnt 
+                    FROM insights 
+                    GROUP BY neuron_level
+                ''')
+                levels = {r['neuron_level']: r['cnt'] for r in level_cursor.fetchall()}
+                
+                conn.close()
+                
+                return jsonify({
+                    "success": True,
+                    "total_insights": len(rows),
+                    "total_with_brackets": total_brackets,
+                    "neuron_levels": levels,
+                    "sample": [{"id": r['id'][:20], "text": r['insight_text'][:60], "level": r['neuron_level']} for r in rows]
+                })
+            except Exception as e:
+                import traceback
+                return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
     def _get_category_color(self, category):
         """Return color for category (preserving your existing scheme)"""
         colors = {
