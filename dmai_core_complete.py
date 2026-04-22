@@ -7368,11 +7368,19 @@ class DMAIApplication:
                             return jsonify({
                                 "success": True,
                                 "source": "sqlite_macros",
+                                
+                                # NEW format
                                 "nodes": macros_list,
                                 "edges": synapses_list,
                                 "total_macros": len(macros_list),
                                 "total_synapses": len(synapses_list),
-                                "consciousness": min(1.0, len(macros_list) / 146.0),  # 146 syllabus topics = 100%
+                                
+                                # OLD format for frontend compatibility
+                                "neurons": macros_list,
+                                "synapses": synapses_list,
+                                "total_neurons": len(macros_list),
+                                
+                                "consciousness": min(1.0, len(macros_list) / 146.0),
                                 "category_counts": category_counts,
                                 "category_colors": CATEGORY_COLORS,
                                 "influence_thresholds": {
@@ -7384,7 +7392,7 @@ class DMAIApplication:
                                     "medium": {"color": "#4488ff", "opacity": 0.5},
                                     "strong": {"color": "#2266cc", "opacity": 0.7}
                                 }
-                            })
+                            })                            
                             
                     except Exception as e:
                         logger.warning(f"SQLite brain data failed: {e}")
