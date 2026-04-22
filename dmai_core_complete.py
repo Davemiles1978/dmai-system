@@ -7626,6 +7626,49 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route('/api/debug/link_micros_to_macros', methods=['GET'])
+        def link_micros_to_macros():
+            """Link micro neurons to their parent macro neurons"""
+            try:
+                import sqlite3
+                import re
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Get all macro neurons
+                cursor.execute("SELECT id, insight_text FROM insights WHERE neuron_level = 'macro'")
+                macros = cursor.fetchall()
+                
+                linked = 0
+                for macro_id, macro_text in macros:
+                    # Extract topic name - everything between "] " and ":"
+                    match = re.search(r'\]\s*([^:]+)', macro_text)
+                    if match:
+                        topic = match.group(1).strip()
+                        
+                        # Find and update micros that contain this topic
+                        cursor.execute('''
+                            UPDATE insights 
+                            SET parent_macro_id = ?, cluster_id = ?
+                            WHERE neuron_level = 'micro' 
+                              AND insight_text LIKE ?
+                              AND parent_macro_id IS NULL
+                        ''', (macro_id, macro_id, f'%{topic}%'))
+                        
+                        linked += cursor.rowcount
+                
+                conn.commit()
+                conn.close()
+                
+                return jsonify({"success": True, "micros_linked": linked})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
     def _get_category_color(self, category):
         """Return color for category (preserving your existing scheme)"""
         colors = {
