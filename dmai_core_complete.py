@@ -7173,11 +7173,7 @@ class DMAIApplication:
                             SELECT id, insight_text, entity_type, confidence, 
                                    occurrence_count, created_at
                             FROM insights 
-                            WHERE insight_text LIKE '[Baby]%'
-                               OR insight_text LIKE '[Toddler]%'
-                               OR insight_text LIKE '[Child]%'
-                               OR insight_text LIKE '[Teen]%'
-                               OR insight_text LIKE '[Adult]%'
+                            WHERE neuron_level = 'macro'
                             ORDER BY created_at DESC
                         ''')
                         
