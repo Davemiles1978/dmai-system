@@ -7810,6 +7810,52 @@ class DMAIApplication:
                 return color
         return '#888888'  # Gray default
 
+        @self.app.route('/api/debug/force_link_by_prefix', methods=['GET'])
+        def force_link_by_prefix():
+            """Link micros to macros by matching [Category] prefix"""
+            try:
+                import sqlite3
+                import re
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Get all macro neurons with their [Category] prefix
+                cursor.execute("SELECT id, insight_text FROM insights WHERE neuron_level = 'macro'")
+                macros = cursor.fetchall()
+                
+                # Build prefix -> macro_id mapping
+                prefix_map = {}
+                for macro_id, macro_text in macros:
+                    match = re.search(r'\[([^\]]+)\]', macro_text)
+                    if match:
+                        prefix = match.group(1)
+                        if prefix not in prefix_map:
+                            prefix_map[prefix] = macro_id
+                
+                linked = 0
+                for prefix, macro_id in prefix_map.items():
+                    # Link micros that have this prefix in their text
+                    cursor.execute('''
+                        UPDATE insights 
+                        SET parent_macro_id = ?, cluster_id = ?
+                        WHERE neuron_level = 'micro' 
+                          AND parent_macro_id IS NULL
+                          AND insight_text LIKE ?
+                    ''', (macro_id, macro_id, f'{prefix}:%'))
+                    linked += cursor.rowcount
+                
+                conn.commit()
+                conn.close()
+                
+                return jsonify({"success": True, "micros_linked": linked, "prefixes_found": len(prefix_map)})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/force_link_all_micros', methods=['GET'])
         def force_link_all_micros():
             """Force link all micros to the first macro (temporary fix)"""
