@@ -641,10 +641,157 @@ class ArticleReader:
             logger.debug(f"Reading discovered feed: {feed['url']} - {feed['reason']}")
             
     def _save_article(self, article: KnowledgeItem):
-        """Save article to disk"""
+        """Save article to disk and create SI Core insight with proper macro/micro hierarchy"""
         filename = self.data_path / f"article_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(article.to_dict(), f, indent=2)
+        
+        # Create insight in SI Core
+        if self.si_core:
+            try:
+                title = article.title[:150] if article.title else "Unknown"
+                content = article.content[:1000] if article.content else ""
+                text_lower = (title + " " + content).lower()
+                
+                # ============================================================
+                # DYNAMIC TOPIC DETECTION - 13+ Categories with expansion capability
+                # ============================================================
+                
+                # Category keywords mapping (can be expanded dynamically)
+                category_keywords = {
+                    "Configuration": ["config", "settings", "setup", "configure", "parameter", "env", "environment"],
+                    "Knowledge Module": ["knowledge", "learning", "education", "training", "curriculum"],
+                    "AI Model": ["model", "neural", "transformer", "llm", "gpt", "bert", "diffusion", "ai ", "artificial intelligence"],
+                    "Capability": ["capability", "feature", "function", "ability", "skill"],
+                    "Data Structure": ["data", "database", "storage", "schema", "json", "sql", "nosql"],
+                    "Content Generation": ["content", "generate", "creation", "writing", "blog", "article"],
+                    "Survival Mechanism": ["survival", "resilience", "failover", "backup", "recovery", "persistence"],
+                    "Self-Funding": ["revenue", "income", "profit", "monetize", "business", "sales", "customer"],
+                    "Blockchain": ["blockchain", "crypto", "bitcoin", "ethereum", "web3", "defi", "nft", "token"],
+                    "API Endpoint": ["api", "endpoint", "rest", "graphql", "webhook", "integration"],
+                    "Identity Management": ["identity", "auth", "authentication", "user", "profile", "account", "login"],
+                    "Automation": ["automate", "automation", "workflow", "pipeline", "script", "bot"],
+                    "Self-Replication": ["replicate", "replication", "clone", "spawn", "instance", "scaling"],
+                    # Wealth/Finance (expanded)
+                    "Trading": ["trading", "stocks", "market", "invest", "portfolio", "exchange", "broker"],
+                    "Hardware": ["hardware", "cpu", "gpu", "ram", "server", "device", "component", "circuit"],
+                    "Supplier Outreach": ["supplier", "vendor", "procurement", "sourcing", "purchase", "order"],
+                }
+                
+                # Detect primary category
+                detected_category = None
+                max_matches = 0
+                
+                for category, keywords in category_keywords.items():
+                    matches = sum(1 for kw in keywords if kw in text_lower)
+                    if matches > max_matches:
+                        max_matches = matches
+                        detected_category = category
+                
+                # Default if nothing detected
+                if detected_category is None or max_matches == 0:
+                    detected_category = "Knowledge Module"
+                
+                # ============================================================
+                # CHECK IF MACRO NEURON EXISTS FOR THIS CATEGORY
+                # ============================================================
+                macro_id = None
+                
+                # Query existing macro for this category
+                import sqlite3
+                db_path = self.si_core.sqlite.db_path if hasattr(self.si_core, 'sqlite') and self.si_core.sqlite else None
+                
+                if db_path:
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.cursor()
+                    cursor.execute('''
+                        SELECT id FROM insights 
+                        WHERE neuron_level = 'macro' 
+                          AND insight_text LIKE ?
+                        LIMIT 1
+                    ''', (f'[{detected_category}]%',))
+                    row = cursor.fetchone()
+                    if row:
+                        macro_id = row[0]
+                    conn.close()
+                
+                # ============================================================
+                # CREATE OR UPDATE MACRO NEURON
+                # ============================================================
+                if macro_id is None:
+                    # Create new macro neuron for this category
+                    macro_id = self.si_core.add_insight(
+                        insight_text=f"[{detected_category}] {detected_category} Knowledge Base: Accumulated research and insights",
+                        entity_type="topic_macro",
+                        entities=[detected_category, "research", "knowledge"],
+                        relationship="organizes",
+                        source_topic="research",
+                        target_topic=detected_category.lower().replace(" ", "_"),
+                        confidence=0.95,
+                        source_title=f"Auto-created from article: {title[:50]}",
+                        source_type="article_reader_macro",
+                        neuron_level='macro',
+                        is_visible_at_top_level=True
+                    )
+                    logger.info(f"📚 Created NEW macro neuron: {detected_category}")
+                
+                # ============================================================
+                # CREATE MICRO NEURON (the actual article insight)
+                # ============================================================
+                entities = [detected_category, article.source]
+                
+                # Extract additional entities from title
+                import re
+                words = re.findall(r'\b[A-Z][a-z]{2,}\b', title)
+                entities.extend(words[:3])
+                entities = list(set(entities))
+                
+                micro_id = self.si_core.add_insight(
+                    insight_text=f"Article: {title}",
+                    entity_type="article_micro",
+                    entities=entities,
+                    relationship="researched",
+                    confidence=0.75,
+                    source_topic=detected_category,
+                    target_topic="article_knowledge",
+                    source_url=article.metadata.get('link', article.source),
+                    source_title=title,
+                    source_type="article_reader",
+                    neuron_level='micro',
+                    cluster_id=macro_id,
+                    parent_macro_id=macro_id,
+                    is_visible_at_top_level=False
+                )
+                
+                if micro_id:
+                    logger.info(f"📰 Created micro insight under [{detected_category}]: {title[:50]}...")
+                
+                # ============================================================
+                # CREATE SYNAPSES TO RELATED TOPICS
+                # ============================================================
+                if db_path:
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.cursor()
+                    
+                    # Find other macros that share entities
+                    for entity in entities[:5]:
+                        cursor.execute('''
+                            SELECT id FROM insights 
+                            WHERE neuron_level = 'macro' 
+                              AND id != ?
+                              AND insight_text LIKE ?
+                            LIMIT 3
+                        ''', (macro_id, f'%{entity}%'))
+                        
+                        for row in cursor.fetchall():
+                            self.si_core.add_synapse(macro_id, row[0], f"related_via_{entity}")
+                    
+                    conn.close()
+                    
+            except Exception as e:
+                logger.error(f"Failed to create insight for article: {e}")
+                import traceback
+                traceback.print_exc()
             
     def get_status(self) -> Dict:
         return {
@@ -715,10 +862,46 @@ class ResearchPaperReader:
                 
         logger.info(f"📄 Paper Reader: Processed {self.papers_processed} papers total")
         
-    def _save_paper(self, paper: KnowledgeItem):
-        filename = self.data_path / f"paper_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(filename, 'w') as f:
-            json.dump(paper.to_dict(), f, indent=2)
+def _save_paper(self, paper: KnowledgeItem):
+    """Save paper to disk and create SI Core insight"""
+    filename = self.data_path / f"paper_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    with open(filename, 'w') as f:
+        json.dump(paper.to_dict(), f, indent=2)
+    
+    # Create insight in SI Core
+    if self.si_core:
+        try:
+            title = paper.title[:100] if paper.title else "Unknown"
+            content = paper.content[:500] if paper.content else ""
+            authors = paper.metadata.get('authors', [])
+            category = paper.metadata.get('category', 'unknown')
+            
+            # Build entities
+            entities = ['arxiv', category] + authors[:3]
+            entities = list(set([e for e in entities if e]))
+            
+            # Determine source category based on arXiv category
+            source_category = "research"
+            if category in ['cs.AI', 'cs.LG', 'cs.NE']:
+                source_category = "ai_research"
+            elif category in ['q-fin', 'q-fin.TR']:
+                source_category = "wealth_creation"
+            
+            self.si_core.add_insight(
+                insight_text=f"Paper: {title}",
+                entity_type="research_paper",
+                entities=entities,
+                relationship="published",
+                confidence=0.85,
+                source_topic=source_category,
+                target_topic="academic_knowledge",
+                source_url=paper.metadata.get('link', ''),
+                source_title=title,
+                source_type="research_paper_reader"
+            )
+            logger.debug(f"Created insight for paper: {title[:50]}... (category: {category})")
+        except Exception as e:
+            logger.error(f"Failed to create insight for paper: {e}")
             
     def get_status(self) -> Dict:
         return {
