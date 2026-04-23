@@ -7593,6 +7593,44 @@ class DMAIApplication:
                 import traceback
                 return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+        @self.app.route('/api/debug/list_all_macros', methods=['GET'])
+        def list_all_macros():
+            """List all macro neurons with their categories"""
+            try:
+                import sqlite3
+                import re
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                cursor.execute('''
+                    SELECT id, insight_text, entity_type
+                    FROM insights 
+                    WHERE neuron_level = 'macro'
+                    ORDER BY created_at DESC
+                ''')
+                
+                macros = []
+                for row in cursor.fetchall():
+                    text = row[1]
+                    match = re.search(r'\[([^\]]+)\]', text)
+                    category = match.group(1) if match else 'unknown'
+                    
+                    macros.append({
+                        "id": row[0][:30],
+                        "category": category,
+                        "text": text[:80]
+                    })
+                
+                conn.close()
+                return jsonify({"total": len(macros), "macros": macros})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/check_parent_links', methods=['GET'])
         def check_parent_links():
             """Check if micro neurons have parent_macro_id set"""
@@ -7687,6 +7725,44 @@ class DMAIApplication:
             if key in category.lower():
                 return color
         return '#888888'  # Gray default
+
+        @self.app.route('/api/debug/force_link_all_micros', methods=['GET'])
+        def force_link_all_micros():
+            """Force link all micros to the first macro (temporary fix)"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Get the first macro as default parent
+                cursor.execute("SELECT id FROM insights WHERE neuron_level = 'macro' LIMIT 1")
+                default_macro = cursor.fetchone()
+                
+                if not default_macro:
+                    return jsonify({"error": "No macro found"}), 500
+                
+                default_id = default_macro[0]
+                
+                # Link all unlinked micros to this default macro
+                cursor.execute('''
+                    UPDATE insights 
+                    SET parent_macro_id = ?, cluster_id = ?
+                    WHERE neuron_level = 'micro' 
+                      AND parent_macro_id IS NULL
+                ''', (default_id, default_id))
+                
+                linked = cursor.rowcount
+                conn.commit()
+                conn.close()
+                
+                return jsonify({"success": True, "micros_linked": linked, "default_macro": default_id})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
 
         # ============================================================================
         # TASK INPUT SYSTEM FOR DMAI
