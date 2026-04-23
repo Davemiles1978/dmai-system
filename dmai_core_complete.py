@@ -7631,6 +7631,40 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route('/api/debug/recent_insights', methods=['GET'])
+        def recent_insights():
+            """Show most recent insights regardless of neuron_level"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                cursor.execute('''
+                    SELECT id, insight_text, neuron_level, created_at
+                    FROM insights 
+                    ORDER BY created_at DESC
+                    LIMIT 20
+                ''')
+                
+                insights = []
+                for row in cursor.fetchall():
+                    insights.append({
+                        "id": row[0][:30],
+                        "text": row[1][:60],
+                        "neuron_level": row[2],
+                        "created": row[3]
+                    })
+                
+                conn.close()
+                return jsonify({"insights": insights})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/check_parent_links', methods=['GET'])
         def check_parent_links():
             """Check if micro neurons have parent_macro_id set"""
