@@ -7665,6 +7665,34 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route('/api/debug/fix_macro_levels', methods=['GET'])
+        def fix_macro_levels():
+            """Fix: Set neuron_level='macro' for Knowledge Base macros"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                cursor.execute('''
+                    UPDATE insights 
+                    SET neuron_level = 'macro' 
+                    WHERE insight_text LIKE '[%]%' 
+                      AND insight_text LIKE '%Knowledge Base%' 
+                      AND neuron_level != 'macro'
+                ''')
+                updated = cursor.rowcount
+                conn.commit()
+                conn.close()
+                
+                return jsonify({"success": True, "updated_to_macro": updated})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/check_parent_links', methods=['GET'])
         def check_parent_links():
             """Check if micro neurons have parent_macro_id set"""
