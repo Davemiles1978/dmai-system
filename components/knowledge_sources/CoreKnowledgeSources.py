@@ -733,6 +733,9 @@ class ArticleReader:
                         neuron_level='macro',
                         is_visible_at_top_level=True
                     )
+                    logger.info(f"📚 Created NEW macro neuron: {detected_category} with ID {macro_id}")
+                else:
+                    logger.info(f"📚 Using existing macro: {detected_category} (ID: {macro_id})")
                     logger.info(f"📚 Created NEW macro neuron: {detected_category}")
                 
                 # ============================================================
@@ -767,26 +770,25 @@ class ArticleReader:
                     logger.info(f"📰 Created micro insight under [{detected_category}]: {title[:50]}...")
                 
                 # ============================================================
-                # CREATE SYNAPSES TO RELATED TOPICS
+                # CREATE SYNAPSES TO RELATED TOPICS (TEMPORARILY DISABLED)
                 # ============================================================
-                if db_path:
-                    conn = sqlite3.connect(str(db_path))
-                    cursor = conn.cursor()
-                    
-                    # Find other macros that share entities
-                    for entity in entities[:5]:
-                        cursor.execute('''
-                            SELECT id FROM insights 
-                            WHERE neuron_level = 'macro' 
-                              AND id != ?
-                              AND insight_text LIKE ?
-                            LIMIT 3
-                        ''', (macro_id, f'%{entity}%'))
-                        
-                        for row in cursor.fetchall():
-                            self.si_core.add_synapse(macro_id, row[0], f"related_via_{entity}")
-                    
-                    conn.close()
+                # if db_path:
+                #     conn = sqlite3.connect(str(db_path))
+                #     cursor = conn.cursor()
+                #     
+                #     for entity in entities[:5]:
+                #         cursor.execute('''
+                #             SELECT id FROM insights 
+                #             WHERE neuron_level = 'macro' 
+                #               AND id != ?
+                #               AND insight_text LIKE ?
+                #             LIMIT 3
+                #         ''', (macro_id, f'%{entity}%'))
+                #         
+                #         for row in cursor.fetchall():
+                #             self.si_core.add_synapse(macro_id, row[0], f"related_via_{entity}")
+                #     
+                #     conn.close()
                     
             except Exception as e:
                 logger.error(f"Failed to create insight for article: {e}")
