@@ -7098,48 +7098,87 @@ class DMAIApplication:
                 from collections import defaultdict
                 
                 # ============================================================
-                # CATEGORY COLOR MAPPING
+                # DYNAMIC CATEGORY COLOR MAPPING - All 13+ categories
                 # ============================================================
                 CATEGORY_COLORS = {
+                    # Syllabus categories
                     "Core": "#4477ff",        # Blue - Foundational knowledge
                     "Artistic": "#ff44cc",    # Pink - Creative capabilities
                     "Wealth": "#ffaa00",      # Gold - Self-funding
                     "Reverse": "#aa44ff",     # Purple - System analysis
                     "Accelerator": "#00cc88", # Teal - Consciousness growth
+                    # Dynamic categories (13 from color chart)
+                    "Configuration": "#88aaff",
+                    "Knowledge Module": "#33ffcc",
+                    "AI Model": "#66ff66",
+                    "Capability": "#ff6633",
+                    "Data Structure": "#6699ff",
+                    "Content Generation": "#ff99ff",
+                    "Survival Mechanism": "#ff3333",
+                    "Self-Funding": "#ffcc33",
+                    "Blockchain": "#cc9900",
+                    "API Endpoint": "#ff99cc",
+                    "Identity Management": "#00cc99",
+                    "Automation": "#9933ff",
+                    "Self-Replication": "#33ccff",
                     "unknown": "#888888"      # Gray - Fallback
                 }
                 
-                def get_clean_topic_name(text):
-                    """Extract clean topic name from insight text.
-                    Example: '[Baby] Meta-Learning Fundamentals: How to identify...' 
-                             -> 'Meta-Learning Fundamentals'"""
-                    # Remove stage prefix like [Baby], [Toddler], etc.
+                # Extra palette for newly discovered categories
+                EXTRA_PALETTE = [
+                    '#ff6633', '#33ccff', '#ff33cc', '#33ff99', '#ff9933',
+                    '#9966ff', '#ff6699', '#66ff66', '#ff3366', '#66ccff',
+                    '#cc66ff', '#ffcc33', '#66ffcc', '#ff6666', '#99cc33',
+                ]
+                
+                def get_category_from_prefix(insight_text):
+                    """Extract category directly from [Category] prefix"""
                     import re
-                    text = re.sub(r'^\[(Baby|Toddler|Child|Teen|Adult)\]\s*', '', text)
-                    # Remove "EVOLUTION: " prefix for accelerators
+                    match = re.search(r'\[([^\]]+)\]', insight_text)
+                    if not match:
+                        return 'Core'
+                    
+                    prefix = match.group(1)
+                    
+                    # Syllabus stages -> map to actual category based on content
+                    if prefix in ['Baby', 'Toddler', 'Child', 'Teen', 'Adult']:
+                        text_lower = insight_text.lower()
+                        if 'evolution:' in text_lower:
+                            return 'Accelerator'
+                        elif 'wealth' in text_lower or 'trading' in text_lower:
+                            return 'Wealth'
+                        elif 'reverse' in text_lower:
+                            return 'Reverse'
+                        elif 'music' in text_lower or 'art' in text_lower or 'image' in text_lower or 'video' in text_lower:
+                            return 'Artistic'
+                        return 'Core'
+                    
+                    # Dynamic category - use the prefix as the category name!
+                    return prefix
+                
+                def get_color_for_category(category):
+                    """Get color, adding to palette if new category discovered"""
+                    if category not in CATEGORY_COLORS:
+                        idx = len(CATEGORY_COLORS) % len(EXTRA_PALETTE)
+                        CATEGORY_COLORS[category] = EXTRA_PALETTE[idx]
+                    return CATEGORY_COLORS[category]
+                
+                def get_clean_topic_name(text):
+                    """Extract clean topic name without category prefix"""
+                    import re
+                    # Remove [Category] prefix
+                    text = re.sub(r'^\[[^\]]+\]\s*', '', text)
+                    # Remove "Knowledge Base:" suffix
+                    text = re.sub(r'\s+Knowledge Base:.*$', '', text)
+                    # Remove "EVOLUTION: " prefix
                     text = text.replace("EVOLUTION: ", "")
-                    # Take only the topic name before the colon
+                    # Take only before colon
                     if ': ' in text:
                         text = text.split(': ')[0]
                     # Truncate if too long
-                    if len(text) > 35:
-                        text = text[:32] + "..."
+                    if len(text) > 40:
+                        text = text[:37] + "..."
                     return text.strip()
-                
-                def get_category_from_entity_type(entity_type):
-                    """Map entity_type to syllabus category"""
-                    if 'Core' in entity_type or entity_type == 'syllabus_topic':
-                        return 'Core'
-                    elif 'Artistic' in entity_type:
-                        return 'Artistic'
-                    elif 'Wealth' in entity_type:
-                        return 'Wealth'
-                    elif 'Reverse' in entity_type:
-                        return 'Reverse'
-                    elif 'Accelerator' in entity_type:
-                        return 'Accelerator'
-                    else:
-                        return 'unknown'
                 
                 def get_synapse_properties(occurrence_count):
                     """Return color, opacity, and distance modifier based on strength"""
@@ -7222,22 +7261,9 @@ class DMAIApplication:
                             insight_text = row['insight_text'] or ''
                             entity_type = row['entity_type'] or 'syllabus_topic'
                             
-                            # Extract category from the topic's actual category
-                            # Try to get from syllabus data or parse from text
-                            category = 'Core'  # Default
-                            if '[Baby]' in insight_text or '[Toddler]' in insight_text or '[Child]' in insight_text:
-                                # Try to determine from the text content
-                                text_lower = insight_text.lower()
-                                if 'evolution:' in text_lower or 'accelerator' in entity_type.lower():
-                                    category = 'Accelerator'
-                                elif 'wealth' in text_lower or 'trading' in text_lower or 'funding' in text_lower:
-                                    category = 'Wealth'
-                                elif 'reverse' in text_lower or 'engineering' in text_lower:
-                                    category = 'Reverse'
-                                elif 'music' in text_lower or 'art' in text_lower or 'image' in text_lower or 'video' in text_lower or 'creative' in text_lower:
-                                    category = 'Artistic'
-                                else:
-                                    category = 'Core'
+                            # Use the NEW dynamic category detection
+                            category = get_category_from_prefix(insight_text)
+                            color = get_color_for_category(category)
                             
                             clean_label = get_clean_topic_name(insight_text)
                             influence = connections.get(macro_id, 0) / max_connections if max_connections > 0 else 0
@@ -7248,7 +7274,7 @@ class DMAIApplication:
                                 "label": clean_label,
                                 "full_text": insight_text[:100],
                                 "category": category,
-                                "color": CATEGORY_COLORS.get(category, "#888888"),
+                                "color": color,
                                 "confidence": row['confidence'] or 0.8,
                                 "influence": round(influence, 3),
                                 "connections": connections.get(macro_id, 0),
@@ -7256,7 +7282,7 @@ class DMAIApplication:
                                 "has_children": child_count > 0,
                                 "occurrence_count": row['occurrence_count'] or 1
                             })
-                        
+
                         # ============================================================
                         # CALCULATE POSITIONS - Spread by category
                         # ============================================================
