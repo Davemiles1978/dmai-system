@@ -7748,6 +7748,56 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route('/api/debug/ensure_all_macros', methods=['GET'])
+        def ensure_all_macros():
+            """Create Knowledge Base macro neurons for ALL 13 dynamic categories if missing"""
+            try:
+                import sqlite3
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                # All 13 dynamic categories that need macro neurons
+                required_categories = [
+                    "Configuration", "Knowledge Module", "AI Model", "Capability",
+                    "Data Structure", "Content Generation", "Survival Mechanism",
+                    "Self-Funding", "Blockchain", "API Endpoint", "Identity Management",
+                    "Automation", "Self-Replication"
+                ]
+                
+                created = []
+                existed = []
+                
+                for category in required_categories:
+                    # Check if macro already exists
+                    existing_id = self.evolution.si_core.add_insight(
+                        insight_text=f"[{category}] {category} Knowledge Base: Accumulated research and insights",
+                        entity_type="topic_macro",
+                        entities=[category, "research", "knowledge"],
+                        relationship="organizes",
+                        source_topic="system_init",
+                        target_topic=category.lower().replace(" ", "_"),
+                        confidence=0.95,
+                        source_title=f"System-ensured macro for {category}",
+                        source_type="ensure_all_macros",
+                        neuron_level='macro',
+                        is_visible_at_top_level=True
+                    )
+                    if existing_id:
+                        created.append({"category": category, "id": existing_id[:40]})
+                    else:
+                        existed.append(category)
+                
+                return jsonify({
+                    "success": True,
+                    "macros_created": len(created),
+                    "macros_already_existed": len(existed),
+                    "created": created,
+                    "existed": existed
+                })
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/link_micros_to_macros', methods=['GET'])
         def link_micros_to_macros():
             """Link micro neurons to their parent macro neurons using [Category] prefix matching"""
