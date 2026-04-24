@@ -196,8 +196,9 @@ class SQLitePersistence:
                     INSERT OR REPLACE INTO insights 
                     (id, insight_text, entity_type, entities, relationship, confidence,
                      source_topic, target_topic, source_url, source_title, source_type,
-                     created_at, occurrence_count, last_used)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     created_at, occurrence_count, last_used, neuron_level, parent_macro_id,
+                     cluster_id, is_visible_at_top_level)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     insight.id,
                     insight.insight_text,
@@ -212,7 +213,11 @@ class SQLitePersistence:
                     insight.source_type,
                     insight.created_at,
                     insight.occurrence_count,
-                    insight.last_used
+                    insight.last_used,
+                    getattr(insight, 'neuron_level', 'micro'),
+                    getattr(insight, 'parent_macro_id', None),
+                    getattr(insight, 'cluster_id', None),
+                    1 if getattr(insight, 'is_visible_at_top_level', False) else 0
                 ))
                 
                 # Save topics
@@ -253,7 +258,11 @@ class SQLitePersistence:
                     'source_type': row[10],
                     'created_at': row[11],
                     'occurrence_count': row[12],
-                    'last_used': row[13]
+                    'last_used': row[13],
+                    'neuron_level': row[14] if len(row) > 14 else 'micro',
+                    'parent_macro_id': row[15] if len(row) > 15 else None,
+                    'cluster_id': row[16] if len(row) > 16 else None,
+                    'is_visible_at_top_level': bool(row[17]) if len(row) > 17 else False
                 }
                 
                 neuron = InsightNeuron.from_dict(data)
