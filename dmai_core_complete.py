@@ -7838,13 +7838,15 @@ class DMAIApplication:
                 total_linked = 0
                 details = []
                 for prefix, macro_id in prefix_to_macro.items():
+                    # Match micros where the text starts with the macro prefix
+                    # (e.g., macro "Automation" matches micro "Automation capability: ...")
                     cursor.execute('''
                         UPDATE insights 
                         SET parent_macro_id = ?, cluster_id = ?
                         WHERE neuron_level = 'micro' 
                           AND parent_macro_id IS NULL
                           AND (insight_text LIKE ? COLLATE NOCASE OR insight_text LIKE ? COLLATE NOCASE)
-                    ''', (macro_id, macro_id, f'{prefix}:%', f'{prefix} :%'))                    
+                    ''', (macro_id, macro_id, f'{prefix}:%', f'{prefix} %:%'))
                     linked = cursor.rowcount
                     if linked > 0:
                         total_linked += linked
