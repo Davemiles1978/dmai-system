@@ -7855,8 +7855,8 @@ class DMAIApplication:
                         cursor.execute('''
                             INSERT INTO insights (id, insight_text, entity_type, entities, relationship, 
                                 source_topic, target_topic, confidence, neuron_level, parent_macro_id,
-                                cluster_id, is_visible_at_top_level, created_at, last_updated)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'macro', NULL, NULL, 1, datetime('now'), datetime('now'))
+                                cluster_id, is_visible_at_top_level, created_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'macro', NULL, NULL, 1, datetime('now'))
                         ''', (new_macro_id, f'[{category_title}] {category_title} Knowledge Base: Accumulated research and insights',
                               'topic_macro', json.dumps([category_title]),
                               f'organizes_{category_title.lower().replace(" ", "_")}',
