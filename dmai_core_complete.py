@@ -7166,15 +7166,23 @@ class DMAIApplication:
                 def get_clean_topic_name(text):
                     """Extract clean topic name without category prefix"""
                     import re
-                    # Remove [Category] prefix
-                    text = re.sub(r'^\[[^\]]+\]\s*', '', text)
-                    # Remove "Knowledge Base:" suffix
+                    # Fix doubled-up brackets: [[Category] Category Knowledge Base] [Category] ...
+                    # This happens when link_micros_to_macros creates a macro from already-bracketed text
+                    text = re.sub(r'^\[\[[^\]]+\]\s*', '[', text)
+                    text = re.sub(r'\]\s*\[', '] [', text)  # normalize spacing between brackets
+                    # Remove ALL [Category] prefixes (may be multiple from doubling)
+                    while re.match(r'^\[[^\]]+\]\s*', text):
+                        text = re.sub(r'^\[[^\]]+\]\s*', '', text)
+                    # Remove "Knowledge Base:" suffix and everything after
                     text = re.sub(r'\s+Knowledge Base:.*$', '', text)
                     # Remove "EVOLUTION: " prefix
                     text = text.replace("EVOLUTION: ", "")
-                    # Take only before colon
+                    # Take only before colon (for syllabus topics like "Wisdom Acquisition: Knowing...")
                     if ': ' in text:
                         text = text.split(': ')[0]
+                    # If still empty, return generic label
+                    if not text or len(text.strip()) < 1:
+                        return "Topic"
                     # Truncate if too long
                     if len(text) > 40:
                         text = text[:37] + "..."
