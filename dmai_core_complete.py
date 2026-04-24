@@ -7843,9 +7843,8 @@ class DMAIApplication:
                         SET parent_macro_id = ?, cluster_id = ?
                         WHERE neuron_level = 'micro' 
                           AND parent_macro_id IS NULL
-                          AND (insight_text LIKE ? OR insight_text LIKE ?)
-                    ''', (macro_id, macro_id, f'{prefix}:%', f'{prefix} :%'))
-                    
+                          AND (insight_text LIKE ? COLLATE NOCASE OR insight_text LIKE ? COLLATE NOCASE)
+                    ''', (macro_id, macro_id, f'{prefix}:%', f'{prefix} :%'))                    
                     linked = cursor.rowcount
                     if linked > 0:
                         total_linked += linked
