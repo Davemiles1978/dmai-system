@@ -7825,8 +7825,8 @@ class DMAIApplication:
                         if prefix not in prefix_to_macro:
                             prefix_to_macro[prefix] = macro_id
                 
-                # DEBUG: Get all unique prefixes from UNLINKED micros
-                cursor.execute("SELECT DISTINCT insight_text FROM insights WHERE neuron_level = 'micro' AND parent_macro_id IS NULL LIMIT 500")
+                # Also scan to see ALL micro prefixes that need parents
+                cursor.execute("SELECT DISTINCT insight_text FROM insights WHERE neuron_level = 'micro' AND parent_macro_id IS NULL")
                 unlinked_samples = cursor.fetchall()
                 unlinked_prefixes = {}
                 for (text,) in unlinked_samples:
@@ -7834,6 +7834,37 @@ class DMAIApplication:
                     if match:
                         p = match.group(1).strip()
                         unlinked_prefixes[p] = unlinked_prefixes.get(p, 0) + 1
+                
+                created_macros = 0
+                # For each unlinked prefix, find the closest matching macro or create one
+                for unlinked_prefix, count in unlinked_prefixes.items():
+                    # Try: find macro whose prefix is contained in the unlinked prefix
+                    # e.g., unlinked "Automation capability" → macro "Automation"
+                    matched_macro = None
+                    for macro_prefix, macro_id in prefix_to_macro.items():
+                        if unlinked_prefix.lower().startswith(macro_prefix.lower()):
+                            matched_macro = macro_id
+                            break
+                    
+                    if not matched_macro:
+                        # No macro exists — create one for this prefix
+                        import time
+                        import uuid
+                        new_macro_id = f"insight_{uuid.uuid4().int % 10**15}_{int(time.time())}"
+                        category_title = unlinked_prefix.strip()
+                        cursor.execute('''
+                            INSERT INTO insights (id, insight_text, entity_type, entities, relationship, 
+                                source_topic, target_topic, confidence, neuron_level, parent_macro_id,
+                                cluster_id, is_visible_at_top_level, created_at, last_updated)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'macro', NULL, NULL, 1, datetime('now'), datetime('now'))
+                        ''', (new_macro_id, f'[{category_title}] {category_title} Knowledge Base: Accumulated research and insights',
+                              'topic_macro', json.dumps([category_title]),
+                              f'organizes_{category_title.lower().replace(" ", "_")}',
+                              f'system_init_{category_title.lower().replace(" ", "_")}',
+                              category_title.lower().replace(" ", "_"),
+                              0.95))
+                        prefix_to_macro[category_title] = new_macro_id
+                        created_macros += 1
                 
                 total_linked = 0
                 details = []
@@ -7859,13 +7890,8 @@ class DMAIApplication:
                     "success": True, 
                     "micros_linked": total_linked,
                     "prefixes_matched": len(details),
-                    "details": details[:20],
-                    "debug": {
-                        "total_macros": len(macros),
-                        "unique_macro_prefixes": len(prefix_to_macro),
-                        "macro_prefixes": list(prefix_to_macro.keys()),
-                        "unlinked_micro_prefixes": dict(sorted(unlinked_prefixes.items(), key=lambda x: -x[1])[:20])
-                    }
+                    "macros_created": created_macros,
+                    "details": details[:20]
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
