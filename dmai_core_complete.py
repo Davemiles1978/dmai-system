@@ -7184,8 +7184,8 @@ class DMAIApplication:
                     if not text or len(text.strip()) < 1:
                         return "Topic"
                     # Truncate if too long
-                    if len(text) > 40:
-                        text = text[:37] + "..."
+                    if len(text) > 60:
+                        text = text[:57] + "..."
                     return text.strip()
                 
                 def get_synapse_properties(occurrence_count):
@@ -7290,6 +7290,20 @@ class DMAIApplication:
                                 "has_children": child_count > 0,
                                 "occurrence_count": row['occurrence_count'] or 1
                             })
+
+                        
+                        # Deduplicate labels: add suffix for duplicate Knowledge Base macros
+                        label_counts = {}
+                        for macro in macros_list:
+                            label = macro['label']
+                            label_counts[label] = label_counts.get(label, 0) + 1
+                        
+                        label_seen = {}
+                        for macro in macros_list:
+                            label = macro['label']
+                            if label_counts[label] > 1:
+                                label_seen[label] = label_seen.get(label, 0) + 1
+                                macro['label'] = f"{label} #{label_seen[label]}"
 
                         # ============================================================
                         # CALCULATE POSITIONS - Spread by category
