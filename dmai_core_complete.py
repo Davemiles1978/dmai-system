@@ -7773,9 +7773,9 @@ class DMAIApplication:
                     existing_id = self.evolution.si_core.add_insight(
                         insight_text=f"[{category}] {category} Knowledge Base: Accumulated research and insights",
                         entity_type="topic_macro",
-                        entities=[category, "research", "knowledge"],
-                        relationship="organizes",
-                        source_topic="system_init",
+                        entities=[category, f"kb_{category.lower().replace(' ', '_')}"],
+                        relationship=f"organizes_{category.lower().replace(' ', '_')}",
+                        source_topic=f"system_init_{category.lower().replace(' ', '_')}",
                         target_topic=category.lower().replace(" ", "_"),
                         confidence=0.95,
                         source_title=f"System-ensured macro for {category}",
