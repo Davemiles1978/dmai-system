@@ -7817,20 +7817,27 @@ class DMAIApplication:
                 macros = cursor.fetchall()
                 
                 # Build mapping: category_prefix -> macro_id
-                # Extract just the word inside [brackets], e.g., "Configuration" from "[Configuration] ..."
                 prefix_to_macro = {}
                 for macro_id, macro_text in macros:
                     match = re.search(r'\[([^\]]+)\]', macro_text)
                     if match:
                         prefix = match.group(1).strip()
-                        # Only keep the first macro for each prefix (avoid duplicates)
                         if prefix not in prefix_to_macro:
                             prefix_to_macro[prefix] = macro_id
+                
+                # DEBUG: Get all unique prefixes from UNLINKED micros
+                cursor.execute("SELECT DISTINCT insight_text FROM insights WHERE neuron_level = 'micro' AND parent_macro_id IS NULL LIMIT 500")
+                unlinked_samples = cursor.fetchall()
+                unlinked_prefixes = {}
+                for (text,) in unlinked_samples:
+                    match = re.match(r'^([^:]+):', text)
+                    if match:
+                        p = match.group(1).strip()
+                        unlinked_prefixes[p] = unlinked_prefixes.get(p, 0) + 1
                 
                 total_linked = 0
                 details = []
                 for prefix, macro_id in prefix_to_macro.items():
-                    # Match micros that start with "Prefix:" (case-insensitive)
                     cursor.execute('''
                         UPDATE insights 
                         SET parent_macro_id = ?, cluster_id = ?
@@ -7851,11 +7858,17 @@ class DMAIApplication:
                     "success": True, 
                     "micros_linked": total_linked,
                     "prefixes_matched": len(details),
-                    "details": details[:20]  # First 20 for readability
+                    "details": details[:20],
+                    "debug": {
+                        "total_macros": len(macros),
+                        "unique_macro_prefixes": len(prefix_to_macro),
+                        "macro_prefixes": list(prefix_to_macro.keys()),
+                        "unlinked_micro_prefixes": dict(sorted(unlinked_prefixes.items(), key=lambda x: -x[1])[:20])
+                    }
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
-
+                
     def _get_category_color(self, category):
         """Return color for category (preserving your existing scheme)"""
         colors = {
