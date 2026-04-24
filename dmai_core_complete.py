@@ -7750,7 +7750,7 @@ class DMAIApplication:
 
         @self.app.route('/api/debug/link_micros_to_macros', methods=['GET'])
         def link_micros_to_macros():
-            """Link micro neurons to their parent macro neurons"""
+            """Link micro neurons to their parent macro neurons using [Category] prefix matching"""
             try:
                 import sqlite3
                 import re
@@ -7762,32 +7762,47 @@ class DMAIApplication:
                 conn = sqlite3.connect(str(db_path))
                 cursor = conn.cursor()
                 
-                # Get all macro neurons
+                # Get all macro neurons with their [Category] prefix
                 cursor.execute("SELECT id, insight_text FROM insights WHERE neuron_level = 'macro'")
                 macros = cursor.fetchall()
                 
-                linked = 0
+                # Build mapping: category_prefix -> macro_id
+                # Extract just the word inside [brackets], e.g., "Configuration" from "[Configuration] ..."
+                prefix_to_macro = {}
                 for macro_id, macro_text in macros:
-                    # Extract topic name - everything between "] " and ":"
-                    match = re.search(r'\]\s*([^:]+)', macro_text)
+                    match = re.search(r'\[([^\]]+)\]', macro_text)
                     if match:
-                        topic = match.group(1).strip()
-                        
-                        # Find and update micros that contain this topic
-                        cursor.execute('''
-                            UPDATE insights 
-                            SET parent_macro_id = ?, cluster_id = ?
-                            WHERE neuron_level = 'micro' 
-                              AND insight_text LIKE ?
-                              AND parent_macro_id IS NULL
-                        ''', (macro_id, macro_id, f'%{topic}%'))
-                        
-                        linked += cursor.rowcount
+                        prefix = match.group(1).strip()
+                        # Only keep the first macro for each prefix (avoid duplicates)
+                        if prefix not in prefix_to_macro:
+                            prefix_to_macro[prefix] = macro_id
+                
+                total_linked = 0
+                details = []
+                for prefix, macro_id in prefix_to_macro.items():
+                    # Match micros that start with "Prefix:" (case-insensitive)
+                    cursor.execute('''
+                        UPDATE insights 
+                        SET parent_macro_id = ?, cluster_id = ?
+                        WHERE neuron_level = 'micro' 
+                          AND parent_macro_id IS NULL
+                          AND (insight_text LIKE ? OR insight_text LIKE ?)
+                    ''', (macro_id, macro_id, f'{prefix}:%', f'{prefix} :%'))
+                    
+                    linked = cursor.rowcount
+                    if linked > 0:
+                        total_linked += linked
+                        details.append({"prefix": prefix, "linked": linked, "macro_id": macro_id[:40]})
                 
                 conn.commit()
                 conn.close()
                 
-                return jsonify({"success": True, "micros_linked": linked})
+                return jsonify({
+                    "success": True, 
+                    "micros_linked": total_linked,
+                    "prefixes_matched": len(details),
+                    "details": details[:20]  # First 20 for readability
+                })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
