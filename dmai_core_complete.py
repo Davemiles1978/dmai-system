@@ -7922,6 +7922,37 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
+
+        @self.app.route('/api/system/force_start', methods=['POST'])
+        def force_start_system():
+            """Force-start evolution thread and all training systems"""
+            results = {}
+            if hasattr(self.evolution, '_start_evolution'):
+                try:
+                    self.evolution._start_evolution()
+                    results['evolution_thread'] = 'started'
+                except Exception as e:
+                    results['evolution_thread'] = f'error: {e}'
+            else:
+                results['evolution_thread'] = 'not found'
+            if hasattr(self.evolution, '_auto_start_training'):
+                try:
+                    started = self.evolution._auto_start_training()
+                    results['trainings_started'] = started
+                except Exception as e:
+                    results['trainings_started'] = f'error: {e}'
+            if hasattr(self.evolution, 'evolution_cycle'):
+                try:
+                    cycle_result = self.evolution.evolution_cycle()
+                    results['first_cycle'] = {
+                        'consciousness': cycle_result.get('consciousness', 0),
+                        'neurons_added': cycle_result.get('neurons_added', 0),
+                        'synapses_added': cycle_result.get('synapses_added', 0)
+                    }
+                except Exception as e:
+                    results['first_cycle'] = f'error: {e}'
+            return jsonify({'success': True, 'results': results})
                 
     def _get_category_color(self, category):
         """Return color for category (preserving your existing scheme)"""
@@ -8663,32 +8694,6 @@ class DMAIApplication:
                 results['first_cycle'] = 'method not found'
             
             return jsonify({'success': True, 'results': results})
-
-        @self.app.route('/api/evolution/status', methods=['GET'])
-        def api_evolution_status():
-            """Get evolution training system status"""
-            if hasattr(self.evolution, 'evolution_training'):
-                return jsonify(self.evolution.evolution_training.get_status())
-            return jsonify({'error': 'Evolution training not initialized'}), 404
-            from pathlib import Path
-            
-            try:
-                file_path = Path('data/synthetic/network_state.json')
-                if file_path.exists():
-                    with open(file_path, 'r') as f:
-                        data = json.load(f)
-                    return jsonify({
-                        'exists': True,
-                        'size': file_path.stat().st_size,
-                        'insights_count': len(data.get('insights', {})),
-                        'synapses_count': len(data.get('synapses', [])),
-                        'evolution_cycles': data.get('evolution_cycles', 0),
-                        'sample_insights': list(data.get('insights', {}).keys())[:5]
-                    })
-                else:
-                    return jsonify({'exists': False})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/api/si/reload', methods=['POST'])
         def reload_si_core():
