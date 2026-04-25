@@ -7923,11 +7923,13 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
-
         @self.app.route('/api/system/force_start', methods=['POST'])
         def force_start_system():
-            """Force-start evolution thread and all training systems"""
+            """Force-start evolution thread and all training systems (backgrounded)"""
+            import threading
             results = {}
+            
+            # 1. Start evolution thread if not running
             if hasattr(self.evolution, '_start_evolution'):
                 try:
                     self.evolution._start_evolution()
@@ -7936,22 +7938,25 @@ class DMAIApplication:
                     results['evolution_thread'] = f'error: {e}'
             else:
                 results['evolution_thread'] = 'not found'
+            
+            # 2. Force auto-start all training
             if hasattr(self.evolution, '_auto_start_training'):
                 try:
                     started = self.evolution._auto_start_training()
                     results['trainings_started'] = started
                 except Exception as e:
                     results['trainings_started'] = f'error: {e}'
-            if hasattr(self.evolution, 'evolution_cycle'):
+            
+            # 3. Run first cycle in background to avoid timeout
+            def run_cycle():
                 try:
-                    cycle_result = self.evolution.evolution_cycle()
-                    results['first_cycle'] = {
-                        'consciousness': cycle_result.get('consciousness', 0),
-                        'neurons_added': cycle_result.get('neurons_added', 0),
-                        'synapses_added': cycle_result.get('synapses_added', 0)
-                    }
+                    if hasattr(self.evolution, 'evolution_cycle'):
+                        self.evolution.evolution_cycle()
                 except Exception as e:
-                    results['first_cycle'] = f'error: {e}'
+                    logger.error(f"Background cycle error: {e}")
+            threading.Thread(target=run_cycle, daemon=True).start()
+            results['first_cycle'] = 'started in background'
+            
             return jsonify({'success': True, 'results': results})
                 
     def _get_category_color(self, category):
