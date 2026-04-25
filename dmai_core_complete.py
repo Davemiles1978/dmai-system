@@ -8622,6 +8622,48 @@ class DMAIApplication:
             """Debug SI Core file content"""
             import json
 
+        
+        @self.app.route('/api/system/force_start', methods=['POST'])
+        def force_start_system():
+            """Force-start evolution thread and all training systems"""
+            results = {}
+            
+            # 1. Start evolution thread if not running
+            if hasattr(self.evolution, '_start_evolution'):
+                try:
+                    self.evolution._start_evolution()
+                    results['evolution_thread'] = 'started'
+                except Exception as e:
+                    results['evolution_thread'] = f'error: {e}'
+            else:
+                results['evolution_thread'] = 'method not found'
+            
+            # 2. Force auto-start all training
+            if hasattr(self.evolution, '_auto_start_training'):
+                try:
+                    started = self.evolution._auto_start_training()
+                    results['trainings_started'] = started
+                except Exception as e:
+                    results['trainings_started'] = f'error: {e}'
+            else:
+                results['trainings_started'] = 'method not found'
+            
+            # 3. Force a first evolution cycle
+            if hasattr(self.evolution, 'evolution_cycle'):
+                try:
+                    cycle_result = self.evolution.evolution_cycle()
+                    results['first_cycle'] = {
+                        'consciousness': cycle_result.get('consciousness', 0),
+                        'neurons_added': cycle_result.get('neurons_added', 0),
+                        'synapses_added': cycle_result.get('synapses_added', 0)
+                    }
+                except Exception as e:
+                    results['first_cycle'] = f'error: {e}'
+            else:
+                results['first_cycle'] = 'method not found'
+            
+            return jsonify({'success': True, 'results': results})
+
         @self.app.route('/api/evolution/status', methods=['GET'])
         def api_evolution_status():
             """Get evolution training system status"""
