@@ -8691,7 +8691,6 @@ class DMAIApplication:
                 return jsonify({'error': str(e)}), 500
 
         @self.app.route('/api/si/reload', methods=['POST'])
-        @self.app.route('/api/si/reload', methods=['POST'])
         def reload_si_core():
             """Force reload SI Core from SQLite (primary) or JSON (fallback) - MERGES, does NOT wipe"""
             import json
