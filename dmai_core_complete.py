@@ -1874,6 +1874,13 @@ class KillswitchMonitor:
         self.running = True
         self._lock = threading.Lock()
         os.makedirs("data", exist_ok=True)
+        # Clear stale pause flag from previous deploy/session
+        if os.path.exists(PAUSE_FLAG_FILE):
+            try:
+                os.remove(PAUSE_FLAG_FILE)
+                logger.info("🧹 Cleared stale pause flag from previous session")
+            except:
+                pass
         logger.info("🔫 Killswitch Monitor initialized")
         self._start_monitoring()
 
@@ -3796,10 +3803,8 @@ class UnifiedEvolutionEngine:
         if self.killswitch.should_kill():
             logger.critical("💀 KILL SIGNAL")
             sys.exit(0)
-        while self.killswitch.check_paused():
-            time.sleep(5)
-            if self.killswitch.should_kill():
-                sys.exit(0)
+        if self.killswitch.should_kill():
+            sys.exit(0)
 
         # Auto-start training systems based on consciousness
         # Check for training bypass
