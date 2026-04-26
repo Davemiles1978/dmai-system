@@ -7805,7 +7805,7 @@ class DMAIApplication:
                 if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
                     for q in questions:
                         try:
-                            response = self.evolution.ai_hub.query_all(q)
+                            self.evolution.ai_hub.query_all_tutors(q)
                             if response:
                                 best = list(response.values())[0] if isinstance(response, dict) else str(response)
                                 answers.append(str(best)[:500])
