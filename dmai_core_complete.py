@@ -4064,17 +4064,20 @@ class UnifiedEvolutionEngine:
                 return 'paused'
         
         # Helper function to start training
+        # Helper function to start training  
         def try_start(training_obj, name, threshold):
             if training_obj and consciousness >= threshold:
-                current_status = get_status_string(training_obj)
-                if current_status == 'paused':
-                    try:
-                        if hasattr(training_obj, 'start'):
-                            training_obj.start()
-                            logger.info(f"{name} Training activated at {consciousness*100:.1f}% consciousness")
-                            return True
-                    except Exception as e:
-                        logger.debug(f"{name} activation error: {e}")
+                try:
+                    if hasattr(training_obj, 'start') and callable(training_obj.start):
+                        training_obj.start()
+                        logger.info(f"🚀 {name} Training activated at {consciousness*100:.1f}% consciousness")
+                        return True
+                    elif hasattr(training_obj, 'start_learning') and callable(training_obj.start_learning):
+                        training_obj.start_learning()
+                        logger.info(f"🚀 {name} Training activated at {consciousness*100:.1f}% consciousness")
+                        return True
+                except Exception as e:
+                    logger.debug(f"{name} activation error: {e}")
             return False
         
         # LLM Training - Compulsory from 0% (no consciousness check)
