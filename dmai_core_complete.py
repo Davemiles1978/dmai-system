@@ -7717,12 +7717,12 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
-
         @self.app.route('/api/test/comprehension', methods=['GET'])
         def test_comprehension():
-            """Test DMAI's genuine understanding of learned topics"""
+            """Test DMAI's genuine understanding - asks questions and provides real answers"""
             import sqlite3
             import random
+            import re
             
             try:
                 if not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
@@ -7732,54 +7732,105 @@ class DMAIApplication:
                 conn = sqlite3.connect(str(db_path))
                 cursor = conn.cursor()
                 
-                # Get all macro neurons (learned topics)
+                # Prefer syllabus topics (Baby/Toddler/Child/Teen/Adult) over generic Knowledge Base
                 cursor.execute("""
                     SELECT id, insight_text, entity_type, confidence 
                     FROM insights 
                     WHERE neuron_level = 'macro' 
+                      AND (insight_text LIKE '[Baby]%' OR insight_text LIKE '[Toddler]%' 
+                           OR insight_text LIKE '[Child]%' OR insight_text LIKE '[Teen]%' 
+                           OR insight_text LIKE '[Adult]%')
                     ORDER BY RANDOM() 
                     LIMIT 1
                 """)
                 topic = cursor.fetchone()
+                
+                # Fallback to any macro if no syllabus topics
+                if not topic:
+                    cursor.execute("""
+                        SELECT id, insight_text, entity_type, confidence 
+                        FROM insights 
+                        WHERE neuron_level = 'macro' 
+                        ORDER BY RANDOM() 
+                        LIMIT 1
+                    """)
+                    topic = cursor.fetchone()
                 
                 if not topic:
                     return jsonify({"error": "No macro topics found to test"}), 404
                 
                 topic_id, topic_text, entity_type, confidence = topic
                 
-                # Get micro neurons under this topic
+                # Clean topic name for readable questions
+                clean_topic = re.sub(r'^\[[^\]]+\]\s*', '', topic_text)
+                clean_topic = re.sub(r'\s+Knowledge Base:.*$', '', clean_topic)
+                if ':' in clean_topic:
+                    clean_topic = clean_topic.split(':')[0].strip()
+                if len(clean_topic) > 80:
+                    clean_topic = clean_topic[:77] + '...'
+                
+                # Get micro neurons under this topic for context
                 cursor.execute("""
-                    SELECT insight_text, entity_type, confidence 
-                    FROM insights 
+                    SELECT insight_text FROM insights 
                     WHERE parent_macro_id = ? 
-                    ORDER BY RANDOM()
-                    LIMIT 5
+                    ORDER BY RANDOM() LIMIT 5
                 """, (topic_id,))
-                micros = cursor.fetchall()
+                micros = [m[0][:150] for m in cursor.fetchall()]
+                
+                # Get cross-domain connections (synapses to other macros)
+                cursor.execute("""
+                    SELECT DISTINCT i2.insight_text 
+                    FROM synapses s
+                    JOIN insights i1 ON s.source_id = i1.id
+                    JOIN insights i2 ON s.target_id = i2.id
+                    WHERE (i1.id = ? OR i2.id = ?)
+                      AND i1.neuron_level = 'macro' 
+                      AND i2.neuron_level = 'macro'
+                      AND i1.id != i2.id
+                    LIMIT 3
+                """, (topic_id, topic_id))
+                cross_domains = [c[0][:100] for c in cursor.fetchall()]
                 
                 conn.close()
                 
-                # Generate test questions based on topic
-                test = {
-                    "topic": topic_text[:150],
-                    "entity_type": entity_type,
-                    "confidence": confidence,
-                    "test_questions": [
-                        f"Explain {topic_text[:80]} in your own words, as if teaching someone new to the subject.",
-                        f"Give a real-world example of how {topic_text[:60]} could be applied to improve DMAI's systems.",
-                        f"What are the key principles or patterns within {topic_text[:60]} that connect to other domains?",
-                    ],
-                    "micro_knowledge_count": len(micros),
-                    "micro_samples": [m[0][:100] for m in micros[:3]],
-                    "evaluation_criteria": [
-                        "Response demonstrates understanding beyond recitation",
-                        "Shows ability to apply knowledge to novel situations",
-                        "Identifies cross-domain connections",
-                        "Explains concepts clearly at multiple levels of complexity"
-                    ]
-                }
+                # Generate questions that require cross-domain thinking
+                questions = [
+                    f"Explain '{clean_topic}' in simple terms a beginner would understand.",
+                    f"How would you apply '{clean_topic}' to improve DMAI's own learning and evolution systems?",
+                    f"What connections exist between '{clean_topic}' and other domains? How could those connections create new capabilities?",
+                ]
                 
-                return jsonify({"success": True, "test": test})
+                # Get real AI tutor answers
+                answers = []
+                if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
+                    for q in questions:
+                        try:
+                            response = self.evolution.ai_hub.query_all(q)
+                            if response:
+                                best = list(response.values())[0] if isinstance(response, dict) else str(response)
+                                answers.append(str(best)[:500])
+                            else:
+                                answers.append("No AI tutor response available")
+                        except Exception as e:
+                            answers.append(f"Error generating answer: {str(e)[:100]}")
+                else:
+                    answers = ["AI Hub not available"] * 3
+                
+                return jsonify({
+                    "success": True,
+                    "test": {
+                        "topic": clean_topic,
+                        "confidence": confidence,
+                        "supporting_knowledge": len(micros),
+                        "cross_domain_connections": cross_domains,
+                        "questions_and_answers": [
+                            {"question": questions[0], "answer": answers[0]},
+                            {"question": questions[1], "answer": answers[1]},
+                            {"question": questions[2], "answer": answers[2]},
+                        ],
+                        "evaluation_note": "Review answers for: depth of understanding, practical applicability, cross-domain insight, and clarity of explanation."
+                    }
+                })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
