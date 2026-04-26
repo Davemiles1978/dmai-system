@@ -7800,21 +7800,23 @@ class DMAIApplication:
                     f"What connections exist between '{clean_topic}' and other domains? How could those connections create new capabilities?",
                 ]
                 
-                # Get real AI tutor answers
+                # Get real AI tutor answers (with full error containment)
                 answers = []
-                if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
-                    for q in questions:
-                        try:
+                for q in questions:
+                    try:
+                        if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
                             response = self.evolution.ai_hub.query_all_tutors(q)
-                            if response:
-                                best = list(response.values())[0] if isinstance(response, dict) else str(response)
+                            if response and isinstance(response, dict):
+                                best = list(response.values())[0]
                                 answers.append(str(best)[:500])
+                            elif response:
+                                answers.append(str(response)[:500])
                             else:
-                                answers.append("No AI tutor response available")
-                        except Exception as e:
-                            answers.append(f"Error generating answer: {str(e)[:100]}")
-                else:
-                    answers = ["AI Hub not available"] * 3
+                                answers.append("No tutor response received")
+                        else:
+                            answers.append("AI Hub not initialized yet")
+                    except Exception as e:
+                        answers.append(f"[Answer pending - tutor query error: {str(e)[:80]}]")
                 
                 return jsonify({
                     "success": True,
@@ -7828,9 +7830,10 @@ class DMAIApplication:
                             {"question": questions[1], "answer": answers[1]},
                             {"question": questions[2], "answer": answers[2]},
                         ],
-                        "evaluation_note": "Review answers for: depth of understanding, practical applicability, cross-domain insight, and clarity of explanation."
+                        "evaluation_note": "Review each answer for depth, practical applicability, cross-domain connections, and clarity."
                     }
                 })
+
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
