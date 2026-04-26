@@ -62,3 +62,70 @@
 - File permissions: Core services locked (read-only)
 - Vocabulary: Protected with immutable symlink
 - Backups: Hourly via crontab
+
+## 📋 ADDED APRIL 26, 2026 - DAILY REPORT & SYSTEM ENHANCEMENTS
+
+### Daily Report (to build)
+- [ ] Day-over-day change tracking (macros, micros, synapses delta)
+- [ ] Comprehension test with real AI tutor answers included in report
+- [ ] Knowledge source activity summary (articles, repos, papers processed)
+- [ ] Funding test results & actual funds received by avenue
+- [ ] Available funds: 60% DMAI ops / 40% to master
+- [ ] Trading results: daily P&L + profit over time graph
+- [ ] Evolution cycles: what each achieved
+- [ ] New capabilities ingested, tested, and working
+- [ ] Security issues detected and fixes applied
+- [ ] System cleanup: slop removal, self-healing, drift correction
+- [ ] DMAI-flagged items for master attention
+
+### Research Queue (LeWorldModel JEPA Paper)
+- [ ] Anti-collapse regularization (SIGReg) for SI Core neurons
+- [ ] Latent planning for syllabus learning paths
+- [ ] Surprise-based quality control for insights/synapses
+
+### Infrastructure
+- [ ] Fix ResearchPaperReader._save_paper missing method
+- [ ] Fix remaining knowledge sources creating neurons
+- [ ] Autonomous learning loop - self-directed beyond syllabus
+- [ ] Monitor external AI systems version history (ChatGPT, Gemini, Claude, DeepSeek)
+- [ ] Self-funding: book writing (novels, educational, children's with images)
+- [ ] Self-funding: TV/Film script writing and submission pipeline
+- [ ] Claude Code integration
+- [ ] Phase 2 strategy testing engine (P&L, risk management, strategy evolution)
+- [ ] Social media scanner: TikTok, Instagram, YouTube extraction
+- [ ] Dynamic topic discovery - DMAI adds new categories
+- [ ] Persona: Alex Riviera (age 28) cultural knowledge, speech patterns
+- [ ] Compact Language design (Phase 8+)
+- [ ] Quantum-Level Memory System (Phase 9+)
+
+## 📋 DMAI MASTER DIRECTIVE - RESEARCH & FUNDING PLAN (April 26, 2026)
+
+### Part 1: Conway's Game of Life (CGoL) for System Integration
+- [ ] Neural Cellular Automata (NCA) – self-repair, morphogenesis, learned update rules
+- [ ] CKANs vs. CNNs for learning sparse logical rules
+- [ ] CGoL as RL environment – Gym environments, agent control
+- [ ] Computational irreducibility and AI safety – CGoL as control sandbox
+- [ ] Lenia and continuous cellular automata for synthetic life
+- [ ] Deliverable: Prioritized roadmap with Pilot #1, Pilot #2, long-term
+
+### Part 2: Swarm Intelligence (SwarmI) Evaluation
+- [ ] PSO, ACO, ABC, Flocking/Boids research
+- [ ] Verdict per method: INTEGRATE / HOLD / REJECT
+- [ ] Problem-type fit, feasibility, redundancy risk, unique benefit
+
+### Part 3: Self-Funding & Home Supercomputer Plan
+- [ ] 3.1 Self-Funding Mechanisms: micro-trading, AI-as-a-service, content sales, compute reward networks, bug bounties, data labeling
+- [ ] 3.2 Home Supercomputer: Phase 1 (startup hardware/cost), Phase 2 (revenue target), Phase 3 (autonomous expansion), timeline
+- [ ] 3.3 Integration: CGoL architectures reducing compute needs, SwarmI for power/workload optimization
+
+### Memory Storage
+- [ ] Store output under: DMAI_RESEARCH_AND_FUNDING_PLAN_2026_04_26
+- [ ] Create task lists: DMAI_TASKS_CGoL_INTEGRATION, DMAI_TASKS_SWARMI_EVAL, DMAI_TASKS_FUNDING_AND_HARDWARE
+- [ ] Auto-action enabled for non-financial, low-risk tasks
+- [ ] Financial trades require explicit review before execution
+
+## 🎯 OVERARCHING PRIORITY: Autonomous Self-Development
+Once DMAI has stable learning, data recovery, and autonomous code generation:
+- [ ] **Self-Generation System** – DMAI builds requirements and completes TODO items independently of master input
+- [ ] This is THE key unlock – enables exponential growth without bottlenecking on manual direction
+- [ ] Prerequisites: stable evolution cycles, verified learning comprehension, working code generation in sandbox, reliable data persistence/recovery
