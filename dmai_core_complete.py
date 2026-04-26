@@ -7781,8 +7781,8 @@ class DMAIApplication:
                 cursor.execute("""
                     SELECT DISTINCT i2.insight_text 
                     FROM synapses s
-                    JOIN insights i1 ON s.source_id = i1.id
-                    JOIN insights i2 ON s.target_id = i2.id
+                    JOIN insights i1 ON s.from_insight = i1.id
+                    JOIN insights i2 ON s.to_insight = i2.id
                     WHERE (i1.id = ? OR i2.id = ?)
                       AND i1.neuron_level = 'macro' 
                       AND i2.neuron_level = 'macro'
