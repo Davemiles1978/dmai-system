@@ -7806,17 +7806,22 @@ class DMAIApplication:
                     try:
                         if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
                             response = self.evolution.ai_hub.query_all_tutors(q)
-                            if response and isinstance(response, dict):
-                                best = list(response.values())[0]
-                                answers.append(str(best)[:500])
-                            elif response:
-                                answers.append(str(response)[:500])
-                            else:
+                            if not response:
                                 answers.append("No tutor response received")
+                            elif isinstance(response, dict):
+                                # Get the first non-empty tutor response
+                                best = ""
+                                for v in response.values():
+                                    if v and str(v).strip():
+                                        best = str(v)
+                                        break
+                                answers.append(best[:500] if best else "Empty response from all tutors")
+                            else:
+                                answers.append(str(response)[:500])
                         else:
                             answers.append("AI Hub not initialized yet")
                     except Exception as e:
-                        answers.append(f"[Answer pending - tutor query error: {str(e)[:80]}]")
+                        answers.append(f"[Answer pending: {str(e)[:80]}]")
                 
                 return jsonify({
                     "success": True,
