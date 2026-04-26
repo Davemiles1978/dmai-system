@@ -7717,6 +7717,142 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+
+        @self.app.route('/api/test/comprehension', methods=['GET'])
+        def test_comprehension():
+            """Test DMAI's genuine understanding of learned topics"""
+            import sqlite3
+            import random
+            
+            try:
+                if not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Get all macro neurons (learned topics)
+                cursor.execute("""
+                    SELECT id, insight_text, entity_type, confidence 
+                    FROM insights 
+                    WHERE neuron_level = 'macro' 
+                    ORDER BY RANDOM() 
+                    LIMIT 1
+                """)
+                topic = cursor.fetchone()
+                
+                if not topic:
+                    return jsonify({"error": "No macro topics found to test"}), 404
+                
+                topic_id, topic_text, entity_type, confidence = topic
+                
+                # Get micro neurons under this topic
+                cursor.execute("""
+                    SELECT insight_text, entity_type, confidence 
+                    FROM insights 
+                    WHERE parent_macro_id = ? 
+                    ORDER BY RANDOM()
+                    LIMIT 5
+                """, (topic_id,))
+                micros = cursor.fetchall()
+                
+                conn.close()
+                
+                # Generate test questions based on topic
+                test = {
+                    "topic": topic_text[:150],
+                    "entity_type": entity_type,
+                    "confidence": confidence,
+                    "test_questions": [
+                        f"Explain {topic_text[:80]} in your own words, as if teaching someone new to the subject.",
+                        f"Give a real-world example of how {topic_text[:60]} could be applied to improve DMAI's systems.",
+                        f"What are the key principles or patterns within {topic_text[:60]} that connect to other domains?",
+                    ],
+                    "micro_knowledge_count": len(micros),
+                    "micro_samples": [m[0][:100] for m in micros[:3]],
+                    "evaluation_criteria": [
+                        "Response demonstrates understanding beyond recitation",
+                        "Shows ability to apply knowledge to novel situations",
+                        "Identifies cross-domain connections",
+                        "Explains concepts clearly at multiple levels of complexity"
+                    ]
+                }
+                
+                return jsonify({"success": True, "test": test})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/test/daily_report', methods=['GET'])
+        def daily_report():
+            """Generate a daily learning report with comprehension status"""
+            import sqlite3
+            
+            try:
+                if not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Count by neuron level
+                cursor.execute("SELECT neuron_level, COUNT(*) FROM insights GROUP BY neuron_level")
+                neuron_counts = dict(cursor.fetchall())
+                
+                # Count by category (from insight_text prefix)
+                cursor.execute("""
+                    SELECT SUBSTR(insight_text, 2, INSTR(insight_text, ']') - 2) as category, 
+                           COUNT(*) as count
+                    FROM insights 
+                    WHERE neuron_level = 'macro' AND insight_text LIKE '[%]%'
+                    GROUP BY category
+                    ORDER BY count DESC
+                """)
+                categories = [{"category": r[0], "count": r[1]} for r in cursor.fetchall()]
+                
+                # Recent synapses
+                cursor.execute("SELECT COUNT(*) FROM synapses")
+                synapse_count = cursor.fetchone()[0]
+                
+                # Topics with high confidence (genuinely learned)
+                cursor.execute("""
+                    SELECT COUNT(*) FROM insights 
+                    WHERE neuron_level = 'macro' AND confidence >= 0.8
+                """)
+                high_confidence = cursor.fetchone()[0]
+                
+                # Topics needing review (low confidence)
+                cursor.execute("""
+                    SELECT COUNT(*) FROM insights 
+                    WHERE neuron_level = 'macro' AND confidence < 0.6
+                """)
+                needs_review = cursor.fetchone()[0]
+                
+                conn.close()
+                
+                report = {
+                    "date": __import__('datetime').datetime.now().isoformat(),
+                    "summary": {
+                        "total_macros": neuron_counts.get('macro', 0),
+                        "total_micros": neuron_counts.get('micro', 0),
+                        "total_synapses": synapse_count,
+                        "high_confidence_topics": high_confidence,
+                        "topics_needing_review": needs_review,
+                    },
+                    "category_breakdown": categories[:10],
+                    "learning_status": "ACTIVE" if neuron_counts.get('micro', 0) > 100 else "NEEDS BOOTSTRAPPING",
+                    "recommendation": (
+                        "Expand into adjacent domains and pursue expert-level depth"
+                        if high_confidence > 10 else
+                        "Continue foundational learning before advancing"
+                    )
+                }
+                
+                return jsonify({"success": True, "report": report})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/fix_macro_levels', methods=['GET'])
         def fix_macro_levels():
             """Fix: Set neuron_level='macro' for Knowledge Base macros"""
