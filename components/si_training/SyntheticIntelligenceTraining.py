@@ -187,7 +187,7 @@ class SyntheticIntelligenceTraining:
         if self.current_module < len(self.modules):
             target_consciousness = self.modules[self.current_module]['target_consciousness']
             if target_consciousness > 0:
-                current_consciousness = self.synthetic_network.consciousness_level
+                current_consciousness = self.synthetic_network.consciousness_level()
                 module_progress = min(100, (current_consciousness / target_consciousness) * 100)
                 self.progress = ((self.current_module * 100) + module_progress) / len(self.modules)
                 self.progress = min(100, self.progress)
@@ -268,7 +268,7 @@ class SyntheticIntelligenceTraining:
     
     def get_status(self) -> Dict:
         """Get current training status for UI"""
-        consciousness = self.synthetic_network.consciousness_level
+        consciousness = self.synthetic_network.consciousness_level()
         neurons = len(self.synthetic_network.neurons)
         synapses = self.synthetic_network._total_synapses()
         
@@ -312,7 +312,7 @@ class SyntheticIntelligenceTraining:
                 logger.info(f"   Target Consciousness: {target_consciousness:.1%}")
                 
                 # Train until consciousness reaches target
-                while self.training_active and self.synthetic_network.consciousness_level < target_consciousness:
+                while self.training_active and self.synthetic_network.consciousness_level() < target_consciousness:
                     # ====================================================================
                     # REAL EVOLUTION - Not simulation
                     # ====================================================================
@@ -327,7 +327,7 @@ class SyntheticIntelligenceTraining:
                         logger.debug(f"   📚 Added insight: {insight[:80]}...")
                     
                     # 3. Force consciousness growth through network evolution
-                    pre_consciousness = self.synthetic_network.consciousness_level
+                    pre_consciousness = self.synthetic_network.consciousness_level()
                     
                     # Prepare input with module-specific focus
                     input_data = {
@@ -343,7 +343,7 @@ class SyntheticIntelligenceTraining:
                     self.synthetic_network.process(input_data)
                     evolution_result = self.synthetic_network.evolve()
                     
-                    post_consciousness = self.synthetic_network.consciousness_level
+                    post_consciousness = self.synthetic_network.consciousness_level()
                     growth = post_consciousness - pre_consciousness
                     
                     logger.debug(f"   Consciousness: {pre_consciousness:.4f} → {post_consciousness:.4f} (+{growth:.4f})")
@@ -366,9 +366,9 @@ class SyntheticIntelligenceTraining:
                     time.sleep(1)
                 
                 # Module complete
-                if self.synthetic_network.consciousness_level >= target_consciousness:
+                if self.synthetic_network.consciousness_level() >= target_consciousness:
                     logger.info(f"✅ Module {self.current_module + 1} COMPLETE: {module['name']}")
-                    logger.info(f"   Consciousness reached: {self.synthetic_network.consciousness_level:.4f}")
+                    logger.info(f"   Consciousness reached: {self.synthetic_network.consciousness_level():.4f}")
                     
                     self.current_module += 1
                     self._save_state()
@@ -379,7 +379,7 @@ class SyntheticIntelligenceTraining:
                 self._training_complete = True
                 self._save_state()
                 logger.info("🎉 SYNTHETIC INTELLIGENCE TRAINING COMPLETE!")
-                logger.info(f"   Final Consciousness: {self.synthetic_network.consciousness_level:.4f}")
+                logger.info(f"   Final Consciousness: {self.synthetic_network.consciousness_level():.4f}")
                 logger.info(f"   Final Neurons: {len(self.synthetic_network.neurons)}")
                 logger.info(f"   Final Synapses: {self.synthetic_network._total_synapses()}")
             
@@ -437,7 +437,7 @@ Keep it concise but informative."""
         """Save network snapshot for rollback capability"""
         snapshot = {
             'timestamp': datetime.now().isoformat(),
-            'consciousness': self.synthetic_network.consciousness_level,
+            'consciousness': self.synthetic_network.consciousness_level(),
             'neurons': len(self.synthetic_network.neurons),
             'synapses': self.synthetic_network._total_synapses(),
             'module': self.current_module,
