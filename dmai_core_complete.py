@@ -2896,20 +2896,9 @@ class UnifiedEvolutionEngine:
         
         if fed_count > 0:
             # Re-check which tutors are now active
-            self.ai_hub._check_available_tutors()
+            if hasattr(self.ai_hub, '_check_available_tutors'):
+                self.ai_hub._check_available_tutors()
             logger.info(f"🔑 Fed {fed_count} harvested keys to AI Hub")
-
-        self.intelligence_bridge = IntelligenceBridge(
-            intelligence_core=self.synthetic_network,
-            knowledge_graph=self.knowledge_graph,
-            pattern_synthesis=self.pattern_synthesis
-        )
-
-        # Connect AI Hub components
-        self.ai_hub.set_synthesizer(self.capability_synthesizer)
-        self.ai_hub.set_tutor_manager(self.tutor_manager)
-        self.ai_hub.set_synthetic_network(self.synthetic_network)
-        self.ai_discovery.ai_hub = self.ai_hub
 
         # Learning orchestrator
         self.learning_orchestrator = LearningOrchestrator(
