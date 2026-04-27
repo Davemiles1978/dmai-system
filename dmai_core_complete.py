@@ -1196,14 +1196,16 @@ class SyntheticIntelligenceCore:
             json.dump(state, f, indent=2)
         
         # Also persist evolution_cycles to SQLite for deploy survival
-        if hasattr(self, 'sqlite') and self.sqlite and self.evolution_cycles > 0:
+        if hasattr(self, 'sqlite') and self.sqlite and hasattr(self.sqlite, 'db_path') and self.evolution_cycles > 0:
             try:
-                self.sqlite.save_evolution_cycle({
-                    'cycle_number': self.evolution_cycles,
-                    'insights_created': len(self.insights),
-                    'synapses_created': len(self.synapses),
-                    'consciousness_level': getattr(self, 'consciousness_level', 0)
-                })
+                import sqlite3
+                conn = sqlite3.connect(str(self.sqlite.db_path))
+                conn.execute(
+                    "INSERT OR REPLACE INTO evolution_cycles (cycle_number, completed_at, insights_created, synapses_created, consciousness_level) VALUES (?, ?, ?, ?, ?)",
+                    (self.evolution_cycles, datetime.now().isoformat(), len(self.insights), len(self.synapses), getattr(self, 'consciousness_level', 0))
+                )
+                conn.commit()
+                conn.close()
             except Exception as e:
                 logger.warning(f"Could not save evolution cycle to SQLite: {e}")
     
