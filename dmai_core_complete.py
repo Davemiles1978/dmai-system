@@ -8757,7 +8757,6 @@ class DMAIApplication:
 
         @self.app.route('/api/training/generate_qa_dataset', methods=['POST'])
         def generate_qa_dataset():
-
             """Generate Q&A training dataset by querying multiple AIs about DMAI's knowledge topics."""
             import threading
             try:
@@ -8776,9 +8775,10 @@ class DMAIApplication:
                     except Exception as e:
                         logger.error(f"Q&A Training failed: {e}")
                 threading.Thread(target=run_training, daemon=True).start()
-                return jsonify({"success": True, "message": "Q&A training started. Will query 30+ topics across OpenAI, Anthropic, Gemini, and DeepSeek (~5-10 min)."})
+                return jsonify({"success": True, "message": "Q&A training started (~5-10 min). Check /api/training/qa_status for progress."})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
 
         @self.app.route('/api/training/qa_status', methods=['GET'])
         def qa_training_status():
@@ -8790,7 +8790,7 @@ class DMAIApplication:
                 if data_file.exists():
                     with open(data_file) as f:
                         data = json.load(f)
-                    return jsonify({"status": "complete" if data.get("total_entries", 0) > 0 else "in_progress", "entries": data.get("total_entries", 0), "generated_at": data.get("generated_at")})
+                    return jsonify({"status": "complete" if data.get("total_entries", 0) > 0 else "in_progress", "entries": data.get("total_entries", 0)})
                 return jsonify({"status": "not_started", "entries": 0})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
@@ -8809,7 +8809,7 @@ class DMAIApplication:
                     summary = []
                     for entry in entries[:5]:
                         summary.append({"question": entry["question"][:150], "topic": entry["topic"][:100], "tutors_answered": list(entry.get("answers", {}).keys())})
-                    return jsonify({"total_entries": data.get("total_entries", 0), "generated_at": data.get("generated_at"), "sample": summary})
+                    return jsonify({"total_entries": data.get("total_entries", 0), "sample": summary})
                 return jsonify({"error": "No dataset generated yet"}), 404
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
