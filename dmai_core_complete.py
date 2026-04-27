@@ -1182,7 +1182,7 @@ class SyntheticIntelligenceCore:
         return self.save_state()
 
     def save_state(self):
-        """Persist network state to disk"""
+        """Persist network state to disk AND SQLite (survives deploys)"""
         state = {
             'insights': {iid: insight.to_dict() for iid, insight in self.insights.items()},
             'topics': self.topics,
@@ -1194,6 +1194,18 @@ class SyntheticIntelligenceCore:
         state_file = self.data_dir / 'network_state.json'
         with open(state_file, 'w') as f:
             json.dump(state, f, indent=2)
+        
+        # Also persist evolution_cycles to SQLite for deploy survival
+        if hasattr(self, 'sqlite') and self.sqlite and self.evolution_cycles > 0:
+            try:
+                self.sqlite.save_evolution_cycle({
+                    'cycle_number': self.evolution_cycles,
+                    'insights_created': len(self.insights),
+                    'synapses_created': len(self.synapses),
+                    'consciousness_level': getattr(self, 'consciousness_level', 0)
+                })
+            except Exception as e:
+                logger.warning(f"Could not save evolution cycle to SQLite: {e}")
     
     def load_state(self):
         """Load network state from disk - MERGES with existing, does NOT wipe"""
@@ -1236,6 +1248,21 @@ class SyntheticIntelligenceCore:
         else:
             logger.info("📡 No JSON state file, keeping existing insights")
             # DO NOT call _init_empty_state()!
+        
+        # RESTORE EVOLUTION CYCLES FROM SQLITE (survives Render deploys)
+        if hasattr(self, 'sqlite') and self.sqlite and hasattr(self.sqlite, 'db_path'):
+            try:
+                import sqlite3
+                conn = sqlite3.connect(str(self.sqlite.db_path))
+                cursor = conn.cursor()
+                cursor.execute("SELECT MAX(cycle_number) FROM evolution_cycles")
+                row = cursor.fetchone()
+                if row and row[0] and row[0] > self.evolution_cycles:
+                    logger.info(f"📊 Restored evolution_cycles from SQLite: {row[0]} (was {self.evolution_cycles})")
+                    self.evolution_cycles = row[0]
+                conn.close()
+            except Exception as e:
+                logger.warning(f"Could not restore evolution_cycles from SQLite: {e}")
     
     def _init_empty_state(self):
         """Initialize empty network - ONLY use when absolutely necessary"""
