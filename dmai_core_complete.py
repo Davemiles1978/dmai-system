@@ -8813,6 +8813,7 @@ class DMAIApplication:
                 return jsonify({"error": "No dataset generated yet"}), 404
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/knowledge')
         def debug_knowledge():
             """Show knowledge graph contents"""
