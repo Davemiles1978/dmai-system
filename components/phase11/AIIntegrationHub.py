@@ -184,28 +184,17 @@ class AIIntegrationHub:
             'synthesis': None
         }
         
-        # Define all query methods (original order preserved + NEW tutors added)
+        # AI THINKING TUTORS - LLMs that reason, answer questions, and synthesize knowledge
         query_methods = [
             ('OpenAI GPT-4', self._query_openai),
             ('DeepSeek', self._query_deepseek),
             ('Google Gemini', self._query_gemini),
             ('Anthropic Claude', self._query_anthropic),
             ('Perplexity AI', self._query_perplexity),
-            # NEW: xAI Grok
             ('xAI Grok', self._query_grok),
-            # NEW: HuggingFace
-            ('HuggingFace', self._query_huggingface),
-            # NEW: GitHub
-            ('GitHub', self._query_github),
-            # Original services continue
-            ('Google AI Studio', self._query_google_ai_studio),
-            ('NotebookLM', self._query_notebooklm),
-            ('Imagen', self._query_imagen),
-            ('Gemini Gems', self._query_gemini_gems),
-            ('Nano Banana', self._query_nano_banana),
-            ('Pomelli', self._query_pomelli),
-            ('Google Opal', self._query_opal),
-            ('Google Whisk', self._query_whisk)
+            # Code/research tools available via dedicated methods, NOT queried as thinking tutors:
+            # HuggingFace: _query_huggingface  (model search, not Q&A)
+            # GitHub: _query_github  (repo search, not Q&A)
         ]
         
         # Query each tutor (sequential to avoid rate limits)

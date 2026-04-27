@@ -7900,30 +7900,33 @@ class DMAIApplication:
                     f"What connections exist between '{clean_topic}' and other domains? How could those connections create new capabilities?",
                 ]
                 
-                # Get real AI tutor answers (with full error containment)
+                # Query DMAI's OWN knowledge (SI Core) for each question
                 answers = []
                 for q in questions:
                     try:
-                        if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
-                            response = self.evolution.ai_hub.query_all_tutors(q)
-                            if not response:
-                                answers.append("No tutor response received")
-                            elif isinstance(response, dict):
-                                # Look inside 'responses' for actual tutor answers, not top-level metadata
-                                tutor_responses = response.get('responses', {})
-                                best = ""
-                                for tutor_name, answer in tutor_responses.items():
-                                    if answer and str(answer).strip():
-                                        best = f"[{tutor_name}]: {str(answer)}"
-                                        break
-                                if not best and response.get('unified_answer'):
-                                    best = str(response['unified_answer'])
-                                answers.append(best[:500] if best else "Empty response from all tutors")
-                                answers.append(str(response)[:500])
+                        # Build context from what we already know about this topic
+                        context = f"Topic: {clean_topic}\n"
+                        if micros:
+                            context += "Supporting knowledge:\n" + "\n".join(f"- {m}" for m in micros[:3]) + "\n"
+                        if cross_domains:
+                            context += "Related concepts:\n" + "\n".join(f"- {c}" for c in cross_domains) + "\n"
+                        
+                        # Query DMAI's own SI Core knowledge base
+                        si_answer = self._query_si_core_knowledge(q)
+                        if not si_answer or len(si_answer.strip()) < 20:
+                            si_answer = self._query_si_core_knowledge(clean_topic)
+                        
+                        if si_answer and len(si_answer.strip()) > 20:
+                            answers.append(si_answer[:800])
                         else:
-                            answers.append("AI Hub not initialized yet")
+                            # Fallback: synthesize from available micro-neuron knowledge
+                            if micros:
+                                synthesis = f"Based on my knowledge of {clean_topic}: {'; '.join(micros[:3])}"
+                                answers.append(synthesis[:800])
+                            else:
+                                answers.append(f"I have foundational knowledge of {clean_topic} but need to develop deeper understanding through additional research and cross-domain connections.")
                     except Exception as e:
-                        answers.append(f"[Answer pending: {str(e)[:80]}]")
+                        answers.append(f"[Knowledge query error: {str(e)[:80]}]")
                 
                 return jsonify({
                     "success": True,
