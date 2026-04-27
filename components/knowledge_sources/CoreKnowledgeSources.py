@@ -864,46 +864,33 @@ class ResearchPaperReader:
                 
         logger.info(f"📄 Paper Reader: Processed {self.papers_processed} papers total")
         
-def _save_paper(self, paper: KnowledgeItem):
-    """Save paper to disk and create SI Core insight"""
-    filename = self.data_path / f"paper_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    with open(filename, 'w') as f:
-        json.dump(paper.to_dict(), f, indent=2)
-    
-    # Create insight in SI Core
-    if self.si_core:
-        try:
-            title = paper.title[:100] if paper.title else "Unknown"
-            content = paper.content[:500] if paper.content else ""
-            authors = paper.metadata.get('authors', [])
-            category = paper.metadata.get('category', 'unknown')
-            
-            # Build entities
-            entities = ['arxiv', category] + authors[:3]
-            entities = list(set([e for e in entities if e]))
-            
-            # Determine source category based on arXiv category
-            source_category = "research"
-            if category in ['cs.AI', 'cs.LG', 'cs.NE']:
-                source_category = "ai_research"
-            elif category in ['q-fin', 'q-fin.TR']:
-                source_category = "wealth_creation"
-            
-            self.si_core.add_insight(
-                insight_text=f"Paper: {title}",
-                entity_type="research_paper",
-                entities=entities,
-                relationship="published",
-                confidence=0.85,
-                source_topic=source_category,
-                target_topic="academic_knowledge",
-                source_url=paper.metadata.get('link', ''),
-                source_title=title,
-                source_type="research_paper_reader"
-            )
-            logger.debug(f"Created insight for paper: {title[:50]}... (category: {category})")
-        except Exception as e:
-            logger.error(f"Failed to create insight for paper: {e}")
+    def _save_paper(self, paper: KnowledgeItem):
+        """Save paper to disk and create SI Core insight"""
+        filename = self.data_path / f"paper_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(filename, 'w') as f:
+            json.dump(paper.to_dict(), f, indent=2)
+        
+        if self.si_core:
+            try:
+                title = paper.title[:100] if paper.title else "Unknown"
+                authors = paper.metadata.get('authors', []) if hasattr(paper, 'metadata') and paper.metadata else []
+                category = paper.metadata.get('category', 'unknown') if hasattr(paper, 'metadata') and paper.metadata else "unknown"
+                entities = list(set(['arxiv', category] + authors[:3]))
+                source_category = "ai_research" if category in ['cs.AI', 'cs.LG', 'cs.NE'] else ("wealth_creation" if category in ['q-fin', 'q-fin.TR'] else "research")
+                self.si_core.add_insight(
+                    insight_text=f"Paper: {title}",
+                    entity_type="research_paper",
+                    entities=[e for e in entities if e],
+                    relationship="published",
+                    confidence=0.85,
+                    source_topic=source_category,
+                    target_topic="academic_knowledge",
+                    source_url=paper.metadata.get('link', '') if hasattr(paper, 'metadata') and paper.metadata else '',
+                    source_title=title,
+                    source_type="research_paper_reader"
+                )
+            except Exception as e:
+                logger.error(f"Failed to create insight for paper: {e}")
             
     def get_status(self) -> Dict:
         return {
@@ -1002,9 +989,29 @@ class WebCrawler:
         logger.info(f"🕸️ Web Crawler: Crawled {self.pages_crawled} pages total")
         
     def _save_page(self, page: KnowledgeItem):
+        """Save crawled page to disk and create SI Core insight"""
         filename = self.data_path / f"page_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(page.to_dict(), f, indent=2)
+        
+        if self.si_core:
+            try:
+                title = page.title[:150] if page.title else "Unknown Page"
+                url = page.metadata.get('url', page.source) if hasattr(page, 'metadata') and page.metadata else page.source
+                self.si_core.add_insight(
+                    insight_text=f"Web Page: {title}",
+                    entity_type="web_page",
+                    entities=["web", "crawled", title[:50]],
+                    relationship="discovered",
+                    confidence=0.6,
+                    source_topic="web_research",
+                    target_topic="general_knowledge",
+                    source_url=url,
+                    source_title=title,
+                    source_type="web_crawler"
+                )
+            except Exception as e:
+                logger.error(f"Failed to create insight for page: {e}")
             
     def get_status(self) -> Dict:
         return {
@@ -1081,9 +1088,28 @@ class DarkWebMonitor:
             self.tor_available = False
             
     def _save_intel(self, intel: KnowledgeItem):
+        """Save dark web intel to disk and create SI Core insight"""
         filename = self.data_path / f"intel_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(intel.to_dict(), f, indent=2)
+        
+        if self.si_core:
+            try:
+                title = intel.title[:100] if intel.title else "Dark Intel"
+                self.si_core.add_insight(
+                    insight_text=f"Dark Intel: {title}",
+                    entity_type="dark_intel",
+                    entities=["dark_web", "intelligence", title[:50]],
+                    relationship="discovered",
+                    confidence=0.55,
+                    source_topic="dark_web_intel",
+                    target_topic="security_intelligence",
+                    source_url="",
+                    source_title=title,
+                    source_type="dark_web_monitor"
+                )
+            except Exception as e:
+                logger.error(f"Failed to create insight for dark intel: {e}")
             
     def get_status(self) -> Dict:
         return {
@@ -1292,10 +1318,29 @@ class SocialMediaScanner:
         return result
             
     def _save_post(self, post: KnowledgeItem):
-        """Save social media post to disk"""
+        """Save social media post to disk and create SI Core insight"""
         filename = self.data_path / f"post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(filename, 'w') as f:
             json.dump(post.to_dict(), f, indent=2)
+        
+        if self.si_core:
+            try:
+                title = post.title[:150] if post.title else "Social Post"
+                platform = post.metadata.get('platform', 'unknown') if hasattr(post, 'metadata') and post.metadata else "unknown"
+                self.si_core.add_insight(
+                    insight_text=f"Social Post [{platform}]: {title}",
+                    entity_type="social_media",
+                    entities=[platform, "social_media", title[:50]],
+                    relationship="shared",
+                    confidence=0.5,
+                    source_topic="social_media",
+                    target_topic=f"{platform}_trends",
+                    source_url=post.metadata.get('url', '') if hasattr(post, 'metadata') and post.metadata else '',
+                    source_title=title,
+                    source_type="social_media_scanner"
+                )
+            except Exception as e:
+                logger.error(f"Failed to create insight for social post: {e}")
             
     def _save_video_analysis(self, video: KnowledgeItem):
         """Save video analysis to disk"""
