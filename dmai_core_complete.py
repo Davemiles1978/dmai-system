@@ -7909,14 +7909,16 @@ class DMAIApplication:
                             if not response:
                                 answers.append("No tutor response received")
                             elif isinstance(response, dict):
-                                # Get the first non-empty tutor response
+                                # Look inside 'responses' for actual tutor answers, not top-level metadata
+                                tutor_responses = response.get('responses', {})
                                 best = ""
-                                for v in response.values():
-                                    if v and str(v).strip():
-                                        best = str(v)
+                                for tutor_name, answer in tutor_responses.items():
+                                    if answer and str(answer).strip():
+                                        best = f"[{tutor_name}]: {str(answer)}"
                                         break
+                                if not best and response.get('unified_answer'):
+                                    best = str(response['unified_answer'])
                                 answers.append(best[:500] if best else "Empty response from all tutors")
-                            else:
                                 answers.append(str(response)[:500])
                         else:
                             answers.append("AI Hub not initialized yet")
