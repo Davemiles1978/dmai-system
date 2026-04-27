@@ -7083,6 +7083,69 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
+        # ============================================================================
+        # RESPONSE QUALITY TRAINING - Learn from other AIs how to structure answers
+        # ============================================================================
+        
+        @self.app.route('/api/training/generate_qa_dataset', methods=['POST'])
+        def generate_qa_dataset():
+            """Generate Q&A training dataset by querying multiple AIs about DMAI's knowledge topics."""
+            import threading
+            try:
+                from components.training.response_quality_trainer import ResponseQualityTrainer
+                if not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                db_path = self.evolution.si_core.sqlite.db_path
+                ai_hub = self.evolution.ai_hub if hasattr(self.evolution, 'ai_hub') else None
+                if not ai_hub:
+                    return jsonify({"error": "AI Hub not initialized"}), 500
+                trainer = ResponseQualityTrainer(str(db_path), ai_hub)
+                def run_training():
+                    try:
+                        result = trainer.run_full_pipeline(num_topics=30)
+                        logger.info(f"Q&A Training complete: {result}")
+                    except Exception as e:
+                        logger.error(f"Q&A Training failed: {e}")
+                threading.Thread(target=run_training, daemon=True).start()
+                return jsonify({"success": True, "message": "Q&A training started (~5-10 min). Check /api/training/qa_status for progress."})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/training/qa_status', methods=['GET'])
+        def qa_training_status():
+            """Check Q&A training dataset generation progress"""
+            try:
+                import json
+                from pathlib import Path
+                data_file = Path("data/training/qa_training_dataset.json")
+                if data_file.exists():
+                    with open(data_file) as f:
+                        data = json.load(f)
+                    return jsonify({"status": "complete" if data.get("total_entries", 0) > 0 else "in_progress", "entries": data.get("total_entries", 0)})
+                return jsonify({"status": "not_started", "entries": 0})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/training/qa_dataset', methods=['GET'])
+        def qa_training_dataset():
+            """View the generated Q&A dataset"""
+            try:
+                import json
+                from pathlib import Path
+                data_file = Path("data/training/qa_training_dataset.json")
+                if data_file.exists():
+                    with open(data_file) as f:
+                        data = json.load(f)
+                    entries = data.get("dataset", [])
+                    summary = []
+                    for entry in entries[:5]:
+                        summary.append({"question": entry["question"][:150], "topic": entry["topic"][:100], "tutors_answered": list(entry.get("answers", {}).keys())})
+                    return jsonify({"total_entries": data.get("total_entries", 0), "sample": summary})
+                return jsonify({"error": "No dataset generated yet"}), 404
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         # 3D BRAIN NETWORK VISUALIZATION
         # ============================================================================
         
