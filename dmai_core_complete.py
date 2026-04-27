@@ -7908,7 +7908,59 @@ class DMAIApplication:
                     )
                 }
                 
-                return jsonify({"success": True, "report": report})
+                # Send email report in background thread
+                def send_email_report():
+                    try:
+                        import smtplib
+                        from email.mime.text import MIMEText
+                        from email.mime.multipart import MIMEMultipart
+                        
+                        gmail_user = os.environ.get('GMAIL_USER')
+                        gmail_pass = os.environ.get('GMAIL_APP_PASSWORD')
+                        to_email = os.environ.get('DAILY_REPORT_EMAIL', gmail_user)
+                        
+                        if not gmail_user or not gmail_pass:
+                            logger.warning("Email not configured - skipping daily report email")
+                            return
+                        
+                        # Build HTML email
+                        html = f"""
+                        <html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+                        <h2>🧠 DMAI Daily Learning Report</h2>
+                        <p><strong>Date:</strong> {report['date']}</p>
+                        <hr>
+                        <h3>Summary</h3>
+                        <table style="border-collapse:collapse;width:100%">
+                        <tr><td>Macro Topics</td><td><strong>{report['summary']['total_macros']}</strong></td></tr>
+                        <tr><td>Micro Insights</td><td><strong>{report['summary']['total_micros']}</strong></td></tr>
+                        <tr><td>Total Synapses</td><td><strong>{report['summary']['total_synapses']}</strong></td></tr>
+                        <tr><td>High Confidence Topics</td><td><strong>{report['summary']['high_confidence_topics']}</strong></td></tr>
+                        <tr><td>Topics Needing Review</td><td><strong>{report['summary']['topics_needing_review']}</strong></td></tr>
+                        </table>
+                        <h3>Learning Status: {report['learning_status']}</h3>
+                        <p><strong>Recommendation:</strong> {report['recommendation']}</p>
+                        <hr>
+                        <p style="color:#888;font-size:12px;">Automated report from DMAI System</p>
+                        </body></html>
+                        """
+                        
+                        msg = MIMEMultipart('alternative')
+                        msg['Subject'] = f"🧠 DMAI Daily Report - {report['date'][:10]}"
+                        msg['From'] = gmail_user
+                        msg['To'] = to_email
+                        msg.attach(MIMEText(html, 'html'))
+                        
+                        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                            server.login(gmail_user, gmail_pass)
+                            server.send_message(msg)
+                        logger.info(f"📧 Daily report emailed to {to_email}")
+                    except Exception as e:
+                        logger.error(f"Failed to send daily report email: {e}")
+                
+                import threading
+                threading.Thread(target=send_email_report, daemon=True).start()
+                
+                return jsonify({"success": True, "report": report, "email_queued": True})                
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
@@ -8128,9 +8180,9 @@ class DMAIApplication:
             results = {}
             
             # 1. Start evolution thread if not running
-            if hasattr(self.evolution, '_start_evolution'):
+            if hasattr(self, '_start_evolution'):
                 try:
-                    self.evolution._start_evolution()
+                    self._start_evolution()
                     results['evolution_thread'] = 'started'
                 except Exception as e:
                     results['evolution_thread'] = f'error: {e}'
@@ -8863,9 +8915,9 @@ class DMAIApplication:
             results = {}
             
             # 1. Start evolution thread if not running
-            if hasattr(self.evolution, '_start_evolution'):
+            if hasattr(self, '_start_evolution'):
                 try:
-                    self.evolution._start_evolution()
+                    self._start_evolution()
                     results['evolution_thread'] = 'started'
                 except Exception as e:
                     results['evolution_thread'] = f'error: {e}'
@@ -10786,8 +10838,8 @@ if __name__ == '__main__':
         time.sleep(15)  # Wait 15 seconds for full initialization
         try:
             # Get the evolution instance from the global app
-            if hasattr(app, 'evolution') and hasattr(app.evolution, '_start_evolution'):
-                app.evolution._start_evolution()
+            if hasattr(app, '_start_evolution'):
+                app._start_evolution()
                 logger.info("🔄 Evolution thread auto-started on boot (delayed)")
                 
                 # Force first evolution cycle to kickstart the system
