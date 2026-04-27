@@ -2832,7 +2832,73 @@ class UnifiedEvolutionEngine:
         self.tutor_manager = TutorManager(data_path=str(self.data_path))
         self.capability_synthesizer = CapabilitySynthesizer()
         self.ai_hub = AIIntegrationHub(str(self.data_path))
+        
+        # Feed harvested API keys into AI Hub
+        self._feed_harvested_keys_to_hub()
+        
+        # Run harvest cycle in background and schedule periodic runs
+        import threading
+        def run_harvest_and_feed():
+            try:
+                logger.info("🔑 Running initial API key harvest cycle...")
+                result = self.api_harvester.run_harvest_cycle()
+                logger.info(f"🔑 Harvest complete: {result['valid_keys']} valid keys found")
+                self._feed_harvested_keys_to_hub()
+            except Exception as e:
+                logger.error(f"Harvest cycle failed: {e}")
+        
+        def periodic_harvest():
+            import time
+            while True:
+                time.sleep(3600)  # Every hour
+                try:
+                    result = self.api_harvester.run_harvest_cycle()
+                    if result['valid_keys'] > 0:
+                        logger.info(f"🔑 Periodic harvest: {result['valid_keys']} new valid keys")
+                        self._feed_harvested_keys_to_hub()
+                except Exception as e:
+                    logger.error(f"Periodic harvest error: {e}")
+        
+        threading.Thread(target=run_harvest_and_feed, daemon=True).start()
+        threading.Thread(target=periodic_harvest, daemon=True).start()
+        
         self.ai_discovery = DynamicAIDiscovery(self.data_path, ai_hub=self.ai_hub)
+    
+    def _feed_harvested_keys_to_hub(self):
+        """Feed harvested API keys into the AI Hub for immediate use"""
+        if not hasattr(self, 'api_harvester') or not hasattr(self, 'ai_hub'):
+            return
+        
+        key_map = {
+            'openai': 'openai',
+            'anthropic': 'anthropic',
+            'deepseek': 'deepseek',
+            'gemini': 'gemini',
+            'groq': 'groq',
+            'cohere': 'cohere',
+            'huggingface': 'huggingface',
+            'openrouter': 'openrouter',
+            'replicate': 'replicate',
+        }
+        
+        fed_count = 0
+        for service, hub_key in key_map.items():
+            # Only feed if the hub doesn't already have a working key
+            existing = self.ai_hub.api_keys.get(hub_key)
+            if existing and existing != "pending":
+                continue
+            
+            key = self.api_harvester.get_working_key(service)
+            if key:
+                self.ai_hub.api_keys[hub_key] = key
+                logger.info(f"🔑 Fed harvested {service} key to AI Hub")
+                fed_count += 1
+        
+        if fed_count > 0:
+            # Re-check which tutors are now active
+            self.ai_hub._check_available_tutors()
+            logger.info(f"🔑 Fed {fed_count} harvested keys to AI Hub")
+
         self.intelligence_bridge = IntelligenceBridge(
             intelligence_core=self.synthetic_network,
             knowledge_graph=self.knowledge_graph,
