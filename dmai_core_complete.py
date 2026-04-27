@@ -7111,6 +7111,42 @@ class DMAIApplication:
                 return jsonify({"success": True, "message": "Q&A training started (~5-10 min). Check /api/training/qa_status for progress."})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+        @self.app.route('/api/training/debug_run', methods=['GET'])
+        def debug_training_run():
+            """Run training synchronously to see errors"""
+            try:
+                from components.training.response_quality_trainer import ResponseQualityTrainer
+                if not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                db_path = str(self.evolution.si_core.sqlite.db_path)
+                ai_hub = self.evolution.ai_hub if hasattr(self.evolution, 'ai_hub') else None
+                if not ai_hub:
+                    return jsonify({"error": "AI Hub not initialized"}), 500
+                
+                # Test step 1: extract topics
+                trainer = ResponseQualityTrainer(db_path, ai_hub)
+                topics = trainer.extract_topics_from_micros(limit=5)
+                
+                # Test step 2: check AI tutors
+                tutor_status = {}
+                for method_name in ['_query_openai', '_query_anthropic', '_query_gemini', '_query_deepseek']:
+                    method = getattr(ai_hub, method_name, None)
+                    if method:
+                        result = method("Say hello in one word")
+                        tutor_status[method_name] = "has_key" if result.get('success') else f"error: {result.get('error','unknown')}"
+                    else:
+                        tutor_status[method_name] = "method_not_found"
+                
+                return jsonify({
+                    "topics_found": len(topics),
+                    "sample_topics": [t['title'][:80] for t in topics[:3]],
+                    "tutor_status": tutor_status,
+                    "db_path": db_path
+                })
+            except Exception as e:
+                import traceback
+                return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 
         @self.app.route('/api/training/qa_status', methods=['GET'])
         def qa_training_status():
