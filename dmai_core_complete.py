@@ -7912,9 +7912,9 @@ class DMAIApplication:
                             context += "Related concepts:\n" + "\n".join(f"- {c}" for c in cross_domains) + "\n"
                         
                         # Query DMAI's own SI Core knowledge base
-                        si_answer = self._query_si_core_knowledge(q)
+                        si_answer = self.evolution._query_si_core_knowledge(q) if hasattr(self.evolution, '_query_si_core_knowledge') else None
                         if not si_answer or len(si_answer.strip()) < 20:
-                            si_answer = self._query_si_core_knowledge(clean_topic)
+                            si_answer = self.evolution._query_si_core_knowledge(clean_topic) if hasattr(self.evolution, '_query_si_core_knowledge') else None
                         
                         if si_answer and len(si_answer.strip()) > 20:
                             answers.append(si_answer[:800])
