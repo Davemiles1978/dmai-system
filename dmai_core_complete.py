@@ -6074,6 +6074,42 @@ class DMAIApplication:
                 del status_dict['evolution_timer']
             return jsonify(status_dict)
 
+        
+        @self.app.route('/api/health/full', methods=['GET'])
+        def health_full():
+            """Complete system health dashboard - every component status"""
+            try:
+                from components.health_dashboard import SystemHealthDashboard
+                dashboard = SystemHealthDashboard(evolution_engine=self.evolution)
+                report = dashboard.get_full_health_report()
+                return jsonify(report)
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/health/summary', methods=['GET'])
+        def health_summary():
+            """Quick health summary - active/inactive/error counts"""
+            try:
+                from components.health_dashboard import SystemHealthDashboard
+                dashboard = SystemHealthDashboard(evolution_engine=self.evolution)
+                report = dashboard.get_full_health_report()
+                issues = report.get('issues_summary', {})
+                overview = report.get('system_overview', {})
+                return jsonify({
+                    'health_pct': issues.get('health_percentage', 0),
+                    'active': issues.get('active_working', 0),
+                    'inactive': issues.get('inactive_or_planned', 0),
+                    'errors': issues.get('errors', 0),
+                    'planned': issues.get('planned_not_built', 0),
+                    'total': issues.get('total_components_checked', 0),
+                    'consciousness': overview.get('consciousness', 0),
+                    'evolution_cycles': overview.get('evolution_cycles', 0),
+                    'neurons': overview.get('synthetic_neurons', 0),
+                    'synapses': overview.get('synthetic_synapses', 0),
+                })
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/simple/version')
         def simple_version():
             """Simple version endpoint"""
