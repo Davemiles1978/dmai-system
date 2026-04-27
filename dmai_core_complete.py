@@ -8333,6 +8333,97 @@ class DMAIApplication:
                 return color
         return '#888888'  # Gray default
 
+
+        @self.app.route('/api/training/generate_qa_dataset', methods=['POST'])
+        def generate_qa_dataset():
+            """Generate Q&A training dataset by querying multiple AIs about DMAI's knowledge topics.
+            This teaches DMAI how to structure high-quality answers by studying other AI systems.
+            Runs in background to avoid timeout. Check /api/training/status for progress."""
+            import threading
+            try:
+                from components.training.response_quality_trainer import ResponseQualityTrainer
+                
+                if not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                ai_hub = self.evolution.ai_hub if hasattr(self.evolution, 'ai_hub') else None
+                
+                if not ai_hub:
+                    return jsonify({"error": "AI Hub not initialized"}), 500
+                
+                trainer = ResponseQualityTrainer(str(db_path), ai_hub)
+                
+                # Run in background thread
+                def run_training():
+                    try:
+                        result = trainer.run_full_pipeline(num_topics=30)
+                        logger.info(f"Q&A Training complete: {result}")
+                    except Exception as e:
+                        logger.error(f"Q&A Training failed: {e}")
+                
+                threading.Thread(target=run_training, daemon=True).start()
+                
+                return jsonify({
+                    "success": True,
+                    "message": "Q&A training dataset generation started. Will query 30+ topics across OpenAI, Anthropic, Gemini, and DeepSeek. This takes ~5-10 minutes.",
+                    "endpoints": {
+                        "check_progress": "/api/training/status",
+                        "view_dataset": "/api/training/dataset",
+                        "view_analysis": "/api/training/analysis"
+                    }
+                })
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/training/status', methods=['GET'])
+        def training_status():
+            """Check training dataset generation progress"""
+            try:
+                import json
+                from pathlib import Path
+                data_file = Path("data/training/qa_training_dataset.json")
+                if data_file.exists():
+                    with open(data_file) as f:
+                        data = json.load(f)
+                    return jsonify({
+                        "status": "complete" if data.get("total_entries", 0) > 0 else "in_progress",
+                        "entries": data.get("total_entries", 0),
+                        "generated_at": data.get("generated_at")
+                    })
+                return jsonify({"status": "not_started", "entries": 0})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/training/dataset', methods=['GET'])
+        def training_dataset():
+            """View the generated Q&A dataset"""
+            try:
+                import json
+                from pathlib import Path
+                data_file = Path("data/training/qa_training_dataset.json")
+                if data_file.exists():
+                    with open(data_file) as f:
+                        data = json.load(f)
+                    # Return summary + first 5 entries
+                    entries = data.get("dataset", [])
+                    summary = []
+                    for entry in entries[:5]:
+                        summary.append({
+                            "question": entry["question"][:150],
+                            "topic": entry["topic"][:100],
+                            "tutors_answered": list(entry.get("answers", {}).keys()),
+                            "sample_answer": list(entry.get("answers", {}).values())[0].get("response", "")[:200] if entry.get("answers") else "None"
+                        })
+                    return jsonify({
+                        "total_entries": data.get("total_entries", 0),
+                        "generated_at": data.get("generated_at"),
+                        "sample": summary
+                    })
+                return jsonify({"error": "No dataset generated yet"}), 404
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/force_link_by_prefix', methods=['GET'])
         def force_link_by_prefix():
             """Link micros to macros by matching [Category] prefix"""
