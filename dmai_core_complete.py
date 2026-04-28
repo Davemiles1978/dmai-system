@@ -3028,20 +3028,26 @@ class UnifiedEvolutionEngine:
         # ============================================================
         # REPO INTEGRATION ENGINE - Strategic orchestrator for evolution
         # ============================================================
-        self.integration_engine = RepoIntegrationEngine(self)
-        logger.info("🧬 Repo Integration Engine initialized")
+        try:
+            self.integration_engine = RepoIntegrationEngine(self)
+            logger.info("🧬 Repo Integration Engine initialized")
 
-        # Pre-load the default integration queue
-        for repo in DEFAULT_INTEGRATION_QUEUE:
-            try:
-                self.integration_engine.add_to_queue(
-                    repo["url"],
-                    priority=repo.get("priority", 2),
-                    repo_name=repo.get("name")
-                )
-            except Exception as e:
-                logger.warning(f"Failed to queue {repo.get('name', repo['url'])}: {e}")
-        logger.info(f"📋 Integration queue loaded: {len(self.integration_engine.queue)} repos queued")
+            # Pre-load the default integration queue
+            for repo in DEFAULT_INTEGRATION_QUEUE:
+                try:
+                    self.integration_engine.add_to_queue(
+                        repo["url"],
+                        priority=repo.get("priority", 2),
+                        repo_name=repo.get("name")
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to queue {repo.get('name', repo['url'])}: {e}")
+            logger.info(f"📋 Integration queue loaded: {len(self.integration_engine.queue)} repos queued")
+        except Exception as e:
+            logger.error(f"❌ Repo Integration Engine failed to initialize: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            self.integration_engine = None
 
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
@@ -8756,8 +8762,8 @@ class DMAIApplication:
         def integration_status():
             """Get integration engine status - queue, completed, organs integrated"""
             try:
-                if not hasattr(self, 'integration_engine'):
-                    return jsonify({"error": "Integration engine not initialized"}), 500
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized - check logs for import errors"}), 500
                 status = self.integration_engine.get_status()
                 return jsonify({"success": True, "status": status})
             except Exception as e:
@@ -8767,8 +8773,8 @@ class DMAIApplication:
         def integration_queue():
             """View the integration queue"""
             try:
-                if not hasattr(self, 'integration_engine'):
-                    return jsonify({"error": "Integration engine not initialized"}), 500
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized - check logs for import errors"}), 500
                 queue = self.integration_engine.get_queue()
                 return jsonify({"success": True, "queue": queue, "count": len(queue)})
             except Exception as e:
@@ -8781,8 +8787,8 @@ class DMAIApplication:
             Priority: 0=CRITICAL, 1=HIGH, 2=MEDIUM, 3=LOW
             """
             try:
-                if not hasattr(self, 'integration_engine'):
-                    return jsonify({"error": "Integration engine not initialized"}), 500
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized - check logs for import errors"}), 500
                 data = request.get_json()
                 if not data or 'url' not in data:
                     return jsonify({"error": "Missing 'url' in request body"}), 400
@@ -8801,8 +8807,8 @@ class DMAIApplication:
             Safety-gated items require prior approval via /api/integration/approve
             """
             try:
-                if not hasattr(self, 'integration_engine'):
-                    return jsonify({"error": "Integration engine not initialized"}), 500
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized - check logs for import errors"}), 500
                 result = self.integration_engine.execute_next_integration()
                 return jsonify({"success": True, "result": result})
             except Exception as e:
@@ -8814,8 +8820,8 @@ class DMAIApplication:
             POST JSON: {"queue_id": "abc123"}
             """
             try:
-                if not hasattr(self, 'integration_engine'):
-                    return jsonify({"error": "Integration engine not initialized"}), 500
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized - check logs for import errors"}), 500
                 data = request.get_json()
                 if not data or 'queue_id' not in data:
                     return jsonify({"error": "Missing 'queue_id' in request body"}), 400
