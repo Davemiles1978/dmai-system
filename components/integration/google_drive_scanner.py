@@ -139,53 +139,10 @@ class GoogleDriveScanner:
     
     def _list_folder_contents(self, folder_id: str) -> List[Dict]:
         """List contents of a shared Google Drive folder.
-        Tries gdown first, falls back to requests scraping, then known file list."""
-        items = []
-        
-        # Try gdown first (works best if installed)
-        try:
-            result = subprocess.run(
-                ['gdown', '--folder', f'https://drive.google.com/drive/folders/{folder_id}', 
-                 '--remaining-ok', '--dry-run'],
-                capture_output=True, text=True, timeout=30
-            )
-            for line in result.stdout.split('\n') + result.stderr.split('\n'):
-                if ':' in line and not line.startswith('From:') and not line.startswith('To:'):
-                    parts = line.split(':', 1)
-                    name = parts[0].strip()
-                    desc = parts[1].strip() if len(parts) > 1 else ''
-                    size_match = re.search(r'\[(\d+\.?\d*\s*[KMGT]?B?)\]', desc)
-                    size_str = size_match.group(1) if size_match else '0'
-                    items.append({'name': name, 'description': desc, 'size': size_str, 'id': name})
-            if items:
-                return items
-        except Exception:
-            pass
-        
-        # Fallback: use requests to scrape the folder page
-        if not items:
-            try:
-                import requests as req
-                from bs4 import BeautifulSoup
-                url = f'https://drive.google.com/drive/folders/{folder_id}'
-                response = req.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    for entry in soup.select('[data-id]'):
-                        name_elem = entry.select_one('[class*="name"]')
-                        if name_elem:
-                            name = name_elem.get_text(strip=True)
-                            items.append({'name': name, 'id': entry.get('data-id', name), 'size': 'unknown'})
-            except Exception as e:
-                logger.warning(f"Web scraping fallback failed: {e}")
-        
-        # Final fallback: known DMAI folder contents
-        if not items:
-            logger.info("Using known file listing for DMAI folder")
-            items = self._known_dmai_folder_contents()
-        
-        return items
-    
+        Uses known file listing for DMAI folder (most reliable on Render cloud)."""
+        logger.info("Using known file listing for DMAI Google Drive folder")
+        return self._known_dmai_folder_contents()
+
     def _fallback_list_folder(self, folder_id: str) -> List[Dict]:
         """
         Fallback: use requests to get folder page and parse entries.
