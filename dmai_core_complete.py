@@ -3051,6 +3051,9 @@ class UnifiedEvolutionEngine:
             # Initialize Google Drive Scanner
             self.gdrive_scanner = GoogleDriveScanner(self)
             logger.info("📂 Google Drive Scanner initialized")
+            # Expose to parent DMAI app so API routes can access it
+            if hasattr(self, 'parent') and self.parent:
+                self.parent.gdrive_scanner = self.gdrive_scanner
         except Exception as e:
             logger.error(f"❌ Repo Integration Engine failed to initialize: {e}")
             import traceback
