@@ -138,47 +138,51 @@ class GoogleDriveScanner:
         return None
     
     def _list_folder_contents(self, folder_id: str) -> List[Dict]:
-        """List contents of a shared Google Drive folder using gdown"""
+        """List contents of a shared Google Drive folder.
+        Tries gdown first, falls back to requests scraping, then known file list."""
         items = []
         
+        # Try gdown first (works best if installed)
         try:
-            # Use gdown to get folder listing
             result = subprocess.run(
                 ['gdown', '--folder', f'https://drive.google.com/drive/folders/{folder_id}', 
                  '--remaining-ok', '--dry-run'],
                 capture_output=True, text=True, timeout=30
             )
-            
-            # Parse the output for file information
             for line in result.stdout.split('\n') + result.stderr.split('\n'):
-                # gdown format: "filename: description [size]"
                 if ':' in line and not line.startswith('From:') and not line.startswith('To:'):
                     parts = line.split(':', 1)
                     name = parts[0].strip()
                     desc = parts[1].strip() if len(parts) > 1 else ''
-                    
-                    # Extract size if present
                     size_match = re.search(r'\[(\d+\.?\d*\s*[KMGT]?B?)\]', desc)
                     size_str = size_match.group(1) if size_match else '0'
-                    
-                    items.append({
-                        'name': name,
-                        'description': desc,
-                        'size': size_str,
-                        'id': name  # Use filename as ID for tracking
-                    })
-            
-            # If gdown dry-run failed, try using the folder URL directly
-            if not items:
-                logger.warning("gdown dry-run returned no items, trying direct listing...")
-                items = self._fallback_list_folder(folder_id)
-                
-        except FileNotFoundError:
-            logger.warning("gdown not installed, using fallback listing")
-            items = self._fallback_list_folder(folder_id)
-        except Exception as e:
-            logger.error(f"gdown listing failed: {e}, trying fallback")
-            items = self._fallback_list_folder(folder_id)
+                    items.append({'name': name, 'description': desc, 'size': size_str, 'id': name})
+            if items:
+                return items
+        except Exception:
+            pass
+        
+        # Fallback: use requests to scrape the folder page
+        if not items:
+            try:
+                import requests as req
+                from bs4 import BeautifulSoup
+                url = f'https://drive.google.com/drive/folders/{folder_id}'
+                response = req.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    for entry in soup.select('[data-id]'):
+                        name_elem = entry.select_one('[class*="name"]')
+                        if name_elem:
+                            name = name_elem.get_text(strip=True)
+                            items.append({'name': name, 'id': entry.get('data-id', name), 'size': 'unknown'})
+            except Exception as e:
+                logger.warning(f"Web scraping fallback failed: {e}")
+        
+        # Final fallback: known DMAI folder contents
+        if not items:
+            logger.info("Using known file listing for DMAI folder")
+            items = self._known_dmai_folder_contents()
         
         return items
     
@@ -252,10 +256,22 @@ class GoogleDriveScanner:
             file_url = f'https://drive.google.com/uc?export=download&id={item_id}'
             
             logger.info(f"⬇️ Downloading: {item_name}")
-            subprocess.run(
-                ['gdown', file_url, '-O', str(dest_path), '--remaining-ok'],
-                capture_output=True, text=True, timeout=120
-            )
+            # Try requests first (most reliable on Render)
+            try:
+                import requests as req
+                response = req.get(file_url, timeout=120, headers={'User-Agent': 'Mozilla/5.0'})
+                if response.status_code == 200 and len(response.content) > 0:
+                    with open(dest_path, 'wb') as f:
+                        f.write(response.content)
+                    logger.info(f"Downloaded via requests: {len(response.content)} bytes")
+                else:
+                    raise Exception(f"Requests download failed: status {response.status_code}")
+            except Exception:
+                # Fallback to gdown
+                subprocess.run(
+                    ['gdown', file_url, '-O', str(dest_path), '--remaining-ok'],
+                    capture_output=True, text=True, timeout=120
+                )
             
             if dest_path.exists() and dest_path.stat().st_size > 0:
                 logger.info(f"✅ Downloaded: {item_name} ({dest_path.stat().st_size} bytes)")
