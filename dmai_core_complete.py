@@ -5743,6 +5743,16 @@ class DMAIApplication:
             self.integration_engine = self.evolution.integration_engine
             logger.info("🧬 Repo Integration Engine exposed to main app")
         
+        # Expose Google Drive Scanner from evolution to main app
+        if hasattr(self.evolution, 'gdrive_scanner') and self.evolution.gdrive_scanner:
+            self.gdrive_scanner = self.evolution.gdrive_scanner
+            logger.info("📂 Google Drive Scanner exposed to main app")
+        else:
+            # Initialize directly if not available from evolution
+            from components.integration.google_drive_scanner import GoogleDriveScanner
+            self.gdrive_scanner = GoogleDriveScanner(self)
+            logger.info("📂 Google Drive Scanner initialized directly")
+        
         # THEN setup routes (so avatar_generator exists when routes reference it)
         self._setup_routes()
 
