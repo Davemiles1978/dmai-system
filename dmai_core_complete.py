@@ -8734,27 +8734,6 @@ class DMAIApplication:
             
             return jsonify({'success': True, 'results': results})
                 
-    def _get_category_color(self, category):
-        """Return color for category (preserving your existing scheme)"""
-        colors = {
-            'core': '#ff3333',      # Red - Core Knowledge
-            'artistic': '#33ff33',  # Green - Artistic/Creative
-            'creative': '#33ff33',  # Green - Artistic/Creative
-            'wealth': '#3399ff',    # Blue - Wealth/Finance
-            'finance': '#3399ff',   # Blue - Wealth/Finance
-            'evolution': '#ff9933', # Orange - Evolution Accelerator
-            'reverse': '#ff9933',   # Orange - Evolution Accelerator
-            'research': '#33cccc',  # Teal - Research
-            'entity': '#ffff33',    # Yellow - Entity/General
-            'general': '#ffff33',   # Yellow - Entity/General
-        }
-        for key, color in colors.items():
-            if key in category.lower():
-                return color
-        return '#888888'  # Gray default
-
-
-        # ============================================================
         # REPO INTEGRATION ENGINE API ENDPOINTS
         # ============================================================
 
@@ -10061,6 +10040,27 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+    def _get_category_color(self, category):
+        """Return color for category (preserving your existing scheme)"""
+        colors = {
+            'core': '#ff3333',      # Red - Core Knowledge
+            'artistic': '#33ff33',  # Green - Artistic/Creative
+            'creative': '#33ff33',  # Green - Artistic/Creative
+            'wealth': '#3399ff',    # Blue - Wealth/Finance
+            'finance': '#3399ff',   # Blue - Wealth/Finance
+            'evolution': '#ff9933', # Orange - Evolution Accelerator
+            'reverse': '#ff9933',   # Orange - Evolution Accelerator
+            'research': '#33cccc',  # Teal - Research
+            'entity': '#ffff33',    # Yellow - Entity/General
+            'general': '#ffff33',   # Yellow - Entity/General
+        }
+        for key, color in colors.items():
+            if key in category.lower():
+                return color
+        return '#888888'  # Gray default
+
+
+        # ============================================================
     def _handle_command(self, command: str) -> str:
         cmd = command.lower().strip()
         status = self.evolution.get_status()
