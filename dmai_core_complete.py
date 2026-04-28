@@ -3031,6 +3031,9 @@ class UnifiedEvolutionEngine:
         try:
             self.integration_engine = RepoIntegrationEngine(self)
             logger.info("🧬 Repo Integration Engine initialized")
+            # Expose to parent DMAI app so API routes can access it
+            if hasattr(self, 'parent') and self.parent:
+                self.parent.integration_engine = self.integration_engine
 
             # Pre-load the default integration queue
             for repo in DEFAULT_INTEGRATION_QUEUE:
