@@ -8354,17 +8354,22 @@ class DMAIApplication:
                         import uuid
                         new_macro_id = f"insight_{uuid.uuid4().int % 10**15}_{int(time.time())}"
                         category_title = unlinked_prefix.strip()
-                        cursor.execute('''
+                        cursor.execute(f'''
                             INSERT INTO insights (id, insight_text, entity_type, entities, relationship, 
                                 source_topic, target_topic, confidence, neuron_level, parent_macro_id,
                                 cluster_id, is_visible_at_top_level, created_at)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'macro', NULL, NULL, 1, datetime('now'))
-                        ''', (new_macro_id, f'[{category_title}] {category_title} Knowledge Base: Accumulated research and insights',
-                              'topic_macro', json.dumps([category_title]),
-                              f'organizes_{category_title.lower().replace(" ", "_")}',
-                              f'system_init_{category_title.lower().replace(" ", "_")}',
-                              category_title.lower().replace(" ", "_"),
-                              0.95))
+                            VALUES (
+                                '{new_macro_id}',
+                                '{category_title[:200]}',
+                                'topic_macro_{category_title.lower().replace(" ", "_")}',
+                                '{json.dumps([category_title])}',
+                                'organizes_{category_title.lower().replace(" ", "_")}',
+                                'system_init_{category_title.lower().replace(" ", "_")}',
+                                '{category_title.lower().replace(" ", "_")}',
+                                0.95,
+                                'macro', NULL, NULL, 1, datetime('now')
+                            )
+                        ''')
                         prefix_to_macro[category_title] = new_macro_id
                         created_macros += 1
                 

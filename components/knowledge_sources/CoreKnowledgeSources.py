@@ -690,10 +690,17 @@ class ArticleReader:
                 
                 # Default if nothing detected
                 if detected_category is None or max_matches == 0:
-                    detected_category = "Knowledge Module"
-                
-                # ============================================================
-                # CHECK IF MACRO NEURON EXISTS FOR THIS CATEGORY
+                # No keyword match - extract category from title itself
+                    # No keyword match - extract category from title itself
+                    # Takes first capitalized phrase or first 2-3 meaningful words
+                    title_words = title.split()[:5] if title else []
+                    # Filter out common stop words and short words
+                    stop_words = {"the", "a", "an", "is", "in", "of", "to", "for", "and", "or", "on", "at", "with", "by", "from", "this", "that", "it", "as", "be", "has", "have", "was", "are", "were", "been", "can", "will", "would", "could", "should", "may", "might", "shall", "not", "no", "new", "how", "what", "why", "who", "when", "where", "which"}
+                    meaningful = [w for w in title_words if len(w) > 2 and w.lower() not in stop_words]
+                    if meaningful:
+                        detected_category = " ".join(meaningful[:3]).title()
+                    else:
+                        detected_category = title[:40].strip() if title else "General Knowledge"
                 # ============================================================
                 macro_id = None
                 
