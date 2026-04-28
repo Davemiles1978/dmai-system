@@ -5730,6 +5730,11 @@ class DMAIApplication:
         # Initialize avatar generator FIRST
         self.avatar_generator = AvatarGenerator()
         
+        # Expose integration engine from evolution to main app (for API routes)
+        if hasattr(self.evolution, 'integration_engine') and self.evolution.integration_engine:
+            self.integration_engine = self.evolution.integration_engine
+            logger.info("🧬 Repo Integration Engine exposed to main app")
+        
         # THEN setup routes (so avatar_generator exists when routes reference it)
         self._setup_routes()
 
