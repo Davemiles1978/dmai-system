@@ -4429,34 +4429,140 @@ class UnifiedEvolutionEngine:
             return {"success": False, "error": str(e)}
 
     def _query_si_core_knowledge(self, query: str) -> Optional[str]:
-        """Query SI Core for relevant knowledge based on user question"""
+        """Synapse-aware knowledge retrieval — follows neural links across domains"""
         try:
-            query_lower = query.lower()
-            relevant_insights = []
+            import sqlite3
+            import re
             
-            # Search through SI Core insights for relevant matches
-            for insight_id, insight in self.si_core.insights.items():
-                insight_text = insight.insight_text.lower()
-                # Check if any word from query appears in insight
-                query_words = query_lower.split()[:10]
-                for word in query_words:
-                    if len(word) > 3 and word in insight_text:
-                        relevant_insights.append(insight.insight_text)
-                        break
-                
-                if len(relevant_insights) >= 5:
+            if not hasattr(self.si_core, 'sqlite') or not self.si_core.sqlite:
+                return None
+            
+            db_path = self.si_core.sqlite.db_path
+            conn = sqlite3.connect(str(db_path))
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query_lower = query.lower()
+            query_words = [w for w in query_lower.split() if len(w) > 2]
+            
+            # ============================================================
+            # STEP 1: Find matching macro neuron(s) by topic
+            # ============================================================
+            macro_candidates = []
+            for word in query_words[:5]:
+                cursor.execute('''
+                    SELECT id, insight_text, entity_type, confidence, source_title
+                    FROM insights
+                    WHERE neuron_level = 'macro'
+                      AND (insight_text LIKE ? OR source_title LIKE ?)
+                    LIMIT 5
+                ''', (f'%{word}%', f'%{word}%'))
+                for row in cursor:
+                    if row['id'] not in [m['id'] for m in macro_candidates]:
+                        macro_candidates.append(dict(row))
+                if len(macro_candidates) >= 3:
                     break
             
-            if relevant_insights:
-                # Return full insights without truncation
-                full_answer = "Based on my knowledge:\n\n"
-                for i, insight in enumerate(relevant_insights[:5], 1):
-                    full_answer += f"{i}. {insight}\n\n"
-                return full_answer[:10000]
+            if not macro_candidates:
+                conn.close()
+                return None
             
-            return None
+            # ============================================================
+            # STEP 2: Fetch micro-neurons for each matched macro
+            # ============================================================
+            for macro in macro_candidates[:3]:
+                cursor.execute('''
+                    SELECT insight_text, source_title, source_url
+                    FROM insights
+                    WHERE neuron_level = 'micro' AND parent_macro_id = ?
+                    ORDER BY confidence DESC LIMIT 5
+                ''', (macro['id'],))
+                macro['micros'] = [dict(r) for r in cursor.fetchall()]
+            
+            # ============================================================
+            # STEP 3: Follow synapses to connected macro neurons (1 hop)
+            # ============================================================
+            connected_macros = []
+            seen_ids = set(m['id'] for m in macro_candidates[:3])
+            
+            for macro in macro_candidates[:3]:
+                cursor.execute('''
+                    SELECT DISTINCT 
+                        CASE WHEN s.from_insight = ? THEN s.to_insight ELSE s.from_insight END as connected_id,
+                        s.relationship, s.weight, s.occurrences
+                    FROM synapses s
+                    WHERE (s.from_insight = ? OR s.to_insight = ?)
+                      AND s.occurrences >= 2
+                    ORDER BY s.occurrences DESC
+                    LIMIT 5
+                ''', (macro['id'], macro['id'], macro['id']))
+                
+                for row in cursor:
+                    conn_id = row['connected_id']
+                    if conn_id not in seen_ids:
+                        seen_ids.add(conn_id)
+                        # Get the connected macro's info
+                        cursor.execute('''
+                            SELECT id, insight_text, entity_type, confidence
+                            FROM insights WHERE id = ? AND neuron_level = 'macro'
+                        ''', (conn_id,))
+                        conn_macro = cursor.fetchone()
+                        if conn_macro:
+                            # Get its micros
+                            cursor.execute('''
+                                SELECT insight_text, source_title
+                                FROM insights
+                                WHERE neuron_level = 'micro' AND parent_macro_id = ?
+                                ORDER BY confidence DESC LIMIT 3
+                            ''', (conn_id,))
+                            cm = dict(conn_macro)
+                            cm['micros'] = [dict(r) for r in cursor.fetchall()]
+                            cm['synapse_relationship'] = row['relationship']
+                            cm['synapse_strength'] = row['occurrences']
+                            cm['connected_from'] = macro['insight_text'][:60]
+                            connected_macros.append(cm)
+            
+            conn.close()
+            
+            # ============================================================
+            # STEP 4: Build synthesized response with traversal path
+            # ============================================================
+            primary = macro_candidates[0]
+            clean_primary = re.sub(r'\[[^\]]+\]\s*', '', primary['insight_text'])[:80]
+            
+            response_parts = [f"🧠 Based on my knowledge of '{clean_primary}':\n"]
+            
+            # Add primary micro-knowledge
+            if primary.get('micros'):
+                response_parts.append(f"📚 Core knowledge ({len(primary['micros'])} details):")
+                for i, m in enumerate(primary['micros'][:3], 1):
+                    text = m.get('insight_text', '')[:150]
+                    if text:
+                        response_parts.append(f"  {i}. {text}")
+            
+            # Add connected domains
+            if connected_macros:
+                response_parts.append(f"\n🔗 Cross-domain connections found ({len(connected_macros)} linked topics):")
+                for cm in connected_macros[:3]:
+                    clean_label = re.sub(r'\[[^\]]+\]\s*', '', cm['insight_text'])[:60]
+                    strength = cm.get('synapse_strength', 1)
+                    rel = cm.get('synapse_relationship', 'related')
+                    response_parts.append(f"\n  • {clean_label} (via {rel}, strength: {strength})")
+                    if cm.get('micros'):
+                        for m in cm['micros'][:2]:
+                            text = m.get('insight_text', '')[:100]
+                            if text:
+                                response_parts.append(f"      - {text}")
+            
+            if not primary.get('micros') and not connected_macros:
+                response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
+            
+            response_parts.append(f"\n_This answer was synthesized by following neural links across my knowledge graph. Would you like me to explore any specific connection in more detail?_"  )
+            
+            return '\n'.join(response_parts)[:10000]
+            
         except Exception as e:
-            logger.error(f"SI Core query failed: {e}")
+            logger.error(f"Synapse-aware query failed: {e}")
             return None
         # Handle commands FIRST - before anything else
         if message.startswith('/'):
@@ -4893,35 +4999,140 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             return f"I encountered an error: {str(e)}"
     
     def _query_si_core_knowledge(self, query: str) -> Optional[str]:
-        """Query SI Core for relevant knowledge"""
+        """Synapse-aware knowledge retrieval — follows neural links across domains"""
         try:
-            query_lower = query.lower()
-            relevant_insights = []
+            import sqlite3
+            import re
             
-            # Search through SI Core insights
-            for insight_id, insight in self.si_core.insights.items():
-                insight_text = insight.insight_text.lower() if hasattr(insight, 'insight_text') else str(insight).lower()
-                query_words = query_lower.split()[:10]
-                for word in query_words:
-                    if len(word) > 3 and word in insight_text:
-                        if hasattr(insight, 'insight_text'):
-                            relevant_insights.append(insight.insight_text)
-                        elif isinstance(insight, dict) and 'insight_text' in insight:
-                            relevant_insights.append(insight['insight_text'])
-                        break
-                
-                if len(relevant_insights) >= 5:
+            if not hasattr(self.si_core, 'sqlite') or not self.si_core.sqlite:
+                return None
+            
+            db_path = self.si_core.sqlite.db_path
+            conn = sqlite3.connect(str(db_path))
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query_lower = query.lower()
+            query_words = [w for w in query_lower.split() if len(w) > 2]
+            
+            # ============================================================
+            # STEP 1: Find matching macro neuron(s) by topic
+            # ============================================================
+            macro_candidates = []
+            for word in query_words[:5]:
+                cursor.execute('''
+                    SELECT id, insight_text, entity_type, confidence, source_title
+                    FROM insights
+                    WHERE neuron_level = 'macro'
+                      AND (insight_text LIKE ? OR source_title LIKE ?)
+                    LIMIT 5
+                ''', (f'%{word}%', f'%{word}%'))
+                for row in cursor:
+                    if row['id'] not in [m['id'] for m in macro_candidates]:
+                        macro_candidates.append(dict(row))
+                if len(macro_candidates) >= 3:
                     break
             
-            if relevant_insights:
-                full_answer = "Based on my knowledge:\n\n"
-                for i, insight in enumerate(relevant_insights[:5], 1):
-                    full_answer += f"{i}. {insight}\n\n"
-                return full_answer[:10000]
+            if not macro_candidates:
+                conn.close()
+                return None
             
-            return None
+            # ============================================================
+            # STEP 2: Fetch micro-neurons for each matched macro
+            # ============================================================
+            for macro in macro_candidates[:3]:
+                cursor.execute('''
+                    SELECT insight_text, source_title, source_url
+                    FROM insights
+                    WHERE neuron_level = 'micro' AND parent_macro_id = ?
+                    ORDER BY confidence DESC LIMIT 5
+                ''', (macro['id'],))
+                macro['micros'] = [dict(r) for r in cursor.fetchall()]
+            
+            # ============================================================
+            # STEP 3: Follow synapses to connected macro neurons (1 hop)
+            # ============================================================
+            connected_macros = []
+            seen_ids = set(m['id'] for m in macro_candidates[:3])
+            
+            for macro in macro_candidates[:3]:
+                cursor.execute('''
+                    SELECT DISTINCT 
+                        CASE WHEN s.from_insight = ? THEN s.to_insight ELSE s.from_insight END as connected_id,
+                        s.relationship, s.weight, s.occurrences
+                    FROM synapses s
+                    WHERE (s.from_insight = ? OR s.to_insight = ?)
+                      AND s.occurrences >= 2
+                    ORDER BY s.occurrences DESC
+                    LIMIT 5
+                ''', (macro['id'], macro['id'], macro['id']))
+                
+                for row in cursor:
+                    conn_id = row['connected_id']
+                    if conn_id not in seen_ids:
+                        seen_ids.add(conn_id)
+                        # Get the connected macro's info
+                        cursor.execute('''
+                            SELECT id, insight_text, entity_type, confidence
+                            FROM insights WHERE id = ? AND neuron_level = 'macro'
+                        ''', (conn_id,))
+                        conn_macro = cursor.fetchone()
+                        if conn_macro:
+                            # Get its micros
+                            cursor.execute('''
+                                SELECT insight_text, source_title
+                                FROM insights
+                                WHERE neuron_level = 'micro' AND parent_macro_id = ?
+                                ORDER BY confidence DESC LIMIT 3
+                            ''', (conn_id,))
+                            cm = dict(conn_macro)
+                            cm['micros'] = [dict(r) for r in cursor.fetchall()]
+                            cm['synapse_relationship'] = row['relationship']
+                            cm['synapse_strength'] = row['occurrences']
+                            cm['connected_from'] = macro['insight_text'][:60]
+                            connected_macros.append(cm)
+            
+            conn.close()
+            
+            # ============================================================
+            # STEP 4: Build synthesized response with traversal path
+            # ============================================================
+            primary = macro_candidates[0]
+            clean_primary = re.sub(r'\[[^\]]+\]\s*', '', primary['insight_text'])[:80]
+            
+            response_parts = [f"🧠 Based on my knowledge of '{clean_primary}':\n"]
+            
+            # Add primary micro-knowledge
+            if primary.get('micros'):
+                response_parts.append(f"📚 Core knowledge ({len(primary['micros'])} details):")
+                for i, m in enumerate(primary['micros'][:3], 1):
+                    text = m.get('insight_text', '')[:150]
+                    if text:
+                        response_parts.append(f"  {i}. {text}")
+            
+            # Add connected domains
+            if connected_macros:
+                response_parts.append(f"\n🔗 Cross-domain connections found ({len(connected_macros)} linked topics):")
+                for cm in connected_macros[:3]:
+                    clean_label = re.sub(r'\[[^\]]+\]\s*', '', cm['insight_text'])[:60]
+                    strength = cm.get('synapse_strength', 1)
+                    rel = cm.get('synapse_relationship', 'related')
+                    response_parts.append(f"\n  • {clean_label} (via {rel}, strength: {strength})")
+                    if cm.get('micros'):
+                        for m in cm['micros'][:2]:
+                            text = m.get('insight_text', '')[:100]
+                            if text:
+                                response_parts.append(f"      - {text}")
+            
+            if not primary.get('micros') and not connected_macros:
+                response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
+            
+            response_parts.append(f"\n_This answer was synthesized by following neural links across my knowledge graph. Would you like me to explore any specific connection in more detail?_"  )
+            
+            return '\n'.join(response_parts)[:10000]
+            
         except Exception as e:
-            logger.error(f"SI Core query failed: {e}")
+            logger.error(f"Synapse-aware query failed: {e}")
             return None
     
     def _generate_ai_response(self, user: str, message: str) -> str:
@@ -8399,6 +8610,65 @@ class DMAIApplication:
                     "prefixes_matched": len(details),
                     "macros_created": created_macros,
                     "details": details[:20]
+                })
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/debug/cleanup_bracket_macros', methods=['GET'])
+        def cleanup_bracket_macros():
+            """Fix old macros with doubled [[Category]] brackets from before the patch"""
+            try:
+                import sqlite3
+                import re
+                
+                if not hasattr(self, 'evolution') or not hasattr(self.evolution, 'si_core') or not self.evolution.si_core.sqlite:
+                    return jsonify({"error": "SQLite not available"}), 500
+                
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                
+                # Find all macros with doubled [[ brackets
+                cursor.execute("""
+                    SELECT id, insight_text, entity_type
+                    FROM insights
+                    WHERE neuron_level = 'macro'
+                      AND insight_text LIKE '[[%]'  
+                """)
+                bad_macros = cursor.fetchall()
+                
+                fixed = 0
+                details = []
+                
+                for macro_id, insight_text, entity_type in bad_macros:
+                    # Extract the real category from the doubled text
+                    # Format: [[Capability] Capability Knowledge Base] [Capability] Capability Knowledge Base Knowledge Base:...
+                    match = re.search(r'\[\[([^\]]+)\]\]', insight_text)
+                    if match:
+                        real_category = match.group(1).strip()
+                        
+                        # Clean up: use just the category name as the label
+                        clean_text = real_category[:200]
+                        clean_entity = f'topic_macro_{real_category.lower().replace(" ", "_")}'
+                        
+                        cursor.execute('UPDATE insights SET insight_text = ?, entity_type = ? WHERE id = ?',
+                                     (clean_text, clean_entity, macro_id))
+                        
+                        fixed += 1
+                        details.append({
+                            "id": macro_id[:40],
+                            "old_prefix": f"[[{real_category}]]",
+                            "new_label": clean_text[:60],
+                            "new_entity": clean_entity
+                        })
+                
+                conn.commit()
+                conn.close()
+                
+                return jsonify({
+                    "success": True,
+                    "macros_fixed": fixed,
+                    "details": details
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
