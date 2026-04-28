@@ -36,6 +36,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 from enum import Enum
 from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
+from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
 from components.capability_integrator import CapabilityIntegrator
 import uuid
 import urllib.parse
@@ -3023,6 +3024,24 @@ class UnifiedEvolutionEngine:
         # ============================================================
         self.capability_integrator = CapabilityIntegrator(self)
         logger.info("🔧 Capability Integrator initialized")
+
+        # ============================================================
+        # REPO INTEGRATION ENGINE - Strategic orchestrator for evolution
+        # ============================================================
+        self.integration_engine = RepoIntegrationEngine(self)
+        logger.info("🧬 Repo Integration Engine initialized")
+
+        # Pre-load the default integration queue
+        for repo in DEFAULT_INTEGRATION_QUEUE:
+            try:
+                self.integration_engine.add_to_queue(
+                    repo["url"],
+                    priority=repo.get("priority", 2),
+                    repo_name=repo.get("name")
+                )
+            except Exception as e:
+                logger.warning(f"Failed to queue {repo.get('name', repo['url'])}: {e}")
+        logger.info(f"📋 Integration queue loaded: {len(self.integration_engine.queue)} repos queued")
 
         timer_info = self.evolution_timer.get_stage_info()
         logger.info(f"   Stage: {timer_info['name']}")
@@ -8728,6 +8747,82 @@ class DMAIApplication:
                 return color
         return '#888888'  # Gray default
 
+
+        # ============================================================
+        # REPO INTEGRATION ENGINE API ENDPOINTS
+        # ============================================================
+
+        @self.app.route('/api/integration/status', methods=['GET'])
+        def integration_status():
+            """Get integration engine status - queue, completed, organs integrated"""
+            try:
+                if not hasattr(self, 'integration_engine'):
+                    return jsonify({"error": "Integration engine not initialized"}), 500
+                status = self.integration_engine.get_status()
+                return jsonify({"success": True, "status": status})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/integration/queue', methods=['GET'])
+        def integration_queue():
+            """View the integration queue"""
+            try:
+                if not hasattr(self, 'integration_engine'):
+                    return jsonify({"error": "Integration engine not initialized"}), 500
+                queue = self.integration_engine.get_queue()
+                return jsonify({"success": True, "queue": queue, "count": len(queue)})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/integration/add', methods=['POST'])
+        def integration_add():
+            """Add a repo to the integration queue.
+            POST JSON: {"url": "https://github.com/user/repo", "priority": 0, "name": "repo-name"}
+            Priority: 0=CRITICAL, 1=HIGH, 2=MEDIUM, 3=LOW
+            """
+            try:
+                if not hasattr(self, 'integration_engine'):
+                    return jsonify({"error": "Integration engine not initialized"}), 500
+                data = request.get_json()
+                if not data or 'url' not in data:
+                    return jsonify({"error": "Missing 'url' in request body"}), 400
+                result = self.integration_engine.add_to_queue(
+                    data['url'],
+                    priority=data.get('priority', 2),
+                    repo_name=data.get('name')
+                )
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/integration/execute', methods=['POST'])
+        def integration_execute():
+            """Execute the next queued integration (or specify queue_id in JSON body).
+            Safety-gated items require prior approval via /api/integration/approve
+            """
+            try:
+                if not hasattr(self, 'integration_engine'):
+                    return jsonify({"error": "Integration engine not initialized"}), 500
+                result = self.integration_engine.execute_next_integration()
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/integration/approve', methods=['POST'])
+        def integration_approve():
+            """Approve a safety-gated integration for execution.
+            POST JSON: {"queue_id": "abc123"}
+            """
+            try:
+                if not hasattr(self, 'integration_engine'):
+                    return jsonify({"error": "Integration engine not initialized"}), 500
+                data = request.get_json()
+                if not data or 'queue_id' not in data:
+                    return jsonify({"error": "Missing 'queue_id' in request body"}), 400
+                result = self.integration_engine.approve_integration(data['queue_id'])
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
         @self.app.route('/api/debug/force_link_by_prefix', methods=['GET'])
         def force_link_by_prefix():
             """Link micros to macros by matching [Category] prefix"""
