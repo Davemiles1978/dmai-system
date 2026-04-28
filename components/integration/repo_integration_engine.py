@@ -68,31 +68,181 @@ class RepoIntegrationEngine:
             'OpenMythos': {'category': RepoCategory.KNOWLEDGE_PAPER, 'level': IntegrationLevel.KNOWLEDGE, 'augments': 'knowledge_graph', 'description': 'Mythological knowledge system', 'safety_required': False},
         }
 
+    def _get_db_path(self):
+        """Get SQLite database path from SI Core"""
+        if hasattr(self.dmai, 'si_core') and hasattr(self.dmai.si_core, 'sqlite') and self.dmai.si_core.sqlite:
+            return self.dmai.si_core.sqlite.db_path
+        return None
+
+    def _ensure_tables(self):
+        """Create integration tables if they don't exist"""
+        db_path = self._get_db_path()
+        if not db_path:
+            return False
+        import sqlite3
+        conn = sqlite3.connect(str(db_path))
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS integration_queue (
+                id TEXT PRIMARY KEY,
+                url TEXT NOT NULL,
+                name TEXT,
+                priority INTEGER DEFAULT 2,
+                level INTEGER DEFAULT 1,
+                category TEXT,
+                replaces TEXT,
+                augments TEXT,
+                safety_required INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'queued',
+                added_at TEXT,
+                started_at TEXT,
+                completed_at TEXT,
+                approved_at TEXT,
+                error TEXT,
+                classification TEXT
+            )
+        ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS integration_registry (
+                id TEXT PRIMARY KEY,
+                url TEXT NOT NULL,
+                name TEXT,
+                level INTEGER DEFAULT 1,
+                category TEXT,
+                status TEXT,
+                completed_at TEXT,
+                data TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        return True
+
     def _load_queue(self):
-        if self.queue_file.exists():
-            try:
-                with open(self.queue_file, 'r') as f:
-                    return json.load(f)
-            except Exception:
-                pass
-        return []
+        """Load queue from SQLite"""
+        self._ensure_tables()
+        db_path = self._get_db_path()
+        if not db_path:
+            # Fallback to JSON if SQLite unavailable
+            if self.queue_file.exists():
+                try:
+                    with open(self.queue_file, 'r') as f:
+                        return json.load(f)
+                except Exception:
+                    pass
+            return []
+        import sqlite3
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute('SELECT * FROM integration_queue ORDER BY priority, added_at').fetchall()
+        conn.close()
+        queue = []
+        for row in rows:
+            item = dict(row)
+            if item.get('classification') and isinstance(item['classification'], str):
+                try:
+                    item['classification'] = json.loads(item['classification'])
+                except Exception:
+                    pass
+            item['safety_required'] = bool(item.get('safety_required', 0))
+            queue.append(item)
+        return queue
 
     def _save_queue(self):
-        with open(self.queue_file, 'w') as f:
-            json.dump(self.queue, f, indent=2, default=str)
+        """Save queue to SQLite"""
+        self._ensure_tables()
+        db_path = self._get_db_path()
+        if not db_path:
+            with open(self.queue_file, 'w') as f:
+                json.dump(self.queue, f, indent=2, default=str)
+            return
+        import sqlite3
+        conn = sqlite3.connect(str(db_path))
+        for item in self.queue:
+            classification_json = json.dumps(item.get('classification', {}), default=str) if item.get('classification') else '{}'
+            conn.execute('''
+                INSERT OR REPLACE INTO integration_queue 
+                (id, url, name, priority, level, category, replaces, augments, safety_required, status, added_at, started_at, completed_at, approved_at, error, classification)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                item.get('id', ''),
+                item.get('url', ''),
+                item.get('name', ''),
+                item.get('priority', 2),
+                item.get('level', 1),
+                item.get('category', ''),
+                item.get('replaces', ''),
+                item.get('augments', ''),
+                1 if item.get('safety_required') else 0,
+                item.get('status', 'queued'),
+                item.get('added_at', ''),
+                item.get('started_at', ''),
+                item.get('completed_at', ''),
+                item.get('approved_at', ''),
+                item.get('error', ''),
+                classification_json
+            ))
+        conn.commit()
+        conn.close()
 
     def _load_registry(self):
-        if self.registry_file.exists():
-            try:
-                with open(self.registry_file, 'r') as f:
-                    return json.load(f)
-            except Exception:
-                pass
-        return {'completed': [], 'organs': {}, 'capabilities': {}, 'knowledge': {}}
+        """Load registry from SQLite"""
+        self._ensure_tables()
+        db_path = self._get_db_path()
+        if not db_path:
+            if self.registry_file.exists():
+                try:
+                    with open(self.registry_file, 'r') as f:
+                        return json.load(f)
+                except Exception:
+                    pass
+            return {'completed': [], 'organs': {}, 'capabilities': {}, 'knowledge': {}}
+        import sqlite3
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute('SELECT * FROM integration_registry').fetchall()
+        conn.close()
+        registry = {'completed': [], 'organs': {}, 'capabilities': {}, 'knowledge': {}}
+        for row in rows:
+            item = dict(row)
+            if item.get('data') and isinstance(item['data'], str):
+                try:
+                    stored_data = json.loads(item['data'])
+                    item.update(stored_data)
+                except Exception:
+                    pass
+            registry['completed'].append(item)
+            level = item.get('level', 1)
+            level_key = 'organs' if level == 3 else 'capabilities' if level == 2 else 'knowledge'
+            registry[level_key][item.get('name', '')] = item
+        return registry
 
     def _save_registry(self):
-        with open(self.registry_file, 'w') as f:
-            json.dump(self.registry, f, indent=2, default=str)
+        """Save registry to SQLite"""
+        self._ensure_tables()
+        db_path = self._get_db_path()
+        if not db_path:
+            with open(self.registry_file, 'w') as f:
+                json.dump(self.registry, f, indent=2, default=str)
+            return
+        import sqlite3
+        conn = sqlite3.connect(str(db_path))
+        for item in self.registry.get('completed', []):
+            data_json = json.dumps(item, default=str)
+            conn.execute('''
+                INSERT OR REPLACE INTO integration_registry (id, url, name, level, category, status, completed_at, data)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                item.get('id', ''),
+                item.get('url', ''),
+                item.get('name', ''),
+                item.get('level', 1),
+                item.get('category', ''),
+                item.get('status', 'completed'),
+                item.get('completed_at', ''),
+                data_json
+            ))
+        conn.commit()
+        conn.close()
 
     def _extract_repo_name(self, url):
         match = re.search(r'github\.com/[\w-]+/([\w.-]+)', url)
