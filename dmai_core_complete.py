@@ -37,6 +37,7 @@ from pathlib import Path
 from enum import Enum
 from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
 from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
+from components.integration.google_drive_scanner import GoogleDriveScanner
 from components.capability_integrator import CapabilityIntegrator
 import uuid
 import urllib.parse
@@ -3046,6 +3047,10 @@ class UnifiedEvolutionEngine:
                 except Exception as e:
                     logger.warning(f"Failed to queue {repo.get('name', repo['url'])}: {e}")
             logger.info(f"📋 Integration queue loaded: {len(self.integration_engine.queue)} repos queued")
+
+            # Initialize Google Drive Scanner
+            self.gdrive_scanner = GoogleDriveScanner(self)
+            logger.info("📂 Google Drive Scanner initialized")
         except Exception as e:
             logger.error(f"❌ Repo Integration Engine failed to initialize: {e}")
             import traceback
@@ -8742,6 +8747,22 @@ class DMAIApplication:
             
             return jsonify({'success': True, 'results': results})
                 
+
+        @self.app.route('/api/gdrive/scan', methods=['POST'])
+        def gdrive_scan():
+            """Scan a shared Google Drive folder for repos and integrate them.
+            POST JSON: {"folder_url": "https://drive.google.com/drive/folders/..."}
+            """
+            try:
+                if not hasattr(self, 'gdrive_scanner'):
+                    return jsonify({"error": "Google Drive Scanner not initialized"}), 500
+                data = request.get_json()
+                folder_url = data.get('folder_url', 'https://drive.google.com/drive/folders/1NKv7hn7-iDWR7T3QoDzxlog85wlakdcL')
+                result = self.gdrive_scanner.scan_folder(folder_url)
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         # REPO INTEGRATION ENGINE API ENDPOINTS
         # ============================================================
 
