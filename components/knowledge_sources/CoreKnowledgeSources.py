@@ -721,8 +721,8 @@ class ArticleReader:
                 if macro_id is None:
                     # Create new macro neuron for this category
                     macro_id = self.si_core.add_insight(
-                        insight_text=f"[{detected_category}] {detected_category} Knowledge Base: Accumulated research and insights",
-                        entity_type="topic_macro",
+                        insight_text=title[:200],
+                        entity_type=f"topic_macro_{detected_category.lower().replace(' ', '_')}",
                         entities=[detected_category, "research", "knowledge"],
                         relationship="organizes",
                         source_topic="research",

@@ -7355,11 +7355,15 @@ class DMAIApplication:
                     '#cc66ff', '#ffcc33', '#66ffcc', '#ff6666', '#99cc33',
                 ]
                 
-                def get_category_from_prefix(insight_text):
+                def get_category_from_prefix(insight_text, entity_type=''):
                     """Extract category directly from [Category] prefix"""
                     import re
                     match = re.search(r'\[([^\]]+)\]', insight_text)
                     if not match:
+                        # Fallback: parse category from entity_type (e.g., "topic_macro_content_generation" → "Content Generation")
+                        if entity_type and entity_type.startswith('topic_macro_'):
+                            category_name = entity_type.replace('topic_macro_', '').replace('_', ' ').title()
+                            return category_name
                         return 'Core'
                     
                     prefix = match.group(1)
@@ -7494,7 +7498,7 @@ class DMAIApplication:
                             entity_type = row['entity_type'] or 'syllabus_topic'
                             
                             # Use the NEW dynamic category detection
-                            category = get_category_from_prefix(insight_text)
+                            category = get_category_from_prefix(insight_text, entity_type)
                             color = get_color_for_category(category)
                             
                             clean_label = get_clean_topic_name(insight_text)
