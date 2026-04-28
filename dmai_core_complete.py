@@ -8816,6 +8816,22 @@ class DMAIApplication:
                 return jsonify({"success": True, "result": result})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/integration/reset', methods=['POST'])
+        def integration_reset():
+            """Reset a completed/failed integration back to queued for re-execution.
+            POST JSON: {"queue_id": "abc123"}
+            """
+            try:
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized - check logs for import errors"}), 500
+                data = request.get_json()
+                if not data or 'queue_id' not in data:
+                    return jsonify({"error": "Missing 'queue_id' in request body"}), 400
+                result = self.integration_engine.reset_integration(data['queue_id'])
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
         @self.app.route('/api/debug/force_link_by_prefix', methods=['GET'])
         def force_link_by_prefix():
             """Link micros to macros by matching [Category] prefix"""

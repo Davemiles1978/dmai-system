@@ -164,6 +164,40 @@ class RepoIntegrationEngine:
                 return {'status': 'approved', 'item': item}
         return {'status': 'not_found'}
 
+
+    def reset_integration(self, queue_id: str) -> Dict:
+        """Reset a completed or failed integration back to queued for re-execution"""
+        # Check queue first
+        for item in self.queue:
+            if item['id'] == queue_id:
+                item['status'] = 'queued'
+                if 'completed_at' in item:
+                    del item['completed_at']
+                if 'error' in item:
+                    del item['error']
+                self._save_queue()
+                return {'status': 'reset', 'item': item}
+        
+        # Check registry for completed items that are no longer in queue
+        for completed in self.registry.get('completed', []):
+            if completed.get('id') == queue_id or completed.get('url', '').find(queue_id) >= 0:
+                # Re-add to queue
+                completed['status'] = 'queued'
+                if 'completed_at' in completed:
+                    del completed['completed_at']
+                self.queue.append(completed)
+                # Remove from registry completed list
+                self.registry['completed'] = [c for c in self.registry['completed'] if c.get('id') != queue_id]
+                # Remove from organs/capabilities/knowledge
+                for level_key in ['organs', 'capabilities', 'knowledge']:
+                    keys_to_remove = [k for k, v in self.registry.get(level_key, {}).items() if v.get('id') == queue_id]
+                    for k in keys_to_remove:
+                        del self.registry[level_key][k]
+                self._save_queue()
+                self._save_registry()
+                return {'status': 'reset_from_registry', 'item': completed}
+        
+        return {'status': 'not_found'}
     def execute_next_integration(self):
         next_item = self.get_next_integration()
         if not next_item:

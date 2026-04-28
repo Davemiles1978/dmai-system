@@ -1646,31 +1646,31 @@ class DMAI_{capability['name']}:
             description = integration_result.get('description', '')
             
             if capability_type == 'funding':
-                insight_text = f"Self-funding capability: {capability_name} - generates revenue autonomously"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'replication':
-                insight_text = f"Self-replication capability: {capability_name} - spawns and manages child instances"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'identity':
-                insight_text = f"Identity management: {capability_name} - handles authentication and on-chain identity"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'survival':
-                insight_text = f"Survival mechanism: {capability_name} - monitors resources and ensures continued operation"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'automation':
-                insight_text = f"Automation capability: {capability_name} - executes tasks without human intervention"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'ai_model':
-                insight_text = f"AI model: {capability_name} - machine learning inference and training"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'blockchain':
-                insight_text = f"Blockchain integration: {capability_name} - on-chain transactions and contracts"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'api':
-                insight_text = f"API endpoint: {capability_name} - handles external service communication"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'generation':
-                insight_text = f"Content generation: {capability_name} - creates images, text, or media"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'data_structure':
-                insight_text = f"Data structure: {capability_name} - organizes and manages data efficiently"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'configuration':
-                insight_text = f"Configuration: {capability_name} - manages system settings and parameters"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             elif capability_type == 'knowledge':
-                insight_text = f"Knowledge module: {capability_name} - stores and retrieves learned information"
+                            insight_text = f"{capability_name} - {description[:80] if description else 'integrated capability'}"
             else:
-                insight_text = f"Capability: {capability_name} ({capability_type}) - {description[:100] if description else 'enables new functionality'}"
+                            insight_text = f"{capability_name} - {description[:100] if description else 'enables new functionality'}"
             
             entities = [
                 capability_name,
