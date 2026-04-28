@@ -183,8 +183,13 @@ class RepoIntegrationEngine:
                 result['steps']['development'] = {'status': 'delegated'}
             if hasattr(self.dmai, 'capability_integrator'):
                 try:
-                    self.dmai.capability_integrator.ingest_repository(repo_path, category=next_item.get('category', 'unknown'))
-                    result['steps']['capability_registration'] = {'status': 'success'}
+                    cap_result = self.dmai.capability_integrator.process_repository(next_item['url'])
+                    result['steps']['capability_registration'] = {
+                        'status': 'success',
+                        'capabilities_found': len(cap_result.get('capabilities_found', [])),
+                        'capabilities_integrated': len(cap_result.get('capabilities_integrated', [])),
+                        'neurons_created': len(cap_result.get('neurons_created', []))
+                    }
                 except Exception as e:
                     result['steps']['capability_registration'] = {'status': 'skipped', 'reason': str(e)}
             if repo_path and 'tmp' in str(repo_path):
