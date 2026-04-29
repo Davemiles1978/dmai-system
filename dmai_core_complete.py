@@ -564,11 +564,25 @@ class SyntheticIntelligenceCore:
             # Run quality filter for other insights
             
             # ============================================================
-            # QUALITY GATE 1: Minimum content length (200 chars for micro, 50 for macro)
+            # QUALITY GATE 1: Minimum content length
+            # Text: 200 chars micro, 50 macro. Media: no min. Code: 100.
             # ============================================================
-            min_len = 200 if neuron_level == 'micro' else 50
+            media_types = ['image', 'video', 'audio', 'diagram', 'cad', 'photo', 'screenshot', 'media_reference']
+            code_types = ['code', 'function', 'class', 'script', 'source_code', 'implementation']
+            is_media = any(mt in entity_type.lower() for mt in media_types)
+            is_code = any(ct in entity_type.lower() for ct in code_types) or any(kw in (insight_text or '')[:50] for kw in ['def ', 'class ', 'import ', 'function ', 'const ', 'let ', 'var '])
+            
+            if is_media:
+                min_len = 10  # Just need a label + source URL
+            elif is_code:
+                min_len = 100
+            elif neuron_level == 'micro':
+                min_len = 200
+            else:
+                min_len = 50
+            
             if not insight_text or len(insight_text.strip()) < min_len:
-                logger.debug(f"Rejected: too short ({len(insight_text) if insight_text else 0} chars, need {min_len})")
+                logger.debug(f"Rejected: too short ({len(insight_text) if insight_text else 0} chars, need {min_len}) [{entity_type}]")
                 return None
             
             # ============================================================
@@ -8748,6 +8762,60 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+
+        @self.app.route('/api/system/cleanup_placeholders', methods=['POST'])
+        def cleanup_placeholder_neurons():
+            """Remove placeholder neurons (Knowledge Base: Accumulated research)
+            and merge their children into properly-named macros.
+            Only deletes genuine placeholder shells - keeps all real knowledge.
+            """
+            import sqlite3, re, uuid, time
+            try:
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                stats = {"before": 0, "placeholders": 0, "empty_deleted": 0, "with_children_merged": 0, "children_reassigned": 0}
+                cursor.execute("SELECT COUNT(*) FROM insights WHERE neuron_level='macro'")
+                stats["before"] = cursor.fetchone()[0]
+                cursor.execute("SELECT id, insight_text FROM insights WHERE neuron_level='macro' AND insight_text LIKE '%Knowledge Base: Accumulated research%'")
+                placeholders = cursor.fetchall()
+                stats["placeholders"] = len(placeholders)
+                for ph_id, ph_text in placeholders:
+                    match = re.search(r'\[([^\]]+)\]', ph_text)
+                    if not match:
+                        continue
+                    category_name = match.group(1).strip()
+                    cursor.execute("SELECT COUNT(*) FROM insights WHERE parent_macro_id = ?", (ph_id,))
+                    child_count = cursor.fetchone()[0]
+                    if child_count == 0:
+                        cursor.execute("DELETE FROM insights WHERE id = ?", (ph_id,))
+                        cursor.execute("DELETE FROM synapses WHERE from_insight = ? OR to_insight = ?", (ph_id, ph_id))
+                        stats["empty_deleted"] += 1
+                    else:
+                        new_entity = f"topic_macro_{category_name.lower().replace(' ', '_')}"
+                        cursor.execute("SELECT id FROM insights WHERE neuron_level='macro' AND entity_type=? AND insight_text NOT LIKE '%Knowledge Base%' LIMIT 1", (new_entity,))
+                        new_macro = cursor.fetchone()
+                        if not new_macro:
+                            new_macro_id = f"insight_{uuid.uuid4().int % 10**15}_{int(time.time())}"
+                            cursor.execute("INSERT INTO insights (id, insight_text, entity_type, entities, relationship, source_topic, target_topic, confidence, neuron_level, is_visible_at_top_level, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 0.95, 'macro', 1, datetime('now'))", (new_macro_id, category_name, new_entity, json.dumps([category_name]), 'organizes', 'system_cleanup', category_name.lower().replace(' ', '_')))
+                            new_macro_id_used = new_macro_id
+                        else:
+                            new_macro_id_used = new_macro[0]
+                        cursor.execute("UPDATE insights SET parent_macro_id = ?, cluster_id = ? WHERE parent_macro_id = ?", (new_macro_id_used, new_macro_id_used, ph_id))
+                        stats["children_reassigned"] += cursor.rowcount
+                        cursor.execute("UPDATE synapses SET to_insight = ? WHERE to_insight = ?", (new_macro_id_used, ph_id))
+                        cursor.execute("UPDATE synapses SET from_insight = ? WHERE from_insight = ?", (new_macro_id_used, ph_id))
+                        cursor.execute("DELETE FROM insights WHERE id = ?", (ph_id,))
+                        stats["with_children_merged"] += 1
+                conn.commit()
+                conn.close()
+                if hasattr(self.evolution, 'si_core'):
+                    self.evolution.si_core._load_insights()
+                return jsonify({"success": True, "cleanup_stats": stats})
+            except Exception as e:
+                import traceback
+                return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
         @self.app.route('/api/system/force_start', methods=['POST'])
         def force_start_system():
             """Force-start evolution thread and all training systems (backgrounded)"""
@@ -9329,6 +9397,31 @@ class DMAIApplication:
         def api_training_details():
             system = request.args.get('system', None)
             return jsonify(self.evolution.get_training_details(system))
+
+
+        @self.app.route('/api/training/run_quality_trainer', methods=['POST'])
+        def run_quality_trainer():
+            """Run the response quality trainer - learns from AIs and web search."""
+            import threading
+            try:
+                db_path = self.evolution.si_core.sqlite.db_path if hasattr(self.evolution, 'si_core') and self.evolution.si_core.sqlite else None
+                if not db_path:
+                    return jsonify({"error": "SQLite not available"}), 500
+                from components.training.response_quality_trainer import ResponseQualityTrainer
+                trainer = ResponseQualityTrainer(
+                    db_path=str(db_path),
+                    ai_hub=self.evolution.ai_hub if hasattr(self.evolution, 'ai_hub') else None
+                )
+                def run_training():
+                    try:
+                        result = trainer.run_full_pipeline(num_topics=20)
+                        logger.info(f"Quality trainer: {result.get('dataset_size', 0)} pairs")
+                    except Exception as e:
+                        logger.error(f"Quality trainer failed: {e}")
+                threading.Thread(target=run_training, daemon=True).start()
+                return jsonify({"success": True, "message": "Response quality trainer started"})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
 
         @self.app.route('/api/debug/knowledge')
         def debug_knowledge():

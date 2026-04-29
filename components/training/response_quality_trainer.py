@@ -134,60 +134,131 @@ class ResponseQualityTrainer:
         return questions
     
     def query_all_ais(self, questions: List[Dict]) -> List[Dict]:
-        """Query multiple AI systems for each question and collect responses."""
-        if not self.ai_hub:
-            logger.error("No AI Hub available for querying")
-            return []
+        """Query AI systems AND web search for benchmark answers.
+        Learns from WHATEVER responds - 1 source or 20, all valuable."""
         
-        # AI tutors to query (thinking AIs only, not code search tools)
+        # AI tutors to query (whatever is available)
         ai_tutors = ['_query_openai', '_query_anthropic', '_query_gemini', '_query_deepseek']
         
         dataset = []
         
         for i, q_data in enumerate(questions):
             question = q_data['question']
-            logger.info(f"Querying AIs for question {i+1}/{len(questions)}: {question[:80]}...")
+            logger.info(f"Querying sources for Q{i+1}/{len(questions)}: {question[:80]}...")
             
             qa_entry = {
                 'question': question,
                 'topic': q_data['topic']['title'],
                 'category': q_data['category'],
                 'answers': {},
+                'sources_queried': 0,
+                'sources_responded': 0,
                 'timestamp': datetime.now().isoformat()
             }
             
-            for tutor_method_name in ai_tutors:
-                try:
-                    method = getattr(self.ai_hub, tutor_method_name, None)
-                    if not method:
-                        continue
-                    
-                    tutor_name = tutor_method_name.replace('_query_', '').replace('_', ' ').title()
-                    result = method(question)
-                    
-                    if result.get('success') and result.get('response'):
-                        qa_entry['answers'][tutor_name] = {
-                            'response': result['response'][:1000],
-                            'model': result.get('model', 'unknown')
-                        }
-                        logger.debug(f"  {tutor_name}: Got response ({len(result['response'])} chars)")
-                    else:
-                        qa_entry['answers'][tutor_name] = {
-                            'error': result.get('error', 'No response')
-                        }
-                    
-                    time.sleep(0.5)  # Rate limiting between tutors
-                    
-                except Exception as e:
-                    qa_entry['answers'][tutor_method_name] = {'error': str(e)}
+            # Query AI tutors
+            if self.ai_hub:
+                for tutor_method_name in ai_tutors:
+                    try:
+                        method = getattr(self.ai_hub, tutor_method_name, None)
+                        if not method:
+                            continue
+                        
+                        qa_entry['sources_queried'] += 1
+                        tutor_name = tutor_method_name.replace('_query_', '').replace('_', ' ').title()
+                        result = method(question)
+                        
+                        if result and result.get('success') and result.get('response') and len(result['response']) > 50:
+                            qa_entry['answers'][tutor_name] = {
+                                'response': result['response'][:1500],
+                                'model': result.get('model', 'unknown'),
+                                'source_type': 'ai_tutor'
+                            }
+                            qa_entry['sources_responded'] += 1
+                            logger.info(f"  {tutor_name}: Got response ({len(result['response'])} chars)")
+                        else:
+                            error_msg = result.get('error', 'No response') if result else 'Method returned None'
+                            logger.debug(f"  {tutor_name}: Skipped - {error_msg[:80]}")
+                        
+                        time.sleep(0.3)
+                    except Exception as e:
+                        logger.debug(f"  {tutor_method_name}: Error - {str(e)[:80]}")
             
+            # Query web search if available
+            try:
+                qa_entry['sources_queried'] += 1
+                web_result = self._query_web_search(question)
+                if web_result and len(web_result) > 50:
+                    qa_entry['answers']['Web Search'] = {
+                        'response': web_result[:1500],
+                        'model': 'web_search',
+                        'source_type': 'web_search'
+                    }
+                    qa_entry['sources_responded'] += 1
+                    logger.info(f"  Web Search: Got response ({len(web_result)} chars)")
+            except Exception as e:
+                logger.debug(f"  Web Search: Error - {str(e)[:80]}")
+            
+            # Always add entry even if no sources responded (marks gap)
             dataset.append(qa_entry)
             
             # Save incrementally
-            self._save_dataset(dataset)
-            time.sleep(1)  # Rate limiting between questions
+            if qa_entry['sources_responded'] > 0:
+                self._save_dataset(dataset)
+            
+            time.sleep(1)
+        
+        total_responses = sum(d['sources_responded'] for d in dataset)
+        logger.info(f"Training dataset: {len(dataset)} questions, {total_responses} total answers from all sources")
         
         return dataset
+    
+    def _query_web_search(self, question: str) -> Optional[str]:
+        """Query web search for benchmark answers."""
+        try:
+            import requests
+            # Try Brave Search first if API key available
+            import os
+            brave_key = os.getenv('BRAVE_API_KEY')
+            if brave_key:
+                response = requests.get(
+                    'https://api.search.brave.com/res/v1/web/search',
+                    params={'q': question, 'count': 3},
+                    headers={'X-Subscription-Token': brave_key, 'Accept': 'application/json'},
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    results = response.json().get('web', {}).get('results', [])
+                    if results:
+                        snippets = []
+                        for r in results[:3]:
+                            snippets.append(f"{r.get('title', '')}: {r.get('description', '')}")
+                        return '\n'.join(snippets)
+            
+            # Fallback to DuckDuckGo Instant Answer API (no key needed)
+            response = requests.get(
+                'https://api.duckduckgo.com/',
+                params={'q': question, 'format': 'json', 'no_html': 1},
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                abstract = data.get('AbstractText', '')
+                if abstract:
+                    return abstract
+                # Try related topics
+                related = data.get('RelatedTopics', [])
+                if related:
+                    texts = []
+                    for t in related[:3]:
+                        if isinstance(t, dict):
+                            texts.append(t.get('Text', ''))
+                    return '\n'.join(texts)
+            
+        except Exception as e:
+            logger.debug(f"Web search failed: {e}")
+        
+        return None
     
     def analyze_response_patterns(self, dataset: List[Dict]) -> Dict:
         """Analyze how different AIs structure their answers."""
