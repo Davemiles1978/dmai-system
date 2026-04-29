@@ -1215,10 +1215,13 @@ class SyntheticIntelligenceCore:
 
     def save_state(self):
         """Persist network state to disk AND SQLite (survives deploys)"""
+        # Take a snapshot to avoid 'dictionary changed size during iteration'
+        with self.insights_lock:
+            insights_snapshot = dict(self.insights)
         state = {
-            'insights': {iid: insight.to_dict() for iid, insight in self.insights.items()},
-            'topics': self.topics,
-            'synapses': self.synapses,
+            'insights': {iid: insight.to_dict() for iid, insight in insights_snapshot.items()},
+            'topics': dict(self.topics),
+            'synapses': list(self.synapses),
             'evolution_cycles': self.evolution_cycles,
             'saved_at': datetime.now().isoformat()
         }
@@ -1234,7 +1237,7 @@ class SyntheticIntelligenceCore:
                 conn = sqlite3.connect(str(self.sqlite.db_path))
                 conn.execute(
                     "INSERT OR REPLACE INTO evolution_cycles (cycle_number, completed_at, insights_created, synapses_created, consciousness_level) VALUES (?, ?, ?, ?, ?)",
-                    (self.evolution_cycles, datetime.now().isoformat(), len(self.insights), len(self.synapses), getattr(self, 'consciousness_level', 0))
+                    (self.evolution_cycles, datetime.now().isoformat(), len(self.insights), len(self.synapses), self.consciousness_level() if callable(getattr(self, 'consciousness_level', None)) else getattr(self, 'consciousness_level', 0))
                 )
                 conn.commit()
                 conn.close()
