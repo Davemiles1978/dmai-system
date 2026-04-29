@@ -8763,6 +8763,46 @@ class DMAIApplication:
                 return jsonify({"error": str(e)}), 500
 
 
+        @self.app.route('/api/system/full_wipe', methods=['POST'])
+        def full_knowledge_wipe():
+            """FULL WIPE: Clear all insights and synapses for clean rebuild.
+            Keeps evolution cycles, training progress, system config.
+            Requires: {"confirm": true} in request body.
+            """
+            import sqlite3
+            try:
+                data = request.get_json() or {}
+                if not data.get('confirm'):
+                    return jsonify({"error": "Must confirm with {'confirm': true}. This DELETES all knowledge.", "current_stats": {"neurons": 0}}), 400
+                db_path = self.evolution.si_core.sqlite.db_path
+                conn = sqlite3.connect(str(db_path), timeout=30)
+                cursor = conn.cursor()
+                # Count before
+                cursor.execute("SELECT COUNT(*) FROM insights")
+                insights_before = cursor.fetchone()[0]
+                cursor.execute("SELECT COUNT(*) FROM synapses")
+                synapses_before = cursor.fetchone()[0]
+                # Wipe
+                cursor.execute("DELETE FROM synapses")
+                cursor.execute("DELETE FROM insights")
+                conn.commit()
+                conn.close()
+                # Reload SI Core
+                if hasattr(self.evolution, 'si_core'):
+                    with self.evolution.si_core.insights_lock:
+                        self.evolution.si_core.insights.clear()
+                # Clear scan histories
+                import os
+                for f in ['data/gdrive_scan_history.json', 'data/github_starred_history.json', 'data/integration_queue.json', 'data/integration_registry.json']:
+                    try:
+                        os.remove(os.path.join(os.path.dirname(__file__), f))
+                    except:
+                        pass
+                return jsonify({"success": True, "wiped": {"insights": insights_before, "synapses": synapses_before}, "message": "Knowledge base wiped. Rebuilding with quality gates active."})
+            except Exception as e:
+                import traceback
+                return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
         @self.app.route('/api/system/cleanup_placeholders', methods=['POST'])
         def cleanup_placeholder_neurons():
             """Remove placeholder neurons (Knowledge Base: Accumulated research)
