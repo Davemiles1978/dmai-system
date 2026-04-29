@@ -456,11 +456,42 @@ Be specific, educational, and focused on real application.
                 logger.error(f"AI tutor harvest failed: {e}")
         
         if not harvested_knowledge:
-            harvested_knowledge.append({
-                'source': 'internal',
-                'content': f"Knowledge about {topic_name} for {self.current_stage} stage development. {'This is an evolution accelerator topic.' if is_accelerator else ''}",
-                'topic': topic_name
-            })
+            # Try web search as fallback before giving up
+            try:
+                import requests
+                response = requests.get(
+                    'https://api.duckduckgo.com/',
+                    params={'q': topic_name, 'format': 'json', 'no_html': 1},
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    abstract = data.get('AbstractText', '')
+                    if abstract and len(abstract) > 100:
+                        harvested_knowledge.append({
+                            'source': 'web_search',
+                            'content': abstract[:2000],
+                            'topic': topic_name
+                        })
+                        logger.info(f"   🌐 Web search provided knowledge for: {topic_name}")
+            except Exception as e:
+                logger.debug(f"   Web search fallback failed: {e}")
+        
+        if not harvested_knowledge:
+            # Last resort: mark as researched but not yet learned
+            logger.warning(f"   ⚠️ Could not harvest knowledge for: {topic_name} - will retry next cycle")
+            return {
+                'success': False,
+                'topic': topic_name,
+                'category': category,
+                'is_accelerator': is_accelerator,
+                'stage': self.current_stage,
+                'mastery_level': current_mastery,
+                'mastery_threshold': threshold,
+                'is_mastered': False,
+                'consciousness_boost': 0.0,
+                'message': 'No knowledge sources available - will retry'
+            }
 
         for knowledge in harvested_knowledge:
             concept_name = f"stage_{self.current_stage}_{topic_name.replace(' ', '_').replace('-', '_')}"

@@ -576,6 +576,8 @@ class SyntheticIntelligenceCore:
                 min_len = 10  # Just need a label + source URL
             elif is_code:
                 min_len = 100
+            elif entity_type in ['topic_mastery', 'stage_learning', 'topic_relationship', 'user_learned', 'dictionary', 'encyclopedia']:
+                min_len = 20  # Syllabus learning creates shorter foundational neurons
             elif neuron_level == 'micro':
                 min_len = 200
             else:
