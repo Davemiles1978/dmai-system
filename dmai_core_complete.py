@@ -5751,12 +5751,17 @@ class DMAIApplication:
             self.gdrive_scanner = self.evolution.gdrive_scanner
             logger.info("📂 Google Drive Scanner exposed to main app")
         else:
-            # Initialize directly if not available from evolution
             from components.integration.google_drive_scanner import GoogleDriveScanner
-            from components.integration.github_starred_scanner import GitHubStarredScanner
             self.gdrive_scanner = GoogleDriveScanner(self)
-            self.github_starred_scanner = GitHubStarredScanner(self)
             logger.info("📂 Google Drive Scanner initialized directly")
+        
+        # Expose GitHub Starred Scanner from evolution to main app
+        if hasattr(self.evolution, 'github_starred_scanner') and self.evolution.github_starred_scanner:
+            self.github_starred_scanner = self.evolution.github_starred_scanner
+            logger.info("⭐ GitHub Starred Scanner exposed to main app")
+        else:
+            from components.integration.github_starred_scanner import GitHubStarredScanner
+            self.github_starred_scanner = GitHubStarredScanner(self)
             logger.info("⭐ GitHub Starred Scanner initialized directly")
         
         # THEN setup routes (so avatar_generator exists when routes reference it)
