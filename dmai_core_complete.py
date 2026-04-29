@@ -38,6 +38,7 @@ from enum import Enum
 from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
 from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
 from components.integration.google_drive_scanner import GoogleDriveScanner
+from components.integration.github_starred_scanner import GitHubStarredScanner
 from components.capability_integrator import CapabilityIntegrator
 import uuid
 import urllib.parse
@@ -3051,6 +3052,8 @@ class UnifiedEvolutionEngine:
             # Initialize Google Drive Scanner
             self.gdrive_scanner = GoogleDriveScanner(self)
             logger.info("📂 Google Drive Scanner initialized")
+            self.github_starred_scanner = GitHubStarredScanner(self)
+            logger.info("⭐ GitHub Starred Scanner initialized")
             # Expose to parent DMAI app so API routes can access it
             if hasattr(self, 'parent') and self.parent:
                 self.parent.gdrive_scanner = self.gdrive_scanner
@@ -5750,8 +5753,11 @@ class DMAIApplication:
         else:
             # Initialize directly if not available from evolution
             from components.integration.google_drive_scanner import GoogleDriveScanner
+            from components.integration.github_starred_scanner import GitHubStarredScanner
             self.gdrive_scanner = GoogleDriveScanner(self)
+            self.github_starred_scanner = GitHubStarredScanner(self)
             logger.info("📂 Google Drive Scanner initialized directly")
+            logger.info("⭐ GitHub Starred Scanner initialized directly")
         
         # THEN setup routes (so avatar_generator exists when routes reference it)
         self._setup_routes()
@@ -8760,6 +8766,21 @@ class DMAIApplication:
             
             return jsonify({'success': True, 'results': results})
                 
+
+        @self.app.route('/api/github/starred/scan', methods=['POST'])
+        def github_starred_scan():
+            """Scan starred GitHub repos and queue them for integration.
+            POST JSON: {"username": "your-github-username"}
+            """
+            try:
+                if not hasattr(self, 'github_starred_scanner'):
+                    return jsonify({"error": "GitHub Starred Scanner not initialized"}), 500
+                data = request.get_json() or {}
+                username = data.get('username', 'Davemiles1978')
+                result = self.github_starred_scanner.scan_starred_repos(username)
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
 
         @self.app.route('/api/gdrive/scan', methods=['POST'])
         def gdrive_scan():
