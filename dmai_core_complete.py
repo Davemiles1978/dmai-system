@@ -7389,12 +7389,16 @@ class DMAIApplication:
         def syllabus_status():
             """Get current learning progress"""
             try:
-                orch = self.evolution.learning_orchestrator
+                if hasattr(self.evolution, 'stage_learner') and self.evolution.stage_learner:
+                    orch = self.evolution.stage_learner
+                elif hasattr(self.evolution, 'learning_orchestrator'):
+                    orch = self.evolution.learning_orchestrator
+                else:
+                    return jsonify({'current_stage': 'Unknown', 'error': 'No syllabus learner'})
                 result = {
                     'current_stage': getattr(orch, 'current_stage', 'Unknown'),
                     'learned_topics': getattr(orch, 'learned_topics', {}),
-                    'completed_topics': getattr(orch, 'completed_topics', []),
-                    'mastered_topics': getattr(orch, 'mastered_topics', [])
+                    'stages': list(getattr(orch, 'STAGES', {}).keys()),
                 }
                 return jsonify(result)
             except Exception as e:
