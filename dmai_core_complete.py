@@ -563,32 +563,45 @@ class SyntheticIntelligenceCore:
         else:
             # Run quality filter for other insights
             
-            # Only reject completely empty insights
-            if not insight_text or len(insight_text.strip()) < 5:
-                logger.debug(f"Rejected insight: empty or too short (<5 chars)")
+            # ============================================================
+            # QUALITY GATE 1: Minimum content length (200 chars for micro, 50 for macro)
+            # ============================================================
+            min_len = 200 if neuron_level == 'micro' else 50
+            if not insight_text or len(insight_text.strip()) < min_len:
+                logger.debug(f"Rejected: too short ({len(insight_text) if insight_text else 0} chars, need {min_len})")
                 return None
             
-            # Check for obvious garbage (random characters, URLs without context)
-            garbage_indicators = [
-                "http://", "https://",  # URLs alone aren't insights
-                "click here", "subscribe",  # Marketing spam
+            # ============================================================
+            # QUALITY GATE 2: Template rejection - no placeholder content
+            # ============================================================
+            template_patterns = [
+                "core principles of", "key concepts in", "fundamental techniques for",
+                "knowledge base: accumulated research", "basic introduction to",
+                "overview of key", "essential guide to", "comprehensive overview",
+                "understanding the basics", "introduction to the fundamentals"
             ]
-            
             insight_lower = insight_text.lower()
-            for indicator in garbage_indicators:
-                if indicator in insight_lower and len(insight_text) < 30:
-                    logger.debug(f"Rejected insight: garbage indicator '{indicator}'")
+            for pattern in template_patterns:
+                if pattern in insight_lower and len(insight_text) < 300:
+                    logger.debug(f"Rejected: template pattern '{pattern}' in short insight")
                     return None
             
-            # For training/ingestion sources, be more lenient with code
-            # Only reject if it's PURE code with no explanatory text
-            code_indicators = ["def ", "class ", "import ", "return "]
-            code_matches = sum(1 for ind in code_indicators if ind in insight_text)
+            # ============================================================
+            # QUALITY GATE 3: Source requirement for micro-neurons
+            # ============================================================
+            if neuron_level == 'micro' and entity_type not in ['acquired_capability', 'integration_result']:
+                if not source_url and not source_title:
+                    logger.debug(f"Rejected: micro-neuron with no source URL or title")
+                    return None
             
-            # If more than 2 code indicators AND no punctuation (likely raw code block)
-            if code_matches >= 3 and not any(p in insight_text for p in [".", "?", "!", ":"]):
-                logger.debug(f"Rejected insight: appears to be raw code block")
-                return None
+            # ============================================================
+            # Check for garbage/spam
+            # ============================================================
+            garbage_indicators = ["click here", "subscribe now", "buy now", "limited offer"]
+            for indicator in garbage_indicators:
+                if indicator in insight_lower:
+                    logger.debug(f"Rejected: spam indicator '{indicator}'")
+                    return None
         
         # Check if similar insight exists (SKIP for acquired_capability, macro_repository, micro_capability - each is unique!)
         if entity_type not in ["acquired_capability", "macro_repository", "micro_capability", "web_research_finding"]:
