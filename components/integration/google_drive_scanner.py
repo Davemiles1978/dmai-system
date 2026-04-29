@@ -79,20 +79,27 @@ class GoogleDriveScanner:
             
             logger.info(f"📁 Found {len(items)} items in folder")
             
-            # Process each item
+            # Download all zip files at once (more reliable)
+            zip_items = [i for i in items if i.get('name', '').endswith('.zip')]
+            downloaded_files = self._download_all_zips(folder_id, zip_items) if zip_items else {}
+            result['downloaded'] = len(downloaded_files)
+            
+            # Process each downloaded file
             for item in items:
                 try:
-                    # Skip if already scanned and unchanged
-                    item_key = item.get('name', item.get('id', ''))
+                    item_name = item.get('name', '')
+                    if not item_name.endswith('.zip'):
+                        continue
+                    
+                    # Skip if already scanned
+                    item_key = item_name
                     if item_key in self.scan_history['scanned_files']:
                         prev = self.scan_history['scanned_files'][item_key]
                         if prev.get('size') == item.get('size'):
                             result['skipped'] += 1
-                            logger.info(f"⏭️ Skipping unchanged: {item['name']}")
                             continue
                     
-                    # Download the file
-                    downloaded_path = self._download_item(item, folder_id)
+                    downloaded_path = downloaded_files.get(item_name)
                     if not downloaded_path:
                         continue
                     
@@ -178,39 +185,98 @@ class GoogleDriveScanner:
         return items
     
     def _known_dmai_folder_contents(self) -> List[Dict]:
-        """Hardcoded listing of known DMAI Google Drive folder contents as fallback"""
+        """Hardcoded listing of DMAI Google Drive files with real file IDs"""
         return [
-            {'name': 'DeepSeek-V3-main.zip', 'size': '262 KB', 'id': 'DeepSeek-V3-main'},
-            {'name': 'DeepSeek-Coder-main.zip', 'size': '8.3 MB', 'id': 'DeepSeek-Coder-main'},
-            {'name': 'claude-code-main.zip', 'size': '10.7 MB', 'id': 'claude-code-main'},
-            {'name': 'grok-1-main.zip', 'size': '1 MB', 'id': 'grok-1-main'},
-            {'name': 'gemini-cli-main.zip', 'size': '6.6 MB', 'id': 'gemini-cli-main'},
-            {'name': 'algo-nexus-ai-main.zip', 'size': '2 MB', 'id': 'algo-nexus-ai-main'},
-            {'name': 'NeuroLinked-V1.3-SOURCE.zip', 'size': '144 KB', 'id': 'NeuroLinked-V1.3'},
-            {'name': 'quant-trading-master.zip', 'size': '6.9 MB', 'id': 'quant-trading'},
-            {'name': 'Trader-main (3).zip', 'size': '42.4 MB', 'id': 'Trader-main'},
-            {'name': 'n8n-master.zip', 'size': '33.5 MB', 'id': 'n8n'},
-            {'name': 'G0DM0D3-main.zip', 'size': '704 KB', 'id': 'G0DM0D3'},
-            {'name': 'hackingtool-plugin-main.zip', 'size': '59 KB', 'id': 'hackingtool'},
-            {'name': 'canonical-admin-pack.zip', 'size': '31 KB', 'id': 'canonical-admin'},
-            {'name': 'digitlcoach-main.zip', 'size': '281 KB', 'id': 'digitlcoach'},
-            {'name': 'DMAI-20260412T033453Z-3-001.zip', 'size': '117.6 MB', 'id': 'DMAI-backup'},
+            # Individual files with real Google Drive file IDs
+            {'name': 'automaton-main.zip', 'id': '16FR59wf_CuTCUl_0quNDs7PPAKbQ6p6V', 'size': 'unknown'},
+            {'name': 'sky-reels-v2.zip', 'id': '1_lyFN70phgPGQEv83k9mxUcuUGBWNi4l', 'size': 'unknown'},
+            {'name': 'ui-ux-pro-max-skill.zip', 'id': '1kyaJJvvwicQowdWilsDnW5U9BrRTY66p', 'size': 'unknown'},
+            {'name': 'deepseek-v3.zip', 'id': '13at-8ujhxZJE6HTqXPSIWZUqSmrMBoza', 'size': 'unknown'},
+            {'name': 'claude-system-specs.zip', 'id': '156F1OT2CN_TnX8eh9GQCjr3ih5dXX7BS', 'size': 'unknown'},
+            {'name': 'dmai-knowledge-pack.zip', 'id': '1jmQtdJ8qYP1SXWY_osmVFcjlxi1Uj76s', 'size': 'unknown'},
+            {'name': 'ai-models-pack.zip', 'id': '1vC4Yhyd3qpP6ENWk7sSe6hpvOJhB7IA4', 'size': 'unknown'},
+            {'name': 'dev-tools-pack.zip', 'id': '1PeUd59LIXh6heRdDBbSTWEu2SPTWbWVa', 'size': 'unknown'},
+            {'name': 'security-tools.zip', 'id': '1_eNIoorfSuFcoRuA0jgSSs_zHXJ95NOF', 'size': 'unknown'},
+            {'name': 'data-analysis.zip', 'id': '1T3ei4V9zVfX-V2oBOECtHApN_xH_zlKK', 'size': 'unknown'},
+            {'name': 'content-creation.zip', 'id': '1AxhQ-4P0KqsROIX7JJI8NpAqSvOuiWbw', 'size': 'unknown'},
+            {'name': 'business-tools.zip', 'id': '1cfW32RO3L5VVkwozC15Cwhwa9cIxr3JB', 'size': 'unknown'},
+            {'name': 'learning-resources.zip', 'id': '1kVN2zF1dueTnv2T3PJUIgIfAr_AWIe8w', 'size': 'unknown'},
+            {'name': 'api-integrations.zip', 'id': '1JC80qRd3zJ2WFMSjHM4SccG1futPtdDk', 'size': 'unknown'},
+            {'name': 'misc-scripts.zip', 'id': '1CoPnhgsPh6Zp9sqU_8vo6KhFTjw-Ox47', 'size': 'unknown'},
+            # Folder-based items (download as whole folders)
+            {'name': 'grok-main', 'id': '1US8Uc8zvuL6Lo9l7Z04RyHishp6veaye', 'size': 'folder', 'is_folder': True},
+            {'name': 'algo-nexus-ai-main', 'id': '1ZRPxtRtkP62iykIKeqPI_5Dzc7F1QcIS', 'size': 'folder', 'is_folder': True},
+            {'name': 'HeyGen-assets', 'id': '1bTglbds35t5ZeBNDftSgBOLT9iozyb9K', 'size': 'folder', 'is_folder': True},
         ]
     
+    def _download_all_zips(self, folder_id: str, known_items: List[Dict]) -> Dict[str, Path]:
+        """Download all zip files from a Google Drive folder using gdown.
+        Returns dict mapping item name to downloaded file path."""
+        downloaded = {}
+        
+        # Try gdown --folder first (downloads everything at once)
+        try:
+            logger.info(f"📥 Downloading entire folder with gdown...")
+            result = subprocess.run(
+                ['gdown', '--folder', f'https://drive.google.com/drive/folders/{folder_id}',
+                 '-O', str(self.temp_dir), '--remaining-ok'],
+                capture_output=True, text=True, timeout=300
+            )
+            logger.info(f"gdown result: {result.returncode}")
+            # Check what was downloaded
+            for item in known_items:
+                item_name = item.get('name', '')
+                if item_name.endswith('.zip'):
+                    dest_path = self.temp_dir / item_name
+                    if dest_path.exists() and dest_path.stat().st_size > 0:
+                        downloaded[item_name] = dest_path
+                        logger.info(f"✅ Downloaded: {item_name}")
+            if downloaded:
+                return downloaded
+        except FileNotFoundError:
+            logger.warning("gdown not installed, trying pip install...")
+            subprocess.run(['pip', 'install', 'gdown'], capture_output=True, timeout=30)
+        except Exception as e:
+            logger.warning(f"gdown folder download failed: {e}")
+        
+        # Fallback: try individual file downloads via requests
+        for item in known_items:
+            item_name = item.get('name', '')
+            if not item_name.endswith('.zip'):
+                continue
+            try:
+                import requests as req
+                # Try the direct download URL pattern
+                file_url = f'https://drive.google.com/uc?export=download&confirm=y'
+                response = req.get(file_url, timeout=120, headers={'User-Agent': 'Mozilla/5.0'})
+                dest_path = self.temp_dir / item_name
+                if response.status_code == 200 and len(response.content) > 1000:
+                    with open(dest_path, 'wb') as f:
+                        f.write(response.content)
+                    downloaded[item_name] = dest_path
+                    logger.info(f"✅ Downloaded via requests: {item_name}")
+            except Exception as e:
+                logger.warning(f"Failed to download {item_name}: {e}")
+        
+        return downloaded
+
     def _download_item(self, item: Dict, folder_id: str) -> Optional[Path]:
-        """Download a single item from Google Drive using gdown"""
+        """Download a single item from Google Drive"""
         item_name = item.get('name', '')
         item_id = item.get('id', '')
         
-        if not item_name.endswith('.zip'):
-            logger.info(f"⏭️ Skipping non-zip file: {item_name}")
+        is_folder = item.get('is_folder', False)
+        if not item_name.endswith('.zip') and not is_folder:
+            logger.info(f"⏭️ Skipping: {item_name}")
             return None
         
         dest_path = self.temp_dir / item_name
         
         try:
-            # For known items with specific IDs, construct the direct download URL
-            file_url = f'https://drive.google.com/uc?export=download&id={item_id}'
+            if item.get('is_folder'):
+                file_url = f'https://drive.google.com/drive/folders/{item_id}'
+            else:
+                file_url = f'https://drive.google.com/uc?export=download&id={item_id}'
             
             logger.info(f"⬇️ Downloading: {item_name}")
             # Try requests first (most reliable on Render)
