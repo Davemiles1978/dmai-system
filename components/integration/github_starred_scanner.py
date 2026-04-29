@@ -191,7 +191,7 @@ class GitHubStarredScanner:
         """Determine integration priority based on repo characteristics"""
         name = (repo.get('full_name', '') + ' ' + repo.get('description', '')).lower()
         stars = repo.get('stargazers_count', 0)
-        language = (repo.get('language', '') or '').lower()
+        language = (repo.get('language') or '').lower()
         
         # P0: Critical AI infrastructure with high stars
         if any(kw in name for kw in ['claude', 'gpt', 'llama', 'deepseek', 'transformer', 'mlx']):
