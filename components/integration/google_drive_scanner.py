@@ -210,53 +210,85 @@ class GoogleDriveScanner:
         ]
     
     def _download_all_zips(self, folder_id: str, known_items: List[Dict]) -> Dict[str, Path]:
-        """Download all zip files from a Google Drive folder using gdown.
-        Returns dict mapping item name to downloaded file path."""
+        """Download all zip files from Google Drive.
+        Handles Google's confirmation page for large files."""
         downloaded = {}
         
-        # Try gdown --folder first (downloads everything at once)
-        try:
-            logger.info(f"📥 Downloading entire folder with gdown...")
-            result = subprocess.run(
-                ['gdown', '--folder', f'https://drive.google.com/drive/folders/{folder_id}',
-                 '-O', str(self.temp_dir), '--remaining-ok'],
-                capture_output=True, text=True, timeout=300
-            )
-            logger.info(f"gdown result: {result.returncode}")
-            # Check what was downloaded
-            for item in known_items:
-                item_name = item.get('name', '')
-                if item_name.endswith('.zip'):
+        import requests as req
+        
+        for item in known_items:
+            item_name = item.get('name', '')
+            item_id = item.get('id', '')
+            
+            if not item_name.endswith('.zip') and not item.get('is_folder'):
+                continue
+            
+            try:
+                logger.info(f"⬇️ Downloading: {item_name}")
+                
+                # Session with cookies to handle Google's confirmation flow
+                session = req.Session()
+                session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'})
+                
+                if item.get('is_folder'):
+                    file_url = f'https://drive.google.com/drive/folders/{item_id}'
+                else:
+                    file_url = f'https://drive.google.com/uc?export=download&id={item_id}'
+                
+                # First request - may get confirmation page for large files
+                response = session.get(file_url, timeout=30, allow_redirects=True)
+                
+                # Check if we hit the virus scan confirmation page
+                if 'confirm=' in response.url or 'confirm=' in response.text[:2000]:
+                    # Extract confirmation token
+                    import re
+                    confirm_match = re.search(r'confirm=([0-9A-Za-z_\-]+)', response.text)
+                    if confirm_match:
+                        confirm_token = confirm_match.group(1)
+                        logger.info(f"Got confirmation token, retrying...")
+                        file_url += f'&confirm={confirm_token}'
+                        response = session.get(file_url, timeout=120)
+                
+                # Check if we got actual content
+                content_type = response.headers.get('Content-Type', '')
+                if response.status_code == 200 and len(response.content) > 500:
+                    # Verify it's not HTML
+                    if 'text/html' not in content_type or len(response.content) > 10000:
+                        dest_path = self.temp_dir / item_name
+                        with open(dest_path, 'wb') as f:
+                            f.write(response.content)
+                        downloaded[item_name] = dest_path
+                        logger.info(f"✅ Downloaded: {item_name} ({len(response.content)} bytes)")
+                    else:
+                        logger.warning(f"Got HTML instead of file for {item_name}")
+                else:
+                    logger.warning(f"Download failed for {item_name}: status {response.status_code}, size {len(response.content)}")
+                    
+            except Exception as e:
+                logger.error(f"Download error for {item_name}: {e}")
+        
+        # Also try gdown as fallback if nothing downloaded
+        if not downloaded:
+            try:
+                logger.info("Trying gdown as fallback...")
+                subprocess.run(
+                    ['python3', '-m', 'pip', 'install', 'gdown'],
+                    capture_output=True, timeout=30
+                )
+                result = subprocess.run(
+                    ['gdown', '--folder', f'https://drive.google.com/drive/folders/{folder_id}',
+                     '-O', str(self.temp_dir), '--remaining-ok'],
+                    capture_output=True, text=True, timeout=300
+                )
+                # Check what showed up
+                for item in known_items:
+                    item_name = item.get('name', '')
                     dest_path = self.temp_dir / item_name
                     if dest_path.exists() and dest_path.stat().st_size > 0:
                         downloaded[item_name] = dest_path
-                        logger.info(f"✅ Downloaded: {item_name}")
-            if downloaded:
-                return downloaded
-        except FileNotFoundError:
-            logger.warning("gdown not installed, trying pip install...")
-            subprocess.run(['pip', 'install', 'gdown'], capture_output=True, timeout=30)
-        except Exception as e:
-            logger.warning(f"gdown folder download failed: {e}")
-        
-        # Fallback: try individual file downloads via requests
-        for item in known_items:
-            item_name = item.get('name', '')
-            if not item_name.endswith('.zip'):
-                continue
-            try:
-                import requests as req
-                # Try the direct download URL pattern
-                file_url = f'https://drive.google.com/uc?export=download&confirm=y'
-                response = req.get(file_url, timeout=120, headers={'User-Agent': 'Mozilla/5.0'})
-                dest_path = self.temp_dir / item_name
-                if response.status_code == 200 and len(response.content) > 1000:
-                    with open(dest_path, 'wb') as f:
-                        f.write(response.content)
-                    downloaded[item_name] = dest_path
-                    logger.info(f"✅ Downloaded via requests: {item_name}")
+                        logger.info(f"✅ gdown downloaded: {item_name}")
             except Exception as e:
-                logger.warning(f"Failed to download {item_name}: {e}")
+                logger.warning(f"gdown fallback also failed: {e}")
         
         return downloaded
 
