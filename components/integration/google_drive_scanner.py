@@ -372,18 +372,32 @@ class GoogleDriveScanner:
             
             repo_name = item['name'].replace('.zip', '').replace(' ', '_')
             
-            # Feed to CapabilityIntegrator
+            # Feed to CapabilityIntegrator - use local directory directly (skip git clone)
             if hasattr(self.dmai, 'capability_integrator'):
                 try:
-                    cap_result = self.dmai.capability_integrator.process_repository(
+                    # Extract capabilities from the local extracted directory
+                    capabilities = self.dmai.capability_integrator._extract_capabilities_from_repo(
+                        str(extract_dir),
                         f'google-drive://{repo_name}'
                     )
-                    result['capabilities'] = len(cap_result.get('capabilities_integrated', []))
-                    result['integrated'] = result['capabilities'] > 0
+                    
+                    integrated_count = 0
+                    for cap in capabilities:
+                        try:
+                            integration = self.dmai.capability_integrator._integrate_capability(
+                                cap, str(extract_dir), repo_name
+                            )
+                            if integration.get('integrated'):
+                                integrated_count += 1
+                        except Exception as e:
+                            logger.debug(f"Failed to integrate capability {cap.get('name','?')}: {e}")
+                    
+                    result['capabilities'] = integrated_count
+                    result['integrated'] = integrated_count > 0
+                    logger.info(f"🔧 Integrated {integrated_count}/{len(capabilities)} capabilities from {item['name']}")
                     
                     # Also add to integration queue if it's a significant repo
                     if hasattr(self.dmai, 'integration_engine') and self.dmai.integration_engine:
-                        # Determine priority based on content
                         priority = self._determine_priority(item['name'], code_files)
                         self.dmai.integration_engine.add_to_queue(
                             f'google-drive://{repo_name}',
@@ -392,7 +406,7 @@ class GoogleDriveScanner:
                         )
                         
                 except Exception as e:
-                    logger.error(f"Capability integration failed: {e}")
+                    logger.error(f"Capability integration failed for {item['name']}: {e}")
             
             # Also feed individual code files to AutonomousDeveloper
             if hasattr(self.dmai, 'autonomous_developer'):
