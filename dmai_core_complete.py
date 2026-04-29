@@ -8764,13 +8764,17 @@ class DMAIApplication:
         @self.app.route('/api/gdrive/scan', methods=['POST'])
         def gdrive_scan():
             """Scan a shared Google Drive folder for repos and integrate them.
-            POST JSON: {"folder_url": "https://drive.google.com/drive/folders/..."}
+            POST JSON: {"folder_url": "...", "force": true}
             """
             try:
                 if not hasattr(self, 'gdrive_scanner'):
                     return jsonify({"error": "Google Drive Scanner not initialized"}), 500
                 data = request.get_json()
                 folder_url = data.get('folder_url', 'https://drive.google.com/drive/folders/1NKv7hn7-iDWR7T3QoDzxlog85wlakdcL')
+                force = data.get('force', False)
+                if force:
+                    self.gdrive_scanner.scan_history = {'scanned_files': {}, 'last_scan': None}
+                    self.gdrive_scanner._save_scan_history()
                 result = self.gdrive_scanner.scan_folder(folder_url)
                 return jsonify({"success": True, "result": result})
             except Exception as e:
