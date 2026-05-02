@@ -8826,6 +8826,55 @@ class DMAIApplication:
                 return jsonify({"error": str(e)}), 500
 
 
+        @self.app.route('/api/system/cleanup_disk', methods=['POST'])
+        def emergency_disk_cleanup():
+            """Emergency disk cleanup - removes old backups and temp files"""
+            import os, shutil, glob
+            stats = {"backups_deleted": 0, "temp_cleared": 0, "files_removed": 0, "bytes_freed": 0}
+            try:
+                base = os.path.dirname(__file__)
+                # Clear old backups (keep latest 10)
+                backup_dir = os.path.join(base, "data", "backups")
+                if os.path.exists(backup_dir):
+                    backups = sorted(glob.glob(os.path.join(backup_dir, "*")), key=os.path.getmtime, reverse=True)
+                    for old in backups[10:]:
+                        try:
+                            size = os.path.getsize(old) if os.path.isfile(old) else 0
+                            if os.path.isfile(old):
+                                os.remove(old)
+                            else:
+                                shutil.rmtree(old, ignore_errors=True)
+                            stats["bytes_freed"] += size
+                            stats["backups_deleted"] += 1
+                        except:
+                            pass
+                # Clear knowledge source temp files (keep last 50)
+                ks_dir = os.path.join(base, "data", "knowledge_sources")
+                if os.path.exists(ks_dir):
+                    for subdir in ["articles", "books", "papers", "web", "social"]:
+                        sd = os.path.join(ks_dir, subdir)
+                        if os.path.exists(sd):
+                            files = sorted(glob.glob(os.path.join(sd, "*")), key=os.path.getmtime, reverse=True)
+                            for old in files[50:]:
+                                try:
+                                    size = os.path.getsize(old)
+                                    os.remove(old)
+                                    stats["bytes_freed"] += size
+                                    stats["files_removed"] += 1
+                                except:
+                                    pass
+                # Clear temp directories
+                for tmp_dir in glob.glob("/tmp/dmai_repo_*") + glob.glob("/tmp/dmai_gdrive_*"):
+                    try:
+                        shutil.rmtree(tmp_dir, ignore_errors=True)
+                        stats["temp_cleared"] += 1
+                    except:
+                        pass
+                stats["bytes_freed_mb"] = round(stats["bytes_freed"] / 1024 / 1024, 2)
+                return jsonify({"success": True, "cleanup_stats": stats})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/system/full_wipe', methods=['POST'])
         def full_knowledge_wipe():
             """FULL WIPE: Clear all insights and synapses for clean rebuild.
