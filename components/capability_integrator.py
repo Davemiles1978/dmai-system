@@ -1688,7 +1688,7 @@ class DMAI_{capability['name']}:
                 target_topic=f"capability_{capability_type}",
                 confidence=0.95,
                 source_url=source_url,
-                source_title=f"Integrated Capability: {capability_name}",
+                source_title=capability_name,
                 source_type="capability_integration"
             )
             

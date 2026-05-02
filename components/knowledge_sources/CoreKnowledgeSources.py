@@ -1335,8 +1335,8 @@ class SocialMediaScanner:
                 title = post.title[:150] if post.title else "Social Post"
                 platform = post.metadata.get('platform', 'unknown') if hasattr(post, 'metadata') and post.metadata else "unknown"
                 self.si_core.add_insight(
-                    insight_text=f"Social Post [{platform}]: {title}",
-                    entity_type="social_media",
+                    insight_text=title[:200],
+                    entity_type=f"social_media_{platform}",
                     entities=[platform, "social_media", title[:50]],
                     relationship="shared",
                     confidence=0.5,
