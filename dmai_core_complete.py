@@ -4666,7 +4666,7 @@ class UnifiedEvolutionEngine:
             if not primary.get('micros') and not connected_macros:
                 response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
             
-            response_parts.append(f""  )
+            pass
             
             return '\n'.join(response_parts)[:10000]
             
@@ -5252,7 +5252,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             if not primary.get('micros') and not connected_macros:
                 response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
             
-            response_parts.append(f""  )
+            pass
             
             return '\n'.join(response_parts)[:10000]
             
@@ -9129,6 +9129,22 @@ class DMAIApplication:
                 return jsonify({"success": True, "result": result})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+        @self.app.route('/api/integration/force_execute', methods=['POST'])
+        def integration_force_execute():
+            """Force execute a specific integration by queue_id regardless of queue order.
+            POST JSON: {"queue_id": "abc123"}
+            """
+            try:
+                if not hasattr(self, 'integration_engine') or self.integration_engine is None:
+                    return jsonify({"error": "Integration engine not initialized"}), 500
+                data = request.get_json()
+                if not data or 'queue_id' not in data:
+                    return jsonify({"error": "Missing 'queue_id'"}), 400
+                result = self.integration_engine.force_execute(data['queue_id'])
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/debug/force_link_by_prefix', methods=['GET'])
         def force_link_by_prefix():
             """Link micros to macros by matching [Category] prefix"""
