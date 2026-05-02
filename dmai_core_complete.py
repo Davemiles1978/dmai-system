@@ -550,6 +550,28 @@ class SyntheticIntelligenceCore:
             )
         """
         
+        # Auto-create macro if micro has no parent
+        if neuron_level == 'micro' and not parent_macro_id and not cluster_id:
+            import uuid, time
+            # Try to create a parent macro from the source_topic or entity_type
+            macro_topic = source_title or source_topic or entity_type.replace('_', ' ').title()
+            parent_macro_id = f"insight_{uuid.uuid4().int % 10**15}_{int(time.time())}"
+            # Create the macro via recursive call
+            self.add_insight(
+                insight_text=macro_topic[:200],
+                entity_type=f"macro_{entity_type}",
+                entities=entities[:3] if entities else [macro_topic],
+                relationship="contains",
+                source_topic=source_topic,
+                target_topic=target_topic,
+                confidence=0.9,
+                neuron_level='macro',
+                is_visible_at_top_level=True
+            )
+            # Override the generated macro ID with our pre-computed one
+            # The recursive call will save it; we just use the ID
+            logger.info(f"Auto-created macro '{macro_topic[:50]}...' for orphan micro")
+
         # Auto-detect visibility based on neuron_level
         if is_visible_at_top_level is None:
             is_visible_at_top_level = (neuron_level == 'macro')
@@ -4535,8 +4557,24 @@ class UnifiedEvolutionEngine:
                     break
             
             if not macro_candidates:
-                conn.close()
-                return None
+                # Search all neuron levels when no macros match
+                for word in query_words[:5]:
+                    cursor.execute('''
+                        SELECT id, insight_text, entity_type, confidence, source_title
+                        FROM insights
+                        WHERE (insight_text LIKE ? OR source_title LIKE ?)
+                        ORDER BY confidence DESC
+                        LIMIT 10
+                    ''', (f'%{word}%', f'%{word}%'))
+                    for row in cursor:
+                        if row['id'] not in [m['id'] for m in macro_candidates]:
+                            macro_candidates.append(dict(row))
+                    if len(macro_candidates) >= 5:
+                        break
+                
+                if not macro_candidates:
+                    conn.close()
+                    return None
             
             # ============================================================
             # STEP 2: Fetch micro-neurons for each matched macro
@@ -5105,8 +5143,24 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                     break
             
             if not macro_candidates:
-                conn.close()
-                return None
+                # Search all neuron levels when no macros match
+                for word in query_words[:5]:
+                    cursor.execute('''
+                        SELECT id, insight_text, entity_type, confidence, source_title
+                        FROM insights
+                        WHERE (insight_text LIKE ? OR source_title LIKE ?)
+                        ORDER BY confidence DESC
+                        LIMIT 10
+                    ''', (f'%{word}%', f'%{word}%'))
+                    for row in cursor:
+                        if row['id'] not in [m['id'] for m in macro_candidates]:
+                            macro_candidates.append(dict(row))
+                    if len(macro_candidates) >= 5:
+                        break
+                
+                if not macro_candidates:
+                    conn.close()
+                    return None
             
             # ============================================================
             # STEP 2: Fetch micro-neurons for each matched macro
