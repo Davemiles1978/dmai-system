@@ -305,6 +305,47 @@ class RepoIntegrationEngine:
             return item
         return ready[0] if ready else None
 
+
+    def force_execute(self, queue_id: str) -> Dict:
+        """Execute a specific integration by queue_id regardless of queue order"""
+        target = None
+        for item in self.queue:
+            if item['id'] == queue_id:
+                target = item
+                break
+        if not target:
+            return {'status': 'not_found', 'queue_id': queue_id}
+        # Execute directly
+        target['status'] = 'in_progress'
+        target['started_at'] = datetime.now().isoformat()
+        self._save_queue()
+        result = {'item': target, 'steps': {}}
+        try:
+            logger.info(f"Force executing: {target['name']}")
+            repo_path = self._clone_repo(target['url'])
+            result['steps']['clone'] = {'status': 'success', 'path': str(repo_path)}
+            analysis = self._analyze_repo_structure(repo_path, target)
+            result['steps']['analysis'] = analysis
+            if hasattr(self.dmai, 'capability_integrator'):
+                cap_result = self.dmai.capability_integrator.process_repository(target['url'])
+                result['steps']['capability_registration'] = {'status': 'success', 'capabilities_found': len(cap_result.get('capabilities_found', [])), 'capabilities_integrated': len(cap_result.get('capabilities_integrated', []))}
+            if repo_path and 'tmp' in str(repo_path):
+                shutil.rmtree(repo_path, ignore_errors=True)
+            target['status'] = 'completed'
+            target['completed_at'] = datetime.now().isoformat()
+            self._save_queue()
+            self.registry['completed'].append(target)
+            level_key = 'organs' if target['level'] == 3 else 'capabilities' if target['level'] == 2 else 'knowledge'
+            self.registry[level_key][target['name']] = target
+            self._save_registry()
+            result['status'] = 'success'
+        except Exception as e:
+            target['status'] = 'failed'
+            target['error'] = str(e)
+            self._save_queue()
+            result['status'] = 'failed'
+            result['error'] = str(e)
+        return result
     def approve_integration(self, queue_id):
         for item in self.queue:
             if item['id'] == queue_id:
