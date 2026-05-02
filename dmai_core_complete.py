@@ -4666,7 +4666,7 @@ class UnifiedEvolutionEngine:
             if not primary.get('micros') and not connected_macros:
                 response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
             
-            response_parts.append(f"\n_This answer was synthesized by following neural links across my knowledge graph. Would you like me to explore any specific connection in more detail?_"  )
+            response_parts.append(f""  )
             
             return '\n'.join(response_parts)[:10000]
             
@@ -5252,7 +5252,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             if not primary.get('micros') and not connected_macros:
                 response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
             
-            response_parts.append(f"\n_This answer was synthesized by following neural links across my knowledge graph. Would you like me to explore any specific connection in more detail?_"  )
+            response_parts.append(f""  )
             
             return '\n'.join(response_parts)[:10000]
             
@@ -8404,7 +8404,7 @@ class DMAIApplication:
                         else:
                             # Fallback: synthesize from available micro-neuron knowledge
                             if micros:
-                                synthesis = f"Based on my knowledge of {clean_topic}: {'; '.join(micros[:3])}"
+                                synthesis = '; '.join(micros[:3])
                                 answers.append(synthesis[:800])
                             else:
                                 answers.append(f"I have foundational knowledge of {clean_topic} but need to develop deeper understanding through additional research and cross-domain connections.")
