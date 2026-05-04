@@ -1102,7 +1102,7 @@ class SyntheticIntelligenceCore:
     @property
     def consciousness(self) -> float:
         """Returns the true system mastery score if available, else legacy density."""
-        if hasattr(self, 'true_consciousness') and self.true_consciousness > 0.0:
+        if hasattr(self, 'true_consciousness') and self.true_consciousness >= 0.0:
             return min(1.0, self.true_consciousness)
 
         # Legacy fallback – will be replaced after the first evolution cycle
