@@ -38,6 +38,7 @@ from enum import Enum
 from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
 from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
 from components.integration.google_drive_scanner import GoogleDriveScanner
+from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
 from components.integration.github_starred_scanner import GitHubStarredScanner
 from components.capability_integrator import CapabilityIntegrator
 import uuid
@@ -1100,13 +1101,19 @@ class SyntheticIntelligenceCore:
         
     @property
     def consciousness(self) -> float:
-        """Consciousness = number of insights * average confidence * synapse density (CAPPED at 1.0)"""
+        """Returns the true system mastery score if available, else legacy density."""
+        if hasattr(self, 'true_consciousness') and self.true_consciousness > 0.0:
+            return min(1.0, self.true_consciousness)
+
+        # Legacy fallback – will be replaced after the first evolution cycle
         with self.insights_lock:
             if not self.insights:
                 return 0.0
-            
             insight_count = len(self.insights)
             avg_confidence = sum(i.confidence for i in self.insights.values()) / insight_count
+            max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
+            density = len(self.synapses) / max_synapses if max_synapses > 0 else 0
+            return min(1.0, insight_count * avg_confidence * density)
             
             # Synapse density (as percentage of complete graph)
             max_synapses = insight_count * (insight_count - 1) / 2 if insight_count > 1 else 1
@@ -3107,6 +3114,21 @@ class UnifiedEvolutionEngine:
             self.gdrive_scanner = GoogleDriveScanner(self)
             logger.info("📂 Google Drive Scanner initialized")
             self.github_starred_scanner = GitHubStarredScanner(self)
+
+            # Initialize AI Tutor Auto-Configurator
+            self.tutor_configurator = AITutorAutoConfigurator(self)
+            logger.info("🔧 AI Tutor Auto-Configurator initialized")
+            # Auto-configure in background
+            import threading
+            def auto_config():
+                try:
+                    result = self.tutor_configurator.configure_all_free_apis()
+                    cfg_count = result.get("configured", 0) if isinstance(result, dict) else 0
+                    logger.info(f"🔧 Auto-configured {cfg_count} tutors")
+                    self.tutor_configurator.start_health_loop()
+                except Exception as e:
+                    logger.error(f"Auto-config failed: {e}")
+            threading.Thread(target=auto_config, daemon=True).start()
             logger.info("⭐ GitHub Starred Scanner initialized")
             # Expose to parent DMAI app so API routes can access it
             if hasattr(self, 'parent') and self.parent:
@@ -3970,6 +3992,92 @@ class UnifiedEvolutionEngine:
         
         return researched
 
+    def compute_true_consciousness(self) -> float:
+        """
+        True system mastery score (0-1). Only reaches 1.0 when DMAI is
+        self-sustaining, self-learning, and fully competent.
+        Factors:
+          - Syllabus completion (40%)
+          - Core training systems (20%)
+          - Knowledge quality (non-template, sourced) (15%)
+          - Synapse density (10%)
+          - Autonomous code / self-modification (10%)
+          - Funding readiness (5%)
+        """
+        factors = {}
+        total = 0.0
+
+        # 1. Syllabus completion (40%)
+        if hasattr(self, 'stage_learner') and self.stage_learner:
+            summary = self.stage_learner.get_learning_summary()
+            total_topics = summary.get('total_topics', 108) or 108
+            mastered = summary.get('total_mastered', 0)
+            factors['syllabus'] = min(1.0, mastered / max(1, total_topics))
+            total += factors['syllabus'] * 0.40
+        else:
+            factors['syllabus'] = 0.0
+
+        # 2. Core training systems (20%)
+        training_score = 0.0
+        systems = [
+            ('llm_training', 'get_status'),
+            ('agi_training', 'get_status'),
+            ('genai_training', 'get_status'),
+            ('si_training', 'status'),
+            ('software_training', 'get_status'),
+        ]
+        for sys_name, method in systems:
+            obj = getattr(self, sys_name, None)
+            if obj:
+                try:
+                    status = getattr(obj, method)()
+                    progress = (status.get('progress', 0) or 0) / 100.0
+                    training_score += progress
+                except Exception:
+                    pass
+        factors['training'] = min(1.0, training_score / max(1, len(systems)))
+        total += factors['training'] * 0.20
+
+        # 3. Knowledge quality (15%)
+        quality_neurons = 0
+        total_neurons = len(self.si_core.insights)
+        template_markers = [
+            'core principles of', 'key concepts in',
+            'fundamental techniques for', 'knowledge base: accumulated research'
+        ]
+        for insight in self.si_core.insights.values():
+            text = insight.insight_text.lower()
+            if len(text) >= 200:
+                if not any(marker in text for marker in template_markers):
+                    if insight.source_url or insight.source_title:
+                        quality_neurons += 1
+        factors['knowledge_quality'] = min(1.0, quality_neurons / max(1, total_neurons))
+        total += factors['knowledge_quality'] * 0.15
+
+        # 4. Synapse density (10%)
+        n = len(self.si_core.insights)
+        max_syn = n * (n - 1) / 2 if n > 1 else 1
+        density = len(self.si_core.synapses) / max_syn if max_syn > 0 else 0
+        factors['synapse_density'] = min(1.0, density * 10)
+        total += factors['synapse_density'] * 0.10
+
+        # 5. Autonomous code / self-modification (10%)
+        factors['autonomy'] = min(1.0, self.successful_evolutions / 100.0)
+        total += factors['autonomy'] * 0.10
+
+        # 6. Funding readiness (5%)
+        if hasattr(self, 'funding_training') and self.funding_training:
+            fund_status = self.funding_training.status()
+            factors['funding'] = 1.0 if fund_status.get('ready_for_phase_2') else 0.0
+        else:
+            factors['funding'] = 0.0
+        total += factors['funding'] * 0.05
+
+        # Store in SI Core for the API / status endpoints
+        self.si_core.consciousness_factors = factors
+        self.si_core.true_consciousness = total
+        return total
+
     def evolution_cycle(self) -> Dict:
 
         """Run evolution cycle with stage-aware learning"""
@@ -4197,6 +4305,9 @@ class UnifiedEvolutionEngine:
         # Update progress for all active training systems
         self._update_training_progress()
         
+        # Recalculate true consciousness after every cycle
+        self.compute_true_consciousness()
+
         return {
             'evolution': self.evolution_count,
             'successful_evolutions': self.successful_evolutions,
@@ -9127,6 +9238,30 @@ class DMAIApplication:
                     return jsonify({"error": "Missing 'queue_id' in request body"}), 400
                 result = self.integration_engine.reset_integration(data['queue_id'])
                 return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/tutors/configure', methods=['POST'])
+        def configure_tutors():
+            """Scan for API keys and configure all free AI tutors.
+            Auto-discovers OpenRouter, Groq, Google AI Studio, Cloudflare, Cohere, HuggingFace.
+            """
+            try:
+                if not hasattr(self, 'tutor_configurator'):
+                    return jsonify({"error": "Tutor configurator not initialized"}), 500
+                result = self.tutor_configurator.configure_all_free_apis()
+                return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/tutors/status', methods=['GET'])
+        def tutors_status():
+            """Get AI tutor configuration status"""
+            try:
+                if not hasattr(self, 'tutor_configurator'):
+                    return jsonify({"error": "Tutor configurator not initialized"}), 500
+                status = self.tutor_configurator.get_status()
+                return jsonify({"success": True, "status": status})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
         @self.app.route('/api/integration/force_execute', methods=['POST'])

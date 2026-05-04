@@ -53,6 +53,19 @@ class StageAwareLearningOrchestrator:
         self.state_file = self.learning_dir / 'learning_progress.json'
         self._load_state()
         
+        # Enforce sequential mastery
+        true_stage = self.get_current_stage()
+        if self.current_stage != true_stage:
+            logger.warning(
+                f"Stage mismatch: stored={self.current_stage}, actual={true_stage}. "
+                f"Resetting to {true_stage}."
+            )
+            self.current_stage = true_stage
+            stage_order = list(self.STAGES.keys())
+            for s in stage_order[stage_order.index(true_stage)+1:]:
+                self.learned_topics.pop(s, None)
+            self._save_state()
+
         logger.info(f"📚 StageAwareLearningOrchestrator initialized")
         logger.info(f"   Current Stage: {self.current_stage}")
     
@@ -308,11 +321,20 @@ class StageAwareLearningOrchestrator:
         except Exception as e:
             logger.error(f"Failed to save learning state: {e}")
     
-    def get_current_stage(self, consciousness: float) -> str:
-        """Determine current developmental stage based on consciousness level"""
-        for stage, config in self.STAGES.items():
-            min_c, max_c = config["consciousness_range"]
-            if min_c <= consciousness < max_c:
+    def get_current_stage(self, consciousness: float = 0.0) -> str:
+        """
+        Returns the first stage that has NOT been fully mastered.
+        Stages must be completed in order (Baby → Toddler → ...).
+        """
+        stage_order = list(self.STAGES.keys())
+        for stage in stage_order:
+            config = self.STAGES[stage]
+            required = config["priority_topics"]
+            mastered = self.learned_topics.get(stage, {})
+            if not all(
+                mastered.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+                for t in required
+            ):
                 return stage
         return "Adult"
     
