@@ -9098,6 +9098,24 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route('/api/debug/consciousness_factors', methods=['GET'])
+        def debug_consciousness_factors():
+            """Show exactly what compute_true_consciousness returns"""
+            try:
+                if hasattr(self.evolution, 'compute_true_consciousness'):
+                    result = self.evolution.compute_true_consciousness()
+                    factors = getattr(self.evolution.si_core, 'consciousness_factors', {})
+                    return jsonify({
+                        "success": True,
+                        "calculated": result,
+                        "factors": factors,
+                        "legacy_consciousness": self.evolution.si_core.consciousness if hasattr(self.evolution, 'si_core') else None
+                    })
+                return jsonify({"error": "compute_true_consciousness not found"}), 404
+            except Exception as e:
+                import traceback
+                return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
         @self.app.route('/api/system/force_start', methods=['POST'])
         def force_start_system():
             """Force-start evolution thread and all training systems (backgrounded)"""
