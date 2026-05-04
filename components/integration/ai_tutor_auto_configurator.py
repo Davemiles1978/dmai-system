@@ -70,13 +70,13 @@ class AITutorAutoConfigurator:
         'cloudflare': {
             'name': 'Cloudflare Workers AI',
             'provider': 'cloudflare',
-            'base_url': 'https://api.cloudflare.com/client/v4/accounts',
-            'endpoint': '/ai/run/@cf/meta/llama-3.1-8b-instruct',
+            'base_url': 'https://api.cloudflare.com/client/v4/accounts/30692232472b2ce20a7ef34c418ad52a/ai/v1',
+            'endpoint': '/chat/completions',
             'auth_header': 'Authorization',
             'auth_prefix': 'Bearer ',
             'free_tier': True,
             'rate_limit': '10,000 neurons/day',
-            'models': ['@cf/meta/llama-3.1-8b-instruct', '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b'],
+            'models': ['@cf/meta/llama-3.1-8b-instruct', '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', '@cf/qwen/qwen3-30b-a3b-fp8'],
             'test_model': '@cf/meta/llama-3.1-8b-instruct'
         },
         'cohere': {
