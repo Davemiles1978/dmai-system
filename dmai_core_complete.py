@@ -3119,7 +3119,6 @@ class UnifiedEvolutionEngine:
             self.tutor_configurator = AITutorAutoConfigurator(self)
             logger.info("🔧 AI Tutor Auto-Configurator initialized")
             # Auto-configure in background
-            import threading
             def auto_config():
                 try:
                     result = self.tutor_configurator.configure_all_free_apis()
@@ -9078,6 +9077,26 @@ class DMAIApplication:
             except Exception as e:
                 import traceback
                 return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+        @self.app.route('/api/system/reset_syllabus_to_baby', methods=['POST'])
+        def reset_syllabus_to_baby():
+            """Hard reset: clear all learned topics, set stage to Baby"""
+            import json
+            try:
+                if hasattr(self.evolution, 'stage_learner') and self.evolution.stage_learner:
+                    learner = self.evolution.stage_learner
+                    # Wipe all learned topics
+                    learner.learned_topics = {}
+                    learner.current_stage = "Baby"
+                    learner._save_state()
+                    return jsonify({
+                        "success": True,
+                        "current_stage": learner.current_stage,
+                        "learned_topics": learner.learned_topics
+                    })
+                return jsonify({"error": "Stage learner not found"}), 404
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
 
         @self.app.route('/api/system/force_start', methods=['POST'])
         def force_start_system():
