@@ -3713,7 +3713,9 @@ class UnifiedEvolutionEngine:
                 'learned_concepts': list(funding_status.get('learned_concepts', []))[:50]
             }
 
-        # STABLE DEFINITIVE VALUES - no jumping
+        # STABLE DEFINITIVE VALUES - computed fresh every time
+        self.compute_true_consciousness()
+        self.compute_true_consciousness()
         consciousness_raw = self.synthetic_network.consciousness
         consciousness_percent = round(consciousness_raw * 100, 2)
         
