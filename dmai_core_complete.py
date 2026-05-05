@@ -9351,30 +9351,6 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
-        @self.app.route('/api/tutors/add_key', methods=['POST'])
-        def tutors_add_key():
-            """Register a new API key for any provider."""
-            try:
-                data = request.get_json()
-                if not data or 'provider' not in data or 'key' not in data:
-                    return jsonify({"error": "Missing 'provider' or 'key' in body"}), 400
-                provider = data['provider']
-                api_key = data['key']
-                source = data.get('source', 'manual')
-                if not hasattr(self, 'api_key_store') or self.api_key_store is None:
-                    return jsonify({"error": "API key store not initialized"}), 500
-                is_new = self.api_key_store.add_key(provider, api_key, source=source)
-                configured = None
-                if hasattr(self, 'tutor_configurator') and self.tutor_configurator:
-                    configured = self.tutor_configurator.configure_tutor(provider, api_key)
-                return jsonify({
-                    "success": True,
-                    "new": is_new,
-                    "configured": configured is not None,
-                    "config_result": configured
-                })
-            except Exception as e:
-                return jsonify({"error": str(e)}), 500
         @self.app.route('/api/integration/force_execute', methods=['POST'])
         def integration_force_execute():
             """Force execute a specific integration by queue_id regardless of queue order.
