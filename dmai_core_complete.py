@@ -39,6 +39,7 @@ from components.autonomous_ingestor import AutonomousDeveloper as AutonomousInge
 from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
 from components.integration.google_drive_scanner import GoogleDriveScanner
 from components.api_key_store import APIKeyStore
+from components.api_key_store import APIKeyStore
 from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
 from components.integration.github_starred_scanner import GitHubStarredScanner
 from components.capability_integrator import CapabilityIntegrator
@@ -5948,6 +5949,16 @@ class DMAIApplication:
         CORS(self.app)
         
         # Initialize avatar generator FIRST
+
+        # Centralized API Key Store (dynamic provider registry)
+        try:
+            from components.api_key_store import APIKeyStore
+            self.api_key_store = APIKeyStore()
+            self.evolution.api_key_store = self.api_key_store
+            logger.info("🔑 Centralized API Key Store initialized")
+        except Exception as e:
+            logger.warning(f"APIKeyStore init failed: {e}")
+            self.api_key_store = None
         self.avatar_generator = AvatarGenerator()
         
         # Expose integration engine from evolution to main app (for API routes)
@@ -9301,6 +9312,31 @@ class DMAIApplication:
                     return jsonify({"error": "Tutor configurator not initialized"}), 500
                 result = self.tutor_configurator.configure_all_free_apis()
                 return jsonify({"success": True, "result": result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/tutors/add_key', methods=['POST'])
+        def tutors_add_key():
+            """Register a new API key for any provider."""
+            try:
+                data = request.get_json()
+                if not data or 'provider' not in data or 'key' not in data:
+                    return jsonify({"error": "Missing 'provider' or 'key' in body"}), 400
+                provider = data['provider']
+                api_key = data['key']
+                source = data.get('source', 'manual')
+                if not hasattr(self, 'api_key_store') or self.api_key_store is None:
+                    return jsonify({"error": "API key store not initialized"}), 500
+                is_new = self.api_key_store.add_key(provider, api_key, source=source)
+                configured = None
+                if hasattr(self.evolution, 'tutor_configurator') and self.evolution.tutor_configurator:
+                    configured = self.evolution.tutor_configurator.configure_tutor(provider, api_key)
+                return jsonify({
+                    "success": True,
+                    "new": is_new,
+                    "configured": configured is not None,
+                    "config_result": configured
+                })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
