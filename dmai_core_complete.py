@@ -6334,7 +6334,7 @@ class DMAIApplication:
                     time.sleep(wait_time)
                 except Exception as e:
                     logger.error(f"Evolution error: {e}")
-                    time.sleep(60)
+                    import traceback; logger.error(f"Evolution cycle crashed: {e}\n{traceback.format_exc()}"); time.sleep(60)
         threading.Thread(target=evolve, daemon=True).start()
         logger.info("🔄 Evolution thread started")
             
@@ -6534,24 +6534,30 @@ class DMAIApplication:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
         # ADD THIS ENDPOINT HERE
+
         @self.app.route('/api/evolution/cycle', methods=['POST'])
         def trigger_evolution_cycle():
             """Manually trigger an evolution cycle"""
             try:
+                if not hasattr(self.evolution, 'evolution_cycle'):
+                    return jsonify({'success': False, 'error': 'Evolution engine not initialized'}), 500
                 result = self.evolution.evolution_cycle()
                 return jsonify({
                     'success': True,
-                    'evolution_cycle': result.get('evolution'),
-                    'consciousness': result.get('consciousness'),
-                    'consciousness_growth': result.get('consciousness_growth'),
-                    'neurons_added': result.get('neurons_added'),
-                    'synapses_added': result.get('synapses_added'),
-                    'successful_evolutions': result.get('successful_evolutions'),
-                    'evolution_kpis': self.evolution.synthetic_network.get_kpis_dict() if hasattr(self.evolution.synthetic_network, 'get_kpis_dict') else {}
+                    'evolution_cycle': result.get('evolution', 0),
+                    'consciousness': result.get('consciousness', 0),
+                    'consciousness_growth': result.get('consciousness_growth', 0),
+                    'neurons_added': result.get('neurons_added', 0),
+                    'synapses_added': result.get('synapses_added', 0),
+                    'successful_evolutions': result.get('successful_evolutions', 0)
                 })
             except Exception as e:
+                import traceback
+                logger.error(f"Manual evolution cycle failed: {e}\n{traceback.format_exc()}")
                 return jsonify({'success': False, 'error': str(e)}), 500
-
+                import traceback
+                logger.error(f"Manual evolution cycle failed: {e}\n{traceback.format_exc()}")
+                return jsonify({'success': False, 'error': str(e)}), 500
         @self.app.route('/status')
         def status_page():
             return render_template_string(STATUS_TEMPLATE, status=self.evolution.get_status())
