@@ -39,7 +39,6 @@ from components.autonomous_ingestor import AutonomousDeveloper as AutonomousInge
 from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
 from components.integration.google_drive_scanner import GoogleDriveScanner
 from components.api_key_store import APIKeyStore
-from components.api_key_store import APIKeyStore
 from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
 from components.integration.github_starred_scanner import GitHubStarredScanner
 from components.capability_integrator import CapabilityIntegrator
@@ -391,16 +390,6 @@ class SyntheticIntelligenceCore:
             self.sqlite = None
             self.load_state()
 
-
-        # ============================================================
-        # CENTRALIZED API KEY STORE - Dynamic provider registry
-        # ============================================================
-        try:
-            self.api_key_store = APIKeyStore(sqlite_persistence=self.sqlite)
-            logger.info("🔑 Centralized API Key Store initialized")
-        except Exception as e:
-            logger.warning(f"APIKeyStore init failed: {e}")
-            self.api_key_store = None
         
         # ============================================================
         # SCHEMA MIGRATION: Add new columns if they don't exist
@@ -5941,6 +5930,11 @@ class DMAIApplication:
         CORS(self.app)
         
         # Initialize avatar generator FIRST
+        self.avatar_generator = AvatarGenerator()
+        
+        # Expose integration engine from evolution to main app (for API routes)
+        if hasattr(self.evolution, 'integration_engine') and self.evolution.integration_engine:
+            self.integration_engine = self.evolution.integration_engine
 
         # Centralized API Key Store (dynamic provider registry)
         try:
@@ -5951,11 +5945,6 @@ class DMAIApplication:
         except Exception as e:
             logger.warning(f"APIKeyStore init failed: {e}")
             self.api_key_store = None
-        self.avatar_generator = AvatarGenerator()
-        
-        # Expose integration engine from evolution to main app (for API routes)
-        if hasattr(self.evolution, 'integration_engine') and self.evolution.integration_engine:
-            self.integration_engine = self.evolution.integration_engine
             logger.info("🧬 Repo Integration Engine exposed to main app")
         
         # Expose Google Drive Scanner from evolution to main app
@@ -6333,8 +6322,8 @@ class DMAIApplication:
                         wait_time = 30
                     time.sleep(wait_time)
                 except Exception as e:
-                    logger.error(f"Evolution error: {e}")
-                    import traceback; logger.error(f"Evolution cycle crashed: {e}\n{traceback.format_exc()}"); time.sleep(60)
+                    logger.error(f"Evolution error: {e}\n{traceback.format_exc()}")
+                    time.sleep(60)
         threading.Thread(target=evolve, daemon=True).start()
         logger.info("🔄 Evolution thread started")
             
@@ -6533,8 +6522,6 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
 
-        # ADD THIS ENDPOINT HERE
-
         @self.app.route('/api/evolution/cycle', methods=['POST'])
         def trigger_evolution_cycle():
             """Manually trigger an evolution cycle"""
@@ -6555,9 +6542,8 @@ class DMAIApplication:
                 import traceback
                 logger.error(f"Manual evolution cycle failed: {e}\n{traceback.format_exc()}")
                 return jsonify({'success': False, 'error': str(e)}), 500
-                import traceback
-                logger.error(f"Manual evolution cycle failed: {e}\n{traceback.format_exc()}")
-                return jsonify({'success': False, 'error': str(e)}), 500
+
+
         @self.app.route('/status')
         def status_page():
             return render_template_string(STATUS_TEMPLATE, status=self.evolution.get_status())
@@ -9313,6 +9299,17 @@ class DMAIApplication:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
+        @self.app.route('/api/tutors/status', methods=['GET'])
+        def tutors_status():
+            """Get AI tutor configuration status"""
+            try:
+                if not hasattr(self, 'tutor_configurator'):
+                    return jsonify({"error": "Tutor configurator not initialized"}), 500
+                status = self.tutor_configurator.get_status()
+                return jsonify({"success": True, "status": status})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/tutors/add_key', methods=['POST'])
         def tutors_add_key():
             """Register a new API key for any provider."""
@@ -9337,18 +9334,9 @@ class DMAIApplication:
                 })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
-
-        @self.app.route('/api/tutors/status', methods=['GET'])
-        def tutors_status():
-            """Get AI tutor configuration status"""
-            try:
-                if not hasattr(self, 'tutor_configurator'):
-                    return jsonify({"error": "Tutor configurator not initialized"}), 500
-                status = self.tutor_configurator.get_status()
                 return jsonify({"success": True, "status": status})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
-
         @self.app.route('/api/integration/force_execute', methods=['POST'])
         def integration_force_execute():
             """Force execute a specific integration by queue_id regardless of queue order.
