@@ -4763,7 +4763,7 @@ class UnifiedEvolutionEngine:
             primary = macro_candidates[0]
             clean_primary = re.sub(r'\[[^\]]+\]\s*', '', primary['insight_text'])[:80]
             
-            response_parts = [f"🧠 Based on my knowledge of '{clean_primary}':\n"]
+            response_parts = []
             
             # Add primary micro-knowledge
             if primary.get('micros'):
@@ -4787,10 +4787,6 @@ class UnifiedEvolutionEngine:
                             if text:
                                 response_parts.append(f"      - {text}")
             
-            if not primary.get('micros') and not connected_macros:
-                response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
-            
-            pass
             
             return '\n'.join(response_parts)[:10000]
             
@@ -5349,7 +5345,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             primary = macro_candidates[0]
             clean_primary = re.sub(r'\[[^\]]+\]\s*', '', primary['insight_text'])[:80]
             
-            response_parts = [f"🧠 Based on my knowledge of '{clean_primary}':\n"]
+            response_parts = []
             
             # Add primary micro-knowledge
             if primary.get('micros'):
@@ -5373,10 +5369,6 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                             if text:
                                 response_parts.append(f"      - {text}")
             
-            if not primary.get('micros') and not connected_macros:
-                response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
-            
-            pass
             
             return '\n'.join(response_parts)[:10000]
             
@@ -5535,7 +5527,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             
             if matched_insights:
                 insights_text = "\n\n".join([f"• {text}" for text in matched_insights[:3]])
-                return f"Based on my knowledge:\n\n{insights_text}"
+                return insights_text
             
             return None
         except Exception as e:
