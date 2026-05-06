@@ -5913,6 +5913,23 @@ DMAI will extract and integrate actual capabilities from the repository."""
 /gaps analyze - Run gap analysis now
 /help - This help message"""
         
+        elif cmd.startswith('/learn_topic '):
+            parts = command.split(None, 2)
+            if len(parts) < 3:
+                return "Usage: /learn_topic <topic> <category>"
+            topic = parts[1]
+            category = parts[2]
+            result = self.stage_learner.learn_topic(
+                {'topic': topic, 'category': category, 'mastery_threshold': 3, 'harvest_sources': ['ai_tutors']},
+                self.synthetic_network.consciousness)
+            return f"📚 Learned: {result.get('topic', topic)} | Category: {result.get('category', category)} | Mastery: {result.get('mastery_level', 0)}/{result.get('mastery_threshold', 3)} | Boost: {result.get('consciousness_boost', 0)}"
+        elif cmd == '/learning_status':
+            summary = self.stage_learner.get_learning_summary()
+            return f"Stage: {summary['current_stage']} | Topics mastered: {summary['total_topics_mastered']}"
+        elif cmd == '/sync_training':
+            self.sync_training_to_si()
+            return 'Training systems synced to SI Core.'
+
         else:
             return f"Unknown command: {command}. Type /help for available commands."
 
@@ -10270,25 +10287,9 @@ Try: /insight trading war ukraine"""
 - /insight test - Create test insight
 - /insight query [entities] - Query insights
 - /insight trading [entities] - Get trading signals"""
-        elif cmd.startswith('/learn_topic '):
-            parts = command.split(None, 2)
-            if len(parts) < 3:
-                return "Usage: /learn_topic <topic> <category>"
-            topic = parts[1]
-            category = parts[2]
-            result = self.evolution.stage_learner.learn_topic(
-                {"topic": topic, "category": category, "mastery_threshold": 3, "harvest_sources": ["ai_tutors"]},
-                self.evolution.synthetic_network.consciousness)
-            return f"📚 Learned: {result.get('topic', topic)} | Category: {result.get('category', category)} | Mastery: {result.get('mastery_level', 0)}/{result.get('mastery_threshold', 3)} | Boost: {result.get('consciousness_boost', 0)}"
-        elif cmd == '/learning_status':
-            summary = self.evolution.stage_learner.get_learning_summary()
-            return f"Stage: {summary['current_stage']} | Topics mastered: {summary['total_topics_mastered']}"
-        elif cmd == '/sync_training':
-            self.evolution.sync_training_to_si()
-            return "Training systems synced to SI Core."
-
+        
         else:
-            return f"Commands: /status, /knowledge, /history, /pause, /resume, /kill, /insight test, /insight query [entities], /insight trading [entities], /insight stats, /learn_topic, /learning_status, /sync_training"
+            return f"Commands: /status, /knowledge, /history, /pause, /resume, /kill, /insight test, /insight query [entities], /insight trading [entities], /insight stats"
 
 # ============================================================================
 # TEMPLATES
