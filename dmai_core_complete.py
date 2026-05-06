@@ -38,7 +38,6 @@ from enum import Enum
 from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
 from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
 from components.integration.google_drive_scanner import GoogleDriveScanner
-from components.api_key_store import APIKeyStore
 from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
 from components.integration.github_starred_scanner import GitHubStarredScanner
 from components.capability_integrator import CapabilityIntegrator
@@ -4752,7 +4751,7 @@ class UnifiedEvolutionEngine:
             primary = macro_candidates[0]
             clean_primary = re.sub(r'\[[^\]]+\]\s*', '', primary['insight_text'])[:80]
             
-            response_parts = []
+            response_parts = [f"🧠 Based on my knowledge of '{clean_primary}':\n"]
             
             # Add primary micro-knowledge
             if primary.get('micros'):
@@ -4776,6 +4775,10 @@ class UnifiedEvolutionEngine:
                             if text:
                                 response_parts.append(f"      - {text}")
             
+            if not primary.get('micros') and not connected_macros:
+                response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
+            
+            pass
             
             return '\n'.join(response_parts)[:10000]
             
@@ -5334,7 +5337,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             primary = macro_candidates[0]
             clean_primary = re.sub(r'\[[^\]]+\]\s*', '', primary['insight_text'])[:80]
             
-            response_parts = []
+            response_parts = [f"🧠 Based on my knowledge of '{clean_primary}':\n"]
             
             # Add primary micro-knowledge
             if primary.get('micros'):
@@ -5358,6 +5361,10 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                             if text:
                                 response_parts.append(f"      - {text}")
             
+            if not primary.get('micros') and not connected_macros:
+                response_parts.append(f"\nI have foundational awareness of this topic but need deeper research to provide detailed insights. My knowledge graph contains this concept with {primary.get('confidence', 0.8)*100:.0f}% confidence.")
+            
+            pass
             
             return '\n'.join(response_parts)[:10000]
             
@@ -5516,7 +5523,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             
             if matched_insights:
                 insights_text = "\n\n".join([f"• {text}" for text in matched_insights[:3]])
-                return insights_text
+                return f"Based on my knowledge:\n\n{insights_text}"
             
             return None
         except Exception as e:
@@ -5935,16 +5942,6 @@ class DMAIApplication:
         # Expose integration engine from evolution to main app (for API routes)
         if hasattr(self.evolution, 'integration_engine') and self.evolution.integration_engine:
             self.integration_engine = self.evolution.integration_engine
-
-        # Centralized API Key Store (dynamic provider registry)
-        try:
-            from components.api_key_store import APIKeyStore
-            self.api_key_store = APIKeyStore()
-            self.evolution.api_key_store = self.api_key_store
-            logger.info("🔑 Centralized API Key Store initialized")
-        except Exception as e:
-            logger.warning(f"APIKeyStore init failed: {e}")
-            self.api_key_store = None
             logger.info("🧬 Repo Integration Engine exposed to main app")
         
         # Expose Google Drive Scanner from evolution to main app
@@ -6542,7 +6539,6 @@ class DMAIApplication:
                 import traceback
                 logger.error(f"Manual evolution cycle failed: {e}\n{traceback.format_exc()}")
                 return jsonify({'success': False, 'error': str(e)}), 500
-
 
         @self.app.route('/status')
         def status_page():
@@ -9309,34 +9305,6 @@ class DMAIApplication:
                 return jsonify({"success": True, "status": status})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
-
-        @self.app.route('/api/tutors/add_key', methods=['POST'])
-        def tutors_add_key():
-            """Register a new API key for any provider."""
-            try:
-                data = request.get_json()
-                if not data or 'provider' not in data or 'key' not in data:
-                    return jsonify({"error": "Missing 'provider' or 'key' in body"}), 400
-                provider = data['provider']
-                api_key = data['key']
-                source = data.get('source', 'manual')
-                if not hasattr(self, 'api_key_store') or self.api_key_store is None:
-                    return jsonify({"error": "API key store not initialized"}), 500
-                is_new = self.api_key_store.add_key(provider, api_key, source=source)
-                configured = None
-                if hasattr(self.evolution, 'tutor_configurator') and self.evolution.tutor_configurator:
-                    configured = self.evolution.tutor_configurator.configure_tutor(provider, api_key)
-                return jsonify({
-                    "success": True,
-                    "new": is_new,
-                    "configured": configured is not None,
-                    "config_result": configured
-                })
-            except Exception as e:
-                return jsonify({"error": str(e)}), 500
-                return jsonify({"success": True, "status": status})
-            except Exception as e:
-                return jsonify({"error": str(e)}), 500
         @self.app.route('/api/integration/force_execute', methods=['POST'])
         def integration_force_execute():
             """Force execute a specific integration by queue_id regardless of queue order.
@@ -10302,9 +10270,25 @@ Try: /insight trading war ukraine"""
 - /insight test - Create test insight
 - /insight query [entities] - Query insights
 - /insight trading [entities] - Get trading signals"""
-        
+        elif cmd.startswith('/learn_topic '):
+            parts = command.split(None, 2)
+            if len(parts) < 3:
+                return "Usage: /learn_topic <topic> <category>"
+            topic = parts[1]
+            category = parts[2]
+            result = self.evolution.stage_learner.learn_topic(
+                {"topic": topic, "category": category, "mastery_threshold": 3, "harvest_sources": ["ai_tutors"]},
+                self.evolution.synthetic_network.consciousness)
+            return f"📚 Learned: {result.get('topic', topic)} | Category: {result.get('category', category)} | Mastery: {result.get('mastery_level', 0)}/{result.get('mastery_threshold', 3)} | Boost: {result.get('consciousness_boost', 0)}"
+        elif cmd == '/learning_status':
+            summary = self.evolution.stage_learner.get_learning_summary()
+            return f"Stage: {summary['current_stage']} | Topics mastered: {summary['total_topics_mastered']}"
+        elif cmd == '/sync_training':
+            self.evolution.sync_training_to_si()
+            return "Training systems synced to SI Core."
+
         else:
-            return f"Commands: /status, /knowledge, /history, /pause, /resume, /kill, /insight test, /insight query [entities], /insight trading [entities], /insight stats"
+            return f"Commands: /status, /knowledge, /history, /pause, /resume, /kill, /insight test, /insight query [entities], /insight trading [entities], /insight stats, /learn_topic, /learning_status, /sync_training"
 
 # ============================================================================
 # TEMPLATES
