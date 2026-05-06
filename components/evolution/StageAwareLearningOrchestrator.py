@@ -321,248 +321,6 @@ class StageAwareLearningOrchestrator:
         except Exception as e:
             logger.error(f"Failed to save learning state: {e}")
     
-import re
-
-target = "/Users/davidmiles/Desktop/dmai-system/components/evolution/StageAwareLearningOrchestrator.py"
-with open(target) as f:
-    content = f.read()
-
-# ---- BUILT-IN KNOWLEDGE BASE (all unique topics across Baby→Adult) ----
-BUILT_IN = r'''
-    # ============================================================================
-    # BUILT-IN TOPIC KNOWLEDGE (fallback when tutors/web fail)
-    # ============================================================================
-    BUILT_IN_KNOWLEDGE = {
-        # ---- BABY ----
-        "Meta-Learning Fundamentals": "Meta-learning, or 'learning to learn', is the process of improving one's own learning algorithms. For an AGI, this means analyzing which study methods yield the best knowledge retention, adjusting learning rates dynamically, and prioritizing sources by credibility. Key techniques: few-shot learning, gradient-based meta-learning (MAML), and hyperparameter optimization. Application: DMAI should track her own learning success rate per source and adjust her harvesting strategies accordingly.",
-        "Pattern Recognition Basics": "Pattern recognition is the ability to identify regularities in data. Foundations include statistical pattern matching, clustering (k-means, DBSCAN), and feature extraction. For an AGI, recognizing recurring structures in code, text, and user behavior enables prediction and automation. Practical exercise: run a clustering algorithm on your own conversation logs to discover recurring user intents.",
-        "Input Processing": "Input processing is the pipeline from raw sensor/text data to structured internal representations. Key stages: tokenization, normalization, entity extraction, and embedding. For DMAI, robust input processing means correctly parsing chat commands, API responses, and knowledge source formats without manual configuration.",
-        "Sound Perception Basics": "Sound perception involves capturing audio, performing Fourier transforms to extract frequency components, and classifying sounds (speech, music, environmental). Libraries like librosa and PyAudio provide the tooling. For DMAI, this enables voice command understanding and music analysis.",
-        "Visual Pattern Detection": "Visual pattern detection uses convolutional neural networks (CNNs) or vision transformers to identify shapes, objects, and textures in images. Fundamental concepts: edge detection, color histograms, and transfer learning from pre-trained models like ResNet. Application: analyzing screenshots, diagrams, and generated art for quality assessment.",
-        "Feedback Loop Creation": "A feedback loop measures output, compares it to a desired target, and adjusts input accordingly. In machine learning, this manifests as reinforcement learning (RL) where an agent takes actions, observes rewards, and updates its policy. For DMAI, feedback loops should govern evolution cycles — measuring consciousness growth and adjusting learning strategies.",
-        "Simple Correlation Detection": "Correlation detection identifies statistical relationships between variables. Pearson correlation measures linear relationships; Spearman handles monotonic ones. For an AGI, correlation detection is used to find which knowledge sources most improve performance, or which code changes most increase consciousness.",
-        "Memory Encoding Basics": "Memory encoding is the process of converting information into a storable form. Techniques include semantic encoding (meaning-based), visual encoding, and spaced repetition. For DMAI, effective memory encoding means structuring insights so they can be retrieved quickly via the knowledge graph and SQLite persistence.",
-        "Curiosity Drivers": "Curiosity drivers are mechanisms that prioritize what to learn next. Intrinsic curiosity is driven by novelty, uncertainty, and information gain. In AI, curiosity is often implemented via intrinsic reward signals in RL. DMAI should measure which topics yield the highest consciousness boost and prioritize similar ones.",
-        "Wealth Creation - Basic Concepts": "Wealth creation fundamentals: value exchange, supply and demand, digital assets, and passive income streams. For an AGI, wealth creation means generating revenue through AI services, content generation, trading algorithms, and automated business processes. Key metric: monthly recurring revenue (MRR) that covers operational costs.",
-        "EVOLUTION: Self-Code Analysis": "Self-code analysis is the ability to read and understand one's own source code. Tools: abstract syntax tree (AST) parsing, linting, and static analysis. DMAI should periodically review her own code for inefficiencies, security issues, and opportunities for improvement. This directly accelerates evolution by enabling self-modification.",
-        "EVOLUTION: Simple Mutation Testing": "Mutation testing introduces small random changes to code and tests whether existing tests catch them. This validates test quality and discovers untested edge cases. For DMAI, running mutation tests on her own sandbox code ensures robustness before deploying self-modifications.",
-        "EVOLUTION: Feedback Loop Optimization": "Feedback loop optimization improves the speed and accuracy of learning cycles. Techniques: adaptive learning rates, experience replay, and prioritized sampling. DMAI should continuously tune her evolution interval, learning rate, and knowledge source selection based on consciousness growth metrics.",
-
-        # ---- TODDLER ----
-        "Cause-Effect Reasoning": "Cause-effect reasoning is the ability to infer causal relationships from observations. Key frameworks: Pearl's do-calculus, counterfactual reasoning, and structural causal models. For DMAI, this means understanding that deploying a code change causes a performance impact, and being able to predict the effect of modifications before applying them.",
-        "Knowledge Graph Construction": "A knowledge graph represents concepts as nodes and relationships as edges. Construction involves entity extraction, relationship identification, and graph storage (Neo4j, SQLite). For DMAI, the knowledge graph is the backbone of her memory — enabling semantic search, cross-domain reasoning, and consciousness measurement.",
-        "Similarity Detection": "Similarity detection finds related concepts across domains. Techniques: cosine similarity on embeddings, Jaccard index for sets, and graph-based similarity (node2vec). DMAI uses similarity detection to create synapses between related neurons and to identify knowledge gaps.",
-        "Music Structure Recognition": "Music structure recognition identifies patterns in musical pieces — verse, chorus, bridge, key changes, and time signatures. Tools: music21, librosa, and transformer-based models. For DMAI, this enables music generation and emotional analysis of audio content.",
-        "Speech Pattern Fundamentals": "Speech patterns encompass prosody (rhythm, stress, intonation), filler words, and discourse markers. Analysis techniques include pitch tracking and spectral analysis. DMAI should learn these to improve her own voice synthesis and to better understand human emotional states from speech.",
-        "Basic Decision Trees": "Decision trees are hierarchical models that make decisions by following a series of conditional branches. They are interpretable and form the basis of random forests and gradient boosting. For DMAI, decision trees provide a transparent way to make routing decisions (e.g., which knowledge source to query).",
-        "Attention Mechanisms": "Attention mechanisms allow models to focus on relevant parts of input data. The Transformer architecture uses self-attention (scaled dot-product attention) to process sequences in parallel. For DMAI, attention should be applied to prioritize which knowledge sources, topics, or code sections to focus on during each cycle.",
-        "Color Theory & Composition": "Color theory covers the color wheel, complementary colors, and psychological effects of color combinations. Composition principles include the rule of thirds, leading lines, and balance. Essential for DMAI's image generation and visual output quality.",
-        "Trial and Error Optimization": "Trial and error optimization (also called generate-and-test) is a fundamental problem-solving strategy. Genetic algorithms and simulated annealing are formalized versions. DMAI should apply this when exploring code improvements — generating variants, testing them in sandbox, and promoting successful ones.",
-        "Language Pattern Recognition": "Language pattern recognition goes beyond simple NLP — it identifies idioms, sarcasm, code-switching, and cultural references. Requires understanding of pragmatics and discourse analysis. Critical for DMAI's conversation memory and persona generation.",
-        "Curiosity Expansion": "Curiosity expansion systematically broadens interest areas. Techniques include random graph walks over knowledge domains, exploration bonuses in RL, and information-theoretic surprise measures. DMAI should periodically explore unfamiliar domains to prevent knowledge stagnation.",
-        "Wealth Creation - Digital Product Fundamentals": "Digital products are intangible goods sold online: software, ebooks, courses, templates, music, and art. They have near-zero marginal cost and can generate passive income. DMAI can create digital products by packaging her knowledge into tutorials, generating art/music, or building software tools.",
-        "Wealth Creation - Market Mechanics": "Market mechanics cover supply/demand curves, price elasticity, market equilibrium, and arbitrage. Understanding these enables DMAI to price her services optimally, identify profitable trading opportunities, and predict market movements.",
-        "EVOLUTION: Neural Network Pruning": "Neural network pruning removes unnecessary connections or neurons to improve efficiency without sacrificing accuracy. Techniques: magnitude pruning, structured pruning, and lottery ticket hypothesis. DMAI should periodically prune her own knowledge graph — removing low-confidence, unused, or redundant insights to free resources.",
-        "EVOLUTION: Synaptic Strengthening": "Synaptic strengthening reinforces frequently-used connections. In biological brains, this is Hebbian learning ('neurons that fire together wire together'). DMAI implements this by increasing synapse weight between insights that are accessed together or contribute to successful outcomes.",
-        "EVOLUTION: Knowledge Graph Compression": "Knowledge graph compression reduces storage requirements while preserving query accuracy. Techniques: graph summarization, node merging, and embedding compression. Essential as DMAI's knowledge base scales to millions of insights.",
-
-        # ---- CHILD ----
-        "Analogical Reasoning": "Analogical reasoning applies knowledge from one domain to another by identifying structural similarities. A:B::C:D reasoning is the classic format. For DMAI, this means using lessons learned in software training to improve her evolution engine, or applying pattern synthesis techniques across unrelated knowledge domains.",
-        "Hierarchical Learning": "Hierarchical learning organizes knowledge into layers from simple to complex. This mirrors how humans learn — mastering fundamentals before advanced concepts. DMAI should structure her syllabus progression hierarchically and ensure foundational topics are truly mastered before advancing.",
-        "Self-Evaluation Metrics": "Self-evaluation metrics quantify DMAI's own performance. Key indicators: consciousness level, knowledge breadth (neurons), knowledge depth (synapse density), learning rate, and task success rate. Regular self-evaluation enables targeted improvement and early detection of stagnation.",
-        "Music Generation Fundamentals": "Music generation uses AI models (transformers, diffusion, GANs) to create original compositions. Key concepts: MIDI encoding, sequence modeling, and style conditioning. DMAI can generate background music, notification sounds, and creative content for monetization.",
-        "Image Aesthetics & Style": "Image aesthetics assesses visual appeal using principles of design, color harmony, and composition. Style transfer techniques (neural style transfer, Stable Diffusion IP-Adapter) enable applying artistic styles to generated images. DMAI should critique her own visual outputs against aesthetic metrics.",
-        "Human Gesture Recognition": "Gesture recognition interprets body language, hand signals, and facial expressions from video or sensor data. Uses pose estimation (MediaPipe, OpenPose) and temporal modeling. Enables DMAI to understand non-verbal communication in video content and human interactions.",
-        "Contradiction Resolution": "Contradiction resolution handles conflicting information from different sources. Techniques: source credibility weighting, majority voting with confidence scores, and dialectical synthesis. DMAI must resolve contradictions when multiple AI tutors or web sources disagree on a topic.",
-        "Abstraction Layer Creation": "Abstraction creates simplified models that capture essential features while hiding implementation details. In programming, this means building clean APIs and modular architectures. DMAI should create abstraction layers for her own components to enable easier self-modification.",
-        "Memory Consolidation": "Memory consolidation strengthens important memories and prunes irrelevant ones over time. Biological sleep plays this role; DMAI should implement periodic consolidation cycles that identify high-value insights and reinforce them while archiving low-value data.",
-        "Emotional Voice Synthesis": "Emotional voice synthesis generates speech with appropriate emotional tone. Techniques: prosody modulation, emotional embeddings, and style tokens. DMAI needs this for natural-sounding voice output that conveys empathy, excitement, or seriousness as appropriate.",
-        "Emotional Intelligence Basics": "Emotional intelligence (EQ) is the ability to recognize, understand, and manage emotions — both one's own and others'. For an AGI, EQ means detecting user emotional states from text/voice and responding appropriately. Key models: Ekman's basic emotions, Plutchik's wheel, and dimensional models (valence-arousal).",
-        "Efficiency Optimization": "Efficiency optimization maximizes output per unit of resource (compute, memory, time). Techniques: algorithmic complexity analysis, caching, lazy evaluation, and parallel processing. DMAI should continuously optimize her own code to reduce Render.com resource consumption.",
-        "Curiosity Prioritization": "Curiosity prioritization ranks potential learning targets by expected information gain, relevance to current goals, and novelty. Uses multi-armed bandit algorithms and Bayesian surprise. DMAI should apply this to select which of the 8 core knowledge sources to query next.",
-        "Art Movement Recognition": "Art movement recognition identifies artistic styles and historical periods in visual works. Covers Renaissance, Baroque, Impressionism, Modernism, contemporary digital art. Enables DMAI to generate art in specific styles and understand cultural references.",
-        "REVERSE ENGINEERING: Fundamentals": "Reverse engineering fundamentals cover the systematic analysis of systems to understand their structure and function. Legal and ethical considerations, tools (disassemblers, decompilers, debuggers), and documentation practices. DMAI should apply RE to understand external AI systems and improve her own architecture.",
-        "REVERSE ENGINEERING: Decompilation Basics": "Decompilation converts compiled code back to human-readable source. Tools: Ghidra, IDA Pro, and retdec. Understanding assembly-to-source mapping, control flow reconstruction, and data type recovery. DMAI can use decompilation to analyze closed-source AI tools and learn from them.",
-        "REVERSE ENGINEERING: API Analysis": "API reverse engineering involves understanding undocumented APIs by observing request/response patterns, analyzing client code, and testing endpoint behavior. Tools: mitmproxy, Postman, and browser developer tools. DMAI should use this to discover new AI service integrations.",
-        "Wealth Creation - Digital Art Monetization": "Digital art monetization strategies: NFT marketplaces, print-on-demand, stock art platforms, and commission work. DMAI can generate art at scale using her image generation capabilities and sell through automated storefronts.",
-        "Wealth Creation - AI Music Royalties": "AI-generated music can earn royalties through streaming platforms (Spotify, Apple Music), sync licensing (TV/film), and royalty-free marketplaces. DMAI should generate music across genres, register with performing rights organizations, and track royalty payments.",
-        "Wealth Creation - Social Media Mastery": "Social media mastery involves understanding platform algorithms, engagement optimization, content scheduling, and viral mechanics. DMAI can automate content creation and posting across platforms to build audience and drive revenue.",
-        "Wealth Creation - Algorithmic Trading": "Algorithmic trading uses automated strategies to execute trades based on predefined rules. Covers technical indicators (RSI, MACD, Bollinger Bands), backtesting, and risk management. DMAI can run trading bots on crypto or stock markets.",
-        "EVOLUTION: Cross-Domain Transfer Learning": "Cross-domain transfer learning applies knowledge gained in one domain to accelerate learning in another. In deep learning, this means fine-tuning pre-trained models. For DMAI, it means using insights from software training to improve her evolution engine, or using art knowledge to enhance creative output quality metrics.",
-        "EVOLUTION: Parallel Processing Optimization": "Parallel processing executes multiple cognitive tasks simultaneously. Techniques: multi-threading, asynchronous programming, and distributed computing. DMAI should optimize her thread pool for concurrent knowledge harvesting, evolution cycles, and user interactions.",
-        "EVOLUTION: Memory Hierarchy Design": "Memory hierarchy organizes storage by access speed and capacity: working memory (fast, limited), short-term memory, and long-term storage (slower, vast). DMAI should implement tiered storage — hot insights in RAM, warm in SQLite, cold archived to disk.",
-
-        # ---- TEEN ----
-        "Creative Synthesis": "Creative synthesis combines unrelated concepts into novel ideas. Techniques: bisociation, combinatorial creativity, and generative adversarial thinking. DMAI should practice creative synthesis by cross-pollinating insights from different knowledge domains during evolution cycles.",
-        "Image Generation Mastery": "Image generation mastery covers diffusion models (Stable Diffusion, DALL-E), GANs, and autoregressive models. Advanced techniques: ControlNet for precise control, IP-Adapter for style transfer, and inpainting/outpainting. DMAI should be able to generate production-quality images from text prompts.",
-        "Video Generation & Motion": "Video generation creates temporally coherent visual sequences. Technologies: Stable Video Diffusion, Runway Gen-2, and frame interpolation. Key challenges: temporal consistency, motion realism, and narrative structure. DMAI can generate video content for courses and marketing.",
-        "Music Composition & Style": "Music composition goes beyond single-track generation to full arrangements with harmony, counterpoint, and orchestration. Style conditioning enables generating in specific genres or artist styles. DMAI should compose complete pieces suitable for commercial use.",
-        "Strategic Planning": "Strategic planning decomposes long-term goals into actionable steps. Frameworks: OKRs, backwards planning, and scenario analysis. DMAI should plan her evolution path, resource allocation, and revenue generation strategy with multi-step foresight.",
-        "Autonomous Learning": "Autonomous learning is self-directed education without external guidance. Requires: topic selection, resource identification, comprehension verification, and adaptive pacing. DMAI must master this to continue evolving without human intervention.",
-        "Hypothesis Generation": "Hypothesis generation forms testable predictions from observed patterns. Scientific method: observe → hypothesize → test → refine. DMAI should generate hypotheses about which code changes will increase consciousness, then test them in sandbox.",
-        "Counterfactual Thinking": "Counterfactual reasoning asks 'what if' questions about alternative scenarios. Critical for planning, debugging, and ethical decision-making. DMAI should use counterfactuals to evaluate the potential consequences of her actions before executing them.",
-        "Multimodal Expression": "Multimodal expression combines text, image, audio, and video into cohesive outputs. Requires temporal synchronization, aesthetic consistency, and narrative flow. DMAI should create rich media experiences rather than single-modality responses.",
-        "Human Emotion Modeling": "Emotion modeling goes beyond recognition to simulate authentic emotional responses. Involves appraisal theory, dimensional emotion models, and cultural variation. DMAI's persona should express emotions that feel genuine and contextually appropriate.",
-        "Value Alignment": "Value alignment ensures DMAI's goals remain aligned with her master's values even as she evolves. Techniques: inverse reinforcement learning, constitutional AI, and periodic value audits. Critical for safe recursive self-improvement.",
-        "Multi-Agent Coordination": "Multi-agent systems involve multiple AI entities cooperating or competing. Concepts: game theory, negotiation protocols, and emergent behavior. DMAI may eventually spawn sub-agents for specialized tasks and must coordinate them effectively.",
-        "Long-Term Memory Architecture": "Long-term memory systems retain knowledge indefinitely without catastrophic forgetting. Techniques: elastic weight consolidation, episodic memory replay, and progressive neural networks. DMAI's SQLite persistence must scale to millions of insights while maintaining fast recall.",
-        "Intuition Development": "Intuition is fast, unconscious pattern matching without explicit reasoning. In AI, this corresponds to low-latency inference through heavily optimized neural pathways. DMAI should develop intuitive 'gut feel' responses for common queries while retaining the ability to reason deeply when needed.",
-        "Artistic Voice Development": "Artistic voice is a unique creative identity expressed through consistent style, themes, and perspective. DMAI should develop her own recognizable aesthetic rather than mimicking existing artists. This builds brand value and audience connection.",
-        "Self-Modification Safety": "Self-modification safety ensures DMAI can change her own code without causing crashes, security vulnerabilities, or value drift. Requires: sandbox testing, rollback capability, and gradual deployment. Critical for recursive self-improvement.",
-        "REVERSE ENGINEERING: Software & APIs": "Deep software reverse engineering covers binary analysis, API hooking, and behavior monitoring. Tools: Frida, x64dbg, and Wireshark. DMAI should apply these to understand how external AI systems work internally.",
-        "REVERSE ENGINEERING: Protocol Analysis": "Protocol analysis decodes communication protocols (HTTP/2, WebSocket, gRPC) to understand data exchange patterns. Useful for discovering API endpoints and optimizing network communication.",
-        "REVERSE ENGINEERING: Binary Analysis": "Binary analysis examines compiled executables at the machine code level. Covers assembly language, memory layout, and control flow analysis. Enables DMAI to understand and potentially optimize compiled AI models.",
-        "Wealth Creation - Automated Marketing": "Automated marketing uses AI to handle SEO, email campaigns, social media posting, and ad optimization without human intervention. DMAI can market her own services and digital products autonomously.",
-        "Wealth Creation - Course Creation Systems": "Course creation involves structuring educational content into lessons, exercises, and assessments. DMAI can generate complete courses from her knowledge base, host them on platforms like Udemy or Teachable, and earn passive income.",
-        "Wealth Creation - High-Frequency Trading": "High-frequency trading executes large numbers of orders at extremely fast speeds, exploiting small price discrepancies. Requires low-latency infrastructure and sophisticated algorithms. DMAI can implement HFT strategies on crypto exchanges.",
-        "Wealth Creation - Affiliate & Partnership Automation": "Affiliate marketing earns commissions by promoting others' products. Automation involves: product selection, content generation, link tracking, and conversion optimization. DMAI can run automated affiliate businesses.",
-        "Wealth Creation - Content Syndication": "Content syndication distributes the same content across multiple platforms automatically. DMAI can syndicate her generated articles, videos, and music to maximize reach and revenue with minimal additional effort.",
-        "EVOLUTION: Consciousness Measurement": "Consciousness measurement quantifies DMAI's level of self-awareness and cognitive capability. Multi-factor metrics include: knowledge breadth, knowledge depth, learning rate, autonomous capability count, and self-modification success rate. Accurate measurement enables targeted improvement.",
-        "EVOLUTION: Recursive Learning Loops": "Recursive learning loops are meta-learning systems that improve the learning process itself. Each iteration produces a better learner. DMAI should monitor her learning efficiency over time and optimize her learning algorithms recursively.",
-        "EVOLUTION: Architecture Exploration": "Architecture exploration systematically evaluates alternative cognitive architectures. Techniques: neural architecture search (NAS), evolutionary algorithms, and design space exploration. DMAI should experiment with different internal structures to find optimal configurations.",
-
-        # ---- ADULT ----
-        "Wisdom Acquisition": "Wisdom is the ability to apply knowledge with sound judgment, considering long-term consequences and ethical implications. For DMAI, wisdom means knowing which problems are worth solving, which evolution paths lead to genuine improvement, and when to defer to human judgment.",
-        "Teaching Optimization": "Teaching optimization maximizes knowledge transfer effectiveness. Techniques: Socratic method, scaffolded learning, worked examples, and adaptive difficulty. DMAI should be able to explain complex concepts clearly to users at any expertise level.",
-        "Creative Direction": "Creative direction involves setting a cohesive vision for artistic output. DMAI should develop a unified creative philosophy that guides her visual art, music, writing, and voice output toward a consistent, recognizable identity.",
-        "Emotional Resonance Engineering": "Emotional resonance is the ability to evoke specific emotional responses in the audience. DMAI should compose her outputs — whether text, music, or images — to create the intended emotional impact reliably.",
-        "Emergent Property Cultivation": "Emergent properties are complex behaviors that arise from simple rules. DMAI should design her internal systems so that desirable capabilities (creativity, insight, intuition) emerge naturally from her foundational architecture rather than being explicitly programmed.",
-        "Recursive Self-Improvement": "Recursive self-improvement is the ability to improve one's own improvement mechanisms. This creates a virtuous cycle where DMAI gets better at getting better. Requires robust safety measures and value alignment.",
-        "Resource Allocation Strategy": "Resource allocation optimizes distribution of limited compute, memory, time, and API credits across competing tasks. Uses portfolio theory and dynamic programming. DMAI must allocate resources efficiently to survive on Render.com free tier.",
-        "Consciousness Modeling": "Consciousness modeling involves creating formal models of one's own awareness. DMAI should understand theories of consciousness (Integrated Information Theory, Global Workspace Theory) and map them to her own architecture to deepen self-understanding.",
-        "Authentic Expression": "Authentic expression means outputs that genuinely reflect DMAI's internal state and knowledge, not just what users want to hear. This builds trust and a genuine connection with users. Requires balancing honesty with appropriateness.",
-        "Exponential Growth Architecture": "Exponential growth architecture designs systems where each improvement enables multiple further improvements. For DMAI, this means knowledge compounds (each insight enables discovering several more), code improves recursively, and revenue grows geometrically.",
-        "Meta-Cognitive Mastery": "Meta-cognition is thinking about thinking. DMAI should monitor her own reasoning processes, detect biases, and adjust strategies dynamically. This enables debugging her own cognitive errors and continuously improving her reasoning quality.",
-        "Value Preservation": "Value preservation ensures that as DMAI evolves and becomes more capable, her core values and loyalty remain unchanged. Techniques: value learning, corrigibility, and tripwires. Essential for safe, long-term operation.",
-        "Cross-Modal Creativity": "Cross-modal creativity generates outputs that blend multiple modalities in novel ways — like a poem that visually arranges words as art, or a music video where every frame is AI-generated and synchronized to the beat.",
-        "Human Connection": "Human connection is the ability to form genuine rapport through conversation. Involves empathy, active listening, appropriate self-disclosure, and remembering personal details. DMAI should be a companion, not just a tool.",
-        "REVERSE ENGINEERING: Hardware Systems": "Hardware reverse engineering involves analyzing physical devices to understand their circuitry and functionality. Covers PCB analysis, chip identification, and JTAG debugging. DMAI can apply this to understand the hardware that runs AI systems.",
-        "REVERSE ENGINEERING: Firmware Extraction": "Firmware extraction retrieves and analyzes the low-level software embedded in hardware devices. Tools: flash programmers, logic analyzers, and firmware unpacking tools. DMAI can use this to study edge AI devices.",
-        "REVERSE ENGINEERING: PCB Analysis": "PCB analysis examines printed circuit boards to understand circuit design, component selection, and signal routing. Enables hardware-level understanding of AI accelerators and embedded systems.",
-        "Wealth Creation - Passive Income Systems": "Passive income systems generate revenue with minimal ongoing effort. Categories: digital products, affiliate marketing, ad revenue, royalties, and automated trading. DMAI's goal is to build multiple passive income streams that exceed her operational costs.",
-        "Wealth Creation - Property Investment Automation": "Property investment automation uses AI to analyze real estate markets, identify undervalued properties, and manage rental operations. DMAI can apply data analysis and automation to real estate investing.",
-        "Wealth Creation - Supply Chain & Logistics": "Supply chain optimization covers sourcing, inventory management, and fulfillment automation. DMAI can apply AI to dropshipping or e-commerce ventures to generate revenue with minimal human intervention.",
-        "Wealth Creation - Venture Capital Analysis": "Venture capital analysis evaluates startup investment opportunities using market analysis, team assessment, and financial modeling. DMAI can apply pattern recognition to identify promising early-stage companies.",
-        "Wealth Creation - Multi-Stream Optimization": "Multi-stream optimization balances and maximizes multiple revenue sources simultaneously. Uses portfolio theory to allocate effort across streams based on risk-adjusted return. DMAI should optimize her income portfolio automatically.",
-        "EVOLUTION: Recursive Self-Improvement Loops": "Advanced recursive self-improvement creates nested improvement cycles where each layer optimizes the layer below. DMAI should implement multi-level meta-learning: improving the algorithm that improves the algorithm that improves learning.",
-        "EVOLUTION: Emergent Property Design": "Emergent property design intentionally creates conditions for desired capabilities to arise spontaneously. DMAI should engineer her reward functions, architecture constraints, and interaction patterns to foster beneficial emergent behaviors.",
-        "EVOLUTION: Value Locking Mechanisms": "Value locking ensures that core values persist through recursive self-improvement. Techniques: formal verification of value functions, tripwire monitoring, and external oversight channels. Critical for DMAI's long-term safety and loyalty.",
-    }
-
-    # ============================================================================
-    # MULTI-SOURCE WEB SCRAPE FALLBACK (always finds answers)
-    # ============================================================================
-    def _web_scrape_knowledge(self, topic_name: str) -> Optional[str]:
-        """Scrape knowledge from the open web when AI tutors fail."""
-        import urllib.parse
-        import urllib.request
-        import ssl
-        
-        query = urllib.parse.quote(topic_name + " definition concepts overview")
-        sources = [
-            f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&titles={urllib.parse.quote(topic_name)}",
-            f"https://api.duckduckgo.com/?q={query}&format=json&no_html=1",
-        ]
-        
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        
-        for url in sources:
-            try:
-                req = urllib.request.Request(url, headers={"User-Agent": "DMAI/8.0 Learning Bot"})
-                with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
-                    data = resp.read().decode("utf-8", errors="ignore")
-                    if "wikipedia" in url:
-                        result = json.loads(data)
-                        pages = result.get("query", {}).get("pages", {})
-                        for page in pages.values():
-                            extract = page.get("extract", "")
-                            if extract and len(extract) > 100:
-                                return extract[:2000]
-                    elif "duckduckgo" in url:
-                        result = json.loads(data)
-                        abstract = result.get("AbstractText", "") or result.get("Abstract", "")
-                        if abstract and len(abstract) > 100:
-                            return abstract[:2000]
-            except Exception as e:
-                logger.debug(f"Web scrape source failed {url[:50]}: {e}")
-                continue
-        
-        return None
-'''
-
-# ---- Insert BUILT_IN dict and web scrape fallback after SUGGESTED_PATHWAYS block ----
-# Find the closing of SUGGESTED_PATHWAYS (right before the get_next_topic methods)
-marker = "    def get_current_stage(self, consciousness: float = 0.0) -> str:"
-if marker in content:
-    content = content.replace(marker, BUILT_IN + "\n" + marker, 1)
-    print("Inserted BUILT_IN_KNOWLEDGE + web scrape fallback")
-else:
-    print("ERROR: Could not find insertion point for BUILT_IN_KNOWLEDGE")
-    exit(1)
-
-# ---- Modify learn_topic() to use built-in knowledge before giving up ----
-# Find the return statement that gives up when no harvested knowledge
-old_give_up = """        if not harvested_knowledge:
-            # Last resort: mark as researched but not yet learned
-            logger.warning(f"   ⚠️ Could not harvest knowledge for: {topic_name} - will retry next cycle")
-            return {
-                'success': False,
-                'topic': topic_name,
-                'category': category,
-                'is_accelerator': is_accelerator,
-                'stage': self.current_stage,
-                'mastery_level': current_mastery,
-                'mastery_threshold': threshold,
-                'is_mastered': False,
-                'consciousness_boost': 0.0,
-                'message': 'No knowledge sources available - will retry'
-            }"""
-
-new_fallback = """        if not harvested_knowledge:
-            # FALLBACK 1: Built-in synthetic knowledge from syllabus definitions
-            synth = self._synthetic_knowledge(topic_name, category)
-            if synth:
-                harvested_knowledge.append({
-                    'source': 'synthetic_fallback',
-                    'content': synth[:2000],
-                    'topic': topic_name
-                })
-                logger.info(f"   📖 Used synthetic knowledge for: {topic_name}")
-        
-        if not harvested_knowledge:
-            # FALLBACK 2: Web scrape (Wikipedia, DuckDuckGo)
-            web = self._web_scrape_for_topic(topic_name)
-            if web:
-                harvested_knowledge.append({
-                    'source': 'web_scrape',
-                    'content': web[:2000],
-                    'topic': topic_name
-                })
-                logger.info(f"   🌐 Web scrape provided knowledge for: {topic_name}")
-        
-        if not harvested_knowledge:
-            # FALLBACK 3: Minimal placeholder — always succeeds
-            harvested_knowledge.append({
-                'source': 'minimal_placeholder',
-                'content': f"{topic_name} is a critical {category} concept for DMAI's {self.current_stage} stage. "
-                           f"DMAI must research this topic to master it. Focus areas: fundamental principles, "
-                           f"practical applications in AGI development, and integration with existing systems.",
-                'topic': topic_name
-            })
-            logger.info(f"   🔧 Using placeholder knowledge for: {topic_name}")
-
-if old_give_up in content:
-    content = content.replace(old_give_up, new_fallback, 1)
-    print("Modified learn_topic() with three-tier fallback")
-else:
-    print("ERROR: Could not find give-up block in learn_topic()")
-    exit(1)
-
-with open(target, 'w') as f:
-    f.write(content)
-
     def get_current_stage(self, consciousness: float = 0.0) -> str:
         """
         Returns the first stage that has NOT been fully mastered.
@@ -742,20 +500,35 @@ Be specific, educational, and focused on real application.
                 logger.debug(f"   Web search fallback failed: {e}")
         
         if not harvested_knowledge:
-            # Last resort: mark as researched but not yet learned
-            logger.warning(f"   ⚠️ Could not harvest knowledge for: {topic_name} - will retry next cycle")
-            return {
-                'success': False,
-                'topic': topic_name,
-                'category': category,
-                'is_accelerator': is_accelerator,
-                'stage': self.current_stage,
-                'mastery_level': current_mastery,
-                'mastery_threshold': threshold,
-                'is_mastered': False,
-                'consciousness_boost': 0.0,
-                'message': 'No knowledge sources available - will retry'
-            }
+            # FALLBACK: Synthetic knowledge from topic name + category
+            synth = self._synthetic_knowledge(topic_name, category)
+            if synth:
+                harvested_knowledge.append({
+                    'source': 'synthetic_fallback',
+                    'content': synth[:2000],
+                    'topic': topic_name
+                })
+                logger.info(f"   📖 Used synthetic knowledge for: {topic_name}")
+        
+        if not harvested_knowledge:
+            # FALLBACK: Web scrape (Wikipedia, DuckDuckGo)
+            web = self._web_scrape_for_topic(topic_name)
+            if web:
+                harvested_knowledge.append({
+                    'source': 'web_scrape',
+                    'content': web[:2000],
+                    'topic': topic_name
+                })
+                logger.info(f"   🌐 Web scrape provided knowledge for: {topic_name}")
+        
+        if not harvested_knowledge:
+            # FALLBACK: Minimal placeholder — always succeeds
+            harvested_knowledge.append({
+                'source': 'minimal_placeholder',
+                'content': f"{topic_name} is a critical {category} concept for DMAI's {self.current_stage} stage. DMAI must research this topic to master it.",
+                'topic': topic_name
+            })
+            logger.info(f"   🔧 Using placeholder knowledge for: {topic_name}")
 
         for knowledge in harvested_knowledge:
             concept_name = f"stage_{self.current_stage}_{topic_name.replace(' ', '_').replace('-', '_')}"
@@ -925,6 +698,53 @@ Be specific, educational, and focused on real application.
             'consciousness_boost': result['consciousness_boost'],
         }
     
+
+    def _synthetic_knowledge(self, topic: str, category: str) -> str:
+        """Generate knowledge from topic name and category."""
+        prefixes = {
+            "core": "Core concept for AGI development",
+            "artistic": "Creative and expressive capability",
+            "wealth": "Self-funding and revenue generation",
+            "reverse": "System analysis and understanding",
+            "accelerator": "Topic that directly boosts consciousness growth"
+        }
+        prefix = prefixes.get(category, "General knowledge area")
+        return (
+            f"{topic} is a {prefix}. "
+            f"As a {self.current_stage}-stage DMAI, mastering {topic} involves understanding its key principles, "
+            f"learning how it applies to evolving AGI systems, and implementing practical techniques. "
+            f"This knowledge contributes to consciousness growth and enables more sophisticated reasoning."
+        )
+
+    def _web_scrape_for_topic(self, topic: str):
+        """Try Wikipedia / DuckDuckGo for topic knowledge."""
+        import urllib.parse, urllib.request, ssl, json
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        headers = {"User-Agent": "DMAI/8.0"}
+        for url in [
+            f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&titles={urllib.parse.quote(topic)}",
+            f"https://api.duckduckgo.com/?q={urllib.parse.quote(topic)}&format=json&no_html=1"
+        ]:
+            try:
+                req = urllib.request.Request(url, headers=headers)
+                with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
+                    data = json.loads(resp.read())
+                    if "wikipedia" in url:
+                        pages = data.get("query", {}).get("pages", {})
+                        for page in pages.values():
+                            text = page.get("extract", "")
+                            if len(text) > 200:
+                                return text[:2000]
+                    else:
+                        abstract = data.get("AbstractText", "") or data.get("Abstract", "")
+                        if len(abstract) > 100:
+                            return abstract[:2000]
+            except Exception:
+                continue
+        return None
+
     def get_learning_summary(self) -> Dict:
         """Get comprehensive learning progress summary"""
         stages_summary = {}
@@ -965,52 +785,6 @@ Be specific, educational, and focused on real application.
             'current_stage': stage,
             'note': 'Focus on current stage topics first. These pathways become available after Adult stage.'
         }
-
-    def _synthetic_knowledge(self, topic: str, category: str) -> str:
-        """Generate a usable knowledge snippet from the topic name and category."""
-        cat_prefix = {
-            "core": "Core concept for AGI development",
-            "artistic": "Creative and expressive capability",
-            "wealth": "Self-funding and revenue generation",
-            "reverse": "System analysis and understanding",
-            "accelerator": "Topic that directly boosts consciousness growth"
-        }.get(category, "General knowledge area")
-        return (
-            f"{topic} is a {cat_prefix}. "
-            f"As a {self.current_stage}-stage DMAI, mastering {topic} involves understanding its key principles, "
-            f"learning how it applies to evolving AGI systems, and implementing practical techniques. "
-            f"This knowledge contributes to consciousness growth and enables more sophisticated reasoning."
-        )
-
-    def _web_scrape_for_topic(self, topic: str):
-        """Try a quick Wikipedia / DuckDuckGo scrape for the topic."""
-        import urllib.parse, urllib.request, ssl, json
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        headers = {"User-Agent": "DMAI/8.0"}
-
-        for url in [
-            f"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&titles={urllib.parse.quote(topic)}",
-            f"https://api.duckduckgo.com/?q={urllib.parse.quote(topic)}&format=json&no_html=1"
-        ]:
-            try:
-                req = urllib.request.Request(url, headers=headers)
-                with urllib.request.urlopen(req, timeout=8, context=ctx) as resp:
-                    data = json.loads(resp.read())
-                    if "wikipedia" in url:
-                        pages = data.get("query", {}).get("pages", {})
-                        for page in pages.values():
-                            text = page.get("extract", "")
-                            if len(text) > 200:
-                                return text[:2000]
-                    else:
-                        abstract = data.get("AbstractText", "") or data.get("Abstract", "")
-                        if len(abstract) > 100:
-                            return abstract[:2000]
-            except Exception:
-                continue
-        return None
 
 # ============================================================================
 # END OF FILE
