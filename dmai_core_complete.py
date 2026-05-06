@@ -9305,9 +9305,9 @@ class DMAIApplication:
             Auto-discovers OpenRouter, Groq, Google AI Studio, Cloudflare, Cohere, HuggingFace.
             """
             try:
-                if not hasattr(self, 'tutor_configurator'):
+                if not hasattr(self.evolution, 'tutor_configurator'):
                     return jsonify({"error": "Tutor configurator not initialized"}), 500
-                result = self.tutor_configurator.configure_all_free_apis()
+                result = self.evolution.tutor_configurator.configure_all_free_apis()
                 return jsonify({"success": True, "result": result})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
@@ -9316,9 +9316,9 @@ class DMAIApplication:
         def tutors_status():
             """Get AI tutor configuration status"""
             try:
-                if not hasattr(self, 'tutor_configurator'):
+                if not hasattr(self.evolution, 'tutor_configurator'):
                     return jsonify({"error": "Tutor configurator not initialized"}), 500
-                status = self.tutor_configurator.get_status()
+                status = self.evolution.tutor_configurator.get_status()
                 return jsonify({"success": True, "status": status})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
