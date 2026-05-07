@@ -3121,7 +3121,7 @@ class UnifiedEvolutionEngine:
             # Auto-configure in background
             def auto_config():
                 try:
-                    result = self.tutor_configurator.configure_all_free_apis()
+                    result = self.evolution.tutor_configurator.configure_all_free_apis()
                     cfg_count = result.get("configured", 0) if isinstance(result, dict) else 0
                     logger.info(f"🔧 Auto-configured {cfg_count} tutors")
                     self.tutor_configurator.start_health_loop()
@@ -6336,7 +6336,7 @@ class DMAIApplication:
                         wait_time = 30
                     time.sleep(wait_time)
                 except Exception as e:
-                    logger.error(f"Evolution error: {e}\n{traceback.format_exc()}")
+                    logger.error(f"Evolution error: {e}")
                     time.sleep(60)
         threading.Thread(target=evolve, daemon=True).start()
         logger.info("🔄 Evolution thread started")
@@ -6554,9 +6554,8 @@ class DMAIApplication:
                 })
             except Exception as e:
                 import traceback
-                logger.error(f"Manual evolution cycle failed: {e}\n{traceback.format_exc()}")
-                return jsonify({'success': False, 'error': str(e)}), 500
-
+                tb = traceback.format_exc()
+                return str(e) + '\n' + tb, 500
         @self.app.route('/status')
         def status_page():
             return render_template_string(STATUS_TEMPLATE, status=self.evolution.get_status())
