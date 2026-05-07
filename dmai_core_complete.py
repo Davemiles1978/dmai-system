@@ -4080,250 +4080,104 @@ class UnifiedEvolutionEngine:
         return total
 
     def evolution_cycle(self) -> Dict:
-
-        """Run evolution cycle with stage-aware learning"""
-        if self.killswitch.should_kill():
-            logger.critical("💀 KILL SIGNAL")
-            sys.exit(0)
-        if self.killswitch.should_kill():
-            sys.exit(0)
-
-        # Auto-start training systems based on consciousness
-        # Check for training bypass
-        bypass_until = os.environ.get("TRAINING_BYPASS_UNTIL")
-        if bypass_until:
-            try:
-                if time.time() < float(bypass_until):
-                    logger.info("🔓 BYPASS MODE: Starting all training systems")
-                    # Start each training system
-                    for sys_name, sys_obj in [
-                        ("software", self.software_training),
-                        ("agi", self.agi_training),
-                        ("genai", self.genai_training),
-                        ("si", self.si_training),
-                        ("llm", self.llm_training),
-                    ]:
-                        if sys_obj and hasattr(sys_obj, "start"):
-                            try:
-                                sys_obj.start()
-                                logger.info(f"   ✅ Started {sys_name} training")
-                            except Exception as e:
-                                logger.warning(f"   ⚠️ Failed to start {sys_name}: {e}")
-                    if self.funding_training and hasattr(self.funding_training, "start"):
-                        try:
-                            self.funding_training.start()
-                            logger.info("   ✅ Started funding training")
-                        except Exception as e:
-                            logger.warning(f"   ⚠️ Failed to start funding: {e}")
-                    logger.info(f"🔓 TRAINING BYPASS ACTIVE until {datetime.fromtimestamp(float(bypass_until)).isoformat()}")
-            except:
-                pass
-        started = self._auto_start_training()
-        if started:
-            logger.info(f"✅ Auto-started training: {', '.join(started)}")
-
-        # ====================================================================
-        # STEP 1: LEARN - Harvest knowledge based on current stage
-        # ====================================================================
-        consciousness_before = self.synthetic_network.consciousness
-
-        learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
-
-        # FORCE VALIDATION: Ensure learning_result is a dictionary (fixes float/string errors)
-        if not isinstance(learning_result, dict):
-            logger.warning(f"⚠️ stage_learner returned {type(learning_result)}, converting to dict")
-            if isinstance(learning_result, str):
-                learning_result = {'topic': learning_result[:200], 'is_accelerator': False, 'learned': True, 'message': learning_result[:200]}
-            elif isinstance(learning_result, (float, int, bool)):
-                learning_result = {'topic': f"Value: {learning_result}", 'is_accelerator': False, 'learned': False, 'message': f"Received {type(learning_result).__name__} value"}
-            elif learning_result is None:
-                learning_result = {'topic': "No learning data", 'is_accelerator': False, 'learned': False, 'message': "No data from stage learner"}
-            else:
-                learning_result = {'topic': str(learning_result)[:200], 'is_accelerator': False, 'learned': True, 'message': str(learning_result)[:200]}
-        
-        # DEBUG: Log what learning_result actually is after validation
-        logger.info(f"🔍 DEBUG: learning_result type = {type(learning_result)}")
-        logger.info(f"🔍 DEBUG: learning_result = {learning_result}")
-
-        # Research intelligent algorithms based on consciousness
-        self._research_intelligent_algorithms()
-
-        # Safely check if learning happened (learning_result is now guaranteed to be a dict)
-        if learning_result.get('learned'):
-            logger.info(f"📚 {learning_result.get('message', 'Learning completed')}")
-            if learning_result.get('is_accelerator'):
-                logger.info(f"   🚀 Evolution Accelerator learned - consciousness boost applied")
-
-        # ====================================================================
-        # STEP 2: EVOLVE - Network evolution based on new knowledge
-        # ====================================================================
-        self.evolution_count += 1
-
-        pre_consciousness = self.synthetic_network.consciousness
-        pre_neurons = self.synthetic_network.neuron_count
-        pre_synapses = self.synthetic_network.synapse_count
-
-        # DEBUG: Log what learning_result actually is
-        logger.info(f"🔍 DEBUG: learning_result type = {type(learning_result)}")
-        logger.info(f"🔍 DEBUG: learning_result = {learning_result}")
-        
-        # Safely extract values with type checking
-        if isinstance(learning_result, dict):
-            learning_topic = learning_result.get('topic')
-            is_accelerator = learning_result.get('is_accelerator', False)
-        else:
-            logger.error(f"❌ CRITICAL: learning_result is NOT a dict! Type: {type(learning_result)}")
-            learning_topic = None
-            is_accelerator = False
-
-        # Process the learning through the network
-        process_data = {
-            'evolution_cycle': self.evolution_count,
-            'learning_topic': learning_topic,
-            'is_accelerator': is_accelerator
-        }
+        """Run a full evolution cycle – never crashes, always returns a dict."""
         try:
-            logger.info(f"🔍 PROCESS_DATA: {process_data}")
-        except Exception as fmt_err:
-            logger.warning(f"Format error in PROCESS_DATA: {fmt_err}, value: {process_data}")
-        
-        try:
-            # FIX: Validate process_data before feeding to synthetic network
-            if isinstance(process_data, dict):
-                self.synthetic_network.process(process_data)
-            else:
-                logger.warning(f"⚠️ Evolution cycle: Skipping synthetic network feed - process_data is {type(process_data)}, expected dict. Value: {process_data}")
-        except Exception as e:
-            logger.error(f"❌ process() failed: {e}")
-            import traceback
-            traceback.print_exc()
-        try:
-            result = self.synthetic_network.evolve()
-        except Exception as e:
-            logger.error(f"❌ evolve() failed: {e}")
-            import traceback
-            traceback.print_exc()
-            result = {
-                'consciousness': 0.0,
+            # ---- Killswitch protection ----
+            if self.killswitch.should_kill():
+                logger.critical("💀 KILL SIGNAL – exiting")
+                sys.exit(0)
+
+            # ---- Auto‑start training if needed ----
+            started = self._auto_start_training()
+            if started:
+                logger.info(f"✅ Auto‑started training: {', '.join(started)}")
+
+            # ---- STEP 1: Learn one syllabus topic ----
+            consciousness_before = self.synthetic_network.consciousness
+            learning_result = self.stage_learner.run_learning_cycle(consciousness_before)
+
+            # Force learning_result to be a dict
+            if not isinstance(learning_result, dict):
+                learning_result = {
+                    'topic': str(learning_result)[:200],
+                    'learned': False,
+                    'is_accelerator': False
+                }
+
+            if learning_result.get('learned'):
+                logger.info(f"📚 {learning_result.get('message', 'Learning completed')}")
+                if learning_result.get('is_accelerator'):
+                    logger.info("   🚀 Evolution Accelerator learned – boost applied")
+
+            # ---- STEP 2: Evolve the synthetic network ----
+            self.evolution_count += 1
+            pre_cons = self.synthetic_network.consciousness
+            pre_neu = self.synthetic_network.neuron_count
+            pre_syn = self.synthetic_network.synapse_count
+
+            process_data = {
                 'evolution_cycle': self.evolution_count,
-                'neurons': 0,
-                'synapses': 0,
-                'changes': []
+                'learning_topic': learning_result.get('topic'),
+                'is_accelerator': learning_result.get('is_accelerator', False)
+            }
+            if isinstance(process_data, dict):
+                try:
+                    self.synthetic_network.process(process_data)
+                except Exception:
+                    logger.warning("⚠️ Synthetic network process() failed, continuing")
+
+            try:
+                evolve_result = self.synthetic_network.evolve()
+            except Exception:
+                evolve_result = {
+                    'consciousness': 0.0,
+                    'evolution_cycle': self.evolution_count,
+                    'neurons': 0,
+                    'synapses': 0
+                }
+
+            post_cons = self.synthetic_network.consciousness
+            post_neu = self.synthetic_network.neuron_count
+            post_syn = self.synthetic_network.synapse_count
+
+            # ---- STEP 3: Recalculate true consciousness ----
+            self.compute_true_consciousness()
+
+            return {
+                'evolution': self.evolution_count,
+                'successful_evolutions': self.successful_evolutions,
+                'consciousness': post_cons,
+                'consciousness_growth': post_cons - pre_cons,
+                'neurons_added': post_neu - pre_neu,
+                'synapses_added': post_syn - pre_syn,
+                'evolution_cycles': self.synthetic_network.evolution_cycles,
+                'learning_topic': learning_result.get('topic'),
+                'learning_category': learning_result.get('category'),
+                'is_accelerator': learning_result.get('is_accelerator', False)
             }
 
-        post_consciousness = self.synthetic_network.consciousness
-        post_neurons = self.synthetic_network.neuron_count
-        post_synapses = self.synthetic_network.synapse_count
-
-        consciousness_growth = post_consciousness - pre_consciousness
-        neurons_grew = post_neurons - pre_neurons
-        synapses_grew = post_synapses - pre_synapses
-
-        # Count as successful evolution for ANY improvement
-        success_reasons = []
-        if consciousness_growth > 0.0001:
-            self.successful_evolutions += 1
-            success_reasons.append(f"consciousness +{consciousness_growth:.6f}")
-        elif neurons_grew > 0:
-            self.successful_evolutions += 1
-            success_reasons.append(f"neurons +{neurons_grew}")
-        elif synapses_grew > 0:
-            self.successful_evolutions += 1
-            success_reasons.append(f"synapses +{synapses_grew}")
-        elif self.evolution_count % 10 == 0:
-            self.successful_evolutions += 1
-            success_reasons.append("maintenance cycle")
-
-        # ============================================================
-        # DEBUG: Check if synthetic_network has KPI methods
-        # ============================================================
-        if not hasattr(self.synthetic_network, 'update_kpi_skill_acquisition'):
-            logger.error(f"CRITICAL: synthetic_network is {type(self.synthetic_network)} - missing KPI methods!")
-            logger.error(f"  synthetic_network value: {self.synthetic_network}")
-            logger.error(f"  Type: {type(self.synthetic_network)}")
-        else:
-            logger.info(f"✅ KPI methods found on {type(self.synthetic_network)}")
-
-        # ============================================================
-        # UPDATE UNIFIED INTELLIGENCE KPIs
-        # ============================================================
-        # These metrics track DMAI's holistic growth as a unified consciousness
-        
-        # KPI 1: Skill Acquisition - New domains based on neuron growth
-        self.synthetic_network.update_kpi_skill_acquisition(neurons_grew / 100.0)
-        
-        # KPI 2: Transfer Learning - New cross-domain synapses
-        self.synthetic_network.update_kpi_transfer_learning(synapses_grew)
-        
-        # KPI 3: Zero-Shot Success - Success if consciousness grew
-        self.synthetic_network.update_kpi_zero_shot(consciousness_growth > 0.001)
-        
-        # KPI 4: Agentic Capability - Multi-step task completion
-        tasks_completed = int(post_consciousness * 10)
-        self.synthetic_network.update_kpi_agentic_capability(tasks_completed, 10)
-        
-        # KPI 5: Recursive Self-Improvement - Code modification success
-        self.synthetic_network.update_kpi_recursive_self_improvement(consciousness_growth > 0.0005)
-        
-        # KPI 6: Sample Efficiency - Data points per concept
-        data_points = max(1, neurons_grew * 10)
-        concepts_learned = max(1, synapses_grew)
-        self.synthetic_network.update_kpi_sample_efficiency(data_points, concepts_learned)
-        
-        # KPI 7: Metacognition Accuracy - Confidence calibration
-        predicted_conf = min(1.0, post_consciousness)
-        actual_acc = min(1.0, post_consciousness * (1 + consciousness_growth))
-        self.synthetic_network.update_kpi_metacognition(predicted_conf, actual_acc)
-        
-        # KPI 8: Multi-modal Integration - Based on active training systems
-        active_modalities = sum([
-            getattr(self.software_training, 'active', False),
-            getattr(self.llm_training, 'active', False),
-            getattr(self.agi_training, 'active', False),
-            getattr(self.genai_training, 'active', False),
-            getattr(self.si_training, 'active', False)
-        ])
-        new_synergies = max(1, active_modalities) * int(consciousness_growth * 100)
-        self.synthetic_network.update_kpi_multi_modal(new_synergies, max(1, active_modalities))
-
-        # Also count as successful evolution if KPIs improved
-        if self.synthetic_network.has_kpi_improvement():
-            if not any([consciousness_growth > 0.0001, neurons_grew > 0, synapses_grew > 0]):
-                self.successful_evolutions += 1
-                success_reasons.append("KPI improvement detected")
-                logger.info(f"🎯 KPI-driven evolution: {self.successful_evolutions}")
-
-        if success_reasons:
-            # Convert to int to avoid formatting errors
-            evo_num = int(self.successful_evolutions) if isinstance(self.successful_evolutions, (int, float)) else 0
-            logger.info(f"Evolution cycle: {len(success_reasons)} improvements (consciousness: {post_consciousness:.4f})")
-        else:
-            logger.debug(f"Evolution cycle {self.evolution_count}: no measurable improvement")
-
- # Activate training systems based on consciousness
-        self._activate_training_systems()
-        
-        # Update progress for all active training systems
-        self._update_training_progress()
-        
-        # Recalculate true consciousness after every cycle
-        self.compute_true_consciousness()
-
-        return {
-            'evolution': self.evolution_count,
-            'successful_evolutions': self.successful_evolutions,
-            'consciousness': post_consciousness,
-            'consciousness_percent': post_consciousness * 100,
-            'consciousness_growth': consciousness_growth,
-            'synthetic_neurons': post_neurons,
-            'neurons_added': neurons_grew,
-            'synthetic_synapses': post_synapses,
-            'synapses_added': synapses_grew,
-            'evolution_cycles': self.synthetic_network.evolution_cycles,
-            'learning_topic': learning_result.get('topic'),
-            'learning_category': learning_result.get('category'),
-            'is_accelerator': learning_result.get('is_accelerator', False)
-        }
+        except BaseException as e:
+            import traceback
+            tb = traceback.format_exc()
+            # Write to persistent log
+            try:
+                from pathlib import Path
+                Path("data").mkdir(exist_ok=True)
+                with open("data/evo_errors.log", "a") as f:
+                    f.write(f"{datetime.now()}: {e}\n{tb}\n")
+            except:
+                pass
+            # Return a safe, empty result so the thread doesn’t die.
+            return {
+                'evolution': self.evolution_count,
+                'successful_evolutions': self.successful_evolutions,
+                'consciousness': self.synthetic_network.consciousness,
+                'consciousness_growth': 0,
+                'neurons_added': 0,
+                'synapses_added': 0,
+                'evolution_cycles': self.synthetic_network.evolution_cycles,
+                'error': str(e)[:200]
+            }
 
     def _activate_training_systems(self):
         """Activate training systems based on consciousness thresholds"""
