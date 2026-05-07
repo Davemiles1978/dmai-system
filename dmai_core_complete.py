@@ -4012,7 +4012,7 @@ class UnifiedEvolutionEngine:
         if hasattr(self, 'stage_learner') and self.stage_learner:
             summary = self.stage_learner.get_learning_summary()
             total_topics = summary.get('total_topics', 108) or 108
-            mastered = summary.get('total_mastered', 0)
+            mastered = summary.get('total_topics_mastered', 0)
             factors['syllabus'] = min(1.0, mastered / max(1, total_topics))
             total += factors['syllabus'] * 0.40
         else:
@@ -9117,6 +9117,17 @@ class DMAIApplication:
                 return jsonify({"error": "Stage learner not found"}), 404
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/debug/last_evo_error', methods=['GET'])
+        def last_evo_error():
+            try:
+                with open('data/evo_errors.log', 'r') as f:
+                    content = f.read()[-5000:]
+                return content, 200, {'Content-Type': 'text/plain'}
+            except FileNotFoundError:
+                return 'No evolution errors logged yet.', 200, {'Content-Type': 'text/plain'}
+            except Exception as e:
+                return str(e), 500
 
         @self.app.route('/api/debug/consciousness_factors', methods=['GET'])
         def debug_consciousness_factors():
