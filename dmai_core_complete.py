@@ -11333,9 +11333,6 @@ if __name__ == '__main__':
     
     # Start the Flask server with proper thread handling
     # CRITICAL: use_reloader=False prevents duplicate processes that break background threads
-    from dmai_custom_routes import add_custom_routes
-    add_custom_routes(app, _dmai_app_instance)
+
+    from dmai_api_routes import api_bp; app.register_blueprint(api_bp)
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True, use_reloader=False)
-    from dmai_custom_routes import add_custom_routes
-    add_custom_routes(app, _dmai_app_instance)
-    from dmai_custom_routes import add_custom_routes
