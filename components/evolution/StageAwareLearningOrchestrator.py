@@ -745,6 +745,11 @@ Be specific, educational, and focused on real application.
                 continue
         return None
 
+    def ingest_external_knowledge(self, topic: str, category: str, content: str) -> str:
+        harvested_knowledge = [{'source': 'master_input', 'content': content[:5000], 'topic': topic}]
+        topic_info = {'topic': topic, 'category': category, 'mastery_threshold': 3, 'harvest_sources': []}
+        return self.learn_topic(topic_info, self.synthetic_network.consciousness)
+
     def get_learning_summary(self) -> Dict:
         """Get comprehensive learning progress summary"""
         stages_summary = {}

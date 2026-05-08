@@ -35,7 +35,7 @@ def tutors_add_key():
             return jsonify({"error": "Missing fields"}), 400
 
         from dmai_core_complete import _dmai_app_instance
-        evolution = _dmai_core_complete.evolution
+        evolution = _dmai_app_instance.evolution
 
         # lazy key‑store init
         if not hasattr(_dmai_core_complete, 'api_key_store') or _dmai_app_instance.api_key_store is None:
