@@ -93,7 +93,7 @@ class StageAwareLearningOrchestrator:
                 # Evolution Accelerators
                 {"topic": "EVOLUTION: Self-Code Analysis", "category": "accelerator", "harvest_sources": ["ai_tutors", "software_engineering"], "mastery_threshold": 3, "is_accelerator": True},
                 {"topic": "EVOLUTION: Simple Mutation Testing", "category": "accelerator", "harvest_sources": ["ai_tutors", "testing"], "mastery_threshold": 3, "is_accelerator": True},
-                {"topic": "EVOLUTION: Feedback Loop Optimization", "category": "accelerator", "harvest_sources": ["ai_tutors", "optimization"], "mastery_threshold": 3, "is_accelerator": True}
+                {"topic": "EVOLUTION: Feedback Loop Optimization", "category": "accelerator", "harvest_sources": ["ai_tutors", "optimization"], "mastery_threshold": 3, "is_accelerator": True},
                 # NEW: Foundational Knowledge Topics
                 {"topic": "English Language Fundamentals", "category": "core", "harvest_sources": ["ai_tutors", "linguistics", "web"], "mastery_threshold": 3},
                 {"topic": "Introduction to Python Programming", "category": "core", "harvest_sources": ["ai_tutors", "documentation", "web"], "mastery_threshold": 3},
