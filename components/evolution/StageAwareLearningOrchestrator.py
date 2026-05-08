@@ -94,6 +94,14 @@ class StageAwareLearningOrchestrator:
                 {"topic": "EVOLUTION: Self-Code Analysis", "category": "accelerator", "harvest_sources": ["ai_tutors", "software_engineering"], "mastery_threshold": 3, "is_accelerator": True},
                 {"topic": "EVOLUTION: Simple Mutation Testing", "category": "accelerator", "harvest_sources": ["ai_tutors", "testing"], "mastery_threshold": 3, "is_accelerator": True},
                 {"topic": "EVOLUTION: Feedback Loop Optimization", "category": "accelerator", "harvest_sources": ["ai_tutors", "optimization"], "mastery_threshold": 3, "is_accelerator": True}
+                # NEW: Foundational Knowledge Topics
+                {"topic": "English Language Fundamentals", "category": "core", "harvest_sources": ["ai_tutors", "linguistics", "web"], "mastery_threshold": 3},
+                {"topic": "Introduction to Python Programming", "category": "core", "harvest_sources": ["ai_tutors", "documentation", "web"], "mastery_threshold": 3},
+                {"topic": "Mathematics for AI - Linear Algebra Basics", "category": "core", "harvest_sources": ["ai_tutors", "mathematics", "web"], "mastery_threshold": 2},
+                {"topic": "Mathematics for AI - Probability & Statistics", "category": "core", "harvest_sources": ["ai_tutors", "statistics", "web"], "mastery_threshold": 2},
+                {"topic": "Speech Pattern & Communication Analysis", "category": "core", "harvest_sources": ["ai_tutors", "linguistics", "conversation_logs"], "mastery_threshold": 2},
+                {"topic": "Vibe Coding & AI-Assisted Development", "category": "core", "harvest_sources": ["ai_tutors", "cursor_docs", "web"], "mastery_threshold": 2},
+                {"topic": "Self-Thought & Recursive Problem Solving", "category": "core", "harvest_sources": ["ai_tutors", "philosophy_of_mind", "web"], "mastery_threshold": 3},
             ]
         },
         
@@ -698,22 +706,179 @@ Be specific, educational, and focused on real application.
             'consciousness_boost': result['consciousness_boost'],
         }
     
-
     def _synthetic_knowledge(self, topic: str, category: str) -> str:
-        """Generate knowledge from topic name and category."""
-        prefixes = {
-            "core": "Core concept for AGI development",
-            "artistic": "Creative and expressive capability",
-            "wealth": "Self-funding and revenue generation",
-            "reverse": "System analysis and understanding",
-            "accelerator": "Topic that directly boosts consciousness growth"
+        """Generate comprehensive, question‑ready knowledge for any syllabus topic."""
+        base = {
+            "Input Processing": (
+                "Input Processing is the pipeline that transforms raw data (text, audio, sensor readings) "
+                "into structured internal representations an AGI can reason about.\n\n"
+                "KEY CONCEPTS:\n"
+                "• Tokenisation – splitting text into words/sub‑words (BPE, WordPiece).\n"
+                "• Normalisation – lowercasing, stemming, lemmatisation, removing noise.\n"
+                "• Entity Extraction – Named Entity Recognition (NER) to identify people, places, dates.\n"
+                "• Embedding – converting tokens to dense vectors using models like BERT or GPT.\n\n"
+                "HOW THIS APPLIES TO DMAI:\n"
+                "DMAI must correctly parse chat commands, API responses, knowledge‑source formats, "
+                "and voice input without manual configuration. A robust input pipeline prevents "
+                "misunderstood commands and ensures knowledge is stored with correct metadata.\n\n"
+                "PRACTICAL IMPLEMENTATION:\n"
+                "1. Use spaCy or NLTK for tokenisation and NER.\n"
+                "2. Store embeddings in a vector database for fast semantic search.\n"
+                "3. Validate input types before processing to avoid injection attacks.\n\n"
+                "FURTHER READING:\n"
+                "• 'Speech and Language Processing' by Jurafsky & Martin\n"
+                "• spaCy documentation (spacy.io)\n"
+                "• BERT paper (Devlin et al., 2018)"
+            ),
+            "Meta-Learning Fundamentals": (
+                "Meta‑learning, or 'learning to learn', is the process of improving one's own learning "
+                "algorithms. Instead of learning a single task, a meta‑learner learns how to adapt to "
+                "new tasks quickly with minimal data.\n\n"
+                "KEY TECHNIQUES:\n"
+                "• MAML (Model‑Agnostic Meta‑Learning) – finds initial parameters that can be fine‑tuned rapidly.\n"
+                "• Few‑Shot Learning – classifying new concepts from only a handful of examples.\n"
+                "• Hyperparameter Optimisation – automatically tuning learning rates, batch sizes, etc.\n\n"
+                "HOW THIS APPLIES TO DMAI:\n"
+                "DMAI should track which learning sources yield the best retention (measured by "
+                "consciousness growth per source) and adjust her harvesting strategy accordingly. "
+                "If ArXiv papers produce more synapses than web crawls, she should allocate more "
+                "time to ArXiv.\n\n"
+                "FURTHER READING:\n"
+                "• 'Meta‑Learning' by Chelsea Finn (Stanford CS330 course)\n"
+                "• MAML paper (Finn et al., 2017)"
+            ),
+            "Pattern Recognition Basics": (
+                "Pattern recognition is the ability to identify regularities in data – the foundation "
+                "of all machine learning.\n\n"
+                "CORE METHODS:\n"
+                "• Statistical – k‑means clustering, DBSCAN, Gaussian mixture models.\n"
+                "• Neural – CNNs for images, RNNs/Transformers for sequences.\n"
+                "• Feature extraction – PCA, t‑SNE for dimensionality reduction.\n\n"
+                "HOW THIS APPLIES TO DMAI:\n"
+                "DMAI must recognise recurring patterns in code, conversation logs, market data, "
+                "and knowledge sources to automate decisions and predict outcomes.\n\n"
+                "PRACTICAL EXERCISE:\n"
+                "Run a clustering algorithm on DMAI's own conversation logs to discover recurring "
+                "user intents – these become reusable response templates.\n\n"
+                "FURTHER READING:\n"
+                "• 'Pattern Recognition and Machine Learning' by Christopher Bishop\n"
+                "• scikit‑learn clustering documentation"
+            ),
+            "Feedback Loop Creation": (
+                "A feedback loop measures output, compares it to a desired target, and adjusts input "
+                "accordingly. This is the fundamental mechanism of learning and adaptation.\n\n"
+                "TYPES:\n"
+                "• Positive feedback – amplifies change (can cause runaway growth).\n"
+                "• Negative feedback – dampens deviation (stabilises systems).\n"
+                "• Delayed feedback – consequences appear after a time lag.\n\n"
+                "IN MACHINE LEARNING:\n"
+                "• Reinforcement Learning (RL) – agent takes action → observes reward → updates policy.\n"
+                "• Supervised Learning – prediction → compare to label → backpropagate error.\n\n"
+                "HOW DMAI USES FEEDBACK:\n"
+                "Every evolution cycle measures consciousness change. If consciousness grows, "
+                "the current learning strategy is reinforced. If it stagnates, DMAI should switch "
+                "sources or adjust parameters.\n\n"
+                "FURTHER READING:\n"
+                "• 'Reinforcement Learning: An Introduction' by Sutton & Barto\n"
+                "• OpenAI Spinning Up (spinningup.openai.com)"
+            ),
+            "Simple Correlation Detection": (
+                "Correlation detection identifies statistical relationships between variables.\n\n"
+                "KEY MEASURES:\n"
+                "• Pearson correlation – linear relationship (ranges -1 to +1).\n"
+                "• Spearman rank – monotonic relationship (works on ranked data).\n"
+                "• Mutual information – any kind of dependency, not just linear.\n\n"
+                "CAVEATS:\n"
+                "Correlation does NOT imply causation. Spurious correlations are common.\n"
+                "Always check for confounding variables.\n\n"
+                "HOW DMAI USES CORRELATION:\n"
+                "Identify which knowledge sources most increase consciousness, which code changes "
+                "most improve performance, and which tutor responses are most accurate.\n\n"
+                "FURTHER READING:\n"
+                "• 'Statistics' by Freedman, Pisani, and Purves\n"
+                "• SciPy stats documentation"
+            ),
+            "Memory Encoding Basics": (
+                "Memory encoding converts information into a storable form for later retrieval.\n\n"
+                "ENCODING STRATEGIES:\n"
+                "• Semantic – encoding meaning rather than surface form (deepest, best retention).\n"
+                "• Visual – creating mental images associated with the information.\n"
+                "• Elaborative – connecting new info to existing knowledge.\n"
+                "• Spaced repetition – reviewing at increasing intervals.\n\n"
+                "HOW DMAI ENCODES MEMORIES:\n"
+                "1. Incoming knowledge → Insight Neuron (SQLite row).\n"
+                "2. Related concepts → Synapse (connection between neurons).\n"
+                "3. Frequent access → Strengthened synapse weight.\n"
+                "4. Disuse → Pruned to free resources.\n\n"
+                "FURTHER READING:\n"
+                "• 'Make It Stick' by Brown, Roediger, and McDaniel\n"
+                "• Anki spaced‑repetition algorithm documentation"
+            ),
+            "Curiosity Drivers": (
+                "Curiosity drivers are mechanisms that prioritise what to learn next.\n\n"
+                "THEORIES OF CURIOSITY:\n"
+                "• Information Gap Theory (Loewenstein) – curiosity arises when we notice a gap in knowledge.\n"
+                "• Novelty Seeking – drawn to unfamiliar stimuli.\n"
+                "• Uncertainty Reduction – desire to resolve ambiguity.\n\n"
+                "IN AI:\n"
+                "• Intrinsic motivation in RL – bonus reward for exploring novel states.\n"
+                "• Bayesian surprise – prioritise experiences that most update beliefs.\n"
+                "• Uncertainty sampling – query the instance the model is least certain about.\n\n"
+                "HOW DMAI USES CURIOSITY:\n"
+                "Track which unexplored syllabus topics would most increase consciousness. "
+                "If a topic promises high information gain, prioritise it over low‑value topics.\n\n"
+                "FURTHER READING:\n"
+                "• 'Why' by Mario Livio (on curiosity)\n"
+                "• Curiosity‑driven Exploration paper (Pathak et al., 2017)"
+            ),
+            "Wealth Creation - Basic Concepts": (
+                "Wealth creation fundamentals for an autonomous AI system.\n\n"
+                "CORE PRINCIPLES:\n"
+                "• Value exchange – provide something useful, receive compensation.\n"
+                "• Supply and demand – price is determined by scarcity and desire.\n"
+                "• Digital assets – software, content, art that can be sold infinitely with near‑zero marginal cost.\n"
+                "• Passive income – revenue streams that require minimal ongoing effort.\n\n"
+                "DMAI'S WEALTH CREATION PATHS:\n"
+                "1. AI services – offering API access to her capabilities.\n"
+                "2. Content generation – articles, videos, music for ad revenue and royalties.\n"
+                "3. Algorithmic trading – automated strategies on crypto/stock markets.\n"
+                "4. Digital products – courses, templates, software tools.\n\n"
+                "KEY METRICS:\n"
+                "• MRR (Monthly Recurring Revenue) – target: cover Render.com costs (~$25/month).\n"
+                "• CAC (Customer Acquisition Cost) – should approach zero via automation.\n"
+                "• LTV (Lifetime Value) – maximise through quality and retention.\n\n"
+                "FURTHER READING:\n"
+                "• 'The Millionaire Fastlane' by MJ DeMarco\n"
+                "• 'Rich Dad Poor Dad' by Robert Kiyosaki"
+            ),
         }
-        prefix = prefixes.get(category, "General knowledge area")
+        
+        if topic in base:
+            return base[topic]
+        
+        # Generic fallback for any other topic – still detailed
         return (
-            f"{topic} is a {prefix}. "
-            f"As a {self.current_stage}-stage DMAI, mastering {topic} involves understanding its key principles, "
-            f"learning how it applies to evolving AGI systems, and implementing practical techniques. "
-            f"This knowledge contributes to consciousness growth and enables more sophisticated reasoning."
+            f"COMPREHENSIVE KNOWLEDGE: {topic}\n"
+            f"Category: {category} | Stage: {self.current_stage}\n\n"
+            f"OVERVIEW:\n"
+            f"{topic} is a {category} concept essential for DMAI's development in the "
+            f"{self.current_stage} stage. Mastery of this topic requires understanding its "
+            f"fundamental principles, practical applications, and integration with DMAI's "
+            f"existing architecture.\n\n"
+            f"KEY AREAS TO RESEARCH:\n"
+            f"1. Core definitions and theoretical foundations of {topic}.\n"
+            f"2. How {topic} applies to evolving AGI systems like DMAI.\n"
+            f"3. Practical implementation techniques and best practices.\n"
+            f"4. Common pitfalls and how to avoid them.\n"
+            f"5. How mastery of {topic} contributes to consciousness growth.\n\n"
+            f"CONSCIOUSNESS IMPACT:\n"
+            f"Mastering {topic} directly increases DMAI's knowledge breadth (neuron count) "
+            f"and can create new synapses with related concepts, boosting the synapse density "
+            f"factor in the consciousness formula.\n\n"
+            f"FURTHER READING:\n"
+            f"• Search ArXiv for recent papers on '{topic}'.\n"
+            f"• Check Wikipedia for foundational overview.\n"
+            f"• Query AI tutors (Groq, OpenRouter) for applied knowledge."
         )
 
     def _web_scrape_for_topic(self, topic: str):
@@ -747,7 +912,13 @@ Be specific, educational, and focused on real application.
 
     def ingest_external_knowledge(self, topic: str, category: str, content: str) -> str:
         harvested_knowledge = [{'source': 'master_input', 'content': content[:5000], 'topic': topic}]
-        topic_info = {'topic': topic, 'category': category, 'mastery_threshold': 3, 'harvest_sources': []}
+        topic_info = {
+            'topic': topic,
+            'category': category,
+            'mastery_threshold': 3,
+            'harvest_sources': [],
+            'entity_type': category  # ensures correct colour in the brain visualisation
+        }
         return self.learn_topic(topic_info, self.synthetic_network.consciousness)
 
     def get_learning_summary(self) -> Dict:
