@@ -38,7 +38,7 @@ def tutors_add_key():
         evolution = _dmai_app_instance.evolution
 
         # lazy key‑store init
-        if not hasattr(_dmai_core_complete, 'api_key_store') or _dmai_app_instance.api_key_store is None:
+        if not hasattr(_dmai_app_instance, 'api_key_store') or _dmai_app_instance.api_key_store is None:
             from components.api_key_store import APIKeyStore
             _dmai_app_instance.api_key_store = APIKeyStore()
 
