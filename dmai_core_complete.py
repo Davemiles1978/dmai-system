@@ -5114,6 +5114,34 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             conn = sqlite3.connect(str(db_path))
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
+
+            # ============================================================
+            # DIRECT TOPIC LOOKUP – find knowledge by topic name (MASTERY)
+            # ============================================================
+            for word in query_words[:5]:
+                cursor.execute('''
+                    SELECT insight_text, entity_type, source_title
+                    FROM insights
+                    WHERE insight_text LIKE ?
+                    ORDER BY confidence DESC
+                    LIMIT 1
+                ''', (f'%{word}%',))
+                direct = cursor.fetchone()
+                if direct:
+                    conn.close()
+                    return f"📚 Knowledge on '{query[:60]}':\n\n{direct['insight_text'][:2000]}\n\n🔖 Source: {direct.get('source_title', 'DMAI Knowledge Base')}"
+            # Also try full topic match
+            cursor.execute('''
+                SELECT insight_text, entity_type
+                FROM insights
+                WHERE insight_text LIKE ?
+                LIMIT 1
+            ''', (f'%{query}%',))
+            direct = cursor.fetchone()
+            if direct:
+                conn.close()
+                return f"📚 Knowledge on '{query[:60]}':\n\n{direct['insight_text'][:2000]}"
+
             
             query_lower = query.lower()
             query_words = [w for w in query_lower.split() if len(w) > 2]
