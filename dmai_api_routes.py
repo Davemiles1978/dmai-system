@@ -10,6 +10,52 @@ api_bp = Blueprint('custom_api', __name__)
 def ping():
     return jsonify({"status": "ok"})
 
+# ---------- DIRECT KNOWLEDGE LOOKUP ----------
+@api_bp.route('/api/knowledge/<topic>')
+def get_knowledge(topic):
+    """Return the stored knowledge for a given topic directly from SQLite."""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        if not db_path.exists():
+            return jsonify({"error": "Knowledge database not found"}), 500
+        
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Search source_title first, then insight_text, preferring longest content
+        cursor.execute('''
+            SELECT insight_text, entity_type, source_title, confidence,
+                   LENGTH(insight_text) as len
+            FROM insights
+            WHERE source_title LIKE ? OR insight_text LIKE ?
+            ORDER BY len DESC
+            LIMIT 5
+        ''', (f'%{topic}%', f'%{topic}%'))
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        if not rows:
+            return jsonify({"error": f"No knowledge found for '{topic}'"}), 404
+        
+        # Return the longest match (most detailed)
+        best = rows[0]
+        return jsonify({
+            "topic": topic,
+            "knowledge": best['insight_text'][:5000],
+            "entity_type": best['entity_type'],
+            "source_title": best['source_title'],
+            "confidence": best['confidence'],
+            "length": best['len']
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 # ---------- ingest knowledge ----------
 @api_bp.route('/api/ingest_knowledge', methods=['POST'])
 def ingest_knowledge():
