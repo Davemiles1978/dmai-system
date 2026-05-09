@@ -4501,6 +4501,18 @@ class UnifiedEvolutionEngine:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
+            # DIRECT SOURCE TITLE LOOKUP — find by topic name
+            cursor.execute('''
+                SELECT insight_text, entity_type, source_title, confidence
+                FROM insights
+                WHERE source_title LIKE ? AND LENGTH(insight_text) > 100
+                ORDER BY confidence DESC LIMIT 1
+            ''', (f'%{query}%',))
+            direct = cursor.fetchone()
+            if direct and len(direct['insight_text']) > 100:
+                conn.close()
+                return f"📚 Knowledge on '{query[:80]}':\n\n{direct['insight_text'][:2000]}"
+
             # ============================================================
             # DIRECT TOPIC LOOKUP – find knowledge by topic name (MASTERY)
             # ============================================================

@@ -555,6 +555,20 @@ Be specific, educational, and focused on real application.
                 }
             )
             
+            # Also create a searchable insight with the topic name as source_title
+            if hasattr(self, 'si_core') and self.si_core:
+                self.si_core.add_insight(
+                    insight_text=knowledge['content'][:500],
+                    entity_type=category,
+                    entities=[topic_name, category],
+                    relationship="detailed_knowledge",
+                    source_topic=category,
+                    target_topic=topic_name,
+                    confidence=0.9,
+                    source_title=topic_name,
+                    source_url=f"syllabus_{self.current_stage}"
+                )
+
             # Add relationship from stage to learned concept
             stage_concept = f"stage_{self.current_stage}"
             self.knowledge_graph.add_relationship(
@@ -652,7 +666,7 @@ Be specific, educational, and focused on real application.
                     entity_type="topic_mastery",
                     entities=[topic_name, category, self.current_stage],
                     relationship="is_mastered",
-                    source_topic=category,
+                    source_topic=topic_name,
                     target_topic="DMAI_Knowledge",
                     confidence=0.7 + (min(current_mastery + 1, threshold) / threshold) * 0.3
                 )
