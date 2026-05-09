@@ -4521,6 +4521,7 @@ class UnifiedEvolutionEngine:
                     SELECT insight_text, entity_type, source_title
                     FROM insights
                     WHERE insight_text LIKE ?
+                      AND LENGTH(insight_text) > 300
                     ORDER BY confidence DESC
                     LIMIT 1
                 ''', (f'%{word}%',))
@@ -4533,6 +4534,7 @@ class UnifiedEvolutionEngine:
                 SELECT insight_text, entity_type
                 FROM insights
                 WHERE insight_text LIKE ?
+                  AND LENGTH(insight_text) > 300
                 LIMIT 1
             ''', (f'%{query}%',))
             direct = cursor.fetchone()
