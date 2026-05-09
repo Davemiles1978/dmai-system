@@ -599,6 +599,47 @@ Be specific, educational, and focused on real application.
                 logger.error(f"Cannot process payload: expected dict, got {type(process_payload)}")
         
         is_mastered = (current_mastery + 1) >= threshold
+
+        # ====================================================================
+        # MASTERY VERIFICATION – generate and take a self‑test before marking mastered
+        # ====================================================================
+        if is_mastered:
+            test_questions = self._generate_comprehension_test(
+                topic_name, harvested_knowledge
+            )
+            passed_test = self._self_test_topic(topic_name, test_questions)
+            
+            if not passed_test:
+                # Reset mastery – force at least one more learning pass
+                self.learned_topics[self.current_stage][topic_name] = max(
+                    0, (current_mastery + 1) - 2  # roll back to previous level + redo
+                )
+                self._save_state()
+                return {
+                    'success': False,
+                    'topic': topic_name,
+                    'category': category,
+                    'is_accelerator': is_accelerator,
+                    'stage': self.current_stage,
+                    'mastery_level': current_mastery,
+                    'mastery_threshold': threshold,
+                    'is_mastered': False,
+                    'consciousness_boost': 0.0,
+                    'message': f'Comprehension test failed – re‑learning required for {topic_name}'
+                }
+            
+            # Store the test questions for future re‑verification
+            if hasattr(self, 'knowledge_graph') and self.knowledge_graph:
+                self.knowledge_graph.add_concept(
+                    f"test_{topic_name.replace(' ', '_')}",
+                    "comprehension_test",
+                    {
+                        'questions': test_questions,
+                        'topic': topic_name,
+                        'created_at': datetime.now().isoformat()
+                    }
+                )
+            logger.info(f"   ✅ Comprehension test PASSED for {topic_name} – mastery confirmed")
         
         # ====================================================================
         # CREATE INSIGHT NEURON IN SI CORE WHEN TOPIC IS MASTERED
@@ -960,6 +1001,137 @@ Be specific, educational, and focused on real application.
             'available_after_adult': self.SUGGESTED_PATHWAYS,
             'current_stage': stage,
             'note': 'Focus on current stage topics first. These pathways become available after Adult stage.'
+        }
+
+    def _generate_comprehension_test(self, topic_name: str, knowledge: List[Dict]) -> List[str]:
+        """Generate 3–5 questions that test deep understanding of the topic."""
+        # Collect all text from harvested knowledge
+        all_text = " ".join([k.get('content', '')[:1000] for k in knowledge])
+        
+        if not all_text.strip():
+            return [f"Define {topic_name} and explain its importance.",
+                    f"How does {topic_name} apply to an evolving AGI?",
+                    f"Give an example of {topic_name} in practice."]
+        
+        # Use the AI tutor to generate questions (fast, high‑quality)
+        prompt = (
+            f"Based on this knowledge about '{topic_name}':\n\n{all_text[:2000]}\n\n"
+            f"Generate 3 comprehension questions that test whether someone truly understands "
+            f"this topic at a deep level. The questions should:\n"
+            f"1. Test conceptual understanding, not just facts\n"
+            f"2. Require synthesis across multiple ideas\n"
+            f"3. Be answerable in 2-4 sentences each\n\n"
+            f"Return ONLY the questions, one per line, numbered 1. 2. 3."
+        )
+        
+        questions = []
+        if self.ai_hub:
+            try:
+                result = self.ai_hub.query_all_tutors(prompt)
+                for tutor, response in result.get('responses', {}).items():
+                    if response and len(response) > 20:
+                        # Parse numbered questions
+                        import re
+                        lines = response.strip().split('\n')
+                        for line in lines:
+                            match = re.match(r'^\d+\.\s*(.+)', line.strip())
+                            if match:
+                                questions.append(match.group(1)[:200])
+                        if questions:
+                            break
+            except Exception:
+                pass
+        
+        # Fallback if AI generation fails
+        if not questions:
+            questions = [
+                f"Explain the core concepts of {topic_name} and why they matter for an AGI system.",
+                f"How would you apply {topic_name} to improve DMAI's own architecture?",
+                f"What are the relationships between {topic_name} and other topics in the {self.current_stage} stage?"
+            ]
+        
+        return questions[:5]
+
+    def _self_test_topic(self, topic_name: str, questions: List[str]) -> bool:
+        """Have DMAI answer her own test questions and evaluate the answers."""
+        if not questions:
+            return True  # No questions to test with – assume pass
+        
+        correct = 0
+        for question in questions:
+            # DMAI answers the question using her own knowledge
+            answer = self._answer_question(topic_name, question)
+            
+            # Evaluate the answer using an AI tutor as judge
+            evaluation = self._evaluate_answer(topic_name, question, answer)
+            
+            if evaluation.get('pass', False):
+                correct += 1
+            else:
+                logger.info(f"   ❌ Failed question: {question[:60]}...")
+                logger.info(f"      Reason: {evaluation.get('reason', 'No reason given')}")
+        
+        # Must pass at least 60% of questions
+        passed = correct >= max(1, len(questions) * 0.6)
+        logger.info(f"   📝 Self‑test: {correct}/{len(questions)} correct – {'PASS' if passed else 'FAIL'}")
+        return passed
+
+    def _answer_question(self, topic_name: str, question: str) -> str:
+        """DMAI answers a question using her own knowledge graph."""
+        # Query the SI core for relevant knowledge
+        if hasattr(self, 'si_core') and self.si_core:
+            try:
+                result = self.si_core.query(["*", topic_name])
+                if result:
+                    relevant = [r['insight'] for r in result[:3]]
+                    return " ".join(relevant)[:1000]
+            except:
+                pass
+        
+        # Fallback: ask an AI tutor
+        if self.ai_hub:
+            try:
+                result = self.ai_hub.query_all_tutors(
+                    f"Answer this question about {topic_name}: {question}"
+                )
+                for tutor, response in result.get('responses', {}).items():
+                    if response and len(response) > 20:
+                        return response[:1000]
+            except:
+                pass
+        
+        return f"{topic_name} is a concept in the {self.current_stage} stage syllabus."
+
+    def _evaluate_answer(self, topic_name: str, question: str, answer: str) -> Dict:
+        """Have an AI judge evaluate whether the answer demonstrates understanding."""
+        prompt = (
+            f"Question about '{topic_name}': {question}\n\n"
+            f"Student's answer: {answer}\n\n"
+            f"As an expert evaluator, judge whether this answer demonstrates real understanding "
+            f"of {topic_name}. Consider: correctness, depth, completeness, and practical insight.\n\n"
+            f"Respond in JSON format: {{\"pass\": true/false, \"reason\": \"brief explanation\"}}"
+        )
+        
+        if self.ai_hub:
+            try:
+                result = self.ai_hub.query_all_tutors(prompt)
+                for tutor, response in result.get('responses', {}).items():
+                    if response:
+                        # Try to parse JSON from response
+                        import json, re
+                        match = re.search(r'\{.*"pass".*\}', response, re.DOTALL)
+                        if match:
+                            try:
+                                return json.loads(match.group())
+                            except:
+                                pass
+            except:
+                pass
+        
+        # Fallback evaluation
+        return {
+            'pass': len(answer) > 50 and topic_name.lower() in answer.lower(),
+            'reason': 'Fallback evaluation based on answer length and topic relevance'
         }
 
 # ============================================================================
