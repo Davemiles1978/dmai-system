@@ -554,7 +554,12 @@ Be specific, educational, and focused on real application.
                     'timestamp': datetime.now().isoformat()
                 }
             )
-            
+     
+            # Persist to SQLite so /api/knowledge/<topic> works
+            from dmai_api_routes import save_knowledge
+            save_knowledge(topic_name, knowledge['content'][:5000],
+                           entity_type=category, source=f"syllabus_{self.current_stage}")
+       
             # Also create a searchable insight with the topic name as source_title
             if hasattr(self, 'si_core') and self.si_core:
                 self.si_core.add_insight(

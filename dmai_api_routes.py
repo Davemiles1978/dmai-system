@@ -5,6 +5,26 @@ from flask import Blueprint, request, jsonify
 import sqlite3
 from pathlib import Path
 
+def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: str = 'syllabus'):
+    """Write a knowledge snippet directly to SQLite with searchable source_title."""
+    try:
+        db_path = Path("data/dmai_knowledge.db")
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Ensure source_title is set so query_knowledge can find it
+        cursor.execute('''
+            INSERT INTO insights (insight_text, entity_type, source_title, source_type,
+                                  confidence, created_at, neuron_level)
+            VALUES (?, ?, ?, ?, 0.9, datetime('now'), 'micro')
+        ''', (content[:5000], entity_type, topic, source))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save knowledge for '{topic}': {e}")
+        return False
+
 def query_knowledge(topic: str) -> str:
     """Query SQLite for knowledge on a topic. Returns text or None."""
     try:
