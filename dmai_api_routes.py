@@ -22,7 +22,8 @@ def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: 
         conn.close()
         return True
     except Exception as e:
-        logger.error(f"Failed to save knowledge for '{topic}': {e}")
+        import traceback
+        logger.error(f"save_knowledge FAILED for '{topic}': {e}\n{traceback.format_exc()}")
         return False
 
 def query_knowledge(topic: str) -> str:
@@ -243,3 +244,17 @@ def tutors_add_key():
         return jsonify({"success": True, "new": is_new, "configured": config is not None, "config_result": config})
     except Exception as e:
         return str(e) + '\n' + traceback.format_exc(), 500
+
+# ---------- DIRECT SAVE TEST ----------
+@api_bp.route('/api/debug/direct_save', methods=['POST'])
+def direct_save():
+    """Test SQLite write directly from the web process."""
+    try:
+        data = request.get_json()
+        topic = data.get('topic', 'test')
+        content = data.get('content', 'test content')
+        result = save_knowledge(topic, content, 'external', 'debug')
+        return jsonify({"success": result, "topic": topic, "length": len(content)})
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
