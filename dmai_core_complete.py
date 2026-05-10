@@ -5098,7 +5098,8 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                 return self._handle_command(message)
             
             # Check for knowledge queries in SI Core
-            knowledge_response = self._query_si_core_knowledge(message)
+            from dmai_api_routes import query_knowledge
+                knowledge_response = query_knowledge(message)
             if knowledge_response:
                 # Store conversation
                 self.conversation_memory.add_conversation(user, message, knowledge_response)

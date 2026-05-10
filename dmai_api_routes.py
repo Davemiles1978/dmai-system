@@ -2,6 +2,32 @@
 import logging, traceback
 from flask import Blueprint, request, jsonify
 
+import sqlite3
+from pathlib import Path
+
+def query_knowledge(topic: str) -> str:
+    """Query SQLite for knowledge on a topic. Returns text or None."""
+    try:
+        db_path = Path("data/dmai_knowledge.db")
+        if not db_path.exists():
+            return None
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT insight_text, source_title, LENGTH(insight_text) as len
+            FROM insights
+            WHERE source_title LIKE ? OR insight_text LIKE ?
+            ORDER BY len DESC LIMIT 3
+        ''', (f'%{topic}%', f'%{topic}%'))
+        rows = cursor.fetchall()
+        conn.close()
+        if rows:
+            return rows[0]['insight_text'][:2000]
+        return None
+    except Exception:
+        return None
+
 logger = logging.getLogger(__name__)
 api_bp = Blueprint('custom_api', __name__)
 
