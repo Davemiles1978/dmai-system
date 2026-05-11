@@ -6,7 +6,8 @@ import sqlite3
 from pathlib import Path
 
 def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: str = 'syllabus'):
-    """Write a knowledge snippet directly to SQLite with searchable source_title."""
+    """Write a knowledge snippet directly to SQLite with searchable source_title.
+    Returns (True, None) on success, (False, error_message) on failure."""
     try:
         db_path = Path("data/dmai_knowledge.db")
         conn = sqlite3.connect(str(db_path))
@@ -20,11 +21,12 @@ def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: 
         ''', (content[:5000], entity_type, topic, source))
         conn.commit()
         conn.close()
-        return True
+        return True, None
     except Exception as e:
         import traceback
-        logger.error(f"save_knowledge FAILED for '{topic}': {e}\n{traceback.format_exc()}")
-        return False
+        error_msg = f"SQLite Error: {str(e)}\n{traceback.format_exc()}"
+        logger.error(f"save_knowledge FAILED for '{topic}': {error_msg}")
+        return False, error_msg
 
 def query_knowledge(topic: str) -> str:
     """Query SQLite for knowledge on a topic. Returns text or None."""
@@ -253,8 +255,13 @@ def direct_save():
         data = request.get_json()
         topic = data.get('topic', 'test')
         content = data.get('content', 'test content')
-        result = save_knowledge(topic, content, 'external', 'debug')
-        return jsonify({"success": result, "topic": topic, "length": len(content)})
+        success, error = save_knowledge(topic, content, 'external', 'debug')
+        return jsonify({
+            "success": success, 
+            "topic": topic, 
+            "length": len(content),
+            "message": error if not success else "Knowledge saved successfully"
+        })
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
