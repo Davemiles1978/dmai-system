@@ -11085,6 +11085,8 @@ def get_dmai_app():
     return _dmai_app_instance
 
 app = get_dmai_app().app
+from dmai_api_routes import api_bp; app.register_blueprint(api_bp)
+
 
 @app.route('/knowledge-graph')
 @app.route('/knowledge-graph')
