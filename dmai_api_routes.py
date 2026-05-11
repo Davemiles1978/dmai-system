@@ -265,3 +265,36 @@ def direct_save():
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+# ADD this new endpoint after the direct_save endpoint
+@api_bp.route('/api/debug/table_info')
+def table_info():
+    """Show the insights table schema."""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        if not db_path.exists():
+            return jsonify({"error": "Database not found"}), 404
+            
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Get table schema
+        cursor.execute("PRAGMA table_info(insights)")
+        columns = cursor.fetchall()
+        
+        # Get a sample row to see what data looks like
+        cursor.execute("SELECT * FROM insights LIMIT 1")
+        sample = cursor.fetchone()
+        
+        conn.close()
+        
+        return jsonify({
+            "columns": [{"cid": c[0], "name": c[1], "type": c[2], "notnull": c[3], "dflt_value": c[4]} for c in columns],
+            "sample_row": sample
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
