@@ -1,24 +1,38 @@
 """Flask Blueprint – safe addition, zero main‑file edits."""
-import logging, traceback
+import logging, traceback, json, uuid
 from flask import Blueprint, request, jsonify
 
 import sqlite3
 from pathlib import Path
 
+# REPLACE from line 8 through the end of save_knowledge():
 def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: str = 'syllabus'):
-    """Write a knowledge snippet directly to SQLite with searchable source_title.
+    """Write a knowledge snippet directly to SQLite with proper schema adherence.
     Returns (True, None) on success, (False, error_message) on failure."""
     try:
         db_path = Path("data/dmai_knowledge.db")
         conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
         
-        # Ensure source_title is set so query_knowledge can find it
+        insight_id = f"insight_{uuid.uuid4().hex}"
+        entities = json.dumps([topic, entity_type, source])
+        
         cursor.execute('''
-            INSERT INTO insights (insight_text, entity_type, source_title, source_type,
-                                  confidence, created_at, neuron_level)
-            VALUES (?, ?, ?, ?, 0.9, datetime('now'), 'micro')
-        ''', (content[:5000], entity_type, topic, source))
+            INSERT INTO insights (id, insight_text, entity_type, entities, relationship,
+                                  confidence, source_topic, target_topic, source_title, 
+                                  source_type, neuron_level)
+            VALUES (?, ?, ?, ?, ?, 0.9, ?, ?, ?, ?, 'micro')
+        ''', (
+            insight_id,
+            content[:5000], 
+            entity_type,
+            entities,
+            'mastered',  # relationship type
+            source,       # source_topic
+            topic,        # target_topic
+            topic,        # source_title (for searchability)
+            source        # source_type
+        ))
         conn.commit()
         conn.close()
         return True, None
