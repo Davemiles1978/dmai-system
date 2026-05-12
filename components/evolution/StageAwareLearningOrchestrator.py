@@ -1130,18 +1130,32 @@ Be specific, educational, and focused on real application.
         return passed
 
     def _answer_question(self, topic_name: str, question: str) -> str:
-        """DMAI answers a question using her own knowledge graph."""
-        # Query the SI core for relevant knowledge
-        if hasattr(self, 'si_core') and self.si_core:
-            try:
-                result = self.si_core.query(["*", topic_name])
-                if result:
-                    relevant = [r['insight'] for r in result[:3]]
-                    return " ".join(relevant)[:1000]
-            except:
-                pass
+        """DMAI answers a question using her own SQLite knowledge base first."""
+        # PRIMARY: Query SQLite knowledge base (where save_knowledge writes)
+        try:
+            import sqlite3
+            from pathlib import Path
+            db_path = Path("data/dmai_knowledge.db")
+            if db_path.exists():
+                conn = sqlite3.connect(str(db_path))
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT insight_text, LENGTH(insight_text) as len
+                    FROM insights
+                    WHERE source_title LIKE ? OR insight_text LIKE ?
+                    ORDER BY len DESC LIMIT 5
+                ''', (f'%{topic_name}%', f'%{topic_name}%'))
+                rows = cursor.fetchall()
+                conn.close()
+                if rows:
+                    knowledge = " ".join([r['insight_text'][:800] for r in rows[:3]])
+                    if len(knowledge) > 50:
+                        return f"Based on my knowledge: {knowledge[:1500]}"
+        except Exception:
+            pass
         
-        # Fallback: ask an AI tutor
+        # FALLBACK: Ask an AI tutor
         if self.ai_hub:
             try:
                 result = self.ai_hub.query_all_tutors(
@@ -1153,7 +1167,7 @@ Be specific, educational, and focused on real application.
             except:
                 pass
         
-        return f"{topic_name} is a concept in the {self.current_stage} stage syllabus."
+        return f"I don't have enough knowledge about {topic_name} yet to answer this question properly."
 
     def _evaluate_answer(self, topic_name: str, question: str, answer: str) -> Dict:
         """Have an AI judge evaluate whether the answer demonstrates understanding."""
