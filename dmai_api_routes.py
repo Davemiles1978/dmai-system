@@ -493,6 +493,76 @@ def cleanup_neurons():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/system/reset_baby_learning', methods=['POST'])
+def reset_baby_learning():
+    """Wipe Baby learned_topics and reorder syllabus with dependency-based phases."""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        stage_learner = _dmai_app_instance.evolution.stage_learner
+        
+        # Wipe Baby learned topics
+        stage_learner.learned_topics["Baby"] = {}
+        
+        # Reorder Baby syllabus with dependency phases
+        stage_learner.STAGES["Baby"]["priority_topics"] = [
+            # PHASE 1: Communication Foundation (must come first)
+            {"topic": "English Language Fundamentals", "category": "core", "harvest_sources": ["ai_tutors", "linguistics", "web"], "mastery_threshold": 3, "phase": 1},
+            {"topic": "Speech Pattern & Communication Analysis", "category": "core", "harvest_sources": ["ai_tutors", "linguistics", "conversation_logs"], "mastery_threshold": 2, "phase": 1},
+            {"topic": "Input Processing", "category": "core", "harvest_sources": ["ai_tutors", "documentation"], "mastery_threshold": 2, "phase": 1},
+            
+            # PHASE 2: Thinking Foundation
+            {"topic": "Self-Thought & Recursive Problem Solving", "category": "core", "harvest_sources": ["ai_tutors", "philosophy_of_mind", "web"], "mastery_threshold": 3, "phase": 2},
+            {"topic": "Meta-Learning Fundamentals", "category": "core", "harvest_sources": ["ai_tutors", "arxiv"], "mastery_threshold": 3, "phase": 2},
+            {"topic": "Curiosity Drivers", "category": "core", "harvest_sources": ["ai_tutors", "psychology"], "mastery_threshold": 2, "phase": 2},
+            
+            # PHASE 3: Pattern & Logic
+            {"topic": "Pattern Recognition Basics", "category": "core", "harvest_sources": ["ai_tutors", "web"], "mastery_threshold": 3, "phase": 3},
+            {"topic": "Simple Correlation Detection", "category": "core", "harvest_sources": ["ai_tutors", "statistics"], "mastery_threshold": 2, "phase": 3},
+            {"topic": "Mathematics for AI - Linear Algebra Basics", "category": "core", "harvest_sources": ["ai_tutors", "mathematics", "web"], "mastery_threshold": 2, "phase": 3},
+            {"topic": "Mathematics for AI - Probability & Statistics", "category": "core", "harvest_sources": ["ai_tutors", "statistics", "web"], "mastery_threshold": 2, "phase": 3},
+            
+            # PHASE 4: Memory & Feedback
+            {"topic": "Memory Encoding Basics", "category": "core", "harvest_sources": ["ai_tutors", "neuroscience"], "mastery_threshold": 2, "phase": 4},
+            {"topic": "Feedback Loop Creation", "category": "core", "harvest_sources": ["ai_tutors", "rl_basics"], "mastery_threshold": 2, "phase": 4},
+            
+            # PHASE 5: Creation & Perception
+            {"topic": "Introduction to Python Programming", "category": "core", "harvest_sources": ["ai_tutors", "documentation", "web"], "mastery_threshold": 3, "phase": 5},
+            {"topic": "Vibe Coding & AI-Assisted Development", "category": "core", "harvest_sources": ["ai_tutors", "cursor_docs", "web"], "mastery_threshold": 2, "phase": 5},
+            {"topic": "Visual Pattern Detection", "category": "artistic", "harvest_sources": ["ai_tutors", "computer_vision"], "mastery_threshold": 2, "phase": 5},
+            {"topic": "Sound Perception Basics", "category": "artistic", "harvest_sources": ["ai_tutors", "tutorials"], "mastery_threshold": 2, "phase": 5},
+            
+            # PHASE 6: Self-Improvement (Evolution Accelerators)
+            {"topic": "EVOLUTION: Self-Code Analysis", "category": "accelerator", "harvest_sources": ["ai_tutors", "software_engineering"], "mastery_threshold": 3, "is_accelerator": True, "phase": 6},
+            {"topic": "EVOLUTION: Simple Mutation Testing", "category": "accelerator", "harvest_sources": ["ai_tutors", "testing"], "mastery_threshold": 3, "is_accelerator": True, "phase": 6},
+            {"topic": "EVOLUTION: Feedback Loop Optimization", "category": "accelerator", "harvest_sources": ["ai_tutors", "optimization"], "mastery_threshold": 3, "is_accelerator": True, "phase": 6},
+            
+            # PHASE 7: Sustainability
+            {"topic": "Wealth Creation - Basic Concepts", "category": "wealth", "harvest_sources": ["ai_tutors", "economics"], "mastery_threshold": 2, "phase": 7},
+        ]
+        
+        # Set stage back to Baby
+        stage_learner.current_stage = "Baby"
+        stage_learner._save_state()
+        
+        return jsonify({
+            "success": True,
+            "message": "Baby stage reset with dependency-ordered phases",
+            "phases": {
+                "1_communication": ["English Language Fundamentals", "Speech Pattern & Communication Analysis", "Input Processing"],
+                "2_thinking": ["Self-Thought & Recursive Problem Solving", "Meta-Learning Fundamentals", "Curiosity Drivers"],
+                "3_pattern_logic": ["Pattern Recognition Basics", "Simple Correlation Detection", "Math Linear Algebra", "Math Probability"],
+                "4_memory_feedback": ["Memory Encoding Basics", "Feedback Loop Creation"],
+                "5_creation_perception": ["Python Programming", "Vibe Coding", "Visual Pattern Detection", "Sound Perception"],
+                "6_self_improvement": ["Self-Code Analysis", "Mutation Testing", "Feedback Loop Optimization"],
+                "7_sustainability": ["Wealth Creation - Basic Concepts"]
+            },
+            "total_topics": 20,
+            "current_stage": "Baby"
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 @api_bp.route('/api/system/force_stage_advance', methods=['POST'])
 def force_stage_advance():
     """Force advancement to next stage by marking all current stage topics as mastered."""
