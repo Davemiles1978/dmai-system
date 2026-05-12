@@ -5,42 +5,53 @@ from flask import Blueprint, request, jsonify
 import sqlite3
 from pathlib import Path
 
-# REPLACE from line 8 through the end of save_knowledge():
+# MODIFY save_knowledge() - add retry loop for locked database
 def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: str = 'syllabus'):
     """Write a knowledge snippet directly to SQLite with proper schema adherence.
     Returns (True, None) on success, (False, error_message) on failure."""
-    try:
-        db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
-        
-        insight_id = f"insight_{uuid.uuid4().hex}"
-        entities = json.dumps([topic, entity_type, source])
-        
-        cursor.execute('''
-            INSERT INTO insights (id, insight_text, entity_type, entities, relationship,
-                                  confidence, source_topic, target_topic, source_title, 
-                                  source_type, neuron_level)
-            VALUES (?, ?, ?, ?, ?, 0.9, ?, ?, ?, ?, 'micro')
-        ''', (
-            insight_id,
-            content[:5000], 
-            entity_type,
-            entities,
-            'mastered',  # relationship type
-            source,       # source_topic
-            topic,        # target_topic
-            topic,        # source_title (for searchability)
-            source        # source_type
-        ))
-        conn.commit()
-        conn.close()
-        return True, None
-    except Exception as e:
-        import traceback
-        error_msg = f"SQLite Error: {str(e)}\n{traceback.format_exc()}"
-        logger.error(f"save_knowledge FAILED for '{topic}': {error_msg}")
-        return False, error_msg
+    import time
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            db_path = Path("data/dmai_knowledge.db")
+            conn = sqlite3.connect(str(db_path), timeout=10)
+            cursor = conn.cursor()
+            
+            insight_id = f"insight_{uuid.uuid4().hex}"
+            entities = json.dumps([topic, entity_type, source])
+            
+            cursor.execute('''
+                INSERT INTO insights (id, insight_text, entity_type, entities, relationship,
+                                      confidence, source_topic, target_topic, source_title, 
+                                      source_type, neuron_level)
+                VALUES (?, ?, ?, ?, ?, 0.9, ?, ?, ?, ?, 'micro')
+            ''', (
+                insight_id,
+                content[:5000], 
+                entity_type,
+                entities,
+                'mastered',
+                source,
+                topic,
+                topic,
+                source
+            ))
+            conn.commit()
+            conn.close()
+            return True, None
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower() and attempt < max_retries - 1:
+                time.sleep(0.5 * (attempt + 1))  # exponential backoff
+                continue
+            error_msg = f"SQLite Error: {str(e)}"
+            logger.error(f"save_knowledge FAILED for '{topic}': {error_msg}")
+            return False, error_msg
+        except Exception as e:
+            import traceback
+            error_msg = f"SQLite Error: {str(e)}\n{traceback.format_exc()}"
+            logger.error(f"save_knowledge FAILED for '{topic}': {error_msg}")
+            return False, error_msg
+    return False, "Max retries exceeded"
 
 def query_knowledge(topic: str) -> str:
     """Query SQLite for knowledge on a topic. Returns text or None."""
