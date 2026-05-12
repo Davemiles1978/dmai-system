@@ -412,6 +412,49 @@ def neuron_distribution():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/system/cleanup_templates', methods=['POST'])
+def cleanup_templates():
+    """Remove template placeholder knowledge entries."""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        before = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+        
+        # Delete entries that are clearly templates
+        cursor.execute("""
+            DELETE FROM insights 
+            WHERE insight_text LIKE '%KEY AREAS TO RESEARCH:%'
+               OR insight_text LIKE '%is a core concept essential for DMAI%'
+               OR insight_text LIKE '%Mastery of this topic requires understanding its fundamental principles%'
+        """)
+        removed = cursor.rowcount
+        
+        # Also remove the "COMPREHENSIVE KNOWLEDGE:" wrapper entries
+        cursor.execute("""
+            DELETE FROM insights 
+            WHERE insight_text LIKE 'COMPREHENSIVE KNOWLEDGE:%OVERVIEW:%'
+        """)
+        removed += cursor.rowcount
+        
+        conn.commit()
+        after = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "before": before,
+            "after": after,
+            "removed": removed
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 @api_bp.route('/api/system/cleanup_neurons', methods=['POST'])
 def cleanup_neurons():
     """Remove noise neurons and deduplicate. Preserve valuable knowledge."""
