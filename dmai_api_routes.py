@@ -536,6 +536,60 @@ def cleanup_neurons():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/system/delete_templates', methods=['POST'])
+def delete_templates():
+    """Delete all template placeholder entries from insights table."""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        before = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+        
+        # Delete template placeholders
+        cursor.execute("""
+            DELETE FROM insights 
+            WHERE insight_text LIKE '%KEY AREAS TO RESEARCH:%'
+               OR insight_text LIKE '%is a core concept essential for DMAI%'
+               OR insight_text LIKE '%Mastery of this topic requires understanding%'
+        """)
+        removed = cursor.rowcount
+        
+        # Also delete the specific Speech Pattern template by source_title
+        cursor.execute("""
+            DELETE FROM insights 
+            WHERE source_title = 'Speech Pattern & Communication Analysis'
+              AND insight_text LIKE 'COMPREHENSIVE KNOWLEDGE%'
+              AND insight_text LIKE '%KEY AREAS TO RESEARCH%'
+        """)
+        removed += cursor.rowcount
+        
+        # Same for English if template remains
+        cursor.execute("""
+            DELETE FROM insights 
+            WHERE source_title = 'English Language Fundamentals'
+              AND insight_text LIKE 'COMPREHENSIVE KNOWLEDGE%'
+              AND insight_text LIKE '%KEY AREAS TO RESEARCH%'
+        """)
+        removed += cursor.rowcount
+        
+        conn.commit()
+        after = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "before": before,
+            "after": after,
+            "removed": removed
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 @api_bp.route('/api/system/reset_baby_learning', methods=['POST'])
 def reset_baby_learning():
     """Wipe Baby learned_topics and reorder syllabus with dependency-based phases."""
