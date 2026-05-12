@@ -312,3 +312,23 @@ def table_info():
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+@api_bp.route('/api/debug/stage_state')
+def stage_state():
+    """Show raw learned_topics and stage progression state."""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        stage_learner = _dmai_app_instance.evolution.stage_learner
+        
+        return jsonify({
+            "current_stage": stage_learner.current_stage,
+            "learned_topics": stage_learner.learned_topics,
+            "stage_order": list(stage_learner.STAGES.keys()),
+            "baby_required": [
+                {"topic": t["topic"], "threshold": t.get("mastery_threshold", 3)}
+                for t in stage_learner.STAGES.get("Baby", {}).get("priority_topics", [])
+            ]
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
