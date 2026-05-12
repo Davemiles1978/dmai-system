@@ -332,3 +332,37 @@ def stage_state():
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+@api_bp.route('/api/system/force_stage_advance', methods=['POST'])
+def force_stage_advance():
+    """Force advancement to next stage by marking all current stage topics as mastered."""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        stage_learner = _dmai_app_instance.evolution.stage_learner
+        
+        current = stage_learner.current_stage
+        config = stage_learner.STAGES.get(current, {})
+        required_topics = config.get("priority_topics", [])
+        
+        # Force all topics to their required mastery threshold
+        fixed_count = 0
+        for t in required_topics:
+            topic_name = t["topic"]
+            threshold = t.get("mastery_threshold", 3)
+            stage_learner.learned_topics[current][topic_name] = threshold
+            fixed_count += 1
+        
+        # Now re-check stage
+        new_stage = stage_learner.get_current_stage()
+        stage_learner.current_stage = new_stage
+        
+        return jsonify({
+            "success": True,
+            "previous_stage": current,
+            "new_stage": new_stage,
+            "topics_forced": fixed_count,
+            "learned_topics": stage_learner.learned_topics.get(current, {})
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
