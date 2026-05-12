@@ -5839,11 +5839,16 @@ DMAI will extract and integrate actual capabilities from the repository."""
 /help - This help message"""
         
         elif cmd.startswith('/learn_topic '):
-            parts = command.split(None, 2)
-            if len(parts) < 3:
+            # Extract everything after /learn_topic
+            args = command[13:].strip()  # Remove "/learn_topic " prefix
+            # Last word is category, everything before is topic
+            if ' ' not in args:
                 return "Usage: /learn_topic <topic> <category>"
-            topic = parts[1]
-            category = parts[2]
+            last_space = args.rfind(' ')
+            topic = args[:last_space].strip()
+            category = args[last_space+1:].strip()
+            if not topic or not category:
+                return "Usage: /learn_topic <topic> <category>"
             result = self.stage_learner.learn_topic(
                 {'topic': topic, 'category': category, 'mastery_threshold': 3, 'harvest_sources': ['ai_tutors']},
                 self.synthetic_network.consciousness)
