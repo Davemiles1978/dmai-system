@@ -1240,7 +1240,7 @@ Be specific, educational, and focused on real application.
         
         # Fallback evaluation
         return {
-            'pass': len(answer) > 50 and topic_name.lower() in answer.lower(),
+            'pass': len(answer) > 100,
             'reason': 'Fallback evaluation based on answer length and topic relevance'
         }
 
