@@ -333,6 +333,74 @@ def stage_state():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/debug/neuron_distribution')
+def neuron_distribution():
+    """Show distribution of neuron types and their source."""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Distribution by entity_type
+        cursor.execute("""
+            SELECT entity_type, COUNT(*) as count, 
+                   AVG(LENGTH(insight_text)) as avg_len
+            FROM insights 
+            GROUP BY entity_type 
+            ORDER BY count DESC 
+            LIMIT 30
+        """)
+        by_type = [dict(r) for r in cursor.fetchall()]
+        
+        # Distribution by source_type
+        cursor.execute("""
+            SELECT source_type, COUNT(*) as count
+            FROM insights 
+            WHERE source_type IS NOT NULL
+            GROUP BY source_type 
+            ORDER BY count DESC 
+            LIMIT 20
+        """)
+        by_source = [dict(r) for r in cursor.fetchall()]
+        
+        # Null source_title stats
+        cursor.execute("""
+            SELECT COUNT(*) as null_title,
+                   COUNT(*) * 100.0 / (SELECT COUNT(*) FROM insights) as pct
+            FROM insights 
+            WHERE source_title IS NULL OR source_title = ''
+        """)
+        null_stats = dict(cursor.fetchone())
+        
+        # Duplicate insight_text count
+        cursor.execute("""
+            SELECT COUNT(*) as duplicate_count
+            FROM (
+                SELECT insight_text, COUNT(*) as cnt 
+                FROM insights 
+                GROUP BY insight_text 
+                HAVING cnt > 1
+            )
+        """)
+        dupes = dict(cursor.fetchone())
+        
+        conn.close()
+        
+        return jsonify({
+            "total_insights": sum(r['count'] for r in by_type),
+            "null_source_title": null_stats,
+            "duplicate_text_groups": dupes,
+            "by_entity_type": by_type,
+            "by_source_type": by_source
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 @api_bp.route('/api/system/force_stage_advance', methods=['POST'])
 def force_stage_advance():
     """Force advancement to next stage by marking all current stage topics as mastered."""
