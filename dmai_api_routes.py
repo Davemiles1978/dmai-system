@@ -501,8 +501,22 @@ def reset_baby_learning():
         stage_learner = _dmai_app_instance.evolution.stage_learner
         
         # Wipe Baby learned topics
-        stage_learner.learned_topics["Baby"] = {}
+        # Force wipe: clear all in-memory, delete disk state, save fresh, reload
+        stage_learner.learned_topics = {}
+        if hasattr(stage_learner, 'state_file') and stage_learner.state_file.exists():
+            stage_learner.state_file.unlink()
+        stage_learner._save_state()
+        stage_learner._load_state()
+
+        # Delete old state file so it can't resurrect truncated keys on reload
+        if hasattr(stage_learner, 'state_file') and stage_learner.state_file.exists():
+            stage_learner.state_file.unlink()
         
+        # Delete old state file so it can't resurrect truncated keys
+        if stage_learner.state_file.exists():
+            stage_learner.state_file.unlink()
+            logger.info("🗑️ Deleted old learning state file")
+
         # Reorder Baby syllabus with dependency phases
         stage_learner.STAGES["Baby"]["priority_topics"] = [
             # PHASE 1: Communication Foundation (must come first)
