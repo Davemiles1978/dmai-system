@@ -1187,14 +1187,14 @@ Be specific, educational, and focused on real application.
                     SELECT insight_text, LENGTH(insight_text) as len
                     FROM insights
                     WHERE source_title LIKE ? OR insight_text LIKE ?
-                    ORDER BY len DESC LIMIT 5
+                    ORDER BY id DESC LIMIT 5
                 ''', (f'%{topic_name}%', f'%{topic_name}%'))
                 rows = cursor.fetchall()
                 conn.close()
                 if rows:
                     knowledge = " ".join([r['insight_text'][:800] for r in rows[:3]])
                     if len(knowledge) > 50:
-                        return f"Based on my knowledge: {knowledge[:1500]}"
+                        return knowledge[:1500]
         except Exception:
             pass
         
