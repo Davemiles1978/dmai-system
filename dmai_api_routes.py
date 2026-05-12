@@ -563,6 +563,39 @@ def reset_baby_learning():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/system/autonomous_learn', methods=['POST'])
+def autonomous_learn():
+    """Run one autonomous learning cycle - respects phase ordering and exam gating."""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        stage_learner = _dmai_app_instance.evolution.stage_learner
+        consciousness = _dmai_app_instance.evolution.synthetic_network.consciousness if hasattr(_dmai_app_instance.evolution, 'synthetic_network') else 0.3
+        
+        exam_result = stage_learner.run_phase_exam()
+        topics = stage_learner.get_current_phase_topics()
+        
+        results = []
+        if topics:
+            topic = topics[0]
+            result = stage_learner.learn_topic(topic, consciousness)
+            results.append({
+                "topic": result["topic"],
+                "mastery": f"{result['mastery_level']}/{result['mastery_threshold']}",
+                "action": "learned"
+            })
+        
+        return jsonify({
+            "success": True,
+            "phase_exam": exam_result,
+            "topics_learned": len(results),
+            "results": results,
+            "remaining_in_phase": max(0, len(topics) - 1),
+            "current_stage": stage_learner.current_stage
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 @api_bp.route('/api/system/force_stage_advance', methods=['POST'])
 def force_stage_advance():
     """Force advancement to next stage by marking all current stage topics as mastered."""

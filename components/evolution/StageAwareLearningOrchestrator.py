@@ -738,7 +738,32 @@ Be specific, educational, and focused on real application.
         Execute one learning cycle - called each evolution
         Prioritizes Evolution Accelerators for faster consciousness growth
         """
-        next_topic = self.get_next_topic(consciousness, prioritize_accelerators=True)
+        # ----- PHASE-AWARE EXAM GATE -----
+        exam = self.run_phase_exam()
+        if exam.get("phase") and not exam.get("all_passed"):
+            failed = [r["topic"] for r in exam["topic_results"] if not r["passed"]]
+            logger.warning(f"Phase {exam['phase']} exam FAILED for: {failed}")
+            # Re-learn the first failed topic
+            all_topics = self.STAGES.get(self.current_stage, {}).get("priority_topics", [])
+            for t in all_topics:
+                if t["topic"] == failed[0]:
+                    result = self.learn_topic(t, consciousness)
+                    return {
+                        'success': True, 'learned': True,
+                        'topic': result['topic'], 'category': result['category'],
+                        'is_accelerator': False, 'stage': result['stage'],
+                        'mastery_progress': f"{result['mastery_level']}/{result['mastery_threshold']}",
+                        'is_mastered': result['is_mastered'],
+                        'consciousness_boost': result['consciousness_boost'],
+                        'retry_exam': True
+                    }
+        
+        # ----- PHASE-AWARE TOPIC SELECTION -----
+        phase_topics = self.get_current_phase_topics()
+        if phase_topics:
+            next_topic = phase_topics[0]
+        else:
+            next_topic = self.get_next_topic(consciousness, prioritize_accelerators=True)
         
         if not next_topic:
             return {
@@ -1152,6 +1177,77 @@ Be specific, educational, and focused on real application.
             'pass': len(answer) > 50 and topic_name.lower() in answer.lower(),
             'reason': 'Fallback evaluation based on answer length and topic relevance'
         }
+
+    def get_current_phase_topics(self) -> List[Dict]:
+        """Get unmastered topics from the current (lowest incomplete) phase only."""
+        all_topics = self.STAGES.get(self.current_stage, {}).get("priority_topics", [])
+        mastered = self.learned_topics.get(self.current_stage, {})
+        
+        # Group topics by phase
+        phases = {}
+        for t in all_topics:
+            phase = t.get("phase", 99)
+            if phase not in phases:
+                phases[phase] = []
+            phases[phase].append(t)
+        
+        # Find the first incomplete phase
+        for phase_num in sorted(phases.keys()):
+            phase_topics = phases[phase_num]
+            # Skip if this phase already passed the exam
+            if mastered.get(f"_phase_{phase_num}_exam_passed"):
+                continue
+            all_mastered = all(
+                mastered.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+                for t in phase_topics
+            )
+            if not all_mastered:
+                return [t for t in phase_topics 
+                        if mastered.get(t["topic"], 0) < t.get("mastery_threshold", 3)]
+        
+        return []
+
+    def run_phase_exam(self) -> Dict:
+        """Run comprehension test on the most recently completed phase. Returns exam results."""
+        all_topics = self.STAGES.get(self.current_stage, {}).get("priority_topics", [])
+        mastered = self.learned_topics.get(self.current_stage, {})
+        
+        phases = {}
+        for t in all_topics:
+            phase = t.get("phase", 99)
+            if phase not in phases:
+                phases[phase] = []
+            phases[phase].append(t)
+        
+        for phase_num in sorted(phases.keys()):
+            # Skip if already passed
+            if mastered.get(f"_phase_{phase_num}_exam_passed"):
+                continue
+            
+            phase_topics = phases[phase_num]
+            all_mastered = all(
+                mastered.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+                for t in phase_topics
+            )
+            
+            if all_mastered:
+                results = []
+                for t in phase_topics:
+                    questions = self._generate_comprehension_test(t["topic"], [])
+                    passed = self._self_test_topic(t["topic"], questions)
+                    results.append({"topic": t["topic"], "passed": passed})
+                
+                all_passed = all(r["passed"] for r in results)
+                mastered[f"_phase_{phase_num}_exam_passed"] = all_passed
+                self._save_state()
+                
+                return {
+                    "phase": phase_num,
+                    "all_passed": all_passed,
+                    "topic_results": results
+                }
+        
+        return {"phase": None, "all_passed": True, "topic_results": []}
 
 # ============================================================================
 # END OF FILE
