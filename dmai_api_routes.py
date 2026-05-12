@@ -401,6 +401,87 @@ def neuron_distribution():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/system/cleanup_neurons', methods=['POST'])
+def cleanup_neurons():
+    """Remove noise neurons and deduplicate. Preserve valuable knowledge."""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Get initial count
+        before = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+        
+        # Categories to REMOVE (noise)
+        noise_types = [
+            'macro_social_media_unknown',
+            'macro_video_content',
+        ]
+        
+        # Remove shopping/product-review topics
+        noise_patterns = [
+            'topic_macro_best_%', 'topic_macro_track_%', 
+            'topic_macro_you_need%', 'topic_macro_couple_million%',
+            'topic_macro_byomesh%', 'topic_macro_asus_%',
+            'topic_macro_tovala%'
+        ]
+        
+        removed = 0
+        
+        # Remove by entity_type
+        for noise in noise_types:
+            c = cursor.execute("DELETE FROM insights WHERE entity_type = ?", (noise,))
+            removed += c.rowcount
+        
+        # Remove shopping patterns
+        for pattern in noise_patterns:
+            c = cursor.execute("DELETE FROM insights WHERE entity_type LIKE ?", (pattern,))
+            removed += c.rowcount
+        
+        # Remove duplicates (keep longest version of each insight_text)
+        cursor.execute("""
+            DELETE FROM insights WHERE id NOT IN (
+                SELECT id FROM insights GROUP BY insight_text HAVING LENGTH(insight_text) = MAX(LENGTH(insight_text))
+            )
+        """)
+        dupes_removed = cursor.rowcount
+        removed += dupes_removed
+        
+        # Remove empty/null insight_text
+        c = cursor.execute("DELETE FROM insights WHERE insight_text IS NULL OR LENGTH(insight_text) < 20")
+        removed += c.rowcount
+        
+        conn.commit()
+        
+        # Get final count
+        after = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+        
+        # Tag remaining untagged with better defaults
+        tagged = cursor.execute("""
+            UPDATE insights 
+            SET source_title = entity_type, source_type = 'article_reader_macro'
+            WHERE (source_title IS NULL OR source_title = '')
+              AND entity_type LIKE 'topic_macro_%'
+        """).rowcount
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "before": before,
+            "after": after,
+            "removed": removed,
+            "tagged_remaining": tagged,
+            "kept_categories": after
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
 @api_bp.route('/api/system/force_stage_advance', methods=['POST'])
 def force_stage_advance():
     """Force advancement to next stage by marking all current stage topics as mastered."""
