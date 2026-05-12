@@ -643,3 +643,90 @@ def force_stage_advance():
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+@api_bp.route('/api/stage/run_exam', methods=['POST'])
+def run_visible_exam():
+    """Run a visible phase exam - returns all questions, answers, and evaluations."""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        stage_learner = _dmai_app_instance.evolution.stage_learner
+        
+        data = request.get_json() or {}
+        phase_num = data.get('phase')
+        
+        all_topics = stage_learner.STAGES.get(stage_learner.current_stage, {}).get("priority_topics", [])
+        
+        # Find topics for requested phase (or current incomplete phase)
+        phases = {}
+        for t in all_topics:
+            p = t.get("phase", 99)
+            if p not in phases:
+                phases[p] = []
+            phases[p].append(t)
+        
+        target_phase = phase_num
+        if target_phase is None:
+            # Find first incomplete phase
+            mastered = stage_learner.learned_topics.get(stage_learner.current_stage, {})
+            for p in sorted(phases.keys()):
+                all_done = all(
+                    mastered.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+                    for t in phases[p]
+                )
+                if all_done and not mastered.get(f"_phase_{p}_exam_passed"):
+                    target_phase = p
+                    break
+        
+        if target_phase is None or target_phase not in phases:
+            return jsonify({
+                "success": False,
+                "message": "No phase ready for exam. All phases either incomplete or already passed.",
+                "available_phases": list(phases.keys())
+            }), 400
+        
+        # Run the visible exam
+        exam_topics = phases[target_phase]
+        results = []
+        
+        for t in exam_topics:
+            questions = stage_learner._generate_comprehension_test(t["topic"], [])
+            topic_result = {
+                "topic": t["topic"],
+                "threshold": t.get("mastery_threshold", 3),
+                "questions": []
+            }
+            
+            all_passed = True
+            for q in questions:
+                answer = stage_learner._answer_question(t["topic"], q)
+                evaluation = stage_learner._evaluate_answer(t["topic"], q, answer)
+                
+                topic_result["questions"].append({
+                    "question": q,
+                    "answer": answer[:500],
+                    "passed": evaluation.get('pass', False),
+                    "reason": evaluation.get('reason', 'No evaluation')
+                })
+                
+                if not evaluation.get('pass', False):
+                    all_passed = False
+            
+            topic_result["all_passed"] = all_passed
+            results.append(topic_result)
+        
+        # Save exam result
+        overall_pass = all(r["all_passed"] for r in results)
+        stage_learner.learned_topics[stage_learner.current_stage][f"_phase_{target_phase}_exam_passed"] = overall_pass
+        stage_learner._save_state()
+        
+        return jsonify({
+            "success": True,
+            "phase": target_phase,
+            "stage": stage_learner.current_stage,
+            "overall_pass": overall_pass,
+            "topics_tested": len(results),
+            "results": results
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
