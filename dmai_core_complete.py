@@ -859,6 +859,33 @@ class SyntheticIntelligenceCore:
     def evolve(self) -> Dict:
         """Evolve the network - strengthen active synapses, prune weak ones, add new connections"""
         self.evolution_cycles += 1
+
+        # Reload topics from SQLite to pick up newly learned syllabus knowledge
+        try:
+            import sqlite3
+            from pathlib import Path
+            db_path = Path("data/dmai_knowledge.db")
+            if db_path.exists():
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                cursor.execute("SELECT DISTINCT source_title FROM insights WHERE source_title IS NOT NULL AND source_title != ''")
+                topics = {}
+                for row in cursor.fetchall():
+                    topic = row[0]
+                    cursor.execute("SELECT id FROM insights WHERE source_title = ?", (topic,))
+                    topics[topic] = [r[0] for r in cursor.fetchall()]
+                conn.close()
+                if topics:
+                    self.topics = topics
+        except Exception:
+            pass
+
+        # Reload topics from SQLite to pick up newly learned syllabus knowledge
+        if hasattr(self, 'sqlite') and self.sqlite:
+            try:
+                self.topics = self.sqlite.load_all_topics()
+            except:
+                pass
         
         changes = {
             'strengthened': 0,
