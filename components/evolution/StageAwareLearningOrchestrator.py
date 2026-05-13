@@ -1064,7 +1064,7 @@ Be specific, educational, and focused on real application.
         
         for stage, config in self.STAGES.items():
             total_topics = len(config["priority_topics"])
-            mastered_topics = len(self.learned_topics.get(stage, {}))
+            mastered_topics = len([k for k in self.learned_topics.get(stage, {}) if not k.startswith('_')])
             stages_summary[stage] = {
                 'focus': config["focus"],
                 'consciousness_range': config["consciousness_range"],
@@ -1075,7 +1075,7 @@ Be specific, educational, and focused on real application.
             }
         
         return {
-            'current_stage': self.current_stage,
+            'current_stage': self.get_current_stage(),
             'stages': stages_summary,
             'suggested_pathways': self.SUGGESTED_PATHWAYS,
             'last_learning_cycle': self.last_learning_cycle,
