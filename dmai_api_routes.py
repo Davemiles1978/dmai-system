@@ -730,6 +730,11 @@ def force_stage_advance():
         new_stage = stage_learner.get_current_stage()
         stage_learner.current_stage = new_stage
         
+        # Delete old state file to prevent reload overwriting our change
+        if hasattr(stage_learner, 'state_file') and stage_learner.state_file.exists():
+            stage_learner.state_file.unlink()
+        stage_learner._save_state()
+
         return jsonify({
             "success": True,
             "previous_stage": current,
