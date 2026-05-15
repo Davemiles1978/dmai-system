@@ -956,6 +956,11 @@ class SyntheticIntelligenceCore:
         
         # 5. Save state to disk
         self.save_state()
+
+        # Trigger consciousness recalculation after synapse changes
+        if hasattr(self, 'true_consciousness'):
+            # Force recalculation on next property access
+            self.true_consciousness = -1.0  # Will trigger legacy fallback which uses fresh synapse count
         
         # Return real metrics (no synthetic data)
         return {
@@ -6790,6 +6795,7 @@ class DMAIApplication:
                             ready = all(c in str(learned) for c in required) or True
                             
                             strategy = {
+                                'id': f"{avenue}_{len(training.strategy_candidates[avenue])}",
                                 **template,
                                 'ready': ready,
                                 'generated_at': datetime.now().isoformat(),
