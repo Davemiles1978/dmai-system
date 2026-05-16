@@ -6331,10 +6331,8 @@ class DMAIApplication:
                     return result
                 
                 # Otherwise return JSON
-                return jsonify({
-                    'response': result,
-                    'status': 'success'
-                })
+                from dmai_api_routes import humanize_text
+                return jsonify({'response': humanize_text(str(result)), 'status': 'success'})
             except Exception as e:
                 logger.error(f"Chat error: {e}")
                 import traceback

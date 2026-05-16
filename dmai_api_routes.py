@@ -5,6 +5,49 @@ from flask import Blueprint, request, jsonify
 import sqlite3
 from pathlib import Path
 
+def humanize_text(text: str, max_length: int = 2000) -> str:
+    """Strip AI tells and make text sound human-spoken. For human-facing output only."""
+    if not text or len(text) < 50:
+        return text
+    
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        if hasattr(_dmai_app_instance, 'evolution') and hasattr(_dmai_app_instance.evolution, 'ai_hub'):
+            ai_hub = _dmai_app_instance.evolution.ai_hub
+            prompt = f"""Rewrite this text to sound like a real person speaking. Rules:
+- Cut these words: Certainly, Of course, Absolutely, Great question, Moreover, Furthermore, Additionally, Nevertheless
+- Cut these phrases: Let me, I hope this helps, I would suggest, It is worth noting
+- Cut these buzzwords: leverage, ecosystem, navigate, unlock, transform, robust, delve, tapestry, journey, landscape, realm
+- Cut openings like: In today's fast-paced world, Whether you're X or Y
+- Vary sentence length: some 3 words, some longer. Break predictable rhythm.
+- Sound direct and a little rough, not rehearsed or corporate.
+- Replace vague claims with specifics. If you can't be specific, cut it.
+Keep the meaning. Keep similar length.
+
+TEXT: {text[:1500]}"""
+            
+            result = ai_hub.query_all_tutors(prompt)
+            for tutor, response in result.get('responses', {}).items():
+                if response and len(response) > 50 and 'error' not in response.lower():
+                    return response[:max_length]
+    except Exception:
+        pass
+    
+    import re
+    tells = [
+        r'\b(Certainly|Of course|Absolutely|Great question)[,;:.\s]*',
+        r'\b(Moreover|Furthermore|Additionally|Nevertheless|Consequently)[,;:.\s]*',
+        r'\b(Let me|I hope this helps|I would suggest|It is worth noting)[^.]*\.?\s*',
+        r'\b(leverage|ecosystem|navigate|unlock|transform|robust|delve|tapestry|journey|landscape|realm)\b',
+        r'\bIn today\'s fast-paced world[^.]*\.\s*',
+        r'\bWhether you\'re[^,]*or[^.]*\.\s*',
+    ]
+    for tell in tells:
+        text = re.sub(tell, '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\s{2,}', ' ', text)
+    text = re.sub(r'\.\s*\.', '.', text)
+    return text.strip()[:max_length]
+
 # MODIFY save_knowledge() - add retry loop for locked database
 def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: str = 'syllabus'):
     """Write a knowledge snippet directly to SQLite with proper schema adherence.
