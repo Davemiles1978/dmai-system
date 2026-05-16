@@ -6331,8 +6331,13 @@ class DMAIApplication:
                     return result
                 
                 # Otherwise return JSON
-                from dmai_api_routes import humanize_text
-                return jsonify({'response': humanize_text(str(result)), 'status': 'success'})
+                # Humanize conversational responses, but not direct knowledge lookups
+                response_text = str(result)
+                if not response_text.startswith('📚 Knowledge on'):
+                    from dmai_api_routes import humanize_text
+                    response_text = humanize_text(response_text)
+                return jsonify({'response': response_text, 'status': 'success'})
+
             except Exception as e:
                 logger.error(f"Chat error: {e}")
                 import traceback
