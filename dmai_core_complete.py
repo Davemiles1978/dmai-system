@@ -5144,16 +5144,7 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                 
             # Generate conversational response using AI tutors
             response = self._generate_ai_response(user, message)            
-            from dmai_api_routes import query_knowledge
-            knowledge_response = query_knowledge(topic)
-            if knowledge_response:
-                # Store conversation
-                self.conversation_memory.add_conversation(user, message, knowledge_response)
-                return knowledge_response
-            
-            # Generate response using AI tutors
-            response = self._generate_ai_response(user, message)
-            
+
             # Store conversation
             self.conversation_memory.add_conversation(user, message, response)
             
