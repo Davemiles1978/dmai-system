@@ -5130,8 +5130,15 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                 return self._handle_command(message)
             
             # Check for knowledge queries in SI Core
+            # Extract likely topic from question
+            topic = message.strip()
+            # Strip common question prefixes
+            import re
+            topic = re.sub(r'^(what is|what are|tell me about|explain|define|describe|who is|how does|how do)\s+', '', topic, flags=re.IGNORECASE)
+            topic = re.sub(r'\?$', '', topic).strip()
+            
             from dmai_api_routes import query_knowledge
-            knowledge_response = query_knowledge(message)
+            knowledge_response = query_knowledge(topic)
             if knowledge_response:
                 # Store conversation
                 self.conversation_memory.add_conversation(user, message, knowledge_response)
