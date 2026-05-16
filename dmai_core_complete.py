@@ -5141,6 +5141,11 @@ I maintain full conversation memory - I can recall anything we've talked about. 
                 import re
                 topic = message.strip().rstrip('?')
                 topic = re.sub(r'^(what is|what are|tell me about|explain|define|describe|who is|how does|how do|why is|why are|when did|where is)\s+', '', topic, flags=re.IGNORECASE).strip()
+                from dmai_api_routes import query_knowledge
+                knowledge_response = query_knowledge(topic)
+                if knowledge_response:
+                    self.conversation_memory.add_conversation(user, message, knowledge_response)
+                    return knowledge_response
                 
             # Generate conversational response using AI tutors
             response = self._generate_ai_response(user, message)            
