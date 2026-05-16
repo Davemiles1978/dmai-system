@@ -6795,7 +6795,7 @@ class DMAIApplication:
                             ready = all(c in str(learned) for c in required) or True
                             
                             strategy = {
-                                'id': f"{avenue}_{len(training.strategy_candidates[avenue])}",
+                                'id': template.get('name', f"{avenue}_strategy").lower().replace(' ', '_').replace('-', '_')[:60],
                                 **template,
                                 'ready': ready,
                                 'generated_at': datetime.now().isoformat(),
