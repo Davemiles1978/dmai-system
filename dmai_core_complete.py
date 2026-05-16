@@ -5133,7 +5133,11 @@ I maintain full conversation memory - I can recall anything we've talked about. 
             question_words = ('what', 'who', 'how', 'why', 'when', 'where', 'define', 'explain', 'describe', 'tell')
             is_question = message.strip().lower().startswith(question_words) or message.strip().endswith('?')
             
-            if is_question:
+            # Skip knowledge lookup for greetings and small talk
+            greetings = ('how are you', 'how do you do', 'what\'s up', 'hi', 'hello', 'hey', 'good morning', 'good evening')
+            is_greeting = any(message.strip().lower().startswith(g) for g in greetings)
+            
+            if is_question and not is_greeting:
                 import re
                 topic = message.strip().rstrip('?')
                 topic = re.sub(r'^(what is|what are|tell me about|explain|define|describe|who is|how does|how do|why is|why are|when did|where is)\s+', '', topic, flags=re.IGNORECASE).strip()

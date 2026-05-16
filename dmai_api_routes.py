@@ -633,6 +633,22 @@ def delete_templates():
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
 
+@api_bp.route('/api/system/clear_cache', methods=['POST'])
+def clear_cache():
+    """Clear knowledge_sources cache to free disk space on ephemeral storage."""
+    import os, shutil
+    cleaned = {}
+    base = Path("data/knowledge_sources")
+    if base.exists():
+        for sub in ['papers', 'articles', 'web', 'social', 'books']:
+            subdir = base / sub
+            if subdir.exists():
+                count = len(list(subdir.glob('*')))
+                shutil.rmtree(subdir)
+                subdir.mkdir()
+                cleaned[sub] = count
+    return jsonify({"success": True, "cleaned": cleaned})
+
 @api_bp.route('/api/system/reset_baby_learning', methods=['POST'])
 def reset_baby_learning():
     """Wipe Baby learned_topics and reorder syllabus with dependency-based phases."""
