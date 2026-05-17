@@ -1290,9 +1290,10 @@ class SyntheticIntelligenceCore:
         state_file = self.data_dir / 'network_state.json'
         with open(state_file, 'w') as f:
             json.dump(state, f, indent=2)
-        
-        # Also persist evolution_cycles to SQLite for deploy survival
-        if hasattr(self, 'sqlite') and self.sqlite and hasattr(self.sqlite, 'db_path') and self.evolution_cycles > 0:
+
+        # Also persist evolution_cycles to SQLite for deploy survival (save even on first cycle)
+        if hasattr(self, 'sqlite') and self.sqlite and hasattr(self.sqlite, 'db_path'):
+            # Always save, even if evolution_cycles is 0 (will be 1 after first cycle)        
             try:
                 import sqlite3
                 conn = sqlite3.connect(str(self.sqlite.db_path))
@@ -3796,6 +3797,7 @@ class UnifiedEvolutionEngine:
             'dark_web_sites': len(self.dark_web.onion_sites),
             'fusion_weights': self.ai_fusion.fusion_weights,
             'active_tutors': active_tutors,
+            'evolution_cycles': self.synthetic_network.evolution_cycles,
             'neo4j_available': self.neo4j_storage.is_available() if hasattr(self, 'neo4j_storage') and self.neo4j_storage else False,
             
             # Evolution stage info
@@ -4160,7 +4162,14 @@ class UnifiedEvolutionEngine:
 
             try:
                 evolve_result = self.synthetic_network.evolve()
-            except Exception:
+                # Sync counters and track successful evolution
+                self.evolution_count = self.synthetic_network.evolution_cycles
+                self.successful_evolutions += 1
+                # Save to SQLite immediately to persist
+                if hasattr(self.synthetic_network, 'save_state'):
+                    self.synthetic_network.save_state()
+            except Exception as e:
+                logger.error(f"Evolve failed: {e}")
                 evolve_result = {
                     'consciousness': 0.0,
                     'evolution_cycle': self.evolution_count,
