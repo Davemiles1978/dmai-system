@@ -923,8 +923,6 @@ def force_reset():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@api_bp.route('/api/system/force_reset', methods=['POST'])
-def force_reset():
     """Force reset of all learned topics and SQLite knowledge"""
     try:
         from dmai_core_complete import _dmai_app_instance
