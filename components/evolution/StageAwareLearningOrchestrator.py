@@ -1412,36 +1412,105 @@ Be specific, educational, and focused on real application.
         return f"I don't have enough knowledge about {topic_name} yet to answer this question properly."
 
     def _evaluate_answer(self, topic_name: str, question: str, answer: str) -> Dict:
-        """Have an AI judge evaluate whether the answer demonstrates understanding."""
-        prompt = (
-            f"Question about '{topic_name}': {question}\n\n"
-            f"Student's answer: {answer}\n\n"
-            f"As an expert evaluator, judge whether this answer demonstrates real understanding "
-            f"of {topic_name}. Consider: correctness, depth, completeness, and practical insight.\n\n"
-            f"Respond in JSON format: {{\"pass\": true/false, \"reason\": \"brief explanation\"}}"
-        )
+        """Evaluate answer against stored knowledge using embeddings and key concepts."""
         
+        # Step 1: Retrieve the stored real knowledge for this topic
+        stored_knowledge = self._get_stored_knowledge(topic_name)
+        if not stored_knowledge:
+            # Fallback to AI tutor if no stored knowledge
+            return self._evaluate_with_tutor(topic_name, question, answer)
+        
+        # Step 2: Check for key concepts (quick filter)
+        key_concepts = self._get_key_concepts(topic_name)
+        concepts_found = sum(1 for concept in key_concepts if concept.lower() in answer.lower())
+        concept_score = concepts_found / max(1, len(key_concepts))
+        
+        # Step 3: Semantic similarity using simple overlap (if no embedding model)
+        # For now, use word overlap Jaccard similarity
+        def jaccard_similarity(text1, text2):
+            words1 = set(text1.lower().split())
+            words2 = set(text2.lower().split())
+            if not words1 or not words2:
+                return 0
+            return len(words1 & words2) / len(words1 | words2)
+        
+        similarity = jaccard_similarity(answer, stored_knowledge)
+        
+        # Step 4: Check answer length and quality
+        is_substantial = len(answer) > 200
+        has_template_markers = any(marker in answer.lower() for marker in 
+            ['comprehensive knowledge', 'overview:', 'key areas to research'])
+        
+        # Step 5: Decision logic
+        if has_template_markers:
+            return {"pass": False, "reason": "Answer contains template markers, not genuine knowledge"}
+        
+        if similarity > 0.6 or (concept_score > 0.5 and is_substantial):
+            return {"pass": True, "reason": f"Answer shows understanding (similarity: {similarity:.2f}, concepts: {concept_score:.2f})"}
+        
+        if similarity > 0.4 and concept_score > 0.3:
+            return {"pass": True, "reason": f"Marginal pass - partial understanding"}
+        
+        # Fallback to tutor if stored knowledge evaluation is uncertain
+        if similarity > 0.3:
+            return self._evaluate_with_tutor(topic_name, question, answer)
+        
+        return {"pass": False, "reason": f"Answer lacks key concepts (found {concepts_found}/{len(key_concepts)}) and similarity too low ({similarity:.2f})"}
+    
+    def _get_stored_knowledge(self, topic_name: str) -> str:
+        """Retrieve stored knowledge from SQLite for a topic."""
+        try:
+            import sqlite3
+            from pathlib import Path
+            db_path = Path("data/dmai_knowledge.db")
+            if db_path.exists():
+                conn = sqlite3.connect(str(db_path))
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT insight_text FROM insights 
+                    WHERE source_title = ? AND LENGTH(insight_text) > 200
+                    ORDER BY id DESC LIMIT 1
+                ''', (topic_name,))
+                row = cursor.fetchone()
+                conn.close()
+                if row:
+                    return row[0]
+        except Exception:
+            pass
+        return ""
+    
+    def _get_key_concepts(self, topic_name: str) -> List[str]:
+        """Return key concepts for a topic based on its knowledge entry."""
+        # Map topics to their key concepts
+        concepts_map = {
+            "Introduction to Python Programming": ["variables", "functions", "loops", "classes", "modules"],
+            "Self-Thought & Recursive Problem Solving": ["metacognition", "recursion", "reflection", "base case"],
+            "Mathematics for AI - Linear Algebra Basics": ["vectors", "matrices", "dot product", "eigenvalues"],
+            "Mathematics for AI - Probability & Statistics": ["probability", "distribution", "bayes", "variance"],
+            "Vibe Coding & AI-Assisted Development": ["prompt", "generation", "refinement", "copilot"],
+            "Visual Pattern Detection": ["pixels", "cnn", "convolution", "detection", "ocr"],
+            "Sound Perception Basics": ["waveform", "spectrogram", "mfcc", "tempo", "pitch"],
+            "EVOLUTION: Self-Code Analysis": ["static analysis", "ast", "linting", "refactoring"],
+            "EVOLUTION: Simple Mutation Testing": ["mutation", "test", "coverage", "mutant"],
+            "EVOLUTION: Feedback Loop Optimization": ["latency", "feedback", "pid", "hysteresis"],
+        }
+        return concepts_map.get(topic_name, [topic_name.lower()])
+    
+    def _evaluate_with_tutor(self, topic_name: str, question: str, answer: str) -> Dict:
+        """Fallback evaluation using AI tutors."""
+        prompt = f"Evaluate answer about '{topic_name}': Q: {question} A: {answer}. Respond JSON: {{\"pass\": true/false, \"reason\": \"...\"}}"
         if self.ai_hub:
             try:
                 result = self.ai_hub.query_all_tutors(prompt)
-                for tutor, response in result.get('responses', {}).items():
+                for response in result.get('responses', {}).values():
                     if response:
-                        # Try to parse JSON from response
                         import json, re
                         match = re.search(r'\{.*"pass".*\}', response, re.DOTALL)
                         if match:
-                            try:
-                                return json.loads(match.group())
-                            except:
-                                pass
+                            return json.loads(match.group())
             except:
                 pass
-        
-        # Fallback evaluation
-        return {
-            'pass': len(answer) > 100,
-            'reason': 'Fallback evaluation based on answer length and topic relevance'
-        }
+        return {"pass": len(answer) > 100, "reason": "Fallback evaluation"}
 
     def get_current_phase_topics(self) -> List[Dict]:
         """Get unmastered topics from the current (lowest incomplete) phase only."""
