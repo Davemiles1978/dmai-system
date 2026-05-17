@@ -896,3 +896,55 @@ def run_visible_exam():
     except Exception as e:
         import traceback
         return jsonify({"error": str(e), "traceback": traceback.format_exc()}), 500
+
+@api_bp.route('/api/system/force_reset', methods=['POST'])
+def force_reset():
+    """Force reset of all learned topics and SQLite knowledge"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        import sqlite3
+        from pathlib import Path
+        
+        # Clear SQLite insights (keep only API keys)
+        db_path = Path("data/dmai_knowledge.db")
+        if db_path.exists():
+            conn = sqlite3.connect(str(db_path))
+            conn.execute("DELETE FROM insights WHERE source_title NOT LIKE '%api_key%'")
+            conn.commit()
+            conn.close()
+        
+        # Clear in-memory learned topics
+        learner = _dmai_app_instance.evolution.stage_learner
+        learner.learned_topics = {}
+        learner.current_stage = "Baby"
+        learner._save_state()
+        
+        return jsonify({"success": True, "message": "Force reset complete - restarting learning"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/system/force_reset', methods=['POST'])
+def force_reset():
+    """Force reset of all learned topics and SQLite knowledge"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        import sqlite3
+        from pathlib import Path
+        
+        # Clear SQLite insights (keep only API keys)
+        db_path = Path("data/dmai_knowledge.db")
+        if db_path.exists():
+            conn = sqlite3.connect(str(db_path))
+            conn.execute("DELETE FROM insights WHERE source_title NOT LIKE '%api_key%'")
+            conn.commit()
+            conn.close()
+        
+        # Clear in-memory learned topics
+        learner = _dmai_app_instance.evolution.stage_learner
+        learner.learned_topics = {}
+        learner.current_stage = "Baby"
+        learner._save_state()
+        
+        return jsonify({"success": True, "message": "Force reset complete - restarting learning"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
