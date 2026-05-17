@@ -5343,7 +5343,26 @@ I maintain full conversation memory - I can recall anything we've talked about. 
     def _generate_ai_response(self, user: str, message: str) -> str:
         """Generate response and learn from external sources"""
         try:
-            # FIRST: Check own knowledge base
+            # FIRST: Handle simple greetings without any queries
+            msg_lower = message.strip().lower()
+            simple_greetings = {
+                'hi': 'Hey! How can I help?',
+                'hello': 'Hello! What can I do for you?',
+                'hey': 'Hey there. What do you need?',
+                'how are you': "I'm running smoothly. What can I help with?",
+                'how are you doing': "All systems operational. What's on your mind?",
+                'good morning': 'Good morning! What shall we work on?',
+                'good evening': 'Good evening! What can I help with?',
+                'good afternoon': 'Afternoon! What do you need?',
+                'what\'s up': 'Not much. What can I do for you?',
+                'sup': 'Hey. What do you need?',
+                'yo': 'Yo! What can I help with?',
+            }
+            for pattern, response in simple_greetings.items():
+                if msg_lower.startswith(pattern):
+                    return response
+            
+            # SECOND: Check own knowledge base
             if hasattr(self, 'si_core') and self.si_core:
                 relevant = self._query_knowledge_base(message)
                 if relevant:
@@ -5465,25 +5484,6 @@ I maintain full conversation memory - I can recall anything we've talked about. 
         except Exception as e:
             logger.error(f"AI response generation error: {e}")
             return "I encountered an error. Please try again."
-
-        # Handle simple greetings directly without external queries
-        msg_lower = message.strip().lower()
-        simple_greetings = {
-            'hi': 'Hey! How can I help?',
-            'hello': 'Hello! What can I do for you?',
-            'hey': 'Hey there. What do you need?',
-            'how are you': "I'm running smoothly. What can I help with?",
-            'how are you doing': "All systems operational. What's on your mind?",
-            'good morning': 'Good morning! What shall we work on?',
-            'good evening': 'Good evening! What can I help with?',
-            'good afternoon': 'Afternoon! What do you need?',
-            'what\'s up': 'Not much. What can I do for you?',
-            'sup': 'Hey. What do you need?',
-            'yo': 'Yo! What can I help with?',
-        }
-        for pattern, response in simple_greetings.items():
-            if msg_lower.startswith(pattern):
-                return response
 
     def _query_knowledge_base(self, message: str) -> str:
         """Query DMAI's own knowledge base for relevant insights"""
