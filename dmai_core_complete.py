@@ -5125,34 +5125,35 @@ I maintain full conversation memory - I can recall anything we've talked about. 
     def process_message(self, user: str, message: str) -> str:
         """Process user messages and return DMAI's response"""
         try:
-            # Handle commands
             if message.startswith('/'):
                 return self._handle_command(message)
             
-            # Only do knowledge lookup for actual questions
-            question_words = ('what', 'who', 'how', 'why', 'when', 'where', 'define', 'explain', 'describe', 'tell')
-            is_question = message.strip().lower().startswith(question_words) or message.strip().endswith('?')
+            # Determine if this is a knowledge question or conversation
+            msg_lower = message.strip().lower()
             
-            # Skip knowledge lookup for greetings and small talk
-            greetings = ('how are you', 'how do you do', 'what\'s up', 'hi', 'hello', 'hey', 'good morning', 'good evening')
-            is_greeting = any(message.strip().lower().startswith(g) for g in greetings)
+            # Greetings and small talk - skip knowledge lookup
+            greetings = ('how are you', 'how do you do', 'what\'s up', 'hi', 'hello', 'hey', 'good morning', 'good evening', 'good afternoon', 'sup', 'yo', 'howdy')
+            if any(msg_lower.startswith(g) for g in greetings) or len(message.strip()) < 10:
+                response = self._generate_ai_response(user, message)
+                self.conversation_memory.add_conversation(user, message, response)
+                return response
             
-            if is_question and not is_greeting:
+            # Knowledge questions
+            question_words = ('what', 'who', 'how', 'why', 'when', 'where', 'define', 'explain', 'describe')
+            if msg_lower.startswith(question_words) or message.strip().endswith('?'):
                 import re
                 topic = message.strip().rstrip('?')
                 topic = re.sub(r'^(what is|what are|tell me about|explain|define|describe|who is|how does|how do|why is|why are|when did|where is)\s+', '', topic, flags=re.IGNORECASE).strip()
+                
                 from dmai_api_routes import query_knowledge
                 knowledge_response = query_knowledge(topic)
                 if knowledge_response:
                     self.conversation_memory.add_conversation(user, message, knowledge_response)
                     return knowledge_response
-                
-            # Generate conversational response using AI tutors
-            response = self._generate_ai_response(user, message)            
-
-            # Store conversation
-            self.conversation_memory.add_conversation(user, message, response)
             
+            # Default: conversational AI response
+            response = self._generate_ai_response(user, message)
+            self.conversation_memory.add_conversation(user, message, response)
             return response
         except Exception as e:
             logger.error(f"Message processing error: {e}")
