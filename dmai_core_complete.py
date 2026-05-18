@@ -6589,13 +6589,30 @@ class DMAIApplication:
 
         @self.app.route('/api/status')
         def api_status():
-            """Return DMAI system status"""
+            """Return DMAI system status with stage read from SQLite"""
+            import sqlite3
+            from pathlib import Path
+            
+            # Get base status from evolution engine
             status_dict = self.evolution.get_status()
-            # Remove non-serializable evolution_timer if it somehow appears
-            if isinstance(status_dict, dict) and 'evolution_timer' in status_dict:
-                del status_dict['evolution_timer']
+            
+            # OVERRIDE: Read stage from SQLite (single source of truth)
+            stage_name = "Baby DMAI"
+            db_path = Path("data/dmai_knowledge.db")
+            if db_path.exists():
+                try:
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT insight_text FROM insights WHERE id = 'current_stage'")
+                    row = cursor.fetchone()
+                    if row and row[0]:
+                        stage_name = row[0]
+                    conn.close()
+                except:
+                    pass
+            
+            status_dict['evolution_stage_name'] = f"🧠 {stage_name}"
             return jsonify(status_dict)
-
         
         @self.app.route('/api/health/full', methods=['GET'])
         def health_full():
