@@ -1064,3 +1064,87 @@ def track_engagement():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ===== REVERSE ENGINEERING ENDPOINTS =====
+
+@api_bp.route('/api/reverse_engineering/analyze', methods=['POST'])
+def analyze_ai_system():
+    """Analyze an AI system for reverse engineering"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        system = data.get('system', 'stable_diffusion')
+        
+        if not hasattr(_dmai_app_instance, 'ai_analyzer'):
+            from components.reverse_engineering.ai_system_analyzer import initialize_analyzer
+            _dmai_app_instance.ai_analyzer = initialize_analyzer()
+        
+        analyzer = _dmai_app_instance.ai_analyzer
+        
+        if system == 'stable_diffusion':
+            result = analyzer.analyze_stable_diffusion()
+        elif system == 'llm':
+            result = analyzer.analyze_llm_architectures()
+        elif system == 'music':
+            result = analyzer.analyze_music_generation()
+        elif system == 'gap':
+            result = analyzer.perform_gap_analysis()
+        else:
+            result = {"error": f"Unknown system: {system}"}
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/reverse_engineering/install', methods=['POST'])
+def install_ai_system():
+    """Install open-source AI system locally"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        system = data.get('system', 'comfyui')
+        
+        if not hasattr(_dmai_app_instance, 'ai_analyzer'):
+            from components.reverse_engineering.ai_system_analyzer import initialize_analyzer
+            _dmai_app_instance.ai_analyzer = initialize_analyzer()
+        
+        if system == 'comfyui':
+            result = _dmai_app_instance.ai_analyzer.install_comfyui()
+        else:
+            result = {"error": f"Unknown system: {system}"}
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/reverse_engineering/roadmap', methods=['GET'])
+def reverse_engineering_roadmap():
+    """Get roadmap for closing AI capability gaps"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'ai_analyzer'):
+            from components.reverse_engineering.ai_system_analyzer import initialize_analyzer
+            _dmai_app_instance.ai_analyzer = initialize_analyzer()
+        
+        roadmap = _dmai_app_instance.ai_analyzer.get_reverse_engineering_roadmap()
+        return jsonify(roadmap)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/reverse_engineering/implement', methods=['POST'])
+def implement_capability():
+    """Implement a capability in DMAI"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        capability = data.get('capability', 'image_generation')
+        
+        if not hasattr(_dmai_app_instance, 'ai_analyzer'):
+            from components.reverse_engineering.ai_system_analyzer import initialize_analyzer
+            _dmai_app_instance.ai_analyzer = initialize_analyzer()
+        
+        result = _dmai_app_instance.ai_analyzer.implement_capability(capability)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
