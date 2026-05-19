@@ -967,22 +967,3 @@ def test_trading():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@api_bp.route('/api/trading/test', methods=['GET'])
-def test_trading():
-    """Test Alpaca trading connection"""
-    try:
-        from components.wealth.real_trading_executor import initialize_trading
-        trader = initialize_trading()
-
-        if not trader.enabled:
-            return jsonify({"error": "Trading not enabled. Check ALPACA_API_KEY"}), 500
-
-        account = trader.get_account()
-        return jsonify({
-            "status": "connected",
-            "account": account,
-            "balance": trader.balance,
-            "paper_trading": trader.paper
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
