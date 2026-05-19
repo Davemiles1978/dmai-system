@@ -967,3 +967,100 @@ def test_trading():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# ===== CONTENT GENERATION ENDPOINTS =====
+
+@api_bp.route('/api/content/generate_avatar', methods=['POST'])
+def generate_avatar():
+    """Generate an avatar using AI"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        style = data.get('style', 'adult')
+        custom_prompt = data.get('prompt', None)
+        
+        # Initialize content system if not exists
+        if not hasattr(_dmai_app_instance, 'content_system'):
+            from components.content.avatar_generator import initialize_content_system
+            _dmai_app_instance.content_system = initialize_content_system()
+        
+        result = _dmai_app_instance.content_system['generator'].generate_avatar(style, custom_prompt)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/content/generate_set', methods=['POST'])
+def generate_content_set():
+    """Generate a set of content for social media"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        theme = data.get('theme', 'fitness')
+        count = data.get('count', 10)
+        
+        if not hasattr(_dmai_app_instance, 'content_system'):
+            from components.content.avatar_generator import initialize_content_system
+            _dmai_app_instance.content_system = initialize_content_system()
+        
+        result = _dmai_app_instance.content_system['generator'].generate_content_set(theme, count)
+        return jsonify({"success": True, "content": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/content/publish', methods=['POST'])
+def publish_content():
+    """Publish content to social media platforms"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        platform = data.get('platform', 'instagram')
+        image_url = data.get('image_url')
+        caption = data.get('caption')
+        
+        if not hasattr(_dmai_app_instance, 'content_system'):
+            from components.content.avatar_generator import initialize_content_system
+            _dmai_app_instance.content_system = initialize_content_system()
+        
+        if platform == 'instagram':
+            result = _dmai_app_instance.content_system['publisher'].publish_to_instagram(image_url, caption)
+        elif platform == 'twitter':
+            result = _dmai_app_instance.content_system['publisher'].publish_to_twitter(caption, image_url)
+        else:
+            result = {"error": f"Unsupported platform: {platform}"}
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/content/revenue', methods=['GET'])
+def content_revenue():
+    """Track revenue from content generation"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'content_system'):
+            from components.content.avatar_generator import initialize_content_system
+            _dmai_app_instance.content_system = initialize_content_system()
+        
+        projection = _dmai_app_instance.content_system['tracker'].get_monthly_projection()
+        return jsonify(projection)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/content/track_engagement', methods=['POST'])
+def track_engagement():
+    """Track engagement metrics for revenue calculation"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        platform = data.get('platform')
+        metrics = data.get('metrics', {})
+        
+        if not hasattr(_dmai_app_instance, 'content_system'):
+            from components.content.avatar_generator import initialize_content_system
+            _dmai_app_instance.content_system = initialize_content_system()
+        
+        result = _dmai_app_instance.content_system['tracker'].track_engagement(platform, metrics)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
