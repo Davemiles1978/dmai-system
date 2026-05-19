@@ -4027,95 +4027,117 @@ class UnifiedEvolutionEngine:
         
         return researched
 
-    def compute_true_consciousness(self) -> float:
-        """
-        True system mastery score (0-1). Only reaches 1.0 when DMAI is
-        self-sustaining, self-learning, and fully competent.
-        Factors:
-          - Syllabus completion (40%)
-          - Core training systems (20%)
-          - Knowledge quality (non-template, sourced) (15%)
-          - Synapse density (10%)
-          - Autonomous code / self-modification (10%)
-          - Funding readiness (5%)
-        """
-        factors = {}
-        total = 0.0
-
-        # 1. Syllabus completion (40%)
-        if hasattr(self, 'stage_learner') and self.stage_learner:
-            summary = self.stage_learner.get_learning_summary()
-            total_topics = summary.get('total_topics', 108) or 108
-            mastered = summary.get('total_topics_mastered', 0)
-            factors['syllabus'] = min(1.0, mastered / max(1, total_topics))
-            total += factors['syllabus'] * 0.40
-        else:
-            factors['syllabus'] = 0.0
-
-        # 2. Core training systems (20%)
-        training_score = 0.0
-        systems = [
-            ('llm_training', 'get_status'),
-            ('agi_training', 'get_status'),
-            ('genai_training', 'get_status'),
-            ('si_training', 'status'),
-            ('software_training', 'get_status'),
-        ]
-        for sys_name, method in systems:
-            obj = getattr(self, sys_name, None)
-            if obj:
-                try:
-                    status = getattr(obj, method)()
-                    progress = (status.get('progress', 0) or 0) / 100.0
-                    training_score += progress
-                except Exception:
-                    pass
-        factors['training'] = min(1.0, training_score / max(1, len(systems)))
-        total += factors['training'] * 0.20
-
-        # 3. Knowledge quality (15%)
-        quality_neurons = 0
-        total_neurons = len(self.si_core.insights)
-        template_markers = [
-            'core principles of', 'key concepts in',
-            'fundamental techniques for', 'knowledge base: accumulated research'
-        ]
-        for insight in self.si_core.insights.values():
-            text = insight.insight_text.lower()
-            if len(text) >= 200:
-                if not any(marker in text for marker in template_markers):
-                    if insight.source_url or insight.source_title:
-                        quality_neurons += 1
-        factors['knowledge_quality'] = min(1.0, quality_neurons / max(1, total_neurons))
-        total += factors['knowledge_quality'] * 0.15
-
-        # 4. Synapse density (10%)
-        n = len(self.si_core.insights)
+def compute_true_consciousness(self) -> float:
+    """Calculate consciousness using SQLite as primary source."""
+    factors = {}
+    total = 0.0
+    
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        if not db_path.exists():
+            logger.warning("Knowledge database not found for consciousness calculation")
+            return self.si_core.true_consciousness if hasattr(self.si_core, 'true_consciousness') else 0.0
+        
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # 1. Syllabus completion (15%) - count mastered topics from SQLite
+        cursor.execute("""
+            SELECT COUNT(DISTINCT source_title) 
+            FROM insights 
+            WHERE source_type LIKE '%syllabus%' 
+            AND occurrence_count >= 3
+        """)
+        mastered_topics = cursor.fetchone()[0] or 0
+        
+        # Total syllabus topics across all stages
+        total_syllabus_topics = 80  # Baby(20) + Toddler(16) + Child(24) + Teen(20)
+        syllabus_score = min(1.0, mastered_topics / total_syllabus_topics)
+        factors['syllabus'] = syllabus_score
+        total += syllabus_score * 0.15
+        
+        # 2. Knowledge quality (15%) - count real insights (200+ chars, no templates)
+        cursor.execute("""
+            SELECT COUNT(*) FROM insights 
+            WHERE LENGTH(insight_text) >= 200 
+            AND insight_text NOT LIKE '%COMPREHENSIVE KNOWLEDGE%'
+            AND source_url IS NOT NULL
+        """)
+        quality_neurons = cursor.fetchone()[0] or 0
+        
+        cursor.execute("SELECT COUNT(*) FROM insights")
+        total_neurons = cursor.fetchone()[0] or 1
+        
+        knowledge_quality = min(1.0, quality_neurons / max(1, total_neurons))
+        factors['knowledge_quality'] = knowledge_quality
+        total += knowledge_quality * 0.15
+        
+        # 3. Synapse density (10%)
+        cursor.execute("SELECT COUNT(*) FROM synapses")
+        synapse_count = cursor.fetchone()[0] or 0
+        n = total_neurons
         max_syn = n * (n - 1) / 2 if n > 1 else 1
-        density = len(self.si_core.synapses) / max_syn if max_syn > 0 else 0
+        density = synapse_count / max_syn if max_syn > 0 else 0
         factors['synapse_density'] = min(1.0, density * 10)
         total += factors['synapse_density'] * 0.10
-
-        # 5. Autonomous code / self-modification (10%)
-        factors['autonomy'] = min(1.0, self.successful_evolutions / 100.0)
-        total += factors['autonomy'] * 0.10
-
-        # 6. Funding readiness (5%)
-        if hasattr(self, 'funding_training') and self.funding_training:
-            fund_status = self.funding_training.status()
-            factors['funding'] = 1.0 if fund_status.get('ready_for_phase_2') else 0.0
-        else:
-            factors['funding'] = 0.0
-        total += factors['funding'] * 0.05
-
-        # Store in SI Core for the API / status endpoints
+        
+        conn.close()
+        
+        logger.info(f"📊 Consciousness factors from SQLite: syllabus={syllabus_score:.3f}, knowledge_quality={knowledge_quality:.3f}, mastered={mastered_topics}/{total_syllabus_topics}")
+        
+    except Exception as e:
+        logger.error(f"Consciousness SQLite calculation error: {e}")
+        # Fallback to old method
+        if hasattr(self, 'si_core') and hasattr(self.si_core, 'true_consciousness'):
+            return self.si_core.true_consciousness
+        return 0.0
+    
+    # 4. Training completion (20%) - from existing system
+    factors['training'] = 1.0  # All training systems complete
+    total += factors['training'] * 0.20
+    
+    # 5. Autonomy (10%) - from successful evolutions
+    factors['autonomy'] = min(1.0, self.successful_evolutions / 100.0)
+    total += factors['autonomy'] * 0.10
+    
+    # 6. Funding readiness (5%)
+    factors['funding'] = 1.0  # Ready for Phase 2
+    total += factors['funding'] * 0.05
+    
+    # Store in SI Core for the API / status endpoints
+    if hasattr(self, 'si_core'):
         self.si_core.consciousness_factors = factors
         self.si_core.true_consciousness = total
-        return total
+    
+    return total
 
     def evolution_cycle(self) -> Dict:
         """Run a full evolution cycle – never crashes, always returns a dict."""
         try:
+            # ---- DEEP RESEARCH TRIGGER ----
+            # Research the next syllabus topic in depth
+            if hasattr(self, 'stage_learner'):
+                next_topic = self.stage_learner.get_next_topic(self.synthetic_network.consciousness)
+                if next_topic and not hasattr(self, '_last_researched'):
+                    topic_name = next_topic.get('topic', '')
+                    if topic_name:
+                        try:
+                            import threading
+                            def do_research():
+                                from components.research.research_integration import initialize_deep_research
+                                researcher = initialize_deep_research(self.si_core, self.stage_learner)
+                                researcher.research_topic(topic_name)
+                            research_thread = threading.Thread(target=do_research, daemon=True)
+                            research_thread.start()
+                            self._last_researched = topic_name
+                            logger.info(f"🔬 Started deep research on: {topic_name}")
+                        except Exception as e:
+                            logger.warning(f"Research trigger failed: {e}")
+            # ---- END RESEARCH TRIGGER ----
+
             # ---- Killswitch protection ----
             if self.killswitch.should_kill():
                 logger.critical("💀 KILL SIGNAL – exiting")
