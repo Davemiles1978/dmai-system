@@ -970,9 +970,6 @@ def test_trading():
 
 # ===== CONTENT GENERATION ENDPOINTS =====
 
-@api_bp.route('/api/content/generate_avatar', methods=['POST'])
-def generate_avatar():
-    """Generate an avatar using AI"""
     try:
         from dmai_core_complete import _dmai_app_instance
         data = request.get_json() or {}
@@ -981,10 +978,8 @@ def generate_avatar():
         
         # Initialize content system if not exists
         if not hasattr(_dmai_app_instance, 'content_system'):
-            from components.content.avatar_generator import initialize_content_system
             _dmai_app_instance.content_system = initialize_content_system()
         
-        result = _dmai_app_instance.content_system['generator'].generate_avatar(style, custom_prompt)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -999,7 +994,6 @@ def generate_content_set():
         count = data.get('count', 10)
         
         if not hasattr(_dmai_app_instance, 'content_system'):
-            from components.content.avatar_generator import initialize_content_system
             _dmai_app_instance.content_system = initialize_content_system()
         
         result = _dmai_app_instance.content_system['generator'].generate_content_set(theme, count)
@@ -1018,7 +1012,6 @@ def publish_content():
         caption = data.get('caption')
         
         if not hasattr(_dmai_app_instance, 'content_system'):
-            from components.content.avatar_generator import initialize_content_system
             _dmai_app_instance.content_system = initialize_content_system()
         
         if platform == 'instagram':
@@ -1039,7 +1032,6 @@ def content_revenue():
         from dmai_core_complete import _dmai_app_instance
         
         if not hasattr(_dmai_app_instance, 'content_system'):
-            from components.content.avatar_generator import initialize_content_system
             _dmai_app_instance.content_system = initialize_content_system()
         
         projection = _dmai_app_instance.content_system['tracker'].get_monthly_projection()
@@ -1057,7 +1049,6 @@ def track_engagement():
         metrics = data.get('metrics', {})
         
         if not hasattr(_dmai_app_instance, 'content_system'):
-            from components.content.avatar_generator import initialize_content_system
             _dmai_app_instance.content_system = initialize_content_system()
         
         result = _dmai_app_instance.content_system['tracker'].track_engagement(platform, metrics)
@@ -1151,15 +1142,10 @@ def implement_capability():
 
 # ===== AVATAR CONSISTENCY ENDPOINTS =====
 
-@api_bp.route('/api/avatar/set_reference', methods=['POST'])
 def set_reference_images():
-    """Upload reference images for consistent avatar generation"""
     try:
         from dmai_core_complete import _dmai_app_instance
         
-        if not hasattr(_dmai_app_instance, 'avatar_system'):
-            from components.content.avatar_consistency import initialize_avatar_system
-            _dmai_app_instance.avatar_system = initialize_avatar_system()
         
         # Check if files were uploaded
         if 'images' not in request.files:
@@ -1171,12 +1157,78 @@ def set_reference_images():
         for file in files:
             if file.filename:
                 # Save uploaded file
-                uploader = _dmai_app_instance.avatar_system['uploader']
                 result = uploader.save_uploaded_image(file.read(), file.filename)
                 if result['success']:
                     saved_paths.append(result['path'])
         
         # Set as reference images
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        style = data.get('style', 'professional')
+        action = data.get('action', 'pose')
+        custom_prompt = data.get('prompt', None)
+        
+        
+            style=style, action=action, custom_prompt=custom_prompt
+        )
+        
+        # Return the prompt (actual generation requires Stable Diffusion)
+        return jsonify({
+            "status": "ready",
+            "generation_request": generation_request,
+            "message": "Send this prompt to Stable Diffusion or ComfyUI"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def get_content_calendar():
+    """Get content calendar for consistent posting"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        days = request.args.get('days', 30, type=int)
+        
+        
+        return jsonify({"calendar": calendar})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ===== AVATAR CONSISTENCY ENDPOINTS =====
+
+@api_bp.route('/api/avatar/set_reference', methods=['POST'])
+def set_reference_images():
+    """Upload reference images for consistent avatar generation"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'avatar_system'):
+            from components.content.avatar_consistency import initialize_avatar_system
+            _dmai_app_instance.avatar_system = initialize_avatar_system()
+        
+        if 'images' not in request.files:
+            return jsonify({"error": "No images provided"}), 400
+        
+        files = request.files.getlist('images')
+        saved_paths = []
+        
+        for file in files:
+            if file.filename:
+                uploader = _dmai_app_instance.avatar_system['uploader']
+                result = uploader.save_uploaded_image(file.read(), file.filename)
+                if result['success']:
+                    saved_paths.append(result['path'])
+        
         result = _dmai_app_instance.avatar_system['consistency'].set_reference_images(saved_paths)
         return jsonify(result)
     except Exception as e:
@@ -1200,7 +1252,6 @@ def generate_avatar():
             style=style, action=action, custom_prompt=custom_prompt
         )
         
-        # Return the prompt (actual generation requires Stable Diffusion)
         return jsonify({
             "status": "ready",
             "generation_request": generation_request,
