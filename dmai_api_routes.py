@@ -1148,3 +1148,94 @@ def implement_capability():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ===== AVATAR CONSISTENCY ENDPOINTS =====
+
+@api_bp.route('/api/avatar/set_reference', methods=['POST'])
+def set_reference_images():
+    """Upload reference images for consistent avatar generation"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'avatar_system'):
+            from components.content.avatar_consistency import initialize_avatar_system
+            _dmai_app_instance.avatar_system = initialize_avatar_system()
+        
+        # Check if files were uploaded
+        if 'images' not in request.files:
+            return jsonify({"error": "No images provided"}), 400
+        
+        files = request.files.getlist('images')
+        saved_paths = []
+        
+        for file in files:
+            if file.filename:
+                # Save uploaded file
+                uploader = _dmai_app_instance.avatar_system['uploader']
+                result = uploader.save_uploaded_image(file.read(), file.filename)
+                if result['success']:
+                    saved_paths.append(result['path'])
+        
+        # Set as reference images
+        result = _dmai_app_instance.avatar_system['consistency'].set_reference_images(saved_paths)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/avatar/generate', methods=['POST'])
+def generate_avatar():
+    """Generate consistent avatar"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        style = data.get('style', 'professional')
+        action = data.get('action', 'pose')
+        custom_prompt = data.get('prompt', None)
+        
+        if not hasattr(_dmai_app_instance, 'avatar_system'):
+            from components.content.avatar_consistency import initialize_avatar_system
+            _dmai_app_instance.avatar_system = initialize_avatar_system()
+        
+        generation_request = _dmai_app_instance.avatar_system['consistency'].generate_consistent_avatar(
+            style=style, action=action, custom_prompt=custom_prompt
+        )
+        
+        # Return the prompt (actual generation requires Stable Diffusion)
+        return jsonify({
+            "status": "ready",
+            "generation_request": generation_request,
+            "message": "Send this prompt to Stable Diffusion or ComfyUI"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/avatar/content_calendar', methods=['GET'])
+def get_content_calendar():
+    """Get content calendar for consistent posting"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        days = request.args.get('days', 30, type=int)
+        
+        if not hasattr(_dmai_app_instance, 'avatar_system'):
+            from components.content.avatar_consistency import initialize_avatar_system
+            _dmai_app_instance.avatar_system = initialize_avatar_system()
+        
+        calendar = _dmai_app_instance.avatar_system['consistency'].create_content_calendar(days)
+        return jsonify({"calendar": calendar})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/avatar/gallery', methods=['GET'])
+def get_avatar_gallery():
+    """Get generated avatars gallery"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'avatar_system'):
+            from components.content.avatar_consistency import initialize_avatar_system
+            _dmai_app_instance.avatar_system = initialize_avatar_system()
+        
+        gallery = _dmai_app_instance.avatar_system['uploader'].get_avatar_gallery()
+        return jsonify({"avatars": gallery})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
