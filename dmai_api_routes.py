@@ -983,7 +983,7 @@ def research_topic():
         if not hasattr(_dmai_app_instance, 'deep_researcher'):
             from components.research.research_integration import initialize_deep_research
             _dmai_app_instance.deep_researcher = initialize_deep_research(
-                _dmai_app_instance.synthetic_network,
+                _dmai_app_instance.si_core,
                 _dmai_app_instance.evolution.stage_learner
             )
         
@@ -1006,7 +1006,7 @@ def queue_research():
         if not hasattr(_dmai_app_instance, 'deep_researcher'):
             from components.research.research_integration import initialize_deep_research
             _dmai_app_instance.deep_researcher = initialize_deep_research(
-                _dmai_app_instance.synthetic_network,
+                _dmai_app_instance.si_core,
                 _dmai_app_instance.evolution.stage_learner
             )
         
@@ -1024,7 +1024,7 @@ def start_research_loop():
         if not hasattr(_dmai_app_instance, 'deep_researcher'):
             from components.research.research_integration import initialize_deep_research
             _dmai_app_instance.deep_researcher = initialize_deep_research(
-                _dmai_app_instance.synthetic_network,
+                _dmai_app_instance.si_core,
                 _dmai_app_instance.evolution.stage_learner
             )
         
@@ -1051,6 +1051,8 @@ def research_status():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ===== DEEP RESEARCH ENDPOINTS =====
 
 @api_bp.route('/api/research/topic', methods=['POST'])
 def research_topic():
