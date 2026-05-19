@@ -983,7 +983,7 @@ def research_topic():
         if not hasattr(_dmai_app_instance, 'deep_researcher'):
             from components.research.research_integration import initialize_deep_research
             _dmai_app_instance.deep_researcher = initialize_deep_research(
-                _dmai_app_instance.si_core,
+                _dmai_app_instance.synthetic_network,
                 _dmai_app_instance.evolution.stage_learner
             )
         
@@ -1006,7 +1006,7 @@ def queue_research():
         if not hasattr(_dmai_app_instance, 'deep_researcher'):
             from components.research.research_integration import initialize_deep_research
             _dmai_app_instance.deep_researcher = initialize_deep_research(
-                _dmai_app_instance.si_core,
+                _dmai_app_instance.synthetic_network,
                 _dmai_app_instance.evolution.stage_learner
             )
         
@@ -1024,7 +1024,7 @@ def start_research_loop():
         if not hasattr(_dmai_app_instance, 'deep_researcher'):
             from components.research.research_integration import initialize_deep_research
             _dmai_app_instance.deep_researcher = initialize_deep_research(
-                _dmai_app_instance.si_core,
+                _dmai_app_instance.synthetic_network,
                 _dmai_app_instance.evolution.stage_learner
             )
         
@@ -1049,5 +1049,89 @@ def research_status():
             "completed_research": len(researcher.research_results),
             "recent_topics": list(researcher.research_results.keys())[-5:]
         })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/research/topic', methods=['POST'])
+def research_topic():
+    """Deep research a specific topic"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        topic = data.get('topic')
+        
+        if not topic:
+            return jsonify({"error": "Missing topic parameter"}), 400
+        
+        # Get or create researcher
+        if not hasattr(_dmai_app_instance, 'deep_researcher'):
+            from components.research.research_integration import initialize_deep_research
+            _dmai_app_instance.deep_researcher = initialize_deep_research(
+                _dmai_app_instance.synthetic_network,
+                _dmai_app_instance.evolution.stage_learner
+            )
+        
+        result = _dmai_app_instance.deep_researcher.research_topic(topic)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/research/queue', methods=['POST'])
+def queue_research():
+    """Add topic to research queue"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        data = request.get_json() or {}
+        topic = data.get('topic')
+        
+        if not topic:
+            return jsonify({"error": "Missing topic parameter"}), 400
+        
+        if not hasattr(_dmai_app_instance, 'deep_researcher'):
+            from components.research.research_integration import initialize_deep_research
+            _dmai_app_instance.deep_researcher = initialize_deep_research(
+                _dmai_app_instance.synthetic_network,
+                _dmai_app_instance.evolution.stage_learner
+            )
+        
+        result = _dmai_app_instance.deep_researcher.queue_research(topic)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/research/status', methods=['GET'])
+def research_status():
+    """Get research system status"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'deep_researcher'):
+            return jsonify({"status": "not_initialized"})
+        
+        researcher = _dmai_app_instance.deep_researcher
+        return jsonify({
+            "status": "running" if researcher.is_running else "stopped",
+            "queue_size": len(researcher.research_queue),
+            "completed_research": len(researcher.research_results),
+            "recent_topics": list(researcher.research_results.keys())[-5:]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/research/start', methods=['POST'])
+def start_research_loop():
+    """Start research loop"""
+    try:
+        from dmai_core_complete import _dmai_app_instance
+        
+        if not hasattr(_dmai_app_instance, 'deep_researcher'):
+            from components.research.research_integration import initialize_deep_research
+            _dmai_app_instance.deep_researcher = initialize_deep_research(
+                _dmai_app_instance.synthetic_network,
+                _dmai_app_instance.evolution.stage_learner
+            )
+        
+        _dmai_app_instance.deep_researcher.is_running = True
+        return jsonify({"status": "started", "message": "Research loop active"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
