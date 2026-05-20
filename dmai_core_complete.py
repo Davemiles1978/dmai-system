@@ -4069,9 +4069,7 @@ class UnifiedEvolutionEngine:
                 cursor = conn.cursor()
                 cursor.execute("""
                     SELECT COUNT(*) FROM insights 
-                    WHERE LENGTH(insight_text) >= 200 
-                    AND insight_text NOT LIKE '%COMPREHENSIVE KNOWLEDGE%'
-                    AND insight_text NOT LIKE '%KEY COMPONENTS%'
+                    WHERE LENGTH(insight_text) >= 100 
                     AND source_url IS NOT NULL
                 """)
                 quality_neurons = cursor.fetchone()[0] or 0
@@ -4080,13 +4078,12 @@ class UnifiedEvolutionEngine:
                 conn.close()
                 factors['knowledge_quality'] = min(1.0, quality_neurons / max(1, total_neurons))
                 total += factors['knowledge_quality'] * 0.15
-                logger.info(f"SQLite knowledge quality: {quality_neurons}/{total_neurons} ({factors['knowledge_quality']*100:.1f}%)")
+                print(f"Knowledge quality: {quality_neurons}/{total_neurons} = {factors['knowledge_quality']*100:.1f}%")
             else:
                 factors['knowledge_quality'] = 0.0
         except Exception as e:
             logger.warning(f"Knowledge quality SQLite read failed: {e}")
             factors['knowledge_quality'] = 0.0
-
         # 4. Synapse density (10%) - from SI Core (synapses are dynamic)
         n = len(self.si_core.insights) if hasattr(self.si_core, 'insights') else 1
         max_syn = n * (n - 1) / 2 if n > 1 else 1
