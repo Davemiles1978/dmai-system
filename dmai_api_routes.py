@@ -967,3 +967,47 @@ def test_trading():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Add to dmai_api_routes.py
+
+@api_bp.route('/api/debug/consciousness_sqlite', methods=['GET'])
+def debug_consciousness_sqlite():
+    """Debug SQLite consciousness calculation"""
+    import sqlite3
+    from pathlib import Path
+    
+    result = {}
+    
+    db_path = Path("data/dmai_knowledge.db")
+    if not db_path.exists():
+        return jsonify({"error": "Database not found"})
+    
+    conn = sqlite3.connect(str(db_path))
+    cursor = conn.cursor()
+    
+    # Total insights
+    cursor.execute("SELECT COUNT(*) FROM insights")
+    result['total_insights'] = cursor.fetchone()[0]
+    
+    # Quality insights (length >= 100)
+    cursor.execute("SELECT COUNT(*) FROM insights WHERE LENGTH(insight_text) >= 100")
+    result['quality_100'] = cursor.fetchone()[0]
+    
+    # Quality insights with source_url
+    cursor.execute("SELECT COUNT(*) FROM insights WHERE LENGTH(insight_text) >= 100 AND source_url IS NOT NULL")
+    result['quality_with_url'] = cursor.fetchone()[0]
+    
+    # Syllabus topics (by source_type)
+    cursor.execute("SELECT source_type, COUNT(*) FROM insights WHERE source_type LIKE '%syllabus%' GROUP BY source_type")
+    result['syllabus_by_type'] = dict(cursor.fetchall())
+    
+    # Topics with source_type = baby_syllabus
+    cursor.execute("SELECT COUNT(DISTINCT source_title) FROM insights WHERE source_type = 'baby_syllabus'")
+    result['baby_syllabus_topics'] = cursor.fetchone()[0]
+    
+    # Sample of injected topics
+    cursor.execute("SELECT source_title, source_type, LENGTH(insight_text) FROM insights WHERE source_type = 'baby_syllabus' LIMIT 5")
+    result['sample_baby_topics'] = [{"title": row[0], "type": row[1], "length": row[2]} for row in cursor.fetchall()]
+    
+    conn.close()
+    
+    return jsonify(result)
