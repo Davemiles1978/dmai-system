@@ -1,2 +1,3 @@
 # Force restart: Mon 18 May 2026 08:04:07 BST
 # Force restart: Mon 18 May 2026 08:15:14 BST
+# Force restart to reload SQLite knowledge into SI Core - Wed 20 May 2026 11:10:50 BST
