@@ -11513,3 +11513,4 @@ if __name__ == '__main__':
     # Start the Flask server with proper thread handling
     # CRITICAL: use_reloader=False prevents duplicate processes that break background threads
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True, use_reloader=False)
+
