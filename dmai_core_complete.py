@@ -4027,87 +4027,79 @@ class UnifiedEvolutionEngine:
         
         return researched
 
-    def compute_true_consciousness(self) -> float:
-        """
-        True system mastery score (0-1). Only reaches 1.0 when DMAI is
-        self-sustaining, self-learning, and fully competent.
-        Now reads knowledge quality and syllabus from SQLite directly.
-        """
-        factors = {}
-        total = 0.0
-
-        # 1. Syllabus completion (40%) - READ FROM SQLITE
-        try:
-            import sqlite3
-            from pathlib import Path
-            db_path = Path("data/dmai_knowledge.db")
-            if db_path.exists():
-                conn = sqlite3.connect(str(db_path))
-                cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(DISTINCT source_title) FROM insights WHERE source_type LIKE '%syllabus%' AND occurrence_count >= 3")
-                mastered = cursor.fetchone()[0] or 0
-                conn.close()
-                factors['syllabus'] = min(1.0, mastered / 80.0)
-                total += factors['syllabus'] * 0.40
-            else:
-                factors['syllabus'] = 0.0
-        except Exception as e:
-            logger.warning(f"Syllabus SQLite read failed: {e}")
-            factors['syllabus'] = 0.0
-
-        # 2. Core training systems (20%)
-        factors['training'] = 1.0  # All training systems complete
-        total += factors['training'] * 0.20
-
-        # 3. Knowledge quality (15%) - READ FROM SQLITE
-        try:
-            import sqlite3
-            from pathlib import Path
-            db_path = Path("data/dmai_knowledge.db")
-            if db_path.exists():
-                conn = sqlite3.connect(str(db_path))
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT COUNT(*) FROM insights 
-                    WHERE LENGTH(insight_text) >= 100 
-                    AND source_url IS NOT NULL
-                """)
-                quality_neurons = cursor.fetchone()[0] or 0
-                cursor.execute("SELECT COUNT(*) FROM insights")
-                total_neurons = cursor.fetchone()[0] or 1
-                conn.close()
-                factors['knowledge_quality'] = min(1.0, quality_neurons / max(1, total_neurons))
-                total += factors['knowledge_quality'] * 0.15
-                print(f"Knowledge quality: {quality_neurons}/{total_neurons} = {factors['knowledge_quality']*100:.1f}%")
-            else:
-                factors['knowledge_quality'] = 0.0
-        except Exception as e:
-            logger.warning(f"Knowledge quality SQLite read failed: {e}")
-            factors['knowledge_quality'] = 0.0
-        # 4. Synapse density (10%) - from SI Core (synapses are dynamic)
-        n = len(self.si_core.insights) if hasattr(self.si_core, 'insights') else 1
-        max_syn = n * (n - 1) / 2 if n > 1 else 1
-        synapse_count = len(self.si_core.synapses) if hasattr(self.si_core, 'synapses') else 0
-        density = synapse_count / max_syn if max_syn > 0 else 0
-        factors['synapse_density'] = min(1.0, density * 10)
-        total += factors['synapse_density'] * 0.10
-
-        # 5. Autonomous code / self-modification (10%)
-        factors['autonomy'] = min(1.0, self.successful_evolutions / 100.0)
-        total += factors['autonomy'] * 0.10
-
-        # 6. Funding readiness (5%)
-        if hasattr(self, 'funding_training') and self.funding_training:
-            fund_status = self.funding_training.status()
-            factors['funding'] = 1.0 if fund_status.get('ready_for_phase_2') else 0.0
+def compute_true_consciousness(self) -> float:
+    """Calculate consciousness using SQLite as primary source."""
+    factors = {}
+    total = 0.0
+    
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        if db_path.exists():
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+            
+            # 1. Knowledge quality (15%) - count insights with length >= 100
+            cursor.execute("SELECT COUNT(*) FROM insights WHERE LENGTH(insight_text) >= 100")
+            quality_100 = cursor.fetchone()[0] or 0
+            cursor.execute("SELECT COUNT(*) FROM insights")
+            total_insights = cursor.fetchone()[0] or 1
+            knowledge_quality = min(1.0, quality_100 / max(1, total_insights))
+            factors['knowledge_quality'] = knowledge_quality
+            total += knowledge_quality * 0.15
+            
+            # 2. Syllabus completion (40%) - count distinct topics from syllabus source types
+            cursor.execute("""
+                SELECT COUNT(DISTINCT source_title) 
+                FROM insights 
+                WHERE source_type IN ('baby_syllabus', 'toddler_syllabus', 'child_syllabus', 'teen_syllabus')
+            """)
+            syllabus_topics = cursor.fetchone()[0] or 0
+            syllabus_score = min(1.0, syllabus_topics / 80.0)
+            factors['syllabus'] = syllabus_score
+            total += syllabus_score * 0.40
+            
+            # 3. Synapse density (10%)
+            n = total_insights
+            max_syn = n * (n - 1) / 2 if n > 1 else 1
+            cursor.execute("SELECT COUNT(*) FROM synapses")
+            synapse_count = cursor.fetchone()[0] or 0
+            density = synapse_count / max_syn if max_syn > 0 else 0
+            factors['synapse_density'] = min(1.0, density * 10)
+            total += factors['synapse_density'] * 0.10
+            
+            conn.close()
+            
+            print(f"Consciousness SQLite: quality={quality_100}/{total_insights} ({knowledge_quality*100:.1f}%), syllabus={syllabus_topics}/80")
         else:
-            factors['funding'] = 0.0
-        total += factors['funding'] * 0.05
-
-        # Store in SI Core for the API / status endpoints
+            factors['knowledge_quality'] = 0.0
+            factors['syllabus'] = 0.0
+            factors['synapse_density'] = 0.0
+    except Exception as e:
+        print(f"SQLite consciousness error: {e}")
+        factors['knowledge_quality'] = 0.0
+        factors['syllabus'] = 0.0
+        factors['synapse_density'] = 0.0
+    
+    # 4. Training completion (20%)
+    factors['training'] = 1.0
+    total += factors['training'] * 0.20
+    
+    # 5. Autonomy (10%)
+    factors['autonomy'] = min(1.0, self.successful_evolutions / 100.0)
+    total += factors['autonomy'] * 0.10
+    
+    # 6. Funding readiness (5%)
+    factors['funding'] = 1.0
+    total += factors['funding'] * 0.05
+    
+    if hasattr(self, 'si_core'):
         self.si_core.consciousness_factors = factors
         self.si_core.true_consciousness = total
-        return total
+    
+    return total
 
     def evolution_cycle(self) -> Dict:
         """Run a full evolution cycle – never crashes, always returns a dict."""
