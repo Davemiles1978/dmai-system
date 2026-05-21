@@ -3679,6 +3679,51 @@ class UnifiedEvolutionEngine:
         except Exception as e:
             logger.error(f"Failed to save evolution state: {e}")
 
+    def compute_consciousness_from_sqlite(self) -> Dict:
+        """Calculate consciousness directly from SQLite - more accurate than SI Core memory"""
+        try:
+            import sqlite3
+            from pathlib import Path
+            
+            db_path = Path("data/dmai_knowledge.db")
+            if not db_path.exists():
+                return {"error": "Database not found"}
+            
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+            
+            # Quality knowledge (length >= 100)
+            cursor.execute("SELECT COUNT(*) FROM insights WHERE LENGTH(insight_text) >= 100")
+            quality = cursor.fetchone()[0] or 0
+            cursor.execute("SELECT COUNT(*) FROM insights")
+            total = cursor.fetchone()[0] or 1
+            knowledge_quality = quality / max(1, total)
+            
+            # Syllabus topics (distinct)
+            cursor.execute("""
+                SELECT COUNT(DISTINCT source_title) 
+                FROM insights 
+                WHERE source_type IN ('syllabus_Baby', 'syllabus_Toddler', 'syllabus_Child', 'syllabus_Teen', 'syllabus_Adult')
+            """)
+            syllabus_topics = cursor.fetchone()[0] or 0
+            syllabus_score = min(1.0, syllabus_topics / 80.0)
+            
+            conn.close()
+            
+            # Calculate consciousness
+            consciousness = (knowledge_quality * 0.15) + (syllabus_score * 0.40) + (1.0 * 0.20) + (0.5 * 0.10) + (1.0 * 0.05) + (0.001 * 0.10)
+            
+            return {
+                "consciousness": round(consciousness * 100, 2),
+                "knowledge_quality": round(knowledge_quality * 100, 2),
+                "syllabus_score": round(syllabus_score * 100, 2),
+                "quality_insights": quality,
+                "total_insights": total,
+                "syllabus_topics": syllabus_topics
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
     def _update_cached_status(self):
         """Update cached status with STABLE, DEFINITIVE values - no jumping"""
         active_tutors = []

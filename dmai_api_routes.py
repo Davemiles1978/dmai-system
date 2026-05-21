@@ -1011,3 +1011,12 @@ def debug_consciousness_sqlite():
     conn.close()
     
     return jsonify(result)
+
+@api_bp.route('/api/consciousness/sqlite', methods=['GET'])
+def consciousness_from_sqlite():
+    """Get consciousness calculated directly from SQLite"""
+    from dmai_core_complete import _dmai_app_instance
+    if hasattr(_dmai_app_instance.evolution, 'compute_consciousness_from_sqlite'):
+        result = _dmai_app_instance.evolution.compute_consciousness_from_sqlite()
+        return jsonify(result)
+    return jsonify({"error": "Method not available"}), 500
