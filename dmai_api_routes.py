@@ -1020,3 +1020,12 @@ def consciousness_from_sqlite():
         result = _dmai_app_instance.evolution.compute_consciousness_from_sqlite()
         return jsonify(result)
     return jsonify({"error": "Method not available"}), 500
+
+@api_bp.route('/api/consciousness', methods=['GET'])
+def get_consciousness():
+    """Main consciousness endpoint using SQLite calculation"""
+    from dmai_core_complete import _dmai_app_instance
+    if hasattr(_dmai_app_instance.evolution, 'compute_consciousness_from_sqlite'):
+        result = _dmai_app_instance.evolution.compute_consciousness_from_sqlite()
+        return jsonify(result)
+    return jsonify({"error": "Method not available"}), 500
