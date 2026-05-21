@@ -1029,3 +1029,32 @@ def get_consciousness():
         result = _dmai_app_instance.evolution.compute_consciousness_from_sqlite()
         return jsonify(result)
     return jsonify({"error": "Method not available"}), 500
+@api_bp.route('/api/admin/fix_source_urls', methods=['POST'])
+def fix_source_urls():
+    """Add source_url to all insights with length >= 100"""
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        db_path = Path("data/dmai_knowledge.db")
+        if not db_path.exists():
+            return jsonify({"error": "Database not found"}), 500
+        
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Update all insights with length >= 100 that don't have source_url
+        cursor.execute("""
+            UPDATE insights 
+            SET source_url = 'https://dmai.ai/knowledge' 
+            WHERE LENGTH(insight_text) >= 100 
+            AND (source_url IS NULL OR source_url = '')
+        """)
+        
+        updated = cursor.rowcount
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"success": True, "updated": updated})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
