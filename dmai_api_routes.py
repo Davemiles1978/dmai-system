@@ -1150,3 +1150,74 @@ def close_all_positions():
         results.append(result)
     
     return jsonify({"closed": len(results), "results": results})
+
+# ===== TRADING ANALYSIS ENDPOINTS =====
+
+@api_bp.route('/api/trading/analyze_image', methods=['POST'])
+def analyze_trading_image():
+    """Upload and analyze trading algorithm image"""
+    if 'image' not in request.files:
+        return jsonify({"error": "No image provided"}), 400
+    
+    file = request.files['image']
+    temp_path = Path(f"/tmp/{file.filename}")
+    file.save(str(temp_path))
+    
+    from components.trading.image_analyzer import TradingImageAnalyzer
+    analyzer = TradingImageAnalyzer()
+    result = analyzer.analyze_trading_image(str(temp_path))
+    
+    # Cleanup
+    import os
+    os.unlink(str(temp_path))
+    
+    return jsonify(result)
+
+@api_bp.route('/api/trading/monitor/stats', methods=['GET'])
+def trading_monitor_stats():
+    """Get trading statistics"""
+    from components.trading.image_analyzer import TradingMonitor
+    monitor = TradingMonitor()
+    return jsonify(monitor.generate_report())
+
+@api_bp.route('/api/trading/indicators', methods=['POST'])
+def calculate_indicators():
+    """Calculate technical indicators from price data"""
+    data = request.get_json()
+    prices = data.get('prices', [])
+    
+    from components.trading.image_analyzer import TradingIndicators
+    
+    return jsonify({
+        "sma_20": TradingIndicators.sma(prices, 20),
+        "ema_12": TradingIndicators.ema(prices, 12),
+        "rsi": TradingIndicators.rsi(prices),
+        "macd": TradingIndicators.macd(prices)
+    })
+
+@api_bp.route('/api/trading/performance/details', methods=['GET'])
+def trading_performance_details():
+    """Get detailed trading performance with metrics"""
+    import os
+    from components.wealth.aggressive_trader import get_aggressive_trader
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if not api_key or not secret_key:
+        return jsonify({"error": "Trading not configured"}), 500
+    
+    trader = get_aggressive_trader(api_key, secret_key, paper)
+    performance = trader.get_performance_summary()
+    
+    # Add technical metrics
+    from components.trading.image_analyzer import TradingMonitor
+    monitor = TradingMonitor()
+    
+    return jsonify({
+        "account": performance,
+        "metrics": monitor.generate_report(),
+        "capital_utilization": performance.get("capital_utilized", 0),
+        "roi_percent": performance.get("roi_percent", 0)
+    })
