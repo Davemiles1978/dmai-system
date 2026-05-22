@@ -1094,3 +1094,59 @@ def inject_knowledge():
         return jsonify({"success": True, "injected": injected})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/trading/aggressive/execute', methods=['POST'])
+def execute_aggressive_trades():
+    """Execute aggressive trading strategy"""
+    import os
+    from components.wealth.aggressive_trader import get_aggressive_trader
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if not api_key or not secret_key:
+        return jsonify({"error": "Trading not configured"}), 500
+    
+    trader = get_aggressive_trader(api_key, secret_key, paper)
+    result = trader.execute_aggressive_trades()
+    return jsonify(result)
+
+@api_bp.route('/api/trading/performance', methods=['GET'])
+def trading_performance():
+    """Get trading performance summary"""
+    import os
+    from components.wealth.aggressive_trader import get_aggressive_trader
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if not api_key or not secret_key:
+        return jsonify({"error": "Trading not configured"}), 500
+    
+    trader = get_aggressive_trader(api_key, secret_key, paper)
+    return jsonify(trader.get_performance_summary())
+
+@api_bp.route('/api/trading/close_all', methods=['POST'])
+def close_all_positions():
+    """Close all open positions"""
+    import os
+    from components.wealth.aggressive_trader import get_aggressive_trader
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if not api_key or not secret_key:
+        return jsonify({"error": "Trading not configured"}), 500
+    
+    trader = get_aggressive_trader(api_key, secret_key, paper)
+    positions = trader.get_positions()
+    results = []
+    
+    for pos in positions:
+        result = trader.execute_sell(pos['symbol'])
+        results.append(result)
+    
+    return jsonify({"closed": len(results), "results": results})
