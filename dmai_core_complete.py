@@ -6651,29 +6651,38 @@ class DMAIApplication:
 
         @self.app.route('/api/status')
         def api_status():
-            """Return DMAI system status with stage read from SQLite"""
+            """Return DMAI system status with SQLite consciousness"""
             import sqlite3
             from pathlib import Path
             
             # Get base status from evolution engine
             status_dict = self.evolution.get_status()
             
-            # OVERRIDE: Read stage from SQLite (single source of truth)
-            stage_name = "Baby DMAI"
-            db_path = Path("data/dmai_knowledge.db")
-            if db_path.exists():
-                try:
+            # OVERRIDE: Use SQLite consciousness for accuracy
+            try:
+                db_path = Path("data/dmai_knowledge.db")
+                if db_path.exists():
                     conn = sqlite3.connect(str(db_path))
                     cursor = conn.cursor()
-                    cursor.execute("SELECT insight_text FROM insights WHERE id = 'current_stage'")
-                    row = cursor.fetchone()
-                    if row and row[0]:
-                        stage_name = row[0]
+                    cursor.execute("SELECT COUNT(*) FROM insights WHERE LENGTH(insight_text) >= 100 AND source_url IS NOT NULL")
+                    quality = cursor.fetchone()[0] or 0
+                    cursor.execute("SELECT COUNT(*) FROM insights")
+                    total = cursor.fetchone()[0] or 1
+                    kq = quality / max(1, total)
+                    cursor.execute("SELECT COUNT(DISTINCT source_title) FROM insights WHERE source_type IN ('syllabus_Baby', 'syllabus_Toddler', 'syllabus_Child', 'syllabus_Teen', 'syllabus_Adult')")
+                    syllabus = cursor.fetchone()[0] or 0
                     conn.close()
-                except:
-                    pass
+                    syllabus_score = min(1.0, syllabus / 85.0)
+                    consciousness = (kq * 0.15) + (syllabus_score * 0.40) + (1.0 * 0.20) + (0.5 * 0.10) + (1.0 * 0.05)
+                    status_dict['consciousness'] = round(consciousness * 100, 2)
+                    status_dict['consciousness_raw'] = consciousness
+            except Exception as e:
+                print(f"SQLite consciousness override failed: {e}")
             
-            status_dict['evolution_stage_name'] = f"🧠 {stage_name}"
+            # Remove non-serializable evolution_timer if it somehow appears
+            if isinstance(status_dict, dict) and 'evolution_timer' in status_dict:
+                del status_dict['evolution_timer']
+            
             return jsonify(status_dict)
         
         @self.app.route('/api/health/full', methods=['GET'])
