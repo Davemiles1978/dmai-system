@@ -1221,3 +1221,229 @@ def trading_performance_details():
         "capital_utilization": performance.get("capital_utilized", 0),
         "roi_percent": performance.get("roi_percent", 0)
     })
+
+@api_bp.route('/api/trading/analyze_batch', methods=['POST'])
+def analyze_trading_batch():
+    """Upload multiple trading algorithm images for batch analysis"""
+    import zipfile
+    import tempfile
+    import os
+    from pathlib import Path
+    
+    # Check if files were uploaded
+    if 'images' not in request.files and 'zip' not in request.files:
+        return jsonify({"error": "No images or zip file provided"}), 400
+    
+    from components.trading.image_analyzer import TradingImageAnalyzer
+    analyzer = TradingImageAnalyzer()
+    
+    all_results = {
+        "total_images": 0,
+        "processed": 0,
+        "failed": 0,
+        "algorithms": [],
+        "chart_patterns": set(),
+        "indicators": set(),
+        "entry_rules": [],
+        "exit_rules": [],
+        "risk_management": {},
+        "individual_results": []
+    }
+    
+    # Handle zip file upload
+    if 'zip' in request.files:
+        zip_file = request.files['zip']
+        
+        # Create temp directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            zip_path = Path(temp_dir) / "upload.zip"
+            zip_file.save(str(zip_path))
+            
+            # Extract zip
+            with zipfile.ZipFile(zip_path, 'r') as zf:
+                zf.extractall(temp_dir)
+            
+            # Process all images in extracted folder
+            image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff'}
+            for file_path in Path(temp_dir).rglob('*'):
+                if file_path.suffix.lower() in image_extensions:
+                    all_results["total_images"] += 1
+                    try:
+                        result = analyzer.analyze_trading_image(str(file_path))
+                        all_results["processed"] += 1
+                        
+                        # Aggregate results
+                        all_results["algorithms"].extend(result.get("algorithms", []))
+                        all_results["chart_patterns"].update(result.get("chart_patterns", []))
+                        all_results["indicators"].update(result.get("indicators", []))
+                        all_results["entry_rules"].extend(result.get("entry_rules", []))
+                        all_results["exit_rules"].extend(result.get("exit_rules", []))
+                        
+                        all_results["individual_results"].append({
+                            "file": file_path.name,
+                            "status": "success",
+                            "algorithms_found": len(result.get("algorithms", []))
+                        })
+                    except Exception as e:
+                        all_results["failed"] += 1
+                        all_results["individual_results"].append({
+                            "file": file_path.name,
+                            "status": "failed",
+                            "error": str(e)
+                        })
+    
+    # Handle multiple individual files
+    elif 'images' in request.files:
+        files = request.files.getlist('images')
+        all_results["total_images"] = len(files)
+        
+        for file in files:
+            if file.filename:
+                # Save temporarily
+                temp_path = Path(f"/tmp/{file.filename}")
+                file.save(str(temp_path))
+                
+                try:
+                    result = analyzer.analyze_trading_image(str(temp_path))
+                    all_results["processed"] += 1
+                    
+                    all_results["algorithms"].extend(result.get("algorithms", []))
+                    all_results["chart_patterns"].update(result.get("chart_patterns", []))
+                    all_results["indicators"].update(result.get("indicators", []))
+                    all_results["entry_rules"].extend(result.get("entry_rules", []))
+                    all_results["exit_rules"].extend(result.get("exit_rules", []))
+                    
+                    all_results["individual_results"].append({
+                        "file": file.filename,
+                        "status": "success"
+                    })
+                except Exception as e:
+                    all_results["failed"] += 1
+                    all_results["individual_results"].append({
+                        "file": file.filename,
+                        "status": "failed",
+                        "error": str(e)
+                    })
+                finally:
+                    # Cleanup
+                    if temp_path.exists():
+                        temp_path.unlink()
+    
+    # Convert sets to lists for JSON serialization
+    all_results["chart_patterns"] = list(all_results["chart_patterns"])
+    all_results["indicators"] = list(all_results["indicators"])
+    
+    # Generate summary
+    all_results["summary"] = {
+        "total_algorithms_extracted": len(all_results["algorithms"]),
+        "unique_chart_patterns": len(all_results["chart_patterns"]),
+        "unique_indicators": len(all_results["indicators"]),
+        "total_entry_rules": len(all_results["entry_rules"]),
+        "total_exit_rules": len(all_results["exit_rules"])
+    }
+    
+    return jsonify(all_results)
+
+@api_bp.route('/api/trading/algorithms', methods=['GET'])
+def get_extracted_algorithms():
+    """Get all extracted trading algorithms"""
+    import json
+    from pathlib import Path
+    
+    algorithms_file = Path("data/extracted_algorithms.json")
+    if algorithms_file.exists():
+        with open(algorithms_file, 'r') as f:
+            return jsonify(json.load(f))
+    return jsonify({"algorithms": [], "message": "No algorithms extracted yet"})
+
+@api_bp.route('/api/trading/algorithms/apply', methods=['POST'])
+def apply_trading_algorithm():
+    """Apply an extracted algorithm to live trading"""
+    data = request.get_json()
+    algorithm_name = data.get('algorithm_name')
+    
+    from components.trading.image_analyzer import TradingImageAnalyzer
+    analyzer = TradingImageAnalyzer()
+    
+    # Find the algorithm
+    algorithms_file = Path("data/extracted_algorithms.json")
+    if algorithms_file.exists():
+        import json
+        with open(algorithms_file, 'r') as f:
+            extracted = json.load(f)
+        
+        for algo in extracted.get("algorithms", []):
+            if algo.get("name") == algorithm_name:
+                # Generate trading code
+                code = analyzer.generate_trading_code(algo)
+                
+                # Save to trading strategies
+                strategies_file = Path("data/trading_strategies.json")
+                strategies = []
+                if strategies_file.exists():
+                    with open(strategies_file, 'r') as f:
+                        strategies = json.load(f)
+                
+                strategies.append({
+                    "name": algorithm_name,
+                    "code": code,
+                    "applied_at": time.time(),
+                    "status": "active"
+                })
+                
+                with open(strategies_file, 'w') as f:
+                    json.dump(strategies, f, indent=2)
+                
+                return jsonify({
+                    "success": True,
+                    "algorithm": algo,
+                    "code": code,
+                    "message": f"Algorithm '{algorithm_name}' applied to trading"
+                })
+    
+    return jsonify({"error": f"Algorithm '{algorithm_name}' not found"}), 404
+
+@api_bp.route('/api/vision/extract', methods=['POST'])
+def extract_from_screenshot():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image provided"}), 400
+    file = request.files['image']
+    category = request.form.get('category', 'auto')
+    temp_path = Path(f"/tmp/{file.filename}")
+    file.save(str(temp_path))
+    from components.vision.universal_extractor import initialize_universal_extractor
+    extractor = initialize_universal_extractor()['extractor']
+    result = extractor.analyze_screenshot(str(temp_path), category)
+    temp_path.unlink()
+    return jsonify(result)
+
+@api_bp.route('/api/vision/extract_batch', methods=['POST'])
+def extract_batch_screenshots():
+    if 'zip' not in request.files:
+        return jsonify({"error": "No zip file provided"}), 400
+    import zipfile, tempfile
+    zip_file = request.files['zip']
+    from components.vision.universal_extractor import initialize_universal_extractor
+    extractor = initialize_universal_extractor()['extractor']
+    results = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        zip_path = Path(temp_dir) / "upload.zip"
+        zip_file.save(str(zip_path))
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            zf.extractall(temp_dir)
+        for img_path in Path(temp_dir).rglob('*'):
+            if img_path.suffix.lower() in {'.png', '.jpg', '.jpeg'}:
+                results.append(extractor.analyze_screenshot(str(img_path)))
+    return jsonify({"total": len(results), "results": results})
+
+@api_bp.route('/api/vision/queue', methods=['GET'])
+def get_implementation_queue():
+    from components.vision.universal_extractor import initialize_universal_extractor
+    extractor = initialize_universal_extractor()['extractor']
+    return jsonify({"queue": extractor.get_implementation_queue()})
+
+@api_bp.route('/api/vision/learned', methods=['GET'])
+def get_learned_items():
+    from components.vision.universal_extractor import initialize_universal_extractor
+    extractor = initialize_universal_extractor()['extractor']
+    return jsonify({"items": extractor.extracted_items, "count": len(extractor.extracted_items)})
