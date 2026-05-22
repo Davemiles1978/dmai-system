@@ -1094,3 +1094,57 @@ def inject_knowledge():
         return jsonify({"success": True, "injected": injected})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ===== AGI CONSCIOUSNESS ENDPOINTS =====
+
+@api_bp.route('/api/consciousness/global_workspace', methods=['GET'])
+def get_global_workspace():
+    """Get what DMAI is currently conscious of"""
+    try:
+        from components.consciousness.global_workspace import get_consciousness_system
+        cs = get_consciousness_system()
+        return jsonify(cs.get_consciousness_state())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/consciousness/start_loop', methods=['POST'])
+def start_consciousness_loop():
+    """Start the continuous consciousness processing loop"""
+    try:
+        from components.consciousness.global_workspace import get_consciousness_system
+        cs = get_consciousness_system()
+        result = cs.run_consciousness_loop()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/consciousness/cycle', methods=['POST'])
+def consciousness_cycle():
+    """Run a single consciousness processing cycle"""
+    try:
+        from components.consciousness.global_workspace import get_consciousness_system
+        cs = get_consciousness_system()
+        result = cs.conscious_perception_cycle()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/consciousness/narrative', methods=['GET'])
+def get_self_narrative():
+    """Get DMAI's narrative self-description"""
+    try:
+        from components.consciousness.global_workspace import get_consciousness_system
+        cs = get_consciousness_system()
+        return jsonify({"narrative": cs.self_modeler.get_self_narrative()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/consciousness/virtual_body', methods=['GET'])
+def get_virtual_body_state():
+    """Get DMAI's virtual body state"""
+    try:
+        from components.consciousness.global_workspace import get_consciousness_system
+        cs = get_consciousness_system()
+        return jsonify(cs.embodiment.get_virtual_state())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
