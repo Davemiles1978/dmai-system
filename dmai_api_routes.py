@@ -1058,3 +1058,39 @@ def fix_source_urls():
         return jsonify({"success": True, "updated": updated})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/admin/inject_knowledge', methods=['POST'])
+def inject_knowledge():
+    """Directly inject knowledge into SQLite (admin endpoint)"""
+    try:
+        import sqlite3
+        import time
+        import uuid
+        from pathlib import Path
+        
+        data = request.get_json() or {}
+        topics = data.get('topics', {})
+        
+        db_path = Path("data/dmai_knowledge.db")
+        if not db_path.exists():
+            return jsonify({"error": "Database not found"}), 500
+        
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        injected = 0
+        for topic, content in topics.items():
+            if len(content) >= 100:
+                insight_id = f"injected_{int(time.time())}_{uuid.uuid4().hex[:8]}"
+                cursor.execute('''
+                    INSERT INTO insights (id, insight_text, entity_type, entities, relationship, confidence, source_topic, target_topic, source_url, source_title, source_type, created_at, occurrence_count, last_used)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (insight_id, content[:800], 'core', topic, 'injected', 0.95, 'admin', topic, 'https://dmai.ai/injection', topic, 'quality_injected', time.time(), 20, time.time()))
+                injected += 1
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"success": True, "injected": injected})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
