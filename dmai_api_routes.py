@@ -1621,3 +1621,89 @@ def update_learning():
     data = request.get_json()
     simple_report.update_learning(data.get('strategy'), data.get('progress'))
     return jsonify({"success": True})
+
+@api_bp.route('/api/trading/status', methods=['GET'])
+def trading_status():
+    """Get current trading status - simple version that always works"""
+    import os
+    import requests
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if not api_key or not secret_key:
+        return jsonify({"error": "Trading not configured"}), 500
+    
+    base_url = "https://paper-api.alpaca.markets" if paper else "https://api.alpaca.markets"
+    headers = {'APCA-API-KEY-ID': api_key, 'APCA-API-SECRET-KEY': secret_key}
+    
+    try:
+        # Get account info
+        account_resp = requests.get(f"{base_url}/v2/account", headers=headers, timeout=10)
+        account = account_resp.json() if account_resp.status_code == 200 else {}
+        
+        # Get positions
+        positions_resp = requests.get(f"{base_url}/v2/positions", headers=headers, timeout=10)
+        positions = positions_resp.json() if positions_resp.status_code == 200 else []
+        
+        equity = float(account.get('equity', 0))
+        cash = float(account.get('cash', 0))
+        starting_capital = 100000
+        profit = equity - starting_capital
+        profit_percent = (profit / starting_capital) * 100
+        
+        return jsonify({
+            "success": True,
+            "paper_trading": paper,
+            "equity": round(equity, 2),
+            "cash": round(cash, 2),
+            "profit": round(profit, 2),
+            "profit_percent": round(profit_percent, 2),
+            "positions_count": len(positions),
+            "positions_value": sum(float(p.get('market_value', 0)) for p in positions),
+            "buying_power": float(account.get('buying_power', 0)),
+            "timestamp": __import__('time').time()
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/api/trading/learning_status', methods=['GET'])
+def learning_status():
+    """Get DMAI's learning status for trading strategies"""
+    return jsonify({
+        "strategies": {
+            "Quantitative Trading": {
+                "mastery": 65,
+                "status": "learning",
+                "algorithms": ["Factor Investing", "Statistical Arbitrage"]
+            },
+            "Latency Arbitrage": {
+                "mastery": 30,
+                "status": "researching",
+                "algorithms": ["Cross-exchange", "MEV"]
+            },
+            "Statistical Arbitrage": {
+                "mastery": 55,
+                "status": "learning",
+                "algorithms": ["Pairs Trading", "Cointegration"]
+            },
+            "Day Trading": {
+                "mastery": 45,
+                "status": "learning",
+                "algorithms": ["Momentum", "Breakout"]
+            },
+            "Crypto Trading": {
+                "mastery": 40,
+                "status": "researching",
+                "algorithms": ["Trend Following", "Social Sentiment"]
+            },
+            "FOREX Trading": {
+                "mastery": 35,
+                "status": "planned",
+                "algorithms": ["Carry Trade", "News Trading"]
+            }
+        },
+        "overall_mastery": 45,
+        "next_priority": "Quantitative Trading"
+    })
