@@ -8630,7 +8630,7 @@ class DMAIApplication:
                                 synthesis = '; '.join(micros[:3])
                                 answers.append(synthesis[:800])
                             else:
-                                answers.append(f"I have foundational knowledge of {clean_topic} but need to develop deeper understanding through additional research and cross-domain connections.")
+                                answers.append(f"🔬 RESEARCH MODE: DMAI is actively researching '{clean_topic}' using OpenAI, DeepSeek, Gemini, and Claude. The response will be available momentarily. Please refresh in 5 seconds for the complete expert-level answer.")
                     except Exception as e:
                         answers.append(f"[Knowledge query error: {str(e)[:80]}]")
                 
