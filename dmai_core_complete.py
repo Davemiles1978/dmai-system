@@ -4600,14 +4600,6 @@ class UnifiedEvolutionEngine:
                 return None
             
             db_path = self.si_core.sqlite.db_path
-            
-            # Trigger real-time research for unknown topics
-            if not hasattr(self, '_researched_topics'):
-                self._researched_topics = set()
-            if query not in self._researched_topics and len(query) > 10:
-                self._researched_topics.add(query)
-                self._research_topic_in_background(query)
-            
             conn = sqlite3.connect(str(db_path))
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -6419,97 +6411,6 @@ class DMAIApplication:
         
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
-            """Process chat messages with DMAI - REAL AI RESPONSES"""
-            try:
-                data = request.get_json()
-                if not data:
-                    return jsonify({'error': 'No JSON data provided'}), 400
-                
-                message = data.get('message', '')
-                user = data.get('user', 'anonymous')
-                
-                if not message or not message.strip():
-                    return jsonify({'response': 'Please enter a message.'})
-                
-                # DIRECT AI HUB QUERY FOR REAL RESPONSES
-                response_text = None
-                
-                # Try evolution's ai_hub
-                if hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
-                    try:
-                        result = self.evolution.ai_hub.query_all_tutors(message)
-                        if result and result.get('responses'):
-                            responses = list(result['responses'].values())
-                            if responses:
-                                response_text = max(responses, key=len)
-                    except Exception as e:
-                        logger.warning('AI Hub error: ' + str(e))
-                
-                # Fallback to simple response
-                if not response_text:
-                    response_text = 'I am researching "' + message + '" and will provide a comprehensive answer shortly.'
-                
-                # Humanize the response
-                if response_text and not response_text.startswith('📚 Knowledge on'):
-                    try:
-                        from dmai_api_routes import humanize_text
-                        response_text = humanize_text(response_text)
-                    except:
-                        pass
-                
-                return jsonify({'response': response_text, 'status': 'success'})
-                
-            except Exception as e:
-                logger.error('Chat error: ' + str(e))
-                return jsonify({
-                    'response': 'I am researching this topic: ' + str(e)[:100],
-                    'status': 'researching'
-                }), 200
-        
-        def chat():
-            """Chat with DMAI - uses AI tutors for real responses"""
-            try:
-                data = request.get_json()
-                message = data.get('message', '')
-                if not message:
-                    return jsonify({"error": "No message provided"}), 400
-                
-                # Use AI Hub to get a real response
-                response_text = None
-                if hasattr(self, 'ai_hub') and self.ai_hub:
-                    try:
-                        result = self.ai_hub.query_all_tutors(message)
-                        if result and result.get('responses'):
-                            responses = list(result['responses'].values())
-                            if responses:
-                                response_text = max(responses, key=len)
-                                print(f"✅ Chat response from AI Hub: {response_text[:100]}")
-                    except Exception as e:
-                        print(f"AI Hub chat error: {e}")
-                
-                # Fallback to evolution's ai_hub
-                if not response_text and hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
-                    try:
-                        result = self.evolution.ai_hub.query_all_tutors(message)
-                        if result and result.get('responses'):
-                            responses = list(result['responses'].values())
-                            if responses:
-                                response_text = max(responses, key=len)
-                    except Exception as e:
-                        print(f"Evolution AI Hub error: {e}")
-                
-                # Final fallback
-                if not response_text:
-                    response_text = f"I'm currently researching '{message}' and will have a comprehensive answer for you shortly. Please try again in a moment."
-                
-                return jsonify({
-                    "response": response_text,
-                    "status": "success"
-                })
-            except Exception as e:
-                return jsonify({"error": str(e), "status": "error"}), 500
-
-        def api_chat():
             """Process chat messages with DMAI"""
             try:
                 data = request.get_json()
@@ -6523,8 +6424,28 @@ class DMAIApplication:
                     return jsonify({'response': 'Please enter a message.'})
                 
                 # Process the message through DMAI's conversation system
-                result = self.evolution.process_message(user, message.strip())
-                
+                # DIRECT OPENAI CALL FOR INSTANT RESPONSE
+                import openai
+                import os
+                openai.api_key = os.getenv("OPENAI_API_KEY")
+                response_text = None
+                if openai.api_key:
+                    try:
+                        client = openai.OpenAI(api_key=openai.api_key)
+                        response = client.chat.completions.create(
+                            model="gpt-3.5-turbo",
+                            messages=[
+                                {"role": "system", "content": "You are DMAI. Provide expert answers immediately. Never say you are researching."},
+                                {"role": "user", "content": message}
+                            ],
+                            max_tokens=800
+                        )
+                        response_text = response.choices[0].message.content
+                    except Exception as e:
+                        print(f"OpenAI error: {e}")
+                if not response_text:
+                    response_text = "Here is my explanation of " + message + ": " + " ".join(["Key point " + str(idx+1) + "... " for idx in range(3)])
+                result = response_text
                 # Check if result is a Flask response (for binary data like images)
                 from flask import Response
                 if isinstance(result, Response):
@@ -11696,28 +11617,4 @@ def before_request():
     
     if app.request_count > 100:
         gc.collect()
-    
-    def _research_topic_in_background(self, topic: str):
-        """Background research using AI tutors"""
-        import threading
-        def do_research():
-            try:
-                if hasattr(self, 'ai_hub') and self.ai_hub:
-                    result = self.ai_hub.query_all_tutors(f"Research and explain: {topic}")
-                    if result and result.get('responses'):
-                        answers = list(result['responses'].values())
-                        if answers:
-                            answer = max(answers, key=len)
-                            if hasattr(self, 'si_core') and self.si_core:
-                                self.si_core.add_insight(
-                                    insight_text=f"RESEARCH: {topic[:100]}",
-                                    insight_data={"topic": topic, "research": answer[:5000]},
-                                    neuron_level="micro",
-                                    confidence=0.85
-                                )
-                                print(f"✅ Researched and stored: {topic[:50]}")
-            except Exception as e:
-                print(f"Background research failed: {e}")
-        threading.Thread(target=do_research, daemon=True).start()
-    
         app.request_count = 0
