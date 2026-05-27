@@ -1403,21 +1403,6 @@ def apply_trading_algorithm():
     
     return jsonify({"error": f"Algorithm '{algorithm_name}' not found"}), 404
 
-@api_bp.route('/api/vision/extract', methods=['POST'])
-def extract_from_screenshot():
-    if 'image' not in request.files:
-        return jsonify({"error": "No image provided"}), 400
-    file = request.files['image']
-    category = request.form.get('category', 'auto')
-    temp_path = Path(f"/tmp/{file.filename}")
-    file.save(str(temp_path))
-    from components.vision.universal_extractor import initialize_universal_extractor
-    extractor = initialize_universal_extractor()['extractor']
-    result = extractor.analyze_screenshot(str(temp_path), category)
-    temp_path.unlink()
-    return jsonify(result)
-
-@api_bp.route('/api/vision/extract_batch', methods=['POST'])
 def extract_batch_screenshots():
     if 'zip' not in request.files:
         return jsonify({"error": "No zip file provided"}), 400
@@ -1436,14 +1421,93 @@ def extract_batch_screenshots():
                 results.append(extractor.analyze_screenshot(str(img_path)))
     return jsonify({"total": len(results), "results": results})
 
-@api_bp.route('/api/vision/queue', methods=['GET'])
-def get_implementation_queue():
-    from components.vision.universal_extractor import initialize_universal_extractor
-    extractor = initialize_universal_extractor()['extractor']
-    return jsonify({"queue": extractor.get_implementation_queue()})
-
-@api_bp.route('/api/vision/learned', methods=['GET'])
 def get_learned_items():
     from components.vision.universal_extractor import initialize_universal_extractor
     extractor = initialize_universal_extractor()['extractor']
     return jsonify({"items": extractor.extracted_items, "count": len(extractor.extracted_items)})
+
+@api_bp.route('/api/vision/extract', methods=['POST'])
+def extract_from_screenshot():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image provided"}), 400
+    file = request.files['image']
+    category = request.form.get('category', 'auto')
+    
+    # Check file size
+    file.seek(0, 2)
+    size = file.tell()
+    file.seek(0)
+    if size > 5 * 1024 * 1024:
+        return jsonify({"error": "Image too large (>5MB). Please compress."}), 400
+    
+    temp_path = Path(f"/tmp/{file.filename}")
+    file.save(str(temp_path))
+    
+    from components.vision.lightweight_extractor import initialize_lightweight_extractor
+    extractor = initialize_lightweight_extractor()
+    result = extractor.analyze_screenshot(str(temp_path), category)
+    
+    # Cleanup
+    temp_path.unlink()
+    
+    return jsonify(result)
+
+@api_bp.route('/api/vision/extract_batch', methods=['POST'])
+def extract_batch_screenshots():
+    if 'zip' not in request.files:
+        return jsonify({"error": "No zip file provided"}), 400
+    
+    import zipfile, tempfile
+    zip_file = request.files['zip']
+    
+    # Check zip size
+    zip_file.seek(0, 2)
+    size = zip_file.tell()
+    zip_file.seek(0)
+    if size > 50 * 1024 * 1024:
+        return jsonify({"error": "Zip too large (>50MB). Please split into smaller batches."}), 400
+    
+    from components.vision.lightweight_extractor import initialize_lightweight_extractor
+    extractor = initialize_lightweight_extractor()
+    
+    results = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        zip_path = Path(temp_dir) / "upload.zip"
+        zip_file.save(str(zip_path))
+        
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            zf.extractall(temp_dir)
+        
+        # Process images in chunks to avoid memory spike
+        image_paths = []
+        for img_path in Path(temp_dir).rglob('*'):
+            if img_path.suffix.lower() in {'.png', '.jpg', '.jpeg'}:
+                if img_path.stat().st_size < 5 * 1024 * 1024:
+                    image_paths.append(str(img_path))
+        
+        # Process in batches of 5
+        for i in range(0, len(image_paths), 5):
+            batch = image_paths[i:i+5]
+            for path in batch:
+                results.append(extractor.analyze_screenshot(path))
+    
+    return jsonify({"total": len(results), "results": results})
+
+@api_bp.route('/api/vision/learned', methods=['GET'])
+def get_learned_items():
+    from components.vision.lightweight_extractor import initialize_lightweight_extractor
+    extractor = initialize_lightweight_extractor()
+    return jsonify({"items": extractor.extracted_items, "count": len(extractor.extracted_items)})
+
+@api_bp.route('/api/system/memory', methods=['GET'])
+def system_memory():
+    """Monitor current memory usage"""
+    import psutil
+    process = psutil.Process()
+    memory_info = process.memory_info()
+    return jsonify({
+        "rss_mb": memory_info.rss / 1024 / 1024,
+        "vms_mb": memory_info.vms / 1024 / 1024,
+        "percent": process.memory_percent(),
+        "status": "ok" if memory_info.rss < 1.5 * 1024 * 1024 * 1024 else "critical"
+    })

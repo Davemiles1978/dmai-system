@@ -11575,3 +11575,26 @@ if __name__ == '__main__':
     # Start the Flask server with proper thread handling
     # CRITICAL: use_reloader=False prevents duplicate processes that break background threads
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True, use_reloader=False)
+
+# Memory optimization for free tier
+import gc
+import resource
+
+# Set memory limit to 1.5GB (soft limit)
+try:
+    resource.setrlimit(resource.RLIMIT_AS, (1536 * 1024 * 1024, 1536 * 1024 * 1024))
+except:
+    pass
+
+# Aggressive garbage collection every 100 requests
+@app.before_request
+def before_request():
+    import gc
+    if hasattr(app, 'request_count'):
+        app.request_count += 1
+    else:
+        app.request_count = 0
+    
+    if app.request_count > 100:
+        gc.collect()
+        app.request_count = 0
