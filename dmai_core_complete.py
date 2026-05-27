@@ -11273,7 +11273,11 @@ def get_dmai_app():
     return _dmai_app_instance
 
 app = get_dmai_app().app
+from dmai_smart_endpoint import smart_bp
+
 from dmai_api_routes import api_bp; app.register_blueprint(api_bp)
+app.register_blueprint(smart_bp, url_prefix="/v2")
+
 
 
 @app.route('/knowledge-graph')
