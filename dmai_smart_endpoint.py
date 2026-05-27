@@ -1,102 +1,39 @@
-"""Standalone smart endpoint - completely independent"""
+"""Updated smart endpoint with syllabus mastery"""
 from flask import Blueprint, request, jsonify
 import sqlite3
 import hashlib
-import json
 from datetime import datetime
+from dmai_syllabus_knowledge import get_syllabus_knowledge, SYLLABUS_KNOWLEDGE
 
 smart_bp = Blueprint('smart', __name__)
 
-# Comprehensive knowledge base for common topics
-FALLBACK_KNOWLEDGE = {
-    "quantum computing": """Quantum Computing - Complete Explanation:
-
-FUNDAMENTALS:
-Quantum computing uses quantum mechanics principles instead of classical physics. Key concepts:
-• Qubits: Unlike classical bits (0 or 1), qubits exist in superposition (both 0 and 1 simultaneously)
-• Superposition: Enables massive parallelism - 2^N states for N qubits
-• Entanglement: Qubits become correlated; measuring one instantly affects the other
-• Interference: Amplifies correct answers, cancels wrong ones
-
-MAJOR APPLICATIONS:
-• Cryptography: Shor's algorithm can break RSA encryption exponentially faster
-• Drug Discovery: Simulate molecular interactions at quantum level
-• Optimization: Solve complex logistics, portfolio, and supply chain problems
-• AI/ML: Train neural networks, solve complex optimization problems
-• Materials Science: Design new superconductors, batteries, solar cells
-
-CURRENT SYSTEMS:
-• Google Sycamore: 53 qubits, claimed quantum supremacy (2019)
-• IBM Quantum System One: 127 qubits, cloud accessible
-• IonQ: Trapped ion technology, high fidelity
-• Rigetti: Superconducting circuits
-• D-Wave: Quantum annealing for optimization
-
-CHALLENGES:
-• Decoherence: Qubits lose quantum state in milliseconds
-• Error Correction: Need thousands of physical qubits for one logical qubit
-• Temperature: Most require near-absolute zero (15 millikelvin)
-• Scaling: Moving from hundreds to millions of qubits
-
-FUTURE OUTLOOK:
-• Quantum advantage for real problems expected 5-10 years
-• Hybrid quantum-classical systems emerging
-• Post-quantum cryptography being developed
-
-This technology will revolutionize computing - ask me about specific aspects!""",
-    
-    "machine learning": """Machine Learning - Complete Guide:
-
-TYPES:
-• Supervised Learning: Learn from labeled data (classification, regression)
-• Unsupervised Learning: Find patterns in unlabeled data (clustering, dimensionality reduction)
-• Reinforcement Learning: Learn through rewards/actions (game playing, robotics)
-
-KEY ALGORITHMS:
-• Neural Networks: Deep learning, CNNs (images), RNNs/LSTMs (sequences), Transformers (NLP)
-• Tree Methods: Random Forest, XGBoost, Gradient Boosting
-• SVM: Maximum margin classification
-• K-Means: Clustering
-• PCA: Dimensionality reduction
-
-APPLICATIONS:
-• Computer Vision: Object detection, facial recognition, medical imaging
-• NLP: Translation, sentiment analysis, chatbots, text generation
-• Recommendation Systems: Amazon, Netflix, Spotify
-• Anomaly Detection: Fraud detection, manufacturing defects
-• Predictive Maintenance: Equipment failure prediction
-
-DEEP LEARNING ARCHITECTURES:
-• Transformers: GPT, BERT, Claude (attention mechanism)
-• CNNs: ResNet, EfficientNet, YOLO (spatial hierarchies)
-• RNNs/LSTMs: Time series, sequences
-• GANs: Image generation, style transfer
-• Autoencoders: Dimensionality reduction, denoising
-
-Ask me for specific algorithm details or implementation examples!"""
-}
-
 def get_answer(question):
-    """Get or research answer - always returns substantive content"""
+    """Get answer from syllabus first, then fallback"""
     question_lower = question.lower()
     
-    # Check knowledge base
-    for topic, answer in FALLBACK_KNOWLEDGE.items():
-        if topic in question_lower:
-            return answer
+    # FIRST: Check syllabus (mastered at 100%)
+    syllabus_answer = get_syllabus_knowledge(question)
+    if syllabus_answer:
+        return syllabus_answer
     
-    # Generic substantive answer for unknown topics
-    return f"""Comprehensive Answer: {question}
+    # SECOND: Check for related syllabus topics
+    for topic, content in SYLLABUS_KNOWLEDGE.items():
+        if topic in question_lower or any(word in question_lower for word in topic.split()[:2]):
+            return f"RELATED TOPIC - {topic.upper()}:\n\n{content}"
+    
+    # THIRD: Comprehensive fallback for unknown topics
+    return f"""I understand you're asking about: {question}
 
-This topic involves important concepts in technology and science. 
+This topic is not yet in my mastered syllabus. To master it:
 
-Key areas to understand:
-1. **Core Principles**: Fundamental concepts and mechanisms
-2. **Practical Applications**: Real-world uses and implementations  
-3. **Related Technologies**: Connections to other domains
-4. **Current Developments**: Latest advances and research
+1. I will research {question} using AI tutors (OpenAI, DeepSeek, Gemini, Claude)
+2. Create detailed knowledge neurons
+3. Build connections to related topics
+4. Track weight based on how often we discuss it
 
-The specific details of "{question}" depend on the context. Would you like me to focus on a particular aspect?"""
+The more we discuss this topic, the deeper my understanding becomes, and the higher its weight in my knowledge graph.
+
+Would you like me to research this topic now?"""
 
 @smart_bp.route('/ask', methods=['POST'])
 def ask():
@@ -108,7 +45,7 @@ def ask():
         question = data['question']
         answer = get_answer(question)
         
-        # Store in SQLite for weight tracking
+        # Store weight
         try:
             conn = sqlite3.connect('data/dmai_knowledge.db')
             cursor = conn.cursor()
@@ -116,28 +53,44 @@ def ask():
                 CREATE TABLE IF NOT EXISTS question_weights (
                     question TEXT PRIMARY KEY,
                     weight INTEGER DEFAULT 1,
+                    topic_category TEXT,
                     last_asked TIMESTAMP
                 )
             ''')
+            
+            # Determine if syllabus topic
+            is_syllabus = get_syllabus_knowledge(question) is not None
+            
             cursor.execute('''
-                INSERT INTO question_weights (question, weight, last_asked)
-                VALUES (?, 1, ?)
+                INSERT INTO question_weights (question, weight, topic_category, last_asked)
+                VALUES (?, 1, ?, ?)
                 ON CONFLICT(question) DO UPDATE SET
                     weight = weight + 1,
                     last_asked = excluded.last_asked
-            ''', (question[:200], datetime.now().isoformat()))
+            ''', (question[:200], 'syllabus' if is_syllabus else 'general', datetime.now().isoformat()))
             conn.commit()
             conn.close()
-        except:
-            pass
+        except Exception as e:
+            print(f"Weight store error: {e}")
         
         return jsonify({
             "answer": answer,
             "status": "success",
-            "message": "Answer provided from knowledge base"
+            "mastery_level": "100%" if get_syllabus_knowledge(question) else "learning"
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@smart_bp.route('/syllabus', methods=['GET'])
+def get_syllabus():
+    """List all mastered syllabus topics"""
+    from dmai_syllabus_knowledge import get_all_topics
+    return jsonify({
+        "mastered_topics": get_all_topics(),
+        "count": len(get_all_topics()),
+        "mastery_level": "100%",
+        "message": "These topics are permanently mastered at expert level"
+    })
 
 @smart_bp.route('/weights', methods=['GET'])
 def get_weights():
@@ -145,12 +98,12 @@ def get_weights():
     try:
         conn = sqlite3.connect('data/dmai_knowledge.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT question, weight FROM question_weights ORDER BY weight DESC LIMIT 50')
+        cursor.execute('SELECT question, weight, topic_category FROM question_weights ORDER BY weight DESC LIMIT 50')
         results = cursor.fetchall()
         conn.close()
         return jsonify({
-            "topics": [{"topic": r[0], "weight": r[1]} for r in results],
+            "topics": [{"topic": r[0], "weight": r[1], "category": r[2]} for r in results],
             "total": len(results)
         })
-    except:
-        return jsonify({"topics": [], "total": 0})
+    except Exception as e:
+        return jsonify({"topics": [], "total": 0, "error": str(e)})
