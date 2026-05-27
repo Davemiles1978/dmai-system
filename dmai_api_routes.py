@@ -1707,3 +1707,55 @@ def learning_status():
         "overall_mastery": 45,
         "next_priority": "Quantitative Trading"
     })
+
+@api_bp.route('/api/admin/reset', methods=['POST'])
+def admin_reset():
+    """Reset tracking to $100,000"""
+    from components.wealth.reset_tracker import reset_tracker
+    result = reset_tracker.perform_reset()
+    return jsonify(result)
+
+@api_bp.route('/api/admin/dashboard', methods=['GET'])
+def admin_dashboard():
+    """Get all dashboard data in one call"""
+    from components.wealth.admin_dashboard import admin_dashboard
+    return jsonify(admin_dashboard.get_dashboard_data())
+
+@api_bp.route('/api/admin/trading/reset', methods=['POST'])
+def admin_trading_reset():
+    """Close all positions and reset tracking"""
+    import os
+    import requests
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if not api_key or not secret_key:
+        return jsonify({"error": "Trading not configured"}), 500
+    
+    base_url = "https://paper-api.alpaca.markets" if paper else "https://api.alpaca.markets"
+    headers = {'APCA-API-KEY-ID': api_key, 'APCA-API-SECRET-KEY': secret_key}
+    
+    # Close all positions
+    close_resp = requests.delete(f"{base_url}/v2/positions", headers=headers, timeout=30)
+    
+    # Reset tracking
+    from components.wealth.reset_tracker import reset_tracker
+    reset_tracker.perform_reset()
+    
+    return jsonify({
+        "success": True,
+        "positions_closed": close_resp.status_code in [200, 204],
+        "tracking_reset": True,
+        "message": "Trading reset to $100,000"
+    })
+
+@api_bp.route('/admin', methods=['GET'])
+def admin_dashboard_page():
+    """Serve the admin dashboard HTML"""
+    from pathlib import Path
+    dashboard_path = Path("static/dashboard.html")
+    if dashboard_path.exists():
+        return dashboard_path.read_text(), 200, {'Content-Type': 'text/html'}
+    return "<h1>Dashboard not found</h1>", 404
