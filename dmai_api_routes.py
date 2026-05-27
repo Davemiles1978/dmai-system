@@ -1129,7 +1129,6 @@ def trading_performance():
     return jsonify(trader.get_performance_summary())
 
 @api_bp.route('/api/trading/close_all', methods=['POST'])
-def close_all_positions():
     """Close all open positions"""
     import os
     from components.wealth.aggressive_trader import get_aggressive_trader
@@ -1759,3 +1758,23 @@ def admin_dashboard_page():
     if dashboard_path.exists():
         return dashboard_path.read_text(), 200, {'Content-Type': 'text/html'}
     return "<h1>Dashboard not found</h1>", 404
+
+@api_bp.route('/trading', methods=['GET'])
+def trading_dashboard():
+    """Serve the trading dashboard"""
+    from pathlib import Path
+    dashboard = Path("static/trading.html")
+    if dashboard.exists():
+        return dashboard.read_text(), 200, {'Content-Type': 'text/html'}
+    return "<h1>Loading...</h1>", 200
+
+@api_bp.route('/api/admin/trading/reset', methods=['POST'])
+def reset_trading():
+    import os, requests, json
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    if api_key and secret_key:
+        base = "https://paper-api.alpaca.markets"
+        headers = {'APCA-API-KEY-ID': api_key, 'APCA-API-SECRET-KEY': secret_key}
+        requests.delete(f"{base}/v2/positions", headers=headers, timeout=30)
+    return jsonify({"success": True, "message": "Reset to $100,000"})

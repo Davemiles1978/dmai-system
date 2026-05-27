@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMAI Trading</title>
+    <style>
+        body { background: #0a0a0a; color: #0f0; font-family: monospace; padding: 20px; }
+        .card { background: #111; border: 1px solid #0f0; border-radius: 10px; padding: 20px; margin: 10px 0; }
+        button { background: #0f0; color: #000; padding: 10px; margin: 5px; cursor: pointer; }
+        .reset { background: #f00; color: #fff; }
+    </style>
+</head>
+<body>
+<h1>📊 DMAI Trading Dashboard</h1>
+<div class="card" id="status">Loading...</div>
+<button onclick="refresh()">Refresh</button>
+<button class="reset" onclick="resetTrading()">Reset to $100k</button>
+<script>
+async function refresh() {
+    const r = await fetch('/api/trading/status');
+    const d = await r.json();
+    document.getElementById('status').innerHTML = `
+        Equity: $${d.equity}<br>
+        P&L: $${d.profit} (${d.profit_percent}%)<br>
+        Positions: ${d.positions_count}<br>
+        Buying Power: $${d.buying_power}
+    `;
+}
+async function resetTrading() {
+    await fetch('/api/admin/trading/reset', { method: 'POST' });
+    refresh();
+}
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>
