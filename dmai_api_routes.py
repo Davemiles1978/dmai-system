@@ -1825,3 +1825,94 @@ def chat2():
             "status": "fallback",
             "error": str(e)
         }), 200
+
+from components.knowledge_manager import TwoTierKnowledgeManager
+knowledge_manager = TwoTierKnowledgeManager()
+
+@api_bp.route('/ask', methods=['POST'])
+def ask_dmai():
+    """Smart endpoint with two-tier knowledge - Core (100%) + Weighted"""
+    import openai
+    import os
+    
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({"error": "No message provided"}), 400
+        
+        message = data['message']
+        
+        # FIRST: Check knowledge base (core tier first)
+        known = knowledge_manager.get_knowledge(message)
+        
+        if known:
+            return jsonify({
+                "response": known['content'],
+                "tier": known['tier'],
+                "weight": known.get('current_weight', 1.0),
+                "status": "cached"
+            })
+        
+        # SECOND: Research via OpenAI
+        openai.api_key = os.environ.get('OPENAI_API_KEY')
+        
+        if openai.api_key:
+            try:
+                client = openai.OpenAI(api_key=openai.api_key)
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are DMAI. Provide detailed, expert answers immediately."},
+                        {"role": "user", "content": message}
+                    ],
+                    max_tokens=800,
+                    temperature=0.7
+                )
+                answer = response.choices[0].message.content
+                
+                # Store in weighted tier
+                knowledge_manager.store_weighted_knowledge(message, answer, source="openai", confidence=0.8)
+                
+                return jsonify({
+                    "response": answer,
+                    "tier": "weighted",
+                    "weight": 0.3,
+                    "status": "newly_researched"
+                })
+                
+            except Exception as e:
+                logger.error(f"OpenAI error: {e}")
+        
+        # FALLBACK
+        fallback = f"I understand you're asking about '{message}'. This is a new topic I'm learning about. Each time we discuss it, my understanding will improve."
+        knowledge_manager.store_weighted_knowledge(message, fallback, source="fallback", confidence=0.3)
+        
+        return jsonify({
+            "response": fallback,
+            "tier": "learning",
+            "weight": 0.1,
+            "status": "learning_mode"
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/knowledge/core', methods=['GET'])
+def get_core_knowledge():
+    """View DMAI's mastered core syllabus topics"""
+    core_topics = knowledge_manager.get_core_topics()
+    return jsonify({
+        "core_topics": core_topics,
+        "count": len(core_topics),
+        "message": "These topics are mastered at 100% for system operations"
+    })
+
+@api_bp.route('/knowledge/weighted', methods=['GET'])
+def get_weighted_knowledge():
+    """View DMAI's learned weighted topics"""
+    topics = knowledge_manager.get_high_weight_topics(min_weight=0.5)
+    return jsonify({
+        "learned_topics": topics,
+        "count": len(topics),
+        "message": "These topics are being learned. Weight increases with each interaction"
+    })
