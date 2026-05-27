@@ -1511,3 +1511,94 @@ def system_memory():
         "percent": process.memory_percent(),
         "status": "ok" if memory_info.rss < 1.5 * 1024 * 1024 * 1024 else "critical"
     })
+
+@api_bp.route('/api/trading/report', methods=['GET'])
+def trading_performance_report():
+    """Get comprehensive trading performance report"""
+    from components.trading.mastery_system import initialize_trading_mastery
+    
+    mastery = initialize_trading_mastery()
+    trading_type = request.args.get('type')
+    
+    report = mastery.generate_report(trading_type)
+    
+    # Add current account status
+    import os
+    from components.wealth.revenue_trader import get_revenue_trader
+    
+    api_key = os.environ.get('ALPACA_API_KEY')
+    secret_key = os.environ.get('ALPACA_SECRET_KEY')
+    paper = os.environ.get('ALPACA_PAPER', 'true').lower() == 'true'
+    
+    if api_key and secret_key:
+        trader = get_revenue_trader(api_key, secret_key, paper)
+        account = trader.get_status()
+        report["current_account"] = account
+    
+    return jsonify(report)
+
+@api_bp.route('/api/trading/learning', methods=['GET'])
+def trading_learning_status():
+    """Get DMAI's learning progress for all trading types"""
+    from components.trading.mastery_system import initialize_trading_mastery
+    
+    mastery = initialize_trading_mastery()
+    status = mastery.get_learning_status()
+    
+    return jsonify({
+        "learning_status": status,
+        "message": "DMAI is actively studying each trading type",
+        "next_priority": "Quantitative Trading (75% confidence)"
+    })
+
+@api_bp.route('/api/trading/backtest', methods=['POST'])
+def backtest_algorithm():
+    """Backtest a trading algorithm on historical data"""
+    from components.trading.mastery_system import initialize_trading_mastery
+    
+    data = request.get_json()
+    algorithm_name = data.get('algorithm')
+    historical_data = data.get('historical_data', [])
+    
+    mastery = initialize_trading_mastery()
+    
+    # Find algorithm
+    algorithm = None
+    for algo_list in mastery.algorithms.values():
+        for a in algo_list:
+            if a.name == algorithm_name:
+                algorithm = a
+                break
+    
+    if not algorithm:
+        return jsonify({"error": f"Algorithm '{algorithm_name}' not found"}), 404
+    
+    results = mastery.backtest_algorithm(algorithm, historical_data)
+    return jsonify(results)
+
+@api_bp.route('/api/trading/record', methods=['POST'])
+def record_trade():
+    """Record a completed trade for tracking"""
+    from components.trading.mastery_system import initialize_trading_mastery, TradeRecord
+    
+    data = request.get_json()
+    trade = TradeRecord(
+        id=str(int(time.time() * 1000)),
+        timestamp=time.time(),
+        symbol=data['symbol'],
+        trading_type=data['trading_type'],
+        algorithm=data['algorithm'],
+        action=data['action'],
+        quantity=data['quantity'],
+        entry_price=data['entry_price'],
+        exit_price=data['exit_price'],
+        pnl=data['pnl'],
+        pnl_percent=data['pnl_percent'],
+        confidence=data.get('confidence', 0.5),
+        reasoning=data.get('reasoning', '')
+    )
+    
+    mastery = initialize_trading_mastery()
+    mastery.record_trade(trade)
+    
+    return jsonify({"success": True, "trade_id": trade.id})
