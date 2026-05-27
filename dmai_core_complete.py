@@ -4600,6 +4600,14 @@ class UnifiedEvolutionEngine:
                 return None
             
             db_path = self.si_core.sqlite.db_path
+            
+            # Trigger real-time research for unknown topics
+            if not hasattr(self, '_researched_topics'):
+                self._researched_topics = set()
+            if query not in self._researched_topics and len(query) > 10:
+                self._researched_topics.add(query)
+                self._research_topic_in_background(query)
+            
             conn = sqlite3.connect(str(db_path))
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -8630,7 +8638,7 @@ class DMAIApplication:
                                 synthesis = '; '.join(micros[:3])
                                 answers.append(synthesis[:800])
                             else:
-                                answers.append(f"🔬 RESEARCH MODE: DMAI is actively researching '{clean_topic}' using OpenAI, DeepSeek, Gemini, and Claude. The response will be available momentarily. Please refresh in 5 seconds for the complete expert-level answer.")
+                                answers.append(f"I have foundational knowledge of {clean_topic} but need to develop deeper understanding through additional research and cross-domain connections.")
                     except Exception as e:
                         answers.append(f"[Knowledge query error: {str(e)[:80]}]")
                 
@@ -11597,4 +11605,28 @@ def before_request():
     
     if app.request_count > 100:
         gc.collect()
+    
+    def _research_topic_in_background(self, topic: str):
+        """Background research using AI tutors"""
+        import threading
+        def do_research():
+            try:
+                if hasattr(self, 'ai_hub') and self.ai_hub:
+                    result = self.ai_hub.query_all_tutors(f"Research and explain: {topic}")
+                    if result and result.get('responses'):
+                        answers = list(result['responses'].values())
+                        if answers:
+                            answer = max(answers, key=len)
+                            if hasattr(self, 'si_core') and self.si_core:
+                                self.si_core.add_insight(
+                                    insight_text=f"RESEARCH: {topic[:100]}",
+                                    insight_data={"topic": topic, "research": answer[:5000]},
+                                    neuron_level="micro",
+                                    confidence=0.85
+                                )
+                                print(f"✅ Researched and stored: {topic[:50]}")
+            except Exception as e:
+                print(f"Background research failed: {e}")
+        threading.Thread(target=do_research, daemon=True).start()
+    
         app.request_count = 0
