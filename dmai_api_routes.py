@@ -1129,6 +1129,7 @@ def trading_performance():
     return jsonify(trader.get_performance_summary())
 
 @api_bp.route('/api/trading/close_all', methods=['POST'])
+def close_all_positions():
     """Close all open positions"""
     import os
     from components.wealth.aggressive_trader import get_aggressive_trader
