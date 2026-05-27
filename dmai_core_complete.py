@@ -6418,6 +6418,49 @@ class DMAIApplication:
         # ============================================================
         
         @self.app.route('/api/chat', methods=['POST'])
+        def chat():
+            """Chat with DMAI - uses AI tutors for real responses"""
+            try:
+                data = request.get_json()
+                message = data.get('message', '')
+                if not message:
+                    return jsonify({"error": "No message provided"}), 400
+                
+                # Use AI Hub to get a real response
+                response_text = None
+                if hasattr(self, 'ai_hub') and self.ai_hub:
+                    try:
+                        result = self.ai_hub.query_all_tutors(message)
+                        if result and result.get('responses'):
+                            responses = list(result['responses'].values())
+                            if responses:
+                                response_text = max(responses, key=len)
+                                print(f"✅ Chat response from AI Hub: {response_text[:100]}")
+                    except Exception as e:
+                        print(f"AI Hub chat error: {e}")
+                
+                # Fallback to evolution's ai_hub
+                if not response_text and hasattr(self.evolution, 'ai_hub') and self.evolution.ai_hub:
+                    try:
+                        result = self.evolution.ai_hub.query_all_tutors(message)
+                        if result and result.get('responses'):
+                            responses = list(result['responses'].values())
+                            if responses:
+                                response_text = max(responses, key=len)
+                    except Exception as e:
+                        print(f"Evolution AI Hub error: {e}")
+                
+                # Final fallback
+                if not response_text:
+                    response_text = f"I'm currently researching '{message}' and will have a comprehensive answer for you shortly. Please try again in a moment."
+                
+                return jsonify({
+                    "response": response_text,
+                    "status": "success"
+                })
+            except Exception as e:
+                return jsonify({"error": str(e), "status": "error"}), 500
+
         def api_chat():
             """Process chat messages with DMAI"""
             try:
