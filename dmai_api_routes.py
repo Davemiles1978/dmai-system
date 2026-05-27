@@ -1602,3 +1602,22 @@ def record_trade():
     mastery.record_trade(trade)
     
     return jsonify({"success": True, "trade_id": trade.id})
+
+@api_bp.route('/api/trading/simple_report', methods=['GET'])
+def simple_trading_report():
+    from components.trading.simple_report import simple_report
+    return jsonify(simple_report.get_report())
+
+@api_bp.route('/api/trading/record_simple', methods=['POST'])
+def record_simple_trade():
+    from components.trading.simple_report import simple_report
+    data = request.get_json()
+    simple_report.record_trade(data.get('strategy'), data.get('pnl'), data.get('won'))
+    return jsonify({"success": True})
+
+@api_bp.route('/api/trading/update_learning', methods=['POST'])
+def update_learning():
+    from components.trading.simple_report import simple_report
+    data = request.get_json()
+    simple_report.update_learning(data.get('strategy'), data.get('progress'))
+    return jsonify({"success": True})
