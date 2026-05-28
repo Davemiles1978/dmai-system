@@ -27,38 +27,130 @@ PERMANENT_KNOWLEDGE = {
     "neural network architectures": {
         "stage": "Child",
         "category": "AI",
-        "mastery": "100%",
-        "content": "Neural Network Architectures - Complete Overview\n\n**CNNs (Convolutional Neural Networks):**\n- Best for images and spatial data\n- Uses sliding filters to detect edges, textures, shapes\n- Examples: ResNet, VGG, EfficientNet\n\n**RNNs (Recurrent Neural Networks):**\n- Best for sequences and time series\n- Maintains hidden state memory\n- Examples: LSTM, GRU\n\n**Transformers:**\n- Best for long-range dependencies\n- Uses self-attention mechanism\n- Examples: GPT, BERT, Claude\n\n**When to use which:**\n- Images -> CNNs\n- Text/Sequences -> Transformers or RNNs\n- Long context -> Transformers\n- Real-time -> RNNs (faster)"
+        "content": """Neural Network Architectures - Complete Overview
+
+**CNNs (Convolutional Neural Networks):**
+• Best for images and spatial data
+• Uses sliding filters to detect edges, textures, shapes
+• Examples: ResNet, VGG, EfficientNet
+
+**RNNs (Recurrent Neural Networks):**
+• Best for sequences and time series
+• Maintains hidden state memory
+• Examples: LSTM, GRU
+
+**Transformers:**
+• Best for long-range dependencies
+• Uses self-attention mechanism
+• Examples: GPT, BERT, Claude
+
+**When to use which:**
+• Images → CNNs
+• Text/Sequences → Transformers or RNNs
+• Long context → Transformers
+• Real-time → RNNs (faster)""",
+        "mastery": "100%"
     },
     "meta learning fundamentals": {
         "stage": "Baby",
         "category": "Core",
-        "mastery": "100%",
-        "content": "Meta-Learning Fundamentals\n\nMeta-learning is 'learning how to learn' - optimizing learning strategies based on past experience.\n\n**Key concepts:**\n- Strategy selection: Choosing the right approach for each topic\n- Progress tracking: Measuring what works\n- Adaptation: Adjusting methods based on outcomes\n\n**DMAI's application:**\n- Tracks which teaching strategies work best\n- Adapts response style based on user engagement\n- Optimizes knowledge retention based on access patterns"
+        "content": """Meta-Learning Fundamentals
+
+Meta-learning is "learning how to learn" - optimizing learning strategies based on past experience.
+
+**Key concepts:**
+• Strategy selection: Choosing the right approach for each topic
+• Progress tracking: Measuring what works
+• Adaptation: Adjusting methods based on outcomes
+
+**DMAI's application:**
+• Tracks which teaching strategies work best
+• Adapts response style based on user engagement
+• Optimizes knowledge retention based on access patterns""",
+        "mastery": "100%"
     },
     "attention mechanisms": {
         "stage": "Toddler",
         "category": "Core",
-        "mastery": "100%",
-        "content": "Attention Mechanisms\n\nAttention allows models to focus on relevant information.\n\n**Core equation:**\nAttention(Q,K,V) = softmax(Q*K^T/√d_k)*V\n\n**Components:**\n- Query (Q): What am I looking for?\n- Key (K): What does each input offer?\n- Value (V): The actual information\n\n**Applications:**\n- Machine translation\n- Image captioning\n- Text summarization"
+        "content": """Attention Mechanisms
+
+Attention allows models to focus on relevant information.
+
+**Core equation:**
+Attention(Q,K,V) = softmax(Q·K^T/√d_k)·V
+
+**Components:**
+• Query (Q): What am I looking for?
+• Key (K): What does each input offer?
+• Value (V): The actual information
+
+**Applications:**
+• Machine translation
+• Image captioning
+• Text summarization""",
+        "mastery": "100%"
     },
     "reinforcement learning": {
         "stage": "Child",
         "category": "AI",
-        "mastery": "100%",
-        "content": "Reinforcement Learning\n\nRL trains agents through rewards and punishments.\n\n**Core components:**\n- Agent: The learner\n- Environment: The world the agent interacts with\n- Actions: What the agent can do\n- Rewards: Feedback signal\n\n**Key algorithms:**\n- Q-Learning: Value-based\n- Policy Gradients: Direct policy optimization\n- PPO: Stable and popular\n\n**Applications:**\n- Game playing (AlphaGo, Atari)\n- Robotics control\n- Autonomous vehicles"
+        "content": """Reinforcement Learning
+
+RL trains agents through rewards and punishments.
+
+**Core components:**
+• Agent: The learner
+• Environment: The world the agent interacts with
+• Actions: What the agent can do
+• Rewards: Feedback signal
+
+**Key algorithms:**
+• Q-Learning: Value-based
+• Policy Gradients: Direct policy optimization
+• PPO: Stable and popular
+
+**Applications:**
+• Game playing (AlphaGo, Atari)
+• Robotics control
+• Autonomous vehicles""",
+        "mastery": "100%"
     },
     "transformer architecture": {
         "stage": "Teen",
         "category": "AI",
-        "mastery": "100%",
-        "content": "Transformer Architecture\n\nTransformers replaced recurrence with attention, enabling parallel processing.\n\n**Key innovations:**\n- Self-attention mechanism\n- Multi-head attention (8-16 heads)\n- Positional encoding for order\n\n**Major models:**\n- BERT: Encoder-only (understanding)\n- GPT: Decoder-only (generation)\n- T5: Encoder-decoder (translation)\n\n**Complexity:** O(n^2*d) - Quadratic in sequence length"
+        "content": """Transformer Architecture
+
+Transformers replaced recurrence with attention, enabling parallel processing.
+
+**Key innovations:**
+• Self-attention mechanism
+• Multi-head attention (8-16 heads)
+• Positional encoding for order
+
+**Major models:**
+• BERT: Encoder-only (understanding)
+• GPT: Decoder-only (generation)
+• T5: Encoder-decoder (translation)
+
+**Complexity: O(n²·d)** - Quadratic in sequence length""",
+        "mastery": "100%"
     },
     "recursive self improvement": {
         "stage": "Adult",
         "category": "Accelerator",
-        "mastery": "100%",
-        "content": "Recursive Self-Improvement\n\nDMAI improving DMAI - the ability to enhance her own improvement mechanisms.\n\n**Levels:**\n- Level 1: Code improvement\n- Level 2: Improvement of improvement code\n- Level 3: Optimizing the optimizer\n\n**Safety mechanisms:**\n- Git branching for isolation\n- Master approval for critical changes\n- Automatic rollback on failure"
+        "content": """Recursive Self-Improvement
+
+DMAI improving DMAI - the ability to enhance her own improvement mechanisms.
+
+**Levels:**
+• Level 1: Code improvement
+• Level 2: Improvement of improvement code
+• Level 3: Optimizing the optimizer
+
+**Safety mechanisms:**
+• Git branching for isolation
+• Master approval for critical changes
+• Automatic rollback on failure""",
+        "mastery": "100%"
     }
 }
 
@@ -118,7 +210,7 @@ def ask():
         
         # For non-syllabus questions
         return jsonify({
-            "answer": f"I understand you're asking about '{question}'. This specific topic isn't in my permanent syllabus yet. What particular aspect interests you? I can provide detailed information on related subjects.",
+            "answer": f"I understand you're asking about '{question}'. This specific topic isn't in my permanent syllabus yet. What particular aspect interests you? I can provide detailed information on related subjects like neural networks, attention mechanisms, or reinforcement learning.",
             "status": "success",
             "source": "general"
         })
@@ -144,6 +236,7 @@ def get_syllabus():
 
 @app.route('/v2/weights', methods=['GET'])
 def get_weights():
+    # Simplified version - returns syllabus weights (all 100%)
     topics = []
     for topic, info in PERMANENT_KNOWLEDGE.items():
         topics.append({
