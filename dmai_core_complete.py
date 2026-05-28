@@ -11622,3 +11622,19 @@ def before_request():
     if app.request_count > 100:
         gc.collect()
         app.request_count = 0
+
+# Initialize meta-learning engine
+from components.meta_learner import meta_learner
+
+# Hook into evolution cycle
+def evolution_with_meta_learning(self):
+    """Enhanced evolution that learns from learning"""
+    # Get insights from meta-learning
+    insights = meta_learner.apply_learning_to_evolution(self.evolution)
+    
+    # Apply best strategies to response generation
+    for insight in insights:
+        logger.info(f"📚 Meta-learning insight: {insight}")
+    
+    # Continue with normal evolution
+    return self.original_evolution()
