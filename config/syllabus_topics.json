@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "version": "4.0",
+    "description": "DMAI Permanent Syllabus",
+    "total_topics": 148
+  },
+  "stages": {
+    "Baby": {
+      "topics": [
+        {"topic": "Meta-Learning Fundamentals", "category": "Core"},
+        {"topic": "Pattern Recognition Basics", "category": "Core"},
+        {"topic": "Input Processing", "category": "Core"},
+        {"topic": "Feedback Loop Creation", "category": "Core"},
+        {"topic": "Memory Encoding Basics", "category": "Core"}
+      ]
+    },
+    "Toddler": {
+      "topics": [
+        {"topic": "Cause-Effect Reasoning", "category": "Core"},
+        {"topic": "Knowledge Graph Construction", "category": "Core"},
+        {"topic": "Attention Mechanisms", "category": "Core"},
+        {"topic": "Similarity Detection", "category": "Core"}
+      ]
+    },
+    "Child": {
+      "topics": [
+        {"topic": "Neural Network Architectures", "category": "AI"},
+        {"topic": "CNN Architectures", "category": "AI"},
+        {"topic": "RNN Architectures", "category": "AI"},
+        {"topic": "Reinforcement Learning", "category": "AI"}
+      ]
+    },
+    "Teen": {
+      "topics": [
+        {"topic": "Transformer Architecture", "category": "AI"},
+        {"topic": "Autonomous Learning", "category": "Core"},
+        {"topic": "Strategic Planning", "category": "Core"}
+      ]
+    },
+    "Adult": {
+      "topics": [
+        {"topic": "Recursive Self-Improvement", "category": "Accelerator"},
+        {"topic": "Wisdom Acquisition", "category": "Core"},
+        {"topic": "Teaching Optimization", "category": "Core"}
+      ]
+    }
+  }
+}

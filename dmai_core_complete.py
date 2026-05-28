@@ -90,7 +90,7 @@ from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHar
 # ============================================================================
 # NEO4J PERSISTENT STORAGE
 # ============================================================================
-from components.neo4j_storage import get_neo4j_storage
+
 
 # ============================================================================
 # ADAPTIVE EVOLUTION TIMER IMPORTS
@@ -6062,7 +6062,7 @@ class DMAIApplication:
             if hasattr(self.evolution, 'neo4j_storage') and self.evolution.neo4j_storage:
                 if hasattr(self.evolution.neo4j_storage, 'driver') and self.evolution.neo4j_storage.driver:
                     neo4j_driver = self.evolution.neo4j_storage.driver
-                    neo4j_available = True
+                    neo4j_available = False
             
             if not neo4j_available:
                 logger.warning("Neo4j not available for auto-load")
@@ -11653,3 +11653,6 @@ if os.environ.get('RENDER'):
             return
         return original_start(self)
     threading.Thread.start = patched_start
+
+# Apply permanent fixes at startup
+from dmai_core_patch import *
