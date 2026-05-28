@@ -6,6 +6,12 @@ from datetime import datetime
 # Import the complete syllabus
 from dmai_complete_syllabus import SYLLABUS_MASTERY, TOTAL_SYLLABUS_TOPICS
 
+# Create normalized mapping for flexible matching
+normalized_map = {}
+for key, info in SYLLABUS_MASTERY.items():
+    normalized_map[key.lower()] = info
+    normalized_map[info["name"].lower()] = info
+
 smart_bp = Blueprint('smart', __name__)
 
 print(f"📚 Loaded {TOTAL_SYLLABUS_TOPICS} syllabus topics at 100% mastery")
@@ -19,15 +25,31 @@ def ask():
         
         question = data['question'].lower().strip()
         
-        # Find matching syllabus topic
+        # Find matching syllabus topic (case-insensitive, fuzzy)
         matched_topic = None
         matched_info = None
         
-        for topic_key, topic_info in SYLLABUS_MASTERY.items():
-            if topic_key in question or question in topic_key:
-                matched_topic = topic_key
-                matched_info = topic_info
-                break
+        # Direct lookup in normalized map
+        if question in normalized_map:
+            matched_info = normalized_map[question]
+            matched_topic = question
+        else:
+            # Check each topic for partial match
+            for topic_key, topic_info in SYLLABUS_MASTERY.items():
+                topic_lower = topic_key.lower()
+                if topic_lower in question or question in topic_lower:
+                    matched_topic = topic_key
+                    matched_info = topic_info
+                    break
+                # Check words
+                question_words = question.split()
+                for word in question_words:
+                    if len(word) > 3 and word in topic_lower:
+                        matched_topic = topic_key
+                        matched_info = topic_info
+                        break
+                if matched_info:
+                    break
         
         # If syllabus topic found, return mastery content
         if matched_info:
