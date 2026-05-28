@@ -11638,3 +11638,18 @@ def evolution_with_meta_learning(self):
     
     # Continue with normal evolution
     return self.original_evolution()
+
+# Disable background threads on Render to avoid "can't start new thread" error
+if os.environ.get('RENDER'):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info("🔧 Running on Render - disabling background threads")
+    
+    # Monkey patch the thread start methods
+    original_start = threading.Thread.start
+    def patched_start(self):
+        if 'MetaLearning' in str(self) or 'optimization' in str(self):
+            logger.info(f"🛑 Blocked thread start: {self}")
+            return
+        return original_start(self)
+    threading.Thread.start = patched_start
