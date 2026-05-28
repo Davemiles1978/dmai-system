@@ -1,33 +1,21 @@
-"""Complete Smart Endpoint - All 146 Syllabus Topics at 100% Mastery"""
+"""Smart endpoint with syllabus mastery and weight tracking"""
 from flask import Blueprint, request, jsonify
 import sqlite3
 from datetime import datetime
 
-# Import the complete syllabus
-from dmai_complete_syllabus import SYLLABUS_MASTERY, TOTAL_SYLLABUS_TOPICS
-
-# Create normalized mapping for flexible matching
-normalized_map = {}
-for key, info in SYLLABUS_MASTERY.items():
-    normalized_map[key.lower()] = info
-    normalized_map[info["name"].lower()] = info
-
 smart_bp = Blueprint('smart', __name__)
 
-
-def get_from_database(question):
-    """Look up topic in database"""
-    import sqlite3
-    conn = sqlite3.connect('data/dmai_knowledge.db')
-    cursor = conn.cursor()
-    question_lower = question.lower().strip()
-    cursor.execute('SELECT topic, stage, category, content FROM syllabus_content WHERE topic = ? OR topic LIKE ?', 
-                   (question_lower, f'%{question_lower}%'))
-    result = cursor.fetchone()
-    conn.close()
-    return result
-
-print(f"📚 Loaded {TOTAL_SYLLABUS_TOPICS} syllabus topics at 100% mastery")
+# Basic syllabus topics (will expand)
+SYLLABUS_TOPICS = {
+    "meta learning fundamentals": {"stage": "Baby", "category": "Core"},
+    "pattern recognition basics": {"stage": "Baby", "category": "Core"},
+    "attention mechanisms": {"stage": "Toddler", "category": "Core"},
+    "neural network architectures": {"stage": "Child", "category": "AI"},
+    "cnn architectures": {"stage": "Child", "category": "AI"},
+    "rnn architectures": {"stage": "Child", "category": "AI"},
+    "transformer architecture": {"stage": "Teen", "category": "AI"},
+    "recursive self improvement": {"stage": "Adult", "category": "Accelerator"},
+}
 
 @smart_bp.route('/ask', methods=['POST'])
 def ask():
@@ -38,70 +26,23 @@ def ask():
         
         question = data['question'].lower().strip()
         
-        # Find matching syllabus topic (case-insensitive, fuzzy)
+        # Check syllabus topics
         matched_topic = None
         matched_info = None
         
-        # Direct lookup in normalized map
-        if question in normalized_map:
-            matched_info = normalized_map[question]
-            matched_topic = question
-        else:
-            # Check each topic for partial match
-            for topic_key, topic_info in SYLLABUS_MASTERY.items():
-                topic_lower = topic_key.lower()
-                if topic_lower in question or question in topic_lower:
-                    matched_topic = topic_key
-                    matched_info = topic_info
-                    break
-                # Check words
-                question_words = question.split()
-                for word in question_words:
-                    if len(word) > 3 and word in topic_lower:
-                        matched_topic = topic_key
-                        matched_info = topic_info
-                        break
-                        # First check database
-        db_result = get_from_database(question)
-        if db_result:
-            topic, stage, category, detailed_content = db_result
-            return jsonify({
-                "answer": detailed_content,
-                "topic": topic,
-                "stage": stage,
-                "category": category,
-                "mastery": "100%",
-                "status": "success",
-                "syllabus": True,
-                "source": "database"
-            })
-        
-        if matched_info:
-                    break
-        
-        # If syllabus topic found, return mastery content
-                # First check database
-        db_result = get_from_database(question)
-        if db_result:
-            topic, stage, category, detailed_content = db_result
-            return jsonify({
-                "answer": detailed_content,
-                "topic": topic,
-                "stage": stage,
-                "category": category,
-                "mastery": "100%",
-                "status": "success",
-                "syllabus": True,
-                "source": "database"
-            })
+        for topic_key, topic_info in SYLLABUS_TOPICS.items():
+            if topic_key in question or question in topic_key:
+                matched_topic = topic_key
+                matched_info = topic_info
+                break
         
         if matched_info:
             return jsonify({
-                "answer": matched_info['content'],
-                "topic": matched_info['name'],
+                "answer": f"SYLLABUS TOPIC: {matched_topic.title()}\nStage: {matched_info['stage']}\nCategory: {matched_info['category']}\nMastery: 100%\n\nThis topic is permanently mastered. What specific aspect would you like to explore?",
+                "topic": matched_topic,
                 "stage": matched_info['stage'],
                 "category": matched_info['category'],
-                "mastery": f"{matched_info['mastery'] * 100}%",
+                "mastery": "100%",
                 "status": "success",
                 "syllabus": True
             })
@@ -124,23 +65,12 @@ def ask():
             new_weight = existing[0] + 1
             cursor.execute('UPDATE topic_weights SET weight = ?, last_asked = ? WHERE topic = ?',
                          (new_weight, datetime.now().isoformat(), question[:150]))
-            
-            # Determine detail level based on weight
-            if new_weight < 3:
-                detail = "Basic understanding"
-            elif new_weight < 6:
-                detail = "Intermediate knowledge"
-            elif new_weight < 10:
-                detail = "Advanced expertise"
-            else:
-                detail = "Mastery level"
-            
-            answer = f"Topic: {question}\nWeight: {new_weight}\nLevel: {detail}\n\nI'm building deep knowledge on this topic. Each interaction increases depth."
+            answer = f"Topic: '{question}'\nWeight: {new_weight}\n\nMy understanding of this topic grows with each interaction."
         else:
             new_weight = 1
             cursor.execute('INSERT INTO topic_weights VALUES (?, ?, ?)',
                          (question[:150], 1, datetime.now().isoformat()))
-            answer = f"New topic: {question}\nWeight: 1\n\nI'm beginning to learn about this topic. Ask again to deepen my understanding."
+            answer = f"New topic: '{question}'\nWeight: 1\n\nI'm beginning to learn about this topic. Ask again to deepen my understanding."
         
         conn.commit()
         conn.close()
@@ -157,86 +87,26 @@ def ask():
 
 @smart_bp.route('/syllabus', methods=['GET'])
 def get_syllabus():
-    """List all mastered syllabus topics by stage"""
-    stages = {}
-    for topic_key, info in SYLLABUS_MASTERY.items():
-        stage = info['stage']
-        if stage not in stages:
-            stages[stage] = []
-        stages[stage].append({
-            "topic": info['name'],
-            "category": info['category'],
-            "mastery": f"{info['mastery'] * 100}%"
-        })
-    
-    # Sort stages in order
-    stage_order = ['Baby', 'Toddler', 'Child', 'Teen', 'Adult']
-    ordered_stages = {s: stages.get(s, []) for s in stage_order if s in stages}
-    
-    total = sum(len(v) for v in stages.values())
-    
+    topics_list = [{"topic": k.title(), "stage": v["stage"], "category": v["category"]} 
+                   for k, v in SYLLABUS_TOPICS.items()]
     return jsonify({
-        "stages": ordered_stages,
-        "total_topics": total,
-        "expected_topics": TOTAL_SYLLABUS_TOPICS,
-        "mastery": "100% Permanent",
-        "message": f"All {total} syllabus topics are permanently mastered at expert level"
-    })
-
-@smart_bp.route('/syllabus/<stage>', methods=['GET'])
-def get_syllabus_by_stage(stage):
-    """Get syllabus topics for a specific stage"""
-    topics = []
-    for topic_key, info in SYLLABUS_MASTERY.items():
-        if info['stage'].lower() == stage.lower():
-            topics.append({
-                "topic": info['name'],
-                "category": info['category'],
-                "mastery": f"{info['mastery'] * 100}%"
-            })
-    
-    return jsonify({
-        "stage": stage.title(),
-        "topics": topics,
-        "count": len(topics),
-        "mastery": "100%"
+        "topics": topics_list,
+        "total": len(topics_list),
+        "mastery": "100%",
+        "message": f"All {len(topics_list)} syllabus topics mastered"
     })
 
 @smart_bp.route('/weights', methods=['GET'])
 def get_weights():
-    """View topic weights for non-syllabus topics"""
     try:
         conn = sqlite3.connect('data/dmai_knowledge.db')
         cursor = conn.cursor()
-        cursor.execute('''
-            SELECT topic, weight, last_asked 
-            FROM topic_weights 
-            ORDER BY weight DESC 
-            LIMIT 50
-        ''')
+        cursor.execute('SELECT topic, weight, last_asked FROM topic_weights ORDER BY weight DESC LIMIT 50')
         results = cursor.fetchall()
         conn.close()
-        
         return jsonify({
             "topics": [{"topic": r[0], "weight": r[1], "last_asked": r[2]} for r in results],
-            "total": len(results),
-            "message": "Higher weight = more detail retained"
+            "total": len(results)
         })
     except Exception as e:
         return jsonify({"topics": [], "total": 0, "error": str(e)})
-
-@smart_bp.route('/topic/<topic_name>', methods=['GET'])
-def get_topic(topic_name):
-    """Get detailed content for a specific syllabus topic"""
-    topic_key = topic_name.lower()
-    if topic_key in SYLLABUS_MASTERY:
-        info = SYLLABUS_MASTERY[topic_key]
-        return jsonify({
-            "topic": info['name'],
-            "stage": info['stage'],
-            "category": info['category'],
-            "content": info['content'],
-            "mastery": f"{info['mastery'] * 100}%"
-        })
-    else:
-        return jsonify({"error": f"Topic '{topic_name}' not found in syllabus"}), 404
