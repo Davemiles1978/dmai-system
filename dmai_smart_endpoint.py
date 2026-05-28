@@ -14,6 +14,19 @@ for key, info in SYLLABUS_MASTERY.items():
 
 smart_bp = Blueprint('smart', __name__)
 
+
+def get_from_database(question):
+    """Look up topic in database"""
+    import sqlite3
+    conn = sqlite3.connect('data/dmai_knowledge.db')
+    cursor = conn.cursor()
+    question_lower = question.lower().strip()
+    cursor.execute('SELECT topic, stage, category, content FROM syllabus_content WHERE topic = ? OR topic LIKE ?', 
+                   (question_lower, f'%{question_lower}%'))
+    result = cursor.fetchone()
+    conn.close()
+    return result
+
 print(f"📚 Loaded {TOTAL_SYLLABUS_TOPICS} syllabus topics at 100% mastery")
 
 @smart_bp.route('/ask', methods=['POST'])
@@ -48,10 +61,40 @@ def ask():
                         matched_topic = topic_key
                         matched_info = topic_info
                         break
-                if matched_info:
+                        # First check database
+        db_result = get_from_database(question)
+        if db_result:
+            topic, stage, category, detailed_content = db_result
+            return jsonify({
+                "answer": detailed_content,
+                "topic": topic,
+                "stage": stage,
+                "category": category,
+                "mastery": "100%",
+                "status": "success",
+                "syllabus": True,
+                "source": "database"
+            })
+        
+        if matched_info:
                     break
         
         # If syllabus topic found, return mastery content
+                # First check database
+        db_result = get_from_database(question)
+        if db_result:
+            topic, stage, category, detailed_content = db_result
+            return jsonify({
+                "answer": detailed_content,
+                "topic": topic,
+                "stage": stage,
+                "category": category,
+                "mastery": "100%",
+                "status": "success",
+                "syllabus": True,
+                "source": "database"
+            })
+        
         if matched_info:
             return jsonify({
                 "answer": matched_info['content'],
