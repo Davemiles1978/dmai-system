@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="500" height="300">
+  <rect width="500" height="300" fill="#FFF8DC"/>
+  <text x="250" y="50" text-anchor="middle" font-family="Georgia" font-size="24" fill="#4A90D9" font-weight="bold">Welcome to Magical Unicorns and Sparkles!</text>
+  <text x="250" y="100" text-anchor="middle" font-family="Arial" font-size="14" fill="#666">A Coloring Adventure for Children 4-8</text>
+  <g stroke="#4A90D9" stroke-width="2" fill="none">
+    <circle cx="100" cy="180" r="30"/>
+    <circle cx="250" cy="200" r="40"/>
+    <circle cx="400" cy="180" r="30"/>
+  </g>
+</svg>

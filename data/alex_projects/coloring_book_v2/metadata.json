@@ -1,0 +1,18 @@
+{
+  "title": "DMAI's Magical Coloring Adventure",
+  "author": "Alex Riviera",
+  "pages": 16,
+  "age_groups": {
+    "3-8": 5,
+    "9-12": 5,
+    "adult": 6
+  },
+  "technical_specs": {
+    "line_weights": "1.5-2.5pt",
+    "minimum_space": "0.25 inches",
+    "corners": "rounded",
+    "pages": "single-sided"
+  },
+  "created_at": "2026-06-04T13:19:19.530507",
+  "based_on_learnings_from": "AI-Enhanced Coloring Book Design Guide"
+}

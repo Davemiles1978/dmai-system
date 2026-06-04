@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" width="500" height="300">
+  <rect width="500" height="300" fill="#FFF8DC"/>
+  <text x="250" y="50" text-anchor="middle" font-family="Georgia" font-size="24" fill="#4A90D9" font-weight="bold">About the Author</text>
+  <text x="250" y="120" text-anchor="middle" font-family="Georgia" font-size="16" fill="#333">Alex Riviera</text>
+  <text x="250" y="150" text-anchor="middle" font-family="Arial" font-size="12" fill="#666">Los Angeles, CA</text>
+  <text x="250" y="200" text-anchor="middle" font-family="Arial" font-size="12" fill="#666">Creating books that spark imagination</text>
+</svg>

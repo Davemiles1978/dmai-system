@@ -1,0 +1,117 @@
+{
+  "generated_books": [
+    {
+      "title": "How to Draw Cats",
+      "type": "how_to_draw"
+    },
+    {
+      "title": "How to Draw Dragons",
+      "type": "how_to_draw"
+    },
+    {
+      "title": "How to Draw Cartoon Characters",
+      "type": "how_to_draw"
+    },
+    {
+      "title": "Paint by Numbers: Landscapes",
+      "type": "paint_by_numbers"
+    },
+    {
+      "title": "Paint by Numbers: Animals",
+      "type": "paint_by_numbers"
+    },
+    {
+      "title": "Paint by Numbers: Minimalist",
+      "type": "paint_by_numbers"
+    },
+    {
+      "title": "Mandala Patterns Coloring Book - Teens (10+)",
+      "type": "coloring_book"
+    },
+    {
+      "title": "Magical Unicorns Coloring Book - Kids (6-9)",
+      "type": "coloring_book"
+    },
+    {
+      "title": "At the Park Coloring Book - Preschool (4-6)",
+      "type": "coloring_book"
+    },
+    {
+      "title": "Benny and the Big Feelings",
+      "type": "childrens"
+    },
+    {
+      "title": "Basic Car Maintenance for Everyone",
+      "type": "instructional"
+    },
+    {
+      "title": "Where the Rivers Meet",
+      "type": "novel"
+    },
+    {
+      "title": "Echo Protocol",
+      "type": "novel"
+    }
+  ],
+  "pending_approvals": [
+    {
+      "id": "book_20260604_115115",
+      "title": "How to Draw Cats"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "How to Draw Dragons"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "How to Draw Cartoon Characters"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Paint by Numbers: Landscapes"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Paint by Numbers: Animals"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Paint by Numbers: Minimalist"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Mandala Patterns Coloring Book - Teens (10+)"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Magical Unicorns Coloring Book - Kids (6-9)"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "At the Park Coloring Book - Preschool (4-6)"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Benny and the Big Feelings"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Basic Car Maintenance for Everyone"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Where the Rivers Meet"
+    },
+    {
+      "id": "book_20260604_115115",
+      "title": "Echo Protocol"
+    }
+  ],
+  "commercial_potential": {
+    "how_to_draw": "High - Evergreen content, multiple subjects",
+    "paint_by_numbers": "Very High - Relaxation market growing",
+    "coloring_books": "Highest - Adult coloring market booming",
+    "traditional_books": "Variable - Depends on genre and marketing"
+  },
+  "timestamp": "2026-06-04T11:51:15.428491"
+}

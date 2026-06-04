@@ -1,0 +1,11 @@
+
+PROJECT: Echo Protocol
+TYPE: book
+SUBMITTED: 2026-06-04T11:51:15.426637
+
+TO APPROVE: Run the following command:
+    python3 approve_project.py book_20260604_115115 approve
+
+TO REJECT WITH NOTES:
+    python3 approve_project.py book_20260604_115115 reject "Your notes here"
+        

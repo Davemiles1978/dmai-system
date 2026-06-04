@@ -1,0 +1,24 @@
+{
+  "module": "technical_documentation",
+  "ingested_at": "2026-06-04T13:35:34.797902",
+  "documentation_types": [
+    "Tutorials: Learning-oriented, step-by-step, works for beginners",
+    "How-to guides: Goal-oriented, specific task, assumes some knowledge",
+    "Reference: Information-oriented, complete technical specs, searchable",
+    "Explanation: Understanding-oriented, background, concepts, decisions"
+  ],
+  "structure_guidelines": [],
+  "visual_communication": [
+    "Diagrams complement text, not duplicate",
+    "Screenshots with annotations (arrows, circles)",
+    "Consistent icons across documentation",
+    "Code blocks with syntax highlighting"
+  ],
+  "writing_style": [
+    "Active voice: 'Click the button' not 'The button should be clicked'",
+    "Second person: 'You will see' not 'The user will see'",
+    "Numbered lists for sequential steps",
+    "Bullet lists for non-sequential items",
+    "Warning/caution before dangerous actions"
+  ]
+}

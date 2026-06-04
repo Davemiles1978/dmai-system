@@ -1,0 +1,26 @@
+{
+  "module": "drawing",
+  "ingested_at": "2026-06-04T13:35:34.798387",
+  "basic_skills": [
+    "Gesture drawing: Capture movement, 30-60 seconds",
+    "Contour drawing: Focus on edges, outlines",
+    "Blind contour: Draw without looking at paper, observation training"
+  ],
+  "perspective": [
+    "1-point: Lines to single vanishing point, hallways, roads",
+    "2-point: Lines to left and right VPs, buildings, rooms",
+    "3-point: Adds vertical VP, skyscrapers, dramatic angles",
+    "Atmospheric perspective: Less contrast/detail in distance"
+  ],
+  "proportion": [
+    "Human: 7-8 heads tall, shoulders 2 heads wide",
+    "Face: Eyes at midline, nose halfway to chin, mouth halfway from nose to chin",
+    "Golden ratio (1.618): Pleasing proportions, composition"
+  ],
+  "shading": [
+    "Hatching: Parallel lines for value",
+    "Cross-hatching: Perpendicular layers",
+    "Stippling: Dots for tonal variation",
+    "Blending: Smooth transitions, tortillions or blending stumps"
+  ]
+}

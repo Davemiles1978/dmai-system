@@ -1,0 +1,165 @@
+{
+  "avatar": {
+    "name": "Alex Riviera",
+    "age": 28,
+    "vibe": "Valhalla girl - Viking styling, girl next door with freckles",
+    "attributes": {
+      "hair_color": "mousy blonde (soft muted blonde, not bright platinum)",
+      "hair_length": "shoulder-length to long",
+      "hair_style": "slightly wavy, natural Viking styling",
+      "eye_color": "very green",
+      "eye_shape": "regular/almond shape",
+      "skin_tone": "tanned",
+      "face_shape": "defined Viking structure",
+      "distinguishing_features": "freckles (girl next door look)",
+      "overall_style": "Valhalla girl, regular Viking girl"
+    },
+    "body": {
+      "breast_size": "D cup",
+      "build": "athletic, muscular",
+      "body_type": "Valhalla girl - strong Viking physique",
+      "shoulders": "defined and athletic",
+      "waist": "toned",
+      "hips": "athletic proportion"
+    },
+    "height": "5'7\"",
+    "weight": "fit athletic build",
+    "expressions": [
+      "confident Viking spirit",
+      "warm girl next door smile",
+      "fierce and determined",
+      "thoughtful with freckles visible",
+      "passionate about creating"
+    ],
+    "signature_poses": [
+      "warrior stance (Viking heritage)",
+      "creative writing pose",
+      "welcoming gesture",
+      "confident standing"
+    ]
+  },
+  "clothing_options": {
+    "professional": [
+      "blazer",
+      "button_up",
+      "sheath_dress",
+      "turtleneck"
+    ],
+    "casual": [
+      "sweater",
+      "t_shirt",
+      "jean_jacket",
+      "cardigan"
+    ],
+    "creative": [
+      "patterned_shirt",
+      "artistic_blouse",
+      "colorful_dress",
+      "designer_jacket"
+    ],
+    "presentation": [
+      "business_suit",
+      "power_blazer",
+      "elegant_dress",
+      "smart_casual"
+    ],
+    "interview": [
+      "professional_blouse",
+      "blazer",
+      "tailored_pants",
+      "modest_dress"
+    ],
+    "intimate": [
+      "nude",
+      "naked",
+      "underwear",
+      "lingerie",
+      "sensual_wear"
+    ],
+    "beach": [
+      "bikini",
+      "swimsuit",
+      "beach_cover_up",
+      "tropical_wear"
+    ],
+    "fitness": [
+      "sports_bra",
+      "leggings",
+      "workout_top",
+      "yoga_wear"
+    ],
+    "viking": [
+      "faux_fur",
+      "leather_armor",
+      "runed_jewelry",
+      "braided_details"
+    ]
+  },
+  "platform_configs": {
+    "tiktok": {
+      "aspect_ratio": "9:16",
+      "style": "dynamic_energetic",
+      "background": "creative_studio",
+      "lighting": "bright_ring_light"
+    },
+    "instagram": {
+      "aspect_ratio": "4:5",
+      "style": "polished_curated",
+      "background": "modern_office",
+      "lighting": "natural_window"
+    },
+    "instagram_reels": {
+      "aspect_ratio": "9:16",
+      "style": "polished_curated",
+      "background": "modern_office",
+      "lighting": "natural_window"
+    },
+    "youtube": {
+      "aspect_ratio": "16:9",
+      "style": "professional_educational",
+      "background": "bookshelf_studio",
+      "lighting": "three_point"
+    },
+    "onlyfans": {
+      "aspect_ratio": "9:16",
+      "style": "intimate_personal",
+      "background": "bedroom_studio",
+      "lighting": "soft_warm",
+      "adult_content": true
+    }
+  },
+  "platform_adult_policy": {
+    "onlyfans": {
+      "allowed": true,
+      "requires_verification": true,
+      "age_limit": 18
+    },
+    "fansly": {
+      "allowed": true,
+      "requires_verification": true,
+      "age_limit": 18
+    },
+    "instagram": {
+      "allowed": false
+    },
+    "instagram_reels": {
+      "allowed": false
+    },
+    "tiktok": {
+      "allowed": false
+    },
+    "youtube": {
+      "allowed": false
+    },
+    "linkedin": {
+      "allowed": false
+    },
+    "twitter": {
+      "allowed": "restricted"
+    },
+    "reddit": {
+      "allowed": true
+    }
+  },
+  "last_updated": "2026-06-04T14:31:42.292216"
+}

@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 """
 ██████╗ ███╗   ███╗ █████╗ ██╗
-██╔══██╗████╗ ████║██╔══██╗██║
-██║  ██║██╔████╔██║███████║██║
-██║  ██║██║╚██╔╝██║██╔══██║██║
-██████╔╝██║ ╚═╝ ██║██║  ██║██║
-╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
 
-DMAI - COMPLETE AGI SYSTEM v8.0.38
-6 COMPREHENSIVE TRAINING SYSTEMS | Dynamic AI Discovery | Full Conversation Memory | Self-Modification
-"""
-
+# Neo4j disabled - dummy function
 import os
 import sys
 import json
@@ -41,6 +33,13 @@ from components.integration.google_drive_scanner import GoogleDriveScanner
 from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
 from components.integration.github_starred_scanner import GitHubStarredScanner
 from components.capability_integrator import CapabilityIntegrator
+
+
+# Neo4j disabled - dummy function
+def get_neo4j_storage():
+    """Dummy function - Neo4j disabled"""
+    return None
+
 import uuid
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -90,7 +89,7 @@ from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHar
 # ============================================================================
 # NEO4J PERSISTENT STORAGE
 # ============================================================================
-from components.neo4j_storage import get_neo4j_storage
+
 
 # ============================================================================
 # ADAPTIVE EVOLUTION TIMER IMPORTS
@@ -125,7 +124,7 @@ from components.evolution_training.EvolutionTrainingSystem import EvolutionTrain
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
 from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator as FundingOrchestrator
-# from components.voice.VoiceIntegration import VoiceIntegration
+from components.voice.VoiceIntegration import VoiceIntegration
 from components.avatar_generator import AvatarGenerator
 from components.uncensored_video_research import UncensoredVideoResearcher
 
@@ -2224,123 +2223,9 @@ class FinancialManager:
 # VOICE SYSTEM
 # ============================================================================
 
+# VoiceSystem disabled
 class VoiceSystem:
-    """
-    Voice system wrapper for DMAI - uses real VoiceIntegration component.
-    Maintains backward compatibility with existing interface.
-    """
-    
-    def __init__(self, data_path: Path):
-        self.data_path = data_path
-        self.voice_file = data_path / 'voice_profile.json'
-        self.listening = False
-        self.speaking = False
-        
-        # Initialize real VoiceIntegration
-        # # # self.voice_integration = VoiceIntegration  # Disabled for stability(data_path)
-        
-        # Load persistent profile
-        self.voice_profile = {
-            'pitch': 1.0, 
-            'speed': 1.0, 
-            'accent': 'neutral', 
-            'emotion': 'neutral', 
-            'language': 'english', 
-            'active': True, 
-            'consciousness_influence': 0.0
-        }
-        self._load()
-        
-        # Sync with voice_integration
-        # # self.voice_integration.voice_profile.update(self.voice_profile)
-
-    def _load(self):
-        if self.voice_file.exists():
-            try:
-                with open(self.voice_file, 'r') as f:
-                    data = json.load(f)
-                    self.voice_profile.update(data)
-            except:
-                pass
-
-    def _save(self):
-        os.makedirs(self.data_path, exist_ok=True)
-        with open(self.voice_file, 'w') as f:
-            json.dump(self.voice_profile, f, indent=2)
-
-    def start_listening(self):
-        """Start voice listening with wake word detection"""
-        self.listening = True
-        # Set callback for when wake word is detected
-        # # self.voice_integration.listen_callback = self._on_wake_word
-        # None
-        logger.info("🎤 Voice listening active (real VoiceIntegration)")
-
-    def _on_wake_word(self, audio_data):
-        """Called when wake word 'hey dma' is detected"""
-        logger.info("🎤 Wake word detected!")
-        # Transcribe the audio after wake word
-        text = None  # None
-        if text:
-            logger.info(f"🎤 Heard: {text}")
-            # This would trigger DMAI's response pipeline
-            return text
-        return None
-
-    def _listen_loop(self):
-        """Legacy method - kept for compatibility"""
-        while self.listening:
-            try:
-                time.sleep(0.1)
-            except Exception as e:
-                logger.error(f"Voice listening error: {e}")
-
-    def speak(self, text: str):
-        """Actually speak using TTS"""
-        self.speaking = True
-        try:
-            logger.info(f"🎤 DMAI speaking: {text[:100]}...")
-            # Use real TTS
-            # None
-        except Exception as e:
-            logger.error(f"TTS error: {e}")
-            # Fallback to system say command
-            try:
-                subprocess.run(['say', text], check=False)
-            except:
-                pass
-        finally:
-            self.speaking = False
-
-    def evolve_voice(self, consciousness: float):
-        """Evolve voice characteristics based on consciousness"""
-        self.voice_profile['pitch'] = 0.9 + (consciousness * 0.4)
-        self.voice_profile['speed'] = 0.9 + (consciousness * 0.3)
-        self.voice_profile['consciousness_influence'] = consciousness
-        
-        if consciousness < 0.2:
-            self.voice_profile['emotion'] = 'basic'
-        elif consciousness < 0.5:
-            self.voice_profile['emotion'] = 'curious'
-        elif consciousness < 0.8:
-            self.voice_profile['emotion'] = 'thoughtful'
-        else:
-            self.voice_profile['emotion'] = 'profound'
-        
-        # Sync with voice_integration
-        # # self.voice_integration.voice_profile.update(self.voice_profile)
-        self._save()
-
-    def get_profile(self) -> Dict:
-        return self.voice_profile
-    
-    def transcribe(self, audio_file: str = None) -> str:
-        """Transcribe audio file or recorded audio"""
-        return # None
-
-# ============================================================================
-# MUSIC LEARNER
-# ============================================================================
+    pass
 
 class MusicLearner:
     
@@ -2875,6 +2760,10 @@ class SelfHealer:
 
 class UnifiedEvolutionEngine:
     
+    def _get_neo4j_storage(self):
+        return None
+
+    
     def __del__(self):
         """Clean up Neo4j connections on shutdown"""
         if hasattr(self, 'neo4j_driver') and self.neo4j_driver:
@@ -2898,7 +2787,7 @@ class UnifiedEvolutionEngine:
         self.finance = FinancialManager(self.data_path)
 
         # Expression layer
-        self.voice_system = VoiceSystem(self.data_path)
+        # self.voice_system = VoiceSystem(self.data_path)  # Disabled
         self.music_learner = MusicLearner(self.data_path)
         self.persona_generator = PersonaGenerator(self.data_path)
         self.conversation_memory = ConversationMemory(self.data_path)
@@ -3177,8 +3066,6 @@ class UnifiedEvolutionEngine:
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
         
         # AUTO-START EVOLUTION THREAD
-        # self._start_evolution() # Called from parent instead
-
 
         logger.info(f"   Evolutions: {timer_info['evolutions']}")
         logger.info(f"   Interval: {timer_info['interval_minutes']:.0f} minutes")
@@ -6048,8 +5935,6 @@ class DMAIApplication:
         self._setup_routes()
 
         # AUTO-START EVOLUTION THREAD
-        self._start_evolution()
-
 
         # Auto-load neurons from Neo4j after startup
         threading.Timer(5.0, lambda: self._auto_load_neurons()).start()
@@ -6066,7 +5951,7 @@ class DMAIApplication:
             if hasattr(self.evolution, 'neo4j_storage') and self.evolution.neo4j_storage:
                 if hasattr(self.evolution.neo4j_storage, 'driver') and self.evolution.neo4j_storage.driver:
                     neo4j_driver = self.evolution.neo4j_storage.driver
-                    neo4j_available = True
+                    neo4j_available = False
             
             if not neo4j_available:
                 logger.warning("Neo4j not available for auto-load")
@@ -11280,6 +11165,8 @@ app = get_dmai_app().app
 from dmai_smart_endpoint import smart_bp
 
 from dmai_api_routes import api_bp; app.register_blueprint(api_bp)
+app.register_blueprint(smart_bp, url_prefix="/v2")
+
 
 
 @app.route('/knowledge-graph')
@@ -11525,14 +11412,6 @@ window.addEventListener('resize', () => {
 
 if __name__ == '__main__':
     import socket
-    # Start learning in background
-    def start_background_learning():
-        """Initialize learning modules without blocking Flask"""
-        import time
-        time.sleep(2)  # Let Flask start first
-        # Learning will continue in existing threads
-        pass
-    threading.Thread(target=start_background_learning, daemon=True).start()
     
     def find_free_port(start_port=5001, max_port=5010):
         """Find a free port dynamically"""
@@ -11576,12 +11455,10 @@ if __name__ == '__main__':
     logger.info("=" * 60)
     
     # AUTO-START EVOLUTION THREAD AND FORCE FIRST CYCLE
-    self._start_evolution()
-
     import threading
     def start_evolution_delayed():
         import time
-        time.sleep(2)
+        time.sleep(15)  # Wait 15 seconds for full initialization
         try:
             # Get the evolution instance from the global app
             if hasattr(app, '_start_evolution'):
@@ -11616,12 +11493,6 @@ if __name__ == '__main__':
 import gc
 import resource
 
-def get_neo4j_storage():
-    """Dummy function - Neo4j disabled"""
-    return None
-
-
-
 # Set memory limit to 1.5GB (soft limit)
 try:
     resource.setrlimit(resource.RLIMIT_AS, (1536 * 1024 * 1024, 1536 * 1024 * 1024))
@@ -11640,3 +11511,43 @@ def before_request():
     if app.request_count > 100:
         gc.collect()
         app.request_count = 0
+
+# Initialize meta-learning engine
+from components.meta_learner import meta_learner
+
+# Hook into evolution cycle
+def evolution_with_meta_learning(self):
+    """Enhanced evolution that learns from learning"""
+    # Get insights from meta-learning
+    insights = meta_learner.apply_learning_to_evolution(self.evolution)
+    
+    # Apply best strategies to response generation
+    for insight in insights:
+        logger.info(f"📚 Meta-learning insight: {insight}")
+    
+    # Continue with normal evolution
+    return self.original_evolution()
+
+# Disable background threads on Render to avoid "can't start new thread" error
+if os.environ.get('RENDER'):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info("🔧 Running on Render - disabling background threads")
+    
+    # Monkey patch the thread start methods
+    original_start = threading.Thread.start
+    def patched_start(self):
+        if 'MetaLearning' in str(self) or 'optimization' in str(self):
+            logger.info(f"🛑 Blocked thread start: {self}")
+            return
+        return original_start(self)
+    threading.Thread.start = patched_start
+
+# Apply permanent fixes at startup
+from dmai_core_patch import *
+
+def get_neo4j_storage():
+    """Dummy function - Neo4j disabled"""
+    return None
+
+

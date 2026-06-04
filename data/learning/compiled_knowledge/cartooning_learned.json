@@ -1,0 +1,29 @@
+{
+  "module": "cartooning",
+  "ingested_at": "2026-06-04T13:35:34.797145",
+  "line_techniques": [
+    "Clean line art: Vector layers, stabilization, post-correction",
+    "Line weight: Vary thickness for depth (thick foreground, thin background)",
+    "Tapered ends: Organic feel, hand-drawn quality",
+    "Inking: Pen pressure, stroke direction, overlapping lines"
+  ],
+  "character_design": [
+    "Silhouette: Must be recognizable in solid black",
+    "Shape language: Circle (friendly), Square (strong), Triangle (dangerous)",
+    "Proportion: 7-8 heads tall for realistic, 3-5 heads for cartoon",
+    "Facial features: Eyes at midline, ears between eyes/nose"
+  ],
+  "color_theory": [
+    "Complementary: Opposite on wheel, high contrast",
+    "Analogous: Adjacent colors, harmonious, calm",
+    "Triadic: 3 equally spaced, vibrant, balanced",
+    "Warm/Cool separation: Foreground warm, background cool for depth"
+  ],
+  "panel_composition": [
+    "Rule of thirds within panel",
+    "Gutter: Space between panels, timing/pacing",
+    "Bleed: Art extends to page edge, emphasis",
+    "Splash page: Full page single panel, dramatic moment"
+  ],
+  "software_specific": []
+}

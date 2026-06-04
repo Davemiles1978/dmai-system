@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <rect width="500" height="500" fill="white"/>
+  
+  <!-- Border with rounded corners -->
+  <rect x="20" y="20" width="460" height="460" fill="none" stroke="black" stroke-width="2.5" rx="15"/>
+  
+  <!-- Page 5: a playful dolphin jumping over waves -->
+  <g stroke="black" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- a playful dolphin jumping over waves - circle themed -->
+    <circle cx="250" cy="200" r="50" />
+    <circle cx="230" cy="185" r="4" fill="black"/>
+    <circle cx="270" cy="185" r="4" fill="black"/>
+    <path d="M 235 215 Q 250 235 265 215" stroke-width="2.0"/>
+    <ellipse cx="250" cy="310" rx="40" ry="50" />
+
+  </g>
+  
+  <!-- Age indicator -->
+  <text x="250" y="475" text-anchor="middle" font-family="Arial" font-size="12" fill="#999">
+    Page 5 • Ages 3-8 • Simple complexity
+  </text>
+</svg>

@@ -1,0 +1,113 @@
+{
+  "compiled_at": "2026-06-04T13:28:24.123786",
+  "modules": {
+    "3d_design": {
+      "module": "3d_design",
+      "source": "Engineering Graphics & 3D Modeling",
+      "ingested_at": "2026-06-04T13:28:24.123042",
+      "modeling_principles": [],
+      "technical_standards": [
+        "ASME Y14.5: Geometric Dimensioning and Tolerancing",
+        "Orthographic projection: Front, Top, Right side views",
+        "Isometric projection for pictorial representation",
+        "Section views to show internal features"
+      ],
+      "software_workflows": [
+        "Blender workflow: Modeling \u2192 UV Unwrapping \u2192 Texturing \u2192 Rigging \u2192 Animation \u2192 Rendering",
+        "Use modifiers (Subdivision Surface, Mirror, Array) for efficient modeling",
+        "Eevee for real-time rendering, Cycles for photorealistic"
+      ],
+      "rendering_techniques": []
+    },
+    "technical_documentation": {
+      "module": "technical_documentation",
+      "source": "Diataxis Framework & Technical Writing",
+      "ingested_at": "2026-06-04T13:28:24.123359",
+      "documentation_types": [
+        "Tutorials: Learning-oriented, step-by-step, must work for beginners",
+        "How-to guides: Goal-oriented, specific steps to achieve a task",
+        "Reference: Information-oriented, technical specifications, API docs",
+        "Explanation: Understanding-oriented, background, concepts, context"
+      ],
+      "structure_guidelines": [],
+      "visual_communication": [
+        "Diagrams should complement text, not duplicate",
+        "Screenshots with annotations (arrows, circles, numbers)",
+        "Consistent icon usage throughout documentation"
+      ],
+      "writing_style": [
+        "Use active voice, second person (you)",
+        "Break complex procedures into numbered steps",
+        "Include code blocks or command examples",
+        "Add warnings/cautions before dangerous actions"
+      ]
+    },
+    "cartooning": {
+      "module": "cartooning",
+      "source": "Clip Studio Paint Master Course",
+      "ingested_at": "2026-06-04T13:28:24.122715",
+      "key_principles": [
+        "Clean line art requires proper pen settings, stabilization, and post-correction",
+        "Color theory: complementary colors for contrast, analogous for harmony"
+      ],
+      "technical_skills": [
+        "Vector layer inking with pen pressure"
+      ],
+      "workflow_steps": [
+        "1. Rough sketch \u2192 2. Clean line art \u2192 3. Base colors \u2192 4. Shading \u2192 5. Effects"
+      ],
+      "composition_rules": [
+        "Rule of thirds for character placement, depth with foreground/midground/background"
+      ],
+      "character_design_tips": [
+        "Silhouette must be recognizable, use basic shapes to define personality"
+      ]
+    },
+    "drawing": {
+      "module": "drawing",
+      "source": "Drawing Fundamentals",
+      "ingested_at": "2026-06-04T13:28:24.123644",
+      "basic_skills": [
+        "Line quality: Vary weight for depth (thick for foreground, thin for background)",
+        "Gesture drawing: Capture movement and flow in 30-60 seconds",
+        "Contour drawing: Focus on edges and outlines"
+      ],
+      "perspective_rules": [
+        "One-point perspective: Lines converge to single vanishing point",
+        "Two-point perspective: Lines converge to two vanishing points",
+        "Three-point perspective: Adds vertical convergence for dramatic angles"
+      ],
+      "proportion_guidelines": [
+        "Human figure: 7-8 heads tall, shoulders 2 heads wide",
+        "Facial proportions: Eyes at midline, nose at 1/2 between eyes and chin",
+        "Golden ratio (1.618) for pleasing compositions"
+      ],
+      "shading_techniques": [
+        "Hatching: Parallel lines for value",
+        "Cross-hatching: Layered perpendicular lines",
+        "Stippling: Dots for tonal variation",
+        "Blending: Smooth transitions with tortillions or fingers"
+      ]
+    },
+    "video_production": {
+      "module": "video_production",
+      "source": "Video Production Course",
+      "ingested_at": "2026-06-04T13:28:24.123503",
+      "pre_production": [
+        "Storyboarding: Thumbnails \u2192 Roughs \u2192 Clean boards \u2192 Animatics",
+        "Script formatting: Scene headings, action lines, dialogue, transitions"
+      ],
+      "production_techniques": [
+        "Shot types: Extreme wide, wide, medium, close-up, extreme close-up",
+        "Camera angles: Eye-level, high angle, low angle, dutch angle, over-the-shoulder",
+        "180-degree rule for dialogue scenes",
+        "Three-point lighting: Key light (primary), Fill light (shadows), Back light (separation)"
+      ],
+      "post_production": [
+        "Editing principles: Continuity editing, match cuts, J-cuts, L-cuts",
+        "Timeline organization: Video tracks, audio tracks, effects, color grading"
+      ],
+      "equipment_specs": []
+    }
+  }
+}

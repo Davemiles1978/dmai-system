@@ -1,0 +1,40 @@
+{
+  "module": "photography",
+  "ingested_at": "2026-06-04T13:35:34.795354",
+  "camera_techniques": [
+    "Aperture (f-stop): f/1.4 (shallow DOF, blur background) to f/22 (deep DOF, everything sharp)",
+    "Shutter Speed: 1/4000 (freeze action) to 30s (motion blur, light trails)",
+    "ISO: 100 (lowest noise, bright light) to 6400+ (noisy, low light)",
+    "RAW vs JPEG: RAW for full editing control, JPEG for ready-to-use"
+  ],
+  "composition_rules": [
+    "Rule of Thirds: Place key elements at intersection points",
+    "Leading Lines: Use natural lines to guide eye to subject",
+    "Symmetry: Creates balance and visual harmony",
+    "Frame within Frame: Use windows, arches, doorways",
+    "Negative Space: Empty areas emphasizing main subject",
+    "Golden Ratio (1.618): Spiral composition for pleasing balance"
+  ],
+  "lighting_techniques": [
+    "Golden Hour: Warm, soft, directional (first/last hour of sun)",
+    "Blue Hour: Cool, moody, diffused (just before/after sunrise/sunset)",
+    "High Key: Bright, minimal shadows, even lighting (product/commercial)",
+    "Low Key: Dramatic shadows, high contrast, moody (artistic/portrait)",
+    "Rembrandt: Triangle of light on cheek (classic portrait)",
+    "Butterfly: Shadow under nose (glamour/fashion)",
+    "Split: Half face lit, half shadow (dramatic effect)"
+  ],
+  "lens_types": [
+    "Wide-angle (16-35mm): Landscapes, architecture, interior",
+    "Standard (35-70mm): Street, documentary, general purpose",
+    "Telephoto (70-200mm): Portraits, wildlife, sports, compression",
+    "Macro (100mm): Extreme close-up, product details, texture",
+    "Tilt-shift: Perspective control, miniature effect"
+  ],
+  "exposure_settings": [
+    "Sunny 16 rule: f/16, shutter = 1/ISO in bright sunlight",
+    "Low light: Wide aperture (f/1.4-f/2.8), slower shutter, higher ISO",
+    "Action: Fast shutter (1/500+), wider aperture, auto ISO",
+    "Long exposure: Tripod required, shutter 1s-30s, low ISO"
+  ]
+}

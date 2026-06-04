@@ -1,0 +1,9 @@
+HUMANIZER VERIFICATION REPORT
+==================================================
+Is human readable: True
+Issues found: 1
+
+Issues:
+  - Some sentences are quite long - consider breaking them up
+
+Suggestions:

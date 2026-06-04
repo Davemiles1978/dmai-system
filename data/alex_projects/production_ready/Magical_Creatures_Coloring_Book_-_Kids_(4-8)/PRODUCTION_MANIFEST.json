@@ -1,0 +1,20 @@
+{
+  "book_title": "Magical Creatures Coloring Book - Kids (4-8)",
+  "author": "Alex Riviera (pen name)",
+  "type": "coloring_book",
+  "pages": 30,
+  "graphics_count": 29,
+  "graphics_format": "Black and white line art, 300 DPI",
+  "cover_format": "Full color, 300 DPI",
+  "files_included": [
+    "full_book.md - Complete book content",
+    "cover.md - Cover design specifications",
+    "sample_page_with_graphic.md - Example page with graphic placement",
+    "graphics/ - Descriptions for all graphics",
+    "KDP_UPLOAD_PACKAGE.json - Upload settings",
+    "AMAZON_KDP_UPLOAD.md - Step-by-step instructions"
+  ],
+  "ready_for_publishing": true,
+  "notes": "Graphics are described in text files. For actual production, a graphic designer would convert descriptions to images.",
+  "graphics_required": "One black and white line art illustration per page"
+}

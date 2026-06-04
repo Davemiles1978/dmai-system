@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <rect width="800" height="1000" fill="white"/>
+  <g stroke="black" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <rect x="150" y="280" width="100" height="80" />
+    <polygon points="140,280 200,230 260,280" />
+    <rect x="188" y="310" width="24" height="50" rx="12" />
+    <circle cx="205" cy="330" r="3" fill="black" />
+    <rect x="160" y="290" width="20" height="20" />
+    <rect x="220" y="290" width="20" height="20" />
+    <line x1="170" y1="290" x2="170" y2="310" stroke-width="1.5" />
+    <line x1="160" y1="300" x2="180" y2="300" stroke-width="1.5" />
+    <line x1="230" y1="290" x2="230" y2="310" stroke-width="1.5" />
+    <line x1="220" y1="300" x2="240" y2="300" stroke-width="1.5" />
+    <rect x="230" y="245" width="15" height="35" />
+    <circle cx="237" cy="240" r="6" />
+    <circle cx="242" cy="232" r="5" />
+    <circle cx="245" cy="225" r="4" />
+    <polygon points="679,56 682,62 687,64 682,66 679,72 676,66 671,64 676,62" fill="black" stroke="none" />
+    <polygon points="723,82 726,88 731,90 726,92 723,98 720,92 715,90 720,88" fill="black" stroke="none" />
+    <polygon points="500,70 503,76 508,78 503,80 500,86 497,80 492,78 497,76" fill="black" stroke="none" />
+    <polygon points="333,183 336,189 341,191 336,193 333,199 330,193 325,191 330,189" fill="black" stroke="none" />
+    <polygon points="514,52 517,58 522,60 517,62 514,68 511,62 506,60 511,58" fill="black" stroke="none" />
+    <polygon points="143,47 146,53 151,55 146,57 143,63 140,57 135,55 140,53" fill="black" stroke="none" />
+    <polygon points="536,86 539,92 544,94 539,96 536,102 533,96 528,94 533,92" fill="black" stroke="none" />
+    <polygon points="267,153 270,159 275,161 270,163 267,169 264,163 259,161 264,159" fill="black" stroke="none" />
+    <circle cx="355" cy="275" r="2" fill="black" stroke="none" />
+    <circle cx="148" cy="621" r="2" fill="black" stroke="none" />
+    <circle cx="269" cy="530" r="2" fill="black" stroke="none" />
+    <circle cx="234" cy="569" r="2" fill="black" stroke="none" />
+    <circle cx="285" cy="822" r="2" fill="black" stroke="none" />
+    <circle cx="556" cy="675" r="2" fill="black" stroke="none" />
+    <circle cx="120" cy="479" r="2" fill="black" stroke="none" />
+    <circle cx="270" cy="389" r="2" fill="black" stroke="none" />
+    <circle cx="675" cy="466" r="2" fill="black" stroke="none" />
+    <circle cx="128" cy="785" r="2" fill="black" stroke="none" />
+    <circle cx="168" cy="514" r="2" fill="black" stroke="none" />
+    <circle cx="412" cy="475" r="2" fill="black" stroke="none" />
+  <rect x="20" y="20" width="760" height="960" fill="none" stroke="black" stroke-width="1.5" rx="15"/>
+  </g>
+</svg>

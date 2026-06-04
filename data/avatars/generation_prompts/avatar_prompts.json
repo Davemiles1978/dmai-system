@@ -1,0 +1,36 @@
+{
+  "alex_riviera_master_prompt": {
+    "description": "Alex Riviera - Official Avatar",
+    "midjourney_prompt": "Professional photograph of Alex Riviera, a 28-year-old Valhalla girl with Viking styling. Mousy blonde hair (soft muted blonde), shoulder-length, slightly wavy. Very green almond-shaped eyes. Tanned skin with scattered freckles (girl-next-door look). Athletic muscular build with D cup bust. Strong Viking bone structure. Wearing a casual fitted sweater. Confident, approachable expression. Natural lighting, neutral background. High resolution, 4K, photorealistic. --ar 4:5 --style raw --v 6",
+    
+    "dalle3_prompt": "A professional photograph of Alex Riviera, a 28-year-old woman with Viking heritage. She has mousy blonde hair (a soft, muted blonde color) that falls to shoulder length with a slight wave. Her eyes are a striking very green color with an almond shape. Her skin is tanned with scattered freckles across her nose and cheeks, giving her a girl-next-door look. She has an athletic, muscular build with a D cup bust and strong Viking bone structure. She is wearing a casual fitted sweater. Her expression is confident and approachable. The image should be photorealistic, high resolution, with natural lighting and a neutral background. Aspect ratio 4:5.",
+    
+    "stable_diffusion_prompt": "Photorealistic portrait of Alex Riviera, 28 year old Valhalla girl, mousy blonde hair shoulder length slightly wavy, very green almond eyes, tanned skin with freckles, athletic muscular build D cup, strong Viking bone structure, girl next door look, casual sweater, confident expression, natural lighting, neutral background, high quality, 4K, photorealistic, masterpiece",
+    
+    "negative_prompt": "cartoon, anime, illustration, painting, drawing, low quality, blurry, distorted face, bad anatomy, extra fingers, deformed hands, oversaturated colors, makeup, heavy editing, fake looking",
+    
+    "aspect_ratio": "4:5",
+    "resolution": "1024x1280",
+    "reference_notes": "Based on provided reference images: Avatar profile.png (face), Base for Avatar Head on.png (consistency), Girl on the left's breasts.png (body proportions/D cup)"
+  },
+  
+  "full_body_pose_variants": {
+    "standing": {
+      "prompt": "Alex Riviera standing full body, athletic muscular build visible, D cup bust, wearing fitted yoga clothes, confident pose, mousy blonde hair, green eyes, freckles, Viking bone structure, gym background, natural lighting, full body shot --ar 2:3",
+      "use_for": "Fitness content, lifestyle posts"
+    },
+    "professional": {
+      "prompt": "Alex Riviera headshot, wearing professional blazer, mousy blonde hair styled, green eyes looking at camera, tanned skin with freckles, confident corporate smile, studio lighting --ar 1:1",
+      "use_for": "LinkedIn, professional content"
+    },
+    "intimate": {
+      "prompt": "Alex Riviera in tasteful intimate setting, D cup bust visible but artistic, soft lighting, mousy blonde hair down, green eyes with warm expression, freckles visible, sensual but classy --ar 9:16",
+      "use_for": "OnlyFans, intimate content",
+      "age_verification_required": true
+    },
+    "viking_theme": {
+      "prompt": "Alex Riviera as Valhalla warrior, mousy blonde hair with braids, D cup athletic build visible through faux fur and leather armor, very green eyes fierce, freckles on tanned skin, dramatic lighting, epic background --ar 16:9",
+      "use_for": "Branding, themed content"
+    }
+  }
+}

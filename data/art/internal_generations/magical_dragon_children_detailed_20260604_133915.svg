@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <rect width="800" height="1000" fill="white"/>
+  <g stroke="black" stroke-width="2" fill="none" stroke-linecap="round">
+    <ellipse cx="200" cy="255" rx="36" ry="31" />
+    <path d="M 180 230 L 165 200 L 185 225" />
+    <path d="M 220 230 L 235 200 L 215 225" />
+    <ellipse cx="185" cy="250" rx="6" ry="4" fill="black" />
+    <ellipse cx="215" cy="250" rx="6" ry="4" fill="black" />
+    <ellipse cx="200" cy="275" rx="18" ry="12" />
+    <circle cx="194" cy="272" r="3" fill="black"/>
+    <circle cx="206" cy="272" r="3" fill="black"/>
+    <path d="M 200 280 Q 185 265 195 255 Q 205 265 200 280" fill="none" stroke="gray" />
+    <ellipse cx="200" cy="330" rx="56" ry="61" />
+    <path d="M 160 290 Q 110 250 130 280" />
+    <path d="M 160 290 Q 120 270 135 295" />
+    <path d="M 240 290 Q 290 250 270 280" />
+    <path d="M 240 290 Q 280 270 265 295" />
+    <path d="M 255 330 Q 285 320 295 345 Q 290 360 280 355" />
+    <path d="M 155 310 Q 155 305 150 310" stroke-width="1"/>
+    <path d="M 170 310 Q 170 305 165 310" stroke-width="1"/>
+    <path d="M 185 310 Q 185 305 180 310" stroke-width="1"/>
+    <path d="M 200 310 Q 200 305 195 310" stroke-width="1"/>
+    <path d="M 215 310 Q 215 305 210 310" stroke-width="1"/>
+    <path d="M 230 310 Q 230 305 225 310" stroke-width="1"/>
+    <path d="M 245 310 Q 245 305 240 310" stroke-width="1"/>
+    <polygon points="443,50 446,56 451,58 446,60 443,66 440,60 435,58 440,56" fill="black" stroke="none" />
+    <polygon points="117,70 120,76 125,78 120,80 117,86 114,80 109,78 114,76" fill="black" stroke="none" />
+    <polygon points="677,102 680,108 685,110 680,112 677,118 674,112 669,110 674,108" fill="black" stroke="none" />
+    <polygon points="350,89 353,95 358,97 353,99 350,105 347,99 342,97 347,95" fill="black" stroke="none" />
+    <polygon points="563,141 566,147 571,149 566,151 563,157 560,151 555,149 560,147" fill="black" stroke="none" />
+    <polygon points="384,175 387,181 392,183 387,185 384,191 381,185 376,183 381,181" fill="black" stroke="none" />
+    <polygon points="315,67 318,73 323,75 318,77 315,83 312,77 307,75 312,73" fill="black" stroke="none" />
+    <polygon points="720,66 723,72 728,74 723,76 720,82 717,76 712,74 717,72" fill="black" stroke="none" />
+    <circle cx="616" cy="721" r="2" fill="black" stroke="none" />
+    <circle cx="333" cy="622" r="2" fill="black" stroke="none" />
+    <circle cx="425" cy="675" r="2" fill="black" stroke="none" />
+    <circle cx="579" cy="275" r="2" fill="black" stroke="none" />
+    <circle cx="165" cy="800" r="2" fill="black" stroke="none" />
+    <circle cx="583" cy="437" r="2" fill="black" stroke="none" />
+    <circle cx="137" cy="629" r="2" fill="black" stroke="none" />
+    <circle cx="428" cy="677" r="2" fill="black" stroke="none" />
+    <circle cx="481" cy="290" r="2" fill="black" stroke="none" />
+    <circle cx="733" cy="297" r="2" fill="black" stroke="none" />
+    <circle cx="162" cy="476" r="2" fill="black" stroke="none" />
+    <circle cx="360" cy="396" r="2" fill="black" stroke="none" />
+  <rect x="20" y="20" width="760" height="960" fill="none" stroke="black" stroke-width="2" rx="15"/>
+  </g>
+</svg>

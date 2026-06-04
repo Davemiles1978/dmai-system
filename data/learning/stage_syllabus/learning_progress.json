@@ -1,0 +1,39 @@
+{
+  "learned_topics": {
+    "Toddler": {
+      "EVOLUTION: Neural Network Pruning": 1,
+      "Cause-Effect Reasoning": 2
+    },
+    "Baby": {
+      "English Language Fundamentals": 3,
+      "Speech Pattern & Communication Analysis": 2,
+      "Input Processing": 2,
+      "_phase_1_exam_passed": true,
+      "Self-Thought & Recursive Problem Solving": 3,
+      "Meta-Learning Fundamentals": 3,
+      "Curiosity Drivers": 2,
+      "_phase_2_exam_passed": true,
+      "Pattern Recognition Basics": 3,
+      "Simple Correlation Detection": 2,
+      "Mathematics for AI - Linear Algebra Basics": 2,
+      "Mathematics for AI - Probability & Statistics": 2,
+      "_phase_3_exam_passed": true,
+      "Memory Encoding Basics": 2,
+      "Feedback Loop Creation": 2,
+      "_phase_4_exam_passed": true,
+      "Introduction to Python Programming": 3,
+      "Vibe Coding & AI-Assisted Development": 2,
+      "Visual Pattern Detection": 2,
+      "Sound Perception Basics": 2,
+      "_phase_5_exam_passed": true,
+      "EVOLUTION: Self-Code Analysis": 3,
+      "EVOLUTION: Simple Mutation Testing": 3,
+      "EVOLUTION: Feedback Loop Optimization": 3,
+      "_phase_6_exam_passed": true,
+      "Wealth Creation - Basic Concepts": 2
+    }
+  },
+  "last_learning_cycle": "2026-06-04T11:59:46.311909",
+  "current_stage": "Toddler",
+  "last_updated": "2026-06-04T16:48:33.527578"
+}

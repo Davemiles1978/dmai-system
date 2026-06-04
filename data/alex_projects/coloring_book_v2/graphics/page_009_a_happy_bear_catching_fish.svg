@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <rect width="500" height="500" fill="white"/>
+  
+  <!-- Border with rounded corners -->
+  <rect x="20" y="20" width="460" height="460" fill="none" stroke="black" stroke-width="1.5" rx="15"/>
+  
+  <!-- Page 9: a happy bear catching fish -->
+  <g stroke="black" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Cat head -->
+    <circle cx="250" cy="220" r="45" />
+    <circle cx="230" cy="205" r="5" fill="black"/>
+    <circle cx="270" cy="205" r="5" fill="black"/>
+    <path d="M 235 230 Q 250 245 265 230" stroke-width="1.2000000000000002"/>
+    <!-- Cat ears -->
+    <polygon points="215,180 205,140 235,165" />
+    <polygon points="285,180 295,140 265,165" />
+    <!-- Cat body -->
+    <ellipse cx="250" cy="320" rx="35" ry="40" />
+
+  </g>
+  
+  <!-- Age indicator -->
+  <text x="250" y="475" text-anchor="middle" font-family="Arial" font-size="12" fill="#999">
+    Page 9 • Ages 9-12 • Medium complexity
+  </text>
+</svg>

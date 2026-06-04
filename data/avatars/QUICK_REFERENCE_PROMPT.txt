@@ -1,0 +1,38 @@
+=== ALEX RIVIERA - MASTER PROMPT ===
+
+Alex Riviera, fictional American female, age 28, ice-blue eyes, platinum-blonde hair, heart-shaped face, high cheekbones, straight nose, soft jawline, healthy complexion, athletic build, confident posture, warm smile, professional confidence coach, photorealistic, cinematic realism, maintain identical facial structure and identity across all images, no facial drift, no age drift.
+
+=== IDENTITY LOCK (MUST APPEND) ===
+
+
+Character consistency lock:
+Alex Riviera
+Female
+Age 28
+American
+Maintain identical facial structure.
+Maintain identical eye colour.
+Maintain identical facial proportions.
+Maintain identical age appearance.
+Maintain identical skin tone.
+Maintain identical identity.
+No facial drift.
+No age drift.
+No hairstyle restrictions.
+No identity changes.
+Hairstyle colour: platinum-blonde (styles flexible).
+
+=== HAIRSTYLE OPTIONS ===
+loose_wavy: platinum-blonde hair worn loose, soft waves
+loose_straight: platinum-blonde hair worn straight and sleek
+ponytail: platinum-blonde hair in high ponytail
+low_ponytail: platinum-blonde hair in low ponytail
+messy_bun: platinum-blonde hair in casual messy bun
+elegant_bun: platinum-blonde hair in elegant updo bun
+twin_braids: platinum-blonde hair in twin braids (Viking style)
+single_braid: platinum-blonde hair in single side braid
+half_up: platinum-blonde hair half up, half down
+curls: platinum-blonde hair in soft curls
+beach_waves: platinum-blonde hair in beach waves
+professional: platinum-blonde hair in professional style
+fitness: platinum-blonde hair in high ponytail or bun for fitness

@@ -1,0 +1,30 @@
+{
+  "module": "ai_image_generation",
+  "ingested_at": "2026-06-04T13:35:34.795840",
+  "platform_specific": [
+    "Midjourney: /imagine prompt, --ar for ratio, --style raw for realism, --stylize 50-1000",
+    "DALL-E 3: Natural language, 1024x1024 up to 1792x1024, superior text rendering",
+    "Stable Diffusion: ControlNet for pose/edge, LoRAs for styles, inpainting for edits",
+    "Adobe Firefly: Commercially safe, Generative Fill, text effects"
+  ],
+  "prompt_templates": [
+    "Product: '[Item] on white background, studio lighting, 4K, commercial product photo'",
+    "Portrait: '[Subject], golden hour, shallow depth of field, professional portrait'",
+    "Landscape: '[Location], dramatic sky, long exposure, fine art landscape'",
+    "Book cover: '[Scene], professional book cover design, title space, commercial photography'",
+    "Social media: '[Topic], bright, engaging, text overlay space, trend-aware'"
+  ],
+  "parameters": [
+    "Aspect ratios: 1:1 (social), 3:2 (photo), 16:9 (widescreen), 2:3 (portrait)",
+    "Resolution: 1024x1024 for print, 512x512 for testing",
+    "CFG Scale: 7-9 for strict, 3-5 for creative freedom",
+    "Seed locking: Same seed for consistent variations"
+  ],
+  "quality_standards": [
+    "Composition follows design principles",
+    "Lighting is consistent across image",
+    "Anatomy correct (hands, eyes, proportions)",
+    "Text legible and correctly placed",
+    "Resolution sufficient for intended use"
+  ]
+}
