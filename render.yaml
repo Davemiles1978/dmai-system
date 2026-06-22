@@ -19,6 +19,18 @@ services:
       - key: MASTER_PASSWORD
         sync: false
 
+      - key: JWT_SECRET
+        sync: false
+
+      - key: WEBHOOK_SECRET
+        sync: false
+
+      - key: TAVILY_API_KEY
+        sync: false
+
+      - key: BRAVE_SEARCH_API_KEY
+        sync: false
+
       # ── Database ─────────────────────────────────────────────
       - key: DATABASE_URL
         sync: false

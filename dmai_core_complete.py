@@ -158,6 +158,19 @@ try:
 except Exception as e:
     logger.warning("ExtendedAIIntegrationHub failed: %s", e)
 
+# ── DeepResearchOrchestrator ────────────────────────────────────────────────
+try:
+    from components.research.deep_research import DeepResearchOrchestrator
+    _ai_hub_ref = components.get("extended_hub") or components.get("ai_hub")
+    components["deep_research"] = DeepResearchOrchestrator(
+        ai_hub=_ai_hub_ref,
+        data_path=str(Path(DATA_PATH) / "research" / "deep"),
+    )
+    logger.info("DeepResearchOrchestrator initialised — provider: %s",
+                components["deep_research"].search_engine.primary)
+except Exception as e:
+    logger.warning("DeepResearchOrchestrator failed: %s", e)
+
 # ── Evolution Training System ─────────────────────────────────────────────────
 try:
     from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
@@ -865,6 +878,70 @@ def api_scan_code():
     return jsonify({"results": results, "timestamp": datetime.now(timezone.utc).isoformat()})
 
 # ── Background services ────────────────────────────────────────────────────────
+
+
+# ── DeepResearch API ──────────────────────────────────────────────────────────
+
+@app.route("/api/research", methods=["POST"])
+def api_deep_research():
+    """
+    Deep multi-hop research — Perplexity Pro Search equivalent.
+    Body: {"query": "...", "depth": "quick|standard|deep"}
+    """
+    data = request.get_json(silent=True) or {}
+
+    if SECURITY_AVAILABLE:
+        raw_query = data.get("query", "")
+        if check_injection(raw_query):
+            return jsonify({"error": "Request blocked: potential injection detected."}), 400
+        query = sanitise_input(raw_query)
+    else:
+        query = data.get("query", "")
+
+    if not query or len(query.strip()) < 5:
+        return jsonify({"error": "query is required (min 5 chars)."}), 400
+
+    depth = data.get("depth", "standard")
+    if depth not in ("quick", "standard", "deep"):
+        depth = "standard"
+
+    dro = components.get("deep_research")
+    if dro is None:
+        return jsonify({
+            "error": "DeepResearchOrchestrator not initialised.",
+            "hint": "Check server logs for import errors."
+        }), 503
+
+    try:
+        result = dro.research(query, depth=depth)
+        return jsonify(result)
+    except Exception as exc:
+        logger.exception("DeepResearch error: %s", exc)
+        return jsonify({"error": f"Research failed: {exc}"}), 500
+
+
+@app.route("/api/research/status", methods=["GET"])
+def api_research_status():
+    """Check DeepResearch provider configuration."""
+    dro = components.get("deep_research")
+    if dro is None:
+        return jsonify({"available": False, "reason": "not initialised"})
+    status = dro.get_status()
+    status["available"] = True
+    return jsonify(status)
+
+
+@app.route("/api/research/history", methods=["GET"])
+def api_research_history():
+    """List recent deep research reports (admin only)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    dro = components.get("deep_research")
+    if dro is None:
+        return jsonify({"reports": []})
+    limit = min(int(request.args.get("limit", 20)), 50)
+    return jsonify({"reports": dro.list_past_reports(limit=limit)})
+
 
 def _start_background_services():
     if not IS_RENDER:
