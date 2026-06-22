@@ -474,12 +474,28 @@ td,th{{border:1px solid #333;padding:8px;text-align:left}}
   <span class="badge">HMAC: {'✓' if HMAC_AVAILABLE else '✗'}</span>
   <span class="badge">Bandit: {'✓' if BANDIT_AVAILABLE else '✗'}</span>
 </p>
-<p><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
+<p>
+  <a href="/chat" style="background:#6c63ff;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none;margin-right:8px">💬 Chat UI</a>
+  <a href="/admin" style="background:#ff6584;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none">🔐 Admin Panel</a>
+</p>
+<p style="margin-top:8px"><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
 <a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a></p>
 <h2>Active Components</h2>
 <table><tr><th>Component</th><th>Status</th></tr>
 {"".join(f"<tr><td>{k}</td><td style='color:#00d4aa'>active</td></tr>" for k in components)}
 </table></body></html>""", 200, {"Content-Type": "text/html"}
+
+@app.route("/chat")
+def chat_page():
+    """Public chat UI — Alex Riviera persona."""
+    return send_from_directory("static", "chat.html")
+
+
+@app.route("/admin")
+def admin_page():
+    """Admin panel — JWT-gated client-side lock screen."""
+    return send_from_directory("static", "admin.html")
+
 
 @app.route("/status")
 def status_page():

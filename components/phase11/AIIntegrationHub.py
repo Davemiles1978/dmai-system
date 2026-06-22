@@ -575,7 +575,7 @@ class AIIntegrationHub:
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'model': 'llama-3.1-sonar-small-128k-online',
+                    'model': 'sonar',  # Perplexity Sonar — real-time web search + AI
                     'messages': [{'role': 'user', 'content': prompt}],
                     'max_tokens': 500,
                     'temperature': 0.7
@@ -589,7 +589,7 @@ class AIIntegrationHub:
                     'success': True,
                     'tutor': 'Perplexity AI',
                     'response': data['choices'][0]['message']['content'],
-                    'model': 'llama-3.1-sonar'
+                    'model': 'sonar'
                 }
             else:
                 return {'success': False, 'tutor': 'Perplexity', 'error': f'HTTP {response.status_code}'}
