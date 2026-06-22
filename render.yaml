@@ -1,0 +1,108 @@
+services:
+  - type: web
+    name: dmai-complete
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --threads 2 --max-requests 100 --max-requests-jitter 50
+    healthCheckPath: /health
+    envVars:
+
+      # ── Core System ──────────────────────────────────────────
+      - key: PORT
+        value: "10000"
+      - key: RENDER
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATA_PATH
+        value: data/
+      - key: MASTER_PASSWORD
+        sync: false
+
+      # ── Database ─────────────────────────────────────────────
+      - key: DATABASE_URL
+        sync: false
+
+      # ── Telegram ─────────────────────────────────────────────
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+
+      # ── AI Providers — Existing ───────────────────────────────
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PERPLEXITY_API_KEY
+        sync: false
+      - key: XAI_API_KEY
+        sync: false
+      - key: HUGGINGFACE_API_KEY
+        sync: false
+      - key: GOOGLE_AI_STUDIO_KEY
+        sync: false
+      - key: NOTEBOOKLM_API_KEY
+        sync: false
+      - key: IMAGEN_API_KEY
+        sync: false
+      - key: GEMINI_GEMS_KEY
+        sync: false
+
+      # ── AI Providers — New Extended Hub ──────────────────────
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: STABILITY_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: RUNWAY_API_KEY
+        sync: false
+      - key: REPLICATE_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: TOGETHER_API_KEY
+        sync: false
+      - key: COHERE_API_KEY
+        sync: false
+
+      # ── GitHub ───────────────────────────────────────────────
+      - key: GITHUB_TOKEN_MAIN
+        sync: false
+      - key: GITHUB_TOKEN_SECONDARY
+        sync: false
+
+      # ── Vector DB (Pinecone) ──────────────────────────────────
+      - key: PINECONE_INDEX
+        sync: false
+      - key: PINECONE_ENVIRONMENT
+        sync: false
+
+      # ── Trading (Alpaca) ──────────────────────────────────────
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
+      - key: ALPACA_BASE_URL
+        value: https://paper-api.alpaca.markets
+
+      # ── AWS ───────────────────────────────────────────────────
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1
+
+      # ── Content / Publishing ──────────────────────────────────
+      - key: KDP_EMAIL
+        sync: false
+      - key: KDP_PASSWORD
+        sync: false
+      - key: AMAZON_SELLER_ID
+        sync: false
