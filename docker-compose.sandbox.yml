@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  dmai-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    container_name: dmai-sandbox
+    restart: unless-stopped
+    network_mode: none          # NO internet access whatsoever
+    read_only: true             # read-only root filesystem
+    tmpfs:
+      - /tmp:size=64m,noexec    # writable scratch but noexec
+      - /run:size=8m
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:components/sandbox/seccomp_profile.json
+    cap_drop:
+      - ALL
+    mem_limit: 256m
+    cpus: "0.5"
+    pids_limit: 64
+    ports: []                   # no published ports — accessed via Docker network only

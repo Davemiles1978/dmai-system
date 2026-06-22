@@ -1,0 +1,32 @@
+# DMAI Execution Sandbox image.
+# Hardened sidecar that runs untrusted code in an isolated subprocess.
+FROM python:3.11-slim
+
+# System dependencies:
+#   nodejs       — execute JavaScript snippets
+#   coreutils    — provides the `timeout` binary
+#   libseccomp2  — seccomp runtime support
+#   bash         — restricted shell for bash snippets
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        nodejs \
+        coreutils \
+        libseccomp2 \
+        bash \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python web stack for the sandbox API.
+RUN pip install --no-cache-dir flask gunicorn
+
+WORKDIR /app
+
+# Copy only the sandbox component into the image.
+COPY components/sandbox/ /app/
+
+# Non-root user (uid 65534 == nobody) — no root escalation possible.
+RUN useradd --uid 65534 --no-create-home --shell /usr/sbin/nologin sandbox 2>/dev/null || true
+USER 65534
+
+EXPOSE 8765
+
+ENTRYPOINT ["gunicorn", "sandbox_api:app", "--bind", "0.0.0.0:8765", "--workers", "1", "--timeout", "30"]

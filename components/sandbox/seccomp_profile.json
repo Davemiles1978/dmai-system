@@ -1,0 +1,53 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "defaultErrnoRet": 1,
+  "archMap": [
+    {
+      "architecture": "SCMP_ARCH_X86_64",
+      "subArchitectures": ["SCMP_ARCH_X86", "SCMP_ARCH_X32"]
+    },
+    {
+      "architecture": "SCMP_ARCH_AARCH64",
+      "subArchitectures": ["SCMP_ARCH_ARM"]
+    }
+  ],
+  "architectures": ["SCMP_ARCH_X86_64", "SCMP_ARCH_X86", "SCMP_ARCH_X32", "SCMP_ARCH_AARCH64", "SCMP_ARCH_ARM"],
+  "syscalls": [
+    {
+      "names": [
+        "read", "write", "close", "fstat", "lstat", "poll", "lseek", "pread64", "pwrite64",
+        "mmap", "mmap2", "mprotect", "munmap", "brk", "mremap", "msync", "madvise",
+        "shmget", "shmat", "shmdt", "shmctl",
+        "clone", "fork", "vfork", "execve", "execveat", "exit", "exit_group", "wait4", "waitid",
+        "getpid", "getppid", "gettid", "getuid", "getgid", "geteuid", "getegid", "setuid", "setgid",
+        "kill", "tgkill", "tkill",
+        "getcwd", "chdir", "openat", "open", "creat", "stat", "statx", "access", "faccessat",
+        "pipe", "pipe2", "dup", "dup2", "dup3", "fcntl", "flock", "fsync", "fdatasync",
+        "truncate", "ftruncate", "getdents", "getdents64", "rename", "renameat",
+        "mkdir", "mkdirat", "rmdir", "unlink", "unlinkat", "symlink", "readlink", "readlinkat",
+        "chmod", "fchmod", "chown", "fchown", "lchown", "umask", "sendfile", "copy_file_range",
+        "gettimeofday", "settimeofday", "time", "clock_gettime", "clock_settime", "nanosleep",
+        "getitimer", "setitimer", "alarm", "rt_sigaction", "rt_sigprocmask", "rt_sigreturn",
+        "rt_sigsuspend", "sigaltstack", "pause", "futex",
+        "ioctl", "uname", "sysinfo", "getrlimit", "setrlimit", "prlimit64", "getrusage",
+        "select", "pselect6", "ppoll", "epoll_create", "epoll_create1", "epoll_ctl",
+        "epoll_wait", "epoll_pwait", "sched_yield", "arch_prctl", "prctl", "seccomp",
+        "capget", "capset"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "names": [
+        "socket", "connect", "bind", "listen", "accept", "accept4",
+        "sendto", "recvfrom", "sendmsg", "recvmsg", "socketpair", "shutdown",
+        "getsockname", "getpeername", "setsockopt", "getsockopt",
+        "ptrace", "process_vm_readv", "process_vm_writev",
+        "kexec_load", "init_module", "finit_module", "delete_module",
+        "syslog", "reboot", "mount", "umount2", "pivot_root", "chroot",
+        "setns", "unshare", "perf_event_open", "bpf", "userfaultfd"
+      ],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1
+    }
+  ]
+}

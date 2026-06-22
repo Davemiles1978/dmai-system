@@ -203,6 +203,16 @@ try:
 except Exception as e:
     logger.warning("KnowledgeSourceManager failed: %s", e)
 
+# ── Execution Sandbox client ──────────────────────────────────────────────────
+try:
+    from components.sandbox.sandbox_client import SandboxClient
+    sandbox_client = SandboxClient()
+    components["sandbox_client"] = sandbox_client
+    logger.info("SandboxClient initialised — target %s", sandbox_client.sandbox_url)
+except Exception as e:
+    sandbox_client = None
+    logger.warning("SandboxClient failed: %s", e)
+
 # ── ParallelWebLearner ────────────────────────────────────────────────────────
 try:
     from components.knowledge_sources.parallel_web_learner import ParallelWebLearner
@@ -836,6 +846,61 @@ def api_admin_token():
     if not token:
         return jsonify({"error": "Token generation failed"}), 500
     return jsonify({"token": token, "expires_in": 3600, "type": "Bearer"})
+
+# ── Execution sandbox endpoints ───────────────────────────────────────────────
+
+@app.route("/api/sandbox/execute", methods=["POST"])
+def api_sandbox_execute():
+    """Run untrusted code in the isolated dmai-sandbox container (JWT-gated)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    client = components.get("sandbox_client")
+    if not client:
+        return jsonify({
+            "status": "unavailable",
+            "message": "Sandbox client not loaded — start with "
+                       "docker-compose -f docker-compose.sandbox.yml up -d",
+        }), 503
+    if not client.is_available():
+        return jsonify({
+            "status": "unavailable",
+            "message": "Sandbox offline — start with "
+                       "docker-compose -f docker-compose.sandbox.yml up -d",
+        }), 503
+
+    data = request.get_json(silent=True) or {}
+    code = data.get("code", "")
+    language = data.get("language", "python")
+    try:
+        timeout = int(data.get("timeout", 10))
+    except (TypeError, ValueError):
+        timeout = 10
+
+    result = client.execute(code, language=language, timeout=timeout)
+    if result.has_critical_anomaly:
+        logger.warning(
+            "Sandbox CRITICAL anomaly — request_id=%s %s",
+            result.request_id, result.anomaly_summary,
+        )
+    return jsonify(result.to_dict())
+
+
+@app.route("/api/sandbox/health", methods=["GET"])
+def api_sandbox_health():
+    """Public sandbox health + recent audit events."""
+    client = components.get("sandbox_client")
+    if not client or not client.is_available():
+        return jsonify({"status": "unavailable"})
+
+    health = client.health()
+    recent: list = []
+    try:
+        from components.sandbox.sandbox_logger import SandboxLogger
+        recent = SandboxLogger().get_recent(10)
+    except Exception as e:
+        logger.warning("Sandbox log read failed: %s", e)
+    health["recent_events"] = recent
+    return jsonify(health)
 
 # ── Circuit breaker admin (P1-1) ──────────────────────────────────────────────
 
