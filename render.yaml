@@ -28,6 +28,24 @@ services:
       - key: TAVILY_API_KEY
         sync: false
 
+      # ── Free-tier AI Providers (zero cost to activate) ───────────────────
+      - key: GROQ_API_KEY
+        sync: false
+
+      - key: OPENROUTER_API_KEY
+        sync: false
+
+      - key: CLOUDFLARE_API_KEY
+        sync: false
+
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+
+      - key: BRAVE_SEARCH_API_KEY
+        sync: false
+
+
+
       - key: BRAVE_SEARCH_API_KEY
         sync: false
 

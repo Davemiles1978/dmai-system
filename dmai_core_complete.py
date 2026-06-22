@@ -171,6 +171,27 @@ try:
 except Exception as e:
     logger.warning("DeepResearchOrchestrator failed: %s", e)
 
+
+# ── AutoAPIActivator ──────────────────────────────────────────────────────────
+try:
+    from components.integration.auto_api_activator import AutoAPIActivator
+    _hub_ref = components.get("extended_hub") or components.get("ai_hub")
+    components["api_activator"] = AutoAPIActivator(
+        ai_hub=_hub_ref,
+        data_path=str(Path(DATA_PATH)),
+    )
+    # Run initial scan immediately on startup (non-blocking — result logged)
+    _initial_scan = components["api_activator"].scan_and_activate()
+    logger.info(
+        "AutoAPIActivator: %d active providers, %d pending keys",
+        _initial_scan.get("total_active", 0),
+        len(_initial_scan.get("pending", [])),
+    )
+    # Start hourly background re-validation loop
+    components["api_activator"].start_background_loop()
+except Exception as e:
+    logger.warning("AutoAPIActivator failed: %s", e)
+
 # ── Evolution Training System ─────────────────────────────────────────────────
 try:
     from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
@@ -941,6 +962,87 @@ def api_research_history():
         return jsonify({"reports": []})
     limit = min(int(request.args.get("limit", 20)), 50)
     return jsonify({"reports": dro.list_past_reports(limit=limit)})
+
+
+
+# ── API Harvester / Activator endpoints ──────────────────────────────────────
+
+@app.route("/api/harvester/status", methods=["GET"])
+def api_harvester_status():
+    """
+    Get status of all known API providers — which are active, which need keys.
+    Public — no auth required (key values are never exposed).
+    """
+    activator = components.get("api_activator")
+    if activator is None:
+        return jsonify({"error": "AutoAPIActivator not initialised"}), 503
+
+    status = activator.get_status()
+    # Summarise for response
+    providers = status.get("providers", {})
+    summary = {
+        "total_providers":  len(providers),
+        "active":           [pid for pid, p in providers.items() if p.get("status") == "active"],
+        "pending_key":      [pid for pid, p in providers.items() if p.get("status") == "pending_api_key"],
+        "invalid":          [pid for pid, p in providers.items() if p.get("status") == "invalid"],
+        "last_scan":        status.get("timestamp"),
+        "providers":        providers,
+        "missing_keys_guide": activator.get_missing_keys_brief(),
+    }
+    return jsonify(summary)
+
+
+@app.route("/api/harvester/scan", methods=["POST"])
+def api_harvester_scan():
+    """
+    Trigger an immediate scan + validation of all API keys (admin only).
+    Hot-wires any newly valid keys into AIIntegrationHub without restart.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+
+    activator = components.get("api_activator")
+    if activator is None:
+        return jsonify({"error": "AutoAPIActivator not initialised"}), 503
+
+    try:
+        results = activator.scan_and_activate()
+        return jsonify({
+            "success":        True,
+            "active_count":   results.get("total_active", 0),
+            "activated":      results.get("activated", []),
+            "pending":        results.get("pending", []),
+            "invalid":        results.get("invalid", []),
+            "timestamp":      results.get("timestamp"),
+        })
+    except Exception as exc:
+        logger.exception("Harvester scan error: %s", exc)
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/harvester/providers", methods=["GET"])
+def api_harvester_providers():
+    """
+    Return the full provider catalogue — all known APIs, their signup URLs,
+    free tier info, and required env var names. No auth required.
+    """
+    from components.integration.auto_api_activator import PROVIDER_CATALOGUE
+    activator = components.get("api_activator")
+    active_set = set(activator.get_active_providers()) if activator else set()
+
+    catalogue = []
+    for pid, spec in PROVIDER_CATALOGUE.items():
+        catalogue.append({
+            "id":          pid,
+            "name":        spec["name"],
+            "signup_url":  spec["signup_url"],
+            "free_tier":   spec["free_tier"],
+            "env_vars":    spec["env_vars"],
+            "models":      spec["models"],
+            "best_model":  spec.get("best_model", spec["models"][0]),
+            "active":      pid in active_set,
+        })
+    return jsonify({"providers": catalogue, "active_count": len(active_set)})
 
 
 def _start_background_services():
