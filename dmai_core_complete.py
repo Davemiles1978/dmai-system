@@ -192,6 +192,32 @@ try:
 except Exception as e:
     logger.warning("AutoAPIActivator failed: %s", e)
 
+# ── KnowledgeSourceManager (BookReader, WebCrawler, ArticleReader, etc.) ─────
+try:
+    from components.knowledge_sources.CoreKnowledgeSources import KnowledgeSourceManager
+    components["knowledge_manager"] = KnowledgeSourceManager(
+        base_path=Path(DATA_PATH).parent,  # data_path will be <base>/data/knowledge_sources
+        si_core=components.get("si_core"),
+    )
+    logger.info("KnowledgeSourceManager initialised — 8 knowledge sources ready")
+except Exception as e:
+    logger.warning("KnowledgeSourceManager failed: %s", e)
+
+# ── ParallelWebLearner ────────────────────────────────────────────────────────
+try:
+    from components.knowledge_sources.parallel_web_learner import ParallelWebLearner
+    _km = components.get("knowledge_manager")
+    _web_crawler = _km.sources.get("web_crawler") if _km else None
+    components["parallel_learner"] = ParallelWebLearner(
+        data_path=Path(DATA_PATH),
+        si_core=components.get("si_core"),
+        web_crawler=_web_crawler,
+        seed=True,
+    )
+    logger.info("ParallelWebLearner initialised — seed URLs queued")
+except Exception as e:
+    logger.warning("ParallelWebLearner failed: %s", e)
+
 # ── Evolution Training System ─────────────────────────────────────────────────
 try:
     from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
@@ -404,9 +430,13 @@ def _ai_chat(message: str) -> str:
 
     hub = components.get("extended_hub") or components.get("ai_hub")
     response_text = None
-    if hub and hasattr(hub, "chat"):
+    if hub:
         try:
-            response_text = _run_async(hub.chat(clean_message))
+            # ExtendedHub has async chat(); AIIntegrationHub has chat_sync()
+            if hasattr(hub, "chat_sync"):
+                response_text = hub.chat_sync(clean_message)
+            elif hasattr(hub, "chat"):
+                response_text = _run_async(hub.chat(clean_message))
         except Exception as e:
             logger.warning("AI chat error: %s", e)
 
@@ -1053,7 +1083,90 @@ def api_harvester_providers():
     return jsonify({"providers": catalogue, "active_count": len(active_set)})
 
 
+# ── Knowledge Source Endpoints ────────────────────────────────────────────────
+
+@app.route("/api/knowledge/status", methods=["GET"])
+def api_knowledge_status():
+    """Status of all 8 knowledge sources + parallel web learner."""
+    km = components.get("knowledge_manager")
+    pl = components.get("parallel_learner")
+    km_status = km.get_summary() if km else {"error": "KnowledgeSourceManager not loaded"}
+    pl_status = pl.get_status() if pl else {"error": "ParallelWebLearner not loaded"}
+    return jsonify({
+        "knowledge_manager":   km_status,
+        "parallel_learner":    pl_status,
+        "timestamp":           datetime.now(timezone.utc).isoformat(),
+    })
+
+
+@app.route("/api/knowledge/add-url", methods=["POST"])
+def api_knowledge_add_url():
+    """
+    Inject a URL into the parallel web learner queue.
+    Admin only.
+    Body: {"url": "https://...", "reason": "why DMAI should read this"}
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data   = request.get_json(silent=True) or {}
+    url    = data.get("url", "").strip()
+    reason = data.get("reason", "admin injection").strip()
+    if not url.startswith(("http://", "https://")):
+        return jsonify({"error": "Invalid URL — must start with http:// or https://"}), 400
+    pl = components.get("parallel_learner")
+    km = components.get("knowledge_manager")
+    if pl:
+        pl.add_url(url, reason)
+    if km:
+        km.add_url(url, reason)   # also feeds WebCrawler's discovered_urls
+    if not pl and not km:
+        return jsonify({"error": "No knowledge components loaded"}), 503
+    return jsonify({"success": True, "url": url, "reason": reason,
+                    "queue_depth": pl.get_status().get("queue_depth", 0) if pl else None})
+
+
+@app.route("/api/knowledge/add-book", methods=["POST"])
+def api_knowledge_add_book():
+    """
+    Add a book to DMAI's reading list.
+    Admin only.
+    Body: {"title": "...", "author": "...", "reason": "..."}
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data   = request.get_json(silent=True) or {}
+    title  = data.get("title", "").strip()
+    author = data.get("author", "").strip()
+    reason = data.get("reason", "admin recommendation").strip()
+    if not title or not author:
+        return jsonify({"error": "title and author are required"}), 400
+    km = components.get("knowledge_manager")
+    if not km:
+        return jsonify({"error": "KnowledgeSourceManager not loaded"}), 503
+    km.add_book(title, author, reason)
+    return jsonify({"success": True, "title": title, "author": author, "reason": reason})
+
+
 def _start_background_services():
+    # ── Knowledge sources — start on ALL environments (free-tier only) ─────
+    km = components.get("knowledge_manager")
+    if km:
+        try:
+            # Start all 8 sources as daemon threads
+            # DarkWebMonitor will self-disable if Tor is not reachable
+            km.start_all()
+            logger.info("KnowledgeSourceManager: all sources started")
+        except Exception as e:
+            logger.warning("KnowledgeSourceManager start failed: %s", e)
+
+    pl = components.get("parallel_learner")
+    if pl:
+        try:
+            pl.start_background()
+            logger.info("ParallelWebLearner background thread started")
+        except Exception as e:
+            logger.warning("ParallelWebLearner start failed: %s", e)
+
     if not IS_RENDER:
         orch = components.get("training_orchestrator")
         if orch:

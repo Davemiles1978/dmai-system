@@ -862,6 +862,72 @@ class AIIntegrationHub:
         
 
     # ====================================================================
+    # UNIFIED CHAT INTERFACE (called by ExtendedHub fallback + _ai_chat directly)
+    # ====================================================================
+
+    async def chat(self, prompt: str) -> str:
+        """
+        Async chat interface — tries providers in priority order and returns
+        the first successful response.
+
+        Priority (cheapest/fastest first):
+          1. Cerebras   — 1M tokens/day, 2,600 tok/s
+          2. Groq       — 14,400 req/day, fastest after Cerebras
+          3. Google AI Studio — 1,500 req/day, large context
+          4. GitHub Models — 150 RPD free, OpenAI-quality
+          5. Mistral    — 1B tokens/month, 2 RPM
+          6. DeepSeek   — $0.14/1M, best paid value
+          7. OpenAI     — $0.15/1M (gpt-4o-mini)
+          8. Anthropic  — paid, last resort
+        """
+        import asyncio
+
+        priority_methods = [
+            ("Cerebras",        self._query_cerebras),
+            ("Groq",            self._query_groq),
+            ("Google AI Studio",self._query_google_ai_studio),
+            ("GitHub Models",   self._query_github_models),
+            ("Mistral AI",      self._query_mistral),
+            ("DeepSeek",        self._query_deepseek),
+            ("OpenAI",          self._query_openai),
+            ("Anthropic",       self._query_anthropic),
+        ]
+
+        for name, method in priority_methods:
+            try:
+                # Run synchronous _query_* in executor so we stay async-compatible
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(None, method, prompt)
+                if result.get("success"):
+                    logger.info("chat(): responded via %s", name)
+                    return result["response"]
+            except Exception as exc:
+                logger.debug("chat(): %s failed — %s", name, exc)
+
+        return (
+            "DMAI is online but no AI provider key is active. "
+            "Add a free key — Groq (GROQ_API_KEY) is fastest to set up: "
+            "https://console.groq.com/keys"
+        )
+
+    def chat_sync(self, prompt: str) -> str:
+        """Synchronous wrapper around chat() — used by _ai_chat in Flask context."""
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # Already inside an event loop (e.g. async test) — run in thread
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as pool:
+                    fut = pool.submit(asyncio.run, self.chat(prompt))
+                    return fut.result(timeout=45)
+            else:
+                return loop.run_until_complete(self.chat(prompt))
+        except Exception as exc:
+            logger.warning("chat_sync error: %s", exc)
+            return f"DMAI error: {exc}"
+
+    # ====================================================================
     # NEW FREE-TIER TUTOR QUERY METHODS
     # Cerebras · GitHub Models · Mistral AI
     # ====================================================================

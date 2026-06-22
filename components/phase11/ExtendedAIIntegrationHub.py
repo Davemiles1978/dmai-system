@@ -550,10 +550,19 @@ class ExtendedAIIntegrationHub:
     # ── Provider selection helpers ────────────────────────────────────────
 
     def _pick_chat_provider(self) -> str:
-        preferred = ["mistral", "together", "cohere"]
-        for p in preferred:
+        """
+        Priority order — free-tier first, paid fallback last.
+        base_hub carries Groq, Cerebras, Google AI Studio, GitHub Models, Mistral
+        via AIIntegrationHub query_all_tutors / _query_* methods.
+        Extended adapters (Mistral, Together, Cohere) are checked if present.
+        """
+        # 1. Extended adapters with known chat capability (paid/premium)
+        extended_preferred = ["mistral", "together", "cohere"]
+        for p in extended_preferred:
             if p in self._adapters:
                 return p
+        # 2. Always fall through to base_hub — it now contains free-tier providers
+        #    (Groq, Cerebras, Google AI Studio, GitHub Models) via _query_* methods
         if self.base_hub:
             return "base_hub"
         return "none"
