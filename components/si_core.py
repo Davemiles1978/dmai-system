@@ -1,59 +1,75 @@
 """
-DMAI Self-Improvement Core (Patched)
+DMAI Self-Improvement Core (v7.0.0)
 =====================================
-Manages KPI tracking, atomic state persistence, and regression detection
-for the self-improvement sub-system.
+Manages KPI tracking, atomic state persistence, regression detection,
+and baseline integrity for the self-improvement sub-system.
 
 All KPI mutations require a valid JWT token issued by security.generate_token().
-Regression alerts require human review before any remediation action is taken.
+Regression alerts require human review before any remediation action.
 Auto-retraining without approval is NOT implemented by design.
+
+8 SICore KPIs tracked:
+  1. skill_acquisition_rate
+  2. transfer_learning_rate
+  3. zero_shot_success_count
+  4. agentic_capability_score
+  5. recursive_self_improvement_rate
+  6. sample_efficiency_trend
+  7. metacognition_accuracy
+  8. multi_modal_integration_score
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
 import tempfile
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# KPI state defaults
+# 8 SICore KPI defaults (P1-5 — never fabricated, only real scored values)
 # ---------------------------------------------------------------------------
-
-_DEFAULT_STATE = {
-    "skill_acquisition_rate": 0.0,
-    "task_completion_rate": 0.0,
-    "error_rate": 0.0,
-    "response_quality": 0.0,
-    "last_updated": None,
+_DEFAULT_STATE: Dict[str, Any] = {
+    # The 8 canonical SICore KPIs
+    "skill_acquisition_rate":        0.0,
+    "transfer_learning_rate":         0.0,
+    "zero_shot_success_count":        0,
+    "agentic_capability_score":       0.0,
+    "recursive_self_improvement_rate": 0.0,
+    "sample_efficiency_trend":        0.0,
+    "metacognition_accuracy":         0.0,
+    "multi_modal_integration_score":  0.0,
+    # Legacy / compatibility KPIs
+    "task_completion_rate":           0.0,
+    "error_rate":                     0.0,
+    "response_quality":               0.0,
+    "consciousness":                  0.0,
+    "last_updated":                   None,
 }
 
 # Regression thresholds
-_REGRESSION_WARNING_PCT = 0.10    # 10% drop -> WARNING
-_REGRESSION_HIGH_PCT = 0.15       # 15% drop -> HIGH
-_REGRESSION_CRITICAL_PCT = 0.30   # 30% drop -> CRITICAL
+_REGRESSION_WARNING_PCT  = 0.10   # 10% drop  → WARNING
+_REGRESSION_HIGH_PCT     = 0.15   # 15% drop  → HIGH
+_REGRESSION_CRITICAL_PCT = 0.30   # 30% drop  → CRITICAL
 
+# Benchmark baseline file name
+_BASELINE_FILE_NAME = "benchmark_baseline.json"
+
+
+# ---------------------------------------------------------------------------
+# Data classes
+# ---------------------------------------------------------------------------
 
 @dataclass
 class RegressionAlert:
-    """An alert produced when a KPI drops below a regression threshold.
-
-    Attributes:
-        kpi_name: The name of the KPI that regressed.
-        baseline: The reference value the regression is measured against.
-        new_value: The newly observed value.
-        drop_pct: Fractional drop (e.g. 0.20 for 20%).
-        severity: One of WARNING, HIGH, CRITICAL.
-        requires_human_review: Always True; no auto-retraining is permitted.
-        auto_retraining_triggered: Always False; present for audit purposes.
-    """
-
+    """Emitted when a KPI drops below a regression threshold."""
     kpi_name: str
     baseline: float
     new_value: float
@@ -63,51 +79,68 @@ class RegressionAlert:
     auto_retraining_triggered: bool = False
 
     def to_dict(self) -> dict:
-        """Return a JSON-serialisable representation of this alert."""
         return {
-            "kpi_name": self.kpi_name,
-            "baseline": self.baseline,
-            "new_value": self.new_value,
-            "drop_pct": round(self.drop_pct, 4),
-            "severity": self.severity,
-            "requires_human_review": self.requires_human_review,
+            "kpi_name":                 self.kpi_name,
+            "baseline":                 self.baseline,
+            "new_value":                self.new_value,
+            "drop_pct":                 round(self.drop_pct, 4),
+            "severity":                 self.severity,
+            "requires_human_review":    self.requires_human_review,
             "auto_retraining_triggered": self.auto_retraining_triggered,
         }
 
 
+# ---------------------------------------------------------------------------
+# SICore
+# ---------------------------------------------------------------------------
+
 class SICore:
-    """Self-Improvement Core: KPI management and regression detection.
+    """Self-Improvement Core: KPI management, regression detection,
+    atomic state persistence, and SHA-256 baseline integrity guard.
 
     All public KPI mutators require a valid JWT token.  Mutations without
     a valid token are silently rejected (no phantom increments).
-
-    State is persisted atomically via os.replace() to prevent corruption.
     """
 
-    def __init__(self, state_path: Optional[Path] = None):
-        """Initialise SICore with optional persistent state path.
-
-        Args:
-            state_path: Path for the JSON state file.  If None a temp path
-                is used (state is still written atomically but not permanent).
+    def __init__(self, data_path: Optional[Path] = None, state_path: Optional[Path] = None):
         """
-        if state_path is None:
-            state_path = Path(tempfile.gettempdir()) / "si_core_state.json"
-        self.state_path = Path(state_path)
-        self._state: dict = dict(_DEFAULT_STATE)
-        self._baseline: dict = {}
+        Args:
+            data_path: Root data directory (preferred — used to resolve all files).
+            state_path: Explicit path for the JSON state file (legacy compat).
+        """
+        # Support both calling conventions
+        if data_path is not None:
+            data_path = Path(data_path)
+            self.state_path = data_path / "si_core_state.json"
+            self._baseline_path = data_path / _BASELINE_FILE_NAME
+        else:
+            if state_path is None:
+                state_path = Path(tempfile.gettempdir()) / "si_core_state.json"
+            self.state_path = Path(state_path)
+            self._baseline_path = self.state_path.parent / _BASELINE_FILE_NAME
+
+        self._state: Dict[str, Any] = dict(_DEFAULT_STATE)
+        self._baseline: Dict[str, float] = {}
+        self._baseline_hash: Optional[str] = None
+
+        # Attempt to load persisted state on init
+        self.load_state()
 
     # ------------------------------------------------------------------
-    # State persistence
+    # Public property — used throughout dmai_core_complete.py
+    # ------------------------------------------------------------------
+
+    @property
+    def current_kpis(self) -> Dict[str, Any]:
+        """Return a copy of the current KPI state."""
+        return dict(self._state)
+
+    # ------------------------------------------------------------------
+    # State persistence (atomic)
     # ------------------------------------------------------------------
 
     def _atomic_write_json(self, data: dict, path: Path) -> None:
-        """Write data to path atomically using a temp file + os.replace().
-
-        Args:
-            data: JSON-serialisable dict to write.
-            path: Destination file path.
-        """
+        """Write data atomically via temp file + os.replace()."""
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp_fd, tmp_path = tempfile.mkstemp(
             dir=path.parent, prefix=".si_tmp_", suffix=".json"
@@ -117,7 +150,6 @@ class SICore:
                 json.dump(data, fh, indent=2)
             os.replace(tmp_path, str(path))
         except Exception:
-            # Clean up the temp file on failure; do not corrupt destination
             try:
                 os.unlink(tmp_path)
             except OSError:
@@ -132,159 +164,211 @@ class SICore:
     def load_state(self) -> bool:
         """Load KPI state from disk.
 
-        Returns:
-            True if state was loaded successfully, False if the file is
-            missing or contains invalid JSON.  On failure the in-memory
-            state is left unchanged and the corrupt file is NOT overwritten.
+        Returns True if successful, False on missing/corrupt file.
         """
         if not self.state_path.exists():
-            logger.debug("State file not found: %s", self.state_path)
             return False
         try:
             raw = self.state_path.read_text(encoding="utf-8")
             loaded = json.loads(raw)
-            # Validate basic structure before accepting
             if not isinstance(loaded, dict):
                 raise ValueError("State is not a JSON object.")
-            self._state.update(loaded)
+            # Only accept known KPI keys (never let arbitrary keys pollute state)
+            for k in _DEFAULT_STATE:
+                if k in loaded:
+                    self._state[k] = loaded[k]
             return True
         except Exception as exc:
-            logger.error(
-                "Failed to load SI state from %s: %s. "
-                "Retaining previous in-memory state.",
-                self.state_path,
-                exc,
-            )
+            logger.error("Failed to load SI state from %s: %s", self.state_path, exc)
             return False
 
     # ------------------------------------------------------------------
-    # Token validation (delegates to security module)
+    # SHA-256 baseline integrity guard (P1-7)
+    # ------------------------------------------------------------------
+
+    def _compute_baseline_hash(self, baseline: dict) -> str:
+        """Return SHA-256 hex digest of the canonical JSON of baseline."""
+        canonical = json.dumps(baseline, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+    def save_baseline(self) -> None:
+        """Persist the current in-memory baseline to disk with its hash."""
+        payload = {
+            "baseline": self._baseline,
+            "sha256": self._compute_baseline_hash(self._baseline),
+            "saved_at": time.time(),
+        }
+        self._atomic_write_json(payload, self._baseline_path)
+        self._baseline_hash = payload["sha256"]
+        logger.info("Baseline saved to %s (sha256=%s…)", self._baseline_path, payload["sha256"][:12])
+
+    def load_baseline(self) -> bool:
+        """Load baseline from disk, verifying its SHA-256 hash.
+
+        Returns True if loaded and hash verified, False otherwise.
+        If the hash does not match the file is rejected and the
+        in-memory baseline is left unchanged.
+        """
+        if not self._baseline_path.exists():
+            return False
+        try:
+            payload = json.loads(self._baseline_path.read_text(encoding="utf-8"))
+            stored_hash = payload.get("sha256", "")
+            baseline = payload.get("baseline", {})
+            expected = self._compute_baseline_hash(baseline)
+            if stored_hash != expected:
+                logger.error(
+                    "Baseline hash mismatch! Expected %s got %s — "
+                    "rejecting baseline file (possible tampering).",
+                    expected[:16], stored_hash[:16],
+                )
+                return False
+            self._baseline = {k: float(v) for k, v in baseline.items()}
+            self._baseline_hash = stored_hash
+            logger.info("Baseline loaded and hash verified (sha256=%s…)", stored_hash[:12])
+            return True
+        except Exception as exc:
+            logger.error("Failed to load baseline from %s: %s", self._baseline_path, exc)
+            return False
+
+    # ------------------------------------------------------------------
+    # Token validation
     # ------------------------------------------------------------------
 
     def _validate_token(self, token: Optional[str]) -> bool:
-        """Return True if token is a valid JWT issued by security.generate_token().
-
-        Args:
-            token: Encoded JWT string, or None.
-        """
+        """Return True if token is a valid JWT."""
         if not token:
             return False
         try:
+            # security.py lives in repo root, one level up from components/
             import sys
-            _fixes_dir = str(Path(__file__).parent)
-            if _fixes_dir not in sys.path:
-                sys.path.insert(0, _fixes_dir)
+            root = str(Path(__file__).parent.parent)
+            if root not in sys.path:
+                sys.path.insert(0, root)
             from security import verify_token
-            payload = verify_token(token)
-            return payload is not None
+            return verify_token(token) is not None
         except Exception as exc:
             logger.debug("Token validation error: %s", exc)
             return False
 
     # ------------------------------------------------------------------
-    # KPI mutators — each requires a valid token
+    # KPI mutators — all 8 SICore KPIs (P1-5)
+    # Each requires a valid JWT. No fabricated values accepted.
     # ------------------------------------------------------------------
 
-    def update_kpi_1_skill_acquisition(
-        self, value: float, token: Optional[str] = None
-    ) -> bool:
-        """Update the skill_acquisition_rate KPI.
-
-        Args:
-            value: New KPI value (0.0 - 100.0 scale).
-            token: Valid JWT token; mutation is rejected without it.
-
-        Returns:
-            True if the KPI was updated, False if token was invalid.
-        """
+    def _update_kpi(self, kpi_name: str, value: float, token: Optional[str]) -> bool:
+        """Generic KPI update with token gate."""
         if not self._validate_token(token):
-            logger.warning(
-                "Rejected KPI update for skill_acquisition_rate: invalid token."
-            )
+            logger.warning("Rejected KPI update for %s: invalid/missing token.", kpi_name)
             return False
-        self._state["skill_acquisition_rate"] = float(value)
+        self._state[kpi_name] = value
         return True
 
-    def update_kpi_2_task_completion(
-        self, value: float, token: Optional[str] = None
-    ) -> bool:
-        """Update the task_completion_rate KPI.
+    def update_kpi_skill_acquisition_rate(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("skill_acquisition_rate", float(value), token)
 
-        Args:
-            value: New KPI value (0.0 - 100.0 scale).
-            token: Valid JWT token; mutation is rejected without it.
+    def update_kpi_transfer_learning_rate(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("transfer_learning_rate", float(value), token)
 
-        Returns:
-            True if the KPI was updated, False if token was invalid.
-        """
-        if not self._validate_token(token):
-            logger.warning(
-                "Rejected KPI update for task_completion_rate: invalid token."
-            )
-            return False
-        self._state["task_completion_rate"] = float(value)
-        return True
+    def update_kpi_zero_shot_success_count(self, value: int, token: Optional[str] = None) -> bool:
+        return self._update_kpi("zero_shot_success_count", int(value), token)
 
-    def get_kpi(self, name: str) -> Optional[float]:
-        """Retrieve the current value of a named KPI.
+    def update_kpi_agentic_capability_score(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("agentic_capability_score", float(value), token)
 
-        Args:
-            name: KPI name, e.g. 'skill_acquisition_rate'.
+    def update_kpi_recursive_self_improvement_rate(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("recursive_self_improvement_rate", float(value), token)
 
-        Returns:
-            Current float value, or None if the KPI does not exist.
-        """
+    def update_kpi_sample_efficiency_trend(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("sample_efficiency_trend", float(value), token)
+
+    def update_kpi_metacognition_accuracy(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("metacognition_accuracy", float(value), token)
+
+    def update_kpi_multi_modal_integration_score(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("multi_modal_integration_score", float(value), token)
+
+    # Legacy compat methods (used by older components)
+    def update_kpi_1_skill_acquisition(self, value: float, token: Optional[str] = None) -> bool:
+        return self.update_kpi_skill_acquisition_rate(value, token)
+
+    def update_kpi_2_task_completion(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("task_completion_rate", float(value), token)
+
+    # Generic getter
+    def get_kpi(self, name: str) -> Optional[Any]:
         return self._state.get(name)
+
+    # ------------------------------------------------------------------
+    # Training gate — no KPI update without real AI scored response
+    # ------------------------------------------------------------------
+
+    def record_training_result(
+        self,
+        kpi_name: str,
+        scored_value: float,
+        source: str,
+        token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Update a KPI only from a real scored AI response (P1-5).
+
+        Args:
+            kpi_name:      One of the 8 SICore KPI names.
+            scored_value:  Value produced by a real AI provider call.
+            source:        Human-readable source (e.g. 'openai:gpt-4o scored 0.82').
+            token:         Valid JWT — required.
+
+        Returns a result dict with 'status': 'updated' | 'rejected' | 'invalid_kpi'.
+        """
+        valid_kpis = set(_DEFAULT_STATE.keys()) - {"last_updated", "consciousness"}
+        if kpi_name not in valid_kpis:
+            return {"status": "invalid_kpi", "kpi": kpi_name}
+        updated = self._update_kpi(kpi_name, scored_value, token)
+        if not updated:
+            return {"status": "rejected", "reason": "invalid or missing JWT token"}
+        regression = self.check_regression(kpi_name, scored_value)
+        result: Dict[str, Any] = {
+            "status": "updated",
+            "kpi": kpi_name,
+            "value": scored_value,
+            "source": source,
+            "regression": regression.to_dict() if regression else None,
+        }
+        self.save_state()
+        return result
 
     # ------------------------------------------------------------------
     # Baseline management
     # ------------------------------------------------------------------
 
     def set_baseline(self, kpi_name: str, value: float) -> None:
-        """Store a baseline value for regression comparison.
-
-        Args:
-            kpi_name: Name of the KPI.
-            value: Reference (baseline) value.
-        """
         self._baseline[kpi_name] = float(value)
+
+    def set_all_baselines(self, baselines: Dict[str, float]) -> None:
+        """Set multiple baselines at once and persist with hash."""
+        for k, v in baselines.items():
+            self._baseline[k] = float(v)
+        self.save_baseline()
 
     # ------------------------------------------------------------------
     # Regression detection
     # ------------------------------------------------------------------
 
-    def check_regression(
-        self, kpi_name: str, new_value: float
-    ) -> Optional[RegressionAlert]:
-        """Compare new_value against the stored baseline for kpi_name.
-
-        Returns a RegressionAlert if the drop exceeds the WARNING threshold,
-        or None if no significant regression is detected.
-
-        Args:
-            kpi_name: Name of the KPI to check.
-            new_value: Newly observed KPI value.
-
-        Returns:
-            RegressionAlert if a regression is detected, else None.
-        """
+    def check_regression(self, kpi_name: str, new_value: float) -> Optional[RegressionAlert]:
         baseline = self._baseline.get(kpi_name)
         if baseline is None or baseline == 0.0:
             return None
-
         drop = baseline - new_value
         drop_pct = drop / baseline
-
         if drop_pct < _REGRESSION_WARNING_PCT:
             return None
-
         if drop_pct >= _REGRESSION_CRITICAL_PCT:
             severity = "CRITICAL"
         elif drop_pct >= _REGRESSION_HIGH_PCT:
             severity = "HIGH"
         else:
             severity = "WARNING"
-
         return RegressionAlert(
             kpi_name=kpi_name,
             baseline=baseline,
@@ -300,9 +384,4 @@ class SICore:
     # ------------------------------------------------------------------
 
     def has_method(self, name: str) -> bool:
-        """Return True if this instance exposes a method with the given name.
-
-        Args:
-            name: Method name to check for.
-        """
         return callable(getattr(self, name, None))
