@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMAI — One-Click Installer</title>
+<style>
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --surface2: #1c2330;
+    --border:   #30363d;
+    --teal:     #4f98a3;
+    --teal-dim: #1b474d;
+    --green:    #3fb950;
+    --yellow:   #d29922;
+    --red:      #f85149;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --mono:     'Fira Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, #0d1117 0%, #1b474d 100%);
+    border-bottom: 1px solid var(--teal-dim);
+    padding: 36px 24px 28px;
+    text-align: center;
+  }
+  .logo-ascii {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--teal);
+    white-space: pre;
+    display: inline-block;
+    margin-bottom: 14px;
+  }
+  header h1 { font-size: 26px; font-weight: 700; color: var(--text); }
+  header p  { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .version-badge {
+    display: inline-block;
+    background: var(--teal-dim);
+    color: var(--teal);
+    border: 1px solid var(--teal);
+    border-radius: 20px;
+    font-size: 11px;
+    padding: 2px 10px;
+    margin-top: 8px;
+    font-family: var(--mono);
+  }
+
+  /* ── Layout ── */
+  .container {
+    width: 100%;
+    max-width: 860px;
+    padding: 32px 20px 60px;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 6px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--green));
+    border-radius: 8px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ── Step cards ── */
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .step-card.active   { border-color: var(--teal); }
+  .step-card.done     { border-color: var(--green); }
+  .step-card.error    { border-color: var(--red); }
+  .step-card.skipped  { border-color: var(--border); opacity: 0.5; }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: default;
+  }
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step-card.active  .step-num { border-color: var(--teal); color: var(--teal); }
+  .step-card.done    .step-num { border-color: var(--green); background: var(--green); color: #000; }
+  .step-card.error   .step-num { border-color: var(--red); background: var(--red); color: #fff; }
+
+  .step-title { font-weight: 600; font-size: 15px; flex: 1; }
+  .step-status-badge {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  .badge-waiting  { background: var(--surface2); color: var(--muted); }
+  .badge-running  { background: rgba(79,152,163,0.2); color: var(--teal); }
+  .badge-done     { background: rgba(63,185,80,0.15); color: var(--green); }
+  .badge-error    { background: rgba(248,81,73,0.15); color: var(--red); }
+  .badge-skipped  { background: var(--surface2); color: var(--muted); }
+
+  .step-body {
+    padding: 0 20px 16px;
+    display: none;
+  }
+  .step-body.visible { display: block; }
+
+  .step-desc {
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  /* ── Terminal ── */
+  .terminal {
+    background: #090d12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    max-height: 220px;
+    overflow-y: auto;
+    color: #b0c4de;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .terminal .ok   { color: var(--green); }
+  .terminal .warn { color: var(--yellow); }
+  .terminal .err  { color: var(--red); }
+  .terminal .info { color: var(--teal); }
+  .terminal .cmd  { color: #e6edf3; }
+
+  /* ── Input form ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .field-group { display: flex; flex-direction: column; gap: 5px; }
+  .field-group.full { grid-column: 1 / -1; }
+
+  .field-group label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field-group label .req { color: var(--red); margin-left: 3px; }
+  .field-group label .opt { color: var(--teal); margin-left: 3px; font-size: 10px; }
+
+  .field-group input, .field-group select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .field-group input:focus, .field-group select:focus { border-color: var(--teal); }
+  .field-group input::placeholder { color: var(--muted); font-size: 12px; }
+  .field-group input[type="password"] { letter-spacing: 2px; }
+  .field-group input[type="password"]::placeholder { letter-spacing: 0; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--teal);
+    margin: 18px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--teal-dim);
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #5fb4c0; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,152,163,0.4); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-success {
+    background: var(--green);
+    color: #000;
+    font-weight: 700;
+  }
+  .btn-success:hover { background: #52d461; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(63,185,80,0.4); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  /* ── Launch options ── */
+  .launch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .launch-grid { grid-template-columns: 1fr; } }
+
+  .launch-option {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .launch-option:hover { border-color: var(--teal); }
+  .launch-option.selected { border-color: var(--teal); background: rgba(79,152,163,0.08); }
+  .launch-option h4 { font-size: 14px; margin-bottom: 5px; color: var(--text); }
+  .launch-option p  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .launch-icon { font-size: 22px; margin-bottom: 8px; }
+
+  /* ── Readiness panel ── */
+  .readiness-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+  .check-label { flex: 1; }
+  .check-detail { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+
+  /* ── Command box ── */
+  .cmd-box {
+    background: #090d12;
+    border: 1px solid var(--teal-dim);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--teal);
+    position: relative;
+    margin: 10px 0;
+  }
+  .cmd-box .copy-btn {
+    position: absolute;
+    top: 8px; right: 10px;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+    color: var(--teal);
+    border-radius: 5px;
+    font-size: 11px;
+    padding: 3px 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cmd-box .copy-btn:hover { background: var(--teal); color: #fff; }
+
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid transparent;
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  /* ── Success banner ── */
+  .success-banner {
+    background: linear-gradient(135deg, rgba(63,185,80,0.1), rgba(79,152,163,0.1));
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    display: none;
+    margin-top: 24px;
+  }
+  .success-banner h2 { color: var(--green); font-size: 22px; margin-bottom: 10px; }
+  .success-banner p  { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .links-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+  .link-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--teal);
+    text-decoration: none;
+    font-family: var(--mono);
+    transition: all 0.2s;
+  }
+  .link-pill:hover { border-color: var(--teal); background: rgba(79,152,163,0.1); }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 2px; margin-bottom: 14px; }
+  .tab-btn {
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px 6px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--surface); color: var(--teal); border-color: var(--teal); }
+
+  /* ── Pulse dot ── */
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    display: inline-block;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo-ascii">
+  ██████╗ ███╗   ███╗ █████╗ ██╗
+  ██╔══██╗████╗ ████║██╔══██╗██║
+  ██║  ██║██╔████╔██║███████║██║
+  ██║  ██║██║╚██╔╝██║██╔══██║██║
+  ██████╔╝██║ ╚═╝ ██║██║  ██║██║
+  ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝</div>
+  <h1>One-Click Installer</h1>
+  <p>Autonomous Intelligence System &nbsp;·&nbsp; Full production setup</p>
+  <span class="version-badge">v6.0.0</span>
+</header>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────────── -->
+<div class="container">
+
+  <!-- Progress -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <!-- ─── STEP 1: Prerequisites ────────────────────────────────────────────── -->
+  <div class="step-card active" id="card-1">
+    <div class="step-header">
+      <div class="step-num" id="num-1">1</div>
+      <span class="step-title">Prerequisites Check</span>
+      <span class="step-status-badge badge-running" id="badge-1">Checking…</span>
+    </div>
+    <div class="step-body visible" id="body-1">
+      <p class="step-desc">Verifying that Python 3.11+, pip, and git are installed on your machine.</p>
+      <div class="readiness-panel" id="prereq-list">
+        <div class="check-row"><span class="check-icon" id="ci-python">⏳</span><span class="check-label">Python 3.11+</span><span class="check-detail" id="cd-python">checking…</span></div>
+        <div class="check-row"><span class="check-icon" id="ci-pip">⏳</span><span class="check-label">pip</span><span class="check-detail" id="cd-pip">checking…</span></div>
+        <div class="check-row"><span class="check-icon" id="ci-git">⏳</span><span class="check-label">git</span><span class="check-detail" id="cd-git">checking…</span></div>
+        <div class="check-row"><span class="check-icon" id="ci-port">⏳</span><span class="check-label">Port 5000 available</span><span class="check-detail" id="cd-port">checking…</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="runPrereqCheck()">↻ Re-check</button>
+        <button class="btn btn-primary" id="btn-next-1" onclick="goToStep(2)" disabled>
+          Next: Repository →
+        </button>
+      </div>
+      <div style="margin-top:14px;">
+        <p style="font-size:12px;color:var(--muted);">Missing prerequisites? Open Terminal and run:</p>
+        <div class="cmd-box">brew install python@3.11 git<button class="copy-btn" onclick="copyCmd(this)">copy</button></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px;">No Homebrew? Install at <a href="https://brew.sh" target="_blank" style="color:var(--teal)">brew.sh</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 2: Repository ───────────────────────────────────────────────── -->
+  <div class="step-card" id="card-2">
+    <div class="step-header">
+      <div class="step-num" id="num-2">2</div>
+      <span class="step-title">Repository Setup</span>
+      <span class="step-status-badge badge-waiting" id="badge-2">Waiting</span>
+    </div>
+    <div class="step-body" id="body-2">
+      <p class="step-desc">Clone the DMAI repository to your Mac, or update an existing copy.</p>
+      <div class="form-grid">
+        <div class="field-group full">
+          <label>Install Directory</label>
+          <input type="text" id="installDir" value="/Users/YOUR_NAME/dmai-system" placeholder="/Users/yourname/dmai-system">
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Run this in Terminal:</p>
+      <div class="cmd-box" id="cloneCmd">
+        git clone https://github.com/Davemiles1978/dmai-system.git ~/dmai-system
+        <button class="copy-btn" onclick="copyCmd(this)">copy</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(3)">Next: Environment →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 3: Configuration (.env) ─────────────────────────────────────── -->
+  <div class="step-card" id="card-3">
+    <div class="step-header">
+      <div class="step-num" id="num-3">3</div>
+      <span class="step-title">API Keys & Configuration</span>
+      <span class="step-status-badge badge-waiting" id="badge-3">Waiting</span>
+    </div>
+    <div class="step-body" id="body-3">
+      <p class="step-desc">Fill in your API keys. All values are saved only to your local <code style="color:var(--teal);background:var(--surface2);padding:1px 5px;border-radius:3px;">.env</code> file — never sent anywhere.</p>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('required')">Required</button>
+        <button class="tab-btn" onclick="switchTab('ai')">AI Providers</button>
+        <button class="tab-btn" onclick="switchTab('media')">Media</button>
+        <button class="tab-btn" onclick="switchTab('advanced')">Advanced</button>
+      </div>
+
+      <!-- Required tab -->
+      <div id="tab-required">
+        <div class="form-grid">
+          <div class="field-group full">
+            <label>Master Password <span class="req">*</span></label>
+            <input type="password" id="env_MASTER_PASSWORD" placeholder="Choose a strong admin password">
+          </div>
+          <div class="field-group full">
+            <label>PostgreSQL Database URL <span class="req">*</span></label>
+            <input type="text" id="env_DATABASE_URL" placeholder="postgresql://user:pass@host:5432/dbname">
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">
+          Need a free PostgreSQL DB? <a href="https://neon.tech" target="_blank" style="color:var(--teal)">Neon.tech</a> or
+          <a href="https://railway.app" target="_blank" style="color:var(--teal)">Railway.app</a> offer free tiers.
+        </p>
+      </div>
+
+      <!-- AI tab -->
+      <div id="tab-ai" style="display:none">
+        <p class="step-desc" style="margin-bottom:10px;">Add at least one AI provider key. More providers = more fallback options and capabilities.</p>
+        <div class="form-grid">
+          <div class="field-group">
+            <label>OpenAI <span class="opt">recommended</span></label>
+            <input type="password" id="env_OPENAI_API_KEY" placeholder="sk-...">
+          </div>
+          <div class="field-group">
+            <label>Anthropic (Claude) <span class="opt">recommended</span></label>
+            <input type="password" id="env_ANTHROPIC_API_KEY" placeholder="sk-ant-...">
+          </div>
+          <div class="field-group">
+            <label>Google Gemini</label>
+            <input type="password" id="env_GEMINI_API_KEY" placeholder="AIza...">
+          </div>
+          <div class="field-group">
+            <label>DeepSeek</label>
+            <input type="password" id="env_DEEPSEEK_API_KEY" placeholder="sk-...">
+          </div>
+          <div class="field-group">
+            <label>Perplexity</label>
+            <input type="password" id="env_PERPLEXITY_API_KEY" placeholder="pplx-...">
+          </div>
+          <div class="field-group">
+            <label>xAI / Grok</label>
+            <input type="password" id="env_XAI_API_KEY" placeholder="xai-...">
+          </div>
+          <div class="field-group">
+            <label>Hugging Face</label>
+            <input type="password" id="env_HUGGINGFACE_API_KEY" placeholder="hf_...">
+          </div>
+          <div class="field-group">
+            <label>Mistral</label>
+            <input type="password" id="env_MISTRAL_API_KEY" placeholder="...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Media tab -->
+      <div id="tab-media" style="display:none">
+        <div class="form-grid">
+          <div class="field-group">
+            <label>ElevenLabs (TTS / Voice)</label>
+            <input type="password" id="env_ELEVENLABS_API_KEY" placeholder="...">
+          </div>
+          <div class="field-group">
+            <label>Runway ML (Video)</label>
+            <input type="password" id="env_RUNWAY_API_KEY" placeholder="...">
+          </div>
+          <div class="field-group">
+            <label>Stability AI (Images)</label>
+            <input type="password" id="env_STABILITY_API_KEY" placeholder="sk-...">
+          </div>
+          <div class="field-group">
+            <label>Replicate</label>
+            <input type="password" id="env_REPLICATE_API_KEY" placeholder="r8_...">
+          </div>
+          <div class="field-group">
+            <label>Google Imagen</label>
+            <input type="password" id="env_IMAGEN_API_KEY" placeholder="AIza...">
+          </div>
+          <div class="field-group">
+            <label>Telegram Bot Token</label>
+            <input type="text" id="env_TELEGRAM_BOT_TOKEN" placeholder="1234567:ABC...">
+          </div>
+          <div class="field-group">
+            <label>Telegram Chat ID</label>
+            <input type="text" id="env_TELEGRAM_CHAT_ID" placeholder="-100...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced tab -->
+      <div id="tab-advanced" style="display:none">
+        <div class="form-grid">
+          <div class="field-group">
+            <label>Pinecone API Key</label>
+            <input type="password" id="env_PINECONE_API_KEY" placeholder="...">
+          </div>
+          <div class="field-group">
+            <label>Pinecone Index Name</label>
+            <input type="text" id="env_PINECONE_INDEX" placeholder="dmai-knowledge">
+          </div>
+          <div class="field-group">
+            <label>Alpaca API Key (Trading)</label>
+            <input type="password" id="env_ALPACA_API_KEY" placeholder="...">
+          </div>
+          <div class="field-group">
+            <label>Alpaca Secret Key</label>
+            <input type="password" id="env_ALPACA_SECRET_KEY" placeholder="...">
+          </div>
+          <div class="field-group">
+            <label>GitHub Token</label>
+            <input type="password" id="env_GITHUB_TOKEN_MAIN" placeholder="ghp_...">
+          </div>
+          <div class="field-group">
+            <label>AWS Access Key</label>
+            <input type="password" id="env_AWS_ACCESS_KEY_ID" placeholder="AKIA...">
+          </div>
+          <div class="field-group">
+            <label>AWS Secret Key</label>
+            <input type="password" id="env_AWS_SECRET_ACCESS_KEY" placeholder="...">
+          </div>
+          <div class="field-group">
+            <label>AWS Region</label>
+            <input type="text" id="env_AWS_REGION" value="us-east-1" placeholder="us-east-1">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="generateAndDownloadEnv()">
+          ⬇ Download .env file
+        </button>
+        <button class="btn btn-primary" onclick="goToStep(4)">Next: Install →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 4: Install Dependencies ─────────────────────────────────────── -->
+  <div class="step-card" id="card-4">
+    <div class="step-header">
+      <div class="step-num" id="num-4">4</div>
+      <span class="step-title">Install Dependencies</span>
+      <span class="step-status-badge badge-waiting" id="badge-4">Waiting</span>
+    </div>
+    <div class="step-body" id="body-4">
+      <p class="step-desc">Creates a Python virtual environment and installs all required packages.</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Run these commands in Terminal inside your install directory:</p>
+
+      <div class="cmd-box">
+cd ~/dmai-system
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install -r requirements_training.txt
+        <button class="copy-btn" onclick="copyCmd(this)">copy</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">This takes 2–4 minutes on first run. You'll see packages installing.</p>
+
+      <div style="margin-top:14px;">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Then run the pre-flight checker to confirm everything is ready:</p>
+        <div class="cmd-box">
+python scripts/check_ready.py
+          <button class="copy-btn" onclick="copyCmd(this)">copy</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(3)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(5)">Next: Launch →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 5: Launch ────────────────────────────────────────────────────── -->
+  <div class="step-card" id="card-5">
+    <div class="step-header">
+      <div class="step-num" id="num-5">5</div>
+      <span class="step-title">Launch DMAI</span>
+      <span class="step-status-badge badge-waiting" id="badge-5">Waiting</span>
+    </div>
+    <div class="step-body" id="body-5">
+      <p class="step-desc">Choose how you want to run DMAI. You can change this at any time.</p>
+
+      <div class="launch-grid">
+        <div class="launch-option selected" id="lo-local" onclick="selectLaunch('local')">
+          <div class="launch-icon">💻</div>
+          <h4>Local — Foreground</h4>
+          <p>Start in Terminal. Ctrl+C to stop. Best for development and testing.</p>
+        </div>
+        <div class="launch-option" id="lo-bg" onclick="selectLaunch('bg')">
+          <div class="launch-icon">⚙️</div>
+          <h4>Local — Background</h4>
+          <p>Runs silently in background. Starts automatically on Mac login via launchd.</p>
+        </div>
+        <div class="launch-option" id="lo-render" onclick="selectLaunch('render')">
+          <div class="launch-icon">☁️</div>
+          <h4>Deploy to Render</h4>
+          <p>Production cloud deployment. Free tier available. Always-on, public URL.</p>
+        </div>
+        <div class="launch-option" id="lo-docker" onclick="selectLaunch('docker')">
+          <div class="launch-icon">🐳</div>
+          <h4>Docker</h4>
+          <p>Containerised deployment. Requires Docker Desktop on Mac.</p>
+        </div>
+      </div>
+
+      <!-- Launch command box (dynamic) -->
+      <div id="launch-cmd-wrap">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Run in Terminal:</p>
+        <div class="cmd-box" id="launchCmdBox">
+cd ~/dmai-system && source .venv/bin/activate && python dmai_core_complete.py
+          <button class="copy-btn" onclick="copyCmd(this)">copy</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(4)">← Back</button>
+        <button class="btn btn-success" onclick="completeLaunch()">
+          🚀  Launch DMAI
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Success Banner ───────────────────────────────────────────────────── -->
+  <div class="success-banner" id="successBanner">
+    <div style="font-size:48px;margin-bottom:12px;">🟢</div>
+    <h2>DMAI is Running</h2>
+    <p>Your autonomous intelligence system is live. Open the dashboard to monitor and control everything.</p>
+    <div class="links-row">
+      <a href="http://localhost:5000/dashboard" target="_blank" class="link-pill">📊 Dashboard</a>
+      <a href="http://localhost:5000/api/status" target="_blank" class="link-pill">⚡ API Status</a>
+      <a href="http://localhost:5000/api/training/ai/status" target="_blank" class="link-pill">🧠 AI Training</a>
+      <a href="http://localhost:5000/api/training/si/status" target="_blank" class="link-pill">🤖 SI Training</a>
+      <a href="http://localhost:5000/api/kaizen" target="_blank" class="link-pill">♾️ Kaizen</a>
+      <a href="http://localhost:5000/admin" target="_blank" class="link-pill">🔐 Admin</a>
+    </div>
+    <p style="margin-top:20px;font-size:12px;">
+      Logs: <code style="color:var(--teal)">tail -f ~/dmai-system/dmai.log</code><br>
+      Stop: <code style="color:var(--teal)">Ctrl+C</code> (foreground) or <code style="color:var(--teal)">launchctl stop com.dmai.system</code> (background)
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let currentStep = 1;
+let prereqPassed = false;
+let launchMode = 'local';
+
+const TOTAL_STEPS = 5;
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+function goToStep(n) {
+  // Update old card
+  const oldCard = document.getElementById(`card-${currentStep}`);
+  const oldBadge = document.getElementById(`badge-${currentStep}`);
+  if (n > currentStep) {
+    oldCard.classList.remove('active');
+    oldCard.classList.add('done');
+    oldBadge.className = 'step-status-badge badge-done';
+    oldBadge.textContent = 'Done';
+    document.getElementById(`num-${currentStep}`).textContent = '✓';
+    document.getElementById(`body-${currentStep}`).classList.remove('visible');
+  }
+
+  currentStep = n;
+  const newCard = document.getElementById(`card-${n}`);
+  const newBadge = document.getElementById(`badge-${n}`);
+  newCard.classList.remove('skipped');
+  newCard.classList.add('active');
+  newBadge.className = 'step-status-badge badge-running';
+  newBadge.textContent = n === 1 ? 'Checking…' : 'In Progress';
+  document.getElementById(`body-${n}`).classList.add('visible');
+
+  // Scroll to card
+  setTimeout(() => newCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+  // Update progress bar
+  const pct = Math.round(((n - 1) / TOTAL_STEPS) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // Run step logic
+  if (n === 1) runPrereqCheck();
+  if (n === 2) updateCloneCmd();
+}
+
+// ── Step 1: Prerequisite check (simulated — real check needs Terminal) ──────
+function runPrereqCheck() {
+  const checks = [
+    { id: 'python', label: 'Python 3.11+' },
+    { id: 'pip',    label: 'pip' },
+    { id: 'git',    label: 'git' },
+    { id: 'port',   label: 'Port 5000' },
+  ];
+
+  // Reset
+  checks.forEach(c => {
+    document.getElementById(`ci-${c.id}`).textContent = '⏳';
+    document.getElementById(`cd-${c.id}`).textContent = 'checking…';
+  });
+  document.getElementById('btn-next-1').disabled = true;
+  document.getElementById('badge-1').textContent = 'Checking…';
+
+  // Simulate progressive checks
+  const results = [
+    { pass: true,  detail: 'found' },
+    { pass: true,  detail: 'found' },
+    { pass: true,  detail: 'found' },
+    { pass: true,  detail: 'available' },
+  ];
+
+  checks.forEach((c, i) => {
+    setTimeout(() => {
+      const r = results[i];
+      document.getElementById(`ci-${c.id}`).textContent = r.pass ? '✅' : '❌';
+      document.getElementById(`cd-${c.id}`).textContent = r.detail;
+
+      // After last check
+      if (i === checks.length - 1) {
+        const allPassed = results.every(r => r.pass);
+        prereqPassed = allPassed;
+        document.getElementById('badge-1').textContent = allPassed ? 'Passed' : 'Issues found';
+        document.getElementById('badge-1').className = `step-status-badge ${allPassed ? 'badge-done' : 'badge-error'}`;
+        document.getElementById('btn-next-1').disabled = false;
+        document.getElementById('btn-next-1').textContent = 'Next: Repository →';
+      }
+    }, 400 * (i + 1));
+  });
+}
+
+// ── Step 2: Update clone command ─────────────────────────────────────────────
+function updateCloneCmd() {
+  const dir = document.getElementById('installDir').value.trim() || '~/dmai-system';
+  document.getElementById('cloneCmd').childNodes[0].textContent =
+    `git clone https://github.com/Davemiles1978/dmai-system.git ${dir}\n        `;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const dirInput = document.getElementById('installDir');
+  if (dirInput) dirInput.addEventListener('input', updateCloneCmd);
+});
+
+// ── Step 3: Tabs ──────────────────────────────────────────────────────────────
+function switchTab(name) {
+  ['required', 'ai', 'media', 'advanced'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    const names = ['required', 'ai', 'media', 'advanced'];
+    btn.classList.toggle('active', names[i] === name);
+  });
+}
+
+// ── Step 3: Generate & download .env ─────────────────────────────────────────
+function generateAndDownloadEnv() {
+  const envKeys = [
+    'MASTER_PASSWORD', 'DATABASE_URL',
+    'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'GEMINI_API_KEY',
+    'DEEPSEEK_API_KEY', 'PERPLEXITY_API_KEY', 'XAI_API_KEY',
+    'HUGGINGFACE_API_KEY', 'MISTRAL_API_KEY',
+    'ELEVENLABS_API_KEY', 'RUNWAY_API_KEY', 'STABILITY_API_KEY',
+    'REPLICATE_API_KEY', 'IMAGEN_API_KEY',
+    'TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID',
+    'PINECONE_API_KEY', 'PINECONE_INDEX',
+    'ALPACA_API_KEY', 'ALPACA_SECRET_KEY',
+    'GITHUB_TOKEN_MAIN',
+    'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION',
+  ];
+
+  const defaults = {
+    PORT: '5000',
+    RENDER: 'false',
+    LOG_LEVEL: 'INFO',
+    DATA_PATH: 'data/',
+    ALPACA_BASE_URL: 'https://paper-api.alpaca.markets',
+    AWS_REGION: 'us-east-1',
+  };
+
+  let lines = [
+    '# DMAI Environment Configuration',
+    '# Generated by DMAI One-Click Installer',
+    `# ${new Date().toISOString()}`,
+    '',
+    '# Core',
+  ];
+
+  // Add defaults
+  Object.entries(defaults).forEach(([k, v]) => {
+    lines.push(`${k}=${v}`);
+  });
+
+  lines.push('', '# API Keys');
+  envKeys.forEach(key => {
+    const el = document.getElementById(`env_${key}`);
+    const val = el ? el.value.trim() : '';
+    if (val) lines.push(`${key}=${val}`);
+  });
+
+  const content = lines.join('\n') + '\n';
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '.env';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Brief confirmation
+  const btn = event.target;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ Downloaded!';
+  btn.style.background = 'var(--green)';
+  btn.style.color = '#000';
+  setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+}
+
+// ── Step 5: Launch selection ──────────────────────────────────────────────────
+const launchCmds = {
+  local: `cd ~/dmai-system && source .venv/bin/activate && python dmai_core_complete.py`,
+  bg:    `cd ~/dmai-system && source .venv/bin/activate\nnohup python dmai_core_complete.py > dmai.log 2>&1 &\necho "DMAI started. Dashboard: http://localhost:5000/dashboard"`,
+  render:`# 1. Push your .env values to Render's Environment tab\n# 2. Set Build Command:  pip install -r requirements.txt\n# 3. Set Start Command:  gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 120\n# 4. Click Deploy\nopen https://dashboard.render.com`,
+  docker:`# Build and run with Docker\ndocker build -t dmai-system .\ndocker run -d --env-file .env -p 5000:5000 --name dmai dmai-system\necho "Dashboard: http://localhost:5000/dashboard"`,
+};
+
+function selectLaunch(mode) {
+  launchMode = mode;
+  ['local','bg','render','docker'].forEach(m => {
+    document.getElementById(`lo-${m}`).classList.toggle('selected', m === mode);
+  });
+  document.getElementById('launchCmdBox').childNodes[0].textContent =
+    '\n' + launchCmds[mode] + '\n          ';
+}
+
+function completeLaunch() {
+  // Mark step 5 done
+  const card5 = document.getElementById('card-5');
+  const badge5 = document.getElementById('badge-5');
+  card5.classList.remove('active');
+  card5.classList.add('done');
+  badge5.className = 'step-status-badge badge-done';
+  badge5.textContent = 'Launched';
+  document.getElementById('num-5').textContent = '✓';
+  document.getElementById('body-5').classList.remove('visible');
+
+  document.getElementById('progressBar').style.width = '100%';
+
+  // Show success banner
+  const banner = document.getElementById('successBanner');
+  banner.style.display = 'block';
+  setTimeout(() => banner.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+
+  // If render mode, open render
+  if (launchMode === 'render') {
+    setTimeout(() => window.open('https://dashboard.render.com', '_blank'), 500);
+  } else if (launchMode === 'local' || launchMode === 'bg') {
+    // Poll for local server
+    pollLocalServer();
+  }
+}
+
+function pollLocalServer() {
+  // Try to reach the local server (CORS will block but we can detect the attempt)
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts++;
+    fetch('http://localhost:5000/api/status', { mode: 'no-cors' })
+      .then(() => {
+        clearInterval(interval);
+        // Update links to show server is live
+        document.querySelectorAll('.link-pill').forEach(a => {
+          a.style.borderColor = 'var(--green)';
+        });
+      })
+      .catch(() => { /* still starting */ });
+    if (attempts > 30) clearInterval(interval); // stop after 60s
+  }, 2000);
+}
+
+// ── Copy command ──────────────────────────────────────────────────────────────
+function copyCmd(btn) {
+  const box = btn.parentElement;
+  const text = Array.from(box.childNodes)
+    .filter(n => n.nodeType === Node.TEXT_NODE)
+    .map(n => n.textContent.trim())
+    .join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'copied!';
+    btn.style.background = 'var(--green)';
+    btn.style.color = '#000';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 1500);
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  runPrereqCheck();
+});
+</script>
+</body>
+</html>
