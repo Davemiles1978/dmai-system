@@ -1,244 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>DMAI Admin Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #0a0a0a;
-            color: #0f0;
-            padding: 16px;
-            padding-bottom: 80px;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #0ff;
-        }
-        
-        .card {
-            background: #111;
-            border: 1px solid #0f0;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        
-        .card-title {
-            font-size: 16px;
-            color: #0f0;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 8px;
-        }
-        
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        .metric-label {
-            color: #888;
-        }
-        
-        .metric-value {
-            font-weight: bold;
-            font-family: monospace;
-        }
-        
-        .profit-positive {
-            color: #0f0;
-        }
-        
-        .profit-negative {
-            color: #f00;
-        }
-        
-        .progress-bar {
-            background: #333;
-            border-radius: 4px;
-            height: 8px;
-            margin: 8px 0;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            background: #0f0;
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-        
-        .status-learning { background: #ff0; color: #000; }
-        .status-researching { background: #fa0; color: #000; }
-        .status-planned { background: #666; color: #fff; }
-        
-        button {
-            background: #0f0;
-            color: #000;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-            margin-bottom: 12px;
-        }
-        
-        button:active {
-            opacity: 0.8;
-        }
-        
-        .refresh-info {
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            margin-top: 16px;
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 12px;
-            }
-            .metric-value {
-                font-size: 12px;
-            }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMAI Operator Dashboard</title>
+<style>
+  :root{
+    --bg:#0a0d14; --panel:#121724; --panel2:#161c2c; --border:#243049;
+    --text:#e7ecf3; --muted:#8a97ad; --accent:#4fd1c5; --good:#3fb950;
+    --warn:#d29922; --bad:#f85149; --chip:#1e2740;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+       background:var(--bg);color:var(--text);font-size:14px}
+  header{display:flex;align-items:center;gap:16px;padding:14px 20px;
+         background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+  header h1{font-size:18px;margin:0;letter-spacing:.5px}
+  .status-dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+  .status-dot.on{background:var(--good)} .status-dot.paused{background:var(--warn)}
+  .spacer{flex:1}
+  input,button{font:inherit}
+  input{background:var(--panel2);border:1px solid var(--border);color:var(--text);
+        padding:7px 10px;border-radius:7px}
+  button{background:var(--chip);border:1px solid var(--border);color:var(--text);
+         padding:7px 12px;border-radius:7px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.kill{background:#3a0d0d;border-color:var(--bad);color:#ff9b94;font-weight:700}
+  button.kill:hover{background:var(--bad);color:#fff}
+  button.sm{padding:4px 9px;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;padding:20px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);
+           margin:0;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .card .body{padding:14px 16px;max-height:340px;overflow:auto}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
+       border-bottom:1px solid #1b2236}
+  .row:last-child{border-bottom:0}
+  .chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:var(--chip)}
+  .chip.enabled{background:#10301f;color:var(--good)}
+  .chip.disabled{background:#2a2230;color:var(--muted)}
+  .chip.error{background:#3a1414;color:var(--bad)}
+  .metric{font-size:26px;font-weight:700}
+  .metric.good{color:var(--good)} .metric.bad{color:var(--bad)}
+  .event{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+         padding:5px 0;border-bottom:1px solid #1b2236;color:var(--muted)}
+  .event b{color:var(--accent)}
+  .muted{color:var(--muted)}
+  .agent-card{background:var(--panel2);border:1px solid var(--border);border-radius:9px;
+              padding:10px;margin-bottom:8px}
+  .agent-card .name{font-weight:600}
+  .approval{background:var(--panel2);border:1px solid var(--border);border-radius:9px;
+            padding:10px;margin-bottom:8px}
+  .approval .actions{display:flex;gap:8px;margin-top:8px}
+  .toolbar{display:flex;gap:8px;align-items:center}
+</style>
 </head>
 <body>
-<div class="container">
-    <h1>🧠 DMAI ADMIN DASHBOARD</h1>
-    
-    <button onclick="refreshData()">🔄 Refresh Now</button>
-    <button onclick="resetTrading()" style="background:#f00; color:#fff;">🔁 Reset to $100,000</button>
-    
-    <div id="trading-card" class="card">
-        <div class="card-title">💰 TRADING STATUS</div>
-        <div id="trading-data">Loading...</div>
-    </div>
-    
-    <div id="consciousness-card" class="card">
-        <div class="card-title">🧠 CONSCIOUSNESS</div>
-        <div id="consciousness-data">Loading...</div>
-    </div>
-    
-    <div id="learning-card" class="card">
-        <div class="card-title">📚 LEARNING PROGRESS</div>
-        <div id="learning-data">Loading...</div>
-    </div>
-    
-    <div class="refresh-info">
-        Auto-refreshes every 30 seconds | Last update: <span id="last-update">-</span>
-    </div>
+<header>
+  <span class="status-dot" id="sysDot"></span>
+  <h1>DMAI OPERATOR</h1>
+  <span class="muted" id="sysState">connecting…</span>
+  <div class="spacer"></div>
+  <div class="toolbar">
+    <input id="apiKey" placeholder="X-API-Key" size="14">
+    <input id="masterKey" placeholder="X-Master-Key" size="16" type="password">
+    <button class="sm" onclick="saveKeys()">Save Keys</button>
+    <button class="sm" onclick="opCall('pause')">Pause</button>
+    <button class="sm" onclick="opCall('resume')">Resume</button>
+    <button class="kill" onclick="killSwitch()">KILL SWITCH</button>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="card"><h2>System Status</h2><div class="body" id="statusBody">…</div></div>
+
+  <div class="card"><h2>Funding / Revenue</h2><div class="body" id="fundingBody">…</div></div>
+
+  <div class="card"><h2>Evolution</h2><div class="body" id="evoBody">…</div></div>
+
+  <div class="card" style="grid-column:1/-1"><h2>Agents</h2>
+    <div class="body" id="agentsBody" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px"></div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1"><h2>Component Registry</h2>
+    <div class="body" id="registryBody"></div>
+  </div>
+
+  <div class="card"><h2>Pending Approvals</h2><div class="body" id="approvalsBody">…</div></div>
+
+  <div class="card"><h2>Live Event Feed</h2><div class="body" id="eventsBody"></div></div>
 </div>
 
 <script>
-    async function fetchData() {
-        try {
-            const response = await fetch('/api/admin/dashboard');
-            const data = await response.json();
-            updateUI(data);
-            document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
-        } catch (error) {
-            console.error('Fetch error:', error);
-            document.getElementById('trading-data').innerHTML = '<div class="metric"><span class="metric-label">Error</span><span class="metric-value">Failed to load data</span></div>';
-        }
-    }
-    
-    function updateUI(data) {
-        // Trading data
-        if (data.trading && data.trading.success) {
-            const profit = data.trading.profit;
-            const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
-            document.getElementById('trading-data').innerHTML = `
-                <div class="metric"><span class="metric-label">Equity</span><span class="metric-value">$${data.trading.equity.toLocaleString()}</span></div>
-                <div class="metric"><span class="metric-label">Cash</span><span class="metric-value">$${data.trading.cash.toLocaleString()}</span></div>
-                <div class="metric"><span class="metric-label">P&L</span><span class="metric-value ${profitClass}">$${profit.toLocaleString()} (${data.trading.profit_percent}%)</span></div>
-                <div class="metric"><span class="metric-label">Open Positions</span><span class="metric-value">${data.trading.positions_count}</span></div>
-                <div class="metric"><span class="metric-label">Reset P&L</span><span class="metric-value">$${data.trading.reset_pnl.toLocaleString()}</span></div>
-            `;
-        } else if (data.trading && data.trading.error) {
-            document.getElementById('trading-data').innerHTML = `<div class="metric"><span class="metric-label">Error</span><span class="metric-value">${data.trading.error}</span></div>`;
-        }
-        
-        // Consciousness
-        if (data.consciousness) {
-            const consciousness = data.consciousness;
-            document.getElementById('consciousness-data').innerHTML = `
-                <div class="metric"><span class="metric-label">Consciousness</span><span class="metric-value">${consciousness}%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width: ${consciousness}%"></div></div>
-            `;
-        }
-        
-        // Learning progress
-        if (data.learning) {
-            let html = '';
-            for (const [strategy, info] of Object.entries(data.learning)) {
-                const statusClass = info.status === 'learning' ? 'status-learning' : (info.status === 'researching' ? 'status-researching' : 'status-planned');
-                html += `
-                    <div class="metric">
-                        <span class="metric-label">${strategy}</span>
-                        <span class="metric-value">${info.mastery}% <span class="status-badge ${statusClass}">${info.status}</span></span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: ${info.mastery}%"></div></div>
-                `;
-            }
-            document.getElementById('learning-data').innerHTML = html;
-        }
-    }
-    
-    async function resetTrading() {
-        if (confirm('⚠️ Reset trading to $100,000? This will close all positions.')) {
-            document.getElementById('trading-data').innerHTML = '<div class="metric"><span class="metric-label">Resetting...</span></div>';
-            try {
-                const response = await fetch('/api/admin/trading/reset', { method: 'POST' });
-                const result = await response.json();
-                if (result.success) {
-                    alert('Trading reset to $100,000');
-                    refreshData();
-                } else {
-                    alert('Reset failed: ' + result.error);
-                }
-            } catch (error) {
-                alert('Reset error: ' + error);
-            }
-        }
-    }
-    
-    async function refreshData() {
-        await fetchData();
-    }
-    
-    // Auto-refresh every 30 seconds
-    fetchData();
-    setInterval(fetchData, 30000);
+const API = "/api/v1";
+let apiKey = localStorage.getItem("dmai_api_key") || "";
+let masterKey = localStorage.getItem("dmai_master_key") || "";
+
+function saveKeys(){
+  apiKey = document.getElementById("apiKey").value.trim();
+  masterKey = document.getElementById("masterKey").value.trim();
+  localStorage.setItem("dmai_api_key", apiKey);
+  localStorage.setItem("dmai_master_key", masterKey);
+}
+function headers(operator){
+  const h = {"Content-Type":"application/json"};
+  if(apiKey) h["X-API-Key"] = apiKey;
+  if(operator && masterKey) h["X-Master-Key"] = masterKey;
+  return h;
+}
+async function api(path, opts={}, operator=false){
+  try{
+    const r = await fetch(API + path, {headers: headers(operator), ...opts});
+    return await r.json();
+  }catch(e){ return {error: String(e)}; }
+}
+
+async function loadStatus(){
+  const s = await api("/status");
+  const dot = document.getElementById("sysDot");
+  const state = document.getElementById("sysState");
+  if(s.error){ state.textContent = "offline"; dot.className="status-dot"; return; }
+  dot.className = "status-dot " + (s.paused ? "paused" : (s.running ? "on" : ""));
+  state.textContent = s.paused ? "PAUSED" : (s.running ? "running" : "stopped");
+  const loaded = (s.components||[]).filter(c=>c.loaded).length;
+  document.getElementById("statusBody").innerHTML =
+    `<div class="row"><span>Running</span><b>${s.running}</b></div>`+
+    `<div class="row"><span>Paused</span><b>${s.paused}</b></div>`+
+    `<div class="row"><span>Components loaded</span><b>${loaded}/${(s.components||[]).length}</b></div>`+
+    `<div class="row"><span>Active OPAR runs</span><b>${(s.active_runs||[]).length}</b></div>`;
+  renderRegistry(s.components||[]);
+  renderAgents(s.components||[]);
+}
+
+function renderRegistry(components){
+  const el = document.getElementById("registryBody");
+  el.innerHTML = components.map(c=>{
+    const cls = c.status==="enabled"?"enabled":(c.status==="error"?"error":"disabled");
+    return `<div class="row"><span><b>${c.name}</b> <span class="muted">(${c.plane})</span></span>`+
+      `<span><span class="chip ${cls}">${c.status}</span> `+
+      `<button class="sm" onclick="reg('${c.id}','enable')">Enable</button> `+
+      `<button class="sm" onclick="reg('${c.id}','disable')">Disable</button> `+
+      `<button class="sm" onclick="reg('${c.id}','reload')">Reload</button></span></div>`;
+  }).join("");
+}
+
+function renderAgents(components){
+  const ids = ["market_research_agent","offer_design_agent","outreach_agent","landing_page_agent",
+    "analytics_agent","coding_agent","qa_critic_agent","compliance_agent",
+    "finance_controller_agent","upgrade_lab_agent"];
+  const map = {}; components.forEach(c=>map[c.id]=c);
+  document.getElementById("agentsBody").innerHTML = ids.map(id=>{
+    const c = map[id] || {name:id,status:"unloaded"};
+    const cls = c.status==="enabled"?"enabled":(c.status==="error"?"error":"disabled");
+    return `<div class="agent-card"><div class="name">${c.name||id}</div>`+
+      `<div class="muted" style="font-size:12px">${id}</div>`+
+      `<div style="margin-top:6px"><span class="chip ${cls}">${c.status}</span> `+
+      `<button class="sm" onclick="runAgent('${id}')">Run</button></div></div>`;
+  }).join("");
+}
+
+async function loadFunding(){
+  const f = await api("/funding/status");
+  const el = document.getElementById("fundingBody");
+  if(!f || f.loaded===false){ el.innerHTML='<span class="muted">funding not loaded</span>'; return; }
+  const st = f.status || {};
+  el.innerHTML = `<div class="metric good">${st.balance!==undefined?("$"+st.balance):"—"}</div>`+
+    `<div class="row"><span>Phase</span><b>${st.phase||st.current_phase||"—"}</b></div>`+
+    `<div class="row"><span>Mode</span><b>${st.mode||"paper"}</b></div>`+
+    `<pre style="white-space:pre-wrap;font-size:11px;color:var(--muted)">${JSON.stringify(st).slice(0,300)}</pre>`;
+}
+
+async function loadEvolution(){
+  const e = await api("/evolution/status");
+  const el = document.getElementById("evoBody");
+  if(!e || e.loaded===false){ el.innerHTML='<span class="muted">evolution not loaded</span>'; return; }
+  el.innerHTML = `<div class="row"><span>Stage</span><b>${(e.stage&&e.stage.stage)||"—"}</b></div>`+
+    `<pre style="white-space:pre-wrap;font-size:11px;color:var(--muted)">${JSON.stringify(e.kpis||{}).slice(0,300)}</pre>`;
+}
+
+async function loadApprovals(){
+  const a = await api("/operator/pending", {}, true);
+  const el = document.getElementById("approvalsBody");
+  const list = (a && a.pending) || [];
+  if(!list.length){ el.innerHTML='<span class="muted">no pending approvals</span>'; return; }
+  el.innerHTML = list.map(p=>
+    `<div class="approval"><b>${p.source}</b> — ${p.description||p.kind}`+
+    `<div class="muted" style="font-size:11px">${JSON.stringify(p.payload).slice(0,200)}</div>`+
+    `<div class="actions"><button class="sm" onclick="decide('${p.id}','approve')">Approve</button>`+
+    `<button class="sm kill" onclick="decide('${p.id}','reject')">Reject</button></div></div>`
+  ).join("");
+}
+
+async function loadEvents(){
+  const e = await api("/events?limit=40");
+  const list = (e && e.events) || [];
+  document.getElementById("eventsBody").innerHTML = list.map(ev=>
+    `<div class="event"><b>${ev.event_type}</b> <span>${ev.source}</span> `+
+    `<span style="float:right">${(ev.timestamp||"").slice(11,19)}</span></div>`
+  ).join("") || '<span class="muted">no events yet</span>';
+}
+
+async function reg(id, action){
+  await api(`/registry/components/${id}/${action}`, {method:"POST"}, action==="reload");
+  loadStatus();
+}
+async function runAgent(id){
+  await api(`/agents/${id}/run`, {method:"POST", body:JSON.stringify({input_data:{}})});
+  loadEvents();
+}
+async function opCall(action){
+  await api(`/operator/${action}`, {method:"POST"}, true);
+  loadStatus();
+}
+async function decide(id, action){
+  await api(`/operator/${action}/${id}`, {method:"POST", body:JSON.stringify({notes:""})}, true);
+  loadApprovals();
+}
+function killSwitch(){
+  if(confirm("EMERGENCY KILL — hard-stop the entire DMAI system. Continue?")){
+    opCall("kill");
+  }
+}
+
+function init(){
+  document.getElementById("apiKey").value = apiKey;
+  document.getElementById("masterKey").value = masterKey;
+  loadStatus(); loadFunding(); loadEvolution(); loadApprovals(); loadEvents();
+  setInterval(()=>{ loadStatus(); loadFunding(); loadEvolution(); loadApprovals(); }, 5000);
+  setInterval(loadEvents, 2000);
+}
+init();
 </script>
 </body>
 </html>

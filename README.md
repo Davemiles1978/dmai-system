@@ -1,4 +1,133 @@
-# DMAI - Complete AGI System v6.0.0
+# DMAI v2.0 — Self-Evolving Autonomous AI/SI Platform
+
+DMAI is a self-evolving, self-funding, self-learning autonomous system. The v2.0
+layer adds a FastAPI control plane, a live **plug-and-play component registry**,
+a central **event bus**, the **OPAR loop** (Observe → Plan → Act → Reflect), ten
+native agents, and an operator dashboard — all wired on top of the existing
+component library (which continues to run unchanged).
+
+## Architecture
+
+```
+                    ┌──────────────────────────────────────┐
+                    │        Operator Dashboard (HTML)      │
+                    │  status · registry · events · kill    │
+                    └───────────────────┬──────────────────┘
+                                        │ HTTP (X-API-Key / X-Master-Key)
+                    ┌───────────────────▼──────────────────┐
+                    │            FastAPI  (port 8000)        │
+                    │  core · agents · evolution · funding   │
+                    │  registry · operator   + Auth MW       │
+                    └───────────────────┬──────────────────┘
+                                        │
+        ┌───────────────┬───────────────┼───────────────┬───────────────┐
+        ▼               ▼               ▼               ▼               ▼
+ ┌────────────┐ ┌────────────┐ ┌──────────────┐ ┌────────────┐ ┌────────────┐
+ │  Event Bus │ │ OPAR Loop  │ │ Orchestrator │ │  Registry  │ │   DB (async│
+ │  pub/sub   │◄┤ O·P·A·R    │◄┤  cycles      │ │ plug&play  │ │  SQLite/PG)│
+ └─────┬──────┘ └─────┬──────┘ └──────┬───────┘ └─────┬──────┘ └────────────┘
+       │              │               │               │
+       ▼              ▼               ▼               ▼
+ ┌───────────────────────────────────────────────────────────────────────┐
+ │  10 Agents: market_research · offer_design · outreach · landing_page    │
+ │  analytics · coding · qa_critic · compliance · finance · upgrade_lab    │
+ ├───────────────────────────────────────────────────────────────────────┤
+ │  Adapters → existing components: ai_hub · alex_riviera · evolution ·    │
+ │  funding · master_control · wealth_trading · research · media · …       │
+ └───────────────────────────────────────────────────────────────────────┘
+                                        │
+                    ┌───────────────────▼──────────────────┐
+                    │     Legacy Flask app  (port 5001)      │
+                    │         mounted at /legacy             │
+                    └───────────────────────────────────────┘
+```
+
+## Quick Start
+
+```bash
+cp .env.example .env          # then edit keys as needed
+docker-compose up             # DMAI + Postgres + Redis
+# dev extras (pgAdmin, redis-commander):
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+Local (no Docker):
+
+```bash
+pip install -r requirements-fastapi.txt
+python main.py                # FastAPI :8000, legacy Flask :5001
+```
+
+Open the dashboard at `http://localhost:8000/`, enter your `X-API-Key`
+(`API_SECRET_KEY`) and `X-Master-Key` (`MASTER_KEY`), and click **Save Keys**.
+
+## Component Registry
+
+The registry tracks every component and drives its lifecycle at runtime. It works
+standalone — if the database is unavailable it falls back to the in-memory +
+JSON manifest, so components can still be loaded and enabled.
+
+```bash
+# List components
+curl -H "X-API-Key: $KEY" localhost:8000/api/v1/registry/components
+# Enable / disable / hot-reload
+curl -X POST -H "X-API-Key: $KEY" localhost:8000/api/v1/registry/components/analytics_agent/enable
+curl -X POST -H "X-Master-Key: $MK" localhost:8000/api/v1/registry/components/ai_hub/reload
+# Install a new component dynamically
+curl -X POST -H "X-Master-Key: $MK" -H "Content-Type: application/json" \
+  -d '{"id":"my_thing","name":"My Thing","entry_point":"my_pkg.mod:MyComponent"}' \
+  localhost:8000/api/v1/registry/install
+```
+
+## API Reference (summary)
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| GET  | `/health`, `/api/v1/status` | public | liveness / system status |
+| POST | `/api/v1/ask` | api-key | route a prompt to the AI hub |
+| GET  | `/api/v1/events` | api-key | recent event-bus log |
+| GET/POST | `/api/v1/agents`, `/agents/{id}/run` | api-key | list / trigger agents |
+| GET/POST | `/api/v1/evolution/status`, `/evolution/cycle` | api-key | evolution control |
+| GET/POST | `/api/v1/funding/status`, `/funding/start` | api-key | funding control |
+| GET/POST | `/api/v1/registry/...` | api-key (install/reload: operator) | registry |
+| POST | `/api/v1/operator/pause\|resume\|kill` | operator | system control |
+| GET/POST | `/api/v1/operator/pending`, `/approve/{id}`, `/reject/{id}` | operator | approvals |
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DMAI_ENV` | `development` | environment name |
+| `MASTER_KEY` | `DMAI_MASTER_2026` | operator key (`X-Master-Key`) |
+| `API_SECRET_KEY` | `change-me` | API key (`X-API-Key`) |
+| `DATABASE_URL` | `sqlite:///data/dmai.db` | Postgres primary, SQLite fallback |
+| `REDIS_URL` | `redis://localhost:6379` | Redis URL |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_API_KEY` / `DEEPSEEK_API_KEY` / `XAI_API_KEY` | _empty_ | LLM provider keys |
+| `ALPACA_API_KEY` / `ALPACA_SECRET_KEY` / `ALPACA_BASE_URL` | _paper_ | trading |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | _empty_ | notifications |
+| `SELF_FUNDING_MODE` | `paper` | `paper` \| `real` \| `autonomous` |
+| `SPEND_LIMIT_DAILY` | `50.0` | daily spend ceiling |
+| `API_PORT` / `FLASK_PORT` | `8000` / `5001` | service ports |
+
+> Any component touching money or external APIs emits an `APPROVAL_REQUIRED`
+> event whenever `SELF_FUNDING_MODE` is not `autonomous` (the default is `paper`),
+> pausing for operator approval via the dashboard / `/operator/approve` route.
+
+## Adding a Plug-and-Play Component
+
+1. Subclass `dmai.registry.component_base.BaseComponent` and implement
+   `initialize(config, bus)`, `health_check()`, and `shutdown()`. Set the class
+   attributes `component_id`, `component_name`, `plane`, `version`,
+   `capabilities`, and `dependencies`.
+2. Either add a manifest entry to `dmai/registry/manifest.py`, **or** drop a
+   directory under `components/` containing a `component.json` with an
+   `entry_point` of the form `package.module:ClassName` (auto-discovered), **or**
+   `POST /api/v1/registry/install` with the manifest at runtime.
+3. Enable it: `POST /api/v1/registry/components/{id}/enable`.
+
+---
+
+# DMAI - Complete AGI System v6.0.0  (legacy)
 
 ## Unified Artificial Intelligence + Synthetic Intelligence
 
