@@ -1,0 +1,11 @@
+# DMAI Training System — Additional Requirements
+# Add these to your existing requirements.txt
+
+# HTTP client (async) — used by update engine and extended hub
+httpx>=0.27.0
+
+# Already in DMAI requirements (no need to re-add):
+# flask
+# sqlalchemy
+# psycopg2-binary
+# python-dotenv
