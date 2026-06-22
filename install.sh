@@ -26,7 +26,7 @@ cat << 'BANNER'
   ██║  ██║██║╚██╔╝██║██╔══██║██║
   ██████╔╝██║ ╚═╝ ██║██║  ██║██║
   ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝
-  Autonomous Intelligence System  v6.0.0
+  Autonomous Intelligence System  v7.0.0
 BANNER
 echo -e "${RST}"
 echo -e "  ${BLD}One-Click Installer${RST} — sets up everything from scratch."
@@ -119,6 +119,11 @@ pip install -r requirements_training.txt --quiet \
     --no-warn-script-location \
     2>&1 | grep -E "^(ERROR|WARNING|Successfully installed)" || true
 
+info "Installing security & testing packages (v7.0.0)..."
+pip install PyJWT>=2.8.0 bandit>=1.7.0 pytest>=7.0.0 pytest-asyncio>=0.23.0 imagehash>=4.3.0 --quiet \
+    --no-warn-script-location \
+    2>&1 | grep -E "^(ERROR|WARNING|Successfully installed)" || true
+
 ok "All dependencies installed"
 
 # ── Step 5: Environment Configuration ────────────────────────────────────────
@@ -176,6 +181,8 @@ if [ "$SKIP_ENV" = false ]; then
     # ── Required ──────────────────────────────────────────────────────────────
     echo -e "  ${BLD}--- REQUIRED ---${RST}"
     prompt_env "MASTER_PASSWORD"    "Master admin password"             required
+    prompt_env "JWT_SECRET"          "JWT signing secret (32+ random chars)" required
+    prompt_env "WEBHOOK_SECRET"      "HMAC webhook signing secret"
     prompt_env "DATABASE_URL"       "PostgreSQL DATABASE_URL"           required
 
     # ── Core AI (at least one recommended) ───────────────────────────────────

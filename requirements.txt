@@ -50,3 +50,11 @@ playwright>=1.40.0
 
 # Pin
 urllib3==1.26.18
+
+# Security & Testing (v7.0.0 — P1-P3 remediation)
+PyJWT>=2.8.0
+bandit>=1.7.0
+pytest>=7.0.0
+pytest-asyncio>=0.23.0
+ssim>=0.0.1
+imagehash>=4.3.0

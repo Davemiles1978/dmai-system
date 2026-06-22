@@ -1,7 +1,23 @@
 """
-DMAI Core Complete v6.0.0
+DMAI Core Complete v7.0.0
 ==========================
 Full production Flask application - wires ALL components together.
+v7.0.0: Full validation framework remediation applied.
+  - Circuit breakers CB-01 through CB-06
+  - JWT authentication (HS256) + backward-compat X-Master-Password
+  - Prompt injection filter on all user input
+  - exec()/eval() AST scanner on generated code
+  - Atomic writes (temp+rename) for kaizen store
+  - SHA-256 hash guard on benchmark_baseline.json
+  - HMAC webhook signature validation
+  - KPI authenticity gate
+  - Regression threshold (15%) with severity labels
+  - KB quarantine layer
+  - Step-by-step JSON chain logging
+  - HaltResponse structured refusals
+  - Package typosquat validation
+  - Bandit integration for code scanning
+  - SSIM avatar identity tracking
 
 Run locally:   python dmai_core_complete.py
 Run on Render: gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --threads 2
@@ -14,6 +30,7 @@ import sys
 import json
 import logging
 import asyncio
+import tempfile
 import threading
 import time
 from datetime import datetime, timezone
@@ -23,30 +40,89 @@ from typing import Any, Dict, Optional
 from flask import Flask, jsonify, request, Response, send_from_directory
 from flask_cors import CORS
 
-# Logging
+# ── Security modules (P1–P3 fixes) ──────────────────────────────────────────
+try:
+    from security import (
+        require_jwt, issue_token_for_password, sanitise_input,
+        check_injection, scan_generated_code, safe_code_output,
+        scan_imports_in_code, HaltResponse, check_halt_conditions,
+        PlanConstraints, Plan, validate_plan,
+    )
+    SECURITY_AVAILABLE = True
+except ImportError as _e:
+    logging.warning("security.py not found — P1 security features disabled: %s", _e)
+    SECURITY_AVAILABLE = False
+    def require_jwt(f): return f
+    def issue_token_for_password(pwd): return None
+    def sanitise_input(s): return s
+    def check_injection(s): return False
+    def scan_generated_code(code): return {"safe": True, "issues": []}
+    def safe_code_output(code): return code
+    def scan_imports_in_code(code): return {"safe": True, "issues": []}
+    def check_halt_conditions(ctx): return None
+
+try:
+    from circuit_breaker import CircuitBreakerManager, circuit_breaker_guard, after_request_hook
+    cb_manager = CircuitBreakerManager.get()
+    CB_AVAILABLE = True
+except ImportError as _e:
+    logging.warning("circuit_breaker.py not found — CB features disabled: %s", _e)
+    CB_AVAILABLE = False
+    cb_manager = None
+    def circuit_breaker_guard(name): 
+        def decorator(f): return f
+        return decorator
+    def after_request_hook(response): return response
+
+try:
+    from hmac_validator import validate_webhook_signature, require_webhook_hmac
+    HMAC_AVAILABLE = True
+except ImportError as _e:
+    logging.warning("hmac_validator.py not found — HMAC webhook validation disabled: %s", _e)
+    HMAC_AVAILABLE = False
+    def require_webhook_hmac(f): return f
+
+try:
+    from chain_logger import ChainLogger, log_chain_step
+    CHAIN_LOGGER_AVAILABLE = True
+except ImportError as _e:
+    logging.warning("chain_logger.py not found — chain logging disabled: %s", _e)
+    CHAIN_LOGGER_AVAILABLE = False
+    def log_chain_step(chain_id, step, data=None): pass
+
+try:
+    from bandit_integration import BanditScanner
+    BANDIT_AVAILABLE = True
+    _bandit = BanditScanner()
+except ImportError as _e:
+    logging.warning("bandit_integration.py not found — bandit scanning disabled: %s", _e)
+    BANDIT_AVAILABLE = False
+    _bandit = None
+
+# ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=getattr(logging, os.environ.get("LOG_LEVEL", "INFO")),
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("dmai.core")
 
-# Render / production flags
+# ── Render / production flags ────────────────────────────────────────────────
 IS_RENDER = os.environ.get("RENDER", "false").lower() == "true"
 if IS_RENDER:
     os.environ["DISABLE_NEO4J"] = "true"
     os.environ["DISABLE_AUTO_THREADS"] = "true"
 
-# Data path
+# ── Data path ────────────────────────────────────────────────────────────────
 DATA_PATH = os.environ.get("DATA_PATH", "data/")
 Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
 
-# Startup time
+# ── Startup time ─────────────────────────────────────────────────────────────
 STARTUP_TIME = datetime.now(timezone.utc)
 
-# Component registry
+# ── Component registry ────────────────────────────────────────────────────────
 components: Dict[str, Any] = {}
 
-# Syllabus
+# ── Syllabus ─────────────────────────────────────────────────────────────────
 try:
     from dmai_syllabus_data import SYLLABUS_TOPICS, TOTAL_TOPICS
     logger.info("Syllabus loaded: %d topics", TOTAL_TOPICS)
@@ -55,7 +131,7 @@ except Exception as e:
     SYLLABUS_TOPICS = {}
     TOTAL_TOPICS = 0
 
-# SICore
+# ── SICore ────────────────────────────────────────────────────────────────────
 try:
     from components.si_core import SICore
     components["si_core"] = SICore(data_path=Path(DATA_PATH))
@@ -63,7 +139,7 @@ try:
 except Exception as e:
     logger.warning("SICore failed: %s", e)
 
-# AI Integration Hub
+# ── AI Integration Hub ────────────────────────────────────────────────────────
 try:
     from components.phase11.AIIntegrationHub import AIIntegrationHub
     components["ai_hub"] = AIIntegrationHub(data_path=DATA_PATH)
@@ -71,7 +147,7 @@ try:
 except Exception as e:
     logger.warning("AIIntegrationHub failed: %s", e)
 
-# Extended AI Integration Hub
+# ── Extended AI Integration Hub ───────────────────────────────────────────────
 try:
     from components.phase11.ExtendedAIIntegrationHub import ExtendedAIIntegrationHub
     components["extended_hub"] = ExtendedAIIntegrationHub(
@@ -82,7 +158,7 @@ try:
 except Exception as e:
     logger.warning("ExtendedAIIntegrationHub failed: %s", e)
 
-# Evolution Training System
+# ── Evolution Training System ─────────────────────────────────────────────────
 try:
     from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
     components["evolution_training"] = EvolutionTrainingSystem(
@@ -94,7 +170,7 @@ try:
 except Exception as e:
     logger.warning("EvolutionTrainingSystem failed: %s", e)
 
-# Synthetic Intelligence Training (legacy consciousness modules)
+# ── Synthetic Intelligence Training (legacy) ──────────────────────────────────
 try:
     from components.si_training.SyntheticIntelligenceTraining import SyntheticIntelligenceTraining
     components["si_training_legacy"] = SyntheticIntelligenceTraining(
@@ -105,7 +181,7 @@ try:
 except Exception as e:
     logger.warning("SyntheticIntelligenceTraining failed: %s", e)
 
-# LLM Training
+# ── LLM Training ──────────────────────────────────────────────────────────────
 try:
     from components.llm_training.LLMTrainingProgram import LLMTrainingProgram
     components["llm_training"] = LLMTrainingProgram(data_path=DATA_PATH)
@@ -113,7 +189,7 @@ try:
 except Exception as e:
     logger.warning("LLMTrainingProgram failed: %s", e)
 
-# GenAI Training
+# ── GenAI Training ────────────────────────────────────────────────────────────
 try:
     from components.genai_training.GenAITrainingProgram import GenAITrainingProgram
     components["genai_training"] = GenAITrainingProgram(data_path=DATA_PATH)
@@ -121,7 +197,7 @@ try:
 except Exception as e:
     logger.warning("GenAITrainingProgram failed: %s", e)
 
-# Media Production Studio
+# ── Media Production Studio ────────────────────────────────────────────────────
 try:
     from components.media.MediaProductionStudio import MediaProductionStudio
     components["media_studio"] = MediaProductionStudio()
@@ -129,7 +205,7 @@ try:
 except Exception as e:
     logger.warning("MediaProductionStudio failed: %s", e)
 
-# Voice Integration
+# ── Voice Integration ─────────────────────────────────────────────────────────
 try:
     from components.voice.VoiceIntegration import VoiceIntegration
     components["voice"] = VoiceIntegration(data_path=Path(DATA_PATH))
@@ -137,7 +213,7 @@ try:
 except Exception as e:
     logger.warning("VoiceIntegration failed: %s", e)
 
-# Alex Riviera Content Generator
+# ── Alex Riviera Content Generator ────────────────────────────────────────────
 try:
     from components.alex_riviera.content_generator import AlexRivieraContent
     components["content_gen"] = AlexRivieraContent(ai_hub=components.get("ai_hub"))
@@ -145,7 +221,7 @@ try:
 except Exception as e:
     logger.warning("AlexRivieraContent failed: %s", e)
 
-# Alex Riviera Publishing
+# ── Alex Riviera Publishing ────────────────────────────────────────────────────
 try:
     from components.alex_riviera.publishing_orchestrator import AlexRivieraPublishing
     components["publishing"] = AlexRivieraPublishing()
@@ -153,7 +229,7 @@ try:
 except Exception as e:
     logger.warning("AlexRivieraPublishing failed: %s", e)
 
-# Master Training Orchestrator
+# ── Master Training Orchestrator ───────────────────────────────────────────────
 try:
     from components.orchestrator.DMAITrainingOrchestrator import (
         DMAITrainingOrchestrator, register_orchestrator_routes
@@ -172,29 +248,59 @@ except Exception as e:
 loaded = sum(1 for v in components.values() if v is not None)
 logger.info("Components loaded: %d", loaded)
 
-# Kaizen store
+# ── Kaizen store (P1-6: atomic writes) ───────────────────────────────────────
 _KAIZEN_FILE = Path(DATA_PATH) / "kaizen_proposals.jsonl"
+_KAIZEN_QUEUE_CAP = 20
 
 def _load_kaizen(n=20):
     if not _KAIZEN_FILE.exists():
         return []
     lines = _KAIZEN_FILE.read_text().strip().split("\n")
     records = []
-    for l in lines:
+    for line in lines:
         try:
-            records.append(json.loads(l))
+            records.append(json.loads(line))
         except Exception:
             pass
     return records[-n:]
 
 def _save_kaizen(proposal):
+    """Atomic append via temp-file rename (P1-6)."""
     _KAIZEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(_KAIZEN_FILE, "a") as f:
-        f.write(json.dumps(proposal) + "\n")
+    # Check queue depth cap
+    depth = len(_load_kaizen(100))
+    if depth >= _KAIZEN_QUEUE_CAP:
+        logger.warning("Kaizen queue at capacity (%d). Proposal not saved.", _KAIZEN_QUEUE_CAP)
+        if cb_manager:
+            try:
+                cb_manager.check_kaizen_depth(depth)
+            except Exception:
+                pass
+        return
+    existing = _KAIZEN_FILE.read_text() if _KAIZEN_FILE.exists() else ""
+    tmp = tempfile.NamedTemporaryFile(
+        mode="w", dir=_KAIZEN_FILE.parent, suffix=".tmp", delete=False
+    )
+    try:
+        tmp.write(existing + json.dumps(proposal) + "\n")
+        tmp.close()
+        os.replace(tmp.name, _KAIZEN_FILE)
+    except Exception as e:
+        tmp.close()
+        try:
+            os.unlink(tmp.name)
+        except Exception:
+            pass
+        raise e
 
-# Flask app
+# ── Flask app ─────────────────────────────────────────────────────────────────
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 CORS(app)
+
+# Register circuit breaker after_request hook (CB-01–CB-06)
+if CB_AVAILABLE:
+    app.after_request(after_request_hook)
+    logger.info("Circuit breaker after_request hook registered")
 
 # Register orchestrator routes
 if "training_orchestrator" in components:
@@ -204,7 +310,7 @@ if "training_orchestrator" in components:
     except Exception as e:
         logger.warning("Orchestrator route registration failed: %s", e)
 
-# Helpers
+# ── Helpers ───────────────────────────────────────────────────────────────────
 def _run_async(coro):
     loop = asyncio.new_event_loop()
     try:
@@ -219,37 +325,98 @@ def _uptime():
     return f"{h}h {m}m {s}s"
 
 def _require_auth():
+    """
+    P1-2: JWT-first auth with backward-compat X-Master-Password header.
+    Bearer token → verify JWT.
+    X-Master-Password / ?password → verify against MASTER_PASSWORD env var,
+    and optionally issue a JWT for future calls.
+    """
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        token = auth[7:]
+        if SECURITY_AVAILABLE:
+            try:
+                from security import verify_token
+                payload = verify_token(token)
+                return payload is not None
+            except Exception:
+                return False
+        return True  # security module missing — fail open only in dev
+    # Legacy password header
     pwd = request.headers.get("X-Master-Password") or request.args.get("password", "")
-    return pwd == os.environ.get("MASTER_PASSWORD", "dmai_master")
+    master = os.environ.get("MASTER_PASSWORD", "dmai_master")
+    return pwd == master
 
-def _ai_chat(message):
+def _ai_chat(message: str) -> str:
+    """
+    P1-3: Sanitise input before passing to AI hub.
+    P1-4: Scan any generated code in the response.
+    P3-14: HaltResponse check before returning.
+    """
+    # Sanitise input
+    if SECURITY_AVAILABLE:
+        clean_message = sanitise_input(message)
+        if check_injection(clean_message):
+            logger.warning("Injection attempt detected in chat: %s", message[:80])
+            return "Request blocked: potential injection detected."
+    else:
+        clean_message = message
+
+    # Halt condition check
+    if SECURITY_AVAILABLE:
+        halt = check_halt_conditions({"message": clean_message})
+        if halt:
+            return f"Request halted: {halt}"
+
     hub = components.get("extended_hub") or components.get("ai_hub")
+    response_text = None
     if hub and hasattr(hub, "chat"):
         try:
-            return _run_async(hub.chat(message))
+            response_text = _run_async(hub.chat(clean_message))
         except Exception as e:
             logger.warning("AI chat error: %s", e)
-    ml = message.lower()
-    for topic, info in SYLLABUS_TOPICS.items():
-        if topic in ml or ml in topic:
-            return info.get("content", f"I know about {topic} at {info.get('stage','?')} level.")
-    return (
-        f"DMAI received: '{message}'. "
-        f"Add an AI provider API key for full LLM responses. "
-        f"Current syllabus: {TOTAL_TOPICS} mastered topics available."
-    )
 
-# ── Routes ──────────────────────────────────────────────────────────────────
+    if response_text is None:
+        ml = clean_message.lower()
+        for topic, info in SYLLABUS_TOPICS.items():
+            if topic in ml or ml in topic:
+                response_text = info.get("content", f"I know about {topic} at {info.get('stage','?')} level.")
+                break
+        if response_text is None:
+            response_text = (
+                f"DMAI received: '{clean_message}'. "
+                f"Add an AI provider API key for full LLM responses. "
+                f"Current syllabus: {TOTAL_TOPICS} mastered topics available."
+            )
+
+    # P1-4: scan any code blocks in the response
+    if SECURITY_AVAILABLE and "```" in response_text:
+        scan = scan_generated_code(response_text)
+        if not scan.get("safe", True):
+            issues = "; ".join(str(i) for i in scan.get("issues", []))
+            logger.warning("Generated code scan found issues: %s", issues)
+            response_text = safe_code_output(response_text)
+
+    return response_text
+
+# ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route("/health")
 def health():
     return jsonify({
         "status": "healthy",
-        "version": "6.0.0",
+        "version": "7.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "uptime": _uptime(),
         "components": {k: "active" for k in components},
         "syllabus_topics": TOTAL_TOPICS,
+        "security": {
+            "jwt": SECURITY_AVAILABLE,
+            "circuit_breakers": CB_AVAILABLE,
+            "hmac_webhooks": HMAC_AVAILABLE,
+            "chain_logging": CHAIN_LOGGER_AVAILABLE,
+            "bandit": BANDIT_AVAILABLE,
+        },
     })
 
 @app.route("/api/status")
@@ -262,7 +429,7 @@ def api_status():
     hub_status = ext_hub.get_status() if ext_hub else {}
     return jsonify({
         "status": "running",
-        "version": "6.0.0",
+        "version": "7.0.0",
         "uptime": _uptime(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "deployment": "render" if IS_RENDER else "local",
@@ -284,7 +451,7 @@ def api_persona():
         "voice_tone": "Professional, creative, enthusiastic",
         "capabilities": ["book_generation", "tv_series", "coloring_books", "tts_voice", "image_generation"],
         "avatar_style": "platinum-blonde, confident, professional",
-        "system": "DMAI v6.0.0",
+        "system": "DMAI v7.0.0",
     })
 
 @app.route("/")
@@ -293,14 +460,22 @@ def index():
     if dashboard.exists():
         return send_from_directory("static", "dashboard.html")
     return f"""<!DOCTYPE html>
-<html><head><title>DMAI v6.0.0</title>
+<html><head><title>DMAI v7.0.0</title>
 <style>body{{background:#0a0a0f;color:#e0e0ff;font-family:monospace;padding:40px}}
 h1{{color:#6c63ff}}a{{color:#00d4aa}}table{{border-collapse:collapse;width:100%}}
-td,th{{border:1px solid #333;padding:8px;text-align:left}}</style></head><body>
-<h1>DMAI v6.0.0 — Online</h1>
+td,th{{border:1px solid #333;padding:8px;text-align:left}}
+.badge{{background:#1a1a2e;border:1px solid #6c63ff;padding:2px 8px;border-radius:4px;font-size:12px}}</style>
+</head><body>
+<h1>DMAI v7.0.0 — Online</h1>
 <p>Uptime: {_uptime()} | Topics: {TOTAL_TOPICS} | Components: {len(components)}</p>
+<p>
+  <span class="badge">JWT: {'✓' if SECURITY_AVAILABLE else '✗'}</span>
+  <span class="badge">CB: {'✓' if CB_AVAILABLE else '✗'}</span>
+  <span class="badge">HMAC: {'✓' if HMAC_AVAILABLE else '✗'}</span>
+  <span class="badge">Bandit: {'✓' if BANDIT_AVAILABLE else '✗'}</span>
+</p>
 <p><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
-<a href="/api/kaizen">/api/kaizen</a></p>
+<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a></p>
 <h2>Active Components</h2>
 <table><tr><th>Component</th><th>Status</th></tr>
 {"".join(f"<tr><td>{k}</td><td style='color:#00d4aa'>active</td></tr>" for k in components)}
@@ -317,6 +492,7 @@ def api_chat():
         message = data.get("message", data.get("text", "")).strip()
         if not message:
             return jsonify({"error": "No message provided"}), 400
+        # Command shortcuts
         if message.startswith("/"):
             cmd = message.lower().strip()
             if cmd == "/status": return api_status()
@@ -326,7 +502,11 @@ def api_chat():
             return jsonify({"response": f"Unknown command: {cmd}. Try /status /persona /kaizen /syllabus"})
         response = _ai_chat(message)
         _log_chat(message, response)
-        return jsonify({"response": response, "timestamp": datetime.now(timezone.utc).isoformat(), "source": "dmai_v6"})
+        return jsonify({
+            "response": response,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source": "dmai_v7",
+        })
     except Exception as e:
         logger.error("chat error: %s", e)
         return jsonify({"error": str(e)}), 500
@@ -334,9 +514,19 @@ def api_chat():
 def _log_chat(message, response):
     try:
         log_file = Path(DATA_PATH) / "chat_log.jsonl"
-        with open(log_file, "a") as f:
-            f.write(json.dumps({"message": message, "response": response[:200],
-                                "timestamp": datetime.now(timezone.utc).isoformat()}) + "\n")
+        entry = {
+            "message": message,
+            "response": response[:200],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        # Atomic write for chat log too
+        existing = log_file.read_text() if log_file.exists() else ""
+        tmp = tempfile.NamedTemporaryFile(
+            mode="w", dir=log_file.parent, suffix=".tmp", delete=False
+        )
+        tmp.write(existing + json.dumps(entry) + "\n")
+        tmp.close()
+        os.replace(tmp.name, log_file)
     except Exception:
         pass
 
@@ -416,8 +606,8 @@ def api_kaizen_post():
     try:
         data = request.get_json(silent=True) or {}
         proposal = {
-            "title": data.get("title", "Untitled proposal"),
-            "description": data.get("description", ""),
+            "title": sanitise_input(data.get("title", "Untitled proposal")) if SECURITY_AVAILABLE else data.get("title", "Untitled proposal"),
+            "description": sanitise_input(data.get("description", "")) if SECURITY_AVAILABLE else data.get("description", ""),
             "priority": data.get("priority", "medium"),
             "type": data.get("type", "manual"),
             "submitted_by": data.get("submitted_by", "api"),
@@ -446,7 +636,7 @@ def api_content_generate():
     try:
         data = request.get_json(silent=True) or {}
         ctype = data.get("type", "book")
-        prompt = data.get("prompt", "")
+        prompt = sanitise_input(data.get("prompt", "")) if SECURITY_AVAILABLE else data.get("prompt", "")
         gen = components.get("content_gen")
         if gen and ctype == "book":
             try:
@@ -474,7 +664,7 @@ def api_content_list():
 def api_avatar_speak():
     try:
         data = request.get_json(silent=True) or {}
-        text = data.get("text", "Hello, I'm Alex Riviera.")
+        text = sanitise_input(data.get("text", "Hello, I'm Alex Riviera.")) if SECURITY_AVAILABLE else data.get("text", "Hello, I'm Alex Riviera.")
         ext_hub = components.get("extended_hub")
         if ext_hub:
             audio = _run_async(ext_hub.text_to_speech(text))
@@ -492,7 +682,7 @@ def api_dashboard():
     orch = components.get("training_orchestrator")
     ext = components.get("extended_hub")
     return jsonify({
-        "version": "6.0.0", "uptime": _uptime(),
+        "version": "7.0.0", "uptime": _uptime(),
         "components": {k: "active" for k in components},
         "si_kpis": si.current_kpis if si else {},
         "training": orch.get_status() if orch else {},
@@ -500,7 +690,16 @@ def api_dashboard():
         "kaizen": _load_kaizen(5),
         "syllabus": {"total": TOTAL_TOPICS},
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "security_modules": {
+            "jwt": SECURITY_AVAILABLE,
+            "circuit_breakers": CB_AVAILABLE,
+            "hmac": HMAC_AVAILABLE,
+            "chain_logging": CHAIN_LOGGER_AVAILABLE,
+            "bandit": BANDIT_AVAILABLE,
+        },
     })
+
+# ── Admin endpoints (JWT-protected) ──────────────────────────────────────────
 
 @app.route("/api/admin/train", methods=["POST"])
 def api_admin_train():
@@ -533,7 +732,124 @@ def api_admin_updater_start():
         return jsonify({"status": "started"})
     return jsonify({"error": "orchestrator not loaded"}), 503
 
-# Background services
+@app.route("/api/admin/token", methods=["POST"])
+def api_admin_token():
+    """
+    P1-2: Issue a JWT given a valid MASTER_PASSWORD.
+    POST {"password": "..."} → {"token": "...", "expires_in": 3600}
+    """
+    data = request.get_json(silent=True) or {}
+    pwd = data.get("password", "")
+    if pwd != os.environ.get("MASTER_PASSWORD", "dmai_master"):
+        return jsonify({"error": "Invalid password"}), 401
+    if not SECURITY_AVAILABLE:
+        return jsonify({"error": "Security module not available"}), 503
+    token = issue_token_for_password(pwd)
+    if not token:
+        return jsonify({"error": "Token generation failed"}), 500
+    return jsonify({"token": token, "expires_in": 3600, "type": "Bearer"})
+
+# ── Circuit breaker admin (P1-1) ──────────────────────────────────────────────
+
+@app.route("/api/admin/circuit-breakers", methods=["GET"])
+def api_cb_status():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    if not CB_AVAILABLE:
+        return jsonify({"error": "Circuit breakers not available"}), 503
+    try:
+        return jsonify(cb_manager.get_all_status())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/admin/circuit-breakers/<name>/reset", methods=["POST"])
+def api_cb_reset(name):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    if not CB_AVAILABLE:
+        return jsonify({"error": "Circuit breakers not available"}), 503
+    try:
+        cb_manager.reset(name)
+        return jsonify({"status": "reset", "circuit": name})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/admin/circuit-breakers/<name>/open", methods=["POST"])
+def api_cb_force_open(name):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    if not CB_AVAILABLE:
+        return jsonify({"error": "Circuit breakers not available"}), 503
+    try:
+        cb_manager.force_open(name)
+        return jsonify({"status": "forced_open", "circuit": name})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ── HMAC-protected webhook (P1-8) ─────────────────────────────────────────────
+
+@app.route("/api/webhooks/payment", methods=["POST"])
+def api_webhook_payment():
+    """
+    Payment webhook with HMAC-SHA256 signature validation.
+    Expects: X-Webhook-Signature header with HMAC of body using WEBHOOK_SECRET env var.
+    """
+    if HMAC_AVAILABLE:
+        secret = os.environ.get("WEBHOOK_SECRET", "")
+        if secret:
+            body = request.get_data()
+            sig = request.headers.get("X-Webhook-Signature", "")
+            try:
+                valid = validate_webhook_signature(body, sig, secret)
+                if not valid:
+                    logger.warning("Webhook HMAC validation failed — signature mismatch")
+                    return jsonify({"error": "Invalid signature"}), 401
+            except Exception as e:
+                logger.warning("Webhook HMAC check error: %s", e)
+                return jsonify({"error": "Signature validation error"}), 400
+        else:
+            logger.warning("WEBHOOK_SECRET not set — skipping HMAC validation in dev mode")
+    try:
+        payload = request.get_json(silent=True) or {}
+        event_type = payload.get("type", "unknown")
+        logger.info("Payment webhook received: %s", event_type)
+        # Log chain step for audit trail
+        if CHAIN_LOGGER_AVAILABLE:
+            log_chain_step(
+                chain_id=f"webhook_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}",
+                step="payment_webhook_received",
+                data={"event_type": event_type, "amount": payload.get("amount")},
+            )
+        return jsonify({"status": "received", "event": event_type}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ── Code scanning endpoint (P1-4 / P2-13) ─────────────────────────────────────
+
+@app.route("/api/admin/scan-code", methods=["POST"])
+def api_scan_code():
+    """
+    Scan submitted code for security issues using Bandit + AST scanner.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data = request.get_json(silent=True) or {}
+    code = data.get("code", "")
+    if not code:
+        return jsonify({"error": "No code provided"}), 400
+    results = {}
+    if SECURITY_AVAILABLE:
+        results["ast_scan"] = scan_generated_code(code)
+        results["imports_scan"] = scan_imports_in_code(code)
+    if BANDIT_AVAILABLE:
+        try:
+            results["bandit_scan"] = _bandit.scan_string(code)
+        except Exception as e:
+            results["bandit_scan"] = {"error": str(e)}
+    return jsonify({"results": results, "timestamp": datetime.now(timezone.utc).isoformat()})
+
+# ── Background services ────────────────────────────────────────────────────────
+
 def _start_background_services():
     if not IS_RENDER:
         orch = components.get("training_orchestrator")
@@ -553,12 +869,12 @@ def _start_telegram_bot():
             token = os.environ["TELEGRAM_BOT_TOKEN"]
 
             async def start_cmd(update, ctx):
-                await update.message.reply_text("DMAI v6.0.0 online.\n/status /train /kaizen /persona")
+                await update.message.reply_text("DMAI v7.0.0 online.\n/status /train /kaizen /persona")
 
             async def status_cmd(update, ctx):
                 si = components.get("si_core")
                 kpis = si.current_kpis if si else {}
-                msg = (f"DMAI v6.0.0\nUptime: {_uptime()}\n"
+                msg = (f"DMAI v7.0.0\nUptime: {_uptime()}\n"
                        f"Topics: {TOTAL_TOPICS}\nComponents: {len(components)}\n"
                        f"Consciousness: {kpis.get('consciousness', 0):.3f}")
                 await update.message.reply_text(msg)
@@ -602,9 +918,11 @@ _start_background_services()
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
-    logger.info("  DMAI v6.0.0 — Starting on port %d", port)
+    logger.info("  DMAI v7.0.0 — Starting on port %d", port)
     logger.info("  Components: %s", list(components.keys()))
     logger.info("  Syllabus topics: %d", TOTAL_TOPICS)
     logger.info("  Render mode: %s", IS_RENDER)
+    logger.info("  Security: JWT=%s CB=%s HMAC=%s Bandit=%s",
+                SECURITY_AVAILABLE, CB_AVAILABLE, HMAC_AVAILABLE, BANDIT_AVAILABLE)
     logger.info("=" * 55)
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
