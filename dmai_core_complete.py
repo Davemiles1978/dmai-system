@@ -315,6 +315,299 @@ try:
 except Exception as e:
     logger.warning("DMAITrainingOrchestrator failed: %s", e)
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ── UNWIRED COMPONENTS — full wiring (instantiation order respects deps) ─────
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ── GlobalWorkspace (consciousness) ───────────────────────────────────────────
+try:
+    from components.consciousness.global_workspace import GlobalWorkspace
+    components["global_workspace"] = GlobalWorkspace(capacity=7)
+    logger.info("GlobalWorkspace initialised")
+except Exception as e:
+    logger.warning("GlobalWorkspace failed: %s", e)
+
+# ── TutorManager ──────────────────────────────────────────────────────────────
+try:
+    from components.phase11.TutorManager import TutorManager
+    components["tutor_manager"] = TutorManager(data_path=DATA_PATH)
+    logger.info("TutorManager initialised")
+except Exception as e:
+    logger.warning("TutorManager failed: %s", e)
+
+# ── ConsciousnessTracker ──────────────────────────────────────────────────────
+try:
+    from components.evolution.ConsciousnessTracker import ConsciousnessTracker
+    components["consciousness_tracker"] = ConsciousnessTracker(data_path=Path(DATA_PATH))
+    logger.info("ConsciousnessTracker initialised")
+except Exception as e:
+    logger.warning("ConsciousnessTracker failed: %s", e)
+
+# ── EvolutionMetrics ──────────────────────────────────────────────────────────
+try:
+    from components.evolution.EvolutionMetrics import EvolutionMetrics
+    components["evolution_metrics"] = EvolutionMetrics(data_path=Path(DATA_PATH))
+    logger.info("EvolutionMetrics initialised")
+except Exception as e:
+    logger.warning("EvolutionMetrics failed: %s", e)
+
+# ── LearningPipeline ──────────────────────────────────────────────────────────
+try:
+    from components.learning.LearningPipeline import LearningPipeline
+    components["learning_pipeline"] = LearningPipeline()
+    logger.info("LearningPipeline initialised")
+except Exception as e:
+    logger.warning("LearningPipeline failed: %s", e)
+
+# ── MetaLearnerFixed ──────────────────────────────────────────────────────────
+try:
+    from components.meta_learner_fixed import MetaLearnerFixed
+    components["meta_learner"] = MetaLearnerFixed()
+    logger.info("MetaLearnerFixed initialised")
+except Exception as e:
+    logger.warning("MetaLearnerFixed failed: %s", e)
+
+# ── SelfCorrectingEngine ──────────────────────────────────────────────────────
+try:
+    from components.self_correcting_engine import SelfCorrectingEngine
+    components["self_corrector"] = SelfCorrectingEngine(max_attempts=5)
+    logger.info("SelfCorrectingEngine initialised")
+except Exception as e:
+    logger.warning("SelfCorrectingEngine failed: %s", e)
+
+# ── SelfOptimizer ─────────────────────────────────────────────────────────────
+try:
+    from components.self_optimizer import SelfOptimizer
+    components["self_optimizer"] = SelfOptimizer(db_path=str(Path(DATA_PATH) / "dmai_knowledge.db"))
+    logger.info("SelfOptimizer initialised")
+except Exception as e:
+    logger.warning("SelfOptimizer failed: %s", e)
+
+# ── ContentValidator (plagiarism) ─────────────────────────────────────────────
+try:
+    from components.plagiarism.ContentValidator import ContentValidator
+    components["content_validator"] = ContentValidator()
+    logger.info("ContentValidator initialised")
+except Exception as e:
+    logger.warning("ContentValidator failed: %s", e)
+
+# ── UniversalScreenshotExtractor + KnowledgeIntegrator (vision) ───────────────
+try:
+    from components.vision.universal_extractor import (
+        UniversalScreenshotExtractor, KnowledgeIntegrator,
+    )
+    components["vision_extractor"] = UniversalScreenshotExtractor()
+    components["vision_integrator"] = KnowledgeIntegrator(si_core=components.get("si_core"))
+    logger.info("UniversalScreenshotExtractor + KnowledgeIntegrator initialised")
+except Exception as e:
+    logger.warning("Vision extractor failed: %s", e)
+
+# ── SystemHealthDashboard ─────────────────────────────────────────────────────
+try:
+    from components.health_dashboard import SystemHealthDashboard
+    components["health_dashboard"] = SystemHealthDashboard(
+        evolution_engine=components.get("evolution_training"))
+    logger.info("SystemHealthDashboard initialised")
+except Exception as e:
+    logger.warning("SystemHealthDashboard failed: %s", e)
+
+# ── InternalArtEngine ─────────────────────────────────────────────────────────
+try:
+    from components.art.InternalArtEngine import InternalArtEngine
+    components["art_engine"] = InternalArtEngine(si_core=components.get("si_core"))
+    logger.info("InternalArtEngine initialised")
+except Exception as e:
+    logger.warning("InternalArtEngine failed: %s", e)
+
+# ── MusicLearner ──────────────────────────────────────────────────────────────
+try:
+    from components.music.MusicLearner import MusicLearner
+    components["music_learner"] = MusicLearner(data_path=Path(DATA_PATH))
+    logger.info("MusicLearner initialised")
+except Exception as e:
+    logger.warning("MusicLearner failed: %s", e)
+
+# ── URLLearner ────────────────────────────────────────────────────────────────
+try:
+    from components.research.URLLearner import URLLearner
+    components["url_learner"] = URLLearner()
+    logger.info("URLLearner initialised")
+except Exception as e:
+    logger.warning("URLLearner failed: %s", e)
+
+# ── AutonomousResearcher ──────────────────────────────────────────────────────
+try:
+    from components.research.autonomous_researcher import AutonomousResearcher
+    components["autonomous_researcher"] = AutonomousResearcher(si_core=components.get("si_core"))
+    logger.info("AutonomousResearcher initialised")
+except Exception as e:
+    logger.warning("AutonomousResearcher failed: %s", e)
+
+# ── SoftwareReverseEngineer ───────────────────────────────────────────────────
+try:
+    from components.reverse_engineering.ReverseEngineer import SoftwareReverseEngineer
+    components["reverse_engineer"] = SoftwareReverseEngineer(data_path=Path(DATA_PATH))
+    logger.info("SoftwareReverseEngineer initialised")
+except Exception as e:
+    logger.warning("SoftwareReverseEngineer failed: %s", e)
+
+# ── LearningHarvester ─────────────────────────────────────────────────────────
+try:
+    from components.evolution.LearningHarvester import LearningHarvester
+    components["learning_harvester"] = LearningHarvester(
+        data_path=Path(DATA_PATH), ai_hub=components.get("ai_hub"), knowledge_graph=None)
+    logger.info("LearningHarvester initialised")
+except Exception as e:
+    logger.warning("LearningHarvester failed: %s", e)
+
+# ── IntelligenceBridge ────────────────────────────────────────────────────────
+try:
+    from components.phase11.IntelligenceBridge import IntelligenceBridge
+    components["intelligence_bridge"] = IntelligenceBridge(
+        intelligence_core=components.get("si_core"), knowledge_graph=None, pattern_synthesis=None)
+    logger.info("IntelligenceBridge initialised")
+except Exception as e:
+    logger.warning("IntelligenceBridge failed: %s", e)
+
+# ── CapabilitySynthesizer ─────────────────────────────────────────────────────
+try:
+    from components.phase11.CapabilitySynthesizer import CapabilitySynthesizer
+    components["capability_synthesizer"] = CapabilitySynthesizer()
+    logger.info("CapabilitySynthesizer initialised")
+except Exception as e:
+    logger.warning("CapabilitySynthesizer failed: %s", e)
+
+# ── DynamicAIDiscovery (background loop started later) ─────────────────────────
+try:
+    from components.phase11.DynamicAIDiscovery import DynamicAIDiscovery
+    components["ai_discovery"] = DynamicAIDiscovery(
+        data_path=Path(DATA_PATH), ai_hub=components.get("ai_hub"))
+    logger.info("DynamicAIDiscovery initialised")
+except Exception as e:
+    logger.warning("DynamicAIDiscovery failed: %s", e)
+
+# ── StageAwareLearningOrchestrator ────────────────────────────────────────────
+try:
+    from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
+    components["stage_learner"] = StageAwareLearningOrchestrator(
+        data_path=Path(DATA_PATH), synthetic_network=None, knowledge_graph=None,
+        ai_hub=components.get("ai_hub"), pattern_synthesis=None)
+    logger.info("StageAwareLearningOrchestrator initialised")
+except Exception as e:
+    logger.warning("StageAwareLearningOrchestrator failed: %s", e)
+
+# ── DeepResearchIntegrator ────────────────────────────────────────────────────
+try:
+    from components.research.research_integration import DeepResearchIntegrator
+    components["research_integrator"] = DeepResearchIntegrator(
+        synthetic_network=None, stage_learner=components.get("stage_learner"))
+    logger.info("DeepResearchIntegrator initialised")
+except Exception as e:
+    logger.warning("DeepResearchIntegrator failed: %s", e)
+
+# ── LearningOrchestrator (phase11) ────────────────────────────────────────────
+try:
+    from components.phase11.LearningOrchestrator import LearningOrchestrator
+    components["learning_orchestrator"] = LearningOrchestrator(
+        ai_hub=components.get("ai_hub"),
+        discovery=components.get("ai_discovery"),
+        synthetic_network=None,
+        tutor_manager=components.get("tutor_manager"),
+        intelligence_bridge=components.get("intelligence_bridge"))
+    logger.info("LearningOrchestrator initialised")
+except Exception as e:
+    logger.warning("LearningOrchestrator failed: %s", e)
+
+# ── UnifiedLearningOrchestrator ───────────────────────────────────────────────
+try:
+    from components.unified_learning_orchestrator import UnifiedLearningOrchestrator
+    components["unified_learner"] = UnifiedLearningOrchestrator(
+        si_core=components.get("si_core"),
+        evolution_engine=components.get("evolution_training"),
+        knowledge_graph=None)
+    logger.info("UnifiedLearningOrchestrator initialised")
+except Exception as e:
+    logger.warning("UnifiedLearningOrchestrator failed: %s", e)
+
+# ── KaizenIntegrator (PeriodicUpdateEngine) ───────────────────────────────────
+try:
+    from components.update_engine.PeriodicUpdateEngine import KaizenIntegrator
+    components["kaizen_integrator"] = KaizenIntegrator(
+        config={"data_path": str(DATA_PATH),
+                "kaizen_endpoint": os.environ.get("KAIZEN_ENDPOINT",
+                                                  "http://localhost:5000/api/kaizen")})
+    logger.info("KaizenIntegrator initialised")
+except Exception as e:
+    logger.warning("KaizenIntegrator failed: %s", e)
+
+# ── GitHubStarMonitor (background loop started later) ──────────────────────────
+try:
+    from components.phase10.GitHubStarMonitor import GitHubStarMonitor
+    components["github_monitor"] = GitHubStarMonitor(
+        data_path=Path(DATA_PATH), github_username="Davemiles1978",
+        github_token=os.environ.get("GITHUB_MODELS_TOKEN"))
+    logger.info("GitHubStarMonitor initialised")
+except Exception as e:
+    logger.warning("GitHubStarMonitor failed: %s", e)
+
+# ── SelfFundingOrchestrator ───────────────────────────────────────────────────
+try:
+    from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator
+    components["self_funding"] = SelfFundingOrchestrator(
+        data_path=Path(DATA_PATH), financial_manager=None, knowledge_graph=None,
+        ai_hub=components.get("ai_hub"))
+    logger.info("SelfFundingOrchestrator initialised")
+except Exception as e:
+    logger.warning("SelfFundingOrchestrator failed: %s", e)
+
+# ── DynamicRevenueDiscovery ───────────────────────────────────────────────────
+try:
+    from components.funding.DynamicRevenueDiscovery import DynamicRevenueDiscovery
+    components["revenue_discovery"] = DynamicRevenueDiscovery(
+        data_path=Path(DATA_PATH), knowledge_graph=None, ai_hub=components.get("ai_hub"),
+        funding_orchestrator=components.get("self_funding"))
+    logger.info("DynamicRevenueDiscovery initialised")
+except Exception as e:
+    logger.warning("DynamicRevenueDiscovery failed: %s", e)
+
+# ── MasterControl (phase7) ────────────────────────────────────────────────────
+try:
+    from components.phase7.P7_MasterControl import MasterControl
+    components["master_control"] = MasterControl(
+        master_key=os.environ.get("MASTER_KEY", os.environ.get("MASTER_PASSWORD", "")))
+    logger.info("MasterControl initialised")
+except Exception as e:
+    logger.warning("MasterControl failed: %s", e)
+
+# ── TradingMasterySystem ──────────────────────────────────────────────────────
+try:
+    from components.trading.mastery_system import TradingMasterySystem
+    components["trading_mastery"] = TradingMasterySystem()
+    logger.info("TradingMasterySystem initialised")
+except Exception as e:
+    logger.warning("TradingMasterySystem failed: %s", e)
+
+# ── AggressiveTrader (paper=True unless TRADING_LIVE=true) ─────────────────────
+try:
+    from components.wealth.aggressive_trader import AggressiveTrader
+    _paper = os.environ.get("TRADING_LIVE", "").lower() != "true"
+    components["trader"] = AggressiveTrader(
+        api_key=os.environ.get("TRADING_API_KEY", ""),
+        secret_key=os.environ.get("TRADING_SECRET_KEY", ""),
+        paper=_paper)
+    logger.info("AggressiveTrader initialised (paper=%s)", _paper)
+except Exception as e:
+    logger.warning("AggressiveTrader failed: %s", e)
+
+# ── FinancialIntegrationUK (requires external credentials) ────────────────────
+try:
+    from components.financial_integration_uk import FinancialIntegrationUK
+    components["financial_uk"] = FinancialIntegrationUK(
+        encryption_key=os.environ.get("FINANCIAL_ENCRYPTION_KEY"))
+    logger.info("FinancialIntegrationUK initialised")
+except Exception as e:
+    logger.warning("FinancialIntegrationUK failed: %s", e)
+
 loaded = sum(1 for v in components.values() if v is not None)
 logger.info("Components loaded: %d", loaded)
 
@@ -379,6 +672,50 @@ if "training_orchestrator" in components:
         logger.info("Orchestrator routes registered")
     except Exception as e:
         logger.warning("Orchestrator route registration failed: %s", e)
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Flask-app-dependent components (must be instantiated AFTER app = Flask) ──
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ── CapabilityIntegrator ──────────────────────────────────────────────────────
+try:
+    from components.capability_integrator import CapabilityIntegrator
+    components["capability_integrator"] = CapabilityIntegrator(dmai_app=app)
+    logger.info("CapabilityIntegrator initialised")
+except Exception as e:
+    logger.warning("CapabilityIntegrator failed: %s", e)
+
+# ── FreeAPIHarvester ──────────────────────────────────────────────────────────
+try:
+    from components.integration.free_api_harvester import FreeAPIHarvester
+    components["free_api_harvester"] = FreeAPIHarvester(dmai_app=app)
+    logger.info("FreeAPIHarvester initialised")
+except Exception as e:
+    logger.warning("FreeAPIHarvester failed: %s", e)
+
+# ── AITutorAutoConfigurator (health loop started later) ───────────────────────
+try:
+    from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
+    components["tutor_configurator"] = AITutorAutoConfigurator(dmai_app=app)
+    logger.info("AITutorAutoConfigurator initialised")
+except Exception as e:
+    logger.warning("AITutorAutoConfigurator failed: %s", e)
+
+# ── RepoIntegrationEngine ─────────────────────────────────────────────────────
+try:
+    from components.integration.repo_integration_engine import RepoIntegrationEngine
+    components["repo_integrator"] = RepoIntegrationEngine(dmai_app=app)
+    logger.info("RepoIntegrationEngine initialised")
+except Exception as e:
+    logger.warning("RepoIntegrationEngine failed: %s", e)
+
+# ── AutonomousIngestor (AutonomousDeveloper) ──────────────────────────────────
+try:
+    from components.autonomous_ingestor import AutonomousDeveloper
+    components["autonomous_ingestor"] = AutonomousDeveloper(dmai_app=app)
+    logger.info("AutonomousIngestor initialised")
+except Exception as e:
+    logger.warning("AutonomousIngestor failed: %s", e)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _run_async(coro):
@@ -1212,6 +1549,669 @@ def api_knowledge_add_book():
     return jsonify({"success": True, "title": title, "author": author, "reason": reason})
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ── Wired-component API endpoints ────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _comp_status(key, extra=None):
+    """Generic status helper — returns get_status() if available, else availability."""
+    comp = components.get(key)
+    if comp is None:
+        return jsonify({"available": False, "component": key}), 503
+    payload = {"available": True, "component": key}
+    if hasattr(comp, "get_status"):
+        try:
+            payload["status"] = comp.get_status()
+        except Exception as e:
+            payload["status_error"] = str(e)
+    if extra:
+        payload.update(extra)
+    return jsonify(payload)
+
+
+# ── Consciousness / GlobalWorkspace ───────────────────────────────────────────
+@app.route("/api/consciousness/state", methods=["GET"])
+def api_consciousness_state():
+    gw = components.get("global_workspace")
+    if gw is None:
+        return jsonify({"available": False}), 503
+    state = {}
+    for attr in ("capacity", "contents", "workspace", "current_focus"):
+        if hasattr(gw, attr):
+            try:
+                val = getattr(gw, attr)
+                state[attr] = val if isinstance(val, (int, float, str, list, dict)) else str(val)
+            except Exception:
+                pass
+    if hasattr(gw, "get_workspace_state"):
+        try:
+            state["workspace_state"] = gw.get_workspace_state()
+        except Exception:
+            pass
+    return jsonify({"available": True, "state": state})
+
+
+# ── CapabilitySynthesizer ─────────────────────────────────────────────────────
+@app.route("/api/capabilities/synthesize", methods=["GET", "POST"])
+def api_capabilities_synthesize():
+    cs = components.get("capability_synthesizer")
+    if cs is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    try:
+        responses = {
+            "a": data.get("capability_a", ""),
+            "b": data.get("capability_b", ""),
+        }
+        result = cs.synthesize(responses, data.get("prompt", "synthesize capabilities"))
+        return jsonify({"available": True, "result": result})
+    except Exception as e:
+        return jsonify({"available": True, "error": str(e)}), 200
+
+
+# ── DynamicAIDiscovery ────────────────────────────────────────────────────────
+@app.route("/api/ai/discovery/status", methods=["GET"])
+def api_ai_discovery_status():
+    return _comp_status("ai_discovery")
+
+
+# ── Learning (phase11 LearningOrchestrator) ───────────────────────────────────
+@app.route("/api/learning/status", methods=["GET"])
+def api_learning_status():
+    return _comp_status("learning_orchestrator")
+
+
+@app.route("/api/learning/start", methods=["POST"])
+def api_learning_start():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    lo = components.get("learning_orchestrator")
+    if lo is None:
+        return jsonify({"error": "LearningOrchestrator not loaded"}), 503
+    try:
+        t = threading.Thread(target=lo.start_continuous_learning, daemon=True,
+                             name="dmai-learning")
+        t.start()
+        return jsonify({"status": "started"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/learning/unified-status", methods=["GET"])
+def api_learning_unified_status():
+    return _comp_status("unified_learner")
+
+
+# ── Tutors ────────────────────────────────────────────────────────────────────
+@app.route("/api/tutors/list", methods=["GET"])
+def api_tutors_list():
+    tm = components.get("tutor_manager")
+    if tm is None:
+        return jsonify({"available": False}), 503
+    tutors = getattr(tm, "tutors", {})
+    try:
+        listing = {k: (v.to_dict() if hasattr(v, "to_dict") else str(v))
+                   for k, v in tutors.items()} if isinstance(tutors, dict) else str(tutors)
+    except Exception as e:
+        listing = {"error": str(e)}
+    return jsonify({"available": True, "tutors": listing})
+
+
+@app.route("/api/tutors/query", methods=["POST"])
+def api_tutors_query():
+    tm = components.get("tutor_manager")
+    if tm is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    tutor_id = data.get("tutor_id", "")
+    prompt = sanitise_input(data.get("prompt", "")) if SECURITY_AVAILABLE else data.get("prompt", "")
+    for meth in ("query", "ask", "query_tutor"):
+        if hasattr(tm, meth):
+            try:
+                return jsonify({"result": getattr(tm, meth)(tutor_id, prompt)})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 200
+    return jsonify({"status": "queued", "tutor_id": tutor_id, "prompt": prompt})
+
+
+# ── Evolution ─────────────────────────────────────────────────────────────────
+@app.route("/api/evolution/consciousness", methods=["GET"])
+def api_evolution_consciousness():
+    ct = components.get("consciousness_tracker")
+    if ct is None:
+        return jsonify({"available": False}), 503
+    level = None
+    for meth in ("get_consciousness", "get_level", "get_status"):
+        if hasattr(ct, meth):
+            try:
+                level = getattr(ct, meth)()
+                break
+            except Exception:
+                pass
+    if level is None:
+        level = getattr(ct, "consciousness", getattr(ct, "level", None))
+    return jsonify({"available": True, "consciousness": level})
+
+
+@app.route("/api/evolution/metrics", methods=["GET"])
+def api_evolution_metrics():
+    em = components.get("evolution_metrics")
+    if em is None:
+        return jsonify({"available": False}), 503
+    for meth in ("get_metrics", "get_status", "snapshot"):
+        if hasattr(em, meth):
+            try:
+                return jsonify({"available": True, "metrics": getattr(em, meth)()})
+            except Exception as e:
+                return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": True})
+
+
+@app.route("/api/evolution/learning-cycle", methods=["POST"])
+def api_evolution_learning_cycle():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    sl = components.get("stage_learner")
+    if sl is None:
+        return jsonify({"error": "StageAwareLearningOrchestrator not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    try:
+        consciousness = float(data.get("consciousness", 0.5))
+    except (TypeError, ValueError):
+        consciousness = 0.5
+    try:
+        result = sl.run_learning_cycle(consciousness)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Self-correction ───────────────────────────────────────────────────────────
+@app.route("/api/self-correct", methods=["POST"])
+def api_self_correct():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    sc = components.get("self_corrector")
+    if sc is None:
+        return jsonify({"error": "SelfCorrectingEngine not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    code = data.get("code", "")
+    context = data.get("context", {})
+    try:
+        success, output, fixes = sc.run_and_correct(code, context)
+        return jsonify({"success": success, "output": output, "fixes_applied": fixes})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Self-optimizer ────────────────────────────────────────────────────────────
+@app.route("/api/optimizer/status", methods=["GET"])
+def api_optimizer_status():
+    return _comp_status("self_optimizer")
+
+
+@app.route("/api/optimizer/run", methods=["POST"])
+def api_optimizer_run():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    so = components.get("self_optimizer")
+    if so is None:
+        return jsonify({"error": "SelfOptimizer not loaded"}), 503
+    try:
+        t = threading.Thread(target=so.start_optimization_cycle, daemon=True,
+                             name="dmai-optimizer")
+        t.start()
+        return jsonify({"status": "started"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Capability integration ────────────────────────────────────────────────────
+@app.route("/api/capabilities/list", methods=["GET"])
+def api_capabilities_list():
+    ci = components.get("capability_integrator")
+    if ci is None:
+        return jsonify({"available": False}), 503
+    for meth in ("list_capabilities", "get_capabilities", "get_status"):
+        if hasattr(ci, meth):
+            try:
+                return jsonify({"available": True, "capabilities": getattr(ci, meth)()})
+            except Exception as e:
+                return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": True})
+
+
+@app.route("/api/capabilities/integrate", methods=["POST"])
+def api_capabilities_integrate():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ci = components.get("capability_integrator")
+    if ci is None:
+        return jsonify({"error": "CapabilityIntegrator not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    for meth in ("integrate", "integrate_capability", "add_capability"):
+        if hasattr(ci, meth):
+            try:
+                return jsonify({"result": getattr(ci, meth)(data)})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 200
+    return jsonify({"status": "queued", "data": data})
+
+
+# ── Kaizen integrator cycle ───────────────────────────────────────────────────
+@app.route("/api/kaizen/run-cycle", methods=["POST"])
+def api_kaizen_run_cycle():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ki = components.get("kaizen_integrator")
+    if ki is None:
+        return jsonify({"error": "KaizenIntegrator not loaded"}), 503
+    try:
+        if hasattr(ki, "run"):
+            result = _run_async(ki.run())
+            return jsonify({"status": "ran", "result": result})
+        return jsonify({"status": "no_run_method"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/kaizen/cycle-status", methods=["GET"])
+def api_kaizen_cycle_status():
+    return _comp_status("kaizen_integrator")
+
+
+# ── Autonomous research ───────────────────────────────────────────────────────
+@app.route("/api/research/autonomous/status", methods=["GET"])
+def api_research_autonomous_status():
+    return _comp_status("autonomous_researcher")
+
+
+@app.route("/api/research/autonomous/start", methods=["POST"])
+def api_research_autonomous_start():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ar = components.get("autonomous_researcher")
+    if ar is None:
+        return jsonify({"error": "AutonomousResearcher not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    topics = data.get("topics")
+    try:
+        t = threading.Thread(target=ar.run_continuous_research, args=(topics,),
+                             daemon=True, name="dmai-research")
+        t.start()
+        return jsonify({"status": "started"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/research/autonomous/topic", methods=["POST"])
+def api_research_autonomous_topic():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ar = components.get("autonomous_researcher")
+    if ar is None:
+        return jsonify({"error": "AutonomousResearcher not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    topic = sanitise_input(data.get("topic", "")) if SECURITY_AVAILABLE else data.get("topic", "")
+    if not topic:
+        return jsonify({"error": "topic is required"}), 400
+    try:
+        result = ar.research_topic_deep(topic)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── URL learner ───────────────────────────────────────────────────────────────
+@app.route("/api/research/learn-url", methods=["POST"])
+def api_research_learn_url():
+    ul = components.get("url_learner")
+    if ul is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    url = data.get("url", "").strip()
+    if not url.startswith(("http://", "https://")):
+        return jsonify({"error": "Invalid URL — must start with http:// or https://"}), 400
+    topic = data.get("topic", "general")
+    content = data.get("content", "")
+    try:
+        result = ul.learn_from_url(topic, url, content)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Reverse engineering ───────────────────────────────────────────────────────
+@app.route("/api/reverse-engineer", methods=["POST"])
+def api_reverse_engineer():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    re_comp = components.get("reverse_engineer")
+    if re_comp is None:
+        return jsonify({"error": "ReverseEngineer not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    target = data.get("target", "")
+    description = data.get("description", data.get("type", "software"))
+    if not target:
+        return jsonify({"error": "target is required"}), 400
+    try:
+        result = re_comp.reverse_engineer_software(target, description)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Funding / revenue ─────────────────────────────────────────────────────────
+@app.route("/api/funding/status", methods=["GET"])
+def api_funding_status():
+    return _comp_status("self_funding")
+
+
+@app.route("/api/funding/start", methods=["POST"])
+def api_funding_start():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    sf = components.get("self_funding")
+    if sf is None:
+        return jsonify({"error": "SelfFundingOrchestrator not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    avenue = data.get("avenue")
+    try:
+        result = sf.start_learning(avenue=avenue)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/funding/revenue-streams", methods=["GET"])
+def api_funding_revenue_streams():
+    rd = components.get("revenue_discovery")
+    if rd is None:
+        return jsonify({"available": False}), 503
+    for attr in ("revenue_streams", "streams", "discovered_streams"):
+        if hasattr(rd, attr):
+            try:
+                return jsonify({"available": True, "revenue_streams": getattr(rd, attr)})
+            except Exception:
+                pass
+    return _comp_status("revenue_discovery")
+
+
+# ── Financial UK ──────────────────────────────────────────────────────────────
+@app.route("/api/financial/uk/status", methods=["GET"])
+def api_financial_uk_status():
+    return _comp_status("financial_uk")
+
+
+# ── Art ───────────────────────────────────────────────────────────────────────
+@app.route("/api/art/generate", methods=["POST"])
+def api_art_generate():
+    ae = components.get("art_engine")
+    if ae is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    prompt = sanitise_input(data.get("prompt", "")) if SECURITY_AVAILABLE else data.get("prompt", "")
+    style = data.get("style", "children")
+    complexity = data.get("complexity", "medium")
+    try:
+        result = ae.generate_coloring_page(prompt or "art", age_group=style, intricacy=complexity)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/art/gallery", methods=["GET"])
+def api_art_gallery():
+    ae = components.get("art_engine")
+    if ae is None:
+        return jsonify({"available": False}), 503
+    for attr in ("gallery", "generated_works", "works"):
+        if hasattr(ae, attr):
+            try:
+                return jsonify({"available": True, "gallery": getattr(ae, attr)})
+            except Exception:
+                pass
+    return jsonify({"available": True, "gallery": []})
+
+
+# ── Music ─────────────────────────────────────────────────────────────────────
+@app.route("/api/music/status", methods=["GET"])
+def api_music_status():
+    return _comp_status("music_learner")
+
+
+@app.route("/api/music/generate", methods=["POST"])
+def api_music_generate():
+    ml = components.get("music_learner")
+    if ml is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    for meth in ("generate", "compose", "generate_music"):
+        if hasattr(ml, meth):
+            try:
+                return jsonify({"status": "ok", "result": getattr(ml, meth)(data)})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 200
+    return jsonify({"status": "unsupported",
+                    "message": "MusicLearner has no generation method; analysis-only."})
+
+
+# ── Content validation ────────────────────────────────────────────────────────
+@app.route("/api/content/validate", methods=["POST"])
+def api_content_validate():
+    cv = components.get("content_validator")
+    if cv is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    content = data.get("content", "")
+    title = data.get("title", "Untitled")
+    try:
+        if hasattr(cv, "validate"):
+            result = cv.validate(content)
+        else:
+            result = cv.validate_book(title, content, data.get("chapters", []))
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Vision extraction ─────────────────────────────────────────────────────────
+@app.route("/api/vision/extract", methods=["POST"])
+def api_vision_extract():
+    ve = components.get("vision_extractor")
+    if ve is None:
+        return jsonify({"available": False}), 503
+    data = request.get_json(silent=True) or {}
+    extract_type = data.get("extract_type", "auto")
+    image_b64 = data.get("image_base64", "")
+    try:
+        for meth in ("extract", "extract_from_base64"):
+            if hasattr(ve, meth):
+                return jsonify({"status": "ok", "result": getattr(ve, meth)(image_b64, extract_type)})
+        return jsonify({"status": "unsupported",
+                        "message": "Use batch extraction with file paths."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── System health (rich dashboard) ────────────────────────────────────────────
+@app.route("/api/system/health", methods=["GET"])
+def api_system_health():
+    hd = components.get("health_dashboard")
+    base = {
+        "status": "healthy",
+        "version": "7.0.0",
+        "uptime": _uptime(),
+        "components_loaded": len(components),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    if hd is not None:
+        for meth in ("get_dashboard", "get_health", "get_status", "snapshot"):
+            if hasattr(hd, meth):
+                try:
+                    base["dashboard"] = getattr(hd, meth)()
+                    break
+                except Exception as e:
+                    base["dashboard_error"] = str(e)
+    return jsonify(base)
+
+
+# ── GitHub stars ──────────────────────────────────────────────────────────────
+@app.route("/api/github/stars", methods=["GET"])
+def api_github_stars():
+    gm = components.get("github_monitor")
+    if gm is None:
+        return jsonify({"available": False}), 503
+    for meth in ("get_stars", "get_status", "get_latest"):
+        if hasattr(gm, meth):
+            try:
+                return jsonify({"available": True, "stars": getattr(gm, meth)()})
+            except Exception as e:
+                return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": True})
+
+
+# ── Autonomous ingestor ───────────────────────────────────────────────────────
+@app.route("/api/ingestor/status", methods=["GET"])
+def api_ingestor_status():
+    return _comp_status("autonomous_ingestor")
+
+
+@app.route("/api/ingestor/ingest", methods=["POST"])
+def api_ingestor_ingest():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ing = components.get("autonomous_ingestor")
+    if ing is None:
+        return jsonify({"error": "AutonomousIngestor not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    source = data.get("source", data.get("input_source", ""))
+    input_type = data.get("input_type", "auto")
+    if not source:
+        return jsonify({"error": "source is required"}), 400
+    try:
+        result = ing.process_input(source, input_type)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Integration: free APIs / repos ────────────────────────────────────────────
+@app.route("/api/integration/free-apis", methods=["GET"])
+def api_integration_free_apis():
+    fh = components.get("free_api_harvester")
+    if fh is None:
+        return jsonify({"available": False}), 503
+    for meth in ("get_status", "list_apis", "get_apis", "get_harvested"):
+        if hasattr(fh, meth):
+            try:
+                return jsonify({"available": True, "free_apis": getattr(fh, meth)()})
+            except Exception as e:
+                return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": True})
+
+
+@app.route("/api/integration/repos", methods=["GET"])
+def api_integration_repos():
+    ri = components.get("repo_integrator")
+    if ri is None:
+        return jsonify({"available": False}), 503
+    for meth in ("list_repos", "get_registry", "get_status"):
+        if hasattr(ri, meth):
+            try:
+                return jsonify({"available": True, "repos": getattr(ri, meth)()})
+            except Exception as e:
+                return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": True})
+
+
+@app.route("/api/integration/repo", methods=["POST"])
+def api_integration_repo():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ri = components.get("repo_integrator")
+    if ri is None:
+        return jsonify({"error": "RepoIntegrationEngine not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    repo_url = data.get("repo_url", "").strip()
+    if not repo_url:
+        return jsonify({"error": "repo_url is required"}), 400
+    try:
+        result = ri.add_to_queue(repo_url, priority=int(data.get("priority", 2)))
+        return jsonify({"status": "queued", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Trading ───────────────────────────────────────────────────────────────────
+@app.route("/api/trading/mastery", methods=["GET"])
+def api_trading_mastery():
+    tm = components.get("trading_mastery")
+    if tm is None:
+        return jsonify({"available": False}), 503
+    for meth in ("get_status", "get_mastery", "get_summary"):
+        if hasattr(tm, meth):
+            try:
+                return jsonify({"available": True, "mastery": getattr(tm, meth)()})
+            except Exception as e:
+                return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": True})
+
+
+@app.route("/api/trading/status", methods=["GET"])
+def api_trading_status():
+    tr = components.get("trader")
+    if tr is None:
+        return jsonify({"available": False}), 503
+    out = {"available": True, "paper": getattr(tr, "paper", True)}
+    try:
+        if hasattr(tr, "get_performance_summary"):
+            out["performance"] = tr.get_performance_summary()
+        if hasattr(tr, "get_account"):
+            out["account"] = tr.get_account()
+    except Exception as e:
+        out["error"] = str(e)
+    return jsonify(out)
+
+
+@app.route("/api/trading/execute", methods=["POST"])
+def api_trading_execute():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    tr = components.get("trader")
+    if tr is None:
+        return jsonify({"error": "AggressiveTrader not loaded"}), 503
+    try:
+        result = tr.execute_aggressive_trades()
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Master control ────────────────────────────────────────────────────────────
+@app.route("/api/master/status", methods=["GET"])
+def api_master_status():
+    return _comp_status("master_control")
+
+
+@app.route("/api/master/set-goal", methods=["POST"])
+def api_master_set_goal():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    mc = components.get("master_control")
+    if mc is None:
+        return jsonify({"error": "MasterControl not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    goal = sanitise_input(data.get("goal", "")) if SECURITY_AVAILABLE else data.get("goal", "")
+    if not goal:
+        return jsonify({"error": "goal is required"}), 400
+    try:
+        result = mc.set_goal(goal)
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 def _start_background_services():
     # ── Knowledge sources — start on ALL environments (free-tier only) ─────
     km = components.get("knowledge_manager")
@@ -1240,6 +2240,37 @@ def _start_background_services():
                 logger.info("Background update engine started")
             except Exception as e:
                 logger.warning("Background updater failed: %s", e)
+    # ── Wired-component background loops ───────────────────────────────────
+    disc = components.get("ai_discovery")
+    if disc and hasattr(disc, "start_discovery_loop"):
+        try:
+            t = threading.Thread(target=disc.start_discovery_loop, daemon=True,
+                                 name="dmai-ai-discovery")
+            t.start()
+            logger.info("DynamicAIDiscovery loop started")
+        except Exception as e:
+            logger.warning("DynamicAIDiscovery loop failed: %s", e)
+
+    gm = components.get("github_monitor")
+    if gm and hasattr(gm, "run_monitor"):
+        try:
+            t = threading.Thread(target=gm.run_monitor, daemon=True,
+                                 name="dmai-github-monitor")
+            t.start()
+            logger.info("GitHubStarMonitor loop started")
+        except Exception as e:
+            logger.warning("GitHubStarMonitor loop failed: %s", e)
+
+    tc = components.get("tutor_configurator")
+    if tc and hasattr(tc, "start_health_loop"):
+        try:
+            t = threading.Thread(target=tc.start_health_loop, daemon=True,
+                                 name="dmai-tutor-config")
+            t.start()
+            logger.info("AITutorAutoConfigurator health loop started")
+        except Exception as e:
+            logger.warning("AITutorAutoConfigurator loop failed: %s", e)
+
     if os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
         _start_telegram_bot()
 

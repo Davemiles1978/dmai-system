@@ -1,4 +1,3 @@
-cat > components/wealth/aggressive_trader.py << 'ENDOFFILE'
 """
 Aggressive trading strategies for DMAI - 80% consciousness optimized
 """
