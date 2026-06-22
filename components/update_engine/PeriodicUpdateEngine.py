@@ -301,8 +301,14 @@ class PerformanceBenchmark:
             prompt   = item["prompt"]
             expected = item.get("expected_keywords", [])
             response = await self._query(prompt)
-            rl       = response.lower()
-            score    = sum(1 for kw in expected if kw.lower() in rl) / len(expected) if expected else 0.5
+
+            # No real response — skip this prompt entirely, do NOT write to baseline
+            if response is None:
+                logger.info("[BENCHMARK] Skipped prompt (no ai_hub): '%s'", prompt[:50])
+                continue
+
+            rl    = response.lower()
+            score = sum(1 for kw in expected if kw.lower() in rl) / len(expected) if expected else 0.5
 
             prev_score = self.baseline.get(prompt, {}).get("score", score)
             if score < prev_score - 0.15:
@@ -315,7 +321,19 @@ class PerformanceBenchmark:
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
-        avg_score = sum(scores) / len(scores) if scores else 0.0
+        if not scores:
+            # Nothing scored — do NOT save baseline or update KPIs
+            logger.info("[BENCHMARK] No prompts scored this run (no ai_hub connected)")
+            return {
+                "avg_score":   None,
+                "regressions": [],
+                "prompts_run": 0,
+                "status":      "skipped",
+                "reason":      "no_ai_provider",
+                "timestamp":   datetime.now(timezone.utc).isoformat(),
+            }
+
+        avg_score = sum(scores) / len(scores)
         self._save_baseline(self.baseline)
 
         if self.si_core:
@@ -331,14 +349,20 @@ class PerformanceBenchmark:
             "timestamp":    datetime.now(timezone.utc).isoformat(),
         }
 
-    async def _query(self, prompt: str) -> str:
-        if self.ai_hub and hasattr(self.ai_hub, "chat"):
-            try:
-                return await self.ai_hub.chat(prompt)
-            except Exception:
-                pass
-        # Fallback mock
-        return f"[BENCHMARK MOCK] {prompt[:30]}... response"
+    async def _query(self, prompt: str) -> Optional[str]:
+        """
+        Query ai_hub for a benchmark response.  Returns None when no provider is
+        available or the call fails — caller must skip scoring for that prompt
+        and must NOT write to benchmark_baseline.json.
+        """
+        if not self.ai_hub or not hasattr(self.ai_hub, "chat"):
+            logger.warning("[BENCHMARK SKIP] No ai_hub connected — prompt skipped")
+            return None
+        try:
+            return await self.ai_hub.chat(prompt)
+        except Exception as e:
+            logger.warning("[BENCHMARK SKIP] ai_hub.chat failed: %s", e)
+            return None
 
 
 # ---------------------------------------------------------------------------

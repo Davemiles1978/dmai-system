@@ -369,10 +369,14 @@ class SIProgressTracker:
 # ---------------------------------------------------------------------------
 # Scoring helper
 # ---------------------------------------------------------------------------
-def _score_exercise(response: str, scoring_keys: List[str]) -> Tuple[float, Dict[str, float]]:
-    """Score a response against expected keys; returns (overall, {key: score})."""
+def _score_exercise(response: Optional[str], scoring_keys: List[str]) -> Tuple[Optional[float], Dict[str, float]]:
+    """
+    Score a real AI response against expected keys.
+    Returns (None, {}) if response is None/empty — caller must NOT update KPIs.
+    Only real ai_hub.chat() responses should be passed here.
+    """
     if not response:
-        return 0.0, {k: 0.0 for k in scoring_keys}
+        return None, {k: 0.0 for k in scoring_keys}
     rl = response.lower()
     key_scores = {}
     for key in scoring_keys:
@@ -380,8 +384,7 @@ def _score_exercise(response: str, scoring_keys: List[str]) -> Tuple[float, Dict
         hit = sum(1 for w in words if w in rl) / len(words)
         key_scores[key] = round(hit, 2)
     overall = sum(key_scores.values()) / len(key_scores) if key_scores else 0.0
-    length_bonus = min(0.1, len(response) / 3000)
-    return round(min(1.0, overall + length_bonus), 3), key_scores
+    return round(min(1.0, overall), 3), key_scores
 
 
 # ---------------------------------------------------------------------------
@@ -479,50 +482,82 @@ class FullSITrainingProgram:
             score, key_scores = _score_exercise(response, exercise["scoring_keys"])
             exercise_results.append({
                 "exercise": exercise["name"],
+                "status":   "scored" if score is not None else "skipped",
                 "score":    score,
                 "keys":     key_scores,
             })
 
-        avg_score = sum(r["score"] for r in exercise_results) / len(exercise_results) if exercise_results else 0.0
+        # Only average over exercises that produced a real score
+        real_scores = [r["score"] for r in exercise_results if r["score"] is not None]
+        if not real_scores:
+            # All exercises skipped — do NOT update tracker or KPIs
+            logger.info("[SKIP] Module=%s — all exercises skipped (no ai_hub)", module["id"])
+            return {
+                "module_id":   module["id"],
+                "module_name": module["name"],
+                "status":      "skipped",
+                "reason":      "no_ai_provider",
+                "avg_score":   None,
+                "exercises":   exercise_results,
+                "kpi_deltas":  {},
+            }
+
+        avg_score = sum(real_scores) / len(real_scores)
         kpi_deltas = {k: avg_score for k in module["kpi_map"]}
         self.tracker.record_score(module["id"], avg_score, kpi_deltas)
 
         return {
             "module_id":   module["id"],
             "module_name": module["name"],
+            "status":      "scored",
             "avg_score":   round(avg_score, 3),
             "exercises":   exercise_results,
             "kpi_deltas":  kpi_deltas,
         }
 
-    async def _get_response(self, module: Dict, exercise: Dict) -> str:
-        if self.ai_hub and hasattr(self.ai_hub, "chat"):
-            try:
-                prompt = (
-                    f"DMAI SI Training — Module: {module['name']}\n"
-                    f"Exercise: {exercise['name']}\n\n"
-                    f"{exercise['prompt']}\n\n"
-                    f"Demonstrate competency in: {', '.join(exercise['scoring_keys'])}"
-                )
-                return await self.ai_hub.chat(prompt)
-            except Exception as e:
-                logger.warning("ai_hub.chat error: %s", e)
-
-        # Internal training signal
-        keys_text = ", ".join(exercise["scoring_keys"])
-        return (
-            f"[SI Internal Training] Module={module['id']} Exercise={exercise['name']} "
-            f"Demonstrating: {keys_text}. "
-            f"Stages: {exercise['stages']}. Full reasoning applied."
-        )
+    async def _get_response(self, module: Dict, exercise: Dict) -> Optional[str]:
+        """
+        Route exercise to ai_hub.  Returns None if no provider is available or
+        the call fails — caller must treat None as a skipped exercise and must
+        NOT write any score to state files or SICore KPIs.
+        """
+        if not self.ai_hub or not hasattr(self.ai_hub, "chat"):
+            logger.warning(
+                "[SKIP] Module=%s Exercise=%s — no ai_hub connected",
+                module["id"], exercise["name"],
+            )
+            return None
+        try:
+            prompt = (
+                f"DMAI SI Training — Module: {module['name']}\n"
+                f"Exercise: {exercise['name']}\n\n"
+                f"{exercise['prompt']}\n\n"
+                f"Demonstrate competency in: {', '.join(exercise['scoring_keys'])}"
+            )
+            return await self.ai_hub.chat(prompt)
+        except Exception as e:
+            logger.warning(
+                "[SKIP] Module=%s Exercise=%s — ai_hub.chat failed: %s",
+                module["id"], exercise["name"], e,
+            )
+            return None
 
     def _push_kpis_to_si_core(self, kpis: Dict[str, float]):
+        """
+        Write KPIs to SICore only when at least one module was scored for real.
+        Zero-value KPIs from all-skipped runs are never written.
+        """
         if not self.si_core:
             return
+        real_kpis = {k: v for k, v in kpis.items() if v > 0.0}
+        if not real_kpis:
+            logger.info("SICore KPI push skipped — no real scored exercises this run")
+            return
         try:
-            for kpi, value in kpis.items():
+            for kpi, value in real_kpis.items():
                 self.si_core.update_kpi(kpi, value)
-            logger.info("SICore KPIs updated: %s", {k: f"{v:.3f}" for k, v in kpis.items()})
+            logger.info("SICore KPIs updated from real scored exercises: %s",
+                        {k: f"{v:.3f}" for k, v in real_kpis.items()})
         except Exception as e:
             logger.warning("SICore update failed: %s", e)
 

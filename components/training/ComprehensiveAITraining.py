@@ -278,18 +278,21 @@ class AIAssessmentEngine:
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-    def score_response(self, response: str, expected_skills: List[str]) -> float:
-        """Simple heuristic scoring — replace with real eval in production."""
+    def score_response(self, response: Optional[str], expected_skills: List[str]) -> Optional[float]:
+        """
+        Score a real AI response against expected skills.
+        Returns None if response is None/empty — caller must NOT update KPIs in that case.
+        Only real AI responses from ai_hub.chat() should reach this method.
+        """
         if not response:
-            return 0.0
+            return None
         score = 0.0
         response_lower = response.lower()
         for skill in expected_skills:
             keywords = [w.lower() for w in skill.split()[:3]]
             if any(k in response_lower for k in keywords):
                 score += 1.0 / len(expected_skills)
-        length_bonus = min(0.1, len(response) / 2000)
-        return min(1.0, score + length_bonus)
+        return round(min(1.0, score), 3)
 
 
 # ---------------------------------------------------------------------------
@@ -439,13 +442,42 @@ class ComprehensiveAITraining:
         current_stage = self.tracker.get_stage(domain["domain"])
         challenge = self.assessment.generate_challenge(domain, current_stage)
         response = await self._get_ai_response(challenge)
-        score = self.assessment.score_response(response, domain["stages"][current_stage])
-        advanced = self.tracker.update_mastery(domain["domain"], score)
 
+        if response is None:
+            # No real AI provider — skip, do NOT write any score
+            entry = {
+                "domain":    domain["domain"],
+                "stage":     current_stage,
+                "status":    "skipped",
+                "reason":    "no_ai_provider",
+                "score":     None,
+                "advanced":  False,
+                "new_stage": current_stage,
+            }
+            self.session_log.append(entry)
+            return entry
+
+        score = self.assessment.score_response(response, domain["stages"][current_stage])
+        if score is None:
+            # Empty response — skip
+            entry = {
+                "domain":    domain["domain"],
+                "stage":     current_stage,
+                "status":    "skipped",
+                "reason":    "empty_ai_response",
+                "score":     None,
+                "advanced":  False,
+                "new_stage": current_stage,
+            }
+            self.session_log.append(entry)
+            return entry
+
+        advanced = self.tracker.update_mastery(domain["domain"], score)
         entry = {
             "domain":    domain["domain"],
             "stage":     current_stage,
-            "score":     round(score, 3),
+            "status":    "scored",
+            "score":     score,
             "advanced":  advanced,
             "new_stage": self.tracker.get_stage(domain["domain"]),
         }
@@ -462,30 +494,42 @@ class ComprehensiveAITraining:
 
         return entry
 
-    async def _get_ai_response(self, challenge: Dict) -> str:
-        """Route challenge to ai_hub if available, else return a mock response."""
-        if self.ai_hub and hasattr(self.ai_hub, "chat"):
-            try:
-                prompt = (
-                    f"DMAI Training Challenge — Domain: {challenge['domain']}, "
-                    f"Stage: {challenge['stage']}\n\n{challenge['challenge']}\n\n"
-                    f"Target skills: {', '.join(challenge['skills'])}"
-                )
-                return await self.ai_hub.chat(prompt)
-            except Exception as e:
-                logger.warning("ai_hub.chat failed: %s", e)
-
-        # Fallback: synthesise a training signal internally
-        skills_text = "; ".join(challenge["skills"])
-        return (
-            f"[DMAI Internal Training] Domain={challenge['domain']} Stage={challenge['stage']} "
-            f"Skills demonstrated: {skills_text}. "
-            f"Response length calibrated to {challenge['stage']} mastery expectations."
-        )
+    async def _get_ai_response(self, challenge: Dict) -> Optional[str]:
+        """
+        Route challenge to ai_hub.  Returns None if no provider is available or
+        the call fails — the caller must treat None as a skipped session and must
+        NOT write any score to state files or SICore KPIs.
+        """
+        if not self.ai_hub or not hasattr(self.ai_hub, "chat"):
+            logger.warning(
+                "[SKIP] Domain=%s Stage=%s — no ai_hub connected, training skipped",
+                challenge["domain"], challenge["stage"],
+            )
+            return None
+        try:
+            prompt = (
+                f"DMAI Training Challenge — Domain: {challenge['domain']}, "
+                f"Stage: {challenge['stage']}\n\n{challenge['challenge']}\n\n"
+                f"Target skills: {', '.join(challenge['skills'])}"
+            )
+            return await self.ai_hub.chat(prompt)
+        except Exception as e:
+            logger.warning(
+                "[SKIP] Domain=%s Stage=%s — ai_hub.chat failed: %s",
+                challenge["domain"], challenge["stage"], e,
+            )
+            return None
 
     def _update_si_kpis(self, progress: Dict):
-        """Push training progress into SICore KPIs if connected."""
+        """
+        Push training progress into SICore KPIs — only when real scored sessions exist.
+        If all sessions were skipped (no ai_hub), writes nothing.
+        """
         if not self.si_core:
+            return
+        scored = [e for e in self.session_log if e.get("status") == "scored"]
+        if not scored:
+            logger.info("SICore KPI update skipped — no real scored sessions this run")
             return
         try:
             avg = progress["avg_mastery"]
@@ -493,7 +537,7 @@ class ComprehensiveAITraining:
             self.si_core.update_kpi("skill_acquisition_rate",   avg)
             self.si_core.update_kpi("sample_efficiency_trend",  avg)
             self.si_core.update_kpi("agentic_capability_score", expert_pct)
-            logger.info("SICore KPIs updated from AI training results")
+            logger.info("SICore KPIs updated from %d real scored sessions", len(scored))
         except Exception as e:
             logger.warning("SICore KPI update failed: %s", e)
 

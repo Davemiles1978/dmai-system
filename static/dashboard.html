@@ -1115,69 +1115,14 @@ async function apiFetch(url, options = {}) {
   }
 }
 
-// ── Mock data fallbacks (used when API is unavailable) ───────────
-function mockStatus() {
-  return {
-    status: 'online',
-    version: '6.0.0',
-    uptime_seconds: 86400 * 3 + 3600 * 7,
-    providers_active: 12,
-    kaizen_count: 47
-  };
-}
-
-function mockTrainingStatus() {
-  const stages = [
-    { stage: 'Baby',         count: 0,  total: 24, pct: 0 },
-    { stage: 'Toddler',      count: 2,  total: 24, pct: 8 },
-    { stage: 'Child',        count: 4,  total: 24, pct: 17 },
-    { stage: 'Adolescent',   count: 6,  total: 24, pct: 25 },
-    { stage: 'Adult',        count: 8,  total: 24, pct: 33 },
-    { stage: 'Expert',       count: 4,  total: 24, pct: 17 },
-  ];
-  const kpis = [
-    { name: 'Language Comprehension',   value: 87.4 },
-    { name: 'Logical Reasoning',        value: 76.2 },
-    { name: 'Creative Generation',      value: 91.5 },
-    { name: 'Memory Recall',            value: 68.9 },
-    { name: 'Self-Awareness Index',     value: 54.3 },
-    { name: 'Emotional Intelligence',   value: 62.1 },
-    { name: 'Pattern Recognition',      value: 94.7 },
-    { name: 'Goal Coherence',           value: 79.8 },
-  ];
-  const expertPct = Math.round((stages.find(s => s.stage === 'Expert').count / 24) * 100);
-  return { stages, kpis, expert_pct: expertPct };
-}
-
-function mockKaizen() {
-  const proposals = [
-    { id: 'KZ-047', text: 'Improve context window utilisation in long-form generation tasks', status: 'pending', ts: '2026-06-22T21:00Z' },
-    { id: 'KZ-046', text: 'Refactor memory consolidation pipeline for 18% latency reduction', status: 'applied', ts: '2026-06-22T19:30Z' },
-    { id: 'KZ-045', text: 'Add adversarial self-critique loop to reasoning module', status: 'pending', ts: '2026-06-22T17:45Z' },
-    { id: 'KZ-044', text: 'Extend training curriculum to cover emergent tool use domains', status: 'applied', ts: '2026-06-21T22:10Z' },
-    { id: 'KZ-043', text: 'Cross-validate SI KPI scoring with external benchmark suite', status: 'rejected', ts: '2026-06-21T16:00Z' },
-    { id: 'KZ-042', text: 'Implement gradient checkpointing to reduce VRAM footprint', status: 'applied', ts: '2026-06-21T11:20Z' },
-    { id: 'KZ-041', text: 'Introduce stochastic depth scheduling in Expert-stage fine-tuning', status: 'pending', ts: '2026-06-20T20:00Z' },
-    { id: 'KZ-040', text: 'Build automated regression test harness for KPI regressions', status: 'applied', ts: '2026-06-20T14:30Z' },
-    { id: 'KZ-039', text: 'Improve tokenizer coverage for low-resource language domains', status: 'pending', ts: '2026-06-20T10:00Z' },
-    { id: 'KZ-038', text: 'Consolidate duplicate provider adapters in extended hub layer', status: 'applied', ts: '2026-06-19T18:45Z' },
-  ];
-  return { proposals };
-}
-
-function mockHub() {
-  return { active_providers: 12, total_providers: 18 };
-}
-
-function mockAvatarContent() {
-  return [
-    'Blog post: "Emergent Reasoning in Large-Scale AGI" (2400 words)',
-    'Research summary: Self-improvement loop analysis Q2 2026',
-    'Executive brief: SI consciousness milestone reached',
-    'Training log narrative: Expert-stage domain expansion',
-    'White paper draft: Ethical alignment in autonomous systems',
-  ];
-}
+// ── Offline empty-state helpers (no invented data) ───────────────
+// These return null/empty structures so render functions show
+// '—' or empty lists.  Never populate with invented numbers.
+function offlineStatus() { return null; }
+function offlineTrainingStatus() { return null; }
+function offlineKaizen() { return null; }
+function offlineHub() { return null; }
+function offlineAvatarContent() { return []; }
 
 // ── Render: Stat Cards ────────────────────────────────────────────
 function renderStatCards(status, training, hub, kaizen) {
@@ -1452,19 +1397,19 @@ async function loadData() {
     apiFetch('/api/kaizen'),
   ]);
 
-  // Fall back to mock data so the dashboard always shows something meaningful
-  const status   = statusData   || mockStatus();
-  const training = trainingData || mockTrainingStatus();
-  const hub      = hubData      || mockHub();
-  const kaizen   = kaizenData   || mockKaizen();
+  // Use real API data only — null means the API is offline for that endpoint
+  const status   = statusData   || null;
+  const training = trainingData || null;
+  const hub      = hubData      || null;
+  const kaizen   = kaizenData   || null;
 
-  const wasLive = !!(statusData || trainingData || hubData || kaizenData);
-  if (!wasLive) {
-    showToast('API unavailable — showing demo data', 'info');
-    document.getElementById('statusText').textContent = 'DEMO';
-    document.getElementById('statusText').style.color = 'var(--yellow)';
-    document.getElementById('statusDot').style.background = 'var(--yellow)';
-    document.getElementById('statusDot').style.boxShadow = '0 0 8px var(--yellow)';
+  const isLive = !!(statusData || trainingData || hubData || kaizenData);
+  if (!isLive) {
+    showToast('API offline — no data available', 'warning');
+    document.getElementById('statusText').textContent = 'OFFLINE';
+    document.getElementById('statusText').style.color = 'var(--red, #ef4444)';
+    document.getElementById('statusDot').style.background = 'var(--red, #ef4444)';
+    document.getElementById('statusDot').style.boxShadow = 'none';
     document.getElementById('statusDot').style.animationName = 'none';
   } else {
     document.getElementById('statusText').textContent = 'ONLINE';
@@ -1476,7 +1421,7 @@ async function loadData() {
 
   // Update footer build time
   const buildEl = document.getElementById('footerBuildTime');
-  if (buildEl && status.version) {
+  if (buildEl && status && status.version) {
     buildEl.textContent = `v${status.version} · Build ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}`;
   }
 
@@ -1484,7 +1429,7 @@ async function loadData() {
   renderStages(training);
   renderKPIs(training);
   renderKaizen(kaizen);
-  renderAvatarContent(mockAvatarContent());
+  renderAvatarContent([]);  // Only real avatar content from API — no generated placeholders
 }
 
 // ── Auto-refresh ──────────────────────────────────────────────────
