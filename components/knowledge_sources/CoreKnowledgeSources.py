@@ -1500,7 +1500,7 @@ class SocialMediaScanner:
 class SpeechPatternAnalyzer:
     """
     Analyzes real conversation patterns from social media, forums, and transcripts.
-    Learns authentic speech patterns for Alex Riviera (age 28, female).
+    Learns authentic speech patterns for DMAI's public persona (age 28, female).
     Creates SI Core neurons for learned patterns.
     """
     
@@ -1555,7 +1555,7 @@ class SpeechPatternAnalyzer:
     def start(self):
         self.active = True
         threading.Thread(target=self._run, daemon=True).start()
-        logger.info("🗣️ Speech Pattern Analyzer started (Alex Riviera, age 28)")
+        logger.info("🗣️ Speech Pattern Analyzer started (DMAI public persona, age 28)")
         
     def _run(self):
         while self.active:
@@ -1840,7 +1840,7 @@ class SelfEvolutionTracker:
 
 class CulturalKnowledgeSource:
     """
-    Learns cultural knowledge appropriate for Alex Riviera (born 1998, age 28).
+    Learns cultural knowledge appropriate for DMAI's public persona (born 1998, age 28).
     Covers music, film/TV, books, and lifestyle trends from 2000-present.
     Weighted by popularity and cultural impact for authentic conversational references.
     """
@@ -1938,7 +1938,7 @@ class CulturalKnowledgeSource:
         """Start cultural knowledge acquisition"""
         self.active = True
         threading.Thread(target=self._run, daemon=True).start()
-        logger.info("🎭 Cultural Knowledge Source started (Alex Riviera, age 28)")
+        logger.info("🎭 Cultural Knowledge Source started (DMAI public persona, age 28)")
         
     def _run(self):
         """Main research loop"""

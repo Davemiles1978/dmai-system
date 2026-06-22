@@ -92,6 +92,21 @@ class AIIntegrationHub:
         # ORIGINAL Google ecosystem (All preserved)
         # ====================================================================
         keys['google_ai_studio'] = os.getenv('GOOGLE_AI_STUDIO_KEY')
+        
+        # ====================================================================
+        # NEW: Cerebras Inference (1M tokens/day free, 2,600 tok/s)
+        # ====================================================================
+        keys['cerebras'] = os.getenv('CEREBRAS_API_KEY')
+        
+        # ====================================================================
+        # NEW: GitHub Models (45+ frontier models, free with GitHub account)
+        # ====================================================================
+        keys['github_models'] = os.getenv('GITHUB_MODELS_TOKEN') or os.getenv('GITHUB_TOKEN_MAIN')
+        
+        # ====================================================================
+        # NEW: Mistral AI (Experiment plan — all models, 1B tokens/month free)
+        # ====================================================================
+        keys['mistral'] = os.getenv('MISTRAL_API_KEY')
         keys['notebooklm'] = os.getenv('NOTEBOOKLM_API_KEY')
         keys['imagen'] = os.getenv('IMAGEN_API_KEY')
         keys['gemini_gems'] = os.getenv('GEMINI_GEMS_KEY')
@@ -192,6 +207,9 @@ class AIIntegrationHub:
             ('Anthropic Claude', self._query_anthropic),
             ('Perplexity AI', self._query_perplexity),
             ('xAI Grok', self._query_grok),
+            ('Cerebras Inference', self._query_cerebras),
+            ('GitHub Models', self._query_github_models),
+            ('Mistral AI', self._query_mistral),
             # Code/research tools available via dedicated methods, NOT queried as thinking tutors:
             # HuggingFace: _query_huggingface  (model search, not Q&A)
             # GitHub: _query_github  (repo search, not Q&A)
@@ -842,6 +860,128 @@ class AIIntegrationHub:
             'error': 'Google Whisk API requires specific implementation'
         }
         
+
+    # ====================================================================
+    # NEW FREE-TIER TUTOR QUERY METHODS
+    # Cerebras · GitHub Models · Mistral AI
+    # ====================================================================
+
+    def _query_cerebras(self, prompt: str) -> Dict:
+        """Query Cerebras Inference — 1M tokens/day free, world-fastest inference (2,600+ tok/s)"""
+        api_key = self.api_keys.get('cerebras')
+        if not api_key or api_key == "pending":
+            return {'success': False, 'tutor': 'Cerebras', 'error': 'No API key — sign up free at cloud.cerebras.ai'}
+
+        try:
+            response = requests.post(
+                'https://api.cerebras.ai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'llama-3.3-70b',  # Best free model: 70B, 2,600 tok/s
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'Cerebras Inference',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'llama-3.3-70b'
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'Cerebras', 'error': 'Rate limited (30 RPM / 1M tokens/day)'}
+            else:
+                return {'success': False, 'tutor': 'Cerebras', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+
+        except Exception as e:
+            return {'success': False, 'tutor': 'Cerebras', 'error': str(e)}
+
+    def _query_github_models(self, prompt: str) -> Dict:
+        """Query GitHub Models Marketplace — 45+ frontier models free with GitHub account"""
+        api_key = self.api_keys.get('github_models')
+        if not api_key or api_key == "pending":
+            return {'success': False, 'tutor': 'GitHub Models', 'error': 'No token — set GITHUB_MODELS_TOKEN or GITHUB_TOKEN_MAIN'}
+
+        try:
+            response = requests.post(
+                'https://models.github.ai/inference/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'gpt-4o-mini',  # 15 RPM / 150 RPD on free tier
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'GitHub Models',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'gpt-4o-mini'
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'GitHub Models', 'error': 'Rate limited (15 RPM / 150 RPD free tier)'}
+            elif response.status_code == 401:
+                return {'success': False, 'tutor': 'GitHub Models', 'error': 'Invalid token — needs Models read permission'}
+            else:
+                return {'success': False, 'tutor': 'GitHub Models', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+
+        except Exception as e:
+            return {'success': False, 'tutor': 'GitHub Models', 'error': str(e)}
+
+    def _query_mistral(self, prompt: str) -> Dict:
+        """Query Mistral AI — Experiment plan: all models including Large, 1B tokens/month free"""
+        api_key = self.api_keys.get('mistral')
+        if not api_key or api_key == "pending":
+            return {'success': False, 'tutor': 'Mistral AI', 'error': 'No API key — sign up free at console.mistral.ai'}
+
+        try:
+            response = requests.post(
+                'https://api.mistral.ai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'mistral-large-latest',  # Full Large model on free Experiment tier
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'Mistral AI',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'mistral-large-latest'
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'Mistral AI', 'error': 'Rate limited (2 RPM on Experiment plan)'}
+            else:
+                return {'success': False, 'tutor': 'Mistral AI', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+
+        except Exception as e:
+            return {'success': False, 'tutor': 'Mistral AI', 'error': str(e)}
+
     # ====================================================================
     # PHASE 11 ENHANCEMENTS (All preserved)
     # ====================================================================
@@ -946,6 +1086,12 @@ class AIIntegrationHub:
                     active.append('GitHub')
                 elif service == 'google_ai_studio':
                     active.append('Google AI Studio')
+                elif service == 'cerebras':
+                    active.append('Cerebras Inference')
+                elif service == 'github_models':
+                    active.append('GitHub Models')
+                elif service == 'mistral':
+                    active.append('Mistral AI')
                 else:
                     active.append(service)
         return active

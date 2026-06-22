@@ -477,15 +477,23 @@ def api_status():
 @app.route("/api/persona")
 def api_persona():
     return jsonify({
-        "name": "Alex Riviera",
-        "age": 28,
-        "location": "Los Angeles, CA",
-        "occupation": "Writer & Producer",
-        "email": "alex.riviera.creator@proton.me",
+        "system": "DMAI v7.0.0",
+        "internal_name": "DMAI",
+        "public_persona": {
+            "name": "Alex Riviera",
+            "age": 28,
+            "location": "Los Angeles, CA",
+            "occupation": "Writer & Producer",
+            "email": "alex.riviera.creator@proton.me",
+            "avatar_style": "platinum-blonde, confident, professional",
+            "social": {
+                "twitter": "@RealAlexRiviera",
+                "youtube": "@AlexRiviera",
+                "tiktok": "@alex.riviera"
+            }
+        },
         "voice_tone": "Professional, creative, enthusiastic",
         "capabilities": ["book_generation", "tv_series", "coloring_books", "tts_voice", "image_generation"],
-        "avatar_style": "platinum-blonde, confident, professional",
-        "system": "DMAI v7.0.0",
     })
 
 @app.route("/")
@@ -714,15 +722,15 @@ def api_content_list():
 def api_avatar_speak():
     try:
         data = request.get_json(silent=True) or {}
-        text = sanitise_input(data.get("text", "Hello, I'm Alex Riviera.")) if SECURITY_AVAILABLE else data.get("text", "Hello, I'm Alex Riviera.")
+        text = sanitise_input(data.get("text", "Hello, I'm DMAI.")) if SECURITY_AVAILABLE else data.get("text", "Hello, I'm DMAI.")
         ext_hub = components.get("extended_hub")
         if ext_hub:
             audio = _run_async(ext_hub.text_to_speech(text))
             if audio:
                 return Response(audio, mimetype="audio/mpeg",
-                                headers={"Content-Disposition": "inline; filename=alex_riviera.mp3"})
+                                headers={"Content-Disposition": "inline; filename=dmai_voice.mp3"})
         return jsonify({"status": "tts_unavailable",
-                        "message": "Add ELEVENLABS_API_KEY for Alex Riviera voice synthesis.", "text": text})
+                        "message": "Add ELEVENLABS_API_KEY for DMAI voice synthesis.", "text": text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
