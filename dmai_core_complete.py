@@ -911,21 +911,62 @@ def health():
 
 @app.route("/api/status")
 def api_status():
-    si = components.get("si_core")
-    # Try si_core first, fall back to DB-derived kpi_cache.json
-    _raw_kpis = (si.current_kpis if si else {}) or {}
-    _all_zero = all(v == 0 for v in _raw_kpis.values() if isinstance(v, (int, float)))
-    if _all_zero or not _raw_kpis:
-        try:
-            import json as _jc, os as _osc
-            _cache = os.path.join(os.environ.get("DATA_PATH", "data"), "kpi_cache.json")
-            with open(_cache) as _f:
-                _cached = _jc.load(_f)
-            kpis = _cached.get("kpis", _raw_kpis)
-        except Exception:
-            kpis = _raw_kpis
-    else:
-        kpis = _raw_kpis
+    # KPI priority: kpi_cache.json (DB-derived, always accurate) → si_core → empty
+    # kpi_cache.json is written by _seed_kpis_from_db every 5 min from SQLite counts.
+    _si_ref = components.get("si_core")
+    kpis = {}
+    try:
+        import json as _jc
+        _cache_path = os.path.join(
+            os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
+            "kpi_cache.json"
+        )
+        with open(_cache_path) as _cf:
+            _cached = _jc.load(_cf)
+        kpis = _cached.get("kpis", {})
+        # Only fall through if cache is missing or entirely zero
+        if not kpis or all(v == 0 for v in kpis.values() if isinstance(v, (int, float))):
+            raise ValueError("cache empty or all-zero")
+    except Exception:
+        # Fallback: si_core
+        _raw = (_si_ref.current_kpis if _si_ref else {}) or {}
+        if _raw and not all(v == 0 for v in _raw.values() if isinstance(v, (int, float))):
+            kpis = _raw
+        else:
+            # Last resort: derive from DB right now
+            try:
+                import sqlite3 as _sq_k
+                _db_k = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/"), "dmai_knowledge.db")
+                _ck = _sq_k.connect(_db_k, timeout=5)
+                _caps_k = _ck.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
+                _ins_k  = _ck.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+                try:
+                    _voc_k = _ck.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
+                except Exception:
+                    _voc_k = 0
+                try:
+                    _ins7d = _ck.execute(
+                        "SELECT COUNT(*) FROM insights WHERE created_at >= datetime('now','-7 days')"
+                    ).fetchone()[0]
+                except Exception:
+                    _ins7d = 0
+                _ck.close()
+                _stage_k = getattr(_si_ref, "stage_index", 0) if _si_ref else 0
+                _pct_k   = getattr(_si_ref, "stage_within_pct", 0.0) if _si_ref else 0.0
+                _active_k = sum(1 for v in components.values() if v is not None)
+                kpis = {
+                    "skill_acquisition_rate":          min(_caps_k / 50_000, 1.0),
+                    "transfer_learning_rate":           min(_stage_k / 7, 1.0),
+                    "zero_shot_success_count":          min(_ins_k  / 300_000, 1.0),
+                    "agentic_capability_score":         min(_caps_k / 20_000, 1.0),
+                    "recursive_self_improvement_rate":  _pct_k / 100.0,
+                    "sample_efficiency_trend":          min((_ins7d / 7.0) / 5_000, 1.0),
+                    "metacognition_accuracy":           min(_voc_k  / 500_000, 1.0),
+                    "multi_modal_integration_score":    _active_k / 56,
+                }
+            except Exception as _ke:
+                logger.warning("KPI inline derive failed: %s", _ke)
+                kpis = {}
     orch = components.get("training_orchestrator")
     training_status = orch.get_status() if orch else {}
     ext_hub = components.get("extended_hub")
@@ -3176,13 +3217,30 @@ def api_master_set_goal():
 @app.route("/api/graph/schema", methods=["GET"])
 def api_graph_schema():
     """Return full graph_schema.json — neurons + synapses — for the live dashboard."""
-    schema_path = _rp("aevora-training/dashboard/data/graph_schema.json")
+    import json as _j
+    from pathlib import Path as _PL
+    # Try repo-relative path first, then DATA_PATH-relative, then absolute fallback
+    _candidates = [
+        _PL("aevora-training/dashboard/data/graph_schema.json"),
+        _PL(DATA_PATH) / "graph_schema.json",
+        _PL(__file__).parent / "aevora-training" / "dashboard" / "data" / "graph_schema.json",
+    ]
     try:
-        import json as _j
-        data = _j.loads(schema_path.read_text(encoding="utf-8"))
-        return jsonify(data)
+        for _sp in _candidates:
+            if _sp.exists():
+                data = _j.loads(_sp.read_text(encoding="utf-8"))
+                return jsonify(data)
+        # File not found — return empty but valid schema so dashboard doesn't crash
+        return jsonify({
+            "neurons": [], "synapses": [],
+            "total_neurons": 0, "total_synapses": 0,
+            "evolution_cycle": 0,
+            "_note": "graph_schema.json not found on this deployment — checked: " +
+                     str([str(c) for c in _candidates])
+        })
     except Exception as e:
-        return jsonify({"error": str(e), "neurons": [], "synapses": []}), 200
+        logger.error("api_graph_schema error: %s", e)
+        return jsonify({"error": str(e), "neurons": [], "synapses": [], "total_neurons": 0, "total_synapses": 0}), 200
 
 
 @app.route("/api/metrics", methods=["GET"])
@@ -4233,21 +4291,40 @@ def _seed_kpis_from_db():
             "multi_modal_integration_score": active_comp / max(total_comp, 56),
         }
 
-        # Persist to si_core if available
+        # Persist to si_core — update BOTH kpi_scores AND current_kpis
         si = components.get("si_core")
-        if si and hasattr(si, "kpi_scores"):
-            si.kpi_scores.update(kpis)
+        if si:
+            if hasattr(si, "kpi_scores"):
+                si.kpi_scores.update(kpis)
+            # current_kpis is what /api/learning/full-status reads
+            if hasattr(si, "current_kpis"):
+                try:
+                    si.current_kpis.update(kpis)
+                except Exception:
+                    try:
+                        si.current_kpis = kpis
+                    except Exception:
+                        pass
+            # Also try _kpis dict (alternative attribute name)
+            for _attr in ("_kpis", "kpi_data", "kpi_values"):
+                if hasattr(si, _attr):
+                    try:
+                        getattr(si, _attr).update(kpis)
+                    except Exception:
+                        pass
 
-        # Persist to a lightweight JSON cache for /api/metrics
+        # Persist to a lightweight JSON cache for /api/learning/full-status fallback
         try:
             import json as _json
-            cache_dir = os.environ.get("DATA_PATH", "data")
+            # Normalise DATA_PATH — strip trailing slash to avoid data//kpi_cache.json
+            cache_dir = os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
             os.makedirs(cache_dir, exist_ok=True)
             cache_path = os.path.join(cache_dir, "kpi_cache.json")
             with open(cache_path, "w") as _f:
                 _json.dump({"kpis": kpis, "ts": __import__("datetime").datetime.utcnow().isoformat()}, _f)
-        except Exception:
-            pass
+            logger.info("KPI cache written: %s", cache_path)
+        except Exception as _ce:
+            logger.warning("KPI cache write failed: %s", _ce)
 
         logger.info("KPI seed: %s", {k: round(v, 4) for k, v in kpis.items()})
     except Exception as _e:

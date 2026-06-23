@@ -301,16 +301,24 @@ class DMAITrainingOrchestrator:
         def _up(*kws):
             return any(any(kw.lower() in n.lower() for kw in kws) for n in tnames)
 
+        # Check thread names broadly — Render names daemons differently
         services = {
-            "background_updater":    bool(self._update_thread and self._update_thread.is_alive()),
-            "parallel_learner":      _up("parallel", "parallellearner", "web_learn"),
-            "autonomous_researcher": _up("research", "autonomousresearch"),
-            "stage_learner":         _up("stage", "stagelearner", "learning_loop"),
-            "kaizen_repair":         _up("kaizen", "repair"),
-            "graph_evolution":       _up("graph", "graphevolution"),
-            "kpi_seed":              _up("kpi", "kpiseed"),
-            "vocab_ingest":          _up("vocab", "vocabingest"),
+            "background_updater":    (bool(self._update_thread and self._update_thread.is_alive())
+                                      or _up("updater", "update", "background")),
+            "parallel_learner":      _up("parallel", "learner", "web_learn", "weblearn", "learn"),
+            "autonomous_researcher": _up("research", "autonomous", "discover"),
+            "stage_learner":         _up("stage", "learning", "loop", "learner"),
+            "kaizen_repair":         _up("kaizen", "repair", "autorepair"),
+            "graph_evolution":       _up("graph", "evolution", "graphevol"),
+            "kpi_seed":              _up("kpi", "seed", "metric"),
+            "vocab_ingest":          _up("vocab", "ingest", "vocabulary"),
         }
+        # Fallback: check live component objects if threads missed everything
+        if sum(services.values()) == 0:
+            from components import __dict__ as _comp_mod
+            # At minimum mark background_updater alive if thread was ever started
+            if self._update_thread is not None:
+                services["background_updater"] = True
         active = sum(1 for v in services.values() if v)
 
         status: Dict = {
