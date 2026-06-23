@@ -20,7 +20,7 @@ logger = logging.getLogger("KaizenExecutor")
 
 KAIZEN_QUEUE_PATH = os.getenv("KAIZEN_QUEUE_PATH", "data/kaizen_proposals.jsonl")
 KAIZEN_PROCESSED_PATH = os.getenv("KAIZEN_PROCESSED_PATH", "data/kaizen_processed.json")
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB_TOKEN_MAIN") or os.getenv("GITHUB_TOKEN_SECONDARY") or ""
 GITHUB_REPO = os.getenv("GITHUB_REPO", "Davemiles1978/dmai-system")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 POLL_INTERVAL_SECONDS = int(os.getenv("KAIZEN_POLL_SECONDS", "3600"))  # 1 hour

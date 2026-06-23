@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="DMAI"/>
+  <meta name="theme-color" content="#0a0a0f"/>
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png"/>
+  <link rel="manifest" href="/static/manifest.json"/>
+  <title>DMAI Control</title>
+  <style>
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #111118;
+      --surface2:  #18181f;
+      --border:    #1e1e2e;
+      --accent:    #6c63ff;
+      --green:     #00d4aa;
+      --red:       #ff4757;
+      --yellow:    #ffa502;
+      --text:      #e0dff5;
+      --muted:     #7c7b9a;
+      --radius:    14px;
+      --safe-top:  env(safe-area-inset-top, 0px);
+      --safe-bot:  env(safe-area-inset-bottom, 0px);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-size: 15px; -webkit-font-smoothing: antialiased;
+    }
+    button { cursor: pointer; font: inherit; border: none; background: none; color: inherit; }
+    input  { font: inherit; color: inherit; }
+
+    /* ── Lock screen ────────────────────────────────────────────────── */
+    #lock {
+      position: fixed; inset: 0; z-index: 99;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.5rem;
+      padding-top: calc(var(--safe-top) + 2rem);
+    }
+    .lock-icon {
+      width: 72px; height: 72px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; margin-bottom: 1.5rem;
+      box-shadow: 0 0 40px rgba(108,99,255,0.3);
+    }
+    #lock h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    #lock p  { font-size: 13px; color: var(--muted); margin-bottom: 2rem; text-align: center; }
+    #lock-pwd {
+      width: 100%; max-width: 320px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      font-size: 16px; outline: none; color: var(--text);
+      margin-bottom: 12px; -webkit-appearance: none;
+    }
+    #lock-pwd:focus { border-color: var(--accent); }
+    #lock-btn {
+      width: 100%; max-width: 320px;
+      background: var(--accent); color: #fff;
+      border-radius: 12px; padding: 14px;
+      font-size: 16px; font-weight: 600;
+    }
+    #lock-err { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+    /* ── App shell ──────────────────────────────────────────────────── */
+    #app { display: none; height: 100%; flex-direction: column; }
+    #app.visible { display: flex; }
+
+    /* ── Top bar ────────────────────────────────────────────────────── */
+    .topbar {
+      flex-shrink: 0;
+      padding: calc(var(--safe-top) + 14px) 16px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .topbar h2 { font-size: 17px; font-weight: 700; }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); display: inline-block;
+      box-shadow: 0 0 6px var(--green);
+    }
+    .status-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }
+    #lock-btn-small {
+      font-size: 13px; color: var(--muted);
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 6px 12px; border-radius: 8px;
+    }
+
+    /* ── Scrollable content ─────────────────────────────────────────── */
+    .content {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 16px 16px calc(var(--safe-bot) + 80px);
+    }
+
+    /* ── Tab bar ────────────────────────────────────────────────────── */
+    .tabbar {
+      flex-shrink: 0;
+      padding: 10px 0 calc(var(--safe-bot) + 8px);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around;
+    }
+    .tab {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; padding: 4px 12px; border-radius: 10px;
+      color: var(--muted); font-size: 10px; font-weight: 500;
+      transition: color 150ms;
+    }
+    .tab.active { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; }
+
+    /* ── Panels ─────────────────────────────────────────────────────── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Cards ──────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-bottom: 12px;
+    }
+
+    /* ── KPI grid ───────────────────────────────────────────────────── */
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 12px;
+    }
+    .kpi-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+    .kpi-val   { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* ── Provider list ──────────────────────────────────────────────── */
+    .provider-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .provider-row:last-child { border-bottom: none; }
+    .provider-name { font-size: 14px; font-weight: 500; }
+    .provider-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .badge {
+      font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge.active  { background: rgba(0,212,170,.15); color: var(--green); }
+    .badge.invalid { background: rgba(255,71,87,.12); color: var(--red); }
+    .badge.pending { background: rgba(255,165,2,.12);  color: var(--yellow); }
+
+    /* ── Chat ───────────────────────────────────────────────────────── */
+    #chat-messages {
+      display: flex; flex-direction: column; gap: 10px;
+      padding-bottom: 8px;
+    }
+    .msg {
+      max-width: 82%; padding: 10px 14px; border-radius: 18px;
+      font-size: 14px; line-height: 1.45;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: var(--accent); color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.ai {
+      align-self: flex-start;
+      background: var(--surface2); color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+    .msg.thinking { opacity: .6; font-style: italic; }
+    .chat-input-row {
+      position: fixed; bottom: calc(var(--safe-bot) + 62px); left: 0; right: 0;
+      padding: 10px 14px;
+      background: linear-gradient(transparent, var(--bg) 30%);
+    }
+    .chat-input-inner {
+      display: flex; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; padding: 8px 8px 8px 16px;
+    }
+    #chat-input {
+      flex: 1; background: none; border: none; outline: none;
+      font-size: 15px; color: var(--text);
+    }
+    #chat-send {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Kaizen ─────────────────────────────────────────────────────── */
+    .kaizen-item {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin-bottom: 10px;
+    }
+    .kaizen-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .kaizen-desc  { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .kaizen-meta  { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .pill {
+      font-size: 11px; padding: 3px 8px; border-radius: 6px;
+    }
+    .pill.high   { background: rgba(255,71,87,.12);  color: var(--red); }
+    .pill.medium { background: rgba(255,165,2,.12);  color: var(--yellow); }
+    .pill.low    { background: rgba(108,99,255,.12); color: var(--accent); }
+
+    /* ── API Keys ───────────────────────────────────────────────────── */
+    .key-row {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .key-row:last-child { border-bottom: none; }
+    .key-header { display: flex; align-items: center; justify-content: space-between; }
+    .key-name   { font-size: 14px; font-weight: 600; }
+    .key-env    { font-size: 10px; color: var(--muted); font-family: monospace; margin-top: 2px; }
+    .key-masked { font-size: 12px; color: var(--muted); font-family: monospace; }
+    .key-input-row { display: flex; gap: 8px; }
+    .key-input {
+      flex: 1; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; font-size: 14px; color: var(--text);
+      outline: none; -webkit-appearance: none;
+    }
+    .key-input:focus { border-color: var(--accent); }
+    .key-save {
+      background: var(--accent); color: #fff;
+      padding: 10px 16px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; white-space: nowrap;
+    }
+    .key-clear {
+      background: rgba(255,71,87,.12); color: var(--red);
+      padding: 10px 14px; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+    }
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted);
+      margin: 16px 0 8px;
+    }
+
+    /* ── Toast ──────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: calc(var(--safe-bot) + 90px); left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 18px;
+      font-size: 13px; color: var(--text);
+      opacity: 0; transition: opacity 200ms, transform 200ms;
+      pointer-events: none; white-space: nowrap; z-index: 100;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Empty state ────────────────────────────────────────────────── */
+    .empty { text-align: center; color: var(--muted); padding: 3rem 1rem; font-size: 14px; }
+
+    /* ── Refresh indicator ──────────────────────────────────────────── */
+    .refresh-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .refresh-btn {
+      font-size: 13px; color: var(--accent);
+      background: rgba(108,99,255,.1); border-radius: 8px;
+      padding: 6px 12px;
+    }
+    .last-update { font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- Lock screen -->
+<div id="lock">
+  <div class="lock-icon">🧠</div>
+  <h1>DMAI Control</h1>
+  <p>Enter your admin password to access<br>the DMAI control panel</p>
+  <input id="lock-pwd" type="password" placeholder="Admin password" autocomplete="current-password"/>
+  <button id="lock-btn" onclick="unlock()">Unlock</button>
+  <div id="lock-err"></div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🧠</div>
+      <div>
+        <h2>DMAI</h2>
+      </div>
+      <span class="status-dot" id="status-dot"></span>
+    </div>
+    <button id="lock-btn-small" onclick="lockApp()">Lock</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Dashboard -->
+    <div class="panel active" id="panel-home">
+      <div class="refresh-row">
+        <span class="last-update" id="home-updated"></span>
+        <button class="refresh-btn" onclick="loadHome()">Refresh</button>
+      </div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="card">
+        <div class="card-title">System</div>
+        <div id="sys-summary" style="font-size:14px;color:var(--muted);">Loading…</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Active Providers</div>
+        <div id="home-providers" style="font-size:14px;color:var(--muted);">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="panel" id="panel-chat">
+      <div id="chat-messages"></div>
+    </div>
+
+    <!-- Providers -->
+    <div class="panel" id="panel-providers">
+      <div class="refresh-row">
+        <span class="last-update" id="prov-updated"></span>
+        <button class="refresh-btn" onclick="loadProviders()">Refresh</button>
+      </div>
+      <div id="provider-list"></div>
+    </div>
+
+    <!-- Kaizen -->
+    <div class="panel" id="panel-kaizen">
+      <div class="refresh-row">
+        <span class="last-update" id="kaizen-updated"></span>
+        <button class="refresh-btn" onclick="loadKaizen()">Refresh</button>
+      </div>
+      <div id="kaizen-list"></div>
+    </div>
+
+    <!-- API Keys -->
+    <div class="panel" id="panel-keys">
+      <div class="refresh-row">
+        <span class="last-update" id="keys-updated"></span>
+        <button class="refresh-btn" onclick="loadKeys()">Refresh</button>
+      </div>
+      <div id="keys-list"></div>
+    </div>
+  </div>
+
+  <!-- Chat input (only visible on chat tab) -->
+  <div class="chat-input-row" id="chat-input-row" style="display:none">
+    <div class="chat-input-inner">
+      <input id="chat-input" type="text" placeholder="Message DMAI…"
+        autocomplete="off" autocorrect="off"
+        onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button id="chat-send" onclick="sendChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tabbar">
+    <button class="tab active" id="tab-home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </button>
+    <button class="tab" id="tab-chat" onclick="switchTab('chat')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Chat
+    </button>
+    <button class="tab" id="tab-providers" onclick="switchTab('providers')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
+      </svg>
+      Providers
+    </button>
+    <button class="tab" id="tab-kaizen" onclick="switchTab('kaizen')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Kaizen
+    </button>
+    <button class="tab" id="tab-keys" onclick="switchTab('keys')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+      </svg>
+      Keys
+    </button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const BASE = '';
+  let JWT = null, masterPwd = null;
+  let currentTab = 'home';
+
+  // ── Auth ────────────────────────────────────────────────────────────────
+  async function unlock() {
+    const pwd = document.getElementById('lock-pwd').value.trim();
+    const btn = document.getElementById('lock-btn');
+    const err = document.getElementById('lock-err');
+    if (!pwd) { err.textContent = 'Enter your password'; return; }
+    btn.textContent = 'Unlocking…'; btn.disabled = true; err.textContent = '';
+    try {
+      const r = await fetch('/api/admin/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      });
+      const d = await r.json();
+      if (d.token) {
+        JWT = d.token; masterPwd = pwd;
+        document.getElementById('lock').style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        loadHome(); loadKeys();
+        toast('Welcome back');
+      } else {
+        err.textContent = d.error || 'Wrong password';
+      }
+    } catch {
+      // Fallback without JWT
+      const r2 = await fetch('/api/status', { headers: { 'X-Master-Password': pwd }});
+      if (r2.ok) {
+        masterPwd = pwd; JWT = null;
+        document.getElementById('lock').style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        loadHome(); loadKeys();
+      } else {
+        err.textContent = 'Cannot reach server';
+      }
+    }
+    btn.textContent = 'Unlock'; btn.disabled = false;
+  }
+
+  function lockApp() {
+    JWT = null; masterPwd = null;
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('lock').style.display = 'flex';
+    document.getElementById('lock-pwd').value = '';
+  }
+
+  document.getElementById('lock-pwd').addEventListener('keydown', e => {
+    if (e.key === 'Enter') unlock();
+  });
+
+  // ── API helper ──────────────────────────────────────────────────────────
+  async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...opts.headers };
+    if (JWT) headers['Authorization'] = `Bearer ${JWT}`;
+    else if (masterPwd) headers['X-Master-Password'] = masterPwd;
+    const r = await fetch(path, { ...opts, headers });
+    if (r.status === 401) { lockApp(); throw new Error('Session expired'); }
+    return r.json();
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────
+  function toast(msg, dur = 2000) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), dur);
+  }
+
+  // ── Tab switching ────────────────────────────────────────────────────────
+  function switchTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+    document.getElementById('chat-input-row').style.display = id === 'chat' ? 'block' : 'none';
+    currentTab = id;
+    if (id === 'home')      loadHome();
+    if (id === 'providers') loadProviders();
+    if (id === 'kaizen')    loadKaizen();
+    if (id === 'keys')      loadKeys();
+  }
+
+  // ── Home ─────────────────────────────────────────────────────────────────
+  async function loadHome() {
+    try {
+      const d = await api('/api/status');
+      const dot = document.getElementById('status-dot');
+      dot.className = 'status-dot' + (d.status === 'running' ? '' : ' offline');
+
+      document.getElementById('sys-summary').innerHTML =
+        `<span style="color:var(--text)">v${d.version || '7.0'}</span>
+         &nbsp;·&nbsp; Uptime: ${d.uptime || '—'}
+         &nbsp;·&nbsp; Topics: ${d.total_topics || 0}
+         &nbsp;·&nbsp; Components: ${d.component_count || 0}`;
+
+      const kpis = d.si_kpis || {};
+      const grid = document.getElementById('kpi-grid');
+      const fmt = v => typeof v === 'number' ? (v < 1 ? (v*100).toFixed(1)+'%' : v.toFixed(2)) : '—';
+      const labels = {
+        consciousness: 'Consciousness', skill_acquisition_rate: 'Skill Acq.',
+        zero_shot_success_count: 'Zero-Shot', agentic_capability_score: 'Agentic'
+      };
+      grid.innerHTML = Object.entries(labels).map(([k, label]) => `
+        <div class="kpi-card">
+          <div class="kpi-label">${label}</div>
+          <div class="kpi-val">${fmt(kpis[k])}</div>
+        </div>`).join('');
+
+      // Active providers summary
+      const h = await api('/api/harvester/status');
+      const active = h.active || [];
+      document.getElementById('home-providers').innerHTML =
+        active.length
+          ? active.map(p => `<span style="color:var(--green);margin-right:8px;">✓ ${p}</span>`).join('')
+          : '<span style="color:var(--muted)">None active</span>';
+
+      document.getElementById('home-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch(e) {
+      document.getElementById('sys-summary').textContent = 'Unable to reach server';
+    }
+  }
+
+  // ── Providers ─────────────────────────────────────────────────────────────
+  async function loadProviders() {
+    const el = document.getElementById('provider-list');
+    el.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      const d = await api('/api/harvester/status');
+      const providers = Object.values(d.providers || {});
+      if (!providers.length) { el.innerHTML = '<div class="empty">No provider data</div>'; return; }
+      el.innerHTML = providers.map(p => {
+        const badgeClass = p.status === 'active' ? 'active' : p.status === 'invalid' ? 'invalid' : 'pending';
+        const badgeText  = p.status === 'active' ? 'Active' : p.status === 'invalid' ? 'Invalid Key' : 'No Key';
+        const detail = p.status === 'active'
+          ? `${p.latency_ms ? p.latency_ms.toFixed(0)+'ms · ' : ''}${p.best_model || ''}`
+          : p.status === 'invalid' ? `<a href="${p.signup_url}" style="color:var(--accent)">Regenerate key ↗</a>`
+          : `<a href="${p.signup_url}" style="color:var(--yellow)">Get free key ↗</a>`;
+        return `<div class="provider-row">
+          <div>
+            <div class="provider-name">${p.name}</div>
+            <div class="provider-detail">${detail}</div>
+          </div>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+        </div>`;
+      }).join('');
+      document.getElementById('prov-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch(e) { el.innerHTML = '<div class="empty">Error loading providers</div>'; }
+  }
+
+  // ── Kaizen ────────────────────────────────────────────────────────────────
+  async function loadKaizen() {
+    const el = document.getElementById('kaizen-list');
+    el.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      const d = await api('/api/kaizen');
+      const proposals = d.recent_proposals || [];
+      const auto = d.auto_improvements || [];
+      const all = [...proposals, ...auto];
+      if (!all.length) { el.innerHTML = '<div class="empty">No proposals in queue</div>'; return; }
+      el.innerHTML = all.map(p => {
+        const pri = (p.priority || 'medium').toLowerCase();
+        return `<div class="kaizen-item">
+          <div class="kaizen-title">${p.title || 'Untitled'}</div>
+          <div class="kaizen-desc">${p.description || ''}</div>
+          <div class="kaizen-meta">
+            <span class="pill ${pri}">${pri.toUpperCase()}</span>
+            ${p.source ? `<span class="pill" style="background:var(--surface);color:var(--muted)">${p.source}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('kaizen-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch(e) { el.innerHTML = '<div class="empty">Error loading Kaizen queue</div>'; }
+  }
+
+  // ── API Keys ──────────────────────────────────────────────────────────────
+  async function loadKeys() {
+    const el = document.getElementById('keys-list');
+    try {
+      const d = await api('/api/admin/keys');
+      const providers = d.providers || [];
+      const core = providers.filter(p => p.tier === 'core');
+      const secondary = providers.filter(p => p.tier === 'secondary');
+
+      function renderGroup(list) {
+        return list.map(p => `
+          <div class="key-row" id="keyrow-${p.id}">
+            <div class="key-header">
+              <div>
+                <div class="key-name">${p.name}</div>
+                <div class="key-env">${p.env_var}</div>
+              </div>
+              <span class="badge ${p.has_key ? 'active' : 'pending'}">${p.has_key ? '✓ Set' : 'Missing'}</span>
+            </div>
+            ${p.masked_key ? `<div class="key-masked">${p.masked_key}</div>` : ''}
+            <div class="key-input-row">
+              <input class="key-input" id="ki-${p.id}" type="password"
+                placeholder="Paste key…" autocomplete="off"
+                onkeydown="if(event.key==='Enter')saveKey('${p.id}')"/>
+              <button class="key-save" onclick="saveKey('${p.id}')">Save</button>
+              ${p.has_key ? `<button class="key-clear" onclick="clearKey('${p.id}')">✕</button>` : ''}
+            </div>
+            <div style="text-align:right;margin-top:4px;">
+              <a href="${p.signup_url}" target="_blank"
+                style="font-size:11px;color:var(--accent);text-decoration:none;">Get key ↗</a>
+            </div>
+          </div>`).join('');
+      }
+
+      el.innerHTML = `
+        <div class="section-label" style="color:var(--green)">Core Providers</div>
+        <div class="card" style="padding:0 16px;">${renderGroup(core)}</div>
+        <div class="section-label" style="color:var(--yellow)">Secondary Providers</div>
+        <div class="card" style="padding:0 16px;">${renderGroup(secondary)}</div>`;
+
+      document.getElementById('keys-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch(e) {
+      el.innerHTML = '<div class="empty">Error loading keys — check auth</div>';
+    }
+  }
+
+  async function saveKey(providerId) {
+    const input = document.getElementById('ki-' + providerId);
+    const key = input ? input.value.trim() : '';
+    if (!key) { toast('Paste a key first'); return; }
+    try {
+      const d = await api('/api/admin/keys', {
+        method: 'POST',
+        body: JSON.stringify({ provider_id: providerId, key })
+      });
+      if (d.ok) {
+        toast(`Saved — ${d.masked_key}`);
+        if (input) input.value = '';
+        await loadKeys();
+      } else { toast(d.error || 'Save failed'); }
+    } catch(e) { toast('Error: ' + e.message); }
+  }
+
+  async function clearKey(providerId) {
+    if (!confirm(`Clear the key for ${providerId}?`)) return;
+    try {
+      const d = await api('/api/admin/keys/' + providerId, { method: 'DELETE' });
+      if (d.ok) { toast('Key cleared'); await loadKeys(); }
+    } catch(e) { toast('Error: ' + e.message); }
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
+  function addMsg(text, role) {
+    const el = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.textContent = text;
+    el.appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    return div;
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    addMsg(msg, 'user');
+    const thinking = addMsg('Thinking…', 'ai thinking');
+    try {
+      const d = await api('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: msg, persona: 'DMAI' })
+      });
+      thinking.remove();
+      addMsg(d.response || d.message || JSON.stringify(d), 'ai');
+    } catch(e) {
+      thinking.remove();
+      addMsg('Error: ' + e.message, 'ai');
+    }
+  }
+
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+</script>
+</body>
+</html>

@@ -606,7 +606,7 @@
       </div>
 
       <!-- ── API Keys ────────────────────────────────────────────── -->
-      <div class="section" id="sec-apikeys" style="display:none">
+      <div class="section" id="sec-apikeys">
         <div class="section-title">
           <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M9.5 1a3.5 3.5 0 0 1 .5 6.95V9l1 1-1 1 1 1-1.5 1.5L8 12V7.95A3.5 3.5 0 0 1 9.5 1zM3 10l4.5-4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           API Key Management
@@ -791,6 +791,8 @@
   async function initApp() {
     await loadStatus();
     setInterval(loadStatus, 30000);
+    // Pre-load API key statuses in background so the tab is instant
+    setTimeout(loadApiKeys, 1000);
   }
 
   async function refreshAll() {

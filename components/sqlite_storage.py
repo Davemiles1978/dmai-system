@@ -142,7 +142,7 @@ class SQLiteStorage:
                     api_key TEXT NOT NULL,
                     updated_at TEXT
                 );
-            """)"
+            """)
 
             db.commit()
         db.close()

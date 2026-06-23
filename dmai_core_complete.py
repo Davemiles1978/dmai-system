@@ -916,6 +916,12 @@ def admin_page():
     return send_from_directory("static", "admin.html")
 
 
+@app.route("/mobile")
+def mobile_page():
+    """Mobile PWA control panel — installable on iPhone/Android."""
+    return send_from_directory("static", "mobile.html")
+
+
 @app.route("/status")
 def status_page():
     return index()
