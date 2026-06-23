@@ -1524,7 +1524,7 @@
   // ── Study Progress ────────────────────────────────────────────────────────
   async function loadStudyProgress() {
     try {
-      const r = await apiFetch('/api/learning/progress');
+      const r = await api('/api/learning/progress');
       const d = await r.json();
       document.getElementById('study-stage').textContent = d.current_stage || '--';
       document.getElementById('study-mastered').textContent = d.mastered ?? '--';

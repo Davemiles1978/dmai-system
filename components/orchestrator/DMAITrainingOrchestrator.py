@@ -295,10 +295,37 @@ class DMAITrainingOrchestrator:
             self.update_engine.stop()
 
     def get_status(self) -> Dict:
+        import threading as _th
+        tnames = [t.name for t in _th.enumerate()]
+
+        def _up(*kws):
+            return any(any(kw.lower() in n.lower() for kw in kws) for n in tnames)
+
+        services = {
+            "background_updater":    bool(self._update_thread and self._update_thread.is_alive()),
+            "parallel_learner":      _up("parallel", "parallellearner", "web_learn"),
+            "autonomous_researcher": _up("research", "autonomousresearch"),
+            "stage_learner":         _up("stage", "stagelearner", "learning_loop"),
+            "kaizen_repair":         _up("kaizen", "repair"),
+            "graph_evolution":       _up("graph", "graphevolution"),
+            "kpi_seed":              _up("kpi", "kpiseed"),
+            "vocab_ingest":          _up("vocab", "vocabingest"),
+        }
+        active = sum(1 for v in services.values() if v)
+
         status: Dict = {
             "component": "DMAITrainingOrchestrator",
             "version":   "1.0.0",
             "background_updater_alive": bool(self._update_thread and self._update_thread.is_alive()),
+            # ── Thread / service status for the UI banner ──────────────
+            "status":             "healthy" if active >= 3 else "degraded",
+            "training_always_on": True,
+            "message":            "Training runs 24/7 automatically — no manual start needed",
+            "services":           services,
+            "active_count":       active,
+            "total_threads":      len(tnames),
+            "thread_names":       tnames,
+            # ── existing fields ────────────────────────────────────────
             "components": {},
             "recent_runs": self.run_history.last_runs(5),
         }

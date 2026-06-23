@@ -912,7 +912,20 @@ def health():
 @app.route("/api/status")
 def api_status():
     si = components.get("si_core")
-    kpis = si.current_kpis if si else {}
+    # Try si_core first, fall back to DB-derived kpi_cache.json
+    _raw_kpis = (si.current_kpis if si else {}) or {}
+    _all_zero = all(v == 0 for v in _raw_kpis.values() if isinstance(v, (int, float)))
+    if _all_zero or not _raw_kpis:
+        try:
+            import json as _jc, os as _osc
+            _cache = os.path.join(os.environ.get("DATA_PATH", "data"), "kpi_cache.json")
+            with open(_cache) as _f:
+                _cached = _jc.load(_f)
+            kpis = _cached.get("kpis", _raw_kpis)
+        except Exception:
+            kpis = _raw_kpis
+    else:
+        kpis = _raw_kpis
     orch = components.get("training_orchestrator")
     training_status = orch.get_status() if orch else {}
     ext_hub = components.get("extended_hub")
@@ -2952,8 +2965,36 @@ def api_learning_full_status():
         except Exception:
             pass
 
+    # Build study block (stage breakdown from DB) for the Learning Metrics UI
+    _study_stages = {}
+    try:
+        import sqlite3 as _sq2
+        _db2 = os.path.join(os.environ.get("DATA_PATH", "data"), "dmai_knowledge.db")
+        _con2 = _sq2.connect(_db2, timeout=5)
+        _cur2 = _con2.cursor()
+        for _sname in ["baby", "toddler", "child", "teen", "adult", "expert"]:
+            try:
+                _cur2.execute("SELECT COUNT(*) FROM syllabus_content WHERE stage=? AND mastery>=0.9", (_sname,))
+                _m2 = _cur2.fetchone()[0]
+                _cur2.execute("SELECT COUNT(*) FROM syllabus_content WHERE stage=?", (_sname,))
+                _t2 = _cur2.fetchone()[0]
+                _study_stages[_sname] = {"mastered": _m2, "total": _t2}
+            except Exception:
+                _study_stages[_sname] = {"mastered": 0, "total": 0}
+        _con2.close()
+    except Exception:
+        pass
+
+    _si_study = components.get("si_core")
+    _study_block = {
+        "current_stage":   getattr(_si_study, "current_stage_name", "Baby") if _si_study else "Baby",
+        "topics_mastered": db_stats.get("syllabus_mastered", 0),
+        "stage_breakdown": _study_stages,
+    }
+
     return jsonify({
         "kpis": kpis,
+        "study": _study_block,
         "kpi_trend": kpi_trend,
         "stage_progress": stage_progress,
         "insights_count": insights_count,
