@@ -540,6 +540,10 @@
       </div>
       <div class="nav-section">
         <div class="nav-label">Intelligence</div>
+        <div class="nav-item" onclick="nav('heartbeat')" id="nav-heartbeat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 12h3l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Heartbeat
+        </div>
         <div class="nav-item" onclick="nav('maintenance')" id="nav-maintenance">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 7.5 1zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" stroke="currentColor" stroke-width="0" fill="currentColor" fill-opacity="0"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/><path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           Maintenance
@@ -889,6 +893,74 @@
 
       </div>
 
+      <!-- Heartbeat Panel -->
+      <div class="section" id="sec-heartbeat">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12h3l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Learning Heartbeat
+        </div>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:13px">Live view of DMAI's intellectual growth — auto-refreshes every 30 seconds</p>
+
+        <!-- Stat cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.5rem">
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">LEARNING STAGE</div>
+            <div id="hb-stage" style="font-size:1.3rem;font-weight:700;color:var(--accent)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">SKILLS (24H)</div>
+            <div id="hb-skills-24h" style="font-size:1.3rem;font-weight:700;color:var(--green)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">ENTITIES (24H)</div>
+            <div id="hb-entities-24h" style="font-size:1.3rem;font-weight:700;color:var(--yellow)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">TOTAL INSIGHTS</div>
+            <div id="hb-total-insights" style="font-size:1.3rem;font-weight:700;color:var(--accent)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">GRAPH NEURONS</div>
+            <div id="hb-neurons" style="font-size:1.3rem;font-weight:700;color:var(--green)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">SYNAPSES</div>
+            <div id="hb-synapses" style="font-size:1.3rem;font-weight:700;color:var(--green)">—</div>
+          </div>
+        </div>
+
+        <!-- Stage progression bar -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">LEARNING PATHWAY PROGRESSION</div>
+          <div id="hb-stage-track" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:.5rem"></div>
+          <div style="background:var(--bg);border-radius:999px;height:8px;overflow:hidden">
+            <div id="hb-stage-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:999px;transition:width 1s ease"></div>
+          </div>
+        </div>
+
+        <!-- Knowledge Pulse chart -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">KNOWLEDGE PULSE — INSIGHT RATE (LAST 7 DAYS)</div>
+          <div style="width:100%;overflow:hidden">
+            <svg id="hb-pulse-chart" width="100%" height="160" style="overflow:visible;display:block"></svg>
+          </div>
+        </div>
+
+        <!-- Two-column: Research Nodes + Top Entities -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="card" style="padding:1.25rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">ACTIVE RESEARCH NODES (24H)</div>
+            <div id="hb-research-nodes"><p style="color:var(--text-muted);font-size:12px">Loading...</p></div>
+          </div>
+          <div class="card" style="padding:1.25rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">TOP KNOWLEDGE ENTITIES</div>
+            <div id="hb-top-entities"><p style="color:var(--text-muted);font-size:12px">Loading...</p></div>
+          </div>
+        </div>
+
+        <div style="color:var(--text-muted);font-size:11px;text-align:right" id="hb-last-updated">Last updated: —</div>
+      </div>
+
       <!-- Maintenance / Integrity -->
       <div class="section" id="sec-maintenance">
         <div class="section-title">
@@ -1168,12 +1240,14 @@
   // ── Navigation ────────────────────────────────────────────────────────────
   function nav(id) {
     closeMobileNav();
+    if (typeof _hbInterval !== 'undefined' && _hbInterval) { clearInterval(_hbInterval); _hbInterval = null; }
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if (id === 'study')   setTimeout(loadStudyProgress, 50);
     if (id === 'selfgen')  setTimeout(loadCWHistory, 50);
     if (id === 'learning') { setTimeout(loadLearningMetrics, 50); setTimeout(loadVocabStats, 200); }
     if (id === 'suggestions') setTimeout(loadSuggestions, 50);
+    if (id === 'heartbeat')   { _loadHeartbeat(); if(_hbInterval)clearInterval(_hbInterval); _hbInterval=setInterval(_loadHeartbeat,30000); }
     if (id === 'maintenance') setTimeout(loadIntegrityReport, 50);
     if (id === 'settings') setTimeout(loadSettings, 50);
     document.getElementById('sec-' + id).classList.add('active');
@@ -2296,6 +2370,150 @@
     if (ov) ov.classList.remove('open');
   }
 
-</script>
+
+  // ── Heartbeat Panel ────────────────────────────────────────────────────────
+  let _hbInterval = null;
+
+  function _renderHeartbeat(d) {
+    const fmt = v => (v !== null && v !== undefined) ? Number(v).toLocaleString() : '—';
+    const el = id => document.getElementById(id);
+
+    el('hb-stage').textContent            = d.learning_stage || '—';
+    el('hb-skills-24h').textContent        = fmt(d.skills_learned_24h);
+    el('hb-entities-24h').textContent      = fmt(d.entities_discovered_24h);
+    el('hb-total-insights').textContent    = fmt(d.total_insights);
+    el('hb-neurons').textContent           = fmt(d.graph_stats && d.graph_stats.neurons);
+    el('hb-synapses').textContent          = fmt(d.graph_stats && d.graph_stats.synapses);
+
+    // Stage track
+    const track = el('hb-stage-track');
+    if (track && d.stages) {
+      track.innerHTML = d.stages.map((s, i) => {
+        const col = i === d.stage_index ? 'var(--accent)' : i < d.stage_index ? 'var(--green)' : 'var(--text-muted)';
+        const wt  = i === d.stage_index ? '700' : '400';
+        return `<span style="font-size:0.65rem;color:${col};font-weight:${wt}">${s}</span>`;
+      }).join('');
+    }
+    const bar = el('hb-stage-bar');
+    if (bar) bar.style.width = (d.stage_progress_pct || 0) + '%';
+
+    // Knowledge Pulse SVG chart
+    const pulse = d.knowledge_pulse || [];
+    const svgEl = el('hb-pulse-chart');
+    if (svgEl) {
+      const W = svgEl.parentElement.clientWidth || 540;
+      const H = 160;
+      svgEl.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      svgEl.innerHTML = '';
+      const ns = 'http://www.w3.org/2000/svg';
+
+      if (pulse.length > 1) {
+        const maxC = Math.max.apply(null, pulse.map(p => p.count)) || 1;
+        const pL=32, pR=10, pT=10, pB=28;
+        const xs = pulse.map((_,i) => pL + (i/(pulse.length-1))*(W-pL-pR));
+        const ys = pulse.map(p  => pT + (1-p.count/maxC)*(H-pT-pB));
+
+        const defs = document.createElementNS(ns,'defs');
+        defs.innerHTML = '<linearGradient id="hbGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="#6c63ff"/>' +
+          '<stop offset="100%" stop-color="#6c63ff" stop-opacity="0"/></linearGradient>';
+        svgEl.appendChild(defs);
+
+        // Area
+        let aD = 'M'+xs[0]+','+(H-pB);
+        xs.forEach((x,i)=>{ aD+=' L'+x+','+ys[i]; });
+        aD += ' L'+xs[xs.length-1]+','+(H-pB)+' Z';
+        const area = document.createElementNS(ns,'path');
+        area.setAttribute('d',aD); area.setAttribute('fill','url(#hbGrad)'); area.setAttribute('opacity','0.3');
+        svgEl.appendChild(area);
+
+        // Line
+        let lD = 'M'+xs[0]+','+ys[0];
+        xs.forEach((x,i)=>{ if(i>0) lD+=' L'+x+','+ys[i]; });
+        const line = document.createElementNS(ns,'path');
+        line.setAttribute('d',lD); line.setAttribute('stroke','#6c63ff');
+        line.setAttribute('stroke-width','1.8'); line.setAttribute('fill','none');
+        svgEl.appendChild(line);
+
+        // X labels
+        const step = Math.max(1,Math.floor(pulse.length/5));
+        pulse.forEach((p,i)=>{
+          if(i%step===0||i===pulse.length-1){
+            const t=document.createElementNS(ns,'text');
+            t.setAttribute('x',xs[i]); t.setAttribute('y',H-4);
+            t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','9'); t.setAttribute('fill','#666');
+            t.textContent=p.hour?p.hour.substring(5,13).replace('T',' '):'';
+            svgEl.appendChild(t);
+          }
+        });
+        // Y max
+        const yL=document.createElementNS(ns,'text');
+        yL.setAttribute('x',pL-4); yL.setAttribute('y',pT+5);
+        yL.setAttribute('text-anchor','end'); yL.setAttribute('font-size','9'); yL.setAttribute('fill','#666');
+        yL.textContent=maxC; svgEl.appendChild(yL);
+      } else {
+        const t=document.createElementNS(ns,'text');
+        t.setAttribute('x','50%'); t.setAttribute('y','50%');
+        t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
+        t.setAttribute('fill','#666'); t.setAttribute('font-size','12');
+        t.textContent='Insight data accumulating — check back once DMAI has been running';
+        svgEl.appendChild(t);
+      }
+    }
+
+    // Active research nodes
+    const nodesEl = el('hb-research-nodes');
+    if (nodesEl) {
+      const nodes = d.active_research_nodes || [];
+      if (!nodes.length) {
+        nodesEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No active research in the last 24 hours</p>';
+      } else {
+        const mxN = Math.max.apply(null, nodes.map(n=>n.count))||1;
+        nodesEl.innerHTML = nodes.map(n=>`
+          <div style="margin-bottom:.55rem">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--text)">${n.domain}</span>
+              <span style="color:var(--accent);font-weight:600">${n.count}</span>
+            </div>
+            <div style="background:var(--bg);border-radius:4px;height:5px">
+              <div style="width:${Math.round((n.count/mxN)*100)}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px"></div>
+            </div>
+          </div>`).join('');
+      }
+    }
+
+    // Top entities
+    const entEl = el('hb-top-entities');
+    if (entEl) {
+      const ents = d.top_entities || [];
+      if (!ents.length) {
+        entEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No confidence data yet</p>';
+      } else {
+        entEl.innerHTML = ents.map(e=>`
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.topic||''}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${e.domain||''}</div>
+            </div>
+            <div style="flex-shrink:0;width:42px;text-align:right;font-size:12px;font-weight:700;color:${e.confidence>0.7?'var(--green)':e.confidence>0.4?'var(--yellow)':'var(--red)'}">${Math.round(e.confidence*100)}%</div>
+          </div>`).join('');
+      }
+    }
+
+    const lu = el('hb-last-updated');
+    if (lu) lu.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  }
+
+  async function _loadHeartbeat() {
+    try {
+      const r = await api('/api/heartbeat');
+      _renderHeartbeat(r);
+    } catch(e) {
+      console.warn('Heartbeat error:', e);
+    }
+  }
+  // ── End Heartbeat Panel ────────────────────────────────────────────────────
+
+  </script>
 </body>
 </html>

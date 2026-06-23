@@ -3384,6 +3384,144 @@ def _ensure_suggestions_table():
     conn.commit()
     conn.close()
 
+@app.route("/api/heartbeat", methods=["GET"])
+def api_heartbeat():
+    """Live learning heartbeat — feeds the admin D3.js Heartbeat panel."""
+    import datetime as _dt, json as _json
+    import sqlite3 as _hbsq
+    import os as _hbos
+
+    DB_PATH = "data/dmai_knowledge.db"
+    now = _dt.datetime.utcnow()
+    cutoff_24h = (now - _dt.timedelta(hours=24)).isoformat()
+    cutoff_7d  = (now - _dt.timedelta(days=7)).isoformat()
+
+    def _hb_conn():
+        c = _hbsq.connect(DB_PATH)
+        c.row_factory = _hbsq.Row
+        return c
+
+    # 1 — Learning stage
+    learning_stage = "Baby"
+    try:
+        _c = _hb_conn()
+        row = _c.execute("SELECT value FROM system_state WHERE key='learning_stage' LIMIT 1").fetchone()
+        if row:
+            learning_stage = row["value"]
+        _c.close()
+    except Exception:
+        pass
+
+    stages = ["Baby", "Child", "Teenager", "Adult", "Expert", "Master", "Transcendent", "Infinite"]
+    stage_index = stages.index(learning_stage) if learning_stage in stages else 0
+    stage_progress_pct = round((stage_index / (len(stages) - 1)) * 100, 1)
+
+    # 2 — Active research nodes last 24 h
+    active_nodes = []
+    try:
+        _c = _hb_conn()
+        rows = _c.execute(
+            "SELECT domain, COUNT(*) as cnt FROM insights WHERE created_at > ? GROUP BY domain ORDER BY cnt DESC LIMIT 12",
+            (cutoff_24h,)
+        ).fetchall()
+        active_nodes = [{"domain": r["domain"] or "unknown", "count": r["cnt"]} for r in rows]
+        _c.close()
+    except Exception:
+        pass
+
+    # 3 — Skills (capabilities) added last 24 h
+    skills_count_24h = 0
+    try:
+        _c = _hb_conn()
+        row = _c.execute("SELECT COUNT(*) as cnt FROM capabilities WHERE created_at > ?", (cutoff_24h,)).fetchone()
+        skills_count_24h = row["cnt"] if row else 0
+        _c.close()
+    except Exception:
+        pass
+
+    # 4 — Entities (vocabulary) added last 24 h
+    entity_count_24h = 0
+    try:
+        _c = _hb_conn()
+        row = _c.execute("SELECT COUNT(*) as cnt FROM vocabulary WHERE created_at > ?", (cutoff_24h,)).fetchone()
+        entity_count_24h = row["cnt"] if row else 0
+        _c.close()
+    except Exception:
+        pass
+
+    # 5 — Knowledge pulse: hourly insight rate last 7 days
+    knowledge_pulse = []
+    try:
+        _c = _hb_conn()
+        rows = _c.execute(
+            """SELECT strftime('%Y-%m-%dT%H:00:00', created_at) as hour_bucket,
+                      COUNT(*) as cnt
+               FROM insights
+               WHERE created_at > ?
+               GROUP BY hour_bucket
+               ORDER BY hour_bucket ASC""",
+            (cutoff_7d,)
+        ).fetchall()
+        knowledge_pulse = [{"hour": r["hour_bucket"], "count": r["cnt"]} for r in rows]
+        _c.close()
+    except Exception:
+        pass
+
+    # 6 — Top 10 entities by confidence
+    top_entities = []
+    try:
+        _c = _hb_conn()
+        rows = _c.execute(
+            "SELECT topic, confidence, domain FROM insights WHERE confidence IS NOT NULL ORDER BY confidence DESC LIMIT 10"
+        ).fetchall()
+        top_entities = [{"topic": r["topic"], "confidence": round(float(r["confidence"]), 3), "domain": r["domain"] or ""} for r in rows]
+        _c.close()
+    except Exception:
+        pass
+
+    # 7 — Graph stats
+    graph_stats = {"neurons": 0, "synapses": 0, "evolution_cycle": 0}
+    try:
+        _gp = _hbos.path.join(_hbos.path.dirname(_hbos.path.abspath(__file__)),
+                               "aevora-training", "dashboard", "data", "graph_schema.json")
+        with open(_gp) as _f:
+            _gs = _json.load(_f)
+        graph_stats = {
+            "neurons": _gs.get("total_neurons", 0),
+            "synapses": _gs.get("total_synapses", 0),
+            "evolution_cycle": _gs.get("evolution_cycle", 0),
+        }
+    except Exception:
+        pass
+
+    # 8 — Totals
+    total_insights = 0
+    total_capabilities = 0
+    try:
+        _c = _hb_conn()
+        total_insights = _c.execute("SELECT COUNT(*) as cnt FROM insights").fetchone()["cnt"]
+        total_capabilities = _c.execute("SELECT COUNT(*) as cnt FROM capabilities").fetchone()["cnt"]
+        _c.close()
+    except Exception:
+        pass
+
+    return jsonify({
+        "learning_stage": learning_stage,
+        "stage_index": stage_index,
+        "stage_progress_pct": stage_progress_pct,
+        "stages": stages,
+        "active_research_nodes": active_nodes,
+        "skills_learned_24h": skills_count_24h,
+        "entities_discovered_24h": entity_count_24h,
+        "knowledge_pulse": knowledge_pulse,
+        "top_entities": top_entities,
+        "graph_stats": graph_stats,
+        "total_insights": total_insights,
+        "total_capabilities": total_capabilities,
+        "generated_at": now.isoformat() + "Z",
+    })
+
+
 _ensure_suggestions_table()
 
 def _start_background_services():
