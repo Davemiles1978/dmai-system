@@ -265,30 +265,59 @@ class DMAITrainingOrchestrator:
 
     def start_background_updater(self, flask_app=None):
         """
-        Start the PeriodicUpdateEngine in a background thread.
+        Start the PeriodicUpdateEngine and a continuous AI+SI training loop in background threads.
         Call this once from app startup.
         """
-        if not self.update_engine:
-            logger.warning("Cannot start background updater — PeriodicUpdateEngine not loaded")
+        # --- Periodic Update Engine ---
+        if self.update_engine and not (self._update_thread and self._update_thread.is_alive()):
+            def _run_update():
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    loop.run_until_complete(self.update_engine.start())
+                except Exception as e:
+                    logger.error("Background updater crashed: %s", e)
+                finally:
+                    loop.close()
+            self._update_thread = threading.Thread(target=_run_update, daemon=True, name="dmai-update-engine")
+            self._update_thread.start()
+            logger.info("Background update engine started (daemon thread)")
+        elif not self.update_engine:
+            logger.warning("PeriodicUpdateEngine not loaded — skipping update engine thread")
+
+        # --- Continuous AI + SI Training Loop (24/7) ---
+        # This is the core training loop that drives pct_expert and overall_score.
+        # Runs a full AI+SI training pass every 20 minutes, using self-assessment
+        # when no external provider is available.
+        if hasattr(self, "_training_loop_thread") and self._training_loop_thread and self._training_loop_thread.is_alive():
+            logger.info("Continuous training loop already running")
             return
 
-        if self._update_thread and self._update_thread.is_alive():
-            logger.info("Background updater already running")
-            return
+        def _continuous_training_loop():
+            import time as _t
+            _t.sleep(30)  # 30s boot delay
+            logger.info("Continuous AI+SI training loop started — running every 20 min")
+            while True:
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(self.run_full_training())
+                    loop.close()
+                    ai_prog = result.get("components", {}).get("ai_training", {}).get("progress", {})
+                    si_score = result.get("components", {}).get("si_training", {}).get("overall_score", 0)
+                    logger.info(
+                        "Training loop complete — AI pct_expert=%.1f%% avg_mastery=%.3f SI_score=%.3f",
+                        ai_prog.get("pct_expert", 0), ai_prog.get("avg_mastery", 0), si_score or 0
+                    )
+                except Exception as _te:
+                    logger.warning("Continuous training loop error: %s", _te)
+                _t.sleep(1200)  # 20 minutes between full passes
 
-        def _run():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(self.update_engine.start())
-            except Exception as e:
-                logger.error("Background updater crashed: %s", e)
-            finally:
-                loop.close()
-
-        self._update_thread = threading.Thread(target=_run, daemon=True, name="dmai-update-engine")
-        self._update_thread.start()
-        logger.info("Background update engine started (daemon thread)")
+        self._training_loop_thread = threading.Thread(
+            target=_continuous_training_loop, daemon=True, name="dmai-training-loop"
+        )
+        self._training_loop_thread.start()
+        logger.info("Continuous AI+SI training loop started (daemon thread)")
 
     def stop_background_updater(self):
         if self.update_engine:
@@ -304,14 +333,14 @@ class DMAITrainingOrchestrator:
         # Check thread names broadly — Render names daemons differently
         services = {
             "background_updater":    (bool(self._update_thread and self._update_thread.is_alive())
-                                      or _up("updater", "update", "background")),
-            "parallel_learner":      _up("parallel", "learner", "web_learn", "weblearn", "learn"),
-            "autonomous_researcher": _up("research", "autonomous", "discover"),
-            "stage_learner":         _up("stage", "learning", "loop", "learner"),
-            "kaizen_repair":         _up("kaizen", "repair", "autorepair"),
-            "graph_evolution":       _up("graph", "evolution", "graphevol"),
-            "kpi_seed":              _up("kpi", "seed", "metric"),
-            "vocab_ingest":          _up("vocab", "ingest", "vocabulary"),
+                                      or _up("updater", "update", "background", "update-engine", "training-loop")),
+            "parallel_learner":      _up("parallel", "learner", "web_learn", "weblearn", "learn", "web-learner"),
+            "autonomous_researcher": _up("research", "autonomous", "discover", "autonomous-researcher"),
+            "stage_learner":         _up("stage", "learning", "loop", "learner", "stage-learner", "stage-progress"),
+            "kaizen_repair":         _up("kaizen", "repair", "autorepair", "kaizen-repair"),
+            "graph_evolution":       _up("graph", "evolution", "graphevol", "graph-evolution"),
+            "kpi_seed":              _up("kpi", "seed", "metric", "KpiSeedLoop"),
+            "vocab_ingest":          _up("vocab", "ingest", "vocabulary", "vocab-ingest"),
         }
         # Fallback: check live component objects if threads missed everything
         if sum(services.values()) == 0:

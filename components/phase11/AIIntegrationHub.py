@@ -66,6 +66,7 @@ class AIIntegrationHub:
         # ORIGINAL COMMERCIAL LLMs (All preserved)
         # ====================================================================
         keys['openai'] = os.getenv('OPENAI_API_KEY')
+        keys['groq'] = os.getenv('GROQ_API_KEY')
         keys['deepseek'] = os.getenv('DEEPSEEK_API_KEY')
         keys['gemini'] = os.getenv('GEMINI_API_KEY')
         keys['anthropic'] = os.getenv('ANTHROPIC_API_KEY')
@@ -929,8 +930,43 @@ class AIIntegrationHub:
 
     # ====================================================================
     # NEW FREE-TIER TUTOR QUERY METHODS
-    # Cerebras · GitHub Models · Mistral AI
+    # Groq · Cerebras · GitHub Models · Mistral AI
     # ====================================================================
+
+    def _query_groq(self, prompt: str) -> Dict:
+        """Query Groq — 14,400 req/day free, ultra-low latency LLM inference"""
+        api_key = self.api_keys.get('groq')
+        if not api_key or api_key == 'pending':
+            return {'success': False, 'tutor': 'Groq', 'error': 'No API key — sign up free at console.groq.com/keys'}
+        try:
+            response = requests.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'model': 'llama-3.3-70b-versatile',
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7,
+                },
+                timeout=30,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'Groq',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'llama-3.3-70b-versatile',
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'Groq', 'error': 'Rate limited'}
+            else:
+                return {'success': False, 'tutor': 'Groq', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+        except Exception as e:
+            return {'success': False, 'tutor': 'Groq', 'error': str(e)}
 
     def _query_cerebras(self, prompt: str) -> Dict:
         """Query Cerebras Inference — 1M tokens/day free, world-fastest inference (2,600+ tok/s)"""

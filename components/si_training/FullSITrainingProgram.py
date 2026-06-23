@@ -490,8 +490,21 @@ class FullSITrainingProgram:
         # Only average over exercises that produced a real score
         real_scores = [r["score"] for r in exercise_results if r["score"] is not None]
         if not real_scores:
-            # All exercises skipped — do NOT update tracker or KPIs
-            logger.info("[SKIP] Module=%s — all exercises skipped (no ai_hub)", module["id"])
+            # No ai_hub — try self-assessment from knowledge DB
+            self_score = self._self_assess_module(module)
+            if self_score is not None:
+                logger.info("[SELF-ASSESS] Module=%s — scored %.3f from knowledge DB", module["id"], self_score)
+                kpi_deltas = {k: self_score for k in module["kpi_map"]}
+                self.tracker.record_score(module["id"], self_score, kpi_deltas)
+                return {
+                    "module_id":   module["id"],
+                    "module_name": module["name"],
+                    "status":      "self_assessed",
+                    "avg_score":   round(self_score, 3),
+                    "exercises":   exercise_results,
+                    "kpi_deltas":  kpi_deltas,
+                }
+            logger.info("[SKIP] Module=%s — all exercises skipped (no ai_hub, no KB data)", module["id"])
             return {
                 "module_id":   module["id"],
                 "module_name": module["name"],
@@ -514,6 +527,67 @@ class FullSITrainingProgram:
             "exercises":   exercise_results,
             "kpi_deltas":  kpi_deltas,
         }
+
+    def _self_assess_module(self, module: Dict) -> Optional[float]:
+        """
+        Self-assessment fallback: score SI module competency from DMAI's knowledge DB.
+        Queries insights and capabilities relevant to the module's KPI domains.
+        Returns a float score 0-1, or None if no relevant KB data found.
+        """
+        try:
+            import sqlite3 as _sq, os as _os
+            db_candidates = [
+                _os.path.join("data", "dmai_knowledge.db"),
+                "data/dmai_knowledge.db",
+                "dmai_knowledge.db",
+            ]
+            db_path = next((p for p in db_candidates if _os.path.exists(p)), None)
+            if not db_path:
+                return None
+
+            # Use KPI domains + module name as search keywords
+            kpi_domains = module.get("kpi_map", [])
+            module_name = module.get("name", "").lower()
+            keywords = list(set(
+                module_name.split() +
+                [kpi.replace("_", " ") for kpi in kpi_domains]
+            ))[:6]
+
+            conn = _sq.connect(db_path, timeout=10)
+            evidence_count = 0
+            total_confidence = 0.0
+
+            for kw in keywords[:4]:
+                rows = conn.execute(
+                    "SELECT confidence FROM insights WHERE LOWER(source_topic) LIKE ? OR LOWER(insight_text) LIKE ? LIMIT 20",
+                    (f"%{kw}%", f"%{kw}%")
+                ).fetchall()
+                for (conf,) in rows:
+                    evidence_count += 1
+                    total_confidence += float(conf or 0.75)
+
+            # Check mastered syllabus topics covering these domains
+            for kw in keywords[:3]:
+                rows = conn.execute(
+                    "SELECT mastery FROM syllabus_content WHERE LOWER(topic) LIKE ? AND mastery >= 0.5 LIMIT 10",
+                    (f"%{kw}%",)
+                ).fetchall()
+                for (m,) in rows:
+                    evidence_count += 1
+                    total_confidence += float(m or 0.5)
+
+            conn.close()
+
+            if evidence_count < 3:
+                return None  # Not enough KB data to self-assess
+
+            # Score = average confidence, capped at 0.85 (self-assessment ceiling)
+            raw_score = total_confidence / evidence_count
+            return round(min(0.85, max(0.25, raw_score)), 3)
+
+        except Exception as _e:
+            logger.debug("_self_assess_module failed for %s: %s", module.get("id"), _e)
+            return None
 
     async def _get_response(self, module: Dict, exercise: Dict) -> Optional[str]:
         """

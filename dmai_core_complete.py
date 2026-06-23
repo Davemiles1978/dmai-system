@@ -1545,14 +1545,14 @@ def api_training_status():
         return any(any(kw.lower() in n.lower() for kw in kws) for n in tnames)
 
     services = {
-        "background_updater":    _up("updater", "backgroundupdater"),
-        "parallel_learner":      _up("parallel", "parallellearner", "web_learn"),
-        "autonomous_researcher": _up("research", "autonomousresearch"),
-        "stage_learner":         _up("stage", "stagelearner", "learning_loop"),
-        "kaizen_repair":         _up("kaizen", "repair"),
-        "graph_evolution":       _up("graph", "graphevolution"),
-        "kpi_seed":              _up("kpi", "kpiseed"),
-        "vocab_ingest":          _up("vocab", "vocabingest"),
+        "background_updater":    _up("updater", "backgroundupdater", "background_updater", "update-engine"),
+        "parallel_learner":      _up("parallel", "parallellearner", "web_learn", "web-learn", "web-learner"),
+        "autonomous_researcher": _up("research", "autonomousresearch", "autonomous-researcher"),
+        "stage_learner":         _up("stage", "stagelearner", "learning_loop", "stage-learner"),
+        "kaizen_repair":         _up("kaizen", "repair", "kaizen-repair", "autorepair"),
+        "graph_evolution":       _up("graph", "graphevolution", "graph-evolution"),
+        "kpi_seed":              _up("kpi", "kpiseed", "kpi-seed", "KpiSeedLoop"),
+        "vocab_ingest":          _up("vocab", "vocabingest", "vocab-ingest"),
     }
     active = sum(1 for v in services.values() if v)
     return jsonify({
@@ -1581,14 +1581,14 @@ def api_orchestrator_status_fallback():
         return any(any(kw.lower() in n.lower() for kw in kws) for n in tnames)
 
     services = {
-        "background_updater":    _up("updater", "update", "background"),
-        "parallel_learner":      _up("parallel", "learner", "web_learn", "learn"),
-        "autonomous_researcher": _up("research", "autonomous", "discover"),
-        "stage_learner":         _up("stage", "learning", "loop", "learner"),
-        "kaizen_repair":         _up("kaizen", "repair"),
-        "graph_evolution":       _up("graph", "evolution"),
-        "kpi_seed":              _up("kpi", "seed"),
-        "vocab_ingest":          _up("vocab", "ingest"),
+        "background_updater":    _up("updater", "update", "background", "update-engine"),
+        "parallel_learner":      _up("parallel", "learner", "web_learn", "web-learn", "web-learner"),
+        "autonomous_researcher": _up("research", "autonomous", "discover", "autonomous-researcher"),
+        "stage_learner":         _up("stage", "learning", "loop", "learner", "stage-learner"),
+        "kaizen_repair":         _up("kaizen", "repair", "kaizen-repair", "autorepair"),
+        "graph_evolution":       _up("graph", "evolution", "graph-evolution"),
+        "kpi_seed":              _up("kpi", "seed", "KpiSeedLoop"),
+        "vocab_ingest":          _up("vocab", "ingest", "vocab-ingest"),
     }
     active = sum(1 for v in services.values() if v)
     return jsonify({
@@ -5057,7 +5057,7 @@ def _start_background_services():
             ar = AutonomousResearcher(si_core=components.get("si_core"))
             components["autonomous_researcher"] = ar
         ar.run_continuous_research(None)
-    if not _svc_running("research", "autonomous", "discover"):
+    if not _svc_running("research", "autonomous", "discover", "autonomous-researcher"):
         _spawn_guarded("autonomous_researcher", _svc_autonomous_researcher)
 
     # 2. parallel_learner — pulls work from syllabus_content / URL queue
@@ -5070,7 +5070,7 @@ def _start_background_services():
                                     web_crawler=None, seed=True)
             components["parallel_learner"] = pl
         pl.start_background()
-    if not _svc_running("parallel", "web_learn", "web-learn"):
+    if not _svc_running("parallel", "web_learn", "web-learn", "web-learner"):
         _spawn_guarded("parallel_learner", _svc_parallel_learner)
 
     # 3. stage_learner — pulls topics from syllabus_content
@@ -5089,8 +5089,11 @@ def _start_background_services():
                 pass
         elif hasattr(sl, "si_core"):
             sl.si_core = components.get("si_core")
-        sl.start_learning_loop()
-    if not _svc_running("stage", "learning_loop"):
+        if hasattr(sl, "start_learning_loop"):
+            sl.start_learning_loop()
+        elif hasattr(sl, "run_continuous_learning"):
+            sl.run_continuous_learning()
+    if not _svc_running("stage", "learning_loop", "stage-learner", "stage-progress"):
         _spawn_guarded("stage_learner", _svc_stage_learner)
 
     # 4. kaizen_repair
@@ -5103,7 +5106,7 @@ def _start_background_services():
                                    si_core=components.get("si_core"))
             components["kaizen_auto_repair"] = kar
         kar.start_repair_loop()
-    if not _svc_running("kaizen", "repair"):
+    if not _svc_running("kaizen", "repair", "kaizen-repair"):
         _spawn_guarded("kaizen_repair", _svc_kaizen_repair)
 
     # 5. background_updater
