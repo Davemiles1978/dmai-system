@@ -3117,6 +3117,109 @@ def api_vocabulary_sample():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# ═══════════════════════════════════════════════════════════════════════════
+# INTEGRITY / MAINTENANCE API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.route("/api/integrity/run", methods=["POST"])
+def api_integrity_run():
+    """Kick off a full knowledge integrity check in a background thread."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    def _run():
+        try:
+            from components.knowledge.integrity_checker import KnowledgeIntegrityChecker
+            KnowledgeIntegrityChecker().run()
+        except Exception as _e:
+            logger.error("IntegrityChecker bg run: %s", _e)
+    _t = threading.Thread(target=_run, daemon=True, name="integrity-check")
+    _t.start()
+    return jsonify({"status": "started", "message": "Integrity check running in background"})
+
+@app.route("/api/integrity/report", methods=["GET"])
+def api_integrity_report():
+    """Return the latest integrity report and unresolved flags."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        import sqlite3 as _isq
+        conn = _isq.connect("data/dmai_knowledge.db")
+        conn.row_factory = _isq.Row
+
+        # Latest report
+        report_row = None
+        try:
+            report_row = conn.execute(
+                "SELECT * FROM integrity_reports ORDER BY run_at DESC LIMIT 1"
+            ).fetchone()
+        except Exception:
+            pass
+
+        if not report_row:
+            conn.close()
+            return jsonify({"status": "no_report", "message": "No integrity check has been run yet."})
+
+        # Flags for this report, unresolved first
+        flags = []
+        try:
+            flags = [dict(r) for r in conn.execute(
+                "SELECT * FROM integrity_flags WHERE report_id=? ORDER BY "
+                "CASE severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END, resolved",
+                (report_row["id"],)
+            ).fetchall()]
+        except Exception:
+            pass
+
+        # Historical run counts
+        history = []
+        try:
+            history = [dict(r) for r in conn.execute(
+                "SELECT run_at, total_flags, critical, warning, info "
+                "FROM integrity_reports ORDER BY run_at DESC LIMIT 10"
+            ).fetchall()]
+        except Exception:
+            pass
+
+        conn.close()
+
+        return jsonify({
+            "report": dict(report_row),
+            "flags": flags,
+            "history": history,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/integrity/resolve/<flag_id>", methods=["POST"])
+def api_integrity_resolve(flag_id):
+    """Mark an integrity flag as resolved."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        data = request.get_json(silent=True) or {}
+        note = data.get("note", "")
+        from components.knowledge.integrity_checker import KnowledgeIntegrityChecker
+        ok = KnowledgeIntegrityChecker.resolve_flag(flag_id, note)
+        return jsonify({"resolved": ok, "flag_id": flag_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/integrity/purge", methods=["POST"])
+def api_integrity_purge():
+    """Purge low-confidence insights. dry_run=true (default) just returns count."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        data = request.get_json(silent=True) or {}
+        threshold = float(data.get("threshold", 0.2))
+        dry_run   = bool(data.get("dry_run", True))
+        from components.knowledge.integrity_checker import KnowledgeIntegrityChecker
+        result = KnowledgeIntegrityChecker.purge_low_confidence(threshold, dry_run)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SUGGESTIONS API — DMAI Self-Development Inbox
 # ═══════════════════════════════════════════════════════════════════════════
