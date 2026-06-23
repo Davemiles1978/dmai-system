@@ -1,0 +1,19 @@
+--- a/components/backup_final_20260316_175710/phase5/P5T6_Implement_compute_rental.py
++++ b/components/backup_final_20260316_175710/phase5/P5T6_Implement_compute_rental.py
+@@ -5,7 +5,7 @@
+ def compute_rental(rental_duration, rental_rate):
+     # Calculate the total rental cost
+-    total_cost = rental_duration * rental_rate
++    total_cost = rental_duration * rental_rate  # Removed the invalid syntax here, for example, a trailing comma was removed
+     return total_cost 
+-  
+\ No newline at end of file
++  
+\ No newline at end of file
+@@ -6,4 +6,4 @@
+ # Example usage:
+ rental_duration = 5  # days
+-rental_rate = 50, 
++rental_rate = 50
+ total_rental_cost = compute_rental(rental_duration, rental_rate)
+ print("Total rental cost: $", total_rental_cost)
