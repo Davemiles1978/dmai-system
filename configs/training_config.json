@@ -1,6 +1,15 @@
 {
   "_comment": "DMAI Training System Configuration — override any value in your environment or .env",
 
+  "database": {
+    "backend": "postgres",
+    "postgres_env_var": "DATABASE_URL",
+    "sqlite_fallback": true,
+    "sqlite_path": "data/dmai.db",
+    "knowledge_db_path": "data/dmai_knowledge.db"
+  },
+
+
   "ai_training": {
     "domains": "all",
     "run_category_order": ["Core", "Accelerator", "Artistic", "Wealth"],

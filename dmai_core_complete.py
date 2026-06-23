@@ -109,7 +109,7 @@ logger = logging.getLogger("dmai.core")
 # ── Render / production flags ────────────────────────────────────────────────
 IS_RENDER = os.environ.get("RENDER", "false").lower() == "true"
 if IS_RENDER:
-    os.environ["DISABLE_NEO4J"] = "true"  # Neo4j fully removed — using SQLite (sqlite_storage.py)
+    os.environ["DISABLE_NEO4J"] = "true"  # Neo4j fully removed — using pg_storage (Postgres w/ SQLite fallback)
     os.environ["DISABLE_AUTO_THREADS"] = "true"
 
 # ── Data path ────────────────────────────────────────────────────────────────
@@ -1277,7 +1277,7 @@ def _mask_key(key: str) -> str:
 
 def _get_db_key(provider_id: str) -> str:
     try:
-        st = components.get("sqlite_storage")
+        st = components.get("db_storage")
         if st and hasattr(st, "get_api_key"):
             return st.get_api_key(provider_id) or ""
     except Exception:
@@ -1287,11 +1287,11 @@ def _get_db_key(provider_id: str) -> str:
 
 def _set_db_key(provider_id: str, key: str):
     try:
-        st = components.get("sqlite_storage")
+        st = components.get("db_storage")
         if st and hasattr(st, "set_api_key"):
             st.set_api_key(provider_id, key)
     except Exception as e:
-        logger.warning("SQLite key store failed: %s", e)
+        logger.warning("DB key store failed: %s", e)
     env_var = next((p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id), None)
     if env_var:
         os.environ[env_var] = key
@@ -1299,11 +1299,11 @@ def _set_db_key(provider_id: str, key: str):
 
 def _delete_db_key(provider_id: str):
     try:
-        st = components.get("sqlite_storage")
+        st = components.get("db_storage")
         if st and hasattr(st, "delete_api_key"):
             st.delete_api_key(provider_id)
     except Exception as e:
-        logger.warning("SQLite key delete failed: %s", e)
+        logger.warning("DB key delete failed: %s", e)
     env_var = next((p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id), None)
     if env_var and env_var in os.environ:
         del os.environ[env_var]
@@ -2277,16 +2277,44 @@ def api_ingestor_ingest():
 # ── Integration: free APIs / repos ────────────────────────────────────────────
 @app.route("/api/integration/free-apis", methods=["GET"])
 def api_integration_free_apis():
-    fh = components.get("free_api_harvester")
-    if fh is None:
-        return jsonify({"available": False}), 503
-    for meth in ("get_status", "list_apis", "get_apis", "get_harvested"):
-        if hasattr(fh, meth):
-            try:
-                return jsonify({"available": True, "free_apis": getattr(fh, meth)()})
-            except Exception as e:
-                return jsonify({"available": True, "error": str(e)}), 200
-    return jsonify({"available": True})
+    # Delegate to AutoRegistrar (replaces FreeAPIHarvester)
+    ar = components.get("auto_registrar")
+    if ar:
+        try:
+            return jsonify({"available": True, "status": ar.get_status(), "pending": ar.get_pending_signups()})
+        except Exception as e:
+            return jsonify({"available": True, "error": str(e)}), 200
+    return jsonify({"available": False, "reason": "AutoRegistrar not loaded"}), 503
+
+
+@app.route("/api/registrar/status", methods=["GET"])
+def api_registrar_status():
+    """Return which free-tier providers are active / pending signup."""
+    ar = components.get("auto_registrar")
+    if ar is None:
+        return jsonify({"error": "AutoRegistrar not loaded"}), 503
+    return jsonify(ar.get_status())
+
+
+@app.route("/api/registrar/pending", methods=["GET"])
+def api_registrar_pending():
+    """Return sorted list of providers needing manual signup."""
+    ar = components.get("auto_registrar")
+    if ar is None:
+        return jsonify({"error": "AutoRegistrar not loaded"}), 503
+    return jsonify({"pending": ar.get_pending_signups()})
+
+
+@app.route("/api/registrar/register", methods=["POST"])
+def api_registrar_register():
+    """Trigger immediate registration attempt (admin-only)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ar = components.get("auto_registrar")
+    if ar is None:
+        return jsonify({"error": "AutoRegistrar not loaded"}), 503
+    result = ar.register_all()
+    return jsonify(result)
 
 
 @app.route("/api/integration/repos", methods=["GET"])
@@ -2391,6 +2419,14 @@ def api_master_set_goal():
 
 
 def _start_background_services():
+    # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
+    try:
+        from components.pg_storage import get_storage as _get_pg_storage
+        components["db_storage"] = _get_pg_storage()
+        logger.info("db_storage initialised: %s", type(components["db_storage"]).__name__)
+    except Exception as e:
+        logger.warning("db_storage init failed: %s", e)
+
     # ── Knowledge sources — start on ALL environments (free-tier only) ─────
     km = components.get("knowledge_manager")
     if km:
@@ -2448,6 +2484,16 @@ def _start_background_services():
             logger.info("AITutorAutoConfigurator health loop started")
         except Exception as e:
             logger.warning("AITutorAutoConfigurator loop failed: %s", e)
+
+    # ── AutoRegistrar (free-tier API key acquisition) ──────────────────
+    try:
+        from components.integration.auto_registrar import AutoRegistrar as _AutoReg
+        _ar = _AutoReg(dmai_app=None)
+        components["auto_registrar"] = _ar
+        _ar.start()
+        logger.info("AutoRegistrar started")
+    except Exception as e:
+        logger.warning("AutoRegistrar startup failed: %s", e)
 
     # ── Self-management (SelfHealer + KaizenExecutor + RenderDeployHook) ───
     try:
