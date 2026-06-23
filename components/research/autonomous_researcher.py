@@ -61,12 +61,26 @@ def _extract_entities(text: str, max_entities: int = 5) -> list[str]:
 
 
 class AutonomousResearcher:
-    """DMAI's autonomous research system for deep topic mastery"""
-    
+    """DMAI's autonomous research system for deep topic mastery.
+
+    Memory-first: before any external search, DMAI queries her own
+    knowledge base. Only goes external if memory confidence < 0.55.
+    """
+
     def __init__(self, si_core=None):
         self.si_core = si_core
         self.research_queue = []
         self.completed_research = []
+        # Load memory retrieval at init
+        self._memory_recall = None
+        try:
+            import sys, os
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+            from components.memory_retrieval import recall as _recall
+            self._memory_recall = _recall
+            print("AutonomousResearcher: MemoryRetrieval loaded — memory-first mode active")
+        except Exception as _me:
+            print(f"AutonomousResearcher: MemoryRetrieval unavailable ({_me}) — external-only mode")
         
     def search_github(self, topic: str) -> List[Dict]:
         """Search GitHub for repositories related to topic"""
@@ -103,9 +117,43 @@ class AutonomousResearcher:
         return []
     
     def research_topic_deep(self, topic: str, depth: str = 'comprehensive') -> Dict:
-        """Deep research on a topic using multiple sources"""
+        """Deep research on a topic — memory-first, external fallback."""
         print(f"🔬 Researching: {topic} (Depth: {depth})")
-        
+
+        # ── MEMORY FIRST ──────────────────────────────────────────────────────
+        if self._memory_recall is not None:
+            try:
+                mem = self._memory_recall(topic)
+                if mem.sufficient:
+                    print(f"   ✅ Memory HIT (conf={mem.confidence:.2f}, src={mem.source}): {topic[:50]} — skipping external")
+                    domain = _classify_domain(topic)
+                    entities = _extract_entities(mem.best_text() + " " + topic)
+                    self._persist_discovery(domain, entities, "memory_recall", mem.best_text()[:200])
+                    if self.si_core and hasattr(self.si_core, 'add_insight'):
+                        self.si_core.add_insight(
+                            domain=domain, concept=topic, source='memory_recall',
+                            confidence=mem.confidence,
+                            metadata={'entities': entities, 'mastery_score': mem.confidence},
+                        )
+                    from datetime import datetime as _dt
+                    return {
+                        'topic': topic,
+                        'sources': {'memory': mem.to_dict()},
+                        'synthesis': {
+                            'summary': mem.best_text()[:300],
+                            'mastery_score': min(mem.confidence, 0.95),
+                            'confidence': mem.confidence,
+                            'memory_hit': True,
+                        },
+                        'discovery': {'topic': topic, 'domain': domain, 'from_memory': True},
+                        'completed_at': _dt.now().isoformat(),
+                        'depth': depth,
+                        'from_memory': True,
+                    }
+            except Exception as _me:
+                print(f"   ⚠️ Memory recall error: {_me} — falling back to external")
+
+        # ── EXTERNAL SEARCH ───────────────────────────────────────────────────
         sources = {
             'github': self.search_github(topic),
             'huggingface': self.search_huggingface(topic),
@@ -216,21 +264,46 @@ class AutonomousResearcher:
         if topics is None:
             topics = list(DEFAULT_TOPICS)
 
-        print(f"Autonomous research loop started on {len(topics)} base topics (cycling forever)")
+        # Cross-process dedup: skip topics already researched today
+        import json as _rj
+        seen_file = _Path("data/research/seen_topics.json")
+        seen_file.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            seen_topics = set(_rj.loads(seen_file.read_text())) if seen_file.exists() else set()
+        except Exception:
+            seen_topics = set()
+
+        print(f"Autonomous research loop started on {len(topics)} base topics (seen={len(seen_topics)}, cycling forever)")
         cycle = 0
         while True:
             try:
-                # Rotate through base topics
                 topic = topics[cycle % len(topics)]
+                today = __import__('datetime').datetime.utcnow().strftime('%Y-%m-%d')
+                dedup_key = f"{topic.lower().strip()}::{today}"
+
+                if dedup_key in seen_topics:
+                    print(f"Research cycle {cycle}: SKIP (already done today): {topic[:50]}")
+                    cycle += 1
+                    time.sleep(30)
+                    continue
+
                 result = self.research_topic_deep(topic)
-                print(f"Research cycle {cycle}: {topic} (mastery={result['synthesis']['mastery_score']:.2f})")
+                from_mem = result.get('from_memory', False)
+                print(f"Research cycle {cycle}: {topic[:50]} (mastery={result['synthesis']['mastery_score']:.2f}, mem={'yes' if from_mem else 'no'})")
+
+                seen_topics.add(dedup_key)
+                try:
+                    seen_file.write_text(_rj.dumps(sorted(seen_topics)))
+                except Exception:
+                    pass
 
                 # Every 5 cycles, ingest any new nightly training data
                 if cycle % 5 == 0:
                     self._ingest_nightly_training()
 
                 cycle += 1
-                time.sleep(300)  # 5 minutes between topics
+                # Memory hits = shorter pause (2 min vs 5 min for external)
+                time.sleep(120 if from_mem else 300)
             except Exception as e:
                 print(f"Researcher loop error (cycle {cycle}): {e}")
                 time.sleep(60)

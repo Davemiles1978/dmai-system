@@ -481,6 +481,10 @@
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 6h8M2 9h9M2 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           Study Progress
         </div>
+        <div class="nav-item" onclick="nav('selfgen')" id="nav-selfgen">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Self-Generation
+        </div>
         <div class="nav-item" onclick="nav('circuit')" id="nav-circuit">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M4 7.5h2l1-3 2 6 1-3h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Circuit Breakers
@@ -607,6 +611,53 @@
           <button class="btn-action" onclick="loadStudyProgress()">↻ Refresh</button>
           <button class="btn-action secondary" onclick="triggerStudyCycle()">▶ Trigger Learning Cycle</button>
           <button class="btn-action secondary" onclick="triggerResearch()">🔬 Trigger Research</button>
+        </div>
+      </div>
+
+      <!-- ── Self-Generation ────────────────────────────────────────── -->
+      <div class="section" id="sec-selfgen">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Self-Generation
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Memory Query</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 .5rem">Query DMAI's internal knowledge base. She checks this before any external search.</p>
+          <div style="display:flex;gap:.5rem;align-items:center;">
+            <input id="mem-query" type="text" placeholder="e.g. reinforcement learning policy gradient"
+              style="flex:1;padding:.4rem .6rem;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;" />
+            <button class="btn-action" onclick="queryMemory()">&#129504; Recall</button>
+          </div>
+          <div id="mem-result" style="margin-top:.75rem;font-size:12px;color:var(--text-muted);">Result will appear here.</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Generate Component</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 .5rem">Ask DMAI to write a new Python component from a description.</p>
+          <input id="gen-name" type="text" placeholder="component_name (snake_case)"
+            style="width:100%;padding:.4rem .6rem;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;box-sizing:border-box;margin-bottom:.5rem" />
+          <textarea id="gen-desc" rows="3" placeholder="Description of what this component should do..."
+            style="width:100%;padding:.4rem .6rem;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical;margin-bottom:.5rem"></textarea>
+          <div style="display:flex;gap:.5rem;">
+            <button class="btn-action secondary" onclick="generateComponent(true)">Dry Run</button>
+            <button class="btn-action" onclick="generateComponent(false)">&#9881; Generate</button>
+          </div>
+          <div id="gen-result" style="margin-top:.75rem;font-size:12px;color:var(--text-muted);">Result will appear here.</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Kaizen Auto-Repair</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 .5rem">Trigger one autonomous repair cycle. DMAI attempts to fix her own pending issues.</p>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn-action" onclick="runAutoRepair()">&#128295; Run Auto-Repair</button>
+            <button class="btn-action secondary" onclick="loadRepairStats()">Stats</button>
+          </div>
+          <div id="repair-result" style="margin-top:.75rem;font-size:12px;color:var(--text-muted);">Stats will appear here.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Code Writer History</div>
+          <div id="cw-history" style="font-size:12px;color:var(--text-muted);margin-top:.5rem;">Loading...</div>
+          <div class="action-row" style="margin-top:.75rem;">
+            <button class="btn-action" onclick="loadCWHistory()">&#8635; Refresh</button>
+          </div>
         </div>
       </div>
 
@@ -801,6 +852,7 @@
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if (id === 'study') setTimeout(loadStudyProgress, 50);
+    if (id === 'selfgen') setTimeout(loadCWHistory, 50);
     document.getElementById('sec-' + id).classList.add('active');
     document.getElementById('nav-' + id).classList.add('active');
     if (id === 'circuit') loadCBs();
@@ -1298,6 +1350,80 @@
       toast('Learning cycle triggered', 'info');
       setTimeout(() => loadStudyProgress(), 5000);
     } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  // ── Memory & Self-Generation ────────────────────────────────────────────────
+  async function queryMemory() {
+    const q = document.getElementById('mem-query').value.trim();
+    if (!q) { toast('Enter a query', 'warn'); return; }
+    const el = document.getElementById('mem-result');
+    el.textContent = 'Querying memory...';
+    try {
+      const d = await api('/api/memory/recall', { method:'POST', body: JSON.stringify({query:q, top_k:5}) });
+      if (d.error) { el.textContent = 'Error: ' + d.error; return; }
+      const conf = (d.confidence*100).toFixed(0);
+      const icon = d.sufficient ? '&#9989;' : '&#9744;';
+      el.innerHTML = `<strong>Confidence: ${conf}% | Source: ${d.source} | ${icon} ${d.sufficient ? 'Sufficient (no external needed)' : 'Partial — external search used'}</strong><br/>` +
+        (d.hits||[]).slice(0,3).map(h => `<div style="margin:.3rem 0;padding:.3rem;background:rgba(255,255,255,.04);border-radius:4px;word-break:break-word;">${JSON.stringify(h).slice(0,200)}</div>`).join('');
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function generateComponent(dryRun) {
+    const name = document.getElementById('gen-name').value.trim();
+    const desc = document.getElementById('gen-desc').value.trim();
+    const el = document.getElementById('gen-result');
+    if (!name || !desc) { toast('Name and description required', 'warn'); return; }
+    el.textContent = dryRun ? 'Dry run...' : 'Generating component (up to 60s)...';
+    try {
+      const d = await api('/api/code-writer/generate', { method:'POST', body: JSON.stringify({component_name:name, description:desc, dry_run:dryRun}) });
+      if (d.ok) {
+        el.innerHTML = `<strong>${dryRun ? 'Dry run OK' : 'Generated!'}</strong> — ${d.lines||d.generated_lines||'?'} lines &rarr; <code>${d.path||'preview only'}</code>`;
+        if (!dryRun) toast('Component generated: ' + name, 'info');
+      } else {
+        el.textContent = 'Failed: ' + (d.error||'Unknown error');
+        toast('Generation failed', 'error');
+      }
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function runAutoRepair() {
+    const el = document.getElementById('repair-result');
+    el.textContent = 'Running auto-repair cycle...';
+    try {
+      const d = await api('/api/kaizen/auto-repair', { method:'POST' });
+      if (d.ok) {
+        const r = d.result||{};
+        el.innerHTML = `<strong>Cycle complete</strong> &mdash; Fixed: ${r.repaired||0} | Failed: ${r.failed||0} | Skipped: ${r.skipped||0}`;
+        toast('Auto-repair: ' + (r.repaired||0) + ' fixed', 'info');
+      } else { el.textContent = 'Failed: ' + (d.error||'?'); }
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadRepairStats() {
+    const el = document.getElementById('repair-result');
+    try {
+      const d = await api('/api/kaizen/repair-stats');
+      el.innerHTML = `Total: <strong>${d.total||0}</strong> | ` +
+        Object.entries(d.by_status||{}).map(([s,n])=>`${s}: <strong>${n}</strong>`).join(' | ');
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadCWHistory() {
+    const el = document.getElementById('cw-history');
+    if (!el) return;
+    try {
+      const d = await api('/api/code-writer/history?limit=10');
+      if (!d.records || !d.records.length) { el.textContent = 'No code generation history yet.'; return; }
+      el.innerHTML = d.records.map(r =>
+        `<div style="margin:.25rem 0;padding:.3rem;background:rgba(255,255,255,.04);border-radius:4px;">
+          <span style="color:var(--accent)">${(r.ts||'?').slice(0,19)}</span>
+          &nbsp;|&nbsp;${r.action||'?'}
+          &nbsp;|&nbsp;<code>${r.file||'?'}</code>
+          &nbsp;|&nbsp;${r.lines||'?'} lines
+          &nbsp;|&nbsp;${r.origin||'?'}
+        </div>`
+      ).join('');
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
   }
 
   async function triggerResearch() {

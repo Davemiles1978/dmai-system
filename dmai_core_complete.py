@@ -359,6 +359,41 @@ try:
 except Exception as e:
     logger.warning("KPIEvaluator failed: %s", e)
 
+# ── MemoryRetrieval — patch into SICore so all components can recall() ─────────────
+try:
+    from components.memory_retrieval import patch_si_core as _patch_memory, recall as _recall_fn
+    _si = components.get("si_core")
+    if _si:
+        _patch_memory(_si)
+    # Also make recall available as a standalone component
+    components["memory_recall"] = _recall_fn
+    logger.info("MemoryRetrieval patched into SICore")
+except Exception as e:
+    logger.warning("MemoryRetrieval failed: %s", e)
+
+# ── CodeWriter — self-generation engine ─────────────────────────────────────────────
+try:
+    from components.code_writer import CodeWriter
+    components["code_writer"] = CodeWriter(
+        ai_hub  = components.get("ai_hub"),
+        si_core = components.get("si_core"),
+    )
+    logger.info("CodeWriter initialised")
+except Exception as e:
+    logger.warning("CodeWriter failed: %s", e)
+
+# ── KaizenAutoRepair — autonomous fix executor ───────────────────────────────────
+try:
+    from components.kaizen_auto_repair import KaizenAutoRepair
+    components["kaizen_auto_repair"] = KaizenAutoRepair(
+        code_writer      = components.get("code_writer"),
+        memory_retrieval = components.get("memory_recall"),
+        si_core          = components.get("si_core"),
+    )
+    logger.info("KaizenAutoRepair initialised")
+except Exception as e:
+    logger.warning("KaizenAutoRepair failed: %s", e)
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ── UNWIRED COMPONENTS — full wiring (instantiation order respects deps) ─────
 # ═══════════════════════════════════════════════════════════════════════════
@@ -2210,6 +2245,97 @@ def api_kaizen_cycle_status():
     return _comp_status("kaizen_integrator")
 
 
+@app.route("/api/kaizen/auto-repair", methods=["POST"])
+def api_kaizen_auto_repair():
+    """Trigger an immediate Kaizen auto-repair cycle."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    kar = components.get("kaizen_auto_repair")
+    if kar is None:
+        return jsonify({"error": "KaizenAutoRepair not loaded"}), 503
+    try:
+        result = kar.run_repair_cycle()
+        return jsonify({"ok": True, "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/kaizen/repair-stats", methods=["GET"])
+def api_kaizen_repair_stats():
+    kar = components.get("kaizen_auto_repair")
+    if kar is None:
+        return jsonify({"error": "KaizenAutoRepair not loaded"}), 503
+    return jsonify(kar.get_stats())
+
+
+# ── Memory Retrieval ───────────────────────────────────────────────────────────────────
+@app.route("/api/memory/recall", methods=["POST"])
+def api_memory_recall():
+    """Query DMAI's internal knowledge base."""
+    data  = request.get_json(silent=True) or {}
+    query = data.get("query", "").strip()
+    top_k = int(data.get("top_k", 5))
+    if not query:
+        return jsonify({"error": "query required"}), 400
+    recall_fn = components.get("memory_recall")
+    if recall_fn is None:
+        return jsonify({"error": "MemoryRetrieval not loaded"}), 503
+    try:
+        result = recall_fn(query, top_k=top_k)
+        return jsonify(result.to_dict())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── CodeWriter (self-generation) ────────────────────────────────────────────────────
+@app.route("/api/code-writer/generate", methods=["POST"])
+def api_code_writer_generate():
+    """Ask DMAI to generate a new component."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data = request.get_json(silent=True) or {}
+    cw = components.get("code_writer")
+    if cw is None:
+        return jsonify({"error": "CodeWriter not loaded"}), 503
+    name  = data.get("component_name", "")
+    desc  = data.get("description", "")
+    reqs  = data.get("requirements", [])
+    dry   = data.get("dry_run", False)
+    if not name or not desc:
+        return jsonify({"error": "component_name and description required"}), 400
+    result = cw.generate_component(name, desc, reqs, dry_run=dry)
+    return jsonify(result)
+
+
+@app.route("/api/code-writer/history", methods=["GET"])
+def api_code_writer_history():
+    cw = components.get("code_writer")
+    if cw is None:
+        return jsonify({"error": "CodeWriter not loaded"}), 503
+    limit = int(request.args.get("limit", 20))
+    return jsonify({"records": cw.get_history(limit), "total": len(cw.get_history(limit))})
+
+
+@app.route("/api/code-writer/patch", methods=["POST"])
+def api_code_writer_patch():
+    """Patch an existing file."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data = request.get_json(silent=True) or {}
+    cw = components.get("code_writer")
+    if cw is None:
+        return jsonify({"error": "CodeWriter not loaded"}), 503
+    result = cw.patch_file(
+        file_path   = data.get("file_path", ""),
+        old_string  = data.get("old_string", ""),
+        new_string  = data.get("new_string", ""),
+        origin      = data.get("origin", "api_request"),
+        description = data.get("description", ""),
+        dry_run     = data.get("dry_run", False),
+    )
+    return jsonify(result)
+
+
 # ── Autonomous research ───────────────────────────────────────────────────────
 @app.route("/api/research/autonomous/status", methods=["GET"])
 def api_research_autonomous_status():
@@ -2762,6 +2888,15 @@ def _start_background_services():
                 logger.info("StageAwareLearningOrchestrator continuous learning started")
         except Exception as e:
             logger.warning("StageAwareLearningOrchestrator auto-start failed: %s", e)
+
+    # ── KaizenAutoRepair — start autonomous fix loop ───────────────────────────
+    _kar = components.get("kaizen_auto_repair")
+    if _kar:
+        try:
+            _kar.start_repair_loop()
+            logger.info("KaizenAutoRepair loop started")
+        except Exception as e:
+            logger.warning("KaizenAutoRepair start failed: %s", e)
 
     # ── Self-management (SelfHealer + KaizenExecutor + RenderDeployHook) ───
     try:
