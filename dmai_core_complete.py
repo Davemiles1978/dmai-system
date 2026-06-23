@@ -3370,6 +3370,159 @@ def api_suggestions_delete(sid):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# ================================================================
+# STAGE PROGRESSION ENGINE
+# ================================================================
+
+_STAGE_NAMES = ["Baby","Child","Teenager","Adult","Expert","Master","Transcendent","Infinite"]
+
+_STAGE_THRESHOLDS = {
+    "Baby":         (      0,     0,     0, 0.00),
+    "Child":        (   5000,   500,   100, 0.10),
+    "Teenager":     (  30000,  2000,   500, 0.20),
+    "Adult":        (  80000,  5000,  1500, 0.35),
+    "Expert":       ( 150000, 10000,  3000, 0.50),
+    "Master":       ( 300000, 20000,  6000, 0.65),
+    "Transcendent": ( 600000, 40000, 12000, 0.80),
+    "Infinite":     (1200000, 80000, 25000, 0.92),
+}
+
+_DB_PATH_STAGE = "data/dmai_knowledge.db"
+
+
+def _ensure_system_state_table():
+    import sqlite3 as _ss3
+    try:
+        conn = _ss3.connect(_DB_PATH_STAGE)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS system_state ("
+            "key TEXT PRIMARY KEY, "
+            "value TEXT NOT NULL, "
+            "updated_at TEXT NOT NULL DEFAULT (datetime('now')))"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS stage_history ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "stage TEXT NOT NULL, prev_stage TEXT, "
+            "insights INTEGER, capabilities INTEGER, vocab INTEGER, "
+            "avg_kpi REAL, within_pct REAL, "
+            "recorded_at TEXT NOT NULL DEFAULT (datetime('now')))"
+        )
+        for _k, _v in [("learning_stage","Baby"),("stage_within_pct","0.0"),("stage_last_updated","never")]:
+            conn.execute(
+                "INSERT OR IGNORE INTO system_state (key,value,updated_at) VALUES (?,?,datetime('now'))",
+                (_k, _v)
+            )
+        conn.commit()
+        conn.close()
+        logger.info("system_state table ready")
+    except Exception as _e:
+        logger.warning("_ensure_system_state_table: %s", _e)
+
+
+def _get_db_metrics():
+    import sqlite3 as _sm3
+    m = {"insights": 0, "capabilities": 0, "vocab": 0, "avg_kpi": 0.0}
+    try:
+        conn = _sm3.connect(_DB_PATH_STAGE)
+        conn.row_factory = _sm3.Row
+        m["insights"]     = conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
+        m["capabilities"] = conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
+        try:
+            m["vocab"] = conn.execute("SELECT COUNT(*) as c FROM vocabulary").fetchone()["c"]
+        except Exception:
+            pass
+        conn.close()
+    except Exception as _e:
+        logger.debug("_get_db_metrics: %s", _e)
+    try:
+        si = components.get("si_core")
+        if si and hasattr(si, "current_kpis"):
+            _ks = ["skill_acquisition_rate","transfer_learning_rate","zero_shot_success_count",
+                   "agentic_capability_score","recursive_self_improvement_rate",
+                   "sample_efficiency_trend","metacognition_accuracy","multi_modal_integration_score"]
+            _vs = [min(float(si.current_kpis.get(k, 0.0)), 1.0) for k in _ks]
+            if _vs:
+                m["avg_kpi"] = round(sum(_vs) / len(_vs), 4)
+    except Exception:
+        pass
+    return m
+
+
+def _calculate_learning_stage(m):
+    ins, caps, vocab, kpi = m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"]
+    achieved = "Baby"
+    for _s in _STAGE_NAMES:
+        t = _STAGE_THRESHOLDS[_s]
+        if ins >= t[0] and caps >= t[1] and vocab >= t[2] and kpi >= t[3]:
+            achieved = _s
+    idx = _STAGE_NAMES.index(achieved)
+    if idx < len(_STAGE_NAMES) - 1:
+        ct = _STAGE_THRESHOLDS[achieved]
+        nt = _STAGE_THRESHOLDS[_STAGE_NAMES[idx + 1]]
+        def _r(v, lo, hi):
+            span = hi - lo
+            return min((v - lo) / span, 1.0) if span > 0 else 1.0
+        within_pct = round(min(
+            _r(ins,   ct[0], nt[0]),
+            _r(caps,  ct[1], nt[1]),
+            _r(vocab, ct[2], nt[2]),
+            _r(kpi,   ct[3], nt[3]),
+        ) * 100, 1)
+    else:
+        within_pct = 100.0
+    return achieved, within_pct
+
+
+def _write_stage_to_db(stage, within_pct, m):
+    import sqlite3 as _sw3, datetime as _sdt
+    try:
+        conn = _sw3.connect(_DB_PATH_STAGE)
+        conn.row_factory = _sw3.Row
+        now = _sdt.datetime.utcnow().isoformat()
+        row = conn.execute("SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
+        prev = row["value"] if row else None
+        def _up(k, v):
+            conn.execute(
+                "INSERT INTO system_state (key,value,updated_at) VALUES (?,?,?) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
+                (k, str(v), now)
+            )
+        _up("learning_stage",     stage)
+        _up("stage_within_pct",   within_pct)
+        _up("stage_insights",     m["insights"])
+        _up("stage_capabilities", m["capabilities"])
+        _up("stage_vocab",        m["vocab"])
+        _up("stage_avg_kpi",      m["avg_kpi"])
+        _up("stage_last_updated", now)
+        if prev != stage:
+            conn.execute(
+                "INSERT INTO stage_history "
+                "(stage,prev_stage,insights,capabilities,vocab,avg_kpi,within_pct,recorded_at) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (stage, prev, m["insights"], m["capabilities"],
+                 m["vocab"], m["avg_kpi"], within_pct, now)
+            )
+            logger.info("STAGE ADVANCE: %s -> %s (ins=%d caps=%d vocab=%d kpi=%.3f)",
+                        prev, stage, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
+        conn.commit()
+        conn.close()
+    except Exception as _e:
+        logger.warning("_write_stage_to_db: %s", _e)
+
+
+def _run_stage_progression():
+    try:
+        m = _get_db_metrics()
+        stage, within_pct = _calculate_learning_stage(m)
+        _write_stage_to_db(stage, within_pct, m)
+        logger.debug("Stage: %s %.1f%% ins=%d caps=%d vocab=%d kpi=%.3f",
+                     stage, within_pct, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
+    except Exception as _e:
+        logger.warning("_run_stage_progression: %s", _e)
+
+
 def _ensure_suggestions_table():
     """Create suggestions table if it doesn't exist."""
     import sqlite3 as _sq3
@@ -3415,20 +3568,29 @@ def api_heartbeat():
         c.row_factory = _hbsq.Row
         return c
 
-    # 1 — Learning stage
-    learning_stage = "Baby"
+    # 1 — Learning stage + within-stage progress from system_state
+    learning_stage   = "Baby"
+    stage_within_pct = 0.0
     try:
         _c = _hb_conn()
-        row = _c.execute("SELECT value FROM system_state WHERE key='learning_stage' LIMIT 1").fetchone()
-        if row:
-            learning_stage = row["value"]
+        _ss_rows = _c.execute(
+            "SELECT key, value FROM system_state WHERE key IN "
+            "('learning_stage','stage_within_pct')"
+        ).fetchall()
+        _ss = {r["key"]: r["value"] for r in _ss_rows}
         _c.close()
+        learning_stage   = _ss.get("learning_stage", "Baby")
+        stage_within_pct = float(_ss.get("stage_within_pct", 0.0))
     except Exception:
         pass
 
-    stages = ["Baby", "Child", "Teenager", "Adult", "Expert", "Master", "Transcendent", "Infinite"]
+    stages      = ["Baby","Child","Teenager","Adult","Expert","Master","Transcendent","Infinite"]
     stage_index = stages.index(learning_stage) if learning_stage in stages else 0
-    stage_progress_pct = round((stage_index / (len(stages) - 1)) * 100, 1)
+    _per_slot          = 100.0 / (len(stages) - 1)
+    stage_progress_pct = round(
+        stage_index * _per_slot + (stage_within_pct / 100.0) * _per_slot, 2
+    )
+    stage_progress_pct = min(stage_progress_pct, 100.0)
 
     # 2 — Active research nodes last 24 h
     active_nodes = []
@@ -3519,10 +3681,13 @@ def api_heartbeat():
     except Exception:
         pass
 
+    _next_stage = stages[stage_index + 1] if stage_index < len(stages) - 1 else None
     return jsonify({
         "learning_stage": learning_stage,
         "stage_index": stage_index,
         "stage_progress_pct": stage_progress_pct,
+        "stage_within_pct": stage_within_pct,
+        "next_stage": _next_stage,
         "stages": stages,
         "active_research_nodes": active_nodes,
         "skills_learned_24h": skills_count_24h,
@@ -3537,6 +3702,7 @@ def api_heartbeat():
 
 
 _ensure_suggestions_table()
+_ensure_system_state_table()
 
 def _start_background_services():
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
@@ -3770,6 +3936,21 @@ def _start_background_services():
         logger.info("VocabularyIngester background loop started (30m interval)")
     except Exception as e:
         logger.warning("VocabularyIngester startup failed: %s", e)
+
+    # -- Stage progression loop (every 5 minutes) --
+    try:
+        def _stage_progression_loop():
+            import time as _spt
+            _spt.sleep(30)
+            while True:
+                _run_stage_progression()
+                _spt.sleep(300)
+        _sp_thread = threading.Thread(
+            target=_stage_progression_loop, daemon=True, name="dmai-stage-progress")
+        _sp_thread.start()
+        logger.info("Stage progression loop started (5m interval)")
+    except Exception as _e:
+        logger.warning("Stage progression loop failed: %s", _e)
 
     # ── Suggestion self-generation loop ───────────────────────────────────────
     try:
