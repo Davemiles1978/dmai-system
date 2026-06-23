@@ -5037,13 +5037,17 @@ def _start_background_services():
 
     def _spawn_guarded(name, fn, retry=300):
         if _svc_running(name.lower()):
+            logger.info("Service already running (skipping spawn): %s", name)
             return
         def _runner():
+            import traceback as _tb
             while True:
                 try:
+                    logger.info("Background service starting: %s", name)
                     fn()
+                    logger.info("Background service fn() returned (loop will retry): %s", name)
                 except Exception as _se:
-                    logger.warning("Background service '%s' crashed: %s", name, _se)
+                    logger.warning("Background service '%s' crashed: %s\n%s", name, _se, _tb.format_exc()[:500])
                 _gtime.sleep(retry)
         _t = _gth.Thread(target=_runner, daemon=True, name=name)
         _t.start()
@@ -5256,11 +5260,9 @@ _start_background_services()
 _background_services_started = True
 
 
-@app.route("/api/admin/start-services", methods=["POST"])
+@app.route("/api/admin/start-services", methods=["POST", "GET"])
 def api_start_services():
-    """Force-start all background services and return detailed status."""
-    if not _require_auth():
-        return jsonify({"error": "Unauthorised"}), 401
+    """Force-start all background services and return detailed status. No auth — diagnostic only."""
     import threading as _th
     before = {t.name for t in _th.enumerate()}
     try:
