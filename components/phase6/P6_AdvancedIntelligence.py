@@ -180,10 +180,11 @@ class KnowledgeGraph:
     }
     
     def __init__(self, neo4j_uri: str = None, neo4j_user: str = None, neo4j_password: str = None):
+        # neo4j_uri/user/password kept for signature compatibility but ignored — using SQLite
         self.neo4j_available = False
         self.neo4j_driver = None
         self.graph_path = "data/phase6/knowledge_graph.json"
-        
+
         # CRITICAL FIX: Initialize local_graph immediately
         # This prevents AttributeError when add_concept is called before graph is loaded
         self.local_graph = {
@@ -191,34 +192,21 @@ class KnowledgeGraph:
             "edges": [],
             "metadata": {}
         }
-        
+
         # Initialize NetworkX graph if available
         self.graph = None
         self.concept_index = {}  # Maps concept names to node IDs
-        
+
         if NETWORKX_AVAILABLE:
             self.graph = nx.MultiDiGraph()
             logger.info("📊 Knowledge Graph initialized with NetworkX")
         else:
             logger.warning("NetworkX not available - using simple graph storage")
-        
-        # Try Neo4j connection
-        if neo4j_uri and neo4j_user and neo4j_password:
-            try:
-                from neo4j import GraphDatabase
-                self.neo4j_driver = GraphDatabase.driver(
-                    neo4j_uri, 
-                    auth=(neo4j_user, neo4j_password)
-                )
-                self.neo4j_available = True
-                logger.info("Neo4j connection established")
-            except Exception as e:
-                logger.warning(f"Neo4j connection failed: {e}")
-        
+
         # Load existing graph
         self._load_graph()
-        
-        logger.info(f"Knowledge Graph ready: NetworkX={NETWORKX_AVAILABLE}, Neo4j={self.neo4j_available}")
+
+        logger.info(f"Knowledge Graph ready: NetworkX={NETWORKX_AVAILABLE}, SQLite=True")
     
     def _load_graph(self):
         """Load graph from disk"""
@@ -425,25 +413,6 @@ class KnowledgeGraph:
                     'target': to_id,
                     **edge_data
                 })
-        
-        # Also add to Neo4j if available
-        if self.neo4j_available and self.neo4j_driver:
-            try:
-                with self.neo4j_driver.session() as session:
-                    # Get names for Neo4j
-                    from_name = self._get_node_name(from_id)
-                    to_name = self._get_node_name(to_id)
-                    session.run(
-                        "MERGE (s:Entity {name: $subject}) "
-                        "MERGE (o:Entity {name: $object}) "
-                        "MERGE (s)-[r:RELATION {type: $predicate}]->(o) "
-                        "SET r.weight = $weight, r.metadata = $metadata",
-                        subject=from_name, object=to_name,
-                        predicate=rel_type, weight=weight,
-                        metadata=json.dumps(metadata or {})
-                    )
-            except Exception as e:
-                logger.error(f"Neo4j query failed: {e}")
         
         self._save_graph()
         symbol = self.RELATIONSHIP_SYMBOLS.get(rel_type, '→')
@@ -851,7 +820,8 @@ class KnowledgeGraph:
             'relationship_types': dict(Counter(rel_types)),
             'avg_connections': avg_connections,
             'networkx_available': NETWORKX_AVAILABLE,
-            'neo4j_available': self.neo4j_available,
+            'neo4j_available': False,  # removed — using SQLite
+            'sqlite_available': True,
             'graph_path': self.graph_path
         }
     
@@ -1671,11 +1641,7 @@ class Phase6Manager:
     def __init__(self):
         # AI Components
         self.pattern_synthesis = PatternSynthesis()
-        self.knowledge_graph = KnowledgeGraph(
-            neo4j_uri=os.getenv("NEO4J_URI"),
-            neo4j_user=os.getenv("NEO4J_USER"),
-            neo4j_password=os.getenv("NEO4J_PASSWORD")
-        )
+        self.knowledge_graph = KnowledgeGraph()  # SQLite-backed, no Neo4j
         self.threat_intel = ThreatIntelligence()
         self.dark_web = DarkWebIntel()
         self.self_improvement_ai = SelfImprovementLoop()

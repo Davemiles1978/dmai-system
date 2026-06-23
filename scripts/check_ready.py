@@ -82,7 +82,7 @@ OPTIONAL_PACKAGES = [
     ("anthropic",         "Anthropic SDK"),
     ("google.generativeai", "Google Gemini SDK"),
     ("psycopg2",          "PostgreSQL driver"),
-    ("neo4j",             "Neo4j driver"),
+    # ("neo4j", "Neo4j driver"),  # Removed — using SQLite
     ("telegram",          "Telegram bot"),
     ("replicate",         "Replicate SDK"),
     ("pinecone",          "Pinecone vector DB"),

@@ -109,7 +109,7 @@ class APIKeyHarvester:
     }
     
     def __init__(self, neo4j_manager=None, data_dir: str = "data/keys"):
-        self.neo4j = neo4j_manager
+        self.neo4j = None  # Neo4j removed — using SQLite
         self.data_dir = data_dir
         self.validated_keys: Dict[str, List[APIKey]] = {}
         self.blacklist: Set[str] = set()
@@ -362,9 +362,8 @@ class APIKeyHarvester:
             result['harvested'] = len(all_keys)
             result['validated'] = len(valid_keys)
             
-            # Save to Neo4j if available
-            if self.neo4j:
-                self._store_in_neo4j(valid_keys)
+            # Persist to SQLite
+            self._store_in_sqlite(valid_keys)
             
             # Save to disk
             self._save_keys()
@@ -373,39 +372,13 @@ class APIKeyHarvester:
         
         return result
     
-    def _store_in_neo4j(self, keys: List[APIKey]):
-        """Store validated keys in Neo4j"""
-        # Safe check for neo4j availability
-        if not self.neo4j:
-            return
-        
-        # Check if neo4j has driver and is available
-        has_driver = hasattr(self.neo4j, 'driver') and self.neo4j.driver is not None
-        if not has_driver:
-            logger.warning("Neo4j driver not available")
-            return
-        
+    def _store_in_sqlite(self, keys: List[APIKey]):
+        """Persist validated API keys to SQLite."""
         try:
-            with self.neo4j.driver.session() as session:
-                for key in keys:
-                    session.run("""
-                        MERGE (k:APIKey {key: $key})
-                        SET k.service = $service,
-                            k.source = $source,
-                            k.validated = $validated,
-                            k.created_at = $created_at,
-                            k.last_used = $last_used
-                    """, {
-                        'key': key.key,
-                        'service': key.service,
-                        'source': key.source,
-                        'validated': key.validated,
-                        'created_at': key.created_at,
-                        'last_used': None
-                    })
-            logger.info(f"💾 Stored {len(keys)} keys in Neo4j")
+            from components.sqlite_storage import get_sqlite_storage
+            get_sqlite_storage().store_api_keys(keys)
         except Exception as e:
-            logger.error(f"Failed to store keys in Neo4j: {e}")
+            logger.warning(f"SQLite key store failed (non-fatal): {e}")
     
     def get_key(self, service: str) -> Optional[str]:
         """Get a valid key for a service (round-robin)"""

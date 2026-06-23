@@ -93,7 +93,7 @@ class SystemHealthDashboard:
         # Knowledge Graph
         results['knowledge_graph'] = self._status(
             hasattr(ev, 'knowledge_graph') and ev.knowledge_graph is not None if ev else False,
-            "Neo4j + local fallback"
+            "SQLite + local file fallback"
         )
         
         # Pattern Synthesis
@@ -472,11 +472,11 @@ class SystemHealthDashboard:
             f"Size: {db_path.stat().st_size / 1024 / 1024:.1f}MB" if db_path.exists() else "Not found"
         )
         
-        # Neo4j
-        neo4j_uri = os.getenv('NEO4J_URI')
-        results['neo4j'] = self._status(
-            bool(neo4j_uri),
-            f"URI configured: {bool(neo4j_uri)}" + (" (connection errors in logs)" if neo4j_uri else "")
+        # SQLite (primary storage)
+        sqlite_path = self.base_path / 'data' / 'dmai.db'
+        results['sqlite_primary'] = self._status(
+            sqlite_path.exists(),
+            f"Size: {sqlite_path.stat().st_size / 1024:.0f}KB" if sqlite_path.exists() else "Will be created on first write"
         )
         
         # Hourly Backups

@@ -109,7 +109,7 @@ logger = logging.getLogger("dmai.core")
 # ── Render / production flags ────────────────────────────────────────────────
 IS_RENDER = os.environ.get("RENDER", "false").lower() == "true"
 if IS_RENDER:
-    os.environ["DISABLE_NEO4J"] = "true"
+    os.environ["DISABLE_NEO4J"] = "true"  # Neo4j fully removed — using SQLite (sqlite_storage.py)
     os.environ["DISABLE_AUTO_THREADS"] = "true"
 
 # ── Data path ────────────────────────────────────────────────────────────────
