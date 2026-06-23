@@ -1291,11 +1291,16 @@
         gotJwt = true;
         _grantAccess(d.token);
       }
-      // 503 = JWT module unavailable → fall through to password fallbacks
-      // 401 from token endpoint → still try password-only fallbacks below
-    } catch (_) { /* network error — fall through */ }
+      // 503 = JWT module unavailable → fall through to password-only fallback
+      // 401 = wrong password → show error and stop
+      if (!gotJwt && r.status === 401) {
+        errEl.textContent = d.error || 'Invalid password';
+        btn.disabled = false; btn.textContent = 'Unlock';
+        return;
+      }
+    } catch (_) { /* network error — fall through to step 2 */ }
 
-    // Step 2 — fallback: direct password-only check (no JWT dependency)
+    // Step 2 — fallback: password-only check (no JWT dependency, used when JWT module unavailable)
     if (!gotJwt) {
       try {
         const r2 = await fetch('/api/admin/auth', {
@@ -1306,25 +1311,12 @@
         if (r2.ok) {
           gotJwt = true;
           _grantAccess(null);
+        } else {
+          errEl.textContent = 'Invalid password';
         }
-      } catch (_) { /* fall through */ }
-    }
-
-    // Step 3 — X-Master-Password header against /api/status (original working path)
-    if (!gotJwt) {
-      try {
-        const r3 = await fetch('/api/status', {
-          headers: { 'X-Master-Password': pwd },
-        });
-        if (r3.ok) {
-          gotJwt = true;
-          _grantAccess(null);
-        }
-      } catch (_) { /* fall through */ }
-    }
-
-    if (!gotJwt) {
-      errEl.textContent = 'Invalid password';
+      } catch (_) {
+        errEl.textContent = 'Could not reach server — check connection';
+      }
     }
 
     btn.disabled = false;
