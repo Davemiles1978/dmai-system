@@ -3703,6 +3703,264 @@ def api_heartbeat():
 
 _ensure_suggestions_table()
 _ensure_system_state_table()
+@app.route("/api/stage/analytics", methods=["GET"])
+def api_stage_analytics():
+    """
+    Stage progression analytics — velocity, plateaus, forecast.
+    Powers the Stage Analytics admin panel.
+    """
+    import sqlite3 as _an_sq, datetime as _an_dt, math as _an_math
+
+    DB = "data/dmai_knowledge.db"
+    now_utc  = _an_dt.datetime.utcnow()
+    days_30  = (now_utc - _an_dt.timedelta(days=30)).isoformat()
+    days_7   = (now_utc - _an_dt.timedelta(days=7)).isoformat()
+
+    _STAGE_ORDER = ["Baby","Child","Teenager","Adult","Expert","Master","Transcendent","Infinite"]
+    _THRESHOLDS  = {
+        "Baby":         (      0,     0,     0, 0.00),
+        "Child":        (   5000,   500,   100, 0.10),
+        "Teenager":     (  30000,  2000,   500, 0.20),
+        "Adult":        (  80000,  5000,  1500, 0.35),
+        "Expert":       ( 150000, 10000,  3000, 0.50),
+        "Master":       ( 300000, 20000,  6000, 0.65),
+        "Transcendent": ( 600000, 40000, 12000, 0.80),
+        "Infinite":     (1200000, 80000, 25000, 0.92),
+    }
+
+    try:
+        conn = _an_sq.connect(DB)
+        conn.row_factory = _an_sq.Row
+
+        # ── 1. Current metrics ────────────────────────────────────────────────
+        cur_insights = conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
+        cur_caps     = conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
+        try:
+            cur_vocab = conn.execute("SELECT COUNT(*) as c FROM vocabulary").fetchone()["c"]
+        except Exception:
+            cur_vocab = 0
+
+        # Current stage from system_state (or recalculate)
+        ss_row = conn.execute(
+            "SELECT value FROM system_state WHERE key='learning_stage'"
+        ).fetchone()
+        cur_stage   = ss_row["value"] if ss_row else "Baby"
+        cur_idx     = _STAGE_ORDER.index(cur_stage) if cur_stage in _STAGE_ORDER else 0
+
+        # ── 2. Daily insight ingestion rate (last 30 days) ───────────────────
+        daily_rows = conn.execute("""
+            SELECT strftime('%Y-%m-%d', created_at) as day,
+                   COUNT(*) as cnt
+            FROM insights
+            WHERE created_at > ?
+            GROUP BY day
+            ORDER BY day ASC
+        """, (days_30,)).fetchall()
+        daily_series = [{"date": r["day"], "insights": r["cnt"]} for r in daily_rows]
+
+        # ── 3. Daily capability rate (last 30 days) ──────────────────────────
+        cap_rows = conn.execute("""
+            SELECT strftime('%Y-%m-%d', created_at) as day,
+                   COUNT(*) as cnt
+            FROM capabilities
+            WHERE created_at > ?
+            GROUP BY day
+            ORDER BY day ASC
+        """, (days_30,)).fetchall()
+        cap_series = {r["day"]: r["cnt"] for r in cap_rows}
+
+        # ── 4. Acquisition channels (insight source breakdown, last 7 days) ──
+        # Try 'source' column — fall back to 'domain' if absent
+        try:
+            channel_rows = conn.execute("""
+                SELECT source, COUNT(*) as cnt
+                FROM insights
+                WHERE created_at > ?
+                GROUP BY source
+                ORDER BY cnt DESC
+                LIMIT 10
+            """, (days_7,)).fetchall()
+            channels = [{"channel": r["source"] or "unknown", "count": r["cnt"]}
+                        for r in channel_rows]
+        except Exception:
+            channel_rows = conn.execute("""
+                SELECT domain, COUNT(*) as cnt
+                FROM insights
+                WHERE created_at > ?
+                GROUP BY domain
+                ORDER BY cnt DESC
+                LIMIT 10
+            """, (days_7,)).fetchall()
+            channels = [{"channel": r["domain"] or "unknown", "count": r["cnt"]}
+                        for r in channel_rows]
+
+        # ── 5. Stage history (all advances) ──────────────────────────────────
+        try:
+            hist_rows = conn.execute("""
+                SELECT stage, prev_stage, insights, capabilities, vocab,
+                       avg_kpi, within_pct, recorded_at
+                FROM stage_history
+                ORDER BY recorded_at ASC
+            """).fetchall()
+            stage_history = [{
+                "stage":        r["stage"],
+                "prev_stage":   r["prev_stage"],
+                "insights_at":  r["insights"],
+                "caps_at":      r["capabilities"],
+                "vocab_at":     r["vocab"],
+                "kpi_at":       round(float(r["avg_kpi"] or 0), 4),
+                "recorded_at":  r["recorded_at"],
+            } for r in hist_rows]
+        except Exception:
+            stage_history = []
+
+        # ── 6. Velocity calculation ───────────────────────────────────────────
+        # Insights per day (7-day rolling average vs 30-day average)
+        avg_7d  = 0.0
+        avg_30d = 0.0
+        if daily_series:
+            last_7  = [d["insights"] for d in daily_series[-7:]]
+            all_30  = [d["insights"] for d in daily_series]
+            avg_7d  = round(sum(last_7)  / max(len(last_7), 1),  1)
+            avg_30d = round(sum(all_30)  / max(len(all_30), 1),  1)
+        velocity_trend = "accelerating" if avg_7d > avg_30d * 1.1 else \
+                         "decelerating" if avg_7d < avg_30d * 0.9 else "stable"
+
+        # ── 7. Plateau detection ─────────────────────────────────────────────
+        # A plateau = any 3+ consecutive days with < 20% of the 30-day average
+        plateau_threshold = avg_30d * 0.20
+        plateaus = []
+        streak_start = None
+        streak_days  = 0
+        for entry in daily_series:
+            if entry["insights"] <= plateau_threshold:
+                if streak_start is None:
+                    streak_start = entry["date"]
+                streak_days += 1
+            else:
+                if streak_days >= 3:
+                    plateaus.append({
+                        "start":      streak_start,
+                        "days":       streak_days,
+                        "avg_daily":  round(sum(
+                            d["insights"] for d in daily_series
+                            if streak_start <= d["date"]
+                        ) / max(streak_days, 1), 1),
+                    })
+                streak_start = None
+                streak_days  = 0
+        if streak_days >= 3:
+            plateaus.append({"start": streak_start, "days": streak_days, "avg_daily": 0})
+
+        # ── 8. Forecast to Master stage ───────────────────────────────────────
+        # Master needs: 300k insights, 20k capabilities, 6k vocab, kpi≥0.65
+        # Use 7-day avg velocity; also estimate capability and vocab growth rates
+        master_t = _THRESHOLDS["Master"]
+
+        try:
+            cap_rows_7 = conn.execute("""
+                SELECT COUNT(*) as c FROM capabilities WHERE created_at > ?
+            """, (days_7,)).fetchone()
+            caps_7d_total = cap_rows_7["c"] if cap_rows_7 else 0
+        except Exception:
+            caps_7d_total = 0
+
+        try:
+            vocab_rows_7 = conn.execute("""
+                SELECT COUNT(*) as c FROM vocabulary WHERE created_at > ?
+            """, (days_7,)).fetchone()
+            vocab_7d_total = vocab_rows_7["c"] if vocab_rows_7 else 0
+        except Exception:
+            vocab_7d_total = 0
+
+        ins_rate_day   = avg_7d if avg_7d > 0 else 1.0
+        caps_rate_day  = round(caps_7d_total  / 7, 1) if caps_7d_total else 1.0
+        vocab_rate_day = round(vocab_7d_total / 7, 1) if vocab_7d_total else 1.0
+
+        # Days needed for each bottleneck
+        def _days_to(current, target, rate):
+            gap = target - current
+            if gap <= 0:
+                return 0
+            if rate <= 0:
+                return 99999
+            return _an_math.ceil(gap / rate)
+
+        days_for_insights  = _days_to(cur_insights, master_t[0], ins_rate_day)
+        days_for_caps      = _days_to(cur_caps,     master_t[1], caps_rate_day)
+        days_for_vocab     = _days_to(cur_vocab,    master_t[2], vocab_rate_day)
+        # KPI: no rate model yet — estimate 0.02/week improvement if training active
+        kpi_gap     = max(master_t[3] - 0.0, 0)   # current KPI ~ 0 until keys are set
+        days_for_kpi = int(kpi_gap / 0.02 * 7) if kpi_gap > 0 else 0
+
+        bottleneck_days = max(days_for_insights, days_for_caps, days_for_vocab, days_for_kpi)
+        bottleneck_name = max(
+            [("insights", days_for_insights), ("capabilities", days_for_caps),
+             ("vocab", days_for_vocab),        ("kpi", days_for_kpi)],
+            key=lambda x: x[1]
+        )[0]
+
+        if bottleneck_days < 99999:
+            forecast_date = (now_utc + _an_dt.timedelta(days=bottleneck_days)).strftime("%Y-%m-%d")
+        else:
+            forecast_date = "unknown (no data)"
+
+        # ── 9. Next stage gaps ────────────────────────────────────────────────
+        next_stage = _STAGE_ORDER[cur_idx + 1] if cur_idx < len(_STAGE_ORDER) - 1 else None
+        next_gaps  = {}
+        if next_stage:
+            nt = _THRESHOLDS[next_stage]
+            next_gaps = {
+                "stage":       next_stage,
+                "insights":    max(nt[0] - cur_insights, 0),
+                "capabilities": max(nt[1] - cur_caps,    0),
+                "vocab":       max(nt[2] - cur_vocab,    0),
+                "kpi":         round(max(nt[3] - 0.0, 0), 2),
+                "days_to_next_insights": _days_to(cur_insights, nt[0], ins_rate_day),
+                "days_to_next_caps":     _days_to(cur_caps,     nt[1], caps_rate_day),
+                "days_to_next_vocab":    _days_to(cur_vocab,    nt[2], vocab_rate_day),
+            }
+
+        conn.close()
+
+        return jsonify({
+            "generated_at":    now_utc.isoformat() + "Z",
+            "current": {
+                "stage":        cur_stage,
+                "stage_index":  cur_idx,
+                "insights":     cur_insights,
+                "capabilities": cur_caps,
+                "vocab":        cur_vocab,
+            },
+            "velocity": {
+                "insights_per_day_7d":  avg_7d,
+                "insights_per_day_30d": avg_30d,
+                "caps_per_day_7d":      caps_rate_day,
+                "vocab_per_day_7d":     vocab_rate_day,
+                "trend":                velocity_trend,
+            },
+            "daily_series": daily_series,
+            "channels": channels,
+            "stage_history": stage_history,
+            "plateaus": plateaus,
+            "forecast": {
+                "target_stage":         "Master",
+                "bottleneck":           bottleneck_name,
+                "bottleneck_days":      bottleneck_days if bottleneck_days < 99999 else None,
+                "forecast_date":        forecast_date,
+                "days_for_insights":    days_for_insights  if days_for_insights  < 99999 else None,
+                "days_for_caps":        days_for_caps      if days_for_caps      < 99999 else None,
+                "days_for_vocab":       days_for_vocab     if days_for_vocab     < 99999 else None,
+                "days_for_kpi":         days_for_kpi       if days_for_kpi       < 99999 else None,
+            },
+            "next_stage_gaps": next_gaps,
+        })
+
+    except Exception as _e:
+        logger.error("api_stage_analytics: %s", _e)
+        return jsonify({"error": str(_e)}), 500
+
+
 
 def _start_background_services():
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
