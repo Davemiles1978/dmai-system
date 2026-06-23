@@ -1,1 +1,1 @@
-web: gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 300 --workers 1 --threads 8 --worker-class gthread --preload
+web: gunicorn dmai_core_complete:app --config gunicorn_config.py --preload
