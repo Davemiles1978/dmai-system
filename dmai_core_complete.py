@@ -884,6 +884,12 @@ def _ai_chat(message: str) -> str:
         except Exception as e:
             logger.warning("AI chat error: %s", e)
 
+    if isinstance(response_text, tuple):
+        _raw = response_text[0] if response_text else None
+        response_text = _raw if isinstance(_raw, str) else None
+    elif response_text is not None and not isinstance(response_text, str):
+        response_text = str(response_text)
+
     if response_text is None:
         ml = clean_message.lower()
         for topic, info in SYLLABUS_TOPICS.items():
@@ -898,7 +904,7 @@ def _ai_chat(message: str) -> str:
             )
 
     # P1-4: scan any code blocks in the response
-    if SECURITY_AVAILABLE and "```" in response_text:
+    if SECURITY_AVAILABLE and isinstance(response_text, str) and "```" in response_text:
         scan = scan_generated_code(response_text)
         if not scan.get("safe", True):
             issues = "; ".join(str(i) for i in scan.get("issues", []))
