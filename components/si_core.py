@@ -385,3 +385,36 @@ class SICore:
 
     def has_method(self, name: str) -> bool:
         return callable(getattr(self, name, None))
+
+    def add_insight(self, domain: str, concept: str, source: str = "internal",
+                    confidence: float = 0.8, metadata: dict = None) -> dict:
+        """
+        Persist a new insight to data/research/insights.jsonl.
+        Called whenever DMAI discovers a notable pattern or relationship.
+        Returns the insight record.
+        """
+        import json, os
+        from datetime import datetime, timezone
+        from pathlib import Path
+
+        insight = {
+            "id": f"insight_{int(datetime.now(timezone.utc).timestamp())}",
+            "domain": domain,
+            "concept": concept,
+            "source": source,
+            "confidence": confidence,
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "metadata": metadata or {},
+        }
+
+        insights_path = Path("data/research/insights.jsonl")
+        insights_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(insights_path, "a") as f:
+            f.write(json.dumps(insight) + "\n")
+
+        # Also update SICore internal state if self.insights_store exists
+        if hasattr(self, "insights_store") and isinstance(self.insights_store, list):
+            self.insights_store.append(insight)
+
+        return insight

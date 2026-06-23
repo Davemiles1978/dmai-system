@@ -6,6 +6,60 @@ import time
 from typing import Dict, List, Optional
 from datetime import datetime
 
+_DOMAIN_KEYWORDS = {
+    "machine_learning":       ["neural network", "deep learning", "gradient descent", "backpropagation", "transformer", "attention", "bert", "gpt", "llm", "fine-tuning", "pre-training"],
+    "reinforcement_learning": ["reward", "policy", "q-learning", "ppo", "actor-critic", "mdp", "environment", "agent", "bandit", "mcts"],
+    "autonomous_agents":      ["agent", "autonomous", "tool use", "planning", "agentic", "multi-agent", "swarm", "orchestration", "reasoning"],
+    "trading":                ["stock", "trading", "portfolio", "alpha", "backtest", "market", "hedge", "options", "crypto", "arbitrage"],
+    "content_generation":     ["content", "generation", "creative", "writing", "summarisation", "kdp", "publish", "blog", "social media"],
+    "computer_vision":        ["image", "vision", "cnn", "detection", "segmentation", "ocr", "diffusion", "stable diffusion", "clip"],
+    "nlp":                    ["natural language", "nlp", "sentiment", "classification", "ner", "embeddings", "vector", "semantic"],
+    "self_improvement":       ["self-improvement", "recursive", "meta-learning", "self-play", "self-modify", "evolution", "kaizen"],
+    "knowledge_systems":      ["knowledge graph", "ontology", "reasoning", "inference", "semantic web", "rdf", "sparql", "retrieval"],
+    "robotics":               ["robot", "embodied", "manipulation", "locomotion", "sim2real", "ros"],
+    "cybersecurity":          ["security", "vulnerability", "exploit", "cve", "penetration", "red team", "malware"],
+    "web_technologies":       ["api", "fastapi", "flask", "react", "javascript", "typescript", "web scraping", "http"],
+    "data_science":           ["data", "pandas", "statistics", "visualisation", "etl", "pipeline", "analytics", "dashboard"],
+    "cloud_devops":           ["docker", "kubernetes", "ci/cd", "github actions", "render", "aws", "gcp", "azure", "terraform"],
+}
+
+
+def _classify_domain(text: str) -> str:
+    """Return the best-matching domain for a given text string."""
+    text_lower = text.lower()
+    scores = {}
+    for domain, keywords in _DOMAIN_KEYWORDS.items():
+        scores[domain] = sum(1 for kw in keywords if kw in text_lower)
+    best = max(scores, key=scores.get)
+    return best if scores[best] > 0 else "knowledge_systems"
+
+
+def _extract_entities(text: str, max_entities: int = 5) -> list[str]:
+    """Extract named entities (model names, repo names, technique names) from text."""
+    import re
+    # Match CamelCase words, hyphenated-phrases, and ALLCAPS acronyms
+    patterns = [
+        r"\b[A-Z][a-zA-Z]{2,}(?:[A-Z][a-z]+)+\b",   # CamelCase
+        r"\b[A-Za-z][\w]*-[\w][\w-]+\b",               # hyphenated
+        r"\b[A-Z]{2,6}\b",                              # acronyms
+        r"\bgpt-[\d\.]+\b",                              # model versions
+        r"\bllama[\d\.-]*\b",
+        r"\bclaude[\d\.-]*\b",
+        r"\bgemini[\d\.-]*\b",
+    ]
+    entities = []
+    for pattern in patterns:
+        entities.extend(re.findall(pattern, text, re.IGNORECASE))
+    # Deduplicate preserving order
+    seen = set()
+    result = []
+    for e in entities:
+        if e.lower() not in seen and len(e) > 2:
+            seen.add(e.lower())
+            result.append(e)
+    return result[:max_entities]
+
+
 class AutonomousResearcher:
     """DMAI's autonomous research system for deep topic mastery"""
     
@@ -58,28 +112,62 @@ class AutonomousResearcher:
         }
         
         synthesized = self.synthesize_knowledge(topic, sources)
-        
+
+        # Domain classification + entity extraction over the synthesized text
+        classify_text = f"{topic} {synthesized.get('summary', '')}"
+        domain = _classify_domain(classify_text)
+        entities = _extract_entities(classify_text)
+
+        # Emit a structured discovery for this research cycle
+        discovery = {
+            'topic': topic,
+            'domain': domain,
+            'entities': entities,
+            'source': 'autonomous_researcher',
+            'summary': synthesized.get('summary', ''),
+        }
+        self._persist_discovery(domain, entities, 'autonomous_researcher', synthesized.get('summary', ''))
+
         # Store in SI Core if available
         if self.si_core and hasattr(self.si_core, 'add_insight'):
             self.si_core.add_insight(
-                insight_text=synthesized['summary'][:2000],
-                entity_type='research',
-                entities=[topic, 'autonomous_research'],
-                relationship='deep_knowledge',
-                source_topic=topic,
-                confidence=0.85
+                domain=domain,
+                concept=topic,
+                source='autonomous_researcher',
+                confidence=synthesized.get('confidence', 0.85),
+                metadata={'entities': entities, 'mastery_score': synthesized.get('mastery_score')},
             )
-        
+
         research_result = {
             'topic': topic,
             'sources': sources,
             'synthesis': synthesized,
+            'discovery': discovery,
             'completed_at': datetime.now().isoformat(),
             'depth': depth
         }
-        
+
         self.completed_research.append(research_result)
         return research_result
+
+    def _persist_discovery(self, domain: str, entities: list, source: str, summary: str = "") -> None:
+        """Write a structured discovery event to data/research/discoveries.jsonl."""
+        import json
+        from datetime import datetime, timezone
+        from pathlib import Path
+        discovery = {
+            "id": f"disc_{int(datetime.now(timezone.utc).timestamp())}",
+            "domain": domain,
+            "entities": entities,
+            "source": source,
+            "summary": summary[:200],
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        path = Path("data/research/discoveries.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a") as f:
+            f.write(json.dumps(discovery) + "\n")
     
     def synthesize_knowledge(self, topic: str, sources: Dict) -> Dict:
         """Synthesize knowledge from multiple sources"""
