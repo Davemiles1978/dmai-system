@@ -1491,6 +1491,20 @@ def api_admin_token():
     return jsonify({"token": token, "expires_in": 3600, "type": "Bearer"})
 
 
+@app.route("/api/admin/auth", methods=["POST"])
+def api_admin_auth():
+    """Lightweight password-only auth check — no JWT dependency.
+    POST {"password": "..."} → {"ok": true} or 401.
+    Used as fallback when JWT module is unavailable.
+    """
+    data = request.get_json(silent=True) or {}
+    pwd = data.get("password", "")
+    master = os.environ.get("MASTER_PASSWORD", "dmai_master")
+    if pwd != master:
+        return jsonify({"error": "Invalid password"}), 401
+    return jsonify({"ok": True})
+
+
 # ── Admin API Key Management ─────────────────────────────────────────────────
 # Keys are stored in SQLite (table: api_keys) and injected into os.environ
 # at runtime so all provider clients can use them immediately.

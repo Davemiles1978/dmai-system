@@ -1184,6 +1184,16 @@
     btn.textContent = 'Authenticating…';
     errEl.textContent = '';
 
+    function _grantAccess(token) {
+      JWT = token || null;
+      masterPwd = pwd;
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      initApp();
+    }
+
+    // Step 1 — try JWT token endpoint
+    let gotJwt = false;
     try {
       const r = await fetch('/api/admin/token', {
         method: 'POST',
@@ -1192,31 +1202,37 @@
       });
       const d = await r.json();
       if (d.token) {
-        JWT = d.token;
-        masterPwd = pwd;
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('app').classList.add('visible');
-        initApp();
-      } else {
-        errEl.textContent = d.error || 'Authentication failed';
+        gotJwt = true;
+        _grantAccess(d.token);
       }
-    } catch {
-      // Fallback: try /api/status with X-Master-Password
+      // If endpoint returned 401, password is wrong — show error and stop
+      if (r.status === 401) {
+        errEl.textContent = d.error || 'Invalid password';
+        btn.disabled = false;
+        btn.textContent = 'Unlock';
+        return;
+      }
+      // 503 (security module unavailable) or any other non-401 non-token → fall through
+    } catch (_) { /* network error — fall through */ }
+
+    // Step 2 — fallback: direct password-only check (no JWT dependency)
+    if (!gotJwt) {
       try {
-        const r2 = await fetch('/api/status', { headers: { 'X-Master-Password': pwd } });
+        const r2 = await fetch('/api/admin/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd }),
+        });
         if (r2.ok) {
-          masterPwd = pwd;
-          JWT = null; // JWT module may not be installed on server
-          document.getElementById('lock-screen').style.display = 'none';
-          document.getElementById('app').classList.add('visible');
-          initApp();
+          _grantAccess(null);
         } else {
           errEl.textContent = 'Invalid password';
         }
-      } catch {
-        errEl.textContent = 'Could not reach server';
+      } catch (_) {
+        errEl.textContent = 'Could not reach server — check connection';
       }
     }
+
     btn.disabled = false;
     btn.textContent = 'Unlock';
   }
