@@ -912,21 +912,33 @@ class AIIntegrationHub:
         )
 
     def chat_sync(self, prompt: str) -> str:
-        """Synchronous wrapper around chat() — used by _ai_chat in Flask context."""
+        """Synchronous wrapper around chat() — safe in any thread context."""
         import asyncio
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Already inside an event loop (e.g. async test) — run in thread
+            try:
+                asyncio.get_running_loop()
+                is_running = True
+            except RuntimeError:
+                is_running = False
+
+            if is_running:
                 import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as pool:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                     fut = pool.submit(asyncio.run, self.chat(prompt))
-                    return fut.result(timeout=45)
+                    result = fut.result(timeout=45)
             else:
-                return loop.run_until_complete(self.chat(prompt))
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(self.chat(prompt))
+                finally:
+                    loop.close()
+                    asyncio.set_event_loop(None)
+
+            return result if isinstance(result, str) else (str(result) if result is not None else None)
         except Exception as exc:
             logger.warning("chat_sync error: %s", exc)
-            return f"DMAI error: {exc}"
+            return None
 
     # ====================================================================
     # NEW FREE-TIER TUTOR QUERY METHODS
