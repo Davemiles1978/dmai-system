@@ -924,7 +924,9 @@ def api_status():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "deployment": "render" if IS_RENDER else "local",
         "components_loaded": list(components.keys()),
+        "component_count": len(components),          # mobile reads this
         "syllabus_topics": TOTAL_TOPICS,
+        "total_topics": TOTAL_TOPICS,                # mobile reads this
         "si_kpis": kpis,
         "training": training_status,
         "providers": hub_status.get("extended_providers", []) + hub_status.get("base_providers", []),
@@ -2593,6 +2595,287 @@ def api_ingestor_status():
     return _comp_status("autonomous_ingestor")
 
 
+# ── Settings (full system config read + write) ────────────────────────────────
+@app.route("/api/settings", methods=["GET"])
+def api_settings_get():
+    """Return all configurable settings with current values."""
+    import json as _sj
+    from pathlib import Path as _sp
+
+    # Load training config
+    training_cfg = {}
+    for cfg_path in [_sp("configs/training_config.json"), _sp("config/training_config.json")]:
+        if cfg_path.exists():
+            try:
+                training_cfg = _sj.loads(cfg_path.read_text())
+            except Exception:
+                pass
+            break
+
+    # Collect env-based settings (never expose secret values, only presence)
+    env_settings = {}
+    _env_keys = [
+        "MASTER_PASSWORD", "DATABASE_URL", "TRADING_LIVE",
+        "DMAI_EMAIL", "DMAI_HF_PASSWORD", "RENDER_API_KEY",
+        "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID",
+        "GROQ_API_KEY", "GOOGLE_AI_STUDIO_KEY", "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", "GITHUB_TOKEN",
+    ]
+    for key in _env_keys:
+        val = os.environ.get(key, "")
+        env_settings[key] = "SET" if val else "NOT SET"
+
+    # SICore KPI targets
+    si = components.get("si_core")
+    kpi_values = si.current_kpis if si else {}
+
+    # Stage gate thresholds from config or defaults
+    stage_gates = training_cfg.get("ai_training", {}).get("stage_gate_overrides", {
+        "Baby": 0.40, "Toddler": 0.55, "Child": 0.65,
+        "Teen": 0.75, "Adult": 0.85, "Expert": 0.95,
+    })
+
+    # Training schedule
+    training_sched = training_cfg.get("training_schedule", {
+        "run_on_startup": True,
+        "interval_minutes": 60,
+        "max_concurrent_domains": 3,
+    })
+
+    # Research settings
+    research_cfg = training_cfg.get("research", {
+        "cycle_interval_seconds": 300,
+        "memory_threshold": 0.55,
+        "max_topics_per_cycle": 10,
+    })
+
+    # KPI evaluator settings
+    kpi_cfg = training_cfg.get("kpi_evaluator", {
+        "full_eval_interval_hours": 6,
+        "boot_quick_pass_delay_seconds": 90,
+        "rsi_cycle_target": 52,
+    })
+
+    # Providers
+    harv = components.get("api_activator")
+    provider_data = {}
+    if harv and hasattr(harv, "last_scan"):
+        provider_data = harv.last_scan or {}
+
+    return jsonify({
+        "env_settings": env_settings,
+        "stage_gates": stage_gates,
+        "training_schedule": training_sched,
+        "research": research_cfg,
+        "kpi_evaluator": kpi_cfg,
+        "current_kpis": kpi_values,
+        "training_config": training_cfg,
+        "system": {
+            "version": "7.0.0",
+            "uptime": _uptime(),
+            "components_loaded": len(components),
+            "is_render": IS_RENDER,
+            "data_path": DATA_PATH,
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+@app.route("/api/settings", methods=["POST"])
+def api_settings_post():
+    """Update writable settings at runtime."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import json as _sj
+    from pathlib import Path as _sp
+    data = request.get_json(silent=True) or {}
+    updated = {}
+
+    # Stage gate overrides
+    if "stage_gates" in data:
+        cfg_path = _sp("configs/training_config.json")
+        if cfg_path.exists():
+            try:
+                cfg = _sj.loads(cfg_path.read_text())
+                cfg.setdefault("ai_training", {})["stage_gate_overrides"] = data["stage_gates"]
+                cfg_path.write_text(_sj.dumps(cfg, indent=2))
+                updated["stage_gates"] = data["stage_gates"]
+            except Exception as e:
+                return jsonify({"error": f"Could not update stage gates: {e}"}), 500
+
+    # Training schedule
+    if "training_schedule" in data:
+        cfg_path = _sp("configs/training_config.json")
+        if cfg_path.exists():
+            try:
+                cfg = _sj.loads(cfg_path.read_text())
+                cfg["training_schedule"] = data["training_schedule"]
+                cfg_path.write_text(_sj.dumps(cfg, indent=2))
+                updated["training_schedule"] = data["training_schedule"]
+            except Exception as e:
+                return jsonify({"error": f"Could not update schedule: {e}"}), 500
+
+    # Research interval
+    if "research_interval" in data:
+        try:
+            interval = int(data["research_interval"])
+            ar = components.get("autonomous_researcher")
+            if ar:
+                ar._cycle_interval = interval
+            updated["research_interval"] = interval
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    # Master goal
+    if "master_goal" in data:
+        mc = components.get("master_control")
+        if mc and hasattr(mc, "set_goal"):
+            mc.set_goal(data["master_goal"])
+            updated["master_goal"] = data["master_goal"]
+
+    return jsonify({"ok": True, "updated": updated})
+
+
+# ── Learning full-status (rich data for Learning UI) ─────────────────────────
+@app.route("/api/learning/full-status", methods=["GET"])
+def api_learning_full_status():
+    """Aggregated learning metrics for the Learning Dashboard."""
+    import json as _lj
+    from pathlib import Path as _lp
+
+    si = components.get("si_core")
+    kpis = si.current_kpis if si else {}
+
+    # Stage progress
+    lp_file = _lp("data/learning/stage_syllabus/learning_progress.json")
+    stage_progress = {}
+    if lp_file.exists():
+        try:
+            stage_progress = _lj.loads(lp_file.read_text())
+        except Exception:
+            pass
+
+    # Insights count
+    insights_count = 0
+    ins_file = _lp("data/research/insights.jsonl")
+    if ins_file.exists():
+        try:
+            insights_count = sum(1 for l in ins_file.read_text().splitlines() if l.strip())
+        except Exception:
+            pass
+
+    # Discoveries today
+    disc_file = _lp("data/research/discoveries.jsonl")
+    discoveries_today = 0
+    domains_researched = set()
+    recent_discoveries = []
+    if disc_file.exists():
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        try:
+            for line in disc_file.read_text().splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    rec = _lj.loads(line)
+                    if rec.get("date") == today:
+                        discoveries_today += 1
+                    domains_researched.add(rec.get("domain", "?"))
+                    recent_discoveries.append(rec)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+    recent_discoveries = list(reversed(recent_discoveries))[:10]
+
+    # Knowledge DB stats
+    db_stats = {"insights": 0, "capabilities": 0, "syllabus_mastered": 0}
+    try:
+        import sqlite3
+        conn = sqlite3.connect("data/dmai_knowledge.db")
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) FROM insights")
+        db_stats["insights"] = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM capabilities")
+        db_stats["capabilities"] = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM syllabus_content WHERE mastery >= 0.9")
+        db_stats["syllabus_mastered"] = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM syllabus_content")
+        db_stats["syllabus_total"] = c.fetchone()[0]
+        conn.close()
+    except Exception:
+        pass
+
+    # Compiled knowledge modules
+    compiled_modules = []
+    compiled_dir = _lp("data/learning/compiled_knowledge")
+    if compiled_dir.exists():
+        for jf in compiled_dir.glob("*.json"):
+            if jf.name == "master_knowledge.json":
+                continue
+            try:
+                d = _lj.loads(jf.read_text())
+                compiled_modules.append({
+                    "module": jf.stem.replace("_learned", ""),
+                    "learned_at": d.get("learned_at", d.get("timestamp", "")),
+                    "topics": len(d.get("topics", d.get("content", {}))),
+                })
+            except Exception:
+                pass
+
+    # KPI history (last 7 days trend)
+    kpi_history_file = _lp("data/kpi_eval_history.jsonl")
+    kpi_trend = {}
+    if kpi_history_file.exists():
+        try:
+            lines = kpi_history_file.read_text().strip().splitlines()
+            for line in lines[-50:]:
+                try:
+                    rec = _lj.loads(line)
+                    kpi = rec.get("kpi")
+                    val = rec.get("value", 0)
+                    ts  = rec.get("timestamp", "")
+                    if kpi not in kpi_trend:
+                        kpi_trend[kpi] = []
+                    kpi_trend[kpi].append({"ts": ts[:10], "value": val})
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    # Code writer history
+    cw_file = _lp("data/code_writer/history.jsonl")
+    code_written = 0
+    if cw_file.exists():
+        try:
+            code_written = sum(1 for l in cw_file.read_text().splitlines() if l.strip())
+        except Exception:
+            pass
+
+    # Research seen topics count
+    seen_file = _lp("data/research/seen_topics.json")
+    topics_researched_total = 0
+    if seen_file.exists():
+        try:
+            topics_researched_total = len(_lj.loads(seen_file.read_text()))
+        except Exception:
+            pass
+
+    return jsonify({
+        "kpis": kpis,
+        "kpi_trend": kpi_trend,
+        "stage_progress": stage_progress,
+        "insights_count": insights_count,
+        "discoveries_today": discoveries_today,
+        "domains_researched": sorted(domains_researched),
+        "recent_discoveries": recent_discoveries,
+        "db_stats": db_stats,
+        "compiled_modules": compiled_modules,
+        "code_written": code_written,
+        "topics_researched_total": topics_researched_total,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
+
 @app.route("/api/ingestor/ingest", methods=["POST"])
 def api_ingestor_ingest():
     if not _require_auth():
@@ -2756,6 +3039,31 @@ def api_master_set_goal():
         return jsonify({"error": str(e)}), 500
 
 
+# ── Graph Evolution — live status endpoint ────────────────────────────────────
+@app.route("/api/graph/status", methods=["GET"])
+def api_graph_status():
+    """Return live knowledge graph size and growth stats."""
+    try:
+        from components.graph_writer import GraphWriter as _GW
+        gw = _GW()
+        return jsonify(gw.status())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/graph/evolve", methods=["POST"])
+def api_graph_evolve():
+    """Manually trigger a full graph evolution pass."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    try:
+        from components.graph_writer import GraphWriter as _GW
+        result = _GW().evolve()
+        return jsonify({"status": "ok", "result": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 def _start_background_services():
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:
@@ -2897,6 +3205,67 @@ def _start_background_services():
             logger.info("KaizenAutoRepair loop started")
         except Exception as e:
             logger.warning("KaizenAutoRepair start failed: %s", e)
+
+    # ── GraphEvolutionLoop — 24/7 continuous knowledge graph growth ───────────
+    #
+    # Runs every GRAPH_EVOLUTION_INTERVAL_MINS minutes (default 15).
+    # On each tick it:
+    #   1. Reads any new entries from discoveries.jsonl  (autonomous researcher)
+    #   2. Reads any new entries from insights.jsonl     (si_core.add_insight)
+    #   3. Reads mastered topics from dmai_knowledge.db  (syllabus progress)
+    #   4. Reads capabilities table                      (code writer output)
+    #   5. Adds new neurons + synapses to graph_schema.json
+    #   6. Bumps evolution_cycle, total_neurons, total_synapses, last_updated
+    # The Friday cron still creates the Git PR; this loop handles live growth.
+    try:
+        _graph_interval = int(os.environ.get("GRAPH_EVOLUTION_INTERVAL_MINS", "15"))
+
+        def _graph_evolution_loop():
+            import time as _time
+            from components.graph_writer import GraphWriter as _GW
+            _gw = _GW()
+            logger.info(
+                "GraphEvolutionLoop started — running every %d min",
+                _graph_interval,
+            )
+            # Run an immediate first pass so the graph grows on boot
+            try:
+                r = _gw.evolve()
+                if r.get("new_neurons", 0) or r.get("new_synapses", 0):
+                    logger.info(
+                        "GraphEvolutionLoop boot pass: +%d neurons, +%d synapses "
+                        "→ total %d/%d (cycle %d)",
+                        r["new_neurons"], r["new_synapses"],
+                        r["total_neurons"], r["total_synapses"],
+                        r["evolution_cycle"],
+                    )
+            except Exception as _e:
+                logger.warning("GraphEvolutionLoop boot pass failed: %s", _e)
+
+            while True:
+                _time.sleep(_graph_interval * 60)
+                try:
+                    r = _gw.evolve()
+                    if r.get("new_neurons", 0) or r.get("new_synapses", 0):
+                        logger.info(
+                            "GraphEvolutionLoop: +%d neurons, +%d synapses "
+                            "→ total %d/%d (cycle %d)",
+                            r["new_neurons"], r["new_synapses"],
+                            r["total_neurons"], r["total_synapses"],
+                            r["evolution_cycle"],
+                        )
+                except Exception as _e:
+                    logger.warning("GraphEvolutionLoop tick failed (non-fatal): %s", _e)
+
+        _gel_thread = threading.Thread(
+            target=_graph_evolution_loop,
+            daemon=True,
+            name="dmai-graph-evolution",
+        )
+        _gel_thread.start()
+        logger.info("GraphEvolutionLoop background thread started (interval=%dm)", _graph_interval)
+    except Exception as e:
+        logger.warning("GraphEvolutionLoop startup failed: %s", e)
 
     # ── Self-management (SelfHealer + KaizenExecutor + RenderDeployHook) ───
     try:

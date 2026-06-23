@@ -216,6 +216,13 @@ class AutonomousResearcher:
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "a") as f:
             f.write(json.dumps(discovery) + "\n")
+
+        # Immediately grow knowledge graph with the new domain + entities
+        try:
+            from components.graph_writer import GraphWriter as _GW
+            _GW().add_discovery_node(domain, entities, source)
+        except Exception:
+            pass  # non-fatal
     
     def synthesize_knowledge(self, topic: str, sources: Dict) -> Dict:
         """Synthesize knowledge from multiple sources"""
@@ -265,44 +272,120 @@ class AutonomousResearcher:
             topics = list(DEFAULT_TOPICS)
 
         # Cross-process dedup: skip topics already researched today
+        # Dedup: skip topics already researched today; resets at midnight automatically
         import json as _rj
+        from datetime import datetime as _dt
         seen_file = _Path("data/research/seen_topics.json")
         seen_file.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            seen_topics = set(_rj.loads(seen_file.read_text())) if seen_file.exists() else set()
-        except Exception:
-            seen_topics = set()
 
-        print(f"Autonomous research loop started on {len(topics)} base topics (seen={len(seen_topics)}, cycling forever)")
+        def _load_seen_for_today():
+            if not seen_file.exists():
+                return set(), _dt.utcnow().strftime('%Y-%m-%d')
+            try:
+                data = _rj.loads(seen_file.read_text())
+                today = _dt.utcnow().strftime('%Y-%m-%d')
+                if isinstance(data, dict):
+                    if data.get("date") == today:
+                        return set(data.get("topics", [])), today
+                    return set(), today  # new day — reset
+                # Legacy plain-list format
+                day_keys = {k for k in data if isinstance(k, str) and k.endswith(today)}
+                return (day_keys if day_keys else set()), today
+            except Exception:
+                return set(), _dt.utcnow().strftime('%Y-%m-%d')
+
+        def _save_seen(seen: set, today: str):
+            try:
+                seen_file.write_text(_rj.dumps({"date": today, "topics": sorted(seen)}))
+            except Exception:
+                pass
+
+        def _expand_pool(base: list) -> list:
+            """Grow topic pool from insights + capabilities so research never exhausts."""
+            extra = []
+            seen_labels = {t.lower().strip() for t in base}
+            # From insights.jsonl
+            ins_path = _Path("data/research/insights.jsonl")
+            if ins_path.exists():
+                try:
+                    for line in ins_path.read_text().splitlines()[-500:]:
+                        if not line.strip(): continue
+                        try:
+                            rec = _rj.loads(line)
+                            concept = rec.get("concept", "").strip()
+                            if concept and concept.lower() not in seen_labels and len(concept) > 8:
+                                extra.append(concept[:120])
+                                seen_labels.add(concept.lower())
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+            # From capabilities DB
+            try:
+                import sqlite3 as _sq
+                conn = _sq.connect("data/dmai_knowledge.db")
+                cur = conn.cursor()
+                cur.execute("PRAGMA table_info(capabilities)")
+                cols = [r[1] for r in cur.fetchall()]
+                name_col = next((c for c in ["name","capability","title"] if c in cols), None)
+                if name_col:
+                    cur.execute(f"SELECT {name_col} FROM capabilities ORDER BY rowid DESC LIMIT 200")
+                    for (cap,) in cur.fetchall():
+                        if cap and cap.strip().lower() not in seen_labels:
+                            extra.append(str(cap).strip()[:120])
+                            seen_labels.add(cap.strip().lower())
+                conn.close()
+            except Exception:
+                pass
+            return base + extra
+
+        seen_topics, current_day = _load_seen_for_today()
+        all_topics = _expand_pool(list(topics))
+        print(f"Autonomous research loop: {len(all_topics)} topics ({len(topics)} base + {len(all_topics)-len(topics)} dynamic), cycling forever")
+
         cycle = 0
         while True:
             try:
-                topic = topics[cycle % len(topics)]
-                today = __import__('datetime').datetime.utcnow().strftime('%Y-%m-%d')
+                today = _dt.utcnow().strftime('%Y-%m-%d')
+
+                # Midnight reset
+                if today != current_day:
+                    seen_topics, current_day = set(), today
+                    all_topics = _expand_pool(list(topics))
+                    print(f"[researcher] New day — reset seen, pool now {len(all_topics)} topics")
+
+                topic = all_topics[cycle % len(all_topics)]
                 dedup_key = f"{topic.lower().strip()}::{today}"
 
                 if dedup_key in seen_topics:
-                    print(f"Research cycle {cycle}: SKIP (already done today): {topic[:50]}")
                     cycle += 1
-                    time.sleep(30)
+                    if cycle % len(all_topics) == 0:
+                        # Full pool done for today — sleep 30 min then re-expand
+                        print(f"[researcher] Full pool done for today. Sleeping 30 min.")
+                        time.sleep(1800)
+                        all_topics = _expand_pool(list(topics))
+                    else:
+                        time.sleep(10)
                     continue
 
                 result = self.research_topic_deep(topic)
                 from_mem = result.get('from_memory', False)
-                print(f"Research cycle {cycle}: {topic[:50]} (mastery={result['synthesis']['mastery_score']:.2f}, mem={'yes' if from_mem else 'no'})")
+                print(f"Research cycle {cycle}: {topic[:60]} (mastery={result['synthesis']['mastery_score']:.2f}, mem={'yes' if from_mem else 'no'})")
 
                 seen_topics.add(dedup_key)
-                try:
-                    seen_file.write_text(_rj.dumps(sorted(seen_topics)))
-                except Exception:
-                    pass
+                _save_seen(seen_topics, today)
 
-                # Every 5 cycles, ingest any new nightly training data
                 if cycle % 5 == 0:
                     self._ingest_nightly_training()
 
+                # Re-expand pool every 20 cycles — new insights may have arrived
+                if cycle % 20 == 0:
+                    prev = len(all_topics)
+                    all_topics = _expand_pool(list(topics))
+                    if len(all_topics) > prev:
+                        print(f"[researcher] Pool expanded {prev} → {len(all_topics)}")
+
                 cycle += 1
-                # Memory hits = shorter pause (2 min vs 5 min for external)
                 time.sleep(120 if from_mem else 300)
             except Exception as e:
                 print(f"Researcher loop error (cycle {cycle}): {e}")

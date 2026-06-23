@@ -417,4 +417,13 @@ class SICore:
         if hasattr(self, "insights_store") and isinstance(self.insights_store, list):
             self.insights_store.append(insight)
 
+        # ── Immediately grow knowledge graph ──────────────────────────────────
+        # Every new insight creates a neuron + synapse in graph_schema.json
+        # so the live knowledge graph grows with every learning cycle.
+        try:
+            from components.graph_writer import GraphWriter as _GW
+            _GW().add_insight_node(domain, concept, source)
+        except Exception:
+            pass  # non-fatal — graph growth is best-effort
+
         return insight

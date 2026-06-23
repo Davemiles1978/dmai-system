@@ -717,8 +717,31 @@ class KPIEvaluator:
             return
 
         def _loop():
-            # Boot-time quick pass — wait 90s for AI hub to be ready
-            time.sleep(90)
+            # ── Seed KPIs from last history entry immediately (no delay) ──────────────
+            # This ensures mobile never shows 0.0% after a cold boot.
+            if self.si_core and _EVAL_HISTORY.exists():
+                try:
+                    last_line = None
+                    with open(_EVAL_HISTORY) as _f:
+                        for _l in _f:
+                            if _l.strip():
+                                last_line = _l.strip()
+                    if last_line:
+                        last = json.loads(last_line)
+                        token = os.environ.get("MASTER_TOKEN", "dmai_master")
+                        kpi_map = last.get("kpis", {})
+                        for kname, kval in kpi_map.items():
+                            try:
+                                self.si_core._update_kpi(kname, float(kval), token)
+                            except Exception:
+                                pass
+                        self.si_core.save_state()
+                        logger.info("KPIEvaluator: seeded KPIs from last history entry (boot)")
+                except Exception as _se:
+                    logger.debug("KPIEvaluator history seed failed (non-fatal): %s", _se)
+
+            # Boot-time quick pass — wait 15s for AI hub to be ready
+            time.sleep(15)
             try:
                 self.run_full_eval(quick=True)
             except Exception as e:

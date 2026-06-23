@@ -419,12 +419,105 @@ class StageAwareLearningOrchestrator:
                 return core_topics[0]
         
         logger.info(f"✅ All priority topics mastered up to {stage} stage!")
-        next_stage = self._get_next_stage(stage)
-        if next_stage:
-            logger.info(f"💡 Ready to advance to {next_stage} stage")
-        
-        return None
-    
+
+        # ── Never stagnate: promote through SUGGESTED_PATHWAYS then generate new topics ──
+        # 1. Try SUGGESTED_PATHWAYS (Master → Transcendent → Infinite)
+        pathway_order = ["Master", "Transcendent", "Infinite"]
+        for pw_name in pathway_order:
+            pw = self.SUGGESTED_PATHWAYS.get(pw_name, {})
+            mastered = self.learned_topics.get(pw_name, {})
+            for t in pw.get("suggested_topics", []):
+                tname = t["topic"]
+                if mastered.get(tname, 0) < t.get("mastery_threshold", 2):
+                    topic_entry = dict(t)
+                    topic_entry.setdefault("mastery_threshold", 2)
+                    topic_entry.setdefault("harvest_sources", ["ai_tutors"])
+                    topic_entry["_pathway"] = pw_name
+                    logger.info(f"Promoting to pathway {pw_name}: {tname}")
+                    # Ensure the pathway key exists in STAGES so learn_topic works
+                    if pw_name not in self.STAGES:
+                        self.STAGES[pw_name] = {
+                            "consciousness_range": pw.get("consciousness_range", (0.9, 1.0)),
+                            "focus": pw.get("focus", ""),
+                            "priority_topics": list(pw.get("suggested_topics", [])),
+                        }
+                    self.current_stage = pw_name
+                    return topic_entry
+
+        # 2. All pathways exhausted — generate dynamic topics from the insights DB
+        # Pull concepts DMAI has discovered but never formally studied
+        dynamic = self._generate_dynamic_topics(consciousness)
+        if dynamic:
+            logger.info(f"Generating dynamic topic from insights: {dynamic['topic']}")
+            return dynamic
+
+        # 3. Absolute fallback: re-study lowest-mastery Adult topic to deepen understanding
+        all_adult = self.STAGES.get("Adult", {}).get("priority_topics", [])
+        if all_adult:
+            worst = min(all_adult, key=lambda t: self.learned_topics.get("Adult", {}).get(t["topic"], 0))
+            logger.info(f"Deepening mastery: {worst['topic']}")
+            return worst
+
+        return None  # truly exhausted (should never reach here)
+
+    def _generate_dynamic_topics(self, consciousness: float) -> Optional[Dict]:
+        """
+        Mine insights.jsonl and the capabilities DB for concepts DMAI has discovered
+        but not yet formally studied.  Returns a synthetic topic dict or None.
+        """
+        import json as _j
+        import sqlite3 as _sq
+        from pathlib import Path as _P
+        seen_dynamic = self.learned_topics.get("_dynamic", {})
+        candidates = []
+
+        # Source 1: recent insights
+        ins_path = _P("data/research/insights.jsonl")
+        if ins_path.exists():
+            try:
+                lines = ins_path.read_text().splitlines()[-200:]  # last 200
+                for line in lines:
+                    if not line.strip():
+                        continue
+                    rec = _j.loads(line)
+                    concept = rec.get("concept", "").strip()
+                    domain  = rec.get("domain", "knowledge_systems")
+                    if concept and concept not in seen_dynamic:
+                        candidates.append({"topic": concept[:80], "domain": domain})
+            except Exception:
+                pass
+
+        # Source 2: capabilities DB
+        try:
+            conn = _sq.connect("data/dmai_knowledge.db")
+            cur  = conn.cursor()
+            cur.execute("PRAGMA table_info(capabilities)")
+            cols = [r[1] for r in cur.fetchall()]
+            name_col = next((c for c in ["name","capability","title"] if c in cols), None)
+            if name_col:
+                cur.execute(f"SELECT {name_col} FROM capabilities ORDER BY rowid DESC LIMIT 100")
+                for (cap,) in cur.fetchall():
+                    if cap and cap.strip() not in seen_dynamic:
+                        candidates.append({"topic": str(cap).strip()[:80], "domain": "capability"})
+            conn.close()
+        except Exception:
+            pass
+
+        if not candidates:
+            return None
+
+        # Pick first unused candidate
+        topic_info = candidates[0]
+        topic_name = topic_info["topic"]
+        return {
+            "topic":            topic_name,
+            "category":         "core",
+            "harvest_sources":  ["ai_tutors"],
+            "mastery_threshold": 2,
+            "_dynamic":         True,
+            "_domain":          topic_info.get("domain", "knowledge_systems"),
+        }
+
     def _get_next_stage(self, current_stage: str) -> Optional[str]:
         """Get the next stage name"""
         stages = list(self.STAGES.keys())
