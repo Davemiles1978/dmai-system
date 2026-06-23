@@ -5249,15 +5249,11 @@ def _start_telegram_bot():
     t.start()
     logger.info("Telegram bot thread started")
 
-# With gunicorn --preload, this runs in the master process before fork.
-# gunicorn_config.py post_fork hook will call _start_background_services()
-# in the worker process where daemon threads actually survive.
-# When running directly (python dmai_core_complete.py or dev server), start normally.
-_is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "") or bool(os.environ.get("GUNICORN_CMD_ARGS"))
+# Start all background services (researcher, training, evolution, etc.)
+# Runs in the gunicorn worker process — threads survive here without --preload.
 _background_services_started = False
-if not _is_gunicorn:
-    _start_background_services()
-    _background_services_started = True
+_start_background_services()
+_background_services_started = True
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

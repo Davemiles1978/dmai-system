@@ -3,9 +3,9 @@
 Implement compute_rental.py - Component P5T6
 """
 
-class Implement_compute_rental.py:
+class ImplementComputeRental:
     def __init__(self):
-        self.name = "Implement compute_rental.py"
+        self.name = "ImplementComputeRental:"
         self.component_id = "P5T6"
         self.status = "initialized"
         self.depends_on = []

@@ -3,9 +3,9 @@
 Implement validator.py - Component P1T5
 """
 
-class Implement_validator.py:
+class ImplementValidator:
     def __init__(self):
-        self.name = "Implement validator.py"
+        self.name = "ImplementValidator:"
         self.component_id = "P1T5"
         self.status = "initialized"
         self.depends_on = []

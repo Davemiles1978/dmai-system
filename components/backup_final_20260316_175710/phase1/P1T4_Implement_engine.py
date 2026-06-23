@@ -3,9 +3,9 @@
 Implement engine.py - Component P1T4
 """
 
-class Implement_engine.py:
+class ImplementEngine:
     def __init__(self):
-        self.name = "Implement engine.py"
+        self.name = "ImplementEngine:"
         self.component_id = "P1T4"
         self.status = "initialized"
         self.depends_on = []

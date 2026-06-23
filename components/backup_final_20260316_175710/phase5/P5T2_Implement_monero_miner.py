@@ -3,9 +3,9 @@
 Implement monero_miner.py - Component P5T2
 """
 
-class Implement_monero_miner.py:
+class ImplementMoneroMiner:
     def __init__(self):
-        self.name = "Implement monero_miner.py"
+        self.name = "ImplementMoneroMiner:"
         self.component_id = "P5T2"
         self.status = "initialized"
         self.depends_on = []

@@ -1,4 +1,4 @@
-k"""
+"""
 P3T7: No Co-location Audit - FULLY FUNCTIONAL
 Ensures DMAI fragments are distributed across different cloud providers
 Prevents single point of failure
