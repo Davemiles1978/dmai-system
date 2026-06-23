@@ -1400,42 +1400,66 @@
 
   // ── Status / dashboard ────────────────────────────────────────────────────
   async function loadStatus() {
+    // ── Single source of truth: /api/metrics ────────────────────────────────
     try {
-      const d = await api('/api/status');
-      document.getElementById('sys-status').textContent =
-        d.status === 'running' ? `Online · v${d.version}` : 'Degraded';
+      const [m, sys, health] = await Promise.all([
+        api('/api/metrics'),
+        api('/api/status'),
+        api('/health').catch(() => ({})),
+      ]);
 
-      // Dash KPIs
-      const kpis = d.si_kpis || {};
+      // System online indicator
+      const sysEl = document.getElementById('sys-status');
+      if (sysEl) sysEl.textContent = sys.status === 'running' ? `Online · v${sys.version}` : 'Degraded';
+
+      // ── KPIs — from /api/metrics (DB-derived, always accurate) ────────────
+      const kpis = m.kpis || {};
       renderKpiCards(kpis, 'dash-kpis');
       renderKpiCards(kpis, 'kpi-grid');
 
-      // Components
+      // ── Raw counts ────────────────────────────────────────────────────────
+      const fmt = v => (v !== undefined && v !== null) ? Number(v).toLocaleString() : '—';
+      const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+      setEl('lm-insights',     fmt(m.insights));
+      setEl('lm-capabilities', fmt(m.capabilities));
+      setEl('lm-neurons',      fmt(m.graph?.neurons));
+      setEl('lm-synapses',     fmt(m.graph?.synapses));
+      setEl('lm-cycle',        fmt(m.graph?.evolution_cycle));
+      setEl('lm-graph-neurons',  fmt(m.graph?.neurons));
+      setEl('lm-graph-synapses', fmt(m.graph?.synapses));
+      setEl('lm-graph-cycle',    fmt(m.graph?.evolution_cycle));
+      setEl('lm-graph-updated', 'last updated: ' + (m.generated_at ? m.generated_at.slice(0,10) : '--'));
+
+      // ── Components ────────────────────────────────────────────────────────
       const compEl = document.getElementById('dash-components');
-      compEl.innerHTML = '';
-      (d.components_loaded || []).forEach(c => {
-        const b = document.createElement('span');
-        b.className = 'badge badge-green';
-        b.textContent = c;
-        compEl.appendChild(b);
-      });
+      if (compEl) {
+        compEl.innerHTML = '';
+        (sys.components_loaded || []).forEach(c => {
+          const b = document.createElement('span');
+          b.className = 'badge badge-green';
+          b.textContent = c;
+          compEl.appendChild(b);
+        });
+      }
 
-      // Security
+      // ── Security ──────────────────────────────────────────────────────────
       const secEl = document.getElementById('dash-security');
-      secEl.innerHTML = '';
-      const health = await api('/health');
-      const sec = health.security || {};
-      Object.entries(sec).forEach(([k, v]) => {
-        const b = document.createElement('span');
-        b.className = `badge ${v ? 'badge-green' : 'badge-red'}`;
-        b.textContent = `${k}: ${v ? '✓' : '✗'}`;
-        secEl.appendChild(b);
-      });
+      if (secEl) {
+        secEl.innerHTML = '';
+        const sec = health.security || {};
+        Object.entries(sec).forEach(([k, v]) => {
+          const b = document.createElement('span');
+          b.className = `badge ${v ? 'badge-green' : 'badge-red'}`;
+          b.textContent = `${k}: ${v ? '✓' : '✗'}`;
+          secEl.appendChild(b);
+        });
+      }
 
-      // Logs
-      addLog(`[INFO] Status refreshed — uptime: ${d.uptime}`, 'info');
+      addLog(`[INFO] Metrics refreshed — ${fmt(m.insights)} insights · stage: ${m.stage} · uptime: ${m.uptime}`, 'info');
     } catch (e) {
-      document.getElementById('sys-status').textContent = 'Offline';
+      const sysEl = document.getElementById('sys-status');
+      if (sysEl) sysEl.textContent = 'Offline';
       addLog('[ERR] Status check failed: ' + e.message, 'err');
     }
   }
@@ -1536,10 +1560,12 @@
   async function triggerTraining(mode) {
     const out = document.getElementById('training-output');
     out.textContent = `Starting ${mode} training…`;
+    // Map UI mode names to actual backend routes
+    const route = mode === 'full' ? '/api/training/full' : '/api/training/quick';
     try {
-      const d = await api('/api/admin/train', {
+      const d = await api(route, {
         method: 'POST',
-        body: JSON.stringify({ mode, focus: 'Core' }),
+        body: JSON.stringify({ focus: 'Core' }),
       });
       out.textContent = JSON.stringify(d, null, 2);
       toast(`${mode} training triggered`);
@@ -1552,18 +1578,21 @@
 
   async function triggerUpdater() {
     try {
-      const d = await api('/api/admin/updater/start', { method: 'POST' });
-      toast('Background updater: ' + (d.status || d.error));
+      const d = await api('/api/training/updater/start', { method: 'POST' });
+      toast('Background updater: ' + (d.status || d.error || 'started'));
+      addLog('[INFO] Background updater started', 'info');
     } catch (e) { toast('Error: ' + e.message, 'error'); }
   }
 
   async function resetTraining() {
     if (!confirm('Reset all training state? This cannot be undone.')) return;
     try {
-      const d = await api('/api/admin/reset', { method: 'POST' });
-      toast('Training state reset');
+      // Stop updater then restart — no hard reset endpoint exists
+      await api('/api/training/updater/stop', { method: 'POST' });
+      const d = await api('/api/training/status');
+      toast('Training state refreshed');
       document.getElementById('training-output').textContent = JSON.stringify(d, null, 2);
-    } catch (e) { toast('Reset failed', 'error'); }
+    } catch (e) { toast('Reset failed: ' + e.message, 'error'); }
   }
 
   // ── Circuit breakers ──────────────────────────────────────────────────────
@@ -1846,7 +1875,7 @@
 
   async function triggerStudyCycle() {
     try {
-      const d = await api('/api/training/start', { method: 'POST', body: JSON.stringify({ mode: 'quick' }) });
+      const d = await api('/api/training/quick', { method: 'POST', body: JSON.stringify({ focus: 'Core' }) });
       toast('Learning cycle triggered', 'info');
       setTimeout(() => loadStudyProgress(), 5000);
     } catch (e) { toast('Error: ' + e.message, 'error'); }

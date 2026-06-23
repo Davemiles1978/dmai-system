@@ -3066,6 +3066,88 @@ def api_graph_schema():
         return jsonify({"error": str(e), "neurons": [], "synapses": []}), 200
 
 
+@app.route("/api/metrics", methods=["GET"])
+def api_metrics():
+    """
+    Single source of truth for ALL DMAI metrics.
+    Every dashboard display reads from here — no discrepancies.
+    """
+    import sqlite3 as _sq
+    _DB = os.path.join(DATA_PATH, "dmai_knowledge.db")
+    _si = components.get("si_core")
+    _kpis = dict(_si.current_kpis) if _si and hasattr(_si, "current_kpis") else {}
+
+    _ins, _caps, _vocab = 0, 0, 0
+    _stage, _within_pct = "Baby", 0.0
+    _daily_series = []
+
+    try:
+        _conn = _sq.connect(_DB)
+        _conn.row_factory = _sq.Row
+        _ins  = _conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
+        _caps = _conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
+        try:
+            _vocab = _conn.execute("SELECT COUNT(*) as c FROM vocabulary").fetchone()["c"]
+        except Exception:
+            pass
+        try:
+            _ss = _conn.execute("SELECT value FROM system_state WHERE key=\'learning_stage\'").fetchone()
+            _stage = _ss["value"] if _ss else "Baby"
+            _wp = _conn.execute("SELECT value FROM system_state WHERE key=\'stage_within_pct\'").fetchone()
+            _within_pct = float(_wp["value"]) if _wp else 0.0
+        except Exception:
+            pass
+        from datetime import datetime as _dt2, timedelta as _td2
+        _30d = (_dt2.utcnow() - _td2(days=30)).isoformat()
+        try:
+            _rows = _conn.execute("""
+                SELECT strftime('%Y-%m-%d', created_at) as day, COUNT(*) as cnt
+                FROM insights WHERE created_at > ?
+                GROUP BY day ORDER BY day ASC
+            """, (_30d,)).fetchall()
+            _daily_series = [{"date": r["day"], "count": r["cnt"]} for r in _rows]
+        except Exception:
+            pass
+        _conn.close()
+    except Exception as _e:
+        logger.warning("api_metrics DB error: %s", _e)
+
+    _graph_neurons, _graph_synapses, _graph_cycle = 0, 0, 0
+    try:
+        from components.graph_writer import GraphWriter as _GW2
+        _gs = _GW2().status()
+        _graph_neurons  = _gs.get("total_neurons", 0)
+        _graph_synapses = _gs.get("total_synapses", 0)
+        _graph_cycle    = _gs.get("evolution_cycle", 0)
+    except Exception:
+        pass
+
+    _STAGE_ORDER = ["Baby","Child","Teenager","Adult","Expert","Master","Transcendent","Infinite"]
+    _stage_idx   = _STAGE_ORDER.index(_stage) if _stage in _STAGE_ORDER else 0
+    _next_stage  = _STAGE_ORDER[_stage_idx + 1] if _stage_idx < len(_STAGE_ORDER) - 1 else None
+
+    return jsonify({
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "kpis":         _kpis,
+        "insights":     _ins,
+        "capabilities": _caps,
+        "vocab":        _vocab,
+        "stage":        _stage,
+        "stage_index":  _stage_idx,
+        "next_stage":   _next_stage,
+        "stage_within_pct": _within_pct,
+        "graph": {
+            "neurons":         _graph_neurons,
+            "synapses":        _graph_synapses,
+            "evolution_cycle": _graph_cycle,
+        },
+        "daily_series":      _daily_series,
+        "active_components": len(components),
+        "uptime":            _uptime(),
+        "version":           "7.0.0",
+    })
+
+
 @app.route("/api/graph/status", methods=["GET"])
 def api_graph_status():
     """Return live knowledge graph size and growth stats."""
@@ -3975,6 +4057,7 @@ def api_stage_analytics():
 
 
 def _start_background_services():
+    _start_kpi_seed_loop()  # DB-derived KPI seeder — single source of truth
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:
         from components.pg_storage import get_storage as _get_pg_storage
