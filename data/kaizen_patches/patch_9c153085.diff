@@ -1,0 +1,5 @@
+--- a/components/sqlite_storage.py
++++ b/components/sqlite_storage.py
+@@ -145 +145 @@
+-    query = "SELECT * FROM table WHERE name = '
++    query = "SELECT * FROM table WHERE name = '"
