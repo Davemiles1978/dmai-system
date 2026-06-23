@@ -5255,6 +5255,29 @@ _background_services_started = False
 _start_background_services()
 _background_services_started = True
 
+
+@app.route("/api/admin/start-services", methods=["POST"])
+def api_start_services():
+    """Force-start all background services and return detailed status."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import threading as _th
+    before = {t.name for t in _th.enumerate()}
+    try:
+        _start_background_services()
+    except Exception as _e:
+        return jsonify({"error": str(_e), "traceback": __import__("traceback").format_exc()})
+    import time as _t; _t.sleep(2)
+    after = {t.name for t in _th.enumerate()}
+    new_threads = list(after - before)
+    all_threads = [t.name for t in _th.enumerate()]
+    return jsonify({
+        "status": "ok",
+        "new_threads": new_threads,
+        "all_threads": all_threads,
+        "total": len(all_threads),
+    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
