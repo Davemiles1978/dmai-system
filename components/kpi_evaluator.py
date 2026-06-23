@@ -342,11 +342,30 @@ class KPIEvaluator:
         try:
             if hasattr(hub, "chat_sync"):
                 return hub.chat_sync(prompt)
+            elif hasattr(hub, "query_all_tutors"):
+                # AIIntegrationHub — synchronous multi-tutor query
+                result = hub.query_all_tutors(prompt)
+                if isinstance(result, dict):
+                    # Try to extract a text response from synthesis or first provider
+                    synth = result.get("synthesis") or result.get("best_response") or ""
+                    if synth:
+                        return str(synth)
+                    responses = result.get("responses", {})
+                    for v in responses.values():
+                        if isinstance(v, dict) and v.get("response"):
+                            return str(v["response"])
+                return str(result) if result else None
             elif hasattr(hub, "chat"):
+                # async chat — run in new event loop
                 loop = asyncio.new_event_loop()
                 try:
                     result = loop.run_until_complete(hub.chat(prompt))
-                    return result
+                    # ExtendedAIIntegrationHub.chat returns str directly
+                    if isinstance(result, str):
+                        return result
+                    if isinstance(result, dict):
+                        return result.get("content") or result.get("text") or str(result)
+                    return str(result) if result else None
                 finally:
                     loop.close()
         except Exception as e:

@@ -348,9 +348,11 @@ except Exception as e:
 # ── KPIEvaluator (real benchmark evaluations for all 8 KPIs) ─────────────────
 try:
     from components.kpi_evaluator import KPIEvaluator
+    # Prefer AIIntegrationHub (sync query_all_tutors), fall back to ExtendedAIIntegrationHub (async chat)
+    _kpi_hub = components.get("ai_hub") or components.get("extended_hub")
     components["kpi_evaluator"] = KPIEvaluator(
         si_core   = components.get("si_core"),
-        ai_hub    = components.get("extended_hub") or components.get("ai_hub"),
+        ai_hub    = _kpi_hub,
         data_path = DATA_PATH,
     )
     logger.info("KPIEvaluator initialised")
@@ -1209,18 +1211,30 @@ def api_knowledge(concept):
 @app.route("/api/kpi/evaluate", methods=["POST"])
 def api_kpi_evaluate():
     data  = request.get_json(silent=True) or {}
-    quick = data.get("quick", True)
+    # Accept quick as query param OR body param
+    quick_qs = request.args.get("quick", "").lower() in ("true", "1", "yes")
+    quick = quick_qs or data.get("quick", False)
     kpi_eval = components.get("kpi_evaluator")
     if not kpi_eval:
         return jsonify({"error": "KPIEvaluator not loaded"}), 503
     import threading as _kpi_th
     results = {}
+    err_holder = []
     def _run():
-        results.update(kpi_eval.run_full_eval(quick=quick))
+        try:
+            results.update(kpi_eval.run_full_eval(quick=quick))
+        except Exception as _e:
+            err_holder.append(str(_e))
+            logger.error("KPIEvaluator run_full_eval error: %s", _e)
     t = _kpi_th.Thread(target=_run, daemon=True)
     t.start()
-    t.join(timeout=120)
-    return jsonify({"status": "complete" if not t.is_alive() else "timeout", "results": results})
+    timeout = 60 if quick else 180
+    t.join(timeout=timeout)
+    status = "complete" if not t.is_alive() else "timeout"
+    resp = {"status": status, "results": results, "quick": quick}
+    if err_holder:
+        resp["error"] = err_holder[0]
+    return jsonify(resp)
 
 
 @app.route("/api/kpi/history")
@@ -1249,7 +1263,17 @@ def api_kpi_rsi_sync():
     if not kpi_eval:
         return jsonify({"error": "KPIEvaluator not loaded"}), 503
     rate = kpi_eval.eval_rsi_from_graph()
-    return jsonify({"recursive_self_improvement_rate": rate, "evolution_cycle": rate})
+    # Also read the actual evolution_cycle for the UI toast message
+    import json as _rj
+    from pathlib import Path as _rp
+    schema_path = _rp("aevora-training/dashboard/data/graph_schema.json")
+    evo_cycle = 0
+    if schema_path.exists():
+        try:
+            evo_cycle = _rj.loads(schema_path.read_text()).get("evolution_cycle", 0)
+        except Exception:
+            pass
+    return jsonify({"ok": True, "recursive_self_improvement_rate": rate, "rsi": rate, "evolution_cycle": evo_cycle})
 
 
 @app.route("/api/conversations")
