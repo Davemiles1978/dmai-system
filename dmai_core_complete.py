@@ -4778,6 +4778,123 @@ def _start_kpi_seed_loop():
     logger.info("KPI seed loop started (every 5 min)")
 
 
+
+def _backfill_kaizen_queue():
+    """
+    One-time migration: copy entries from kaizen_proposals.jsonl into
+    kaizen_queue.jsonl (for KaizenAutoRepair) and into the suggestions
+    SQLite table (for /api/kaizen/status dashboard counts).
+    Idempotent — skips entries already in queue or DB.
+    """
+    import uuid as _uuid_mod_bk
+    proposals_file = Path(DATA_PATH) / "kaizen_proposals.jsonl"
+    queue_file     = Path(DATA_PATH) / "kaizen_queue.jsonl"
+
+    if not proposals_file.exists():
+        return
+
+    # Load existing queue IDs to avoid duplicates
+    existing_ids = set()
+    if queue_file.exists():
+        for line in queue_file.read_text().splitlines():
+            try:
+                obj = json.loads(line)
+                eid = obj.get("id") or obj.get("title", "")
+                existing_ids.add(eid)
+            except Exception:
+                pass
+
+    # Load existing suggestion IDs from DB
+    _ensure_suggestions_table()
+    try:
+        conn_bk = _sug_db()
+        db_ids = {row[0] for row in conn_bk.execute("SELECT id FROM suggestions").fetchall()}
+        db_titles = {row[0] for row in conn_bk.execute("SELECT title FROM suggestions").fetchall()}
+        conn_bk.close()
+    except Exception as _e:
+        logger.warning("Kaizen backfill: could not read suggestions DB: %s", _e)
+        db_ids = set()
+        db_titles = set()
+
+    proposals = []
+    for line in proposals_file.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            proposals.append(json.loads(line))
+        except Exception:
+            pass
+
+    new_queue = []
+    new_db    = []
+    now_str = datetime.now(timezone.utc).isoformat()
+
+    for p in proposals:
+        title = p.get("title", "")
+        # Assign stable ID if missing
+        if not p.get("id"):
+            p["id"] = "kz-" + _uuid_mod_bk.uuid4().hex[:8]
+        pid = p["id"]
+
+        # Normalise status: "review_and_fix" → "pending"
+        if p.get("status") in (None, "review_and_fix", ""):
+            p["status"] = "pending"
+        if "attempt_count" not in p:
+            p["attempt_count"] = 0
+        if "action_type" not in p:
+            p["action_type"] = "patch"
+
+        # Queue file dedup
+        key = pid if pid in existing_ids else title
+        if key not in existing_ids:
+            new_queue.append(p)
+            existing_ids.add(pid)
+            existing_ids.add(title)
+
+        # DB dedup
+        if pid not in db_ids and title not in db_titles:
+            new_db.append(p)
+            db_ids.add(pid)
+            db_titles.add(title)
+
+    # Write new entries to queue file
+    if new_queue:
+        queue_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(queue_file, "a") as _qf:
+            for p in new_queue:
+                _qf.write(json.dumps(p) + "\n")
+        logger.info("Kaizen backfill: wrote %d new entries to kaizen_queue.jsonl", len(new_queue))
+
+    # Insert new entries into suggestions DB
+    if new_db:
+        try:
+            conn_bk2 = _sug_db()
+            for p in new_db:
+                conn_bk2.execute(
+                    "INSERT OR IGNORE INTO suggestions "
+                    "(id, source, title, description, status, created_at, updated_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        p["id"],
+                        p.get("source", "SelfHealer"),
+                        p.get("title", "Kaizen proposal"),
+                        p.get("description", p.get("title", "")),
+                        "pending",
+                        p.get("created_at", now_str),
+                        now_str,
+                    )
+                )
+            conn_bk2.commit()
+            conn_bk2.close()
+            logger.info("Kaizen backfill: inserted %d proposals into suggestions table", len(new_db))
+        except Exception as _e:
+            logger.warning("Kaizen backfill DB insert error: %s", _e)
+
+    if not new_queue and not new_db:
+        logger.debug("Kaizen backfill: nothing new to add")
+
+
 def _start_background_services():
     _start_kpi_seed_loop()  # DB-derived KPI seeder — single source of truth
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
@@ -4912,7 +5029,11 @@ def _start_background_services():
         except Exception as e:
             logger.warning("StageAwareLearningOrchestrator auto-start failed: %s", e)
 
-    # ── KaizenAutoRepair — start autonomous fix loop ───────────────────────────
+    # ── KaizenAutoRepair — backfill existing proposals then start fix loop ────
+    try:
+        _backfill_kaizen_queue()
+    except Exception as _bfe:
+        logger.warning("Kaizen backfill error: %s", _bfe)
     _kar = components.get("kaizen_auto_repair")
     if _kar:
         try:

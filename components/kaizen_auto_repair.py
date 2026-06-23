@@ -91,9 +91,8 @@ class KaizenAutoRepair:
         proposals = self._load_proposals()
         pending = [
             p for p in proposals
-            if p.get("status") in ("pending", "auto_repair_needed")
+            if p.get("status") in ("pending", "auto_repair_needed", "review_and_fix")
             and p.get("attempt_count", 0) < _MAX_ATTEMPTS
-            and p.get("type", "").lower() in ("auto_repair", "bug_fix", "improvement", "")
         ]
 
         if not pending:
@@ -103,7 +102,7 @@ class KaizenAutoRepair:
         repaired = 0
         failed   = 0
 
-        for proposal in pending[:5]:   # max 5 per cycle to avoid long blocking
+        for proposal in pending[:10]:  # max 10 per cycle
             result = self._attempt_repair(proposal)
             proposal["attempt_count"] = proposal.get("attempt_count", 0) + 1
             proposal["last_attempt"]  = datetime.now(timezone.utc).isoformat()

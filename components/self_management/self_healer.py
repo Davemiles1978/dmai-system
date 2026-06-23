@@ -222,24 +222,58 @@ class SelfHealer:
     # ── Kaizen proposal emission ───────────────────────────────────────────
 
     def _emit_kaizen_proposal(self, rel: str, error: str):
-        """Write a kaizen proposal to the queue for human review."""
-        kaizen_file = self.root / "data" / "kaizen_proposals.jsonl"
-        kaizen_file.parent.mkdir(parents=True, exist_ok=True)
+        """Auto-enqueue a kaizen proposal directly into the repair queue — no human approval gate."""
+        import uuid
+        proposal_id = "sh-" + uuid.uuid4().hex[:8]
         proposal = {
+            "id": proposal_id,
             "title": f"Auto-repair needed: {rel}",
             "priority": "HIGH",
             "source": "SelfHealer",
             "description": (
                 f"File `{rel}` has failed syntax check 3 times consecutively. "
-                f"Last error: {error}. Manual review and repair required."
+                f"Last error: {error}. Auto-queued for repair."
             ),
-            "action": "review_and_fix",
+            "action": "patch",
+            "action_type": "patch",
             "file": rel,
+            "file_path": rel,
+            "suggested_fix": f"Fix syntax error at: {error}",
+            "status": "pending",
+            "attempt_count": 0,
             "created_at": _now(),
         }
-        with open(kaizen_file, "a") as f:
+        # Write to kaizen_queue.jsonl (read by KaizenAutoRepair)
+        queue_file = self.root / "data" / "kaizen_queue.jsonl"
+        queue_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(queue_file, "a") as f:
             f.write(json.dumps(proposal) + "\n")
-        logger.warning("KaizenProposal created for %s", rel)
+        # Also write to kaizen_proposals.jsonl (read by KaizenExecutor for PR creation)
+        proposals_file = self.root / "data" / "kaizen_proposals.jsonl"
+        with open(proposals_file, "a") as f:
+            f.write(json.dumps(proposal) + "\n")
+        logger.warning("KaizenProposal auto-enqueued for %s (id=%s)", rel, proposal_id)
+        # Fire-and-forget POST to suggestions API so dashboard counts update
+        try:
+            import urllib.request as _req_mod
+            import urllib.error as _url_err
+            import base64 as _b64
+            _payload = json.dumps({
+                "title": proposal["title"],
+                "description": proposal["description"],
+                "source": "SelfHealer",
+            }).encode()
+            _auth = _b64.b64encode(b"admin:dmai_master").decode()
+            _r = _req_mod.Request(
+                "http://localhost:5000/api/suggestions",
+                data=_payload,
+                headers={"Content-Type": "application/json", "Authorization": f"Basic {_auth}"},
+                method="POST",
+            )
+            with _req_mod.urlopen(_r, timeout=3):
+                pass
+        except Exception as _api_e:
+            logger.debug("SelfHealer: could not POST to suggestions API: %s", _api_e)
 
     # ── Helpers ────────────────────────────────────────────────────────────
 
