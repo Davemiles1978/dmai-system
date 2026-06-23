@@ -848,7 +848,7 @@ def _require_auth():
         return True  # security module missing — fail open only in dev
     # Legacy password header
     pwd = request.headers.get("X-Master-Password") or request.args.get("password", "")
-    master = os.environ.get("MASTER_PASSWORD", "dmai_master")
+    master = os.environ.get("MASTER_PASSWORD", "")
     return pwd == master
 
 def _ai_chat(message: str) -> str:
@@ -1034,9 +1034,21 @@ def api_persona():
 
 @app.route("/")
 def index():
+    import base64 as _b64
     dashboard = Path("static/dashboard.html")
     if dashboard.exists():
-        return send_from_directory("static", "dashboard.html")
+        # Inject auth token into dashboard at serve time — never hardcoded in source
+        _pw = os.environ.get("MASTER_PASSWORD", "")
+        _tok = _b64.b64encode(f"admin:{_pw}".encode()).decode() if _pw else ""
+        try:
+            _html = dashboard.read_text()
+            _html = _html.replace(
+                'content="{{ dmai_auth_header }}"',
+                f'content="Basic {_tok}"'
+            )
+            return _html, 200, {"Content-Type": "text/html; charset=utf-8"}
+        except Exception:
+            return send_from_directory("static", "dashboard.html")
     return f"""<!DOCTYPE html>
 <html><head><title>DMAI v7.0.0</title>
 <style>body{{background:#0a0a0f;color:#e0e0ff;font-family:monospace;padding:40px}}
@@ -1804,7 +1816,7 @@ def api_admin_token():
     """
     data = request.get_json(silent=True) or {}
     pwd = data.get("password", "")
-    if pwd != os.environ.get("MASTER_PASSWORD", "dmai_master"):
+    if pwd != os.environ.get("MASTER_PASSWORD", ""):
         return jsonify({"error": "Invalid password"}), 401
     if not SECURITY_AVAILABLE:
         return jsonify({"error": "Security module not available"}), 503
@@ -1822,7 +1834,7 @@ def api_admin_auth():
     """
     data = request.get_json(silent=True) or {}
     pwd = data.get("password", "")
-    master = os.environ.get("MASTER_PASSWORD", "dmai_master")
+    master = os.environ.get("MASTER_PASSWORD", "")
     if pwd != master:
         return jsonify({"error": "Invalid password"}), 401
     return jsonify({"ok": True})

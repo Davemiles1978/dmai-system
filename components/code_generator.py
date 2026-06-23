@@ -16,7 +16,7 @@ System context:
 - Database: SQLite at data/dmai_knowledge.db
 - Python: 3.11
 - All paths: use DATA_PATH env var (default "data"), always .rstrip("/") before os.path.join
-- Auth: Basic auth with admin:dmai_master
+- Auth: Basic auth using MASTER_PASSWORD env var
 - Identity: internal=DMAI, public persona=Alex Riviera
 
 Task: Implement the following as a complete, production-ready Python module:

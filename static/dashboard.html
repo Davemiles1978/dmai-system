@@ -1206,9 +1206,9 @@ function showToast(msg, type = 'info') {
 }
 
 // ── Fetch wrapper ────────────────────────────────────────────────
-// Basic-auth header so authenticated endpoints don't silently 401 into
-// an "Unavailable" panel (admin:dmai_master).
-const DMAI_AUTH = 'Basic YWRtaW46ZG1haV9tYXN0ZXI=';
+// Auth token injected at runtime via meta tag — never hardcoded in source
+const _authMeta = document.querySelector('meta[name="dmai-auth"]');
+const DMAI_AUTH = _authMeta ? _authMeta.content : '';
 async function apiFetch(url, options = {}) {
   try {
     const res = await fetch(url, {

@@ -50,7 +50,11 @@ class SelfScanner:
                         continue
                     path = str(rule)
                     try:
-                        resp = client.get(path, headers={"Authorization": "Basic YWRtaW46ZG1haV9tYXN0ZXI="})
+                        import os as _os, base64 as _b64
+                        _pw = _os.environ.get("MASTER_PASSWORD", "")
+                        _tok = _b64.b64encode(f"admin:{_pw}".encode()).decode() if _pw else ""
+                        _hdrs = {"Authorization": f"Basic {_tok}"} if _tok else {}
+                        resp = client.get(path, headers=_hdrs)
                         if resp.status_code >= 500:
                             broken.append({"path": path, "error": str(resp.status_code)})
                         elif resp.status_code == 200:
