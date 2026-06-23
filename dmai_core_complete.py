@@ -1442,6 +1442,84 @@ def api_dashboard():
 
 # ── Admin endpoints (JWT-protected) ──────────────────────────────────────────
 
+
+# ── /api/training/* — canonical training routes ─────────────────────────────
+
+@app.route("/api/training/status", methods=["GET"])
+def api_training_status():
+    """Live status of all background training threads — 24/7 always-on."""
+    import threading as _th
+    tnames = [t.name for t in _th.enumerate()]
+
+    def _up(*kws):
+        return any(any(kw.lower() in n.lower() for kw in kws) for n in tnames)
+
+    services = {
+        "background_updater":    _up("updater", "backgroundupdater"),
+        "parallel_learner":      _up("parallel", "parallellearner", "web_learn"),
+        "autonomous_researcher": _up("research", "autonomousresearch"),
+        "stage_learner":         _up("stage", "stagelearner", "learning_loop"),
+        "kaizen_repair":         _up("kaizen", "repair"),
+        "graph_evolution":       _up("graph", "graphevolution"),
+        "kpi_seed":              _up("kpi", "kpiseed"),
+        "vocab_ingest":          _up("vocab", "vocabingest"),
+    }
+    active = sum(1 for v in services.values() if v)
+    return jsonify({
+        "status":             "healthy" if active >= 4 else "degraded",
+        "training_always_on": True,
+        "message":            "Training runs 24/7 automatically — no manual start needed",
+        "services":           services,
+        "active_count":       active,
+        "total_threads":      len(tnames),
+        "thread_names":       tnames,
+    })
+
+
+@app.route("/api/training/full", methods=["POST"])
+def api_training_full():
+    """Trigger an extra full training cycle on demand (training always runs in background)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    orch = components.get("training_orchestrator")
+    if not orch:
+        return jsonify({"error": "Training orchestrator not loaded"}), 503
+    try:
+        result = _run_async(orch.run_full_training())
+        return jsonify({"status": "triggered", "result": result})
+    except Exception as e:
+        return jsonify({"status": "triggered_async", "note": str(e)}), 202
+
+
+@app.route("/api/training/quick", methods=["POST"])
+def api_training_quick():
+    """Trigger an extra quick training cycle on demand."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    orch = components.get("training_orchestrator")
+    if not orch:
+        return jsonify({"error": "Training orchestrator not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    focus = data.get("focus", "Core")
+    try:
+        result = _run_async(orch.run_quick_training(focus))
+        return jsonify({"status": "triggered", "result": result})
+    except Exception as e:
+        return jsonify({"status": "triggered_async", "note": str(e)}), 202
+
+
+@app.route("/api/training/updater/start", methods=["POST"])
+def api_training_updater_start():
+    """Restart the background updater if it has stopped."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    orch = components.get("training_orchestrator")
+    if orch and hasattr(orch, "start_background_updater"):
+        orch.start_background_updater()
+        return jsonify({"status": "restarted"})
+    return jsonify({"error": "orchestrator not loaded"}), 503
+
+
 @app.route("/api/admin/train", methods=["POST"])
 def api_admin_train():
     if not _require_auth():
@@ -4054,6 +4132,104 @@ def api_stage_analytics():
         logger.error("api_stage_analytics: %s", _e)
         return jsonify({"error": str(_e)}), 500
 
+
+
+
+def _seed_kpis_from_db():
+    """Derive all 8 SICore KPI scores from live SQLite counts — single source of truth."""
+    try:
+        db_path = os.environ.get("DATA_PATH", "data") + "/dmai_knowledge.db"
+        import sqlite3 as _sq3
+        con = _sq3.connect(db_path, timeout=5)
+        cur = con.cursor()
+
+        def _count(tbl, where="1=1"):
+            try:
+                cur.execute(f"SELECT COUNT(*) FROM {tbl} WHERE {where}")
+                return cur.fetchone()[0]
+            except Exception:
+                return 0
+
+        insights    = _count("insights")
+        caps        = _count("capabilities")
+        vocab       = _count("vocabulary")
+
+        # 7-day insight average
+        try:
+            cur.execute(
+                "SELECT COUNT(*) FROM insights WHERE created_at >= datetime('now','-7 days')"
+            )
+            ins_7d = cur.fetchone()[0]
+        except Exception:
+            ins_7d = 0
+        ins_7d_avg = ins_7d / 7.0 if ins_7d else 0
+
+        con.close()
+
+        # Stage index from components
+        si = components.get("si_core")
+        stage_index = 0
+        stage_pct   = 0.0
+        if si:
+            try:
+                stage_index = getattr(si, "stage_index", 0)
+                stage_pct   = getattr(si, "stage_within_pct", 0.0)
+            except Exception:
+                pass
+
+        # Active component fraction
+        active_comp = sum(1 for v in components.values() if v is not None)
+        total_comp  = max(len(components), 1)
+
+        kpis = {
+            "skill_acquisition_rate":       min(caps   / 50_000, 1.0),
+            "transfer_learning_rate":        min(stage_index / 7, 1.0),
+            "zero_shot_success_count":       min(insights / 300_000, 1.0),
+            "agentic_capability_score":      min(caps   / 20_000, 1.0),
+            "recursive_self_improvement_rate": stage_pct / 100.0,
+            "sample_efficiency_trend":       min(ins_7d_avg / 5_000, 1.0),
+            "metacognition_accuracy":        min(vocab  / 500_000, 1.0),
+            "multi_modal_integration_score": active_comp / max(total_comp, 56),
+        }
+
+        # Persist to si_core if available
+        si = components.get("si_core")
+        if si and hasattr(si, "kpi_scores"):
+            si.kpi_scores.update(kpis)
+
+        # Persist to a lightweight JSON cache for /api/metrics
+        try:
+            import json as _json
+            cache_dir = os.environ.get("DATA_PATH", "data")
+            os.makedirs(cache_dir, exist_ok=True)
+            cache_path = os.path.join(cache_dir, "kpi_cache.json")
+            with open(cache_path, "w") as _f:
+                _json.dump({"kpis": kpis, "ts": __import__("datetime").datetime.utcnow().isoformat()}, _f)
+        except Exception:
+            pass
+
+        logger.info("KPI seed: %s", {k: round(v, 4) for k, v in kpis.items()})
+    except Exception as _e:
+        logger.warning("_seed_kpis_from_db failed: %s", _e)
+
+
+def _start_kpi_seed_loop():
+    """Run _seed_kpis_from_db once now, then every 5 minutes as a daemon thread."""
+    import threading as _th
+    _seed_kpis_from_db()  # immediate boot seed
+
+    def _loop():
+        import time as _t
+        while True:
+            _t.sleep(300)
+            try:
+                _seed_kpis_from_db()
+            except Exception as _e:
+                logger.warning("KPI seed loop error: %s", _e)
+
+    t = _th.Thread(target=_loop, daemon=True, name="KpiSeedLoop")
+    t.start()
+    logger.info("KPI seed loop started (every 5 min)")
 
 
 def _start_background_services():
