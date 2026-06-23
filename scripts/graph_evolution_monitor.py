@@ -302,6 +302,14 @@ def main():
     save_schema(updated_schema)
     print(f"  Schema updated → {SCHEMA_PATH}")
 
+    # Clear wallpaper cache so next /wallpaper request re-renders
+    try:
+        from components.graph_wallpaper import clear_cache
+        clear_cache()
+        print("  Wallpaper cache cleared")
+    except Exception:
+        pass
+
     if not args.no_branch:
         branch = create_pr_branch_and_push(changes)
         if branch:

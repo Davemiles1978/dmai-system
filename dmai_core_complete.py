@@ -922,6 +922,57 @@ def mobile_page():
     return send_from_directory("static", "mobile.html")
 
 
+@app.route("/wallpaper")
+def wallpaper_png():
+    """
+    Serve the DMAI knowledge graph as a PNG image.
+    Query params:
+      ?dark=1|0     — dark (default) or light background
+      ?size=mini    — 400×400 preview instead of full iPhone resolution
+      ?bust=1       — bypass cache (force re-render)
+    """
+    from components.graph_wallpaper import render_wallpaper_png, clear_cache
+    from flask import send_file, request as req
+    dark  = req.args.get("dark", "1") != "0"
+    mini  = req.args.get("size", "") == "mini"
+    bust  = req.args.get("bust", "0") == "1"
+    if bust:
+        clear_cache()
+    w, h = (400, 400) if mini else (1179, 2556)
+    try:
+        png = render_wallpaper_png(width=w, height=h, dark=dark)
+        if not png:
+            return "Graph renderer unavailable", 503
+        buf = __import__("io").BytesIO(png)
+        buf.seek(0)
+        return send_file(buf, mimetype="image/png",
+                         download_name="dmai-graph.png",
+                         max_age=300)
+    except Exception as e:
+        logger.error("Wallpaper render failed: %s", e)
+        return f"Render error: {e}", 500
+
+
+@app.route("/graph-widget")
+def graph_widget_svg():
+    """
+    Serve the DMAI knowledge graph as an SVG for Widgetsmith / home screen widgets.
+    Query params:
+      ?size=small|medium|large
+    """
+    from components.graph_wallpaper import render_widget_svg
+    from flask import request as req
+    size = req.args.get("size", "small")
+    try:
+        svg = render_widget_svg(size=size)
+        from flask import Response
+        return Response(svg, mimetype="image/svg+xml",
+                        headers={"Cache-Control": "public, max-age=300"})
+    except Exception as e:
+        logger.error("Widget SVG render failed: %s", e)
+        return f"Render error: {e}", 500
+
+
 @app.route("/status")
 def status_page():
     return index()
