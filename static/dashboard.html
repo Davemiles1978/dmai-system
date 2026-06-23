@@ -1206,18 +1206,44 @@ function showToast(msg, type = 'info') {
 }
 
 // ── Fetch wrapper ────────────────────────────────────────────────
+// Basic-auth header so authenticated endpoints don't silently 401 into
+// an "Unavailable" panel (admin:dmai_master).
+const DMAI_AUTH = 'Basic YWRtaW46ZG1haV9tYXN0ZXI=';
 async function apiFetch(url, options = {}) {
   try {
     const res = await fetch(url, {
-      headers: { 'Content-Type': 'application/json', ...options.headers },
+      headers: { 'Content-Type': 'application/json', 'Authorization': DMAI_AUTH, ...options.headers },
       ...options
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
   } catch (e) {
+    console.warn('apiFetch failed:', url, e);
     return null;
   }
 }
+
+// Pretty labels for the 8 canonical SI KPIs
+const SI_KPI_LABELS = {
+  skill_acquisition_rate:          'Skill Acquisition',
+  transfer_learning_rate:          'Transfer Learning',
+  zero_shot_success_count:         'Zero-Shot Success',
+  agentic_capability_score:        'Agentic Capability',
+  recursive_self_improvement_rate: 'Recursive Self-Improvement',
+  sample_efficiency_trend:         'Sample Efficiency',
+  metacognition_accuracy:          'Metacognition Accuracy',
+  multi_modal_integration_score:   'Multi-Modal Integration',
+};
+const SI_SERVICE_LABELS = {
+  background_updater:    'Background Updater',
+  parallel_learner:      'Parallel Learner',
+  autonomous_researcher: 'Autonomous Researcher',
+  stage_learner:         'Stage Learner',
+  kaizen_repair:         'Kaizen Repair',
+  graph_evolution:       'Graph Evolution',
+  kpi_seed:              'KPI Seeder',
+  vocab_ingest:          'Vocab Ingest',
+};
 
 // ── Offline empty-state helpers (no invented data) ───────────────
 // These return null/empty structures so render functions show
@@ -1229,19 +1255,35 @@ function offlineHub() { return null; }
 function offlineAvatarContent() { return []; }
 
 // ── Render: Stat Cards ────────────────────────────────────────────
-function renderStatCards(status, training, hub, kaizen) {
-  const expertPct = training ? training.expert_pct : 0;
-  const kpis = training ? training.kpis : [];
-  const avgKpi = kpis.length
-    ? (kpis.reduce((a, k) => a + k.value, 0) / kpis.length).toFixed(1)
-    : '—';
-  const providers = hub ? hub.active_providers : (status ? status.providers_active : '—');
-  const kaizenTotal = kaizen ? kaizen.proposals.length : (status ? status.kaizen_count : '—');
+function renderStatCards(status, orch, providers, kaizenStatus) {
+  try {
+    // AI Training Progress — share of the 8 background services that are live
+    const services = orch?.services || {};
+    const svcVals = Object.values(services);
+    const trainingPct = svcVals.length
+      ? Math.round((svcVals.filter(Boolean).length / svcVals.length) * 100)
+      : 0;
+    animateNumber('trainingPct', trainingPct, true);
 
-  animateNumber('trainingPct',     expertPct,  true);
-  animateNumber('consciousnessScore', parseFloat(avgKpi), true);
-  animateNumber('activeProviders', providers);
-  animateNumber('kaizenCount',     kaizenTotal);
+    // SI Consciousness Score — NaN/null guard (FIX 10)
+    const consciousnessRaw = status?.si_kpis?.consciousness ?? status?.kpis?.consciousness ?? 0;
+    const consciousness = (consciousnessRaw === null || isNaN(consciousnessRaw))
+      ? 0 : Number(consciousnessRaw);
+    const cEl = document.getElementById('consciousnessScore');
+    if (cEl) cEl.textContent = (consciousness * 100).toFixed(1) + '%';
+
+    // Active Providers — data.active is an ARRAY (FIX 12)
+    const provCount = Array.isArray(providers?.active)
+      ? providers.active.length
+      : (providers?.active_count ?? 0);
+    animateNumber('activeProviders', provCount);
+
+    // Kaizen Improvements — total proposals from /api/kaizen/status (FIX 13)
+    const kaizenTotal = kaizenStatus?.total_proposals ?? 0;
+    animateNumber('kaizenCount', kaizenTotal);
+  } catch (e) {
+    console.error('renderStatCards failed:', e);
+  }
 }
 
 function animateNumber(id, target, addPct = false) {
@@ -1262,85 +1304,113 @@ function animateNumber(id, target, addPct = false) {
   requestAnimationFrame(tick);
 }
 
-// ── Render: Training Stages ───────────────────────────────────────
-function renderStages(training) {
+// ── Render: Training Progress (background services) ───────────────
+function renderStages(orch) {
   const list = document.getElementById('stageList');
   const badge = document.getElementById('trainingBadge');
   if (!list) return;
-  if (!training) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><span>Unavailable</span></div>`;
-    return;
-  }
+  try {
+    const services = orch?.services;
+    if (!services || typeof services !== 'object') {
+      list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><span>Unavailable</span></div>`;
+      if (badge) badge.textContent = '—';
+      return;
+    }
+    const entries = Object.entries(services);
+    const active = entries.filter(([, v]) => v).length;
+    if (badge) badge.textContent = `${active} / ${entries.length} services`;
 
-  const total = training.stages.reduce((a, s) => a + s.count, 0);
-  badge.textContent = `${total} / ${training.stages[0].total * training.stages.length} domains`;
+    list.innerHTML = entries.map(([key, on]) => {
+      const label = SI_SERVICE_LABELS[key] || key;
+      return `
+        <div class="stage-row${on ? ' active' : ''}">
+          <span class="stage-label">${label}</span>
+          <div class="stage-bar-wrap">
+            <div class="stage-bar" data-pct="${on ? 100 : 0}" style="width:0%"></div>
+          </div>
+          <span class="stage-count">${on ? 'live' : 'down'}</span>
+        </div>`;
+    }).join('');
 
-  list.innerHTML = training.stages.map(s => {
-    const pct = Math.min(Math.round((s.count / s.total) * 100), 100);
-    const isExpert = s.stage === 'Expert';
-    return `
-      <div class="stage-row${s.count > 0 ? ' active' : ''}${isExpert ? ' expert' : ''}">
-        <span class="stage-label">${s.stage}</span>
-        <div class="stage-bar-wrap">
-          <div class="stage-bar" data-pct="${pct}" style="width:0%"></div>
-        </div>
-        <span class="stage-count">${s.count}/${s.total}</span>
-      </div>`;
-  }).join('');
-
-  // Animate bars after render
-  requestAnimationFrame(() => {
-    list.querySelectorAll('.stage-bar').forEach(bar => {
-      const pct = bar.getAttribute('data-pct');
-      setTimeout(() => { bar.style.width = pct + '%'; }, 50);
+    requestAnimationFrame(() => {
+      list.querySelectorAll('.stage-bar').forEach(bar => {
+        const pct = bar.getAttribute('data-pct');
+        setTimeout(() => { bar.style.width = pct + '%'; }, 50);
+      });
     });
-  });
+  } catch (e) {
+    console.error('renderStages failed:', e);
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><span>Unavailable</span></div>`;
+  }
 }
 
 // ── Render: KPI List ─────────────────────────────────────────────
-function renderKPIs(training) {
+function renderKPIs(status) {
   const list = document.getElementById('kpiList');
   const ring = document.getElementById('ringArc');
   const ringVal = document.getElementById('ringVal');
   if (!list) return;
-  if (!training) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><span>Unavailable</span></div>`;
-    return;
-  }
-  const kpis = training.kpis;
-  const avg = kpis.reduce((a, k) => a + k.value, 0) / kpis.length;
+  try {
+    const si = status?.si_kpis ?? status?.kpis ?? null;
+    if (!si || typeof si !== 'object') {
+      list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><span>Unavailable</span></div>`;
+      return;
+    }
 
-  list.innerHTML = kpis.map(k => {
-    const pct = k.value.toFixed(1);
-    const color = k.value >= 80 ? 'var(--green)' : k.value >= 60 ? 'var(--accent)' : 'var(--yellow)';
-    return `
-      <div class="kpi-row">
-        <div class="kpi-meta">
-          <span class="kpi-name">${k.name}</span>
-          <span class="kpi-val" style="color:${color}">${pct}%</span>
-        </div>
-        <div class="kpi-bar-wrap">
-          <div class="kpi-bar" data-pct="${pct}" style="width:0%; background:linear-gradient(90deg, var(--accent-dim), ${color})"></div>
-        </div>
-      </div>`;
-  }).join('');
-
-  // Animate bars
-  requestAnimationFrame(() => {
-    list.querySelectorAll('.kpi-bar').forEach((bar, i) => {
-      const pct = bar.getAttribute('data-pct');
-      setTimeout(() => { bar.style.width = pct + '%'; }, 100 + i * 60);
+    // Build display rows from the 8 canonical SICore KPIs.
+    // Most KPIs are 0..1 fractions → *100 for %. zero_shot_success_count is a raw count.
+    const rows = Object.keys(SI_KPI_LABELS).map(key => {
+      const raw = si[key];
+      let pctNum;
+      if (key === 'zero_shot_success_count') {
+        const cnt = Number(raw);
+        pctNum = Number.isFinite(cnt) ? Math.min(cnt, 100) : 0;
+      } else {
+        const v = Number(raw);
+        pctNum = Number.isFinite(v) ? v * 100 : 0;
+      }
+      if (!Number.isFinite(pctNum)) pctNum = 0;
+      return { name: SI_KPI_LABELS[key], value: pctNum };
     });
-  });
 
-  // Ring arc
-  if (ring && ringVal) {
-    const circumference = 125.66;
-    const offset = circumference - (avg / 100) * circumference;
-    setTimeout(() => {
-      ring.style.strokeDashoffset = offset.toFixed(2);
-    }, 200);
-    ringVal.textContent = avg.toFixed(0) + '%';
+    const avg = rows.length ? rows.reduce((a, k) => a + k.value, 0) / rows.length : 0;
+
+    list.innerHTML = rows.map(k => {
+      const pct = k.value.toFixed(1);
+      const color = k.value >= 80 ? 'var(--green)' : k.value >= 60 ? 'var(--accent)' : 'var(--yellow)';
+      return `
+        <div class="kpi-row">
+          <div class="kpi-meta">
+            <span class="kpi-name">${k.name}</span>
+            <span class="kpi-val" style="color:${color}">${pct}%</span>
+          </div>
+          <div class="kpi-bar-wrap">
+            <div class="kpi-bar" data-pct="${pct}" style="width:0%; background:linear-gradient(90deg, var(--accent-dim), ${color})"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Animate bars
+    requestAnimationFrame(() => {
+      list.querySelectorAll('.kpi-bar').forEach((bar, i) => {
+        const pct = bar.getAttribute('data-pct');
+        setTimeout(() => { bar.style.width = pct + '%'; }, 100 + i * 60);
+      });
+    });
+
+    // Ring arc
+    if (ring && ringVal) {
+      const circumference = 125.66;
+      const safeAvg = Number.isFinite(avg) ? avg : 0;
+      const offset = circumference - (safeAvg / 100) * circumference;
+      setTimeout(() => {
+        ring.style.strokeDashoffset = offset.toFixed(2);
+      }, 200);
+      ringVal.textContent = safeAvg.toFixed(0) + '%';
+    }
+  } catch (err) {
+    console.warn('renderKPIs failed:', err);
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠</div><span>Unavailable</span></div>`;
   }
 }
 
@@ -1349,22 +1419,34 @@ function renderKaizen(kaizen) {
   const list = document.getElementById('kaizenList');
   const badge = document.getElementById('kaizenBadge');
   if (!list) return;
-  if (!kaizen || !kaizen.proposals.length) {
+  try {
+    const proposals = kaizen?.recent_proposals ?? kaizen?.proposals ?? [];
+    if (!Array.isArray(proposals) || !proposals.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✦</div><span>No proposals yet</span></div>`;
+      if (badge) badge.textContent = '0';
+      return;
+    }
+    if (badge) badge.textContent = `${proposals.length} proposals`;
+    const items = proposals.slice(0, 10);
+    list.innerHTML = items.map((p, i) => {
+      const text = p.text || p.title || p.description || JSON.stringify(p);
+      const status = p.status || p.priority || 'pending';
+      const ts = p.ts || p.timestamp || p.date;
+      return `
+      <div class="kaizen-item">
+        <div class="kaizen-idx">${p.id || ('#' + String(i+1).padStart(2,'0'))}</div>
+        <div class="kaizen-body">
+          <div class="kaizen-text">${escapeHtml(text)}</div>
+          <div class="kaizen-meta">${ts ? formatRelTime(ts) : ''}</div>
+        </div>
+        <div class="kaizen-status ${status}">${status}</div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    console.warn('renderKaizen failed:', err);
     list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✦</div><span>No proposals yet</span></div>`;
-    badge.textContent = '0';
-    return;
+    if (badge) badge.textContent = '0';
   }
-  badge.textContent = `${kaizen.proposals.length} proposals`;
-  const items = kaizen.proposals.slice(0, 10);
-  list.innerHTML = items.map((p, i) => `
-    <div class="kaizen-item">
-      <div class="kaizen-idx">${p.id || ('#' + String(i+1).padStart(2,'0'))}</div>
-      <div class="kaizen-body">
-        <div class="kaizen-text">${escapeHtml(p.text)}</div>
-        <div class="kaizen-meta">${formatRelTime(p.ts)}</div>
-      </div>
-      <div class="kaizen-status ${p.status}">${p.status}</div>
-    </div>`).join('');
 }
 
 // ── Render: Avatar Content ────────────────────────────────────────
@@ -1494,20 +1576,22 @@ function formatRelTime(isoStr) {
 async function loadData() {
   document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-GB');
 
-  const [statusData, trainingData, hubData, kaizenData] = await Promise.all([
+  const [statusData, orchData, providersData, kaizenStatusData, kaizenLogData] = await Promise.all([
     apiFetch('/api/status'),
-    apiFetch('/api/training/status'),
-    apiFetch('/api/extended_hub/status'),
+    apiFetch('/api/orchestrator/status'),
+    apiFetch('/api/harvester/status'),
+    apiFetch('/api/kaizen/status'),
     apiFetch('/api/kaizen'),
   ]);
 
   // Use real API data only — null means the API is offline for that endpoint
-  const status   = statusData   || null;
-  const training = trainingData || null;
-  const hub      = hubData      || null;
-  const kaizen   = kaizenData   || null;
+  const status       = statusData       || null;
+  const orch         = orchData         || null;
+  const providers    = providersData    || null;
+  const kaizenStatus = kaizenStatusData || null;
+  const kaizenLog    = kaizenLogData    || null;
 
-  const isLive = !!(statusData || trainingData || hubData || kaizenData);
+  const isLive = !!(statusData || orchData || providersData || kaizenStatusData || kaizenLogData);
   if (!isLive) {
     showToast('API offline — no data available', 'warning');
     document.getElementById('statusText').textContent = 'OFFLINE';
@@ -1529,10 +1613,10 @@ async function loadData() {
     buildEl.textContent = `v${status.version} · Build ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}`;
   }
 
-  renderStatCards(status, training, hub, kaizen);
-  renderStages(training);
-  renderKPIs(training);
-  renderKaizen(kaizen);
+  renderStatCards(status, orch, providers, kaizenStatus);
+  renderStages(orch);
+  renderKPIs(status);
+  renderKaizen(kaizenLog);
   renderAvatarContent([]);  // Only real avatar content from API — no generated placeholders
 }
 

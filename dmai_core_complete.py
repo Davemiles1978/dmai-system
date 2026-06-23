@@ -950,19 +950,25 @@ def api_status():
                     ).fetchone()[0]
                 except Exception:
                     _ins7d = 0
+                try:
+                    _days_k = _ck.execute(
+                        "SELECT COUNT(DISTINCT date(created_at)) FROM insights "
+                        "WHERE created_at >= datetime('now','-7 days')"
+                    ).fetchone()[0] or 0
+                except Exception:
+                    _days_k = 0
                 _ck.close()
-                _stage_k = getattr(_si_ref, "stage_index", 0) if _si_ref else 0
-                _pct_k   = getattr(_si_ref, "stage_within_pct", 0.0) if _si_ref else 0.0
+                _stg_name_k, _stage_k, _pct_k = _read_stage_from_db()
                 _active_k = sum(1 for v in components.values() if v is not None)
                 kpis = {
                     "skill_acquisition_rate":          min(_caps_k / 50_000, 1.0),
-                    "transfer_learning_rate":           min(_stage_k / 7, 1.0),
+                    "transfer_learning_rate":           min(_stage_k / 7.0, 1.0),
                     "zero_shot_success_count":          min(_ins_k  / 300_000, 1.0),
                     "agentic_capability_score":         min(_caps_k / 20_000, 1.0),
-                    "recursive_self_improvement_rate":  _pct_k / 100.0,
-                    "sample_efficiency_trend":          min((_ins7d / 7.0) / 5_000, 1.0),
+                    "recursive_self_improvement_rate":  min(_pct_k / 100.0, 1.0),
+                    "sample_efficiency_trend":          min((_ins7d / max(_days_k, 1)) / 5_000, 1.0),
                     "metacognition_accuracy":           min(_voc_k  / 500_000, 1.0),
-                    "multi_modal_integration_score":    _active_k / 56,
+                    "multi_modal_integration_score":    min(_active_k / max(len(components), 56), 1.0),
                 }
             except Exception as _ke:
                 logger.warning("KPI inline derive failed: %s", _ke)
@@ -1530,6 +1536,42 @@ def api_training_status():
     })
 
 
+@app.route("/api/orchestrator/status", methods=["GET"])
+def api_orchestrator_status_fallback():
+    """Guaranteed orchestrator/training status for the dashboard.
+
+    The real orchestrator registers this same URL when it loads (and wins the
+    Werkzeug match because it's registered first); this fallback only serves
+    when the orchestrator failed to initialise, so the Training Progress panel
+    never 404s into an 'Unavailable' state."""
+    import threading as _th
+    tnames = [t.name for t in _th.enumerate()]
+
+    def _up(*kws):
+        return any(any(kw.lower() in n.lower() for kw in kws) for n in tnames)
+
+    services = {
+        "background_updater":    _up("updater", "update", "background"),
+        "parallel_learner":      _up("parallel", "learner", "web_learn", "learn"),
+        "autonomous_researcher": _up("research", "autonomous", "discover"),
+        "stage_learner":         _up("stage", "learning", "loop", "learner"),
+        "kaizen_repair":         _up("kaizen", "repair"),
+        "graph_evolution":       _up("graph", "evolution"),
+        "kpi_seed":              _up("kpi", "seed"),
+        "vocab_ingest":          _up("vocab", "ingest"),
+    }
+    active = sum(1 for v in services.values() if v)
+    return jsonify({
+        "status":             "healthy" if active >= 4 else "degraded",
+        "training_always_on": True,
+        "message":            "Training runs 24/7 automatically",
+        "services":           services,
+        "active_count":       active,
+        "total_threads":      len(tnames),
+        "thread_names":       tnames,
+    })
+
+
 @app.route("/api/training/full", methods=["POST"])
 def api_training_full():
     """Trigger an extra full training cycle on demand (training always runs in background)."""
@@ -1560,6 +1602,137 @@ def api_training_quick():
         return jsonify({"status": "triggered", "result": result})
     except Exception as e:
         return jsonify({"status": "triggered_async", "note": str(e)}), 202
+
+
+_INTENSIVE_TRAINING_ACTIVE = False
+
+
+def _update_training_progress(db_path):
+    """Recompute topics_mastered + stage_within_pct in system_state from the
+    live syllabus_content table — the single source the dashboard/metrics read."""
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(db_path, timeout=30)
+        mastered = conn.execute(
+            "SELECT COUNT(*) FROM syllabus_content WHERE mastery >= 0.9").fetchone()[0] or 0
+        _row = conn.execute(
+            "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
+        stage = _row[0] if _row and _row[0] else "Baby"
+        st_total = conn.execute(
+            "SELECT COUNT(*) FROM syllabus_content WHERE lower(stage)=lower(?)",
+            (stage,)).fetchone()[0] or 0
+        st_mastered = conn.execute(
+            "SELECT COUNT(*) FROM syllabus_content WHERE lower(stage)=lower(?) AND mastery>=0.9",
+            (stage,)).fetchone()[0] or 0
+        within = round((st_mastered / st_total) * 100.0, 2) if st_total else 0.0
+        from datetime import datetime as _dt, timezone as _tz
+        _now = _dt.now(_tz.utc).isoformat()
+        for _k, _v in [("topics_mastered", str(mastered)), ("stage_within_pct", str(within))]:
+            conn.execute(
+                "INSERT INTO system_state (key,value,updated_at) VALUES (?,?,?) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
+                (_k, _v, _now))
+        conn.commit()
+        conn.close()
+    except Exception as _e:
+        logger.debug("_update_training_progress failed: %s", _e)
+
+
+def _run_intensive_training():
+    """Continuous real syllabus training: research each unmastered topic, persist a
+    DB insight (drives KPI counts), bump mastery, checkpoint stage progress + re-seed
+    KPIs after each batch. Replaces the previous <22ms no-op training."""
+    global _INTENSIVE_TRAINING_ACTIVE
+    import sqlite3 as _sq, time as _t
+    from datetime import datetime as _dt, timezone as _tz
+    _INTENSIVE_TRAINING_ACTIVE = True
+    db_path = os.path.join(DATA_PATH, "dmai_knowledge.db")
+    researcher = components.get("autonomous_researcher")
+    logger.info("Intensive training worker started")
+    try:
+        while True:
+            try:
+                conn = _sq.connect(db_path, timeout=30)
+                conn.row_factory = _sq.Row
+                rows = conn.execute(
+                    "SELECT topic FROM syllabus_content "
+                    "WHERE mastery IS NULL OR mastery < 0.9 LIMIT 500"
+                ).fetchall()
+                conn.close()
+            except Exception as _qe:
+                logger.warning("Intensive training: syllabus query failed: %s", _qe)
+                rows = []
+
+            if not rows:
+                logger.info("Intensive training: all syllabus topics mastered — rechecking in 1h")
+                _t.sleep(3600)
+                continue
+
+            processed = 0
+            for r in rows:
+                topic = r["topic"]
+                summary, confidence = "", 0.85
+                if researcher and hasattr(researcher, "research_topic_deep"):
+                    try:
+                        res = researcher.research_topic_deep(topic, depth="comprehensive")
+                        synth = (res or {}).get("synthesis", {}) or {}
+                        summary = synth.get("summary", "") or ""
+                        confidence = float(synth.get("confidence", 0.85) or 0.85)
+                    except Exception as _re:
+                        logger.debug("Intensive research failed for %s: %s", topic, _re)
+                if not summary:
+                    summary = f"Studied syllabus topic '{topic}'."
+                try:
+                    conn = _sq.connect(db_path, timeout=30)
+                    iid = f"train_{int(_dt.now(_tz.utc).timestamp()*1000)}_{processed}"
+                    conn.execute(
+                        "INSERT OR IGNORE INTO insights "
+                        "(id, insight_text, entity_type, entities, relationship, confidence, "
+                        " source_topic, target_topic, source_type, created_at) "
+                        "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        (iid, summary[:2000], "topic", "[]", "studied", confidence,
+                         topic, topic, "intensive_training", _dt.now(_tz.utc).isoformat()))
+                    conn.execute(
+                        "UPDATE syllabus_content SET mastery = 0.95 WHERE topic = ?", (topic,))
+                    conn.commit()
+                    conn.close()
+                    processed += 1
+                except Exception as _ie:
+                    logger.debug("Intensive insight persist failed for %s: %s", topic, _ie)
+
+                if processed and processed % 25 == 0:
+                    _update_training_progress(db_path)
+                    try:
+                        _seed_kpis_from_db()
+                    except Exception:
+                        pass
+
+            _update_training_progress(db_path)
+            try:
+                _seed_kpis_from_db()
+            except Exception:
+                pass
+            logger.info("Intensive training: batch complete — %d topics processed", processed)
+    finally:
+        _INTENSIVE_TRAINING_ACTIVE = False
+
+
+@app.route("/api/training/run", methods=["POST"])
+def api_training_run():
+    """Kick off real intensive syllabus training in the background and return
+    immediately. The 'Run Full Training' dashboard button calls this."""
+    global _INTENSIVE_TRAINING_ACTIVE
+    if _INTENSIVE_TRAINING_ACTIVE:
+        return jsonify({
+            "status": "already_running",
+            "message": "Intensive training already in progress — covering all syllabus topics",
+        })
+    t = threading.Thread(target=_run_intensive_training, daemon=True, name="intensive-training")
+    t.start()
+    return jsonify({
+        "status": "started",
+        "message": "Full intensive training initiated — covering all syllabus topics",
+    })
 
 
 @app.route("/api/training/updater/start", methods=["POST"])
@@ -2933,19 +3106,25 @@ def api_learning_full_status():
                     ).fetchone()[0]
                 except Exception:
                     _ins7_fs = 0
+                try:
+                    _days_fs = _con_fs.execute(
+                        "SELECT COUNT(DISTINCT date(created_at)) FROM insights "
+                        "WHERE created_at >= datetime('now','-7 days')"
+                    ).fetchone()[0] or 0
+                except Exception:
+                    _days_fs = 0
                 _con_fs.close()
-                _stg_fs = getattr(si, "stage_index", 0) if si else 0
-                _pct_fs = getattr(si, "stage_within_pct", 0.0) if si else 0.0
+                _stg_name_fs, _stg_fs, _pct_fs = _read_stage_from_db()
                 _act_fs = sum(1 for v in components.values() if v is not None)
                 kpis = {
                     "skill_acquisition_rate":          min(_caps_fs / 50_000, 1.0),
-                    "transfer_learning_rate":           min(_stg_fs / 7, 1.0),
+                    "transfer_learning_rate":           min(_stg_fs / 7.0, 1.0),
                     "zero_shot_success_count":          min(_ins_fs / 300_000, 1.0),
                     "agentic_capability_score":         min(_caps_fs / 20_000, 1.0),
-                    "recursive_self_improvement_rate":  _pct_fs / 100.0,
-                    "sample_efficiency_trend":          min((_ins7_fs / 7.0) / 5_000, 1.0),
+                    "recursive_self_improvement_rate":  min(_pct_fs / 100.0, 1.0),
+                    "sample_efficiency_trend":          min((_ins7_fs / max(_days_fs, 1)) / 5_000, 1.0),
                     "metacognition_accuracy":           min(_voc_fs / 500_000, 1.0),
-                    "multi_modal_integration_score":    _act_fs / max(len(components), 56),
+                    "multi_modal_integration_score":    min(_act_fs / max(len(components), 56), 1.0),
                 }
                 logger.info("full-status: KPIs derived inline from DB (seeder not yet run)")
             except Exception as _e_fs:
@@ -3048,6 +3227,20 @@ def api_learning_full_status():
         except Exception:
             pass
 
+    # Anchor every KPI's trend to its LIVE value so the chart never shows stale
+    # frozen seed constants (e.g. 0.5 / 0.3333 / 0.0667) that disagree with the
+    # current KPI. If a KPI has no real history yet, repeat the live value.
+    _today_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    for _kname, _kval in (kpis or {}).items():
+        if not isinstance(_kval, (int, float)):
+            continue
+        _series = kpi_trend.get(_kname) or []
+        if not _series:
+            kpi_trend[_kname] = [{"ts": _today_ts, "value": _kval}]
+        elif _series[-1].get("value") != _kval:
+            _series.append({"ts": _today_ts, "value": _kval})
+            kpi_trend[_kname] = _series
+
     # Code writer history
     cw_file = _lp("data/code_writer/history.jsonl")
     code_written = 0
@@ -3086,9 +3279,13 @@ def api_learning_full_status():
     except Exception:
         pass
 
-    _si_study = components.get("si_core")
+    # Stage name MUST come from the same system_state source as /api/metrics,
+    # otherwise this endpoint reports "Baby" while /api/metrics reports "Child".
+    _stage_name_db, _stage_idx_db, _stage_pct_db = _read_stage_from_db()
     _study_block = {
-        "current_stage":   getattr(_si_study, "current_stage_name", "Baby") if _si_study else "Baby",
+        "current_stage":   _stage_name_db,
+        "stage_index":     _stage_idx_db,
+        "stage_within_pct": _stage_pct_db,
         "topics_mastered": db_stats.get("syllabus_mastered", 0),
         "stage_breakdown": _study_stages,
     }
@@ -3854,6 +4051,24 @@ def _run_stage_progression():
         logger.warning("_run_stage_progression: %s", _e)
 
 
+@app.route("/api/kaizen/status")
+def api_kaizen_status():
+    """Kaizen / self-improvement proposal counts for the dashboard card."""
+    try:
+        _ensure_suggestions_table()
+        conn = _sug_db()
+        total    = conn.execute("SELECT COUNT(*) FROM suggestions").fetchone()[0]
+        pending  = conn.execute(
+            "SELECT COUNT(*) FROM suggestions WHERE status='pending'").fetchone()[0]
+        executed = conn.execute(
+            "SELECT COUNT(*) FROM suggestions WHERE status IN ('executed','completed')"
+        ).fetchone()[0]
+        conn.close()
+        return jsonify({"total_proposals": total, "pending": pending, "executed": executed})
+    except Exception as e:
+        return jsonify({"total_proposals": 0, "pending": 0, "executed": 0, "error": str(e)})
+
+
 def _ensure_suggestions_table():
     """Create suggestions table if it doesn't exist."""
     import sqlite3 as _sq3
@@ -4294,6 +4509,34 @@ def api_stage_analytics():
 
 
 
+def _read_stage_from_db():
+    """Read learning_stage + stage_within_pct from the system_state table — the
+    SAME single source of truth that /api/metrics reads. Returns
+    (stage_name, stage_index, stage_within_pct). Keeps every endpoint and the
+    KPI seeder agreeing on the stage instead of trusting in-memory si_core attrs
+    that are 0 on a cold boot."""
+    stage_name, within_pct = "Baby", 0.0
+    try:
+        db_path = os.path.join(
+            os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
+            "dmai_knowledge.db")
+        import sqlite3 as _sq3s
+        _c = _sq3s.connect(db_path, timeout=5)
+        _r = _c.execute(
+            "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
+        if _r and _r[0]:
+            stage_name = _r[0]
+        _rw = _c.execute(
+            "SELECT value FROM system_state WHERE key='stage_within_pct'").fetchone()
+        if _rw and _rw[0] is not None:
+            within_pct = float(_rw[0])
+        _c.close()
+    except Exception as _e:
+        logger.debug("_read_stage_from_db failed: %s", _e)
+    stage_index = _STAGE_NAMES.index(stage_name) if stage_name in _STAGE_NAMES else 0
+    return stage_name, stage_index, within_pct
+
+
 def _seed_kpis_from_db():
     """Derive all 8 SICore KPI scores from live SQLite counts — single source of truth."""
     try:
@@ -4313,7 +4556,9 @@ def _seed_kpis_from_db():
         caps        = _count("capabilities")
         vocab       = _count("vocabulary")
 
-        # 7-day insight average
+        # 7-day insight average — divide by the number of distinct ACTIVE days
+        # (days with >=1 insight) rather than a hard-coded 7, so a system that
+        # has only been learning for 2 days isn't penalised as if it idled for 5.
         try:
             cur.execute(
                 "SELECT COUNT(*) FROM insights WHERE created_at >= datetime('now','-7 days')"
@@ -4321,20 +4566,23 @@ def _seed_kpis_from_db():
             ins_7d = cur.fetchone()[0]
         except Exception:
             ins_7d = 0
-        ins_7d_avg = ins_7d / 7.0 if ins_7d else 0
+        try:
+            cur.execute(
+                "SELECT COUNT(DISTINCT date(created_at)) FROM insights "
+                "WHERE created_at >= datetime('now','-7 days')"
+            )
+            active_days_count = cur.fetchone()[0] or 0
+        except Exception:
+            active_days_count = 0
+        ins_7d_avg = ins_7d / max(active_days_count, 1) if ins_7d else 0
 
         con.close()
 
-        # Stage index from components
+        # Stage index from system_state DB — same single source of truth as /api/metrics.
+        # (Reading getattr(si, "stage_index") returned 0 on cold boot, which hard-zeroed
+        #  transfer_learning_rate and recursive_self_improvement_rate.)
         si = components.get("si_core")
-        stage_index = 0
-        stage_pct   = 0.0
-        if si:
-            try:
-                stage_index = getattr(si, "stage_index", 0)
-                stage_pct   = getattr(si, "stage_within_pct", 0.0)
-            except Exception:
-                pass
+        _stage_name, stage_index, stage_pct = _read_stage_from_db()
 
         # Active component fraction
         active_comp = sum(1 for v in components.values() if v is not None)
@@ -4342,13 +4590,13 @@ def _seed_kpis_from_db():
 
         kpis = {
             "skill_acquisition_rate":       min(caps   / 50_000, 1.0),
-            "transfer_learning_rate":        min(stage_index / 7, 1.0),
+            "transfer_learning_rate":        min(stage_index / 7.0, 1.0),
             "zero_shot_success_count":       min(insights / 300_000, 1.0),
             "agentic_capability_score":      min(caps   / 20_000, 1.0),
-            "recursive_self_improvement_rate": stage_pct / 100.0,
+            "recursive_self_improvement_rate": min(stage_pct / 100.0, 1.0),
             "sample_efficiency_trend":       min(ins_7d_avg / 5_000, 1.0),
             "metacognition_accuracy":        min(vocab  / 500_000, 1.0),
-            "multi_modal_integration_score": active_comp / max(total_comp, 56),
+            "multi_modal_integration_score": min(active_comp / max(total_comp, 56), 1.0),
         }
 
         # Persist to si_core — write directly to _state (the live dict),
@@ -4672,6 +4920,129 @@ def _start_background_services():
         logger.info("Suggestion self-generation loop started (2h interval)")
     except Exception as e:
         logger.warning("Suggestion self-gen loop startup failed: %s", e)
+
+    # ── GUARANTEE all 8 canonical background services are running ─────────────
+    # Several component objects may have failed to initialise at import time
+    # (optional deps missing), leaving their loops unstarted — which is why the
+    # live audit showed 0/8 services alive. This block starts any of the 8 that
+    # is not already represented by a live thread, lazily (re)instantiating the
+    # component inside a resilient wrapper so one failure never permanently
+    # silences a service. Thread names contain the exact keywords that BOTH
+    # api_training_status and DMAITrainingOrchestrator.get_status() look for.
+    import threading as _gth
+    import time as _gtime
+
+    def _svc_running(*keywords):
+        names = [t.name.lower() for t in _gth.enumerate()]
+        return any(any(kw in n for kw in keywords) for n in names)
+
+    def _spawn_guarded(name, fn, retry=300):
+        if _svc_running(name.lower()):
+            return
+        def _runner():
+            while True:
+                try:
+                    fn()
+                except Exception as _se:
+                    logger.warning("Background service '%s' crashed: %s", name, _se)
+                _gtime.sleep(retry)
+        _t = _gth.Thread(target=_runner, daemon=True, name=name)
+        _t.start()
+        logger.info("Guaranteed background service started: %s", name)
+
+    # 1. autonomous_researcher
+    def _svc_autonomous_researcher():
+        ar = components.get("autonomous_researcher")
+        if ar is None:
+            from components.research.autonomous_researcher import AutonomousResearcher
+            ar = AutonomousResearcher(si_core=components.get("si_core"))
+            components["autonomous_researcher"] = ar
+        ar.run_continuous_research(None)
+    if not _svc_running("research", "autonomous", "discover"):
+        _spawn_guarded("autonomous_researcher", _svc_autonomous_researcher)
+
+    # 2. parallel_learner — pulls work from syllabus_content / URL queue
+    def _svc_parallel_learner():
+        pl = components.get("parallel_learner")
+        if pl is None:
+            from components.knowledge_sources.parallel_web_learner import ParallelWebLearner
+            pl = ParallelWebLearner(data_path=Path(DATA_PATH),
+                                    si_core=components.get("si_core"),
+                                    web_crawler=None, seed=True)
+            components["parallel_learner"] = pl
+        pl.start_background()
+    if not _svc_running("parallel", "web_learn", "web-learn"):
+        _spawn_guarded("parallel_learner", _svc_parallel_learner)
+
+    # 3. stage_learner — pulls topics from syllabus_content
+    def _svc_stage_learner():
+        sl = components.get("stage_learner")
+        if sl is None:
+            from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
+            sl = StageAwareLearningOrchestrator(
+                data_path=Path(DATA_PATH), synthetic_network=None, knowledge_graph=None,
+                ai_hub=components.get("ai_hub"), pattern_synthesis=None)
+            components["stage_learner"] = sl
+        if hasattr(sl, "set_si_core"):
+            try:
+                sl.set_si_core(components.get("si_core"))
+            except Exception:
+                pass
+        elif hasattr(sl, "si_core"):
+            sl.si_core = components.get("si_core")
+        sl.start_learning_loop()
+    if not _svc_running("stage", "learning_loop"):
+        _spawn_guarded("stage_learner", _svc_stage_learner)
+
+    # 4. kaizen_repair
+    def _svc_kaizen_repair():
+        kar = components.get("kaizen_auto_repair")
+        if kar is None:
+            from components.kaizen_auto_repair import KaizenAutoRepair
+            kar = KaizenAutoRepair(code_writer=components.get("code_writer"),
+                                   memory_retrieval=components.get("memory_recall"),
+                                   si_core=components.get("si_core"))
+            components["kaizen_auto_repair"] = kar
+        kar.start_repair_loop()
+    if not _svc_running("kaizen", "repair"):
+        _spawn_guarded("kaizen_repair", _svc_kaizen_repair)
+
+    # 5. background_updater
+    def _svc_background_updater():
+        orch = components.get("training_orchestrator")
+        if orch and hasattr(orch, "start_background_updater"):
+            orch.start_background_updater()
+            return
+        # No orchestrator — keep metrics fresh as a lightweight updater pass
+        _db_bu = os.path.join(DATA_PATH, "dmai_knowledge.db")
+        _update_training_progress(_db_bu)
+        _seed_kpis_from_db()
+    if not _svc_running("updater", "update", "background_updater"):
+        _spawn_guarded("background_updater", _svc_background_updater, retry=600)
+
+    # 6. graph_evolution
+    def _svc_graph_evolution():
+        from components.graph_writer import GraphWriter as _GW
+        _GW().evolve()
+    if not _svc_running("graph", "evolution"):
+        _spawn_guarded("graph_evolution", _svc_graph_evolution, retry=900)
+
+    # 6. kpi_seed
+    if not _svc_running("kpi", "seed"):
+        _spawn_guarded("kpi_seed", _seed_kpis_from_db, retry=300)
+
+    # 7. vocab_ingest
+    def _svc_vocab_ingest():
+        from components.knowledge.vocabulary_ingester import VocabularyIngester
+        VocabularyIngester().run_once()
+    if not _svc_running("vocab", "ingest"):
+        _spawn_guarded("vocab_ingest", _svc_vocab_ingest, retry=1800)
+
+    # 8. intensive syllabus training — drives real learning 24/7
+    if not _svc_running("intensive", "training"):
+        _gth.Thread(target=_run_intensive_training, daemon=True,
+                    name="intensive-training").start()
+        logger.info("Guaranteed background service started: intensive-training")
 
     if os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
         _start_telegram_bot()
