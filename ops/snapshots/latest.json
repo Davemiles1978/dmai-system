@@ -1,0 +1,279 @@
+{
+  "schema_version": "1.1",
+  "snapshot_at": "2026-06-23T14:56:18Z",
+  "service": "dmai-web",
+  "repo": "Davemiles1978/dmai-system",
+  "summary": {
+    "total_tracked": 50,
+    "set": 0,
+    "unset": 50,
+    "missing_required": [
+      "MASTER_PASSWORD",
+      "JWT_SECRET",
+      "PORT",
+      "RENDER",
+      "LOG_LEVEL",
+      "DATA_PATH",
+      "GROQ_API_KEY",
+      "GOOGLE_AI_STUDIO_KEY",
+      "CEREBRAS_API_KEY",
+      "DEEPSEEK_API_KEY",
+      "TAVILY_API_KEY",
+      "OPENROUTER_API_KEY",
+      "GITHUB_TOKEN_MAIN"
+    ],
+    "health": "CRITICAL"
+  },
+  "variables": {
+    "ALPACA_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "ALPACA_BASE_URL": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "ALPACA_SECRET_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "AMAZON_SELLER_ID": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "ANTHROPIC_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "AWS_REGION": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "BRAVE_SEARCH_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "CEREBRAS_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "CLOUDFLARE_ACCOUNT_ID": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "CLOUDFLARE_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "COHERE_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "DATABASE_URL": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "DATA_PATH": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "DEEPSEEK_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "ELEVENLABS_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GEMINI_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GEMINI_GEMS_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GITHUB_MODELS_TOKEN": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GITHUB_TOKEN_MAIN": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GITHUB_TOKEN_SECONDARY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GOOGLE_AI_STUDIO_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "GROQ_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "HUGGINGFACE_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "IMAGEN_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "JWT_SECRET": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "KDP_EMAIL": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "KDP_PASSWORD": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "LOG_LEVEL": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "MASTER_PASSWORD": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "MISTRAL_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "NOTEBOOKLM_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "OPENAI_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "OPENROUTER_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "PERPLEXITY_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "PINECONE_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "PINECONE_ENVIRONMENT": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "PINECONE_INDEX": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "PORT": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "RENDER": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "REPLICATE_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "RUNWAY_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "STABILITY_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "TAVILY_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "TELEGRAM_CHAT_ID": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "TOGETHER_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "WEBHOOK_SECRET": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    },
+    "XAI_API_KEY": {
+      "status": "UNSET",
+      "fingerprint": "__UNSET__",
+      "source": "local_env_fallback"
+    }
+  }
+}
