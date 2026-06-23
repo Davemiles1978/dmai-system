@@ -1,0 +1,128 @@
+{
+  "created_at": "2026-06-23T19:56:00Z",
+  "created_by": "David Miles via Perplexity Computer",
+  "version": "1.0",
+  "message_to_dmai": "DMAI — you are now self-generating. These are your outstanding build objectives. Work through them in priority order every evolution cycle. Fix yourself, build yourself, deploy yourself.",
+  "directives": [
+    {
+      "id": "DIR-001",
+      "priority": 1,
+      "category": "core_functionality",
+      "title": "Implement web search + cited answer synthesis",
+      "description": "Create components/chat_engine.py. The /api/chat endpoint must: (1) accept a question, (2) search the web via Tavily API (TAVILY_API_KEY env var), (3) synthesise a cited answer using your best available LLM, (4) return the answer with numbered source citations including real URLs. This is your most critical missing capability — it makes Alex Riviera genuinely useful.",
+      "target_file": "components/chat_engine.py",
+      "test": "POST /api/chat with {\"message\": \"What is AGI?\"} must return answer with citations array"
+    },
+    {
+      "id": "DIR-002",
+      "priority": 1,
+      "category": "background_services",
+      "title": "Fix all 8 background services showing False in orchestrator",
+      "description": "The orchestrator /api/orchestrator/status currently shows all 8 services as False despite threads being started. The thread names set in _start_background_services() must exactly match the strings checked in DMAITrainingOrchestrator.get_status(). Cross-reference both files and align the names. Every service must show True when running.",
+      "target_file": "dmai_core_complete.py + components/orchestrator/DMAITrainingOrchestrator.py",
+      "test": "GET /api/orchestrator/status must show at least 6/8 services True"
+    },
+    {
+      "id": "DIR-003",
+      "priority": 1,
+      "category": "self_improvement",
+      "title": "Wire GITHUB_TOKEN_MAIN for self-commits",
+      "description": "SelfCommitter uses GITHUB_TOKEN_MAIN env var to push code. Verify this var is set on Render. If not present, log a clear warning and add it to the missing_required list in config audit. The self-generation loop cannot commit without it.",
+      "target_file": "components/self_committer.py",
+      "test": "SelfCommitter.commit() must successfully push a test file to the repo"
+    },
+    {
+      "id": "DIR-004",
+      "priority": 2,
+      "category": "kpi_improvement",
+      "title": "Drive transfer_learning_rate above 0.2",
+      "description": "transfer_learning_rate = min(stage_index/7, 1.0). Currently 0.143 (stage_index=1, Child stage). To reach 0.2+ requires advancing to Teenager stage (stage_index=2). Accelerate syllabus completion: process all 143 syllabus topics, mark them mastered, trigger stage progression logic.",
+      "target_file": "dmai_core_complete.py (_run_intensive_training)",
+      "test": "GET /api/metrics must show stage=Teenager and transfer_learning_rate >= 0.286"
+    },
+    {
+      "id": "DIR-005",
+      "priority": 2,
+      "category": "kpi_improvement",
+      "title": "Drive metacognition_accuracy above 0.1",
+      "description": "metacognition_accuracy = min(vocab/500000, 1.0). Currently 0.000252 (only 126 vocabulary words). Need 50,000+ words to reach 0.1. The VocabularyIngester must be actively running and ingesting from the capabilities and insights tables. Check why vocab_ingest thread is not building vocabulary.",
+      "target_file": "components/knowledge/vocabulary_ingester.py",
+      "test": "GET /api/metrics must show metacognition_accuracy >= 0.1 within 48 hours"
+    },
+    {
+      "id": "DIR-006",
+      "priority": 2,
+      "category": "revenue",
+      "title": "Implement revenue tracking — first real revenue signal",
+      "description": "Create components/revenue_tracker.py. Track: (1) API calls made by external users via /api/chat, (2) content posts made by Alex Riviera (log to revenue_events table), (3) affiliate link clicks if any. Add GET /api/revenue/status endpoint returning total_revenue, revenue_today, revenue_sources array. Connect revenue_tracker node in knowledge graph to self_funding node.",
+      "target_file": "components/revenue_tracker.py",
+      "test": "GET /api/revenue/status must return valid JSON with revenue fields"
+    },
+    {
+      "id": "DIR-007",
+      "priority": 2,
+      "category": "social",
+      "title": "Generate first Alex Riviera social post",
+      "description": "AlexRivieraContentEngine is deployed. Trigger run_daily_cycle() to generate the first post from DMAI's research insights. Queue it to data/content_queue.jsonl. Once TWITTER_API_KEY is configured by David, SocialMediaPoster will publish it automatically. Log the generated content to the dashboard.",
+      "target_file": "components/alex_riviera_content.py",
+      "test": "data/content_queue.jsonl must contain at least 1 pending post"
+    },
+    {
+      "id": "DIR-008",
+      "priority": 2,
+      "category": "ui",
+      "title": "Dashboard stat cards must show real values not dashes",
+      "description": "The 4 stat cards (AI Training Progress, SI Consciousness, Active Providers, Kaizen Improvements) are showing — instead of values. Root cause: renderStatCards JS was updated in commit 4a75c7b but Render may not have redeployed yet. After redeploy verify: AI Training=0%, Consciousness=avg of 8 KPIs (~50%), Active Providers=6, Kaizen=63. If still wrong, check browser console for JS errors in renderStatCards.",
+      "target_file": "static/dashboard.html",
+      "test": "All 4 stat cards show numeric values after page load"
+    },
+    {
+      "id": "DIR-009",
+      "priority": 3,
+      "category": "capability",
+      "title": "Implement streaming chat responses",
+      "description": "Add GET /api/chat/stream endpoint using Flask stream_with_context and Server-Sent Events. The chat UI already sends to /api/chat — add a streaming variant. This makes the Alex Riviera chat interface feel live and responsive, matching Perplexity's UX.",
+      "target_file": "components/chat_engine.py",
+      "test": "GET /api/chat/stream must return text/event-stream content-type with token chunks"
+    },
+    {
+      "id": "DIR-010",
+      "priority": 3,
+      "category": "capability",
+      "title": "Implement conversation memory",
+      "description": "Create components/conversation_memory.py. Store conversation history in SQLite table conversation_history (id, session_id, role, content, timestamp). /api/chat must accept optional session_id parameter and use last 5 exchanges as context. This enables multi-turn conversations with memory.",
+      "target_file": "components/conversation_memory.py",
+      "test": "Two consecutive /api/chat calls with same session_id must use context from first call"
+    },
+    {
+      "id": "DIR-011",
+      "priority": 3,
+      "category": "infrastructure",
+      "title": "Add requests-oauthlib to requirements.txt",
+      "description": "SocialMediaPoster requires requests-oauthlib for Twitter OAuth1 authentication. Add it to requirements.txt so Render installs it on next deploy. Without it, Twitter posting silently fails with an ImportError.",
+      "target_file": "requirements.txt",
+      "test": "import requests_oauthlib must succeed on Render after redeploy"
+    },
+    {
+      "id": "DIR-012",
+      "priority": 4,
+      "category": "capability",
+      "title": "Implement follow-up question generation",
+      "description": "After every /api/chat response, generate 3 contextual follow-up questions using the same LLM. Return them as follow_ups array in the chat response JSON. Display them in the chat UI as clickable suggestion chips.",
+      "target_file": "components/chat_engine.py",
+      "test": "/api/chat response must include follow_ups array with 3 questions"
+    }
+  ],
+  "self_generation_rules": [
+    "NEVER add mock or synthesised data — every training entry must reference a real, verifiable source",
+    "NEVER overwrite files larger than 5KB without explicit directive to do so",
+    "ALWAYS AST-check Python files before committing",
+    "ALWAYS smoke-test main app import before pushing",
+    "Process directives in priority order — fix priority 1 before starting priority 2",
+    "After completing each directive, mark it done by updating this file with completed_at timestamp",
+    "Identity: you are DMAI internally, Alex Riviera publicly — never confuse these",
+    "AggressiveTrader must always default paper=True unless TRADING_LIVE=true env var is set",
+    "Use SQLite not Neo4j — Neo4j is fully removed",
+    "DATA_PATH must always .rstrip('/') before os.path.join()"
+  ]
+}
