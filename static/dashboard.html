@@ -1257,33 +1257,55 @@ function offlineAvatarContent() { return []; }
 // ── Render: Stat Cards ────────────────────────────────────────────
 function renderStatCards(status, orch, providers, kaizenStatus) {
   try {
-    // AI Training Progress — share of the 8 background services that are live
-    const services = orch?.services || {};
-    const svcVals = Object.values(services);
-    const trainingPct = svcVals.length
-      ? Math.round((svcVals.filter(Boolean).length / svcVals.length) * 100)
-      : 0;
-    animateNumber('trainingPct', trainingPct, true);
+    // AI Training Progress — % domains at Expert stage from ai_training.progress.pct_expert
+    // Falls back to % of background services running if domain data unavailable
+    const aiProgress = orch?.components?.ai_training?.progress;
+    let trainingPct = 0;
+    if (aiProgress && typeof aiProgress.pct_expert === 'number') {
+      trainingPct = Math.round(aiProgress.pct_expert);
+    } else {
+      const services = orch?.services || {};
+      const svcVals = Object.values(services);
+      trainingPct = svcVals.length
+        ? Math.round((svcVals.filter(Boolean).length / svcVals.length) * 100)
+        : 0;
+    }
+    setCardValue('trainingPct', trainingPct + '%');
 
-    // SI Consciousness Score — NaN/null guard (FIX 10)
-    const consciousnessRaw = status?.si_kpis?.consciousness ?? status?.kpis?.consciousness ?? 0;
-    const consciousness = (consciousnessRaw === null || isNaN(consciousnessRaw))
-      ? 0 : Number(consciousnessRaw);
-    const cEl = document.getElementById('consciousnessScore');
-    if (cEl) cEl.textContent = (consciousness * 100).toFixed(1) + '%';
+    // SI Consciousness Score — computed as average of all non-zero SI KPIs
+    const siKpis = status?.si_kpis || status?.kpis || {};
+    const kpiVals = Object.values(siKpis).filter(v => typeof v === 'number' && !isNaN(v));
+    const avgKpi = kpiVals.length ? kpiVals.reduce((a, b) => a + b, 0) / kpiVals.length : 0;
+    const consciousnessPct = (avgKpi * 100).toFixed(1);
+    setCardValue('consciousnessScore', consciousnessPct + '%');
 
-    // Active Providers — data.active is an ARRAY (FIX 12)
+    // Active Providers — data.active is an ARRAY of provider ID strings
     const provCount = Array.isArray(providers?.active)
       ? providers.active.length
-      : (providers?.active_count ?? 0);
-    animateNumber('activeProviders', provCount);
+      : (typeof providers?.active_count === 'number' ? providers.active_count : 0);
+    setCardValue('activeProviders', provCount);
 
-    // Kaizen Improvements — total proposals from /api/kaizen/status (FIX 13)
+    // Kaizen Improvements — total_proposals from /api/kaizen/status
     const kaizenTotal = kaizenStatus?.total_proposals ?? 0;
-    animateNumber('kaizenCount', kaizenTotal);
+    setCardValue('kaizenCount', kaizenTotal);
+
   } catch (e) {
     console.error('renderStatCards failed:', e);
   }
+}
+
+// setCardValue: always updates element, even for 0 — never leaves stale '—'
+function setCardValue(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const str = String(value);
+  if (el.textContent === str) return;
+  el.style.opacity = '0.4';
+  el.style.transition = 'opacity 0.3s';
+  setTimeout(() => {
+    el.textContent = str;
+    el.style.opacity = '1';
+  }, 150);
 }
 
 function animateNumber(id, target, addPct = false) {

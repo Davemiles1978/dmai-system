@@ -40,6 +40,24 @@ from typing import Any, Dict, Optional
 from flask import Flask, jsonify, request, Response, send_from_directory
 from flask_cors import CORS
 
+# ── Self-generation system ──────────────────────────────────────────────────
+try:
+    from components.self_scanner import SelfScanner as _SelfScanner
+    from components.capability_mapper import CapabilityMapper as _CapMapper
+    from components.self_evolution_orchestrator import SelfEvolutionOrchestrator as _SelfEvo
+    _self_evolution_available = True
+except Exception as _evo_err:
+    _self_evolution_available = False
+
+# ── Alex Riviera social automation ─────────────────────────────────────────
+try:
+    from components.alex_riviera_content import AlexRivieraContentEngine as _AlexContent
+    from components.social_media_poster import SocialMediaPoster as _SocialPoster
+    _social_available = True
+except Exception as _soc_err:
+    _social_available = False
+
+
 # ── Security modules (P1–P3 fixes) ──────────────────────────────────────────
 try:
     from security import (
@@ -4069,6 +4087,75 @@ def api_kaizen_status():
         return jsonify({"total_proposals": 0, "pending": 0, "executed": 0, "error": str(e)})
 
 
+
+
+@app.route("/api/self-evolution/status")
+def api_self_evolution_status():
+    """Self-evolution gap report and capability map status."""
+    try:
+        _dp = DATA_PATH.rstrip("/")
+        import os as _os, json as _json
+        gap_path = _os.path.join(_dp, "gap_report.json")
+        caps_path = _os.path.join(_dp, "target_capabilities.json")
+        gap = _json.load(open(gap_path)) if _os.path.exists(gap_path) else {}
+        caps = _json.load(open(caps_path)) if _os.path.exists(caps_path) else {}
+        impl = sum(1 for k, v in caps.items() if not k.startswith("_") and isinstance(v, dict) and v.get("implemented"))
+        total = sum(1 for k in caps if not k.startswith("_"))
+        total_gaps = sum(len(v) for v in gap.values() if isinstance(v, list))
+        return jsonify({
+            "status": "running" if _self_evolution_available else "unavailable",
+            "last_scan": gap.get("ts"),
+            "total_gaps": total_gaps,
+            "capabilities_implemented": impl,
+            "capabilities_total": total,
+            "gap_summary": {k: len(v) for k, v in gap.items() if isinstance(v, list)}
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
+
+
+@app.route("/api/social/status")
+def api_social_status():
+    """Alex Riviera social automation queue status."""
+    try:
+        if not _social_available:
+            return jsonify({"status": "unavailable", "pending_posts": 0,
+                            "twitter_configured": False, "linkedin_configured": False})
+        stats = _SocialPoster(data_path=DATA_PATH).get_queue_stats()
+        return jsonify({"status": "active", **stats})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
+
+
+@app.route("/api/social/generate", methods=["POST"])
+def api_social_generate():
+    """Trigger immediate Alex Riviera content generation cycle."""
+    try:
+        if not _social_available:
+            return jsonify({"status": "unavailable"})
+        _AlexContent(data_path=DATA_PATH).run_daily_cycle()
+        return jsonify({"status": "triggered", "message": "Content generation cycle started"})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)})
+
+
+@app.route("/api/capability-map")
+def api_capability_map():
+    """Target capabilities map with implemented status."""
+    try:
+        import os as _os, json as _json
+        p = _os.path.join(DATA_PATH.rstrip("/"), "target_capabilities.json")
+        if _os.path.exists(p):
+            return jsonify(_json.load(open(p)))
+        # Return default map if file not yet generated
+        if _self_evolution_available:
+            caps = _CapMapper(data_path=DATA_PATH).run()
+            return jsonify(caps)
+        return jsonify({"status": "not_yet_mapped"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
 def _ensure_suggestions_table():
     """Create suggestions table if it doesn't exist."""
     import sqlite3 as _sq3
@@ -5043,6 +5130,36 @@ def _start_background_services():
         _gth.Thread(target=_run_intensive_training, daemon=True,
                     name="intensive-training").start()
         logger.info("Guaranteed background service started: intensive-training")
+
+
+    # Self-evolution orchestrator (scans & self-heals every 30 min)
+    if _self_evolution_available:
+        try:
+            _evo_inst = _SelfEvo(app=app, data_path=DATA_PATH)
+            threading.Thread(
+                target=_evo_inst.run_forever, daemon=True, name="self_evolution"
+            ).start()
+            logger.info("Guaranteed background service started: self_evolution")
+        except Exception as _e:
+            logger.warning(f"self_evolution start failed: {_e}")
+
+    # Alex Riviera content + social posting loop (every 6 hours)
+    if _social_available:
+        def _alex_riviera_loop():
+            import time as _t
+            _eng = _AlexContent(data_path=DATA_PATH)
+            _poster = _SocialPoster(data_path=DATA_PATH)
+            while True:
+                try:
+                    _eng.run_daily_cycle()
+                    _poster.post_pending()
+                except Exception as _e:
+                    logger.warning(f"alex_riviera loop: {_e}")
+                _t.sleep(21600)  # 6 hours
+        threading.Thread(
+            target=_alex_riviera_loop, daemon=True, name="alex_riviera_content"
+        ).start()
+        logger.info("Guaranteed background service started: alex_riviera_content")
 
     if os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
         _start_telegram_bot()
