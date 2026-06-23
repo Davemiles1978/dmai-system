@@ -913,7 +913,7 @@ def _ai_chat(message: str) -> str:
 def health():
     return jsonify({
         "status": "healthy",
-        "version": "7.0.0",
+        "version": "7.1.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "uptime": _uptime(),
         "components": {k: "active" for k in components},
@@ -997,7 +997,7 @@ def api_status():
     hub_status = ext_hub.get_status() if ext_hub else {}
     return jsonify({
         "status": "running",
-        "version": "7.0.0",
+        "version": "7.1.0",
         "uptime": _uptime(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "deployment": "render" if IS_RENDER else "local",
@@ -1013,7 +1013,7 @@ def api_status():
 @app.route("/api/persona")
 def api_persona():
     return jsonify({
-        "system": "DMAI v7.0.0",
+        "system": "DMAI v7.1.0",
         "internal_name": "DMAI",
         "public_persona": {
             "name": "Alex Riviera",
@@ -1050,13 +1050,13 @@ def index():
         except Exception:
             return send_from_directory("static", "dashboard.html")
     return f"""<!DOCTYPE html>
-<html><head><title>DMAI v7.0.0</title>
+<html><head><title>DMAI v7.1.0</title>
 <style>body{{background:#0a0a0f;color:#e0e0ff;font-family:monospace;padding:40px}}
 h1{{color:#6c63ff}}a{{color:#00d4aa}}table{{border-collapse:collapse;width:100%}}
 td,th{{border:1px solid #333;padding:8px;text-align:left}}
 .badge{{background:#1a1a2e;border:1px solid #6c63ff;padding:2px 8px;border-radius:4px;font-size:12px}}</style>
 </head><body>
-<h1>DMAI v7.0.0 — Online</h1>
+<h1>DMAI v7.1.0 — Online</h1>
 <p>Uptime: {_uptime()} | Topics: {TOTAL_TOPICS} | Components: {len(components)}</p>
 <p>
   <span class="badge">JWT: {'✓' if SECURITY_AVAILABLE else '✗'}</span>
@@ -1513,7 +1513,7 @@ def api_dashboard():
     orch = components.get("training_orchestrator")
     ext = components.get("extended_hub")
     return jsonify({
-        "version": "7.0.0", "uptime": _uptime(),
+        "version": "7.1.0", "uptime": _uptime(),
         "components": {k: "active" for k in components},
         "si_kpis": si.current_kpis if si else {},
         "training": orch.get_status() if orch else {},
@@ -2907,7 +2907,7 @@ def api_system_health():
     hd = components.get("health_dashboard")
     base = {
         "status": "healthy",
-        "version": "7.0.0",
+        "version": "7.1.0",
         "uptime": _uptime(),
         "components_loaded": len(components),
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -3020,7 +3020,7 @@ def api_settings_get():
         "current_kpis": kpi_values,
         "training_config": training_cfg,
         "system": {
-            "version": "7.0.0",
+            "version": "7.1.0",
             "uptime": _uptime(),
             "components_loaded": len(components),
             "is_render": IS_RENDER,
@@ -5186,12 +5186,12 @@ def _start_telegram_bot():
             token = os.environ["TELEGRAM_BOT_TOKEN"]
 
             async def start_cmd(update, ctx):
-                await update.message.reply_text("DMAI v7.0.0 online.\n/status /train /kaizen /persona")
+                await update.message.reply_text("DMAI v7.1.0 online.\n/status /train /kaizen /persona")
 
             async def status_cmd(update, ctx):
                 si = components.get("si_core")
                 kpis = si.current_kpis if si else {}
-                msg = (f"DMAI v7.0.0\nUptime: {_uptime()}\n"
+                msg = (f"DMAI v7.1.0\nUptime: {_uptime()}\n"
                        f"Topics: {TOTAL_TOPICS}\nComponents: {len(components)}\n"
                        f"Consciousness: {kpis.get('consciousness', 0):.3f}")
                 await update.message.reply_text(msg)
@@ -5254,7 +5254,7 @@ _start_background_services()
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
-    logger.info("  DMAI v7.0.0 — Starting on port %d", port)
+    logger.info("  DMAI v7.1.0 — Starting on port %d", port)
     logger.info("  Components: %s", list(components.keys()))
     logger.info("  Syllabus topics: %d", TOTAL_TOPICS)
     logger.info("  Render mode: %s", IS_RENDER)
