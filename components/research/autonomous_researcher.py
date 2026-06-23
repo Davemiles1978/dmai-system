@@ -196,21 +196,105 @@ class AutonomousResearcher:
         }
     
     def run_continuous_research(self, topics: List[str] = None):
-        """Run continuous research loop"""
+        """Run perpetual research loop - cycles through topics continuously, ingests nightly data."""
+        import json as _json
+        from pathlib import Path as _Path
+
+        DEFAULT_TOPICS = [
+            "autonomous AI agents tool use",
+            "large language model reasoning chains",
+            "reinforcement learning from human feedback",
+            "self-improving neural networks meta-learning",
+            "algorithmic trading portfolio optimisation",
+            "content generation AI revenue",
+            "recursive self-improvement AGI",
+            "knowledge graph neural reasoning",
+            "multi-agent coordination swarm intelligence",
+            "code generation LLM fine-tuning",
+        ]
+
+        if topics is None:
+            topics = list(DEFAULT_TOPICS)
+
+        print(f"Autonomous research loop started on {len(topics)} base topics (cycling forever)")
+        cycle = 0
+        while True:
+            try:
+                # Rotate through base topics
+                topic = topics[cycle % len(topics)]
+                result = self.research_topic_deep(topic)
+                print(f"Research cycle {cycle}: {topic} (mastery={result['synthesis']['mastery_score']:.2f})")
+
+                # Every 5 cycles, ingest any new nightly training data
+                if cycle % 5 == 0:
+                    self._ingest_nightly_training()
+
+                cycle += 1
+                time.sleep(300)  # 5 minutes between topics
+            except Exception as e:
+                print(f"Researcher loop error (cycle {cycle}): {e}")
+                time.sleep(60)
+
+    def _ingest_nightly_training(self):
+        """Read data/training/*.json and add insights to SI core from new entries."""
+        import json as _json
+        from pathlib import Path as _Path
+        training_path = _Path("data/training")
+        if not training_path.exists():
+            return
+        seen_file = _Path("data/research/ingested_training.json")
+        seen = set()
+        if seen_file.exists():
+            try:
+                seen = set(_json.loads(seen_file.read_text()))
+            except Exception:
+                pass
+        new_seen = set(seen)
+        ingested = 0
+        for tf in sorted(training_path.glob("*.json")):
+            try:
+                entries = _json.loads(tf.read_text())
+                if not isinstance(entries, list):
+                    continue
+                for entry in entries:
+                    src_url = entry.get("source", "")
+                    if src_url in seen:
+                        continue
+                    new_seen.add(src_url)
+                    domain = entry.get("domain", "knowledge_systems")
+                    technique = entry.get("technique", entry.get("description", "")[:60])
+                    confidence = 0.80
+                    if self.si_core and hasattr(self.si_core, "add_insight"):
+                        self.si_core.add_insight(
+                            domain=domain,
+                            concept=technique,
+                            source=src_url or "nightly_training",
+                            confidence=confidence,
+                            metadata={"training_prompt": entry.get("training_prompt", ""),
+                                      "expected_improvement": entry.get("expected_improvement", "")},
+                        )
+                    self._persist_discovery(domain, [technique], "nightly_training", technique)
+                    ingested += 1
+            except Exception as e:
+                print(f"Nightly ingest error ({tf.name}): {e}")
+        if ingested:
+            print(f"Nightly training ingest: {ingested} new entries absorbed")
+            seen_file.parent.mkdir(parents=True, exist_ok=True)
+            seen_file.write_text(_json.dumps(sorted(new_seen)))
+
+    def run_continuous_research_once(self, topics: List[str] = None):
+        """Single-pass research (original behaviour, kept for tests)."""
         if topics is None:
             topics = [
-                "Python programming", "Machine learning algorithms", 
+                "Python programming", "Machine learning algorithms",
                 "Algorithmic trading strategies", "Content generation AI",
                 "Self-modifying code", "Autonomous systems"
             ]
-        
-        print(f"🔬 Starting autonomous research on {len(topics)} topics...")
-        
+        print(f"Single-pass research on {len(topics)} topics...")
         for topic in topics:
             result = self.research_topic_deep(topic)
-            print(f"✅ Completed: {topic} (Mastery: {result['synthesis']['mastery_score']:.2f})")
+            print(f"Completed: {topic} (Mastery: {result['synthesis']['mastery_score']:.2f})")
             time.sleep(5)
-        
         return self.completed_research
 
 def start_autonomous_research(si_core=None):

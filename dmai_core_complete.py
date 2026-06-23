@@ -135,6 +135,36 @@ except Exception as e:
 try:
     from components.si_core import SICore
     components["si_core"] = SICore(data_path=Path(DATA_PATH))
+    # Seed KPIs from persisted learning_progress.json (survives redeploys via Git)
+    try:
+        import json as _json
+        _lp_file = Path(DATA_PATH) / "learning" / "stage_syllabus" / "learning_progress.json"
+        if _lp_file.exists():
+            _lp = _json.loads(_lp_file.read_text())
+            _si = components["si_core"]
+            _all_topics = {}
+            for _stage, _topics in _lp.get("learned_topics", {}).items():
+                _all_topics.update({k: v for k, v in _topics.items() if not k.startswith("_")})
+            _total = max(len(_all_topics), 1)
+            _mastered = sum(1 for v in _all_topics.values() if isinstance(v, (int, float)) and v >= 3)
+            _avg = sum(v for v in _all_topics.values() if isinstance(v, (int, float)) and not str(v).startswith("_")) / max(_total, 1)
+            _stage_order = ["Baby", "Toddler", "Child", "Teen", "Adult", "Expert"]
+            _cur_stage = _lp.get("current_stage", "Baby")
+            _stage_idx = _stage_order.index(_cur_stage) if _cur_stage in _stage_order else 0
+            _token = None
+            try:
+                from security import SecurityManager
+                _token = SecurityManager.generate_token("system_boot")
+            except Exception:
+                pass
+            if hasattr(_si, "update_kpi"):
+                _si.update_kpi("skill_acquisition_rate", min(_avg / 3.0, 1.0), token=_token)
+                _si.update_kpi("transfer_learning_rate", _stage_idx / (len(_stage_order) - 1), token=_token)
+                _si.update_kpi("zero_shot_success_count", float(_mastered), token=_token)
+            logger.info("SICore seeded from learning_progress.json: stage=%s mastered=%d avg=%.3f",
+                        _cur_stage, _mastered, _avg)
+    except Exception as _e:
+        logger.warning("SICore seed from learning_progress failed: %s", _e)
     logger.info("SICore initialised")
 except Exception as e:
     logger.warning("SICore failed: %s", e)
@@ -314,6 +344,18 @@ try:
     logger.info("DMAITrainingOrchestrator initialised")
 except Exception as e:
     logger.warning("DMAITrainingOrchestrator failed: %s", e)
+
+# ── KPIEvaluator (real benchmark evaluations for all 8 KPIs) ─────────────────
+try:
+    from components.kpi_evaluator import KPIEvaluator
+    components["kpi_evaluator"] = KPIEvaluator(
+        si_core   = components.get("si_core"),
+        ai_hub    = components.get("extended_hub") or components.get("ai_hub"),
+        data_path = DATA_PATH,
+    )
+    logger.info("KPIEvaluator initialised")
+except Exception as e:
+    logger.warning("KPIEvaluator failed: %s", e)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ── UNWIRED COMPONENTS — full wiring (instantiation order respects deps) ─────
@@ -1049,6 +1091,105 @@ def get_syllabus():
               for t, v in SYLLABUS_TOPICS.items()]
     return jsonify({"topics": topics, "total": len(topics)})
 
+
+@app.route("/api/learning/progress")
+def api_learning_progress():
+    """Full syllabus + stage study progress for the admin Study Progress panel."""
+    import json as _json
+    from pathlib import Path as _Path
+
+    # 1. Learning progress from stage learner state file
+    lp_file = _Path(DATA_PATH) / "learning" / "stage_syllabus" / "learning_progress.json"
+    lp = {}
+    if lp_file.exists():
+        try:
+            lp = _json.loads(lp_file.read_text())
+        except Exception:
+            pass
+
+    learned = lp.get("learned_topics", {})
+    current_stage = lp.get("current_stage", "Baby")
+    last_cycle = lp.get("last_learning_cycle", None)
+
+    # 2. Flatten all learned topics across stages
+    all_topics = {}
+    for stage, topics in learned.items():
+        for k, v in topics.items():
+            if not k.startswith("_"):
+                all_topics[k] = {"stage": stage, "mastery": v}
+
+    total = len(all_topics)
+    mastered = sum(1 for t in all_topics.values() if t["mastery"] >= 3)
+    in_progress_count = sum(1 for t in all_topics.values() if 1 <= t["mastery"] < 3)
+    not_started = max(0, TOTAL_TOPICS - total)
+
+    # 3. Per-stage summary
+    stage_order = ["Baby", "Toddler", "Child", "Teen", "Adult", "Expert"]
+    stage_summary = {}
+    for s in stage_order:
+        stage_topics = {k: v for k, v in all_topics.items() if v["stage"] == s}
+        stage_summary[s] = {
+            "total": len(stage_topics),
+            "mastered": sum(1 for v in stage_topics.values() if v["mastery"] >= 3),
+            "in_progress": sum(1 for v in stage_topics.values() if 1 <= v["mastery"] < 3),
+        }
+
+    # 4. SI training modules from orchestrator
+    orch = components.get("training_orchestrator")
+    si_modules = []
+    if orch and hasattr(orch, "si_trainer") and orch.si_trainer:
+        try:
+            st = orch.si_trainer.get_status()
+            si_modules = st.get("module_list", [])
+        except Exception:
+            pass
+
+    # 5. Recent research discoveries
+    disc_file = _Path("data/research/discoveries.jsonl")
+    recent_discoveries = []
+    if disc_file.exists():
+        try:
+            lines = disc_file.read_text().strip().split("\n")
+            for line in reversed(lines[-10:]):
+                if line.strip():
+                    try:
+                        recent_discoveries.append(_json.loads(line))
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    # 6. Nightly training data stats
+    training_path = _Path("data/training")
+    training_entries = 0
+    training_files_count = 0
+    if training_path.exists():
+        for tf in training_path.glob("*.json"):
+            try:
+                content = _json.loads(tf.read_text())
+                if isinstance(content, list):
+                    training_entries += len(content)
+                    training_files_count += 1
+            except Exception:
+                pass
+
+    return jsonify({
+        "current_stage": current_stage,
+        "last_learning_cycle": last_cycle,
+        "total_syllabus_topics": TOTAL_TOPICS,
+        "topics_encountered": total,
+        "mastered": mastered,
+        "in_progress": in_progress_count,
+        "not_started": not_started,
+        "mastery_pct": round(mastered / max(TOTAL_TOPICS, 1) * 100, 1),
+        "stage_summary": stage_summary,
+        "si_modules": si_modules,
+        "recent_discoveries": recent_discoveries,
+        "nightly_training_files": training_files_count,
+        "nightly_training_entries": training_entries,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
 @app.route("/v2/weights")
 def get_weights():
     return jsonify({
@@ -1063,6 +1204,53 @@ def api_knowledge(concept):
         if cl in topic or topic in cl:
             return jsonify({"concept": topic, "info": info, "found": True})
     return jsonify({"concept": concept, "found": False, "message": "Not in syllabus yet"})
+
+
+@app.route("/api/kpi/evaluate", methods=["POST"])
+def api_kpi_evaluate():
+    data  = request.get_json(silent=True) or {}
+    quick = data.get("quick", True)
+    kpi_eval = components.get("kpi_evaluator")
+    if not kpi_eval:
+        return jsonify({"error": "KPIEvaluator not loaded"}), 503
+    import threading as _kpi_th
+    results = {}
+    def _run():
+        results.update(kpi_eval.run_full_eval(quick=quick))
+    t = _kpi_th.Thread(target=_run, daemon=True)
+    t.start()
+    t.join(timeout=120)
+    return jsonify({"status": "complete" if not t.is_alive() else "timeout", "results": results})
+
+
+@app.route("/api/kpi/history")
+def api_kpi_history():
+    from pathlib import Path as _KP
+    import json as _KJ
+    hist_file = _KP("data/kpi_eval_history.jsonl")
+    limit = int(request.args.get("limit", 50))
+    records = []
+    if hist_file.exists():
+        lines = hist_file.read_text().strip().split("\n")
+        for line in reversed(lines):
+            if line.strip():
+                try:
+                    records.append(_KJ.loads(line))
+                except Exception:
+                    pass
+            if len(records) >= limit:
+                break
+    return jsonify({"records": records, "total": len(records)})
+
+
+@app.route("/api/kpi/rsi/sync", methods=["POST"])
+def api_kpi_rsi_sync():
+    kpi_eval = components.get("kpi_evaluator")
+    if not kpi_eval:
+        return jsonify({"error": "KPIEvaluator not loaded"}), 503
+    rate = kpi_eval.eval_rsi_from_graph()
+    return jsonify({"recursive_self_improvement_rate": rate, "evolution_cycle": rate})
+
 
 @app.route("/api/conversations")
 def api_conversations():
@@ -2446,14 +2634,13 @@ def _start_background_services():
         except Exception as e:
             logger.warning("ParallelWebLearner start failed: %s", e)
 
-    if not IS_RENDER:
-        orch = components.get("training_orchestrator")
-        if orch:
-            try:
-                orch.start_background_updater()
-                logger.info("Background update engine started")
-            except Exception as e:
-                logger.warning("Background updater failed: %s", e)
+    orch = components.get("training_orchestrator")
+    if orch:
+        try:
+            orch.start_background_updater()
+            logger.info("Background update engine started (render=%s)", IS_RENDER)
+        except Exception as e:
+            logger.warning("Background updater failed: %s", e)
     # ── Wired-component background loops ───────────────────────────────────
     disc = components.get("ai_discovery")
     if disc and hasattr(disc, "start_discovery_loop"):
@@ -2485,6 +2672,15 @@ def _start_background_services():
         except Exception as e:
             logger.warning("AITutorAutoConfigurator loop failed: %s", e)
 
+    # ── KPIEvaluator background evaluation loop ─────────────────────────
+    kpi_eval = components.get("kpi_evaluator")
+    if kpi_eval:
+        try:
+            kpi_eval.start_background_eval(interval_hours=6.0)
+            logger.info("KPIEvaluator background thread started")
+        except Exception as e:
+            logger.warning("KPIEvaluator background start failed: %s", e)
+
     # ── AutoRegistrar (free-tier API key acquisition) ──────────────────
     try:
         from components.integration.auto_registrar import AutoRegistrar as _AutoReg
@@ -2494,6 +2690,54 @@ def _start_background_services():
         logger.info("AutoRegistrar started")
     except Exception as e:
         logger.warning("AutoRegistrar startup failed: %s", e)
+
+    # ── Autonomous Researcher — auto-start background research loop ──────────
+    ar = components.get("autonomous_researcher")
+    if ar:
+        try:
+            import threading as _threading
+            _ar_thread = _threading.Thread(
+                target=ar.run_continuous_research,
+                args=(None,),   # uses default topic list
+                daemon=True,
+                name="dmai-autonomous-researcher"
+            )
+            _ar_thread.start()
+            logger.info("AutonomousResearcher background loop started")
+        except Exception as e:
+            logger.warning("AutonomousResearcher auto-start failed: %s", e)
+
+    # ── StageAwareLearningOrchestrator — wire si_core + start learning loop ──
+    sl = components.get("stage_learner")
+    if sl:
+        try:
+            # Wire SI core so consciousness score drives stage advancement
+            if hasattr(sl, "set_si_core"):
+                sl.set_si_core(components.get("si_core"))
+            elif hasattr(sl, "si_core"):
+                sl.si_core = components.get("si_core")
+
+            # Auto-start the continuous learning loop if method exists
+            if hasattr(sl, "start_learning_loop"):
+                import threading as _threading
+                _sl_thread = _threading.Thread(
+                    target=sl.start_learning_loop,
+                    daemon=True,
+                    name="dmai-stage-learner"
+                )
+                _sl_thread.start()
+                logger.info("StageAwareLearningOrchestrator learning loop started")
+            elif hasattr(sl, "run_continuous_learning"):
+                import threading as _threading
+                _sl_thread = _threading.Thread(
+                    target=sl.run_continuous_learning,
+                    daemon=True,
+                    name="dmai-stage-learner"
+                )
+                _sl_thread.start()
+                logger.info("StageAwareLearningOrchestrator continuous learning started")
+        except Exception as e:
+            logger.warning("StageAwareLearningOrchestrator auto-start failed: %s", e)
 
     # ── Self-management (SelfHealer + KaizenExecutor + RenderDeployHook) ───
     try:

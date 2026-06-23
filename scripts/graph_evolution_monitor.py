@@ -318,6 +318,21 @@ def main():
     else:
         print("  [no-branch] Skipped git operations.")
 
+    # ── Notify the live DMAI system to re-read evolution_cycle → RSI KPI ──
+    try:
+        import requests as _req
+        resp = _req.post(
+            "https://dmai-web.onrender.com/api/kpi/rsi/sync",
+            timeout=15,
+        )
+        if resp.ok:
+            data = resp.json()
+            print(f"  RSI KPI synced: recursive_self_improvement_rate={data.get('recursive_self_improvement_rate','?')}")
+        else:
+            print(f"  RSI sync returned {resp.status_code} (non-fatal)")
+    except Exception as e:
+        print(f"  RSI sync skipped (non-fatal): {e}")
+
 
 if __name__ == "__main__":
     main()

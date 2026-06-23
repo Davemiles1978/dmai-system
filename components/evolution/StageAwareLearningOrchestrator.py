@@ -1541,6 +1541,48 @@ Be specific, educational, and focused on real application.
         
         return []
 
+    def start_learning_loop(self):
+        """Continuously call run_learning_cycle every 10 minutes. Runs as a daemon thread."""
+        import time as _time
+        import logging as _logging
+        _log = _logging.getLogger("dmai.stage_learner")
+        _log.info("Stage learner continuous loop starting (10 min cadence)")
+        while getattr(self, "learning_active", True):
+            try:
+                consciousness = 0.0
+                if self.si_core and hasattr(self.si_core, "current_kpis"):
+                    consciousness = self.si_core.current_kpis.get("consciousness", 0.0)
+                result = self.run_learning_cycle(consciousness)
+                if result.get("learned"):
+                    _log.info("Learned: %s (stage=%s mastery=%s)",
+                              result.get("topic","?"), result.get("stage","?"),
+                              result.get("mastery_progress","?"))
+                    # Push KPI update back to si_core
+                    if self.si_core and hasattr(self.si_core, "update_kpi"):
+                        stage_order = list(self.STAGES.keys())
+                        idx = stage_order.index(self.current_stage) if self.current_stage in stage_order else 0
+                        self.si_core.update_kpi("transfer_learning_rate",
+                            idx / max(len(stage_order) - 1, 1), token=None)
+                        # Count mastered topics for skill_acquisition_rate
+                        all_mastered = sum(
+                            1 for stage_topics in self.learned_topics.values()
+                            for v in stage_topics.values()
+                            if isinstance(v, (int, float)) and v >= 3
+                        )
+                        all_seen = sum(
+                            1 for stage_topics in self.learned_topics.values()
+                            for k, v in stage_topics.items()
+                            if not k.startswith("_")
+                        )
+                        if all_seen > 0:
+                            self.si_core.update_kpi("skill_acquisition_rate",
+                                all_mastered / all_seen, token=None)
+                else:
+                    _log.info("Learning cycle: %s", result.get("message", "no new topics"))
+            except Exception as e:
+                _log.warning("Stage learner loop error: %s", e)
+            _time.sleep(600)  # 10 minutes between cycles
+
     def run_phase_exam(self) -> Dict:
         """Run comprehension test on the most recently completed phase. Returns exam results."""
         all_topics = self.STAGES.get(self.current_stage, {}).get("priority_topics", [])

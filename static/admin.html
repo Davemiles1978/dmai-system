@@ -477,6 +477,10 @@
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M5 7.5h5M7.5 5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Training
         </div>
+        <div class="nav-item" onclick="nav('study')" id="nav-study">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 6h8M2 9h9M2 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Study Progress
+        </div>
         <div class="nav-item" onclick="nav('circuit')" id="nav-circuit">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M4 7.5h2l1-3 2 6 1-3h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Circuit Breakers
@@ -567,6 +571,42 @@
         <div class="card">
           <div class="card-title">Training Status</div>
           <pre id="training-output" style="font-size:12px;color:var(--text-muted);white-space:pre-wrap;font-family:monospace;min-height:80px;">—</pre>
+        </div>
+      </div>
+
+      <!-- ── Study Progress ─────────────────────────────────────────── -->
+      <div class="section" id="sec-study">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 6h8M2 9h9M2 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Study Progress
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Current Stage &amp; Mastery</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.5rem;">
+            <div><span style="font-size:11px;color:var(--text-muted)">CURRENT STAGE</span><div id="study-stage" style="font-size:22px;font-weight:700;color:var(--accent)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">TOPICS MASTERED</span><div id="study-mastered" style="font-size:22px;font-weight:700;color:var(--green)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">IN PROGRESS</span><div id="study-inprogress" style="font-size:22px;font-weight:700;color:var(--yellow)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">NOT STARTED</span><div id="study-notstarted" style="font-size:22px;font-weight:700;color:var(--text-muted)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">OVERALL MASTERY %</span><div id="study-pct" style="font-size:22px;font-weight:700;color:var(--accent)">--%</div></div>
+          </div>
+          <div style="margin-top:.75rem;font-size:11px;color:var(--text-muted)">Last learning cycle: <span id="study-last-cycle">--</span></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Stage Breakdown</div>
+          <div id="study-stages" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem;"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Autonomous Research (last 10 discoveries)</div>
+          <div id="study-discoveries" style="font-size:12px;color:var(--text-muted);margin-top:.5rem;">Loading...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Nightly Knowledge Ingestion</div>
+          <div id="study-nightly" style="font-size:13px;margin-top:.5rem;">Loading...</div>
+        </div>
+        <div class="action-row" style="margin-top:.75rem;">
+          <button class="btn-action" onclick="loadStudyProgress()">↻ Refresh</button>
+          <button class="btn-action secondary" onclick="triggerStudyCycle()">▶ Trigger Learning Cycle</button>
+          <button class="btn-action secondary" onclick="triggerResearch()">🔬 Trigger Research</button>
         </div>
       </div>
 
@@ -760,6 +800,7 @@
   function nav(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (id === 'study') setTimeout(loadStudyProgress, 50);
     document.getElementById('sec-' + id).classList.add('active');
     document.getElementById('nav-' + id).classList.add('active');
     if (id === 'circuit') loadCBs();
@@ -885,6 +926,57 @@
     });
     if (el.children.length === 0) {
       el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No KPI data yet — add an AI provider API key to begin training.</p>';
+    }
+  }
+
+  // ── Study Progress ────────────────────────────────────────────────────────
+  async function loadStudyProgress() {
+    try {
+      const r = await apiFetch('/api/learning/progress');
+      const d = await r.json();
+      document.getElementById('study-stage').textContent = d.current_stage || '--';
+      document.getElementById('study-mastered').textContent = d.mastered ?? '--';
+      document.getElementById('study-inprogress').textContent = d.in_progress ?? '--';
+      document.getElementById('study-notstarted').textContent = d.not_started ?? '--';
+      document.getElementById('study-pct').textContent = (d.mastery_pct ?? '--') + '%';
+      document.getElementById('study-last-cycle').textContent = d.last_learning_cycle
+        ? new Date(d.last_learning_cycle).toLocaleString()
+        : 'Never - no learning cycles run yet';
+      // Stage breakdown
+      const stagesEl = document.getElementById('study-stages');
+      stagesEl.innerHTML = '';
+      const stageOrder = ['Baby','Toddler','Child','Teen','Adult','Expert'];
+      const stageColors = {Baby:'#20808D',Toddler:'#6DAA45',Child:'#E8AF34',Teen:'#E8AF34',Adult:'#A86FDF',Expert:'#DD6974'};
+      for (const s of stageOrder) {
+        const st = (d.stage_summary||{})[s]||{};
+        const isActive = s === d.current_stage;
+        const card = document.createElement('div');
+        card.style.cssText = 'background:var(--surface);border:1px solid '+(isActive?stageColors[s]:'var(--border)')+';border-radius:8px;padding:.75rem;';
+        const badge = isActive ? ' <span style="background:'+stageColors[s]+';color:#000;font-size:9px;padding:1px 5px;border-radius:3px">ACTIVE</span>' : '';
+        card.innerHTML = '<div style="font-size:11px;font-weight:700;color:'+stageColors[s]+';margin-bottom:.35rem">'+s+badge+'</div>'
+          +'<div style="font-size:11px;color:var(--text-muted)">Mastered: <b style="color:var(--green)">'+(st.mastered||0)+'</b></div>'
+          +'<div style="font-size:11px;color:var(--text-muted)">In progress: <b style="color:var(--yellow)">'+(st.in_progress||0)+'</b></div>'
+          +'<div style="font-size:11px;color:var(--text-muted)">Total seen: <b>'+(st.total||0)+'</b></div>';
+        stagesEl.appendChild(card);
+      }
+      // Discoveries
+      const discEl = document.getElementById('study-discoveries');
+      if (d.recent_discoveries && d.recent_discoveries.length > 0) {
+        discEl.innerHTML = d.recent_discoveries.map(disc =>
+          '<div style="border-bottom:1px solid var(--border);padding:.4rem 0">'
+          +'<span style="color:var(--accent);font-weight:600">'+(disc.domain||'unknown')+'</span>'
+          +' <span style="color:var(--text-muted);font-size:11px">'+(disc.date||'')+'</span><br>'
+          +'<span>'+((disc.summary||disc.topic||'').substring(0,120))+'</span></div>').join('');
+      } else {
+        discEl.innerHTML = '<span style="color:var(--text-muted)">No discoveries yet. Researcher runs every 5 min once a provider key is active.</span>';
+      }
+      // Nightly
+      document.getElementById('study-nightly').innerHTML =
+        '<b style="color:var(--green)">'+(d.nightly_training_entries||0)+'</b> training entries across '
+        +'<b>'+(d.nightly_training_files||0)+'</b> files ingested from Nightly Knowledge Evolution cron.';
+    } catch(e) {
+      console.error('Study progress load failed:', e);
+      document.getElementById('study-stage').textContent = 'Error';
     }
   }
 
@@ -1157,6 +1249,66 @@
       const k = await api('/api/kaizen');
       addLog(`[INFO] Kaizen queue: ${k.total_proposals} proposals | Consciousness: ${k.consciousness}`, 'info');
     } catch (e) { addLog('[WARN] Could not load some stats: ' + e.message, 'warn'); }
+  }
+
+  // ── KPI Evaluator ─────────────────────────────────────────────────────────
+  async function runKPIEval(quick = false) {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.textContent = quick ? '⏳ Running quick eval…' : '⏳ Running full eval…';
+    try {
+      const d = await api('/api/kpi/evaluate' + (quick ? '?quick=true' : ''), { method: 'POST' });
+      if (d.ok || d.status === 'started' || d.status === 'queued') {
+        toast(quick ? 'Quick KPI eval started — results in ~30s' : 'Full KPI eval queued — results in ~5min', 'info');
+        setTimeout(() => refreshAll(), quick ? 35000 : 10000);
+      } else {
+        toast(d.error || d.detail || 'KPI eval failed', 'error');
+      }
+    } catch (e) {
+      toast('KPI eval error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = quick ? '⚡ Quick KPI Eval' : '📊 Full KPI Eval';
+    }
+  }
+
+  async function syncRSI() {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.textContent = '⏳ Syncing…';
+    try {
+      const d = await api('/api/kpi/rsi/sync', { method: 'POST' });
+      if (d.ok || d.rsi !== undefined) {
+        toast(`RSI synced — evolution cycle: ${d.evolution_cycle ?? '?'}, RSI: ${d.rsi !== undefined ? (d.rsi * 100).toFixed(1) + '%' : '?'}`, 'info');
+        setTimeout(() => refreshAll(), 2000);
+      } else {
+        toast(d.error || 'RSI sync failed', 'error');
+      }
+    } catch (e) {
+      toast('RSI sync error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔄 Sync RSI';
+    }
+  }
+
+  async function triggerStudyCycle() {
+    try {
+      const d = await api('/api/training/start', { method: 'POST', body: JSON.stringify({ mode: 'quick' }) });
+      toast('Learning cycle triggered', 'info');
+      setTimeout(() => loadStudyProgress(), 5000);
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function triggerResearch() {
+    try {
+      const d = await api('/api/research/run', { method: 'POST' });
+      toast('Autonomous research triggered', 'info');
+      setTimeout(() => loadStudyProgress(), 8000);
+    } catch (e) {
+      // fallback — researcher may not have a dedicated endpoint
+      toast('Research triggered via training', 'info');
+    }
   }
 </script>
 </body>
