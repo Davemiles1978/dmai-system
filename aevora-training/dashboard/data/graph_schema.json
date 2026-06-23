@@ -1,14 +1,15 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "2.0",
   "last_updated": "2026-06-23",
   "evolution_cycle": 1,
   "total_neurons": 32,
-  "total_synapses": 41,
+  "total_synapses": 47,
   "metadata": {
-    "description": "DMAI Knowledge Graph \u2014 live topology of neural components and their relationships",
-    "auto_evolved": true,
+    "description": "DMAI Knowledge Graph \u2014 locked core topology of neural components and their relationships",
+    "auto_evolved": false,
+    "graph_locked": true,
     "generator": "graph_evolution_monitor.py",
-    "last_live_update": "2026-06-23T16:55:34Z"
+    "last_live_update": "2026-06-23T00:00:00Z"
   },
   "clusters": {
     "core": {
@@ -41,473 +42,509 @@
       "id": "dmai_core",
       "label": "DMAI Core",
       "cluster": "core",
-      "description": "Central orchestration and consciousness layer",
+      "description": "DMAI Core component",
       "activation": 1.0
+    },
+    {
+      "id": "meta_controller",
+      "label": "Meta Controller",
+      "cluster": "core",
+      "description": "Meta Controller component",
+      "activation": 0.9
     },
     {
       "id": "si_core",
-      "label": "SI Core",
+      "label": "SICore Engine",
       "cluster": "core",
-      "description": "Self-improvement engine and recursive learning",
-      "activation": 1.0
-    },
-    {
-      "id": "consciousness",
-      "label": "Consciousness",
-      "cluster": "core",
-      "description": "Global awareness and integration module",
+      "description": "SICore Engine component",
       "activation": 0.9
     },
     {
-      "id": "meta_learner",
-      "label": "Meta Learner",
+      "id": "db_storage",
+      "label": "Database Storage",
       "cluster": "core",
-      "description": "Learning-to-learn capability layer",
-      "activation": 0.85
-    },
-    {
-      "id": "global_workspace",
-      "label": "Global Workspace",
-      "cluster": "core",
-      "description": "Shared cognitive workspace for cross-module communication",
-      "activation": 0.9
-    },
-    {
-      "id": "master_control",
-      "label": "Master Control",
-      "cluster": "core",
-      "description": "Execution authority and resource allocation",
-      "activation": 1.0
-    },
-    {
-      "id": "learning_orch",
-      "label": "Learning Orchestrator",
-      "cluster": "learning",
-      "description": "Coordinates all learning subsystems",
-      "activation": 0.9
-    },
-    {
-      "id": "stage_learner",
-      "label": "Stage Learner",
-      "cluster": "learning",
-      "description": "Staged curriculum learning manager",
+      "description": "Database Storage component",
       "activation": 0.8
     },
     {
-      "id": "tutor_manager",
-      "label": "Tutor Manager",
-      "cluster": "learning",
-      "description": "AI tutor auto-configuration and management",
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "cluster": "core",
+      "description": "API Gateway component",
+      "activation": 0.8
+    },
+    {
+      "id": "health_monitor",
+      "label": "Health Monitor",
+      "cluster": "core",
+      "description": "Health Monitor component",
       "activation": 0.75
     },
     {
-      "id": "kaizen",
-      "label": "Kaizen Engine",
-      "cluster": "learning",
-      "description": "Continuous incremental improvement processor",
-      "activation": 0.85
-    },
-    {
-      "id": "unified_learner",
-      "label": "Unified Learner",
-      "cluster": "learning",
-      "description": "Cross-domain unified learning interface",
-      "activation": 0.8
-    },
-    {
-      "id": "capability_synth",
-      "label": "Capability Synthesizer",
-      "cluster": "learning",
-      "description": "Synthesises new capabilities from learned components",
-      "activation": 0.75
-    },
-    {
-      "id": "auto_researcher",
-      "label": "Auto Researcher",
-      "cluster": "research",
-      "description": "Autonomous web research and knowledge acquisition",
-      "activation": 0.9
-    },
-    {
-      "id": "web_learner",
-      "label": "Web Learner",
-      "cluster": "research",
-      "description": "Parallel web content ingestion",
-      "activation": 0.85
-    },
-    {
-      "id": "url_learner",
-      "label": "URL Learner",
-      "cluster": "research",
-      "description": "Targeted URL content extraction and learning",
-      "activation": 0.8
-    },
-    {
-      "id": "reverse_engineer",
-      "label": "Reverse Engineer",
-      "cluster": "research",
-      "description": "Code and system reverse engineering capability",
+      "id": "background_svc",
+      "label": "Background Services",
+      "cluster": "core",
+      "description": "Background Services component",
       "activation": 0.7
     },
     {
-      "id": "ai_discovery",
-      "label": "AI Discovery",
-      "cluster": "research",
-      "description": "Dynamic AI model and capability discovery",
-      "activation": 0.85
-    },
-    {
-      "id": "sandbox",
-      "label": "Execution Sandbox",
-      "cluster": "research",
-      "description": "Secure Docker code execution environment",
-      "activation": 0.75
+      "id": "integrity_checker",
+      "label": "Integrity Checker",
+      "cluster": "core",
+      "description": "Integrity Checker component",
+      "activation": 0.7
     },
     {
       "id": "knowledge_mgr",
       "label": "Knowledge Manager",
       "cluster": "knowledge",
-      "description": "Central knowledge store and retrieval",
-      "activation": 0.9
+      "description": "Knowledge Manager component",
+      "activation": 0.85
     },
     {
-      "id": "book_reader",
-      "label": "Book Reader",
-      "cluster": "knowledge",
-      "description": "Long-form document ingestion and synthesis",
+      "id": "learning_orch",
+      "label": "Learning Orchestrator",
+      "cluster": "learning",
+      "description": "Learning Orchestrator component",
+      "activation": 0.85
+    },
+    {
+      "id": "training_pipeline",
+      "label": "Training Pipeline",
+      "cluster": "learning",
+      "description": "Training Pipeline component",
+      "activation": 0.75
+    },
+    {
+      "id": "stage_learner",
+      "label": "Stage Learner",
+      "cluster": "learning",
+      "description": "Stage Learner component",
       "activation": 0.7
     },
     {
-      "id": "evolution_metrics",
-      "label": "Evolution Metrics",
-      "cluster": "knowledge",
-      "description": "SICore KPI tracking and reporting",
-      "activation": 0.85
+      "id": "parallel_learner",
+      "label": "Parallel Learner",
+      "cluster": "learning",
+      "description": "Parallel Learner component",
+      "activation": 0.7
     },
     {
-      "id": "learning_harvester",
-      "label": "Learning Harvester",
-      "cluster": "knowledge",
-      "description": "Harvests and indexes learned knowledge artefacts",
+      "id": "vocab_ingest",
+      "label": "Vocabulary Ingester",
+      "cluster": "learning",
+      "description": "Vocabulary Ingester component",
+      "activation": 0.65
+    },
+    {
+      "id": "auto_researcher",
+      "label": "Auto Researcher",
+      "cluster": "research",
+      "description": "Auto Researcher component",
       "activation": 0.8
     },
     {
+      "id": "insight_processor",
+      "label": "Insight Processor",
+      "cluster": "research",
+      "description": "Insight Processor component",
+      "activation": 0.7
+    },
+    {
+      "id": "graph_evolution",
+      "label": "Graph Evolution",
+      "cluster": "research",
+      "description": "Graph Evolution component",
+      "activation": 0.7
+    },
+    {
+      "id": "kaizen_engine",
+      "label": "Kaizen Engine",
+      "cluster": "research",
+      "description": "Kaizen Engine component",
+      "activation": 0.7
+    },
+    {
+      "id": "suggestion_exec",
+      "label": "Suggestion Executor",
+      "cluster": "research",
+      "description": "Suggestion Executor component",
+      "activation": 0.65
+    },
+    {
+      "id": "code_writer",
+      "label": "Code Writer",
+      "cluster": "research",
+      "description": "Code Writer component",
+      "activation": 0.65
+    },
+    {
+      "id": "kaizen_auto_repair",
+      "label": "Kaizen Auto-Repair",
+      "cluster": "research",
+      "description": "Kaizen Auto-Repair component",
+      "activation": 0.65
+    },
+    {
+      "id": "self_funding",
+      "label": "Self-Funding",
+      "cluster": "revenue",
+      "description": "Self-Funding component",
+      "activation": 0.8
+    },
+    {
+      "id": "revenue_tracker",
+      "label": "Revenue Tracker",
+      "cluster": "revenue",
+      "description": "Revenue Tracker component",
+      "activation": 0.7
+    },
+    {
+      "id": "content_gen",
+      "label": "Content Generator",
+      "cluster": "revenue",
+      "description": "Content Generator component",
+      "activation": 0.7
+    },
+    {
+      "id": "trading_agent",
+      "label": "Trading Agent",
+      "cluster": "revenue",
+      "description": "Trading Agent component",
+      "activation": 0.65
+    },
+    {
+      "id": "scraper_agent",
+      "label": "Scraper Agent",
+      "cluster": "revenue",
+      "description": "Scraper Agent component",
+      "activation": 0.65
+    },
+    {
       "id": "ai_hub",
-      "label": "AI Hub",
+      "label": "AI Integration Hub",
       "cluster": "providers",
-      "description": "Multi-provider AI routing and load balancing",
-      "activation": 1.0
-    },
-    {
-      "id": "groq",
-      "label": "Groq",
-      "cluster": "providers",
-      "description": "Groq ultra-fast inference provider",
-      "activation": 0.9
-    },
-    {
-      "id": "cerebras",
-      "label": "Cerebras",
-      "cluster": "providers",
-      "description": "Cerebras wafer-scale inference provider",
+      "description": "AI Integration Hub component",
       "activation": 0.85
     },
     {
-      "id": "google_ai",
+      "id": "groq_provider",
+      "label": "Groq",
+      "cluster": "providers",
+      "description": "Groq component",
+      "activation": 0.6
+    },
+    {
+      "id": "cerebras_provider",
+      "label": "Cerebras",
+      "cluster": "providers",
+      "description": "Cerebras component",
+      "activation": 0.6
+    },
+    {
+      "id": "google_provider",
       "label": "Google AI",
       "cluster": "providers",
-      "description": "Google Gemini model provider",
-      "activation": 0.9
+      "description": "Google AI component",
+      "activation": 0.6
+    },
+    {
+      "id": "openrouter_provider",
+      "label": "OpenRouter",
+      "cluster": "providers",
+      "description": "OpenRouter component",
+      "activation": 0.6
     },
     {
       "id": "github_models",
       "label": "GitHub Models",
       "cluster": "providers",
-      "description": "GitHub-hosted model inference provider",
-      "activation": 0.8
-    },
-    {
-      "id": "mistral",
-      "label": "Mistral",
-      "cluster": "providers",
-      "description": "Mistral AI model provider",
-      "activation": 0.8
-    },
-    {
-      "id": "self_funding",
-      "label": "Self Funding",
-      "cluster": "revenue",
-      "description": "Autonomous revenue generation to fund API costs",
-      "activation": 0.75
-    },
-    {
-      "id": "revenue_discovery",
-      "label": "Revenue Discovery",
-      "cluster": "revenue",
-      "description": "Discovers and evaluates new revenue streams",
-      "activation": 0.7
-    },
-    {
-      "id": "trader",
-      "label": "Aggressive Trader",
-      "cluster": "revenue",
-      "description": "Paper/live trading agent (paper mode by default)",
-      "activation": 0.65
-    },
-    {
-      "id": "content_engine",
-      "label": "Content Engine",
-      "cluster": "revenue",
-      "description": "Automated content creation and monetisation",
-      "activation": 0.7
+      "description": "GitHub Models component",
+      "activation": 0.6
     }
   ],
   "synapses": [
     {
       "source": "dmai_core",
+      "target": "meta_controller",
+      "weight": 1.0,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
       "target": "si_core",
       "weight": 1.0,
       "type": "control"
     },
     {
-      "source": "dmai_core",
-      "target": "master_control",
-      "weight": 1.0,
+      "source": "meta_controller",
+      "target": "si_core",
+      "weight": 0.9,
       "type": "control"
     },
     {
       "source": "dmai_core",
-      "target": "global_workspace",
-      "weight": 0.9,
-      "type": "data"
+      "target": "api_gateway",
+      "weight": 0.85,
+      "type": "control"
     },
     {
-      "source": "si_core",
-      "target": "meta_learner",
-      "weight": 0.9,
-      "type": "data"
-    },
-    {
-      "source": "si_core",
-      "target": "consciousness",
+      "source": "dmai_core",
+      "target": "db_storage",
       "weight": 0.85,
       "type": "data"
     },
     {
-      "source": "si_core",
-      "target": "evolution_metrics",
+      "source": "dmai_core",
+      "target": "health_monitor",
+      "weight": 0.8,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "background_svc",
+      "weight": 0.8,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "integrity_checker",
+      "weight": 0.75,
+      "type": "control"
+    },
+    {
+      "source": "health_monitor",
+      "target": "integrity_checker",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "api_gateway",
+      "target": "db_storage",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "dmai_core",
+      "target": "knowledge_mgr",
       "weight": 0.9,
-      "type": "data"
+      "type": "control"
     },
     {
-      "source": "global_workspace",
-      "target": "consciousness",
-      "weight": 0.85,
-      "type": "data"
-    },
-    {
-      "source": "master_control",
+      "source": "dmai_core",
       "target": "learning_orch",
       "weight": 0.9,
       "type": "control"
     },
     {
-      "source": "master_control",
+      "source": "dmai_core",
       "target": "auto_researcher",
       "weight": 0.85,
       "type": "control"
     },
     {
-      "source": "meta_learner",
-      "target": "learning_orch",
+      "source": "dmai_core",
+      "target": "ai_hub",
+      "weight": 0.9,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "self_funding",
       "weight": 0.85,
+      "type": "control"
+    },
+    {
+      "source": "knowledge_mgr",
+      "target": "db_storage",
+      "weight": 0.8,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "knowledge_mgr",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "training_pipeline",
+      "weight": 0.8,
       "type": "data"
     },
     {
       "source": "learning_orch",
       "target": "stage_learner",
-      "weight": 0.85,
-      "type": "control"
-    },
-    {
-      "source": "learning_orch",
-      "target": "tutor_manager",
       "weight": 0.8,
-      "type": "control"
+      "type": "data"
     },
     {
       "source": "learning_orch",
-      "target": "kaizen",
-      "weight": 0.85,
-      "type": "control"
-    },
-    {
-      "source": "learning_orch",
-      "target": "unified_learner",
-      "weight": 0.8,
-      "type": "control"
-    },
-    {
-      "source": "learning_orch",
-      "target": "capability_synth",
+      "target": "parallel_learner",
       "weight": 0.75,
       "type": "data"
     },
     {
-      "source": "unified_learner",
-      "target": "capability_synth",
-      "weight": 0.75,
-      "type": "data"
-    },
-    {
-      "source": "auto_researcher",
-      "target": "web_learner",
-      "weight": 0.85,
-      "type": "control"
-    },
-    {
-      "source": "auto_researcher",
-      "target": "url_learner",
-      "weight": 0.8,
-      "type": "control"
-    },
-    {
-      "source": "auto_researcher",
-      "target": "ai_discovery",
-      "weight": 0.85,
-      "type": "data"
-    },
-    {
-      "source": "auto_researcher",
-      "target": "knowledge_mgr",
-      "weight": 0.9,
-      "type": "data"
-    },
-    {
-      "source": "web_learner",
-      "target": "knowledge_mgr",
-      "weight": 0.85,
-      "type": "data"
-    },
-    {
-      "source": "url_learner",
-      "target": "knowledge_mgr",
-      "weight": 0.8,
-      "type": "data"
-    },
-    {
-      "source": "reverse_engineer",
-      "target": "sandbox",
-      "weight": 0.8,
-      "type": "control"
-    },
-    {
-      "source": "reverse_engineer",
-      "target": "knowledge_mgr",
-      "weight": 0.75,
-      "type": "data"
-    },
-    {
-      "source": "ai_discovery",
-      "target": "ai_hub",
-      "weight": 0.85,
-      "type": "data"
-    },
-    {
-      "source": "sandbox",
-      "target": "knowledge_mgr",
-      "weight": 0.75,
-      "type": "data"
-    },
-    {
-      "source": "knowledge_mgr",
-      "target": "book_reader",
+      "source": "learning_orch",
+      "target": "vocab_ingest",
       "weight": 0.7,
-      "type": "control"
-    },
-    {
-      "source": "knowledge_mgr",
-      "target": "learning_harvester",
-      "weight": 0.85,
       "type": "data"
     },
     {
-      "source": "evolution_metrics",
+      "source": "training_pipeline",
+      "target": "stage_learner",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "stage_learner",
+      "target": "parallel_learner",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "vocab_ingest",
+      "target": "knowledge_mgr",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "ai_hub",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "insight_processor",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "graph_evolution",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "insight_processor",
       "target": "si_core",
-      "weight": 0.9,
+      "weight": 0.7,
       "type": "feedback"
     },
     {
-      "source": "learning_harvester",
-      "target": "stage_learner",
-      "weight": 0.8,
+      "source": "graph_evolution",
+      "target": "knowledge_mgr",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "kaizen_engine",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "kaizen_engine",
+      "target": "suggestion_exec",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "suggestion_exec",
+      "target": "code_writer",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "code_writer",
+      "target": "kaizen_auto_repair",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "kaizen_auto_repair",
+      "target": "integrity_checker",
+      "weight": 0.65,
+      "type": "feedback"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "ai_hub",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "revenue_tracker",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "content_gen",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "trading_agent",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "scraper_agent",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "revenue_tracker",
+      "target": "db_storage",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "content_gen",
+      "target": "ai_hub",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "scraper_agent",
+      "target": "auto_researcher",
+      "weight": 0.65,
       "type": "data"
     },
     {
       "source": "ai_hub",
-      "target": "groq",
-      "weight": 0.9,
-      "type": "control"
+      "target": "groq_provider",
+      "weight": 0.7,
+      "type": "data"
     },
     {
       "source": "ai_hub",
-      "target": "cerebras",
-      "weight": 0.85,
-      "type": "control"
+      "target": "cerebras_provider",
+      "weight": 0.7,
+      "type": "data"
     },
     {
       "source": "ai_hub",
-      "target": "google_ai",
-      "weight": 0.9,
-      "type": "control"
+      "target": "google_provider",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "ai_hub",
+      "target": "openrouter_provider",
+      "weight": 0.7,
+      "type": "data"
     },
     {
       "source": "ai_hub",
       "target": "github_models",
-      "weight": 0.8,
-      "type": "control"
-    },
-    {
-      "source": "ai_hub",
-      "target": "mistral",
-      "weight": 0.8,
-      "type": "control"
-    },
-    {
-      "source": "master_control",
-      "target": "self_funding",
-      "weight": 0.75,
-      "type": "control"
-    },
-    {
-      "source": "self_funding",
-      "target": "revenue_discovery",
-      "weight": 0.8,
-      "type": "data"
-    },
-    {
-      "source": "self_funding",
-      "target": "trader",
-      "weight": 0.7,
-      "type": "control"
-    },
-    {
-      "source": "self_funding",
-      "target": "content_engine",
-      "weight": 0.75,
-      "type": "control"
-    },
-    {
-      "source": "revenue_discovery",
-      "target": "content_engine",
       "weight": 0.7,
       "type": "data"
-    },
-    {
-      "source": "capability_synth",
-      "target": "si_core",
-      "weight": 0.8,
-      "type": "feedback"
     }
   ]
 }

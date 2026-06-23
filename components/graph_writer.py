@@ -1,7 +1,13 @@
 """
-DMAI GraphWriter — Live Knowledge Graph Growth Engine
-=====================================================
-Automatically grows graph_schema.json whenever DMAI studies or researches.
+DMAI GraphWriter — Live Knowledge Graph Activation Engine
+=========================================================
+Keeps graph_schema.json in sync with DMAI's live learning activity.
+
+The graph topology is LOCKED to the core neuron set defined in the schema
+(see metadata.graph_locked). GraphWriter ONLY updates `activation` on existing
+neurons (and optionally `weight` on existing synapses). It NEVER adds new
+neurons or synapses — this prevents the runaway node explosion that previously
+grew the graph from 32 to 400+ nodes from discoveries/insights/syllabus data.
 
 Called after every:
   - Learning / study cycle
@@ -9,34 +15,20 @@ Called after every:
   - Insight added via si_core.add_insight()
   - Capability registered
 
-This is the bridge between DMAI's learning activity and the visual knowledge graph.
-The graph_evolution_monitor.py script handles Git PR creation (Friday cron).
-GraphWriter handles the LIVE, continuous growth during normal operation.
-
-Node types produced:
-  - domain    — from discoveries.jsonl (autonomous_researcher output)
-  - entity    — from discoveries.jsonl entities list
-  - insight   — from insights.jsonl (si_core.add_insight output)
-  - capability— from capabilities table / code_writer output
-  - topic     — from syllabus mastery progression
-
 Usage:
     from components.graph_writer import GraphWriter
     gw = GraphWriter()
-    stats = gw.evolve()           # full evolution pass
-    stats = gw.add_insight_node(domain, concept, source)   # single insight
-    stats = gw.add_topic_node(stage, topic)                # single topic mastered
+    stats = gw.evolve()                                    # full activation pass
+    gw.add_insight_node(domain, concept, source)           # nudge insight nodes
+    gw.add_topic_node(stage, topic, mastery)               # nudge learning nodes
 """
 
-import hashlib
 import json
 import logging
-import re
 import sqlite3
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger("dmai.graph_writer")
 
@@ -47,62 +39,8 @@ DISCOVERIES  = _REPO_ROOT / "data" / "research" / "discoveries.jsonl"
 INSIGHTS     = _REPO_ROOT / "data" / "research" / "insights.jsonl"
 DB_PATH      = _REPO_ROOT / "data" / "dmai_knowledge.db"
 
-# ── Domain → cluster mapping (matches graph_evolution_monitor.py) ─────────────
-DOMAIN_CLUSTER_MAP = {
-    "machine_learning":       "learning",
-    "reinforcement_learning": "learning",
-    "autonomous_agents":      "research",
-    "trading":                "revenue",
-    "content_generation":     "revenue",
-    "computer_vision":        "research",
-    "nlp":                    "knowledge",
-    "self_improvement":       "core",
-    "knowledge_systems":      "knowledge",
-    "robotics":               "research",
-    "cybersecurity":          "research",
-    "web_technologies":       "research",
-    "data_science":           "knowledge",
-    "cloud_devops":           "providers",
-    # extended domains from researcher
-    "arxiv":                  "research",
-    "github":                 "research",
-    "artificial_intelligence":"research",
-    "deep_learning":          "learning",
-    "llm":                    "knowledge",
-    "agi":                    "core",
-    "finance":                "revenue",
-    "python":                 "research",
-}
-
-CLUSTER_HUB_MAP = {
-    "core":      "dmai_core",
-    "learning":  "learning_orch",
-    "research":  "auto_researcher",
-    "knowledge": "knowledge_mgr",
-    "providers": "ai_hub",
-    "revenue":   "self_funding",
-}
-
-# Stage → cluster for syllabus topics
-STAGE_CLUSTER_MAP = {
-    "baby":    "core",
-    "toddler": "learning",
-    "child":   "learning",
-    "teen":    "knowledge",
-    "adult":   "core",
-}
-
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
-
-def _slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9_]", "_", text.lower().strip())[:48]
-
-
-def _stable_id(prefix: str, text: str) -> str:
-    h = hashlib.sha1(text.encode()).hexdigest()[:6]
-    return f"{_slug(prefix)}_{h}"
-
 
 def _now_utc() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -129,18 +67,18 @@ def _load_jsonl(path: Path) -> list:
     return records
 
 
-def _infer_cluster(domain: str) -> str:
-    """Best-effort cluster from domain string."""
-    d = domain.lower().replace(" ", "_").replace("-", "_")
-    return DOMAIN_CLUSTER_MAP.get(d, "knowledge")
+def _clamp(value: float) -> float:
+    return max(0.0, min(1.0, float(value)))
 
 
 # ── GraphWriter ────────────────────────────────────────────────────────────────
 
 class GraphWriter:
     """
-    Continuously grows graph_schema.json from DMAI's live learning activity.
-    Thread-safe via file-level locking on save.
+    Updates activation levels on the LOCKED core knowledge graph.
+
+    The neuron/synapse topology never changes — only `activation` floats on
+    existing neurons are refreshed from live learning activity.
     """
 
     def __init__(self, schema_path: Path = SCHEMA_PATH):
@@ -169,213 +107,134 @@ class GraphWriter:
             logger.error("Could not save graph_schema.json: %s", e)
             return False
 
-    # ── Node helpers ───────────────────────────────────────────────────────────
+    # ── Activation helpers (UPDATE-ONLY — never add nodes/synapses) ─────────────
 
-    def _node_ids(self, schema: dict) -> set:
-        return {n["id"] for n in schema.get("neurons", [])}
+    @staticmethod
+    def _by_id(schema: dict) -> dict:
+        return {n["id"]: n for n in schema.get("neurons", [])}
 
-    def _synapse_keys(self, schema: dict) -> set:
-        return {(s["source"], s["target"]) for s in schema.get("synapses", [])}
+    @staticmethod
+    def _set_activation(node: dict, target: float) -> None:
+        """Move a neuron's activation toward target (existing node only)."""
+        node["activation"] = round(_clamp(target), 3)
 
-    def _add_node(self, schema: dict, node: dict, existing_ids: set) -> bool:
-        """Add node to schema if ID is new. Returns True if added."""
-        if node["id"] in existing_ids:
-            return False
-        schema["neurons"].append(node)
-        existing_ids.add(node["id"])
-        return True
+    @staticmethod
+    def _nudge(node: dict, delta: float = 0.05) -> None:
+        """Incrementally raise a neuron's activation (existing node only)."""
+        node["activation"] = round(_clamp(float(node.get("activation", 0.5)) + delta), 3)
 
-    def _add_synapse(self, schema: dict, source: str, target: str,
-                     existing_ids: set, existing_synapses: set,
-                     weight: float = 0.5, stype: str = "data") -> bool:
-        """Add synapse if both endpoints exist and edge is new. Returns True if added."""
-        if source not in existing_ids or target not in existing_ids:
-            return False
-        key = (source, target)
-        if key in existing_synapses:
-            return False
-        schema["synapses"].append({
-            "source": source, "target": target,
-            "weight": weight, "type": stype, "auto_generated": True,
-        })
-        existing_synapses.add(key)
-        return True
-
-    def _update_metadata(self, schema: dict) -> None:
+    def _touch_metadata(self, schema: dict) -> None:
+        """
+        Refresh counts/timestamps. Counts are derived from the (unchanged)
+        topology, so they stay pinned at the locked baseline — never grown.
+        evolution_cycle is still incremented to record that a cycle ran.
+        """
         schema["total_neurons"]  = len(schema.get("neurons", []))
         schema["total_synapses"] = len(schema.get("synapses", []))
         schema["evolution_cycle"] = schema.get("evolution_cycle", 0) + 1
-        schema["last_updated"]   = _today_utc()
-        if "metadata" not in schema:
-            schema["metadata"] = {}
-        schema["metadata"]["auto_evolved"] = True
-        schema["metadata"]["last_live_update"] = _now_utc()
+        schema["last_updated"]    = _today_utc()
+        meta = schema.setdefault("metadata", {})
+        meta["last_live_update"] = _now_utc()
+        meta.setdefault("graph_locked", True)
 
-    # ── Full evolution pass ─────────────────────────────────────────────────────
+    # ── Full activation pass ─────────────────────────────────────────────────────
 
     def evolve(self) -> dict:
         """
-        Full evolution pass:
-        1. Process all discoveries.jsonl entries
-        2. Process all insights.jsonl entries
-        3. Process mastered syllabus topics from DB
-        4. Process recent capabilities from DB
-        Returns stats dict: {new_neurons, new_synapses, evolution_cycle, total_neurons, total_synapses}
+        Refresh activation levels on existing core neurons from live data:
+          1. discoveries.jsonl   → research-cluster activation
+          2. insights.jsonl      → insight/self-improvement activation
+          3. syllabus mastery DB → learning-cluster activation
+          4. capabilities DB     → knowledge_mgr activation
+        Never adds neurons or synapses. Returns a stats dict.
         """
         schema = self._load()
         if not schema:
             return {"error": "Could not load graph_schema.json"}
 
         schema = deepcopy(schema)
-        existing_ids      = self._node_ids(schema)
-        existing_synapses = self._synapse_keys(schema)
-        new_nodes  = 0
-        new_edges  = 0
+        by_id = self._by_id(schema)
+        updated = 0
 
-        # ── 1. Discoveries ───────────────────────────────────────────────────
+        def bump(node_id: str, target: float) -> None:
+            nonlocal updated
+            node = by_id.get(node_id)
+            if node is not None:
+                self._set_activation(node, target)
+                updated += 1
+
+        # ── 1. Discoveries → research activity ───────────────────────────────
         discoveries = _load_jsonl(DISCOVERIES)
-        for disc in discoveries:
-            domain   = disc.get("domain", "").strip()
-            entities = disc.get("entities", [])
-            source   = disc.get("source", "autonomous_researcher")
-            date_str = disc.get("date", _today_utc())
+        if discoveries:
+            intensity = 0.5 + min(len(discoveries), 50) / 100.0
+            bump("auto_researcher", intensity)
+            bump("graph_evolution", intensity)
 
-            if domain:
-                domain_id = _slug(domain)
-                cluster   = _infer_cluster(domain)
-                if self._add_node(schema, {
-                    "id": domain_id, "label": domain.replace("_", " ").title(),
-                    "cluster": cluster, "description": f"Domain: {domain}",
-                    "activation": 0.6, "auto_generated": True,
-                    "first_seen": date_str, "source": source,
-                }, existing_ids):
-                    new_nodes += 1
-                    hub = CLUSTER_HUB_MAP.get(cluster)
-                    if hub:
-                        if self._add_synapse(schema, hub, domain_id, existing_ids, existing_synapses, 0.6):
-                            new_edges += 1
-
-            for entity in entities[:5]:
-                if not entity:
-                    continue
-                entity_id = _stable_id(domain or "entity", entity)
-                cluster   = _infer_cluster(domain)
-                if self._add_node(schema, {
-                    "id": entity_id, "label": str(entity)[:32],
-                    "cluster": cluster, "description": f"Entity from {source}",
-                    "activation": 0.5, "auto_generated": True,
-                    "first_seen": date_str, "source": source,
-                }, existing_ids):
-                    new_nodes += 1
-                    domain_id = _slug(domain) if domain else None
-                    if domain_id:
-                        if self._add_synapse(schema, domain_id, entity_id, existing_ids, existing_synapses, 0.5):
-                            new_edges += 1
-
-        # ── 2. Insights ──────────────────────────────────────────────────────
+        # ── 2. Insights → insight processing + self-improvement ──────────────
         insights = _load_jsonl(INSIGHTS)
-        for ins in insights:
-            domain  = ins.get("domain", "")
-            concept = ins.get("concept", ins.get("insight_text", ins.get("insight", ""))).strip()
-            source  = ins.get("source", "si_core")
-            date_str = ins.get("date", _today_utc())
-            if not concept:
-                continue
-            node_id = _stable_id("insight", concept)
-            cluster = _infer_cluster(domain)
-            if self._add_node(schema, {
-                "id": node_id, "label": concept[:32],
-                "cluster": cluster, "description": f"Insight: {concept[:80]}",
-                "activation": 0.55, "auto_generated": True,
-                "first_seen": date_str, "source": source,
-            }, existing_ids):
-                new_nodes += 1
-                # Connect insight → si_core (feedback loop)
-                if self._add_synapse(schema, node_id, "si_core", existing_ids, existing_synapses, 0.55, "feedback"):
-                    new_edges += 1
-                # Also connect to domain hub if domain known
-                domain_id = _slug(domain) if domain else None
-                if domain_id and domain_id in existing_ids:
-                    if self._add_synapse(schema, domain_id, node_id, existing_ids, existing_synapses, 0.5):
-                        new_edges += 1
+        if insights:
+            intensity = 0.5 + min(len(insights), 50) / 100.0
+            bump("insight_processor", intensity)
+            bump("si_core", 0.6 + min(len(insights), 40) / 100.0)
 
-        # ── 3. Mastered syllabus topics from DB ──────────────────────────────
+        # ── 3. Mastered syllabus topics → learning activation ────────────────
         try:
             conn = sqlite3.connect(str(DB_PATH))
             cur  = conn.cursor()
-            cur.execute("""
-                SELECT stage, topic_name, mastery FROM syllabus_content
-                WHERE mastery >= 0.7
-                ORDER BY mastery DESC LIMIT 200
-            """)
-            for row in cur.fetchall():
-                stage, topic, mastery = row
-                node_id = _stable_id("topic", topic)
-                cluster = STAGE_CLUSTER_MAP.get((stage or "").lower(), "knowledge")
-                if self._add_node(schema, {
-                    "id": node_id, "label": str(topic)[:32],
-                    "cluster": cluster,
-                    "description": f"Syllabus topic [{stage}]: mastery={mastery:.2f}",
-                    "activation": min(1.0, float(mastery)),
-                    "auto_generated": True,
-                    "first_seen": _today_utc(),
-                    "source": "syllabus",
-                }, existing_ids):
-                    new_nodes += 1
-                    hub = CLUSTER_HUB_MAP.get(cluster, "knowledge_mgr")
-                    if self._add_synapse(schema, hub, node_id, existing_ids, existing_synapses, float(mastery)):
-                        new_edges += 1
+            cur.execute("SELECT AVG(mastery) FROM syllabus_content WHERE mastery >= 0.7")
+            avg_mastery = cur.fetchone()[0]
             conn.close()
+            if avg_mastery:
+                bump("learning_orch", float(avg_mastery))
+                bump("stage_learner", float(avg_mastery))
+                bump("training_pipeline", float(avg_mastery))
         except Exception as e:
             logger.debug("Could not read syllabus topics from DB: %s", e)
 
-        # ── 4. Recent capabilities from DB ───────────────────────────────────
-        # NOTE: Individual capability nodes are NOT added to the visual graph.
-        # With 20,000+ capabilities in the DB, adding even a small sample
-        # produces a chaotic 'cap_xxxxxx' explosion that drowns the architecture.
-        # Instead we update the knowledge_mgr node's activation level to reflect
-        # overall capability count — keeping the graph clean and meaningful.
+        # ── 4. Capability volume → knowledge_mgr activation ──────────────────
         try:
             conn = sqlite3.connect(str(DB_PATH))
             cur  = conn.cursor()
             cur.execute("SELECT COUNT(*) FROM capabilities")
             cap_count = cur.fetchone()[0]
             conn.close()
-            # Boost knowledge_mgr activation proportional to capability volume
-            km_node = next((n for n in schema["neurons"] if n["id"] == "knowledge_mgr"), None)
-            if km_node is not None:
-                km_node["activation"] = min(round(cap_count / 50_000, 3), 1.0)
-                km_node["capability_count"] = cap_count
-            logger.debug("GraphWriter: %d capabilities tracked on knowledge_mgr (no individual nodes)", cap_count)
+            km = by_id.get("knowledge_mgr")
+            if km is not None:
+                km["activation"] = min(round(cap_count / 50_000, 3), 1.0)
+                km["capability_count"] = cap_count
+                updated += 1
         except Exception as e:
             logger.debug("Could not read capabilities count from DB: %s", e)
 
         # ── Finalize ──────────────────────────────────────────────────────────
-        if new_nodes > 0 or new_edges > 0:
-            self._update_metadata(schema)
+        if updated > 0:
+            self._touch_metadata(schema)
             saved = self._save(schema)
             logger.info(
-                "GraphWriter.evolve: +%d neurons, +%d synapses → total %d/%d (saved=%s)",
-                new_nodes, new_edges,
+                "GraphWriter.evolve: updated %d neuron activations → cycle %d, "
+                "topology locked at %d/%d (saved=%s)",
+                updated, schema.get("evolution_cycle"),
                 schema["total_neurons"], schema["total_synapses"], saved,
             )
         else:
-            logger.debug("GraphWriter.evolve: no new nodes — graph is current")
+            logger.debug("GraphWriter.evolve: no live data — activations unchanged")
 
         return {
-            "new_neurons":    new_nodes,
-            "new_synapses":   new_edges,
+            "new_neurons":     0,
+            "new_synapses":    0,
+            "updated_neurons": updated,
             "evolution_cycle": schema.get("evolution_cycle", 0),
-            "total_neurons":  schema.get("total_neurons", 0),
-            "total_synapses": schema.get("total_synapses", 0),
+            "total_neurons":   schema.get("total_neurons", 0),
+            "total_synapses":  schema.get("total_synapses", 0),
         }
 
-    # ── Single-node helpers (called inline during learning) ────────────────────
+    # ── Single-node nudges (called inline during learning) ─────────────────────
+    # These NEVER add nodes; they only raise activation on existing core neurons.
 
     def add_insight_node(self, domain: str, concept: str, source: str = "si_core") -> bool:
         """
-        Add a single insight node immediately after si_core.add_insight() is called.
-        Returns True if a new node was added.
+        Nudge the insight/self-improvement neurons when a new insight is added.
+        Returns False — the locked topology never gains a node.
         """
         if not concept:
             return False
@@ -383,36 +242,27 @@ class GraphWriter:
             schema = self._load()
             if not schema:
                 return False
-            existing_ids      = self._node_ids(schema)
-            existing_synapses = self._synapse_keys(schema)
-            node_id = _stable_id("insight", concept)
-            if node_id in existing_ids:
-                return False  # already exists
-            cluster = _infer_cluster(domain)
-            added = self._add_node(schema, {
-                "id": node_id, "label": concept[:32],
-                "cluster": cluster,
-                "description": f"Insight: {concept[:80]}",
-                "activation": 0.55, "auto_generated": True,
-                "first_seen": _today_utc(), "source": source,
-            }, existing_ids)
-            if added:
-                self._add_synapse(schema, node_id, "si_core", existing_ids, existing_synapses, 0.55, "feedback")
-                domain_id = _slug(domain) if domain else None
-                if domain_id and domain_id in existing_ids:
-                    self._add_synapse(schema, domain_id, node_id, existing_ids, existing_synapses, 0.5)
-                self._update_metadata(schema)
+            schema = deepcopy(schema)
+            by_id = self._by_id(schema)
+            changed = False
+            for nid in ("insight_processor", "si_core"):
+                node = by_id.get(nid)
+                if node is not None:
+                    self._nudge(node, 0.05)
+                    changed = True
+            if changed:
+                self._touch_metadata(schema)
                 self._save(schema)
-                logger.debug("GraphWriter: added insight node %s", node_id)
-            return added
+                logger.debug("GraphWriter: nudged insight activation (locked topology)")
+            return False
         except Exception as e:
             logger.warning("GraphWriter.add_insight_node failed: %s", e)
             return False
 
     def add_topic_node(self, stage: str, topic: str, mastery: float = 0.9) -> bool:
         """
-        Add a syllabus topic node when it reaches mastery threshold.
-        Returns True if a new node was added.
+        Raise learning-cluster activation when a syllabus topic is mastered.
+        Returns False — the locked topology never gains a node.
         """
         if not topic:
             return False
@@ -420,79 +270,44 @@ class GraphWriter:
             schema = self._load()
             if not schema:
                 return False
-            existing_ids      = self._node_ids(schema)
-            existing_synapses = self._synapse_keys(schema)
-            node_id = _stable_id("topic", topic)
-            if node_id in existing_ids:
-                return False
-            cluster = STAGE_CLUSTER_MAP.get((stage or "").lower(), "knowledge")
-            added = self._add_node(schema, {
-                "id": node_id, "label": str(topic)[:32],
-                "cluster": cluster,
-                "description": f"Mastered [{stage}]: {topic}",
-                "activation": min(1.0, mastery),
-                "auto_generated": True,
-                "first_seen": _today_utc(), "source": "syllabus",
-            }, existing_ids)
-            if added:
-                hub = CLUSTER_HUB_MAP.get(cluster, "knowledge_mgr")
-                self._add_synapse(schema, hub, node_id, existing_ids, existing_synapses, mastery)
-                self._update_metadata(schema)
+            schema = deepcopy(schema)
+            by_id = self._by_id(schema)
+            changed = False
+            for nid in ("learning_orch", "stage_learner"):
+                node = by_id.get(nid)
+                if node is not None:
+                    self._set_activation(node, max(float(node.get("activation", 0.5)), mastery))
+                    changed = True
+            if changed:
+                self._touch_metadata(schema)
                 self._save(schema)
-                logger.debug("GraphWriter: added topic node %s (stage=%s, mastery=%.2f)", node_id, stage, mastery)
-            return added
+                logger.debug("GraphWriter: nudged learning activation (locked topology)")
+            return False
         except Exception as e:
             logger.warning("GraphWriter.add_topic_node failed: %s", e)
             return False
 
     def add_discovery_node(self, domain: str, entities: list, source: str) -> dict:
         """
-        Add a domain + entity nodes immediately after a discovery is persisted.
-        Returns {new_neurons, new_synapses}.
+        Raise research-cluster activation when a discovery is persisted.
+        Returns zero counts — the locked topology never gains nodes/synapses.
         """
         try:
             schema = self._load()
             if not schema:
                 return {"new_neurons": 0, "new_synapses": 0}
-            existing_ids      = self._node_ids(schema)
-            existing_synapses = self._synapse_keys(schema)
-            nn, ne = 0, 0
-
-            if domain:
-                domain_id = _slug(domain)
-                cluster   = _infer_cluster(domain)
-                if self._add_node(schema, {
-                    "id": domain_id, "label": domain.replace("_", " ").title(),
-                    "cluster": cluster, "description": f"Domain: {domain}",
-                    "activation": 0.6, "auto_generated": True,
-                    "first_seen": _today_utc(), "source": source,
-                }, existing_ids):
-                    nn += 1
-                    hub = CLUSTER_HUB_MAP.get(cluster)
-                    if hub and self._add_synapse(schema, hub, domain_id, existing_ids, existing_synapses, 0.6):
-                        ne += 1
-
-            for entity in (entities or [])[:5]:
-                if not entity:
-                    continue
-                entity_id = _stable_id(domain or "entity", entity)
-                cluster   = _infer_cluster(domain)
-                if self._add_node(schema, {
-                    "id": entity_id, "label": str(entity)[:32],
-                    "cluster": cluster, "description": f"Entity from {source}",
-                    "activation": 0.5, "auto_generated": True,
-                    "first_seen": _today_utc(), "source": source,
-                }, existing_ids):
-                    nn += 1
-                    domain_id = _slug(domain) if domain else None
-                    if domain_id and self._add_synapse(schema, domain_id, entity_id, existing_ids, existing_synapses, 0.5):
-                        ne += 1
-
-            if nn > 0 or ne > 0:
-                self._update_metadata(schema)
+            schema = deepcopy(schema)
+            by_id = self._by_id(schema)
+            changed = False
+            for nid in ("auto_researcher", "graph_evolution"):
+                node = by_id.get(nid)
+                if node is not None:
+                    self._nudge(node, 0.04)
+                    changed = True
+            if changed:
+                self._touch_metadata(schema)
                 self._save(schema)
-
-            return {"new_neurons": nn, "new_synapses": ne}
+            return {"new_neurons": 0, "new_synapses": 0}
         except Exception as e:
             logger.warning("GraphWriter.add_discovery_node failed: %s", e)
             return {"new_neurons": 0, "new_synapses": 0}
@@ -506,6 +321,7 @@ class GraphWriter:
                 "total_synapses":  schema.get("total_synapses", 0),
                 "evolution_cycle": schema.get("evolution_cycle", 0),
                 "last_updated":    schema.get("last_updated", "never"),
+                "graph_locked":    schema.get("metadata", {}).get("graph_locked", False),
                 "schema_path":     str(self.schema_path),
             }
         except Exception as e:

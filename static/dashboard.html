@@ -801,7 +801,8 @@
     }
     .brain-stat span { color: var(--green); font-weight: 600; }
     #brainCanvas {
-      display: block; width: 100%; height: 320px;
+      display: block; width: 100%; height: 100%;
+      min-height: 400px;
       background: radial-gradient(ellipse at 50% 60%, rgba(108,99,255,0.04) 0%, transparent 70%);
       cursor: grab;
     }
@@ -1681,9 +1682,11 @@ setInterval(() => {
   function resize() {
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width  = rect.width  * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    if (!rect.width || !rect.height) return;          // not laid out yet
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    // setTransform (not scale) so repeated resizes never compound the DPR
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (nodes.length) pinCore();
   }
 
@@ -2037,7 +2040,8 @@ setInterval(() => {
     // Pull full schema neurons and inject any new ones into the simulation
     try {
       const schema = await apiFetch('/api/graph/schema');
-      if (schema && Array.isArray(schema.neurons)) {
+      const graphLocked = schema && schema.metadata && schema.metadata.graph_locked;
+      if (schema && Array.isArray(schema.neurons) && !graphLocked) {
         const existingIds = new Set(nodes.map(n => n.id));
         const rect = canvas.getBoundingClientRect();
         const cx = rect.width / 2, cy = rect.height / 2;
