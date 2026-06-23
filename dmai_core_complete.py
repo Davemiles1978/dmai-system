@@ -3054,6 +3054,18 @@ def api_master_set_goal():
 
 
 # ── Graph Evolution — live status endpoint ────────────────────────────────────
+@app.route("/api/graph/schema", methods=["GET"])
+def api_graph_schema():
+    """Return full graph_schema.json — neurons + synapses — for the live dashboard."""
+    schema_path = _rp("aevora-training/dashboard/data/graph_schema.json")
+    try:
+        import json as _j
+        data = _j.loads(schema_path.read_text(encoding="utf-8"))
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e), "neurons": [], "synapses": []}), 200
+
+
 @app.route("/api/graph/status", methods=["GET"])
 def api_graph_status():
     """Return live knowledge graph size and growth stats."""
