@@ -11,6 +11,7 @@
   <link rel="manifest" href="/static/manifest.json"/>
   <title>DMAI Control</title>
   <style>
+    /* ── Design tokens — Dark (default) ─────────────────────────────── */
     :root {
       --bg:        #0a0a0f;
       --surface:   #111118;
@@ -25,6 +26,26 @@
       --radius:    14px;
       --safe-top:  env(safe-area-inset-top, 0px);
       --safe-bot:  env(safe-area-inset-bottom, 0px);
+    }
+    /* ── Light theme ─────────────────────────────────────────────────── */
+    html[data-theme="light"] {
+      --bg:       #f4f4f8;
+      --surface:  #ffffff;
+      --surface2: #f0f0f5;
+      --border:   #dddde8;
+      --text:     #1a1a2e;
+      --muted:    #7878a0;
+    }
+    /* ── Auto: follows system preference ────────────────────────────── */
+    @media (prefers-color-scheme: light) {
+      html[data-theme="auto"] {
+        --bg:       #f4f4f8;
+        --surface:  #ffffff;
+        --surface2: #f0f0f5;
+        --border:   #dddde8;
+        --text:     #1a1a2e;
+        --muted:    #7878a0;
+      }
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -305,7 +326,12 @@
       </div>
       <span class="status-dot" id="status-dot"></span>
     </div>
-    <button id="lock-btn-small" onclick="lockApp()">Lock</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="theme-btn" onclick="cycleTheme()" title="Toggle theme"
+        style="font-size:18px;background:var(--surface2);border:1px solid var(--border);
+               border-radius:8px;padding:5px 9px;line-height:1;">🌙</button>
+      <button id="lock-btn-small" onclick="lockApp()">Lock</button>
+    </div>
   </div>
 
   <!-- Content -->
@@ -695,6 +721,36 @@
   document.getElementById('chat-input').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
+  // ── Theme ────────────────────────────────────────────────────────────────
+  const THEMES = ['dark', 'light', 'auto'];
+  const THEME_ICONS = { dark: '🌙', light: '☀️', auto: '🌗' };
+  let _theme = localStorage.getItem('dmai_theme') || 'dark';
+
+  function applyTheme(t) {
+    _theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = THEME_ICONS[t];
+    // Update meta theme-color for iOS status bar
+    const isDark = t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark ? '#0a0a0f' : '#f4f4f8');
+    localStorage.setItem('dmai_theme', t);
+  }
+
+  function cycleTheme() {
+    const idx = (THEMES.indexOf(_theme) + 1) % THEMES.length;
+    applyTheme(THEMES[idx]);
+    toast(THEMES[idx].charAt(0).toUpperCase() + THEMES[idx].slice(1) + ' mode');
+  }
+
+  // Apply saved theme immediately
+  applyTheme(_theme);
+
+  // Re-apply on system pref change (for auto mode)
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (_theme === 'auto') applyTheme('auto');
+  });
+
 </script>
 </body>
 </html>
