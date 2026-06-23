@@ -878,7 +878,23 @@ def _ai_chat(message: str) -> str:
         try:
             # ExtendedHub has async chat(); AIIntegrationHub has chat_sync()
             if hasattr(hub, "chat_sync"):
-                response_text = hub.chat_sync(clean_message)
+                try:
+                    response_text = hub.chat_sync(clean_message)
+                except RuntimeError as _rte:
+                    if 'event loop' in str(_rte).lower():
+                        # Background thread has no event loop — run in new loop
+                        import asyncio as _asyncio
+                        try:
+                            _loop = _asyncio.new_event_loop()
+                            _asyncio.set_event_loop(_loop)
+                            if hasattr(hub, 'chat'):
+                                response_text = _loop.run_until_complete(hub.chat(clean_message))
+                            _loop.close()
+                        except Exception as _le:
+                            logger.warning('Event loop fallback failed: %s', _le)
+                            response_text = None
+                    else:
+                        raise
             elif hasattr(hub, "chat"):
                 _async_result = _run_async(hub.chat(clean_message))
                 response_text = _async_result[0] if isinstance(_async_result, tuple) else _async_result
