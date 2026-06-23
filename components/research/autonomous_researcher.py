@@ -21,6 +21,9 @@ _DOMAIN_KEYWORDS = {
     "web_technologies":       ["api", "fastapi", "flask", "react", "javascript", "typescript", "web scraping", "http"],
     "data_science":           ["data", "pandas", "statistics", "visualisation", "etl", "pipeline", "analytics", "dashboard"],
     "cloud_devops":           ["docker", "kubernetes", "ci/cd", "github actions", "render", "aws", "gcp", "azure", "terraform"],
+    "linguistics":            ["etymology", "morphology", "phonology", "syntax", "semantics", "grammar", "lexicography", "rhetoric", "linguistics", "language", "vocabulary", "dialect", "corpus", "pragmatics", "semiotics"],
+    "encyclopaedic_knowledge":["history", "philosophy", "civilisation", "empire", "renaissance", "enlightenment", "culture", "literature", "science history", "mathematics", "economics", "society", "ancient", "medieval", "classical"],
+    "vocabulary_mastery":     ["word", "definition", "etymology", "meaning", "usage", "dictionary", "thesaurus", "oed", "lexicon", "nomenclature", "terminology", "jargon", "idiom", "expression", "figurative"],
 }
 
 
@@ -266,6 +269,15 @@ class AutonomousResearcher:
             "knowledge graph neural reasoning",
             "multi-agent coordination swarm intelligence",
             "code generation LLM fine-tuning",
+            # Language & encyclopaedic domains
+            "etymology word origins English language",
+            "history of philosophy enlightenment",
+            "classical literature Shakespeare Dostoevsky",
+            "linguistics morphology syntax semantics",
+            "encyclopaedic knowledge civilisations empires",
+            "rhetoric persuasion language philosophy",
+            "mathematics number theory combinatorics",
+            "history of science Newton Darwin Einstein",
         ]
 
         if topics is None:

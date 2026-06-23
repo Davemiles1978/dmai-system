@@ -826,6 +826,36 @@
         </div>
       </div>
 
+
+        <!-- Vocabulary & Encyclopaedia Stats -->
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-title">&#128218; Language & Encyclopaedia Knowledge</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.5rem 0 .75rem;" id="lm-vocab-stats">
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Vocabulary</div>
+              <div id="lm-vocab-total" style="font-size:1.15rem;font-weight:700;color:var(--accent);">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Encyclopaedia</div>
+              <div id="lm-encyc-total" style="font-size:1.15rem;font-weight:700;color:var(--yellow);">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Domains</div>
+              <div id="lm-vocab-domains" style="font-size:1.15rem;font-weight:700;color:var(--green);">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Status</div>
+              <div id="lm-vocab-status" style="font-size:.75rem;font-weight:600;color:var(--green);">Active</div>
+            </div>
+          </div>
+          <div id="lm-recent-words" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;"></div>
+          <div class="action-row" style="margin-top:.75rem;">
+            <button class="btn-action secondary" onclick="loadVocabStats()">&#8635; Refresh</button>
+          </div>
+        </div>
+
+      </div>
+
       <!-- Suggestions -->
       <div class="section" id="sec-suggestions">
         <div class="section-title">
@@ -1023,7 +1053,7 @@
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if (id === 'study')   setTimeout(loadStudyProgress, 50);
     if (id === 'selfgen')  setTimeout(loadCWHistory, 50);
-    if (id === 'learning') setTimeout(loadLearningMetrics, 50);
+    if (id === 'learning') { setTimeout(loadLearningMetrics, 50); setTimeout(loadVocabStats, 200); }
     if (id === 'suggestions') setTimeout(loadSuggestions, 50);
     if (id === 'settings') setTimeout(loadSettings, 50);
     document.getElementById('sec-' + id).classList.add('active');
@@ -1892,6 +1922,37 @@
       toast('Deleted');
       loadSuggestions();
     } catch(e) { toast('Delete failed: ' + e.message, 'error'); }
+  }
+
+
+  // ── Vocabulary & Encyclopaedia Stats ─────────────────────────────────────
+  async function loadVocabStats() {
+    try {
+      const [stats, sample] = await Promise.all([
+        api('/api/vocabulary/stats'),
+        api('/api/vocabulary/sample'),
+      ]);
+      const vtEl = document.getElementById('lm-vocab-total');
+      const etEl = document.getElementById('lm-encyc-total');
+      const dEl  = document.getElementById('lm-vocab-domains');
+      const stEl = document.getElementById('lm-vocab-status');
+      const rwEl = document.getElementById('lm-recent-words');
+      if (vtEl) vtEl.textContent = (stats.vocabulary_total || 0).toLocaleString();
+      if (etEl) etEl.textContent = (stats.encyclopaedia_total || 0).toLocaleString();
+      if (dEl)  dEl.textContent  = Object.keys(stats.vocabulary_by_domain || {}).length;
+      if (stEl) stEl.textContent = stats.status === 'active' ? '&#x25cf; Active' : 'Idle';
+      if (rwEl && sample.words && sample.words.length) {
+        rwEl.innerHTML = sample.words.slice(0, 12).map(w =>
+          `<span title="${w.definition}" style="font-size:11px;padding:.2rem .5rem;border-radius:12px;`
+          + `background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:default;">`
+          + `${w.word} <span style="color:var(--text-muted);font-size:9px;">${w.pos||''}</span></span>`
+        ).join('');
+      } else if (rwEl) {
+        rwEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">No words ingested yet — ingestion starts 2 minutes after deploy.</span>';
+      }
+    } catch(e) {
+      console.warn('loadVocabStats failed:', e);
+    }
   }
 
 </script>

@@ -3066,6 +3066,57 @@ def api_graph_evolve():
 
 
 
+
+@app.route("/api/vocabulary/stats", methods=["GET"])
+def api_vocabulary_stats():
+    """Return vocabulary and encyclopaedia ingestion stats."""
+    try:
+        import sqlite3 as _vsq
+        conn = _vsq.connect("data/dmai_knowledge.db")
+        vocab_total = 0
+        encyc_total = 0
+        vocab_domains = {}
+        encyc_domains = {}
+        try:
+            vocab_total = conn.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
+            encyc_total = conn.execute("SELECT COUNT(*) FROM encyclopaedia").fetchone()[0]
+            vocab_domains = dict(conn.execute("SELECT domain, COUNT(*) FROM vocabulary GROUP BY domain").fetchall())
+            encyc_domains = dict(conn.execute("SELECT domain, COUNT(*) FROM encyclopaedia GROUP BY domain").fetchall())
+        except Exception:
+            pass
+        conn.close()
+        return jsonify({
+            "vocabulary_total": vocab_total,
+            "encyclopaedia_total": encyc_total,
+            "vocabulary_by_domain": vocab_domains,
+            "encyclopaedia_by_domain": encyc_domains,
+            "status": "active",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/vocabulary/sample", methods=["GET"])
+def api_vocabulary_sample():
+    """Return a random sample of recently learned words."""
+    try:
+        import sqlite3 as _vsq
+        conn = _vsq.connect("data/dmai_knowledge.db")
+        rows = []
+        try:
+            rows = conn.execute(
+                "SELECT word, part_of_speech, definition, etymology, domain "
+                "FROM vocabulary ORDER BY created_at DESC LIMIT 20"
+            ).fetchall()
+        except Exception:
+            pass
+        conn.close()
+        return jsonify({
+            "words": [{"word": r[0], "pos": r[1], "definition": r[2],
+                       "etymology": r[3], "domain": r[4]} for r in rows]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SUGGESTIONS API — DMAI Self-Development Inbox
 # ═══════════════════════════════════════════════════════════════════════════
@@ -3442,6 +3493,28 @@ def _start_background_services():
     except Exception as e:
         logger.warning("Self-management startup failed: %s", e)
 
+
+
+    # ── Vocabulary & Encyclopaedia ingestion loop ─────────────────────────────
+    try:
+        def _vocab_ingest_loop():
+            import time as _vt
+            _vt.sleep(120)  # 2-min boot delay
+            while True:
+                try:
+                    from components.knowledge.vocabulary_ingester import VocabularyIngester
+                    VocabularyIngester().run_once()
+                except Exception as _ve:
+                    logger.error("VocabularyIngester loop: %s", _ve)
+                _vt.sleep(1800)  # every 30 minutes
+
+        _vi_thread = threading.Thread(
+            target=_vocab_ingest_loop, daemon=True, name="dmai-vocab-ingest"
+        )
+        _vi_thread.start()
+        logger.info("VocabularyIngester background loop started (30m interval)")
+    except Exception as e:
+        logger.warning("VocabularyIngester startup failed: %s", e)
 
     # ── Suggestion self-generation loop ───────────────────────────────────────
     try:
