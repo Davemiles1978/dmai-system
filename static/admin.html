@@ -1264,9 +1264,18 @@
     function _grantAccess(token) {
       JWT = token || null;
       masterPwd = pwd;
-      document.getElementById('lock-screen').style.display = 'none';
-      document.getElementById('app').classList.add('visible');
-      initApp();
+      const ls = document.getElementById('lock-screen');
+      const app = document.getElementById('app');
+      if (ls)  ls.style.display = 'none';
+      if (app) { app.style.display = 'flex'; app.classList.add('visible'); }
+      // Ensure dashboard section is active
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const dash = document.getElementById('sec-dashboard');
+      const navDash = document.getElementById('nav-dashboard');
+      if (dash)    dash.classList.add('active');
+      if (navDash) navDash.classList.add('active');
+      initApp().catch(e => console.warn('initApp error:', e));
     }
 
     // Step 1 — try JWT token endpoint
@@ -1382,10 +1391,10 @@
 
   // ── Init ──────────────────────────────────────────────────────────────────
   async function initApp() {
-    await loadStatus();
-    setInterval(loadStatus, 30000);
+    try { await loadStatus(); } catch(e) { console.warn('loadStatus error:', e); }
+    setInterval(() => loadStatus().catch(() => {}), 30000);
     // Pre-load API key statuses in background so the tab is instant
-    setTimeout(loadApiKeys, 1000);
+    setTimeout(() => loadApiKeys().catch(() => {}), 1000);
   }
 
   async function refreshAll() {
