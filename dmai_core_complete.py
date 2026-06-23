@@ -909,6 +909,34 @@ def _ai_chat(message: str) -> str:
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
+# ── Auto-start background services on first real request ──────────────────────
+# Handles the case where gunicorn worker starts but _start_background_services()
+# threads haven't launched yet (e.g. Render cold start, worker restart).
+_auto_start_lock = __import__("threading").Lock()
+_auto_started = False
+
+@app.before_request
+def _auto_start_services():
+    global _auto_started
+    if _auto_started:
+        return
+    with _auto_start_lock:
+        if _auto_started:
+            return
+        import threading as _abt
+        thread_names = [t.name for t in _abt.enumerate()]
+        # If less than 4 background threads are running, start them
+        bg_count = sum(1 for n in thread_names if n not in ("MainThread",))
+        if bg_count < 4:
+            try:
+                logger.info("Auto-start: only %d background threads found, starting services", bg_count)
+                _start_background_services()
+                logger.info("Auto-start: background services launched")
+            except Exception as _e:
+                logger.warning("Auto-start failed: %s", _e)
+        _auto_started = True
+
+
 @app.route("/health")
 def health():
     return jsonify({
