@@ -4237,7 +4237,7 @@ def api_stage_analytics():
 def _seed_kpis_from_db():
     """Derive all 8 SICore KPI scores from live SQLite counts — single source of truth."""
     try:
-        db_path = os.environ.get("DATA_PATH", "data") + "/dmai_knowledge.db"
+        db_path = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
         import sqlite3 as _sq3
         con = _sq3.connect(db_path, timeout=5)
         cur = con.cursor()
@@ -4291,27 +4291,20 @@ def _seed_kpis_from_db():
             "multi_modal_integration_score": active_comp / max(total_comp, 56),
         }
 
-        # Persist to si_core — update BOTH kpi_scores AND current_kpis
+        # Persist to si_core — write directly to _state (the live dict),
+        # then call save_state() to flush to si_core_state.json on disk.
+        # NOTE: si.current_kpis is a @property returning dict(self._state),
+        #       so .update() on it modifies a throwaway copy — must use _state.
         si = components.get("si_core")
         if si:
-            if hasattr(si, "kpi_scores"):
-                si.kpi_scores.update(kpis)
-            # current_kpis is what /api/learning/full-status reads
-            if hasattr(si, "current_kpis"):
-                try:
-                    si.current_kpis.update(kpis)
-                except Exception:
-                    try:
-                        si.current_kpis = kpis
-                    except Exception:
-                        pass
-            # Also try _kpis dict (alternative attribute name)
-            for _attr in ("_kpis", "kpi_data", "kpi_values"):
-                if hasattr(si, _attr):
-                    try:
-                        getattr(si, _attr).update(kpis)
-                    except Exception:
-                        pass
+            try:
+                for _k, _v in kpis.items():
+                    si._state[_k] = _v
+                si.save_state()
+                logger.info("SICore _state updated and saved: %s",
+                            {k: round(v, 4) for k, v in kpis.items()})
+            except Exception as _se:
+                logger.warning("SICore _state update failed: %s", _se)
 
         # Persist to a lightweight JSON cache for /api/learning/full-status fallback
         try:
