@@ -880,7 +880,8 @@ def _ai_chat(message: str) -> str:
             if hasattr(hub, "chat_sync"):
                 response_text = hub.chat_sync(clean_message)
             elif hasattr(hub, "chat"):
-                response_text = _run_async(hub.chat(clean_message))
+                _async_result = _run_async(hub.chat(clean_message))
+                response_text = _async_result[0] if isinstance(_async_result, tuple) else _async_result
         except Exception as e:
             logger.warning("AI chat error: %s", e)
 
@@ -1213,7 +1214,7 @@ def _log_chat(message, response):
         log_file = Path(DATA_PATH) / "chat_log.jsonl"
         entry = {
             "message": message,
-            "response": response[:200],
+            "response": (response[:200] if isinstance(response, str) else str(response)[:200]),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         # Atomic write for chat log too
