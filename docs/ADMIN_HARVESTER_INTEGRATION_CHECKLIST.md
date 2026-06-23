@@ -1,7 +1,7 @@
 # DMAI Admin Harvester Panel — Integration Checklist
 **Version:** 1.0 · June 2026  
 **Scope:** API key management, health monitoring, cost controls, model fallback routing  
-**Admin Panel:** `https://dmai-complete.onrender.com/admin` (JWT-gated)
+**Admin Panel:** `https://dmai-web.onrender.com/admin` (JWT-gated)
 
 ---
 
@@ -115,16 +115,16 @@ Use these in Render's **Monitoring** tab or any uptime checker (e.g. UptimeRobot
 
 ```
 # System health (Render uses this for zero-downtime deploys)
-GET https://dmai-complete.onrender.com/health
+GET https://dmai-web.onrender.com/health
 
 # All provider statuses (no auth)
-GET https://dmai-complete.onrender.com/api/harvester/status
+GET https://dmai-web.onrender.com/api/harvester/status
 
 # Full provider catalogue with active flags
-GET https://dmai-complete.onrender.com/api/harvester/providers
+GET https://dmai-web.onrender.com/api/harvester/providers
 
 # SICore KPI snapshot
-GET https://dmai-complete.onrender.com/api/status
+GET https://dmai-web.onrender.com/api/status
 ```
 
 ### 2.3 Setting Up the Scan Schedule

@@ -7,7 +7,7 @@ Setup:
 1. Set RENDER_DEPLOY_HOOK_URL env var (from Render dashboard → your service → Deploy Hook)
 2. Set GITHUB_WEBHOOK_SECRET env var (shared secret for HMAC validation)
 3. Register this endpoint as a GitHub webhook on your repo:
-   URL: https://dmai-complete.onrender.com/api/webhook/github
+   URL: https://dmai-web.onrender.com/api/webhook/github
    Content-Type: application/json
    Events: Pull requests
 

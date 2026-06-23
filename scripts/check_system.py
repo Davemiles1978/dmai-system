@@ -7,7 +7,7 @@ critical environment variables are set.
 
 Usage:
     python scripts/check_system.py
-    python scripts/check_system.py --url https://dmai-complete.onrender.com
+    python scripts/check_system.py --url https://dmai-web.onrender.com
 """
 
 import sys

@@ -68,7 +68,7 @@ Three new free-tier providers have been fully wired into DMAI. No code changes a
 
 Once redeployed (2–3 minutes):
 
-- [ ] Open [https://dmai-complete.onrender.com/admin](https://dmai-complete.onrender.com/admin)
+- [ ] Open [https://dmai-web.onrender.com/admin](https://dmai-web.onrender.com/admin)
 - [ ] Log in with JWT token
 - [ ] Click **API Harvester** panel in the left sidebar
 - [ ] Click **Scan & Hot-Wire APIs** button
@@ -82,7 +82,7 @@ Once redeployed (2–3 minutes):
 
 ## Step 4 — Test the New Tutors
 
-- [ ] Open [https://dmai-complete.onrender.com/chat](https://dmai-complete.onrender.com/chat)
+- [ ] Open [https://dmai-web.onrender.com/chat](https://dmai-web.onrender.com/chat)
 - [ ] Send a test message (e.g. `"What is meta-learning?"`)
 - [ ] Check the response includes contributions from the new tutors
 - [ ] Confirm Cerebras responds fastest (2,600 tok/s vs ~100 tok/s for others)

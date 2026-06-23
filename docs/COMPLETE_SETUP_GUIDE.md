@@ -258,24 +258,24 @@ Then on Render: New → Blueprint → connect repo.
 
 ### After Deploy
 
-1. Your live URL: `https://dmai-complete.onrender.com`
-2. Check health: `https://dmai-complete.onrender.com/health`
+1. Your live URL: `https://dmai-web.onrender.com`
+2. Check health: `https://dmai-web.onrender.com/health`
 3. Add PostgreSQL: Render Dashboard → New → PostgreSQL → copy Internal URL → add as `DATABASE_URL` env var
 
 ### Run Training on Live System
 
 ```bash
 # Trigger training via API (from anywhere)
-curl -X POST https://dmai-complete.onrender.com/api/training/full \
+curl -X POST https://dmai-web.onrender.com/api/training/full \
   -H "Content-Type: application/json"
 
 # Quick training
-curl -X POST https://dmai-complete.onrender.com/api/training/quick \
+curl -X POST https://dmai-web.onrender.com/api/training/quick \
   -H "Content-Type: application/json" \
   -d '{"focus": "Core"}'
 
 # Check training status
-curl https://dmai-complete.onrender.com/api/training/status
+curl https://dmai-web.onrender.com/api/training/status
 ```
 
 ---
@@ -343,22 +343,22 @@ Add these in order of impact:
 
 ```bash
 # Run health checker against live URL
-python scripts/check_system.py --url https://dmai-complete.onrender.com
+python scripts/check_system.py --url https://dmai-web.onrender.com
 
 # Manual checks:
-curl https://dmai-complete.onrender.com/health
-curl https://dmai-complete.onrender.com/api/status
-curl https://dmai-complete.onrender.com/api/training/status
-curl https://dmai-complete.onrender.com/api/extended_hub/status
-curl https://dmai-complete.onrender.com/api/kaizen
+curl https://dmai-web.onrender.com/health
+curl https://dmai-web.onrender.com/api/status
+curl https://dmai-web.onrender.com/api/training/status
+curl https://dmai-web.onrender.com/api/extended_hub/status
+curl https://dmai-web.onrender.com/api/kaizen
 
 # Test chat:
-curl -X POST https://dmai-complete.onrender.com/api/chat \
+curl -X POST https://dmai-web.onrender.com/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "What are your capabilities?"}'
 
 # Check SI KPIs:
-curl https://dmai-complete.onrender.com/api/evolution
+curl https://dmai-web.onrender.com/api/evolution
 ```
 
 ---
@@ -549,10 +549,10 @@ python scripts/run_training.py         # Train DMAI
 python dmai_core_complete.py           # Start server → http://localhost:5000
 
 # PRODUCTION (after Render deploy)
-curl https://dmai-complete.onrender.com/health
-curl -X POST https://dmai-complete.onrender.com/api/training/full
-curl https://dmai-complete.onrender.com/api/training/status
-curl https://dmai-complete.onrender.com/api/evolution
+curl https://dmai-web.onrender.com/health
+curl -X POST https://dmai-web.onrender.com/api/training/full
+curl https://dmai-web.onrender.com/api/training/status
+curl https://dmai-web.onrender.com/api/evolution
 ```
 
 ---

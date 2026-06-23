@@ -66,7 +66,7 @@ PROVIDER_CATALOGUE: Dict[str, Dict] = {
             "headers": lambda k: {
                 "Authorization": f"Bearer {k}",
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://dmai-complete.onrender.com",
+                "HTTP-Referer": "https://dmai-web.onrender.com",
                 "X-Title": "DMAI",
             },
             "body": {"model": "google/gemma-3-12b-it:free", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 5},
