@@ -1184,6 +1184,127 @@ def api_admin_token():
         return jsonify({"error": "Token generation failed"}), 500
     return jsonify({"token": token, "expires_in": 3600, "type": "Bearer"})
 
+
+# ── Admin API Key Management ─────────────────────────────────────────────────
+# Keys are stored in SQLite (table: api_keys) and injected into os.environ
+# at runtime so all provider clients can use them immediately.
+# Masked = only last 4 chars shown; full key is NEVER returned over the wire.
+
+_PROVIDER_REGISTRY = [
+    # (provider_id, display_name, env_var, signup_url)
+    ("groq",            "Groq",            "GROQ_API_KEY",         "https://console.groq.com/keys"),
+    ("cerebras",        "Cerebras",        "CEREBRAS_API_KEY",      "https://cloud.cerebras.ai"),
+    ("google_ai_studio","Google AI Studio","GOOGLE_AI_STUDIO_KEY",  "https://aistudio.google.com/apikey"),
+    ("tavily",          "Tavily",          "TAVILY_API_KEY",        "https://tavily.com/#api"),
+    ("deepseek",        "DeepSeek",        "DEEPSEEK_API_KEY",      "https://platform.deepseek.com/api_keys"),
+    ("openrouter",      "OpenRouter",      "OPENROUTER_API_KEY",    "https://openrouter.ai/keys"),
+    ("cloudflare",      "Cloudflare AI",   "CLOUDFLARE_API_KEY",    "https://dash.cloudflare.com/profile/api-tokens"),
+    ("cohere",          "Cohere",          "COHERE_API_KEY",        "https://dashboard.cohere.com/api-keys"),
+    ("huggingface",     "Hugging Face",    "HUGGINGFACE_API_KEY",   "https://huggingface.co/settings/tokens"),
+    ("openai",          "OpenAI",          "OPENAI_API_KEY",        "https://platform.openai.com/api-keys"),
+    ("anthropic",       "Anthropic",       "ANTHROPIC_API_KEY",     "https://console.anthropic.com/settings/keys"),
+    ("perplexity",      "Perplexity",      "PERPLEXITY_API_KEY",    "https://docs.perplexity.ai"),
+    ("github_models",   "GitHub Models",   "GITHUB_TOKEN",          "https://github.com/settings/tokens"),
+    ("mistral",         "Mistral",         "MISTRAL_API_KEY",       "https://console.mistral.ai"),
+]
+_CORE_PROVIDERS = {"groq", "cerebras", "google_ai_studio", "tavily", "deepseek"}
+
+
+def _mask_key(key: str) -> str:
+    if not key:
+        return ""
+    if len(key) <= 8:
+        return "*" * len(key)
+    return key[:3] + "****" + key[-4:]
+
+
+def _get_db_key(provider_id: str) -> str:
+    try:
+        st = components.get("sqlite_storage")
+        if st and hasattr(st, "get_api_key"):
+            return st.get_api_key(provider_id) or ""
+    except Exception:
+        pass
+    return ""
+
+
+def _set_db_key(provider_id: str, key: str):
+    try:
+        st = components.get("sqlite_storage")
+        if st and hasattr(st, "set_api_key"):
+            st.set_api_key(provider_id, key)
+    except Exception as e:
+        logger.warning("SQLite key store failed: %s", e)
+    env_var = next((p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id), None)
+    if env_var:
+        os.environ[env_var] = key
+
+
+def _delete_db_key(provider_id: str):
+    try:
+        st = components.get("sqlite_storage")
+        if st and hasattr(st, "delete_api_key"):
+            st.delete_api_key(provider_id)
+    except Exception as e:
+        logger.warning("SQLite key delete failed: %s", e)
+    env_var = next((p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id), None)
+    if env_var and env_var in os.environ:
+        del os.environ[env_var]
+
+
+@app.route("/api/admin/keys", methods=["GET"])
+def api_admin_keys_list():
+    """List all 14 providers with masked key status (JWT-gated)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    result = []
+    for provider_id, name, env_var, signup_url in _PROVIDER_REGISTRY:
+        live_val = os.environ.get(env_var, "")
+        db_val   = _get_db_key(provider_id)
+        key      = live_val or db_val
+        result.append({
+            "id":         provider_id,
+            "name":       name,
+            "tier":       "core" if provider_id in _CORE_PROVIDERS else "secondary",
+            "env_var":    env_var,
+            "signup_url": signup_url,
+            "has_key":    bool(key),
+            "masked_key": _mask_key(key),
+        })
+    return jsonify({"providers": result, "total": len(result)})
+
+
+@app.route("/api/admin/keys", methods=["POST"])
+def api_admin_keys_set():
+    """Set or update an API key. POST {provider_id, key} (JWT-gated)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data = request.get_json(silent=True) or {}
+    provider_id = data.get("provider_id", "").strip().lower()
+    key         = data.get("key", "").strip()
+    if not provider_id or not key:
+        return jsonify({"error": "provider_id and key are required"}), 400
+    known = {p[0] for p in _PROVIDER_REGISTRY}
+    if provider_id not in known:
+        return jsonify({"error": f"Unknown provider: {provider_id}"}), 400
+    _set_db_key(provider_id, key)
+    logger.info("API key updated for provider: %s", provider_id)
+    return jsonify({"ok": True, "provider_id": provider_id, "masked_key": _mask_key(key)})
+
+
+@app.route("/api/admin/keys/<provider_id>", methods=["DELETE"])
+def api_admin_keys_delete(provider_id):
+    """Clear an API key (JWT-gated)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    known = {p[0] for p in _PROVIDER_REGISTRY}
+    if provider_id not in known:
+        return jsonify({"error": f"Unknown provider: {provider_id}"}), 400
+    _delete_db_key(provider_id)
+    logger.info("API key cleared for provider: %s", provider_id)
+    return jsonify({"ok": True, "provider_id": provider_id})
+
+
 # ── Execution sandbox endpoints ───────────────────────────────────────────────
 
 @app.route("/api/sandbox/execute", methods=["POST"])
@@ -2270,6 +2391,13 @@ def _start_background_services():
             logger.info("AITutorAutoConfigurator health loop started")
         except Exception as e:
             logger.warning("AITutorAutoConfigurator loop failed: %s", e)
+
+    # ── Self-management (SelfHealer + KaizenExecutor + RenderDeployHook) ───
+    try:
+        from components.self_management.self_management_runner import start_all as _sm_start
+        _sm_start(app=app, components=components)
+    except Exception as e:
+        logger.warning("Self-management startup failed: %s", e)
 
     if os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
         _start_telegram_bot()

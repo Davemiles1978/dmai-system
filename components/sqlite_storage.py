@@ -137,7 +137,13 @@ class SQLiteStorage:
                     last_used TEXT
                 );
                 CREATE INDEX IF NOT EXISTS idx_api_keys_service ON api_keys(service);
-            """)
+                CREATE TABLE IF NOT EXISTS admin_api_keys (
+                    provider_id TEXT PRIMARY KEY,
+                    api_key TEXT NOT NULL,
+                    updated_at TEXT
+                );
+            """)"
+
             db.commit()
         db.close()
 
@@ -411,6 +417,52 @@ class SQLiteStorage:
             return False
 
     # ── Backup / Restore (compatibility shims) ────────────────────────────────
+
+    # ── Admin API Key Management ────────────────────────────────────────────
+    def get_api_key(self, provider_id: str) -> Optional[str]:
+        """Retrieve an admin-set API key by provider_id."""
+        try:
+            db = self._db()
+            row = db.execute(
+                "SELECT api_key FROM admin_api_keys WHERE provider_id = ?",
+                (provider_id,)
+            ).fetchone()
+            db.close()
+            return row[0] if row else None
+        except Exception as e:
+            logger.error(f"get_api_key failed: {e}")
+            return None
+
+    def set_api_key(self, provider_id: str, key: str) -> bool:
+        """Persist an admin-set API key (upsert)."""
+        import datetime
+        try:
+            db = self._db()
+            db.execute(
+                """INSERT INTO admin_api_keys (provider_id, api_key, updated_at)
+                   VALUES (?, ?, ?)
+                   ON CONFLICT(provider_id) DO UPDATE SET
+                   api_key=excluded.api_key, updated_at=excluded.updated_at""",
+                (provider_id, key, datetime.datetime.utcnow().isoformat())
+            )
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            logger.error(f"set_api_key failed: {e}")
+            return False
+
+    def delete_api_key(self, provider_id: str) -> bool:
+        """Remove an admin-set API key."""
+        try:
+            db = self._db()
+            db.execute("DELETE FROM admin_api_keys WHERE provider_id = ?", (provider_id,))
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            logger.error(f"delete_api_key failed: {e}")
+            return False
 
     def backup_all(self, local_state: Dict) -> bool:
         self.save_evolution_state(local_state.get('evolution', {}))
