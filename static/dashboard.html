@@ -760,7 +760,76 @@
       .chat-window { height: 200px; }
       .header-clock { display: none; }
     }
-  </style>
+  
+    /* ── Knowledge Graph (Brain) ──────────────────────────────────────────── */
+    .brain-section { margin: 0 0 1.5rem; }
+    .brain-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+    }
+    .brain-card:hover { border-color: var(--border-hover); }
+    .brain-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .brain-title {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .brain-title-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse-green 2.4s ease-in-out infinite;
+    }
+    .brain-meta {
+      display: flex; gap: 1rem; align-items: center;
+    }
+    .brain-stat {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-faint);
+    }
+    .brain-stat span { color: var(--green); font-weight: 600; }
+    #brainCanvas {
+      display: block; width: 100%; height: 320px;
+      background: radial-gradient(ellipse at 50% 60%, rgba(108,99,255,0.04) 0%, transparent 70%);
+      cursor: grab;
+    }
+    #brainCanvas:active { cursor: grabbing; }
+    .brain-legend {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      padding: 0.5rem 1rem;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.65rem; color: var(--text-muted);
+    }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .brain-tooltip {
+      position: fixed;
+      background: rgba(18,18,26,0.95);
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.65rem;
+      font-size: 0.7rem;
+      color: var(--text);
+      pointer-events: none;
+      z-index: 9999;
+      display: none;
+      max-width: 220px;
+      line-height: 1.4;
+      backdrop-filter: blur(8px);
+    }
+    .brain-tooltip strong { color: var(--accent); display: block; margin-bottom: 0.15rem; }
+
+    </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
 </head>
 <body>
 <div class="app">
@@ -847,6 +916,34 @@
           <div class="stat-card-sub">total proposals logged</div>
         </div>
       </div>
+
+
+      <!-- Knowledge Graph (Brain) -->
+      <div class="brain-section">
+        <div class="brain-card">
+          <div class="brain-header">
+            <div class="brain-title">
+              <div class="brain-title-dot"></div>
+              Knowledge Graph — Neural Connections
+            </div>
+            <div class="brain-meta">
+              <div class="brain-stat">Nodes: <span id="brainNodeCount">—</span></div>
+              <div class="brain-stat">Synapses: <span id="brainLinkCount">—</span></div>
+              <div class="brain-stat">Active: <span id="brainActiveCount">—</span></div>
+            </div>
+          </div>
+          <canvas id="brainCanvas"></canvas>
+          <div class="brain-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#6c63ff;box-shadow:0 0 6px #6c63ff;"></div>Core Intelligence</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#00d4aa;box-shadow:0 0 6px #00d4aa;"></div>Active Learning</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ffa502;box-shadow:0 0 6px #ffa502;"></div>Research</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ff4757;box-shadow:0 0 6px #ff4757;"></div>Revenue / Trading</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a29bfe;box-shadow:0 0 6px #a29bfe;"></div>Knowledge</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#74b9ff;box-shadow:0 0 6px #74b9ff;"></div>Providers</div>
+          </div>
+        </div>
+      </div>
+      <div class="brain-tooltip" id="brainTooltip"></div>
 
       <!-- Main Grid -->
       <div class="main-grid">
@@ -1450,6 +1547,477 @@ setInterval(() => {
   loadData();
   restartRefreshBar();
 }, 30000);
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DMAI KNOWLEDGE GRAPH — Canvas-based neural brain visualisation
+//  Live data from /api/status, /api/harvester/status, /api/system/health
+// ══════════════════════════════════════════════════════════════════════════════
+(function brainGraph() {
+
+  const canvas = document.getElementById('brainCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('brainTooltip');
+
+  // ── Colour palette matching dashboard CSS vars ──────────────────────────
+  const COLORS = {
+    core:       '#6c63ff',
+    learning:   '#00d4aa',
+    research:   '#ffa502',
+    revenue:    '#ff4757',
+    knowledge:  '#a29bfe',
+    providers:  '#74b9ff',
+    neutral:    '#3f3e56',
+  };
+
+  // ── Node definitions — static skeleton, enriched by live data ────────────
+  const NODE_DEFS = [
+    // Core intelligence cluster
+    { id: 'dmai_core',          label: 'DMAI Core',            group: 'core',      r: 18, fixed: true },
+    { id: 'si_core',            label: 'SICore Engine',         group: 'core',      r: 13 },
+    { id: 'consciousness',      label: 'Consciousness',         group: 'core',      r: 11 },
+    { id: 'meta_learner',       label: 'Meta-Learner',          group: 'core',      r: 10 },
+    { id: 'global_workspace',   label: 'Global Workspace',      group: 'core',      r: 10 },
+    { id: 'master_control',     label: 'Master Control',        group: 'core',      r: 11 },
+    // Learning cluster
+    { id: 'learning_orch',      label: 'Learning Orchestrator', group: 'learning',  r: 12 },
+    { id: 'stage_learner',      label: 'Stage Learner',         group: 'learning',  r: 10 },
+    { id: 'tutor_manager',      label: 'Tutor Manager',         group: 'learning',  r: 10 },
+    { id: 'kaizen',             label: 'Kaizen Engine',         group: 'learning',  r: 10 },
+    { id: 'unified_learner',    label: 'Unified Learner',       group: 'learning',  r: 10 },
+    { id: 'capability_synth',   label: 'Capability Synth.',     group: 'learning',  r:  9 },
+    // Research cluster
+    { id: 'auto_researcher',    label: 'Auto Researcher',       group: 'research',  r: 11 },
+    { id: 'web_learner',        label: 'Web Learner',           group: 'research',  r: 10 },
+    { id: 'url_learner',        label: 'URL Learner',           group: 'research',  r:  9 },
+    { id: 'reverse_engineer',   label: 'Reverse Engineer',      group: 'research',  r:  9 },
+    { id: 'ai_discovery',       label: 'AI Discovery',          group: 'research',  r: 10 },
+    // Knowledge cluster
+    { id: 'knowledge_mgr',      label: 'Knowledge Manager',     group: 'knowledge', r: 11 },
+    { id: 'book_reader',        label: 'Book Reader',           group: 'knowledge', r:  9 },
+    { id: 'evolution_metrics',  label: 'Evolution Metrics',     group: 'knowledge', r: 10 },
+    { id: 'learning_harvester', label: 'Learning Harvester',    group: 'knowledge', r:  9 },
+    // Provider cluster
+    { id: 'ai_hub',             label: 'AI Integration Hub',    group: 'providers', r: 12 },
+    { id: 'groq',               label: 'Groq',                  group: 'providers', r:  8 },
+    { id: 'cerebras',           label: 'Cerebras',              group: 'providers', r:  8 },
+    { id: 'google_ai',          label: 'Google AI Studio',      group: 'providers', r:  8 },
+    { id: 'github_models',      label: 'GitHub Models',         group: 'providers', r:  7 },
+    { id: 'mistral',            label: 'Mistral',               group: 'providers', r:  7 },
+    // Revenue cluster
+    { id: 'self_funding',       label: 'Self-Funding',          group: 'revenue',   r: 11 },
+    { id: 'revenue_discovery',  label: 'Revenue Discovery',     group: 'revenue',   r: 10 },
+    { id: 'trader',             label: 'Trader (Paper)',        group: 'revenue',   r:  9 },
+    { id: 'content_engine',     label: 'Content Engine',        group: 'revenue',   r:  9 },
+    { id: 'sandbox',            label: 'Exec Sandbox',          group: 'research',  r:  8 },
+  ];
+
+  // ── Synapse (edge) definitions ────────────────────────────────────────────
+  const LINK_DEFS = [
+    // Core hub
+    { s: 'dmai_core', t: 'si_core' },
+    { s: 'dmai_core', t: 'consciousness' },
+    { s: 'dmai_core', t: 'master_control' },
+    { s: 'dmai_core', t: 'ai_hub' },
+    { s: 'dmai_core', t: 'knowledge_mgr' },
+    { s: 'dmai_core', t: 'self_funding' },
+    { s: 'si_core', t: 'meta_learner' },
+    { s: 'si_core', t: 'evolution_metrics' },
+    { s: 'consciousness', t: 'global_workspace' },
+    { s: 'master_control', t: 'self_funding' },
+    // Learning
+    { s: 'si_core', t: 'learning_orch' },
+    { s: 'learning_orch', t: 'stage_learner' },
+    { s: 'learning_orch', t: 'tutor_manager' },
+    { s: 'learning_orch', t: 'kaizen' },
+    { s: 'learning_orch', t: 'unified_learner' },
+    { s: 'learning_orch', t: 'capability_synth' },
+    { s: 'tutor_manager', t: 'ai_hub' },
+    // Research
+    { s: 'knowledge_mgr', t: 'auto_researcher' },
+    { s: 'knowledge_mgr', t: 'web_learner' },
+    { s: 'knowledge_mgr', t: 'url_learner' },
+    { s: 'knowledge_mgr', t: 'reverse_engineer' },
+    { s: 'knowledge_mgr', t: 'book_reader' },
+    { s: 'ai_hub', t: 'ai_discovery' },
+    { s: 'auto_researcher', t: 'sandbox' },
+    // Providers
+    { s: 'ai_hub', t: 'groq' },
+    { s: 'ai_hub', t: 'cerebras' },
+    { s: 'ai_hub', t: 'google_ai' },
+    { s: 'ai_hub', t: 'github_models' },
+    { s: 'ai_hub', t: 'mistral' },
+    // Revenue
+    { s: 'self_funding', t: 'revenue_discovery' },
+    { s: 'self_funding', t: 'trader' },
+    { s: 'self_funding', t: 'content_engine' },
+    { s: 'revenue_discovery', t: 'master_control' },
+    // Cross-cluster
+    { s: 'learning_harvester', t: 'learning_orch' },
+    { s: 'evolution_metrics', t: 'consciousness' },
+    { s: 'ai_discovery', t: 'learning_orch' },
+    { s: 'capability_synth', t: 'knowledge_mgr' },
+    { s: 'reverse_engineer', t: 'si_core' },
+  ];
+
+  // ── Simulation state ──────────────────────────────────────────────────────
+  let nodes = [];
+  let links = [];
+  let liveStatus = {};   // populated from API
+  let animFrame;
+  let dragging = null;
+  let mouse = { x: 0, y: 0 };
+  let hovered = null;
+  let pulseT = 0;        // global animation tick
+  let signalParticles = []; // signal pulses travelling along links
+
+  // ── Resize handling ──────────────────────────────────────────────────────
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    if (nodes.length) pinCore();
+  }
+
+  function pinCore() {
+    const rect = canvas.getBoundingClientRect();
+    const core = nodes.find(n => n.id === 'dmai_core');
+    if (core) { core.x = rect.width / 2; core.y = rect.height / 2; core.vx = 0; core.vy = 0; }
+  }
+
+  // ── Build graph from definitions + live status ───────────────────────────
+  function buildGraph(status) {
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2, cy = rect.height / 2;
+
+    nodes = NODE_DEFS.map((d, i) => {
+      const angle = (i / NODE_DEFS.length) * Math.PI * 2;
+      const radius = d.id === 'dmai_core' ? 0 : (d.r > 11 ? 80 : d.r > 9 ? 130 : 180) + Math.random() * 40;
+      const live = liveStatus[d.id];
+      return {
+        ...d,
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius,
+        vx: 0, vy: 0,
+        active: live ? live.active : true,
+        statusLabel: live ? live.label : null,
+      };
+    });
+
+    links = LINK_DEFS.map(l => ({
+      source: nodes.find(n => n.id === l.s),
+      target: nodes.find(n => n.id === l.t),
+    })).filter(l => l.source && l.target);
+
+    // Seed signal particles
+    signalParticles = [];
+    links.forEach(l => {
+      if (Math.random() < 0.5) {
+        signalParticles.push({ link: l, t: Math.random(), speed: 0.003 + Math.random() * 0.004 });
+      }
+    });
+
+    document.getElementById('brainNodeCount').textContent = nodes.length;
+    document.getElementById('brainLinkCount').textContent = links.length;
+    document.getElementById('brainActiveCount').textContent = nodes.filter(n => n.active).length;
+
+    pinCore();
+  }
+
+  // ── Force simulation (lightweight, no D3 needed) ─────────────────────────
+  const REPEL   = 1800;
+  const ATTRACT = 0.012;
+  const LINK_STRENGTH = 0.04;
+  const DAMPING = 0.82;
+  const CENTER_STRENGTH = 0.006;
+
+  function tick() {
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2, cy = rect.height / 2;
+
+    // Repulsion between all nodes
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const minDist = a.r + b.r + 20;
+        if (dist < minDist * 4) {
+          const force = REPEL / (dist * dist);
+          const fx = (dx / dist) * force;
+          const fy = (dy / dist) * force;
+          if (!a.fixed && a !== dragging) { a.vx -= fx; a.vy -= fy; }
+          if (!b.fixed && b !== dragging) { b.vx += fx; b.vy += fy; }
+        }
+      }
+    }
+
+    // Link spring attraction
+    links.forEach(l => {
+      const dx = l.target.x - l.source.x;
+      const dy = l.target.y - l.source.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const idealLen = (l.source.r + l.target.r) * 4.5;
+      const force = (dist - idealLen) * LINK_STRENGTH;
+      const fx = (dx / dist) * force;
+      const fy = (dy / dist) * force;
+      if (!l.source.fixed && l.source !== dragging) { l.source.vx += fx; l.source.vy += fy; }
+      if (!l.target.fixed && l.target !== dragging) { l.target.vx -= fx; l.target.vy -= fy; }
+    });
+
+    // Centre gravity
+    nodes.forEach(n => {
+      if (n.fixed || n === dragging) return;
+      n.vx += (cx - n.x) * CENTER_STRENGTH;
+      n.vy += (cy - n.y) * CENTER_STRENGTH;
+      n.vx *= DAMPING;
+      n.vy *= DAMPING;
+      n.x = Math.max(n.r + 8, Math.min(rect.width  - n.r - 8, n.x + n.vx));
+      n.y = Math.max(n.r + 8, Math.min(rect.height - n.r - 8, n.y + n.vy));
+    });
+
+    // Signal particle movement
+    signalParticles.forEach(p => {
+      p.t += p.speed;
+      if (p.t > 1) p.t = 0;
+    });
+  }
+
+  // ── Draw ──────────────────────────────────────────────────────────────────
+  function draw() {
+    const rect = canvas.getBoundingClientRect();
+    const W = rect.width, H = rect.height;
+    ctx.clearRect(0, 0, W, H);
+    pulseT += 0.02;
+
+    // Draw links (synapses)
+    links.forEach(l => {
+      const s = l.source, t = l.target;
+      const isActive = s.active && t.active;
+      const alpha = isActive ? 0.22 : 0.06;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(t.x, t.y);
+      ctx.strokeStyle = `rgba(108, 99, 255, ${alpha})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Draw signal particles (electrical impulses along synapses)
+    signalParticles.forEach(p => {
+      const s = p.link.source, t = p.link.target;
+      const x = s.x + (t.x - s.x) * p.t;
+      const y = s.y + (t.y - s.y) * p.t;
+      const col = COLORS[s.group] || '#6c63ff';
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, 4);
+      grd.addColorStop(0, col);
+      grd.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    });
+
+    // Draw nodes (neurons)
+    nodes.forEach(n => {
+      const col     = COLORS[n.group] || '#6c63ff';
+      const isHov   = n === hovered;
+      const pulseMag = n.id === 'dmai_core' ? 0.3 : 0.12;
+      const pulseR   = n.r + Math.sin(pulseT * (n.id === 'dmai_core' ? 1.8 : 1.2)) * pulseMag * n.r;
+      const alpha    = n.active ? 1 : 0.3;
+
+      // Glow
+      const glowR = pulseR + (isHov ? 12 : 7);
+      const grd = ctx.createRadialGradient(n.x, n.y, pulseR * 0.5, n.x, n.y, glowR + pulseR);
+      grd.addColorStop(0, col + (isHov ? 'cc' : '55'));
+      grd.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, glowR + pulseR, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.globalAlpha = alpha;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Node circle
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, pulseR, 0, Math.PI * 2);
+      ctx.fillStyle = '#0a0a0f';
+      ctx.fill();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = isHov ? 2.5 : (n.id === 'dmai_core' ? 2 : 1.5);
+      ctx.globalAlpha = alpha;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Inner fill for core node
+      if (n.id === 'dmai_core') {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, pulseR * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = col + '33';
+        ctx.fill();
+      }
+
+      // Label for larger nodes or hovered
+      if (n.r >= 10 || isHov) {
+        ctx.font = `${isHov ? 600 : 500} ${n.id === 'dmai_core' ? 9 : 8}px -apple-system, sans-serif`;
+        ctx.fillStyle = isHov ? col : (n.active ? '#e0dff5' : '#3f3e56');
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = alpha;
+        ctx.fillText(n.label, n.x, n.y + pulseR + 11);
+        ctx.globalAlpha = 1;
+      }
+    });
+  }
+
+  // ── Animation loop ────────────────────────────────────────────────────────
+  function loop() {
+    tick();
+    draw();
+    animFrame = requestAnimationFrame(loop);
+  }
+
+  // ── Mouse interaction ─────────────────────────────────────────────────────
+  function canvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src  = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  function findNode(x, y) {
+    return nodes.find(n => {
+      const dx = n.x - x, dy = n.y - y;
+      return Math.sqrt(dx * dx + dy * dy) <= n.r + 8;
+    });
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    const { x, y } = canvasCoords(e);
+    mouse = { x, y };
+    const n = findNode(x, y);
+    hovered = n || null;
+    canvas.style.cursor = n ? 'pointer' : (dragging ? 'grabbing' : 'grab');
+    if (n) {
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 12) + 'px';
+      tooltip.style.top  = (e.clientY - 8)  + 'px';
+      tooltip.innerHTML = `<strong>${n.label}</strong>Group: ${n.group}<br>Status: ${n.active ? '✓ Active' : '○ Inactive'}<br>Radius: ${n.r}`;
+    } else {
+      tooltip.style.display = 'none';
+    }
+    if (dragging) { dragging.x = x; dragging.y = y; dragging.vx = 0; dragging.vy = 0; }
+  });
+
+  canvas.addEventListener('mousedown', e => {
+    const { x, y } = canvasCoords(e);
+    const n = findNode(x, y);
+    if (n && n.id !== 'dmai_core') { dragging = n; dragging.fixed = true; }
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    if (dragging) { dragging.fixed = dragging.id === 'dmai_core'; dragging = null; }
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+    hovered = null;
+    if (dragging) { dragging.fixed = dragging.id === 'dmai_core'; dragging = null; }
+  });
+
+  // Touch support
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const { x, y } = canvasCoords(e);
+    const n = findNode(x, y);
+    if (n && n.id !== 'dmai_core') { dragging = n; dragging.fixed = true; }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const { x, y } = canvasCoords(e);
+    if (dragging) { dragging.x = x; dragging.y = y; dragging.vx = 0; dragging.vy = 0; }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', () => {
+    if (dragging) { dragging.fixed = dragging.id === 'dmai_core'; dragging = null; }
+  });
+
+  // ── Live data enrichment from API ─────────────────────────────────────────
+  async function enrichFromAPI() {
+    const [sysHealth, providers] = await Promise.all([
+      apiFetch('/api/system/health'),
+      apiFetch('/api/harvester/status'),
+    ]);
+
+    if (providers) {
+      const active = new Set(providers.active || []);
+      const invalid = new Set(providers.invalid || []);
+      // Map provider IDs to node IDs
+      const PMAP = {
+        'groq': 'groq', 'cerebras': 'cerebras',
+        'google_ai_studio': 'google_ai', 'github_models': 'github_models',
+        'mistral': 'mistral',
+      };
+      Object.entries(PMAP).forEach(([pid, nid]) => {
+        const n = nodes.find(x => x.id === nid);
+        if (n) {
+          n.active = active.has(pid);
+          n.statusLabel = active.has(pid) ? 'Active' : invalid.has(pid) ? 'Invalid key' : 'No key';
+        }
+      });
+    }
+
+    if (sysHealth) {
+      const comps = sysHealth.components || {};
+      const NODE_COMP_MAP = {
+        'learning_orch': 'learning_orchestrator',
+        'kaizen': 'kaizen_integrator',
+        'auto_researcher': 'autonomous_researcher',
+        'knowledge_mgr': 'knowledge_source_manager',
+        'ai_hub': 'ai_integration_hub',
+        'self_funding': 'self_funding',
+        'trader': 'trader',
+        'sandbox': 'sandbox_client',
+        'consciousness': 'consciousness_tracker',
+        'evolution_metrics': 'evolution_metrics',
+        'meta_learner': 'meta_learner',
+        'web_learner': 'parallel_web_learner',
+      };
+      Object.entries(NODE_COMP_MAP).forEach(([nid, ckey]) => {
+        if (comps[ckey] !== undefined) {
+          const n = nodes.find(x => x.id === nid);
+          if (n) n.active = comps[ckey] !== false && comps[ckey] !== 'error';
+        }
+      });
+    }
+
+    // Update stats
+    document.getElementById('brainActiveCount').textContent = nodes.filter(n => n.active).length;
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  function init() {
+    resize();
+    window.addEventListener('resize', () => { resize(); pinCore(); });
+    buildGraph();
+    loop();
+    // Enrich with live data after 2s (let API warm up)
+    setTimeout(enrichFromAPI, 2000);
+    // Re-enrich every 60s
+    setInterval(enrichFromAPI, 60000);
+  }
+
+  // Wait for layout paint then init
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    requestAnimationFrame(init);
+  }
+
+})();
+
+
 </script>
 </body>
 </html>
