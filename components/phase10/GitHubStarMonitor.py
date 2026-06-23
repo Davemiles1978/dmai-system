@@ -241,12 +241,15 @@ class GitHubStarMonitor:
                     continue
                 
                 if repos:
-                    # Check for new repos
-                    processed_names = [p["name"] for p in self.processed["processed"]]
-                    
+                    # Check for new repos — guard against None/missing processed list
+                    processed_list = self.processed.get("processed") or []
+                    processed_names = [p["name"] for p in processed_list if isinstance(p, dict) and "name" in p]
+
                     for repo in repos:
+                        if not isinstance(repo, dict):
+                            continue
                         name = repo.get('full_name')
-                        if name not in processed_names:
+                        if name and name not in processed_names:
                             self.process_repo(repo)
                 else:
                     logger.debug("No repos fetched from GitHub")

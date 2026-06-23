@@ -2311,13 +2311,32 @@ def _start_telegram_bot():
                 resp = _ai_chat(msg)
                 await update.message.reply_text(resp[:4000])
 
+            import asyncio
+
             app_tg = ApplicationBuilder().token(token).build()
             app_tg.add_handler(CommandHandler("start", start_cmd))
             app_tg.add_handler(CommandHandler("status", status_cmd))
             app_tg.add_handler(CommandHandler("train", train_cmd))
             app_tg.add_handler(CommandHandler("kaizen", kaizen_cmd))
             app_tg.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat_handler))
-            app_tg.run_polling()
+
+            # Run polling without signal handlers to avoid set_wakeup_fd
+            # error when started from a background thread (not main thread)
+            async def _poll():
+                await app_tg.initialize()
+                await app_tg.start()
+                await app_tg.updater.start_polling(drop_pending_updates=True)
+                # Keep alive until thread is stopped
+                while True:
+                    await asyncio.sleep(60)
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(_poll())
+            finally:
+                loop.close()
+
         except Exception as e:
             logger.warning("Telegram bot error: %s", e)
 

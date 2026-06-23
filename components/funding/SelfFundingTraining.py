@@ -332,7 +332,7 @@ class SelfFundingTraining:
                     return True
             driver.close()
         except Exception as e:
-            logger.error(f"Failed to load funding state from Neo4j: {e}")
+            logger.warning(f"Neo4j unavailable — funding state will use in-memory defaults ({e})")
         return False
     
     def _load_state(self):
