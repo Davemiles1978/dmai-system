@@ -409,6 +409,7 @@ def register_orchestrator_routes(app, orch: DMAITrainingOrchestrator):
 
     # Master orchestrator routes
     @app.route("/api/training/status")
+    @app.route("/api/orchestrator/status")   # alias — both URLs resolve to same handler
     def training_status():
         return jsonify(orch.get_status())
 

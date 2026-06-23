@@ -2890,7 +2890,67 @@ def api_learning_full_status():
     from pathlib import Path as _lp
 
     si = components.get("si_core")
-    kpis = si.current_kpis if si else {}
+
+    # KPI resolution: cache-first → si_core → live DB inline
+    # (same priority chain as /api/status — prevents all-null on cold start
+    #  before the 5-min seeder thread has had a chance to run)
+    kpis = {}
+    try:
+        _cache_path = os.path.join(
+            os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
+            "kpi_cache.json"
+        )
+        with open(_cache_path) as _cf:
+            _cached = _lj.load(_cf)
+        _ck = _cached.get("kpis", {})
+        if _ck and not all(v == 0 for v in _ck.values() if isinstance(v, (int, float))):
+            kpis = _ck
+        else:
+            raise ValueError("cache empty or all-zero")
+    except Exception:
+        # Fallback 1: si_core._state (may be zero on first boot)
+        _raw = (si.current_kpis if si else {}) or {}
+        if _raw and not all(v == 0 for v in _raw.values() if isinstance(v, (int, float))):
+            kpis = _raw
+        else:
+            # Fallback 2: derive inline from DB right now
+            try:
+                import sqlite3 as _sq_fs
+                _db_fs = os.path.join(
+                    os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
+                    "dmai_knowledge.db"
+                )
+                _con_fs = _sq_fs.connect(_db_fs, timeout=5)
+                _caps_fs  = _con_fs.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
+                _ins_fs   = _con_fs.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+                try:
+                    _voc_fs = _con_fs.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
+                except Exception:
+                    _voc_fs = 0
+                try:
+                    _ins7_fs = _con_fs.execute(
+                        "SELECT COUNT(*) FROM insights WHERE created_at >= datetime('now','-7 days')"
+                    ).fetchone()[0]
+                except Exception:
+                    _ins7_fs = 0
+                _con_fs.close()
+                _stg_fs = getattr(si, "stage_index", 0) if si else 0
+                _pct_fs = getattr(si, "stage_within_pct", 0.0) if si else 0.0
+                _act_fs = sum(1 for v in components.values() if v is not None)
+                kpis = {
+                    "skill_acquisition_rate":          min(_caps_fs / 50_000, 1.0),
+                    "transfer_learning_rate":           min(_stg_fs / 7, 1.0),
+                    "zero_shot_success_count":          min(_ins_fs / 300_000, 1.0),
+                    "agentic_capability_score":         min(_caps_fs / 20_000, 1.0),
+                    "recursive_self_improvement_rate":  _pct_fs / 100.0,
+                    "sample_efficiency_trend":          min((_ins7_fs / 7.0) / 5_000, 1.0),
+                    "metacognition_accuracy":           min(_voc_fs / 500_000, 1.0),
+                    "multi_modal_integration_score":    _act_fs / max(len(components), 56),
+                }
+                logger.info("full-status: KPIs derived inline from DB (seeder not yet run)")
+            except Exception as _e_fs:
+                logger.warning("full-status: all KPI fallbacks failed: %s", _e_fs)
+                kpis = {}
 
     # Stage progress
     lp_file = _lp("data/learning/stage_syllabus/learning_progress.json")
