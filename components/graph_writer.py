@@ -330,37 +330,25 @@ class GraphWriter:
             logger.debug("Could not read syllabus topics from DB: %s", e)
 
         # ── 4. Recent capabilities from DB ───────────────────────────────────
+        # NOTE: Individual capability nodes are NOT added to the visual graph.
+        # With 20,000+ capabilities in the DB, adding even a small sample
+        # produces a chaotic 'cap_xxxxxx' explosion that drowns the architecture.
+        # Instead we update the knowledge_mgr node's activation level to reflect
+        # overall capability count — keeping the graph clean and meaningful.
         try:
             conn = sqlite3.connect(str(DB_PATH))
             cur  = conn.cursor()
-            # Try to get capability names — schema may vary
-            cur.execute("PRAGMA table_info(capabilities)")
-            cols = [r[1] for r in cur.fetchall()]
-            name_col = next((c for c in ["name", "capability", "title", "label"] if c in cols), cols[0] if cols else None)
-            domain_col = next((c for c in ["domain", "category"] if c in cols), None)
-            if name_col:
-                cur.execute(f"SELECT {name_col}{', '+domain_col if domain_col else ''} FROM capabilities LIMIT 200")
-                for row in cur.fetchall():
-                    cap_name = str(row[0]).strip() if row[0] else ""
-                    cap_domain = str(row[1]).strip() if domain_col and len(row) > 1 and row[1] else ""
-                    if not cap_name:
-                        continue
-                    node_id = _stable_id("cap", cap_name)
-                    cluster = _infer_cluster(cap_domain) if cap_domain else "knowledge"
-                    if self._add_node(schema, {
-                        "id": node_id, "label": cap_name[:32],
-                        "cluster": cluster,
-                        "description": f"Capability: {cap_name}",
-                        "activation": 0.6, "auto_generated": True,
-                        "first_seen": _today_utc(), "source": "capabilities_db",
-                    }, existing_ids):
-                        new_nodes += 1
-                        hub = CLUSTER_HUB_MAP.get(cluster, "knowledge_mgr")
-                        if self._add_synapse(schema, hub, node_id, existing_ids, existing_synapses, 0.6):
-                            new_edges += 1
+            cur.execute("SELECT COUNT(*) FROM capabilities")
+            cap_count = cur.fetchone()[0]
             conn.close()
+            # Boost knowledge_mgr activation proportional to capability volume
+            km_node = next((n for n in schema["neurons"] if n["id"] == "knowledge_mgr"), None)
+            if km_node is not None:
+                km_node["activation"] = min(round(cap_count / 50_000, 3), 1.0)
+                km_node["capability_count"] = cap_count
+            logger.debug("GraphWriter: %d capabilities tracked on knowledge_mgr (no individual nodes)", cap_count)
         except Exception as e:
-            logger.debug("Could not read capabilities from DB: %s", e)
+            logger.debug("Could not read capabilities count from DB: %s", e)
 
         # ── Finalize ──────────────────────────────────────────────────────────
         if new_nodes > 0 or new_edges > 0:
