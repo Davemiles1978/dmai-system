@@ -3064,6 +3064,174 @@ def api_graph_evolve():
         return jsonify({"error": str(e)}), 500
 
 
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SUGGESTIONS API — DMAI Self-Development Inbox
+# ═══════════════════════════════════════════════════════════════════════════
+import uuid as _uuid_mod
+
+def _sug_db():
+    import sqlite3 as _sq
+    conn = _sq.connect("data/dmai_knowledge.db")
+    conn.row_factory = _sq.Row
+    return conn
+
+def _sug_now():
+    return datetime.now(timezone.utc).isoformat()
+
+@app.route("/api/suggestions", methods=["POST"])
+def api_suggestions_create():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        data = request.get_json(silent=True) or {}
+        title = (data.get("title") or "").strip()
+        description = (data.get("description") or "").strip()
+        source = data.get("source", "user")
+        if not title:
+            return jsonify({"error": "title is required"}), 400
+        if not description:
+            description = title
+        sid = str(_uuid_mod.uuid4())
+        now = _sug_now()
+        conn = _sug_db()
+        conn.execute(
+            "INSERT INTO suggestions (id, source, title, description, status, created_at, updated_at) "
+            "VALUES (?, ?, ?, ?, 'pending', ?, ?)",
+            (sid, source, title, description, now, now)
+        )
+        conn.commit()
+        conn.close()
+        # Fire executor in background thread
+        def _exec():
+            try:
+                from components.suggestion_executor import SuggestionExecutor
+                SuggestionExecutor().execute(sid)
+            except Exception as _e:
+                logger.error("SuggestionExecutor bg thread: %s", _e)
+        _t = threading.Thread(target=_exec, daemon=True, name=f"suggestion-{sid[:8]}")
+        _t.start()
+        logger.info("Suggestion created: %s — %s", sid, title)
+        return jsonify({"id": sid, "status": "pending", "message": "DMAI is on it"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/suggestions", methods=["GET"])
+def api_suggestions_list():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        status_filter = request.args.get("status", "all")
+        source_filter = request.args.get("source", "all")
+        conn = _sug_db()
+        query = "SELECT * FROM suggestions WHERE 1=1"
+        params = []
+        if status_filter != "all":
+            query += " AND status=?"
+            params.append(status_filter)
+        if source_filter != "all":
+            query += " AND source=?"
+            params.append(source_filter)
+        query += " ORDER BY created_at DESC LIMIT 100"
+        rows = conn.execute(query, params).fetchall()
+        counts_raw = conn.execute(
+            "SELECT status, COUNT(*) as n FROM suggestions GROUP BY status"
+        ).fetchall()
+        conn.close()
+        counts = {r["status"]: r["n"] for r in counts_raw}
+        return jsonify({
+            "suggestions": [dict(r) for r in rows],
+            "counts": counts
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/suggestions/<sid>", methods=["GET"])
+def api_suggestions_get(sid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        conn = _sug_db()
+        row = conn.execute("SELECT * FROM suggestions WHERE id=?", (sid,)).fetchone()
+        conn.close()
+        if not row:
+            return jsonify({"error": "not found"}), 404
+        return jsonify(dict(row))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/suggestions/<sid>/retry", methods=["POST"])
+def api_suggestions_retry(sid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        now = _sug_now()
+        conn = _sug_db()
+        conn.execute(
+            "UPDATE suggestions SET status='pending', result=NULL, updated_at=? WHERE id=?",
+            (now, sid)
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM suggestions WHERE id=?", (sid,)).fetchone()
+        conn.close()
+        if not row:
+            return jsonify({"error": "not found"}), 404
+        def _exec():
+            try:
+                from components.suggestion_executor import SuggestionExecutor
+                SuggestionExecutor().execute(sid)
+            except Exception as _e:
+                logger.error("SuggestionExecutor retry: %s", _e)
+        _t = threading.Thread(target=_exec, daemon=True, name=f"suggestion-retry-{sid[:8]}")
+        _t.start()
+        return jsonify({"id": sid, "status": "pending", "message": "Retry queued"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/suggestions/<sid>", methods=["DELETE"])
+def api_suggestions_delete(sid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        conn = _sug_db()
+        conn.execute("DELETE FROM suggestions WHERE id=?", (sid,))
+        conn.commit()
+        conn.close()
+        return jsonify({"deleted": sid})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def _ensure_suggestions_table():
+    """Create suggestions table if it doesn't exist."""
+    import sqlite3 as _sq3
+    from pathlib import Path as _P3
+    db = _P3("data/dmai_knowledge.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
+    conn = _sq3.connect(str(db))
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS suggestions (
+            id TEXT PRIMARY KEY,
+            source TEXT NOT NULL DEFAULT 'user',
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            complexity TEXT DEFAULT NULL,
+            plan TEXT DEFAULT NULL,
+            result TEXT DEFAULT NULL,
+            pr_url TEXT DEFAULT NULL,
+            branch TEXT DEFAULT NULL,
+            files_changed TEXT DEFAULT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            completed_at TEXT DEFAULT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+_ensure_suggestions_table()
+
 def _start_background_services():
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:
@@ -3273,6 +3441,28 @@ def _start_background_services():
         _sm_start(app=app, components=components)
     except Exception as e:
         logger.warning("Self-management startup failed: %s", e)
+
+
+    # ── Suggestion self-generation loop ───────────────────────────────────────
+    try:
+        def _suggestion_self_gen_loop():
+            import time as _t
+            _t.sleep(300)  # 5-min boot delay
+            while True:
+                try:
+                    from components.suggestion_executor import SuggestionExecutor
+                    SuggestionExecutor().generate_self_suggestions()
+                except Exception as _e:
+                    logger.error("Self-suggestion loop: %s", _e)
+                _t.sleep(7200)  # every 2 hours
+
+        _ssg_thread = threading.Thread(
+            target=_suggestion_self_gen_loop, daemon=True, name="suggestion-self-gen"
+        )
+        _ssg_thread.start()
+        logger.info("Suggestion self-generation loop started (2h interval)")
+    except Exception as e:
+        logger.warning("Suggestion self-gen loop startup failed: %s", e)
 
     if os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
         _start_telegram_bot()

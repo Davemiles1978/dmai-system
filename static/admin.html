@@ -511,6 +511,10 @@
       </div>
       <div class="nav-section">
         <div class="nav-label">Intelligence</div>
+        <div class="nav-item" onclick="nav('suggestions')" id="nav-suggestions">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 6a2 2 0 0 1 4 0c0 1.2-.8 1.8-1.4 2.3C7.6 8.7 7.5 9 7.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="12" r=".6" fill="currentColor"/></svg>
+          Suggestions
+        </div>
         <div class="nav-item" onclick="nav('learning')" id="nav-learning">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           Learning Metrics
@@ -822,6 +826,69 @@
         </div>
       </div>
 
+      <!-- Suggestions -->
+      <div class="section" id="sec-suggestions">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 6a2 2 0 0 1 4 0c0 1.2-.8 1.8-1.4 2.3C7.6 8.7 7.5 9 7.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="12" r=".6" fill="currentColor"/></svg>
+          Development Suggestions
+        </div>
+
+        <!-- Submit form -->
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-title">&#128161; Suggest to DMAI</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:.25rem 0 .75rem;">
+            Describe what you want DMAI to build or improve. She will analyse the requirement, write the code, and commit it autonomously.
+          </p>
+          <input id="sug-title" placeholder="Title — e.g. Add Stripe revenue tracker"
+                 style="width:100%;padding:.5rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;margin-bottom:.5rem;box-sizing:border-box;" />
+          <textarea id="sug-desc" rows="3"
+                    placeholder="Describe what it should do, requirements, expected behaviour..."
+                    style="width:100%;padding:.5rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+          <div class="action-row" style="margin-top:.5rem;">
+            <button class="btn-action" onclick="submitSuggestion()">&#9654; Send to DMAI</button>
+            <button class="btn-action secondary" onclick="loadSuggestions()">&#8635; Refresh</button>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1rem;">
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Pending</div>
+            <div id="sug-count-pending" style="font-size:1.15rem;font-weight:700;color:var(--yellow);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Coding</div>
+            <div id="sug-count-coding" style="font-size:1.15rem;font-weight:700;color:var(--accent);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Completed</div>
+            <div id="sug-count-completed" style="font-size:1.15rem;font-weight:700;color:var(--green);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">PR Open</div>
+            <div id="sug-count-pr_opened" style="font-size:1.15rem;font-weight:700;color:var(--text);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Failed</div>
+            <div id="sug-count-failed" style="font-size:1.15rem;font-weight:700;color:var(--red);">—</div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem;" id="sug-filter-tabs">
+          <button class="btn-action" id="sugf-all"       onclick="setSugFilter('all')">All</button>
+          <button class="btn-action secondary" id="sugf-user"      onclick="setSugFilter('user')">Your Ideas</button>
+          <button class="btn-action secondary" id="sugf-self"      onclick="setSugFilter('self')">DMAI Self-Directed</button>
+          <button class="btn-action secondary" id="sugf-pending"   onclick="setSugFilter('pending')">Pending</button>
+          <button class="btn-action secondary" id="sugf-completed" onclick="setSugFilter('completed')">Completed</button>
+        </div>
+
+        <!-- List -->
+        <div id="sug-list" style="display:flex;flex-direction:column;gap:.5rem;">
+          <p style="color:var(--text-muted);font-size:13px;">Loading...</p>
+        </div>
+      </div>
+
       <!-- Settings -->
       <div class="section" id="sec-settings">
         <div class="section-title">
@@ -957,6 +1024,7 @@
     if (id === 'study')   setTimeout(loadStudyProgress, 50);
     if (id === 'selfgen')  setTimeout(loadCWHistory, 50);
     if (id === 'learning') setTimeout(loadLearningMetrics, 50);
+    if (id === 'suggestions') setTimeout(loadSuggestions, 50);
     if (id === 'settings') setTimeout(loadSettings, 50);
     document.getElementById('sec-' + id).classList.add('active');
     document.getElementById('nav-' + id).classList.add('active');
@@ -1697,6 +1765,133 @@
       })});
       toast('Schedule saved','info');
     } catch(e) { toast('Save failed: '+e.message,'error'); }
+  }
+
+
+  // ── Suggestions ──────────────────────────────────────────────────────────
+  let _sugFilter = 'all';
+
+  function setSugFilter(f) {
+    _sugFilter = f;
+    document.querySelectorAll('#sug-filter-tabs button').forEach(b => {
+      b.className = b.id === 'sugf-' + f ? 'btn-action' : 'btn-action secondary';
+    });
+    loadSuggestions();
+  }
+
+  async function loadSuggestions() {
+    const listEl = document.getElementById('sug-list');
+    try {
+      const isSourceFilter = ['user','self'].includes(_sugFilter);
+      const isStatusFilter = ['pending','completed','pr_opened','failed','coding','analysing'].includes(_sugFilter);
+      const params = new URLSearchParams();
+      if (isSourceFilter) params.set('source', _sugFilter);
+      else if (isStatusFilter) params.set('status', _sugFilter);
+      const data = await api('/api/suggestions?' + params.toString());
+
+      // Update counts
+      const counts = data.counts || {};
+      ['pending','coding','completed','pr_opened','failed'].forEach(s => {
+        const el = document.getElementById('sug-count-' + s);
+        if (el) el.textContent = counts[s] ?? 0;
+      });
+      // Add analysing to coding count
+      const codingEl = document.getElementById('sug-count-coding');
+      if (codingEl) codingEl.textContent = (counts['coding'] || 0) + (counts['analysing'] || 0);
+
+      const suggestions = data.suggestions || [];
+      if (!suggestions.length) {
+        listEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:.5rem 0;">No suggestions yet. Send DMAI her first task above.</p>';
+        return;
+      }
+      listEl.innerHTML = suggestions.map(s => renderSuggestionCard(s)).join('');
+    } catch(e) {
+      listEl.innerHTML = '<p style="color:var(--red);font-size:12px;">Failed to load: ' + e.message + '</p>';
+    }
+  }
+
+  function renderSuggestionCard(s) {
+    const STATUS_COLOURS = {
+      pending:    'var(--yellow)',
+      analysing:  'var(--accent)',
+      coding:     'var(--accent)',
+      completed:  'var(--green)',
+      pr_opened:  '#7c6af7',
+      failed:     'var(--red)'
+    };
+    const STATUS_LABELS = {
+      pending:    'Pending',
+      analysing:  'Analysing',
+      coding:     'Coding',
+      completed:  'Completed',
+      pr_opened:  'PR Open',
+      failed:     'Failed'
+    };
+    const colour = STATUS_COLOURS[s.status] || 'var(--text-muted)';
+    const label  = STATUS_LABELS[s.status]  || s.status;
+    const sourceChip = s.source === 'self'
+      ? '<span style="font-size:9px;padding:.15rem .45rem;border-radius:10px;background:rgba(124,106,247,0.18);color:#7c6af7;margin-left:.4rem;">DMAI Self-Directed</span>'
+      : '<span style="font-size:9px;padding:.15rem .45rem;border-radius:10px;background:rgba(78,168,222,0.18);color:#4ea8de;margin-left:.4rem;">Your Idea</span>';
+    const desc = (s.description || '').slice(0, 120) + ((s.description||'').length > 120 ? '…' : '');
+    const result = s.result ? '<div style="font-size:11px;color:var(--text-muted);margin-top:.35rem;line-height:1.5;">' + (s.result||'').slice(0,200) + '</div>' : '';
+    const prLink = s.pr_url ? '<a href="' + s.pr_url + '" target="_blank" style="font-size:11px;color:var(--accent);margin-left:.5rem;">&#128279; View PR</a>' : '';
+    const filesCount = (() => { try { return JSON.parse(s.files_changed||'[]').length; } catch(e){ return 0; } })();
+    const filesTag = filesCount > 0 ? '<span style="font-size:10px;color:var(--text-muted);margin-left:.4rem;">' + filesCount + ' file' + (filesCount>1?'s':'') + '</span>' : '';
+    const ts = s.created_at ? new Date(s.created_at).toLocaleString([], {dateStyle:'short',timeStyle:'short'}) : '';
+    const retryBtn = s.status === 'failed'
+      ? '<button class="btn-action secondary" style="padding:.2rem .6rem;font-size:11px;" onclick="retrySuggestion('' + s.id + '')">&#8635; Retry</button>'
+      : '';
+    const deleteBtn = '<button class="btn-action secondary" style="padding:.2rem .6rem;font-size:11px;color:var(--red);" onclick="deleteSuggestion('' + s.id + '')">&#128465;</button>';
+
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;border-left:3px solid ${colour};">
+      <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.3rem;">
+        <span style="font-size:11px;font-weight:600;color:${colour};text-transform:uppercase;letter-spacing:.04em;">${label}</span>
+        ${sourceChip}${filesTag}
+        <span style="flex:1;"></span>
+        <span style="font-size:10px;color:var(--text-muted);">${ts}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:.2rem;">${s.title}</div>
+      <div style="font-size:12px;color:var(--text-muted);">${desc}</div>
+      ${result}
+      <div style="display:flex;align-items:center;gap:.4rem;margin-top:.5rem;">
+        ${prLink}
+        <span style="flex:1;"></span>
+        ${retryBtn} ${deleteBtn}
+      </div>
+    </div>`;
+  }
+
+  async function submitSuggestion() {
+    const title = (document.getElementById('sug-title').value || '').trim();
+    const desc  = (document.getElementById('sug-desc').value  || '').trim();
+    if (!title) { toast('Please enter a title', 'warn'); return; }
+    try {
+      await api('/api/suggestions', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, description: desc || title, source: 'user'})
+      });
+      document.getElementById('sug-title').value = '';
+      document.getElementById('sug-desc').value  = '';
+      toast('Sent to DMAI — she\'s on it');
+      loadSuggestions();
+    } catch(e) { toast('Submit failed: ' + e.message, 'error'); }
+  }
+
+  async function retrySuggestion(id) {
+    try {
+      await api('/api/suggestions/' + id + '/retry', {method: 'POST'});
+      toast('Retry queued');
+      loadSuggestions();
+    } catch(e) { toast('Retry failed: ' + e.message, 'error'); }
+  }
+
+  async function deleteSuggestion(id) {
+    try {
+      await api('/api/suggestions/' + id, {method: 'DELETE'});
+      toast('Deleted');
+      loadSuggestions();
+    } catch(e) { toast('Delete failed: ' + e.message, 'error'); }
   }
 
 </script>
