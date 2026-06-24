@@ -1224,16 +1224,29 @@ def api_chat():
             if cmd == "/kaizen": return api_kaizen_get()
             if cmd == "/syllabus": return get_syllabus()
             return jsonify({"response": f"Unknown command: {cmd}. Try /status /persona /kaizen /syllabus"})
-        response = _ai_chat(message)
-        _log_chat(message, response)
+        try:
+            response = _ai_chat(message)
+        except Exception as _chat_e:
+            logger.error("_ai_chat exception: %s", _chat_e)
+            response = None
+        # Guarantee response is always a plain string
+        if response is None or not isinstance(response, str):
+            response = str(response) if response is not None else (
+                "DMAI is online. Add a provider API key (e.g. GROQ_API_KEY) for full LLM responses."
+            )
+        try:
+            _log_chat(message, response)
+        except Exception:
+            pass
         return jsonify({
             "response": response,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source": "dmai_v7",
         })
     except Exception as e:
-        logger.error("chat error: %s", e)
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        logger.error("chat error: %s\n%s", e, traceback.format_exc())
+        return jsonify({"error": str(e), "trace": traceback.format_exc()[-500:]}), 500
 
 def _log_chat(message, response):
     try:
