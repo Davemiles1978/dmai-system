@@ -897,11 +897,8 @@ class AIIntegrationHub:
         for name, method in priority_methods:
             try:
                 # Use get_event_loop safely — create new loop if none exists
-                try:
-                    loop = asyncio.get_running_loop()
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
+                # Always use the running loop's executor — never create a new loop inside async
+                loop = asyncio.get_event_loop()
                 result = await loop.run_in_executor(None, method, prompt)
                 if not isinstance(result, dict):
                     logger.warning("chat(): %s returned non-dict: %s", name, type(result).__name__)

@@ -89,6 +89,11 @@ class KaizenAutoRepair:
 
     def run_repair_cycle(self) -> Dict:
         proposals = self._load_proposals()
+        # Reset failed items that are under new attempt limit so they get retried
+        for p in proposals:
+            if p.get("status") == "failed" and p.get("attempt_count", 0) < _MAX_ATTEMPTS:
+                p["status"] = "pending"
+
         pending = [
             p for p in proposals
             if p.get("status") in ("pending", "auto_repair_needed", "review_and_fix")

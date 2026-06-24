@@ -984,43 +984,6 @@ def _auto_start_services():
 
 
 
-@app.route("/api/chat/debug", methods=["GET", "POST"])
-def api_chat_debug():
-    """Temporary debug endpoint — traces chat_sync execution."""
-    import traceback, asyncio
-    hub = components.get("ai_hub") or components.get("extended_hub")
-    result = {
-        "hub_type": type(hub).__name__ if hub else None,
-        "has_chat_sync": hasattr(hub, "chat_sync") if hub else False,
-        "has_chat": hasattr(hub, "chat") if hub else False,
-        "api_keys_loaded": {},
-        "chat_sync_result": None,
-        "chat_sync_error": None,
-        "chat_sync_type": None,
-    }
-    if hub and hasattr(hub, "api_keys"):
-        result["api_keys_loaded"] = {
-            k: bool(v) for k, v in (hub.api_keys or {}).items()
-        }
-    if hub and hasattr(hub, "chat_sync"):
-        try:
-            r = hub.chat_sync("ping test")
-            result["chat_sync_result"] = repr(r)[:200]
-            result["chat_sync_type"] = type(r).__name__
-        except Exception as e:
-            result["chat_sync_error"] = traceback.format_exc()
-    elif hub and hasattr(hub, "chat"):
-        try:
-            import asyncio as _aio
-            loop = _aio.new_event_loop()
-            r = loop.run_until_complete(hub.chat("ping test"))
-            loop.close()
-            result["chat_sync_result"] = repr(r)[:200]
-            result["chat_sync_type"] = type(r).__name__
-        except Exception as e:
-            result["chat_sync_error"] = traceback.format_exc()
-    return jsonify(result)
-
 @app.route("/health")
 def health():
     return jsonify({
