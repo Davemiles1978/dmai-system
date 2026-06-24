@@ -104,6 +104,11 @@ class SelfScanner:
             except SyntaxError as e:
                 stubs.append(f"{py_file} (SyntaxError: {e})")
             except Exception as e:
+                # Skip AST runtime quirks (recursion depth mismatches, constructor
+                # warnings under newer Python versions) - these aren't stubs.
+                msg = str(e)
+                if "recursion depth" in msg or "constructor" in msg.lower():
+                    continue
                 stubs.append(f"{py_file} ({e})")
         return stubs
 

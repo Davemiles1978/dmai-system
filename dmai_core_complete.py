@@ -5185,7 +5185,16 @@ def _ensure_syllabus_content_table():
 
 
 def _ensure_sources_table():
-    """Create + seed `sources` table with canonical knowledge sources for autonomous_researcher."""
+    """Create + seed `sources` table with canonical knowledge sources.
+
+    Two schemas live in the wild:
+      v1 (sqlite_persistence.py): url PK + repo_name + source_type + processed_at + ...
+      v2 (this file):             id PK + url UNIQUE + kind + title + category + trust + ...
+
+    We never DROP the existing table (data loss risk). Instead we detect which
+    schema is present and use ALTER + the matching INSERT shape. New columns
+    are added if missing so both readers stay happy.
+    """
     import sqlite3 as _ss3
     try:
         db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
@@ -5195,13 +5204,27 @@ def _ensure_sources_table():
             "CREATE TABLE IF NOT EXISTS sources ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
             "url TEXT UNIQUE NOT NULL, "
-            "kind TEXT NOT NULL, "
+            "kind TEXT, "
             "title TEXT, "
             "category TEXT, "
             "trust REAL DEFAULT 0.8, "
-            "added_at TEXT NOT NULL DEFAULT (datetime('now')), "
+            "added_at TEXT DEFAULT (datetime('now')), "
             "last_seen TEXT)"
         )
+        # If a pre-existing schema is in place, add the columns we need.
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(sources)").fetchall()}
+        for col, ddl in [
+            ("kind",     "ALTER TABLE sources ADD COLUMN kind TEXT"),
+            ("title",    "ALTER TABLE sources ADD COLUMN title TEXT"),
+            ("category", "ALTER TABLE sources ADD COLUMN category TEXT"),
+            ("trust",    "ALTER TABLE sources ADD COLUMN trust REAL DEFAULT 0.8"),
+            ("last_seen","ALTER TABLE sources ADD COLUMN last_seen TEXT"),
+        ]:
+            if col not in cols:
+                try:
+                    conn.execute(ddl)
+                except Exception as _ae:
+                    logger.debug("sources ALTER %s skipped: %s", col, _ae)
         count = conn.execute("SELECT COUNT(*) FROM sources").fetchone()[0]
         if count == 0:
             seed = [
