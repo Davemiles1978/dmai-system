@@ -144,16 +144,20 @@ class AutonomousTrader:
         db_path: str,
         trader: Any,                    # AggressiveTrader instance
         prediction_engine: Optional[Any] = None,
+        notifier: Optional[Any] = None,
         universe: Optional[List[str]] = None,
         loop_interval_s: int = LOOP_INTERVAL_SECONDS,
+        require_approval: bool = False,
     ):
         self.db_path = db_path
         self.trader = trader
         self.prediction_engine = prediction_engine or getattr(trader, "prediction_engine", None)
+        self.notifier = notifier
         self.universe = universe or (
             getattr(trader, "conservative_pairs", []) + getattr(trader, "trading_pairs", [])
         )
         self.loop_interval_s = loop_interval_s
+        self.require_approval = bool(require_approval)
 
         self._stop = threading.Event()
         self._thread: Optional[threading.Thread] = None
@@ -204,6 +208,7 @@ class AutonomousTrader:
             "live":             _is_live(),
             "market_open":      _us_market_open(),
             "loop_interval_s":  self.loop_interval_s,
+            "require_approval": self.require_approval,
             "last_tick_ts":     s["last_tick_ts"] if s else None,
             "last_tick_note":   s["last_tick_note"] if s else None,
             "today_date":       s["today_date"] if s else None,
@@ -213,6 +218,7 @@ class AutonomousTrader:
             "universe":         self.universe,
             "recent_ticks":     [dict(r) for r in recent],
             "recent_trades":    [dict(r) for r in trades],
+            "pending_count":    self._pending_count(),
         }
 
     def set_enabled(self, enabled: bool, reason: str = "manual") -> Dict[str, Any]:
@@ -243,6 +249,15 @@ class AutonomousTrader:
             )
             c.commit()
         logger.info("AutonomousTrader: tier %s -> %s (%s)", from_tier, tier, reason)
+        if self.notifier:
+            try:
+                self.notifier.tier_change(from_tier, tier, reason)
+            except Exception as e:
+                logger.debug("notifier.tier_change failed: %s", e)
+        return self.status()
+
+    def set_require_approval(self, on: bool) -> Dict[str, Any]:
+        self.require_approval = bool(on)
         return self.status()
 
     # ── Loop ──────────────────────────────────────────────────────────────────
@@ -423,23 +438,44 @@ class AutonomousTrader:
         symbol = sig["symbol"]
         confidence = float(sig.get("confidence") or 0)
         ev = float(sig.get("ev") or 0)
+
+        # Approval gate for live mode: queue + notify instead of executing.
+        if self.require_approval and live:
+            self._queue_pending(symbol, confidence, ev, tier)
+            return False
+
         try:
             result = self.trader.execute_buy(symbol, confidence)
         except Exception as e:
             result = {"error": str(e)}
+            if self.notifier:
+                try:
+                    self.notifier.error("execute_buy", f"{symbol}: {e}")
+                except Exception:
+                    pass
         success = isinstance(result, dict) and "error" not in result and \
             result.get("status") != "skipped"
+        qty = float(result.get("qty") or 0) if isinstance(result, dict) else 0
         with self._conn() as c:
             c.execute(
                 "INSERT INTO at_trades(symbol, side, qty, confidence, ev, tier, live, "
                 "result_json) VALUES (?, 'buy', ?, ?, ?, ?, ?, ?)",
-                (symbol, float(result.get("qty") or 0) if isinstance(result, dict) else 0,
-                 confidence, ev, tier, 1 if live else 0, json.dumps(result)[:4000]),
+                (symbol, qty, confidence, ev, tier, 1 if live else 0,
+                 json.dumps(result)[:4000]),
             )
             c.commit()
         if success:
             logger.info("AutonomousTrader: %s buy %s conf=%.2f ev=%.2f live=%s",
                         tier, symbol, confidence, ev, live)
+            if self.notifier:
+                try:
+                    self.notifier.trade({
+                        "symbol": symbol, "qty": qty,
+                        "confidence": confidence, "ev": ev,
+                        "tier": tier, "live": live,
+                    })
+                except Exception as e:
+                    logger.debug("notifier.trade failed: %s", e)
         return success
 
     def _maybe_change_tier(self) -> None:
@@ -477,7 +513,185 @@ class AutonomousTrader:
                           reason=f"auto_demote pnl={pnl_pct:.2%}")
 
 
-def get_autonomous_trader(db_path: str, trader: Any,
-                          prediction_engine: Optional[Any] = None) -> AutonomousTrader:
+    # ----- Pending-approval queue (live-mode safety) ------------------------
+    def _ensure_pending_table(self) -> None:
+        with self._conn() as c:
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS at_pending ("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "ts TEXT NOT NULL DEFAULT (datetime('now')), "
+                "symbol TEXT NOT NULL, confidence REAL, ev REAL, tier TEXT, "
+                "status TEXT NOT NULL DEFAULT 'pending', "
+                "resolved_ts TEXT, result_json TEXT)"
+            )
+            c.commit()
+
+    def _queue_pending(self, symbol, confidence, ev, tier):
+        self._ensure_pending_table()
+        with self._conn() as c:
+            c.execute(
+                "INSERT INTO at_pending(symbol, confidence, ev, tier) "
+                "VALUES (?, ?, ?, ?)",
+                (symbol, confidence, ev, tier),
+            )
+            c.commit()
+        if self.notifier:
+            try:
+                self.notifier.send(
+                    "trade",
+                    "PENDING APPROVAL: " + symbol + " (" + tier + ")",
+                    "confidence=" + ("%.0f%%" % (confidence * 100)) +
+                    " EV=" + ("%.1f%%" % (ev * 100)) +
+                    " - approve in /monetisation UI",
+                    meta={"symbol": symbol, "confidence": confidence,
+                          "ev": ev, "tier": tier, "pending": True},
+                )
+            except Exception:
+                pass
+
+    def _pending_count(self):
+        try:
+            self._ensure_pending_table()
+            with self._conn() as c:
+                row = c.execute(
+                    "SELECT COUNT(*) AS n FROM at_pending WHERE status = 'pending'"
+                ).fetchone()
+            return int(row["n"]) if row else 0
+        except Exception:
+            return 0
+
+    def list_pending(self, limit=50):
+        self._ensure_pending_table()
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT id, ts, symbol, confidence, ev, tier, status, resolved_ts "
+                "FROM at_pending ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def approve_pending(self, pending_id):
+        self._ensure_pending_table()
+        with self._conn() as c:
+            row = c.execute(
+                "SELECT * FROM at_pending WHERE id = ? AND status = 'pending'",
+                (pending_id,)
+            ).fetchone()
+        if not row:
+            return {"error": "pending row not found or already resolved"}
+        try:
+            result = self.trader.execute_buy(row["symbol"], float(row["confidence"] or 0))
+        except Exception as e:
+            result = {"error": str(e)}
+        success = isinstance(result, dict) and "error" not in result and             result.get("status") != "skipped"
+        live = _is_live()
+        qty = float(result.get("qty") or 0) if isinstance(result, dict) else 0
+        with self._conn() as c:
+            c.execute(
+                "UPDATE at_pending SET status = ?, resolved_ts = datetime('now'), "
+                "result_json = ? WHERE id = ?",
+                ("approved" if success else "failed",
+                 json.dumps(result)[:4000], pending_id),
+            )
+            c.execute(
+                "INSERT INTO at_trades(symbol, side, qty, confidence, ev, tier, live, "
+                "result_json) VALUES (?, 'buy', ?, ?, ?, ?, ?, ?)",
+                (row["symbol"], qty, float(row["confidence"] or 0),
+                 float(row["ev"] or 0), row["tier"], 1 if live else 0,
+                 json.dumps(result)[:4000]),
+            )
+            c.commit()
+        if success and self.notifier:
+            try:
+                self.notifier.trade({
+                    "symbol": row["symbol"], "qty": qty,
+                    "confidence": float(row["confidence"] or 0),
+                    "ev": float(row["ev"] or 0),
+                    "tier": row["tier"], "live": live, "approved": True,
+                })
+            except Exception:
+                pass
+        return {"status": "approved" if success else "failed", "result": result}
+
+    def reject_pending(self, pending_id, reason="manual"):
+        self._ensure_pending_table()
+        with self._conn() as c:
+            c.execute(
+                "UPDATE at_pending SET status = 'rejected', resolved_ts = datetime('now'), "
+                "result_json = ? WHERE id = ? AND status = 'pending'",
+                (json.dumps({"reason": reason}), pending_id),
+            )
+            c.commit()
+        return {"status": "rejected"}
+
+    # ----- Daily P&L digest --------------------------------------------------
+    def daily_summary(self):
+        today = date.today().isoformat()
+        with self._conn() as c:
+            s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
+            trades = c.execute(
+                "SELECT COUNT(*) AS n FROM at_trades WHERE date(ts) = ?", (today,)
+            ).fetchone()
+        equity = self._equity_safe()
+        open_eq = s["today_open_eq"] if s else None
+        pnl_pct = 0.0
+        if open_eq and equity:
+            pnl_pct = (equity - open_eq) / open_eq
+        return {
+            "date":         today,
+            "tier":         s["tier"] if s else "conservative",
+            "live":         _is_live(),
+            "trades":       int(trades["n"]) if trades else 0,
+            "deployed_pct": s["today_deployed_pct"] if s else 0,
+            "win_rate_pct": None,
+            "equity":       equity,
+            "pnl_pct":      pnl_pct,
+        }
+
+    def send_daily_digest(self):
+        summary = self.daily_summary()
+        if self.notifier:
+            try:
+                self.notifier.digest(summary)
+            except Exception as e:
+                logger.debug("notifier.digest failed: %s", e)
+        return summary
+
+    # ----- Trade journal export ----------------------------------------------
+    def export_journal_rows(self, days=30):
+        since = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT ts, symbol, side, qty, confidence, ev, tier, live "
+                "FROM at_trades WHERE ts >= ? ORDER BY ts ASC", (since,)
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    # ----- Prometheus-style metrics ------------------------------------------
+    def metrics_text(self):
+        s = self.status()
+        caps = s.get("tier_caps", {})
+        lines = [
+            "# HELP dmai_trader_enabled 1 if loop enabled",
+            "# TYPE dmai_trader_enabled gauge",
+            "dmai_trader_enabled %d" % (1 if s.get("enabled") else 0),
+            "# TYPE dmai_trader_live gauge",
+            "dmai_trader_live %d" % (1 if s.get("live") else 0),
+            "# TYPE dmai_trader_market_open gauge",
+            "dmai_trader_market_open %d" % (1 if s.get("market_open") else 0),
+            "# TYPE dmai_trader_trades_today gauge",
+            "dmai_trader_trades_today %d" % (s.get("today_trades", 0) or 0),
+            "# TYPE dmai_trader_deployed_pct gauge",
+            "dmai_trader_deployed_pct %.6f" % float(s.get("today_deployed_pct", 0) or 0),
+            "# TYPE dmai_trader_pending_count gauge",
+            "dmai_trader_pending_count %d" % (s.get("pending_count", 0) or 0),
+            "# TYPE dmai_trader_ev_gate gauge",
+            "dmai_trader_ev_gate %.6f" % float(caps.get("ev_gate", 0) or 0),
+            "dmai_trader_tier{tier=\"" + str(s.get("tier", "")) + "\"} 1",
+        ]
+        return "\n".join(lines) + "\n"
+
+
+def get_autonomous_trader(db_path, trader, prediction_engine=None, notifier=None):
     return AutonomousTrader(db_path=db_path, trader=trader,
-                            prediction_engine=prediction_engine)
+                            prediction_engine=prediction_engine,
+                            notifier=notifier)

@@ -15,7 +15,9 @@ from .revenue_allocator import RevenueAllocator
 from .bill_payer import BillPayer
 from .betting_advisor import BettingAdvisor
 from .wealth_allocator import WealthAllocator
+from .notifier import SlackNotifier
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
-__all__ = ["RevenueAllocator", "BillPayer", "BettingAdvisor", "WealthAllocator"]
+__all__ = ["RevenueAllocator", "BillPayer", "BettingAdvisor",
+           "WealthAllocator", "SlackNotifier"]

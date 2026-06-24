@@ -247,6 +247,9 @@
         <div class="actions">
           <button class="btn small" id="trader-toggle" onclick="toggleTrader()">Loading…</button>
           <button class="btn small ghost" onclick="manualTick()">Tick now</button>
+          <button class="btn small ghost" id="approval-toggle" onclick="toggleApproval()">Approval: ?</button>
+          <button class="btn small ghost" onclick="downloadJournal()">Journal CSV</button>
+          <button class="btn small ghost" onclick="sendDigest()">Send digest</button>
         </div>
       </div>
       <div class="grid cols-2">
@@ -268,6 +271,29 @@
       <div class="card" style="margin-top:14px;">
         <h2>Recent autonomous trades</h2>
         <div id="trader-trades" class="empty">Loading…</div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h2>Pending approvals</h2>
+        <div id="trader-pending" class="empty">Loading...</div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h2>Slack alerts &middot; watchdog</h2>
+        <div id="notifier-status" class="empty">Loading...</div>
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center;">
+          <input id="slack-webhook" type="text" placeholder="Slack webhook URL (optional)"
+            style="flex:1; min-width:280px; background:#0f1014; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px;" />
+          <button class="btn small" onclick="saveWebhook()">Save</button>
+          <button class="btn small ghost" onclick="testNotifier()">Send test</button>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:var(--text-muted);">
+          Alert types:
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="trade"/> trades</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="tier"/> tier</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="halt"/> halts</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="digest"/> daily digest</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="error"/> errors</label>
+          <button class="btn small ghost" style="margin-left:10px;" onclick="saveMask()">Save mask</button>
+        </div>
       </div>
     </div>
 
@@ -554,6 +580,8 @@ async function loadTrader() {
   let d;
   try { d = await api('/api/monetisation/trader/status'); }
   catch (e) { document.getElementById('trader-state').textContent = 'Not loaded'; return; }
+  const apBtn = document.getElementById('approval-toggle');
+  if (apBtn) { apBtn.textContent = 'Approval: ' + (d.require_approval ? 'ON' : 'off'); apBtn.dataset.on = d.require_approval ? '1' : '0'; }
   const caps = d.tier_caps || {};
   const liveBadge = d.live
     ? '<span style="color:var(--red); font-weight:600">LIVE</span>'
@@ -614,10 +642,121 @@ async function manualTick() {
   } catch (e) {}
 }
 
+async function toggleApproval() {
+  const btn = document.getElementById('approval-toggle');
+  const next = btn.dataset.on !== '1';
+  try {
+    await api('/api/monetisation/trader/approval', { method: 'POST', body: JSON.stringify({ on: next }) });
+    toast('Approval mode: ' + (next ? 'ON' : 'off'));
+    loadTrader(); loadPending();
+  } catch (e) {}
+}
+
+function downloadJournal() {
+  const a = document.createElement('a');
+  a.href = '/api/monetisation/trader/journal.csv?days=30';
+  a.download = 'trader_journal.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+async function sendDigest() {
+  try {
+    const r = await api('/api/monetisation/trader/digest', { method: 'POST' });
+    toast('Digest sent (trades=' + r.trades + ', pnl=' + ((r.pnl_pct||0)*100).toFixed(2) + '%)');
+  } catch (e) {}
+}
+
+async function loadPending() {
+  let d;
+  try { d = await api('/api/monetisation/trader/pending'); }
+  catch (e) { document.getElementById('trader-pending').textContent = 'Not loaded'; return; }
+  const list = (d.pending || []).filter(p => p.status === 'pending');
+  const el = document.getElementById('trader-pending');
+  if (!list.length) { el.innerHTML = '<div class="empty">No pending approvals</div>'; return; }
+  el.innerHTML = list.map(p =>
+    '<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border);">' +
+      '<div><b>' + p.symbol + '</b> <span style="color:var(--text-muted)">(' + p.tier + ')</span><br/>' +
+      '<span style="font-size:12px; color:var(--text-muted)">' + p.ts + ' &middot; confidence ' + (p.confidence*100).toFixed(0) + '% &middot; EV ' + (p.ev*100).toFixed(1) + '%</span></div>' +
+      '<div><button class="btn small" onclick="approvePending(' + p.id + ')">Approve</button> ' +
+      '<button class="btn small ghost" onclick="rejectPending(' + p.id + ')">Reject</button></div>' +
+    '</div>'
+  ).join('');
+}
+
+async function approvePending(id) {
+  try {
+    const r = await api('/api/monetisation/trader/pending/' + id + '/approve', { method: 'POST' });
+    toast(r.status === 'approved' ? 'Trade approved' : ('Approve: ' + (r.status || 'error')), r.status !== 'approved');
+    loadPending(); loadTrader();
+  } catch (e) {}
+}
+async function rejectPending(id) {
+  try {
+    await api('/api/monetisation/trader/pending/' + id + '/reject', { method: 'POST', body: JSON.stringify({ reason: 'manual' }) });
+    toast('Trade rejected');
+    loadPending();
+  } catch (e) {}
+}
+
+async function loadNotifier() {
+  let d;
+  try { d = await api('/api/monetisation/notifier'); }
+  catch (e) { document.getElementById('notifier-status').textContent = 'Not loaded'; return; }
+  let wd = null;
+  try { wd = await api('/api/monetisation/trader/watchdog'); } catch (e) {}
+  const cfg = d.configured ? '<b style="color:var(--green)">configured</b>' : '<b style="color:var(--red)">not configured</b> (set SLACK_WEBHOOK_URL or save below)';
+  const mask = (d.mask || []).join(', ') || '-';
+  const recent = d.recent || [];
+  let watchdog = '';
+  if (wd) {
+    watchdog = '<div style="margin-top:8px; font-size:12.5px;">Watchdog: ' + (wd.healthy ? '<b style=\'color:var(--green)\'>healthy</b>' : '<b style=\'color:var(--red)\'>UNHEALTHY</b>') + ' &middot; failures: ' + wd.consecutive_failures + '/' + wd.failure_threshold + ' &middot; last: ' + (wd.last_action || '-') + '</div>';
+  }
+  document.getElementById('notifier-status').innerHTML =
+    '<div style="font-size:13px; line-height:1.6">' +
+      'Webhook: ' + cfg + '<br/>' +
+      'Active alert mask: <code>' + mask + '</code>' +
+      watchdog +
+    '</div>' +
+    (recent.length
+      ? '<table style="margin-top:10px;"><thead><tr><th>When</th><th>Category</th><th>Title</th><th>Sent</th></tr></thead><tbody>' +
+        recent.slice(0, 12).map(r => '<tr><td>' + r.ts + '</td><td>' + r.category + '</td><td>' + r.title + '</td><td>' + (r.delivered ? 'sent' : (r.error || '-')) + '</td></tr>').join('') +
+        '</tbody></table>' : '');
+  document.querySelectorAll('.mask-cb').forEach(cb => { cb.checked = (d.mask || []).includes(cb.value); });
+}
+
+async function saveWebhook() {
+  const url = document.getElementById('slack-webhook').value.trim();
+  try {
+    await api('/api/monetisation/notifier', { method: 'POST', body: JSON.stringify({ webhook_url: url }) });
+    toast(url ? 'Webhook saved' : 'Webhook cleared');
+    document.getElementById('slack-webhook').value = '';
+    loadNotifier();
+  } catch (e) {}
+}
+async function saveMask() {
+  const mask = Array.from(document.querySelectorAll('.mask-cb')).filter(cb => cb.checked).map(cb => cb.value);
+  try {
+    await api('/api/monetisation/notifier', { method: 'POST', body: JSON.stringify({ mask }) });
+    toast('Alert mask saved');
+    loadNotifier();
+  } catch (e) {}
+}
+async function testNotifier() {
+  try {
+    const r = await api('/api/monetisation/notifier/test', { method: 'POST' });
+    toast(r.sent ? 'Test posted to Slack' : 'Test not delivered (check webhook)', !r.sent);
+    loadNotifier();
+  } catch (e) {}
+}
+
 refresh();
 loadTrader();
+loadPending();
+loadNotifier();
 setInterval(refresh, 30000);
 setInterval(loadTrader, 30000);
+setInterval(loadPending, 30000);
+setInterval(loadNotifier, 60000);
 </script>
 </body>
 </html>

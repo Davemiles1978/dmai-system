@@ -752,6 +752,17 @@ try:
 except Exception as e:
     logger.warning("Monetisation hub failed: %s", e)
 
+# ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
+try:
+    from components.monetisation.notifier import SlackNotifier as _SlackNotifier
+    _notif_db = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    components["notifier"] = _SlackNotifier(db_path=_notif_db)
+    logger.info("SlackNotifier initialised (configured=%s, mask=%s)",
+                components["notifier"].configured(),
+                sorted(components["notifier"].status()["mask"]))
+except Exception as e:
+    logger.warning("SlackNotifier failed: %s", e)
+
 # ── AutonomousTrader (5-min loop, market-hours gate, paper-first) ──────────────
 try:
     if components.get("trader"):
@@ -760,10 +771,22 @@ try:
         components["autonomous_trader"] = _AutoTrader(
             db_path=_at_db,
             trader=components["trader"],
-            prediction_engine=components.get("prediction_engine"))
+            prediction_engine=components.get("prediction_engine"),
+            notifier=components.get("notifier"))
         logger.info("AutonomousTrader initialised (paper-first, 5-min loop)")
 except Exception as e:
     logger.warning("AutonomousTrader failed: %s", e)
+
+# ── TraderWatchdog (self-healing: forces tick if stale, alerts on failure) ─────
+try:
+    if components.get("autonomous_trader"):
+        from components.wealth.trader_watchdog import TraderWatchdog as _Watchdog
+        components["trader_watchdog"] = _Watchdog(
+            trader=components["autonomous_trader"],
+            notifier=components.get("notifier"))
+        logger.info("TraderWatchdog initialised (self-healing)")
+except Exception as e:
+    logger.warning("TraderWatchdog failed: %s", e)
 
 # ── FinancialIntegrationUK (requires external credentials) ────────────────────
 try:
@@ -2315,6 +2338,130 @@ def api_mon_trader_tick():
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
     return jsonify(at.tick())
+
+@app.route("/api/monetisation/trader/approval", methods=["POST"])
+def api_mon_trader_approval_mode():
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    return jsonify(at.set_require_approval(bool(data.get("on", True))))
+
+@app.route("/api/monetisation/trader/pending", methods=["GET"])
+def api_mon_trader_pending():
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify({"pending": at.list_pending(limit=100)})
+
+@app.route("/api/monetisation/trader/pending/<int:pid>/approve", methods=["POST"])
+def api_mon_trader_pending_approve(pid):
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify(at.approve_pending(pid))
+
+@app.route("/api/monetisation/trader/pending/<int:pid>/reject", methods=["POST"])
+def api_mon_trader_pending_reject(pid):
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    return jsonify(at.reject_pending(pid, reason=data.get("reason", "manual")))
+
+@app.route("/api/monetisation/trader/digest", methods=["POST"])
+def api_mon_trader_digest():
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify(at.send_daily_digest())
+
+@app.route("/api/monetisation/trader/journal.csv", methods=["GET"])
+def api_mon_trader_journal_csv():
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    try:
+        days = int(request.args.get("days", "30"))
+    except Exception:
+        days = 30
+    rows = at.export_journal_rows(days=days)
+    headers = ["ts", "symbol", "side", "qty", "confidence", "ev", "tier", "live"]
+    import csv as _csv
+    import io as _io
+    buf = _io.StringIO()
+    w = _csv.DictWriter(buf, fieldnames=headers)
+    w.writeheader()
+    for r in rows:
+        w.writerow({k: r.get(k, "") for k in headers})
+    from flask import Response as _Resp
+    return _Resp(buf.getvalue(), mimetype="text/csv",
+                 headers={"Content-Disposition":
+                          "attachment; filename=trader_journal.csv"})
+
+@app.route("/api/monetisation/trader/metrics", methods=["GET"])
+def api_mon_trader_metrics():
+    at = components.get("autonomous_trader")
+    if not at:
+        return ("# autonomous_trader not loaded\n", 503,
+                {"Content-Type": "text/plain; version=0.0.4"})
+    return (at.metrics_text(), 200, {"Content-Type": "text/plain; version=0.0.4"})
+
+@app.route("/api/monetisation/trader/watchdog", methods=["GET"])
+def api_mon_trader_watchdog():
+    wd = components.get("trader_watchdog")
+    if not wd:
+        return jsonify({"error": "trader_watchdog not loaded"}), 503
+    return jsonify(wd.status())
+
+@app.route("/api/monetisation/notifier", methods=["GET"])
+def api_mon_notifier_status():
+    n = components.get("notifier")
+    if not n:
+        return jsonify({"error": "notifier not loaded"}), 503
+    return jsonify(n.status())
+
+@app.route("/api/monetisation/notifier", methods=["POST"])
+def api_mon_notifier_update():
+    err = _require_auth()
+    if err:
+        return err
+    n = components.get("notifier")
+    if not n:
+        return jsonify({"error": "notifier not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    if "webhook_url" in data:
+        n.set_webhook(data.get("webhook_url") or None)
+    if "mask" in data:
+        mask = data["mask"]
+        if isinstance(mask, str):
+            mask = [m.strip() for m in mask.split(",")]
+        n.set_mask(mask or [])
+    return jsonify(n.status())
+
+@app.route("/api/monetisation/notifier/test", methods=["POST"])
+def api_mon_notifier_test():
+    err = _require_auth()
+    if err:
+        return err
+    n = components.get("notifier")
+    if not n:
+        return jsonify({"error": "notifier not loaded"}), 503
+    ok = n.send("trade", "DMAI Slack test",
+                "This is a test message from the monetisation hub.")
+    return jsonify({"sent": ok, "status": n.status()})
 
 @app.route("/monetisation", methods=["GET"])
 def ui_monetisation():
