@@ -57,14 +57,30 @@ class AlexRivieraAvatar:
         project_root = Path(__file__).resolve().parents[2]
         return project_root / "data" / "avatars" / "canonical" / "alex_riviera_master_profile.json"
 
+    @staticmethod
+    def _seed_profile_path() -> Path:
+        """Bundled seed copy that ships with the package."""
+        return Path(__file__).resolve().parent / "seed" / "alex_riviera_master_profile.json"
+
     def _load_canonical_profile(self) -> Dict:
-        """Load the canonical master profile"""
+        """Load the canonical master profile, seeding from package on first run."""
         profile_file = self._resolve_profile_path()
+        if not profile_file.exists():
+            seed = self._seed_profile_path()
+            if seed.exists():
+                profile_file.parent.mkdir(parents=True, exist_ok=True)
+                profile_file.write_text(seed.read_text())
         if profile_file.exists():
             with open(profile_file) as f:
                 return json.load(f)
-        else:
-            raise FileNotFoundError(f"Canonical profile not found at {profile_file}.")
+        # Last-resort: load directly from the seed without writing
+        seed = self._seed_profile_path()
+        if seed.exists():
+            with open(seed) as f:
+                return json.load(f)
+        raise FileNotFoundError(
+            f"Canonical profile not found at {profile_file} and no seed at {seed}."
+        )
 
     def _save_canonical_profile(self):
         """Save any updates to the canonical profile"""
