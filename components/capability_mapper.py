@@ -103,7 +103,14 @@ class CapabilityMapper:
             if component_path and Path(component_path).exists():
                 try:
                     source = Path(component_path).read_text(errors="ignore")
-                    if len(source) > 200 and "NotImplementedError" not in source:
+                    # True stub patterns. Bare 'NotImplementedError' string
+                    # appears in prompts and scanner heuristics, so look for
+                    # the actual raise statement instead.
+                    is_stub = (
+                        "raise NotImplementedError" in source
+                        or "raise NotImplemented(" in source
+                    )
+                    if len(source) > 200 and not is_stub:
                         caps[name]["implemented"] = True
                 except Exception:
                     pass

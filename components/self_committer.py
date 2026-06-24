@@ -14,9 +14,23 @@ class SelfCommitter:
         self.log_path = os.path.join(self.data_path, "self_generation_log.jsonl")
 
     def commit(self, capability_name: str, code: str, target_file: str) -> bool:
-        # Safety: never overwrite files >5KB (likely working implementations)
+        # Safety: large existing files require human approval via SelfEditQueue.
         if os.path.exists(target_file) and os.path.getsize(target_file) > 5000:
-            logger.warning(f"SelfCommitter: refusing to overwrite large file {target_file}")
+            logger.warning(
+                f"SelfCommitter: {target_file} >5KB, routing to approval queue"
+            )
+            try:
+                from components.self_edit_queue import SelfEditQueue
+                # Best-effort: pick up shared queue from app components if present.
+                queue = SelfEditQueue(data_path=self.data_path)
+                queue.enqueue(
+                    capability=capability_name,
+                    target_file=target_file,
+                    code=code,
+                    rationale="Self-evolution proposed overwrite >5KB",
+                )
+            except Exception as e:
+                logger.warning(f"SelfCommitter: queue enqueue failed: {e}")
             return False
 
         # Write code

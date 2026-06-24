@@ -324,6 +324,25 @@
       </div>
     </div>
 
+    <!-- Self-evolution + pending self-edits -->
+    <section style="margin-top:24px;">
+      <div class="card">
+        <span>Self-evolution · 24/7 autonomous improvement</span>
+        <div id="evo-summary" style="margin-top:10px; font-size:13px; line-height:1.6;">
+          loading…
+        </div>
+        <div style="margin-top:12px;">
+          <a href="/api/self-evolution/gaps" target="_blank" class="btn">View gap report</a>
+          <a href="/api/self-evolution/recent-commits" target="_blank" class="btn">Recent self-commits</a>
+          <a href="/api/self-evolution/history" target="_blank" class="btn">Approval history</a>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <span>Pending self-edits · awaiting your approval</span>
+        <div id="self-edits" style="margin-top:10px; font-size:13px;">loading…</div>
+      </div>
+    </section>
+
   </div>
 
   <div class="toast" id="toast"></div>
@@ -760,10 +779,72 @@ refresh();
 loadTrader();
 loadPending();
 loadNotifier();
+
+async function loadEvoSummary() {
+  try {
+    const s = await fetch('/api/self-evolution/status').then(r => r.json());
+    const gaps = s.gap_summary || {};
+    const impl = s.capabilities_implemented || 0;
+    const tot = s.capabilities_total || 0;
+    const pct = tot ? Math.round(impl * 100 / tot) : 0;
+    document.getElementById('evo-summary').innerHTML =
+      '<b>' + impl + '/' + tot + ' capabilities (' + pct + '%)</b><br>' +
+      'Total gaps: ' + (s.total_gaps || 0) +
+      ' &middot; broken routes: ' + (gaps.broken_routes || 0) +
+      ' &middot; stub components: ' + (gaps.stub_components || 0) +
+      ' &middot; capability gaps: ' + (gaps.capability_gaps || 0) +
+      ' &middot; dead threads: ' + (gaps.dead_threads || 0) +
+      '<br>Last scan: ' + (s.last_scan || '—');
+  } catch (e) {
+    document.getElementById('evo-summary').textContent = 'unavailable';
+  }
+}
+
+async function loadSelfEdits() {
+  try {
+    const r = await fetch('/api/self-evolution/pending').then(r => r.json());
+    const pending = r.pending || [];
+    if (!pending.length) {
+      document.getElementById('self-edits').innerHTML =
+        '<span style="color:var(--green)">No pending self-edits. DMAI is operating within auto-commit limits.</span>';
+      return;
+    }
+    let html = '';
+    for (const e of pending) {
+      html += '<div style="border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:8px;">';
+      html += '<b>' + (e.capability || '?') + '</b> &middot; ' + e.target_file + '<br>';
+      html += 'Bytes: ' + e.bytes_existing + ' → ' + e.bytes_proposed + ' &middot; ' + e.ts + '<br>';
+      if (e.rationale) html += '<i>' + e.rationale + '</i><br>';
+      html += '<a href="/api/self-evolution/diff/' + e.id + '" target="_blank" class="btn">View diff</a> ';
+      html += '<button class="btn ok" onclick="approveEdit(\'' + e.id + '\')">Approve</button> ';
+      html += '<button class="btn no" onclick="rejectEdit(\'' + e.id + '\')">Reject</button>';
+      html += '</div>';
+    }
+    document.getElementById('self-edits').innerHTML = html;
+  } catch (e) {
+    document.getElementById('self-edits').textContent = 'unavailable';
+  }
+}
+
+async function approveEdit(id) {
+  const res = await api('/api/self-evolution/approve/' + id, { method: 'POST' });
+  toast(res.ok ? 'Approved → ' + (res.commit_sha || '') : 'Approve failed: ' + (res.error || '?'));
+  loadSelfEdits();
+}
+async function rejectEdit(id) {
+  const res = await api('/api/self-evolution/reject/' + id, { method: 'POST' });
+  toast(res.ok ? 'Rejected' : 'Reject failed');
+  loadSelfEdits();
+}
+
+loadEvoSummary();
+loadSelfEdits();
 setInterval(refresh, 30000);
 setInterval(loadTrader, 30000);
 setInterval(loadPending, 30000);
 setInterval(loadNotifier, 60000);
+setInterval(loadEvoSummary, 60000);
+setInterval(loadSelfEdits, 30000);
 </script>
 </body>
 </html>

@@ -767,6 +767,25 @@ try:
 except Exception as e:
     logger.warning("SlackNotifier failed: %s", e)
 
+# ── Conversation memory (multi-turn SQLite store) ────────────────────────────
+try:
+    from components.conversation_memory import ConversationMemory as _ConvMem
+    components["conversation_memory"] = _ConvMem(data_path=DATA_PATH)
+    logger.info("ConversationMemory initialised")
+except Exception as e:
+    logger.warning("ConversationMemory failed: %s", e)
+
+# ── Self-edit approval queue (large-file overwrites need approval) ──────────────
+try:
+    from components.self_edit_queue import SelfEditQueue as _SelfEditQueue
+    components["self_edit_queue"] = _SelfEditQueue(
+        data_path=DATA_PATH,
+        notifier=components.get("notifier"),
+    )
+    logger.info("SelfEditQueue initialised")
+except Exception as e:
+    logger.warning("SelfEditQueue failed: %s", e)
+
 # ── AutonomousTrader (5-min loop, market-hours gate, paper-first) ──────────────
 try:
     if components.get("trader"):
@@ -2243,6 +2262,30 @@ def api_mon_tip_generate():
         return jsonify({"error": f"missing field: {e}"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/monetisation/tips/digest", methods=["POST", "GET"])
+def api_mon_tips_digest():
+    """Daily tipster digest — returns recent tips + stats. Cron-friendly."""
+    if request.method == "POST" and not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    try:
+        stats = ba.stats()
+        recent = ba.list_tips(limit=10)
+        pending = ba.list_tips(status="pending", limit=10)
+        return jsonify({
+            "title": "Daily betting tipster digest",
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "stats": stats,
+            "recent_tips": recent,
+            "pending_tips": pending,
+            "pending_count": len(pending),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/monetisation/tips/<tid>/placed", methods=["POST"])
 def api_mon_tip_placed(tid):
@@ -5315,6 +5358,150 @@ def api_capability_map():
         return jsonify({"status": "not_yet_mapped"})
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+# ── Self-evolution visibility + approval queue routes ──────────────────────
+@app.route("/api/self-evolution/gaps")
+def api_self_evolution_gaps():
+    """Read the most recent gap_report.json produced by SelfScanner."""
+    try:
+        import os as _os, json as _json
+        p = _os.path.join(DATA_PATH.rstrip("/"), "gap_report.json")
+        if _os.path.exists(p):
+            with open(p) as f:
+                return jsonify(_json.load(f))
+        return jsonify({"status": "no_scan_yet"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/recent-commits")
+def api_self_evolution_recent_commits():
+    """Return the last 30 git commits authored by the self-evolution loop."""
+    import subprocess as _sub
+    try:
+        r = _sub.run(
+            ["git", "log", "-30", "--pretty=format:%h|%an|%ad|%s", "--date=iso"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if r.returncode != 0:
+            return jsonify({"error": r.stderr.strip()[:200]}), 500
+        commits = []
+        for line in r.stdout.strip().splitlines():
+            parts = line.split("|", 3)
+            if len(parts) == 4:
+                commits.append({
+                    "sha": parts[0],
+                    "author": parts[1],
+                    "ts": parts[2],
+                    "subject": parts[3],
+                })
+        return jsonify({"count": len(commits), "commits": commits})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/pending")
+def api_self_evolution_pending():
+    """List pending self-edits awaiting approval (large-file overwrites)."""
+    try:
+        q = components.get("self_edit_queue")
+        if q is None:
+            return jsonify({"pending": [], "queue": "unavailable"})
+        return jsonify({"pending": q.pending()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/history")
+def api_self_evolution_history():
+    """List approved + rejected self-edits."""
+    try:
+        q = components.get("self_edit_queue")
+        if q is None:
+            return jsonify({"history": [], "queue": "unavailable"})
+        return jsonify({"history": q.history()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/diff/<edit_id>")
+def api_self_evolution_diff(edit_id):
+    """Return the proposed code for a pending self-edit (read-only)."""
+    try:
+        q = components.get("self_edit_queue")
+        if q is None:
+            return jsonify({"error": "queue unavailable"}), 503
+        code = q.get_proposed_code(edit_id)
+        if code is None:
+            return jsonify({"error": "not found"}), 404
+        return Response(code, mimetype="text/plain")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/approve/<edit_id>", methods=["POST"])
+def api_self_evolution_approve(edit_id):
+    auth = _require_auth()
+    if auth is not None:
+        return auth
+    try:
+        q = components.get("self_edit_queue")
+        if q is None:
+            return jsonify({"error": "queue unavailable"}), 503
+        result = q.approve(edit_id, decided_by="operator")
+        return jsonify(result), (200 if result.get("ok") else 400)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/reject/<edit_id>", methods=["POST"])
+def api_self_evolution_reject(edit_id):
+    auth = _require_auth()
+    if auth is not None:
+        return auth
+    try:
+        q = components.get("self_edit_queue")
+        if q is None:
+            return jsonify({"error": "queue unavailable"}), 503
+        return jsonify(q.reject(edit_id, decided_by="operator"))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Conversation memory routes ─────────────────────────────────────────────
+@app.route("/api/conversation/recent/<session_id>")
+def api_conversation_recent(session_id):
+    try:
+        cm = components.get("conversation_memory")
+        if cm is None:
+            return jsonify({"messages": []})
+        n = int(request.args.get("n", 20))
+        return jsonify({"messages": cm.recent(session_id, n=n)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/conversation/sessions")
+def api_conversation_sessions():
+    try:
+        cm = components.get("conversation_memory")
+        if cm is None:
+            return jsonify({"sessions": []})
+        return jsonify({"sessions": cm.sessions()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/conversation/stats")
+def api_conversation_stats():
+    try:
+        cm = components.get("conversation_memory")
+        if cm is None:
+            return jsonify({"available": False})
+        return jsonify({"available": True, **cm.stats()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 def _ensure_suggestions_table():
