@@ -329,12 +329,16 @@ except Exception as e:
     logger.warning("GenAITrainingProgram failed: %s", e)
 
 # ── Media Production Studio ────────────────────────────────────────────────────
+_STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
 try:
     from components.media.MediaProductionStudio import MediaProductionStudio
     components["media_studio"] = MediaProductionStudio()
     logger.info("MediaProductionStudio initialised")
 except Exception as e:
+    import traceback as _tb_media
+    _STARTUP_ERRORS["media_studio"] = {"error": str(e), "trace": _tb_media.format_exc()[-2000:]}
     logger.warning("MediaProductionStudio failed: %s", e)
+    logger.warning(_tb_media.format_exc())
 
 # ── Voice Integration ─────────────────────────────────────────────────────────
 try:
