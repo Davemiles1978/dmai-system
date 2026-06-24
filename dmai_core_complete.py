@@ -305,7 +305,7 @@ except Exception as e:
 try:
     from components.si_training.SyntheticIntelligenceTraining import SyntheticIntelligenceTraining
     components["si_training_legacy"] = SyntheticIntelligenceTraining(
-        data_path=DATA_PATH,
+        data_path=Path(DATA_PATH),
         si_core=components.get("si_core"),
     )
     logger.info("SyntheticIntelligenceTraining initialised")
@@ -315,7 +315,7 @@ except Exception as e:
 # ── LLM Training ──────────────────────────────────────────────────────────────
 try:
     from components.llm_training.LLMTrainingProgram import LLMTrainingProgram
-    components["llm_training"] = LLMTrainingProgram(data_path=DATA_PATH)
+    components["llm_training"] = LLMTrainingProgram(data_path=Path(DATA_PATH))
     logger.info("LLMTrainingProgram initialised")
 except Exception as e:
     logger.warning("LLMTrainingProgram failed: %s", e)
@@ -323,7 +323,7 @@ except Exception as e:
 # ── GenAI Training ────────────────────────────────────────────────────────────
 try:
     from components.genai_training.GenAITrainingProgram import GenAITrainingProgram
-    components["genai_training"] = GenAITrainingProgram(data_path=DATA_PATH)
+    components["genai_training"] = GenAITrainingProgram(data_path=Path(DATA_PATH))
     logger.info("GenAITrainingProgram initialised")
 except Exception as e:
     logger.warning("GenAITrainingProgram failed: %s", e)
