@@ -1018,7 +1018,11 @@ def _ai_chat(message):
         clean_message = message
 
     if SECURITY_AVAILABLE:
-        halt = check_halt_conditions({"message": clean_message})
+        try:
+            halt = check_halt_conditions(clean_message)
+        except Exception as _he:
+            logger.warning("check_halt_conditions error: %s", _he)
+            halt = None
         if halt:
             return f"Request halted: {halt}"
 
