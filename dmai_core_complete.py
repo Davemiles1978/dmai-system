@@ -896,8 +896,18 @@ def _ai_chat(message: str) -> str:
                     else:
                         raise
             elif hasattr(hub, "chat"):
-                _async_result = _run_async(hub.chat(clean_message))
-                response_text = _async_result[0] if isinstance(_async_result, tuple) else _async_result
+                # ExtendedAIIntegrationHub.chat() expects List[Dict], not a plain string
+                import inspect as _inspect
+                _chat_sig = _inspect.signature(hub.chat)
+                _first_param = list(_chat_sig.parameters.keys())[1] if len(_chat_sig.parameters) > 1 else "prompt"
+                if _first_param in ("messages", "msgs"):
+                    _chat_arg = [{"role": "user", "content": clean_message}]
+                else:
+                    _chat_arg = clean_message
+                _async_result = _run_async(hub.chat(_chat_arg))
+                if isinstance(_async_result, tuple):
+                    _async_result = _async_result[0] if _async_result else None
+                response_text = _async_result if isinstance(_async_result, str) else (str(_async_result) if _async_result else None)
         except Exception as e:
             logger.warning("AI chat error: %s", e)
 
