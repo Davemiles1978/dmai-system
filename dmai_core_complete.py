@@ -728,6 +728,43 @@ try:
 except Exception as e:
     logger.warning("AggressiveTrader failed: %s", e)
 
+# ── Monetisation hub (60/40 split, bills, betting tipster, wealth basket) ────────
+try:
+    from components.monetisation import (
+        RevenueAllocator as _RevenueAllocator,
+        BillPayer as _BillPayer,
+        BettingAdvisor as _BettingAdvisor,
+        WealthAllocator as _WealthAllocator,
+    )
+    _mon_db = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    components["revenue_allocator"] = _RevenueAllocator(db_path=_mon_db, currency="GBP")
+    components["bill_payer"] = _BillPayer(
+        allocator=components["revenue_allocator"], db_path=_mon_db, currency="GBP")
+    components["betting_advisor"] = _BettingAdvisor(
+        prediction_engine=components.get("prediction_engine"),
+        allocator=components["revenue_allocator"],
+        db_path=_mon_db, currency="GBP")
+    components["wealth_allocator"] = _WealthAllocator(
+        allocator=components["revenue_allocator"],
+        trader=components.get("trader"),
+        db_path=_mon_db, currency="GBP")
+    logger.info("Monetisation hub initialised (60/40 split active)")
+except Exception as e:
+    logger.warning("Monetisation hub failed: %s", e)
+
+# ── AutonomousTrader (5-min loop, market-hours gate, paper-first) ──────────────
+try:
+    if components.get("trader"):
+        from components.wealth.autonomous_trader import AutonomousTrader as _AutoTrader
+        _at_db = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        components["autonomous_trader"] = _AutoTrader(
+            db_path=_at_db,
+            trader=components["trader"],
+            prediction_engine=components.get("prediction_engine"))
+        logger.info("AutonomousTrader initialised (paper-first, 5-min loop)")
+except Exception as e:
+    logger.warning("AutonomousTrader failed: %s", e)
+
 # ── FinancialIntegrationUK (requires external credentials) ────────────────────
 try:
     from components.financial_integration_uk import FinancialIntegrationUK
@@ -2014,6 +2051,275 @@ def api_predict_timeline(pid):
     if not engine:
         return jsonify({"error": "prediction_engine not loaded"}), 503
     return jsonify({"id": pid, "timeline": engine.get_timeline(pid)})
+
+
+# ============================================================================
+# Monetisation hub: 60/40 split, bills, betting tipster, wealth deployment
+# ============================================================================
+
+@app.route("/api/monetisation/status", methods=["GET"])
+def api_mon_status():
+    """Public overview: wallet balances, bills summary, betting stats, wealth basket."""
+    ra = components.get("revenue_allocator")
+    bp = components.get("bill_payer")
+    ba = components.get("betting_advisor")
+    wa = components.get("wealth_allocator")
+    out = {"loaded": bool(ra)}
+    if ra:
+        out["revenue"] = ra.get_summary()
+    if bp:
+        out["bills"] = bp.summary()
+    if ba:
+        out["betting"] = ba.stats()
+    if wa:
+        out["wealth"] = wa.summary()
+    return jsonify(out)
+
+@app.route("/api/monetisation/income", methods=["POST"])
+def api_mon_credit_income():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ra = components.get("revenue_allocator")
+    if not ra:
+        return jsonify({"error": "revenue_allocator not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    src = (b.get("source") or "").strip()
+    try:
+        amt = float(b.get("amount", 0))
+    except Exception:
+        return jsonify({"error": "amount must be numeric"}), 400
+    if not src or amt <= 0:
+        return jsonify({"error": "source and positive amount required"}), 400
+    return jsonify(ra.credit_income(src, amt, currency=b.get("currency", "GBP"),
+                                     metadata=b.get("metadata")))
+
+@app.route("/api/monetisation/ledger", methods=["GET"])
+def api_mon_ledger():
+    ra = components.get("revenue_allocator")
+    if not ra:
+        return jsonify({"error": "revenue_allocator not loaded"}), 503
+    wallet = request.args.get("wallet")
+    try:
+        limit = int(request.args.get("limit", 100))
+    except Exception:
+        limit = 100
+    return jsonify({"ledger": ra.get_ledger(wallet=wallet, limit=limit),
+                    "income_events": ra.get_income_events(limit=min(limit, 50)),
+                    "wallets": ra.get_wallets()})
+
+@app.route("/api/monetisation/bills", methods=["GET"])
+def api_mon_bills():
+    bp = components.get("bill_payer")
+    if not bp:
+        return jsonify({"error": "bill_payer not loaded"}), 503
+    return jsonify({"bills": bp.list_bills(active_only=False), "summary": bp.summary(),
+                    "recent_payments": bp.payment_history(limit=20)})
+
+@app.route("/api/monetisation/bills/pay-due", methods=["POST"])
+def api_mon_pay_due():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    bp = components.get("bill_payer")
+    if not bp:
+        return jsonify({"error": "bill_payer not loaded"}), 503
+    return jsonify(bp.pay_due())
+
+@app.route("/api/monetisation/bills/add", methods=["POST"])
+def api_mon_bill_add():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    bp = components.get("bill_payer")
+    if not bp:
+        return jsonify({"error": "bill_payer not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    try:
+        return jsonify(bp.add_bill(
+            name=b["name"], category=b["category"], amount=float(b["amount"]),
+            cadence=b.get("cadence", "monthly"), auto_pay=bool(b.get("auto_pay", True))))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/monetisation/bills/<bid>", methods=["PATCH"])
+def api_mon_bill_update(bid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    bp = components.get("bill_payer")
+    if not bp:
+        return jsonify({"error": "bill_payer not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    return jsonify({"updated": bp.update_bill(bid, **b)})
+
+@app.route("/api/monetisation/tips", methods=["GET"])
+def api_mon_tips():
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    status = request.args.get("status")
+    try:
+        limit = int(request.args.get("limit", 50))
+    except Exception:
+        limit = 50
+    return jsonify({"tips": ba.list_tips(status=status, limit=limit), "stats": ba.stats()})
+
+@app.route("/api/monetisation/tips/analyse", methods=["POST"])
+def api_mon_tip_analyse():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    try:
+        return jsonify(ba.analyse_candidate(
+            event_name=b["event_name"], selection=b["selection"],
+            decimal_odds=float(b["decimal_odds"]),
+            market=b.get("market", "match_winner"),
+            bookmaker=b.get("bookmaker", ""),
+            seed_data=b.get("seed_data", "")))
+    except KeyError as e:
+        return jsonify({"error": f"missing field: {e}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/monetisation/tips/generate", methods=["POST"])
+def api_mon_tip_generate():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    try:
+        return jsonify(ba.generate_tip(
+            event_name=b["event_name"], selection=b["selection"],
+            decimal_odds=float(b["decimal_odds"]),
+            market=b.get("market", "match_winner"),
+            bookmaker=b.get("bookmaker", ""),
+            seed_data=b.get("seed_data", "")))
+    except KeyError as e:
+        return jsonify({"error": f"missing field: {e}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/monetisation/tips/<tid>/placed", methods=["POST"])
+def api_mon_tip_placed(tid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    stake = b.get("actual_stake")
+    return jsonify(ba.mark_placed(tid, actual_stake=float(stake) if stake else None,
+                                   notes=b.get("notes", "")))
+
+@app.route("/api/monetisation/tips/<tid>/skipped", methods=["POST"])
+def api_mon_tip_skipped(tid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    return jsonify(ba.mark_skipped(tid, notes=b.get("notes", "")))
+
+@app.route("/api/monetisation/tips/<tid>/settle", methods=["POST"])
+def api_mon_tip_settle(tid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    try:
+        return jsonify(ba.settle(tid, outcome=b["outcome"],
+                                  actual_return=float(b.get("actual_return", 0)),
+                                  notes=b.get("notes", "")))
+    except KeyError as e:
+        return jsonify({"error": f"missing field: {e}"}), 400
+
+@app.route("/api/monetisation/wealth/deploy", methods=["POST"])
+def api_mon_wealth_deploy():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    wa = components.get("wealth_allocator")
+    if not wa:
+        return jsonify({"error": "wealth_allocator not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    amt = b.get("amount")
+    return jsonify(wa.deploy(force=bool(b.get("force", False)),
+                              amount=float(amt) if amt is not None else None))
+
+@app.route("/api/monetisation/wealth/basket", methods=["GET", "POST"])
+def api_mon_wealth_basket():
+    wa = components.get("wealth_allocator")
+    if not wa:
+        return jsonify({"error": "wealth_allocator not loaded"}), 503
+    if request.method == "GET":
+        return jsonify({"basket": wa.get_basket(), "summary": wa.summary()})
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    b = request.get_json(silent=True) or {}
+    return jsonify(wa.set_basket(b.get("name", "custom"), b.get("weights", {})))
+
+@app.route("/api/monetisation/wealth/history", methods=["GET"])
+def api_mon_wealth_history():
+    wa = components.get("wealth_allocator")
+    if not wa:
+        return jsonify({"error": "wealth_allocator not loaded"}), 503
+    return jsonify({"deployments": wa.list_deployments(limit=50)})
+
+# ── Autonomous trader (5-min loop) ───────────────────────────────────
+@app.route("/api/monetisation/trader/status", methods=["GET"])
+def api_mon_trader_status():
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify(at.status())
+
+@app.route("/api/monetisation/trader/enable", methods=["POST"])
+def api_mon_trader_enable():
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    enabled = bool(data.get("enabled", True))
+    return jsonify(at.set_enabled(enabled, reason=data.get("reason", "manual_api")))
+
+@app.route("/api/monetisation/trader/tier", methods=["POST"])
+def api_mon_trader_tier():
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    tier = (data.get("tier") or "").strip().lower()
+    if not tier:
+        return jsonify({"error": "tier required (conservative|moderate|aggressive)"}), 400
+    try:
+        return jsonify(at.set_tier(tier, reason=data.get("reason", "manual_override")))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/monetisation/trader/tick", methods=["POST"])
+def api_mon_trader_tick():
+    err = _require_auth()
+    if err:
+        return err
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify(at.tick())
+
+@app.route("/monetisation", methods=["GET"])
+def ui_monetisation():
+    """Monetisation operator console."""
+    return send_from_directory("static", "monetisation.html")
 
 @app.route("/api/training/full", methods=["POST"])
 def api_training_full():
