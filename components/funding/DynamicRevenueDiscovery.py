@@ -129,10 +129,17 @@ class DynamicRevenueDiscovery:
             existing_names = {opp.get('name') for opp in self.discovered_opportunities}
             truly_new = [opp for opp in new_opportunities if opp.get('name') not in existing_names]
             
-            # 4. Add to discovered list
+            # 4. Add to discovered list, scoring each via Microfish PredictionEngine
             for opp in truly_new:
                 opp['discovered_at'] = datetime.now().isoformat()
                 opp['status'] = 'pending_review'
+                # Microfish prediction-driven scoring
+                try:
+                    score = self.score_opportunity(opp)
+                    if score:
+                        opp['prediction_score'] = score
+                except Exception as _e:
+                    logger.warning(f"score_opportunity failed for {opp.get('name')}: {_e}")
                 self.discovered_opportunities.append(opp)
                 
                 # Check if account setup is needed
@@ -152,6 +159,39 @@ class DynamicRevenueDiscovery:
             logger.error(f"Revenue discovery scan error: {e}")
             return {'success': False, 'error': str(e)}
     
+    def score_opportunity(self, opportunity: Dict) -> Optional[Dict]:
+        """Score a revenue opportunity via Microfish PredictionEngine.
+        Returns {verdict, probability_viable, confidence, rationale} or None."""
+        try:
+            from dmai_core_complete import components as _comp  # type: ignore
+            engine = _comp.get("prediction_engine")
+        except Exception:
+            engine = None
+        if not engine:
+            return None
+        name = opportunity.get('name', 'unknown')
+        seed = (
+            f"Opportunity name: {name}\n"
+            f"Type: {opportunity.get('type', 'unknown')}\n"
+            f"API available: {opportunity.get('api_available', False)}\n"
+            f"Estimated potential: {opportunity.get('potential', 'unknown')}\n"
+            f"URL: {opportunity.get('url', 'n/a')}\n"
+            f"Description: {opportunity.get('description', '')}\n"
+        )
+        verdict = engine.predict(
+            requirement=f"Is the revenue opportunity '{name}' likely to produce meaningful recurring revenue (>$100/month) for an autonomous AI agent within 90 days of integration?",
+            seed_data=seed,
+            max_rounds=2,
+            agent_count=3,
+        )
+        return {
+            "verdict": verdict.get("verdict"),
+            "probability_viable": verdict.get("probability"),
+            "confidence": verdict.get("confidence"),
+            "rationale": verdict.get("rationale", ""),
+            "prediction_id": verdict.get("id"),
+        }
+
     def _parse_opportunities(self, text: str) -> List[Dict]:
         """Parse AI response into structured opportunities"""
         opportunities = []

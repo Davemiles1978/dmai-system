@@ -398,6 +398,16 @@ try:
 except Exception as e:
     logger.warning("KPIEvaluator failed: %s", e)
 
+# ── Microfish PredictionEngine (vendored from 666ghj/MiroFish, Zep/OASIS/Neo4j stripped) ─
+try:
+    from components.microfish import PredictionEngine as _MicrofishPE
+    components["prediction_engine"] = _MicrofishPE(
+        db_path=os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db"),
+    )
+    logger.info("Microfish PredictionEngine initialised")
+except Exception as e:
+    logger.warning("Microfish PredictionEngine failed: %s", e)
+
 # ── MemoryRetrieval — patch into SICore so all components can recall() ─────────────
 try:
     from components.memory_retrieval import patch_si_core as _patch_memory, recall as _recall_fn
@@ -712,7 +722,8 @@ try:
     components["trader"] = AggressiveTrader(
         api_key=os.environ.get("TRADING_API_KEY", ""),
         secret_key=os.environ.get("TRADING_SECRET_KEY", ""),
-        paper=_paper)
+        paper=_paper,
+        prediction_engine=components.get("prediction_engine"))
     logger.info("AggressiveTrader initialised (paper=%s)", _paper)
 except Exception as e:
     logger.warning("AggressiveTrader failed: %s", e)
@@ -1956,6 +1967,53 @@ def api_orchestrator_status_fallback():
 _TRAINING_FULL_INFLIGHT = False
 _TRAINING_QUICK_INFLIGHT = False
 _TRAINING_INFLIGHT_LOCK = threading.Lock()
+
+# ============================================================================
+# Microfish Prediction Engine routes (vendored prediction pipeline)
+# ============================================================================
+@app.route("/api/predict", methods=["POST"])
+def api_predict():
+    """Run a Microfish prediction. Auth-gated.
+    Body: {requirement: str, seed_data?: str, max_rounds?: int, agent_count?: int}
+    Returns: verdict dict."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    engine = components.get("prediction_engine")
+    if not engine:
+        return jsonify({"error": "prediction_engine not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    requirement = (body.get("requirement") or "").strip()
+    if not requirement:
+        return jsonify({"error": "requirement required"}), 400
+    try:
+        verdict = engine.predict(
+            requirement=requirement,
+            seed_data=body.get("seed_data", ""),
+            max_rounds=int(body.get("max_rounds", 2)),
+            agent_count=int(body.get("agent_count", 4)),
+            max_entities=int(body.get("max_entities", 12)),
+        )
+        return jsonify(verdict)
+    except Exception as e:
+        logger.exception("api_predict failed")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/predict/<pid>", methods=["GET"])
+def api_predict_get(pid):
+    engine = components.get("prediction_engine")
+    if not engine:
+        return jsonify({"error": "prediction_engine not loaded"}), 503
+    rec = engine.get_prediction(pid)
+    if not rec:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(rec)
+
+@app.route("/api/predict/<pid>/timeline", methods=["GET"])
+def api_predict_timeline(pid):
+    engine = components.get("prediction_engine")
+    if not engine:
+        return jsonify({"error": "prediction_engine not loaded"}), 503
+    return jsonify({"id": pid, "timeline": engine.get_timeline(pid)})
 
 @app.route("/api/training/full", methods=["POST"])
 def api_training_full():

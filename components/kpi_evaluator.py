@@ -341,12 +341,61 @@ class KPIEvaluator:
       - On demand via POST /api/kpi/evaluate
     """
 
-    def __init__(self, si_core=None, ai_hub=None, data_path: str = "data/"):
+    def __init__(self, si_core=None, ai_hub=None, data_path: str = "data/", prediction_engine=None):
         self.si_core   = si_core
         self.ai_hub    = ai_hub
         self.data_path = Path(data_path)
+        self.prediction_engine = prediction_engine  # Microfish PredictionEngine (optional)
         self._thread: Optional[threading.Thread] = None
         self._stop     = threading.Event()
+
+    # ── Microfish-powered KPI trajectory forecast ────────────────────────────
+    def forecast_kpi_trajectory(self, kpi_name: str, current_value: float,
+                                horizon_days: int = 30,
+                                history: Optional[List[Dict]] = None) -> Dict:
+        """Forecast a KPI's trajectory using the Microfish PredictionEngine.
+        Returns {verdict, probability_increase, confidence, rationale, projected_value}.
+        Lazily resolves prediction_engine from components dict if not injected."""
+        engine = self.prediction_engine
+        if engine is None:
+            try:
+                from dmai_core_complete import components as _comp  # type: ignore
+                engine = _comp.get("prediction_engine")
+                self.prediction_engine = engine
+            except Exception:
+                engine = None
+        if engine is None:
+            return {"error": "prediction_engine unavailable", "projected_value": current_value}
+        hist_str = "\n".join(
+            f"- {h.get('ts','?')}: {h.get('value','?')}" for h in (history or [])[-20:]
+        ) or "(no history provided)"
+        seed = (
+            f"KPI: {kpi_name}\n"
+            f"Current value: {current_value}\n"
+            f"Horizon: {horizon_days} days\n"
+            f"Recent history:\n{hist_str}\n"
+        )
+        verdict = engine.predict(
+            requirement=f"Will the KPI '{kpi_name}' increase from {current_value} over the next {horizon_days} days?",
+            seed_data=seed,
+            max_rounds=2,
+            agent_count=3,
+        )
+        p_up = float(verdict.get("probability", 0.5))
+        # Simple projection: probability-weighted swing within +/-20% of current
+        swing = 0.20 * current_value
+        projected = current_value + swing * (p_up - 0.5) * 2.0
+        return {
+            "kpi": kpi_name,
+            "current_value": current_value,
+            "horizon_days": horizon_days,
+            "verdict": verdict.get("verdict"),
+            "probability_increase": p_up,
+            "confidence": verdict.get("confidence"),
+            "projected_value": round(projected, 4),
+            "rationale": verdict.get("rationale", ""),
+            "prediction_id": verdict.get("id"),
+        }
 
     # ── Provider call ────────────────────────────────────────────────────────
 
