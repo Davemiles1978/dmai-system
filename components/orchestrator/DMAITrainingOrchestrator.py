@@ -442,21 +442,11 @@ def register_orchestrator_routes(app, orch: DMAITrainingOrchestrator):
     def training_status():
         return jsonify(orch.get_status())
 
-    @app.route("/api/training/full", methods=["POST"])
-    def training_full():
-        loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(orch.run_full_training())
-        loop.close()
-        return jsonify(result)
-
-    @app.route("/api/training/quick", methods=["POST"])
-    def training_quick():
-        data  = request.get_json(silent=True) or {}
-        focus = data.get("focus", "Core")
-        loop  = asyncio.new_event_loop()
-        result = loop.run_until_complete(orch.run_quick_training(focus))
-        loop.close()
-        return jsonify(result)
+    # NOTE: /api/training/full and /api/training/quick are registered in
+    # dmai_core_complete.py (async/background-dispatched with auth + in-flight
+    # guards). The synchronous handlers previously here were removed because
+    # they blocked the Flask worker thread and caused 60s+ Render timeouts
+    # under load.
 
     @app.route("/api/training/update", methods=["POST"])
     def training_update():
