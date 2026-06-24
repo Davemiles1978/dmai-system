@@ -70,6 +70,25 @@ class SelfScanner:
             logger.warning(f"Route audit error: {e}")
         return broken
 
+    @staticmethod
+    def _has_real_not_implemented(source: str) -> bool:
+        """True only if module body contains an actual `raise NotImplementedError(...)`
+        statement — not a string literal, comment, or descriptor reference."""
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            return False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Raise) and node.exc is not None:
+                target = node.exc
+                if isinstance(target, ast.Call):
+                    target = target.func
+                if isinstance(target, ast.Name) and target.id == "NotImplementedError":
+                    return True
+                if isinstance(target, ast.Attribute) and target.attr == "NotImplementedError":
+                    return True
+        return False
+
     def _audit_components(self) -> list:
         stubs = []
         components_dir = Path("components")
@@ -78,7 +97,7 @@ class SelfScanner:
         for py_file in components_dir.glob("*.py"):
             try:
                 source = py_file.read_text(errors="ignore")
-                if "NotImplementedError" in source or "raise NotImplemented" in source:
+                if self._has_real_not_implemented(source):
                     stubs.append(str(py_file))
                     continue
                 ast.parse(source)
@@ -88,9 +107,30 @@ class SelfScanner:
                 stubs.append(f"{py_file} ({e})")
         return stubs
 
+    # Match each expected thread to ANY running thread by substring keyword.
+    # Threads in DMAI are named with dmai- prefix, suffix variants, or
+    # different casing (KpiSeedLoop vs kpi_seed). Strict equality undercounts.
+    EXPECTED_THREAD_KEYWORDS = {
+        "autonomous_researcher": ["research", "autonomous-researcher", "autonomous_researcher"],
+        "background_updater":    ["updater", "background_updater", "background-updater"],
+        "graph_evolution":       ["graph", "evolution"],
+        "kaizen_repair":         ["kaizen", "repair"],
+        "kpi_seed":              ["kpi"],
+        "parallel_learner":      ["parallel", "web-learn", "web_learn", "web_learner", "web-learner", "parallel_learner"],
+        "stage_learner":         ["stage", "stagelearner"],
+        "vocab_ingest":          ["vocab", "ingest"],
+        "self_evolution":        ["self_evo", "self-evo", "self_evolution"],
+        "alex_riviera_content":  ["alex_riviera", "alex-riviera"],
+    }
+
     def _audit_threads(self) -> list:
-        running = {t.name for t in threading.enumerate()}
-        return [name for name in EXPECTED_THREADS if name not in running]
+        running = [t.name.lower() for t in threading.enumerate()]
+        dead = []
+        for name in EXPECTED_THREADS:
+            kws = self.EXPECTED_THREAD_KEYWORDS.get(name, [name])
+            if not any(any(kw.lower() in n for kw in kws) for n in running):
+                dead.append(name)
+        return dead
 
     def _audit_kpis(self) -> list:
         underperforming = []

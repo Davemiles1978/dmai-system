@@ -5101,6 +5101,24 @@ _STAGE_THRESHOLDS = {
 _DB_PATH_STAGE = "data/dmai_knowledge.db"
 
 
+def _mastery_to_float(v):
+    """Coerce mastery values like '100%', '0.85', 0.5 to float in [0,1]."""
+    if v is None:
+        return 0.0
+    if isinstance(v, (int, float)):
+        x = float(v)
+        return x / 100.0 if x > 1.0 else x
+    try:
+        s = str(v).strip().rstrip('%').strip()
+        if not s:
+            return 0.0
+        x = float(s)
+        return x / 100.0 if x > 1.0 else x
+    except Exception:
+        return 0.0
+
+
+
 def _ensure_syllabus_content_table():
     """Create syllabus_content table if missing, then seed it from SYLLABUS_TOPICS.
     Survives Render cold starts: SQLite file persists on the mounted disk."""
@@ -5147,7 +5165,7 @@ def _ensure_syllabus_content_table():
                             info.get("stage", "Baby"),
                             info.get("category", "general"),
                             info.get("content", ""),
-                            float(info.get("mastery", 0.0) or 0.0),
+                            _mastery_to_float(info.get("mastery", 0.0)),
                             "general",
                             now,
                         ),
@@ -5162,6 +5180,75 @@ def _ensure_syllabus_content_table():
         conn.close()
     except Exception as _e:
         logger.warning("_ensure_syllabus_content_table: %s", _e)
+
+
+
+
+def _ensure_sources_table():
+    """Create + seed `sources` table with canonical knowledge sources for autonomous_researcher."""
+    import sqlite3 as _ss3
+    try:
+        db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        conn = _ss3.connect(db_path)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS sources ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "url TEXT UNIQUE NOT NULL, "
+            "kind TEXT NOT NULL, "
+            "title TEXT, "
+            "category TEXT, "
+            "trust REAL DEFAULT 0.8, "
+            "added_at TEXT NOT NULL DEFAULT (datetime('now')), "
+            "last_seen TEXT)"
+        )
+        count = conn.execute("SELECT COUNT(*) FROM sources").fetchone()[0]
+        if count == 0:
+            seed = [
+                # quant + trading
+                ("https://arxiv.org/list/q-fin/recent", "feed", "arXiv q-fin recent", "quant", 0.9),
+                ("https://www.federalreserve.gov/feeds/press_all.xml", "rss", "Federal Reserve press", "macro", 0.95),
+                ("https://www.bankofengland.co.uk/rss/news", "rss", "Bank of England news", "macro", 0.95),
+                ("https://www.sec.gov/rss/news/press.xml", "rss", "SEC press releases", "regulatory", 0.95),
+                # AI / ML
+                ("https://arxiv.org/list/cs.LG/recent", "feed", "arXiv cs.LG recent", "ai_ml", 0.9),
+                ("https://arxiv.org/list/cs.AI/recent", "feed", "arXiv cs.AI recent", "ai_ml", 0.9),
+                ("https://openai.com/blog/rss.xml", "rss", "OpenAI blog", "ai_ml", 0.85),
+                ("https://www.anthropic.com/news/rss.xml", "rss", "Anthropic news", "ai_ml", 0.85),
+                ("https://deepmind.google/blog/rss.xml", "rss", "DeepMind blog", "ai_ml", 0.85),
+                # software engineering
+                ("https://github.blog/feed/", "rss", "GitHub blog", "software", 0.8),
+                ("https://stackoverflow.blog/feed/", "rss", "Stack Overflow blog", "software", 0.8),
+                # UK property + personal finance
+                ("https://www.gov.uk/government/organisations/hm-revenue-customs.atom", "rss", "HMRC updates", "personal_finance_uk", 0.95),
+                ("https://www.bankofengland.co.uk/statistics/research-feed", "rss", "BoE research", "personal_finance_uk", 0.95),
+                ("https://www.land-reg.gov.uk/.well-known/rss", "rss", "HM Land Registry", "uk_real_estate", 0.95),
+                # sports / betting
+                ("https://www.racingpost.com/rss/news", "rss", "Racing Post news", "sports_betting", 0.8),
+                # business / monetisation
+                ("https://stripe.com/blog/feed.rss", "rss", "Stripe blog", "monetisation", 0.85),
+                ("https://www.indiehackers.com/feed.xml", "rss", "Indie Hackers", "monetisation", 0.8),
+                # research aggregators
+                ("https://news.ycombinator.com/rss", "rss", "Hacker News", "tech_news", 0.7),
+                ("https://huggingface.co/blog/feed.xml", "rss", "Hugging Face blog", "ai_ml", 0.85),
+                ("https://www.kaggle.com/blog.atom", "rss", "Kaggle blog", "ai_ml", 0.8),
+            ]
+            for url, kind, title, category, trust in seed:
+                try:
+                    conn.execute(
+                        "INSERT OR IGNORE INTO sources(url, kind, title, category, trust) "
+                        "VALUES (?, ?, ?, ?, ?)",
+                        (url, kind, title, category, trust),
+                    )
+                except Exception as _ie:
+                    logger.debug("sources seed insert skipped %s: %s", url, _ie)
+            conn.commit()
+            logger.info("sources table seeded with %d canonical entries", len(seed))
+        else:
+            logger.info("sources table ready (existing rows=%d)", count)
+        conn.close()
+    except Exception as _e:
+        logger.warning("_ensure_sources_table: %s", _e)
 
 
 def _ensure_system_state_table():
@@ -5408,6 +5495,56 @@ def api_capability_map():
 
 
 # ── Self-evolution visibility + approval queue routes ──────────────────────
+@app.route("/api/self-evolution/health", methods=["GET"])
+def api_self_evolution_health():
+    """True health snapshot: thread substring match, table row counts, capability % implemented."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import threading as _th, sqlite3 as _sq3
+    tnames = [t.name.lower() for t in _th.enumerate()]
+    expected_kw = {
+        "autonomous_researcher": ["research", "autonomous"],
+        "background_updater":    ["updater", "update"],
+        "graph_evolution":       ["graph", "evolution"],
+        "kaizen_repair":         ["kaizen", "repair"],
+        "kpi_seed":              ["kpi", "seed"],
+        "parallel_learner":      ["parallel", "web-learn", "web_learn", "learner"],
+        "stage_learner":         ["stage", "learner"],
+        "vocab_ingest":          ["vocab", "ingest"],
+        "self_evolution":        ["self_evo", "self-evo", "self_evolution"],
+        "alex_riviera_content":  ["alex_riviera", "alex-riviera"],
+    }
+    threads_alive = {k: any(any(kw in n for kw in kws) for n in tnames) for k, kws in expected_kw.items()}
+    threads_dead = [k for k, v in threads_alive.items() if not v]
+
+    db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    table_rows = {}
+    try:
+        conn = _sq3.connect(db_path, timeout=5)
+        for t in ["syllabus_content", "sources", "capabilities", "insights", "suggestions",
+                  "work_review_queue", "skill_assessments", "at_ticks", "at_trades",
+                  "expert_brain_entries", "personas", "conversation_memory"]:
+            try:
+                n = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                table_rows[t] = n
+            except Exception:
+                table_rows[t] = None
+        conn.close()
+    except Exception as _e:
+        table_rows["__error__"] = str(_e)
+
+    return jsonify({
+        "threads": threads_alive,
+        "threads_alive_count": sum(1 for v in threads_alive.values() if v),
+        "threads_total": len(threads_alive),
+        "threads_dead": threads_dead,
+        "table_rows": table_rows,
+        "components_loaded": list(components.keys()),
+        "components_count": len(components),
+        "ts": datetime.now(timezone.utc).isoformat(),
+    })
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json produced by SelfScanner."""
@@ -6285,6 +6422,7 @@ def _start_background_services():
     # ── Ensure critical tables exist before any background loop reads them ───────
     try:
         _ensure_syllabus_content_table()
+        _ensure_sources_table()
     except Exception as _e:
         logger.warning("syllabus_content init failed: %s", _e)
     _start_kpi_seed_loop()  # DB-derived KPI seeder — single source of truth
