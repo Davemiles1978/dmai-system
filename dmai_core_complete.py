@@ -862,6 +862,23 @@ def _require_auth():
     master = os.environ.get("MASTER_PASSWORD", "")
     return pwd == master
 
+def _safe_sanitise(text):
+    """Wrapper that normalises sanitise_input result to a plain string.
+    Some security modules return (cleaned, detected_flag); others return the string.
+    """
+    if not SECURITY_AVAILABLE:
+        return text
+    try:
+        out = sanitise_input(text)
+    except Exception:
+        return text
+    if isinstance(out, tuple):
+        return out[0] if out and isinstance(out[0], str) else text
+    if isinstance(out, str):
+        return out
+    return text
+
+
 def _direct_provider_chat(prompt):
     """Call free-tier LLM providers directly with os.getenv at call time.
     Returns (response_text, provider_used, debug_log).
@@ -993,7 +1010,7 @@ def _direct_provider_chat(prompt):
 def _ai_chat(message):
     """DMAI chat entry point: direct providers first, hub fallback second."""
     if SECURITY_AVAILABLE:
-        clean_message = sanitise_input(message)
+        clean_message = _safe_sanitise(message)
         if check_injection(clean_message):
             logger.warning("Injection attempt detected in chat: %s", message[:80])
             return "Request blocked: potential injection detected."
