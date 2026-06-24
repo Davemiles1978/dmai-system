@@ -146,6 +146,8 @@ DATA_PATH = os.environ.get("DATA_PATH", "data/")
 Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
 
 # ── Startup time ─────────────────────────────────────────────────────────────
+DMAI_VERSION = "7.1.0"  # canonical version — single source of truth
+
 STARTUP_TIME = datetime.now(timezone.utc)
 
 # ── Component registry ────────────────────────────────────────────────────────
@@ -1147,7 +1149,7 @@ def _auto_start_services():
 def health():
     return jsonify({
         "status": "healthy",
-        "version": "7.1.0",
+        "version": DMAI_VERSION,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "uptime": _uptime(),
         "components": {k: "active" for k in components},
@@ -1231,7 +1233,7 @@ def api_status():
     hub_status = ext_hub.get_status() if ext_hub else {}
     return jsonify({
         "status": "running",
-        "version": "7.1.0",
+        "version": DMAI_VERSION,
         "uptime": _uptime(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "deployment": "render" if IS_RENDER else "local",
@@ -1836,7 +1838,7 @@ def api_dashboard():
     orch = components.get("training_orchestrator")
     ext = components.get("extended_hub")
     return jsonify({
-        "version": "7.1.0", "uptime": _uptime(),
+        "version": DMAI_VERSION, "uptime": _uptime(),
         "components": {k: "active" for k in components},
         "si_kpis": si.current_kpis if si else {},
         "training": orch.get_status() if orch else {},
@@ -1949,49 +1951,80 @@ def api_orchestrator_status_fallback():
     })
 
 
+# In-flight guards so repeat clicks don't spawn parallel training threads
+# (each run is heavy; on a 1-worker/2-thread Render service this can OOM).
+_TRAINING_FULL_INFLIGHT = False
+_TRAINING_QUICK_INFLIGHT = False
+_TRAINING_INFLIGHT_LOCK = threading.Lock()
+
 @app.route("/api/training/full", methods=["POST"])
 def api_training_full():
     """Trigger an extra full training cycle on demand. Dispatches to a
-    background thread and returns immediately so the request never times out."""
+    background thread and returns immediately so the request never times out.
+    Re-entry while a previous run is in flight returns 'already_running'."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
+    global _TRAINING_FULL_INFLIGHT
+    with _TRAINING_INFLIGHT_LOCK:
+        if _TRAINING_FULL_INFLIGHT:
+            return jsonify({"status": "already_running", "via": "training_orchestrator"})
+        _TRAINING_FULL_INFLIGHT = True
     orch = components.get("training_orchestrator")
     if not orch:
-        # Fallback: kick the intensive-training loop (always-on, syllabus-wide)
         global _INTENSIVE_TRAINING_ACTIVE
         if not _INTENSIVE_TRAINING_ACTIVE:
             threading.Thread(target=_run_intensive_training, daemon=True,
                              name="intensive-training-full").start()
+            with _TRAINING_INFLIGHT_LOCK:
+                _TRAINING_FULL_INFLIGHT = False
             return jsonify({
                 "status": "started",
                 "via": "intensive_fallback",
                 "note": "training_orchestrator not loaded; intensive training kicked off",
             })
+        with _TRAINING_INFLIGHT_LOCK:
+            _TRAINING_FULL_INFLIGHT = False
         return jsonify({"status": "already_running", "via": "intensive_fallback"})
     def _bg():
+        global _TRAINING_FULL_INFLIGHT
         try:
             _run_async(orch.run_full_training())
         except Exception as _e:
             logger.warning("run_full_training error: %s", _e)
+        finally:
+            with _TRAINING_INFLIGHT_LOCK:
+                _TRAINING_FULL_INFLIGHT = False
     threading.Thread(target=_bg, daemon=True, name="training-full").start()
     return jsonify({"status": "started", "via": "training_orchestrator"})
 
 
 @app.route("/api/training/quick", methods=["POST"])
 def api_training_quick():
-    """Trigger an extra quick training cycle on demand. Background-dispatched."""
+    """Trigger an extra quick training cycle on demand. Background-dispatched.
+    Re-entry while a previous run is in flight returns 'already_running'."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
+    global _TRAINING_QUICK_INFLIGHT
+    with _TRAINING_INFLIGHT_LOCK:
+        if _TRAINING_QUICK_INFLIGHT:
+            return jsonify({"status": "already_running"})
+        _TRAINING_QUICK_INFLIGHT = True
     orch = components.get("training_orchestrator")
     data = request.get_json(silent=True) or {}
     focus = data.get("focus", "Core")
     if not orch:
+        with _TRAINING_INFLIGHT_LOCK:
+            _TRAINING_QUICK_INFLIGHT = False
         return jsonify({"error": "Training orchestrator not loaded"}), 503
     def _bg():
+        global _TRAINING_QUICK_INFLIGHT
         try:
             _run_async(orch.run_quick_training(focus))
         except Exception as _e:
             logger.warning("run_quick_training error: %s", _e)
+        finally:
+            with _TRAINING_INFLIGHT_LOCK:
+                _TRAINING_QUICK_INFLIGHT = False
     threading.Thread(target=_bg, daemon=True, name="training-quick").start()
     return jsonify({"status": "started", "focus": focus})
 
@@ -3393,7 +3426,7 @@ def api_system_health():
     hd = components.get("health_dashboard")
     base = {
         "status": "healthy",
-        "version": "7.1.0",
+        "version": DMAI_VERSION,
         "uptime": _uptime(),
         "components_loaded": len(components),
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -3506,7 +3539,7 @@ def api_settings_get():
         "current_kpis": kpi_values,
         "training_config": training_cfg,
         "system": {
-            "version": "7.1.0",
+            "version": DMAI_VERSION,
             "uptime": _uptime(),
             "components_loaded": len(components),
             "is_render": IS_RENDER,
@@ -4094,7 +4127,7 @@ def api_metrics():
         "daily_series":      _daily_series,
         "active_components": len(components),
         "uptime":            _uptime(),
-        "version":           "7.0.0",
+        "version":           DMAI_VERSION,
     })
 
 
