@@ -862,13 +862,120 @@ def _require_auth():
     master = os.environ.get("MASTER_PASSWORD", "")
     return pwd == master
 
-def _ai_chat(message: str) -> str:
+def _direct_provider_chat(prompt):
+    """Call free-tier LLM providers directly with os.getenv at call time.
+    Returns (response_text, provider_used, debug_log).
     """
-    P1-3: Sanitise input before passing to AI hub.
-    P1-4: Scan any generated code in the response.
-    P3-14: HaltResponse check before returning.
-    """
-    # Sanitise input
+    import requests as _rq
+    debug_log = []
+    providers = [
+        ("Cerebras",
+         os.getenv("CEREBRAS_API_KEY"),
+         "https://api.cerebras.ai/v1/chat/completions",
+         "llama-3.3-70b"),
+        ("Groq",
+         os.getenv("GROQ_API_KEY"),
+         "https://api.groq.com/openai/v1/chat/completions",
+         "llama-3.3-70b-versatile"),
+        ("Google AI Studio",
+         os.getenv("GOOGLE_AI_STUDIO_KEY") or os.getenv("GEMINI_API_KEY"),
+         "__gemini__",
+         "gemini-1.5-flash"),
+        ("GitHub Models",
+         os.getenv("GITHUB_TOKEN_MAIN") or os.getenv("GITHUB_TOKEN"),
+         "https://models.github.ai/inference/chat/completions",
+         "gpt-4o-mini"),
+        ("OpenRouter",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "meta-llama/llama-3.3-70b-instruct:free"),
+        ("DeepSeek",
+         os.getenv("DEEPSEEK_API_KEY"),
+         "https://api.deepseek.com/v1/chat/completions",
+         "deepseek-chat"),
+        ("Mistral",
+         os.getenv("MISTRAL_API_KEY"),
+         "https://api.mistral.ai/v1/chat/completions",
+         "mistral-small-latest"),
+        ("OpenAI",
+         os.getenv("OPENAI_API_KEY"),
+         "https://api.openai.com/v1/chat/completions",
+         "gpt-4o-mini"),
+        ("Anthropic",
+         os.getenv("ANTHROPIC_API_KEY"),
+         "__anthropic__",
+         "claude-3-5-haiku-20241022"),
+    ]
+    for name, key, url, model in providers:
+        if not key or key == "pending":
+            debug_log.append({"provider": name, "skipped": "no_key"})
+            continue
+        try:
+            # Google AI Studio (Gemini) has its own API shape
+            if url == "__gemini__":
+                r = _rq.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+                    headers={"Content-Type": "application/json"},
+                    json={"contents": [{"parts": [{"text": prompt}]}]},
+                    timeout=30,
+                )
+                if r.status_code == 200:
+                    data = r.json()
+                    text = data["candidates"][0]["content"]["parts"][0]["text"]
+                    debug_log.append({"provider": name, "ok": True, "model": model})
+                    return text, name, debug_log
+                debug_log.append({"provider": name, "http": r.status_code, "body": r.text[:160]})
+                continue
+            # Anthropic has a different API shape
+            if url == "__anthropic__":
+                r = _rq.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers={
+                        "x-api-key": key,
+                        "anthropic-version": "2023-06-01",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": model,
+                        "max_tokens": 500,
+                        "messages": [{"role": "user", "content": prompt}],
+                    },
+                    timeout=30,
+                )
+                if r.status_code == 200:
+                    data = r.json()
+                    text = data["content"][0]["text"]
+                    debug_log.append({"provider": name, "ok": True, "model": model})
+                    return text, name, debug_log
+                debug_log.append({"provider": name, "http": r.status_code, "body": r.text[:160]})
+                continue
+            r = _rq.post(
+                url,
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 500,
+                    "temperature": 0.7,
+                },
+                timeout=30,
+            )
+            if r.status_code == 200:
+                data = r.json()
+                text = data["choices"][0]["message"]["content"]
+                debug_log.append({"provider": name, "ok": True, "model": model})
+                return text, name, debug_log
+            debug_log.append({"provider": name, "http": r.status_code, "body": r.text[:160]})
+        except Exception as exc:
+            debug_log.append({"provider": name, "exception": str(exc)[:160]})
+    return None, None, debug_log
+
+
+def _ai_chat(message):
+    """DMAI chat entry point: direct providers first, hub fallback second."""
     if SECURITY_AVAILABLE:
         clean_message = sanitise_input(message)
         if check_injection(clean_message):
@@ -877,52 +984,43 @@ def _ai_chat(message: str) -> str:
     else:
         clean_message = message
 
-    # Halt condition check
     if SECURITY_AVAILABLE:
         halt = check_halt_conditions({"message": clean_message})
         if halt:
             return f"Request halted: {halt}"
 
-    hub = components.get("extended_hub") or components.get("ai_hub")
     response_text = None
-    if hub:
-        try:
-            # ExtendedHub has async chat(); AIIntegrationHub has chat_sync()
-            if hasattr(hub, "chat_sync"):
-                try:
-                    logger.info("_ai_chat: calling chat_sync on %s", type(hub).__name__)
+
+    # Primary: direct provider waterfall (env vars at call time)
+    try:
+        direct_resp, provider, _dbg = _direct_provider_chat(clean_message)
+        if direct_resp:
+            response_text = direct_resp
+            logger.info("_ai_chat: direct provider success via %s", provider)
+        else:
+            logger.warning("_ai_chat: all direct providers failed: %s", _dbg)
+    except Exception as e:
+        import traceback
+        logger.warning("_ai_chat direct path error: %s\n%s", e, traceback.format_exc())
+
+    # Fallback: legacy hub plumbing
+    if response_text is None:
+        hub = components.get("extended_hub") or components.get("ai_hub")
+        if hub:
+            try:
+                if hasattr(hub, "chat_sync"):
                     response_text = hub.chat_sync(clean_message)
-                    logger.info("_ai_chat: chat_sync returned type=%s", type(response_text).__name__)
-                except RuntimeError as _rte:
-                    if 'event loop' in str(_rte).lower():
-                        # Background thread has no event loop — run in new loop
-                        import asyncio as _asyncio
-                        try:
-                            _loop = _asyncio.new_event_loop()
-                            _asyncio.set_event_loop(_loop)
-                            if hasattr(hub, 'chat'):
-                                response_text = _loop.run_until_complete(hub.chat(clean_message))
-                            _loop.close()
-                        except Exception as _le:
-                            logger.warning('Event loop fallback failed: %s', _le)
-                            response_text = None
-                    else:
-                        raise
-            elif hasattr(hub, "chat"):
-                # ExtendedAIIntegrationHub.chat() expects List[Dict], not a plain string
-                import inspect as _inspect
-                _chat_sig = _inspect.signature(hub.chat)
-                _first_param = list(_chat_sig.parameters.keys())[1] if len(_chat_sig.parameters) > 1 else "prompt"
-                if _first_param in ("messages", "msgs"):
-                    _chat_arg = [{"role": "user", "content": clean_message}]
-                else:
-                    _chat_arg = clean_message
-                _async_result = _run_async(hub.chat(_chat_arg))
-                if isinstance(_async_result, tuple):
-                    _async_result = _async_result[0] if _async_result else None
-                response_text = _async_result if isinstance(_async_result, str) else (str(_async_result) if _async_result else None)
-        except Exception as e:
-            logger.warning("AI chat error: %s", e)
+                elif hasattr(hub, "chat"):
+                    import inspect as _inspect
+                    _sig = _inspect.signature(hub.chat)
+                    _first = list(_sig.parameters.keys())[1] if len(_sig.parameters) > 1 else "prompt"
+                    _arg = [{"role": "user", "content": clean_message}] if _first in ("messages", "msgs") else clean_message
+                    _res = _run_async(hub.chat(_arg))
+                    if isinstance(_res, tuple):
+                        _res = _res[0] if _res else None
+                    response_text = _res if isinstance(_res, str) else (str(_res) if _res else None)
+            except Exception as e:
+                logger.warning("AI chat hub-fallback error: %s", e)
 
     if isinstance(response_text, tuple):
         _raw = response_text[0] if response_text else None
@@ -943,7 +1041,6 @@ def _ai_chat(message: str) -> str:
                 f"Current syllabus: {TOTAL_TOPICS} mastered topics available."
             )
 
-    # P1-4: scan any code blocks in the response
     if SECURITY_AVAILABLE and isinstance(response_text, str) and "```" in response_text:
         scan = scan_generated_code(response_text)
         if not scan.get("safe", True):
@@ -952,6 +1049,7 @@ def _ai_chat(message: str) -> str:
             response_text = safe_code_output(response_text)
 
     return response_text
+
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
@@ -1263,6 +1361,43 @@ def api_chat():
         import traceback
         logger.error("chat error: %s\n%s", e, traceback.format_exc())
         return jsonify({"error": str(e), "trace": traceback.format_exc()[-500:]}), 500
+
+@app.route("/api/chat/debug", methods=["GET"])
+def api_chat_debug():
+    """Diagnostic: which provider keys are visible at request time + waterfall trace."""
+    probe = request.args.get("probe", "").lower() == "1"
+    info = {
+        "keys_visible": {
+            "CEREBRAS_API_KEY":      bool(os.getenv("CEREBRAS_API_KEY")),
+            "GROQ_API_KEY":          bool(os.getenv("GROQ_API_KEY")),
+            "GOOGLE_AI_STUDIO_KEY":  bool(os.getenv("GOOGLE_AI_STUDIO_KEY") or os.getenv("GEMINI_API_KEY")),
+            "GITHUB_TOKEN_MAIN":     bool(os.getenv("GITHUB_TOKEN_MAIN") or os.getenv("GITHUB_TOKEN")),
+            "OPENROUTER_API_KEY":    bool(os.getenv("OPENROUTER_API_KEY")),
+            "DEEPSEEK_API_KEY":      bool(os.getenv("DEEPSEEK_API_KEY")),
+            "MISTRAL_API_KEY":       bool(os.getenv("MISTRAL_API_KEY")),
+            "OPENAI_API_KEY":        bool(os.getenv("OPENAI_API_KEY")),
+            "ANTHROPIC_API_KEY":     bool(os.getenv("ANTHROPIC_API_KEY")),
+            "TAVILY_API_KEY":        bool(os.getenv("TAVILY_API_KEY")),
+        },
+        "key_prefixes": {
+            "GROQ_API_KEY":         (os.getenv("GROQ_API_KEY") or "")[:6],
+            "CEREBRAS_API_KEY":     (os.getenv("CEREBRAS_API_KEY") or "")[:6],
+            "GOOGLE_AI_STUDIO_KEY": (os.getenv("GOOGLE_AI_STUDIO_KEY") or "")[:6],
+        },
+        "hub": {
+            "extended_hub_present": components.get("extended_hub") is not None,
+            "ai_hub_present":       components.get("ai_hub") is not None,
+        },
+    }
+    if probe:
+        text, provider, log = _direct_provider_chat("Say 'pong' in one word.")
+        info["probe"] = {
+            "used_provider": provider,
+            "response":      (text[:200] if text else None),
+            "trace":         log,
+        }
+    return jsonify(info)
+
 
 def _log_chat(message, response):
     try:
@@ -4063,6 +4198,69 @@ _STAGE_THRESHOLDS = {
 _DB_PATH_STAGE = "data/dmai_knowledge.db"
 
 
+def _ensure_syllabus_content_table():
+    """Create syllabus_content table if missing, then seed it from SYLLABUS_TOPICS.
+    Survives Render cold starts: SQLite file persists on the mounted disk."""
+    import sqlite3 as _ss3
+    try:
+        db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        conn = _ss3.connect(db_path)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS syllabus_content ("
+            "topic TEXT PRIMARY KEY, "
+            "name TEXT, "
+            "stage TEXT, "
+            "category TEXT, "
+            "content TEXT, "
+            "mastery REAL DEFAULT 0.0, "
+            "topic_type TEXT DEFAULT 'general', "
+            "last_trained TEXT, "
+            "created_at TEXT NOT NULL DEFAULT (datetime('now')))"
+        )
+        # Add columns to existing tables that pre-date this schema
+        try:
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(syllabus_content)").fetchall()}
+            if "topic_type" not in cols:
+                conn.execute("ALTER TABLE syllabus_content ADD COLUMN topic_type TEXT DEFAULT 'general'")
+            if "last_trained" not in cols:
+                conn.execute("ALTER TABLE syllabus_content ADD COLUMN last_trained TEXT")
+        except Exception as _ce:
+            logger.debug("syllabus_content ALTER skipped: %s", _ce)
+        # Seed from SYLLABUS_TOPICS only if table is empty
+        count = conn.execute("SELECT COUNT(*) FROM syllabus_content").fetchone()[0]
+        if count == 0 and SYLLABUS_TOPICS:
+            now = datetime.now(timezone.utc).isoformat()
+            seeded = 0
+            for topic, info in SYLLABUS_TOPICS.items():
+                try:
+                    conn.execute(
+                        "INSERT OR IGNORE INTO syllabus_content "
+                        "(topic, name, stage, category, content, mastery, topic_type, created_at) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            topic,
+                            info.get("name", topic),
+                            info.get("stage", "Baby"),
+                            info.get("category", "general"),
+                            info.get("content", ""),
+                            float(info.get("mastery", 0.0) or 0.0),
+                            "general",
+                            now,
+                        ),
+                    )
+                    seeded += 1
+                except Exception as _ie:
+                    logger.debug("seed insert skipped %s: %s", topic, _ie)
+            conn.commit()
+            logger.info("syllabus_content seeded with %d topics from SYLLABUS_TOPICS", seeded)
+        else:
+            logger.info("syllabus_content table ready (existing rows=%d)", count)
+        conn.close()
+    except Exception as _e:
+        logger.warning("_ensure_syllabus_content_table: %s", _e)
+
+
 def _ensure_system_state_table():
     import sqlite3 as _ss3
     try:
@@ -4982,6 +5180,11 @@ def _backfill_kaizen_queue():
 
 
 def _start_background_services():
+    # ── Ensure critical tables exist before any background loop reads them ───────
+    try:
+        _ensure_syllabus_content_table()
+    except Exception as _e:
+        logger.warning("syllabus_content init failed: %s", _e)
     _start_kpi_seed_loop()  # DB-derived KPI seeder — single source of truth
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:

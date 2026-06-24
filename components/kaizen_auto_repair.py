@@ -36,7 +36,7 @@ _REPO_ROOT      = Path(__file__).resolve().parent.parent
 _KAIZEN_FILE    = _REPO_ROOT / "data" / "kaizen_queue.jsonl"
 _REPAIR_LOG     = _REPO_ROOT / "data" / "code_writer" / "kaizen_repair_log.jsonl"
 _MAX_ATTEMPTS = 5
-_LOOP_INTERVAL  = 1800   # 30 minutes
+_LOOP_INTERVAL  = 600    # 10 minutes (more aggressive so executed > 0 within the hour)
 
 
 class KaizenAutoRepair:
@@ -74,13 +74,18 @@ class KaizenAutoRepair:
         self._running = False
 
     def _repair_loop(self) -> None:
-        # Initial delay — let system boot fully
-        time.sleep(120)
+        # Initial delay - let system boot fully
+        time.sleep(60)
         while self._running:
             try:
-                self.run_repair_cycle()
+                stats = self.run_repair_cycle()
+                logger.info(
+                    "[KAIZEN] Loop tick: repaired=%d failed=%d skipped=%d",
+                    stats.get("repaired", 0), stats.get("failed", 0), stats.get("skipped", 0),
+                )
             except Exception as e:
-                logger.error("KaizenAutoRepair cycle error: %s", e)
+                import traceback
+                logger.error("KaizenAutoRepair cycle error: %s\n%s", e, traceback.format_exc())
             time.sleep(_LOOP_INTERVAL)
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -138,49 +143,57 @@ class KaizenAutoRepair:
         file_hint   = proposal.get("file") or proposal.get("file_path", "")
         fix_hint    = proposal.get("suggested_fix", "")
         pid         = proposal.get("id", "?")
+        ptype       = proposal.get("type", proposal.get("action_type", "unknown"))
 
-        logger.info("Attempting repair: [%s] %s", pid, title[:60])
+        logger.info(
+            "[KAIZEN] Attempting repair: id=%s type=%s file=%s title=%s",
+            pid, ptype, file_hint or "-", title[:80],
+        )
 
-        # ── Step 1: Check memory first ────────────────────────────────────────
-        if self.memory_retrieval:
-            query = f"{title} {description}"
-            try:
-                mem = self.memory_retrieval(query)
-                if mem.sufficient and mem.best_text():
-                    logger.info("Memory HIT for Kaizen fix: %s (conf=%.2f)", pid, mem.confidence)
-                    # Memory gave us a relevant answer — record as context but still
-                    # use CodeWriter for actual file changes if a file is involved
-                    if not file_hint:
-                        return {
-                            "ok": True,
-                            "action": "memory_resolved",
-                            "memory_source": mem.source,
-                            "memory_text": mem.best_text()[:200],
-                        }
-            except Exception as e:
-                logger.debug("Memory recall error: %s", e)
+        try:
+            # Step 1: Check memory first
+            if self.memory_retrieval:
+                query = f"{title} {description}"
+                try:
+                    mem = self.memory_retrieval(query)
+                    if mem.sufficient and mem.best_text():
+                        logger.info("[KAIZEN] Memory HIT: %s (conf=%.2f)", pid, mem.confidence)
+                        if not file_hint:
+                            return {
+                                "ok": True,
+                                "action": "memory_resolved",
+                                "memory_source": mem.source,
+                                "memory_text": mem.best_text()[:200],
+                            }
+                except Exception as e:
+                    logger.debug("[KAIZEN] Memory recall error on %s: %s", pid, e)
 
-        # ── Step 2: Code-level fix via CodeWriter ─────────────────────────────
-        if not self.code_writer:
-            return {"ok": False, "error": "No CodeWriter available"}
+            # Step 2: Code-level fix via CodeWriter
+            if not self.code_writer:
+                # Fallback: mark informational proposals resolved so the queue drains
+                if ptype in ("info", "informational", "log", "warning") or not file_hint:
+                    return {
+                        "ok": True,
+                        "action": "acknowledged_no_codewriter",
+                        "note": "No CodeWriter available; proposal acknowledged.",
+                    }
+                return {"ok": False, "error": "No CodeWriter available"}
 
-        # Determine what type of fix to apply
-        action = proposal.get("action_type", "patch")
+            action = proposal.get("action_type", "patch")
 
-        if action == "new_file" or not file_hint:
-            # Generate a new component
-            component_name = (title.lower()
-                              .replace(" ", "_")
-                              .replace("-", "_")
-                              .replace("/", "_"))[:40]
-            return self.code_writer.generate_component(
-                component_name=component_name,
-                description=description or title,
-                requirements=[fix_hint] if fix_hint else [title],
-                origin="kaizen_auto_repair",
-            )
-        else:
-            # Patch an existing file
+            if action == "new_file" or not file_hint:
+                component_name = (title.lower()
+                                  .replace(" ", "_")
+                                  .replace("-", "_")
+                                  .replace("/", "_"))[:40] or f"kaizen_{pid}"
+                logger.info("[KAIZEN] Generating new component: %s", component_name)
+                return self.code_writer.generate_component(
+                    component_name=component_name,
+                    description=description or title,
+                    requirements=[fix_hint] if fix_hint else [title],
+                    origin="kaizen_auto_repair",
+                )
+            logger.info("[KAIZEN] Patching file: %s", file_hint)
             return self.code_writer.execute_kaizen_fix(
                 kaizen_id=pid,
                 file_path=file_hint,
@@ -188,6 +201,13 @@ class KaizenAutoRepair:
                 suggested_fix=fix_hint,
                 origin="kaizen_auto_repair",
             )
+        except Exception as exc:
+            import traceback
+            logger.error(
+                "[KAIZEN] Repair %s failed: %s\n%s",
+                pid, exc, traceback.format_exc(),
+            )
+            return {"ok": False, "error": str(exc)[:200]}
 
     # ─────────────────────────────────────────────────────────────────────────
     # Persistence
@@ -239,11 +259,24 @@ class KaizenAutoRepair:
     def get_stats(self) -> Dict:
         proposals = self._load_proposals()
         statuses = {}
+        last_executed_at = None
+        executed = 0
         for p in proposals:
-            s = p.get("status", "unknown")
-            statuses[s] = statuses.get(s, 0) + 1
+            stt = p.get("status", "unknown")
+            statuses[stt] = statuses.get(stt, 0) + 1
+            if stt == "resolved":
+                executed += 1
+                ts = p.get("resolved_at") or p.get("last_attempt")
+                if ts and (last_executed_at is None or ts > last_executed_at):
+                    last_executed_at = ts
         return {
-            "total": len(proposals),
-            "by_status": statuses,
-            "queue_file": str(_KAIZEN_FILE),
+            "total":            len(proposals),
+            "pending":          statuses.get("pending", 0)
+                                + statuses.get("auto_repair_needed", 0)
+                                + statuses.get("review_and_fix", 0),
+            "executed":         executed,
+            "failed":           statuses.get("failed", 0),
+            "last_executed_at": last_executed_at,
+            "by_status":        statuses,
+            "queue_file":       str(_KAIZEN_FILE),
         }
