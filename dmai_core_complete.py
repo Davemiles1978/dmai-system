@@ -2081,6 +2081,73 @@ def api_training_updater_start():
     return jsonify({"error": "orchestrator not loaded"}), 503
 
 
+@app.route("/api/training/updater/stop", methods=["POST"])
+def api_training_updater_stop():
+    """Stop the background updater. Background training runs 24/7 by policy;
+    stop is allowed but it auto-restarts on next service boot."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    orch = components.get("training_orchestrator")
+    if orch and hasattr(orch, "stop_background_updater"):
+        try:
+            orch.stop_background_updater()
+            return jsonify({"status": "stopped", "note": "Will auto-restart on next boot"})
+        except Exception as e:
+            return jsonify({"status": "error", "error": str(e)}), 500
+    return jsonify({"status": "no-op", "note": "Updater has no stop method; nothing to stop"})
+
+
+@app.route("/api/training/update", methods=["POST", "GET"])
+def api_training_update():
+    """Alias for /api/training/updater/start (dashboard expects /api/training/update)."""
+    return api_training_updater_start()
+
+
+@app.route("/api/training/run_si", methods=["POST", "GET"])
+def api_training_run_si():
+    """Run a Self-Improvement training cycle (delegates to /api/training/run)."""
+    return api_training_run()
+
+
+@app.route("/api/research/run", methods=["POST"])
+def api_research_run():
+    """Trigger an autonomous research cycle (delegates to autonomous research)."""
+    try:
+        rs = components.get("autonomous_research") or components.get("research_system")
+        if not rs:
+            return jsonify({"status": "unavailable", "message": "No research system loaded"}), 503
+        if hasattr(rs, "run_cycle"):
+            rs.run_cycle()
+            return jsonify({"status": "triggered"})
+        if hasattr(rs, "research_topic"):
+            data = request.get_json(silent=True) or {}
+            topic = data.get("topic", "autonomous frontier research")
+            result = rs.research_topic(topic)
+            return jsonify({"status": "complete", "result": str(result)[:500]})
+        return jsonify({"status": "no-op", "message": "Research system has no run method"})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
+@app.route("/api/extended_hub/status", methods=["GET"])
+def api_extended_hub_status():
+    """Status of the Extended AI Integration Hub."""
+    try:
+        hub = components.get("extended_hub")
+        if not hub:
+            return jsonify({"status": "unavailable", "providers": []})
+        info = {"status": "active"}
+        if hasattr(hub, "get_provider_status"):
+            info["providers"] = hub.get_provider_status()
+        elif hasattr(hub, "providers"):
+            info["providers"] = list(hub.providers.keys()) if hasattr(hub.providers, "keys") else []
+        else:
+            info["providers"] = []
+        return jsonify(info)
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
 @app.route("/api/admin/train", methods=["POST"])
 def api_admin_train():
     if not _require_auth():
