@@ -5076,7 +5076,21 @@ def api_stage_analytics():
 
     except Exception as _e:
         logger.error("api_stage_analytics: %s", _e)
-        return jsonify({"error": str(_e)}), 500
+        # Return graceful degraded payload rather than 500 so the admin UI
+        # can still render. Common causes: legacy DB, missing columns, or
+        # "database disk image is malformed" requiring manual repair.
+        return jsonify({
+            "degraded": True,
+            "error": str(_e),
+            "hint": "DB may need repair via `sqlite3 data/dmai_knowledge.db .recover`",
+            "generated_at": _an_dt.datetime.utcnow().isoformat() + "Z",
+            "current": {"stage": "Baby", "stage_index": 0, "insights": 0, "capabilities": 0, "vocab": 0},
+            "velocity": {"insights_per_day_7d": 0, "insights_per_day_30d": 0},
+            "daily_series": [],
+            "channels": [],
+            "stage_history": [],
+            "next_stage_gaps": None,
+        })
 
 
 
