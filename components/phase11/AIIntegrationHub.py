@@ -66,7 +66,7 @@ class AIIntegrationHub:
         # ORIGINAL COMMERCIAL LLMs (All preserved)
         # ====================================================================
         keys['openai'] = os.getenv('OPENAI_API_KEY')
-        keys['groq'] = os.getenv('GROQ_API_KEY')
+        keys['groq'] = os.getenv('GROQ_API_KEY') or os.getenv('GROQ_KEY')
         keys['deepseek'] = os.getenv('DEEPSEEK_API_KEY')
         keys['gemini'] = os.getenv('GEMINI_API_KEY')
         keys['anthropic'] = os.getenv('ANTHROPIC_API_KEY')
@@ -408,7 +408,7 @@ class AIIntegrationHub:
     
     def _query_openai(self, prompt: str) -> Dict:
         """Query OpenAI GPT-4 with increased timeout and retry"""
-        api_key = self.api_keys.get('openai')
+        api_key = os.getenv('OPENAI_API_KEY') or self.api_keys.get('openai')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'OpenAI', 'error': 'No API key'}
         
@@ -450,7 +450,7 @@ class AIIntegrationHub:
             
     def _query_deepseek(self, prompt: str) -> Dict:
         """Query DeepSeek with increased timeout and retry logic"""
-        api_key = self.api_keys.get('deepseek')
+        api_key = os.getenv('DEEPSEEK_API_KEY') or self.api_keys.get('deepseek')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'DeepSeek', 'error': 'No API key'}
         
@@ -536,7 +536,7 @@ class AIIntegrationHub:
             
     def _query_anthropic(self, prompt: str) -> Dict:
         """Query Anthropic Claude with increased timeout and retry"""
-        api_key = self.api_keys.get('anthropic')
+        api_key = os.getenv('ANTHROPIC_API_KEY') or self.api_keys.get('anthropic')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'Claude', 'error': 'No API key'}
         
@@ -750,7 +750,7 @@ class AIIntegrationHub:
     
     def _query_google_ai_studio(self, prompt: str) -> Dict:
         """Query Google AI Studio - Original functionality"""
-        api_key = self.api_keys.get('google_ai_studio')
+        api_key = os.getenv('GOOGLE_AI_STUDIO_KEY') or os.getenv('GEMINI_API_KEY') or self.api_keys.get('google_ai_studio')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'Google AI Studio', 'error': 'No API key'}
             
@@ -962,7 +962,7 @@ class AIIntegrationHub:
 
     def _query_groq(self, prompt: str) -> Dict:
         """Query Groq — 14,400 req/day free, ultra-low latency LLM inference"""
-        api_key = self.api_keys.get('groq')
+        api_key = os.getenv('GROQ_API_KEY') or self.api_keys.get('groq')
         if not api_key or api_key == 'pending':
             return {'success': False, 'tutor': 'Groq', 'error': 'No API key — sign up free at console.groq.com/keys'}
         try:
@@ -997,7 +997,7 @@ class AIIntegrationHub:
 
     def _query_cerebras(self, prompt: str) -> Dict:
         """Query Cerebras Inference — 1M tokens/day free, world-fastest inference (2,600+ tok/s)"""
-        api_key = self.api_keys.get('cerebras')
+        api_key = os.getenv('CEREBRAS_API_KEY') or self.api_keys.get('cerebras')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'Cerebras', 'error': 'No API key — sign up free at cloud.cerebras.ai'}
 
@@ -1035,7 +1035,7 @@ class AIIntegrationHub:
 
     def _query_github_models(self, prompt: str) -> Dict:
         """Query GitHub Models Marketplace — 45+ frontier models free with GitHub account"""
-        api_key = self.api_keys.get('github_models')
+        api_key = os.getenv('GITHUB_TOKEN_MAIN') or os.getenv('GITHUB_TOKEN') or self.api_keys.get('github_models')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'GitHub Models', 'error': 'No token — set GITHUB_MODELS_TOKEN or GITHUB_TOKEN_MAIN'}
 
@@ -1075,7 +1075,7 @@ class AIIntegrationHub:
 
     def _query_mistral(self, prompt: str) -> Dict:
         """Query Mistral AI — Experiment plan: all models including Large, 1B tokens/month free"""
-        api_key = self.api_keys.get('mistral')
+        api_key = os.getenv('MISTRAL_API_KEY') or self.api_keys.get('mistral')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'Mistral AI', 'error': 'No API key — sign up free at console.mistral.ai'}
 
