@@ -890,7 +890,9 @@ def _ai_chat(message: str) -> str:
             # ExtendedHub has async chat(); AIIntegrationHub has chat_sync()
             if hasattr(hub, "chat_sync"):
                 try:
+                    logger.info("_ai_chat: calling chat_sync on %s", type(hub).__name__)
                     response_text = hub.chat_sync(clean_message)
+                    logger.info("_ai_chat: chat_sync returned type=%s", type(response_text).__name__)
                 except RuntimeError as _rte:
                     if 'event loop' in str(_rte).lower():
                         # Background thread has no event loop — run in new loop
@@ -1237,8 +1239,10 @@ def api_chat():
             return jsonify({"response": f"Unknown command: {cmd}. Try /status /persona /kaizen /syllabus"})
         try:
             response = _ai_chat(message)
+            logger.info("_ai_chat returned type=%s val=%s", type(response).__name__, repr(response)[:100])
         except Exception as _chat_e:
-            logger.error("_ai_chat exception: %s", _chat_e)
+            import traceback
+            logger.error("_ai_chat exception: %s\n%s", _chat_e, traceback.format_exc())
             response = None
         # Guarantee response is always a plain string
         if response is None or not isinstance(response, str):
