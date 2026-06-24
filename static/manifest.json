@@ -1,14 +1,23 @@
 {
-  "name": "DMAI Control",
-  "short_name": "DMAI",
-  "description": "DMAI Autonomous Intelligence — mobile control panel",
-  "start_url": "/mobile",
+  "name": "Alex Riviera",
+  "short_name": "Alex Riviera",
+  "description": "Alex Riviera — autonomous wealth, monetisation and trading control",
+  "start_url": "/monetisation",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
   "orientation": "portrait",
+  "categories": ["finance", "productivity"],
   "icons": [
-    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Monetisation", "url": "/monetisation" },
+    { "name": "Dashboard", "url": "/dashboard" },
+    { "name": "Trader Journal", "url": "/api/monetisation/trader/journal.csv" }
   ]
 }

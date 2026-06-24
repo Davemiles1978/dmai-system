@@ -1400,6 +1400,22 @@ def mobile_page():
     return send_from_directory("static", "mobile.html")
 
 
+@app.route("/service-worker.js")
+def pwa_service_worker():
+    """Serve service worker at root scope so it can control all pages."""
+    resp = send_from_directory("static", "service-worker.js")
+    resp.headers["Service-Worker-Allowed"] = "/"
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Content-Type"] = "application/javascript"
+    return resp
+
+
+@app.route("/manifest.json")
+def pwa_manifest_root():
+    """Convenience alias for PWA manifest at root path."""
+    return send_from_directory("static", "manifest.json")
+
+
 @app.route("/dashboard")
 def dashboard_page():
     """Dashboard UI — system overview."""
