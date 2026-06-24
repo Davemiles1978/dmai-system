@@ -2655,8 +2655,14 @@ def api_knowledge_status():
     """Status of all 8 knowledge sources + parallel web learner."""
     km = components.get("knowledge_manager")
     pl = components.get("parallel_learner")
-    km_status = km.get_summary() if km else {"error": "KnowledgeSourceManager not loaded"}
-    pl_status = pl.get_status() if pl else {"error": "ParallelWebLearner not loaded"}
+    try:
+        km_status = km.get_summary() if km else {"error": "KnowledgeSourceManager not loaded"}
+    except Exception as e:
+        km_status = {"error": f"KnowledgeSourceManager error: {e}"}
+    try:
+        pl_status = pl.get_status() if pl else {"error": "ParallelWebLearner not loaded"}
+    except Exception as e:
+        pl_status = {"error": f"ParallelWebLearner error: {e}"}
     return jsonify({
         "knowledge_manager":   km_status,
         "parallel_learner":    pl_status,
@@ -4828,6 +4834,18 @@ def api_stage_analytics():
         conn.row_factory = _an_sq.Row
 
         # ── 1. Current metrics ────────────────────────────────────────────────
+        # Self-heal: ensure required columns exist on legacy DBs
+        def _ensure_col(table, col, ddl):
+            try:
+                cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+                if col not in cols:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {ddl}")
+                    conn.commit()
+            except Exception:
+                pass
+        for _tbl in ("insights", "capabilities"):
+            _ensure_col(_tbl, "created_at", "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+
         cur_insights = conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
         cur_caps     = conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
         try:
