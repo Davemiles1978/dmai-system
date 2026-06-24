@@ -5547,14 +5547,28 @@ def api_self_evolution_health():
 
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
-    """Read the most recent gap_report.json produced by SelfScanner."""
+    """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
     try:
         import os as _os, json as _json
+        fresh = request.args.get("fresh") in ("1", "true", "yes")
+        if fresh:
+            try:
+                from components.self_scanner import SelfScanner
+                report = SelfScanner(app=app, data_path=DATA_PATH).run()
+                return jsonify(report)
+            except Exception as _se:
+                logger.warning("Fresh scan failed: %s", _se)
         p = _os.path.join(DATA_PATH.rstrip("/"), "gap_report.json")
         if _os.path.exists(p):
             with open(p) as f:
                 return jsonify(_json.load(f))
-        return jsonify({"status": "no_scan_yet"})
+        # No cached report and fresh wasn't requested - run once
+        try:
+            from components.self_scanner import SelfScanner
+            report = SelfScanner(app=app, data_path=DATA_PATH).run()
+            return jsonify(report)
+        except Exception:
+            return jsonify({"status": "no_scan_yet"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
