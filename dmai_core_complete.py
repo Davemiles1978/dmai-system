@@ -822,6 +822,16 @@ except Exception as e:
     logger.warning("PersonaRegistry failed: %s", e)
 
 
+# ── WorkReviewQueue + SkillAssessor (long-form review gate for Alex output) ─
+try:
+    from components.review import get_work_review_queue as _get_wrq
+    components["work_review_queue"] = _get_wrq(data_path=DATA_PATH)
+    components["skill_assessor"] = components["work_review_queue"].assessor
+    logger.info("WorkReviewQueue initialised (long-form Alex output gated until graduated)")
+except Exception as e:
+    logger.warning("WorkReviewQueue failed: %s", e)
+
+
 
 # ── AutonomousTrader (5-min loop, market-hours gate, paper-first) ──────────────
 try:
@@ -6977,6 +6987,210 @@ def api_personas_reload():
         return jsonify({"error": "persona_registry not loaded"}), 503
     return jsonify(r.reload())
 
+
+
+
+
+# ── Review queue routes (long-form Alex output gated) ─────────────────────
+@app.route("/api/review/pending", methods=["GET"])
+def api_review_pending():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    limit = int(request.args.get("limit", 50))
+    work_type = request.args.get("work_type")
+    items = q.list(status="pending", work_type=work_type, limit=limit)
+    # Trim payload for list view
+    for it in items:
+        if isinstance(it.get("payload"), dict):
+            content = it["payload"].get("content") or it["payload"].get("text") or ""
+            if isinstance(content, str) and len(content) > 600:
+                it["payload"]["content_preview"] = content[:600] + "…"
+                it["payload"].pop("content", None)
+                it["payload"].pop("text", None)
+        it.pop("payload_json", None)
+    return jsonify({"items": items, "count": len(items)})
+
+
+@app.route("/api/review/list", methods=["GET"])
+def api_review_list():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    status = request.args.get("status", "pending")
+    work_type = request.args.get("work_type")
+    limit = int(request.args.get("limit", 50))
+    items = q.list(status=status if status != "all" else None,
+                   work_type=work_type, limit=limit)
+    for it in items:
+        it.pop("payload_json", None)
+    return jsonify({"items": items, "count": len(items)})
+
+
+@app.route("/api/review/<int:item_id>", methods=["GET"])
+def api_review_get(item_id):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    item = q.get(item_id)
+    if not item:
+        return jsonify({"error": "not found"}), 404
+    item.pop("payload_json", None)
+    return jsonify(item)
+
+
+@app.route("/api/review/approve/<int:item_id>", methods=["POST"])
+def api_review_approve(item_id):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    try:
+        item = q.approve(item_id, notes=body.get("notes", ""),
+                         decided_by=body.get("decided_by", "user"))
+    except KeyError:
+        return jsonify({"error": "not found"}), 404
+    item.pop("payload_json", None)
+    return jsonify({"ok": True, "item": item})
+
+
+@app.route("/api/review/reject/<int:item_id>", methods=["POST"])
+def api_review_reject(item_id):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    try:
+        item = q.reject(item_id, notes=body.get("notes", ""),
+                        decided_by=body.get("decided_by", "user"))
+    except KeyError:
+        return jsonify({"error": "not found"}), 404
+    item.pop("payload_json", None)
+    return jsonify({"ok": True, "item": item})
+
+
+@app.route("/api/review/revise/<int:item_id>", methods=["POST"])
+def api_review_revise(item_id):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    try:
+        item = q.request_revisions(item_id, notes=body.get("notes", ""),
+                                   decided_by=body.get("decided_by", "user"))
+    except KeyError:
+        return jsonify({"error": "not found"}), 404
+    item.pop("payload_json", None)
+    return jsonify({"ok": True, "item": item})
+
+
+@app.route("/api/review/stats", methods=["GET"])
+def api_review_stats():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    return jsonify(q.stats())
+
+
+@app.route("/api/review/skill/<work_type>", methods=["GET"])
+def api_review_skill_curve(work_type):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    a = components.get("skill_assessor")
+    if not a:
+        return jsonify({"error": "skill_assessor not loaded"}), 503
+    limit = int(request.args.get("limit", 30))
+    try:
+        curve = a.skill_curve(work_type, limit=limit)
+        st = a.stats(work_type)
+        eligible = a.eligible_for_graduation(work_type)
+        graduated = a.is_graduated(work_type)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({
+        "work_type": work_type,
+        "curve": curve,
+        "stats": st,
+        "eligible_for_graduation": eligible,
+        "graduated": graduated,
+    })
+
+
+@app.route("/api/review/graduate/<work_type>", methods=["POST"])
+def api_review_graduate(work_type):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    a = components.get("skill_assessor")
+    if not a:
+        return jsonify({"error": "skill_assessor not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    try:
+        result = a.mark_graduated(work_type,
+                                  by=body.get("by", "user"),
+                                  notes=body.get("notes", ""))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({"ok": True, "result": result})
+
+
+@app.route("/api/review/revoke/<work_type>", methods=["POST"])
+def api_review_revoke(work_type):
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    a = components.get("skill_assessor")
+    if not a:
+        return jsonify({"error": "skill_assessor not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    try:
+        result = a.revoke_graduation(work_type,
+                                     by=body.get("by", "user"),
+                                     notes=body.get("notes", ""))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({"ok": True, "result": result})
+
+
+@app.route("/api/review/submit", methods=["POST"])
+def api_review_submit():
+    """Manual submission endpoint for testing or external producers."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    q = components.get("work_review_queue")
+    if not q:
+        return jsonify({"error": "work_review_queue not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    work_type = body.get("work_type")
+    title = body.get("title")
+    payload = body.get("payload")
+    if not work_type or not title or not payload:
+        return jsonify({"error": "work_type, title, payload required"}), 400
+    try:
+        item = q.submit(
+            work_type=work_type,
+            title=title,
+            payload=payload,
+            summary=body.get("summary"),
+            source_component=body.get("source_component", "api"),
+            persona=body.get("persona"),
+        )
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    item.pop("payload_json", None)
+    return jsonify({"ok": True, "item": item})
 
 
 if __name__ == "__main__":

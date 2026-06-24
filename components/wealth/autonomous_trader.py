@@ -165,6 +165,32 @@ class AutonomousTrader:
 
         self._init_db()
         self._ensure_state_row()
+
+        # ExitManager + StrategyLab (autonomous exits + ongoing variant backtesting)
+        self.exit_manager = None
+        self.strategy_lab = None
+        try:
+            from components.wealth.exit_manager import ExitManager as _ExitMgr
+            self.exit_manager = _ExitMgr(
+                db_path=self.db_path,
+                trader=self.trader,
+                prediction_engine=self.prediction_engine,
+                notifier=self.notifier,
+            )
+            logger.info("AutonomousTrader: ExitManager attached")
+        except Exception as _e:
+            logger.warning("AutonomousTrader: ExitManager unavailable: %s", _e)
+        try:
+            from components.wealth.strategy_lab import StrategyLab as _SLab
+            self.strategy_lab = _SLab(db_path=self.db_path)
+            try:
+                self.strategy_lab.start()
+            except Exception as _se:
+                logger.debug("StrategyLab.start() skipped: %s", _se)
+            logger.info("AutonomousTrader: StrategyLab attached + loop started")
+        except Exception as _e:
+            logger.warning("AutonomousTrader: StrategyLab unavailable: %s", _e)
+
         self._start_loop()
 
     # ── DB helpers ────────────────────────────────────────────────────────────
@@ -296,6 +322,20 @@ class AutonomousTrader:
         live = _is_live()
         market_open = _us_market_open()
 
+        # Step 0: evaluate exits FIRST so capital is freed before new buys.
+        exits_summary: Dict[str, Any] = {"checked": 0, "closed": 0}
+        if self.exit_manager and market_open:
+            try:
+                exits_summary = self.exit_manager.evaluate(live=live) or exits_summary
+                if exits_summary.get("closed"):
+                    logger.info(
+                        "AutonomousTrader: ExitManager closed %s position(s)",
+                        exits_summary.get("closed"),
+                    )
+            except Exception as _e:
+                logger.warning("AutonomousTrader: ExitManager.evaluate failed: %s", _e)
+
+
         with self._conn() as c:
             s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
             tier = s["tier"]
@@ -381,6 +421,8 @@ class AutonomousTrader:
             "tier":           tier,
             "live":           live,
             "market_open":    market_open,
+            "exits_checked":  exits_summary.get("checked", 0),
+            "exits_closed":   exits_summary.get("closed", 0),
             "signals_seen":   signals_seen,
             "signals_passed": signals_passed,
             "trades_placed":  trades_placed,

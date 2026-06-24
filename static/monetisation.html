@@ -356,6 +356,16 @@
         <span>Personas · role-specific operating voices</span>
         <div id="personas-list" style="margin-top:10px;font-size:12px;">loading…</div>
       </div>
+
+      <div class="card" style="margin-top:14px;">
+        <span>Review queue · long-form Alex output (gated)</span>
+        <div id="review-stats" style="margin-top:10px;font-size:12px;color:#aaa;">loading…</div>
+        <div id="review-pending" style="margin-top:10px;font-size:12px;"></div>
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;color:#aaa;font-size:11px;">Skill curves · graduation controls</summary>
+          <div id="review-skill" style="margin-top:8px;font-size:12px;"></div>
+        </details>
+      </div>
     </section>
 
   </div>
@@ -927,10 +937,124 @@ async function loadPersonas() {
   }
 }
 
+
+
+async function loadReview() {
+  try {
+    const stats = await api('/api/review/stats');
+    const sEl = document.getElementById('review-stats');
+    const byStatus = stats.by_status || {};
+    const byType = stats.by_type || {};
+    const grad = stats.graduation || {};
+    let statHtml = '<b>pending: ' + (stats.pending_count || 0) + '</b>';
+    statHtml += ' \u00b7 approved: ' + (byStatus.approved || 0);
+    statHtml += ' \u00b7 rejected: ' + (byStatus.rejected || 0);
+    statHtml += ' \u00b7 revise: ' + (byStatus.revise || 0);
+    statHtml += ' \u00b7 published: ' + (byStatus.published || 0);
+    const gradList = Object.entries(grad).filter(([k,v]) => v).map(([k]) => k);
+    if (gradList.length) {
+      statHtml += '<div style=\"margin-top:6px;color:#10b981;\">graduated: ' + gradList.join(', ') + '</div>';
+    }
+    sEl.innerHTML = statHtml;
+
+    const pending = await api('/api/review/pending?limit=10');
+    const pEl = document.getElementById('review-pending');
+    if (!pending.items || pending.items.length === 0) {
+      pEl.innerHTML = '<div style=\"color:#888;\">no items awaiting review</div>';
+    } else {
+      pEl.innerHTML = pending.items.map(it => {
+        const score = it.overall_score != null ? Number(it.overall_score).toFixed(2) : '\u2014';
+        const scoreColor = it.overall_score >= 8 ? '#10b981' : it.overall_score >= 6.5 ? '#f59e0b' : '#ef4444';
+        const preview = (it.payload && (it.payload.content_preview || it.payload.synopsis || it.summary || ''))
+                        .toString().slice(0, 220);
+        return '<div style=\"padding:8px;margin:6px 0;background:#1a1a1a;border-left:3px solid ' + scoreColor + ';border-radius:4px;\">'
+          + '<div><b>' + escapeHtml(it.title || 'Untitled') + '</b> '
+          + '<span style=\"color:#666;font-size:11px;\">[' + it.work_type + ' \u00b7 #' + it.id + ']</span> '
+          + '<span style=\"color:' + scoreColor + ';font-size:11px;\">score ' + score + '</span></div>'
+          + (preview ? '<div style=\"color:#aaa;font-size:11px;margin-top:4px;\">' + escapeHtml(preview) + (preview.length >= 220 ? '\u2026' : '') + '</div>' : '')
+          + '<div style=\"margin-top:6px;\">'
+          + '<button onclick=\"reviewDecide(' + it.id + ', \\\'approve\\\')\" style=\"padding:4px 10px;background:#10b981;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">approve</button> '
+          + '<button onclick=\"reviewDecide(' + it.id + ', \\\'revise\\\')\" style=\"padding:4px 10px;background:#f59e0b;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">revise</button> '
+          + '<button onclick=\"reviewDecide(' + it.id + ', \\\'reject\\\')\" style=\"padding:4px 10px;background:#ef4444;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">reject</button>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    const skillEl = document.getElementById('review-skill');
+    const types = Object.keys(byType);
+    if (!types.length) {
+      skillEl.innerHTML = '<div style=\"color:#888;\">no work types reviewed yet</div>';
+    } else {
+      const parts = [];
+      for (const wt of types) {
+        try {
+          const sk = await api('/api/review/skill/' + wt);
+          const cur = sk.curve || [];
+          const avg = sk.stats && sk.stats.avg_score != null ? Number(sk.stats.avg_score).toFixed(2) : '\u2014';
+          const recent5 = cur.slice(0, 5).map(c => Number(c.overall).toFixed(1)).join(', ');
+          const isGrad = !!sk.graduated;
+          const isElig = !!sk.eligible_for_graduation;
+          parts.push(
+            '<div style=\"padding:6px 8px;margin:4px 0;background:#1a1a1a;border-radius:3px;\">'
+            + '<b>' + wt + '</b> '
+            + '<span style=\"color:#666;font-size:11px;\">n=' + ((sk.stats||{}).submissions||0) + ' \u00b7 avg ' + avg + '</span> '
+            + (isGrad ? '<span style=\"color:#10b981;font-size:11px;\">[graduated]</span>'
+                      : isElig ? '<span style=\"color:#f59e0b;font-size:11px;\">[eligible]</span>'
+                              : '<span style=\"color:#666;font-size:11px;\">[gated]</span>')
+            + '<div style=\"color:#888;font-size:11px;\">recent: ' + (recent5 || '\u2014') + '</div>'
+            + (isGrad
+                ? '<button onclick=\"reviewRevoke(\\\'' + wt + '\\\')\" style=\"margin-top:4px;padding:3px 8px;background:#ef4444;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">revoke graduation</button>'
+                : (isElig
+                    ? '<button onclick=\"reviewGraduate(\\\'' + wt + '\\\')\" style=\"margin-top:4px;padding:3px 8px;background:#10b981;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">graduate (enable auto-publish)</button>'
+                    : ''))
+            + '</div>'
+          );
+        } catch (_) {}
+      }
+      skillEl.innerHTML = parts.join('');
+    }
+  } catch (e) {
+    document.getElementById('review-stats').textContent = 'unavailable';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));
+}
+
+async function reviewDecide(id, action) {
+  const notes = prompt('Notes (optional):', '') || '';
+  try {
+    await api('/api/review/' + action + '/' + id, { method: 'POST', body: JSON.stringify({ notes }) });
+    toast(action + 'd #' + id);
+    loadReview();
+  } catch (_) {}
+}
+
+async function reviewGraduate(wt) {
+  if (!confirm('Graduate work_type \"' + wt + '\"? Auto-publish will be enabled for this type. You can revoke later.')) return;
+  try {
+    await api('/api/review/graduate/' + wt, { method: 'POST', body: JSON.stringify({ notes: 'graduated via dashboard' }) });
+    toast('graduated ' + wt);
+    loadReview();
+  } catch (_) {}
+}
+
+async function reviewRevoke(wt) {
+  if (!confirm('Revoke graduation for \"' + wt + '\"? All future ' + wt + ' will be re-gated.')) return;
+  try {
+    await api('/api/review/revoke/' + wt, { method: 'POST', body: JSON.stringify({ notes: 'revoked via dashboard' }) });
+    toast('revoked ' + wt);
+    loadReview();
+  } catch (_) {}
+}
+
 loadEvoSummary();
 loadSelfEdits();
 loadBrain();
 loadPersonas();
+loadReview();
 setInterval(refresh, 30000);
 setInterval(loadTrader, 30000);
 setInterval(loadPending, 30000);
@@ -938,6 +1062,7 @@ setInterval(loadNotifier, 60000);
 setInterval(loadEvoSummary, 60000);
 setInterval(loadSelfEdits, 30000);
 setInterval(loadBrain, 120000);
+setInterval(loadReview, 30000);
 </script>
 </body>
 </html>

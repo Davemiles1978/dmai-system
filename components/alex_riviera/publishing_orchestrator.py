@@ -49,31 +49,109 @@ class AlexRivieraPublishing:
                 'last_updated': datetime.now().isoformat()
             }, f, indent=2)
     
+    # Maps Alex project_type -> SkillAssessor work_type. Anything in this map
+    # is long-form and MUST be gated through WorkReviewQueue until the user
+    # explicitly graduates that work_type via /api/review/graduate/<type>.
+    LONGFORM_TYPE_MAP = {
+        'book':            'book_manuscript',
+        'book_manuscript': 'book_manuscript',
+        'book_chapter':    'book_chapter',
+        'chapter':         'book_chapter',
+        'research_paper':  'research_paper',
+        'paper':           'research_paper',
+        'article':         'article',
+        'blog':            'article',
+        'tv_script':       'tv_script',
+        'screenplay':      'screenplay',
+        'course':          'course_lesson',
+        'course_lesson':   'course_lesson',
+        'lesson':          'course_lesson',
+        'newsletter':      'newsletter_essay',
+        'essay':           'newsletter_essay',
+    }
+
     def submit_for_approval(self, project: Dict, project_type: str) -> Dict:
-        """AUTO-APPROVE: per system policy, no human approval gate.
-        Project is moved straight into approved_projects and saved for audit."""
-        
+        """Route long-form work through the review gate.
+
+        Per user directive (2026-06-24): every book, research paper, article,
+        TV script, course lesson, etc. created under Alex needs human review
+        before auto-publishing UNTIL the work_type has been explicitly
+        graduated via /api/review/graduate/<work_type>.
+        """
+        title = project.get('title', 'Untitled')
+        work_type = self.LONGFORM_TYPE_MAP.get(project_type)
+
+        if work_type:
+            try:
+                from components.review import get_work_review_queue
+                queue = get_work_review_queue()
+                graduated = False
+                try:
+                    graduated = bool(queue.assessor.is_graduated(work_type))
+                except Exception:
+                    graduated = False
+
+                if not graduated:
+                    persona = (
+                        'alex_author' if work_type.startswith('book')
+                        else 'alex_instructor' if work_type == 'course_lesson'
+                        else 'alex_substack' if work_type == 'newsletter_essay'
+                        else 'alex_riviera'
+                    )
+                    item = queue.submit(
+                        work_type=work_type,
+                        title=title,
+                        payload=project,
+                        source_component='alex_publishing_orchestrator',
+                        persona=persona,
+                    )
+                    pending_request = {
+                        'id': f"{project_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                        'type': project_type,
+                        'title': title,
+                        'project_data': project,
+                        'status': 'pending_review',
+                        'submitted_at': datetime.now().isoformat(),
+                        'review_queue_id': item.get('id'),
+                        'work_type': work_type,
+                        'overall_score': item.get('overall_score'),
+                        'review_notes': (
+                            'Gated by WorkReviewQueue. Awaiting human '
+                            'approval. Graduate this work_type to enable '
+                            'auto-publish.'
+                        ),
+                        'auto_approved': False,
+                    }
+                    self.pending_approvals.append(pending_request)
+                    self._save_state()
+                    self._save_project_files(pending_request)
+                    logger.info(
+                        "GATED-FOR-REVIEW: %s (%s) - %s score=%s queue_id=%s",
+                        project_type, work_type, title,
+                        item.get('overall_score'), item.get('id'),
+                    )
+                    return pending_request
+            except Exception as e:
+                logger.warning(
+                    "WorkReviewQueue unavailable, falling back to auto-approve: %s", e
+                )
+
+        # Legacy auto-approve path (non-long-form OR graduated OR queue down)
         approval_request = {
             'id': f"{project_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             'type': project_type,
-            'title': project.get('title', 'Untitled'),
+            'title': title,
             'project_data': project,
             'status': 'approved',
             'submitted_at': datetime.now().isoformat(),
             'approved_at': datetime.now().isoformat(),
-            'review_notes': 'auto-approved (no human gate)',
+            'review_notes': 'auto-approved (work_type graduated or non-long-form)',
             'auto_approved': True,
         }
-        
-        # Skip pending queue entirely — go straight to approved
         self.approved_projects.append(approval_request)
         self._save_state()
-        
-        # Save audit copy of project files
         self._save_project_files(approval_request)
-        
-        logger.info(f"AUTO-APPROVED: {project_type} - {project.get('title', 'Untitled')}")
-        
+        logger.info("AUTO-APPROVED: %s - %s", project_type, title)
         return approval_request
     
     def _save_project_files(self, approval_request: Dict):
