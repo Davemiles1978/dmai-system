@@ -1430,7 +1430,7 @@ def api_chat():
         return jsonify({
             "response": response,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source": "dmai_v7",
+            "source": "alex_riviera",
         })
     except Exception as e:
         import traceback
