@@ -21,7 +21,8 @@ class MediaProductionStudio:
     """
 
     def __init__(self):
-        self.output_dir = Path("data/media/productions")
+        _root = Path(__file__).resolve().parents[2]
+        self.output_dir = _root / "data" / "media" / "productions"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize Alex Riviera's avatar

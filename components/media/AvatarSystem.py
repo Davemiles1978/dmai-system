@@ -16,11 +16,12 @@ class AlexRivieraAvatar:
     """
 
     def __init__(self):
-        self.final_avatar_reference = Path("data/avatars/reference_images/ChatGPT Image Jun 4, 2026, 03_41_53 PM.png")
+        _root = Path(__file__).resolve().parents[2]
+        self.final_avatar_reference = _root / "data" / "avatars" / "reference_images" / "ChatGPT Image Jun 4, 2026, 03_41_53 PM.png"
         if self.final_avatar_reference.exists():
             print(f"✅ Final avatar reference loaded: {self.final_avatar_reference.name}")
 
-        self.avatar_dir = Path("data/avatars/canonical")
+        self.avatar_dir = _root / "data" / "avatars" / "canonical"
         self.avatar_dir.mkdir(parents=True, exist_ok=True)
         
         # Load the canonical profile
@@ -48,18 +49,27 @@ class AlexRivieraAvatar:
         self._save_canonical_profile()
         print("✅ Alex Riviera Canonical Avatar Profile Loaded (SOURCE OF TRUTH)")
     
+    @staticmethod
+    def _resolve_profile_path() -> Path:
+        """Resolve profile path against project root, not cwd (cwd varies on Render)."""
+        # AvatarSystem.py lives at components/media/AvatarSystem.py
+        # Project root is two directories up.
+        project_root = Path(__file__).resolve().parents[2]
+        return project_root / "data" / "avatars" / "canonical" / "alex_riviera_master_profile.json"
+
     def _load_canonical_profile(self) -> Dict:
         """Load the canonical master profile"""
-        profile_file = Path("data/avatars/canonical/alex_riviera_master_profile.json")
+        profile_file = self._resolve_profile_path()
         if profile_file.exists():
             with open(profile_file) as f:
                 return json.load(f)
         else:
-            raise FileNotFoundError("Canonical profile not found. Please ensure alex_riviera_master_profile.json exists.")
-    
+            raise FileNotFoundError(f"Canonical profile not found at {profile_file}.")
+
     def _save_canonical_profile(self):
         """Save any updates to the canonical profile"""
-        profile_file = Path("data/avatars/canonical/alex_riviera_master_profile.json")
+        profile_file = self._resolve_profile_path()
+        profile_file.parent.mkdir(parents=True, exist_ok=True)
         with open(profile_file, 'w') as f:
             json.dump(self.profile, f, indent=2)
     
