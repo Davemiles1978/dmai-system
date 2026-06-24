@@ -4057,8 +4057,20 @@ def api_metrics():
     """
     import sqlite3 as _sq
     _DB = os.path.join(DATA_PATH, "dmai_knowledge.db")
-    _si = components.get("si_core")
-    _kpis = dict(_si.current_kpis) if _si and hasattr(_si, "current_kpis") else {}
+    # Unified KPI source: prefer kpi_cache.json (DB-derived) so /api/metrics
+    # matches /api/status.si_kpis on every dashboard.
+    _kpis = {}
+    try:
+        import json as _jc
+        _cache_path = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "kpi_cache.json")
+        with open(_cache_path) as _cf:
+            _cached = _jc.load(_cf)
+        _kpis = _cached.get("kpis", {}) or {}
+        if not _kpis or all(v == 0 for v in _kpis.values() if isinstance(v, (int, float))):
+            raise ValueError("cache empty")
+    except Exception:
+        _si = components.get("si_core")
+        _kpis = dict(_si.current_kpis) if _si and hasattr(_si, "current_kpis") else {}
 
     _ins, _caps, _vocab = 0, 0, 0
     _stage, _within_pct = "Baby", 0.0
