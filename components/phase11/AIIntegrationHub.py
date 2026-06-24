@@ -896,23 +896,29 @@ class AIIntegrationHub:
 
         for name, method in priority_methods:
             try:
-                # Run synchronous _query_* in executor so we stay async-compatible
-                loop = asyncio.get_event_loop()
+                # Use get_event_loop safely — create new loop if none exists
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
                 result = await loop.run_in_executor(None, method, prompt)
                 if not isinstance(result, dict):
+                    logger.warning("chat(): %s returned non-dict: %s", name, type(result).__name__)
                     result = {"success": False, "error": "non-dict result"}
                 if result.get("success"):
                     logger.info("chat(): responded via %s", name)
                     resp = result["response"]
-                    # Always return a plain string — never a tuple or other type
                     if isinstance(resp, tuple):
                         resp = resp[0] if resp else None
                     if resp and not isinstance(resp, str):
                         resp = str(resp)
                     if resp:
                         return resp
+                else:
+                    logger.warning("chat(): %s failed — %s", name, result.get("error", "unknown"))
             except Exception as exc:
-                logger.debug("chat(): %s failed — %s", name, exc)
+                logger.warning("chat(): %s exception — %s", name, exc)
 
         return (
             "DMAI is online but no AI provider key is active. "
