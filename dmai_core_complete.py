@@ -786,6 +786,30 @@ try:
 except Exception as e:
     logger.warning("SelfEditQueue failed: %s", e)
 
+# ── ExpertBrain (curated canonical knowledge across 8 critical domains) ─────
+try:
+    from components.brain import get_expert_brain as _get_expert_brain
+    _brain = _get_expert_brain(
+        knowledge_manager=components.get("knowledge_manager"),
+        data_path=DATA_PATH,
+    )
+    components["expert_brain"] = _brain
+
+    def _load_brain_bg():
+        try:
+            result = _brain.load()
+            logger.info("ExpertBrain loaded: %s entries across %s domains",
+                        result.get("loaded"), len(result.get("domains", [])))
+        except Exception as _e:
+            logger.warning("ExpertBrain load failed: %s", _e)
+
+    import threading as _th
+    _th.Thread(target=_load_brain_bg, name="ExpertBrain-load", daemon=True).start()
+    logger.info("ExpertBrain initialised (load running in background)")
+except Exception as e:
+    logger.warning("ExpertBrain failed: %s", e)
+
+
 # ── AutonomousTrader (5-min loop, market-hours gate, paper-first) ──────────────
 try:
     if components.get("trader"):
@@ -6772,6 +6796,106 @@ def api_start_services():
         "all_threads": all_threads,
         "total": len(all_threads),
     })
+
+
+
+# ── ExpertBrain routes ───────────────────────────────────────────────────────
+@app.route("/api/brain/stats", methods=["GET"])
+def api_brain_stats():
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    try:
+        return jsonify(b.stats())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/brain/domains", methods=["GET"])
+def api_brain_domains():
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    try:
+        return jsonify({"domains": b.domains()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/brain/search", methods=["GET"])
+def api_brain_search():
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    from flask import request as _rq
+    q = (_rq.args.get("q") or "").strip()
+    if not q:
+        return jsonify({"error": "missing q"}), 400
+    domain = _rq.args.get("domain") or None
+    try:
+        limit = int(_rq.args.get("limit") or 10)
+    except Exception:
+        limit = 10
+    try:
+        return jsonify({"results": b.search(q, domain=domain, limit=limit)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/brain/domain/<domain>", methods=["GET"])
+def api_brain_by_domain(domain):
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    try:
+        return jsonify({"domain": domain, "entries": b.by_domain(domain)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/brain/entry/<entry_id>", methods=["GET"])
+def api_brain_entry(entry_id):
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    row = b.get(entry_id)
+    if not row:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(row)
+
+
+@app.route("/api/brain/context", methods=["GET"])
+def api_brain_context():
+    """Build a compact LLM-grounding context for a topic query."""
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    from flask import request as _rq
+    q = (_rq.args.get("q") or "").strip()
+    if not q:
+        return jsonify({"error": "missing q"}), 400
+    try:
+        max_entries = int(_rq.args.get("max_entries") or 5)
+        max_chars = int(_rq.args.get("max_chars") or 4000)
+    except Exception:
+        max_entries, max_chars = 5, 4000
+    ctx = b.context_for(q, max_entries=max_entries, max_chars=max_chars)
+    return jsonify({"query": q, "context": ctx, "chars": len(ctx)})
+
+
+@app.route("/api/brain/reload", methods=["POST"])
+def api_brain_reload():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    b = components.get("expert_brain")
+    if not b:
+        return jsonify({"error": "expert_brain not loaded"}), 503
+    try:
+        return jsonify(b.load(force=True))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

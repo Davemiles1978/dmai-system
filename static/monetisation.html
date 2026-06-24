@@ -341,6 +341,16 @@
         <span>Pending self-edits · awaiting your approval</span>
         <div id="self-edits" style="margin-top:10px; font-size:13px;">loading…</div>
       </div>
+
+      <div class="card" style="margin-top:14px;">
+        <span>Expert brain · canonical knowledge seed</span>
+        <div id="brain-stats" style="margin-top:10px; font-size:13px;">loading…</div>
+        <div style="margin-top:10px;">
+          <input id="brain-q" placeholder="search brain (e.g. kelly criterion)" style="width:60%;padding:6px;background:#1a1a1a;color:#eee;border:1px solid #333;border-radius:4px;" />
+          <button onclick="brainSearch()" style="padding:6px 12px;background:#2563eb;color:#fff;border:0;border-radius:4px;cursor:pointer;">search</button>
+        </div>
+        <div id="brain-results" style="margin-top:10px;font-size:12px;"></div>
+      </div>
     </section>
 
   </div>
@@ -837,14 +847,57 @@ async function rejectEdit(id) {
   loadSelfEdits();
 }
 
+async function loadBrain() {
+  try {
+    const r = await fetch('/api/brain/stats');
+    const d = await r.json();
+    if (d.error) {
+      document.getElementById('brain-stats').textContent = d.error;
+      return;
+    }
+    let html = '<b>' + (d.total_entries || 0) + '</b> canonical entries &middot; v' + (d.seed_version || '?') + '<br>';
+    if (d.by_domain) {
+      html += '<div style="margin-top:6px;color:#aaa;">';
+      const parts = [];
+      for (const [k, n] of Object.entries(d.by_domain)) {
+        parts.push(k.replace(/_/g, ' ') + ': <b>' + n + '</b>');
+      }
+      html += parts.join(' &middot; ') + '</div>';
+    }
+    document.getElementById('brain-stats').innerHTML = html;
+  } catch (e) {
+    document.getElementById('brain-stats').textContent = 'unavailable';
+  }
+}
+async function brainSearch() {
+  const q = document.getElementById('brain-q').value.trim();
+  if (!q) return;
+  const r = await fetch('/api/brain/search?q=' + encodeURIComponent(q) + '&limit=5');
+  const d = await r.json();
+  const target = document.getElementById('brain-results');
+  if (!d.results || !d.results.length) {
+    target.innerHTML = '<i>no hits</i>';
+    return;
+  }
+  target.innerHTML = d.results.map(h => (
+    '<div style="padding:8px;margin:6px 0;background:#1a1a1a;border-left:3px solid #2563eb;border-radius:3px;">'
+    + '<b>' + h.topic + '</b> <span style="color:#888;">[' + h.domain + ']</span><br>'
+    + h.content.substring(0, 240) + (h.content.length > 240 ? '…' : '')
+    + '<br><a href="' + h.source_url + '" target="_blank" style="color:#60a5fa;font-size:11px;">source</a>'
+    + '</div>'
+  )).join('');
+}
+
 loadEvoSummary();
 loadSelfEdits();
+loadBrain();
 setInterval(refresh, 30000);
 setInterval(loadTrader, 30000);
 setInterval(loadPending, 30000);
 setInterval(loadNotifier, 60000);
 setInterval(loadEvoSummary, 60000);
 setInterval(loadSelfEdits, 30000);
+setInterval(loadBrain, 120000);
 </script>
 </body>
 </html>
