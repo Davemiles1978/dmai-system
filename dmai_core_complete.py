@@ -1645,6 +1645,25 @@ def api_training_status():
         "vocab_ingest":          _up("vocab", "vocabingest", "vocab-ingest"),
     }
     active = sum(1 for v in services.values() if v)
+    # Build ai_training progress for dashboard Study Progress tab
+    ai_training_progress = {"pct_expert": 0.0, "avg_mastery": 0.0, "total_topics": 0, "expert_topics": 0}
+    try:
+        import sqlite3 as _sq3
+        _db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        _conn = _sq3.connect(_db_path, timeout=5)
+        _expert = _conn.execute("SELECT COUNT(*) FROM syllabus_content WHERE mastery >= 0.8").fetchone()[0]
+        _tot    = _conn.execute("SELECT COUNT(*) FROM syllabus_content").fetchone()[0]
+        _avg    = _conn.execute("SELECT AVG(mastery) FROM syllabus_content").fetchone()[0] or 0.0
+        _conn.close()
+        ai_training_progress = {
+            "pct_expert":    round((_expert / max(_tot, 1)) * 100, 1),
+            "avg_mastery":   round(_avg, 4),
+            "total_topics":  _tot,
+            "expert_topics": _expert,
+        }
+    except Exception as _te:
+        ai_training_progress["error"] = str(_te)
+
     return jsonify({
         "status":             "healthy" if active >= 4 else "degraded",
         "training_always_on": True,
@@ -1653,6 +1672,11 @@ def api_training_status():
         "active_count":       active,
         "total_threads":      len(tnames),
         "thread_names":       tnames,
+        "components": {
+            "ai_training": {
+                "progress": ai_training_progress
+            }
+        },
     })
 
 

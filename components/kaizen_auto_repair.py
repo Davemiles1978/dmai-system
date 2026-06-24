@@ -35,7 +35,7 @@ logger = logging.getLogger("dmai.kaizen_auto_repair")
 _REPO_ROOT      = Path(__file__).resolve().parent.parent
 _KAIZEN_FILE    = _REPO_ROOT / "data" / "kaizen_queue.jsonl"
 _REPAIR_LOG     = _REPO_ROOT / "data" / "code_writer" / "kaizen_repair_log.jsonl"
-_MAX_ATTEMPTS   = 3
+_MAX_ATTEMPTS = 5
 _LOOP_INTERVAL  = 1800   # 30 minutes
 
 
