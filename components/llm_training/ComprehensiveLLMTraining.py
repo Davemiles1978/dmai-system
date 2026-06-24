@@ -25,6 +25,8 @@ class ComprehensiveLLMTraining:
     """
     
     def __init__(self, data_path: Path, knowledge_graph, ai_hub):
+        from pathlib import Path as _Path
+        data_path = _Path(data_path)
         self.data_path = data_path
         self.knowledge_graph = knowledge_graph
         self.ai_hub = ai_hub

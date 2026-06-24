@@ -40,6 +40,17 @@ from typing import Any, Dict, Optional
 from flask import Flask, jsonify, request, Response, send_from_directory
 from flask_cors import CORS
 
+def _safe_json_load(path, default=None):
+    """Load JSON file safely — returns default on missing file or parse error."""
+    try:
+        import json as _json
+        with open(path, "r") as _f:
+            return _json.load(_f)
+    except Exception:
+        return default if default is not None else {}
+
+
+
 # ── Self-generation system ──────────────────────────────────────────────────
 try:
     from components.self_scanner import SelfScanner as _SelfScanner

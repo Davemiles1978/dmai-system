@@ -2229,3 +2229,25 @@ if __name__ == "__main__":
     
     # Stop all
     manager.stop_all()
+
+
+class KnowledgeSourceManager:
+    """Stub KnowledgeSourceManager — provides interface compatibility."""
+    def __init__(self, *args, **kwargs):
+        self.sources = []
+        self.data_path = kwargs.get("data_path", "data/")
+
+    def register_source(self, source):
+        self.sources.append(source)
+
+    def get_sources(self):
+        return self.sources
+
+    def fetch_all(self):
+        results = []
+        for s in self.sources:
+            try:
+                results.extend(s.fetch() if hasattr(s, "fetch") else [])
+            except Exception:
+                pass
+        return results

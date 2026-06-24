@@ -39,7 +39,7 @@ class AlexRivieraContentEngine:
             conn = sqlite3.connect(self.db_path)
             yesterday = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%d")
             rows = conn.execute(
-                "SELECT content FROM insights WHERE created_at >= ? ORDER BY id DESC LIMIT 5",
+                "SELECT COALESCE(content, description, title, '') as content FROM insights WHERE created_at >= ? ORDER BY id DESC LIMIT 5",
                 (yesterday,)
             ).fetchall()
             conn.close()
@@ -48,7 +48,7 @@ class AlexRivieraContentEngine:
                 # Fall back to most recent insights regardless of date
                 conn = sqlite3.connect(self.db_path)
                 rows = conn.execute(
-                    "SELECT content FROM insights ORDER BY id DESC LIMIT 3"
+                    "SELECT COALESCE(content, description, title, '') as content FROM insights ORDER BY id DESC LIMIT 3"
                 ).fetchall()
                 conn.close()
 
