@@ -359,6 +359,8 @@ except Exception as e:
     logger.warning("AlexRivieraPublishing failed: %s", e)
 
 # ── Master Training Orchestrator ───────────────────────────────────────────────
+# Persist init failures so /api/startup/errors can surface them.
+_STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
 try:
     from components.orchestrator.DMAITrainingOrchestrator import (
         DMAITrainingOrchestrator, register_orchestrator_routes
@@ -372,7 +374,13 @@ try:
     )
     logger.info("DMAITrainingOrchestrator initialised")
 except Exception as e:
+    import traceback as _tb_orch
+    _STARTUP_ERRORS["training_orchestrator"] = {
+        "error": str(e),
+        "trace": _tb_orch.format_exc()[-2000:],
+    }
     logger.warning("DMAITrainingOrchestrator failed: %s", e)
+    logger.warning(_tb_orch.format_exc())
 
 # ── KPIEvaluator (real benchmark evaluations for all 8 KPIs) ─────────────────
 try:
@@ -1433,6 +1441,13 @@ def api_chat_trace():
     out["security_available"] = SECURITY_AVAILABLE
     return jsonify(out)
 
+@app.route("/api/startup/errors", methods=["GET"])
+def api_startup_errors():
+    """Return any component initialisation errors captured at boot."""
+    errs = globals().get("_STARTUP_ERRORS", {}) or {}
+    return jsonify({"count": len(errs), "errors": errs})
+
+
 @app.route("/api/chat/debug", methods=["GET"])
 def api_chat_debug():
     """Diagnostic: which provider keys are visible at request time + waterfall trace."""
@@ -2087,14 +2102,37 @@ def api_training_run():
 
 @app.route("/api/training/updater/start", methods=["POST"])
 def api_training_updater_start():
-    """Restart the background updater if it has stopped."""
+    """Run an extra full training cycle. Falls back to intensive training if the
+    DMAITrainingOrchestrator is not loaded (typical when an optional sub-component
+    failed to import)."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     orch = components.get("training_orchestrator")
     if orch and hasattr(orch, "start_background_updater"):
-        orch.start_background_updater()
-        return jsonify({"status": "restarted"})
-    return jsonify({"error": "orchestrator not loaded"}), 503
+        try:
+            orch.start_background_updater()
+            return jsonify({"status": "restarted", "via": "training_orchestrator"})
+        except Exception as e:
+            logger.warning("start_background_updater raised: %s", e)
+    # Fallback: trigger intensive training directly (same code the
+    # "Run Full Training" button uses).
+    global _INTENSIVE_TRAINING_ACTIVE
+    try:
+        if _INTENSIVE_TRAINING_ACTIVE:
+            return jsonify({"status": "already_running", "via": "intensive_fallback"})
+        import threading as _th_iu
+        t = _th_iu.Thread(target=_run_intensive_training, daemon=True,
+                          name="intensive-training-updater")
+        t.start()
+        startup_err = _STARTUP_ERRORS.get("training_orchestrator", {}).get("error")
+        return jsonify({
+            "status": "started",
+            "via": "intensive_fallback",
+            "note": "training_orchestrator was not loaded; ran intensive training instead",
+            "orchestrator_error": startup_err,
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
 
 
 @app.route("/api/training/updater/stop", methods=["POST"])
