@@ -324,10 +324,7 @@ class SIProgressTracker:
         self.kpi_file   = Path(data_path) / "si_kpi_history.json"
         self.state: Dict = self._load_state()
 
-    def _load_state(self) -> Dict:
-        if self.state_file.exists():
-            with open(self.state_file) as f:
-                return json.load(f)
+    def _default_state(self) -> Dict:
         return {
             m["id"]: {
                 "name":     m["name"],
@@ -337,6 +334,24 @@ class SIProgressTracker:
             }
             for m in SI_MODULES
         }
+
+    def _load_state(self) -> Dict:
+        if self.state_file.exists():
+            try:
+                with open(self.state_file) as f:
+                    txt = f.read().strip()
+                if not txt:
+                    raise ValueError("empty state file")
+                return json.loads(txt)
+            except Exception as _e:
+                # Corrupt or empty file: back it up and start fresh so the
+                # orchestrator can still init.
+                try:
+                    bak = self.state_file.with_suffix(".json.corrupt")
+                    self.state_file.replace(bak)
+                except Exception:
+                    pass
+        return self._default_state()
 
     def save(self):
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
