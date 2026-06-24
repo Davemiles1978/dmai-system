@@ -4834,17 +4834,22 @@ def api_stage_analytics():
         conn.row_factory = _an_sq.Row
 
         # ── 1. Current metrics ────────────────────────────────────────────────
-        # Self-heal: ensure required columns exist on legacy DBs
-        def _ensure_col(table, col, ddl):
+        # Self-heal: ensure required columns exist on legacy DBs.
+        # SQLite rejects ALTER ADD COLUMN with non-constant DEFAULT (CURRENT_TIMESTAMP),
+        # so we add the column as TEXT (no default) and backfill any NULLs.
+        def _ensure_col(table, col):
             try:
                 cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
                 if col not in cols:
-                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {ddl}")
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} TEXT")
+                    conn.execute(
+                        f"UPDATE {table} SET {col} = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE {col} IS NULL"
+                    )
                     conn.commit()
-            except Exception:
-                pass
+            except Exception as _ex:
+                logger.warning(f"_ensure_col {table}.{col} failed: {_ex}")
         for _tbl in ("insights", "capabilities"):
-            _ensure_col(_tbl, "created_at", "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+            _ensure_col(_tbl, "created_at")
 
         cur_insights = conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
         cur_caps     = conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
