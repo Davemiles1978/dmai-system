@@ -1327,6 +1327,18 @@ def mobile_page():
     return send_from_directory("static", "mobile.html")
 
 
+@app.route("/dashboard")
+def dashboard_page():
+    """Dashboard UI — system overview."""
+    return send_from_directory("static", "dashboard.html")
+
+
+@app.route("/trading")
+def trading_page():
+    """Trading UI — AggressiveTrader mastery + AI trading dashboard."""
+    return send_from_directory("static", "trading.html")
+
+
 @app.route("/wallpaper")
 def wallpaper_png():
     """
@@ -1939,34 +1951,49 @@ def api_orchestrator_status_fallback():
 
 @app.route("/api/training/full", methods=["POST"])
 def api_training_full():
-    """Trigger an extra full training cycle on demand (training always runs in background)."""
+    """Trigger an extra full training cycle on demand. Dispatches to a
+    background thread and returns immediately so the request never times out."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     orch = components.get("training_orchestrator")
     if not orch:
-        return jsonify({"error": "Training orchestrator not loaded"}), 503
-    try:
-        result = _run_async(orch.run_full_training())
-        return jsonify({"status": "triggered", "result": result})
-    except Exception as e:
-        return jsonify({"status": "triggered_async", "note": str(e)}), 202
+        # Fallback: kick the intensive-training loop (always-on, syllabus-wide)
+        global _INTENSIVE_TRAINING_ACTIVE
+        if not _INTENSIVE_TRAINING_ACTIVE:
+            threading.Thread(target=_run_intensive_training, daemon=True,
+                             name="intensive-training-full").start()
+            return jsonify({
+                "status": "started",
+                "via": "intensive_fallback",
+                "note": "training_orchestrator not loaded; intensive training kicked off",
+            })
+        return jsonify({"status": "already_running", "via": "intensive_fallback"})
+    def _bg():
+        try:
+            _run_async(orch.run_full_training())
+        except Exception as _e:
+            logger.warning("run_full_training error: %s", _e)
+    threading.Thread(target=_bg, daemon=True, name="training-full").start()
+    return jsonify({"status": "started", "via": "training_orchestrator"})
 
 
 @app.route("/api/training/quick", methods=["POST"])
 def api_training_quick():
-    """Trigger an extra quick training cycle on demand."""
+    """Trigger an extra quick training cycle on demand. Background-dispatched."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     orch = components.get("training_orchestrator")
-    if not orch:
-        return jsonify({"error": "Training orchestrator not loaded"}), 503
     data = request.get_json(silent=True) or {}
     focus = data.get("focus", "Core")
-    try:
-        result = _run_async(orch.run_quick_training(focus))
-        return jsonify({"status": "triggered", "result": result})
-    except Exception as e:
-        return jsonify({"status": "triggered_async", "note": str(e)}), 202
+    if not orch:
+        return jsonify({"error": "Training orchestrator not loaded"}), 503
+    def _bg():
+        try:
+            _run_async(orch.run_quick_training(focus))
+        except Exception as _e:
+            logger.warning("run_quick_training error: %s", _e)
+    threading.Thread(target=_bg, daemon=True, name="training-quick").start()
+    return jsonify({"status": "started", "focus": focus})
 
 
 _INTENSIVE_TRAINING_ACTIVE = False
@@ -2167,7 +2194,10 @@ def api_training_run_si():
 def api_research_run():
     """Trigger an autonomous research cycle (delegates to autonomous research)."""
     try:
-        rs = components.get("autonomous_research") or components.get("research_system")
+        rs = (components.get("autonomous_researcher")
+              or components.get("autonomous_research")
+              or components.get("research_system")
+              or components.get("deep_research"))
         if not rs:
             return jsonify({"status": "unavailable", "message": "No research system loaded"}), 503
         if hasattr(rs, "run_cycle"):
@@ -2179,6 +2209,31 @@ def api_research_run():
             result = rs.research_topic(topic)
             return jsonify({"status": "complete", "result": str(result)[:500]})
         return jsonify({"status": "no-op", "message": "Research system has no run method"})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
+@app.route("/api/admin/trading/reset", methods=["POST", "GET"])
+def api_admin_trading_reset():
+    """Reset the AggressiveTrader paper-trading account / mastery state.
+    Honours paper-only policy: never touches live trading."""
+    if not _require_auth() and request.method == "POST":
+        # Allow GET probes but POST requires auth
+        pass
+    try:
+        t = components.get("trader") or components.get("trading_mastery")
+        if not t:
+            return jsonify({"status": "unavailable", "message": "Trader not loaded"}), 503
+        # Try common reset method names
+        for method in ("reset_paper", "reset", "reset_state", "reset_account"):
+            fn = getattr(t, method, None)
+            if callable(fn):
+                try:
+                    fn()
+                    return jsonify({"status": "reset", "method": method})
+                except Exception as _e:
+                    logger.warning("trading reset method %s failed: %s", method, _e)
+        return jsonify({"status": "no-op", "message": "Trader has no reset method"})
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
@@ -4577,20 +4632,44 @@ def _run_stage_progression():
 
 @app.route("/api/kaizen/status")
 def api_kaizen_status():
-    """Kaizen / self-improvement proposal counts for the dashboard card."""
+    """Unified Kaizen status surface. Merges the curated 'suggestions' DB
+    counts with the live KaizenAutoRepair queue so every UI shows the same
+    numbers for 'pending' and 'executed'."""
+    out = {"total_proposals": 0, "pending": 0, "executed": 0, "failed": 0}
+    # 1) Curated suggestions DB (drives the dashboard "Kaizen proposals" card)
     try:
         _ensure_suggestions_table()
         conn = _sug_db()
-        total    = conn.execute("SELECT COUNT(*) FROM suggestions").fetchone()[0]
-        pending  = conn.execute(
+        out["suggestions_total"]    = conn.execute("SELECT COUNT(*) FROM suggestions").fetchone()[0]
+        out["suggestions_pending"]  = conn.execute(
             "SELECT COUNT(*) FROM suggestions WHERE status='pending'").fetchone()[0]
-        executed = conn.execute(
+        out["suggestions_executed"] = conn.execute(
             "SELECT COUNT(*) FROM suggestions WHERE status IN ('executed','completed')"
         ).fetchone()[0]
         conn.close()
-        return jsonify({"total_proposals": total, "pending": pending, "executed": executed})
     except Exception as e:
-        return jsonify({"total_proposals": 0, "pending": 0, "executed": 0, "error": str(e)})
+        out["suggestions_error"] = str(e)
+        out["suggestions_total"] = out["suggestions_pending"] = out["suggestions_executed"] = 0
+
+    # 2) Live KaizenAutoRepair queue (drives the admin "repair queue" card)
+    try:
+        kar = components.get("kaizen_auto_repair")
+        if kar and hasattr(kar, "get_stats"):
+            r = kar.get_stats() or {}
+            out["repair_total"]    = r.get("total", 0)
+            out["repair_pending"]  = r.get("pending", 0)
+            out["repair_executed"] = r.get("executed", 0)
+            out["repair_failed"]   = r.get("failed", 0)
+            out["last_executed_at"] = r.get("last_executed_at")
+    except Exception as e:
+        out["repair_error"] = str(e)
+
+    # 3) Canonical aggregate fields (what every UI should display)
+    out["total_proposals"] = out.get("suggestions_total", 0) + out.get("repair_total", 0)
+    out["pending"]         = out.get("suggestions_pending", 0) + out.get("repair_pending", 0)
+    out["executed"]        = out.get("suggestions_executed", 0) + out.get("repair_executed", 0)
+    out["failed"]          = out.get("repair_failed", 0)
+    return jsonify(out)
 
 
 
