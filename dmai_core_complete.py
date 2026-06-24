@@ -880,15 +880,31 @@ def _direct_provider_chat(prompt):
         ("Google AI Studio",
          os.getenv("GOOGLE_AI_STUDIO_KEY") or os.getenv("GEMINI_API_KEY"),
          "__gemini__",
-         "gemini-1.5-flash"),
+         "gemini-2.0-flash"),
+        ("Google AI Studio (1.5)",
+         os.getenv("GOOGLE_AI_STUDIO_KEY") or os.getenv("GEMINI_API_KEY"),
+         "__gemini__",
+         "gemini-1.5-flash-latest"),
         ("GitHub Models",
          os.getenv("GITHUB_TOKEN_MAIN") or os.getenv("GITHUB_TOKEN"),
          "https://models.github.ai/inference/chat/completions",
          "gpt-4o-mini"),
-        ("OpenRouter",
+        ("OpenRouter (Llama)",
          os.getenv("OPENROUTER_API_KEY"),
          "https://openrouter.ai/api/v1/chat/completions",
          "meta-llama/llama-3.3-70b-instruct:free"),
+        ("OpenRouter (Mistral)",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "mistralai/mistral-7b-instruct:free"),
+        ("OpenRouter (Gemma)",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "google/gemma-2-9b-it:free"),
+        ("OpenRouter (Qwen)",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "qwen/qwen-2.5-7b-instruct:free"),
         ("DeepSeek",
          os.getenv("DEEPSEEK_API_KEY"),
          "https://api.deepseek.com/v1/chat/completions",
@@ -1361,6 +1377,24 @@ def api_chat():
         import traceback
         logger.error("chat error: %s\n%s", e, traceback.format_exc())
         return jsonify({"error": str(e), "trace": traceback.format_exc()[-500:]}), 500
+
+@app.route("/api/chat/trace", methods=["POST", "GET"])
+def api_chat_trace():
+    """Diagnostic: run _ai_chat directly and return any exception trace."""
+    import traceback as _tb
+    data = request.get_json(silent=True) or {}
+    msg = data.get("message") or request.args.get("message", "hello")
+    out = {"input": msg}
+    try:
+        r = _ai_chat(msg)
+        out["result"] = r
+        out["type"] = type(r).__name__
+        out["is_str"] = isinstance(r, str)
+    except Exception as e:
+        out["exception"] = str(e)
+        out["trace"] = _tb.format_exc()[-1500:]
+    out["security_available"] = SECURITY_AVAILABLE
+    return jsonify(out)
 
 @app.route("/api/chat/debug", methods=["GET"])
 def api_chat_debug():
