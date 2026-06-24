@@ -809,6 +809,19 @@ try:
 except Exception as e:
     logger.warning("ExpertBrain failed: %s", e)
 
+# ── PersonaRegistry (role-specific operating personas for every subsystem) ───
+try:
+    from components.personas import get_persona_registry as _get_personas
+    components["persona_registry"] = _get_personas(
+        data_path=DATA_PATH,
+        expert_brain=components.get("expert_brain"),
+    )
+    logger.info("PersonaRegistry initialised (%d personas)",
+                len(components["persona_registry"].all()))
+except Exception as e:
+    logger.warning("PersonaRegistry failed: %s", e)
+
+
 
 # ── AutonomousTrader (5-min loop, market-hours gate, paper-first) ──────────────
 try:
@@ -6894,6 +6907,75 @@ def api_brain_reload():
         return jsonify(b.load(force=True))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+
+
+# ── Persona routes ───────────────────────────────────────────────────────────
+@app.route("/api/personas", methods=["GET"])
+def api_personas_list():
+    r = components.get("persona_registry")
+    if not r:
+        return jsonify({"error": "persona_registry not loaded"}), 503
+    items = r.all()
+    # Strip system_prompt from list view for brevity
+    return jsonify({"personas": items, "count": len(items)})
+
+
+@app.route("/api/personas/<name>", methods=["GET"])
+def api_personas_get(name):
+    r = components.get("persona_registry")
+    if not r:
+        return jsonify({"error": "persona_registry not loaded"}), 503
+    p = r.get(name)
+    if not p:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(p)
+
+
+@app.route("/api/personas/resolve", methods=["GET"])
+def api_personas_resolve():
+    r = components.get("persona_registry")
+    if not r:
+        return jsonify({"error": "persona_registry not loaded"}), 503
+    from flask import request as _rq
+    component = _rq.args.get("component")
+    task = _rq.args.get("task")
+    persona = r.resolve(component=component, task=task)
+    with_brain = (_rq.args.get("with_brain") or "1") != "0"
+    prompt = r.system_prompt(persona["name"], with_brain=with_brain)
+    return jsonify({
+        "persona": persona["name"],
+        "label": persona.get("label"),
+        "scope": persona.get("scope"),
+        "system_prompt": prompt,
+        "model_preference": persona.get("model_preference", []),
+        "decision_rules": persona.get("decision_rules", []),
+    })
+
+
+@app.route("/api/personas/usage", methods=["GET"])
+def api_personas_usage():
+    r = components.get("persona_registry")
+    if not r:
+        return jsonify({"error": "persona_registry not loaded"}), 503
+    from flask import request as _rq
+    try:
+        days = int(_rq.args.get("days") or 7)
+    except Exception:
+        days = 7
+    return jsonify(r.usage_stats(days=days))
+
+
+@app.route("/api/personas/reload", methods=["POST"])
+def api_personas_reload():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    r = components.get("persona_registry")
+    if not r:
+        return jsonify({"error": "persona_registry not loaded"}), 503
+    return jsonify(r.reload())
 
 
 

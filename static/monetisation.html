@@ -351,6 +351,11 @@
         </div>
         <div id="brain-results" style="margin-top:10px;font-size:12px;"></div>
       </div>
+
+      <div class="card" style="margin-top:14px;">
+        <span>Personas · role-specific operating voices</span>
+        <div id="personas-list" style="margin-top:10px;font-size:12px;">loading…</div>
+      </div>
     </section>
 
   </div>
@@ -888,9 +893,32 @@ async function brainSearch() {
   )).join('');
 }
 
+async function loadPersonas() {
+  try {
+    const r = await fetch('/api/personas');
+    const d = await r.json();
+    if (!d.personas) {
+      document.getElementById('personas-list').textContent = d.error || 'unavailable';
+      return;
+    }
+    document.getElementById('personas-list').innerHTML = d.personas.map(p => (
+      '<div style="padding:6px;margin:4px 0;background:#1a1a1a;border-left:3px solid '
+      + (p.scope === 'PUBLIC' ? '#f59e0b' : '#10b981')
+      + ';border-radius:3px;">'
+      + '<b>' + p.label + '</b> <span style="color:#666;font-size:11px;">[' + p.name + ']</span>'
+      + '<span style="color:#888;float:right;">' + p.scope + '</span><br>'
+      + '<span style="color:#aaa;">used by: ' + (p.used_by || []).join(', ') + '</span>'
+      + '</div>'
+    )).join('');
+  } catch (e) {
+    document.getElementById('personas-list').textContent = 'unavailable';
+  }
+}
+
 loadEvoSummary();
 loadSelfEdits();
 loadBrain();
+loadPersonas();
 setInterval(refresh, 30000);
 setInterval(loadTrader, 30000);
 setInterval(loadPending, 30000);
