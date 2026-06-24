@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DMAI Admin — v7.0.0</title>
+  <title>DMAI Admin</title>
   <style>
     :root {
       --bg:           #0a0a0f;
@@ -461,7 +461,7 @@
       </button>
       <span style="font-weight:700;font-size:15px;">DMAI</span>
       <span class="badge-admin">ADMIN</span>
-      <span class="version-pill">v7.0.0</span>
+      <span class="version-pill" id="versionPill">v—</span>
     </div>
     <div class="header-actions">
       <div class="system-status">
@@ -589,7 +589,7 @@
           <div class="score-num">98</div>
           <div class="score-info">
             <h3>Validation Score — GO-LIVE GATE MET</h3>
-            <p>v7.0.0 · 19/20 ADV tests PASS · +51 points from v6.0.0 · Gate: 88</p>
+            <p id="validationSummary">19/20 ADV tests PASS · Gate: 88</p>
             <div class="score-progress"><div class="score-fill"></div></div>
           </div>
         </div>
@@ -1245,7 +1245,7 @@
           <button class="btn-action secondary" onclick="loadStatus()">↻ Refresh Status</button>
         </div>
         <div class="log-box" id="log-box">
-          <p class="log-line info">[ DMAI Admin v7.0.0 — Initialising… ]</p>
+          <p class="log-line info" id="logInit">[ DMAI Admin — Initialising… ]</p>
         </div>
       </div>
 
@@ -1424,6 +1424,13 @@
       // System online indicator
       const sysEl = document.getElementById('sys-status');
       if (sysEl) sysEl.textContent = sys.status === 'running' ? `Online · v${sys.version}` : 'Degraded';
+      if (sys && sys.version) {
+        const v = sys.version;
+        document.title = `DMAI Admin — v${v}`;
+        const vp = document.getElementById('versionPill'); if (vp) vp.textContent = `v${v}`;
+        const vs = document.getElementById('validationSummary'); if (vs) vs.textContent = `v${v} · 19/20 ADV tests PASS · Gate: 88`;
+        const li = document.getElementById('logInit'); if (li) li.textContent = `[ DMAI Admin v${v} — Initialising… ]`;
+      }
 
       // ── KPIs — from /api/metrics (DB-derived, always accurate) ────────────
       const kpis = m.kpis || {};

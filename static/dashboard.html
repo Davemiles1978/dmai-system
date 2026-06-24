@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DMAI — Autonomous General Intelligence v6.0.0</title>
+  <title>DMAI — Autonomous General Intelligence</title>
   <style>
     /* ── Design Tokens ─────────────────────────────────────────────── */
     :root {
@@ -871,7 +871,7 @@
           </svg>
           <div class="logo-text">
             <span class="logo-title">DMAI</span>
-            <span class="logo-subtitle">Autonomous General Intelligence v6.0.0</span>
+            <span class="logo-subtitle" id="logoSubtitle">Autonomous General Intelligence</span>
           </div>
         </div>
         <div class="header-right">
@@ -1142,7 +1142,7 @@
           </table>
         </div>
         <div class="footer-meta">
-          <div class="footer-version">DMAI v6.0.0</div>
+          <div class="footer-version" id="footerVersion">DMAI</div>
           <div class="footer-version" id="footerBuildTime">—</div>
           <div class="footer-version">Dashboard r1.0</div>
           <a href="#" class="footer-link">
@@ -1629,10 +1629,18 @@ async function loadData() {
     document.getElementById('statusDot').style.animationName = 'pulse-green';
   }
 
-  // Update footer build time
+  // Update footer build time + all version-bearing labels
   const buildEl = document.getElementById('footerBuildTime');
   if (buildEl && status && status.version) {
     buildEl.textContent = `v${status.version} · Build ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}`;
+  }
+  if (status && status.version) {
+    const v = status.version;
+    document.title = `DMAI — Autonomous General Intelligence v${v}`;
+    const subEl = document.getElementById('logoSubtitle');
+    if (subEl) subEl.textContent = `Autonomous General Intelligence v${v}`;
+    const fvEl = document.getElementById('footerVersion');
+    if (fvEl) fvEl.textContent = `DMAI v${v}`;
   }
 
   renderStatCards(status, orch, providers, kaizenStatus);
