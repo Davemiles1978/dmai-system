@@ -275,6 +275,21 @@ class AutonomousTrader:
                 c.execute(ddl)
             c.commit()
 
+    def _ensure_tables(self) -> None:
+        """Idempotent table create + state-row seed. Safe to call on every public entry."""
+        try:
+            with self._conn() as c:
+                for ddl in SCHEMA:
+                    c.execute(ddl)
+                row = c.execute("SELECT id FROM at_state WHERE id = 1").fetchone()
+                if not row:
+                    c.execute(
+                        "INSERT INTO at_state(id, enabled, tier) VALUES (1, 0, 'conservative')"
+                    )
+                c.commit()
+        except Exception as e:
+            logger.warning("AutonomousTrader._ensure_tables: %s", e)
+
     def _ensure_state_row(self) -> None:
         with self._conn() as c:
             row = c.execute("SELECT id FROM at_state WHERE id = 1").fetchone()
@@ -286,6 +301,7 @@ class AutonomousTrader:
 
     # ── Public surface ────────────────────────────────────────────────────────
     def status(self) -> Dict[str, Any]:
+        self._ensure_tables()
         with self._conn() as c:
             s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
             recent = c.execute(
@@ -738,6 +754,7 @@ class AutonomousTrader:
     # ----- Daily P&L digest --------------------------------------------------
     def daily_summary(self):
         today = date.today().isoformat()
+        self._ensure_tables()
         try:
             with self._conn() as c:
                 s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
@@ -747,7 +764,10 @@ class AutonomousTrader:
         except sqlite3.OperationalError as e:
             if "no such table" in str(e).lower():
                 logger.warning("AutonomousTrader tables missing — reinitialising schema")
-                self._init_schema()
+                try:
+                    self._init_db()
+                except Exception as ie:
+                    logger.warning("_init_db failed: %s", ie)
                 s = None
                 trades = None
             else:
@@ -780,6 +800,7 @@ class AutonomousTrader:
     # ----- Trade journal export ----------------------------------------------
     def export_journal_rows(self, days=30):
         since = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        self._ensure_tables()
         with self._conn() as c:
             rows = c.execute(
                 "SELECT ts, symbol, side, qty, confidence, ev, tier, live "
