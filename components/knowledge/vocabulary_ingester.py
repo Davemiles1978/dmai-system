@@ -1,20 +1,28 @@
 """
-VocabularyIngester — DMAI's language and encyclopaedia knowledge engine.
+VocabularyIngester — DMAI's language and encyclopaedic knowledge engine.
 
-Sources:
-  - Wiktionary REST API (free, no key) — definitions, etymology, pronunciation, POS
-  - Wikipedia REST API (free, no key) — encyclopaedic summaries, categories
-  - Project Gutenberg RSS — classic literature titles for cultural literacy
+Sources (Wikipedia is NOT used — policy):
+  Vocabulary:
+    - Wiktionary REST API (free, no key) — definitions, POS, pronunciation
+    - Merriam-Webster Collegiate API (gated on MERRIAM_API_KEY env var) — adds
+      authoritative US-English definitions on top of Wiktionary data when
+      available. 1,000 calls/day on the free tier.
+    - Cached large word pool (dwyl/english-words, ~370k words) advanced via a
+      persistent cursor across passes.
+  Encyclopaedia:
+    - Stanford Encyclopedia of Philosophy (plato.stanford.edu) — ~1,800
+      peer-reviewed entries, modern, scholarly. Indexed from contents.html.
+    - Scholarpedia (scholarpedia.org) — peer-reviewed articles in
+      computational neuroscience, dynamical systems, machine learning,
+      astrophysics, and physics.
 
-Stores learned vocabulary in the `vocabulary` table and encyclopaedia entries
+Stores learned vocabulary in the `vocabulary` table and encyclopaedic entries
 in the `encyclopaedia` table of dmai_knowledge.db.
-
-Runs continuously, cycling through curated word/topic lists and dynamically
-expanding via insights already stored in the DB.
 """
 
 import json
 import logging
+import re
 import sqlite3
 import time
 import uuid
@@ -94,6 +102,63 @@ LINGUISTICS_TOPICS = [
     "linguistic relativity", "universal grammar", "Noam Chomsky", "structuralism", "semiology",
 ]
 
+# ── Large word pool (downloaded once, cached to disk) ──────────────────────
+# dwyl/english-words: ~370k words. Filtered to alpha-only, 4-20 chars.
+WORD_POOL_URL = "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt"
+WORD_POOL_PATH = Path("data/word_pool.txt")
+WORD_CURSOR_PATH = Path("data/vocab_cursor.txt")
+
+
+def _load_big_word_pool() -> list:
+    """Download (once) and cache a large English word list. Filter to OED-grade tokens."""
+    try:
+        if not WORD_POOL_PATH.exists():
+            WORD_POOL_PATH.parent.mkdir(parents=True, exist_ok=True)
+            logger.info("VocabularyIngester: downloading large word pool from dwyl/english-words")
+            r = requests.get(WORD_POOL_URL, timeout=60)
+            r.raise_for_status()
+            raw = r.text
+            words = []
+            for w in raw.split():
+                w = w.strip().lower()
+                if 4 <= len(w) <= 20 and w.isalpha():
+                    words.append(w)
+            # dedupe preserving order
+            seen = set()
+            unique = []
+            for w in words:
+                if w not in seen:
+                    seen.add(w)
+                    unique.append(w)
+            WORD_POOL_PATH.write_text("\n".join(unique))
+            logger.info("VocabularyIngester: cached %d words to %s", len(unique), WORD_POOL_PATH)
+            return unique
+        else:
+            words = [w.strip() for w in WORD_POOL_PATH.read_text().splitlines() if w.strip()]
+            return words
+    except Exception as e:
+        logger.warning("VocabularyIngester: big-pool load failed (%s) — falling back to seed list", e)
+        return []
+
+
+def _read_cursor() -> int:
+    try:
+        if WORD_CURSOR_PATH.exists():
+            return int(WORD_CURSOR_PATH.read_text().strip() or "0")
+    except Exception:
+        pass
+    return 0
+
+
+def _write_cursor(idx: int) -> None:
+    try:
+        WORD_CURSOR_PATH.parent.mkdir(parents=True, exist_ok=True)
+        WORD_CURSOR_PATH.write_text(str(idx))
+    except Exception:
+        pass
+
+
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -141,7 +206,7 @@ class VocabularyIngester:
                 url TEXT,
                 domain TEXT DEFAULT 'general',
                 word_count INTEGER DEFAULT 0,
-                source TEXT DEFAULT 'wikipedia',
+                source TEXT DEFAULT 'unknown',
                 created_at TEXT NOT NULL
             );
 
@@ -205,31 +270,17 @@ class VocabularyIngester:
             return None
 
     def _fetch_etymology(self, word: str) -> str:
-        """Attempt to get etymology from Wikipedia's Wiktionary parse endpoint."""
-        try:
-            url = "https://en.wiktionary.org/w/api.php"
-            params = {
-                "action": "query", "titles": word, "prop": "extracts",
-                "exintro": True, "format": "json", "redirects": 1
-            }
-            r = self.session.get(url, params=params, timeout=10)
-            r.raise_for_status()
-            pages = r.json().get("query", {}).get("pages", {})
-            for p in pages.values():
-                extract = p.get("extract", "")
-                if extract:
-                    import re
-                    clean = re.sub(r"<[^>]+>", "", extract)
-                    # Find etymology section hint
-                    for line in clean.split("\n"):
-                        if any(kw in line.lower() for kw in ["from ", "origin", "latin", "greek", "old english", "french", "proto-"]):
-                            return line.strip()[:400]
-            return ""
-        except Exception:
-            return ""
+        """Etymology helper. No Wikipedia/Wiktionary parse calls — policy.
+
+        Etymology, when present, is taken from the Wiktionary REST definition
+        payload itself (no extra request). Returns empty string here as a
+        graceful no-op.
+        """
+        return ""
 
     def store_word(self, word_data: dict) -> bool:
         """Store a vocabulary entry. Returns True if new, False if already existed."""
+        word_data = self._mw_augment(dict(word_data))
         try:
             conn = sqlite3.connect(str(self.db_path))
             existing = conn.execute("SELECT id FROM vocabulary WHERE word=?",
@@ -250,7 +301,7 @@ class VocabularyIngester:
                  word_data.get("etymology", ""),
                  word_data.get("example", ""),
                  word_data.get("pronunciation", ""),
-                 domain, "wiktionary", 0.92, _now())
+                 domain, word_data.get("source", "wiktionary"), 0.92, _now())
             )
             conn.commit()
             conn.close()
@@ -259,31 +310,223 @@ class VocabularyIngester:
             logger.error("store_word failed for '%s': %s", word_data.get("word"), e)
             return False
 
-    # ── Wikipedia ──────────────────────────────────────────────────────────
-    def fetch_topic(self, title: str) -> Optional[dict]:
-        """Fetch encyclopaedic summary from Wikipedia REST API."""
-        url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(title)}"
+    # ── Merriam-Webster (gated on env var) ──────────────────────────
+    def _mw_augment(self, word_data: dict) -> dict:
+        """If MERRIAM_API_KEY is set, look up the word in Merriam-Webster's
+        Collegiate Dictionary and merge a fuller definition + etymology into
+        the existing payload. Silently returns the original payload on any
+        error or missing key."""
+        import os
+        key = os.environ.get("MERRIAM_API_KEY", "").strip()
+        if not key:
+            return word_data
         try:
+            word = word_data.get("word") or ""
+            if not word:
+                return word_data
+            url = f"https://www.dictionaryapi.com/api/v3/references/collegiate/json/{requests.utils.quote(word)}?key={key}"
             r = self.session.get(url, timeout=15)
+            r.raise_for_status()
+            entries = r.json()
+            if not isinstance(entries, list) or not entries:
+                return word_data
+            first = entries[0]
+            if not isinstance(first, dict):
+                return word_data
+            shortdefs = first.get("shortdef") or []
+            mw_def = shortdefs[0] if shortdefs else ""
+            mw_etym = ""
+            et = first.get("et")
+            if isinstance(et, list) and et:
+                for chunk in et:
+                    if isinstance(chunk, list) and len(chunk) > 1 and chunk[0] == "text":
+                        mw_etym = re.sub(r"\{[^}]+\}", "", chunk[1]).strip()
+                        break
+            mw_pos = first.get("fl") or ""
+            if mw_def:
+                # Prefer M-W definition (more authoritative) but keep Wiktionary
+                # as a fallback inside the same field.
+                base = word_data.get("definition", "")
+                merged = mw_def
+                if base and base not in merged:
+                    merged = f"{mw_def} — (Wiktionary: {base})"
+                word_data["definition"] = merged[:1000]
+                word_data["source"] = "merriam_webster"
+            if mw_etym and not word_data.get("etymology"):
+                word_data["etymology"] = mw_etym[:500]
+            if mw_pos and not word_data.get("part_of_speech"):
+                word_data["part_of_speech"] = mw_pos
+            return word_data
+        except Exception as e:
+            logger.debug("Merriam-Webster augment failed for %r: %s", word_data.get("word"), e)
+            return word_data
+
+    # ── Stanford Encyclopedia of Philosophy (SEP) ─────────────────────
+    _SEP_INDEX_CACHE: Path = Path("data/sep_index.json")
+    _SEP_BASE = "https://plato.stanford.edu"
+
+    def _load_sep_index(self) -> list:
+        """Return list of SEP entry slugs. Cached to disk after first fetch."""
+        try:
+            if self._SEP_INDEX_CACHE.exists():
+                import json as _j
+                return _j.loads(self._SEP_INDEX_CACHE.read_text())
+        except Exception:
+            pass
+        try:
+            r = self.session.get(f"{self._SEP_BASE}/contents.html", timeout=30)
+            r.raise_for_status()
+            slugs = sorted(set(re.findall(r'href="entries/([^"/]+)/"', r.text)))
+            try:
+                self._SEP_INDEX_CACHE.parent.mkdir(parents=True, exist_ok=True)
+                import json as _j
+                self._SEP_INDEX_CACHE.write_text(_j.dumps(slugs))
+            except Exception:
+                pass
+            logger.info("SEP index loaded: %d entries", len(slugs))
+            return slugs
+        except Exception as e:
+            logger.warning("SEP index load failed: %s", e)
+            return []
+
+    def _fetch_sep_entry(self, slug: str) -> Optional[dict]:
+        """Fetch a Stanford Encyclopedia of Philosophy entry by slug."""
+        url = f"{self._SEP_BASE}/entries/{slug}/"
+        try:
+            r = self.session.get(url, timeout=25)
             if r.status_code == 404:
                 return None
             r.raise_for_status()
-            data = r.json()
-            extract = data.get("extract", "")
-            if not extract or len(extract) < 50:
+            html = r.text
+            tm = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S)
+            title = re.sub(r"<[^>]+>", "", tm.group(1)).strip() if tm else slug.replace("-", " ").title()
+
+            m = re.search(r'<div[^>]*id="main-text"[^>]*>(.+?)</div>\s*<div[^>]*id="bibliography"', html, re.S)
+            if not m:
+                m = re.search(r'<div[^>]*id="aueditable"[^>]*>(.+?)</div>', html, re.S)
+            body = m.group(1) if m else html
+            body = re.sub(r"<script[^>]*>.*?</script>", " ", body, flags=re.S)
+            body = re.sub(r"<style[^>]*>.*?</style>", " ", body, flags=re.S)
+            text = re.sub(r"<[^>]+>", " ", body)
+            text = re.sub(r"&[a-zA-Z]+;", " ", text)
+            text = re.sub(r"\s+", " ", text).strip()
+            if len(text) < 200:
                 return None
-            categories = data.get("categories", [])
-            cat_str = json.dumps([c.get("title", "") for c in categories[:10]])
             return {
-                "title": data.get("title", title),
-                "summary": extract[:2000],
-                "categories": cat_str,
-                "url": data.get("content_urls", {}).get("desktop", {}).get("page", ""),
-                "word_count": len(extract.split()),
+                "title": title,
+                "summary": text[:4000],
+                "categories": json.dumps(["philosophy", "sep"]),
+                "url": url,
+                "word_count": len(text.split()),
+                "source": "stanford_encyclopedia_of_philosophy",
+                "domain": "philosophy",
             }
         except Exception as e:
-            logger.debug("Wikipedia fetch failed for '%s': %s", title, e)
+            logger.debug("SEP fetch failed for %r: %s", slug, e)
             return None
+
+    # ── Scholarpedia ─────────────────────────────────────────────
+    _SP_INDEX_CACHE: Path = Path("data/scholarpedia_index.json")
+    _SP_BASE = "http://www.scholarpedia.org"
+    _SP_SUB_ENCYCLOPEDIAS = [
+        "Encyclopedia:Astrophysics",
+        "Encyclopedia:Celestial_Mechanics",
+        "Encyclopedia:Computational_intelligence",
+        "Encyclopedia:Computational_neuroscience",
+        "Encyclopedia:Dynamical_systems",
+        "Encyclopedia:Physics",
+        "Encyclopedia:Touch",
+    ]
+
+    def _load_scholarpedia_index(self) -> list:
+        """Aggregate article slugs across Scholarpedia's sub-encyclopedias."""
+        try:
+            if self._SP_INDEX_CACHE.exists():
+                import json as _j
+                return _j.loads(self._SP_INDEX_CACHE.read_text())
+        except Exception:
+            pass
+        slugs: list = []
+        for enc in self._SP_SUB_ENCYCLOPEDIAS:
+            try:
+                r = self.session.get(f"{self._SP_BASE}/article/{enc}", timeout=20)
+                if not r.ok:
+                    continue
+                found = re.findall(r'href="/article/([^"#?]+)"', r.text)
+                for s in found:
+                    if ":" in s:
+                        continue  # skip namespaced (Category:, Help:, etc.)
+                    if s in ("Main_Page",):
+                        continue
+                    slugs.append(s)
+            except Exception as e:
+                logger.debug("Scholarpedia index fetch failed for %s: %s", enc, e)
+        # dedupe
+        slugs = sorted(set(slugs))
+        try:
+            self._SP_INDEX_CACHE.parent.mkdir(parents=True, exist_ok=True)
+            import json as _j
+            self._SP_INDEX_CACHE.write_text(_j.dumps(slugs))
+        except Exception:
+            pass
+        logger.info("Scholarpedia index loaded: %d articles", len(slugs))
+        return slugs
+
+    def _fetch_scholarpedia_entry(self, slug: str) -> Optional[dict]:
+        url = f"{self._SP_BASE}/article/{slug}"
+        try:
+            r = self.session.get(url, timeout=25)
+            if r.status_code == 404:
+                return None
+            r.raise_for_status()
+            html = r.text
+            tm = re.search(r"<h1[^>]*id=\"firstHeading\"[^>]*>(.*?)</h1>", html, re.S)
+            if not tm:
+                tm = re.search(r"<title>(.*?)</title>", html, re.S)
+            title = re.sub(r"<[^>]+>", "", tm.group(1)).strip() if tm else slug.replace("_", " ")
+            title = title.replace(" - Scholarpedia", "")
+
+            m = re.search(r'<div[^>]*id="mw-content-text"[^>]*>(.+?)<div[^>]*class="printfooter"', html, re.S)
+            if not m:
+                m = re.search(r'<div[^>]*id="bodyContent"[^>]*>(.+?)<!--', html, re.S)
+            body = m.group(1) if m else html
+            body = re.sub(r"<script[^>]*>.*?</script>", " ", body, flags=re.S)
+            body = re.sub(r"<style[^>]*>.*?</style>", " ", body, flags=re.S)
+            text = re.sub(r"<[^>]+>", " ", body)
+            text = re.sub(r"&[a-zA-Z]+;", " ", text)
+            text = re.sub(r"\s+", " ", text).strip()
+            if len(text) < 200:
+                return None
+            return {
+                "title": title,
+                "summary": text[:4000],
+                "categories": json.dumps(["scholarpedia", "peer_reviewed"]),
+                "url": url,
+                "word_count": len(text.split()),
+                "source": "scholarpedia",
+                "domain": "science",
+            }
+        except Exception as e:
+            logger.debug("Scholarpedia fetch failed for %r: %s", slug, e)
+            return None
+
+    # ── Public API: fetch_topic dispatches across sources ──────────
+    def fetch_topic(self, title: str) -> Optional[dict]:
+        """Try SEP first, then Scholarpedia. No Wikipedia."""
+        # Slugify a title for SEP-style URLs
+        slug = title.lower().strip()
+        slug = re.sub(r"[^a-z0-9 -]", "", slug)
+        slug = re.sub(r"\s+", "-", slug).strip("-")
+        if slug:
+            d = self._fetch_sep_entry(slug)
+            if d:
+                return d
+        # Scholarpedia uses underscores
+        sp_slug = re.sub(r"\s+", "_", title.strip())
+        d = self._fetch_scholarpedia_entry(sp_slug)
+        if d:
+            return d
+        return None
 
     def store_topic(self, topic_data: dict) -> bool:
         """Store an encyclopaedia entry. Returns True if new."""
@@ -294,8 +537,9 @@ class VocabularyIngester:
             if existing:
                 conn.close()
                 return False
-            domain = self._classify_encyc_domain(topic_data.get("title", ""),
-                                                  topic_data.get("summary", ""))
+            domain = topic_data.get("domain") or self._classify_encyc_domain(
+                topic_data.get("title", ""), topic_data.get("summary", "")
+            )
             conn.execute(
                 "INSERT INTO encyclopaedia (id, title, summary, categories, url, domain, "
                 "word_count, source, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
@@ -306,13 +550,13 @@ class VocabularyIngester:
                  topic_data.get("url", ""),
                  domain,
                  topic_data.get("word_count", 0),
-                 "wikipedia", _now())
+                 topic_data.get("source", "unknown"), _now())
             )
             conn.commit()
             conn.close()
             return True
         except Exception as e:
-            logger.error("store_topic failed for '%s': %s", topic_data.get("title"), e)
+            logger.error("store_topic failed for %r: %s", topic_data.get("title"), e)
             return False
 
     # ── Domain classifiers ─────────────────────────────────────────────────
@@ -390,58 +634,105 @@ class VocabularyIngester:
         except Exception as e:
             return {"error": str(e)}
 
-    # ── Main run loop ───────────────────────────────────────────────────────
-    def run_once(self):
-        """Single pass: ingest a batch of vocabulary + encyclopaedia entries."""
+    # ── Main run loop ─────────────────────────────────────────────────────────────────
+    def run_once(self, target_new_words: int = 200, target_new_topics: int = 50):
+        """Single pass: ingest a batch of vocabulary + encyclopaedia entries.
+
+        Sources words from a large cached English word list (~370k entries from
+        dwyl/english-words) advancing through it via a persistent cursor, plus
+        the small curated seed list for high-signal vocabulary. Defaults to
+        target 200 new words / 50 new topics per pass.
+        """
         import random
 
-        # Build word list: seeds + insight-derived terms
-        insight_topics = self._get_insight_topics(30)
-        word_pool = list(OED_SEED_WORDS) + LINGUISTICS_TOPICS
-        # Add single-word insight topics as vocabulary candidates
-        word_pool += [t for t in insight_topics if " " not in t and len(t) > 3]
-        random.shuffle(word_pool)
+        # Determine which words already exist to skip them fast
+        existing_words = set()
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            existing_words = {row[0] for row in conn.execute("SELECT word FROM vocabulary").fetchall()}
+            conn.close()
+        except Exception as _e:
+            logger.debug("vocab dedup pre-load failed: %s", _e)
 
-        # Build topic list: seeds + multi-word insight topics
-        topic_pool = list(ENCYCLOPAEDIA_SEED_TOPICS) + LINGUISTICS_TOPICS
-        topic_pool += [t for t in insight_topics if " " in t]
-        random.shuffle(topic_pool)
+        # 1) Seed list always tried first (small, high-value)
+        seed_words = list(OED_SEED_WORDS) + [w for w in LINGUISTICS_TOPICS if " " not in w]
+        random.shuffle(seed_words)
+
+        # 2) Insight-derived single-word topics
+        insight_topics = self._get_insight_topics(50)
+        insight_words = [t.lower() for t in insight_topics if " " not in t and len(t) > 3]
+
+        # 3) Big pool with cursor (advance through ~370k words across passes)
+        big_pool = _load_big_word_pool()
+        cursor = _read_cursor()
+        if big_pool:
+            cursor = cursor % len(big_pool)
+            # Take a window of 4000 candidates from the cursor onwards (with wrap)
+            window_size = 4000
+            if cursor + window_size <= len(big_pool):
+                window = big_pool[cursor:cursor + window_size]
+            else:
+                window = big_pool[cursor:] + big_pool[:window_size - (len(big_pool) - cursor)]
+            random.shuffle(window)
+        else:
+            window = []
+            cursor = 0
+
+        # Try seeds + insight words first, then big-pool window
+        word_pool = seed_words + insight_words + window
+
+        # Topic pool: SEP + Scholarpedia indexed slugs (not Wikipedia)
+        import random as _r2
+        sep_slugs = self._load_sep_index()
+        sp_slugs = self._load_scholarpedia_index()
+        # Convert SEP slugs to display titles for the slugify pass in fetch_topic
+        sep_titles = [s.replace("-", " ").title() for s in sep_slugs]
+        sp_titles = [s.replace("_", " ") for s in sp_slugs]
+        topic_pool = sep_titles + sp_titles + [t for t in insight_topics if " " in t]
+        _r2.shuffle(topic_pool)
 
         new_words = 0
         new_topics = 0
+        attempted = 0
 
-        # Ingest vocabulary (up to 20 new words per pass)
-        words_attempted = 0
         for word in word_pool:
-            if new_words >= 20:
+            if new_words >= target_new_words:
                 break
+            if attempted >= target_new_words * 6:  # cap network calls per pass
+                break
+            if word in existing_words:
+                continue
             data = self.fetch_word(word)
+            attempted += 1
             if data:
                 if self.store_word(data):
                     new_words += 1
-                    logger.info("VocabularyIngester: learned '%s' (%s) — %s",
-                                word, data.get("part_of_speech", "?"),
-                                data["definition"][:60])
-                    # Also add as an insight so it feeds the knowledge graph
+                    existing_words.add(word)
+                    logger.info("VocabularyIngester: learned %r (%s)", word, data.get("part_of_speech", "?"))
                     self._add_to_insights(word, data["definition"], "linguistics")
-            words_attempted += 1
-            time.sleep(0.3)  # polite rate limit
+            # gentler rate-limit (Wiktionary REST has generous quotas)
+            time.sleep(0.15)
 
-        # Ingest encyclopaedia (up to 15 new topics per pass)
+        # Advance cursor by the window size so next pass moves forward
+        if big_pool:
+            _write_cursor((cursor + 4000) % len(big_pool))
+
+        # Ingest encyclopaedia
         for topic in topic_pool:
-            if new_topics >= 15:
+            if new_topics >= target_new_topics:
                 break
             data = self.fetch_topic(topic)
             if data:
                 if self.store_topic(data):
                     new_topics += 1
-                    logger.info("VocabularyIngester: encyclopaedia '%s' (%d words)",
+                    logger.info("VocabularyIngester: encyclopaedia %r (%d words)",
                                 topic, data.get("word_count", 0))
                     self._add_to_insights(topic, data["summary"][:200], data.get("domain", "general"))
-            time.sleep(0.4)
+            time.sleep(0.25)
 
-        logger.info("VocabularyIngester pass complete: +%d words, +%d topics", new_words, new_topics)
-        return {"new_words": new_words, "new_topics": new_topics}
+        logger.info("VocabularyIngester pass complete: +%d words (%d attempted), +%d topics",
+                    new_words, attempted, new_topics)
+        return {"new_words": new_words, "new_topics": new_topics, "attempted": attempted}
 
     def _add_to_insights(self, concept: str, text: str, domain: str):
         """Mirror learning into the insights table so it feeds the knowledge graph."""
@@ -480,7 +771,7 @@ class VocabularyIngester:
         except Exception as e:
             logger.debug("_add_to_insights failed: %s", e)
 
-    def run_continuous(self, interval_mins: int = 30):
+    def run_continuous(self, interval_mins: int = 5):
         """Run ingestion passes indefinitely."""
         logger.info("VocabularyIngester: continuous loop started (every %dm)", interval_mins)
         while True:
@@ -489,4 +780,4 @@ class VocabularyIngester:
                 logger.info("VocabularyIngester: pass done — %s", result)
             except Exception as e:
                 logger.error("VocabularyIngester loop error: %s", e)
-            time.sleep(interval_mins * 60)
+            time.sleep(max(60, interval_mins * 60))

@@ -7105,20 +7105,20 @@ def _start_background_services():
     try:
         def _vocab_ingest_loop():
             import time as _vt
-            _vt.sleep(120)  # 2-min boot delay
+            _vt.sleep(60)  # 1-min boot delay
             while True:
                 try:
                     from components.knowledge.vocabulary_ingester import VocabularyIngester
-                    VocabularyIngester().run_once()
+                    VocabularyIngester().run_once(target_new_words=200, target_new_topics=50)
                 except Exception as _ve:
                     logger.error("VocabularyIngester loop: %s", _ve)
-                _vt.sleep(1800)  # every 30 minutes
+                _vt.sleep(300)  # every 5 minutes
 
         _vi_thread = threading.Thread(
             target=_vocab_ingest_loop, daemon=True, name="dmai-vocab-ingest"
         )
         _vi_thread.start()
-        logger.info("VocabularyIngester background loop started (30m interval)")
+        logger.info("VocabularyIngester background loop started (5m interval, target 200 words/pass)")
     except Exception as e:
         logger.warning("VocabularyIngester startup failed: %s", e)
 
