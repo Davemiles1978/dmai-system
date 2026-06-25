@@ -252,17 +252,19 @@ class AggressiveTrader:
         account = self.get_account()
         positions = self.get_positions()
         
-        total_value = account.get("equity", 0)
+        total_value = account.get("equity", 0) or 0
         initial_capital = 100000
         profit_loss = total_value - initial_capital
-        roi = (profit_loss / initial_capital) * 100
+        roi = (profit_loss / initial_capital) * 100 if initial_capital else 0.0
+        cash = account.get("cash", total_value) or 0
+        capital_utilized = ((total_value - cash) / total_value * 100) if total_value else 0.0
         
         return {
             "total_value": total_value,
             "profit_loss": profit_loss,
             "roi_percent": roi,
             "positions_count": len(positions),
-            "capital_utilized": (total_value - account.get("cash", total_value)) / total_value * 100,
+            "capital_utilized": capital_utilized,
             "timestamp": datetime.now().isoformat()
         }
 
