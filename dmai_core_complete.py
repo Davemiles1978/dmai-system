@@ -385,6 +385,9 @@ try:
         "ALTER TABLE capabilities ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
         "ALTER TABLE insights ADD COLUMN insight_text TEXT",
         "ALTER TABLE insights ADD COLUMN concept TEXT",
+        "ALTER TABLE insights ADD COLUMN content TEXT",
+        "ALTER TABLE insights ADD COLUMN description TEXT",
+        "ALTER TABLE insights ADD COLUMN title TEXT",
     ):
         try:
             _kn_conn.execute(_alter)
@@ -7544,7 +7547,23 @@ def _backfill_kaizen_queue():
         logger.debug("Kaizen backfill: nothing new to add")
 
 
+_BG_SERVICES_STARTED = False
+_BG_SERVICES_LOCK = threading.Lock()
+
+
 def _start_background_services():
+    # ── Idempotency guard: prevent duplicate thread spawning ─────────────────────
+    # _start_background_services() can be called up to 3 times (module load,
+    # @before_request hook, /api/admin/start-services). Each call spawns fresh
+    # threading.Thread(...).start() per service. Without this guard, every worker
+    # restart leaks another 14-23 duplicate threads, which compound RAM usage
+    # and trigger OOM-kill at the 2GB Render plan limit.
+    global _BG_SERVICES_STARTED
+    with _BG_SERVICES_LOCK:
+        if _BG_SERVICES_STARTED:
+            logger.info("_start_background_services: already initialised, skipping duplicate call")
+            return
+        _BG_SERVICES_STARTED = True
     # ── Ensure critical tables exist before any background loop reads them ───────
     try:
         _ensure_syllabus_content_table()
