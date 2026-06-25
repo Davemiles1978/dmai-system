@@ -230,7 +230,42 @@ try:
             notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             placed_at TIMESTAMP, settled_at TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS at_state (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            enabled INTEGER NOT NULL DEFAULT 0,
+            tier TEXT NOT NULL DEFAULT 'conservative',
+            last_tick_ts TEXT, last_tick_note TEXT,
+            today_date TEXT,
+            today_deployed_pct REAL NOT NULL DEFAULT 0,
+            today_trades INTEGER NOT NULL DEFAULT 0,
+            today_open_eq REAL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS at_trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts TEXT NOT NULL DEFAULT (datetime('now')),
+            symbol TEXT NOT NULL, side TEXT NOT NULL,
+            qty REAL, confidence REAL, ev REAL,
+            tier TEXT NOT NULL, live INTEGER NOT NULL,
+            result_json TEXT
+        );
+        CREATE TABLE IF NOT EXISTS at_ticks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts TEXT NOT NULL DEFAULT (datetime('now')),
+            market_open INTEGER NOT NULL, tier TEXT NOT NULL,
+            live INTEGER NOT NULL,
+            signals_seen INTEGER NOT NULL DEFAULT 0,
+            signals_passed INTEGER NOT NULL DEFAULT 0,
+            trades_placed INTEGER NOT NULL DEFAULT 0,
+            note TEXT
+        );
     ''')
+    # Seed at_state singleton row if absent
+    try:
+        _kn_conn.execute("INSERT OR IGNORE INTO at_state (id, enabled, tier) VALUES (1, 0, 'conservative')")
+    except Exception:
+        pass
     # Defensive column adds for legacy DBs missing newer columns
     for _alter in (
         "ALTER TABLE capabilities ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",

@@ -738,11 +738,20 @@ class AutonomousTrader:
     # ----- Daily P&L digest --------------------------------------------------
     def daily_summary(self):
         today = date.today().isoformat()
-        with self._conn() as c:
-            s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
-            trades = c.execute(
-                "SELECT COUNT(*) AS n FROM at_trades WHERE date(ts) = ?", (today,)
-            ).fetchone()
+        try:
+            with self._conn() as c:
+                s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
+                trades = c.execute(
+                    "SELECT COUNT(*) AS n FROM at_trades WHERE date(ts) = ?", (today,)
+                ).fetchone()
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                logger.warning("AutonomousTrader tables missing — reinitialising schema")
+                self._init_schema()
+                s = None
+                trades = None
+            else:
+                raise
         equity = self._equity_safe()
         open_eq = s["today_open_eq"] if s else None
         pnl_pct = 0.0
