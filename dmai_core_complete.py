@@ -178,6 +178,74 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
             except Exception as _be:
                 logger.error("DB self-heal rename failed for %s: %s", _p, _be)
 
+# ── Boot-time schema bootstrap (idempotent) ──────────────────────────────────
+# Ensures core tables exist even if a previous DB rebuild left them missing.
+try:
+    import sqlite3 as _ssq
+    _kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
+    _kn_conn = _ssq.connect(_kn_db, timeout=10)
+    _kn_conn.executescript('''
+        CREATE TABLE IF NOT EXISTS capabilities (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL DEFAULT 'function',
+            capability_type TEXT NOT NULL DEFAULT 'general',
+            description TEXT,
+            source_url TEXT,
+            source_repo TEXT,
+            file_path TEXT,
+            runtime_mode TEXT,
+            language TEXT,
+            methods TEXT,
+            is_async INTEGER DEFAULT 0,
+            args TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            integrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS insights (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            concept TEXT,
+            insight_text TEXT,
+            confidence REAL DEFAULT 0.5,
+            domain TEXT,
+            source TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS system_state (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS mon_wallets (
+            name TEXT PRIMARY KEY,
+            balance REAL NOT NULL DEFAULT 0.0,
+            currency TEXT NOT NULL DEFAULT 'GBP',
+            updated_at REAL NOT NULL DEFAULT 0
+        );
+        CREATE TABLE IF NOT EXISTS mon_tips (
+            id TEXT PRIMARY KEY,
+            event_name TEXT, market TEXT, selection TEXT, bookmaker TEXT,
+            decimal_odds REAL, status TEXT DEFAULT 'pending',
+            actual_stake REAL DEFAULT 0, profit_loss REAL DEFAULT 0,
+            notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            placed_at TIMESTAMP, settled_at TIMESTAMP
+        );
+    ''')
+    # Defensive column adds for legacy DBs missing newer columns
+    for _alter in (
+        "ALTER TABLE capabilities ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE insights ADD COLUMN insight_text TEXT",
+        "ALTER TABLE insights ADD COLUMN concept TEXT",
+    ):
+        try:
+            _kn_conn.execute(_alter)
+        except _ssq.OperationalError:
+            pass
+    _kn_conn.commit(); _kn_conn.close()
+    logger.info("Boot schema bootstrap OK: capabilities/insights/system_state/mon_wallets/mon_tips ensured")
+except Exception as _bse:
+    logger.warning("Boot schema bootstrap failed: %s", _bse)
+
 # ── Startup time ─────────────────────────────────────────────────────────────
 DMAI_VERSION = "7.1.0"  # canonical version — single source of truth
 

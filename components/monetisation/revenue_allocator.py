@@ -148,14 +148,32 @@ class RevenueAllocator:
     # ---- reads ----
 
     def get_balance(self, wallet: str) -> float:
-        with self._conn() as c:
-            row = c.execute("SELECT balance FROM mon_wallets WHERE name=?", (wallet,)).fetchone()
-        return float(row["balance"]) if row else 0.0
+        try:
+            with self._conn() as c:
+                row = c.execute("SELECT balance FROM mon_wallets WHERE name=?", (wallet,)).fetchone()
+            return float(row["balance"]) if row else 0.0
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                logger.warning("mon_wallets missing — re-creating schema")
+                self._init_schema()
+                self._ensure_wallet(self.DMAI_WALLET)
+                self._ensure_wallet(self.DAVID_WALLET)
+                return 0.0
+            raise
 
     def get_wallets(self) -> List[Dict[str, Any]]:
-        with self._conn() as c:
-            rows = c.execute("SELECT name, balance, currency, updated_at FROM mon_wallets").fetchall()
-        return [dict(r) for r in rows]
+        try:
+            with self._conn() as c:
+                rows = c.execute("SELECT name, balance, currency, updated_at FROM mon_wallets").fetchall()
+            return [dict(r) for r in rows]
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                logger.warning("mon_wallets missing — re-creating schema")
+                self._init_schema()
+                self._ensure_wallet(self.DMAI_WALLET)
+                self._ensure_wallet(self.DAVID_WALLET)
+                return []
+            raise
 
     def get_ledger(self, wallet: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
         with self._conn() as c:

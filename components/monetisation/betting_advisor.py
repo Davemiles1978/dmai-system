@@ -318,11 +318,20 @@ class BettingAdvisor:
         return [dict(r) for r in rows]
 
     def stats(self) -> Dict[str, Any]:
-        with self._conn() as c:
-            rows = c.execute(
-                "SELECT status, COUNT(*) AS n, COALESCE(SUM(profit_loss),0) AS pl, "
-                "COALESCE(SUM(actual_stake),0) AS turnover FROM mon_tips GROUP BY status"
-            ).fetchall()
+        try:
+            with self._conn() as c:
+                rows = c.execute(
+                    "SELECT status, COUNT(*) AS n, COALESCE(SUM(profit_loss),0) AS pl, "
+                    "COALESCE(SUM(actual_stake),0) AS turnover FROM mon_tips GROUP BY status"
+                ).fetchall()
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                import logging as _lg
+                _lg.getLogger("dmai.monetisation").warning("mon_tips missing — re-creating schema")
+                self._init_schema()
+                rows = []
+            else:
+                raise
         by_status = {r["status"]: {"count": r["n"], "pl": round(float(r["pl"]), 2),
                                    "turnover": round(float(r["turnover"]), 2)} for r in rows}
         settled = sum(by_status.get(s, {}).get("count", 0) for s in ("won", "lost", "void"))
