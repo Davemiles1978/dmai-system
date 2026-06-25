@@ -3013,6 +3013,8 @@ _PROVIDER_REGISTRY = [
     ("perplexity",      "Perplexity",      "PERPLEXITY_API_KEY",    "https://docs.perplexity.ai"),
     ("github_models",   "GitHub Models",   "GITHUB_TOKEN",          "https://github.com/settings/tokens"),
     ("mistral",         "Mistral",         "MISTRAL_API_KEY",       "https://console.mistral.ai"),
+    ("betfair_delayed", "Betfair (delayed)",   "BETFAIR_APP_KEY_DELAYED", "https://developer.betfair.com"),
+    ("betfair_live",    "Betfair (live)",      "BETFAIR_APP_KEY_LIVE",    "https://developer.betfair.com"),
 ]
 _CORE_PROVIDERS = {"groq", "cerebras", "google_ai_studio", "tavily", "deepseek"}
 
@@ -3035,28 +3037,109 @@ def _get_db_key(provider_id: str) -> str:
     return ""
 
 
-def _set_db_key(provider_id: str, key: str):
+def _render_sync_env(env_var, value):
+    """Push (or delete) a single env var to Render so it persists across deploys.
+
+    Requires RENDER_API_KEY. Falls back gracefully if missing. Optional
+    RENDER_AUTO_DEPLOY=true triggers a redeploy so the new env var takes effect.
+    """
+    api_key = os.environ.get("RENDER_API_KEY")
+    service_id = os.environ.get("RENDER_SERVICE_ID") or "srv-d6sd3chj16oc73emdj6g"
+    if not api_key:
+        return {"synced": False, "reason": "RENDER_API_KEY not set"}
+    try:
+        import urllib.request, json as _json
+        url = "https://api.render.com/v1/services/" + service_id + "/env-vars/" + env_var
+        if value is None:
+            req = urllib.request.Request(url, method="DELETE",
+                headers={"Authorization": "Bearer " + api_key})
+        else:
+            body = _json.dumps({"value": value}).encode("utf-8")
+            req = urllib.request.Request(url, data=body, method="PUT",
+                headers={"Authorization": "Bearer " + api_key,
+                         "Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            status = resp.status
+        ok = 200 <= status < 300
+        out = {"synced": ok, "status": status, "env_var": env_var}
+        if ok and os.environ.get("RENDER_AUTO_DEPLOY", "").strip().lower() in ("1","true","yes"):
+            try:
+                dreq = urllib.request.Request(
+                    "https://api.render.com/v1/services/" + service_id + "/deploys",
+                    data=_json.dumps({"clearCache": "do_not_clear"}).encode("utf-8"),
+                    method="POST",
+                    headers={"Authorization": "Bearer " + api_key,
+                             "Content-Type": "application/json"})
+                with urllib.request.urlopen(dreq, timeout=15) as dresp:
+                    out["deploy_status"] = dresp.status
+            except Exception as de:
+                out["deploy_error"] = str(de)
+        return out
+    except Exception as e:
+        logger.warning("Render env sync failed for %s: %s", env_var, e)
+        return {"synced": False, "error": str(e)}
+
+
+def _rescan_providers(provider_id):
+    """Ask AutoAPIActivator to re-validate so /api/harvester/status reflects the change."""
+    activator = components.get("api_activator")
+    if activator is None:
+        return {"rescanned": False, "reason": "activator missing"}
+    try:
+        results = activator.scan_and_activate()
+        spec = (results.get("providers") or {}).get(provider_id) or {}
+        return {"rescanned": True, "provider_status": spec.get("status")}
+    except Exception as e:
+        return {"rescanned": False, "error": str(e)}
+
+
+def _set_db_key(provider_id, key):
+    """Persist an API key across all three sinks:
+       1. DB (Postgres preferred) — survives restarts.
+       2. os.environ — running process picks it up immediately.
+       3. Render env var (if RENDER_API_KEY set) — survives deploys.
+       Triggers AutoAPIActivator rescan so the provider flips to 'active'.
+    """
+    out = {"provider_id": provider_id}
     try:
         st = components.get("db_storage")
         if st and hasattr(st, "set_api_key"):
             st.set_api_key(provider_id, key)
+            out["db"] = "ok"
+        else:
+            out["db"] = "unavailable"
     except Exception as e:
         logger.warning("DB key store failed: %s", e)
-    env_var = next((p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id), None)
-    if env_var:
+        out["db"] = "error: " + str(e)
+    env_vars = [p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id]
+    if env_vars:
+        env_var = env_vars[0]
         os.environ[env_var] = key
+        out["env_var"] = env_var
+        out["render"] = _render_sync_env(env_var, key)
+    out["activator"] = _rescan_providers(provider_id)
+    return out
 
 
-def _delete_db_key(provider_id: str):
+def _delete_db_key(provider_id):
+    out = {"provider_id": provider_id}
     try:
         st = components.get("db_storage")
         if st and hasattr(st, "delete_api_key"):
             st.delete_api_key(provider_id)
+            out["db"] = "ok"
     except Exception as e:
         logger.warning("DB key delete failed: %s", e)
-    env_var = next((p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id), None)
-    if env_var and env_var in os.environ:
-        del os.environ[env_var]
+        out["db"] = "error: " + str(e)
+    env_vars = [p[2] for p in _PROVIDER_REGISTRY if p[0] == provider_id]
+    if env_vars:
+        env_var = env_vars[0]
+        if env_var in os.environ:
+            del os.environ[env_var]
+        out["env_var"] = env_var
+        out["render"] = _render_sync_env(env_var, None)
+    out["activator"] = _rescan_providers(provider_id)
+    return out
 
 
 @app.route("/api/admin/keys", methods=["GET"])
@@ -3083,7 +3166,12 @@ def api_admin_keys_list():
 
 @app.route("/api/admin/keys", methods=["POST"])
 def api_admin_keys_set():
-    """Set or update an API key. POST {provider_id, key} (JWT-gated)."""
+    """Set or update an API key. POST {provider_id, key} (JWT-gated).
+
+    Persists to DB, injects into running process env, syncs to Render env vars
+    (when RENDER_API_KEY present), and re-scans AutoAPIActivator so the provider
+    flips active in /api/harvester/status without needing a restart.
+    """
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     data = request.get_json(silent=True) or {}
@@ -3094,22 +3182,27 @@ def api_admin_keys_set():
     known = {p[0] for p in _PROVIDER_REGISTRY}
     if provider_id not in known:
         return jsonify({"error": f"Unknown provider: {provider_id}"}), 400
-    _set_db_key(provider_id, key)
-    logger.info("API key updated for provider: %s", provider_id)
-    return jsonify({"ok": True, "provider_id": provider_id, "masked_key": _mask_key(key)})
+    status = _set_db_key(provider_id, key)
+    logger.info("API key updated for provider %s: %s", provider_id, status)
+    return jsonify({
+        "ok": True,
+        "provider_id": provider_id,
+        "masked_key": _mask_key(key),
+        "sinks": status,
+    })
 
 
 @app.route("/api/admin/keys/<provider_id>", methods=["DELETE"])
 def api_admin_keys_delete(provider_id):
-    """Clear an API key (JWT-gated)."""
+    """Clear an API key (JWT-gated). Removes from DB, process env, and Render."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     known = {p[0] for p in _PROVIDER_REGISTRY}
     if provider_id not in known:
         return jsonify({"error": f"Unknown provider: {provider_id}"}), 400
-    _delete_db_key(provider_id)
-    logger.info("API key cleared for provider: %s", provider_id)
-    return jsonify({"ok": True, "provider_id": provider_id})
+    status = _delete_db_key(provider_id)
+    logger.info("API key cleared for provider %s: %s", provider_id, status)
+    return jsonify({"ok": True, "provider_id": provider_id, "sinks": status})
 
 
 # ── Execution sandbox endpoints ───────────────────────────────────────────────

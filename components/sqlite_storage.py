@@ -15,7 +15,25 @@ from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger('dmai_sqlite')
 
-DB_PATH = Path(os.getenv('SQLITE_DB_PATH', 'data/dmai.db'))
+def _resolve_db_path() -> Path:
+    """Resolve SQLite path with persistent-disk awareness.
+
+    Priority:
+      1. SQLITE_DB_PATH env var (explicit override)
+      2. DATA_PATH env var + 'dmai.db' (so DATA_PATH=/opt/render/project/src/data
+         puts the DB on the Render persistent disk automatically)
+      3. 'data/dmai.db' relative to cwd (legacy fallback)
+    """
+    explicit = os.getenv('SQLITE_DB_PATH')
+    if explicit:
+        return Path(explicit)
+    data_path = os.getenv('DATA_PATH')
+    if data_path:
+        return Path(data_path.rstrip('/').rstrip('\\')) / 'dmai.db'
+    return Path('data/dmai.db')
+
+
+DB_PATH = _resolve_db_path()
 
 
 def _get_conn() -> sqlite3.Connection:
