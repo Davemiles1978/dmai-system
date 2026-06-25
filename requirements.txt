@@ -5,7 +5,7 @@
 # Core
 flask>=2.3.3
 flask-cors>=4.0.0
-gunicorn==20.1.0
+gunicorn>=22.0.0
 
 # HTTP / Async
 requests>=2.31.0
