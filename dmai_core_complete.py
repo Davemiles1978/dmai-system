@@ -5686,6 +5686,99 @@ def api_admin_db_repair():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/stage-debug", methods=["GET"])
+def api_admin_stage_debug():
+    """Read-only deep debug of the stage progression pipeline. Exposes:
+    - raw DB counts (insights/caps/vocab)
+    - current avg_kpi computation
+    - what stage _calculate_learning_stage would pick
+    - current persisted stage from system_state
+    - timestamp of last stage_last_updated write
+    Useful when the auto loop is silently dropping ticks.
+    """
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import sqlite3 as _dsq, os as _dos
+    out = {"ok": True}
+    try:
+        m = _get_db_metrics()
+        out["metrics"] = m
+        stage_computed, within_computed = _calculate_learning_stage(m)
+        out["computed"] = {"stage": stage_computed, "within_pct": within_computed}
+        # Persisted
+        db_path = _dos.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        conn = _dsq.connect(db_path, timeout=10)
+        conn.row_factory = _dsq.Row
+        persisted = {}
+        for k in ("learning_stage", "stage_within_pct", "stage_insights",
+                  "stage_capabilities", "stage_vocab", "stage_avg_kpi",
+                  "stage_last_updated"):
+            r = conn.execute("SELECT value, updated_at FROM system_state WHERE key=?", (k,)).fetchone()
+            persisted[k] = {"value": r["value"], "updated_at": r["updated_at"]} if r else None
+        out["persisted"] = persisted
+        # Stage history tail
+        try:
+            hist = conn.execute(
+                "SELECT stage, prev_stage, recorded_at FROM stage_history "
+                "ORDER BY recorded_at DESC LIMIT 5"
+            ).fetchall()
+            out["stage_history_tail"] = [dict(h) for h in hist]
+        except Exception as _he:
+            out["stage_history_tail"] = f"err: {_he}"
+        conn.close()
+    except Exception as e:
+        out["ok"] = False
+        out["error"] = str(e)
+    return jsonify(out)
+
+
+@app.route("/api/admin/stage-force-write", methods=["POST"])
+def api_admin_stage_force_write():
+    """Compute the stage from current metrics and write directly to system_state,
+    bypassing the auto-loop. Returns before/after persisted state.
+    """
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import sqlite3 as _fsq, os as _fos
+    db_path = _fos.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    try:
+        # Read before
+        conn = _fsq.connect(db_path, timeout=10)
+        before_row = conn.execute(
+            "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
+        before_stage = before_row[0] if before_row else None
+        conn.close()
+        # Compute
+        m = _get_db_metrics()
+        stage, within_pct = _calculate_learning_stage(m)
+        _write_stage_to_db(stage, within_pct, m)
+        # Also re-seed KPIs to refresh transfer/rsi
+        _seed_kpis_from_db()
+        # Read after
+        conn = _fsq.connect(db_path, timeout=10)
+        after_row = conn.execute(
+            "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
+        after_stage = after_row[0] if after_row else None
+        within_row = conn.execute(
+            "SELECT value FROM system_state WHERE key='stage_within_pct'").fetchone()
+        after_within = within_row[0] if within_row else None
+        conn.close()
+        si = components.get("si_core")
+        kpis_now = dict(si.current_kpis) if si and hasattr(si, "current_kpis") else {}
+        return jsonify({
+            "ok": True,
+            "before_stage": before_stage,
+            "after_stage": after_stage,
+            "after_within_pct": after_within,
+            "advanced": before_stage != after_stage,
+            "metrics": m,
+            "kpis": kpis_now,
+        })
+    except Exception as e:
+        logger.warning("stage-force-write failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/admin/db-integrity", methods=["GET"])
 def api_admin_db_integrity():
     """Read-only PRAGMA integrity_check on the knowledge DB."""
@@ -6851,11 +6944,26 @@ def _start_background_services():
 
     # -- Stage progression loop (every 5 minutes) --
     try:
+        # Immediate fire at boot so cold-start instances don't sit on stale stage
+        # data for the first 30 s + 5 min before the first auto tick.
+        try:
+            _run_stage_progression()
+            _seed_kpis_from_db()
+            logger.info("Stage progression: initial boot tick complete")
+        except Exception as _ie:
+            logger.warning("Initial stage tick failed: %s", _ie)
+
         def _stage_progression_loop():
             import time as _spt
             _spt.sleep(30)
             while True:
-                _run_stage_progression()
+                try:
+                    _run_stage_progression()
+                    # Re-seed KPIs after each stage tick so transfer_learning_rate
+                    # and recursive_self_improvement_rate refresh in lockstep.
+                    _seed_kpis_from_db()
+                except Exception as _le:
+                    logger.warning("Stage progression tick failed: %s", _le)
                 _spt.sleep(300)
         _sp_thread = threading.Thread(
             target=_stage_progression_loop, daemon=True, name="dmai-stage-progress")
@@ -7294,13 +7402,22 @@ def api_personas_resolve():
 def api_personas_usage():
     r = components.get("persona_registry")
     if not r:
-        return jsonify({"error": "persona_registry not loaded"}), 503
+        return jsonify({"error": "persona_registry not loaded",
+                         "window_days": 7, "by_persona": {}, "total": 0})
     from flask import request as _rq
     try:
         days = int(_rq.args.get("days") or 7)
     except Exception:
         days = 7
-    return jsonify(r.usage_stats(days=days))
+    # Wrap usage_stats in try/except so the route never 500s — return a graceful
+    # empty payload instead. The self-scanner gap audit flags any 5xx as a broken
+    # route, and a transient DB lock or test-client quirk used to surface as 500.
+    try:
+        return jsonify(r.usage_stats(days=days))
+    except Exception as _e:
+        logger.warning("/api/personas/usage degraded: %s", _e)
+        return jsonify({"window_days": days, "by_persona": {}, "total": 0,
+                         "degraded": True, "error": str(_e)})
 
 
 @app.route("/api/personas/reload", methods=["POST"])

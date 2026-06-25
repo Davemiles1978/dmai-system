@@ -50,10 +50,12 @@ class SelfScanner:
                         continue
                     path = str(rule)
                     try:
-                        import os as _os, base64 as _b64
+                        import os as _os
                         _pw = _os.environ.get("MASTER_PASSWORD", "")
-                        _tok = _b64.b64encode(f"admin:{_pw}".encode()).decode() if _pw else ""
-                        _hdrs = {"Authorization": f"Basic {_tok}"} if _tok else {}
+                        # The Flask app accepts X-Master-Password header (legacy) or
+                        # Bearer JWT. Bearer requires minting a JWT which is heavy
+                        # for an audit pass; X-Master-Password works in-process too.
+                        _hdrs = {"X-Master-Password": _pw} if _pw else {}
                         resp = client.get(path, headers=_hdrs)
                         if resp.status_code >= 500:
                             broken.append({"path": path, "error": str(resp.status_code)})
