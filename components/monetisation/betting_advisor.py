@@ -81,6 +81,46 @@ class BettingAdvisor:
         self._init_schema()
 
     def _conn(self):
+        import os, time, logging
+        _log = logging.getLogger("dmai.monetisation")
+        for attempt in range(2):
+            try:
+                c = sqlite3.connect(self.db_path, timeout=30.0)
+                c.execute("PRAGMA journal_mode=WAL")
+                c.execute("PRAGMA busy_timeout=5000")
+                c.execute("PRAGMA synchronous=NORMAL")
+                c.row_factory = sqlite3.Row
+                # Integrity check on first attempt; on second skip (we just rebuilt)
+                if attempt == 0:
+                    row = c.execute("PRAGMA integrity_check").fetchone()
+                    if row and row[0] != "ok":
+                        raise sqlite3.DatabaseError(f"integrity_check={row[0]}")
+                return c
+            except sqlite3.DatabaseError as e:
+                msg = str(e).lower()
+                if "malformed" in msg or "integrity_check" in msg or "not a database" in msg:
+                    _log.warning("%s: malformed DB at %s, quarantining and rebuilding", type(self).__name__, self.db_path)
+                    try:
+                        if os.path.exists(self.db_path):
+                            os.rename(self.db_path, self.db_path + f".malformed_{int(time.time())}")
+                        for sfx in ("-wal", "-shm"):
+                            p = self.db_path + sfx
+                            if os.path.exists(p):
+                                try: os.remove(p)
+                                except Exception: pass
+                    except Exception as re:
+                        _log.warning("quarantine failed: %s", re)
+                    # Re-init schema after rebuild
+                    try:
+                        if hasattr(self, "_init_schema"):
+                            self._init_schema()
+                        elif hasattr(self, "_init_db"):
+                            self._init_db()
+                    except Exception as se:
+                        _log.warning("schema re-init failed: %s", se)
+                    continue
+                raise
+        # Final attempt
         c = sqlite3.connect(self.db_path, timeout=30.0)
         c.execute("PRAGMA journal_mode=WAL")
         c.row_factory = sqlite3.Row

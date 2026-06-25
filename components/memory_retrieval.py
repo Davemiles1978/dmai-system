@@ -156,13 +156,21 @@ def _search_insights_jsonl(query: str, top_k: int) -> MemoryResult:
     return MemoryResult(query, [r for _, r in top], confidence, "insights_jsonl")
 
 
+_KNOWLEDGE_DB_BROKEN_UNTIL = 0  # epoch seconds; suppress retries while broken
+
 def _search_knowledge_db(query: str, top_k: int) -> MemoryResult:
+    import time as _t
+    global _KNOWLEDGE_DB_BROKEN_UNTIL
     if not _KNOWLEDGE_DB.exists():
+        return MemoryResult(query, [], 0.0, "knowledge_db")
+    if _t.time() < _KNOWLEDGE_DB_BROKEN_UNTIL:
         return MemoryResult(query, [], 0.0, "knowledge_db")
 
     hits = []
     try:
-        conn = sqlite3.connect(str(_KNOWLEDGE_DB))
+        conn = sqlite3.connect(str(_KNOWLEDGE_DB), timeout=5)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=3000")
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
 
@@ -203,7 +211,13 @@ def _search_knowledge_db(query: str, top_k: int) -> MemoryResult:
 
         conn.close()
     except Exception as e:
-        logger.warning("DB search error: %s", e)
+        msg = str(e).lower()
+        # Back off for 60s on malformed/locked to stop log spam
+        if "malformed" in msg or "locked" in msg or "not a database" in msg:
+            _KNOWLEDGE_DB_BROKEN_UNTIL = _t.time() + 60
+            logger.warning("DB unhealthy (%s) — backing off 60s", e)
+        else:
+            logger.warning("DB search error: %s", e)
         return MemoryResult(query, [], 0.0, "knowledge_db")
 
     if not hits:
