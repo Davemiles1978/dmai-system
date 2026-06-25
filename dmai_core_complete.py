@@ -975,6 +975,14 @@ if CB_AVAILABLE:
     app.after_request(after_request_hook)
     logger.info("Circuit breaker after_request hook registered")
 
+# Register RenderDeployHook blueprint at import time (before first request).
+try:
+    from components.self_management.render_deploy_hook import register as _register_render_hook
+    _register_render_hook(app)
+    logger.info("RenderDeployHook blueprint registered at import time")
+except Exception as _rh_err:
+    logger.warning("RenderDeployHook blueprint registration failed: %s", _rh_err)
+
 # Register orchestrator routes
 if "training_orchestrator" in components:
     try:
@@ -7521,10 +7529,12 @@ def _start_background_services():
     except Exception as e:
         logger.warning("GraphEvolutionLoop startup failed: %s", e)
 
-    # ── Self-management (SelfHealer + KaizenExecutor + RenderDeployHook) ───
+    # ── Self-management (SelfHealer + KaizenExecutor) ───
+    # NOTE: RenderDeployHook blueprint was registered at module import time
+    # below; here we only start the runtime loops.
     try:
         from components.self_management.self_management_runner import start_all as _sm_start
-        _sm_start(app=app, components=components)
+        _sm_start(app=None, components=components)  # app=None skips blueprint reg
     except Exception as e:
         logger.warning("Self-management startup failed: %s", e)
 

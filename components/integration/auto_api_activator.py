@@ -58,7 +58,7 @@ PROVIDER_CATALOGUE: Dict[str, Dict] = {
         "env_vars":     ["OPENROUTER_API_KEY"],
         "signup_url":   "https://openrouter.ai/keys",
         "free_tier":    "Many free models — $0 cost on free-tier models",
-        "models":       ["google/gemma-3-12b-it:free", "meta-llama/llama-3.3-70b-instruct:free", "mistralai/mistral-7b-instruct:free"],
+        "models":       ["meta-llama/llama-3.3-70b-instruct:free", "mistralai/mistral-7b-instruct:free", "google/gemma-3-12b-it"],
         "best_model":   "meta-llama/llama-3.3-70b-instruct:free",
         "validation": {
             "method":  "POST",
@@ -69,7 +69,7 @@ PROVIDER_CATALOGUE: Dict[str, Dict] = {
                 "HTTP-Referer": "https://dmai-web.onrender.com",
                 "X-Title": "DMAI",
             },
-            "body": {"model": "google/gemma-3-12b-it:free", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 5},
+            "body": {"model": "meta-llama/llama-3.3-70b-instruct:free", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 16},
         },
         "call_format": "openai_compatible",
         "base_url":    "https://openrouter.ai/api/v1",

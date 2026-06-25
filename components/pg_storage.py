@@ -213,6 +213,25 @@ class PGStorage:
         try:
             with conn.cursor() as cur:
                 cur.execute(_SCHEMA_SQL)
+                # ---- Idempotent migrations for older deployments ----
+                # Add missing columns expected by the current schema.
+                _migrations = [
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS service TEXT",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS source TEXT",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS validated INTEGER DEFAULT 0",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS last_used TIMESTAMPTZ",
+                    "CREATE INDEX IF NOT EXISTS idx_api_keys_service ON api_keys(service)",
+                ]
+                for stmt in _migrations:
+                    try:
+                        cur.execute(stmt)
+                    except Exception as e:
+                        logger.warning("PGStorage migration skipped (%s): %s", stmt[:60], e)
+                        conn.rollback()
+                        # Reopen a clean cursor on the same connection.
+                        cur.close()
+                        cur = conn.cursor()
             conn.commit()
         finally:
             _return_conn(conn)

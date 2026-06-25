@@ -153,13 +153,26 @@ class SelfHealer:
     # ── Thread liveness check ──────────────────────────────────────────────
 
     def _check_threads(self):
-        """Verify named daemon threads are still running; log if dead."""
-        expected = {
-            "dmai-ai-discovery",
-            "dmai-github-monitor",
-            "dmai-tutor-config",
-            "dmai-telegram",
-        }
+        """Verify named daemon threads are still running; log if dead.
+
+        Only flag threads that were *configured* to start. Telegram is
+        opt-in via TELEGRAM_BOT_TOKEN; never warn if the bot is intentionally
+        disabled or not configured. Also skip if the configured component
+        is unavailable at import time.
+        """
+        import os
+        expected = set()
+        # ai-discovery + tutor-config are always expected (always wired)
+        expected.add("dmai-ai-discovery")
+        expected.add("dmai-tutor-config")
+        # github-monitor is expected only if a GitHub token is present
+        if os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_MODELS_API_KEY"):
+            expected.add("dmai-github-monitor")
+        # telegram only if the bot is configured AND not disabled
+        if (os.environ.get("TELEGRAM_BOT_TOKEN")
+                and os.environ.get("TELEGRAM_CHAT_ID")
+                and os.environ.get("TELEGRAM_BOT_DISABLE", "false").lower() != "true"):
+            expected.add("dmai-telegram")
         alive = {t.name for t in threading.enumerate()}
         dead = expected - alive
         for name in dead:

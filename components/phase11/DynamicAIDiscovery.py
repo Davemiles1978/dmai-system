@@ -190,9 +190,10 @@ class DynamicAIDiscovery:
                     logger.error(f"Discovery loop error: {e}")
                     time.sleep(300)
         
-        thread = threading.Thread(target=discover, daemon=True)
-        thread.start()
         logger.info("🔍 Autonomous discovery loop started")
+        # Run in the caller's thread (caller already spawned a daemon thread
+        # named 'dmai-ai-discovery' so self-healer can monitor it).
+        discover()
     
     def _process_integration_queue(self):
         """Process systems waiting for integration"""

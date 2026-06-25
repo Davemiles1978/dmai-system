@@ -386,19 +386,20 @@ class AITutorAutoConfigurator:
         return None
     
     def start_health_loop(self):
-        """Start continuous health checking in background"""
-        def run():
-            while not self.stop_event.is_set():
-                try:
-                    status = self.health_check()
-                    if status['dead'] > 0 or status['rotated'] > 0:
-                        logger.info(f"🏥 Tutor health: {status['healthy']} ok, {status['dead']} dead, {status['rotated']} rotated")
-                except Exception as e:
-                    logger.error(f"Health check error: {e}")
-                self.stop_event.wait(self.health_check_interval)
-        
-        Thread(target=run, daemon=True).start()
+        """Run the health-check loop in the current thread.
+
+        The caller is expected to start this on a daemon thread named
+        'dmai-tutor-config' so the self-healer can monitor liveness.
+        """
         logger.info("🏥 Tutor health check loop started (5min interval)")
+        while not self.stop_event.is_set():
+            try:
+                status = self.health_check()
+                if status['dead'] > 0 or status['rotated'] > 0:
+                    logger.info(f"🏥 Tutor health: {status['healthy']} ok, {status['dead']} dead, {status['rotated']} rotated")
+            except Exception as e:
+                logger.error(f"Health check error: {e}")
+            self.stop_event.wait(self.health_check_interval)
     
     def stop(self):
         self.stop_event.set()

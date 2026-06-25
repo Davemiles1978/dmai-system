@@ -2232,22 +2232,47 @@ if __name__ == "__main__":
 
 
 class KnowledgeSourceManager:
-    """Stub KnowledgeSourceManager — provides interface compatibility."""
+    """Stub KnowledgeSourceManager — dict-compatible for call sites that use
+    self.sources.get(name).
+    """
     def __init__(self, *args, **kwargs):
-        self.sources = []
+        # Dict so callers can do .sources.get("web_crawler")
+        self.sources = {}
         self.data_path = kwargs.get("data_path", "data/")
 
-    def register_source(self, source):
-        self.sources.append(source)
+    def register_source(self, source, name=None):
+        if name is None:
+            name = getattr(source, "name", source.__class__.__name__.lower())
+        self.sources[name] = source
 
     def get_sources(self):
-        return self.sources
+        return list(self.sources.values())
 
     def fetch_all(self):
         results = []
-        for s in self.sources:
+        for s in self.sources.values():
             try:
                 results.extend(s.fetch() if hasattr(s, "fetch") else [])
             except Exception:
                 pass
         return results
+
+    def start_all(self):
+        """Best-effort start for every registered source that supports it."""
+        started = 0
+        for name, s in self.sources.items():
+            try:
+                if hasattr(s, "start"):
+                    s.start()
+                    started += 1
+            except Exception:
+                pass
+        return {"started": started, "total": len(self.sources)}
+
+    def stop_all(self):
+        for s in self.sources.values():
+            try:
+                if hasattr(s, "stop"):
+                    s.stop()
+            except Exception:
+                pass

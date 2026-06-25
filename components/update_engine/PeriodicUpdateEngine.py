@@ -281,3 +281,54 @@ class KaizenIntegrator:
             "proposals_total":     len(proposals),
             "queue_depth":         self._current_queue_depth(),
         }
+
+
+# ---------------------------------------------------------------------------
+# PeriodicUpdateEngine — top-level convenience wrapper expected by orchestrator
+# ---------------------------------------------------------------------------
+
+class PeriodicUpdateEngine:
+    """Lightweight runner that combines PerformanceBenchmark + KaizenIntegrator
+    into a single periodic update thread.
+
+    The orchestrator imports this class and starts it as a background thread.
+    Each tick runs a benchmark (if configured), and forwards any detected
+    regressions to the Kaizen queue.
+    """
+
+    def __init__(self, config=None, data_path=None, ai_hub=None, si_core=None):
+        from pathlib import Path as _Path
+        self.config = config or {}
+        self.data_path = _Path(data_path) if data_path else _Path(self.config.get("data_path", "data"))
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        try:
+            self.benchmark = PerformanceBenchmark(self.config, self.data_path, ai_hub=ai_hub, si_core=si_core)
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"PerformanceBenchmark init failed: {e}")
+            self.benchmark = None
+        try:
+            self.kaizen = KaizenIntegrator({**self.config, "data_path": str(self.data_path)})
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"KaizenIntegrator init failed: {e}")
+            self.kaizen = None
+        self._stop = False
+
+    def start(self):
+        """Run a single benchmark/kaizen cycle synchronously (best effort).
+
+        Background-thread loop is owned by the orchestrator; this method is
+        the per-tick entry-point.
+        """
+        if not self.benchmark and not self.kaizen:
+            return {"ok": False, "reason": "benchmark_and_kaizen_unavailable"}
+        try:
+            import asyncio
+            results = {}
+            if self.benchmark and hasattr(self.benchmark, "run"):
+                results["benchmark"] = self.benchmark.run() if not asyncio.iscoroutinefunction(self.benchmark.run) else asyncio.run(self.benchmark.run())
+            return {"ok": True, **results}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def stop(self):
+        self._stop = True
