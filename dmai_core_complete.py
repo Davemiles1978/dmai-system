@@ -7579,6 +7579,28 @@ def _start_background_services():
     except Exception as e:
         logger.warning("db_storage init failed: %s", e)
 
+    # ── Hydrate API keys from DB into os.environ ─────────────────────────
+    # Keys live in SQLite admin_api_keys table; if Render env vars were ever
+    # wiped (or never set), the running worker still has DB copies. Walk the
+    # provider registry and push DB values into os.environ BEFORE any provider
+    # client initialises, so OpenAI/Anthropic/Groq/etc. clients see their keys.
+    try:
+        _hydrated = []
+        for _pid, _name, _env_var, _ in _PROVIDER_REGISTRY:
+            if os.environ.get(_env_var):
+                continue  # env wins — don't overwrite a freshly-set Render var
+            _db_val = _get_db_key(_pid)
+            if _db_val:
+                os.environ[_env_var] = _db_val
+                _hydrated.append(_pid)
+        if _hydrated:
+            logger.info("API key hydration: pushed %d DB-stored keys into env: %s",
+                        len(_hydrated), ",".join(_hydrated))
+        else:
+            logger.info("API key hydration: no DB-stored keys needed injection")
+    except Exception as _e:
+        logger.warning("API key hydration failed: %s", _e)
+
     # ── Knowledge sources — start on ALL environments (free-tier only) ─────
     km = components.get("knowledge_manager")
     if km:
