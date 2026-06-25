@@ -1,0 +1,39 @@
+{
+  "topic": "coloring_books",
+  "url": "https://docs.vectormind.io/docs/use-cases/coloring-books-guide",
+  "learned_at": "2026-06-25T07:08:18.837380",
+  "technical_requirements": [
+    "Line weight must be at least 0.5pt, standard 1-2pt for children",
+    "Minimum coloring space of 0.25 inches between elements",
+    "Standard sizes: Letter (8.5x11), A4 (210x297mm), Square (8x8)",
+    "Margins: Outer 0.5in minimum, Binding 0.75in minimum"
+  ],
+  "best_practices": [
+    "Keep lines at least 2pt thick",
+    "Avoid small, intricate areas",
+    "Use rounded corners",
+    "Space elements well apart",
+    "Break up large areas with subtle details",
+    "Vary pattern density for visual interest"
+  ],
+  "quality_standards": [
+    "Consistent line weights",
+    "Minimum space requirements met",
+    "Print test completed",
+    "Age-appropriate complexity",
+    "Clean vector paths"
+  ],
+  "common_mistakes": [
+    "Spaces too small to color",
+    "Inconsistent line weights",
+    "Overcrowded designs",
+    "Poor print reproduction",
+    "Unclear detail areas"
+  ],
+  "age_specific_guidelines": [
+    "Ages 3-8: Large spaces, simple shapes, bold lines, basic subjects",
+    "Ages 9-12: Medium complexity, varied subjects, some detail work",
+    "Teens/Adults: Complex patterns, fine details, challenging designs"
+  ],
+  "production_guidelines": []
+}

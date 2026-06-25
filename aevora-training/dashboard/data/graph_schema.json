@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
-  "last_updated": "2026-06-23",
-  "evolution_cycle": 1,
+  "last_updated": "2026-06-25",
+  "evolution_cycle": 2,
   "total_neurons": 32,
   "total_synapses": 47,
   "metadata": {
@@ -9,7 +9,7 @@
     "auto_evolved": false,
     "graph_locked": true,
     "generator": "graph_evolution_monitor.py",
-    "last_live_update": "2026-06-23T00:00:00Z"
+    "last_live_update": "2026-06-25T07:08:19Z"
   },
   "clusters": {
     "core": {
@@ -99,28 +99,29 @@
       "label": "Knowledge Manager",
       "cluster": "knowledge",
       "description": "Knowledge Manager component",
-      "activation": 0.85
+      "activation": 0.031,
+      "capability_count": 1544
     },
     {
       "id": "learning_orch",
       "label": "Learning Orchestrator",
       "cluster": "learning",
       "description": "Learning Orchestrator component",
-      "activation": 0.85
+      "activation": 1.0
     },
     {
       "id": "training_pipeline",
       "label": "Training Pipeline",
       "cluster": "learning",
       "description": "Training Pipeline component",
-      "activation": 0.75
+      "activation": 1.0
     },
     {
       "id": "stage_learner",
       "label": "Stage Learner",
       "cluster": "learning",
       "description": "Stage Learner component",
-      "activation": 0.7
+      "activation": 1.0
     },
     {
       "id": "parallel_learner",

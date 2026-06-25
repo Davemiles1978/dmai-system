@@ -6309,17 +6309,8 @@ def api_heartbeat():
     })
 
 
-# Boot-tolerant: if the persistent DB is in a damaged state, do NOT crash
-# the whole app. The restore endpoint must remain reachable so we can swap
-# in a .bak file.
-try:
-    _ensure_suggestions_table()
-except Exception as _be1:
-    logger.error("Boot: _ensure_suggestions_table failed: %s — continuing", _be1)
-try:
-    _ensure_system_state_table()
-except Exception as _be2:
-    logger.error("Boot: _ensure_system_state_table failed: %s — continuing", _be2)
+_ensure_suggestions_table()
+_ensure_system_state_table()
 @app.route("/api/stage/analytics", methods=["GET"])
 def api_stage_analytics():
     """
@@ -7412,12 +7403,8 @@ def _start_telegram_bot():
 # Start all background services (researcher, training, evolution, etc.)
 # Runs in the gunicorn worker process — threads survive here without --preload.
 _background_services_started = False
-try:
-    _start_background_services()
-    _background_services_started = True
-except Exception as _bgse:
-    logger.error("Boot: _start_background_services failed: %s — app will still serve HTTP", _bgse)
-    _background_services_started = False
+_start_background_services()
+_background_services_started = True
 
 
 @app.route("/api/admin/start-services", methods=["POST", "GET"])
