@@ -4877,7 +4877,12 @@ def api_vocabulary_purge():
     try:
         import sqlite3 as _vsq
         db_file = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
-        conn = _vsq.connect(db_file)
+        conn = _vsq.connect(db_file, timeout=30.0)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+        except Exception:
+            pass
         cur = conn.execute(f"DELETE FROM {table} WHERE source = ?", (source,))
         deleted = cur.rowcount
         conn.commit()
