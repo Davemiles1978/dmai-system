@@ -1006,7 +1006,7 @@ class AIIntegrationHub:
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'model': 'llama-3.3-70b',  # Best free model: 70B, 2,600 tok/s
+                    'model': 'gpt-oss-120b',  # Cerebras free tier (Nov 2025+)
                     'messages': [{'role': 'user', 'content': prompt}],
                     'max_tokens': 500,
                     'temperature': 0.7
@@ -1020,7 +1020,7 @@ class AIIntegrationHub:
                     'success': True,
                     'tutor': 'Cerebras Inference',
                     'response': data['choices'][0]['message']['content'],
-                    'model': 'llama-3.3-70b'
+                    'model': 'gpt-oss-120b'
                 }
             elif response.status_code == 429:
                 return {'success': False, 'tutor': 'Cerebras', 'error': 'Rate limited (30 RPM / 1M tokens/day)'}

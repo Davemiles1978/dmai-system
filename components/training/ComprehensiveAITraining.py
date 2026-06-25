@@ -305,11 +305,26 @@ class StageProgressionTracker:
         self.state: Dict = self._load_state()
 
     def _load_state(self) -> Dict:
-        if self.state_file.exists():
-            with open(self.state_file) as f:
-                return json.load(f)
-        return {d["domain"]: {"stage": "Baby", "mastery": 0.0, "attempts": 0}
-                for d in FULL_CURRICULUM}
+        default_state = {d["domain"]: {"stage": "Baby", "mastery": 0.0, "attempts": 0}
+                         for d in FULL_CURRICULUM}
+        if not self.state_file.exists():
+            return default_state
+        try:
+            text = self.state_file.read_text().strip()
+            if not text:
+                # Empty file — treat as fresh state.
+                return default_state
+            return json.loads(text)
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(
+                f"Training state at {self.state_file} is corrupt ({e}); "
+                f"quarantining and starting fresh."
+            )
+            try:
+                self.state_file.rename(self.state_file.with_suffix(".json.malformed"))
+            except Exception:
+                pass
+            return default_state
 
     def save_state(self):
         self.state_file.parent.mkdir(parents=True, exist_ok=True)

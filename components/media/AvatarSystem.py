@@ -63,18 +63,43 @@ class AlexRivieraAvatar:
         return Path(__file__).resolve().parent / "seed" / "alex_riviera_master_profile.json"
 
     def _load_canonical_profile(self) -> Dict:
-        """Load the canonical master profile, seeding from package on first run."""
+        """Load the canonical master profile, seeding from package on first run.
+
+        Resilient to corrupt persisted profiles: if the on-disk file fails to
+        parse, quarantine it and re-seed from the bundled package copy.
+        """
+        import logging
+        log = logging.getLogger(__name__)
         profile_file = self._resolve_profile_path()
-        if not profile_file.exists():
-            seed = self._seed_profile_path()
-            if seed.exists():
-                profile_file.parent.mkdir(parents=True, exist_ok=True)
-                profile_file.write_text(seed.read_text())
-        if profile_file.exists():
-            with open(profile_file) as f:
-                return json.load(f)
-        # Last-resort: load directly from the seed without writing
         seed = self._seed_profile_path()
+
+        # If persisted file missing, seed it.
+        if not profile_file.exists() and seed.exists():
+            profile_file.parent.mkdir(parents=True, exist_ok=True)
+            profile_file.write_text(seed.read_text())
+
+        # Try persisted copy first.
+        if profile_file.exists():
+            try:
+                with open(profile_file) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, ValueError) as e:
+                log.warning(
+                    "Canonical profile at %s is corrupt (%s); quarantining and re-seeding.",
+                    profile_file, e,
+                )
+                try:
+                    quarantine = profile_file.with_suffix(profile_file.suffix + ".malformed")
+                    profile_file.rename(quarantine)
+                except Exception:
+                    pass
+                if seed.exists():
+                    profile_file.parent.mkdir(parents=True, exist_ok=True)
+                    profile_file.write_text(seed.read_text())
+                    with open(profile_file) as f:
+                        return json.load(f)
+
+        # Last-resort: load directly from the seed without writing
         if seed.exists():
             with open(seed) as f:
                 return json.load(f)
