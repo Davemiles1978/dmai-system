@@ -2463,9 +2463,8 @@ def api_mon_trader_status():
 
 @app.route("/api/monetisation/trader/enable", methods=["POST"])
 def api_mon_trader_enable():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2475,9 +2474,8 @@ def api_mon_trader_enable():
 
 @app.route("/api/monetisation/trader/tier", methods=["POST"])
 def api_mon_trader_tier():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2492,9 +2490,8 @@ def api_mon_trader_tier():
 
 @app.route("/api/monetisation/trader/tick", methods=["POST"])
 def api_mon_trader_tick():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2502,9 +2499,8 @@ def api_mon_trader_tick():
 
 @app.route("/api/monetisation/trader/approval", methods=["POST"])
 def api_mon_trader_approval_mode():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2520,9 +2516,8 @@ def api_mon_trader_pending():
 
 @app.route("/api/monetisation/trader/pending/<int:pid>/approve", methods=["POST"])
 def api_mon_trader_pending_approve(pid):
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2530,9 +2525,8 @@ def api_mon_trader_pending_approve(pid):
 
 @app.route("/api/monetisation/trader/pending/<int:pid>/reject", methods=["POST"])
 def api_mon_trader_pending_reject(pid):
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2541,9 +2535,8 @@ def api_mon_trader_pending_reject(pid):
 
 @app.route("/api/monetisation/trader/digest", methods=["POST"])
 def api_mon_trader_digest():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
@@ -2596,9 +2589,8 @@ def api_mon_notifier_status():
 
 @app.route("/api/monetisation/notifier", methods=["POST"])
 def api_mon_notifier_update():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     n = components.get("notifier")
     if not n:
         return jsonify({"error": "notifier not loaded"}), 503
@@ -2614,9 +2606,8 @@ def api_mon_notifier_update():
 
 @app.route("/api/monetisation/notifier/test", methods=["POST"])
 def api_mon_notifier_test():
-    err = _require_auth()
-    if err:
-        return err
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
     n = components.get("notifier")
     if not n:
         return jsonify({"error": "notifier not loaded"}), 503
