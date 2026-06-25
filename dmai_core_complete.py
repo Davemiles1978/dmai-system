@@ -756,6 +756,24 @@ try:
 except Exception as e:
     logger.warning("Monetisation hub failed: %s", e)
 
+# ── Greyhound tipster runner (free, paper-mode default) ─────────────────────
+try:
+    from components.monetisation.greyhound_runner import GreyhoundRunner as _GreyhoundRunner
+    _ba = components.get("betting_advisor")
+    if _ba:
+        components["greyhound_runner"] = _GreyhoundRunner(
+            _ba,
+            interval_seconds=int(os.environ.get("GREYHOUND_INTERVAL_SECONDS", "600")),
+        )
+        components["greyhound_runner"].start()
+        _gr_tier = components["greyhound_runner"].tier()
+        logger.info("GreyhoundRunner started — tier=%s (%s)",
+                    _gr_tier.get("level"), _gr_tier.get("name"))
+    else:
+        logger.warning("GreyhoundRunner skipped: betting_advisor not available")
+except Exception as e:
+    logger.warning("GreyhoundRunner failed: %s", e)
+
 # ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
 try:
     from components.monetisation.notifier import SlackNotifier as _SlackNotifier
@@ -4891,6 +4909,41 @@ def api_vocabulary_purge():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+
+# -- Greyhound tipster admin endpoints --------------------------------------
+
+@app.route("/api/monetisation/tips/greyhound-runner", methods=["GET"])
+def api_greyhound_status():
+    """Return greyhound runner status + active tier."""
+    gr = components.get("greyhound_runner")
+    if not gr:
+        return jsonify({"error": "greyhound_runner not loaded"}), 503
+    return jsonify(gr.status())
+
+
+@app.route("/api/monetisation/tips/greyhound-runner/run-once", methods=["POST"])
+def api_greyhound_run_once():
+    """Trigger one greyhound runner cycle manually. Auth required."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    gr = components.get("greyhound_runner")
+    if not gr:
+        return jsonify({"error": "greyhound_runner not loaded"}), 503
+    try:
+        summary = gr.run_once()
+        return jsonify({"status": "ok", "summary": summary})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/monetisation/tips/mode", methods=["GET"])
+def api_tipster_mode():
+    """Return current tipster tier + which keys are missing to unlock next tier."""
+    gr = components.get("greyhound_runner")
+    if not gr:
+        return jsonify({"error": "greyhound_runner not loaded"}), 503
+    return jsonify(gr.tier())
 
 # ═══════════════════════════════════════════════════════════════════════════
 # INTEGRITY / MAINTENANCE API
