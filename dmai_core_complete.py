@@ -1361,8 +1361,8 @@ def api_status():
                     "zero_shot_success_count":          min(_ins_k  / 300_000, 1.0),
                     "agentic_capability_score":         min(_caps_k / 20_000, 1.0),
                     "recursive_self_improvement_rate":  min(_pct_k / 100.0, 1.0),
-                    "sample_efficiency_trend":          min((_ins7d / max(_days_k, 1)) / 5_000, 1.0),
-                    "metacognition_accuracy":           min(_voc_k  / 500_000, 1.0),
+                    "sample_efficiency_trend":          min((_ins7d / max(_days_k, 1)) / 1_500, 1.0),
+                    "metacognition_accuracy":           0.4 * min(_voc_k / 2_000, 1.0) + 0.6 * min(_caps_k / 15_000, 1.0),
                     "multi_modal_integration_score":    min(_active_k / max(len(components), 56), 1.0),
                 }
             except Exception as _ke:
@@ -4292,8 +4292,8 @@ def api_learning_full_status():
                     "zero_shot_success_count":          min(_ins_fs / 300_000, 1.0),
                     "agentic_capability_score":         min(_caps_fs / 20_000, 1.0),
                     "recursive_self_improvement_rate":  min(_pct_fs / 100.0, 1.0),
-                    "sample_efficiency_trend":          min((_ins7_fs / max(_days_fs, 1)) / 5_000, 1.0),
-                    "metacognition_accuracy":           min(_voc_fs / 500_000, 1.0),
+                    "sample_efficiency_trend":          min((_ins7_fs / max(_days_fs, 1)) / 1_500, 1.0),
+                    "metacognition_accuracy":           0.4 * min(_voc_fs / 2_000, 1.0) + 0.6 * min(_caps_fs / 15_000, 1.0),
                     "multi_modal_integration_score":    min(_act_fs / max(len(components), 56), 1.0),
                 }
                 logger.info("full-status: KPIs derived inline from DB (seeder not yet run)")
@@ -5322,9 +5322,11 @@ def _get_db_metrics():
     try:
         si = components.get("si_core")
         if si and hasattr(si, "current_kpis"):
-            _ks = ["skill_acquisition_rate","transfer_learning_rate","zero_shot_success_count",
-                   "agentic_capability_score","recursive_self_improvement_rate",
-                   "sample_efficiency_trend","metacognition_accuracy","multi_modal_integration_score"]
+            # Exclude stage-derived KPIs (transfer_learning_rate, recursive_self_improvement_rate)
+            # to break circular dependency: stage <- avg_kpi <- KPIs <- stage.
+            _ks = ["skill_acquisition_rate","zero_shot_success_count",
+                   "agentic_capability_score","sample_efficiency_trend",
+                   "metacognition_accuracy","multi_modal_integration_score"]
             _vs = [min(float(si.current_kpis.get(k, 0.0)), 1.0) for k in _ks]
             if _vs:
                 m["avg_kpi"] = round(sum(_vs) / len(_vs), 4)
@@ -5566,6 +5568,146 @@ def api_self_evolution_health():
         "components_count": len(components),
         "ts": datetime.now(timezone.utc).isoformat(),
     })
+
+
+@app.route("/api/self-evolution/stage-recompute", methods=["POST"])
+def api_self_evolution_stage_recompute():
+    """Force a fresh stage progression cycle + KPI re-seed. Returns before/after."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    before = {}
+    after = {}
+    try:
+        # Read before state
+        _bm = _get_db_metrics()
+        before = {
+            "insights": _bm["insights"],
+            "capabilities": _bm["capabilities"],
+            "vocab": _bm["vocab"],
+            "avg_kpi": _bm["avg_kpi"],
+        }
+        _sn, _si, _sp = _read_stage_from_db()
+        before["stage"] = _sn
+        before["stage_index"] = _si
+        before["stage_within_pct"] = _sp
+        # Run progression
+        _run_stage_progression()
+        # Re-seed KPIs
+        _seed_kpis_from_db()
+        # Read after state
+        _am = _get_db_metrics()
+        after = {
+            "insights": _am["insights"],
+            "capabilities": _am["capabilities"],
+            "vocab": _am["vocab"],
+            "avg_kpi": _am["avg_kpi"],
+        }
+        _sn2, _si2, _sp2 = _read_stage_from_db()
+        after["stage"] = _sn2
+        after["stage_index"] = _si2
+        after["stage_within_pct"] = _sp2
+        # KPIs
+        si = components.get("si_core")
+        kpis_now = dict(si.current_kpis) if si and hasattr(si, "current_kpis") else {}
+        return jsonify({
+            "ok": True,
+            "advanced": before.get("stage") != after.get("stage"),
+            "before": before,
+            "after": after,
+            "kpis": kpis_now,
+        })
+    except Exception as e:
+        logger.warning("stage-recompute failed: %s", e)
+        return jsonify({"ok": False, "error": str(e), "before": before, "after": after}), 500
+
+
+@app.route("/api/admin/db-repair", methods=["POST"])
+def api_admin_db_repair():
+    """Run VACUUM INTO on the knowledge DB to compact and self-heal page-level corruption.
+    The default sqlite VACUUM rebuilds the file from scratch, dropping unused pages and
+    re-laying out everything cleanly. This recovers from 'database disk image is
+    malformed' errors that affect specific aggregations.
+    """
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import sqlite3 as _rsq, os as _ros, time as _rtime
+    db_path = _ros.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    if not _ros.path.exists(db_path):
+        return jsonify({"ok": False, "error": "db not found", "path": db_path}), 404
+    size_before = _ros.path.getsize(db_path)
+    tmp_path = db_path + ".repair_tmp"
+    bak_path = db_path + f".bak_{int(_rtime.time())}"
+    try:
+        # Clean up any stale tmp
+        if _ros.path.exists(tmp_path):
+            _ros.remove(tmp_path)
+        conn = _rsq.connect(db_path, timeout=60)
+        # integrity_check first
+        ic = conn.execute("PRAGMA integrity_check").fetchall()
+        integrity_lines = [r[0] for r in ic][:20]
+        # VACUUM INTO produces a clean copy
+        conn.execute("VACUUM INTO ?", (tmp_path,))
+        conn.close()
+        size_after = _ros.path.getsize(tmp_path)
+        # Verify tmp_path opens cleanly
+        chk = _rsq.connect(tmp_path, timeout=10)
+        chk_rows = chk.execute("PRAGMA integrity_check").fetchall()
+        chk.close()
+        chk_lines = [r[0] for r in chk_rows][:5]
+        clean = chk_lines == ["ok"]
+        if not clean:
+            _ros.remove(tmp_path)
+            return jsonify({
+                "ok": False,
+                "error": "repaired copy still not clean",
+                "integrity_before": integrity_lines,
+                "integrity_after": chk_lines,
+            }), 500
+        # Backup + replace atomically
+        _ros.rename(db_path, bak_path)
+        _ros.rename(tmp_path, db_path)
+        return jsonify({
+            "ok": True,
+            "size_before": size_before,
+            "size_after": size_after,
+            "reduction_pct": round((1 - size_after / max(size_before, 1)) * 100, 2),
+            "integrity_before": integrity_lines,
+            "integrity_after": chk_lines,
+            "backup": bak_path,
+        })
+    except Exception as e:
+        # Roll back if needed
+        try:
+            if _ros.path.exists(tmp_path):
+                _ros.remove(tmp_path)
+        except Exception:
+            pass
+        logger.warning("db-repair failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/db-integrity", methods=["GET"])
+def api_admin_db_integrity():
+    """Read-only PRAGMA integrity_check on the knowledge DB."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import sqlite3 as _isq, os as _ios
+    db_path = _ios.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    try:
+        conn = _isq.connect(db_path, timeout=15)
+        ic = conn.execute("PRAGMA integrity_check").fetchall()
+        qc = conn.execute("PRAGMA quick_check").fetchall()
+        conn.close()
+        return jsonify({
+            "ok": True,
+            "path": db_path,
+            "size": _ios.path.getsize(db_path) if _ios.path.exists(db_path) else 0,
+            "integrity_check": [r[0] for r in ic][:50],
+            "quick_check": [r[0] for r in qc][:50],
+            "clean": [r[0] for r in ic][:1] == ["ok"],
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/api/self-evolution/gaps")
@@ -6275,14 +6417,22 @@ def _seed_kpis_from_db():
         active_comp = sum(1 for v in components.values() if v is not None)
         total_comp  = max(len(components), 1)
 
+        # Metacognition: blend vocab (lexical self-knowledge) with capabilities
+        # (operational self-knowledge). Stops the score being hard-zero whenever the
+        # vocabulary ingester lags behind the rest of the learning loop.
+        _meta = 0.4 * min(vocab / 2_000, 1.0) + 0.6 * min(caps / 15_000, 1.0)
+        # Sample efficiency: cap at a realistic 1500 insights/day (a healthy learner
+        # producing one insight per minute averages ~1440/day). Beyond that we're
+        # logging duplicates not learning new things.
+        _samp = min(ins_7d_avg / 1_500, 1.0)
         kpis = {
             "skill_acquisition_rate":       min(caps   / 50_000, 1.0),
             "transfer_learning_rate":        min(stage_index / 7.0, 1.0),
             "zero_shot_success_count":       min(insights / 300_000, 1.0),
             "agentic_capability_score":      min(caps   / 20_000, 1.0),
             "recursive_self_improvement_rate": min(stage_pct / 100.0, 1.0),
-            "sample_efficiency_trend":       min(ins_7d_avg / 5_000, 1.0),
-            "metacognition_accuracy":        min(vocab  / 500_000, 1.0),
+            "sample_efficiency_trend":       _samp,
+            "metacognition_accuracy":        _meta,
             "multi_modal_integration_score": min(active_comp / max(total_comp, 56), 1.0),
         }
 
