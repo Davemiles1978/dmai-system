@@ -59,13 +59,10 @@ PROVIDER_SPECS: Dict[str, Dict] = {
         "signup_url": "https://cloud.cerebras.ai",
         "free_tier":  "1M tokens/day permanently, 30 RPM, 14,400 RPD, 60K TPM — no card required",
         "base_url":   "https://api.cerebras.ai/v1",
-        "default_model": "llama-3.3-70b",
+        "default_model": "gpt-oss-120b",
         "models": [
-            "llama-3.3-70b",
-            "llama-3.1-8b",
-            "qwen-3-235b",
-            "deepseek-r1-distill-llama-70b",
             "gpt-oss-120b",
+            "zai-glm-4.7",
         ],
         "rate_limits": {
             "rpm": 30,
@@ -76,7 +73,7 @@ PROVIDER_SPECS: Dict[str, Dict] = {
         "auth_header": lambda k: {"Authorization": f"Bearer {k}"},
         "health_endpoint": "https://api.cerebras.ai/v1/chat/completions",
         "health_body": {
-            "model": "llama-3.1-8b",
+            "model": "gpt-oss-120b",
             "messages": [{"role": "user", "content": "ping"}],
             "max_tokens": 3,
         },
