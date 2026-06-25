@@ -5777,7 +5777,8 @@ def api_admin_keys_probe():
     if not activator:
         return jsonify({"error": "AutoAPIActivator not initialised"}), 503
     try:
-        spec = activator.PROVIDERS.get(pid)
+        from components.integration.auto_api_activator import PROVIDER_CATALOGUE
+        spec = PROVIDER_CATALOGUE.get(pid)
         if not spec:
             return jsonify({"error": f"unknown provider {pid}"}), 404
         # Find the key from env
