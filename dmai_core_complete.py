@@ -4713,6 +4713,24 @@ def api_metrics():
             _within_pct = float(_wp["value"]) if _wp else 0.0
         except Exception:
             pass
+        # Sidecar fallback: when the DB row is missing or clearly stale (Baby/0)
+        # but we have evidence of progression via _calculate_learning_stage, prefer
+        # the freshly-written stage_state.json sidecar.
+        try:
+            import json as _sj, os as _sjo
+            _scp = _sjo.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "stage_state.json")
+            if _sjo.path.exists(_scp):
+                with open(_scp) as _sf:
+                    _sc = _sj.load(_sf)
+                _scstage = _sc.get("stage")
+                _STAGE_ORDER_C = ["Baby","Child","Teenager","Adult","Expert","Master","Transcendent","Infinite"]
+                _db_idx  = _STAGE_ORDER_C.index(_stage)   if _stage   in _STAGE_ORDER_C else 0
+                _sc_idx  = _STAGE_ORDER_C.index(_scstage) if _scstage in _STAGE_ORDER_C else 0
+                if _sc_idx > _db_idx:
+                    _stage = _scstage
+                    _within_pct = float(_sc.get("stage_within_pct", 0.0))
+        except Exception:
+            pass
         from datetime import datetime as _dt2, timedelta as _td2
         _30d = (_dt2.utcnow() - _td2(days=30)).isoformat()
         try:
@@ -5367,41 +5385,114 @@ def _calculate_learning_stage(m):
     return achieved, within_pct
 
 
+def _write_stage_sidecar(stage, within_pct, m):
+    """Backup truth source: always write stage to a small JSON file even when the
+    SQLite DB has page-level corruption. The metrics route falls back to this file
+    when the DB read returns a clearly-stale Baby/0 value."""
+    import json as _swj, os as _swo, datetime as _swdt
+    try:
+        _data_dir = _swo.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
+        _swo.makedirs(_data_dir, exist_ok=True)
+        _sidecar = _swo.path.join(_data_dir, "stage_state.json")
+        with open(_sidecar, "w") as _f:
+            _swj.dump({
+                "stage": stage,
+                "stage_within_pct": float(within_pct),
+                "insights": int(m.get("insights", 0)),
+                "capabilities": int(m.get("capabilities", 0)),
+                "vocab": int(m.get("vocab", 0)),
+                "avg_kpi": float(m.get("avg_kpi", 0.0)),
+                "ts": _swdt.datetime.utcnow().isoformat() + "Z",
+            }, _f)
+    except Exception as _se:
+        logger.debug("_write_stage_sidecar: %s", _se)
+
+
+def _try_vacuum_repair():
+    """Attempt VACUUM INTO repair on the knowledge DB. Returns True on success."""
+    import sqlite3 as _rsq, os as _ros, time as _rtime
+    try:
+        if not _ros.path.exists(_DB_PATH_STAGE):
+            return False
+        _tmp = _DB_PATH_STAGE + ".repair_tmp"
+        _bak = _DB_PATH_STAGE + f".bak_{int(_rtime.time())}"
+        if _ros.path.exists(_tmp):
+            try:
+                _ros.remove(_tmp)
+            except Exception:
+                pass
+        _c = _rsq.connect(_DB_PATH_STAGE, timeout=30)
+        _c.execute("VACUUM INTO ?", (_tmp,))
+        _c.close()
+        # Verify tmp opens cleanly
+        _chk = _rsq.connect(_tmp, timeout=10)
+        _rows = _chk.execute("PRAGMA integrity_check").fetchall()
+        _chk.close()
+        if [r[0] for r in _rows][:1] != ["ok"]:
+            try:
+                _ros.remove(_tmp)
+            except Exception:
+                pass
+            return False
+        _ros.rename(_DB_PATH_STAGE, _bak)
+        _ros.rename(_tmp, _DB_PATH_STAGE)
+        logger.warning("DB auto-repaired via VACUUM INTO; backup at %s", _bak)
+        return True
+    except Exception as _re:
+        logger.warning("_try_vacuum_repair failed: %s", _re)
+        return False
+
+
 def _write_stage_to_db(stage, within_pct, m):
     import sqlite3 as _sw3, datetime as _sdt
-    try:
-        conn = _sw3.connect(_DB_PATH_STAGE)
-        conn.row_factory = _sw3.Row
-        now = _sdt.datetime.utcnow().isoformat()
-        row = conn.execute("SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
-        prev = row["value"] if row else None
-        def _up(k, v):
-            conn.execute(
-                "INSERT INTO system_state (key,value,updated_at) VALUES (?,?,?) "
-                "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
-                (k, str(v), now)
-            )
-        _up("learning_stage",     stage)
-        _up("stage_within_pct",   within_pct)
-        _up("stage_insights",     m["insights"])
-        _up("stage_capabilities", m["capabilities"])
-        _up("stage_vocab",        m["vocab"])
-        _up("stage_avg_kpi",      m["avg_kpi"])
-        _up("stage_last_updated", now)
-        if prev != stage:
-            conn.execute(
-                "INSERT INTO stage_history "
-                "(stage,prev_stage,insights,capabilities,vocab,avg_kpi,within_pct,recorded_at) "
-                "VALUES (?,?,?,?,?,?,?,?)",
-                (stage, prev, m["insights"], m["capabilities"],
-                 m["vocab"], m["avg_kpi"], within_pct, now)
-            )
-            logger.info("STAGE ADVANCE: %s -> %s (ins=%d caps=%d vocab=%d kpi=%.3f)",
-                        prev, stage, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
-        conn.commit()
-        conn.close()
-    except Exception as _e:
-        logger.warning("_write_stage_to_db: %s", _e)
+    # ALWAYS write the sidecar first — independent of DB health.
+    _write_stage_sidecar(stage, within_pct, m)
+    _attempts = 0
+    while _attempts < 2:
+        _attempts += 1
+        try:
+            conn = _sw3.connect(_DB_PATH_STAGE, timeout=10)
+            conn.row_factory = _sw3.Row
+            now = _sdt.datetime.utcnow().isoformat()
+            row = conn.execute("SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
+            prev = row["value"] if row else None
+            def _up(k, v):
+                conn.execute(
+                    "INSERT INTO system_state (key,value,updated_at) VALUES (?,?,?) "
+                    "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
+                    (k, str(v), now)
+                )
+            _up("learning_stage",     stage)
+            _up("stage_within_pct",   within_pct)
+            _up("stage_insights",     m["insights"])
+            _up("stage_capabilities", m["capabilities"])
+            _up("stage_vocab",        m["vocab"])
+            _up("stage_avg_kpi",      m["avg_kpi"])
+            _up("stage_last_updated", now)
+            if prev != stage:
+                try:
+                    conn.execute(
+                        "INSERT INTO stage_history "
+                        "(stage,prev_stage,insights,capabilities,vocab,avg_kpi,within_pct,recorded_at) "
+                        "VALUES (?,?,?,?,?,?,?,?)",
+                        (stage, prev, m["insights"], m["capabilities"],
+                         m["vocab"], m["avg_kpi"], within_pct, now)
+                    )
+                except Exception as _he:
+                    logger.warning("stage_history insert failed: %s", _he)
+                logger.info("STAGE ADVANCE: %s -> %s (ins=%d caps=%d vocab=%d kpi=%.3f)",
+                            prev, stage, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
+            conn.commit()
+            conn.close()
+            return  # success
+        except Exception as _e:
+            _msg = str(_e).lower()
+            logger.warning("_write_stage_to_db attempt %d: %s", _attempts, _e)
+            if "malformed" in _msg and _attempts < 2:
+                logger.warning("DB malformed; attempting auto-repair before retry")
+                if _try_vacuum_repair():
+                    continue  # retry write after repair
+            return  # give up; sidecar already written
 
 
 def _run_stage_progression():
@@ -6954,6 +7045,18 @@ def _start_background_services():
 
     # -- Stage progression loop (every 5 minutes) --
     try:
+        # Boot-time DB self-heal: if integrity_check fails, attempt VACUUM repair
+        # so the stage write path isn't permanently blocked by page corruption.
+        try:
+            import sqlite3 as _bsq3
+            _bc = _bsq3.connect(_DB_PATH_STAGE, timeout=10)
+            _br = _bc.execute("PRAGMA integrity_check").fetchall()
+            _bc.close()
+            if [r[0] for r in _br][:1] != ["ok"]:
+                logger.warning("Boot: DB integrity_check NOT ok; running VACUUM repair")
+                _try_vacuum_repair()
+        except Exception as _bie:
+            logger.warning("Boot DB self-heal probe failed: %s", _bie)
         # Immediate fire at boot so cold-start instances don't sit on stale stage
         # data for the first 30 s + 5 min before the first auto tick.
         try:
