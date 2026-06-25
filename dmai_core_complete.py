@@ -5443,6 +5443,78 @@ def _try_vacuum_repair():
         return False
 
 
+@app.route("/api/admin/db-list-backups", methods=["GET"])
+def api_admin_db_list_backups():
+    """List candidate backup files for emergency restore."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import os as _lbos, glob as _lbg
+    try:
+        data_dir = _lbos.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
+        pat = _lbos.path.join(data_dir, "dmai_knowledge.db.bak_*")
+        files = sorted(_lbg.glob(pat))
+        details = []
+        for f in files:
+            try:
+                st = _lbos.stat(f)
+                details.append({"path": f, "size": st.st_size, "mtime": int(st.st_mtime)})
+            except Exception:
+                pass
+        # Also report current DB size
+        cur = _lbos.path.join(data_dir, "dmai_knowledge.db")
+        cur_size = _lbos.path.getsize(cur) if _lbos.path.exists(cur) else None
+        return jsonify({"ok": True, "current_db_size": cur_size, "backups": details})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@app.route("/api/admin/db-restore-backup", methods=["POST"])
+def api_admin_db_restore_backup():
+    """Emergency restore: copy a specific .bak_<ts> file over the live DB.
+    Body: {"backup_path": "data/dmai_knowledge.db.bak_1750000000"}
+    """
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import os as _rbos, shutil as _rbsh, time as _rbtime, sqlite3 as _rbsq
+    body = request.get_json(silent=True) or {}
+    backup_path = body.get("backup_path", "")
+    if not backup_path or not _rbos.path.exists(backup_path):
+        return jsonify({"ok": False, "error": "backup path missing or not found", "given": backup_path}), 404
+    data_dir = _rbos.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
+    live = _rbos.path.join(data_dir, "dmai_knowledge.db")
+    pre_swap = live + f".pre_restore_{int(_rbtime.time())}"
+    try:
+        size_bak = _rbos.path.getsize(backup_path)
+        # Verify backup opens and has data
+        c = _rbsq.connect(backup_path, timeout=10)
+        c.row_factory = _rbsq.Row
+        try:
+            ins = c.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
+        except Exception:
+            ins = -1
+        c.close()
+        if ins <= 0:
+            return jsonify({"ok": False, "error": "backup looks empty", "insights_in_backup": ins, "size": size_bak}), 400
+        # Move current live DB aside, copy backup into place
+        if _rbos.path.exists(live):
+            _rbos.rename(live, pre_swap)
+        _rbsh.copy2(backup_path, live)
+        # Verify after
+        c2 = _rbsq.connect(live, timeout=10)
+        c2.row_factory = _rbsq.Row
+        after_ins = c2.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
+        c2.close()
+        return jsonify({
+            "ok": True,
+            "restored_from": backup_path,
+            "pre_swap_saved_as": pre_swap if _rbos.path.exists(pre_swap) else None,
+            "insights_after_restore": after_ins,
+            "size_restored": size_bak,
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
 def _write_stage_to_db(stage, within_pct, m):
     import sqlite3 as _sw3, datetime as _sdt
     # ALWAYS write the sidecar first — independent of DB health.
@@ -5488,11 +5560,9 @@ def _write_stage_to_db(stage, within_pct, m):
         except Exception as _e:
             _msg = str(_e).lower()
             logger.warning("_write_stage_to_db attempt %d: %s", _attempts, _e)
-            if "malformed" in _msg and _attempts < 2:
-                logger.warning("DB malformed; attempting auto-repair before retry")
-                if _try_vacuum_repair():
-                    continue  # retry write after repair
-            return  # give up; sidecar already written
+            # Auto-VACUUM repair removed — it zeroed the DB on Render. The sidecar
+            # JSON write at the top of this function preserves the stage truth.
+            return  # give up on DB write; sidecar already written
 
 
 def _run_stage_progression():
@@ -7045,18 +7115,9 @@ def _start_background_services():
 
     # -- Stage progression loop (every 5 minutes) --
     try:
-        # Boot-time DB self-heal: if integrity_check fails, attempt VACUUM repair
-        # so the stage write path isn't permanently blocked by page corruption.
-        try:
-            import sqlite3 as _bsq3
-            _bc = _bsq3.connect(_DB_PATH_STAGE, timeout=10)
-            _br = _bc.execute("PRAGMA integrity_check").fetchall()
-            _bc.close()
-            if [r[0] for r in _br][:1] != ["ok"]:
-                logger.warning("Boot: DB integrity_check NOT ok; running VACUUM repair")
-                _try_vacuum_repair()
-        except Exception as _bie:
-            logger.warning("Boot DB self-heal probe failed: %s", _bie)
+        # NOTE: boot-time VACUUM removed — VACUUM INTO on a malformed file produced
+        # an empty replacement on Render and zeroed the metrics. Use the explicit
+        # /api/admin/db-restore-backup endpoint to swap a .bak file back if needed.
         # Immediate fire at boot so cold-start instances don't sit on stale stage
         # data for the first 30 s + 5 min before the first auto tick.
         try:
