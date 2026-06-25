@@ -145,6 +145,39 @@ if IS_RENDER:
 DATA_PATH = os.environ.get("DATA_PATH", "data/")
 Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
 
+# ── Boot-time SQLite self-heal ───────────────────────────────────────────────
+# If dmai_knowledge.db is malformed, quarantine it so components recreate
+# schema on first access. Controlled by DB_AUTO_HEAL=true (default off).
+if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
+    import sqlite3 as _bsq, time as _bt
+    for _db_name in ("dmai_knowledge.db", "dmai.db", "trading_mastery.db"):
+        _p = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), _db_name)
+        if not os.path.exists(_p):
+            continue
+        try:
+            _c = _bsq.connect(_p, timeout=5)
+            try:
+                _row = _c.execute("PRAGMA integrity_check").fetchone()
+                _ic = _row[0] if _row else "unknown"
+            finally:
+                _c.close()
+        except Exception as _be:
+            _ic = f"open_failed:{_be}"
+        if _ic != "ok":
+            _q = _p + f".malformed_{int(_bt.time())}"
+            try:
+                os.rename(_p, _q)
+                for _sfx in ("-wal", "-shm"):
+                    _sp = _p + _sfx
+                    if os.path.exists(_sp):
+                        try:
+                            os.remove(_sp)
+                        except Exception:
+                            pass
+                logger.warning("DB self-heal: quarantined %s (integrity=%s) -> %s", _p, _ic, _q)
+            except Exception as _be:
+                logger.error("DB self-heal rename failed for %s: %s", _p, _be)
+
 # ── Startup time ─────────────────────────────────────────────────────────────
 DMAI_VERSION = "7.1.0"  # canonical version — single source of truth
 
@@ -5693,6 +5726,57 @@ def api_admin_db_restore_backup():
         return jsonify({"ok": False, "error": str(e)})
 
 
+@app.route("/api/admin/db-rebuild", methods=["POST"])
+def api_admin_db_rebuild():
+    """Quarantine a malformed SQLite DB and let components recreate fresh tables.
+
+    Body: {"db": "dmai_knowledge.db"} (default) or {"db": "dmai.db"}.
+    Renames data/<db> to data/<db>.malformed_<ts>. On next access, the trader
+    and other consumers will hit _init_db() and lay down fresh schema.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    import os as _qos, time as _qtime, sqlite3 as _qsq
+    body = request.get_json(silent=True) or {}
+    db_name = body.get("db", "dmai_knowledge.db")
+    if "/" in db_name or "\\" in db_name or ".." in db_name:
+        return jsonify({"ok": False, "error": "invalid db name"}), 400
+    data_dir = _qos.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
+    live = _qos.path.join(data_dir, db_name)
+    if not _qos.path.exists(live):
+        return jsonify({"ok": False, "error": "db file not found", "path": live}), 404
+    # Try integrity check first; if OK, skip rebuild
+    try:
+        c = _qsq.connect(live, timeout=5)
+        try:
+            row = c.execute("PRAGMA integrity_check").fetchone()
+            integrity = row[0] if row else "unknown"
+        finally:
+            c.close()
+    except Exception as ie:
+        integrity = f"open_failed:{ie}"
+    force = bool(body.get("force", False))
+    if integrity == "ok" and not force:
+        return jsonify({"ok": True, "rebuilt": False, "integrity": integrity,
+                        "note": "DB healthy; pass force=true to rebuild anyway"})
+    quarantine = live + f".malformed_{int(_qtime.time())}"
+    try:
+        _qos.rename(live, quarantine)
+    except Exception as e:
+        return jsonify({"ok": False, "error": "rename failed", "detail": str(e)}), 500
+    # Also remove WAL/SHM siblings if present
+    for sfx in ("-wal", "-shm", ".wal", ".shm"):
+        p = live + sfx
+        if _qos.path.exists(p):
+            try:
+                _qos.remove(p)
+            except Exception:
+                pass
+    return jsonify({"ok": True, "rebuilt": True, "integrity_before": integrity,
+                    "quarantined_to": quarantine, "live_path": live,
+                    "note": "Components will lay down fresh schema on next access"})
+
+
 def _write_stage_to_db(stage, within_pct, m):
     import sqlite3 as _sw3, datetime as _sdt
     # ALWAYS write the sidecar first — independent of DB health.
@@ -7280,7 +7364,10 @@ def _start_background_services():
 
 
     # ── Vocabulary & Encyclopaedia ingestion loop ─────────────────────────────
-    try:
+    if os.environ.get("VOCAB_INGEST_DISABLE", "false").lower() == "true":
+        logger.info("VocabularyIngester loop skipped (VOCAB_INGEST_DISABLE=true)")
+    else:
+      try:
         def _vocab_ingest_loop():
             import time as _vt
             _vt.sleep(60)  # 1-min boot delay
@@ -7297,7 +7384,7 @@ def _start_background_services():
         )
         _vi_thread.start()
         logger.info("VocabularyIngester background loop started (5m interval, target 200 words/pass)")
-    except Exception as e:
+      except Exception as e:
         logger.warning("VocabularyIngester startup failed: %s", e)
 
     # -- Stage progression loop (every 5 minutes) --
@@ -7514,8 +7601,12 @@ def _start_background_services():
         ).start()
         logger.info("Guaranteed background service started: alex_riviera_content")
 
-    if os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
+    if (os.environ.get("TELEGRAM_BOT_TOKEN")
+            and os.environ.get("TELEGRAM_CHAT_ID")
+            and os.environ.get("TELEGRAM_BOT_DISABLE", "false").lower() != "true"):
         _start_telegram_bot()
+    elif os.environ.get("TELEGRAM_BOT_DISABLE", "false").lower() == "true":
+        logger.info("Telegram bot startup skipped (TELEGRAM_BOT_DISABLE=true)")
 
 def _start_telegram_bot():
     def _run():
