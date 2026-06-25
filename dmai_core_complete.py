@@ -4860,6 +4860,33 @@ def api_vocabulary_sample():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/vocabulary/purge", methods=["POST"])
+def api_vocabulary_purge():
+    """Purge encyclopaedia or vocabulary rows by source. Auth required.
+
+    Body: {"table": "encyclopaedia"|"vocabulary", "source": "wikipedia"}
+    Returns: {"deleted": N, "table": ..., "source": ...}
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    body = request.get_json(silent=True) or {}
+    table = body.get("table", "encyclopaedia")
+    source = body.get("source", "wikipedia")
+    if table not in ("encyclopaedia", "vocabulary"):
+        return jsonify({"error": "invalid table"}), 400
+    try:
+        import sqlite3 as _vsq
+        db_file = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
+        conn = _vsq.connect(db_file)
+        cur = conn.execute(f"DELETE FROM {table} WHERE source = ?", (source,))
+        deleted = cur.rowcount
+        conn.commit()
+        conn.close()
+        return jsonify({"deleted": deleted, "table": table, "source": source, "db": db_file})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # INTEGRITY / MAINTENANCE API
 # ═══════════════════════════════════════════════════════════════════════════
