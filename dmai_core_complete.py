@@ -5764,6 +5764,39 @@ def api_admin_db_restore_backup():
         return jsonify({"ok": False, "error": str(e)})
 
 
+@app.route("/api/admin/keys/probe", methods=["POST"])
+def api_admin_keys_probe():
+    """Probe a single provider and return the raw validation result (including response body)."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    body = request.get_json(silent=True) or {}
+    pid = body.get("provider")
+    if not pid:
+        return jsonify({"error": "provider required"}), 400
+    activator = components.get("api_activator")
+    if not activator:
+        return jsonify({"error": "AutoAPIActivator not initialised"}), 503
+    try:
+        spec = activator.PROVIDERS.get(pid)
+        if not spec:
+            return jsonify({"error": f"unknown provider {pid}"}), 404
+        # Find the key from env
+        key = None
+        for ev in spec.get("env_vars", []):
+            v = os.environ.get(ev, "").strip()
+            if v:
+                key = v
+                break
+        if not key:
+            return jsonify({"provider": pid, "status": "pending_api_key", "checked_env_vars": spec.get("env_vars", [])})
+        result = activator._validate(pid, spec, key)
+        result["provider"] = pid
+        result["key_prefix"] = key[:10] + "…"
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/admin/disk", methods=["GET"])
 def api_admin_disk():
     """Report disk usage on the persistent volume + top space consumers."""

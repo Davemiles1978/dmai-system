@@ -443,17 +443,17 @@ class AutoAPIActivator:
 
             latency = round((time.time() - start) * 1000, 1)
 
+            body_excerpt = (resp.text or "")[:400]
             if resp.status_code in (200, 201):
                 return {"status": "active", "latency_ms": latency}
             elif resp.status_code == 401:
-                return {"status": "invalid", "error": "Authentication failed (401)", "latency_ms": latency}
+                return {"status": "invalid", "error": "Authentication failed (401)", "body": body_excerpt, "latency_ms": latency}
             elif resp.status_code == 429:
-                # Rate limited but key IS valid
                 return {"status": "active", "latency_ms": latency, "note": "rate_limited"}
             elif resp.status_code == 402:
-                return {"status": "quota_exceeded", "error": "Quota/billing limit (402)", "latency_ms": latency}
+                return {"status": "quota_exceeded", "error": "Quota/billing limit (402)", "body": body_excerpt, "latency_ms": latency}
             else:
-                return {"status": "invalid", "error": f"HTTP {resp.status_code}", "latency_ms": latency}
+                return {"status": "invalid", "error": f"HTTP {resp.status_code}", "body": body_excerpt, "latency_ms": latency}
 
         except requests.Timeout:
             return {"status": "invalid", "error": "Timeout"}
