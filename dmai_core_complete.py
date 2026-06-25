@@ -756,6 +756,24 @@ try:
 except Exception as e:
     logger.warning("Monetisation hub failed: %s", e)
 
+# ── Racecard runner (theracingapi.com -> BettingAdvisor.generate_tip loop) ──────
+try:
+    from components.monetisation.racecard_runner import RacecardRunner as _RacecardRunner
+    _ba = components.get("betting_advisor")
+    if _ba and os.environ.get("THERACINGAPI_USERNAME") and os.environ.get("THERACINGAPI_PASSWORD"):
+        components["racecard_runner"] = _RacecardRunner(
+            _ba,
+            interval_seconds=int(os.environ.get("RACECARD_INTERVAL_SECONDS", "300")),
+            min_odds=float(os.environ.get("RACECARD_MIN_ODDS", "1.5")),
+            max_odds=float(os.environ.get("RACECARD_MAX_ODDS", "30.0")),
+        )
+        components["racecard_runner"].start()
+        logger.info("RacecardRunner started")
+    else:
+        logger.info("RacecardRunner not started (advisor or creds missing)")
+except Exception as e:
+    logger.warning("RacecardRunner failed: %s", e)
+
 # ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
 try:
     from components.monetisation.notifier import SlackNotifier as _SlackNotifier
@@ -4858,6 +4876,24 @@ def api_vocabulary_sample():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/monetisation/tips/racecard-runner", methods=["GET"])
+def api_racecard_runner_status():
+    rr = components.get("racecard_runner")
+    if not rr:
+        return jsonify({"running": False, "reason": "racecard_runner not loaded (check THERACINGAPI_USERNAME / PASSWORD)"}), 200
+    return jsonify(rr.status())
+
+
+@app.route("/api/monetisation/tips/racecard-runner/run-once", methods=["POST"])
+def api_racecard_runner_run_once():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    rr = components.get("racecard_runner")
+    if not rr:
+        return jsonify({"error": "racecard_runner not loaded"}), 503
+    return jsonify(rr.run_once())
 
 
 @app.route("/api/vocabulary/purge", methods=["POST"])
