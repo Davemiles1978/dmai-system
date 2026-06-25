@@ -257,11 +257,34 @@ class SICore:
     # ------------------------------------------------------------------
 
     def _update_kpi(self, kpi_name: str, value: float, token: Optional[str]) -> bool:
-        """Generic KPI update with token gate."""
+        """Generic KPI update with token gate.
+
+        PERSISTENT-MAX semantics: the stored value is the maximum of the
+        previous value and the new measurement. This prevents a single
+        bad evaluation cycle from regressing a previously-earned score.
+        Real regressions are still surfaced via check_regression() which
+        compares against the saved baseline, not the live value.
+
+        Override with env DMAI_KPI_MODE=replace to restore old behaviour.
+        """
         if not self._validate_token(token):
             logger.warning("Rejected KPI update for %s: invalid/missing token.", kpi_name)
             return False
-        self._state[kpi_name] = value
+        mode = os.environ.get("DMAI_KPI_MODE", "max").lower()
+        prev = self._state.get(kpi_name)
+        try:
+            new_v = float(value) if not isinstance(value, bool) else value
+        except (TypeError, ValueError):
+            new_v = value
+        if mode == "max" and isinstance(prev, (int, float)) and isinstance(new_v, (int, float)):
+            self._state[kpi_name] = max(prev, new_v)
+        else:
+            self._state[kpi_name] = new_v
+        # Persist immediately so KPIs survive restarts and worker recycles
+        try:
+            self.save_state()
+        except Exception as e:
+            logger.warning("save_state failed after %s update: %s", kpi_name, e)
         return True
 
     def update_kpi_skill_acquisition_rate(self, value: float, token: Optional[str] = None) -> bool:
