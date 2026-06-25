@@ -1868,33 +1868,64 @@ def api_knowledge(concept):
     return jsonify({"concept": concept, "found": False, "message": "Not in syllabus yet"})
 
 
+
+# ── Background job registry (for long-running admin endpoints) ────────────────
+import uuid as _bg_uuid
+import threading as _bg_th
+_BG_JOBS = {}
+_BG_JOBS_LOCK = _bg_th.Lock()
+_BG_JOBS_MAX = 50  # cap registry size
+
+def _bg_start(label, fn, *args, **kwargs):
+    """Run fn(*args, **kwargs) in a daemon thread; return job_id."""
+    job_id = _bg_uuid.uuid4().hex[:12]
+    with _BG_JOBS_LOCK:
+        # Trim oldest if at cap
+        if len(_BG_JOBS) >= _BG_JOBS_MAX:
+            oldest = sorted(_BG_JOBS.items(), key=lambda kv: kv[1].get("started", 0))[:10]
+            for k, _ in oldest:
+                _BG_JOBS.pop(k, None)
+        _BG_JOBS[job_id] = {
+            "id": job_id, "label": label, "status": "running",
+            "started": time.time(), "finished": None,
+            "result": None, "error": None,
+        }
+    def _runner():
+        try:
+            res = fn(*args, **kwargs)
+            with _BG_JOBS_LOCK:
+                _BG_JOBS[job_id]["result"] = res
+                _BG_JOBS[job_id]["status"] = "done"
+                _BG_JOBS[job_id]["finished"] = time.time()
+        except Exception as _e:
+            with _BG_JOBS_LOCK:
+                _BG_JOBS[job_id]["error"] = str(_e)
+                _BG_JOBS[job_id]["status"] = "error"
+                _BG_JOBS[job_id]["finished"] = time.time()
+    _bg_th.Thread(target=_runner, daemon=True, name=f"bg-{label}-{job_id}").start()
+    return job_id
+
+
+@app.route("/api/jobs/<job_id>", methods=["GET"])
+def api_bg_job_status(job_id):
+    with _BG_JOBS_LOCK:
+        job = _BG_JOBS.get(job_id)
+    if not job:
+        return jsonify({"error": "job not found"}), 404
+    return jsonify(job)
+
+
 @app.route("/api/kpi/evaluate", methods=["POST"])
 def api_kpi_evaluate():
     data  = request.get_json(silent=True) or {}
-    # Accept quick as query param OR body param
     quick_qs = request.args.get("quick", "").lower() in ("true", "1", "yes")
     quick = quick_qs or data.get("quick", False)
     kpi_eval = components.get("kpi_evaluator")
     if not kpi_eval:
         return jsonify({"error": "KPIEvaluator not loaded"}), 503
-    import threading as _kpi_th
-    results = {}
-    err_holder = []
-    def _run():
-        try:
-            results.update(kpi_eval.run_full_eval(quick=quick))
-        except Exception as _e:
-            err_holder.append(str(_e))
-            logger.error("KPIEvaluator run_full_eval error: %s", _e)
-    t = _kpi_th.Thread(target=_run, daemon=True)
-    t.start()
-    timeout = 60 if quick else 180
-    t.join(timeout=timeout)
-    status = "complete" if not t.is_alive() else "timeout"
-    resp = {"status": status, "results": results, "quick": quick}
-    if err_holder:
-        resp["error"] = err_holder[0]
-    return jsonify(resp)
+    # Background-dispatch so UI never times out. Poll /api/jobs/<id>.
+    job_id = _bg_start("kpi-evaluate", kpi_eval.run_full_eval, quick=quick)
+    return jsonify({"status": "started", "job_id": job_id, "quick": quick, "poll": f"/api/jobs/{job_id}"}), 202
 
 
 @app.route("/api/kpi/history")
@@ -1922,18 +1953,37 @@ def api_kpi_rsi_sync():
     kpi_eval = components.get("kpi_evaluator")
     if not kpi_eval:
         return jsonify({"error": "KPIEvaluator not loaded"}), 503
-    rate = kpi_eval.eval_rsi_from_graph()
-    # Also read the actual evolution_cycle for the UI toast message
-    import json as _rj
-    from pathlib import Path as _rp
-    schema_path = _rp("aevora-training/dashboard/data/graph_schema.json")
-    evo_cycle = 0
-    if schema_path.exists():
+    def _do_sync():
+        import json as _rj
+        from pathlib import Path as _rp
+        rate = kpi_eval.eval_rsi_from_graph()
+        schema_path = _rp("aevora-training/dashboard/data/graph_schema.json")
+        evo_cycle = 0
+        if schema_path.exists():
+            try:
+                evo_cycle = _rj.loads(schema_path.read_text()).get("evolution_cycle", 0)
+            except Exception:
+                pass
+        return {"ok": True, "recursive_self_improvement_rate": rate, "rsi": rate, "evolution_cycle": evo_cycle}
+    # Run inline up to 5s, then background-dispatch if still going.
+    import threading as _rsi_th
+    out_holder = []
+    err_holder = []
+    def _wrap():
         try:
-            evo_cycle = _rj.loads(schema_path.read_text()).get("evolution_cycle", 0)
-        except Exception:
-            pass
-    return jsonify({"ok": True, "recursive_self_improvement_rate": rate, "rsi": rate, "evolution_cycle": evo_cycle})
+            out_holder.append(_do_sync())
+        except Exception as _e:
+            err_holder.append(str(_e))
+    t = _rsi_th.Thread(target=_wrap, daemon=True)
+    t.start()
+    t.join(timeout=5.0)
+    if not t.is_alive():
+        if err_holder:
+            return jsonify({"error": err_holder[0]}), 500
+        return jsonify(out_holder[0] if out_holder else {"ok": True})
+    # Still running: hand off to background registry
+    job_id = _bg_start("kpi-rsi-sync", lambda: (t.join(), out_holder[0] if out_holder else {"timeout": True})[1])
+    return jsonify({"status": "running", "job_id": job_id, "poll": f"/api/jobs/{job_id}"}), 202
 
 
 @app.route("/api/conversations")
@@ -3873,17 +3923,14 @@ def api_kaizen_cycle_status():
 
 @app.route("/api/kaizen/auto-repair", methods=["POST"])
 def api_kaizen_auto_repair():
-    """Trigger an immediate Kaizen auto-repair cycle."""
+    """Trigger a Kaizen auto-repair cycle in the background. Poll /api/jobs/<id>."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     kar = components.get("kaizen_auto_repair")
     if kar is None:
         return jsonify({"error": "KaizenAutoRepair not loaded"}), 503
-    try:
-        result = kar.run_repair_cycle()
-        return jsonify({"ok": True, "result": result})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    job_id = _bg_start("kaizen-auto-repair", kar.run_repair_cycle)
+    return jsonify({"status": "started", "job_id": job_id, "poll": f"/api/jobs/{job_id}"}), 202
 
 
 @app.route("/api/kaizen/repair-stats", methods=["GET"])

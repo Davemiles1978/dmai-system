@@ -1405,6 +1405,19 @@
     return r.json();
   }
 
+  // Poll a background job until it finishes or times out. Returns the final job state.
+  async function pollJob(jobId, { intervalMs = 2000, timeoutMs = 600000 } = {}) {
+    const t0 = Date.now();
+    while (Date.now() - t0 < timeoutMs) {
+      await new Promise(r => setTimeout(r, intervalMs));
+      try {
+        const j = await api('/api/jobs/' + jobId);
+        if (j && (j.status === 'done' || j.status === 'error')) return j;
+      } catch (e) { /* keep polling */ }
+    }
+    return { status: 'timeout', error: 'polled out after ' + Math.round(timeoutMs/1000) + 's' };
+  }
+
   // ── Init ──────────────────────────────────────────────────────────────────
   async function initApp() {
     try { await loadStatus(); } catch(e) { console.warn('loadStatus error:', e); }
@@ -1867,15 +1880,18 @@
   async function runKPIEval(quick = false) {
     const btn = event.currentTarget;
     btn.disabled = true;
-    btn.textContent = quick ? '⏳ Running quick eval…' : '⏳ Running full eval…';
+    btn.textContent = quick ? '⏳ Starting quick eval…' : '⏳ Starting full eval…';
     try {
       const d = await api('/api/kpi/evaluate' + (quick ? '?quick=true' : ''), { method: 'POST' });
-      if (d.ok || d.status === 'started' || d.status === 'queued') {
-        toast(quick ? 'Quick KPI eval started — results in ~30s' : 'Full KPI eval queued — results in ~5min', 'info');
-        setTimeout(() => refreshAll(), quick ? 35000 : 10000);
-      } else {
-        toast(d.error || d.detail || 'KPI eval failed', 'error');
-      }
+      if (d.job_id) {
+        toast(quick ? 'Quick KPI eval running…' : 'Full KPI eval running — may take a few minutes', 'info');
+        btn.textContent = quick ? '⏳ Polling…' : '⏳ Polling (long)…';
+        const final = await pollJob(d.job_id, { intervalMs: quick ? 2000 : 5000, timeoutMs: quick ? 120000 : 600000 });
+        if (final.status === 'done') { toast('KPI eval complete', 'info'); refreshAll(); }
+        else if (final.status === 'error') { toast('KPI eval failed: ' + (final.error || '?'), 'error'); }
+        else { toast('KPI eval still running — check back later', 'warn'); }
+      } else if (d.ok) { toast('KPI eval complete', 'info'); refreshAll(); }
+      else { toast(d.error || d.detail || 'KPI eval failed', 'error'); }
     } catch (e) {
       toast('KPI eval error: ' + e.message, 'error');
     } finally {
@@ -1889,13 +1905,17 @@
     btn.disabled = true;
     btn.textContent = '⏳ Syncing…';
     try {
-      const d = await api('/api/kpi/rsi/sync', { method: 'POST' });
+      let d = await api('/api/kpi/rsi/sync', { method: 'POST' });
+      if (d.job_id && d.status === 'running') {
+        btn.textContent = '⏳ Syncing (background)…';
+        const final = await pollJob(d.job_id, { intervalMs: 3000, timeoutMs: 120000 });
+        if (final.status === 'done') d = final.result || {};
+        else { toast('RSI sync failed: ' + (final.error || final.status), 'error'); return; }
+      }
       if (d.ok || d.rsi !== undefined) {
         toast(`RSI synced — evolution cycle: ${d.evolution_cycle ?? '?'}, RSI: ${d.rsi !== undefined ? (d.rsi * 100).toFixed(1) + '%' : '?'}`, 'info');
         setTimeout(() => refreshAll(), 2000);
-      } else {
-        toast(d.error || 'RSI sync failed', 'error');
-      }
+      } else { toast(d.error || 'RSI sync failed', 'error'); }
     } catch (e) {
       toast('RSI sync error: ' + e.message, 'error');
     } finally {
@@ -1948,10 +1968,18 @@
 
   async function runAutoRepair() {
     const el = document.getElementById('repair-result');
-    el.textContent = 'Running auto-repair cycle...';
+    el.textContent = 'Starting auto-repair cycle...';
     try {
       const d = await api('/api/kaizen/auto-repair', { method:'POST' });
-      if (d.ok) {
+      if (d.job_id) {
+        el.textContent = 'Auto-repair running in background…';
+        const final = await pollJob(d.job_id, { intervalMs: 3000, timeoutMs: 300000 });
+        if (final.status === 'done') {
+          const r = final.result || {};
+          el.innerHTML = `<strong>Cycle complete</strong> &mdash; Fixed: ${r.repaired||0} | Failed: ${r.failed||0} | Skipped: ${r.skipped||0}`;
+          toast('Auto-repair: ' + (r.repaired||0) + ' fixed', 'info');
+        } else { el.textContent = 'Failed: ' + (final.error || final.status); }
+      } else if (d.ok) {
         const r = d.result||{};
         el.innerHTML = `<strong>Cycle complete</strong> &mdash; Fixed: ${r.repaired||0} | Failed: ${r.failed||0} | Skipped: ${r.skipped||0}`;
         toast('Auto-repair: ' + (r.repaired||0) + ' fixed', 'info');
