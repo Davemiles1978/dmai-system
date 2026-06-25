@@ -5764,6 +5764,101 @@ def api_admin_db_restore_backup():
         return jsonify({"ok": False, "error": str(e)})
 
 
+@app.route("/api/admin/disk", methods=["GET"])
+def api_admin_disk():
+    """Report disk usage on the persistent volume + top space consumers."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import shutil, os as _os
+    data_dir = _os.environ.get("DATA_DIR", "/opt/render/project/src/data")
+    total, used, free = shutil.disk_usage(data_dir if _os.path.isdir(data_dir) else "/")
+    # Largest files & dirs
+    big_files = []
+    big_dirs = []
+    try:
+        for root, dirs, files in _os.walk(data_dir):
+            for f in files:
+                fp = _os.path.join(root, f)
+                try:
+                    sz = _os.path.getsize(fp)
+                    if sz > 1_000_000:
+                        big_files.append((sz, fp))
+                except Exception:
+                    pass
+            # Don't descend into __pycache__
+            dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git")]
+        big_files.sort(reverse=True)
+        big_files = [{"path": p, "size_mb": round(s/1_048_576, 2)} for s, p in big_files[:30]]
+    except Exception as e:
+        big_files = [{"error": str(e)}]
+    return jsonify({
+        "data_dir": data_dir,
+        "total_gb": round(total / 1_073_741_824, 2),
+        "used_gb": round(used / 1_073_741_824, 2),
+        "free_gb": round(free / 1_073_741_824, 2),
+        "used_pct": round(used * 100.0 / total, 1) if total else 0,
+        "largest_files": big_files,
+    })
+
+
+@app.route("/api/admin/disk/cleanup", methods=["POST"])
+def api_admin_disk_cleanup():
+    """Delete known-disposable files: SQLite -wal/-shm/-journal/quarantine, old logs, vector caches.
+
+    Body: {"dry_run": true} to preview without deleting.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import os as _os, time as _t
+    body = request.get_json(silent=True) or {}
+    dry = bool(body.get("dry_run", False))
+    data_dir = _os.environ.get("DATA_DIR", "/opt/render/project/src/data")
+    candidates = []
+    # Pattern matchers
+    suffix_kill = (".malformed_", ".bak", ".backup", ".old", ".tmp")
+    name_kill = ("-wal", "-shm", "-journal")
+    extension_kill = (".log",)  # rotated logs only via size threshold below
+    log_min_age_days = 3
+    log_min_size_mb = 5
+    try:
+        for root, dirs, files in _os.walk(data_dir):
+            dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git")]
+            for f in files:
+                fp = _os.path.join(root, f)
+                try:
+                    sz = _os.path.getsize(fp)
+                    age_days = (_t.time() - _os.path.getmtime(fp)) / 86400
+                    reason = None
+                    if any(s in f for s in suffix_kill):
+                        reason = "disposable suffix"
+                    elif any(f.endswith(s) for s in name_kill):
+                        reason = "sqlite scratch file"
+                    elif f.endswith(extension_kill) and age_days > log_min_age_days and sz > log_min_size_mb * 1_048_576:
+                        reason = f"old large log ({round(age_days,1)}d, {round(sz/1_048_576,1)}MB)"
+                    if reason:
+                        candidates.append({"path": fp, "size_mb": round(sz/1_048_576, 2), "reason": reason})
+                except Exception:
+                    pass
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    freed_mb = 0
+    deleted = []
+    if not dry:
+        for c in candidates:
+            try:
+                _os.remove(c["path"])
+                freed_mb += c["size_mb"]
+                deleted.append(c["path"])
+            except Exception as e:
+                c["delete_error"] = str(e)
+    return jsonify({
+        "dry_run": dry,
+        "candidates": candidates,
+        "deleted": deleted,
+        "freed_mb": round(freed_mb, 2),
+    })
+
+
 @app.route("/api/admin/db-rebuild", methods=["POST"])
 def api_admin_db_rebuild():
     """Quarantine a malformed SQLite DB and let components recreate fresh tables.
