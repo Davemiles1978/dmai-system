@@ -260,6 +260,120 @@ try:
             trades_placed INTEGER NOT NULL DEFAULT 0,
             note TEXT
         );
+        CREATE TABLE IF NOT EXISTS mon_bills (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            category TEXT NOT NULL,
+            amount REAL NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'GBP',
+            cadence TEXT NOT NULL DEFAULT 'monthly',
+            next_due REAL,
+            auto_pay INTEGER NOT NULL DEFAULT 1,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at REAL NOT NULL DEFAULT 0
+        );
+        CREATE TABLE IF NOT EXISTS mon_bill_payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bill_id TEXT NOT NULL,
+            amount REAL NOT NULL,
+            status TEXT NOT NULL,
+            ts REAL NOT NULL,
+            notes TEXT
+        );
+        CREATE TABLE IF NOT EXISTS mon_wealth_deployments (
+            id TEXT PRIMARY KEY,
+            total_amount REAL NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'GBP',
+            basket_name TEXT NOT NULL,
+            breakdown_json TEXT NOT NULL,
+            status TEXT NOT NULL,
+            ts REAL NOT NULL,
+            notes TEXT
+        );
+        CREATE TABLE IF NOT EXISTS mon_alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts TEXT NOT NULL DEFAULT (datetime('now')),
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            body TEXT,
+            meta_json TEXT,
+            delivered INTEGER NOT NULL DEFAULT 0,
+            error TEXT
+        );
+        CREATE INDEX IF NOT EXISTS mon_alerts_cat_ts ON mon_alerts(category, ts DESC);
+        CREATE TABLE IF NOT EXISTS work_review_queue (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            submission_uid TEXT UNIQUE,
+            work_type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            payload_json TEXT NOT NULL,
+            summary TEXT,
+            status TEXT NOT NULL DEFAULT 'pending',
+            scores_json TEXT,
+            overall_score REAL,
+            passed INTEGER,
+            submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+            decided_at TEXT,
+            decided_by TEXT,
+            decision_notes TEXT,
+            source_component TEXT,
+            persona TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_wrq_status ON work_review_queue(status);
+        CREATE INDEX IF NOT EXISTS idx_wrq_type ON work_review_queue(work_type);
+        CREATE TABLE IF NOT EXISTS skill_assessments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts TEXT DEFAULT (datetime('now')),
+            submission_id TEXT NOT NULL,
+            work_type TEXT NOT NULL,
+            scores_json TEXT,
+            overall REAL,
+            passed INTEGER,
+            notes TEXT,
+            assessor TEXT DEFAULT 'auto'
+        );
+        CREATE TABLE IF NOT EXISTS mf_predictions (
+            id TEXT PRIMARY KEY,
+            requirement TEXT NOT NULL,
+            seed_hash TEXT,
+            status TEXT NOT NULL DEFAULT 'pending',
+            verdict_json TEXT,
+            created_at REAL NOT NULL DEFAULT 0,
+            completed_at REAL
+        );
+        CREATE TABLE IF NOT EXISTS mf_entities (
+            prediction_id TEXT NOT NULL,
+            entity_id TEXT NOT NULL,
+            label TEXT NOT NULL,
+            type TEXT NOT NULL,
+            attrs_json TEXT,
+            PRIMARY KEY (prediction_id, entity_id)
+        );
+        CREATE TABLE IF NOT EXISTS mf_relations (
+            prediction_id TEXT NOT NULL,
+            rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            from_id TEXT NOT NULL,
+            to_id TEXT NOT NULL,
+            type TEXT NOT NULL,
+            attrs_json TEXT
+        );
+        CREATE TABLE IF NOT EXISTS mf_agents (
+            prediction_id TEXT NOT NULL,
+            agent_id TEXT NOT NULL,
+            persona_json TEXT NOT NULL,
+            platform TEXT,
+            PRIMARY KEY (prediction_id, agent_id)
+        );
+        CREATE TABLE IF NOT EXISTS mf_actions (
+            prediction_id TEXT NOT NULL,
+            action_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent_id TEXT NOT NULL,
+            action_type TEXT NOT NULL,
+            content TEXT,
+            target_id TEXT,
+            round_num INTEGER NOT NULL,
+            ts REAL NOT NULL
+        );
     ''')
     # Seed at_state singleton row if absent
     try:
@@ -277,7 +391,7 @@ try:
         except _ssq.OperationalError:
             pass
     _kn_conn.commit(); _kn_conn.close()
-    logger.info("Boot schema bootstrap OK: capabilities/insights/system_state/mon_wallets/mon_tips ensured")
+    logger.info("Boot schema bootstrap OK: capabilities/insights/system_state/mon_wallets/mon_tips/mon_bills/mon_bill_payments/mon_wealth_deployments/mon_alerts/work_review_queue/skill_assessments/mf_* ensured")
 except Exception as _bse:
     logger.warning("Boot schema bootstrap failed: %s", _bse)
 
