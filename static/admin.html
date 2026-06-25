@@ -828,11 +828,11 @@
           <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><rect x="1.5" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 4V3a2.5 2.5 0 0 1 5 0v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           JWT Token Generator
         </div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Generate a signed Bearer token for API calls. Token expires in 1 hour.</p>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Generate a signed Bearer token for API calls. Token expires in 8 hours.</p>
         <button class="btn-action primary" onclick="generateToken()">Generate Token</button>
         <div id="token-output" style="margin-top:1rem;display:none;">
           <div class="card">
-            <div class="card-title">Bearer Token (1h expiry)</div>
+            <div class="card-title">Bearer Token (8h expiry)</div>
             <code id="token-value" style="font-size:12px;font-family:monospace;word-break:break-all;color:var(--green);"></code>
             <button class="btn-sm" style="margin-top:10px;" onclick="copyToken()">Copy</button>
           </div>
@@ -1288,6 +1288,12 @@
     function _grantAccess(token) {
       JWT = token || null;
       masterPwd = pwd;
+      // Persist credentials so a page reload doesn't force re-login.
+      try {
+        if (token) localStorage.setItem('dmai_jwt', token);
+        if (pwd)   localStorage.setItem('dmai_pwd', pwd);
+        localStorage.setItem('dmai_auth_at', String(Date.now()));
+      } catch (_) { /* localStorage may be disabled */ }
       const ls = document.getElementById('lock-screen');
       const app = document.getElementById('app');
       if (ls)  ls.style.display = 'none';
@@ -1349,11 +1355,37 @@
 
   function lockAdmin() {
     JWT = null; masterPwd = null;
+    try {
+      localStorage.removeItem('dmai_jwt');
+      localStorage.removeItem('dmai_pwd');
+      localStorage.removeItem('dmai_auth_at');
+    } catch (_) { /* ignore */ }
     document.getElementById('app').classList.remove('visible');
     document.getElementById('lock-screen').style.display = 'flex';
     document.getElementById('lock-pwd').value = '';
     document.getElementById('lock-error').textContent = '';
   }
+
+  // Restore session from localStorage on page load (8h cap).
+  (function _restoreSession() {
+    try {
+      const t = localStorage.getItem('dmai_jwt');
+      const p = localStorage.getItem('dmai_pwd');
+      const at = parseInt(localStorage.getItem('dmai_auth_at') || '0', 10);
+      const eightHoursMs = 8 * 60 * 60 * 1000;
+      if (at && (Date.now() - at) < eightHoursMs && (t || p)) {
+        JWT = t || null;
+        masterPwd = p || null;
+        window.addEventListener('DOMContentLoaded', function() {
+          const ls = document.getElementById('lock-screen');
+          const app = document.getElementById('app');
+          if (ls)  ls.style.display = 'none';
+          if (app) { app.style.display = 'flex'; app.classList.add('visible'); }
+          if (typeof initApp === 'function') initApp().catch(function(e){ console.warn('initApp error:', e); });
+        });
+      }
+    } catch (_) { /* ignore */ }
+  })();
 
   // ── Auth headers ──────────────────────────────────────────────────────────
   function authHeaders() {

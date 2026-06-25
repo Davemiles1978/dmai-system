@@ -500,7 +500,7 @@ class AIIntegrationHub:
         for attempt in range(2):
             try:
                 response = requests.post(
-                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}',
+                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}',
                     headers={'Content-Type': 'application/json'},
                     json={
                         'contents': [{'parts': [{'text': prompt}]}],
@@ -518,7 +518,7 @@ class AIIntegrationHub:
                         'success': True,
                         'tutor': 'Google Gemini',
                         'response': data['candidates'][0]['content']['parts'][0]['text'],
-                        'model': 'gemini-pro'
+                        'model': 'gemini-1.5-flash'
                     }
                 else:
                     return {'success': False, 'tutor': 'Gemini', 'error': f'HTTP {response.status_code}'}
@@ -757,7 +757,7 @@ class AIIntegrationHub:
         try:
             # Implementation similar to Gemini but with different endpoint
             response = requests.post(
-                f'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}',
+                f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}',
                 json={'contents': [{'parts': [{'text': prompt}]}]},
                 timeout=15
             )

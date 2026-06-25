@@ -3049,7 +3049,7 @@ def api_admin_token():
     token = issue_token_for_password(pwd)
     if not token:
         return jsonify({"error": "Token generation failed"}), 500
-    return jsonify({"token": token, "expires_in": 3600, "type": "Bearer"})
+    return jsonify({"token": token, "expires_in": 28800, "type": "Bearer"})
 
 
 @app.route("/api/admin/auth", methods=["POST"])

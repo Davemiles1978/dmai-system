@@ -45,7 +45,7 @@ _MASTER_PASSWORD: str = os.environ.get("MASTER_PASSWORD", "")
 # ---------------------------------------------------------------------------
 
 
-def generate_token(payload: dict, expires_minutes: int = 60) -> str:
+def generate_token(payload: dict, expires_minutes: int = 480) -> str:
     """Sign a payload with HS256 and return a JWT string.
 
     Args:

@@ -21,6 +21,30 @@ class AlexRivieraContentEngine:
         self.data_path = data_path.rstrip("/")
         self.db_path = os.path.join(self.data_path, "dmai_knowledge.db")
         self.queue_path = os.path.join(self.data_path, "content_queue.jsonl")
+        self._ensure_schema()
+
+    def _ensure_schema(self):
+        """Make sure the insights table exists. Idempotent."""
+        try:
+            os.makedirs(self.data_path, exist_ok=True)
+            conn = sqlite3.connect(self.db_path)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS insights (
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title       TEXT,
+                    description TEXT,
+                    content     TEXT,
+                    source      TEXT,
+                    url         TEXT,
+                    tags        TEXT,
+                    created_at  TEXT DEFAULT (datetime('now'))
+                )
+            """)
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_insights_created ON insights(created_at)")
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.warning(f"AlexRiviera._ensure_schema: {e}")
 
     def run_daily_cycle(self):
         """Generate and queue today's content — called every 6 hours"""
