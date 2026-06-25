@@ -5098,7 +5098,14 @@ _STAGE_THRESHOLDS = {
     "Infinite":     (1200000, 80000, 25000, 0.92),
 }
 
-_DB_PATH_STAGE = "data/dmai_knowledge.db"
+# Stage progression DB path — must point at the SAME file every other route uses.
+# Hard-coding 'data/dmai_knowledge.db' broke when DATA_PATH was set to a persistent
+# disk mount (e.g. /var/data on Render): the stage loop wrote to an ephemeral copy
+# while /api/metrics read from the disk-mounted real one, so stage never advanced.
+_DB_PATH_STAGE = os.path.join(
+    os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
+    "dmai_knowledge.db",
+)
 
 
 def _mastery_to_float(v):
