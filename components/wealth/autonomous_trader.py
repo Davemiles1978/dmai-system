@@ -195,9 +195,79 @@ class AutonomousTrader:
 
     # ── DB helpers ────────────────────────────────────────────────────────────
     def _conn(self) -> sqlite3.Connection:
-        c = sqlite3.connect(self.db_path, timeout=30)
-        c.row_factory = sqlite3.Row
-        return c
+        """Open a SQLite connection with WAL + self-heal on malformed DB.
+
+        WAL mode is the cure for the concurrent-writer corruption that's been
+        plaguing dmai_knowledge.db. If we hit 'database disk image is malformed'
+        we quarantine the file, recreate schema, and seed at_state.
+        """
+        try:
+            c = sqlite3.connect(self.db_path, timeout=30)
+            c.row_factory = sqlite3.Row
+            try:
+                c.execute("PRAGMA journal_mode=WAL")
+                c.execute("PRAGMA busy_timeout=5000")
+                c.execute("PRAGMA synchronous=NORMAL")
+            except Exception:
+                pass
+            return c
+        except sqlite3.DatabaseError as e:
+            if "malformed" not in str(e).lower():
+                raise
+            logger.error(
+                "AutonomousTrader: malformed DB on connect, self-healing: %s", e
+            )
+            self._self_heal_db()
+            c = sqlite3.connect(self.db_path, timeout=30)
+            c.row_factory = sqlite3.Row
+            try:
+                c.execute("PRAGMA journal_mode=WAL")
+                c.execute("PRAGMA busy_timeout=5000")
+            except Exception:
+                pass
+            return c
+
+    def _self_heal_db(self) -> None:
+        """Quarantine a malformed DB file and recreate fresh schema + state row."""
+        import os as _hos, time as _ht
+        try:
+            if _hos.path.exists(self.db_path):
+                quarantine = self.db_path + f".malformed_{int(_ht.time())}"
+                _hos.rename(self.db_path, quarantine)
+                logger.warning(
+                    "AutonomousTrader: quarantined malformed DB -> %s", quarantine
+                )
+            for sfx in ("-wal", "-shm"):
+                p = self.db_path + sfx
+                if _hos.path.exists(p):
+                    try:
+                        _hos.remove(p)
+                    except Exception:
+                        pass
+        except Exception as he:
+            logger.error("AutonomousTrader: self-heal rename failed: %s", he)
+        try:
+            fresh = sqlite3.connect(self.db_path, timeout=30)
+            try:
+                fresh.execute("PRAGMA journal_mode=WAL")
+                for ddl in SCHEMA:
+                    fresh.execute(ddl)
+                row = fresh.execute(
+                    "SELECT id FROM at_state WHERE id = 1"
+                ).fetchone()
+                if not row:
+                    fresh.execute(
+                        "INSERT INTO at_state(id, enabled, tier) "
+                        "VALUES (1, 0, 'conservative')"
+                    )
+                fresh.commit()
+            finally:
+                fresh.close()
+            logger.info(
+                "AutonomousTrader: fresh schema laid down after self-heal"
+            )
+        except Exception as se:
+            logger.error("AutonomousTrader: schema recreation failed: %s", se)
 
     def _init_db(self) -> None:
         with self._conn() as c:
