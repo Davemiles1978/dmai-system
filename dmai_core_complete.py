@@ -7571,17 +7571,23 @@ def _start_background_services():
             logger.warning("StageAwareLearningOrchestrator auto-start failed: %s", e)
 
     # ── KaizenAutoRepair — backfill existing proposals then start fix loop ────
-    try:
-        _backfill_kaizen_queue()
-    except Exception as _bfe:
-        logger.warning("Kaizen backfill error: %s", _bfe)
-    _kar = components.get("kaizen_auto_repair")
-    if _kar:
+    # Gated behind KAIZEN_AUTO_REPAIR_ENABLED (default false) — the loop was
+    # starving gunicorn workers by repeatedly attempting to repair missing
+    # backup files, causing health-check timeouts. Enable explicitly when ready.
+    if os.environ.get("KAIZEN_AUTO_REPAIR_ENABLED", "false").lower() == "true":
         try:
-            _kar.start_repair_loop()
-            logger.info("KaizenAutoRepair loop started")
-        except Exception as e:
-            logger.warning("KaizenAutoRepair start failed: %s", e)
+            _backfill_kaizen_queue()
+        except Exception as _bfe:
+            logger.warning("Kaizen backfill error: %s", _bfe)
+        _kar = components.get("kaizen_auto_repair")
+        if _kar:
+            try:
+                _kar.start_repair_loop()
+                logger.info("KaizenAutoRepair loop started")
+            except Exception as e:
+                logger.warning("KaizenAutoRepair start failed: %s", e)
+    else:
+        logger.info("KaizenAutoRepair loop SKIPPED (set KAIZEN_AUTO_REPAIR_ENABLED=true to enable)")
 
     # ── GraphEvolutionLoop — 24/7 continuous knowledge graph growth ───────────
     #
