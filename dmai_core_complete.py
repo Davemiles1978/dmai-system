@@ -991,6 +991,18 @@ if "training_orchestrator" in components:
     except Exception as e:
         logger.warning("Orchestrator route registration failed: %s", e)
 
+# Register Alex Riviera persona-locked chat surface (/alex, /api/alex/chat).
+# Uses a late-binding lambda so it picks up _ai_chat / _log_chat once defined.
+try:
+    from components.alex_chat import register_alex_routes
+    register_alex_routes(
+        app,
+        ai_chat_fn=lambda msg: _ai_chat(msg),
+        log_chat_fn=lambda u, a: _log_chat(u, a),
+    )
+except Exception as _alex_err:
+    logger.warning("Alex routes registration failed: %s", _alex_err)
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ── Flask-app-dependent components (must be instantiated AFTER app = Flask) ──
 # ═══════════════════════════════════════════════════════════════════════════
