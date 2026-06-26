@@ -72,6 +72,31 @@ CREATE TABLE IF NOT EXISTS mon_user_bets (
 );
 CREATE INDEX IF NOT EXISTS idx_user_bets_status ON mon_user_bets(status, placed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_bets_tip ON mon_user_bets(tip_id);
+
+-- Tracking picks: the model's top pick per race, recorded regardless of EV
+-- gate, so we can score prediction accuracy over 2-7 days before going live.
+-- One row per (event_name, market). No money implied.
+CREATE TABLE IF NOT EXISTS mon_tracking_picks (
+    id TEXT PRIMARY KEY,
+    event_name TEXT NOT NULL,
+    market TEXT NOT NULL DEFAULT 'trap_winner',
+    selection TEXT NOT NULL,
+    decimal_odds REAL NOT NULL,
+    model_probability REAL NOT NULL,
+    confidence REAL NOT NULL,
+    expected_value REAL NOT NULL,
+    rationale TEXT,
+    prediction_id TEXT,
+    -- outcome: pending | won | lost | void  (settled by runner against GBGB)
+    outcome TEXT NOT NULL DEFAULT 'pending',
+    settled_at REAL,
+    -- paper P/L if you had staked 1 unit at decimal_odds (informational only)
+    paper_pl REAL,
+    notes TEXT,
+    created_at REAL NOT NULL,
+    UNIQUE(event_name, market)
+);
+CREATE INDEX IF NOT EXISTS idx_tracking_outcome ON mon_tracking_picks(outcome, created_at DESC);
 """
 
 
@@ -352,6 +377,105 @@ class BettingAdvisor:
                 ).fetchall()
         return [dict(r) for r in rows]
 
+    # ---- tracking-mode reads/writes (used by GreyhoundRunner) ----
+
+    def record_tracking_pick(self, *, event_name: str, market: str,
+                             selection: str, decimal_odds: float,
+                             model_probability: float, confidence: float,
+                             expected_value: float, rationale: str = "",
+                             prediction_id: Optional[str] = None) -> Dict[str, Any]:
+        """Persist the model's top pick for a race regardless of EV gate.
+
+        Returns {id, event_name, selection, status} or {error, ...}.
+        Inserts are idempotent by (event_name, market): if the race already
+        has a tracked pick, this is a no-op and the existing row is returned.
+        """
+        if decimal_odds <= 1.0:
+            return {"error": "decimal_odds must be > 1.0"}
+        pick_id = uuid.uuid4().hex[:16]
+        with _LOCK, self._conn() as c:
+            existing = c.execute(
+                "SELECT * FROM mon_tracking_picks WHERE event_name=? AND market=?",
+                (event_name, market),
+            ).fetchone()
+            if existing:
+                return {"id": existing["id"], "event_name": event_name,
+                        "selection": existing["selection"],
+                        "status": "already_tracked"}
+            c.execute(
+                "INSERT INTO mon_tracking_picks (id, event_name, market, selection, "
+                "decimal_odds, model_probability, confidence, expected_value, "
+                "rationale, prediction_id, outcome, created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (pick_id, event_name, market, selection, decimal_odds,
+                 model_probability, confidence, expected_value, rationale,
+                 prediction_id, "pending", time.time()),
+            )
+        return {"id": pick_id, "event_name": event_name, "selection": selection,
+                "status": "tracked"}
+
+    def list_tracking_picks(self, outcome: Optional[str] = None,
+                            limit: int = 200) -> List[Dict[str, Any]]:
+        with self._conn() as c:
+            if outcome:
+                rows = c.execute(
+                    "SELECT * FROM mon_tracking_picks WHERE outcome=? "
+                    "ORDER BY created_at DESC LIMIT ?", (outcome, limit),
+                ).fetchall()
+            else:
+                rows = c.execute(
+                    "SELECT * FROM mon_tracking_picks ORDER BY created_at DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+        return [dict(r) for r in rows]
+
+    def settle_tracking_pick(self, *, event_name: str, market: str,
+                             winning_selection: str) -> Dict[str, Any]:
+        """Mark a tracked pick won/lost based on the actual race winner.
+
+        paper_pl assumes a notional 1-unit stake at the recorded decimal_odds.
+        """
+        with _LOCK, self._conn() as c:
+            row = c.execute(
+                "SELECT * FROM mon_tracking_picks WHERE event_name=? AND market=? "
+                "AND outcome='pending'", (event_name, market),
+            ).fetchone()
+            if not row:
+                return {"status": "no_pending_pick"}
+            won = (row["selection"].strip().lower() ==
+                   (winning_selection or "").strip().lower())
+            paper_pl = round(float(row["decimal_odds"]) - 1.0, 4) if won else -1.0
+            outcome = "won" if won else "lost"
+            c.execute(
+                "UPDATE mon_tracking_picks SET outcome=?, settled_at=?, paper_pl=? "
+                "WHERE id=?", (outcome, time.time(), paper_pl, row["id"]),
+            )
+        return {"id": row["id"], "outcome": outcome, "paper_pl": paper_pl}
+
+    def tracking_performance(self) -> Dict[str, Any]:
+        """Aggregate accuracy metrics across all settled tracking picks."""
+        with self._conn() as c:
+            total   = c.execute("SELECT COUNT(*) FROM mon_tracking_picks").fetchone()[0]
+            pending = c.execute("SELECT COUNT(*) FROM mon_tracking_picks WHERE outcome='pending'").fetchone()[0]
+            settled = c.execute("SELECT COUNT(*) FROM mon_tracking_picks WHERE outcome IN ('won','lost')").fetchone()[0]
+            won     = c.execute("SELECT COUNT(*) FROM mon_tracking_picks WHERE outcome='won'").fetchone()[0]
+            pl_row  = c.execute("SELECT COALESCE(SUM(paper_pl),0) FROM mon_tracking_picks WHERE paper_pl IS NOT NULL").fetchone()
+            brier_row = c.execute(
+                "SELECT AVG((model_probability - CASE outcome WHEN 'won' THEN 1 ELSE 0 END) * "
+                "(model_probability - CASE outcome WHEN 'won' THEN 1 ELSE 0 END)) "
+                "FROM mon_tracking_picks WHERE outcome IN ('won','lost')"
+            ).fetchone()
+        hit_rate = round(won / settled, 4) if settled else 0.0
+        return {
+            "total": total,
+            "pending": pending,
+            "settled": settled,
+            "won": won,
+            "lost": settled - won,
+            "hit_rate": hit_rate,
+            "brier_score": round(brier_row[0], 4) if brier_row and brier_row[0] is not None else None,
+            "paper_pl_units": round(float(pl_row[0] or 0), 4),
+        }
 
     # ---- upcoming + history reads (for Tip Tracking dashboard) ----
 
