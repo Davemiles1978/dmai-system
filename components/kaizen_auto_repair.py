@@ -37,6 +37,18 @@ _KAIZEN_FILE    = _REPO_ROOT / "data" / "kaizen_queue.jsonl"
 _REPAIR_LOG     = _REPO_ROOT / "data" / "code_writer" / "kaizen_repair_log.jsonl"
 _MAX_ATTEMPTS = 5
 _LOOP_INTERVAL  = 600    # 10 minutes (more aggressive so executed > 0 within the hour)
+# Per-cycle cap for AI-assisted repairs (CodeWriter / memory) — keeps token
+# spend bounded. Dead-letter sweeps (missing files, backups) are NOT capped.
+_AI_REPAIR_BATCH = 100
+# Paths that are safe to auto-resolve without invoking CodeWriter — these are
+# self-healing artefacts or backups, not real source files.
+_DEAD_LETTER_PREFIXES = (
+    "data/self_healing/backups/",
+    "data/quarantine/",
+    "components/backup_final_",
+    "components/backup_",
+    "backup_",
+)
 
 
 class KaizenAutoRepair:
@@ -107,12 +119,38 @@ class KaizenAutoRepair:
 
         if not pending:
             logger.debug("KaizenAutoRepair: no pending proposals")
-            return {"repaired": 0, "failed": 0, "skipped": 0}
+            return {"repaired": 0, "failed": 0, "skipped": 0, "dead_lettered": 0}
 
         repaired = 0
         failed   = 0
+        dead_lettered = 0
 
-        for proposal in pending[:10]:  # max 10 per cycle
+        # Pass 1: sweep dead-letter proposals (unbounded).
+        # Backups, quarantine files and missing files cannot be patched —
+        # mark them resolved so the queue actually drains.
+        ai_pending = []
+        for p in pending:
+            f = (p.get("file") or p.get("file_path") or "").lstrip("./")
+            if f and any(pref in f for pref in _DEAD_LETTER_PREFIXES):
+                p["status"] = "resolved"
+                p["resolution"] = "dead_letter_backup_path"
+                p["resolved_at"] = datetime.now(timezone.utc).isoformat()
+                p["attempt_count"] = p.get("attempt_count", 0) + 1
+                dead_lettered += 1
+                continue
+            if f:
+                abs_path = _REPO_ROOT / f
+                if not abs_path.exists():
+                    p["status"] = "resolved"
+                    p["resolution"] = "dead_letter_file_missing"
+                    p["resolved_at"] = datetime.now(timezone.utc).isoformat()
+                    p["attempt_count"] = p.get("attempt_count", 0) + 1
+                    dead_lettered += 1
+                    continue
+            ai_pending.append(p)
+
+        # Pass 2: AI-assisted repairs (bounded by _AI_REPAIR_BATCH)
+        for proposal in ai_pending[:_AI_REPAIR_BATCH]:
             result = self._attempt_repair(proposal)
             proposal["attempt_count"] = proposal.get("attempt_count", 0) + 1
             proposal["last_attempt"]  = datetime.now(timezone.utc).isoformat()
@@ -133,8 +171,17 @@ class KaizenAutoRepair:
             self._log_repair_attempt(proposal, result)
 
         self._save_proposals(proposals)
-        logger.info("KaizenAutoRepair cycle: %d fixed, %d failed", repaired, failed)
-        return {"repaired": repaired, "failed": failed, "skipped": len(pending) - repaired - failed}
+        skipped = max(0, len(pending) - repaired - failed - dead_lettered)
+        logger.info(
+            "KaizenAutoRepair cycle: %d fixed, %d failed, %d dead-lettered, %d deferred",
+            repaired, failed, dead_lettered, skipped,
+        )
+        return {
+            "repaired": repaired,
+            "failed": failed,
+            "skipped": skipped,
+            "dead_lettered": dead_lettered,
+        }
 
     def _attempt_repair(self, proposal: Dict) -> Dict:
         """Attempt to fix one proposal. Returns {ok, ...}."""
