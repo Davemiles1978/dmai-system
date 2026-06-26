@@ -411,6 +411,26 @@ class BettingAdvisor:
                  model_probability, confidence, expected_value, rationale,
                  prediction_id, "pending", time.time()),
             )
+        # HOT-TIP notification for STRONG-tier tracking picks (manual-bet phase).
+        # Criteria mirror SlackNotifier.hot_tip 'STRONG': EV >= 0.20 AND confidence >= 0.70.
+        try:
+            if expected_value >= 0.20 and confidence >= 0.70:
+                self._notify_tip({
+                    "id": pick_id,
+                    "event_name": event_name,
+                    "market": market,
+                    "selection": selection,
+                    "decimal_odds": decimal_odds,
+                    "model_probability": model_probability,
+                    "confidence": confidence,
+                    "expected_value": expected_value,
+                    "recommended_stake": 0,  # tracking mode = no auto stake
+                    "rationale": rationale,
+                    "prediction_id": prediction_id,
+                    "mode": "TRACKING",
+                })
+        except Exception as e:
+            logger.warning("tracking hot-tip notify failed: %s", e)
         return {"id": pick_id, "event_name": event_name, "selection": selection,
                 "status": "tracked"}
 
