@@ -2239,6 +2239,7 @@ class KnowledgeSourceManager:
         # Dict so callers can do .sources.get("web_crawler")
         self.sources = {}
         self.data_path = kwargs.get("data_path", "data/")
+        self.last_refresh = None
 
     def register_source(self, source, name=None):
         if name is None:
@@ -2255,7 +2256,23 @@ class KnowledgeSourceManager:
                 results.extend(s.fetch() if hasattr(s, "fetch") else [])
             except Exception:
                 pass
+        self.last_refresh = datetime.now().isoformat()
         return results
+
+    def get_summary(self) -> dict:
+        """Lightweight status dict for /api/knowledge/status. Never raises."""
+        try:
+            source_types = sorted({
+                getattr(s, "source_type", s.__class__.__name__)
+                for s in self.sources.values()
+            })
+            return {
+                "total_sources": len(self.sources),
+                "last_refresh": self.last_refresh,
+                "source_types": source_types,
+            }
+        except Exception as e:
+            return {"error": str(e)}
 
     def start_all(self):
         """Best-effort start for every registered source that supports it."""
