@@ -74,6 +74,13 @@ class AutonomousResearcher:
         self.si_core = si_core
         self.research_queue = []
         self.completed_research = []
+        # ── Status surface ────────────────────────────────────────────────
+        self.is_active = False
+        self.last_run_at = None
+        self.total_runs = 0
+        self.total_items_produced = 0
+        self.last_error = None
+        self.interval_seconds = 300
         # Load memory retrieval at init
         self._memory_recall = None
         try:
@@ -139,6 +146,7 @@ class AutonomousResearcher:
                             metadata={'entities': entities, 'mastery_score': mem.confidence},
                         )
                     from datetime import datetime as _dt
+                    self._record_run(len(entities) or 1)
                     return {
                         'topic': topic,
                         'sources': {'memory': mem.to_dict()},
@@ -199,7 +207,30 @@ class AutonomousResearcher:
         }
 
         self.completed_research.append(research_result)
+        self._record_run(len(entities) or 1)
         return research_result
+
+    def _record_run(self, items: int = 1) -> None:
+        """Update status counters after a completed research cycle."""
+        self.total_runs += 1
+        self.total_items_produced += max(items, 0)
+        self.last_run_at = datetime.now().isoformat()
+
+    def get_status(self) -> dict:
+        """Status surface for /api/research/autonomous/status. Never raises."""
+        try:
+            return {
+                "available": True,
+                "is_active": self.is_active,
+                "last_run_at": self.last_run_at,
+                "total_runs": self.total_runs,
+                "total_items_produced": self.total_items_produced,
+                "last_error": self.last_error,
+                "interval_seconds": self.interval_seconds,
+                "completed_research": len(self.completed_research),
+            }
+        except Exception as e:
+            return {"available": True, "error": str(e)}
 
     def _persist_discovery(self, domain: str, entities: list, source: str, summary: str = "") -> None:
         """Write a structured discovery event to data/research/discoveries.jsonl."""
@@ -355,6 +386,7 @@ class AutonomousResearcher:
         all_topics = _expand_pool(list(topics))
         print(f"Autonomous research loop: {len(all_topics)} topics ({len(topics)} base + {len(all_topics)-len(topics)} dynamic), cycling forever")
 
+        self.is_active = True
         cycle = 0
         while True:
             try:
@@ -400,6 +432,7 @@ class AutonomousResearcher:
                 cycle += 1
                 time.sleep(120 if from_mem else 300)
             except Exception as e:
+                self.last_error = str(e)
                 print(f"Researcher loop error (cycle {cycle}): {e}")
                 time.sleep(60)
 

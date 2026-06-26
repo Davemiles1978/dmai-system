@@ -4473,7 +4473,18 @@ def api_code_writer_patch():
 # ── Autonomous research ───────────────────────────────────────────────────────
 @app.route("/api/research/autonomous/status", methods=["GET"])
 def api_research_autonomous_status():
-    return _comp_status("autonomous_researcher")
+    comp = components.get("autonomous_researcher")
+    if comp is None:
+        return jsonify({"available": False, "component": "autonomous_researcher"}), 503
+    if hasattr(comp, "get_status"):
+        try:
+            payload = comp.get_status()
+            payload.setdefault("available", True)
+            payload.setdefault("component", "autonomous_researcher")
+            return jsonify(payload)
+        except Exception as e:
+            return jsonify({"available": True, "component": "autonomous_researcher", "error": str(e)})
+    return jsonify({"available": True, "component": "autonomous_researcher"})
 
 
 @app.route("/api/research/autonomous/start", methods=["POST"])
@@ -4724,7 +4735,18 @@ def api_github_stars():
 # ── Autonomous ingestor ───────────────────────────────────────────────────────
 @app.route("/api/ingestor/status", methods=["GET"])
 def api_ingestor_status():
-    return _comp_status("autonomous_ingestor")
+    comp = components.get("autonomous_ingestor")
+    if comp is None:
+        return jsonify({"available": False, "component": "autonomous_ingestor"}), 503
+    if hasattr(comp, "get_status"):
+        try:
+            payload = comp.get_status()
+            payload.setdefault("available", True)
+            payload.setdefault("component", "autonomous_ingestor")
+            return jsonify(payload)
+        except Exception as e:
+            return jsonify({"available": True, "component": "autonomous_ingestor", "error": str(e)})
+    return jsonify({"available": True, "component": "autonomous_ingestor"})
 
 
 # ── Settings (full system config read + write) ────────────────────────────────

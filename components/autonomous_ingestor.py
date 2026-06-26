@@ -28,6 +28,30 @@ class AutonomousDeveloper:
         self.implemented_features = []
         self.project_dir = Path("data/development_projects")
         self.project_dir.mkdir(parents=True, exist_ok=True)
+        # ── Status surface ────────────────────────────────────────────────
+        self.is_active = False
+        self.last_run_at = None
+        self.total_runs = 0
+        self.total_items_produced = 0
+        self.last_error = None
+        self.interval_seconds = None  # event-driven, not periodic
+
+    def get_status(self) -> dict:
+        """Status surface for /api/ingestor/status. Never raises."""
+        try:
+            return {
+                "available": True,
+                "is_active": self.is_active,
+                "last_run_at": self.last_run_at,
+                "total_runs": self.total_runs,
+                "total_items_produced": self.total_items_produced,
+                "last_error": self.last_error,
+                "interval_seconds": self.interval_seconds,
+                "development_projects": len(self.development_projects),
+                "implemented_features": len(self.implemented_features),
+            }
+        except Exception as e:
+            return {"available": True, "error": str(e)}
     
     def process_input(self, input_source: str, input_type: str = "auto") -> Dict:
         """
@@ -47,7 +71,11 @@ class AutonomousDeveloper:
             'implementation': {},
             'incorporation': {}
         }
-        
+
+        self.is_active = True
+        self.total_runs += 1
+        self.last_run_at = datetime.now().isoformat()
+
         # Step 1: Auto-detect input type
         if input_type == 'auto':
             input_type = self._detect_input_type(input_source)
@@ -95,7 +123,13 @@ class AutonomousDeveloper:
             'result': result['status'],
             'timestamp': datetime.now().isoformat()
         })
-        
+
+        if result['status'] in ('complete',):
+            self.total_items_produced += 1
+        elif result['status'] in ('failed', 'implementation_failed'):
+            self.last_error = result.get('error', result['status'])
+        self.is_active = False
+
         return result
     
     def _detect_input_type(self, source: str) -> str:
