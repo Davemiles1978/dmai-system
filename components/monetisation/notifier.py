@@ -34,7 +34,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_MASK = ("trade", "tier", "halt", "digest", "error")
+DEFAULT_MASK = ("trade", "tier", "halt", "digest", "error", "tip")
 
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS mon_alerts (
@@ -148,6 +148,33 @@ class SlackNotifier:
             f"EV={float(tr.get('ev') or 0):.1%}"
         )
         self.send("trade", title, body, meta=tr)
+
+    # ── Hot betting tip alert ────────────────────────────────────────────────
+    def hot_tip(self, tip: Dict[str, Any]) -> None:
+        """Loud notification for any +EV betting tip the model just generated."""
+        ev_pct = float(tip.get("expected_value") or 0) * 100
+        conf_pct = float(tip.get("confidence") or 0) * 100
+        prob_pct = float(tip.get("model_probability") or 0) * 100
+        ccy = tip.get("currency", "GBP")
+        stake = float(tip.get("recommended_stake") or 0)
+        ev_label = (
+            "🔥🔥 STRONG" if ev_pct >= 20 and conf_pct >= 70
+            else "🔥 HOT" if ev_pct >= 10
+            else "✅ EDGE"
+        )
+        title = (
+            f"{ev_label} TIP — {tip.get('selection','?')} "
+            f"@ {float(tip.get('decimal_odds') or 0):.2f}"
+        )
+        body = (
+            f"{tip.get('event_name','?')}\n"
+            f"market: {tip.get('market','?')}  |  bookmaker: {tip.get('bookmaker','?')}\n"
+            f"model probability: {prob_pct:.1f}%  (implied: {(100/float(tip.get('decimal_odds') or 1)):.1f}%)\n"
+            f"expected value: +{ev_pct:.1f}%  |  confidence: {conf_pct:.0f}%\n"
+            f"recommended stake: {ccy} {stake:.2f}\n"
+            f"tip_id: {tip.get('id','?')}"
+        )
+        self.send("tip", title, body, meta=tip)
 
     def tier_change(self, from_tier: str, to_tier: str, reason: str) -> None:
         arrow = "↑ promoted" if (

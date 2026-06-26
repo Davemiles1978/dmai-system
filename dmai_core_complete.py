@@ -437,10 +437,10 @@ try:
             _stage_idx = _stage_order.index(_cur_stage) if _cur_stage in _stage_order else 0
             _token = None
             try:
-                from security import SecurityManager
-                _token = SecurityManager.generate_token("system_boot")
-            except Exception:
-                pass
+                from security import generate_token as _gen_tok
+                _token = _gen_tok({"sub": "system_boot", "role": "system"}, expires_minutes=10)
+            except Exception as _e:
+                logger.warning("system boot token failed: %s", _e)
             if hasattr(_si, "update_kpi"):
                 _si.update_kpi("skill_acquisition_rate", min(_avg / 3.0, 1.0), token=_token)
                 _si.update_kpi("transfer_learning_rate", _stage_idx / (len(_stage_order) - 1), token=_token)
@@ -1046,6 +1046,14 @@ try:
     logger.info("SlackNotifier initialised (configured=%s, mask=%s)",
                 components["notifier"].configured(),
                 sorted(components["notifier"].status()["mask"]))
+    # Wire the notifier into the betting advisor so +EV tips fire a loud alert.
+    try:
+        _ba_ref = components.get("betting_advisor")
+        if _ba_ref is not None:
+            _ba_ref.notifier = components["notifier"]
+            logger.info("BettingAdvisor wired to SlackNotifier (hot-tip alerts ON)")
+    except Exception as _e:
+        logger.warning("Failed to attach notifier to BettingAdvisor: %s", _e)
 except Exception as e:
     logger.warning("SlackNotifier failed: %s", e)
 
@@ -2722,6 +2730,120 @@ def api_mon_tip_settle(tid):
                                   notes=b.get("notes", "")))
     except KeyError as e:
         return jsonify({"error": f"missing field: {e}"}), 400
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tip Tracking dashboard endpoints (P0 #1 — build betting prediction tracking).
+# These power the Tip Tracking tab + the user's manual-bet log.
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/api/monetisation/tips/upcoming", methods=["GET"])
+def api_mon_tips_upcoming():
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    try:
+        days = int(request.args.get("days", 7))
+    except Exception:
+        days = 7
+    try:
+        limit = int(request.args.get("limit", 200))
+    except Exception:
+        limit = 200
+    return jsonify({
+        "days": days,
+        "tips": ba.list_upcoming(days=days, limit=limit),
+    })
+
+@app.route("/api/monetisation/tips/history", methods=["GET"])
+def api_mon_tips_history():
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    mode = (request.args.get("mode") or "all").lower()
+    try:
+        limit = int(request.args.get("limit", 200))
+    except Exception:
+        limit = 200
+    return jsonify({
+        "mode": mode,
+        "tips": ba.list_history(
+            limit=limit,
+            paper_only=(mode == "paper"),
+            live_only=(mode == "live"),
+        ),
+    })
+
+@app.route("/api/monetisation/tips/performance", methods=["GET"])
+def api_mon_tips_performance():
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    try:
+        window = int(request.args.get("window", 100))
+    except Exception:
+        window = 100
+    return jsonify(ba.performance(window=window))
+
+@app.route("/api/monetisation/bets", methods=["GET", "POST"])
+def api_mon_user_bets():
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    if request.method == "GET":
+        status = request.args.get("status")
+        try:
+            limit = int(request.args.get("limit", 100))
+        except Exception:
+            limit = 100
+        return jsonify({
+            "bets": ba.list_user_bets(status=status, limit=limit),
+            "performance": ba.user_bet_performance(),
+        })
+    # POST — record a new user bet
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    b = request.get_json(silent=True) or {}
+    try:
+        return jsonify(ba.record_user_bet(
+            tip_id=b.get("tip_id"),
+            event_name=b.get("event_name", ""),
+            market=b.get("market", ""),
+            selection=b.get("selection", ""),
+            actual_odds=float(b.get("actual_odds", 0)),
+            actual_stake=float(b.get("actual_stake", 0)),
+            bookmaker=b.get("bookmaker", ""),
+            notes=b.get("notes", ""),
+        ))
+    except (KeyError, ValueError, TypeError) as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/monetisation/bets/<bid>/settle", methods=["POST"])
+def api_mon_user_bet_settle(bid):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    b = request.get_json(silent=True) or {}
+    outcome = b.get("outcome") or b.get("status")
+    if not outcome:
+        return jsonify({"error": "missing field: outcome|status"}), 400
+    try:
+        return jsonify(ba.settle_user_bet(
+            bid,
+            outcome=outcome,
+            actual_return=float(b.get("actual_return", 0)),
+            notes=b.get("notes", ""),
+        ))
+    except (KeyError, ValueError, TypeError) as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/monetisation/bets/performance", methods=["GET"])
+def api_mon_user_bets_performance():
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    return jsonify(ba.user_bet_performance())
 
 @app.route("/api/monetisation/wealth/deploy", methods=["POST"])
 def api_mon_wealth_deploy():

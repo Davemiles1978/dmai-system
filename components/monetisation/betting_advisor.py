@@ -67,8 +67,26 @@ class BettingAdvisor:
                  stake_cap_pct: float = 0.02,      # max 2% of bankroll per bet
                  bankroll_pct: float = 0.05,       # 5% of DMAI operating wallet
                  max_stake_absolute: float = 50.0, # hard ceiling per bet
-                 currency: str = "GBP"):
+                 currency: str = "GBP",
+                 greyhound_model=None,
+                 notifier=None):
         self.prediction_engine = prediction_engine
+        # Optional Slack-style notifier. The DMAI runtime sets this via
+        # `advisor.notifier = components['notifier']` after both are built,
+        # so we keep the kwarg purely as a wiring escape hatch.
+        self.notifier = notifier
+        # StatisticalGreyhoundModel — used for greyhound markets only.
+        # Microfish is unsuitable for sports betting (per user decision).
+        if greyhound_model is None:
+            try:
+                from components.monetisation.statistical_greyhound_model import (
+                    StatisticalGreyhoundModel,
+                )
+                greyhound_model = StatisticalGreyhoundModel(db_path=db_path)
+            except Exception as _e:
+                logger.warning("StatisticalGreyhoundModel init failed: %s", _e)
+                greyhound_model = None
+        self.greyhound_model = greyhound_model
         self.allocator = allocator
         self.db_path = db_path
         self.ev_threshold = ev_threshold
@@ -127,11 +145,26 @@ class BettingAdvisor:
                           seed_data: str = "",
                           max_rounds: int = 2,
                           agent_count: int = 4) -> Dict[str, Any]:
-        """Run Microfish on a candidate bet and return analysis. Does NOT persist."""
-        if not self.prediction_engine:
-            return {"error": "prediction_engine unavailable"}
+        """Analyse a candidate bet and return analysis. Does NOT persist.
+
+        Routes to StatisticalGreyhoundModel for greyhound markets,
+        Microfish PredictionEngine for everything else.
+        """
         if decimal_odds <= 1.0:
             return {"error": "decimal_odds must be > 1.0"}
+
+        # Route greyhound markets to the deterministic statistical model.
+        # Microfish extrapolates curves and is unsuitable for sports.
+        _is_greyhound = (
+            (market or "").startswith("trap_")
+            or (market or "") == "greyhound_winner"
+        )
+        engine = self.greyhound_model if _is_greyhound else self.prediction_engine
+        if engine is None:
+            return {"error": (
+                "greyhound_model unavailable" if _is_greyhound
+                else "prediction_engine unavailable"
+            )}
 
         requirement = (
             f"Will the selection '{selection}' win in the market '{market}' "
@@ -143,7 +176,7 @@ class BettingAdvisor:
             f"Implied probability from odds: {1.0/decimal_odds:.3f}\n"
             f"Additional context:\n{seed_data}"
         )
-        verdict = self.prediction_engine.predict(
+        verdict = engine.predict(
             requirement=requirement, seed_data=seed,
             max_rounds=max_rounds, agent_count=agent_count,
         )
@@ -200,19 +233,31 @@ class BettingAdvisor:
         return analysis
 
     def _notify_tip(self, tip: Dict[str, Any]):
-        """Send in-app notification with a Place-manually call to action."""
+        """Send a HOT-TIP notification + log line. Best-effort, never raises.
+
+        Order of preference:
+          1. SlackNotifier (if wired) -> loud Slack alert via .hot_tip()
+          2. Always log a [HOT TIP] line that the health-check loop relays.
+        """
         try:
-            # Lazy import to avoid circular deps; this is a Flask app, send_notification
-            # is provided by the agent runtime, not the app. We log + persist as the
-            # primary signal; the UI polls /api/monetisation/tips.
-            logger.info(
-                "[TIP] %s — %s @ %.2f | EV=%+.1f%% | stake %s%.2f | conf=%.2f",
+            logger.warning(
+                "[HOT TIP] %s \u2014 %s @ %.2f | EV=%+.1f%% | conf=%.2f | stake %s%.2f | id=%s",
                 tip.get("event_name"), tip.get("selection"), tip.get("decimal_odds"),
-                tip.get("expected_value", 0) * 100, self.currency,
-                tip.get("recommended_stake", 0), tip.get("confidence", 0),
+                float(tip.get("expected_value", 0)) * 100,
+                float(tip.get("confidence", 0)),
+                self.currency, float(tip.get("recommended_stake", 0)),
+                tip.get("id", "?"),
             )
         except Exception:
             pass
+        try:
+            if self.notifier and hasattr(self.notifier, "hot_tip"):
+                # Make sure currency is present on the dict so the notifier can format it.
+                if "currency" not in tip:
+                    tip = {**tip, "currency": self.currency}
+                self.notifier.hot_tip(tip)
+        except Exception as e:
+            logger.warning("hot_tip notifier failed: %s", e)
 
     # ---- lifecycle ----
 
@@ -285,6 +330,250 @@ class BettingAdvisor:
                     "SELECT * FROM mon_tips ORDER BY created_at DESC LIMIT ?", (limit,),
                 ).fetchall()
         return [dict(r) for r in rows]
+
+
+    # ---- upcoming + history reads (for Tip Tracking dashboard) ----
+
+    def list_upcoming(self, days: int = 7, limit: int = 200) -> List[Dict[str, Any]]:
+        """Pending tips for upcoming races (event_name suffix '(YYYY-MM-DD)')."""
+        from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+        import re as _re
+        cutoff_lo = _dt.now(_tz.utc).date()
+        cutoff_hi = cutoff_lo + _td(days=max(days, 1))
+        date_pat = _re.compile(r"\((\d{4})-(\d{2})-(\d{2})\)")
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT * FROM mon_tips WHERE status='pending' "
+                "ORDER BY created_at DESC LIMIT ?", (limit,),
+            ).fetchall()
+        out: List[Dict[str, Any]] = []
+        for r in rows:
+            ev = r["event_name"] or ""
+            m = date_pat.search(ev)
+            if not m:
+                out.append(dict(r))
+                continue
+            try:
+                d = _dt(int(m.group(1)), int(m.group(2)), int(m.group(3))).date()
+            except Exception:
+                out.append(dict(r))
+                continue
+            if cutoff_lo <= d <= cutoff_hi:
+                row = dict(r)
+                row["race_date"] = d.isoformat()
+                out.append(row)
+        return out
+
+    def list_history(self, limit: int = 200, paper_only: bool = False,
+                     live_only: bool = False) -> List[Dict[str, Any]]:
+        """Settled tips (won/lost/void/skipped)."""
+        clauses = ["status IN ('won','lost','void','skipped')"]
+        params: List[Any] = []
+        if paper_only:
+            clauses.append("COALESCE(notes,'') LIKE '%paper%'")
+        elif live_only:
+            clauses.append("COALESCE(notes,'') LIKE '%live%'")
+        sql = (
+            "SELECT * FROM mon_tips WHERE " + " AND ".join(clauses)
+            + " ORDER BY COALESCE(settled_at, created_at) DESC LIMIT ?"
+        )
+        params.append(limit)
+        with self._conn() as c:
+            rows = c.execute(sql, tuple(params)).fetchall()
+        return [dict(r) for r in rows]
+
+    def performance(self, window: int = 100) -> Dict[str, Any]:
+        """Model accuracy over the last `window` settled (won/lost) tips."""
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT model_probability, confidence, expected_value, decimal_odds, "
+                "actual_stake, recommended_stake, profit_loss, status, notes, settled_at "
+                "FROM mon_tips WHERE status IN ('won','lost') "
+                "ORDER BY COALESCE(settled_at, created_at) DESC LIMIT ?",
+                (window,),
+            ).fetchall()
+        if not rows:
+            return {
+                "window": window, "settled_count": 0, "win_rate": None, "roi_pct": None,
+                "turnover": 0.0, "total_pl": 0.0, "calibration": [],
+                "by_confidence_bucket": {},
+                "mode_breakdown": {
+                    "paper": {"count": 0, "pl": 0.0, "win_rate": None},
+                    "live":  {"count": 0, "pl": 0.0, "win_rate": None},
+                },
+            }
+        n = len(rows)
+        won = sum(1 for r in rows if r["status"] == "won")
+        stakes = [float(r["actual_stake"] or r["recommended_stake"] or 0) for r in rows]
+        turnover = sum(stakes)
+        total_pl = sum(float(r["profit_loss"] or 0) for r in rows)
+        buckets: List[Dict[str, Any]] = []
+        for i in range(10):
+            lo, hi = i / 10.0, (i + 1) / 10.0
+            in_bkt = [r for r in rows
+                      if lo <= float(r["model_probability"] or 0) < hi
+                      or (i == 9 and float(r["model_probability"] or 0) >= 1.0)]
+            if not in_bkt:
+                buckets.append({"range": [round(lo, 2), round(hi, 2)],
+                                "count": 0, "predicted_mean": None,
+                                "actual_win_rate": None})
+                continue
+            pred = sum(float(r["model_probability"] or 0) for r in in_bkt) / len(in_bkt)
+            actual = sum(1 for r in in_bkt if r["status"] == "won") / len(in_bkt)
+            buckets.append({
+                "range": [round(lo, 2), round(hi, 2)],
+                "count": len(in_bkt),
+                "predicted_mean": round(pred, 3),
+                "actual_win_rate": round(actual, 3),
+            })
+        def _cb(lo: float, hi: float):
+            sub = [r for r in rows if lo <= float(r["confidence"] or 0) < hi]
+            if not sub:
+                return {"count": 0, "win_rate": None, "pl": 0.0}
+            return {"count": len(sub),
+                    "win_rate": round(sum(1 for r in sub if r["status"] == "won") / len(sub), 3),
+                    "pl": round(sum(float(r["profit_loss"] or 0) for r in sub), 2)}
+        def _mode(label: str):
+            sub = [r for r in rows if label in (r["notes"] or "").lower()]
+            return {"count": len(sub),
+                    "pl": round(sum(float(r["profit_loss"] or 0) for r in sub), 2),
+                    "win_rate": (round(sum(1 for r in sub if r["status"] == "won") / len(sub), 3)
+                                 if sub else None)}
+        return {
+            "window": window, "settled_count": n,
+            "win_rate": round(won / n, 3),
+            "roi_pct": round((total_pl / turnover) * 100, 2) if turnover else None,
+            "turnover": round(turnover, 2), "total_pl": round(total_pl, 2),
+            "calibration": buckets,
+            "by_confidence_bucket": {
+                "low":  _cb(0.0, 0.5),
+                "mid":  _cb(0.5, 0.75),
+                "high": _cb(0.75, 1.01),
+            },
+            "mode_breakdown": {"paper": _mode("paper"), "live": _mode("live")},
+        }
+
+    # ---- user bets (real bets the user actually places) ----
+
+    def record_user_bet(self, *, tip_id: Optional[str] = None,
+                        event_name: str = "", market: str = "",
+                        selection: str = "", actual_odds: float = 0.0,
+                        actual_stake: float = 0.0, bookmaker: str = "",
+                        notes: str = "") -> Dict[str, Any]:
+        """Record a real bet the user placed. Optionally linked to a model tip."""
+        if actual_odds <= 1.0:
+            return {"error": "actual_odds must be > 1.0"}
+        if actual_stake <= 0:
+            return {"error": "actual_stake must be > 0"}
+        with _LOCK, self._conn() as c:
+            if tip_id:
+                tip_row = c.execute(
+                    "SELECT event_name, market, selection, bookmaker FROM mon_tips WHERE id=?",
+                    (tip_id,),
+                ).fetchone()
+                if tip_row:
+                    event_name = event_name or tip_row["event_name"]
+                    market = market or (tip_row["market"] or "")
+                    selection = selection or tip_row["selection"]
+                    bookmaker = bookmaker or (tip_row["bookmaker"] or "")
+            bet_id = uuid.uuid4().hex[:16]
+            c.execute(
+                "INSERT INTO mon_user_bets (id, tip_id, placed_at, event_name, market, "
+                "selection, actual_odds, actual_stake, bookmaker, status, currency, notes, "
+                "created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (bet_id, tip_id, time.time(), event_name, market, selection,
+                 float(actual_odds), float(actual_stake), bookmaker,
+                 "pending", self.currency, notes, time.time()),
+            )
+            if tip_id:
+                c.execute(
+                    "UPDATE mon_tips SET status='placed', placed_at=?, "
+                    "actual_stake=COALESCE(actual_stake, ?) WHERE id=? AND status='pending'",
+                    (time.time(), float(actual_stake), tip_id),
+                )
+        return {"id": bet_id, "tip_id": tip_id, "status": "pending"}
+
+    def settle_user_bet(self, bet_id: str, outcome: str,
+                        actual_return: float = 0.0,
+                        notes: str = "") -> Dict[str, Any]:
+        outcome = (outcome or "").lower()
+        if outcome not in ("won", "lost", "void", "cashed_out"):
+            return {"error": "invalid_outcome"}
+        with _LOCK, self._conn() as c:
+            row = c.execute(
+                "SELECT actual_stake FROM mon_user_bets WHERE id=?", (bet_id,)
+            ).fetchone()
+            if not row:
+                return {"error": "bet_not_found"}
+            stake = float(row["actual_stake"] or 0)
+            if outcome == "won":
+                pl = round(float(actual_return) - stake, 2)
+            elif outcome == "lost":
+                pl = -stake
+            elif outcome == "cashed_out":
+                pl = round(float(actual_return) - stake, 2)
+            else:  # void
+                pl = 0.0
+            c.execute(
+                "UPDATE mon_user_bets SET status=?, settled_at=?, actual_return=?, "
+                "profit_loss=?, notes=COALESCE(?, notes) WHERE id=?",
+                (outcome, time.time(), float(actual_return), pl,
+                 notes or None, bet_id),
+            )
+        return {"id": bet_id, "status": outcome, "profit_loss": pl}
+
+    def list_user_bets(self, status: Optional[str] = None,
+                       limit: int = 100) -> List[Dict[str, Any]]:
+        with self._conn() as c:
+            if status:
+                rows = c.execute(
+                    "SELECT * FROM mon_user_bets WHERE status=? "
+                    "ORDER BY placed_at DESC LIMIT ?", (status, limit),
+                ).fetchall()
+            else:
+                rows = c.execute(
+                    "SELECT * FROM mon_user_bets ORDER BY placed_at DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+        return [dict(r) for r in rows]
+
+    def user_bet_performance(self) -> Dict[str, Any]:
+        """User real-bet performance + delta vs model recommendations."""
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT b.status AS b_status, b.actual_stake, b.actual_odds, "
+                "b.profit_loss AS user_pl, "
+                "t.recommended_stake, t.decimal_odds, t.model_probability "
+                "FROM mon_user_bets b LEFT JOIN mon_tips t ON b.tip_id = t.id "
+                "WHERE b.status IN ('won','lost','void','cashed_out')"
+            ).fetchall()
+        if not rows:
+            return {"settled_count": 0, "win_rate": None, "roi_pct": None,
+                    "turnover": 0.0, "total_pl": 0.0,
+                    "model_pl_at_recommended_stake": None,
+                    "delta_vs_model": None}
+        won = sum(1 for r in rows if r["b_status"] == "won")
+        n = len(rows)
+        turnover = sum(float(r["actual_stake"] or 0) for r in rows)
+        total_pl = sum(float(r["user_pl"] or 0) for r in rows)
+        model_pl = 0.0
+        for r in rows:
+            rec = float(r["recommended_stake"] or 0)
+            if rec <= 0:
+                continue
+            if r["b_status"] == "won":
+                model_pl += rec * (float(r["actual_odds"] or 0) - 1)
+            elif r["b_status"] == "lost":
+                model_pl -= rec
+        return {
+            "settled_count": n,
+            "win_rate": round(won / n, 3),
+            "turnover": round(turnover, 2),
+            "total_pl": round(total_pl, 2),
+            "roi_pct": round((total_pl / turnover) * 100, 2) if turnover else None,
+            "model_pl_at_recommended_stake": round(model_pl, 2),
+            "delta_vs_model": round(total_pl - model_pl, 2),
+        }
 
     def stats(self) -> Dict[str, Any]:
         try:

@@ -346,6 +346,11 @@ class GreyhoundRunner:
             # Skip races that have already started
             if race_off and race_off < datetime.now(timezone.utc):
                 continue
+            # Pass the full field's master ratings so the statistical model
+            # can compute proper z-scores for each runner.
+            field_ratings = [
+                float(_r.get("master_rating", 0) or 0) for _r in runners
+            ]
             for r in runners:
                 summary["runners_seen"] += 1
                 dec = r.get("implied_decimal_odds") or 0.0
@@ -355,7 +360,7 @@ class GreyhoundRunner:
                     continue
                 if self._already_tipped(event_name, r["dog"]):
                     continue
-                seed = self._build_seed(race, r)
+                seed = self._build_seed(race, r, field_ratings)
                 try:
                     result = self.advisor.generate_tip(
                         event_name=event_name,
@@ -400,7 +405,8 @@ class GreyhoundRunner:
         except Exception:
             return None
 
-    def _build_seed(self, race: Dict[str, Any], runner: Dict[str, Any]) -> str:
+    def _build_seed(self, race: Dict[str, Any], runner: Dict[str, Any],
+                    field_ratings: Optional[List[float]] = None) -> str:
         parts = [
             f"Track: {race['track']}",
             f"Off: {race['off_hhmm']}",
@@ -410,6 +416,11 @@ class GreyhoundRunner:
             f"Trainer: {runner.get('trainer', '')}",
             f"Field implied probability: {runner.get('implied_probability', 0)}",
         ]
+        if field_ratings:
+            parts.append(
+                "Field master ratings: "
+                + ",".join(f"{r:g}" for r in field_ratings)
+            )
         return "\n".join(parts)
 
     def _already_tipped(self, event_name: str, selection: str) -> bool:

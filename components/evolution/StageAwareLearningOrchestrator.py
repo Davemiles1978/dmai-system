@@ -1652,10 +1652,23 @@ Be specific, educational, and focused on real application.
                               result.get("mastery_progress","?"))
                     # Push KPI update back to si_core
                     if self.si_core and hasattr(self.si_core, "update_kpi"):
+                        # System-scoped JWT so SICore accepts the update.
+                        _tok = None
+                        try:
+                            import sys as _sys
+                            from pathlib import Path as _Path
+                            _root = str(_Path(__file__).resolve().parent.parent.parent)
+                            if _root not in _sys.path:
+                                _sys.path.insert(0, _root)
+                            from security import generate_token as _gen_tok
+                            _tok = _gen_tok({"sub": "stage_learner", "role": "system"},
+                                            expires_minutes=10)
+                        except Exception as _e:
+                            _log.debug("stage_learner token failed: %s", _e)
                         stage_order = list(self.STAGES.keys())
                         idx = stage_order.index(self.current_stage) if self.current_stage in stage_order else 0
                         self.si_core.update_kpi("transfer_learning_rate",
-                            idx / max(len(stage_order) - 1, 1), token=None)
+                            idx / max(len(stage_order) - 1, 1), token=_tok)
                         # Count mastered topics for skill_acquisition_rate
                         all_mastered = sum(
                             1 for stage_topics in self.learned_topics.values()
@@ -1669,7 +1682,7 @@ Be specific, educational, and focused on real application.
                         )
                         if all_seen > 0:
                             self.si_core.update_kpi("skill_acquisition_rate",
-                                all_mastered / all_seen, token=None)
+                                all_mastered / all_seen, token=_tok)
                 else:
                     _log.info("Learning cycle: %s", result.get("message", "no new topics"))
             except Exception as e:

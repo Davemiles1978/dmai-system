@@ -552,13 +552,16 @@
       <div class="nav-section">
         <div class="nav-label">Intelligence</div>
         <div class="nav-item" onclick="nav('heartbeat')" id="nav-heartbeat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 12h3l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Heartbeat
+        </div>
         <div class="nav-item" onclick="nav('stage-analytics')" id="nav-stage-analytics">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Stage Analytics
         </div>
-
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 12h3l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Heartbeat
+        <div class="nav-item" onclick="nav('tip-tracking')" id="nav-tip-tracking">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Tip Tracking
         </div>
         <div class="nav-item" onclick="nav('maintenance')" id="nav-maintenance">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 7.5 1zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" stroke="currentColor" stroke-width="0" fill="currentColor" fill-opacity="0"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/><path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -1247,6 +1250,165 @@
         </div>
       </div>
 
+      <!-- ── Tip Tracking ───────────────────────────────────────────── -->
+      <div class="section" id="sec-tip-tracking">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Tip Tracking
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">
+          Paper-trading mode: model predictions are tracked against real race outcomes. Bets stay manual.
+          Once 2–7 days of results validate the model, switch to live staking.
+        </p>
+
+        <div class="kpi-grid" id="tt-perf-hero" style="margin-bottom:1rem">
+          <div class="kpi-card">
+            <div class="kpi-label">Model Hit Rate</div>
+            <div class="kpi-value" id="tt-hit-rate">—</div>
+            <div class="kpi-sub" id="tt-hit-rate-sub">All settled tips</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Model ROI</div>
+            <div class="kpi-value" id="tt-roi">—</div>
+            <div class="kpi-sub" id="tt-roi-sub">Paper P/L at rec. stake</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Calibration (Brier)</div>
+            <div class="kpi-value" id="tt-brier">—</div>
+            <div class="kpi-sub" id="tt-brier-sub">Lower = better</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tips Pending</div>
+            <div class="kpi-value" id="tt-pending">—</div>
+            <div class="kpi-sub" id="tt-pending-sub">Awaiting race result</div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-action" onclick="loadTipTracking()">↻ Refresh</button>
+          <select id="tt-mode-filter" onchange="loadTipTracking()" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;font-size:13px">
+            <option value="all">All tips</option>
+            <option value="paper">Paper only</option>
+            <option value="live">Live only</option>
+          </select>
+          <select id="tt-window" onchange="loadTipTracking()" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;font-size:13px">
+            <option value="30">Last 30 days</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">All time</option>
+          </select>
+        </div>
+
+        <div class="card" style="padding:1.25rem;margin-bottom:1rem">
+          <div class="card-title">🔥 Upcoming Tips (next 7 days)</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:.75rem">
+            Model predictions for upcoming races. Record any real bet you place below.
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>Race</th>
+                  <th>Selection</th>
+                  <th>Market odds</th>
+                  <th>Model prob</th>
+                  <th>EV%</th>
+                  <th>Conf.</th>
+                  <th>Rec. stake</th>
+                  <th>Race start</th>
+                  <th>Tip ID</th>
+                </tr>
+              </thead>
+              <tbody id="tt-upcoming-body">
+                <tr><td colspan="10" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem">
+          <div class="card" style="padding:1.25rem">
+            <div class="card-title">Settled Tips</div>
+            <div style="overflow-x:auto;max-height:480px;overflow-y:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Selection</th>
+                    <th>Odds</th>
+                    <th>Model %</th>
+                    <th>EV%</th>
+                    <th>Result</th>
+                    <th>Paper P/L</th>
+                  </tr>
+                </thead>
+                <tbody id="tt-history-body">
+                  <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card" style="padding:1.25rem">
+            <div class="card-title">Calibration buckets</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.5rem">Predicted vs actual hit rate by probability band</div>
+            <table class="data-table" style="font-size:12px">
+              <thead>
+                <tr><th>Band</th><th>n</th><th>Pred.</th><th>Actual</th></tr>
+              </thead>
+              <tbody id="tt-calib-body">
+                <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="padding:1.25rem;margin-bottom:1rem">
+          <div class="card-title">My real bets</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:.75rem">
+            Record actual stakes placed at the bookmaker. Linking to a tip ID gives you a model-vs-you delta.
+          </div>
+          <div id="tt-user-perf" style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem;font-size:13px"></div>
+
+          <details style="margin-bottom:1rem">
+            <summary style="cursor:pointer;font-weight:600;font-size:13px;margin-bottom:.5rem">+ Record a new bet</summary>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.75rem;font-size:12px">
+              <input id="tt-bet-tip-id" placeholder="Tip ID (optional)" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-event" placeholder="Event name" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-market" placeholder="Market (e.g. trap_winner)" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-selection" placeholder="Selection" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-odds" placeholder="Odds (decimal)" type="number" step="0.01" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-stake" placeholder="Stake (£)" type="number" step="0.01" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-bookmaker" placeholder="Bookmaker (e.g. Betfair)" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-notes" placeholder="Notes" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+            </div>
+            <button class="btn-action" style="margin-top:.75rem" onclick="recordUserBet()">Save bet</button>
+          </details>
+
+          <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Placed</th>
+                  <th>Event</th>
+                  <th>Selection</th>
+                  <th>Odds</th>
+                  <th>Stake</th>
+                  <th>Status</th>
+                  <th>P/L</th>
+                  <th>Settle</th>
+                </tr>
+              </thead>
+              <tbody id="tt-user-bets-body">
+                <tr><td colspan="8" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="color:var(--text-muted);font-size:11px;text-align:right" id="tt-last-updated">—</div>
+      </div>
+
             <div class="section" id="sec-logs">
         <div class="section-title">
           <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 7h8M2 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -1406,6 +1568,7 @@
     if (id === 'learning') { setTimeout(loadLearningMetrics, 50); setTimeout(loadVocabStats, 200); }
     if (id === 'suggestions') setTimeout(loadSuggestions, 50);
     if (id === 'stage-analytics') { _loadStageAnalytics(); }
+    if (id === 'tip-tracking') { setTimeout(loadTipTracking, 50); }
     if (id === 'heartbeat')   { _loadHeartbeat(); if(_hbInterval)clearInterval(_hbInterval); _hbInterval=setInterval(_loadHeartbeat,30000); }
     if (id === 'maintenance') setTimeout(loadIntegrityReport, 50);
     if (id === 'settings') setTimeout(loadSettings, 50);
@@ -2990,6 +3153,256 @@
     }
   }
   // ── End Stage Analytics Panel ─────────────────────────────────────────────
+
+  // ── Tip Tracking Panel ───────────────────────────────────────────────────
+  async function _ttFetch(url) {
+    const r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok) throw new Error(`${url} → ${r.status}`);
+    return await r.json();
+  }
+  function _ttFmtPct(x) {
+    if (x == null || isNaN(x)) return '—';
+    return (Number(x) * 100).toFixed(1) + '%';
+  }
+  function _ttFmtMoney(x) {
+    if (x == null || isNaN(x)) return '—';
+    const v = Number(x);
+    const sign = v >= 0 ? '+' : '';
+    return sign + '£' + v.toFixed(2);
+  }
+  function _ttTierBadge(tip) {
+    const ev = (tip.ev_pct != null) ? tip.ev_pct : ((tip.expected_value || 0) * 100);
+    const conf = tip.confidence || 0;
+    if (ev >= 20 && conf >= 0.70) return '<span style="background:#dc2626;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">🔥🔥 STRONG</span>';
+    if (ev >= 10) return '<span style="background:#ea580c;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">🔥 HOT</span>';
+    return '<span style="background:#16a34a;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">✅ EDGE</span>';
+  }
+
+  async function loadTipTracking() {
+    const mode = (document.getElementById('tt-mode-filter') || {}).value || 'all';
+    const win  = parseInt((document.getElementById('tt-window') || {}).value || '7', 10);
+    try {
+      const [up, hist, perf, userBets, userPerf] = await Promise.all([
+        _ttFetch('/api/monetisation/tips/upcoming?days=7&limit=50').catch(_ => ({tips:[]})),
+        _ttFetch(`/api/monetisation/tips/history?limit=100&mode=${mode}`).catch(_ => ({tips:[]})),
+        _ttFetch(`/api/monetisation/tips/performance?window=${win}&mode=${mode}`).catch(_ => ({})),
+        _ttFetch('/api/monetisation/bets?limit=100').catch(_ => ({bets:[]})),
+        _ttFetch('/api/monetisation/bets/performance').catch(_ => ({})),
+      ]);
+
+      _renderTipPerf(perf);
+      _renderUpcoming(up.tips || []);
+      _renderHistory(hist.tips || []);
+      _renderCalibration(perf.calibration || []);
+      _renderUserBets(userBets.bets || []);
+      _renderUserPerf(userPerf);
+      const el = document.getElementById('tt-last-updated');
+      if (el) el.textContent = 'Last updated ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      console.error('loadTipTracking error:', e);
+      showToast('Could not load tip tracking: ' + (e.message || e));
+    }
+  }
+
+  function _renderTipPerf(perf) {
+    const hr = document.getElementById('tt-hit-rate');
+    const roi = document.getElementById('tt-roi');
+    const brier = document.getElementById('tt-brier');
+    const pending = document.getElementById('tt-pending');
+    const hrSub = document.getElementById('tt-hit-rate-sub');
+    const roiSub = document.getElementById('tt-roi-sub');
+
+    if (hr)  hr.textContent  = _ttFmtPct(perf.hit_rate);
+    if (roi) {
+      const pl = perf.paper_pl;
+      const stake = perf.total_paper_stake || 0;
+      const roiVal = stake > 0 ? (pl / stake) : null;
+      roi.textContent = (roiVal == null) ? '—' : (roiVal >= 0 ? '+' : '') + (roiVal * 100).toFixed(1) + '%';
+      roi.style.color = (roiVal == null) ? '' : (roiVal >= 0 ? 'var(--green)' : 'var(--red)');
+    }
+    if (brier) brier.textContent = (perf.brier != null) ? Number(perf.brier).toFixed(3) : '—';
+    if (pending) pending.textContent = perf.pending != null ? perf.pending : '—';
+    if (hrSub) hrSub.textContent = (perf.settled_count != null) ? `${perf.settled_count} settled` : 'All settled tips';
+    if (roiSub) roiSub.textContent = (perf.paper_pl != null) ? `P/L ${_ttFmtMoney(perf.paper_pl)}` : 'At recommended stake';
+  }
+
+  function _renderUpcoming(tips) {
+    const body = document.getElementById('tt-upcoming-body');
+    if (!body) return;
+    if (!tips.length) {
+      body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted)">No upcoming tips. Model will flag them as races approach.</td></tr>';
+      return;
+    }
+    body.innerHTML = tips.map(t => {
+      const ev = t.ev_pct != null ? t.ev_pct : ((t.expected_value || 0) * 100);
+      const evColor = ev >= 20 ? 'var(--red)' : (ev >= 10 ? '#ea580c' : 'var(--green)');
+      const rt = t.race_time ? new Date(t.race_time).toLocaleString() : '—';
+      return `<tr>
+        <td>${_ttTierBadge(t)}</td>
+        <td style="font-size:12px">${(t.event_name || '—')}</td>
+        <td style="font-weight:600">${t.selection || '—'}</td>
+        <td>${t.odds != null ? Number(t.odds).toFixed(2) : '—'}</td>
+        <td>${_ttFmtPct(t.model_probability)}</td>
+        <td style="color:${evColor};font-weight:600">${ev != null ? ev.toFixed(1) + '%' : '—'}</td>
+        <td>${_ttFmtPct(t.confidence)}</td>
+        <td>${_ttFmtMoney(t.recommended_stake)}</td>
+        <td style="font-size:11px">${rt}</td>
+        <td style="font-family:monospace;font-size:11px">${t.id || '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderHistory(tips) {
+    const body = document.getElementById('tt-history-body');
+    if (!body) return;
+    if (!tips.length) {
+      body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No settled tips yet. Check back after races finish.</td></tr>';
+      return;
+    }
+    body.innerHTML = tips.map(t => {
+      const won = t.outcome === 'won' || t.outcome === 'win' || t.won === true;
+      const lost = t.outcome === 'lost' || t.outcome === 'loss' || t.won === false;
+      const resultBadge = won
+        ? '<span style="color:var(--green);font-weight:600">WIN</span>'
+        : (lost ? '<span style="color:var(--red);font-weight:600">LOSS</span>' : '<span style="color:var(--text-muted)">—</span>');
+      const dt = t.settled_at || t.race_time || t.created_at;
+      const dts = dt ? new Date(dt).toLocaleDateString() : '—';
+      const pl = (t.paper_pl != null) ? t.paper_pl : t.profit_loss;
+      const plColor = (pl == null) ? '' : (pl >= 0 ? 'var(--green)' : 'var(--red)');
+      const ev = t.ev_pct != null ? t.ev_pct : ((t.expected_value || 0) * 100);
+      return `<tr>
+        <td style="font-size:11px">${dts}</td>
+        <td style="font-weight:600">${t.selection || '—'}</td>
+        <td>${t.odds != null ? Number(t.odds).toFixed(2) : '—'}</td>
+        <td>${_ttFmtPct(t.model_probability)}</td>
+        <td>${ev != null ? ev.toFixed(1) + '%' : '—'}</td>
+        <td>${resultBadge}</td>
+        <td style="color:${plColor};font-weight:600">${_ttFmtMoney(pl)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderCalibration(buckets) {
+    const body = document.getElementById('tt-calib-body');
+    if (!body) return;
+    if (!buckets || !buckets.length) {
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No data yet</td></tr>';
+      return;
+    }
+    body.innerHTML = buckets.map(b => {
+      const drift = (b.actual != null && b.predicted != null) ? (b.actual - b.predicted) : null;
+      const driftColor = drift == null ? '' : (Math.abs(drift) < 0.05 ? 'var(--green)' : (Math.abs(drift) < 0.10 ? 'var(--yellow)' : 'var(--red)'));
+      return `<tr>
+        <td>${b.band || '—'}</td>
+        <td>${b.n || 0}</td>
+        <td>${_ttFmtPct(b.predicted)}</td>
+        <td style="color:${driftColor};font-weight:600">${_ttFmtPct(b.actual)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderUserBets(bets) {
+    const body = document.getElementById('tt-user-bets-body');
+    if (!body) return;
+    if (!bets.length) {
+      body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No bets recorded yet. Use the form above to log one.</td></tr>';
+      return;
+    }
+    body.innerHTML = bets.map(b => {
+      const dts = b.placed_at ? new Date(b.placed_at).toLocaleDateString() : '—';
+      const pl = b.profit_loss;
+      const plColor = (pl == null) ? '' : (pl >= 0 ? 'var(--green)' : 'var(--red)');
+      const statusColor = b.status === 'won' ? 'var(--green)' : (b.status === 'lost' ? 'var(--red)' : 'var(--text-muted)');
+      const settleBtn = (b.status === 'pending')
+        ? `<button class="btn-action secondary" style="font-size:11px;padding:4px 8px" onclick="settleBet('${b.id}','won')">Won</button>
+           <button class="btn-action secondary" style="font-size:11px;padding:4px 8px" onclick="settleBet('${b.id}','lost')">Lost</button>
+           <button class="btn-action secondary" style="font-size:11px;padding:4px 8px" onclick="settleBet('${b.id}','void')">Void</button>`
+        : '—';
+      return `<tr>
+        <td style="font-size:11px">${dts}</td>
+        <td style="font-size:12px">${b.event_name || '—'}</td>
+        <td style="font-weight:600">${b.selection || '—'}</td>
+        <td>${b.actual_odds != null ? Number(b.actual_odds).toFixed(2) : '—'}</td>
+        <td>${_ttFmtMoney(b.actual_stake)}</td>
+        <td style="color:${statusColor};font-weight:600;text-transform:uppercase;font-size:11px">${b.status || '—'}</td>
+        <td style="color:${plColor};font-weight:600">${_ttFmtMoney(pl)}</td>
+        <td>${settleBtn}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderUserPerf(p) {
+    const el = document.getElementById('tt-user-perf');
+    if (!el) return;
+    if (!p || p.total_bets == null) { el.innerHTML = ''; return; }
+    const items = [
+      { label: 'Bets settled', value: p.settled_bets || 0 },
+      { label: 'Hit rate', value: _ttFmtPct(p.hit_rate) },
+      { label: 'Your P/L', value: _ttFmtMoney(p.profit_loss) },
+      { label: 'Model P/L (rec. stakes)', value: _ttFmtMoney(p.model_pl_at_recommended_stake) },
+      { label: 'You vs model', value: _ttFmtMoney(p.delta_vs_model) },
+    ];
+    el.innerHTML = items.map(it => `
+      <div style="padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">${it.label}</div>
+        <div style="font-weight:600">${it.value}</div>
+      </div>`).join('');
+  }
+
+  async function recordUserBet() {
+    const body = {
+      tip_id: document.getElementById('tt-bet-tip-id').value.trim() || null,
+      event_name: document.getElementById('tt-bet-event').value.trim(),
+      market: document.getElementById('tt-bet-market').value.trim(),
+      selection: document.getElementById('tt-bet-selection').value.trim(),
+      actual_odds: parseFloat(document.getElementById('tt-bet-odds').value),
+      actual_stake: parseFloat(document.getElementById('tt-bet-stake').value),
+      bookmaker: document.getElementById('tt-bet-bookmaker').value.trim() || 'Betfair',
+      notes: document.getElementById('tt-bet-notes').value.trim() || null,
+    };
+    if (!body.event_name || !body.selection || !body.actual_odds || !body.actual_stake) {
+      showToast('Event, selection, odds and stake are required');
+      return;
+    }
+    try {
+      const r = await fetch('/api/monetisation/bets', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(_ => ({}));
+        throw new Error(d.error || `HTTP ${r.status}`);
+      }
+      showToast('Bet recorded');
+      ['tt-bet-tip-id','tt-bet-event','tt-bet-market','tt-bet-selection','tt-bet-odds','tt-bet-stake','tt-bet-bookmaker','tt-bet-notes']
+        .forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+      loadTipTracking();
+    } catch (e) {
+      showToast('Could not record bet: ' + (e.message || e));
+    }
+  }
+
+  async function settleBet(betId, outcome) {
+    try {
+      const r = await fetch(`/api/monetisation/bets/${encodeURIComponent(betId)}/settle`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ status: outcome }),
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(_ => ({}));
+        throw new Error(d.error || `HTTP ${r.status}`);
+      }
+      showToast(`Bet settled: ${outcome}`);
+      loadTipTracking();
+    } catch (e) {
+      showToast('Could not settle bet: ' + (e.message || e));
+    }
+  }
+  // ── End Tip Tracking Panel ────────────────────────────────────────────────
+
+
 
   
   // ── Training Status Banner ────────────────────────────────────────────────
