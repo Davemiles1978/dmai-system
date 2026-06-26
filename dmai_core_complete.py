@@ -6716,8 +6716,9 @@ def _loop_state(name):
 
 
 @app.route("/api/admin/loops/status", methods=["GET"])
-@require_master_password
 def admin_loops_status():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
     out = {}
     for name in ("greyhound_runner", "parallel_learner", "autonomous_researcher", "autonomous_ingestor"):
         running, info = _loop_state(name)
@@ -6726,8 +6727,9 @@ def admin_loops_status():
 
 
 @app.route("/api/admin/loops/stop", methods=["POST"])
-@require_master_password
 def admin_loops_stop():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
     body = request.get_json(silent=True) or {}
     target = (body.get("loop") or "all").strip().lower()
     targets = ["greyhound_runner", "parallel_learner", "autonomous_researcher", "autonomous_ingestor"] \
@@ -6761,8 +6763,9 @@ def admin_loops_stop():
 
 
 @app.route("/api/admin/loops/start", methods=["POST"])
-@require_master_password
 def admin_loops_start():
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
     body = request.get_json(silent=True) or {}
     target = (body.get("loop") or "all").strip().lower()
     targets = ["greyhound_runner", "parallel_learner", "autonomous_researcher", "autonomous_ingestor"] \
