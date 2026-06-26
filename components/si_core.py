@@ -322,6 +322,22 @@ class SICore:
     def get_kpi(self, name: str) -> Optional[Any]:
         return self._state.get(name)
 
+    # Generic setter (dispatches to typed update method when one exists,
+    # otherwise updates the state dict directly via _update_kpi)
+    def update_kpi(self, name: str, value, token: Optional[str] = None) -> bool:
+        typed = getattr(self, f"update_kpi_{name}", None)
+        if callable(typed):
+            try:
+                return typed(value, token)
+            except TypeError:
+                # Some legacy update_kpi_* don't accept a token kwarg
+                return typed(value)
+        try:
+            return self._update_kpi(name, value, token)
+        except Exception as e:
+            logger.warning("update_kpi(%s) failed: %s", name, e)
+            return False
+
     # ------------------------------------------------------------------
     # Training gate — no KPI update without real AI scored response
     # ------------------------------------------------------------------

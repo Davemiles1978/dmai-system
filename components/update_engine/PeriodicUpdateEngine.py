@@ -332,3 +332,38 @@ class PeriodicUpdateEngine:
 
     def stop(self):
         self._stop = True
+
+    # ---- Compatibility shims used by DMAITrainingOrchestrator ----------------
+    async def run_once(self):
+        """Async wrapper for orchestrator.run_update_only().
+
+        Runs one synchronous tick in a thread to avoid blocking the event loop.
+        """
+        import asyncio
+        return await asyncio.to_thread(self.start)
+
+    def get_status(self) -> dict:
+        """Lightweight status snapshot for /api/training/status."""
+        return {
+            "ok": True,
+            "benchmark_loaded": bool(self.benchmark),
+            "kaizen_loaded": bool(self.kaizen),
+            "stopped": bool(getattr(self, "_stop", False)),
+            "data_path": str(getattr(self, "data_path", "")),
+        }
+
+    async def _arun_start_loop(self):
+        """Async wrapper called by orchestrator's background thread.
+
+        Loops calling start() at a low cadence; this is what loop.run_until_complete
+        expects. Without it, run_until_complete(self.update_engine.start()) crashes
+        because start() returns a dict, not an awaitable.
+        """
+        import asyncio
+        while not getattr(self, "_stop", False):
+            try:
+                await asyncio.to_thread(self.start)
+            except Exception as _e:
+                logging.getLogger(__name__).warning("PeriodicUpdateEngine tick failed: %s", _e)
+            # 20-minute cadence by default; configurable via config['update_interval_sec'].
+            await asyncio.sleep(int((self.config or {}).get("update_interval_sec", 1200)))

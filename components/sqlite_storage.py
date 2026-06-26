@@ -55,16 +55,20 @@ class SQLiteStorage:
     _lock = threading.Lock()
 
     def __init__(self):
-        self._conn: Optional[sqlite3.Connection] = None
+        # Per-thread connections (SQLite is NOT safe to share across threads).
+        self._tls = threading.local()
         self._init_schema()
         logger.info(f"✅ SQLite storage ready at {DB_PATH.resolve()}")
 
     # ── Connection ────────────────────────────────────────────────────────────
 
     def _db(self) -> sqlite3.Connection:
-        if self._conn is None:
-            self._conn = _get_conn()
-        return self._conn
+        # Per-thread connection — prevents concurrent-write corruption.
+        conn = getattr(self._tls, "conn", None)
+        if conn is None:
+            conn = _get_conn()
+            self._tls.conn = conn
+        return conn
 
     def is_available(self) -> bool:
         try:
@@ -74,9 +78,13 @@ class SQLiteStorage:
             return False
 
     def close(self):
-        if self._conn:
-            self._conn.close()
-            self._conn = None
+        conn = getattr(self._tls, "conn", None)
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            self._tls.conn = None
 
     # ── Schema ────────────────────────────────────────────────────────────────
 
@@ -163,7 +171,6 @@ class SQLiteStorage:
             """)
 
             db.commit()
-        db.close()
 
     # ── Evolution State ───────────────────────────────────────────────────────
 
@@ -445,7 +452,6 @@ class SQLiteStorage:
                 "SELECT api_key FROM admin_api_keys WHERE provider_id = ?",
                 (provider_id,)
             ).fetchone()
-            db.close()
             return row[0] if row else None
         except Exception as e:
             logger.error(f"get_api_key failed: {e}")
@@ -464,7 +470,6 @@ class SQLiteStorage:
                 (provider_id, key, datetime.datetime.utcnow().isoformat())
             )
             db.commit()
-            db.close()
             return True
         except Exception as e:
             logger.error(f"set_api_key failed: {e}")
@@ -476,7 +481,6 @@ class SQLiteStorage:
             db = self._db()
             db.execute("DELETE FROM admin_api_keys WHERE provider_id = ?", (provider_id,))
             db.commit()
-            db.close()
             return True
         except Exception as e:
             logger.error(f"delete_api_key failed: {e}")

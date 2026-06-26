@@ -274,7 +274,15 @@ class DMAITrainingOrchestrator:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
-                    loop.run_until_complete(self.update_engine.start())
+                    # Prefer the async loop wrapper; fall back to a single sync tick.
+                    if hasattr(self.update_engine, "_arun_start_loop"):
+                        loop.run_until_complete(self.update_engine._arun_start_loop())
+                    else:
+                        # Best-effort fallback: just run start() once on this thread.
+                        try:
+                            self.update_engine.start()
+                        except Exception as _e:
+                            logger.warning("update_engine.start() sync fallback failed: %s", _e)
                 except Exception as e:
                     logger.error("Background updater crashed: %s", e)
                 finally:
