@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Pre-push hook: block pushes to refs/heads/main (Render-deployed) unless
+# scripts/preflight.sh passes. Other branches get a fast byte-compile check.
+#
+# To bypass in an emergency: git push --no-verify
+#
+# This hook is local-only (git does not version-control hooks). To install:
+#   bash scripts/install-hooks.sh
+
+set -uo pipefail
+
+REPO_ROOT="$( git rev-parse --show-toplevel )"
+cd "$REPO_ROOT"
+
+# Read all (local_ref local_sha remote_ref remote_sha) lines from stdin
+PROTECTED_BRANCH="refs/heads/main"
+PUSHING_TO_MAIN=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Skip deletions (local_sha is all zeros)
+    if [[ "$local_sha" =~ ^0+$ ]]; then
+        continue
+    fi
+    if [[ "$remote_ref" == "$PROTECTED_BRANCH" ]]; then
+        PUSHING_TO_MAIN=1
+    fi
+done
+
+if [[ $PUSHING_TO_MAIN -eq 1 ]]; then
+    echo ""
+    echo "==> pre-push: pushing to $PROTECTED_BRANCH → running full preflight"
+    echo "    (this prevents pushing code that crashes the worker on boot)"
+    echo ""
+    if bash scripts/preflight.sh; then
+        echo ""
+        echo "==> pre-push: preflight passed → allowing push"
+        exit 0
+    else
+        echo ""
+        echo "============================================================"
+        echo "  PUSH BLOCKED: preflight failed"
+        echo "  Branch: $PROTECTED_BRANCH is the Render-deployed branch."
+        echo "  A failing preflight will crash production on boot."
+        echo ""
+        echo "  Fix the issues above, then re-push."
+        echo "  Emergency bypass (use sparingly):"
+        echo "      git push --no-verify"
+        echo "============================================================"
+        exit 1
+    fi
+else
+    # Other branches: just a fast byte-compile to catch syntax errors.
+    echo ""
+    echo "==> pre-push: pushing to non-main branch → running fast byte-compile only"
+    if python3 -m py_compile dmai_core_complete.py; then
+        echo "[PASS] byte-compile"
+        exit 0
+    else
+        echo "[FAIL] byte-compile — fix syntax errors before push"
+        exit 1
+    fi
+fi
