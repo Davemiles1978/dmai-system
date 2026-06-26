@@ -5482,6 +5482,60 @@ def api_tipster_mode():
         return jsonify({"error": "greyhound_runner not loaded"}), 503
     return jsonify(gr.tier())
 
+
+@app.route("/api/monetisation/tips/greyhound-runner/restart", methods=["POST"])
+def api_greyhound_restart():
+    """Restart the GreyhoundRunner background thread. Auth required.
+
+    Clears any stale dead thread reference and starts a fresh worker.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    gr = components.get("greyhound_runner")
+    if not gr:
+        return jsonify({"error": "greyhound_runner not loaded"}), 503
+    try:
+        # Force-clear stale thread, then start.
+        gr._stop.set()
+        gr._thread = None
+        gr._stop.clear()
+        gr.start()
+        return jsonify({"status": "restarted", "running": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/monetisation/tracking/picks", methods=["GET"])
+def api_tracking_picks():
+    """List recorded tracking picks (model's top pick per race).
+
+    Query params: outcome (pending|won|lost), limit (default 200).
+    """
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    outcome = request.args.get("outcome")
+    try:
+        limit = max(1, min(int(request.args.get("limit", 200)), 1000))
+    except Exception:
+        limit = 200
+    try:
+        return jsonify({"picks": ba.list_tracking_picks(outcome=outcome, limit=limit)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/monetisation/tracking/performance", methods=["GET"])
+def api_tracking_performance():
+    """Aggregate accuracy metrics across all tracked picks."""
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"error": "betting_advisor not loaded"}), 503
+    try:
+        return jsonify(ba.tracking_performance())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ═══════════════════════════════════════════════════════════════════════════
 # INTEGRITY / MAINTENANCE API
 # ═══════════════════════════════════════════════════════════════════════════
@@ -6435,14 +6489,22 @@ def api_self_evolution_status():
         impl = sum(1 for k, v in caps.items() if not k.startswith("_") and isinstance(v, dict) and v.get("implemented"))
         total = sum(1 for k in caps if not k.startswith("_"))
         total_gaps = sum(len(v) for v in gap.values() if isinstance(v, list))
-        return jsonify({
+        out = {
             "status": "running" if _self_evolution_available else "unavailable",
             "last_scan": gap.get("ts"),
             "total_gaps": total_gaps,
             "capabilities_implemented": impl,
             "capabilities_total": total,
-            "gap_summary": {k: len(v) for k, v in gap.items() if isinstance(v, list)}
-        })
+            "gap_summary": {k: len(v) for k, v in gap.items() if isinstance(v, list)},
+        }
+        # Live orchestrator counters (watchdog, cycle count, last cycle, fixes)
+        try:
+            orch = components.get("self_evolution_orchestrator")
+            if orch and hasattr(orch, "get_status"):
+                out["orchestrator"] = orch.get_status()
+        except Exception as _e:
+            out["orchestrator_error"] = str(_e)
+        return jsonify(out)
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)})
 
@@ -8208,6 +8270,7 @@ def _start_background_services(force=False):
     if _self_evolution_available:
         try:
             _evo_inst = _SelfEvo(app=app, data_path=DATA_PATH)
+            components["self_evolution_orchestrator"] = _evo_inst
             threading.Thread(
                 target=_evo_inst.run_forever, daemon=True, name="self_evolution"
             ).start()
