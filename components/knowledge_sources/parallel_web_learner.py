@@ -266,50 +266,70 @@ class ParallelWebLearner:
             self._visited.add(item.url)
             self._save_visited()
 
-            result = await self._fetch(item.url)
-            if result is None:
+            # Wrap the entire fetch→parse→score→store path. Previously any
+            # exception here was swallowed by asyncio.gather(return_exceptions=True),
+            # leaving pages_fetched incremented while neither pages_skipped nor
+            # pages_stored moved — the exact signature of the prod stall.
+            try:
+                result = await self._fetch(item.url)
+                if result is None:
+                    self.pages_skipped += 1
+                    logger.warning("parallel_learner skip — fetch failed/non-HTML: %s", item.url)
+                    return
+
+                raw_text, links = result
+                clean_text = self._extract_text(raw_text)
+                score      = self._score_page(clean_text, item.url)
+
+                if score < MIN_KNOWLEDGE_SCORE:
+                    self.pages_skipped += 1
+                    logger.warning(
+                        "parallel_learner skip — low knowledge score %.2f < %.2f: %s",
+                        score, MIN_KNOWLEDGE_SCORE, item.url,
+                    )
+                    return
+
+                # Store the page
+                page_data = {
+                    "url":        item.url,
+                    "reason":     item.reason,
+                    "fetched_at": datetime.now(timezone.utc).isoformat(),
+                    "score":      round(score, 3),
+                    "depth":      item.depth,
+                    "text":       clean_text[:MAX_CONTENT_CHARS],
+                    "word_count": len(clean_text.split()),
+                }
+                if self._save_page(page_data):
+                    self.pages_stored += 1
+                    logger.info(
+                        "parallel_learner stored page (score %.2f, %d words): %s",
+                        score, page_data["word_count"], item.url,
+                    )
+                else:
+                    self.pages_skipped += 1
+
+                # Create SICore insight
+                self._create_insight(page_data)
+
+                # Feed into WebCrawler's discovered_urls if available
+                if self.web_crawler and hasattr(self.web_crawler, "add_url"):
+                    self.web_crawler.add_url(item.url, item.reason)
+
+                # Enqueue discovered links (limited depth)
+                if item.depth < DISCOVERED_LINK_DEPTH:
+                    count = 0
+                    for link in links:
+                        if count >= MAX_LINKS_PER_PAGE:
+                            break
+                        abs_link = urljoin(item.url, link)
+                        if self._is_learnable(abs_link):
+                            self.add_url(abs_link, f"discovered from {item.url}", item.depth + 1)
+                            count += 1
+            except Exception:
+                # Account for the page so fetched/skipped/stored stay reconciled,
+                # and surface the traceback instead of silently dropping it.
                 self.pages_skipped += 1
-                return
-
-            raw_text, links = result
-            clean_text = self._extract_text(raw_text)
-            score      = self._score_page(clean_text, item.url)
-
-            if score < MIN_KNOWLEDGE_SCORE:
-                self.pages_skipped += 1
-                logger.debug("Low-value page (%.2f): %s", score, item.url)
-                return
-
-            # Store the page
-            page_data = {
-                "url":        item.url,
-                "reason":     item.reason,
-                "fetched_at": datetime.now(timezone.utc).isoformat(),
-                "score":      round(score, 3),
-                "depth":      item.depth,
-                "text":       clean_text[:MAX_CONTENT_CHARS],
-                "word_count": len(clean_text.split()),
-            }
-            self._save_page(page_data)
-            self.pages_stored += 1
-
-            # Create SICore insight
-            self._create_insight(page_data)
-
-            # Feed into WebCrawler's discovered_urls if available
-            if self.web_crawler and hasattr(self.web_crawler, "add_url"):
-                self.web_crawler.add_url(item.url, item.reason)
-
-            # Enqueue discovered links (limited depth)
-            if item.depth < DISCOVERED_LINK_DEPTH:
-                count = 0
-                for link in links:
-                    if count >= MAX_LINKS_PER_PAGE:
-                        break
-                    abs_link = urljoin(item.url, link)
-                    if self._is_learnable(abs_link):
-                        self.add_url(abs_link, f"discovered from {item.url}", item.depth + 1)
-                        count += 1
+                logger.exception("parallel_learner store failed: %s", item.url)
 
     async def _fetch(self, url: str) -> Optional[Tuple[str, List[str]]]:
         """Return (html_text, [links]) or None on failure."""
@@ -424,14 +444,16 @@ class ParallelWebLearner:
 
     # ── Persistence ────────────────────────────────────────────────────────────
 
-    def _save_page(self, data: Dict):
+    def _save_page(self, data: Dict) -> bool:
         ts  = datetime.now(timezone.utc).strftime("%Y%m%d")
         out = self.data_path / f"pages_{ts}.jsonl"
         try:
             with open(out, "a") as f:
                 f.write(json.dumps(data, ensure_ascii=False) + "\n")
+            return True
         except Exception as exc:
-            logger.warning("Failed to save page: %s", exc)
+            logger.warning("parallel_learner skip — page save failed (%s): %s", exc, data.get("url"))
+            return False
 
     def _create_insight(self, data: Dict):
         if self.si_core is None:
@@ -451,8 +473,8 @@ class ParallelWebLearner:
                 source_type="web_page",
             )
             self.insights_created += 1
-        except Exception as exc:
-            logger.debug("Insight creation failed: %s", exc)
+        except Exception:
+            logger.exception("parallel_learner insight creation failed: %s", data.get("url"))
 
     def _load_visited(self) -> set:
         vf = self.data_path / "visited_urls.json"
