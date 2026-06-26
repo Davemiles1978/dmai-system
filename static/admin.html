@@ -3236,12 +3236,15 @@
     body.innerHTML = tips.map(t => {
       const ev = t.ev_pct != null ? t.ev_pct : ((t.expected_value || 0) * 100);
       const evColor = ev >= 20 ? 'var(--red)' : (ev >= 10 ? '#ea580c' : 'var(--green)');
-      const rt = t.race_time ? new Date(t.race_time).toLocaleString() : '—';
+      // Race date is parsed out of the event_name suffix (YYYY-MM-DD) by
+      // BettingAdvisor.list_upcoming and surfaced as race_date.
+      const rt = t.race_date || t.race_time || '—';
+      const odds = (t.decimal_odds != null) ? t.decimal_odds : t.odds;
       return `<tr>
         <td>${_ttTierBadge(t)}</td>
         <td style="font-size:12px">${(t.event_name || '—')}</td>
         <td style="font-weight:600">${t.selection || '—'}</td>
-        <td>${t.odds != null ? Number(t.odds).toFixed(2) : '—'}</td>
+        <td>${odds != null ? Number(odds).toFixed(2) : '—'}</td>
         <td>${_ttFmtPct(t.model_probability)}</td>
         <td style="color:${evColor};font-weight:600">${ev != null ? ev.toFixed(1) + '%' : '—'}</td>
         <td>${_ttFmtPct(t.confidence)}</td>
@@ -3260,20 +3263,25 @@
       return;
     }
     body.innerHTML = tips.map(t => {
-      const won = t.outcome === 'won' || t.outcome === 'win' || t.won === true;
-      const lost = t.outcome === 'lost' || t.outcome === 'loss' || t.won === false;
+      const status = (t.status || t.outcome || '').toLowerCase();
+      const won = status === 'won' || status === 'win';
+      const lost = status === 'lost' || status === 'loss';
+      const voided = status === 'void';
       const resultBadge = won
         ? '<span style="color:var(--green);font-weight:600">WIN</span>'
-        : (lost ? '<span style="color:var(--red);font-weight:600">LOSS</span>' : '<span style="color:var(--text-muted)">—</span>');
-      const dt = t.settled_at || t.race_time || t.created_at;
-      const dts = dt ? new Date(dt).toLocaleDateString() : '—';
-      const pl = (t.paper_pl != null) ? t.paper_pl : t.profit_loss;
+        : (lost ? '<span style="color:var(--red);font-weight:600">LOSS</span>'
+          : (voided ? '<span style="color:var(--text-muted)">VOID</span>' : '<span style="color:var(--text-muted)">—</span>'));
+      // settled_at is a unix epoch (seconds) coming from the API — convert to ms.
+      const dtRaw = t.settled_at || t.race_time || t.created_at;
+      const dtMs = (typeof dtRaw === 'number' && dtRaw < 1e12) ? dtRaw * 1000 : dtRaw;
+      const dts = dtMs ? new Date(dtMs).toLocaleDateString() : '—';
+      const pl = (t.profit_loss != null) ? t.profit_loss : t.paper_pl;
       const plColor = (pl == null) ? '' : (pl >= 0 ? 'var(--green)' : 'var(--red)');
       const ev = t.ev_pct != null ? t.ev_pct : ((t.expected_value || 0) * 100);
       return `<tr>
         <td style="font-size:11px">${dts}</td>
         <td style="font-weight:600">${t.selection || '—'}</td>
-        <td>${t.odds != null ? Number(t.odds).toFixed(2) : '—'}</td>
+        <td>${(t.decimal_odds != null ? Number(t.decimal_odds).toFixed(2) : (t.odds != null ? Number(t.odds).toFixed(2) : '—'))}</td>
         <td>${_ttFmtPct(t.model_probability)}</td>
         <td>${ev != null ? ev.toFixed(1) + '%' : '—'}</td>
         <td>${resultBadge}</td>
@@ -3309,7 +3317,9 @@
       return;
     }
     body.innerHTML = bets.map(b => {
-      const dts = b.placed_at ? new Date(b.placed_at).toLocaleDateString() : '—';
+      const pa = b.placed_at;
+      const paMs = (typeof pa === 'number' && pa < 1e12) ? pa * 1000 : pa;
+      const dts = paMs ? new Date(paMs).toLocaleDateString() : '—';
       const pl = b.profit_loss;
       const plColor = (pl == null) ? '' : (pl >= 0 ? 'var(--green)' : 'var(--red)');
       const statusColor = b.status === 'won' ? 'var(--green)' : (b.status === 'lost' ? 'var(--red)' : 'var(--text-muted)');

@@ -51,6 +51,27 @@ CREATE TABLE IF NOT EXISTS mon_tips (
     created_at REAL NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_mon_tips_status ON mon_tips(status, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS mon_user_bets (
+    id TEXT PRIMARY KEY,
+    tip_id TEXT,
+    placed_at REAL NOT NULL,
+    event_name TEXT NOT NULL,
+    market TEXT,
+    selection TEXT NOT NULL,
+    actual_odds REAL NOT NULL,
+    actual_stake REAL NOT NULL,
+    bookmaker TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    settled_at REAL,
+    actual_return REAL,
+    profit_loss REAL,
+    currency TEXT NOT NULL DEFAULT 'GBP',
+    notes TEXT,
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_user_bets_status ON mon_user_bets(status, placed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_bets_tip ON mon_user_bets(tip_id);
 """
 
 
@@ -392,10 +413,21 @@ class BettingAdvisor:
                 "ORDER BY COALESCE(settled_at, created_at) DESC LIMIT ?",
                 (window,),
             ).fetchall()
+        try:
+            with self._conn() as c:
+                pending_count = c.execute(
+                    "SELECT COUNT(*) AS n FROM mon_tips WHERE status='pending'"
+                ).fetchone()["n"]
+        except Exception:
+            pending_count = 0
         if not rows:
             return {
-                "window": window, "settled_count": 0, "win_rate": None, "roi_pct": None,
-                "turnover": 0.0, "total_pl": 0.0, "calibration": [],
+                "window": window, "settled_count": 0,
+                "win_rate": None, "hit_rate": None,
+                "roi_pct": None, "brier": None, "pending": int(pending_count),
+                "turnover": 0.0, "total_pl": 0.0,
+                "total_paper_stake": 0.0, "paper_pl": 0.0,
+                "calibration": [],
                 "by_confidence_bucket": {},
                 "mode_breakdown": {
                     "paper": {"count": 0, "pl": 0.0, "win_rate": None},
@@ -439,12 +471,41 @@ class BettingAdvisor:
                     "pl": round(sum(float(r["profit_loss"] or 0) for r in sub), 2),
                     "win_rate": (round(sum(1 for r in sub if r["status"] == "won") / len(sub), 3)
                                  if sub else None)}
+        # Brier score: lower is better calibration (0=perfect, 0.25=random).
+        brier_terms = [
+            (float(r["model_probability"] or 0)
+             - (1.0 if r["status"] == "won" else 0.0)) ** 2
+            for r in rows
+        ]
+        brier = round(sum(brier_terms) / n, 4) if brier_terms else None
+        paper_rows = [r for r in rows if "paper" in (r["notes"] or "").lower()]
+        paper_stake = (sum(float(r["actual_stake"] or r["recommended_stake"] or 0)
+                           for r in paper_rows) or turnover)
+        paper_pl = (sum(float(r["profit_loss"] or 0) for r in paper_rows)
+                    or total_pl)
+        # Reshape calibration buckets to the {band,n,predicted,actual} shape
+        # the Tip Tracking UI consumes.
+        calib_for_ui = [
+            {
+                "band": f"{int(b['range'][0]*100)}-{int(b['range'][1]*100)}%",
+                "n": b["count"],
+                "predicted": b["predicted_mean"],
+                "actual": b["actual_win_rate"],
+            }
+            for b in buckets if b["count"]
+        ]
         return {
             "window": window, "settled_count": n,
             "win_rate": round(won / n, 3),
+            "hit_rate": round(won / n, 3),
             "roi_pct": round((total_pl / turnover) * 100, 2) if turnover else None,
+            "brier": brier,
+            "pending": int(pending_count),
             "turnover": round(turnover, 2), "total_pl": round(total_pl, 2),
-            "calibration": buckets,
+            "total_paper_stake": round(paper_stake, 2),
+            "paper_pl": round(paper_pl, 2),
+            "calibration": calib_for_ui,
+            "calibration_raw": buckets,
             "by_confidence_bucket": {
                 "low":  _cb(0.0, 0.5),
                 "mid":  _cb(0.5, 0.75),
@@ -524,34 +585,52 @@ class BettingAdvisor:
 
     def list_user_bets(self, status: Optional[str] = None,
                        limit: int = 100) -> List[Dict[str, Any]]:
-        with self._conn() as c:
-            if status:
-                rows = c.execute(
-                    "SELECT * FROM mon_user_bets WHERE status=? "
-                    "ORDER BY placed_at DESC LIMIT ?", (status, limit),
-                ).fetchall()
-            else:
-                rows = c.execute(
-                    "SELECT * FROM mon_user_bets ORDER BY placed_at DESC LIMIT ?",
-                    (limit,),
-                ).fetchall()
-        return [dict(r) for r in rows]
+        try:
+            with self._conn() as c:
+                if status:
+                    rows = c.execute(
+                        "SELECT * FROM mon_user_bets WHERE status=? "
+                        "ORDER BY placed_at DESC LIMIT ?", (status, limit),
+                    ).fetchall()
+                else:
+                    rows = c.execute(
+                        "SELECT * FROM mon_user_bets ORDER BY placed_at DESC LIMIT ?",
+                        (limit,),
+                    ).fetchall()
+            return [dict(r) for r in rows]
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                self._init_schema()
+                return []
+            raise
 
     def user_bet_performance(self) -> Dict[str, Any]:
         """User real-bet performance + delta vs model recommendations."""
-        with self._conn() as c:
-            rows = c.execute(
-                "SELECT b.status AS b_status, b.actual_stake, b.actual_odds, "
-                "b.profit_loss AS user_pl, "
-                "t.recommended_stake, t.decimal_odds, t.model_probability "
-                "FROM mon_user_bets b LEFT JOIN mon_tips t ON b.tip_id = t.id "
-                "WHERE b.status IN ('won','lost','void','cashed_out')"
-            ).fetchall()
+        empty = {"total_bets": 0, "settled_bets": 0, "settled_count": 0,
+                 "hit_rate": None, "win_rate": None,
+                 "profit_loss": 0.0, "total_pl": 0.0,
+                 "roi_pct": None, "turnover": 0.0,
+                 "model_pl_at_recommended_stake": None,
+                 "delta_vs_model": None}
+        try:
+            with self._conn() as c:
+                total_bets = c.execute(
+                    "SELECT COUNT(*) AS n FROM mon_user_bets"
+                ).fetchone()["n"]
+                rows = c.execute(
+                    "SELECT b.status AS b_status, b.actual_stake, b.actual_odds, "
+                    "b.profit_loss AS user_pl, "
+                    "t.recommended_stake, t.decimal_odds, t.model_probability "
+                    "FROM mon_user_bets b LEFT JOIN mon_tips t ON b.tip_id = t.id "
+                    "WHERE b.status IN ('won','lost','void','cashed_out')"
+                ).fetchall()
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e).lower():
+                self._init_schema()
+                return empty
+            raise
         if not rows:
-            return {"settled_count": 0, "win_rate": None, "roi_pct": None,
-                    "turnover": 0.0, "total_pl": 0.0,
-                    "model_pl_at_recommended_stake": None,
-                    "delta_vs_model": None}
+            return {**empty, "total_bets": int(total_bets)}
         won = sum(1 for r in rows if r["b_status"] == "won")
         n = len(rows)
         turnover = sum(float(r["actual_stake"] or 0) for r in rows)
@@ -566,10 +645,14 @@ class BettingAdvisor:
             elif r["b_status"] == "lost":
                 model_pl -= rec
         return {
+            "total_bets": int(total_bets),
+            "settled_bets": n,
             "settled_count": n,
             "win_rate": round(won / n, 3),
+            "hit_rate": round(won / n, 3),
             "turnover": round(turnover, 2),
             "total_pl": round(total_pl, 2),
+            "profit_loss": round(total_pl, 2),
             "roi_pct": round((total_pl / turnover) * 100, 2) if turnover else None,
             "model_pl_at_recommended_stake": round(model_pl, 2),
             "delta_vs_model": round(total_pl - model_pl, 2),
