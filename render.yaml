@@ -3,7 +3,11 @@ services:
     name: dmai-web
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --threads 2 --max-requests 100 --max-requests-jitter 50
+    # Single canonical start command — delegates all gunicorn config to gunicorn_config.py
+    # (1 worker, 8 gthread threads, timeout 300, NO worker recycling).
+    # The --max-requests 100 setting that previously lived here was killing every
+    # background training thread every 100 requests. See docs/HANDOVER.md §3.
+    startCommand: gunicorn dmai_core_complete:app --config gunicorn_config.py
     healthCheckPath: /health
     envVars:
 
