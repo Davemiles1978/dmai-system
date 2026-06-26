@@ -180,10 +180,23 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
 
 # ── Boot-time schema bootstrap (idempotent) ──────────────────────────────────
 # Ensures core tables exist even if a previous DB rebuild left them missing.
+# CRITICAL: WAL mode must be set as the FIRST operation on the DB at boot.
+# If a later thread opens the DB in rollback-journal mode while another holds
+# WAL, the journal modes fight and the DB becomes 'database disk image is
+# malformed'. Setting WAL here, before any component init, prevents that.
 try:
     import sqlite3 as _ssq
     _kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
     _kn_conn = _ssq.connect(_kn_db, timeout=10)
+    # Lock journal mode to WAL BEFORE any schema work or other opens.
+    try:
+        _kn_conn.execute("PRAGMA journal_mode=WAL")
+        _kn_conn.execute("PRAGMA synchronous=NORMAL")
+        _kn_conn.execute("PRAGMA busy_timeout=30000")
+        _kn_conn.commit()
+        logger.info("dmai_knowledge.db: WAL mode confirmed at boot")
+    except Exception as _wale:
+        logger.warning("dmai_knowledge.db WAL setup failed: %s", _wale)
     _kn_conn.executescript('''
         CREATE TABLE IF NOT EXISTS capabilities (
             id TEXT PRIMARY KEY,
@@ -5035,7 +5048,12 @@ def api_learning_full_status():
     db_stats = {"insights": 0, "capabilities": 0, "syllabus_mastered": 0}
     try:
         import sqlite3
-        conn = sqlite3.connect("data/dmai_knowledge.db")
+        conn = sqlite3.connect("data/dmai_knowledge.db", timeout=30.0)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+        except Exception:
+            pass
         c = conn.cursor()
         c.execute("SELECT COUNT(*) FROM insights")
         db_stats["insights"] = c.fetchone()[0]
@@ -5503,7 +5521,12 @@ def api_vocabulary_stats():
     """Return vocabulary and encyclopaedia ingestion stats."""
     try:
         import sqlite3 as _vsq
-        conn = _vsq.connect("data/dmai_knowledge.db")
+        conn = _vsq.connect("data/dmai_knowledge.db", timeout=30.0)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+        except Exception:
+            pass
         vocab_total = 0
         encyc_total = 0
         vocab_domains = {}
@@ -5531,7 +5554,12 @@ def api_vocabulary_sample():
     """Return a random sample of recently learned words."""
     try:
         import sqlite3 as _vsq
-        conn = _vsq.connect("data/dmai_knowledge.db")
+        conn = _vsq.connect("data/dmai_knowledge.db", timeout=30.0)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+        except Exception:
+            pass
         rows = []
         try:
             rows = conn.execute(
@@ -5696,7 +5724,12 @@ def api_integrity_report():
         return jsonify({"error": "Unauthorized"}), 401
     try:
         import sqlite3 as _isq
-        conn = _isq.connect("data/dmai_knowledge.db")
+        conn = _isq.connect("data/dmai_knowledge.db", timeout=30.0)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+        except Exception:
+            pass
         conn.row_factory = _isq.Row
 
         # Latest report
@@ -5779,7 +5812,12 @@ import uuid as _uuid_mod
 
 def _sug_db():
     import sqlite3 as _sq
-    conn = _sq.connect("data/dmai_knowledge.db")
+    conn = _sq.connect("data/dmai_knowledge.db", timeout=30.0)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+    except Exception:
+        pass
     conn.row_factory = _sq.Row
     return conn
 
