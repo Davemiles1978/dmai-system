@@ -2930,12 +2930,63 @@
     el('sa-last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
   }
 
+  function _renderStageAnalyticsDegraded(d) {
+    const banner = document.getElementById('sa-forecast-banner');
+    if (banner) {
+      banner.style.borderLeftColor = 'var(--red)';
+      banner.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-size:11px;color:var(--red);letter-spacing:.05em;margin-bottom:.25rem">⚠️ STAGE ANALYTICS DEGRADED</div>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:.4rem">Knowledge DB unavailable</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:.4rem">${(d && d.error) || 'Unknown error'}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${(d && d.hint) || 'Try /api/admin/db-rebuild then /api/admin/db-bootstrap'}</div>
+          </div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn-action secondary" onclick="_saRebuildDb()">Rebuild DB</button>
+            <button class="btn-action secondary" onclick="_loadStageAnalytics()">Retry</button>
+          </div>
+        </div>`;
+    }
+    // Reset the lower panels to neutral placeholders so users see *something*.
+    const setMsg = (id, msg) => { const e = document.getElementById(id); if (e) e.innerHTML = `<p style="color:var(--text-muted);font-size:12px">${msg}</p>`; };
+    setMsg('sa-next-gaps', 'Awaiting DB recovery');
+    setMsg('sa-channels', 'Awaiting DB recovery');
+    setMsg('sa-stage-history', 'Awaiting DB recovery');
+    setMsg('sa-plateaus', 'Awaiting DB recovery');
+    const svg = document.getElementById('sa-daily-chart');
+    if (svg) svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="#666" font-size="12">Daily ingestion unavailable while DB is degraded</text>';
+    const lu = document.getElementById('sa-last-updated');
+    if (lu) lu.textContent = 'Last attempted: ' + new Date().toLocaleTimeString();
+  }
+
+  window._saRebuildDb = async function() {
+    if (!confirm('Rebuild dmai_knowledge.db? The current malformed file will be quarantined. Existing data may be lost.')) return;
+    toast('Rebuilding knowledge DB …', 'warn');
+    try {
+      const r1 = await api('/api/admin/db-rebuild', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({force:true, db:'dmai_knowledge.db'}) });
+      console.log('db-rebuild', r1);
+      const r2 = await api('/api/admin/db-bootstrap', { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+      console.log('db-bootstrap', r2);
+      toast('Rebuild complete, reloading analytics', 'info');
+      setTimeout(_loadStageAnalytics, 800);
+    } catch (e) {
+      console.error('rebuild failed', e);
+      toast('Rebuild failed: ' + (e.message || e), 'error');
+    }
+  };
+
   async function _loadStageAnalytics() {
     try {
       const d = await api('/api/stage/analytics');
+      if (!d || d.degraded || d.error) {
+        _renderStageAnalyticsDegraded(d || {error:'No response'});
+        return;
+      }
       _renderStageAnalytics(d);
     } catch(e) {
       console.warn('StageAnalytics error:', e);
+      _renderStageAnalyticsDegraded({error: (e && e.message) || String(e)});
     }
   }
   // ── End Stage Analytics Panel ─────────────────────────────────────────────
