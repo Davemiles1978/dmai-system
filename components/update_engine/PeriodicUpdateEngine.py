@@ -296,7 +296,7 @@ class PeriodicUpdateEngine:
     regressions to the Kaizen queue.
     """
 
-    def __init__(self, config=None, data_path=None, ai_hub=None, si_core=None):
+    def __init__(self, config=None, data_path=None, ai_hub=None, si_core=None, knowledge_graph=None, **_extra_kwargs):
         from pathlib import Path as _Path
         self.config = config or {}
         self.data_path = _Path(data_path) if data_path else _Path(self.config.get("data_path", "data"))

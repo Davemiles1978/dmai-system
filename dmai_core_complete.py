@@ -7015,10 +7015,44 @@ def api_stage_analytics():
     }
 
     try:
-        conn = _an_sq.connect(DB)
+        # Resolve DB path against DATA_PATH so we hit the persistent disk.
+        _data_dir = (os.environ.get("DATA_PATH") or "data/").rstrip("/").rstrip("\\")
+        _resolved_db = os.path.join(_data_dir, "dmai_knowledge.db")
+        conn = _an_sq.connect(_resolved_db)
         conn.row_factory = _an_sq.Row
 
         # ── 1. Current metrics ────────────────────────────────────────────────
+
+        # Self-heal: create required tables if missing (DB may be freshly rebuilt and empty).
+        try:
+            conn.executescript("""
+                CREATE TABLE IF NOT EXISTS insights (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    concept TEXT, insight_text TEXT,
+                    content TEXT, description TEXT, title TEXT,
+                    confidence REAL DEFAULT 0.5, domain TEXT, source TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE TABLE IF NOT EXISTS capabilities (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT, description TEXT, category TEXT,
+                    proficiency REAL DEFAULT 0.0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE TABLE IF NOT EXISTS vocabulary (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    term TEXT UNIQUE, definition TEXT, domain TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE TABLE IF NOT EXISTS system_state (
+                    key TEXT PRIMARY KEY, value TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            conn.commit()
+        except Exception as _ex:
+            logger.warning(f"stage_analytics schema bootstrap failed: {_ex}")
+
         # Self-heal: ensure required columns exist on legacy DBs.
         # SQLite rejects ALTER ADD COLUMN with non-constant DEFAULT (CURRENT_TIMESTAMP),
         # so we add the column as TEXT (no default) and backfill any NULLs.
