@@ -351,6 +351,9 @@ class GreyhoundRunner:
             field_ratings = [
                 float(_r.get("master_rating", 0) or 0) for _r in runners
             ]
+            # Per-race best candidate for TRACKING MODE (recorded regardless
+            # of EV gate so we can score the model over 2-7 days).
+            best_track = None
             for r in runners:
                 summary["runners_seen"] += 1
                 dec = r.get("implied_decimal_odds") or 0.0
@@ -358,9 +361,38 @@ class GreyhoundRunner:
                     continue
                 if not r.get("dog"):
                     continue
+                seed = self._build_seed(race, r, field_ratings)
+                # Always run analyse_candidate (cheap, deterministic for
+                # greyhound model) so we can both gate and track.
+                analysis = self.advisor.analyse_candidate(
+                    event_name=event_name,
+                    selection=r["dog"],
+                    decimal_odds=dec,
+                    market="trap_winner",
+                    bookmaker="implied (timeform_mstr)",
+                    seed_data=seed,
+                )
+                if not isinstance(analysis, dict) or analysis.get("error"):
+                    continue
+                # Update tracking best
+                prob = float(analysis.get("model_probability", 0) or 0)
+                if best_track is None or prob > best_track["model_probability"]:
+                    best_track = {
+                        "selection": r["dog"],
+                        "decimal_odds": dec,
+                        "model_probability": prob,
+                        "confidence": float(analysis.get("confidence", 0) or 0),
+                        "expected_value": float(analysis.get("expected_value", 0) or 0),
+                        "rationale": analysis.get("rationale", ""),
+                        "prediction_id": analysis.get("prediction_id"),
+                    }
+                # Live-tip gate: only emit a real mon_tip if EV passes and
+                # we haven't already tipped this selection.
                 if self._already_tipped(event_name, r["dog"]):
                     continue
-                seed = self._build_seed(race, r, field_ratings)
+                if not analysis.get("passes_ev_gate"):
+                    summary["tips_rejected"] += 1
+                    continue
                 try:
                     result = self.advisor.generate_tip(
                         event_name=event_name,
@@ -372,13 +404,27 @@ class GreyhoundRunner:
                     )
                     if isinstance(result, dict) and result.get("status") == "pending":
                         summary["tips_generated"] += 1
-                        # Tag with mode in the notes field
                         self._tag_mode(result.get("id"))
                     else:
                         summary["tips_rejected"] += 1
                 except Exception as e:
                     logger.warning("generate_tip failed for %s/%s: %s",
                                    event_name, r["dog"], e)
+            # Record per-race tracking pick (idempotent on (event,market))
+            if best_track is not None:
+                try:
+                    tr = self.advisor.record_tracking_pick(
+                        event_name=event_name,
+                        market="trap_winner",
+                        **best_track,
+                    )
+                    if tr.get("status") == "tracked":
+                        summary["tracking_picks_recorded"] = (
+                            summary.get("tracking_picks_recorded", 0) + 1
+                        )
+                except Exception as e:
+                    logger.warning("record_tracking_pick failed for %s: %s",
+                                   event_name, e)
             time.sleep(0.4)  # be polite to timeform
         # Settlement pass — yesterday + today
         try:
@@ -479,6 +525,24 @@ class GreyhoundRunner:
         except Exception:
             return 0
         settled = 0
+        # Find the winning dog up front so we can settle tracking picks even
+        # when no mon_tip exists for this race.
+        winning_dog = None
+        for trap in race.get("traps") or []:
+            if trap.get("resultPosition") == 1:
+                winning_dog = (trap.get("dogName") or "").strip()
+                break
+        # Settle the per-race tracking pick (regardless of EV-gated tips)
+        if winning_dog:
+            try:
+                self.advisor.settle_tracking_pick(
+                    event_name=event_name,
+                    market="trap_winner",
+                    winning_selection=winning_dog,
+                )
+            except Exception as e:
+                logger.warning("settle_tracking_pick failed for %s: %s",
+                               event_name, e)
         for trap in race.get("traps") or []:
             dog = (trap.get("dogName") or "").strip()
             if not dog:
