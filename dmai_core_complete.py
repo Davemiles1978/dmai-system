@@ -454,6 +454,17 @@ except Exception as e:
     logger.warning("SICore failed: %s", e)
 
 # ── AI Integration Hub ────────────────────────────────────────────────────────
+# Knowledge Graph singleton — shared across StageLearner, ParallelWebLearner,
+# ExpertBrain, AutonomousIngestor. Previously every consumer received
+# knowledge_graph=None, causing 'NoneType' has no attribute 'add_concept' crashes.
+try:
+    from components.phase6.P6_AdvancedIntelligence import KnowledgeGraph as _KG
+    components["knowledge_graph"] = _KG()
+    logger.info("KnowledgeGraph singleton initialised")
+except Exception as _e:
+    logger.warning("KnowledgeGraph singleton failed: %s", _e)
+    components["knowledge_graph"] = None
+
 try:
     from components.phase11.AIIntegrationHub import AIIntegrationHub
     components["ai_hub"] = AIIntegrationHub(data_path=DATA_PATH)
@@ -547,7 +558,7 @@ try:
     from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
     components["evolution_training"] = EvolutionTrainingSystem(
         si_core=components.get("si_core"),
-        knowledge_graph=None,
+        knowledge_graph=components.get("knowledge_graph"),
         training_systems={},
     )
     logger.info("EvolutionTrainingSystem initialised")
@@ -627,7 +638,7 @@ try:
     components["training_orchestrator"] = DMAITrainingOrchestrator(
         data_path=DATA_PATH,
         si_core=components.get("si_core"),
-        knowledge_graph=None,
+        knowledge_graph=components.get("knowledge_graph"),
         ai_hub=components.get("ai_hub"),
         evolution_system=components.get("evolution_training"),
     )
@@ -840,7 +851,7 @@ except Exception as e:
 try:
     from components.evolution.LearningHarvester import LearningHarvester
     components["learning_harvester"] = LearningHarvester(
-        data_path=Path(DATA_PATH), ai_hub=components.get("ai_hub"), knowledge_graph=None)
+        data_path=Path(DATA_PATH), ai_hub=components.get("ai_hub"), knowledge_graph=components.get("knowledge_graph"))
     logger.info("LearningHarvester initialised")
 except Exception as e:
     logger.warning("LearningHarvester failed: %s", e)
@@ -849,7 +860,7 @@ except Exception as e:
 try:
     from components.phase11.IntelligenceBridge import IntelligenceBridge
     components["intelligence_bridge"] = IntelligenceBridge(
-        intelligence_core=components.get("si_core"), knowledge_graph=None, pattern_synthesis=None)
+        intelligence_core=components.get("si_core"), knowledge_graph=components.get("knowledge_graph"), pattern_synthesis=None)
     logger.info("IntelligenceBridge initialised")
 except Exception as e:
     logger.warning("IntelligenceBridge failed: %s", e)
@@ -875,7 +886,7 @@ except Exception as e:
 try:
     from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
     components["stage_learner"] = StageAwareLearningOrchestrator(
-        data_path=Path(DATA_PATH), synthetic_network=None, knowledge_graph=None,
+        data_path=Path(DATA_PATH), synthetic_network=None, knowledge_graph=components.get("knowledge_graph"),
         ai_hub=components.get("ai_hub"), pattern_synthesis=None)
     logger.info("StageAwareLearningOrchestrator initialised")
 except Exception as e:
@@ -909,7 +920,7 @@ try:
     components["unified_learner"] = UnifiedLearningOrchestrator(
         si_core=components.get("si_core"),
         evolution_engine=components.get("evolution_training"),
-        knowledge_graph=None)
+        knowledge_graph=components.get("knowledge_graph"))
     logger.info("UnifiedLearningOrchestrator initialised")
 except Exception as e:
     logger.warning("UnifiedLearningOrchestrator failed: %s", e)
@@ -939,7 +950,7 @@ except Exception as e:
 try:
     from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator
     components["self_funding"] = SelfFundingOrchestrator(
-        data_path=Path(DATA_PATH), financial_manager=None, knowledge_graph=None,
+        data_path=Path(DATA_PATH), financial_manager=None, knowledge_graph=components.get("knowledge_graph"),
         ai_hub=components.get("ai_hub"))
     logger.info("SelfFundingOrchestrator initialised")
 except Exception as e:
@@ -949,7 +960,7 @@ except Exception as e:
 try:
     from components.funding.DynamicRevenueDiscovery import DynamicRevenueDiscovery
     components["revenue_discovery"] = DynamicRevenueDiscovery(
-        data_path=Path(DATA_PATH), knowledge_graph=None, ai_hub=components.get("ai_hub"),
+        data_path=Path(DATA_PATH), knowledge_graph=components.get("knowledge_graph"), ai_hub=components.get("ai_hub"),
         funding_orchestrator=components.get("self_funding"))
     logger.info("DynamicRevenueDiscovery initialised")
 except Exception as e:
@@ -7583,21 +7594,33 @@ def _backfill_kaizen_queue():
 
 _BG_SERVICES_STARTED = False
 _BG_SERVICES_LOCK = threading.Lock()
+_BG_SERVICES_PID = None  # PID where services were last started; resets after fork
+_BG_SERVICES_ERRORS = []  # captured exceptions during _start_background_services
 
 
-def _start_background_services():
-    # ── Idempotency guard: prevent duplicate thread spawning ─────────────────────
+def _start_background_services(force=False):
+    # ── PID-aware idempotency guard ──────────────────────────────────────────
     # _start_background_services() can be called up to 3 times (module load,
-    # @before_request hook, /api/admin/start-services). Each call spawns fresh
-    # threading.Thread(...).start() per service. Without this guard, every worker
-    # restart leaks another 14-23 duplicate threads, which compound RAM usage
-    # and trigger OOM-kill at the 2GB Render plan limit.
-    global _BG_SERVICES_STARTED
+    # @before_request hook, /api/admin/start-services). The guard prevents
+    # duplicate thread spawning within ONE process.
+    #
+    # CRITICAL: gunicorn forks workers from the master after import. Threads
+    # spawned in the master DO NOT survive fork — only the global flag does.
+    # We compare against current PID so a freshly-forked worker re-spawns its
+    # own loops instead of inheriting the master's stale True flag.
+    global _BG_SERVICES_STARTED, _BG_SERVICES_PID
+    _cur_pid = os.getpid()
     with _BG_SERVICES_LOCK:
-        if _BG_SERVICES_STARTED:
-            logger.info("_start_background_services: already initialised, skipping duplicate call")
+        if _BG_SERVICES_STARTED and _BG_SERVICES_PID == _cur_pid and not force:
+            logger.info("_start_background_services: already initialised in pid=%s, skipping", _cur_pid)
             return
+        if _BG_SERVICES_STARTED and _BG_SERVICES_PID != _cur_pid:
+            logger.warning("_start_background_services: PID changed (%s -> %s) — re-initialising after fork",
+                           _BG_SERVICES_PID, _cur_pid)
+        elif force:
+            logger.info("_start_background_services: forced restart in pid=%s", _cur_pid)
         _BG_SERVICES_STARTED = True
+        _BG_SERVICES_PID = _cur_pid
     # ── Ensure critical tables exist before any background loop reads them ───────
     try:
         _ensure_syllabus_content_table()
@@ -7991,7 +8014,7 @@ def _start_background_services():
         if sl is None:
             from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
             sl = StageAwareLearningOrchestrator(
-                data_path=Path(DATA_PATH), synthetic_network=None, knowledge_graph=None,
+                data_path=Path(DATA_PATH), synthetic_network=None, knowledge_graph=components.get("knowledge_graph"),
                 ai_hub=components.get("ai_hub"), pattern_synthesis=None)
             components["stage_learner"] = sl
         if hasattr(sl, "set_si_core"):
@@ -8178,11 +8201,16 @@ except Exception as _bgse:
 
 @app.route("/api/admin/start-services", methods=["POST", "GET"])
 def api_start_services():
-    """Force-start all background services and return detailed status. No auth — diagnostic only."""
+    """Force-start all background services and return detailed status.
+
+    Query/body param force=true bypasses the in-process idempotency guard.
+    """
     import threading as _th
+    force = (request.args.get("force", "").lower() == "true"
+             or (request.get_json(silent=True) or {}).get("force") is True)
     before = {t.name for t in _th.enumerate()}
     try:
-        _start_background_services()
+        _start_background_services(force=force)
     except Exception as _e:
         return jsonify({"error": str(_e), "traceback": __import__("traceback").format_exc()})
     import time as _t; _t.sleep(2)
@@ -8191,10 +8219,107 @@ def api_start_services():
     all_threads = [t.name for t in _th.enumerate()]
     return jsonify({
         "status": "ok",
+        "pid": os.getpid(),
+        "bg_services_pid": _BG_SERVICES_PID,
+        "forced": force,
         "new_threads": new_threads,
         "all_threads": all_threads,
         "total": len(all_threads),
     })
+
+
+@app.route("/api/admin/db-query", methods=["POST"])
+def api_admin_db_query():
+    """Run a read-only SQL query against dmai_knowledge.db. Master password required."""
+    if request.headers.get("X-Master-Password") != os.environ.get("MASTER_PASSWORD"):
+        return jsonify({"error": "unauthorized"}), 401
+    body = request.get_json(silent=True) or {}
+    sql = (body.get("sql") or "").strip()
+    if not sql:
+        return jsonify({"error": "missing sql"}), 400
+    lowered = sql.lower().lstrip()
+    if not lowered.startswith(("select", "pragma", "explain")):
+        return jsonify({"error": "only SELECT/PRAGMA/EXPLAIN queries are permitted"}), 400
+    try:
+        import sqlite3 as _sq
+        _p = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        _c = _sq.connect(_p, timeout=10)
+        _c.row_factory = _sq.Row
+        cur = _c.execute(sql)
+        rows = [dict(r) for r in cur.fetchall()[:200]]
+        cols = [d[0] for d in (cur.description or [])]
+        _c.close()
+        return jsonify({"db": _p, "columns": cols, "row_count": len(rows), "rows": rows})
+    except Exception as _e:
+        return jsonify({"error": str(_e)}), 500
+
+
+@app.route("/api/admin/db-bootstrap", methods=["POST"])
+def api_admin_db_bootstrap():
+    """Re-run boot-time schema bootstrap so mf_* + encyclopaedia tables exist."""
+    if request.headers.get("X-Master-Password") != os.environ.get("MASTER_PASSWORD"):
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        import sqlite3 as _sq
+        _p = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        _c = _sq.connect(_p, timeout=10)
+        _c.executescript("""
+            CREATE TABLE IF NOT EXISTS mf_predictions (
+                id TEXT PRIMARY KEY,
+                requirement TEXT NOT NULL,
+                seed_hash TEXT,
+                status TEXT NOT NULL DEFAULT 'pending',
+                verdict_json TEXT,
+                created_at REAL NOT NULL DEFAULT 0,
+                completed_at REAL
+            );
+            CREATE TABLE IF NOT EXISTS mf_entities (
+                prediction_id TEXT NOT NULL,
+                entity_id TEXT NOT NULL,
+                label TEXT NOT NULL,
+                type TEXT NOT NULL,
+                attrs_json TEXT,
+                PRIMARY KEY (prediction_id, entity_id)
+            );
+            CREATE TABLE IF NOT EXISTS mf_relations (
+                prediction_id TEXT NOT NULL,
+                rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_id TEXT NOT NULL,
+                to_id TEXT NOT NULL,
+                type TEXT NOT NULL,
+                attrs_json TEXT
+            );
+            CREATE TABLE IF NOT EXISTS mf_agents (
+                prediction_id TEXT NOT NULL,
+                agent_id TEXT NOT NULL,
+                persona_json TEXT NOT NULL,
+                platform TEXT,
+                PRIMARY KEY (prediction_id, agent_id)
+            );
+            CREATE TABLE IF NOT EXISTS mf_actions (
+                prediction_id TEXT NOT NULL,
+                action_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent_id TEXT NOT NULL,
+                action_type TEXT NOT NULL,
+                content TEXT,
+                target_id TEXT,
+                round_num INTEGER NOT NULL,
+                ts REAL NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS encyclopaedia (
+                topic TEXT PRIMARY KEY,
+                content TEXT,
+                source TEXT,
+                ts REAL NOT NULL DEFAULT 0
+            );
+        """)
+        _c.commit()
+        cur = _c.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+        tables = [r[0] for r in cur.fetchall()]
+        _c.close()
+        return jsonify({"status": "ok", "db": _p, "tables": tables})
+    except Exception as _e:
+        return jsonify({"error": str(_e), "traceback": __import__("traceback").format_exc()}), 500
 
 
 
