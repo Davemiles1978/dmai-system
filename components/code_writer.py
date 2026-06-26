@@ -227,12 +227,33 @@ Generate the complete component:"""
                 result = self.ai_hub.query_all_tutors(prompt)
                 code = ""
                 if isinstance(result, dict):
-                    code = (result.get("synthesis") or result.get("best_response") or "")
+                    syn = result.get("synthesis")
+                    if isinstance(syn, dict):
+                        code = syn.get("unified_answer", "") or ""
+                    elif isinstance(syn, str):
+                        code = syn
+
                     if not code:
-                        for v in result.get("responses", {}).values():
-                            if isinstance(v, dict) and v.get("response"):
-                                code = v["response"]
-                                break
+                        br = result.get("best_response", "")
+                        if isinstance(br, str):
+                            code = br
+                        elif isinstance(br, dict):
+                            code = br.get("unified_answer", "") or br.get("text", "") or ""
+
+                    if not code:
+                        responses = result.get("responses", {}) or {}
+                        if isinstance(responses, dict):
+                            for v in responses.values():
+                                if isinstance(v, str) and v.strip():
+                                    code = v
+                                    break
+                                elif isinstance(v, dict):
+                                    cand = v.get("unified_answer") or v.get("text") or v.get("content") or v.get("response")
+                                    if isinstance(cand, str) and cand.strip():
+                                        code = cand
+                                        break
+
+                    code = code or ""
             elif hasattr(self.ai_hub, "chat"):
                 loop = asyncio.new_event_loop()
                 try:

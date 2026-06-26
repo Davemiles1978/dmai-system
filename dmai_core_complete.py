@@ -8360,6 +8360,25 @@ def _start_background_services(force=False):
         except Exception as _e:
             logger.warning(f"self_evolution start failed: {_e}")
 
+    # Boot-time AI hub reinit (refresh api_keys, wire synthesizer + tutor manager)
+    try:
+        hub = components.get("ai_hub")
+        if hub is not None:
+            if hasattr(hub, "_load_api_keys"):
+                try:
+                    hub.api_keys = hub._load_api_keys()
+                except Exception as _e:
+                    logger.warning(f"ai_hub _load_api_keys failed: {_e}")
+            cs = components.get("capability_synthesizer")
+            if cs is not None and hasattr(hub, "set_synthesizer"):
+                hub.set_synthesizer(cs)
+            tm = components.get("tutor_manager")
+            if tm is not None and hasattr(hub, "set_tutor_manager"):
+                hub.set_tutor_manager(tm)
+            logger.info("ai_hub boot-time reinit complete")
+    except Exception as e:
+        logger.warning(f"ai_hub boot-time reinit failed: {e}")
+
     # Alex Riviera content + social posting loop (every 6 hours)
     if _social_available:
         def _alex_riviera_loop():
