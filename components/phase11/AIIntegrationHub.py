@@ -52,7 +52,21 @@ class AIIntegrationHub:
         
         # Load existing query history
         self._load_history()
-        
+
+        # ----------------------------------------------------------------
+        # Phase 12 stabilization: thread-saturation guards
+        # ----------------------------------------------------------------
+        # Circuit breaker: skip providers that consistently fail.
+        self._cb_state: Dict[str, Dict[str, Any]] = {}
+        self._cb_failure_threshold = int(os.getenv('AI_HUB_CB_FAILURES', '3'))
+        self._cb_cooldown_s = int(os.getenv('AI_HUB_CB_COOLDOWN_S', '300'))
+        # Hard per-provider call timeout (stops 30s reads from hogging threads).
+        self._cb_provider_timeout_s = int(os.getenv('AI_HUB_PROVIDER_TIMEOUT_S', '8'))
+        # Hub-wide concurrency cap — prevents background loops from starving
+        # HTTP request threads. Created lazily inside an event loop.
+        self._max_concurrent_providers = int(os.getenv('AI_HUB_MAX_CONCURRENT', '4'))
+        self._provider_semaphore: Optional[asyncio.Semaphore] = None
+
         # Track active tutors count
         active_tutors = self._get_active_tutors()
         logger.info(f"🚀 AIIntegrationHub initialized with {len(active_tutors)} active tutors")
@@ -866,60 +880,141 @@ class AIIntegrationHub:
     # UNIFIED CHAT INTERFACE (called by ExtendedHub fallback + _ai_chat directly)
     # ====================================================================
 
+    # ====================================================================
+    # CIRCUIT BREAKER HELPERS (Phase 12 stabilization)
+    # ====================================================================
+    def _cb_is_tripped(self, name: str) -> bool:
+        st = self._cb_state.get(name)
+        return bool(st and st.get("tripped_until", 0) > time.time())
+
+    def _cb_record_failure(self, name: str, error: str) -> None:
+        st = self._cb_state.setdefault(name, {"fail_count": 0, "tripped_until": 0, "last_error": ""})
+        st["fail_count"] += 1
+        st["last_error"] = (error or "")[:200]
+        if st["fail_count"] >= self._cb_failure_threshold:
+            st["tripped_until"] = time.time() + self._cb_cooldown_s
+            logger.warning(
+                "chat(): circuit breaker TRIPPED for %s after %d failures (cooldown %ds) - %s",
+                name, st["fail_count"], self._cb_cooldown_s, st["last_error"],
+            )
+
+    def _cb_record_success(self, name: str) -> None:
+        st = self._cb_state.get(name)
+        if st and (st.get("fail_count") or st.get("tripped_until")):
+            logger.info("chat(): circuit breaker RESET for %s", name)
+        self._cb_state[name] = {"fail_count": 0, "tripped_until": 0, "last_error": ""}
+
+    def get_provider_health(self) -> Dict[str, Any]:
+        """Public snapshot of circuit breaker state - surfaced via /api/ai-hub/diagnostic."""
+        now = time.time()
+        providers = {}
+        for name, st in self._cb_state.items():
+            tu = st.get("tripped_until", 0)
+            providers[name] = {
+                "fail_count": st.get("fail_count", 0),
+                "tripped": tu > now,
+                "cooldown_remaining_s": max(0, int(tu - now)) if tu > now else 0,
+                "last_error": st.get("last_error", ""),
+            }
+        return {
+            "threshold": self._cb_failure_threshold,
+            "cooldown_s": self._cb_cooldown_s,
+            "per_call_timeout_s": self._cb_provider_timeout_s,
+            "max_concurrent": self._max_concurrent_providers,
+            "providers": providers,
+        }
+
     async def chat(self, prompt: str) -> str:
         """
-        Async chat interface — tries providers in priority order and returns
-        the first successful response.
+        Async chat interface - tries providers in priority order, returns first success.
+
+        Hardened (Phase 12 stabilization):
+          - Hub-wide asyncio.Semaphore caps concurrent provider calls so
+            background loops cannot starve HTTP request threads.
+          - Per-provider asyncio.wait_for hard timeout stops 30s slow reads
+            from hogging gunicorn worker threads.
+          - Circuit breaker skips providers tripped by N consecutive failures
+            for a cooldown window (avoids retrying dead 401/402/429 keys).
 
         Priority (cheapest/fastest first):
-          1. Cerebras   — 1M tokens/day, 2,600 tok/s
-          2. Groq       — 14,400 req/day, fastest after Cerebras
-          3. Google AI Studio — 1,500 req/day, large context
-          4. GitHub Models — 150 RPD free, OpenAI-quality
-          5. Mistral    — 1B tokens/month, 2 RPM
-          6. DeepSeek   — $0.14/1M, best paid value
-          7. OpenAI     — $0.15/1M (gpt-4o-mini)
-          8. Anthropic  — paid, last resort
+          1. Cerebras   - 1M tokens/day
+          2. Groq       - 14,400 req/day
+          3. Google AI Studio
+          4. GitHub Models
+          5. Mistral AI
+          6. DeepSeek
+          7. OpenAI
+          8. Anthropic
         """
         import asyncio
 
+        # Lazy-create semaphore inside the active event loop
+        if self._provider_semaphore is None:
+            self._provider_semaphore = asyncio.Semaphore(self._max_concurrent_providers)
+
         priority_methods = [
-            ("Cerebras",        self._query_cerebras),
-            ("Groq",            self._query_groq),
-            ("Google AI Studio",self._query_google_ai_studio),
-            ("GitHub Models",   self._query_github_models),
-            ("Mistral AI",      self._query_mistral),
-            ("DeepSeek",        self._query_deepseek),
-            ("OpenAI",          self._query_openai),
-            ("Anthropic",       self._query_anthropic),
+            ("Cerebras",         self._query_cerebras),
+            ("Groq",             self._query_groq),
+            ("Google AI Studio", self._query_google_ai_studio),
+            ("GitHub Models",    self._query_github_models),
+            ("Mistral AI",       self._query_mistral),
+            ("DeepSeek",         self._query_deepseek),
+            ("OpenAI",           self._query_openai),
+            ("Anthropic",        self._query_anthropic),
         ]
 
+        tripped_skipped = []
+        attempted = 0
         for name, method in priority_methods:
+            if self._cb_is_tripped(name):
+                tripped_skipped.append(name)
+                continue
+            attempted += 1
             try:
-                # Use get_event_loop safely — create new loop if none exists
-                # Always use the running loop's executor — never create a new loop inside async
-                loop = asyncio.get_event_loop()
-                result = await loop.run_in_executor(None, method, prompt)
+                async with self._provider_semaphore:
+                    loop = asyncio.get_event_loop()
+                    result = await asyncio.wait_for(
+                        loop.run_in_executor(None, method, prompt),
+                        timeout=self._cb_provider_timeout_s,
+                    )
                 if not isinstance(result, dict):
                     logger.warning("chat(): %s returned non-dict: %s", name, type(result).__name__)
-                    result = {"success": False, "error": "non-dict result"}
+                    self._cb_record_failure(name, "non-dict result")
+                    continue
                 if result.get("success"):
+                    self._cb_record_success(name)
                     logger.info("chat(): responded via %s", name)
-                    resp = result["response"]
+                    resp = result.get("response")
                     if isinstance(resp, tuple):
                         resp = resp[0] if resp else None
                     if resp and not isinstance(resp, str):
                         resp = str(resp)
                     if resp:
                         return resp
+                    self._cb_record_failure(name, "empty response")
                 else:
-                    logger.warning("chat(): %s failed — %s", name, result.get("error", "unknown"))
+                    err = result.get("error", "unknown")
+                    logger.warning("chat(): %s failed - %s", name, err)
+                    self._cb_record_failure(name, err)
+            except asyncio.TimeoutError:
+                logger.warning("chat(): %s exceeded %ds hard timeout", name, self._cb_provider_timeout_s)
+                self._cb_record_failure(name, f"hard timeout {self._cb_provider_timeout_s}s")
             except Exception as exc:
-                logger.warning("chat(): %s exception — %s", name, exc)
+                logger.warning("chat(): %s exception - %s", name, exc)
+                self._cb_record_failure(name, f"exception: {exc}")
+
+        if tripped_skipped:
+            logger.info("chat(): skipped %d tripped: %s", len(tripped_skipped), ", ".join(tripped_skipped))
+
+        if attempted == 0 and tripped_skipped:
+            return (
+                "DMAI AI Hub: all providers in cooldown (circuit breaker tripped). "
+                "See /api/ai-hub/diagnostic; rotate failing keys or wait for cooldown."
+            )
 
         return (
             "DMAI is online but no AI provider key is active. "
-            "Add a free key — Groq (GROQ_API_KEY) is fastest to set up: "
+            "Add a free key - Groq (GROQ_API_KEY) is fastest to set up: "
             "https://console.groq.com/keys"
         )
 

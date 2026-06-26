@@ -4376,6 +4376,12 @@ def api_ai_hub_diagnostic():
         "has_tutor_manager": getattr(hub, "tutor_manager", None) is not None,
         "performance_metrics": getattr(hub, "performance_metrics", {}),
     }
+    # Phase 12: circuit breaker health (skipped if hub predates it)
+    try:
+        if hasattr(hub, "get_provider_health"):
+            out["circuit_breaker"] = hub.get_provider_health()
+    except Exception as e:
+        out["circuit_breaker_error"] = str(e)
     # End-to-end smoke test (small prompt)
     try:
         if hasattr(hub, "query_all_tutors"):

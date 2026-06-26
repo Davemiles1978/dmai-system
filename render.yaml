@@ -3,7 +3,10 @@ services:
     name: dmai-web
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn dmai_core_complete:app --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --threads 2 --max-requests 100 --max-requests-jitter 50
+    # Phase 12: delegate all worker config to gunicorn_config.py (16 threads,
+    # max_requests=0 so background daemon threads survive). Inline flags here
+    # would override the config file and reintroduce worker recycling.
+    startCommand: gunicorn dmai_core_complete:app --config gunicorn_config.py
     healthCheckPath: /health
     envVars:
 
