@@ -6408,6 +6408,153 @@ def api_admin_disk_cleanup():
     })
 
 
+@app.route("/api/admin/db-salvage", methods=["POST"])
+def api_admin_db_salvage():
+    """Salvage readable rows from a malformed SQLite DB into a fresh file.
+
+    Strategy:
+      1. Read schema via sqlite_master (almost always readable).
+      2. For each table SELECT * with per-row try/except so bad pages are skipped.
+      3. Write rows into a fresh DB using the original schema.
+      4. integrity_check the fresh DB. If clean, atomically swap it in.
+      5. Keep the malformed original as .malformed_<ts>.
+
+    Body: {"db": "dmai_knowledge.db", "dry_run": false}
+    """
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    import os as _sos, time as _stime, sqlite3 as _ssq, logging as _slog
+    body = request.get_json(silent=True) or {}
+    db_name = body.get("db", "dmai_knowledge.db")
+    dry_run = bool(body.get("dry_run", False))
+    if "/" in db_name or "\\" in db_name or ".." in db_name:
+        return jsonify({"ok": False, "error": "invalid db name"}), 400
+    data_dir = _sos.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
+    live = _sos.path.join(data_dir, db_name)
+    if not _sos.path.exists(live):
+        return jsonify({"ok": False, "error": "db not found", "path": live}), 404
+
+    fresh = live + ".salvaged_new"
+    quarantine = live + f".malformed_{int(_stime.time())}"
+    if _sos.path.exists(fresh):
+        try: _sos.remove(fresh)
+        except Exception: pass
+
+    summary = {"tables": {}, "errors": []}
+    try:
+        src = _ssq.connect(live, timeout=30)
+        src.text_factory = bytes
+        schema_rows = []
+        try:
+            schema_rows = list(src.execute(
+                "SELECT type, name, sql FROM sqlite_master "
+                "WHERE type IN ('table','index','trigger','view') AND sql IS NOT NULL"
+            ))
+        except Exception as e:
+            return jsonify({"ok": False, "error": f"sqlite_master unreadable: {e}"}), 500
+        summary["schema_objects"] = len(schema_rows)
+
+        dst = _ssq.connect(fresh, timeout=30)
+        dst.execute("PRAGMA journal_mode=WAL")
+        for typ, name, sql in schema_rows:
+            try:
+                tsql = sql.decode() if isinstance(sql, bytes) else sql
+                tname = name.decode() if isinstance(name, bytes) else name
+                if tname.startswith("sqlite_"):
+                    continue
+                dst.execute(tsql)
+            except Exception as e:
+                summary["errors"].append(f"schema {name!r}: {e}")
+        dst.commit()
+
+        tables = []
+        for typ, name, sql in schema_rows:
+            t = typ.decode() if isinstance(typ, bytes) else typ
+            n = name.decode() if isinstance(name, bytes) else name
+            if t == "table" and not n.startswith("sqlite_"):
+                tables.append(n)
+
+        for tname in tables:
+            ok_rows, bad_rows = 0, 0
+            try:
+                cur = src.execute(f"SELECT * FROM \"{tname}\"")
+                cols = [d[0] for d in cur.description]
+                placeholders = ",".join(["?"] * len(cols))
+                col_list = ",".join([f"\"{c}\"" for c in cols])
+                insert_sql = f"INSERT INTO \"{tname}\" ({col_list}) VALUES ({placeholders})"
+                batch = []
+                while True:
+                    try:
+                        row = cur.fetchone()
+                        if row is None:
+                            break
+                        batch.append(row)
+                        ok_rows += 1
+                        if len(batch) >= 500:
+                            try:
+                                dst.executemany(insert_sql, batch)
+                                dst.commit()
+                            except Exception:
+                                for r in batch:
+                                    try: dst.execute(insert_sql, r); dst.commit()
+                                    except Exception: bad_rows += 1; ok_rows -= 1
+                            batch = []
+                    except Exception:
+                        bad_rows += 1
+                        if bad_rows > 10000:
+                            break
+                if batch:
+                    try:
+                        dst.executemany(insert_sql, batch)
+                        dst.commit()
+                    except Exception:
+                        for r in batch:
+                            try: dst.execute(insert_sql, r); dst.commit()
+                            except Exception: bad_rows += 1; ok_rows -= 1
+            except Exception as e:
+                summary["errors"].append(f"{tname} read failed: {e}")
+            summary["tables"][tname] = {"salvaged": ok_rows, "skipped": bad_rows}
+
+        ic = dst.execute("PRAGMA integrity_check").fetchall()
+        ic_lines = [(r[0].decode() if isinstance(r[0], bytes) else r[0]) for r in ic][:5]
+        src.close()
+        dst.close()
+        summary["integrity_after"] = ic_lines
+        summary["size_before"] = _sos.path.getsize(live)
+        summary["size_after"] = _sos.path.getsize(fresh)
+
+        if dry_run:
+            try: _sos.remove(fresh)
+            except Exception: pass
+            summary["ok"] = (ic_lines == ["ok"])
+            summary["note"] = "dry_run=true; salvaged file removed without swap"
+            return jsonify(summary)
+
+        if ic_lines != ["ok"]:
+            try: _sos.remove(fresh)
+            except Exception: pass
+            summary["ok"] = False
+            summary["error"] = "salvaged DB still not clean"
+            return jsonify(summary), 500
+
+        _sos.rename(live, quarantine)
+        _sos.rename(fresh, live)
+        for sfx in ("-wal", "-shm"):
+            p = live + sfx
+            if _sos.path.exists(p):
+                try: _sos.remove(p)
+                except Exception: pass
+        summary["ok"] = True
+        summary["quarantined_to"] = quarantine
+        summary["live_path"] = live
+        return jsonify(summary)
+    except Exception as e:
+        _slog.getLogger(__name__).exception("db-salvage fatal: %s", e)
+        summary["ok"] = False
+        summary["error"] = str(e)
+        return jsonify(summary), 500
+
+
 @app.route("/api/admin/db-rebuild", methods=["POST"])
 def api_admin_db_rebuild():
     """Quarantine a malformed SQLite DB and let components recreate fresh tables.
