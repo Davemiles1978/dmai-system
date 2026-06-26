@@ -1,11 +1,24 @@
 """
 SelfEvolutionOrchestrator — master 24/7 self-generation loop.
-Scan → prioritise → generate → commit → verify → sleep 30 min.
+Scan → prioritise (broken_routes, capability_gaps, empty_tables,
+underperforming_kpis) → generate → commit → verify → sleep 30 min.
+
+The orchestrator also REPORTS the health of well-known background
+components (greyhound_runner, kaizen_auto_repair) in its status output,
+but DOES NOT auto-restart them from inside its own thread — that path
+is prone to thread/lock contention. Use the dedicated
+/api/monetisation/tips/greyhound-runner/restart endpoint instead.
 """
 import os, logging, time
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
+
+# Background components whose thread liveness we want to surface to operators.
+_BG_COMPONENTS = (
+    "greyhound_runner",
+    "kaizen_auto_repair",
+)
 
 
 class SelfEvolutionOrchestrator:
@@ -16,6 +29,7 @@ class SelfEvolutionOrchestrator:
         self._cycle_count = 0
         self._last_cycle_ts = None
         self._items_fixed_this_week = 0
+        self._last_bg_health = {}
         self.interval_seconds = int(os.environ.get("EVOLUTION_INTERVAL_SECONDS", "1800"))
 
         # Lazy-import components to avoid circular imports at module load
@@ -74,7 +88,8 @@ class SelfEvolutionOrchestrator:
             logger.warning(f"SelfEvolutionOrchestrator: scanner error: {e}")
             return
 
-        # 3. Prioritise — broken routes first, stubs second, capability gaps third
+        # 3. Prioritise — broken routes (1), capability gaps (2),
+        #    empty tables (3), underperforming KPIs (4).
         work_items = []
         for item in gap_report.get("broken_routes", []):
             if item.get("error") != "stub":
@@ -87,6 +102,39 @@ class SelfEvolutionOrchestrator:
         for item in gap_report.get("capability_gaps", []):
             if isinstance(item, dict) and item.get("name") != "capability_mapper_not_run":
                 work_items.append({**item, "type": "capability_gap"})
+        for item in gap_report.get("empty_tables", []) or []:
+            if isinstance(item, dict):
+                tname = item.get("name") or item.get("table") or "unknown_table"
+                work_items.append({
+                    "type": "empty_table",
+                    "name": f"backfill_{tname}",
+                    "description": (
+                        f"Empty table {tname}: generate a backfill or seed-data "
+                        f"job so downstream KPIs unblock."
+                    ),
+                    "component": item.get("component"),
+                    "priority": 3,
+                })
+        for item in gap_report.get("underperforming_kpis", []) or []:
+            if isinstance(item, dict) and item.get("component"):
+                kpi = item.get("name") or item.get("kpi") or "kpi"
+                work_items.append({
+                    "type": "underperforming_kpi",
+                    "name": f"improve_{kpi}",
+                    "description": (
+                        f"KPI '{kpi}' underperforming "
+                        f"(value={item.get('value')}, target={item.get('target')}). "
+                        f"Investigate component {item.get('component')} and propose fix."
+                    ),
+                    "component": item.get("component"),
+                    "priority": 4,
+                })
+
+        # Report background-thread health (no auto-restart).
+        try:
+            self._last_bg_health = self._bg_health_snapshot()
+        except Exception as e:
+            logger.warning(f"SelfEvolutionOrchestrator: bg health snapshot failed: {e}")
 
         work_items.sort(key=lambda x: x.get("priority", 99))
 
@@ -112,13 +160,39 @@ class SelfEvolutionOrchestrator:
             f"{fixed} fixed, {total_gaps} total gaps remaining"
         )
 
+    def _bg_health_snapshot(self) -> dict:
+        """Inspect known background components and return liveness summary.
+
+        Read-only: never starts/stops/restarts threads. Safe in any thread.
+        """
+        out = {}
+        try:
+            from dmai_core_complete import components as registry  # type: ignore
+        except Exception:
+            return {}
+        if not isinstance(registry, dict):
+            return {}
+        for key in _BG_COMPONENTS:
+            comp = registry.get(key)
+            if comp is None:
+                out[key] = "missing"
+                continue
+            if not hasattr(comp, "_thread"):
+                out[key] = "unknown"
+                continue
+            thread = getattr(comp, "_thread")
+            is_alive_fn = getattr(thread, "is_alive", None) if thread else None
+            out[key] = "alive" if (is_alive_fn and is_alive_fn()) else "dead"
+        return out
+
     def get_status(self) -> dict:
         return {
             "running": self._running,
             "cycle_count": self._cycle_count,
             "last_cycle_ts": self._last_cycle_ts,
             "items_fixed_this_week": self._items_fixed_this_week,
-            "interval_seconds": self.interval_seconds
+            "interval_seconds": self.interval_seconds,
+            "bg_health": self._last_bg_health,
         }
 
     def stop(self):
