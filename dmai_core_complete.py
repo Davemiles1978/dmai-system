@@ -4353,6 +4353,88 @@ def api_code_writer_generate():
     return jsonify(result)
 
 
+@app.route("/api/ai-hub/diagnostic", methods=["GET"])
+def api_ai_hub_diagnostic():
+    """Diagnose AI hub state: which api_keys are populated, capability_synthesizer,
+    and a single end-to-end test query through query_all_tutors.
+
+    Auth required. Returns counts (not key values).
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    hub = components.get("ai_hub")
+    if hub is None:
+        return jsonify({"error": "ai_hub not loaded"}), 503
+    api_keys = getattr(hub, "api_keys", {}) or {}
+    populated = sorted([k for k, v in api_keys.items() if v and v != "pending"])
+    pending   = sorted([k for k, v in api_keys.items() if not v or v == "pending"])
+    out = {
+        "populated_keys": populated,
+        "populated_count": len(populated),
+        "pending_keys": pending,
+        "has_capability_synthesizer": getattr(hub, "capability_synthesizer", None) is not None,
+        "has_tutor_manager": getattr(hub, "tutor_manager", None) is not None,
+        "performance_metrics": getattr(hub, "performance_metrics", {}),
+    }
+    # End-to-end smoke test (small prompt)
+    try:
+        if hasattr(hub, "query_all_tutors"):
+            test = hub.query_all_tutors("Reply with exactly the word OK and nothing else.")
+            out["smoke_test"] = {
+                "response_count": len(test.get("responses", {})),
+                "error_count": len(test.get("errors", [])),
+                "errors_sample": test.get("errors", [])[:5],
+                "tutors_responded": list(test.get("responses", {}).keys()),
+                "synthesis_present": test.get("synthesis") is not None,
+                "sample_response": next(
+                    (str(v)[:160] for v in test.get("responses", {}).values()), None
+                ),
+            }
+    except Exception as e:
+        out["smoke_test_error"] = str(e)
+    return jsonify(out)
+
+
+@app.route("/api/ai-hub/reinit", methods=["POST"])
+def api_ai_hub_reinit():
+    """Refresh AIIntegrationHub.api_keys from current os.environ.
+
+    Useful when API keys were entered via the admin form AFTER ai_hub
+    was constructed. Re-runs _load_api_keys() and reports populated keys.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    hub = components.get("ai_hub")
+    if hub is None:
+        return jsonify({"error": "ai_hub not loaded"}), 503
+    try:
+        if hasattr(hub, "_load_api_keys"):
+            new_keys = hub._load_api_keys()
+            # Merge: keep any hot-wired keys not in env
+            existing = dict(getattr(hub, "api_keys", {}) or {})
+            for k, v in new_keys.items():
+                if v and v != "pending":
+                    existing[k] = v
+            hub.api_keys = existing
+        # Also wire capability_synthesizer + tutor_manager if available
+        cs = components.get("capability_synthesizer")
+        if cs and hasattr(hub, "set_synthesizer") and getattr(hub, "capability_synthesizer", None) is None:
+            hub.set_synthesizer(cs)
+        tm = components.get("tutor_manager")
+        if tm and hasattr(hub, "set_tutor_manager") and getattr(hub, "tutor_manager", None) is None:
+            hub.set_tutor_manager(tm)
+        populated = sorted([k for k, v in (hub.api_keys or {}).items() if v and v != "pending"])
+        return jsonify({
+            "status": "reinitialised",
+            "populated_count": len(populated),
+            "populated_keys": populated,
+            "capability_synthesizer_wired": getattr(hub, "capability_synthesizer", None) is not None,
+            "tutor_manager_wired": getattr(hub, "tutor_manager", None) is not None,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/code-writer/history", methods=["GET"])
 def api_code_writer_history():
     cw = components.get("code_writer")
