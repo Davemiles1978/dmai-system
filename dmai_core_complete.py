@@ -4306,6 +4306,30 @@ def api_kaizen_auto_repair():
     return jsonify({"status": "started", "job_id": job_id, "poll": f"/api/jobs/{job_id}"}), 202
 
 
+@app.route("/api/kaizen/auto-repair-batch", methods=["POST"])
+def api_kaizen_auto_repair_batch():
+    """Bounded, synchronous Kaizen drain. Processes at most `limit` (default 25,
+    max 100) pending items under a hard 60s deadline, then returns. Safe to call
+    repeatedly to drain the queue in small batches without risking the deadlock
+    the unbounded cycle caused."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    kar = components.get("kaizen_auto_repair")
+    if kar is None:
+        return jsonify({"error": "KaizenAutoRepair not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    try:
+        limit = int(data.get("limit", 25))
+    except (TypeError, ValueError):
+        limit = 25
+    limit = max(1, min(limit, 100))
+    try:
+        result = kar.run_repair_batch(limit=limit, deadline_s=60.0)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/kaizen/repair-stats", methods=["GET"])
 def api_kaizen_repair_stats():
     kar = components.get("kaizen_auto_repair")

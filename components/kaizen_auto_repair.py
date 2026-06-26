@@ -183,6 +183,104 @@ class KaizenAutoRepair:
             "dead_lettered": dead_lettered,
         }
 
+    def run_repair_batch(self, limit: int = 25, deadline_s: float = 60.0) -> Dict:
+        """Bounded drain: process at most `limit` pending proposals within a
+        hard wall-clock `deadline_s`. Reuses the same per-item repair logic as
+        run_repair_cycle (dead-letter sweep + AI-assisted repair) but never
+        iterates the whole queue, so it is safe to call synchronously.
+
+        Returns: processed, succeeded, failed, remaining, duration_s, deadline_hit.
+        The AI Hub circuit breaker still guards every CodeWriter/provider call —
+        this method does not bypass it.
+        """
+        try:
+            limit = max(1, min(int(limit), 100))
+        except (TypeError, ValueError):
+            limit = 25
+        deadline_s = max(1.0, float(deadline_s))
+
+        start = time.monotonic()
+        proposals = self._load_proposals()
+
+        # Retry previously-failed items still under the attempt cap (mirrors cycle).
+        for p in proposals:
+            if p.get("status") == "failed" and p.get("attempt_count", 0) < _MAX_ATTEMPTS:
+                p["status"] = "pending"
+
+        pending = [
+            p for p in proposals
+            if p.get("status") in ("pending", "auto_repair_needed", "review_and_fix")
+            and p.get("attempt_count", 0) < _MAX_ATTEMPTS
+        ]
+
+        processed = succeeded = failed = 0
+        deadline_hit = False
+
+        for proposal in pending:
+            if processed >= limit:
+                break
+            # Hard deadline check between items (no threads/signals).
+            if time.monotonic() - start >= deadline_s:
+                deadline_hit = True
+                break
+
+            f = (proposal.get("file") or proposal.get("file_path") or "").lstrip("./")
+            # Dead-letter sweep: backups/quarantine/missing files resolve cheaply.
+            if f and any(pref in f for pref in _DEAD_LETTER_PREFIXES):
+                proposal["status"] = "resolved"
+                proposal["resolution"] = "dead_letter_backup_path"
+                proposal["resolved_at"] = datetime.now(timezone.utc).isoformat()
+                proposal["attempt_count"] = proposal.get("attempt_count", 0) + 1
+                processed += 1
+                succeeded += 1
+                continue
+            if f and not (_REPO_ROOT / f).exists():
+                proposal["status"] = "resolved"
+                proposal["resolution"] = "dead_letter_file_missing"
+                proposal["resolved_at"] = datetime.now(timezone.utc).isoformat()
+                proposal["attempt_count"] = proposal.get("attempt_count", 0) + 1
+                processed += 1
+                succeeded += 1
+                continue
+
+            result = self._attempt_repair(proposal)
+            proposal["attempt_count"] = proposal.get("attempt_count", 0) + 1
+            proposal["last_attempt"] = datetime.now(timezone.utc).isoformat()
+            if result.get("ok"):
+                proposal["status"] = "resolved"
+                proposal["resolution"] = result.get("path") or result.get("action", "fixed")
+                proposal["resolved_at"] = datetime.now(timezone.utc).isoformat()
+                succeeded += 1
+            else:
+                if proposal["attempt_count"] >= _MAX_ATTEMPTS:
+                    proposal["status"] = "failed"
+                failed += 1
+            self._log_repair_attempt(proposal, result)
+            processed += 1
+
+        # Persist progress even on partial/deadline-hit runs.
+        self._save_proposals(proposals)
+
+        remaining = sum(
+            1 for p in proposals
+            if p.get("status") in ("pending", "auto_repair_needed", "review_and_fix")
+            and p.get("attempt_count", 0) < _MAX_ATTEMPTS
+        )
+        duration_s = round(time.monotonic() - start, 3)
+        logger.info(
+            "KaizenAutoRepair batch: processed=%d succeeded=%d failed=%d remaining=%d "
+            "duration=%.2fs deadline_hit=%s",
+            processed, succeeded, failed, remaining, duration_s, deadline_hit,
+        )
+        return {
+            "processed": processed,
+            "succeeded": succeeded,
+            "failed": failed,
+            "remaining": remaining,
+            "duration_s": duration_s,
+            "deadline_hit": deadline_hit,
+        }
+
     def _attempt_repair(self, proposal: Dict) -> Dict:
         """Attempt to fix one proposal. Returns {ok, ...}."""
         title       = proposal.get("title", "")
