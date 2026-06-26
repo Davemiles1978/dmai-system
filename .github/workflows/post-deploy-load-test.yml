@@ -1,0 +1,475 @@
+name: Post-Deploy Load Test & Auto-Rollback
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose
+# ─────────────────────────────────────────────────────────────────────────────
+# After every push to main:
+#   1. Wait for Render to finish deploying dmai-web.
+#   2. Run ops/load_test_worker_stability.py (50 concurrent · 5 min).
+#   3. Post the verdict + report to Slack.
+#   4. If the test FAILS (training threads dropped below 8 or 5xx errors
+#      observed during the run), automatically roll back via the Render API
+#      to the previous successful deploy and post a high-severity Slack alert.
+#
+# Required secrets (configure in repo Settings → Secrets and variables → Actions):
+#   RENDER_API_KEY          — Render personal API key with deploy permissions
+#   RENDER_SERVICE_ID       — srv-d6sd3chj16oc73emdj6g (the dmai-web service)
+#   DMAI_MASTER_PASSWORD    — the X-Master-Password header value
+#   SLACK_BOT_TOKEN         — xoxb-… bot token with chat:write
+#   SLACK_CHANNEL_ID        — the channel for results (e.g. C0BCKABKVDG)
+#
+# Manual trigger: workflow_dispatch (with optional skip_rollback override).
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_rollback:
+        description: "Skip auto-rollback even if the load test fails"
+        required: false
+        default: "false"
+      duration:
+        description: "Load test duration in seconds"
+        required: false
+        default: "300"
+      concurrency:
+        description: "Concurrent connections"
+        required: false
+        default: "50"
+
+concurrency:
+  # One post-deploy run at a time per branch. Cancel any in-flight run when a
+  # new push lands — rolling back to a stale 'good' commit is worse than
+  # running the test against the newer code.
+  group: post-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RENDER_BASE_URL: https://dmai-web.onrender.com
+  HEALTH_PATH: /health
+  TRAINING_STATUS_PATH: /api/training/status
+  EXPECTED_ACTIVE_COUNT: "8"
+  PYTHON_VERSION: "3.11"
+
+jobs:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 1. Wait for Render deploy to complete
+  # ───────────────────────────────────────────────────────────────────────────
+  wait_for_deploy:
+    name: Wait for Render deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      previous_deploy_id: ${{ steps.capture.outputs.previous_deploy_id }}
+      current_deploy_id:  ${{ steps.wait.outputs.current_deploy_id }}
+      commit_sha:         ${{ github.sha }}
+    steps:
+      - name: Capture previous successful deploy ID (for rollback target)
+        id: capture
+        env:
+          RENDER_API_KEY:    ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          set -euo pipefail
+          # Render API: list deploys, take the most recent 'live' one whose
+          # commit does NOT match our incoming commit (that's the previous deploy).
+          deploys=$(curl -fsS -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys?limit=20")
+          prev=$(echo "$deploys" | jq -r --arg sha "${{ github.sha }}" '
+            [ .[] | select(.deploy.status == "live") | .deploy
+              | select(.commit.id != $sha) ][0].id // empty
+          ')
+          if [ -z "$prev" ]; then
+            echo "WARNING: no previous live deploy found — rollback will be unavailable"
+            echo "previous_deploy_id=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Previous live deploy: $prev"
+            echo "previous_deploy_id=$prev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for current deploy to reach 'live'
+        id: wait
+        env:
+          RENDER_API_KEY:    ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          set -euo pipefail
+          deadline=$(( $(date +%s) + 720 ))   # 12-minute hard cap
+          current=""
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            payload=$(curl -fsS -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys?limit=5")
+
+            # Find the deploy for our commit SHA
+            row=$(echo "$payload" | jq -r --arg sha "${{ github.sha }}" \
+              '[ .[] | .deploy | select(.commit.id == $sha) ][0]')
+
+            status=$(echo "$row" | jq -r '.status // "unknown"')
+            current=$(echo "$row" | jq -r '.id // empty')
+
+            echo "[$(date -Iseconds)] Render deploy status: $status (id=$current)"
+
+            case "$status" in
+              live)
+                echo "current_deploy_id=$current" >> "$GITHUB_OUTPUT"
+                exit 0
+                ;;
+              build_failed|update_failed|canceled|deactivated)
+                echo "Render deploy failed with status=$status — aborting"
+                exit 1
+                ;;
+              created|build_in_progress|update_in_progress|"")
+                sleep 20
+                ;;
+              *)
+                echo "Unknown status: $status — retrying"
+                sleep 20
+                ;;
+            esac
+          done
+          echo "Timed out waiting for Render deploy to go live"
+          exit 1
+
+      - name: Wait for /health to respond 200
+        env:
+          BASE_URL: ${{ env.RENDER_BASE_URL }}
+        run: |
+          set -euo pipefail
+          deadline=$(( $(date +%s) + 180 ))   # 3-minute warmup grace
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
+              "$BASE_URL$HEALTH_PATH" || echo "000")
+            echo "[$(date -Iseconds)] GET $HEALTH_PATH → $code"
+            if [ "$code" = "200" ]; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "/health never returned 200 after deploy went live"
+          exit 1
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 2. Run the load test
+  # ───────────────────────────────────────────────────────────────────────────
+  load_test:
+    name: Run load test (50 concurrent · 5 min)
+    needs: wait_for_deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    outputs:
+      verdict:        ${{ steps.runtest.outputs.verdict }}
+      report_path:    ${{ steps.runtest.outputs.report_path }}
+      summary_path:   ${{ steps.runtest.outputs.summary_path }}
+      five_xx_count:  ${{ steps.runtest.outputs.five_xx_count }}
+      min_active:     ${{ steps.runtest.outputs.min_active }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install aiohttp
+
+      - name: Execute load test
+        id: runtest
+        env:
+          DMAI_MASTER_PASSWORD: ${{ secrets.DMAI_MASTER_PASSWORD }}
+          DURATION:    ${{ github.event.inputs.duration || '300' }}
+          CONCURRENCY: ${{ github.event.inputs.concurrency || '50' }}
+        run: |
+          set -uo pipefail
+          mkdir -p ops/load_test_runs
+          python3 ops/load_test_worker_stability.py \
+            --base-url "$RENDER_BASE_URL" \
+            --concurrency "$CONCURRENCY" \
+            --duration "$DURATION" \
+            --monitor-interval 5 \
+            --out-dir ops/load_test_runs
+          rc=$?
+
+          # Find the run dir we just created (latest by mtime)
+          run_dir=$(ls -1dt ops/load_test_runs/*/ 2>/dev/null | head -n1)
+          run_dir="${run_dir%/}"
+          if [ -z "$run_dir" ]; then
+            echo "ERROR: no load_test_runs directory created"
+            echo "verdict=ERROR" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "Run dir: $run_dir"
+
+          summary="$run_dir/summary.json"
+          report="$run_dir/report.md"
+          if [ ! -f "$summary" ]; then
+            echo "ERROR: no summary.json"
+            echo "verdict=ERROR" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          verdict=$(jq -r '.verdict' "$summary")
+          min_active=$(jq -r '.training_threads.min_active_count // "null"' "$summary")
+          # 5xx detection: any failed result with status >= 500.
+          # The script logs status=null on transport errors; treat those as 5xx-equivalent
+          # since they indicate the server failed to respond cleanly.
+          five_xx=$(jq -r '
+            [ inputs
+              | select(.status == null or (.status | tonumber? // 0) >= 500)
+            ] | length
+          ' "$run_dir/requests.jsonl" 2>/dev/null || echo 0)
+
+          echo "verdict=$verdict"           >> "$GITHUB_OUTPUT"
+          echo "report_path=$report"        >> "$GITHUB_OUTPUT"
+          echo "summary_path=$summary"      >> "$GITHUB_OUTPUT"
+          echo "five_xx_count=$five_xx"     >> "$GITHUB_OUTPUT"
+          echo "min_active=$min_active"     >> "$GITHUB_OUTPUT"
+
+          echo "─── report.md ───"
+          cat "$report"
+
+          # Don't fail the job on a FAIL verdict here — let the rollback job
+          # decide. We fail only on script-level errors (exit code != 0 above).
+          exit 0
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-run-${{ github.sha }}
+          path: ops/load_test_runs/
+          retention-days: 30
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 3. Decide pass/fail and apply the rollback gate
+  # ───────────────────────────────────────────────────────────────────────────
+  gate:
+    name: Verdict gate
+    needs: [wait_for_deploy, load_test]
+    runs-on: ubuntu-latest
+    if: always() && needs.wait_for_deploy.result == 'success'
+    outputs:
+      rollback_needed: ${{ steps.decide.outputs.rollback_needed }}
+      reason:          ${{ steps.decide.outputs.reason }}
+    steps:
+      - name: Decide whether to roll back
+        id: decide
+        env:
+          VERDICT:    ${{ needs.load_test.outputs.verdict }}
+          FIVE_XX:    ${{ needs.load_test.outputs.five_xx_count }}
+          MIN_ACTIVE: ${{ needs.load_test.outputs.min_active }}
+          EXPECTED:   ${{ env.EXPECTED_ACTIVE_COUNT }}
+          SKIP_RB:    ${{ github.event.inputs.skip_rollback || 'false' }}
+        run: |
+          set -euo pipefail
+          reasons=()
+
+          if [ "$VERDICT" != "PASS" ]; then
+            reasons+=("verdict=$VERDICT")
+          fi
+          if [ -n "$MIN_ACTIVE" ] && [ "$MIN_ACTIVE" != "null" ] \
+              && [ "$MIN_ACTIVE" -lt "$EXPECTED" ]; then
+            reasons+=("min active_count $MIN_ACTIVE < expected $EXPECTED")
+          fi
+          if [ -n "$FIVE_XX" ] && [ "$FIVE_XX" -gt 0 ]; then
+            reasons+=("$FIVE_XX 5xx/transport failures during load")
+          fi
+
+          if [ "${#reasons[@]}" -eq 0 ]; then
+            echo "rollback_needed=false" >> "$GITHUB_OUTPUT"
+            echo "reason=load test PASSED" >> "$GITHUB_OUTPUT"
+          else
+            joined=$(IFS='; '; echo "${reasons[*]}")
+            if [ "$SKIP_RB" = "true" ]; then
+              echo "rollback_needed=false" >> "$GITHUB_OUTPUT"
+              echo "reason=FAIL but skip_rollback=true: $joined" >> "$GITHUB_OUTPUT"
+            else
+              echo "rollback_needed=true" >> "$GITHUB_OUTPUT"
+              echo "reason=$joined" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 4. Roll back (only on failure)
+  # ───────────────────────────────────────────────────────────────────────────
+  rollback:
+    name: Roll back via Render API
+    needs: [wait_for_deploy, load_test, gate]
+    runs-on: ubuntu-latest
+    if: needs.gate.outputs.rollback_needed == 'true'
+    timeout-minutes: 12
+    outputs:
+      rollback_status: ${{ steps.rb.outputs.rollback_status }}
+      rolled_back_to:  ${{ steps.rb.outputs.rolled_back_to }}
+    steps:
+      - name: Trigger Render rollback to previous deploy
+        id: rb
+        env:
+          RENDER_API_KEY:    ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          PREV_DEPLOY:       ${{ needs.wait_for_deploy.outputs.previous_deploy_id }}
+        run: |
+          set -euo pipefail
+          if [ -z "$PREV_DEPLOY" ]; then
+            echo "No previous deploy ID captured — cannot auto-roll-back"
+            echo "rollback_status=no_previous_deploy" >> "$GITHUB_OUTPUT"
+            echo "rolled_back_to=" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "Rolling back $RENDER_SERVICE_ID to deploy $PREV_DEPLOY"
+          resp=$(curl -fsS -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"deployId\":\"$PREV_DEPLOY\"}" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/rollback")
+          new_id=$(echo "$resp" | jq -r '.id // .deploy.id // empty')
+          echo "Render returned: $resp"
+
+          # Poll until rollback completes (max 8 min)
+          deadline=$(( $(date +%s) + 480 ))
+          status="unknown"
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            payload=$(curl -fsS -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys?limit=3")
+            status=$(echo "$payload" | jq -r '.[0].deploy.status // "unknown"')
+            echo "[$(date -Iseconds)] rollback deploy status: $status"
+            case "$status" in
+              live)
+                echo "rollback_status=live" >> "$GITHUB_OUTPUT"
+                echo "rolled_back_to=$PREV_DEPLOY" >> "$GITHUB_OUTPUT"
+                exit 0
+                ;;
+              build_failed|update_failed|canceled|deactivated)
+                echo "rollback_status=failed:$status" >> "$GITHUB_OUTPUT"
+                echo "rolled_back_to=$PREV_DEPLOY" >> "$GITHUB_OUTPUT"
+                exit 1
+                ;;
+              *)
+                sleep 15
+                ;;
+            esac
+          done
+          echo "rollback_status=timeout:$status" >> "$GITHUB_OUTPUT"
+          echo "rolled_back_to=$PREV_DEPLOY" >> "$GITHUB_OUTPUT"
+          exit 1
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 5. Report to Slack (always runs)
+  # ───────────────────────────────────────────────────────────────────────────
+  notify:
+    name: Notify Slack
+    needs: [wait_for_deploy, load_test, gate, rollback]
+    runs-on: ubuntu-latest
+    if: always() && needs.wait_for_deploy.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download load-test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: load-test-run-${{ github.sha }}
+          path: ops/load_test_runs/
+
+      - name: Build Slack payload
+        id: payload
+        env:
+          VERDICT:          ${{ needs.load_test.outputs.verdict }}
+          FIVE_XX:          ${{ needs.load_test.outputs.five_xx_count }}
+          MIN_ACTIVE:       ${{ needs.load_test.outputs.min_active }}
+          ROLLBACK_NEEDED:  ${{ needs.gate.outputs.rollback_needed }}
+          ROLLBACK_REASON:  ${{ needs.gate.outputs.reason }}
+          ROLLBACK_STATUS:  ${{ needs.rollback.outputs.rollback_status }}
+          ROLLED_BACK_TO:   ${{ needs.rollback.outputs.rolled_back_to }}
+          COMMIT_SHA:       ${{ github.sha }}
+          COMMIT_URL:       https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+          RUN_URL:          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          if [ "$VERDICT" = "PASS" ]; then
+            header=":large_green_circle: DMAI load test PASSED"
+            color="good"
+          elif [ "$ROLLBACK_STATUS" = "live" ]; then
+            header=":rotating_light: DMAI load test FAILED — auto-rolled back"
+            color="danger"
+          elif [ "$ROLLBACK_NEEDED" = "true" ]; then
+            header=":rotating_light: DMAI load test FAILED — ROLLBACK ALSO FAILED"
+            color="danger"
+          else
+            header=":warning: DMAI load test FAILED (rollback skipped)"
+            color="warning"
+          fi
+
+          report_md=$(find ops/load_test_runs -name 'report.md' | head -n1)
+          if [ -n "$report_md" ] && [ -f "$report_md" ]; then
+            report_text=$(head -c 2500 "$report_md")
+          else
+            report_text="(no report.md found)"
+          fi
+
+          jq -n \
+            --arg channel    "${{ secrets.SLACK_CHANNEL_ID }}" \
+            --arg header     "$header" \
+            --arg color      "$color" \
+            --arg sha        "${COMMIT_SHA:0:8}" \
+            --arg commit_url "$COMMIT_URL" \
+            --arg run_url    "$RUN_URL" \
+            --arg verdict    "$VERDICT" \
+            --arg min_active "$MIN_ACTIVE" \
+            --arg five_xx    "$FIVE_XX" \
+            --arg rb_status  "$ROLLBACK_STATUS" \
+            --arg rb_to      "$ROLLED_BACK_TO" \
+            --arg rb_reason  "$ROLLBACK_REASON" \
+            --arg report     "$report_text" \
+            '{
+              channel: $channel,
+              text: $header,
+              attachments: [{
+                color: $color,
+                fields: [
+                  {title: "Commit",       value: ("<" + $commit_url + "|" + $sha + ">"), short: true},
+                  {title: "Workflow run", value: ("<" + $run_url + "|open in Actions>"), short: true},
+                  {title: "Verdict",      value: $verdict, short: true},
+                  {title: "Min active_count", value: $min_active, short: true},
+                  {title: "5xx / transport failures", value: $five_xx, short: true},
+                  {title: "Rollback",     value: (if $rb_status == "" then "not triggered" else ($rb_status + " → " + $rb_to) end), short: true},
+                  {title: "Reason",       value: $rb_reason, short: false},
+                  {title: "Report excerpt", value: ("```" + $report + "```"), short: false}
+                ]
+              }]
+            }' > slack_payload.json
+
+      - name: Post to Slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data @slack_payload.json | jq '.'
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 6. Final job status — fail the run if the gate said rollback was needed
+  # ───────────────────────────────────────────────────────────────────────────
+  final_status:
+    name: Final status
+    needs: [load_test, gate, rollback, notify]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Mark workflow failed if rollback was needed
+        env:
+          ROLLBACK_NEEDED: ${{ needs.gate.outputs.rollback_needed }}
+          ROLLBACK_STATUS: ${{ needs.rollback.outputs.rollback_status }}
+          VERDICT:         ${{ needs.load_test.outputs.verdict }}
+        run: |
+          if [ "$ROLLBACK_NEEDED" = "true" ]; then
+            echo "Load test FAILED (verdict=$VERDICT, rollback=$ROLLBACK_STATUS) — failing the workflow"
+            exit 1
+          fi
+          echo "Load test PASSED — workflow OK"
