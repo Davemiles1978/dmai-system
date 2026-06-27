@@ -190,9 +190,10 @@ class DynamicAIDiscovery:
                     logger.error(f"Discovery loop error: {e}")
                     time.sleep(300)
         
-        thread = threading.Thread(target=discover, daemon=True)
-        thread.start()
         logger.info("🔍 Autonomous discovery loop started")
+        # Run in the caller's thread (caller already spawned a daemon thread
+        # named 'dmai-ai-discovery' so self-healer can monitor it).
+        discover()
     
     def _process_integration_queue(self):
         """Process systems waiting for integration"""
@@ -367,22 +368,35 @@ class DynamicAIDiscovery:
                 params={'limit': 20},
                 timeout=30
             )
-            
-            if response.status_code == 200:
+
+            if response.status_code != 200:
+                logger.warning(f"Papers with Code API returned status {response.status_code} — skipping this cycle")
+                return []
+
+            text = response.text.strip() if response.text else ""
+            if not text:
+                logger.warning("Papers with Code API returned empty body — skipping this cycle")
+                return []
+
+            try:
                 data = response.json()
-                papers = data.get('results', [])
-                ai_names = []
-                
-                for paper in papers:
-                    title = paper.get('title', '')
-                    # Extract potential AI system names
-                    words = re.findall(r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)*\b', title)
-                    ai_names.extend(words)
-                
-                return list(set(ai_names[:10]))
-                
+            except (ValueError, Exception) as json_err:
+                logger.warning(f"Papers with Code API non-JSON response — skipping this cycle ({json_err})")
+                return []
+
+            papers = data.get('results', []) if isinstance(data, dict) else []
+            ai_names = []
+
+            for paper in papers:
+                title = paper.get('title', '')
+                # Extract potential AI system names
+                words = re.findall(r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)*\b', title)
+                ai_names.extend(words)
+
+            return list(set(ai_names[:10]))
+
         except Exception as e:
-            logger.error(f"Papers with Code scan error: {e}")
+            logger.warning(f"Papers with Code scan error (non-fatal): {e}")
         return []
     
     def _scan_reddit(self) -> List[str]:

@@ -1500,7 +1500,7 @@ class SocialMediaScanner:
 class SpeechPatternAnalyzer:
     """
     Analyzes real conversation patterns from social media, forums, and transcripts.
-    Learns authentic speech patterns for Alex Riviera (age 28, female).
+    Learns authentic speech patterns for DMAI's public persona (age 28, female).
     Creates SI Core neurons for learned patterns.
     """
     
@@ -1555,7 +1555,7 @@ class SpeechPatternAnalyzer:
     def start(self):
         self.active = True
         threading.Thread(target=self._run, daemon=True).start()
-        logger.info("🗣️ Speech Pattern Analyzer started (Alex Riviera, age 28)")
+        logger.info("🗣️ Speech Pattern Analyzer started (DMAI public persona, age 28)")
         
     def _run(self):
         while self.active:
@@ -1840,7 +1840,7 @@ class SelfEvolutionTracker:
 
 class CulturalKnowledgeSource:
     """
-    Learns cultural knowledge appropriate for Alex Riviera (born 1998, age 28).
+    Learns cultural knowledge appropriate for DMAI's public persona (born 1998, age 28).
     Covers music, film/TV, books, and lifestyle trends from 2000-present.
     Weighted by popularity and cultural impact for authentic conversational references.
     """
@@ -1938,7 +1938,7 @@ class CulturalKnowledgeSource:
         """Start cultural knowledge acquisition"""
         self.active = True
         threading.Thread(target=self._run, daemon=True).start()
-        logger.info("🎭 Cultural Knowledge Source started (Alex Riviera, age 28)")
+        logger.info("🎭 Cultural Knowledge Source started (DMAI public persona, age 28)")
         
     def _run(self):
         """Main research loop"""
@@ -2229,3 +2229,67 @@ if __name__ == "__main__":
     
     # Stop all
     manager.stop_all()
+
+
+class KnowledgeSourceManager:
+    """Stub KnowledgeSourceManager — dict-compatible for call sites that use
+    self.sources.get(name).
+    """
+    def __init__(self, *args, **kwargs):
+        # Dict so callers can do .sources.get("web_crawler")
+        self.sources = {}
+        self.data_path = kwargs.get("data_path", "data/")
+        self.last_refresh = None
+
+    def register_source(self, source, name=None):
+        if name is None:
+            name = getattr(source, "name", source.__class__.__name__.lower())
+        self.sources[name] = source
+
+    def get_sources(self):
+        return list(self.sources.values())
+
+    def fetch_all(self):
+        results = []
+        for s in self.sources.values():
+            try:
+                results.extend(s.fetch() if hasattr(s, "fetch") else [])
+            except Exception:
+                pass
+        self.last_refresh = datetime.now().isoformat()
+        return results
+
+    def get_summary(self) -> dict:
+        """Lightweight status dict for /api/knowledge/status. Never raises."""
+        try:
+            source_types = sorted({
+                getattr(s, "source_type", s.__class__.__name__)
+                for s in self.sources.values()
+            })
+            return {
+                "total_sources": len(self.sources),
+                "last_refresh": self.last_refresh,
+                "source_types": source_types,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def start_all(self):
+        """Best-effort start for every registered source that supports it."""
+        started = 0
+        for name, s in self.sources.items():
+            try:
+                if hasattr(s, "start"):
+                    s.start()
+                    started += 1
+            except Exception:
+                pass
+        return {"started": started, "total": len(self.sources)}
+
+    def stop_all(self):
+        for s in self.sources.values():
+            try:
+                if hasattr(s, "stop"):
+                    s.stop()
+            except Exception:
+                pass

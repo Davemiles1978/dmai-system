@@ -3,9 +3,9 @@
 Implement micro_tasks.py - Component P5T4
 """
 
-class Implement_micro_tasks.py:
+class ImplementMicroTasks:
     def __init__(self):
-        self.name = "Implement micro_tasks.py"
+        self.name = "ImplementMicroTasks:"
         self.component_id = "P5T4"
         self.status = "initialized"
         self.depends_on = []

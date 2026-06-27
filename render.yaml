@@ -1,0 +1,150 @@
+services:
+  - type: web
+    name: dmai-web
+    env: python
+    buildCommand: pip install -r requirements.txt
+    # Phase 12: delegate all worker config to gunicorn_config.py (16 threads,
+    # max_requests=0 so background daemon threads survive). Inline flags here
+    # would override the config file and reintroduce worker recycling.
+    startCommand: gunicorn dmai_core_complete:app --config gunicorn_config.py
+    healthCheckPath: /health
+    envVars:
+
+      # ── Core System ──────────────────────────────────────────
+      - key: PORT
+        value: "10000"
+      - key: RENDER
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATA_PATH
+        value: /opt/render/project/src/data
+      - key: DB_AUTO_HEAL
+        value: "true"
+      - key: MASTER_PASSWORD
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
+
+      - key: WEBHOOK_SECRET
+        sync: false
+
+      - key: TAVILY_API_KEY
+        sync: false
+
+      # ── Free-tier AI Providers (zero cost to activate) ───────────────────
+      - key: GROQ_API_KEY
+        sync: false
+
+      - key: OPENROUTER_API_KEY
+        sync: false
+
+      - key: CLOUDFLARE_API_KEY
+        sync: false
+
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+
+      - key: BRAVE_SEARCH_API_KEY
+        sync: false
+
+
+
+      - key: BRAVE_SEARCH_API_KEY
+        sync: false
+
+      # ── Database ─────────────────────────────────────────────
+      - key: DATABASE_URL
+        sync: false
+
+      # ── Telegram ─────────────────────────────────────────────
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+
+      # ── AI Providers — Existing ───────────────────────────────
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PERPLEXITY_API_KEY
+        sync: false
+      - key: XAI_API_KEY
+        sync: false
+      - key: HUGGINGFACE_API_KEY
+        sync: false
+      - key: GOOGLE_AI_STUDIO_KEY
+        sync: false
+      - key: NOTEBOOKLM_API_KEY
+        sync: false
+      - key: IMAGEN_API_KEY
+        sync: false
+      - key: GEMINI_GEMS_KEY
+        sync: false
+
+      # ── AI Providers — New Extended Hub ──────────────────────
+      - key: MISTRAL_API_KEY
+        sync: false
+
+      # ── AI Providers — Free-tier expansion (June 2026) ──────────
+      - key: CEREBRAS_API_KEY
+        sync: false
+
+      - key: GITHUB_MODELS_TOKEN
+        sync: false
+      - key: STABILITY_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: RUNWAY_API_KEY
+        sync: false
+      - key: REPLICATE_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: TOGETHER_API_KEY
+        sync: false
+      - key: COHERE_API_KEY
+        sync: false
+
+      # ── GitHub ───────────────────────────────────────────────
+      - key: GITHUB_TOKEN_MAIN
+        sync: false
+      - key: GITHUB_TOKEN_SECONDARY
+        sync: false
+
+      # ── Vector DB (Pinecone) ──────────────────────────────────
+      - key: PINECONE_INDEX
+        sync: false
+      - key: PINECONE_ENVIRONMENT
+        sync: false
+
+      # ── Trading (Alpaca) ──────────────────────────────────────
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
+      - key: ALPACA_BASE_URL
+        value: https://paper-api.alpaca.markets
+
+      # ── AWS ───────────────────────────────────────────────────
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1
+
+      # ── Content / Publishing ──────────────────────────────────
+      - key: KDP_EMAIL
+        sync: false
+      - key: KDP_PASSWORD
+        sync: false
+      - key: AMAZON_SELLER_ID
+        sync: false

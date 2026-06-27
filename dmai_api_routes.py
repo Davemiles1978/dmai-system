@@ -5,6 +5,109 @@ from flask import Blueprint, request, jsonify
 import sqlite3
 from pathlib import Path
 
+# ── DB connection helper ───────────────────────────────────────────────────────
+# Returns a Postgres or SQLite connection transparently.
+# All existing SQL in this file works against either backend unchanged.
+import os as _os
+
+def _get_db_conn(timeout: int = 10):
+    """Return a DB connection — Postgres if DATABASE_URL is set, else SQLite."""
+    dsn = _os.environ.get("DATABASE_URL", "")
+    if dsn:
+        import psycopg2, psycopg2.extras
+        if dsn.startswith("postgres://"):
+            dsn = "postgresql://" + dsn[len("postgres://"):]
+        conn = psycopg2.connect(dsn, connect_timeout=timeout)
+        conn.autocommit = False
+        # Make psycopg2 Row objects subscriptable like sqlite3.Row
+        conn.row_factory = psycopg2.extras.RealDictCursor
+        return conn, "postgres"
+    db_path = Path("data/dmai_knowledge.db")
+    conn = sqlite3.connect(str(db_path), timeout=timeout)
+    return conn, "sqlite"
+
+class _AdaptedCursor:
+    """Wraps a DB cursor and transparently adapts SQLite ? params to %s for Postgres."""
+    def __init__(self, cursor, backend):
+        self._cur = cursor
+        self._backend = backend
+
+    def _adapt(self, sql, params=()):
+        if self._backend == "postgres":
+            sql = sql.replace("?", "%s")
+        return sql, params
+
+    def execute(self, sql, params=()):
+        sql, params = self._adapt(sql, params)
+        return self._cur.execute(sql, params)
+
+    def executemany(self, sql, seq):
+        sql, _ = self._adapt(sql)
+        return self._cur.executemany(sql, seq)
+
+    def fetchone(self):
+        row = self._cur.fetchone()
+        if row is None:
+            return None
+        # Wrap RealDictRow so it supports both dict-style and index-style access
+        if self._backend == "postgres":
+            return _PGRow(row)
+        return row
+
+    def fetchall(self):
+        rows = self._cur.fetchall()
+        if self._backend == "postgres":
+            return [_PGRow(r) for r in rows]
+        return rows
+
+    @property
+    def rowcount(self):
+        return self._cur.rowcount
+
+    def __iter__(self):
+        for row in self._cur:
+            yield _PGRow(row) if self._backend == "postgres" else row
+
+
+class _PGRow:
+    """Makes a psycopg2 RealDictRow behave like sqlite3.Row (subscript + dict)."""
+    def __init__(self, row):
+        self._d = dict(row) if row is not None else {}
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return list(self._d.values())[key]
+        return self._d[key]
+
+    def __iter__(self):
+        return iter(self._d.values())
+
+    def keys(self):
+        return self._d.keys()
+
+    def get(self, key, default=None):
+        return self._d.get(key, default)
+
+    def __contains__(self, key):
+        return key in self._d
+
+
+def _db_cursor(conn, backend):
+    """Return an AdaptedCursor that works for both Postgres and SQLite."""
+    if backend == "postgres":
+        import psycopg2.extras
+        raw = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    else:
+        raw = conn.cursor()
+    return _AdaptedCursor(raw, backend)
+
+def _adapt_sql(sql: str, params, backend: str):
+    """Adapt SQLite ? placeholders to Postgres %s (kept for direct use)."""
+    if backend == "postgres":
+        sql = sql.replace("?", "%s")
+    return sql, params
+# ──────────────────────────────────────────────────────────────────────────────
+
 def humanize_text(text: str, max_length: int = 2000) -> str:
     """Strip AI tells and make text sound human-spoken. For human-facing output only."""
     if not text or len(text) < 50:
@@ -57,8 +160,8 @@ def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: 
     for attempt in range(max_retries):
         try:
             db_path = Path("data/dmai_knowledge.db")
-            conn = sqlite3.connect(str(db_path), timeout=10)
-            cursor = conn.cursor()
+            conn, _dbe = _get_db_conn(timeout=10)
+            cursor = _db_cursor(conn, _dbe)
             
             insight_id = f"insight_{uuid.uuid4().hex}"
             entities = json.dumps([topic, entity_type, source])
@@ -82,7 +185,7 @@ def save_knowledge(topic: str, content: str, entity_type: str = 'core', source: 
             conn.commit()
             conn.close()
             return True, None
-        except sqlite3.OperationalError as e:
+        except (sqlite3.OperationalError, Exception) as e:
             if "locked" in str(e).lower() and attempt < max_retries - 1:
                 time.sleep(0.5 * (attempt + 1))  # exponential backoff
                 continue
@@ -102,9 +205,8 @@ def query_knowledge(topic: str) -> str:
         db_path = Path("data/dmai_knowledge.db")
         if not db_path.exists():
             return None
-        conn = sqlite3.connect(str(db_path))
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         cursor.execute('''
             SELECT insight_text, source_title, LENGTH(insight_text) as len
             FROM insights
@@ -136,12 +238,10 @@ def get_knowledge(topic):
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        if not db_path.exists():
-            return jsonify({"error": "Knowledge database not found"}), 500
+        # db existence check skipped — _get_db_conn() handles both postgres and sqlite
         
-        conn = sqlite3.connect(str(db_path))
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Search source_title first, then insight_text, preferring longest content
         cursor.execute('''
@@ -183,9 +283,8 @@ def db_query():
         from flask import request
         
         db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Count insights with source_title set vs not
         total = cursor.execute("SELECT COUNT(*) as c FROM insights").fetchone()['c']
@@ -230,8 +329,8 @@ def tag_insights():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Get all insights with no source_title
         cursor.execute(
@@ -343,11 +442,10 @@ def table_info():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        if not db_path.exists():
-            return jsonify({"error": "Database not found"}), 404
+        # db existence check skipped — _get_db_conn() handles both postgres and sqlite
             
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Get table schema
         cursor.execute("PRAGMA table_info(insights)")
@@ -395,9 +493,8 @@ def neuron_distribution():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Distribution by entity_type
         cursor.execute("""
@@ -463,8 +560,8 @@ def cleanup_templates():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         before = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
         
@@ -506,8 +603,8 @@ def cleanup_neurons():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Get initial count
         before = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
@@ -587,8 +684,8 @@ def delete_templates():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         before = cursor.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
         
@@ -908,7 +1005,7 @@ def force_reset():
         # Clear SQLite insights (keep only API keys)
         db_path = Path("data/dmai_knowledge.db")
         if db_path.exists():
-            conn = sqlite3.connect(str(db_path))
+            conn, _dbe = _get_db_conn()
             conn.execute("DELETE FROM insights WHERE source_title NOT LIKE '%api_key%'")
             conn.commit()
             conn.close()
@@ -932,7 +1029,7 @@ def force_reset():
         # Clear SQLite insights (keep only API keys)
         db_path = Path("data/dmai_knowledge.db")
         if db_path.exists():
-            conn = sqlite3.connect(str(db_path))
+            conn, _dbe = _get_db_conn()
             conn.execute("DELETE FROM insights WHERE source_title NOT LIKE '%api_key%'")
             conn.commit()
             conn.close()
@@ -981,8 +1078,8 @@ def debug_consciousness_sqlite():
     if not db_path.exists():
         return jsonify({"error": "Database not found"})
     
-    conn = sqlite3.connect(str(db_path))
-    cursor = conn.cursor()
+    conn, _dbe = _get_db_conn()
+    cursor = _db_cursor(conn, _dbe)
     
     # Total insights
     cursor.execute("SELECT COUNT(*) FROM insights")
@@ -1037,11 +1134,10 @@ def fix_source_urls():
         from pathlib import Path
         
         db_path = Path("data/dmai_knowledge.db")
-        if not db_path.exists():
-            return jsonify({"error": "Database not found"}), 500
+        # db existence check skipped — _get_db_conn() handles both postgres and sqlite
         
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         # Update all insights with length >= 100 that don't have source_url
         cursor.execute("""
@@ -1072,11 +1168,10 @@ def inject_knowledge():
         topics = data.get('topics', {})
         
         db_path = Path("data/dmai_knowledge.db")
-        if not db_path.exists():
-            return jsonify({"error": "Database not found"}), 500
+        # db existence check skipped — _get_db_conn() handles both postgres and sqlite
         
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        conn, _dbe = _get_db_conn()
+        cursor = _db_cursor(conn, _dbe)
         
         injected = 0
         for topic, content in topics.items():

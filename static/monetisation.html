@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <link rel="manifest" href="/static/manifest.json"/>
+  <meta name="theme-color" content="#0a0a0f"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="DMAI"/>
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png"/>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/service-worker.js',{scope:'/'}).catch(e=>console.warn('SW reg failed',e));});}</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monetisation — DMAI</title>
+  <style>
+    :root {
+      --accent: #6c63ff; --accent-dim: #4e47c4; --accent-glow: rgba(108,99,255,.18);
+      --green: #00d4aa; --green-dim: #00a882; --green-glow: rgba(0,212,170,.15);
+      --red: #ff4757; --yellow: #ffa502; --bg: #0a0a0f; --card: #12121a;
+      --border: #1e1e2e; --text: #e0dff5; --text-muted: #7c7b9a; --text-faint: #3f3e56;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+      --radius-md: 10px; --radius-lg: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100dvh; background: var(--bg); color: var(--text);
+      font-family: var(--font-body); font-size: 14px; line-height: 1.55; }
+    a { color: var(--accent); text-decoration: none; }
+    button { cursor: pointer; background: none; border: none; color: inherit; font: inherit; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .topbar h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+    .topbar .links { display: flex; gap: 14px; font-size: 13px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 900px) {
+      .grid.cols-4, .grid.cols-3, .grid.cols-2 { grid-template-columns: 1fr; }
+    }
+    .card { background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 18px; }
+    .card h2 { font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .stat { font-family: var(--font-mono); font-size: 26px; font-weight: 600;
+      letter-spacing: -0.02em; }
+    .stat.green { color: var(--green); }
+    .stat.red { color: var(--red); }
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .section { margin-top: 28px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; }
+    .section-title .actions { display: flex; gap: 8px; }
+    .btn { background: var(--accent); color: white; padding: 8px 14px;
+      border-radius: 8px; font-size: 13px; font-weight: 500; transition: opacity .15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn.green { background: var(--green); color: #001510; }
+    .btn.red { background: var(--red); }
+    .btn.small { padding: 5px 10px; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12.5px; }
+    th { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border);
+      color: var(--text-muted); font-weight: 500; text-transform: uppercase;
+      letter-spacing: 0.06em; font-size: 11px; }
+    td { padding: 9px 8px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 999px;
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .pill.pending { background: rgba(255,165,2,.15); color: var(--yellow); }
+    .pill.placed { background: rgba(108,99,255,.18); color: var(--accent); }
+    .pill.skipped { background: rgba(63,62,86,.5); color: var(--text-muted); }
+    .pill.won { background: rgba(0,212,170,.15); color: var(--green); }
+    .pill.lost { background: rgba(255,71,87,.15); color: var(--red); }
+    .pill.void { background: rgba(63,62,86,.5); color: var(--text-muted); }
+    .pill.infrastructure { background: rgba(108,99,255,.15); color: var(--accent); }
+    .pill.ai_credits { background: rgba(0,212,170,.15); color: var(--green); }
+    .pill.data_apis { background: rgba(255,165,2,.15); color: var(--yellow); }
+    .pill.hardware_reserve { background: rgba(255,71,87,.15); color: var(--red); }
+    .empty { text-align: center; color: var(--text-faint); padding: 24px; font-size: 12.5px; }
+    .form { display: grid; gap: 10px; margin-top: 12px; }
+    .form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    input, select, textarea { width: 100%; padding: 8px 10px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+      font-family: var(--font-mono); font-size: 12.5px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    label { font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.06em; }
+    .split-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden;
+      margin-top: 6px; background: var(--border); }
+    .split-bar .dmai { background: var(--accent); }
+    .split-bar .david { background: var(--green); }
+    .tip-card { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md);
+      margin-bottom: 10px; }
+    .tip-card .head { display: flex; justify-content: space-between; align-items: start;
+      margin-bottom: 8px; gap: 12px; }
+    .tip-card .head .title { font-size: 14px; font-weight: 600; }
+    .tip-card .head .sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .tip-card .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      margin: 10px 0; font-family: var(--font-mono); font-size: 12px; }
+    .tip-card .metrics div span { display: block; color: var(--text-muted); font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.06em; }
+    .tip-card .actions { display: flex; gap: 8px; margin-top: 10px; }
+    .tip-card .rationale { font-size: 12.5px; color: var(--text-muted); margin: 8px 0;
+      font-style: italic; line-height: 1.5; }
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 18px;
+      background: var(--card); border: 1px solid var(--accent); border-radius: 8px;
+      font-size: 13px; box-shadow: 0 4px 20px rgba(0,0,0,.5); opacity: 0;
+      transform: translateY(10px); transition: all .25s; pointer-events: none; z-index: 999; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { border-color: var(--red); }
+    .auth-bar { margin-bottom: 16px; padding: 12px 16px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 8px; display: flex; gap: 12px;
+      align-items: center; font-size: 12.5px; }
+    .auth-bar input { flex: 1; }
+    .auth-bar .status { font-family: var(--font-mono); font-size: 11px; }
+    .auth-bar .status.ok { color: var(--green); }
+    .auth-bar .status.no { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1>Monetisation</h1>
+      <div class="links">
+        <a href="/">Dashboard</a>
+        <a href="/admin">Admin</a>
+        <a href="/trading">Trading</a>
+        <a href="/chat">Chat</a>
+      </div>
+    </div>
+
+    <div class="auth-bar">
+      <span class="status no" id="auth-status">No auth</span>
+      <input type="password" id="auth-key" placeholder="Master password (enables actions)" />
+      <button class="btn ghost small" onclick="saveAuth()">Set</button>
+      <button class="btn ghost small" onclick="clearAuth()">Clear</button>
+    </div>
+
+    <!-- Top stats -->
+    <div class="grid cols-4">
+      <div class="card">
+        <h2>DMAI operating</h2>
+        <div class="stat" id="dmai-balance">£0.00</div>
+        <div class="stat-sub">60% share · pays bills + reinvests</div>
+      </div>
+      <div class="card">
+        <h2>David wealth</h2>
+        <div class="stat green" id="david-balance">£0.00</div>
+        <div class="stat-sub">40% share · aggressive growth basket</div>
+      </div>
+      <div class="card">
+        <h2>Lifetime income</h2>
+        <div class="stat" id="lifetime-income">£0.00</div>
+        <div class="stat-sub" id="lifetime-outflow">Outflow £0.00</div>
+      </div>
+      <div class="card">
+        <h2>Monthly bills</h2>
+        <div class="stat" id="bills-monthly">£0.00</div>
+        <div class="stat-sub" id="bills-count">0 active</div>
+      </div>
+    </div>
+
+    <!-- 60/40 visual -->
+    <div class="card" style="margin-top:16px;">
+      <h2>Split policy</h2>
+      <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;">
+        <span>DMAI 60%</span><span>David 40%</span>
+      </div>
+      <div class="split-bar"><div class="dmai" style="width:60%;"></div><div class="david" style="width:40%;"></div></div>
+    </div>
+
+    <!-- Income credit + recent -->
+    <div class="section">
+      <div class="section-title">
+        <span>Income events</span>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>Credit new income</h2>
+          <div class="form">
+            <div class="row">
+              <div><label>Source</label><input id="inc-source" placeholder="e.g. patreon" /></div>
+              <div><label>Amount</label><input id="inc-amount" type="number" step="0.01" placeholder="0.00" /></div>
+            </div>
+            <div class="row">
+              <div><label>Currency</label><input id="inc-currency" value="GBP" /></div>
+              <div style="align-self:end;"><button class="btn green" onclick="creditIncome()">Credit + Split 60/40</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Recent income</h2>
+          <div id="income-recent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bills -->
+    <div class="section">
+      <div class="section-title">
+        <span>Auto-pay bills</span>
+        <div class="actions">
+          <button class="btn small" onclick="payDueBills()">Pay due now</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="bills-table"></div>
+      </div>
+    </div>
+
+    <!-- Betting tipster -->
+    <div class="section">
+      <div class="section-title">
+        <span>Betting tips · Microfish-driven</span>
+        <div class="actions">
+          <span style="font-size:11px; color: var(--text-muted);" id="bet-stats">No settled bets yet</span>
+        </div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>Analyse a candidate</h2>
+          <div class="form">
+            <div class="row">
+              <div><label>Event</label><input id="bet-event" placeholder="e.g. Fury vs Usyk" /></div>
+              <div><label>Selection</label><input id="bet-selection" placeholder="e.g. Fury KO 7-12" /></div>
+            </div>
+            <div class="row">
+              <div><label>Decimal odds</label><input id="bet-odds" type="number" step="0.01" placeholder="2.50" /></div>
+              <div><label>Bookmaker</label><input id="bet-bookmaker" placeholder="e.g. Bet365" /></div>
+            </div>
+            <div><label>Context (optional)</label><textarea id="bet-context" rows="3" placeholder="Recent form, injuries, etc."></textarea></div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn ghost" onclick="analyseTip(false)">Analyse only</button>
+              <button class="btn" onclick="analyseTip(true)">Analyse + save tip if +EV</button>
+            </div>
+            <div id="bet-result" style="margin-top:10px; font-family: var(--font-mono); font-size: 12px;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Pending tips (place manually)</h2>
+          <div id="tips-pending"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h2>Tip history</h2>
+        <div id="tips-history"></div>
+      </div>
+    </div>
+
+    <!-- Autonomous trader -->
+    <div class="section">
+      <div class="section-title">
+        <span>Autonomous trader · 5-min loop</span>
+        <div class="actions">
+          <button class="btn small" id="trader-toggle" onclick="toggleTrader()">Loading…</button>
+          <button class="btn small ghost" onclick="manualTick()">Tick now</button>
+          <button class="btn small ghost" id="approval-toggle" onclick="toggleApproval()">Approval: ?</button>
+          <button class="btn small ghost" onclick="downloadJournal()">Journal CSV</button>
+          <button class="btn small ghost" onclick="sendDigest()">Send digest</button>
+        </div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>State</h2>
+          <div id="trader-state" class="empty">Loading…</div>
+          <div style="margin-top:10px;">
+            <span style="font-size:12px; color:var(--text-muted); margin-right:6px;">Tier:</span>
+            <button class="btn small ghost" onclick="setTraderTier('conservative')">Conservative</button>
+            <button class="btn small ghost" onclick="setTraderTier('moderate')">Moderate</button>
+            <button class="btn small ghost" onclick="setTraderTier('aggressive')">Aggressive</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Recent ticks</h2>
+          <div id="trader-ticks" class="empty">Loading…</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h2>Recent autonomous trades</h2>
+        <div id="trader-trades" class="empty">Loading…</div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h2>Pending approvals</h2>
+        <div id="trader-pending" class="empty">Loading...</div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h2>Slack alerts &middot; watchdog</h2>
+        <div id="notifier-status" class="empty">Loading...</div>
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center;">
+          <input id="slack-webhook" type="text" placeholder="Slack webhook URL (optional)"
+            style="flex:1; min-width:280px; background:#0f1014; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px;" />
+          <button class="btn small" onclick="saveWebhook()">Save</button>
+          <button class="btn small ghost" onclick="testNotifier()">Send test</button>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:var(--text-muted);">
+          Alert types:
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="trade"/> trades</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="tier"/> tier</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="halt"/> halts</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="digest"/> daily digest</label>
+          <label style="margin-left:8px;"><input type="checkbox" class="mask-cb" value="error"/> errors</label>
+          <button class="btn small ghost" style="margin-left:10px;" onclick="saveMask()">Save mask</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wealth deployment -->
+    <div class="section">
+      <div class="section-title">
+        <span>Wealth deployment · David's 40%</span>
+        <div class="actions">
+          <button class="btn small" onclick="deployWealth(true)">Deploy now (force)</button>
+        </div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h2>Basket · aggressive growth</h2>
+          <div id="basket-view"></div>
+        </div>
+        <div class="card">
+          <h2>Recent deployments</h2>
+          <div id="deployments-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Self-evolution + pending self-edits -->
+    <section style="margin-top:24px;">
+      <div class="card">
+        <span>Self-evolution · 24/7 autonomous improvement</span>
+        <div id="evo-summary" style="margin-top:10px; font-size:13px; line-height:1.6;">
+          loading…
+        </div>
+        <div style="margin-top:12px;">
+          <a href="/api/self-evolution/gaps" target="_blank" class="btn">View gap report</a>
+          <a href="/api/self-evolution/recent-commits" target="_blank" class="btn">Recent self-commits</a>
+          <a href="/api/self-evolution/history" target="_blank" class="btn">Approval history</a>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <span>Pending self-edits · awaiting your approval</span>
+        <div id="self-edits" style="margin-top:10px; font-size:13px;">loading…</div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <span>Expert brain · canonical knowledge seed</span>
+        <div id="brain-stats" style="margin-top:10px; font-size:13px;">loading…</div>
+        <div style="margin-top:10px;">
+          <input id="brain-q" placeholder="search brain (e.g. kelly criterion)" style="width:60%;padding:6px;background:#1a1a1a;color:#eee;border:1px solid #333;border-radius:4px;" />
+          <button onclick="brainSearch()" style="padding:6px 12px;background:#2563eb;color:#fff;border:0;border-radius:4px;cursor:pointer;">search</button>
+        </div>
+        <div id="brain-results" style="margin-top:10px;font-size:12px;"></div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <span>Personas · role-specific operating voices</span>
+        <div id="personas-list" style="margin-top:10px;font-size:12px;">loading…</div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <span>Review queue · long-form Alex output (gated)</span>
+        <div id="review-stats" style="margin-top:10px;font-size:12px;color:#aaa;">loading…</div>
+        <div id="review-pending" style="margin-top:10px;font-size:12px;"></div>
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;color:#aaa;font-size:11px;">Skill curves · graduation controls</summary>
+          <div id="review-skill" style="margin-top:8px;font-size:12px;"></div>
+        </details>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const fmt = (n, c='GBP') => {
+  const sym = c === 'GBP' ? '£' : c === 'USD' ? '$' : '';
+  const v = Number(n || 0);
+  return sym + v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+};
+const fmtPct = (n) => (n == null ? '—' : (n * 100).toFixed(1) + '%');
+const fmtTs = (t) => {
+  if (!t) return '—';
+  const d = new Date(t * 1000);
+  return d.toLocaleString();
+};
+
+let AUTH = localStorage.getItem('mon_auth') || '';
+function setAuthDisplay() {
+  const el = document.getElementById('auth-status');
+  if (AUTH) { el.textContent = 'Auth set'; el.className = 'status ok'; }
+  else { el.textContent = 'No auth'; el.className = 'status no'; }
+}
+function saveAuth() {
+  AUTH = document.getElementById('auth-key').value.trim();
+  localStorage.setItem('mon_auth', AUTH);
+  setAuthDisplay(); toast('Auth saved');
+}
+function clearAuth() {
+  AUTH = ''; localStorage.removeItem('mon_auth');
+  document.getElementById('auth-key').value = '';
+  setAuthDisplay(); toast('Auth cleared');
+}
+setAuthDisplay();
+
+function toast(msg, isErr=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isErr ? ' error' : '');
+  setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+async function api(path, opts={}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (AUTH) headers['X-Master-Password'] = AUTH;
+  const res = await fetch(path, { ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error || ('HTTP ' + res.status);
+    toast(msg, true);
+    throw new Error(msg);
+  }
+  return data;
+}
+
+async function refresh() {
+  try {
+    const status = await api('/api/monetisation/status');
+    if (!status.loaded) { toast('Monetisation hub not loaded on server', true); return; }
+    // top stats
+    const rev = status.revenue || {};
+    const wallets = rev.wallets || {};
+    document.getElementById('dmai-balance').textContent  = fmt(wallets.dmai_operating, rev.currency);
+    document.getElementById('david-balance').textContent = fmt(wallets.david_wealth, rev.currency);
+    document.getElementById('lifetime-income').textContent  = fmt(rev.lifetime_income, rev.currency);
+    document.getElementById('lifetime-outflow').textContent = 'Outflow ' + fmt(rev.lifetime_outflow, rev.currency);
+    const bills = status.bills || {};
+    document.getElementById('bills-monthly').textContent = fmt(bills.monthly_total, bills.currency);
+    document.getElementById('bills-count').textContent = (bills.active_bill_count || 0) + ' active';
+    // betting stats
+    const bs = status.betting || {};
+    const stEl = document.getElementById('bet-stats');
+    if (bs.settled_count) {
+      stEl.textContent = `Settled ${bs.settled_count} · Win rate ${fmtPct(bs.win_rate)} · ROI ${bs.roi_pct ?? 0}% · P/L ${fmt(bs.total_pl)}`;
+    } else {
+      stEl.textContent = `Bankroll ${fmt(bs.bankroll)} · No settled tips yet`;
+    }
+    await Promise.all([loadIncome(), loadBills(), loadTips(), loadBasket(), loadDeployments()]);
+  } catch (e) { console.error(e); }
+}
+
+async function loadIncome() {
+  const d = await api('/api/monetisation/ledger?limit=20');
+  const c = document.getElementById('income-recent');
+  const evs = d.income_events || [];
+  if (!evs.length) { c.innerHTML = '<div class="empty">No income events yet</div>'; return; }
+  c.innerHTML = '<table><thead><tr><th>When</th><th>Source</th><th>Amount</th></tr></thead><tbody>' +
+    evs.slice(0, 8).map(e =>
+      `<tr><td>${fmtTs(e.ts)}</td><td>${e.source}</td><td>${fmt(e.amount, e.currency)}</td></tr>`
+    ).join('') + '</tbody></table>';
+}
+
+async function loadBills() {
+  const d = await api('/api/monetisation/bills');
+  const c = document.getElementById('bills-table');
+  const bills = d.bills || [];
+  if (!bills.length) { c.innerHTML = '<div class="empty">No bills configured</div>'; return; }
+  c.innerHTML = '<table><thead><tr><th>Name</th><th>Category</th><th>Amount</th><th>Cadence</th><th>Next due</th><th>Auto-pay</th></tr></thead><tbody>' +
+    bills.map(b =>
+      `<tr><td>${b.name}</td>
+       <td><span class="pill ${b.category}">${b.category.replace('_',' ')}</span></td>
+       <td>${fmt(b.amount, b.currency)}</td>
+       <td>${b.cadence}</td>
+       <td>${fmtTs(b.next_due)}</td>
+       <td>${b.auto_pay ? '✓' : '—'}${b.active ? '' : ' (inactive)'}</td></tr>`
+    ).join('') + '</tbody></table>';
+}
+
+async function loadTips() {
+  const pending = await api('/api/monetisation/tips?status=pending');
+  const all = await api('/api/monetisation/tips?limit=30');
+  // pending tip cards
+  const pc = document.getElementById('tips-pending');
+  const ptips = pending.tips || [];
+  if (!ptips.length) { pc.innerHTML = '<div class="empty">No pending tips. Analyse a candidate to generate one.</div>'; }
+  else { pc.innerHTML = ptips.map(renderTipCard).join(''); }
+  // tip history table (non-pending)
+  const hc = document.getElementById('tips-history');
+  const htips = (all.tips || []).filter(t => t.status !== 'pending');
+  if (!htips.length) { hc.innerHTML = '<div class="empty">No history yet</div>'; return; }
+  hc.innerHTML = '<table><thead><tr><th>When</th><th>Event</th><th>Selection</th><th>Odds</th><th>Stake</th><th>P/L</th><th>Status</th></tr></thead><tbody>' +
+    htips.map(t =>
+      `<tr><td>${fmtTs(t.created_at)}</td>
+       <td>${t.event_name}</td>
+       <td>${t.selection}</td>
+       <td>${Number(t.decimal_odds).toFixed(2)}</td>
+       <td>${fmt(t.actual_stake || t.recommended_stake, t.currency)}</td>
+       <td>${t.profit_loss != null ? fmt(t.profit_loss, t.currency) : '—'}</td>
+       <td><span class="pill ${t.status}">${t.status}</span></td></tr>`
+    ).join('') + '</tbody></table>';
+}
+
+function renderTipCard(t) {
+  const evPct = (Number(t.expected_value) * 100).toFixed(1);
+  return `<div class="tip-card">
+    <div class="head">
+      <div>
+        <div class="title">${t.event_name}</div>
+        <div class="sub">${t.selection} @ ${Number(t.decimal_odds).toFixed(2)} · ${t.bookmaker || 'any bookmaker'}</div>
+      </div>
+      <span class="pill pending">+${evPct}% EV</span>
+    </div>
+    <div class="metrics">
+      <div><span>Model prob</span>${fmtPct(t.model_probability)}</div>
+      <div><span>Confidence</span>${fmtPct(t.confidence)}</div>
+      <div><span>Kelly</span>${fmtPct(t.kelly_fraction)}</div>
+      <div><span>Rec. stake</span>${fmt(t.recommended_stake, t.currency)}</div>
+    </div>
+    ${t.rationale ? '<div class="rationale">"' + t.rationale + '"</div>' : ''}
+    <div class="actions">
+      <button class="btn green small" onclick="markTipPlaced('${t.id}')">I placed this</button>
+      <button class="btn ghost small" onclick="markTipSkipped('${t.id}')">Skip</button>
+      <button class="btn ghost small" onclick="openSettle('${t.id}')">Settle</button>
+    </div>
+  </div>`;
+}
+
+async function creditIncome() {
+  const source = document.getElementById('inc-source').value.trim();
+  const amount = parseFloat(document.getElementById('inc-amount').value);
+  const currency = document.getElementById('inc-currency').value.trim() || 'GBP';
+  if (!source || !amount) { toast('Source and amount required', true); return; }
+  await api('/api/monetisation/income', { method: 'POST', body: JSON.stringify({source, amount, currency}) });
+  toast(`Credited ${fmt(amount, currency)} — split 60/40`);
+  document.getElementById('inc-source').value = '';
+  document.getElementById('inc-amount').value = '';
+  refresh();
+}
+
+async function payDueBills() {
+  const r = await api('/api/monetisation/bills/pay-due', { method: 'POST' });
+  toast(`Paid ${(r.paid || []).length} bills · ${(r.skipped_insufficient || []).length} skipped`);
+  refresh();
+}
+
+async function analyseTip(persist) {
+  const body = {
+    event_name: document.getElementById('bet-event').value.trim(),
+    selection: document.getElementById('bet-selection').value.trim(),
+    decimal_odds: parseFloat(document.getElementById('bet-odds').value),
+    bookmaker: document.getElementById('bet-bookmaker').value.trim(),
+    seed_data: document.getElementById('bet-context').value.trim(),
+  };
+  if (!body.event_name || !body.selection || !body.decimal_odds) {
+    toast('Event, selection, odds required', true); return;
+  }
+  const url = persist ? '/api/monetisation/tips/generate' : '/api/monetisation/tips/analyse';
+  const r = await api(url, { method: 'POST', body: JSON.stringify(body) });
+  const out = document.getElementById('bet-result');
+  if (r.error) { out.innerHTML = '<span style="color:var(--red)">' + r.error + '</span>'; return; }
+  const passes = r.passes_ev_gate || r.status === 'pending';
+  const evPct = (Number(r.expected_value || 0) * 100).toFixed(1);
+  out.innerHTML = `<div>Model probability: <b>${fmtPct(r.model_probability)}</b> · Confidence ${fmtPct(r.confidence)}</div>
+    <div>EV: <b style="color:${r.expected_value > 0 ? 'var(--green)' : 'var(--red)'}">${evPct >= 0 ? '+' : ''}${evPct}%</b> · Kelly ${fmtPct(r.kelly_fraction)} · Rec stake ${fmt(r.recommended_stake)}</div>
+    <div style="margin-top:6px;">${passes ? '<span class="pill placed">Passes EV gate</span>' : '<span class="pill skipped">Below threshold</span>'}${r.status === 'pending' ? ' · saved as pending tip' : ''}</div>
+    ${r.rationale ? '<div class="rationale" style="margin-top:8px;">"' + r.rationale + '"</div>' : ''}`;
+  if (persist) refresh();
+}
+
+async function markTipPlaced(id) {
+  const stake = prompt('Actual stake placed (leave blank to use recommended):');
+  const body = stake ? { actual_stake: parseFloat(stake) } : {};
+  await api(`/api/monetisation/tips/${id}/placed`, { method: 'POST', body: JSON.stringify(body) });
+  toast('Marked as placed'); refresh();
+}
+async function markTipSkipped(id) {
+  if (!confirm('Skip this tip?')) return;
+  await api(`/api/monetisation/tips/${id}/skipped`, { method: 'POST', body: JSON.stringify({}) });
+  toast('Skipped'); refresh();
+}
+async function openSettle(id) {
+  const outcome = prompt('Outcome: won / lost / void');
+  if (!outcome) return;
+  const o = outcome.trim().toLowerCase();
+  if (!['won','lost','void'].includes(o)) { toast('Invalid outcome', true); return; }
+  let actual_return = 0;
+  if (o === 'won') {
+    const r = prompt('Gross return (stake + winnings):');
+    actual_return = parseFloat(r) || 0;
+  }
+  await api(`/api/monetisation/tips/${id}/settle`, { method: 'POST',
+    body: JSON.stringify({ outcome: o, actual_return })});
+  toast(`Settled: ${o}`); refresh();
+}
+
+async function loadBasket() {
+  const d = await api('/api/monetisation/wealth/basket');
+  const c = document.getElementById('basket-view');
+  const w = d.basket.weights || {};
+  const s = d.summary || {};
+  c.innerHTML = '<div style="font-size:12.5px; color:var(--text-muted); margin-bottom:10px;">'
+    + 'Pending: <b style="color:var(--green)">' + fmt(s.pending_balance, s.currency) + '</b> · Deploy threshold: ' + fmt(s.deploy_threshold, s.currency)
+    + ' · Trader: ' + (s.trader_attached ? (s.trader_paper ? 'paper' : 'LIVE') : 'none') + '</div>'
+    + '<table><thead><tr><th>Symbol</th><th>Weight</th></tr></thead><tbody>'
+    + Object.entries(w).map(([s, wt]) =>
+        `<tr><td>${s}</td><td>${(wt * 100).toFixed(1)}%</td></tr>`).join('')
+    + '</tbody></table>';
+}
+
+async function deployWealth(force) {
+  const r = await api('/api/monetisation/wealth/deploy', { method: 'POST', body: JSON.stringify({ force }) });
+  if (r.error) { toast(r.error, true); return; }
+  if (r.status === 'below_threshold') { toast(`Below threshold (${fmt(r.balance)} < ${fmt(r.threshold)})`, true); return; }
+  if (r.status === 'nothing_to_deploy') { toast('Nothing to deploy', true); return; }
+  toast(`Deployed ${fmt(r.total_amount)} across ${r.breakdown.length} positions`);
+  refresh();
+}
+
+async function loadDeployments() {
+  const d = await api('/api/monetisation/wealth/history');
+  const c = document.getElementById('deployments-list');
+  const ds = d.deployments || [];
+  if (!ds.length) { c.innerHTML = '<div class="empty">No deployments yet</div>'; return; }
+  c.innerHTML = '<table><thead><tr><th>When</th><th>Amount</th><th>Positions</th></tr></thead><tbody>' +
+    ds.map(d =>
+      `<tr><td>${fmtTs(d.ts)}</td><td>${fmt(d.total_amount, d.currency)}</td>
+       <td>${(d.breakdown || []).length}</td></tr>`).join('') + '</tbody></table>';
+}
+
+async function loadTrader() {
+  let d;
+  try { d = await api('/api/monetisation/trader/status'); }
+  catch (e) { document.getElementById('trader-state').textContent = 'Not loaded'; return; }
+  const apBtn = document.getElementById('approval-toggle');
+  if (apBtn) { apBtn.textContent = 'Approval: ' + (d.require_approval ? 'ON' : 'off'); apBtn.dataset.on = d.require_approval ? '1' : '0'; }
+  const caps = d.tier_caps || {};
+  const liveBadge = d.live
+    ? '<span style="color:var(--red); font-weight:600">LIVE</span>'
+    : '<span style="color:var(--green); font-weight:600">PAPER</span>';
+  const marketBadge = d.market_open
+    ? '<span style="color:var(--green)">market open</span>'
+    : '<span style="color:var(--text-muted)">market closed</span>';
+  document.getElementById('trader-state').innerHTML =
+    `<div style="font-size:13px; line-height:1.7">
+      Mode: ${liveBadge} · ${marketBadge}<br/>
+      Loop: ${d.enabled ? '<b style=\'color:var(--green)\'>enabled</b>' : '<b style=\'color:var(--red)\'>paused</b>'} · every ${d.loop_interval_s}s<br/>
+      Tier: <b>${d.tier}</b> — ${(caps.max_pct_per_trade*100).toFixed(0)}%/trade, ${(caps.max_pct_per_day*100).toFixed(0)}%/day, max ${caps.max_trades_per_day} trades, EV gate ${(caps.ev_gate*100).toFixed(0)}%, halt ${(caps.max_daily_drawdown*100).toFixed(0)}%<br/>
+      Today: ${d.today_trades || 0} trades · ${((d.today_deployed_pct||0)*100).toFixed(1)}% deployed<br/>
+      Last tick: ${d.last_tick_ts || '—'} (${d.last_tick_note || '—'})
+    </div>`;
+  const btn = document.getElementById('trader-toggle');
+  btn.textContent = d.enabled ? 'Pause loop' : 'Enable loop';
+  btn.dataset.enabled = d.enabled ? '1' : '0';
+
+  const ticks = d.recent_ticks || [];
+  document.getElementById('trader-ticks').innerHTML = ticks.length ?
+    '<table><thead><tr><th>When</th><th>Mkt</th><th>Tier</th><th>Sig</th><th>Pass</th><th>Trd</th><th>Note</th></tr></thead><tbody>' +
+    ticks.map(t => `<tr><td>${t.ts}</td><td>${t.market_open ? '●' : '○'}</td><td>${t.tier}</td><td>${t.signals_seen}</td><td>${t.signals_passed}</td><td>${t.trades_placed}</td><td style="color:var(--text-muted)">${t.note||''}</td></tr>`).join('') +
+    '</tbody></table>' :
+    '<div class="empty">No ticks yet</div>';
+
+  const trades = d.recent_trades || [];
+  document.getElementById('trader-trades').innerHTML = trades.length ?
+    '<table><thead><tr><th>When</th><th>Symbol</th><th>Side</th><th>Qty</th><th>Conf</th><th>EV</th><th>Tier</th><th>Mode</th></tr></thead><tbody>' +
+    trades.map(t => `<tr><td>${t.ts}</td><td><b>${t.symbol}</b></td><td>${t.side}</td><td>${(t.qty||0).toFixed(2)}</td><td>${((t.confidence||0)*100).toFixed(0)}%</td><td>${((t.ev||0)*100).toFixed(1)}%</td><td>${t.tier}</td><td>${t.live ? 'LIVE' : 'paper'}</td></tr>`).join('') +
+    '</tbody></table>' :
+    '<div class="empty">No autonomous trades yet</div>';
+}
+
+async function toggleTrader() {
+  const btn = document.getElementById('trader-toggle');
+  const next = btn.dataset.enabled !== '1';
+  try {
+    await api('/api/monetisation/trader/enable', { method: 'POST', body: JSON.stringify({ enabled: next }) });
+    toast(next ? 'Trader loop enabled' : 'Trader loop paused');
+    loadTrader();
+  } catch (e) {}
+}
+
+async function setTraderTier(tier) {
+  try {
+    await api('/api/monetisation/trader/tier', { method: 'POST', body: JSON.stringify({ tier }) });
+    toast('Tier set to ' + tier);
+    loadTrader();
+  } catch (e) {}
+}
+
+async function manualTick() {
+  try {
+    const r = await api('/api/monetisation/trader/tick', { method: 'POST' });
+    toast(`Tick: ${r.signals_seen} signals, ${r.trades_placed} trades (${r.note})`);
+    loadTrader();
+  } catch (e) {}
+}
+
+async function toggleApproval() {
+  const btn = document.getElementById('approval-toggle');
+  const next = btn.dataset.on !== '1';
+  try {
+    await api('/api/monetisation/trader/approval', { method: 'POST', body: JSON.stringify({ on: next }) });
+    toast('Approval mode: ' + (next ? 'ON' : 'off'));
+    loadTrader(); loadPending();
+  } catch (e) {}
+}
+
+function downloadJournal() {
+  const a = document.createElement('a');
+  a.href = '/api/monetisation/trader/journal.csv?days=30';
+  a.download = 'trader_journal.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+async function sendDigest() {
+  try {
+    const r = await api('/api/monetisation/trader/digest', { method: 'POST' });
+    toast('Digest sent (trades=' + r.trades + ', pnl=' + ((r.pnl_pct||0)*100).toFixed(2) + '%)');
+  } catch (e) {}
+}
+
+async function loadPending() {
+  let d;
+  try { d = await api('/api/monetisation/trader/pending'); }
+  catch (e) { document.getElementById('trader-pending').textContent = 'Not loaded'; return; }
+  const list = (d.pending || []).filter(p => p.status === 'pending');
+  const el = document.getElementById('trader-pending');
+  if (!list.length) { el.innerHTML = '<div class="empty">No pending approvals</div>'; return; }
+  el.innerHTML = list.map(p =>
+    '<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border);">' +
+      '<div><b>' + p.symbol + '</b> <span style="color:var(--text-muted)">(' + p.tier + ')</span><br/>' +
+      '<span style="font-size:12px; color:var(--text-muted)">' + p.ts + ' &middot; confidence ' + (p.confidence*100).toFixed(0) + '% &middot; EV ' + (p.ev*100).toFixed(1) + '%</span></div>' +
+      '<div><button class="btn small" onclick="approvePending(' + p.id + ')">Approve</button> ' +
+      '<button class="btn small ghost" onclick="rejectPending(' + p.id + ')">Reject</button></div>' +
+    '</div>'
+  ).join('');
+}
+
+async function approvePending(id) {
+  try {
+    const r = await api('/api/monetisation/trader/pending/' + id + '/approve', { method: 'POST' });
+    toast(r.status === 'approved' ? 'Trade approved' : ('Approve: ' + (r.status || 'error')), r.status !== 'approved');
+    loadPending(); loadTrader();
+  } catch (e) {}
+}
+async function rejectPending(id) {
+  try {
+    await api('/api/monetisation/trader/pending/' + id + '/reject', { method: 'POST', body: JSON.stringify({ reason: 'manual' }) });
+    toast('Trade rejected');
+    loadPending();
+  } catch (e) {}
+}
+
+async function loadNotifier() {
+  let d;
+  try { d = await api('/api/monetisation/notifier'); }
+  catch (e) { document.getElementById('notifier-status').textContent = 'Not loaded'; return; }
+  let wd = null;
+  try { wd = await api('/api/monetisation/trader/watchdog'); } catch (e) {}
+  const cfg = d.configured ? '<b style="color:var(--green)">configured</b>' : '<b style="color:var(--red)">not configured</b> (set SLACK_WEBHOOK_URL or save below)';
+  const mask = (d.mask || []).join(', ') || '-';
+  const recent = d.recent || [];
+  let watchdog = '';
+  if (wd) {
+    watchdog = '<div style="margin-top:8px; font-size:12.5px;">Watchdog: ' + (wd.healthy ? '<b style=\'color:var(--green)\'>healthy</b>' : '<b style=\'color:var(--red)\'>UNHEALTHY</b>') + ' &middot; failures: ' + wd.consecutive_failures + '/' + wd.failure_threshold + ' &middot; last: ' + (wd.last_action || '-') + '</div>';
+  }
+  document.getElementById('notifier-status').innerHTML =
+    '<div style="font-size:13px; line-height:1.6">' +
+      'Webhook: ' + cfg + '<br/>' +
+      'Active alert mask: <code>' + mask + '</code>' +
+      watchdog +
+    '</div>' +
+    (recent.length
+      ? '<table style="margin-top:10px;"><thead><tr><th>When</th><th>Category</th><th>Title</th><th>Sent</th></tr></thead><tbody>' +
+        recent.slice(0, 12).map(r => '<tr><td>' + r.ts + '</td><td>' + r.category + '</td><td>' + r.title + '</td><td>' + (r.delivered ? 'sent' : (r.error || '-')) + '</td></tr>').join('') +
+        '</tbody></table>' : '');
+  document.querySelectorAll('.mask-cb').forEach(cb => { cb.checked = (d.mask || []).includes(cb.value); });
+}
+
+async function saveWebhook() {
+  const url = document.getElementById('slack-webhook').value.trim();
+  try {
+    await api('/api/monetisation/notifier', { method: 'POST', body: JSON.stringify({ webhook_url: url }) });
+    toast(url ? 'Webhook saved' : 'Webhook cleared');
+    document.getElementById('slack-webhook').value = '';
+    loadNotifier();
+  } catch (e) {}
+}
+async function saveMask() {
+  const mask = Array.from(document.querySelectorAll('.mask-cb')).filter(cb => cb.checked).map(cb => cb.value);
+  try {
+    await api('/api/monetisation/notifier', { method: 'POST', body: JSON.stringify({ mask }) });
+    toast('Alert mask saved');
+    loadNotifier();
+  } catch (e) {}
+}
+async function testNotifier() {
+  try {
+    const r = await api('/api/monetisation/notifier/test', { method: 'POST' });
+    toast(r.sent ? 'Test posted to Slack' : 'Test not delivered (check webhook)', !r.sent);
+    loadNotifier();
+  } catch (e) {}
+}
+
+refresh();
+loadTrader();
+loadPending();
+loadNotifier();
+
+async function loadEvoSummary() {
+  try {
+    const s = await fetch('/api/self-evolution/status').then(r => r.json());
+    const gaps = s.gap_summary || {};
+    const impl = s.capabilities_implemented || 0;
+    const tot = s.capabilities_total || 0;
+    const pct = tot ? Math.round(impl * 100 / tot) : 0;
+    document.getElementById('evo-summary').innerHTML =
+      '<b>' + impl + '/' + tot + ' capabilities (' + pct + '%)</b><br>' +
+      'Total gaps: ' + (s.total_gaps || 0) +
+      ' &middot; broken routes: ' + (gaps.broken_routes || 0) +
+      ' &middot; stub components: ' + (gaps.stub_components || 0) +
+      ' &middot; capability gaps: ' + (gaps.capability_gaps || 0) +
+      ' &middot; dead threads: ' + (gaps.dead_threads || 0) +
+      '<br>Last scan: ' + (s.last_scan || '—');
+  } catch (e) {
+    document.getElementById('evo-summary').textContent = 'unavailable';
+  }
+}
+
+async function loadSelfEdits() {
+  try {
+    const r = await fetch('/api/self-evolution/pending').then(r => r.json());
+    const pending = r.pending || [];
+    if (!pending.length) {
+      document.getElementById('self-edits').innerHTML =
+        '<span style="color:var(--green)">No pending self-edits. DMAI is operating within auto-commit limits.</span>';
+      return;
+    }
+    let html = '';
+    for (const e of pending) {
+      html += '<div style="border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:8px;">';
+      html += '<b>' + (e.capability || '?') + '</b> &middot; ' + e.target_file + '<br>';
+      html += 'Bytes: ' + e.bytes_existing + ' → ' + e.bytes_proposed + ' &middot; ' + e.ts + '<br>';
+      if (e.rationale) html += '<i>' + e.rationale + '</i><br>';
+      html += '<a href="/api/self-evolution/diff/' + e.id + '" target="_blank" class="btn">View diff</a> ';
+      html += '<button class="btn ok" onclick="approveEdit(\'' + e.id + '\')">Approve</button> ';
+      html += '<button class="btn no" onclick="rejectEdit(\'' + e.id + '\')">Reject</button>';
+      html += '</div>';
+    }
+    document.getElementById('self-edits').innerHTML = html;
+  } catch (e) {
+    document.getElementById('self-edits').textContent = 'unavailable';
+  }
+}
+
+async function approveEdit(id) {
+  const res = await api('/api/self-evolution/approve/' + id, { method: 'POST' });
+  toast(res.ok ? 'Approved → ' + (res.commit_sha || '') : 'Approve failed: ' + (res.error || '?'));
+  loadSelfEdits();
+}
+async function rejectEdit(id) {
+  const res = await api('/api/self-evolution/reject/' + id, { method: 'POST' });
+  toast(res.ok ? 'Rejected' : 'Reject failed');
+  loadSelfEdits();
+}
+
+async function loadBrain() {
+  try {
+    const r = await fetch('/api/brain/stats');
+    const d = await r.json();
+    if (d.error) {
+      document.getElementById('brain-stats').textContent = d.error;
+      return;
+    }
+    let html = '<b>' + (d.total_entries || 0) + '</b> canonical entries &middot; v' + (d.seed_version || '?') + '<br>';
+    if (d.by_domain) {
+      html += '<div style="margin-top:6px;color:#aaa;">';
+      const parts = [];
+      for (const [k, n] of Object.entries(d.by_domain)) {
+        parts.push(k.replace(/_/g, ' ') + ': <b>' + n + '</b>');
+      }
+      html += parts.join(' &middot; ') + '</div>';
+    }
+    document.getElementById('brain-stats').innerHTML = html;
+  } catch (e) {
+    document.getElementById('brain-stats').textContent = 'unavailable';
+  }
+}
+async function brainSearch() {
+  const q = document.getElementById('brain-q').value.trim();
+  if (!q) return;
+  const r = await fetch('/api/brain/search?q=' + encodeURIComponent(q) + '&limit=5');
+  const d = await r.json();
+  const target = document.getElementById('brain-results');
+  if (!d.results || !d.results.length) {
+    target.innerHTML = '<i>no hits</i>';
+    return;
+  }
+  target.innerHTML = d.results.map(h => (
+    '<div style="padding:8px;margin:6px 0;background:#1a1a1a;border-left:3px solid #2563eb;border-radius:3px;">'
+    + '<b>' + h.topic + '</b> <span style="color:#888;">[' + h.domain + ']</span><br>'
+    + h.content.substring(0, 240) + (h.content.length > 240 ? '…' : '')
+    + '<br><a href="' + h.source_url + '" target="_blank" style="color:#60a5fa;font-size:11px;">source</a>'
+    + '</div>'
+  )).join('');
+}
+
+async function loadPersonas() {
+  try {
+    const r = await fetch('/api/personas');
+    const d = await r.json();
+    if (!d.personas) {
+      document.getElementById('personas-list').textContent = d.error || 'unavailable';
+      return;
+    }
+    const pub = d.personas.filter(p => p.scope === 'PUBLIC');
+    const internal = d.personas.filter(p => p.scope !== 'PUBLIC');
+    const render = (p) => (
+      '<div style="padding:5px 8px;margin:3px 0;background:#1a1a1a;border-left:3px solid '
+      + (p.scope === 'PUBLIC' ? '#f59e0b' : '#10b981')
+      + ';border-radius:3px;">'
+      + '<b>' + p.label + '</b> <span style="color:#666;font-size:11px;">[' + p.name + ']</span>'
+      + '<div style="color:#888;font-size:11px;margin-top:2px;">' + (p.used_by || []).slice(0,4).join(' · ') + ((p.used_by||[]).length > 4 ? ' · +' + ((p.used_by||[]).length - 4) : '') + '</div>'
+      + '</div>'
+    );
+    let html = '<div style="margin-bottom:8px;color:#aaa;font-size:11px;">'
+      + '<b>' + d.count + '</b> personas · '
+      + '<span style="color:#f59e0b;">' + pub.length + ' public</span> · '
+      + '<span style="color:#10b981;">' + internal.length + ' internal</span></div>';
+    if (pub.length) {
+      html += '<div style="margin-top:8px;color:#f59e0b;font-size:11px;">PUBLIC — creative · frame: Alex Riviera</div>';
+      html += pub.map(render).join('');
+    }
+    html += '<div style="margin-top:8px;color:#10b981;font-size:11px;">INTERNAL — operating + commercial</div>';
+    html += internal.map(render).join('');
+    document.getElementById('personas-list').innerHTML = html;
+  } catch (e) {
+    document.getElementById('personas-list').textContent = 'unavailable';
+  }
+}
+
+
+
+async function loadReview() {
+  try {
+    const stats = await api('/api/review/stats');
+    const sEl = document.getElementById('review-stats');
+    const byStatus = stats.by_status || {};
+    const byType = stats.by_type || {};
+    const grad = stats.graduation || {};
+    let statHtml = '<b>pending: ' + (stats.pending_count || 0) + '</b>';
+    statHtml += ' \u00b7 approved: ' + (byStatus.approved || 0);
+    statHtml += ' \u00b7 rejected: ' + (byStatus.rejected || 0);
+    statHtml += ' \u00b7 revise: ' + (byStatus.revise || 0);
+    statHtml += ' \u00b7 published: ' + (byStatus.published || 0);
+    const gradList = Object.entries(grad).filter(([k,v]) => v).map(([k]) => k);
+    if (gradList.length) {
+      statHtml += '<div style=\"margin-top:6px;color:#10b981;\">graduated: ' + gradList.join(', ') + '</div>';
+    }
+    sEl.innerHTML = statHtml;
+
+    const pending = await api('/api/review/pending?limit=10');
+    const pEl = document.getElementById('review-pending');
+    if (!pending.items || pending.items.length === 0) {
+      pEl.innerHTML = '<div style=\"color:#888;\">no items awaiting review</div>';
+    } else {
+      pEl.innerHTML = pending.items.map(it => {
+        const score = it.overall_score != null ? Number(it.overall_score).toFixed(2) : '\u2014';
+        const scoreColor = it.overall_score >= 8 ? '#10b981' : it.overall_score >= 6.5 ? '#f59e0b' : '#ef4444';
+        const preview = (it.payload && (it.payload.content_preview || it.payload.synopsis || it.summary || ''))
+                        .toString().slice(0, 220);
+        return '<div style=\"padding:8px;margin:6px 0;background:#1a1a1a;border-left:3px solid ' + scoreColor + ';border-radius:4px;\">'
+          + '<div><b>' + escapeHtml(it.title || 'Untitled') + '</b> '
+          + '<span style=\"color:#666;font-size:11px;\">[' + it.work_type + ' \u00b7 #' + it.id + ']</span> '
+          + '<span style=\"color:' + scoreColor + ';font-size:11px;\">score ' + score + '</span></div>'
+          + (preview ? '<div style=\"color:#aaa;font-size:11px;margin-top:4px;\">' + escapeHtml(preview) + (preview.length >= 220 ? '\u2026' : '') + '</div>' : '')
+          + '<div style=\"margin-top:6px;\">'
+          + '<button onclick=\"reviewDecide(' + it.id + ', \\\'approve\\\')\" style=\"padding:4px 10px;background:#10b981;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">approve</button> '
+          + '<button onclick=\"reviewDecide(' + it.id + ', \\\'revise\\\')\" style=\"padding:4px 10px;background:#f59e0b;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">revise</button> '
+          + '<button onclick=\"reviewDecide(' + it.id + ', \\\'reject\\\')\" style=\"padding:4px 10px;background:#ef4444;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">reject</button>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    const skillEl = document.getElementById('review-skill');
+    const types = Object.keys(byType);
+    if (!types.length) {
+      skillEl.innerHTML = '<div style=\"color:#888;\">no work types reviewed yet</div>';
+    } else {
+      const parts = [];
+      for (const wt of types) {
+        try {
+          const sk = await api('/api/review/skill/' + wt);
+          const cur = sk.curve || [];
+          const avg = sk.stats && sk.stats.avg_score != null ? Number(sk.stats.avg_score).toFixed(2) : '\u2014';
+          const recent5 = cur.slice(0, 5).map(c => Number(c.overall).toFixed(1)).join(', ');
+          const isGrad = !!sk.graduated;
+          const isElig = !!sk.eligible_for_graduation;
+          parts.push(
+            '<div style=\"padding:6px 8px;margin:4px 0;background:#1a1a1a;border-radius:3px;\">'
+            + '<b>' + wt + '</b> '
+            + '<span style=\"color:#666;font-size:11px;\">n=' + ((sk.stats||{}).submissions||0) + ' \u00b7 avg ' + avg + '</span> '
+            + (isGrad ? '<span style=\"color:#10b981;font-size:11px;\">[graduated]</span>'
+                      : isElig ? '<span style=\"color:#f59e0b;font-size:11px;\">[eligible]</span>'
+                              : '<span style=\"color:#666;font-size:11px;\">[gated]</span>')
+            + '<div style=\"color:#888;font-size:11px;\">recent: ' + (recent5 || '\u2014') + '</div>'
+            + (isGrad
+                ? '<button onclick=\"reviewRevoke(\\\'' + wt + '\\\')\" style=\"margin-top:4px;padding:3px 8px;background:#ef4444;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">revoke graduation</button>'
+                : (isElig
+                    ? '<button onclick=\"reviewGraduate(\\\'' + wt + '\\\')\" style=\"margin-top:4px;padding:3px 8px;background:#10b981;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:11px;\">graduate (enable auto-publish)</button>'
+                    : ''))
+            + '</div>'
+          );
+        } catch (_) {}
+      }
+      skillEl.innerHTML = parts.join('');
+    }
+  } catch (e) {
+    document.getElementById('review-stats').textContent = 'unavailable';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));
+}
+
+async function reviewDecide(id, action) {
+  const notes = prompt('Notes (optional):', '') || '';
+  try {
+    await api('/api/review/' + action + '/' + id, { method: 'POST', body: JSON.stringify({ notes }) });
+    toast(action + 'd #' + id);
+    loadReview();
+  } catch (_) {}
+}
+
+async function reviewGraduate(wt) {
+  if (!confirm('Graduate work_type \"' + wt + '\"? Auto-publish will be enabled for this type. You can revoke later.')) return;
+  try {
+    await api('/api/review/graduate/' + wt, { method: 'POST', body: JSON.stringify({ notes: 'graduated via dashboard' }) });
+    toast('graduated ' + wt);
+    loadReview();
+  } catch (_) {}
+}
+
+async function reviewRevoke(wt) {
+  if (!confirm('Revoke graduation for \"' + wt + '\"? All future ' + wt + ' will be re-gated.')) return;
+  try {
+    await api('/api/review/revoke/' + wt, { method: 'POST', body: JSON.stringify({ notes: 'revoked via dashboard' }) });
+    toast('revoked ' + wt);
+    loadReview();
+  } catch (_) {}
+}
+
+loadEvoSummary();
+loadSelfEdits();
+loadBrain();
+loadPersonas();
+loadReview();
+setInterval(refresh, 30000);
+setInterval(loadTrader, 30000);
+setInterval(loadPending, 30000);
+setInterval(loadNotifier, 60000);
+setInterval(loadEvoSummary, 60000);
+setInterval(loadSelfEdits, 30000);
+setInterval(loadBrain, 120000);
+setInterval(loadReview, 30000);
+</script>
+</body>
+</html>

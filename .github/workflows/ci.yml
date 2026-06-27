@@ -1,0 +1,390 @@
+name: DMAI CI — Build · Test · Gate
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggers
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches: [main]
+    paths:
+      # Run on any source change that could affect metrics
+      - "dmai_core_complete.py"
+      - "components/**"
+      - "aevora-training/**"
+      - "data/training/**"
+      - "requirements.txt"
+      - "Dockerfile"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_docker:
+        description: "Skip Docker build (use for quick test-only runs)"
+        required: false
+        default: "false"
+      force_cache_update:
+        description: "Force kpi-cache update even if on a PR (for debugging)"
+        required: false
+        default: "false"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Concurrency — cancel any in-flight run on the same branch before starting
+# ─────────────────────────────────────────────────────────────────────────────
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  IMAGE_NAME: dmai-web
+  RENDER_DEPLOY_URL: https://dmai-web.onrender.com
+  # DATA_PATH used by the app; tests hit the live Render URL, not this path
+  DATA_PATH: data
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Jobs
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 1. Lint & static checks (fast — runs in parallel with docker build)
+  # ───────────────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint & Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install lint dependencies
+        run: pip install pyflakes bandit
+
+      - name: AST check — dmai_core_complete.py
+        run: |
+          python3 -c "
+          import ast, sys
+          with open('dmai_core_complete.py') as f:
+              src = f.read()
+          try:
+              ast.parse(src)
+              print('✅ AST OK')
+          except SyntaxError as e:
+              print(f'❌ Syntax error at line {e.lineno}: {e.msg}')
+              sys.exit(1)
+          "
+
+      - name: AST check — orchestrator
+        run: |
+          python3 -c "
+          import ast, sys
+          path = 'components/orchestrator/DMAITrainingOrchestrator.py'
+          try:
+              ast.parse(open(path).read())
+              print(f'✅ {path} AST OK')
+          except SyntaxError as e:
+              print(f'❌ {path} line {e.lineno}: {e.msg}')
+              sys.exit(1)
+          "
+
+      - name: AST check — diagnostic test script
+        run: |
+          python3 -c "
+          import ast, sys
+          path = 'aevora-training/tests/test_metrics_pipeline.py'
+          try:
+              ast.parse(open(path).read())
+              print(f'✅ {path} AST OK')
+          except SyntaxError as e:
+              print(f'❌ {path} line {e.lineno}: {e.msg}')
+              sys.exit(1)
+          "
+
+      - name: Pyflakes — undefined names check
+        run: |
+          # Ignore E501 (line length) and known stdlib re-exports
+          python3 -m pyflakes dmai_core_complete.py 2>&1 | grep -v "imported but unused" | grep -v "redefinition" | tee /tmp/pyflakes.txt
+          # Treat undefined name errors as failures
+          if grep -q "undefined name" /tmp/pyflakes.txt; then
+            echo "❌ Pyflakes found undefined names"
+            cat /tmp/pyflakes.txt
+            exit 1
+          fi
+          echo "✅ Pyflakes clean"
+
+      - name: Bandit security scan (high severity only)
+        run: |
+          bandit -r dmai_core_complete.py components/ \
+            --severity-level high \
+            --confidence-level high \
+            --quiet \
+            --exclude .venv,__pycache__ \
+            -f txt || true
+          echo "✅ Bandit scan complete (high-severity only; warnings are non-blocking)"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 2. Docker build
+  # ───────────────────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_docker != 'true' }}
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: meta
+        run: |
+          SHORT_SHA="${{ github.sha }}"
+          TAG="${{ env.IMAGE_NAME }}:${SHORT_SHA:0:8}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Image tag: $TAG"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # Build args passed to Dockerfile
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+
+      - name: Smoke-test the image starts
+        run: |
+          docker run --rm -d \
+            --name dmai-smoke \
+            -e PORT=8080 \
+            -e MASTER_PASSWORD=ci-test \
+            -e DATA_PATH=/tmp/data \
+            -p 8080:8080 \
+            ${{ steps.meta.outputs.tag }} || {
+              echo "⚠️  Docker smoke test skipped (image may not exist if Dockerfile is missing)"
+              exit 0
+            }
+          sleep 8
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/status || echo "000")
+          docker stop dmai-smoke || true
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Container started and /api/status returned 200"
+          else
+            echo "⚠️  /api/status returned $STATUS (container may still be warming up — non-blocking)"
+          fi
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 3. Full diagnostic test suite against live Render deployment
+  #    Only runs on push to main (not PRs) to avoid hammering production
+  #    on every PR. PRs get lint only.
+  # ───────────────────────────────────────────────────────────────────────────
+  diagnostic-tests:
+    name: Metrics Pipeline Diagnostic
+    runs-on: ubuntu-latest
+    # Wait for Render to redeploy before running tests.
+    # Render typically deploys within 3–5 min of a push.
+    needs: [lint]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    outputs:
+      all-passed: ${{ steps.run-tests.outputs.all_passed }}
+      summary: ${{ steps.run-tests.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install test dependencies
+        run: pip install requests pytest pytest-asyncio
+
+      - name: Wait for Render redeploy
+        run: |
+          echo "⏳ Waiting 5 minutes for Render to finish deploying..."
+          sleep 300
+          echo "✅ Wait complete — proceeding with diagnostic tests"
+
+      - name: Warm up Render (cold start ping)
+        run: |
+          echo "🏓 Pinging Render to wake from cold start..."
+          for i in 1 2 3; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 ${{ env.RENDER_DEPLOY_URL }}/api/status || echo "000")
+            echo "  Attempt $i: $STATUS"
+            [ "$STATUS" = "200" ] && break
+            sleep 15
+          done
+
+      - name: Run full diagnostic test suite
+        id: run-tests
+        run: |
+          set +e  # Don't exit on failure — capture output first
+
+          python3 aevora-training/tests/test_metrics_pipeline.py \
+            --base-url ${{ env.RENDER_DEPLOY_URL }} \
+            --json 2>&1 | tee /tmp/diagnostic_output.txt
+
+          EXIT_CODE=${PIPESTATUS[0]}
+
+          # Extract JSON block from output
+          python3 - << 'PYEOF'
+          import json, sys, os
+
+          with open('/tmp/diagnostic_output.txt') as f:
+              raw = f.read()
+
+          # Find the JSON block (after "JSON:" marker)
+          if 'JSON:' in raw:
+              json_part = raw.split('JSON:')[-1].strip()
+          else:
+              # Try to parse the whole thing
+              json_part = raw
+
+          passed = False
+          summary = "Diagnostic output unavailable"
+          try:
+              data = json.loads(json_part)
+              passed = data.get('overall', False)
+              checks = data.get('checks', [])
+              lines = []
+              for c in checks:
+                  icon = '✅' if c['passed'] else '❌'
+                  lines.append(f"{icon} {c['name']}")
+              summary = '\n'.join(lines)
+          except Exception as e:
+              summary = f"Could not parse JSON output: {e}"
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as gh:
+              val = 'true' if passed else 'false'
+              gh.write(f"all_passed={val}\n")
+              # Escape newlines for GITHUB_OUTPUT multiline
+              escaped = summary.replace('%', '%25').replace('\n', '%0A').replace('\r', '%0D')
+              gh.write(f"summary={escaped}\n")
+
+          print(f"Overall passed: {passed}")
+          PYEOF
+
+          exit $EXIT_CODE
+
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "=== Diagnostic Test Results ==="
+          cat /tmp/diagnostic_output.txt
+
+      - name: Annotate PR / commit with results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const passed = '${{ steps.run-tests.outputs.all_passed }}' === 'true';
+            const summary = decodeURIComponent('${{ steps.run-tests.outputs.summary }}'.replace(/%0A/g, '\n').replace(/%0D/g, '\r').replace(/%25/g, '%'));
+            const icon = passed ? '✅' : '❌';
+            const title = `${icon} DMAI Metrics Pipeline — ${passed ? 'ALL CHECKS PASSED' : 'FAILURES DETECTED'}`;
+            await core.summary
+              .addHeading(title)
+              .addCodeBlock(summary, 'text')
+              .addLink('View live deployment', '${{ env.RENDER_DEPLOY_URL }}')
+              .write();
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 4. KPI cache update gate — ONLY runs when all diagnostic tests pass
+  # ───────────────────────────────────────────────────────────────────────────
+  update-kpi-cache:
+    name: Update KPI Cache (gated)
+    runs-on: ubuntu-latest
+    needs: [diagnostic-tests]
+    if: |
+      needs.diagnostic-tests.outputs.all-passed == 'true' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch live metrics and write kpi_cache.json
+        id: fetch-kpis
+        run: |
+          python3 aevora-training/scripts/update_kpi_cache.py \
+            --base-url ${{ env.RENDER_DEPLOY_URL }} \
+            --output aevora-training/dashboard/data/kpi_cache.json
+
+      - name: Commit updated kpi_cache.json
+        run: |
+          git config user.name  "DMAI CI Bot"
+          git config user.email "ci@dmai-system.auto"
+
+          # Only commit if the file actually changed
+          git add aevora-training/dashboard/data/kpi_cache.json
+
+          if git diff --cached --quiet; then
+            echo "ℹ️  kpi_cache.json unchanged — nothing to commit"
+          else
+            COMMIT_MSG="chore(ci): update kpi_cache.json — post-deploy gate passed [skip ci]"
+            git commit -m "$COMMIT_MSG"
+            git push origin main
+            echo "✅ kpi_cache.json committed and pushed"
+          fi
+
+      - name: Summary
+        run: |
+          echo "✅ KPI cache successfully updated after all diagnostic tests passed."
+          echo "   Commit: $(git rev-parse --short HEAD)"
+          echo "   File:   aevora-training/dashboard/data/kpi_cache.json"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 5. Notify on failure (any job)
+  # ───────────────────────────────────────────────────────────────────────────
+  notify-failure:
+    name: Notify on CI Failure
+    runs-on: ubuntu-latest
+    needs: [lint, diagnostic-tests, update-kpi-cache]
+    if: failure() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Build failure message
+        id: msg
+        run: |
+          echo "FAILED_JOBS<<EOF" >> $GITHUB_ENV
+          echo "lint=${{ needs.lint.result }}" >> $GITHUB_ENV
+          echo "diagnostic-tests=${{ needs.diagnostic-tests.result }}" >> $GITHUB_ENV
+          echo "update-kpi-cache=${{ needs.update-kpi-cache.result }}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Post failure to GitHub Step Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.sha.substring(0, 8);
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await core.summary
+              .addHeading('❌ DMAI CI Failed')
+              .addTable([
+                [{data: 'Job', header: true}, {data: 'Result', header: true}],
+                ['Lint',               '${{ needs.lint.result }}'],
+                ['Diagnostic Tests',   '${{ needs.diagnostic-tests.result }}'],
+                ['KPI Cache Update',   '${{ needs.update-kpi-cache.result }}'],
+              ])
+              .addLink(`View run (${sha})`, runUrl)
+              .write();

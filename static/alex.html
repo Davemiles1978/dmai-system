@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alex Riviera — Confidence Coach</title>
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#0b0f17" />
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --bg-elev: #131a26;
+      --bg-card: #182233;
+      --border: #243044;
+      --text: #e8edf5;
+      --text-muted: #93a3bb;
+      --accent: #ff6584;
+      --accent-dim: #ff658444;
+      --me: #2a3a5c;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .app { display: flex; flex-direction: column; height: 100vh; max-width: 820px; margin: 0 auto; }
+    header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--bg-elev); }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #ffd1dc 0%, #ff6584 100%);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 18px; }
+    .name { font-weight: 600; font-size: 16px; }
+    .role { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #00d4aa; box-shadow: 0 0 8px #00d4aa; margin-left: auto; }
+    .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .msg { max-width: 78%; padding: 12px 16px; border-radius: 18px; line-height: 1.45; font-size: 15px; word-wrap: break-word; }
+    .msg.alex { background: var(--bg-card); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg.me { background: var(--me); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg.system { background: transparent; color: var(--text-muted); font-size: 12px; align-self: center; }
+    .typing { color: var(--text-muted); font-size: 13px; padding: 0 20px 6px; min-height: 20px; }
+    form { display: flex; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--border); background: var(--bg-elev); }
+    input[type=text] { flex: 1; background: var(--bg-card); border: 1px solid var(--border); color: var(--text);
+      border-radius: 22px; padding: 12px 16px; font-size: 15px; outline: none; }
+    input[type=text]:focus { border-color: var(--accent); }
+    button { background: var(--accent); color: #fff; border: none; border-radius: 22px; padding: 0 22px; font-weight: 600;
+      cursor: pointer; font-size: 14px; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .footer { text-align: center; padding: 8px; font-size: 11px; color: var(--text-muted); }
+    .footer a { color: var(--text-muted); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="avatar">AR</div>
+      <div>
+        <div class="name">Alex Riviera</div>
+        <div class="role">Confidence Coach · Educator · Mentor</div>
+      </div>
+      <div class="status-dot" title="Online"></div>
+    </header>
+    <div class="messages" id="messages">
+      <div class="msg alex">Hey, I'm Alex. I help people build real confidence, sharpen their thinking, and take action on the things that matter to them. What's on your mind today?</div>
+    </div>
+    <div class="typing" id="typing"></div>
+    <form id="form" autocomplete="off">
+      <input type="text" id="input" placeholder="Type a message to Alex…" required />
+      <button type="submit" id="send">Send</button>
+    </form>
+    <div class="footer"><a href="/">DMAI Home</a> · <a href="/chat">General Chat</a></div>
+  </div>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const typingEl = document.getElementById('typing');
+    const formEl = document.getElementById('form');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+
+    function addMessage(text, who) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function sendMessage(text) {
+      addMessage(text, 'me');
+      typingEl.textContent = 'Alex is typing…';
+      sendBtn.disabled = true;
+      try {
+        const r = await fetch('/api/alex/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await r.json();
+        if (data.response) {
+          addMessage(data.response, 'alex');
+        } else {
+          addMessage("I hit a snag connecting just now. Can you try that again?", 'alex');
+        }
+      } catch (e) {
+        addMessage("Connection trouble. Give me a moment and try again.", 'alex');
+      } finally {
+        typingEl.textContent = '';
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+    }
+
+    formEl.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const text = inputEl.value.trim();
+      if (!text) return;
+      inputEl.value = '';
+      sendMessage(text);
+    });
+
+    inputEl.focus();
+  </script>
+</body>
+</html>

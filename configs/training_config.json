@@ -1,0 +1,66 @@
+{
+  "_comment": "DMAI Training System Configuration — override any value in your environment or .env",
+
+  "database": {
+    "backend": "postgres",
+    "postgres_env_var": "DATABASE_URL",
+    "sqlite_fallback": true,
+    "sqlite_path": "data/dmai.db",
+    "knowledge_db_path": "data/dmai_knowledge.db"
+  },
+
+
+  "ai_training": {
+    "domains": "all",
+    "run_category_order": ["Core", "Accelerator", "Artistic", "Wealth"],
+    "stage_gate_overrides": {
+      "Baby":    0.40,
+      "Toddler": 0.55,
+      "Child":   0.65,
+      "Teen":    0.75,
+      "Adult":   0.85,
+      "Expert":  0.95
+    },
+    "save_state_after_each_domain": true
+  },
+
+  "si_training": {
+    "modules": "all",
+    "kpi_update_on_completion": true,
+    "module_run_order": [
+      "si_tool_mastery",
+      "si_system_integration",
+      "si_autonomous_decision",
+      "si_metacognition",
+      "si_multimodal_fusion",
+      "si_recursive_improvement",
+      "si_social_intelligence",
+      "si_knowledge_synthesis"
+    ]
+  },
+
+  "update_engine": {
+    "model_registry_interval_hours": 6,
+    "feedback_retraining_interval_hours": 12,
+    "knowledge_freshen_interval_hours": 24,
+    "benchmark_interval_hours": 48,
+    "kaizen_interval_hours": 6,
+    "auto_start_background_updater": true,
+    "kaizen_endpoint": "http://localhost:5000/api/kaizen"
+  },
+
+  "extended_hub": {
+    "preferred_chat_provider": "auto",
+    "preferred_image_provider": "auto",
+    "tts_voice": "alex_riviera",
+    "video_duration_seconds": 5,
+    "vector_db_index": "dmai-knowledge"
+  },
+
+  "orchestrator": {
+    "run_on_startup": false,
+    "startup_mode": "quick",
+    "startup_focus": "Core",
+    "log_level": "INFO"
+  }
+}

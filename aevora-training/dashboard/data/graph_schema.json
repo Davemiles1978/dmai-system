@@ -1,0 +1,551 @@
+{
+  "schema_version": "2.0",
+  "last_updated": "2026-06-25",
+  "evolution_cycle": 2,
+  "total_neurons": 32,
+  "total_synapses": 47,
+  "metadata": {
+    "description": "DMAI Knowledge Graph \u2014 locked core topology of neural components and their relationships",
+    "auto_evolved": false,
+    "graph_locked": true,
+    "generator": "graph_evolution_monitor.py",
+    "last_live_update": "2026-06-25T07:08:19Z"
+  },
+  "clusters": {
+    "core": {
+      "color": "#6c63ff",
+      "label": "Core Intelligence"
+    },
+    "learning": {
+      "color": "#00d4aa",
+      "label": "Learning Systems"
+    },
+    "research": {
+      "color": "#ffa502",
+      "label": "Research & Discovery"
+    },
+    "knowledge": {
+      "color": "#a29bfe",
+      "label": "Knowledge Management"
+    },
+    "providers": {
+      "color": "#74b9ff",
+      "label": "AI Providers"
+    },
+    "revenue": {
+      "color": "#ff4757",
+      "label": "Revenue Generation"
+    }
+  },
+  "neurons": [
+    {
+      "id": "dmai_core",
+      "label": "DMAI Core",
+      "cluster": "core",
+      "description": "DMAI Core component",
+      "activation": 1.0
+    },
+    {
+      "id": "meta_controller",
+      "label": "Meta Controller",
+      "cluster": "core",
+      "description": "Meta Controller component",
+      "activation": 0.9
+    },
+    {
+      "id": "si_core",
+      "label": "SICore Engine",
+      "cluster": "core",
+      "description": "SICore Engine component",
+      "activation": 0.9
+    },
+    {
+      "id": "db_storage",
+      "label": "Database Storage",
+      "cluster": "core",
+      "description": "Database Storage component",
+      "activation": 0.8
+    },
+    {
+      "id": "api_gateway",
+      "label": "API Gateway",
+      "cluster": "core",
+      "description": "API Gateway component",
+      "activation": 0.8
+    },
+    {
+      "id": "health_monitor",
+      "label": "Health Monitor",
+      "cluster": "core",
+      "description": "Health Monitor component",
+      "activation": 0.75
+    },
+    {
+      "id": "background_svc",
+      "label": "Background Services",
+      "cluster": "core",
+      "description": "Background Services component",
+      "activation": 0.7
+    },
+    {
+      "id": "integrity_checker",
+      "label": "Integrity Checker",
+      "cluster": "core",
+      "description": "Integrity Checker component",
+      "activation": 0.7
+    },
+    {
+      "id": "knowledge_mgr",
+      "label": "Knowledge Manager",
+      "cluster": "knowledge",
+      "description": "Knowledge Manager component",
+      "activation": 0.031,
+      "capability_count": 1544
+    },
+    {
+      "id": "learning_orch",
+      "label": "Learning Orchestrator",
+      "cluster": "learning",
+      "description": "Learning Orchestrator component",
+      "activation": 1.0
+    },
+    {
+      "id": "training_pipeline",
+      "label": "Training Pipeline",
+      "cluster": "learning",
+      "description": "Training Pipeline component",
+      "activation": 1.0
+    },
+    {
+      "id": "stage_learner",
+      "label": "Stage Learner",
+      "cluster": "learning",
+      "description": "Stage Learner component",
+      "activation": 1.0
+    },
+    {
+      "id": "parallel_learner",
+      "label": "Parallel Learner",
+      "cluster": "learning",
+      "description": "Parallel Learner component",
+      "activation": 0.7
+    },
+    {
+      "id": "vocab_ingest",
+      "label": "Vocabulary Ingester",
+      "cluster": "learning",
+      "description": "Vocabulary Ingester component",
+      "activation": 0.65
+    },
+    {
+      "id": "auto_researcher",
+      "label": "Auto Researcher",
+      "cluster": "research",
+      "description": "Auto Researcher component",
+      "activation": 0.8
+    },
+    {
+      "id": "insight_processor",
+      "label": "Insight Processor",
+      "cluster": "research",
+      "description": "Insight Processor component",
+      "activation": 0.7
+    },
+    {
+      "id": "graph_evolution",
+      "label": "Graph Evolution",
+      "cluster": "research",
+      "description": "Graph Evolution component",
+      "activation": 0.7
+    },
+    {
+      "id": "kaizen_engine",
+      "label": "Kaizen Engine",
+      "cluster": "research",
+      "description": "Kaizen Engine component",
+      "activation": 0.7
+    },
+    {
+      "id": "suggestion_exec",
+      "label": "Suggestion Executor",
+      "cluster": "research",
+      "description": "Suggestion Executor component",
+      "activation": 0.65
+    },
+    {
+      "id": "code_writer",
+      "label": "Code Writer",
+      "cluster": "research",
+      "description": "Code Writer component",
+      "activation": 0.65
+    },
+    {
+      "id": "kaizen_auto_repair",
+      "label": "Kaizen Auto-Repair",
+      "cluster": "research",
+      "description": "Kaizen Auto-Repair component",
+      "activation": 0.65
+    },
+    {
+      "id": "self_funding",
+      "label": "Self-Funding",
+      "cluster": "revenue",
+      "description": "Self-Funding component",
+      "activation": 0.8
+    },
+    {
+      "id": "revenue_tracker",
+      "label": "Revenue Tracker",
+      "cluster": "revenue",
+      "description": "Revenue Tracker component",
+      "activation": 0.7
+    },
+    {
+      "id": "content_gen",
+      "label": "Content Generator",
+      "cluster": "revenue",
+      "description": "Content Generator component",
+      "activation": 0.7
+    },
+    {
+      "id": "trading_agent",
+      "label": "Trading Agent",
+      "cluster": "revenue",
+      "description": "Trading Agent component",
+      "activation": 0.65
+    },
+    {
+      "id": "scraper_agent",
+      "label": "Scraper Agent",
+      "cluster": "revenue",
+      "description": "Scraper Agent component",
+      "activation": 0.65
+    },
+    {
+      "id": "ai_hub",
+      "label": "AI Integration Hub",
+      "cluster": "providers",
+      "description": "AI Integration Hub component",
+      "activation": 0.85
+    },
+    {
+      "id": "groq_provider",
+      "label": "Groq",
+      "cluster": "providers",
+      "description": "Groq component",
+      "activation": 0.6
+    },
+    {
+      "id": "cerebras_provider",
+      "label": "Cerebras",
+      "cluster": "providers",
+      "description": "Cerebras component",
+      "activation": 0.6
+    },
+    {
+      "id": "google_provider",
+      "label": "Google AI",
+      "cluster": "providers",
+      "description": "Google AI component",
+      "activation": 0.6
+    },
+    {
+      "id": "openrouter_provider",
+      "label": "OpenRouter",
+      "cluster": "providers",
+      "description": "OpenRouter component",
+      "activation": 0.6
+    },
+    {
+      "id": "github_models",
+      "label": "GitHub Models",
+      "cluster": "providers",
+      "description": "GitHub Models component",
+      "activation": 0.6
+    }
+  ],
+  "synapses": [
+    {
+      "source": "dmai_core",
+      "target": "meta_controller",
+      "weight": 1.0,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "si_core",
+      "weight": 1.0,
+      "type": "control"
+    },
+    {
+      "source": "meta_controller",
+      "target": "si_core",
+      "weight": 0.9,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "api_gateway",
+      "weight": 0.85,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "db_storage",
+      "weight": 0.85,
+      "type": "data"
+    },
+    {
+      "source": "dmai_core",
+      "target": "health_monitor",
+      "weight": 0.8,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "background_svc",
+      "weight": 0.8,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "integrity_checker",
+      "weight": 0.75,
+      "type": "control"
+    },
+    {
+      "source": "health_monitor",
+      "target": "integrity_checker",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "api_gateway",
+      "target": "db_storage",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "dmai_core",
+      "target": "knowledge_mgr",
+      "weight": 0.9,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "learning_orch",
+      "weight": 0.9,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "auto_researcher",
+      "weight": 0.85,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "ai_hub",
+      "weight": 0.9,
+      "type": "control"
+    },
+    {
+      "source": "dmai_core",
+      "target": "self_funding",
+      "weight": 0.85,
+      "type": "control"
+    },
+    {
+      "source": "knowledge_mgr",
+      "target": "db_storage",
+      "weight": 0.8,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "knowledge_mgr",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "training_pipeline",
+      "weight": 0.8,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "stage_learner",
+      "weight": 0.8,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "parallel_learner",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "vocab_ingest",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "training_pipeline",
+      "target": "stage_learner",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "stage_learner",
+      "target": "parallel_learner",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "vocab_ingest",
+      "target": "knowledge_mgr",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "learning_orch",
+      "target": "ai_hub",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "insight_processor",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "graph_evolution",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "insight_processor",
+      "target": "si_core",
+      "weight": 0.7,
+      "type": "feedback"
+    },
+    {
+      "source": "graph_evolution",
+      "target": "knowledge_mgr",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "kaizen_engine",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "kaizen_engine",
+      "target": "suggestion_exec",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "suggestion_exec",
+      "target": "code_writer",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "code_writer",
+      "target": "kaizen_auto_repair",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "kaizen_auto_repair",
+      "target": "integrity_checker",
+      "weight": 0.65,
+      "type": "feedback"
+    },
+    {
+      "source": "auto_researcher",
+      "target": "ai_hub",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "revenue_tracker",
+      "weight": 0.75,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "content_gen",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "trading_agent",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "self_funding",
+      "target": "scraper_agent",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "revenue_tracker",
+      "target": "db_storage",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "content_gen",
+      "target": "ai_hub",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "scraper_agent",
+      "target": "auto_researcher",
+      "weight": 0.65,
+      "type": "data"
+    },
+    {
+      "source": "ai_hub",
+      "target": "groq_provider",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "ai_hub",
+      "target": "cerebras_provider",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "ai_hub",
+      "target": "google_provider",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "ai_hub",
+      "target": "openrouter_provider",
+      "weight": 0.7,
+      "type": "data"
+    },
+    {
+      "source": "ai_hub",
+      "target": "github_models",
+      "weight": 0.7,
+      "type": "data"
+    }
+  ]
+}

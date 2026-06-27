@@ -16,11 +16,12 @@ class AlexRivieraAvatar:
     """
 
     def __init__(self):
-        self.final_avatar_reference = Path("data/avatars/reference_images/ChatGPT Image Jun 4, 2026, 03_41_53 PM.png")
+        _root = Path(__file__).resolve().parents[2]
+        self.final_avatar_reference = _root / "data" / "avatars" / "reference_images" / "ChatGPT Image Jun 4, 2026, 03_41_53 PM.png"
         if self.final_avatar_reference.exists():
             print(f"✅ Final avatar reference loaded: {self.final_avatar_reference.name}")
 
-        self.avatar_dir = Path("data/avatars/canonical")
+        self.avatar_dir = _root / "data" / "avatars" / "canonical"
         self.avatar_dir.mkdir(parents=True, exist_ok=True)
         
         # Load the canonical profile
@@ -48,18 +49,68 @@ class AlexRivieraAvatar:
         self._save_canonical_profile()
         print("✅ Alex Riviera Canonical Avatar Profile Loaded (SOURCE OF TRUTH)")
     
+    @staticmethod
+    def _resolve_profile_path() -> Path:
+        """Resolve profile path against project root, not cwd (cwd varies on Render)."""
+        # AvatarSystem.py lives at components/media/AvatarSystem.py
+        # Project root is two directories up.
+        project_root = Path(__file__).resolve().parents[2]
+        return project_root / "data" / "avatars" / "canonical" / "alex_riviera_master_profile.json"
+
+    @staticmethod
+    def _seed_profile_path() -> Path:
+        """Bundled seed copy that ships with the package."""
+        return Path(__file__).resolve().parent / "seed" / "alex_riviera_master_profile.json"
+
     def _load_canonical_profile(self) -> Dict:
-        """Load the canonical master profile"""
-        profile_file = Path("data/avatars/canonical/alex_riviera_master_profile.json")
+        """Load the canonical master profile, seeding from package on first run.
+
+        Resilient to corrupt persisted profiles: if the on-disk file fails to
+        parse, quarantine it and re-seed from the bundled package copy.
+        """
+        import logging
+        log = logging.getLogger(__name__)
+        profile_file = self._resolve_profile_path()
+        seed = self._seed_profile_path()
+
+        # If persisted file missing, seed it.
+        if not profile_file.exists() and seed.exists():
+            profile_file.parent.mkdir(parents=True, exist_ok=True)
+            profile_file.write_text(seed.read_text())
+
+        # Try persisted copy first.
         if profile_file.exists():
-            with open(profile_file) as f:
+            try:
+                with open(profile_file) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, ValueError) as e:
+                log.warning(
+                    "Canonical profile at %s is corrupt (%s); quarantining and re-seeding.",
+                    profile_file, e,
+                )
+                try:
+                    quarantine = profile_file.with_suffix(profile_file.suffix + ".malformed")
+                    profile_file.rename(quarantine)
+                except Exception:
+                    pass
+                if seed.exists():
+                    profile_file.parent.mkdir(parents=True, exist_ok=True)
+                    profile_file.write_text(seed.read_text())
+                    with open(profile_file) as f:
+                        return json.load(f)
+
+        # Last-resort: load directly from the seed without writing
+        if seed.exists():
+            with open(seed) as f:
                 return json.load(f)
-        else:
-            raise FileNotFoundError("Canonical profile not found. Please ensure alex_riviera_master_profile.json exists.")
-    
+        raise FileNotFoundError(
+            f"Canonical profile not found at {profile_file} and no seed at {seed}."
+        )
+
     def _save_canonical_profile(self):
         """Save any updates to the canonical profile"""
-        profile_file = Path("data/avatars/canonical/alex_riviera_master_profile.json")
+        profile_file = self._resolve_profile_path()
+        profile_file.parent.mkdir(parents=True, exist_ok=True)
         with open(profile_file, 'w') as f:
             json.dump(self.profile, f, indent=2)
     

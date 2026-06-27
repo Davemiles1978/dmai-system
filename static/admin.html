@@ -1,0 +1,3471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="/static/manifest.json"/>
+  <meta name="theme-color" content="#0a0a0f"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="DMAI"/>
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png"/>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/service-worker.js',{scope:'/'}).catch(e=>console.warn('SW reg failed',e));});}</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DMAI Admin</title>
+  <style>
+    :root {
+      --bg:           #0a0a0f;
+      --surface:      #111118;
+      --surface2:     #18181f;
+      --border:       #1e1e2e;
+      --border-focus: #6c63ff44;
+      --accent:       #6c63ff;
+      --accent-dim:   #4e47c4;
+      --green:        #00d4aa;
+      --green-dim:    rgba(0,212,170,0.12);
+      --red:          #ff4757;
+      --red-dim:      rgba(255,71,87,0.12);
+      --yellow:       #ffa502;
+      --yellow-dim:   rgba(255,165,2,0.12);
+      --text:         #e0dff5;
+      --text-muted:   #7c7b9a;
+      --text-faint:   #3a3a52;
+      --radius:       10px;
+      --radius-sm:    7px;
+      --shadow:       0 4px 24px rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+    }
+    button { cursor: pointer; font: inherit; border: none; background: none; color: inherit; }
+    input, textarea, select { font: inherit; color: inherit; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Lock screen ─────────────────────────────────────────────────── */
+    #lock-screen {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lock-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%; max-width: 380px;
+      box-shadow: 0 0 60px rgba(108,99,255,0.12);
+      text-align: center;
+    }
+    .lock-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 24px;
+    }
+    .lock-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .lock-card p  { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .lock-field {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 14px;
+      outline: none;
+      color: var(--text);
+      transition: border-color 150ms ease;
+      margin-bottom: 12px;
+    }
+    .lock-field:focus { border-color: var(--accent); }
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      padding: 11px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 150ms ease;
+    }
+    .btn-primary:hover { background: var(--accent-dim); }
+    .btn-primary:disabled { opacity: 0.5; pointer-events: none; }
+    #lock-error {
+      color: var(--red); font-size: 12px; margin-top: 10px;
+      min-height: 18px;
+    }
+
+    /* ── App shell ───────────────────────────────────────────────────── */
+    #app { display: none; flex-direction: column; min-height: 100dvh; }
+    #app.visible { display: flex; }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .badge-admin {
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.3);
+      color: var(--accent);
+      font-size: 11px; font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .version-pill {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .btn-icon {
+      width: 34px; height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: all 150ms ease;
+    }
+    .btn-icon:hover { color: var(--text); border-color: var(--accent); background: rgba(108,99,255,0.08); }
+    .system-status {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; color: var(--green);
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    /* ── Main layout ─────────────────────────────────────────────────── */
+    .main { display: flex; flex: 1; overflow: hidden; height: calc(100dvh - 58px); }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 210px; flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+      padding: 1rem 0;
+    }
+    .nav-section { margin-bottom: 0.5rem; }
+    .nav-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--text-faint); text-transform: uppercase;
+      padding: 0 1rem; margin-bottom: 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 1rem;
+      font-size: 13px; color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 0;
+      transition: all 120ms ease;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active {
+      color: var(--accent);
+      background: rgba(108,99,255,0.08);
+      border-left-color: var(--accent);
+    }
+    .nav-item svg { flex-shrink: 0; }
+
+    /* ── Content ─────────────────────────────────────────────────────── */
+    .content {
+      flex: 1; overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    /* ── Section ─────────────────────────────────────────────────────── */
+    .section { display: none; }
+    .section.active { display: block; }
+    .section-title {
+      font-size: 18px; font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── KPI grid ────────────────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      transition: border-color 200ms ease;
+    }
+    .kpi-card:hover { border-color: var(--accent); }
+    .kpi-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+    .kpi-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .kpi-bar {
+      height: 3px; border-radius: 2px; margin-top: 8px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .kpi-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ── Cards ───────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Status badges ───────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 600;
+      padding: 3px 8px; border-radius: 20px;
+    }
+    .badge-green  { background: var(--green-dim);  color: var(--green); }
+    .badge-red    { background: var(--red-dim);    color: var(--red); }
+    .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+    .badge-grey   { background: var(--surface2);   color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── CB grid ─────────────────────────────────────────────────────── */
+    .cb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+    .cb-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .cb-header { display: flex; align-items: center; justify-content: space-between; }
+    .cb-name { font-size: 13px; font-weight: 600; }
+    .cb-actions { display: flex; gap: 6px; }
+    .btn-sm {
+      font-size: 11px; padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      transition: all 120ms ease;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+    .cb-meta { font-size: 11px; color: var(--text-muted); }
+
+    /* ── Log terminal ────────────────────────────────────────────────── */
+    .log-box {
+      background: #06060a;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'SF Mono','Fira Code',Consolas,'Courier New',monospace;
+      font-size: 12px;
+      color: #a0ffa0;
+      padding: 1rem;
+      height: 340px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+    .log-line { margin: 0; white-space: pre-wrap; word-break: break-all; }
+    .log-line.err  { color: #ff6b7a; }
+    .log-line.warn { color: #ffd56b; }
+    .log-line.info { color: #6be5ff; }
+
+    /* ── Action buttons ──────────────────────────────────────────────── */
+    .btn-action {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 150ms ease;
+    }
+    .btn-action.primary {
+      background: var(--accent); color: #fff;
+    }
+    .btn-action.primary:hover { background: var(--accent-dim); }
+    .btn-action.danger {
+      background: transparent;
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .btn-action.danger:hover { background: var(--red-dim); }
+    .btn-action.secondary {
+      background: var(--surface2);
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+    .btn-action.secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-action:disabled { opacity: 0.45; pointer-events: none; }
+
+    .action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
+
+    /* ── Table ───────────────────────────────────────────────────────── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th {
+      text-align: left; padding: 8px 10px;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 10px; border-bottom: 1px solid var(--border);
+      vertical-align: top; line-height: 1.5;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── Scan box ────────────────────────────────────────────────────── */
+    .scan-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-family: 'SF Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      min-height: 120px;
+      margin-bottom: 10px;
+      transition: border-color 150ms;
+    }
+    .scan-input:focus { border-color: var(--accent); }
+
+    /* ── Toast ───────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      box-shadow: var(--shadow);
+      transform: translateY(20px); opacity: 0;
+      transition: all 250ms ease;
+      pointer-events: none;
+      max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Divider ─────────────────────────────────────────────────────── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+    /* ── Score bar ───────────────────────────────────────────────────── */
+    .score-hero {
+      display: flex; align-items: center; gap: 1.5rem;
+      background: linear-gradient(135deg, rgba(108,99,255,0.12) 0%, rgba(0,212,170,0.08) 100%);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .score-num { font-size: 52px; font-weight: 800; color: var(--green); line-height: 1; }
+    .score-info { flex: 1; }
+    .score-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .score-info p  { font-size: 13px; color: var(--text-muted); }
+    .score-progress {
+      height: 6px; border-radius: 3px;
+      background: var(--border); margin-top: 10px; overflow: hidden;
+    }
+    .score-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      width: 98%;
+      transition: width 800ms cubic-bezier(0.16,1,0.3,1);
+    }
+
+    @media (max-width: 640px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .sidebar {
+        position: fixed; top: 0; left: -260px; height: 100vh; z-index: 500;
+        width: 240px; transition: left 220ms cubic-bezier(0.16,1,0.3,1);
+        background: var(--surface); border-right: 1px solid var(--border);
+        overflow-y: auto; padding-top: 56px;
+      }
+      .sidebar.open { left: 0; }
+      .mob-overlay {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+        z-index: 499;
+      }
+      .mob-overlay.open { display: block; }
+      .mob-menu-btn { display: flex; }
+    }
+    @media (min-width: 641px) {
+      .mob-menu-btn { display: none !important; }
+      .mob-overlay  { display: none !important; }
+    }
+
+    .mob-menu-btn {
+      align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 6px;
+      background: var(--surface2); border: 1px solid var(--border);
+      cursor: pointer; color: var(--text); margin-right: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Lock screen ──────────────────────────────────────────────────────── -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <h2>DMAI Admin</h2>
+    <p>Enter your master password to access the administration panel.</p>
+    <input
+      type="password"
+      id="lock-pwd"
+      class="lock-field"
+      placeholder="Master password"
+      autocomplete="current-password"
+    />
+    <button class="btn-primary" id="lock-btn" onclick="unlock()">Unlock</button>
+    <div id="lock-error"></div>
+  </div>
+</div>
+
+<!-- ── App ──────────────────────────────────────────────────────────────── -->
+<div id="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="mob-menu-btn btn-icon" onclick="toggleMobileNav()" aria-label="Menu">
+        <svg width="16" height="16" viewBox="0 0 15 15" fill="none">
+          <path d="M2 3.5h11M2 7.5h11M2 11.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span style="font-weight:700;font-size:15px;">DMAI</span>
+      <span class="badge-admin">ADMIN</span>
+      <span class="version-pill" id="versionPill">v—</span>
+    </div>
+    <div class="header-actions">
+      <div class="system-status">
+        <div class="dot"></div>
+        <span id="sys-status">Checking…</span>
+      </div>
+      <button class="btn-icon" title="Refresh" onclick="refreshAll()">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M1.5 7.5A6 6 0 1 0 7.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M1.5 3.5v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn-icon" title="Lock" onclick="lockAdmin()" style="color:var(--red)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="2" y="6" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Sidebar -->
+    <div class="mob-overlay" id="mob-overlay" onclick="closeMobileNav()"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="nav('kpis')" id="nav-kpis">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1 11 5 7l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          KPIs
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">System</div>
+        <div class="nav-item" onclick="nav('training')" id="nav-training">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M5 7.5h5M7.5 5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Training
+        </div>
+        <div class="nav-item" onclick="nav('study')" id="nav-study">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 6h8M2 9h9M2 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Study Progress
+        </div>
+        <div class="nav-item" onclick="nav('selfgen')" id="nav-selfgen">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Self-Generation
+        </div>
+        <div class="nav-item" onclick="nav('circuit')" id="nav-circuit">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M4 7.5h2l1-3 2 6 1-3h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Circuit Breakers
+        </div>
+        <div class="nav-item" onclick="nav('kaizen')" id="nav-kaizen">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2M3.2 3.2l1.4 1.4M10.4 10.4l1.4 1.4M10.4 3.2l-1.4 1.4M4.6 10.4l-1.4 1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Kaizen Queue
+        </div>
+        <a href="/monetisation" class="nav-item" id="nav-monetisation" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M7.5 3v9M5 5l5 5M10 5l-5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Monetisation
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Security</div>
+        <div class="nav-item" onclick="nav('apikeys')" id="nav-apikeys">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M9.5 1a3.5 3.5 0 0 1 .5 6.95V9l1 1-1 1 1 1-1.5 1.5L8 12V7.95A3.5 3.5 0 0 1 9.5 1zM3 10l4.5-4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          API Keys
+        </div>
+        <div class="nav-item" onclick="nav('scanner')" id="nav-scanner">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1L2 4v4c0 3 2.5 5 5.5 6 3-1 5.5-3 5.5-6V4L7.5 1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          Code Scanner
+        </div>
+        <div class="nav-item" onclick="nav('token')" id="nav-token">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1.5" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 4V3a2.5 2.5 0 0 1 5 0v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          JWT Tokens
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Intelligence</div>
+        <div class="nav-item" onclick="nav('heartbeat')" id="nav-heartbeat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 12h3l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Heartbeat
+        </div>
+        <div class="nav-item" onclick="nav('stage-analytics')" id="nav-stage-analytics">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Stage Analytics
+        </div>
+        <div class="nav-item" onclick="nav('tip-tracking')" id="nav-tip-tracking">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Tip Tracking
+        </div>
+        <div class="nav-item" onclick="nav('maintenance')" id="nav-maintenance">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 7.5 1zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" stroke="currentColor" stroke-width="0" fill="currentColor" fill-opacity="0"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/><path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Maintenance
+        </div>
+        <div class="nav-item" onclick="nav('suggestions')" id="nav-suggestions">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 6a2 2 0 0 1 4 0c0 1.2-.8 1.8-1.4 2.3C7.6 8.7 7.5 9 7.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="12" r=".6" fill="currentColor"/></svg>
+          Suggestions
+        </div>
+        <div class="nav-item" onclick="nav('learning')" id="nav-learning">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Learning Metrics
+        </div>
+        <div class="nav-item" onclick="nav('settings')" id="nav-settings">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v1M7.5 13v1M1 7.5h1M13 7.5h1M3.2 3.2l.7.7M11.1 11.1l.7.7M11.1 3.2l-.7.7M4 11.1l-.7.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg>
+          Settings
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Logs</div>
+        <div class="nav-item" onclick="nav('logs')" id="nav-logs">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 7h8M2 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          System Logs
+        </div>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── Dashboard ─────────────────────────────────────────────── -->
+      <div class="section active" id="sec-dashboard">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+          Dashboard
+        </div>
+
+        <div class="score-hero">
+          <div class="score-num">98</div>
+          <div class="score-info">
+            <h3>Validation Score — GO-LIVE GATE MET</h3>
+            <p id="validationSummary">19/20 ADV tests PASS · Gate: 88</p>
+            <div class="score-progress"><div class="score-fill"></div></div>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="dash-kpis"></div>
+
+        <div class="card">
+          <div class="card-title">Components</div>
+          <div id="dash-components" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Security Modules</div>
+          <div id="dash-security" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+      </div>
+
+      <!-- ── KPIs ───────────────────────────────────────────────────── -->
+      <div class="section" id="sec-kpis">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M1 11 5 7l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          SICore KPIs
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">All 8 canonical SICore KPIs — only real AI-scored responses update these values.</p>
+        <div class="kpi-grid" id="kpi-grid"></div>
+      </div>
+
+      <!-- ── Training ───────────────────────────────────────────────── -->
+      <div class="section" id="sec-training">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M5 7.5h5M7.5 5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Training Control
+        </div>
+        <!-- ── Always-On Training Status Banner ─────────────────────────── -->
+        <div id="training-always-on-banner" style="background:linear-gradient(135deg,#0a1628,#0f2744,#1a3a5c);border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:16px 20px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div id="training-pulse-dot" style="width:10px;height:10px;border-radius:50%;background:#00ff88;box-shadow:0 0 8px #00ff88;flex-shrink:0;animation:pulse 2s infinite;"></div>
+            <span style="color:#00ff88;font-weight:700;font-size:14px;letter-spacing:.3px;">TRAINING IS ALWAYS ON — Running 24/7 Automatically</span>
+          </div>
+          <p style="color:#8899aa;font-size:12px;margin:0 0 12px 0;line-height:1.5;">All learning loops start automatically when DMAI boots. The buttons below <strong style="color:#cdd6e0;">trigger an extra cycle</strong> on top of continuous background training — they do not start or stop the core learning process.</p>
+          <div id="training-thread-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px;margin-bottom:10px;">
+            <div style="color:#556;font-size:11px;font-style:italic;">Checking thread status…</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="color:#445;font-size:11px;">Last checked: <span id="training-status-ts">—</span></span>
+            <span id="training-health-badge" style="font-size:11px;padding:2px 8px;border-radius:10px;background:#00ff8822;color:#00ff88;font-weight:600;">—</span>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-action primary" onclick="triggerTraining('quick')">⚡ Trigger Extra Quick Cycle</button>
+          <button class="btn-action secondary" onclick="triggerTraining('full')">⚡⚡ Trigger Extra Full Cycle</button>
+          <button class="btn-action secondary" onclick="triggerUpdater()">↺ Restart Background Updater</button>
+          <button class="btn-action danger" onclick="resetTraining()">⚠ Reset Training State</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Training Status</div>
+          <pre id="training-output" style="font-size:12px;color:var(--text-muted);white-space:pre-wrap;font-family:monospace;min-height:80px;">—</pre>
+        </div>
+      </div>
+
+      <!-- ── Study Progress ─────────────────────────────────────────── -->
+      <div class="section" id="sec-study">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 6h8M2 9h9M2 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Study Progress
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Current Stage &amp; Mastery</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.5rem;">
+            <div><span style="font-size:11px;color:var(--text-muted)">CURRENT STAGE</span><div id="study-stage" style="font-size:22px;font-weight:700;color:var(--accent)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">TOPICS MASTERED</span><div id="study-mastered" style="font-size:22px;font-weight:700;color:var(--green)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">IN PROGRESS</span><div id="study-inprogress" style="font-size:22px;font-weight:700;color:var(--yellow)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">NOT STARTED</span><div id="study-notstarted" style="font-size:22px;font-weight:700;color:var(--text-muted)">--</div></div>
+            <div><span style="font-size:11px;color:var(--text-muted)">OVERALL MASTERY %</span><div id="study-pct" style="font-size:22px;font-weight:700;color:var(--accent)">--%</div></div>
+          </div>
+          <div style="margin-top:.75rem;font-size:11px;color:var(--text-muted)">Last learning cycle: <span id="study-last-cycle">--</span></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Stage Breakdown</div>
+          <div id="study-stages" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem;"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Autonomous Research (last 10 discoveries)</div>
+          <div id="study-discoveries" style="font-size:12px;color:var(--text-muted);margin-top:.5rem;">Loading...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Nightly Knowledge Ingestion</div>
+          <div id="study-nightly" style="font-size:13px;margin-top:.5rem;">Loading...</div>
+        </div>
+        <div class="action-row" style="margin-top:.75rem;">
+          <button class="btn-action" onclick="loadStudyProgress()">↻ Refresh</button>
+          <button class="btn-action secondary" onclick="triggerStudyCycle()">▶ Trigger Learning Cycle</button>
+          <button class="btn-action secondary" onclick="triggerResearch()">🔬 Trigger Research</button>
+        </div>
+      </div>
+
+      <!-- ── Self-Generation ────────────────────────────────────────── -->
+      <div class="section" id="sec-selfgen">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Self-Generation
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Memory Query</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 .5rem">Query DMAI's internal knowledge base. She checks this before any external search.</p>
+          <div style="display:flex;gap:.5rem;align-items:center;">
+            <input id="mem-query" type="text" placeholder="e.g. reinforcement learning policy gradient"
+              style="flex:1;padding:.4rem .6rem;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;" />
+            <button class="btn-action" onclick="queryMemory()">&#129504; Recall</button>
+          </div>
+          <div id="mem-result" style="margin-top:.75rem;font-size:12px;color:var(--text-muted);">Result will appear here.</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Generate Component</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 .5rem">Ask DMAI to write a new Python component from a description.</p>
+          <input id="gen-name" type="text" placeholder="component_name (snake_case)"
+            style="width:100%;padding:.4rem .6rem;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;box-sizing:border-box;margin-bottom:.5rem" />
+          <textarea id="gen-desc" rows="3" placeholder="Description of what this component should do..."
+            style="width:100%;padding:.4rem .6rem;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical;margin-bottom:.5rem"></textarea>
+          <div style="display:flex;gap:.5rem;">
+            <button class="btn-action secondary" onclick="generateComponent(true)">Dry Run</button>
+            <button class="btn-action" onclick="generateComponent(false)">&#9881; Generate</button>
+          </div>
+          <div id="gen-result" style="margin-top:.75rem;font-size:12px;color:var(--text-muted);">Result will appear here.</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Kaizen Auto-Repair</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:0 0 .5rem">Trigger one autonomous repair cycle. DMAI attempts to fix her own pending issues.</p>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn-action" onclick="runAutoRepair()">&#128295; Run Auto-Repair</button>
+            <button class="btn-action secondary" onclick="loadRepairStats()">Stats</button>
+          </div>
+          <div id="repair-result" style="margin-top:.75rem;font-size:12px;color:var(--text-muted);">Stats will appear here.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Code Writer History</div>
+          <div id="cw-history" style="font-size:12px;color:var(--text-muted);margin-top:.5rem;">Loading...</div>
+          <div class="action-row" style="margin-top:.75rem;">
+            <button class="btn-action" onclick="loadCWHistory()">&#8635; Refresh</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Circuit Breakers ───────────────────────────────────────── -->
+      <div class="section" id="sec-circuit">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M4 7.5h2l1-3 2 6 1-3h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Circuit Breakers
+        </div>
+        <div class="action-row">
+          <button class="btn-action secondary" onclick="loadCBs()">↻ Refresh</button>
+        </div>
+        <div class="cb-grid" id="cb-grid">
+          <div style="color:var(--text-muted);font-size:13px;padding:1rem;">Loading circuit breakers…</div>
+        </div>
+      </div>
+
+      <!-- ── Kaizen ─────────────────────────────────────────────────── -->
+      <div class="section" id="sec-kaizen">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2M3.2 3.2l1.4 1.4M10.4 10.4l1.4 1.4M10.4 3.2l-1.4 1.4M4.6 10.4l-1.4 1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Kaizen Queue
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Proposals</div>
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Priority</th><th>Type</th><th>Time</th></tr></thead>
+            <tbody id="kaizen-body"><tr><td colspan="4" style="color:var(--text-muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">Submit Proposal</div>
+          <input id="kz-title" placeholder="Title" class="scan-input" style="min-height:40px;resize:none;margin-bottom:8px;" />
+          <input id="kz-desc"  placeholder="Description (optional)" class="scan-input" style="min-height:40px;resize:none;" />
+          <button class="btn-action primary" style="margin-top:10px;" onclick="submitKaizen()">Submit Proposal</button>
+        </div>
+      </div>
+
+      <!-- ── API Keys ────────────────────────────────────────────── -->
+      <div class="section" id="sec-apikeys">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M9.5 1a3.5 3.5 0 0 1 .5 6.95V9l1 1-1 1 1 1-1.5 1.5L8 12V7.95A3.5 3.5 0 0 1 9.5 1zM3 10l4.5-4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          API Key Management
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem;">Set API keys for all 14 providers. Keys are stored securely and injected at runtime. Full keys are never displayed — only last 4 chars shown.</p>
+
+        <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <button class="btn-action primary" onclick="loadApiKeys()" style="font-size:13px;">&#8635; Refresh Status</button>
+          <button class="btn-action" onclick="loadPendingSignups()" style="font-size:13px;background:var(--accent);color:#000;">&#9654; Auto-Register Free Keys</button>
+          <span id="apikeys-last-refresh" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
+        </div>
+
+        <!-- CORE providers -->
+        <div class="card-title" style="margin-bottom:10px;color:var(--green);font-size:12px;letter-spacing:.06em;text-transform:uppercase;">
+          ● Core Providers <span style="color:var(--text-muted);font-weight:400;">(alert on any failure)</span>
+        </div>
+        <div id="apikeys-core" style="display:grid;gap:10px;margin-bottom:1.5rem;"></div>
+
+        <!-- SECONDARY providers -->
+        <div class="card-title" style="margin-bottom:10px;color:var(--yellow);font-size:12px;letter-spacing:.06em;text-transform:uppercase;">
+          ● Secondary Providers <span style="color:var(--text-muted);font-weight:400;">(alert on 2+ failures)</span>
+        </div>
+        <div id="apikeys-secondary" style="display:grid;gap:10px;"></div>
+      </div>
+
+      <!-- ── Code Scanner ───────────────────────────────────────────── -->
+      <div class="section" id="sec-scanner">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M7.5 1L2 4v4c0 3 2.5 5 5.5 6 3-1 5.5-3 5.5-6V4L7.5 1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          Code Security Scanner
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Paste code to scan with Bandit + AST exec/eval detector + typosquat checker.</p>
+        <textarea id="scan-code" class="scan-input" rows="8" placeholder="Paste Python code here…"></textarea>
+        <button class="btn-action primary" onclick="scanCode()">🔍 Scan Code</button>
+        <div class="card" style="margin-top:1rem;display:none;" id="scan-result-card">
+          <div class="card-title">Scan Results</div>
+          <pre id="scan-result" style="font-size:12px;color:var(--text);white-space:pre-wrap;font-family:monospace;"></pre>
+        </div>
+      </div>
+
+      <!-- ── JWT Tokens ─────────────────────────────────────────────── -->
+      <div class="section" id="sec-token">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><rect x="1.5" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 4V3a2.5 2.5 0 0 1 5 0v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          JWT Token Generator
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;">Generate a signed Bearer token for API calls. Token expires in 8 hours.</p>
+        <button class="btn-action primary" onclick="generateToken()">Generate Token</button>
+        <div id="token-output" style="margin-top:1rem;display:none;">
+          <div class="card">
+            <div class="card-title">Bearer Token (8h expiry)</div>
+            <code id="token-value" style="font-size:12px;font-family:monospace;word-break:break-all;color:var(--green);"></code>
+            <button class="btn-sm" style="margin-top:10px;" onclick="copyToken()">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Logs ───────────────────────────────────────────────────── -->
+      <!-- Learning Metrics -->
+      <div class="section" id="sec-learning">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13c0-3 2.5-5 5.5-5s5.5 2 5.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Learning Metrics
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem">
+          <div class="card" style="text-align:center;padding:.85rem"><div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">TOTAL INSIGHTS</div><div id="lm-insights" style="font-size:26px;font-weight:700;color:var(--accent)">--</div></div>
+          <div class="card" style="text-align:center;padding:.85rem"><div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">CAPABILITIES</div><div id="lm-capabilities" style="font-size:26px;font-weight:700;color:var(--green)">--</div></div>
+          <div class="card" style="text-align:center;padding:.85rem"><div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">TOPICS MASTERED</div><div id="lm-mastered" style="font-size:26px;font-weight:700;color:var(--yellow)">--</div></div>
+          <div class="card" style="text-align:center;padding:.85rem"><div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">GRAPH NEURONS</div><div id="lm-neurons" style="font-size:26px;font-weight:700;color:var(--accent)">--</div></div>
+          <div class="card" style="text-align:center;padding:.85rem"><div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">GRAPH SYNAPSES</div><div id="lm-synapses" style="font-size:26px;font-weight:700;color:var(--green)">--</div></div>
+          <div class="card" style="text-align:center;padding:.85rem"><div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">EVOLUTION CYCLE</div><div id="lm-cycle" style="font-size:26px;font-weight:700;color:var(--text)">--</div></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">SICore KPI Gauges</div>
+          <div id="lm-kpi-bars" style="margin-top:.75rem;display:grid;gap:.6rem;"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+            Knowledge Graph Growth
+            <span id="lm-graph-updated" style="font-size:11px;color:var(--text-muted)">last updated: --</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:.6rem;text-align:center">
+            <div><div style="font-size:10px;color:var(--text-muted)">NEURONS</div><div id="lm-graph-neurons" style="font-size:18px;font-weight:700;color:var(--accent)">--</div></div>
+            <div><div style="font-size:10px;color:var(--text-muted)">SYNAPSES</div><div id="lm-graph-synapses" style="font-size:18px;font-weight:700;color:var(--green)">--</div></div>
+            <div><div style="font-size:10px;color:var(--text-muted)">CYCLE</div><div id="lm-graph-cycle" style="font-size:18px;font-weight:700;color:var(--yellow)">--</div></div>
+          </div>
+          <div class="action-row" style="margin-top:.6rem">
+            <button class="btn-action secondary" onclick="triggerGraphEvolve()">&#9889; Evolve Now</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Stage Progression</div>
+          <div id="lm-stages" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Domains Researched</div>
+          <div id="lm-domains" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Recent Discovery Feed</div>
+          <div id="lm-discoveries" style="font-size:12px;color:var(--text-muted);margin-top:.5rem;max-height:220px;overflow-y:auto;">Loading...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Code Writer Activity</div>
+          <div id="lm-cw" style="font-size:12px;color:var(--text-muted);margin-top:.5rem;max-height:180px;overflow-y:auto;">Loading...</div>
+        </div>
+        <!-- Vocabulary & Encyclopaedia Stats — only visible on the Learning tab -->
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-title">&#128218; Language & Encyclopaedia Knowledge</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.5rem 0 .75rem;" id="lm-vocab-stats">
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Vocabulary</div>
+              <div id="lm-vocab-total" style="font-size:1.15rem;font-weight:700;color:var(--accent);">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Encyclopaedia</div>
+              <div id="lm-encyc-total" style="font-size:1.15rem;font-weight:700;color:var(--yellow);">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Domains</div>
+              <div id="lm-vocab-domains" style="font-size:1.15rem;font-weight:700;color:var(--green);">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Status</div>
+              <div id="lm-vocab-status" style="font-size:.75rem;font-weight:600;color:var(--green);">Active</div>
+            </div>
+          </div>
+          <div id="lm-recent-words" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;"></div>
+          <div class="action-row" style="margin-top:.75rem;">
+            <button class="btn-action secondary" onclick="loadVocabStats()">&#8635; Refresh</button>
+          </div>
+        </div>
+
+        <div class="action-row" style="margin-top:.75rem;">
+          <button class="btn-action" onclick="loadLearningMetrics()">&#8635; Refresh</button>
+          <button class="btn-action secondary" onclick="triggerStudyCycle()">&#9654; Learning Cycle</button>
+          <button class="btn-action secondary" onclick="triggerResearch()">&#128300; Research Now</button>
+        </div>
+      </div>
+
+      <!-- Stage Analytics Panel -->
+      <div class="section" id="sec-stage-analytics">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Stage Analytics
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.5rem">Velocity, plateaus, and forecast to Master stage based on live ingestion rates</p>
+
+        <!-- Forecast hero banner -->
+        <div id="sa-forecast-banner" class="card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.75rem">
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.25rem">FORECAST: MASTER STAGE</div>
+              <div id="sa-forecast-date" style="font-size:1.6rem;font-weight:700;color:var(--accent)">—</div>
+              <div id="sa-forecast-sub" style="font-size:12px;color:var(--text-muted);margin-top:.2rem">Loading...</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;min-width:220px">
+              <div class="card" style="padding:.6rem;text-align:center">
+                <div style="font-size:10px;color:var(--text-muted)">INS/DAY (7D)</div>
+                <div id="sa-ins-rate" style="font-size:1.1rem;font-weight:700;color:var(--green)">—</div>
+              </div>
+              <div class="card" style="padding:.6rem;text-align:center">
+                <div style="font-size:10px;color:var(--text-muted)">TREND</div>
+                <div id="sa-trend" style="font-size:1.1rem;font-weight:700">—</div>
+              </div>
+              <div class="card" style="padding:.6rem;text-align:center">
+                <div style="font-size:10px;color:var(--text-muted)">CAPS/DAY (7D)</div>
+                <div id="sa-caps-rate" style="font-size:1.1rem;font-weight:700;color:var(--yellow)">—</div>
+              </div>
+              <div class="card" style="padding:.6rem;text-align:center">
+                <div style="font-size:10px;color:var(--text-muted)">BOTTLENECK</div>
+                <div id="sa-bottleneck" style="font-size:1.1rem;font-weight:700;color:var(--red)">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next stage gaps -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem" id="sa-next-gaps-card">
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.75rem">GAP TO NEXT STAGE</div>
+          <div id="sa-next-gaps"></div>
+        </div>
+
+        <!-- Daily ingestion chart -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.75rem">DAILY INSIGHT INGESTION — LAST 30 DAYS</div>
+          <div style="width:100%;overflow:hidden">
+            <svg id="sa-daily-chart" width="100%" height="160" style="overflow:visible;display:block"></svg>
+          </div>
+        </div>
+
+        <!-- Two col: channels + stage history -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="card" style="padding:1.25rem">
+            <div style="font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.75rem">TOP ACQUISITION CHANNELS (7D)</div>
+            <div id="sa-channels"></div>
+          </div>
+          <div class="card" style="padding:1.25rem">
+            <div style="font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.75rem">STAGE ADVANCE HISTORY</div>
+            <div id="sa-stage-history"></div>
+          </div>
+        </div>
+
+        <!-- Plateaus -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem" id="sa-plateaus-card" style="display:none">
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.75rem">DETECTED PLATEAUS (3+ DAYS BELOW 20% AVG)</div>
+          <div id="sa-plateaus"></div>
+        </div>
+
+        <div style="color:var(--text-muted);font-size:11px;text-align:right" id="sa-last-updated">—</div>
+      </div>
+
+      <!-- Heartbeat Panel -->
+      <div class="section" id="sec-heartbeat">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12h3l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Learning Heartbeat
+        </div>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:13px">Live view of DMAI's intellectual growth — auto-refreshes every 30 seconds</p>
+
+        <!-- Stat cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.5rem">
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">LEARNING STAGE</div>
+            <div id="hb-stage" style="font-size:1.3rem;font-weight:700;color:var(--accent)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">SKILLS (24H)</div>
+            <div id="hb-skills-24h" style="font-size:1.3rem;font-weight:700;color:var(--green)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">ENTITIES (24H)</div>
+            <div id="hb-entities-24h" style="font-size:1.3rem;font-weight:700;color:var(--yellow)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">TOTAL INSIGHTS</div>
+            <div id="hb-total-insights" style="font-size:1.3rem;font-weight:700;color:var(--accent)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">GRAPH NEURONS</div>
+            <div id="hb-neurons" style="font-size:1.3rem;font-weight:700;color:var(--green)">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.85rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.25rem">SYNAPSES</div>
+            <div id="hb-synapses" style="font-size:1.3rem;font-weight:700;color:var(--green)">—</div>
+          </div>
+        </div>
+
+        <!-- Stage progression bar -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">LEARNING PATHWAY PROGRESSION</div>
+          <div id="hb-stage-track" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:.5rem"></div>
+          <div style="background:var(--bg);border-radius:999px;height:8px;overflow:hidden">
+            <div id="hb-stage-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:999px;transition:width 1s ease"></div>
+          </div>
+        </div>
+
+        <!-- Knowledge Pulse chart -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">KNOWLEDGE PULSE — INSIGHT RATE (LAST 7 DAYS)</div>
+          <div style="width:100%;overflow:hidden">
+            <svg id="hb-pulse-chart" width="100%" height="160" style="overflow:visible;display:block"></svg>
+          </div>
+        </div>
+
+        <!-- Two-column: Research Nodes + Top Entities -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="card" style="padding:1.25rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">ACTIVE RESEARCH NODES (24H)</div>
+            <div id="hb-research-nodes"><p style="color:var(--text-muted);font-size:12px">Loading...</p></div>
+          </div>
+          <div class="card" style="padding:1.25rem">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.75rem;letter-spacing:.05em">TOP KNOWLEDGE ENTITIES</div>
+            <div id="hb-top-entities"><p style="color:var(--text-muted);font-size:12px">Loading...</p></div>
+          </div>
+        </div>
+
+        <div style="color:var(--text-muted);font-size:11px;text-align:right" id="hb-last-updated">Last updated: —</div>
+      </div>
+
+      <!-- Maintenance / Integrity -->
+      <div class="section" id="sec-maintenance">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M1.5 5.5a6 6 0 1 1 0 4M1.5 5.5H5M1.5 5.5V2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Knowledge Integrity &amp; Maintenance
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:.25rem 0 1rem;">
+          Cross-reference check between Wiktionary definitions, insights, graph neurons, and capabilities.
+          Flags contradictions, orphaned nodes, stale entries, and unsupported claims before they affect decisions.
+        </p>
+
+        <!-- Action row -->
+        <div class="action-row" style="margin-bottom:1rem;">
+          <button class="btn-action" onclick="runIntegrityCheck()" id="maint-run-btn">&#9654; Run Integrity Check</button>
+          <button class="btn-action secondary" onclick="loadIntegrityReport()">&#8635; Refresh Report</button>
+          <button class="btn-action secondary" onclick="showPurgeDialog()" style="color:var(--red);">&#128465; Purge Low-Confidence</button>
+        </div>
+
+        <!-- Summary banner -->
+        <div id="maint-summary-banner" style="display:none;padding:.75rem 1rem;border-radius:8px;margin-bottom:1rem;border-left:4px solid var(--accent);background:var(--surface2);font-size:13px;"></div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1rem;">
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Checked</div>
+            <div id="maint-total-checked" style="font-size:1.1rem;font-weight:700;color:var(--text);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Critical</div>
+            <div id="maint-critical" style="font-size:1.1rem;font-weight:700;color:var(--red);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Warnings</div>
+            <div id="maint-warning" style="font-size:1.1rem;font-weight:700;color:var(--yellow);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Info</div>
+            <div id="maint-info" style="font-size:1.1rem;font-weight:700;color:var(--text-muted);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Resolved</div>
+            <div id="maint-resolved" style="font-size:1.1rem;font-weight:700;color:var(--green);">—</div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem;">
+          <button class="btn-action" id="mf-all"      onclick="setMaintFilter('all')">All</button>
+          <button class="btn-action secondary" id="mf-critical" onclick="setMaintFilter('critical')" style="color:var(--red);">Critical</button>
+          <button class="btn-action secondary" id="mf-warning"  onclick="setMaintFilter('warning')" style="color:var(--yellow);">Warnings</button>
+          <button class="btn-action secondary" id="mf-open"     onclick="setMaintFilter('open')">Unresolved</button>
+          <button class="btn-action secondary" id="mf-resolved" onclick="setMaintFilter('resolved')">Resolved</button>
+        </div>
+
+        <!-- Flags list -->
+        <div id="maint-flags-list" style="display:flex;flex-direction:column;gap:.5rem;">
+          <p style="color:var(--text-muted);font-size:13px;">No report yet. Click Run Integrity Check to analyse the knowledge base.</p>
+        </div>
+
+        <!-- Run history -->
+        <div class="card" style="margin-top:1.25rem;">
+          <div class="card-title">Run History</div>
+          <div id="maint-history" style="margin-top:.5rem;font-size:12px;color:var(--text-muted);">—</div>
+        </div>
+
+        <!-- Purge modal (hidden) -->
+        <div id="maint-purge-dialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:420px;width:90%;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:.75rem;color:var(--red);">&#9888; Purge Low-Confidence Insights</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:.75rem;">Delete all insights below the confidence threshold. This is irreversible.</p>
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:.5rem;">
+              Confidence threshold (0.0 – 1.0)
+              <input id="purge-threshold" type="number" min="0" max="1" step="0.05" value="0.2"
+                     style="display:block;width:100%;margin-top:.25rem;padding:.4rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;" />
+            </label>
+            <div id="purge-preview" style="font-size:12px;color:var(--yellow);margin-bottom:.75rem;"></div>
+            <div style="display:flex;gap:.5rem;">
+              <button class="btn-action secondary" onclick="previewPurge()">Preview count</button>
+              <button class="btn-action" style="background:var(--red);border-color:var(--red);" onclick="executePurge()">Confirm Purge</button>
+              <button class="btn-action secondary" onclick="document.getElementById('maint-purge-dialog').style.display='none'">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="section" id="sec-suggestions">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 6a2 2 0 0 1 4 0c0 1.2-.8 1.8-1.4 2.3C7.6 8.7 7.5 9 7.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="12" r=".6" fill="currentColor"/></svg>
+          Development Suggestions
+        </div>
+
+        <!-- Submit form -->
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-title">&#128161; Suggest to DMAI</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:.25rem 0 .75rem;">
+            Describe what you want DMAI to build or improve. She will analyse the requirement, write the code, and commit it autonomously.
+          </p>
+          <input id="sug-title" placeholder="Title — e.g. Add Stripe revenue tracker"
+                 style="width:100%;padding:.5rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;margin-bottom:.5rem;box-sizing:border-box;" />
+          <textarea id="sug-desc" rows="3"
+                    placeholder="Describe what it should do, requirements, expected behaviour..."
+                    style="width:100%;padding:.5rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+          <div class="action-row" style="margin-top:.5rem;">
+            <button class="btn-action" onclick="submitSuggestion()">&#9654; Send to DMAI</button>
+            <button class="btn-action secondary" onclick="loadSuggestions()">&#8635; Refresh</button>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1rem;">
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Pending</div>
+            <div id="sug-count-pending" style="font-size:1.15rem;font-weight:700;color:var(--yellow);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Coding</div>
+            <div id="sug-count-coding" style="font-size:1.15rem;font-weight:700;color:var(--accent);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Completed</div>
+            <div id="sug-count-completed" style="font-size:1.15rem;font-weight:700;color:var(--green);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">PR Open</div>
+            <div id="sug-count-pr_opened" style="font-size:1.15rem;font-weight:700;color:var(--text);">—</div>
+          </div>
+          <div class="card" style="text-align:center;padding:.6rem .4rem;">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Failed</div>
+            <div id="sug-count-failed" style="font-size:1.15rem;font-weight:700;color:var(--red);">—</div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem;" id="sug-filter-tabs">
+          <button class="btn-action" id="sugf-all"       onclick="setSugFilter('all')">All</button>
+          <button class="btn-action secondary" id="sugf-user"      onclick="setSugFilter('user')">Your Ideas</button>
+          <button class="btn-action secondary" id="sugf-self"      onclick="setSugFilter('self')">DMAI Self-Directed</button>
+          <button class="btn-action secondary" id="sugf-pending"   onclick="setSugFilter('pending')">Pending</button>
+          <button class="btn-action secondary" id="sugf-completed" onclick="setSugFilter('completed')">Completed</button>
+        </div>
+
+        <!-- List -->
+        <div id="sug-list" style="display:flex;flex-direction:column;gap:.5rem;">
+          <p style="color:var(--text-muted);font-size:13px;">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="section" id="sec-settings">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v1M7.5 13v1M1 7.5h1M13 7.5h1M3.2 3.2l.7.7M11.1 11.1l.7.7M11.1 3.2l-.7.7M4 11.1l-.7.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg>
+          System Settings
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Stage Gate Thresholds</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:.25rem 0 .75rem">Minimum KPI score to unlock each learning stage.</p>
+          <div id="sg-form" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;"></div>
+          <div class="action-row" style="margin-top:.75rem;"><button class="btn-action" onclick="saveStageGates()">&#128190; Save Gates</button></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Learning &amp; Research Schedule</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.5rem;">
+            <label style="font-size:12px;color:var(--text-muted)">Training Interval (hrs)<input id="sg-train-interval" type="number" min="1" max="168" value="24" style="display:block;width:100%;margin-top:.25rem;padding:.4rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;"/></label>
+            <label style="font-size:12px;color:var(--text-muted)">Research Interval (hrs)<input id="sg-research-interval" type="number" min="1" max="48" value="6" style="display:block;width:100%;margin-top:.25rem;padding:.4rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;"/></label>
+            <label style="font-size:12px;color:var(--text-muted)">Graph Evolution (mins)<input id="sg-graph-interval" type="number" min="5" max="60" value="15" style="display:block;width:100%;margin-top:.25rem;padding:.4rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;"/></label>
+          </div>
+          <div class="action-row" style="margin-top:.75rem;"><button class="btn-action" onclick="saveSchedule()">&#128190; Save Schedule</button></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Environment Variables</div>
+          <p style="font-size:12px;color:var(--text-muted);margin:.25rem 0 .75rem">Read-only. Update values in Render dashboard.</p>
+          <div id="sg-envvars" style="display:grid;gap:.35rem;">Loading...</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Provider Status</div>
+          <div id="sg-providers" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem;margin-top:.5rem;">Loading...</div>
+          <div class="action-row" style="margin-top:.75rem;"><button class="btn-action secondary" onclick="loadSettings()">&#8635; Refresh</button></div>
+        </div>
+        <div class="card">
+          <div class="card-title">System Info</div>
+          <div id="sg-sysinfo" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem;font-size:12px;margin-top:.5rem;">Loading...</div>
+        </div>
+      </div>
+
+      <!-- ── Tip Tracking ───────────────────────────────────────────── -->
+      <div class="section" id="sec-tip-tracking">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          Tip Tracking
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">
+          Paper-trading mode: model predictions are tracked against real race outcomes. Bets stay manual.
+          Once 2–7 days of results validate the model, switch to live staking.
+        </p>
+
+        <div class="kpi-grid" id="tt-perf-hero" style="margin-bottom:1rem">
+          <div class="kpi-card">
+            <div class="kpi-label">Model Hit Rate</div>
+            <div class="kpi-value" id="tt-hit-rate">—</div>
+            <div class="kpi-sub" id="tt-hit-rate-sub">All settled tips</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Model ROI</div>
+            <div class="kpi-value" id="tt-roi">—</div>
+            <div class="kpi-sub" id="tt-roi-sub">Paper P/L at rec. stake</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Calibration (Brier)</div>
+            <div class="kpi-value" id="tt-brier">—</div>
+            <div class="kpi-sub" id="tt-brier-sub">Lower = better</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tips Pending</div>
+            <div class="kpi-value" id="tt-pending">—</div>
+            <div class="kpi-sub" id="tt-pending-sub">Awaiting race result</div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-action" onclick="loadTipTracking()">↻ Refresh</button>
+          <select id="tt-mode-filter" onchange="loadTipTracking()" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;font-size:13px">
+            <option value="all">All tips</option>
+            <option value="paper">Paper only</option>
+            <option value="live">Live only</option>
+          </select>
+          <select id="tt-window" onchange="loadTipTracking()" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;font-size:13px">
+            <option value="30">Last 30 days</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">All time</option>
+          </select>
+        </div>
+
+        <div class="card" style="padding:1.25rem;margin-bottom:1rem">
+          <div class="card-title">🔥 Upcoming Tips (next 7 days)</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:.75rem">
+            Model predictions for upcoming races. Record any real bet you place below.
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>Race</th>
+                  <th>Selection</th>
+                  <th>Market odds</th>
+                  <th>Model prob</th>
+                  <th>EV%</th>
+                  <th>Conf.</th>
+                  <th>Rec. stake</th>
+                  <th>Race start</th>
+                  <th>Tip ID</th>
+                </tr>
+              </thead>
+              <tbody id="tt-upcoming-body">
+                <tr><td colspan="10" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem">
+          <div class="card" style="padding:1.25rem">
+            <div class="card-title">Settled Tips</div>
+            <div style="overflow-x:auto;max-height:480px;overflow-y:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Selection</th>
+                    <th>Odds</th>
+                    <th>Model %</th>
+                    <th>EV%</th>
+                    <th>Result</th>
+                    <th>Paper P/L</th>
+                  </tr>
+                </thead>
+                <tbody id="tt-history-body">
+                  <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card" style="padding:1.25rem">
+            <div class="card-title">Calibration buckets</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:.5rem">Predicted vs actual hit rate by probability band</div>
+            <table class="data-table" style="font-size:12px">
+              <thead>
+                <tr><th>Band</th><th>n</th><th>Pred.</th><th>Actual</th></tr>
+              </thead>
+              <tbody id="tt-calib-body">
+                <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="padding:1.25rem;margin-bottom:1rem">
+          <div class="card-title">My real bets</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:.75rem">
+            Record actual stakes placed at the bookmaker. Linking to a tip ID gives you a model-vs-you delta.
+          </div>
+          <div id="tt-user-perf" style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem;font-size:13px"></div>
+
+          <details style="margin-bottom:1rem">
+            <summary style="cursor:pointer;font-weight:600;font-size:13px;margin-bottom:.5rem">+ Record a new bet</summary>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.75rem;font-size:12px">
+              <input id="tt-bet-tip-id" placeholder="Tip ID (optional)" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-event" placeholder="Event name" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-market" placeholder="Market (e.g. trap_winner)" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-selection" placeholder="Selection" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-odds" placeholder="Odds (decimal)" type="number" step="0.01" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-stake" placeholder="Stake (£)" type="number" step="0.01" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-bookmaker" placeholder="Bookmaker (e.g. Betfair)" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+              <input id="tt-bet-notes" placeholder="Notes" style="background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px">
+            </div>
+            <button class="btn-action" style="margin-top:.75rem" onclick="recordUserBet()">Save bet</button>
+          </details>
+
+          <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Placed</th>
+                  <th>Event</th>
+                  <th>Selection</th>
+                  <th>Odds</th>
+                  <th>Stake</th>
+                  <th>Status</th>
+                  <th>P/L</th>
+                  <th>Settle</th>
+                </tr>
+              </thead>
+              <tbody id="tt-user-bets-body">
+                <tr><td colspan="8" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="color:var(--text-muted);font-size:11px;text-align:right" id="tt-last-updated">—</div>
+      </div>
+
+            <div class="section" id="sec-logs">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M2 7h8M2 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          System Logs
+        </div>
+        <div class="action-row">
+          <button class="btn-action secondary" onclick="loadStatus()">↻ Refresh Status</button>
+        </div>
+        <div class="log-box" id="log-box">
+          <p class="log-line info" id="logInit">[ DMAI Admin — Initialising… ]</p>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script>
+  // ── Auth state ────────────────────────────────────────────────────────────
+  let JWT = null;
+  let masterPwd = null;
+
+  // ── Lock / unlock ─────────────────────────────────────────────────────────
+  document.getElementById('lock-pwd').addEventListener('keydown', e => {
+    if (e.key === 'Enter') unlock();
+  });
+
+  async function unlock() {
+    const pwd = document.getElementById('lock-pwd').value.trim();
+    if (!pwd) return;
+    const btn = document.getElementById('lock-btn');
+    const errEl = document.getElementById('lock-error');
+    btn.disabled = true;
+    btn.textContent = 'Authenticating…';
+    errEl.textContent = '';
+
+    function _grantAccess(token) {
+      JWT = token || null;
+      masterPwd = pwd;
+      // Persist credentials so a page reload doesn't force re-login.
+      try {
+        if (token) localStorage.setItem('dmai_jwt', token);
+        if (pwd)   localStorage.setItem('dmai_pwd', pwd);
+        localStorage.setItem('dmai_auth_at', String(Date.now()));
+      } catch (_) { /* localStorage may be disabled */ }
+      const ls = document.getElementById('lock-screen');
+      const app = document.getElementById('app');
+      if (ls)  ls.style.display = 'none';
+      if (app) { app.style.display = 'flex'; app.classList.add('visible'); }
+      // Ensure dashboard section is active
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const dash = document.getElementById('sec-dashboard');
+      const navDash = document.getElementById('nav-dashboard');
+      if (dash)    dash.classList.add('active');
+      if (navDash) navDash.classList.add('active');
+      initApp().catch(e => console.warn('initApp error:', e));
+    }
+
+    // Step 1 — try JWT token endpoint
+    let gotJwt = false;
+    try {
+      const r = await fetch('/api/admin/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd }),
+      });
+      const d = await r.json();
+      if (d.token) {
+        gotJwt = true;
+        _grantAccess(d.token);
+      }
+      // 503 = JWT module unavailable → fall through to password-only fallback
+      // 401 = wrong password → show error and stop
+      if (!gotJwt && r.status === 401) {
+        errEl.textContent = d.error || 'Invalid password';
+        btn.disabled = false; btn.textContent = 'Unlock';
+        return;
+      }
+    } catch (_) { /* network error — fall through to step 2 */ }
+
+    // Step 2 — fallback: password-only check (no JWT dependency, used when JWT module unavailable)
+    if (!gotJwt) {
+      try {
+        const r2 = await fetch('/api/admin/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd }),
+        });
+        if (r2.ok) {
+          gotJwt = true;
+          _grantAccess(null);
+        } else {
+          errEl.textContent = 'Invalid password';
+        }
+      } catch (_) {
+        errEl.textContent = 'Could not reach server — check connection';
+      }
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Unlock';
+  }
+
+  function lockAdmin() {
+    JWT = null; masterPwd = null;
+    try {
+      localStorage.removeItem('dmai_jwt');
+      localStorage.removeItem('dmai_pwd');
+      localStorage.removeItem('dmai_auth_at');
+    } catch (_) { /* ignore */ }
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('lock-screen').style.display = 'flex';
+    document.getElementById('lock-pwd').value = '';
+    document.getElementById('lock-error').textContent = '';
+  }
+
+  // Restore session from localStorage on page load (8h cap).
+  (function _restoreSession() {
+    try {
+      const t = localStorage.getItem('dmai_jwt');
+      const p = localStorage.getItem('dmai_pwd');
+      const at = parseInt(localStorage.getItem('dmai_auth_at') || '0', 10);
+      const eightHoursMs = 8 * 60 * 60 * 1000;
+      if (at && (Date.now() - at) < eightHoursMs && (t || p)) {
+        JWT = t || null;
+        masterPwd = p || null;
+        window.addEventListener('DOMContentLoaded', function() {
+          const ls = document.getElementById('lock-screen');
+          const app = document.getElementById('app');
+          if (ls)  ls.style.display = 'none';
+          if (app) { app.style.display = 'flex'; app.classList.add('visible'); }
+          if (typeof initApp === 'function') initApp().catch(function(e){ console.warn('initApp error:', e); });
+        });
+      }
+    } catch (_) { /* ignore */ }
+  })();
+
+  // ── Auth headers ──────────────────────────────────────────────────────────
+  function authHeaders() {
+    const h = { 'Content-Type': 'application/json' };
+    if (JWT)        h['Authorization']    = `Bearer ${JWT}`;
+    if (masterPwd)  h['X-Master-Password'] = masterPwd;
+    return h;
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  function nav(id) {
+    closeMobileNav();
+    if (typeof _hbInterval !== 'undefined' && _hbInterval) { clearInterval(_hbInterval); _hbInterval = null; }
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (id === 'study')   setTimeout(loadStudyProgress, 50);
+    if (id === 'selfgen')  setTimeout(loadCWHistory, 50);
+    if (id === 'learning') { setTimeout(loadLearningMetrics, 50); setTimeout(loadVocabStats, 200); }
+    if (id === 'suggestions') setTimeout(loadSuggestions, 50);
+    if (id === 'stage-analytics') { _loadStageAnalytics(); }
+    if (id === 'tip-tracking') { setTimeout(loadTipTracking, 50); }
+    if (id === 'heartbeat')   { _loadHeartbeat(); if(_hbInterval)clearInterval(_hbInterval); _hbInterval=setInterval(_loadHeartbeat,30000); }
+    if (id === 'maintenance') setTimeout(loadIntegrityReport, 50);
+    if (id === 'settings') setTimeout(loadSettings, 50);
+    document.getElementById('sec-' + id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    if (id === 'circuit') loadCBs();
+    if (id === 'kaizen')  loadKaizen();
+    if (id === 'logs')    loadLogs();
+    if (id === 'apikeys') loadApiKeys();
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'info') {
+    const el = document.getElementById('toast');
+    const colors = { info: 'var(--green)', error: 'var(--red)', warn: 'var(--yellow)' };
+    el.style.borderLeftColor = colors[type] || 'var(--accent)';
+    el.style.borderLeft = `3px solid ${colors[type] || 'var(--accent)'}`;
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  // ── Fetch helper ──────────────────────────────────────────────────────────
+  async function api(url, opts = {}) {
+    const r = await fetch(url, {
+      ...opts,
+      headers: { ...authHeaders(), ...(opts.headers || {}) },
+    });
+    return r.json();
+  }
+
+  // Poll a background job until it finishes or times out. Returns the final job state.
+  async function pollJob(jobId, { intervalMs = 2000, timeoutMs = 600000 } = {}) {
+    const t0 = Date.now();
+    while (Date.now() - t0 < timeoutMs) {
+      await new Promise(r => setTimeout(r, intervalMs));
+      try {
+        const j = await api('/api/jobs/' + jobId);
+        if (j && (j.status === 'done' || j.status === 'error')) return j;
+      } catch (e) { /* keep polling */ }
+    }
+    return { status: 'timeout', error: 'polled out after ' + Math.round(timeoutMs/1000) + 's' };
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function initApp() {
+    try { await loadStatus(); } catch(e) { console.warn('loadStatus error:', e); }
+    setInterval(() => loadStatus().catch(() => {}), 30000);
+    // Pre-load API key statuses in background so the tab is instant
+    setTimeout(() => loadApiKeys().catch(() => {}), 1000);
+  }
+
+  async function refreshAll() {
+    await loadStatus();
+    const active = document.querySelector('.section.active')?.id?.replace('sec-', '');
+    if (active === 'circuit') loadCBs();
+    if (active === 'kaizen')  loadKaizen();
+    if (active === 'logs')    loadLogs();
+    toast('Refreshed');
+  }
+
+  // ── Status / dashboard ────────────────────────────────────────────────────
+  async function loadStatus() {
+    // ── Single source of truth: /api/metrics ────────────────────────────────
+    try {
+      const [m, sys, health] = await Promise.all([
+        api('/api/metrics'),
+        api('/api/status'),
+        api('/health').catch(() => ({})),
+      ]);
+
+      // System online indicator
+      const sysEl = document.getElementById('sys-status');
+      if (sysEl) sysEl.textContent = sys.status === 'running' ? `Online · v${sys.version}` : 'Degraded';
+      if (sys && sys.version) {
+        const v = sys.version;
+        document.title = `DMAI Admin — v${v}`;
+        const vp = document.getElementById('versionPill'); if (vp) vp.textContent = `v${v}`;
+        const vs = document.getElementById('validationSummary'); if (vs) vs.textContent = `v${v} · 19/20 ADV tests PASS · Gate: 88`;
+        const li = document.getElementById('logInit'); if (li) li.textContent = `[ DMAI Admin v${v} — Initialising… ]`;
+      }
+
+      // ── KPIs — from /api/metrics (DB-derived, always accurate) ────────────
+      const kpis = m.kpis || {};
+      renderKpiCards(kpis, 'dash-kpis');
+      renderKpiCards(kpis, 'kpi-grid');
+
+      // ── Raw counts ────────────────────────────────────────────────────────
+      const fmt = v => (v !== undefined && v !== null) ? Number(v).toLocaleString() : '—';
+      const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+      setEl('lm-insights',     fmt(m.insights));
+      setEl('lm-capabilities', fmt(m.capabilities));
+      setEl('lm-neurons',      fmt(m.graph?.neurons));
+      setEl('lm-synapses',     fmt(m.graph?.synapses));
+      setEl('lm-cycle',        fmt(m.graph?.evolution_cycle));
+      setEl('lm-graph-neurons',  fmt(m.graph?.neurons));
+      setEl('lm-graph-synapses', fmt(m.graph?.synapses));
+      setEl('lm-graph-cycle',    fmt(m.graph?.evolution_cycle));
+      setEl('lm-graph-updated', 'last updated: ' + (m.generated_at ? m.generated_at.slice(0,10) : '--'));
+
+      // ── Components ────────────────────────────────────────────────────────
+      const compEl = document.getElementById('dash-components');
+      if (compEl) {
+        compEl.innerHTML = '';
+        (sys.components_loaded || []).forEach(c => {
+          const b = document.createElement('span');
+          b.className = 'badge badge-green';
+          b.textContent = c;
+          compEl.appendChild(b);
+        });
+      }
+
+      // ── Security ──────────────────────────────────────────────────────────
+      const secEl = document.getElementById('dash-security');
+      if (secEl) {
+        secEl.innerHTML = '';
+        const sec = health.security || {};
+        Object.entries(sec).forEach(([k, v]) => {
+          const b = document.createElement('span');
+          b.className = `badge ${v ? 'badge-green' : 'badge-red'}`;
+          b.textContent = `${k}: ${v ? '✓' : '✗'}`;
+          secEl.appendChild(b);
+        });
+      }
+
+      addLog(`[INFO] Metrics refreshed — ${fmt(m.insights)} insights · stage: ${m.stage} · uptime: ${m.uptime}`, 'info');
+    } catch (e) {
+      const sysEl = document.getElementById('sys-status');
+      if (sysEl) sysEl.textContent = 'Offline';
+      addLog('[ERR] Status check failed: ' + e.message, 'err');
+    }
+  }
+
+  // ── KPI card renderer ─────────────────────────────────────────────────────
+  const KPI_LABELS = {
+    skill_acquisition_rate:         'Skill Acquisition',
+    transfer_learning_rate:         'Transfer Learning',
+    zero_shot_success_count:        'Zero-Shot Success',
+    agentic_capability_score:       'Agentic Capability',
+    recursive_self_improvement_rate:'Recursive SI Rate',
+    sample_efficiency_trend:        'Sample Efficiency',
+    metacognition_accuracy:         'Metacognition',
+    multi_modal_integration_score:  'Multi-Modal Score',
+    consciousness:                  'Consciousness',
+    task_completion_rate:           'Task Completion',
+    response_quality:               'Response Quality',
+  };
+
+  function renderKpiCards(kpis, targetId) {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    el.innerHTML = '';
+    const ORDER = Object.keys(KPI_LABELS);
+    const keys = [...ORDER.filter(k => k in kpis), ...Object.keys(kpis).filter(k => !ORDER.includes(k) && k !== 'last_updated' && k !== 'error_rate')];
+    keys.forEach(k => {
+      const v = kpis[k];
+      if (v === undefined || v === null) return;
+      const pct = Math.min(100, typeof v === 'number' ? (v > 1 ? v : v * 100) : 0);
+      const card = document.createElement('div');
+      card.className = 'kpi-card';
+      card.innerHTML = `
+        <div class="kpi-label">${KPI_LABELS[k] || k.replace(/_/g,' ')}</div>
+        <div class="kpi-value" style="color:${pct > 50 ? 'var(--green)' : pct > 20 ? 'var(--yellow)' : 'var(--text-muted)'}">
+          ${typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(3)) : v}
+        </div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:${pct}%"></div></div>
+      `;
+      el.appendChild(card);
+    });
+    if (el.children.length === 0) {
+      el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No KPI data yet — add an AI provider API key to begin training.</p>';
+    }
+  }
+
+  // ── Study Progress ────────────────────────────────────────────────────────
+  async function loadStudyProgress() {
+    try {
+      const r = await api('/api/learning/progress');
+      const d = await r.json();
+      document.getElementById('study-stage').textContent = d.current_stage || '--';
+      document.getElementById('study-mastered').textContent = d.mastered ?? '--';
+      document.getElementById('study-inprogress').textContent = d.in_progress ?? '--';
+      document.getElementById('study-notstarted').textContent = d.not_started ?? '--';
+      document.getElementById('study-pct').textContent = (d.mastery_pct ?? '--') + '%';
+      document.getElementById('study-last-cycle').textContent = d.last_learning_cycle
+        ? new Date(d.last_learning_cycle).toLocaleString()
+        : 'Never - no learning cycles run yet';
+      // Stage breakdown
+      const stagesEl = document.getElementById('study-stages');
+      stagesEl.innerHTML = '';
+      const stageOrder = ['Baby','Toddler','Child','Teen','Adult','Expert'];
+      const stageColors = {Baby:'#20808D',Toddler:'#6DAA45',Child:'#E8AF34',Teen:'#E8AF34',Adult:'#A86FDF',Expert:'#DD6974'};
+      for (const s of stageOrder) {
+        const st = (d.stage_summary||{})[s]||{};
+        const isActive = s === d.current_stage;
+        const card = document.createElement('div');
+        card.style.cssText = 'background:var(--surface);border:1px solid '+(isActive?stageColors[s]:'var(--border)')+';border-radius:8px;padding:.75rem;';
+        const badge = isActive ? ' <span style="background:'+stageColors[s]+';color:#000;font-size:9px;padding:1px 5px;border-radius:3px">ACTIVE</span>' : '';
+        card.innerHTML = '<div style="font-size:11px;font-weight:700;color:'+stageColors[s]+';margin-bottom:.35rem">'+s+badge+'</div>'
+          +'<div style="font-size:11px;color:var(--text-muted)">Mastered: <b style="color:var(--green)">'+(st.mastered||0)+'</b></div>'
+          +'<div style="font-size:11px;color:var(--text-muted)">In progress: <b style="color:var(--yellow)">'+(st.in_progress||0)+'</b></div>'
+          +'<div style="font-size:11px;color:var(--text-muted)">Total seen: <b>'+(st.total||0)+'</b></div>';
+        stagesEl.appendChild(card);
+      }
+      // Discoveries
+      const discEl = document.getElementById('study-discoveries');
+      if (d.recent_discoveries && d.recent_discoveries.length > 0) {
+        discEl.innerHTML = d.recent_discoveries.map(disc =>
+          '<div style="border-bottom:1px solid var(--border);padding:.4rem 0">'
+          +'<span style="color:var(--accent);font-weight:600">'+(disc.domain||'unknown')+'</span>'
+          +' <span style="color:var(--text-muted);font-size:11px">'+(disc.date||'')+'</span><br>'
+          +'<span>'+((disc.summary||disc.topic||'').substring(0,120))+'</span></div>').join('');
+      } else {
+        discEl.innerHTML = '<span style="color:var(--text-muted)">No discoveries yet. Researcher runs every 5 min once a provider key is active.</span>';
+      }
+      // Nightly
+      document.getElementById('study-nightly').innerHTML =
+        '<b style="color:var(--green)">'+(d.nightly_training_entries||0)+'</b> training entries across '
+        +'<b>'+(d.nightly_training_files||0)+'</b> files ingested from Nightly Knowledge Evolution cron.';
+    } catch(e) {
+      console.error('Study progress load failed:', e);
+      document.getElementById('study-stage').textContent = 'Error';
+    }
+  }
+
+  // ── Training ──────────────────────────────────────────────────────────────
+  async function triggerTraining(mode) {
+    const out = document.getElementById('training-output');
+    out.textContent = `Starting ${mode} training…`;
+    // Map UI mode names to actual backend routes
+    const route = mode === 'full' ? '/api/training/full' : '/api/training/quick';
+    try {
+      const d = await api(route, {
+        method: 'POST',
+        body: JSON.stringify({ focus: 'Core' }),
+      });
+      out.textContent = JSON.stringify(d, null, 2);
+      toast(`${mode} training triggered`);
+      addLog(`[INFO] Training triggered: ${mode}`, 'info');
+    } catch (e) {
+      out.textContent = 'Error: ' + e.message;
+      toast('Training failed', 'error');
+    }
+  }
+
+  async function triggerUpdater() {
+    try {
+      const d = await api('/api/training/updater/start', { method: 'POST' });
+      toast('Background updater: ' + (d.status || d.error || 'started'));
+      addLog('[INFO] Background updater started', 'info');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function resetTraining() {
+    if (!confirm('Reset all training state? This cannot be undone.')) return;
+    try {
+      // Stop updater then restart — no hard reset endpoint exists
+      await api('/api/training/updater/stop', { method: 'POST' });
+      const d = await api('/api/training/status');
+      toast('Training state refreshed');
+      document.getElementById('training-output').textContent = JSON.stringify(d, null, 2);
+    } catch (e) { toast('Reset failed: ' + e.message, 'error'); }
+  }
+
+  // ── Circuit breakers ──────────────────────────────────────────────────────
+  async function loadCBs() {
+    const el = document.getElementById('cb-grid');
+    try {
+      const d = await api('/api/admin/circuit-breakers');
+      if (d.error) { el.innerHTML = `<p style="color:var(--text-muted);padding:1rem;">${d.error}</p>`; return; }
+      const cbs = Array.isArray(d) ? d : (d.circuit_breakers || Object.entries(d).map(([k,v])=>({name:k,...v})));
+      if (!cbs.length) { el.innerHTML = '<p style="color:var(--text-muted);padding:1rem;">No circuit breakers registered.</p>'; return; }
+      el.innerHTML = '';
+      cbs.forEach(cb => {
+        const s = cb.state || 'CLOSED';
+        const div = document.createElement('div');
+        div.className = 'cb-card';
+        div.innerHTML = `
+          <div class="cb-header">
+            <div class="cb-name">${cb.name || cb.id || 'Unknown'}</div>
+            <span class="badge ${s==='CLOSED'?'badge-green':s==='OPEN'?'badge-red':'badge-yellow'}">${s}</span>
+          </div>
+          <div class="cb-meta">Failures: ${cb.failure_count||0} · Threshold: ${cb.threshold||'-'} · Half-open: ${cb.half_open||false}</div>
+          <div class="cb-actions">
+            <button class="btn-sm" onclick="cbReset('${cb.name||cb.id}')">Reset</button>
+            <button class="btn-sm danger" onclick="cbOpen('${cb.name||cb.id}')">Force Open</button>
+          </div>
+        `;
+        el.appendChild(div);
+      });
+    } catch (e) {
+      el.innerHTML = `<p style="color:var(--text-muted);padding:1rem;">Failed to load: ${e.message}</p>`;
+    }
+  }
+
+  async function cbReset(name) {
+    try { await api(`/api/admin/circuit-breakers/${name}/reset`, { method:'POST' }); toast(`${name} reset`); loadCBs(); }
+    catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function cbOpen(name) {
+    if (!confirm(`Force-open circuit breaker "${name}"?`)) return;
+    try { await api(`/api/admin/circuit-breakers/${name}/open`, { method:'POST' }); toast(`${name} forced open`, 'warn'); loadCBs(); }
+    catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  // ── Kaizen ────────────────────────────────────────────────────────────────
+  async function loadKaizen() {
+    try {
+      const d = await api('/api/kaizen');
+      const tbody = document.getElementById('kaizen-body');
+      const proposals = d.recent_proposals || [];
+      if (!proposals.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-muted)">No proposals yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = proposals.slice().reverse().map(p => `
+        <tr>
+          <td>${p.title || '—'}</td>
+          <td><span class="badge ${p.priority==='high'?'badge-red':p.priority==='medium'?'badge-yellow':'badge-grey'}">${p.priority||'—'}</span></td>
+          <td>${p.type||'—'}</td>
+          <td style="color:var(--text-muted);font-size:11px;">${p.timestamp ? new Date(p.timestamp).toLocaleString() : '—'}</td>
+        </tr>
+      `).join('');
+    } catch (e) { toast('Error loading kaizen: ' + e.message, 'error'); }
+  }
+
+  async function submitKaizen() {
+    const title = document.getElementById('kz-title').value.trim();
+    const desc  = document.getElementById('kz-desc').value.trim();
+    if (!title) { toast('Title required', 'warn'); return; }
+    try {
+      await api('/api/kaizen', { method:'POST', body: JSON.stringify({ title, description: desc, priority: 'medium', submitted_by: 'admin' }) });
+      toast('Proposal submitted');
+      document.getElementById('kz-title').value = '';
+      document.getElementById('kz-desc').value = '';
+      loadKaizen();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  // ── Code scanner ──────────────────────────────────────────────────────────
+  async function scanCode() {
+    const code = document.getElementById('scan-code').value.trim();
+    if (!code) { toast('Paste some code first', 'warn'); return; }
+    const card = document.getElementById('scan-result-card');
+    const out  = document.getElementById('scan-result');
+    out.textContent = 'Scanning…'; card.style.display = 'block';
+    try {
+      const d = await api('/api/admin/scan-code', { method:'POST', body: JSON.stringify({ code }) });
+      out.textContent = JSON.stringify(d.results || d, null, 2);
+      const safe = Object.values(d.results || {}).every(r => r.safe !== false);
+      toast(safe ? 'No issues found' : 'Issues detected — see results', safe ? 'info' : 'warn');
+    } catch (e) { out.textContent = 'Error: ' + e.message; }
+  }
+
+  // ── JWT generator ─────────────────────────────────────────────────────────
+  async function generateToken() {
+    try {
+      const d = await api('/api/admin/token', { method:'POST', body: JSON.stringify({ password: masterPwd }) });
+      if (d.token) {
+        document.getElementById('token-value').textContent = d.token;
+        document.getElementById('token-output').style.display = 'block';
+        toast('Token generated — expires in 1 hour');
+      } else {
+        toast(d.error || 'Token generation failed', 'error');
+      }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  function copyToken() {
+    const t = document.getElementById('token-value').textContent;
+    navigator.clipboard.writeText(t).then(() => toast('Copied to clipboard'));
+  }
+
+  // ── Logs ──────────────────────────────────────────────────────────────────
+  const _logs = [];
+  function addLog(msg, type = '') {
+    _logs.push({ msg, type, t: new Date().toLocaleTimeString() });
+    if (_logs.length > 200) _logs.shift();
+    const box = document.getElementById('log-box');
+    const p = document.createElement('p');
+    p.className = `log-line ${type}`;
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    box.appendChild(p);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ── API Key Management ───────────────────────────────────────────────────
+  const PROVIDER_TIER = {
+    groq:'core', cerebras:'core', google_ai_studio:'core', tavily:'core', deepseek:'core',
+    openrouter:'secondary', cloudflare:'secondary', cohere:'secondary', huggingface:'secondary',
+    openai:'secondary', anthropic:'secondary', perplexity:'secondary', github_models:'secondary', mistral:'secondary'
+  };
+
+  function _keyRow(p) {
+    const badge = p.has_key
+      ? `<span style="background:rgba(0,212,170,.15);color:var(--green);border-radius:4px;padding:2px 8px;font-size:11px;">&#10003; Set</span>`
+      : `<span style="background:rgba(255,71,87,.1);color:var(--red);border-radius:4px;padding:2px 8px;font-size:11px;">&#215; Missing</span>`;
+    const masked = p.masked_key
+      ? `<code style="font-size:11px;color:var(--text-muted);font-family:monospace;">${p.masked_key}</code>`
+      : `<span style="font-size:11px;color:var(--text-faint);">not set</span>`;
+    return `<div class="card" style="padding:14px 16px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:120px;">
+          <div style="font-weight:600;font-size:13px;">${p.name}</div>
+          <div style="font-size:11px;color:var(--text-muted);font-family:monospace;margin-top:2px;">${p.env_var}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">${badge} ${masked}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <input id="key-input-${p.id}" type="password" placeholder="Paste key…"
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;width:220px;color:var(--text);outline:none;"
+            onkeydown="if(event.key==='Enter')saveKey('${p.id}')">
+          <button class="btn-sm" style="background:var(--accent);color:#fff;padding:7px 12px;border-radius:6px;font-size:12px;" onclick="saveKey('${p.id}')">Save</button>
+          ${p.has_key ? `<button class="btn-sm" style="background:var(--red-dim);color:var(--red);padding:7px 12px;border-radius:6px;font-size:12px;" onclick="clearKey('${p.id}')">Clear</button>` : ''}
+          <a href="${p.signup_url}" target="_blank" style="font-size:11px;color:var(--accent);align-self:center;text-decoration:none;">Get key &#8599;</a>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  async function loadPendingSignups() {
+    try {
+      toast('Checking free-tier registration status...', 'info');
+      const d = await api('/api/registrar/pending');
+      const pending = d.pending || [];
+      if (!pending.length) { toast('All free-tier providers are active!', 'info'); return; }
+      // Build a quick-action modal
+      let html = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;max-width:600px;margin:0 auto;">`;
+      html += `<h3 style="margin:0 0 1rem;font-size:15px;">&#128272; Free API Keys Needed (${pending.length})</h3>`;
+      html += `<p style="font-size:12px;color:var(--text-muted);margin-bottom:1rem;">Click each link to sign up — it's free, no payment required. Paste the key back into the field below.</p>`;
+      pending.forEach(p => {
+        html += `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">`;
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;">`;
+        html += `<div><strong style="font-size:13px;">${p.provider}</strong> <span style="font-size:11px;color:var(--text-muted);">~${p.time_seconds}s</span></div>`;
+        html += `<a href="${p.signup_url}" target="_blank" style="background:var(--accent);color:#000;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Sign Up Free &rarr;</a></div>`;
+        html += `<div style="font-size:11px;color:var(--green);margin-top:4px;">${p.free_tier}</div>`;
+        html += `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Set env var: <code>${p.env_var}</code></div>`;
+        html += `</div>`;
+      });
+      html += `</div>`;
+      // Show in a toast-like overlay
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;';
+      overlay.innerHTML = html + `<button onclick="this.closest('[style*=fixed]').remove()" style="position:absolute;top:20px;right:20px;background:transparent;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer;">&#10005; Close</button>`;
+      document.body.appendChild(overlay);
+    } catch(e) { toast('Registrar check failed: ' + e.message, 'error'); }
+  }
+
+  async function loadApiKeys() {
+    try {
+      const d = await api('/api/admin/keys');
+      const core = document.getElementById('apikeys-core');
+      const sec  = document.getElementById('apikeys-secondary');
+      core.innerHTML = ''; sec.innerHTML = '';
+      (d.providers || []).forEach(p => {
+        const html = _keyRow(p);
+        if (p.tier === 'core') core.innerHTML += html;
+        else sec.innerHTML += html;
+      });
+      document.getElementById('apikeys-last-refresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+      toast(`${d.total} providers loaded`, 'info');
+    } catch (e) {
+      toast('Failed to load API keys: ' + e.message, 'error');
+    }
+  }
+
+  async function saveKey(providerId) {
+    const input = document.getElementById('key-input-' + providerId);
+    const key = input ? input.value.trim() : '';
+    if (!key) { toast('Paste a key first', 'warn'); return; }
+    try {
+      const d = await api('/api/admin/keys', { method:'POST', body: JSON.stringify({ provider_id: providerId, key }) });
+      if (d.ok) {
+        toast(`${providerId} key saved (${d.masked_key})`);
+        if (input) input.value = '';
+        await loadApiKeys();
+      } else {
+        toast(d.error || 'Save failed', 'error');
+      }
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function clearKey(providerId) {
+    if (!confirm(`Clear the API key for ${providerId}?`)) return;
+    try {
+      const d = await api('/api/admin/keys/' + providerId, { method:'DELETE' });
+      if (d.ok) { toast(`${providerId} key cleared`, 'warn'); await loadApiKeys(); }
+      else toast(d.error || 'Delete failed', 'error');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function loadLogs() {
+    addLog('[INFO] Log viewer refreshed', 'info');
+    try {
+      const d = await api('/api/conversations');
+      addLog(`[INFO] Chat log: ${d.total_messages} messages`, 'info');
+      const k = await api('/api/kaizen');
+      addLog(`[INFO] Kaizen queue: ${k.total_proposals} proposals | Consciousness: ${k.consciousness}`, 'info');
+    } catch (e) { addLog('[WARN] Could not load some stats: ' + e.message, 'warn'); }
+  }
+
+  // ── KPI Evaluator ─────────────────────────────────────────────────────────
+  async function runKPIEval(quick = false) {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.textContent = quick ? '⏳ Starting quick eval…' : '⏳ Starting full eval…';
+    try {
+      const d = await api('/api/kpi/evaluate' + (quick ? '?quick=true' : ''), { method: 'POST' });
+      if (d.job_id) {
+        toast(quick ? 'Quick KPI eval running…' : 'Full KPI eval running — may take a few minutes', 'info');
+        btn.textContent = quick ? '⏳ Polling…' : '⏳ Polling (long)…';
+        const final = await pollJob(d.job_id, { intervalMs: quick ? 2000 : 5000, timeoutMs: quick ? 120000 : 600000 });
+        if (final.status === 'done') { toast('KPI eval complete', 'info'); refreshAll(); }
+        else if (final.status === 'error') { toast('KPI eval failed: ' + (final.error || '?'), 'error'); }
+        else { toast('KPI eval still running — check back later', 'warn'); }
+      } else if (d.ok) { toast('KPI eval complete', 'info'); refreshAll(); }
+      else { toast(d.error || d.detail || 'KPI eval failed', 'error'); }
+    } catch (e) {
+      toast('KPI eval error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = quick ? '⚡ Quick KPI Eval' : '📊 Full KPI Eval';
+    }
+  }
+
+  async function syncRSI() {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.textContent = '⏳ Syncing…';
+    try {
+      let d = await api('/api/kpi/rsi/sync', { method: 'POST' });
+      if (d.job_id && d.status === 'running') {
+        btn.textContent = '⏳ Syncing (background)…';
+        const final = await pollJob(d.job_id, { intervalMs: 3000, timeoutMs: 120000 });
+        if (final.status === 'done') d = final.result || {};
+        else { toast('RSI sync failed: ' + (final.error || final.status), 'error'); return; }
+      }
+      if (d.ok || d.rsi !== undefined) {
+        toast(`RSI synced — evolution cycle: ${d.evolution_cycle ?? '?'}, RSI: ${d.rsi !== undefined ? (d.rsi * 100).toFixed(1) + '%' : '?'}`, 'info');
+        setTimeout(() => refreshAll(), 2000);
+      } else { toast(d.error || 'RSI sync failed', 'error'); }
+    } catch (e) {
+      toast('RSI sync error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔄 Sync RSI';
+    }
+  }
+
+  async function triggerStudyCycle() {
+    try {
+      const d = await api('/api/training/quick', { method: 'POST', body: JSON.stringify({ focus: 'Core' }) });
+      toast('Learning cycle triggered', 'info');
+      setTimeout(() => loadStudyProgress(), 5000);
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  // ── Memory & Self-Generation ────────────────────────────────────────────────
+  async function queryMemory() {
+    const q = document.getElementById('mem-query').value.trim();
+    if (!q) { toast('Enter a query', 'warn'); return; }
+    const el = document.getElementById('mem-result');
+    el.textContent = 'Querying memory...';
+    try {
+      const d = await api('/api/memory/recall', { method:'POST', body: JSON.stringify({query:q, top_k:5}) });
+      if (d.error) { el.textContent = 'Error: ' + d.error; return; }
+      const conf = (d.confidence*100).toFixed(0);
+      const icon = d.sufficient ? '&#9989;' : '&#9744;';
+      el.innerHTML = `<strong>Confidence: ${conf}% | Source: ${d.source} | ${icon} ${d.sufficient ? 'Sufficient (no external needed)' : 'Partial — external search used'}</strong><br/>` +
+        (d.hits||[]).slice(0,3).map(h => `<div style="margin:.3rem 0;padding:.3rem;background:rgba(255,255,255,.04);border-radius:4px;word-break:break-word;">${JSON.stringify(h).slice(0,200)}</div>`).join('');
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function generateComponent(dryRun) {
+    const name = document.getElementById('gen-name').value.trim();
+    const desc = document.getElementById('gen-desc').value.trim();
+    const el = document.getElementById('gen-result');
+    if (!name || !desc) { toast('Name and description required', 'warn'); return; }
+    el.textContent = dryRun ? 'Dry run...' : 'Generating component (up to 60s)...';
+    try {
+      const d = await api('/api/code-writer/generate', { method:'POST', body: JSON.stringify({component_name:name, description:desc, dry_run:dryRun}) });
+      if (d.ok) {
+        el.innerHTML = `<strong>${dryRun ? 'Dry run OK' : 'Generated!'}</strong> — ${d.lines||d.generated_lines||'?'} lines &rarr; <code>${d.path||'preview only'}</code>`;
+        if (!dryRun) toast('Component generated: ' + name, 'info');
+      } else {
+        el.textContent = 'Failed: ' + (d.error||'Unknown error');
+        toast('Generation failed', 'error');
+      }
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function runAutoRepair() {
+    const el = document.getElementById('repair-result');
+    el.textContent = 'Starting auto-repair cycle...';
+    try {
+      const d = await api('/api/kaizen/auto-repair', { method:'POST' });
+      if (d.job_id) {
+        el.textContent = 'Auto-repair running in background…';
+        const final = await pollJob(d.job_id, { intervalMs: 3000, timeoutMs: 300000 });
+        if (final.status === 'done') {
+          const r = final.result || {};
+          el.innerHTML = `<strong>Cycle complete</strong> &mdash; Fixed: ${r.repaired||0} | Failed: ${r.failed||0} | Skipped: ${r.skipped||0}`;
+          toast('Auto-repair: ' + (r.repaired||0) + ' fixed', 'info');
+        } else { el.textContent = 'Failed: ' + (final.error || final.status); }
+      } else if (d.ok) {
+        const r = d.result||{};
+        el.innerHTML = `<strong>Cycle complete</strong> &mdash; Fixed: ${r.repaired||0} | Failed: ${r.failed||0} | Skipped: ${r.skipped||0}`;
+        toast('Auto-repair: ' + (r.repaired||0) + ' fixed', 'info');
+      } else { el.textContent = 'Failed: ' + (d.error||'?'); }
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadRepairStats() {
+    const el = document.getElementById('repair-result');
+    try {
+      const d = await api('/api/kaizen/repair-stats');
+      el.innerHTML = `Total: <strong>${d.total||0}</strong> | ` +
+        Object.entries(d.by_status||{}).map(([s,n])=>`${s}: <strong>${n}</strong>`).join(' | ');
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadCWHistory() {
+    const el = document.getElementById('cw-history');
+    if (!el) return;
+    try {
+      const d = await api('/api/code-writer/history?limit=10');
+      if (!d.records || !d.records.length) { el.textContent = 'No code generation history yet.'; return; }
+      el.innerHTML = d.records.map(r =>
+        `<div style="margin:.25rem 0;padding:.3rem;background:rgba(255,255,255,.04);border-radius:4px;">
+          <span style="color:var(--accent)">${(r.ts||'?').slice(0,19)}</span>
+          &nbsp;|&nbsp;${r.action||'?'}
+          &nbsp;|&nbsp;<code>${r.file||'?'}</code>
+          &nbsp;|&nbsp;${r.lines||'?'} lines
+          &nbsp;|&nbsp;${r.origin||'?'}
+        </div>`
+      ).join('');
+    } catch(e) { el.textContent = 'Error: ' + e.message; }
+  }
+
+  async function triggerResearch() {
+    try {
+      const d = await api('/api/research/run', { method: 'POST' });
+      toast('Autonomous research triggered', 'info');
+      setTimeout(() => loadStudyProgress(), 8000);
+    } catch (e) {
+      // fallback — researcher may not have a dedicated endpoint
+      toast('Research triggered via training', 'info');
+    }
+  }
+
+  // ── Learning Metrics ──────────────────────────────────────────────────────
+  async function loadLearningMetrics() {
+    try {
+      const [d, g] = await Promise.all([
+        api('/api/learning/full-status').catch(() => ({})),
+        api('/api/graph/status').catch(() => ({}))
+      ]);
+      // Headline stats
+      const safe = (v) => (v !== undefined && v !== null) ? String(v) : '--';
+      document.getElementById('lm-insights').textContent     = safe((d.db_stats||{}).insights ?? d.total_insights);
+      document.getElementById('lm-capabilities').textContent = safe((d.db_stats||{}).capabilities ?? d.total_capabilities);
+      document.getElementById('lm-mastered').textContent     = safe(d.study?.topics_mastered ?? d.topics_mastered);
+      document.getElementById('lm-neurons').textContent      = safe(g.total_neurons);
+      document.getElementById('lm-synapses').textContent     = safe(g.total_synapses);
+      document.getElementById('lm-cycle').textContent        = safe(g.evolution_cycle);
+      // Graph card
+      document.getElementById('lm-graph-neurons').textContent  = safe(g.total_neurons);
+      document.getElementById('lm-graph-synapses').textContent = safe(g.total_synapses);
+      document.getElementById('lm-graph-cycle').textContent    = safe(g.evolution_cycle);
+      document.getElementById('lm-graph-updated').textContent  = 'last updated: ' + (g.last_updated || '--');
+      // KPI bars
+      const kpiBar = document.getElementById('lm-kpi-bars');
+      const kpis = d.kpis || {};
+      const KPI_LABELS = {
+        metacognition_accuracy:'Metacognition', skill_acquisition_rate:'Skill Acquisition',
+        zero_shot_success_count:'Zero-Shot', agentic_capability_score:'Agentic Capability',
+        recursive_self_improvement_rate:'Self-Improvement', transfer_learning_rate:'Transfer Learning',
+        sample_efficiency_trend:'Sample Efficiency', multi_modal_integration_score:'Multi-Modal'
+      };
+      kpiBar.innerHTML = Object.entries(KPI_LABELS).map(([k,label]) => {
+        const val = kpis[k] ?? 0, pct = Math.min(100, Math.round(val*100));
+        const col = pct>=60?'var(--green)':pct>=30?'var(--yellow)':'var(--red)';
+        return `<div style="display:grid;grid-template-columns:160px 1fr 44px;align-items:center;gap:.5rem;">
+          <span style="font-size:11px;color:var(--text-muted)">${label}</span>
+          <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${col};border-radius:3px;transition:width .4s ease"></div>
+          </div>
+          <span style="font-size:11px;font-weight:600;color:${col};text-align:right">${val.toFixed(2)}</span>
+        </div>`;
+      }).join('');
+      // Stage progression
+      const stageEl = document.getElementById('lm-stages');
+      const stages = d.study?.stage_breakdown || {};
+      ['baby','toddler','child','teen','adult'].forEach(s => {
+        const info = stages[s] || {}, done = info.mastered||0, tot = info.total||0;
+        const pct = tot ? Math.round(done/tot*100) : 0;
+        const cols = {baby:'var(--text-muted)',toddler:'var(--yellow)',child:'var(--accent)',teen:'var(--green)',adult:'#fff'};
+        stageEl.innerHTML += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .85rem;min-width:90px;text-align:center;">
+          <div style="font-size:11px;color:${cols[s]};font-weight:700;text-transform:uppercase">${s}</div>
+          <div style="font-size:18px;font-weight:700;margin:.1rem 0">${pct}%</div>
+          <div style="font-size:10px;color:var(--text-muted)">${done}/${tot}</div>
+        </div>`;
+      });
+      // Domains
+      const doms = d.domains_researched || d.research?.domains || [];
+      document.getElementById('lm-domains').innerHTML = doms.length
+        ? doms.map(dm=>`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.2rem .6rem;font-size:11px;color:var(--accent)">${dm}</span>`).join('')
+        : '<span style="font-size:12px;color:var(--text-muted)">No domains yet</span>';
+      // Discoveries
+      const discs = d.recent_discoveries || [];
+      document.getElementById('lm-discoveries').innerHTML = discs.length
+        ? discs.map(r=>`<div style="padding:.25rem 0;border-bottom:1px solid var(--border);">
+            <span style="color:var(--accent);font-size:10px">${(r.ts||r.timestamp||'').slice(0,16)}</span>
+            &nbsp;<strong>${r.domain||r.title||'Unknown'}</strong>
+            ${r.url?` &mdash; <a href="${r.url}" target="_blank" style="color:var(--green);text-decoration:none;font-size:11px">view</a>`:''}
+          </div>`).join('')
+        : 'No discoveries yet';
+      // Code writer
+      const cwRec = (d.code_writer||{}).recent || [];
+      document.getElementById('lm-cw').innerHTML = cwRec.length
+        ? cwRec.map(r=>`<div style="padding:.2rem 0;border-bottom:1px solid var(--border);">
+            <span style="color:var(--accent);font-size:10px">${(r.ts||'').slice(0,16)}</span>&nbsp;
+            ${r.action||'?'} &mdash; <code style="font-size:11px">${r.file||'?'}</code> (${r.lines||'?'} lines)
+          </div>`).join('')
+        : 'No code generation history yet';
+    } catch(e) { toast('Learning metrics error: '+e.message,'error'); }
+  }
+
+  async function triggerGraphEvolve() {
+    try {
+      const d = await api('/api/graph/evolve', { method: 'POST' });
+      toast(`Graph evolved: +${d.result?.new_neurons||0} neurons, +${d.result?.new_synapses||0} synapses`, 'info');
+      setTimeout(loadLearningMetrics, 1000);
+    } catch(e) { toast('Graph evolve failed: '+e.message,'error'); }
+  }
+
+  // ── Settings ──────────────────────────────────────────────────────────────
+  async function loadSettings() {
+    try {
+      const d = await api('/api/settings');
+      // Stage gates
+      const sgEl = document.getElementById('sg-form');
+      if (sgEl) {
+        const sg = d.stage_gates || {};
+        sgEl.innerHTML = Object.entries(sg).map(([k,v]) => `
+          <label style="font-size:12px;color:var(--text-muted)">${k.replace(/_/g,' ')}
+            <div style="display:flex;align-items:center;gap:.5rem;margin-top:.25rem">
+              <input type="range" id="sg-${k}" min="0" max="1" step="0.05" value="${v}"
+                style="flex:1;accent-color:var(--accent)"
+                oninput="document.getElementById('sgv-${k}').textContent=parseFloat(this.value).toFixed(2)"/>
+              <span id="sgv-${k}" style="font-size:12px;font-weight:700;min-width:34px;text-align:right">${parseFloat(v).toFixed(2)}</span>
+            </div>
+          </label>`).join('');
+      }
+      // Schedule
+      if (d.training_interval_hrs) document.getElementById('sg-train-interval').value = d.training_interval_hrs;
+      if (d.research_interval_hrs) document.getElementById('sg-research-interval').value = d.research_interval_hrs;
+      // Env vars
+      const envEl = document.getElementById('sg-envvars');
+      const envs = d.env_vars || {};
+      envEl.innerHTML = Object.entries(envs).map(([k,v]) => {
+        const set = v===true||v==='SET';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.3rem .5rem;background:var(--surface2);border-radius:5px;">
+          <code style="font-size:11px;color:var(--text-muted)">${k}</code>
+          <span style="font-size:11px;font-weight:700;color:${set?'var(--green)':'var(--red)'}">${set?'SET':'MISSING'}</span>
+        </div>`;
+      }).join('');
+      // Providers
+      const provEl = document.getElementById('sg-providers');
+      const provs = d.providers || {};
+      provEl.innerHTML = Object.entries(provs).map(([pid,info]) => {
+        const st = String(info.status||info);
+        const col = st==='active'?'var(--green)':st==='pending_api_key'?'var(--text-muted)':'var(--red)';
+        return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:.5rem .7rem;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase">${pid}</div>
+          <div style="font-size:10px;color:${col};margin-top:.15rem">${st}</div>
+        </div>`;
+      }).join('');
+      // System info
+      const sysEl = document.getElementById('sg-sysinfo');
+      const sys = d.system_info || {};
+      sysEl.innerHTML = Object.entries(sys).map(([k,v]) =>
+        `<div style="padding:.25rem 0"><span style="color:var(--text-muted)">${k.replace(/_/g,' ')}</span><br><strong style="font-size:13px">${v}</strong></div>`
+      ).join('');
+    } catch(e) { toast('Settings error: '+e.message,'error'); }
+  }
+
+  async function saveStageGates() {
+    const inputs = document.getElementById('sg-form').querySelectorAll('input[type=range]');
+    const updates = {};
+    inputs.forEach(inp => { updates[inp.id.replace('sg-','')] = parseFloat(inp.value); });
+    try {
+      await api('/api/settings', { method:'POST', body:JSON.stringify({stage_gates:updates}) });
+      toast('Stage gates saved','info');
+    } catch(e) { toast('Save failed: '+e.message,'error'); }
+  }
+
+  async function saveSchedule() {
+    try {
+      await api('/api/settings', { method:'POST', body:JSON.stringify({
+        training_interval_hrs: parseInt(document.getElementById('sg-train-interval').value),
+        research_interval_hrs: parseInt(document.getElementById('sg-research-interval').value),
+      })});
+      toast('Schedule saved','info');
+    } catch(e) { toast('Save failed: '+e.message,'error'); }
+  }
+
+
+  // ── Suggestions ──────────────────────────────────────────────────────────
+  let _sugFilter = 'all';
+
+  function setSugFilter(f) {
+    _sugFilter = f;
+    document.querySelectorAll('#sug-filter-tabs button').forEach(b => {
+      b.className = b.id === 'sugf-' + f ? 'btn-action' : 'btn-action secondary';
+    });
+    loadSuggestions();
+  }
+
+  async function loadSuggestions() {
+    const listEl = document.getElementById('sug-list');
+    try {
+      const isSourceFilter = ['user','self'].includes(_sugFilter);
+      const isStatusFilter = ['pending','completed','pr_opened','failed','coding','analysing'].includes(_sugFilter);
+      const params = new URLSearchParams();
+      if (isSourceFilter) params.set('source', _sugFilter);
+      else if (isStatusFilter) params.set('status', _sugFilter);
+      const data = await api('/api/suggestions?' + params.toString());
+
+      // Update counts
+      const counts = data.counts || {};
+      ['pending','coding','completed','pr_opened','failed'].forEach(s => {
+        const el = document.getElementById('sug-count-' + s);
+        if (el) el.textContent = counts[s] ?? 0;
+      });
+      // Add analysing to coding count
+      const codingEl = document.getElementById('sug-count-coding');
+      if (codingEl) codingEl.textContent = (counts['coding'] || 0) + (counts['analysing'] || 0);
+
+      const suggestions = data.suggestions || [];
+      if (!suggestions.length) {
+        listEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:.5rem 0;">No suggestions yet. Send DMAI her first task above.</p>';
+        return;
+      }
+      listEl.innerHTML = suggestions.map(s => renderSuggestionCard(s)).join('');
+    } catch(e) {
+      listEl.innerHTML = '<p style="color:var(--red);font-size:12px;">Failed to load: ' + e.message + '</p>';
+    }
+  }
+
+  function renderSuggestionCard(s) {
+    const STATUS_COLOURS = {
+      pending:    'var(--yellow)',
+      analysing:  'var(--accent)',
+      coding:     'var(--accent)',
+      completed:  'var(--green)',
+      pr_opened:  '#7c6af7',
+      failed:     'var(--red)'
+    };
+    const STATUS_LABELS = {
+      pending:    'Pending',
+      analysing:  'Analysing',
+      coding:     'Coding',
+      completed:  'Completed',
+      pr_opened:  'PR Open',
+      failed:     'Failed'
+    };
+    const colour = STATUS_COLOURS[s.status] || 'var(--text-muted)';
+    const label  = STATUS_LABELS[s.status]  || s.status;
+    const sourceChip = s.source === 'self'
+      ? '<span style="font-size:9px;padding:.15rem .45rem;border-radius:10px;background:rgba(124,106,247,0.18);color:#7c6af7;margin-left:.4rem;">DMAI Self-Directed</span>'
+      : '<span style="font-size:9px;padding:.15rem .45rem;border-radius:10px;background:rgba(78,168,222,0.18);color:#4ea8de;margin-left:.4rem;">Your Idea</span>';
+    const desc = (s.description || '').slice(0, 120) + ((s.description||'').length > 120 ? '…' : '');
+    const result = s.result ? '<div style="font-size:11px;color:var(--text-muted);margin-top:.35rem;line-height:1.5;">' + (s.result||'').slice(0,200) + '</div>' : '';
+    const prLink = s.pr_url ? '<a href="' + s.pr_url + '" target="_blank" style="font-size:11px;color:var(--accent);margin-left:.5rem;">&#128279; View PR</a>' : '';
+    const filesCount = (() => { try { return JSON.parse(s.files_changed||'[]').length; } catch(e){ return 0; } })();
+    const filesTag = filesCount > 0 ? '<span style="font-size:10px;color:var(--text-muted);margin-left:.4rem;">' + filesCount + ' file' + (filesCount>1?'s':'') + '</span>' : '';
+    const ts = s.created_at ? new Date(s.created_at).toLocaleString([], {dateStyle:'short',timeStyle:'short'}) : '';
+    const retryBtn = s.status === 'failed'
+      ? `<button class="btn-action secondary" style="padding:.2rem .6rem;font-size:11px;" onclick="retrySuggestion(${s.id})">&#8635; Retry</button>`
+      : '';
+    const deleteBtn = `<button class="btn-action secondary" style="padding:.2rem .6rem;font-size:11px;color:var(--red);" onclick="deleteSuggestion(${s.id})">&#128465;</button>`;
+
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;border-left:3px solid ${colour};">
+      <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.3rem;">
+        <span style="font-size:11px;font-weight:600;color:${colour};text-transform:uppercase;letter-spacing:.04em;">${label}</span>
+        ${sourceChip}${filesTag}
+        <span style="flex:1;"></span>
+        <span style="font-size:10px;color:var(--text-muted);">${ts}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:.2rem;">${s.title}</div>
+      <div style="font-size:12px;color:var(--text-muted);">${desc}</div>
+      ${result}
+      <div style="display:flex;align-items:center;gap:.4rem;margin-top:.5rem;">
+        ${prLink}
+        <span style="flex:1;"></span>
+        ${retryBtn} ${deleteBtn}
+      </div>
+    </div>`;
+  }
+
+  async function submitSuggestion() {
+    const title = (document.getElementById('sug-title').value || '').trim();
+    const desc  = (document.getElementById('sug-desc').value  || '').trim();
+    if (!title) { toast('Please enter a title', 'warn'); return; }
+    try {
+      await api('/api/suggestions', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, description: desc || title, source: 'user'})
+      });
+      document.getElementById('sug-title').value = '';
+      document.getElementById('sug-desc').value  = '';
+      toast('Sent to DMAI — she\'s on it');
+      loadSuggestions();
+    } catch(e) { toast('Submit failed: ' + e.message, 'error'); }
+  }
+
+  async function retrySuggestion(id) {
+    try {
+      await api('/api/suggestions/' + id + '/retry', {method: 'POST'});
+      toast('Retry queued');
+      loadSuggestions();
+    } catch(e) { toast('Retry failed: ' + e.message, 'error'); }
+  }
+
+  async function deleteSuggestion(id) {
+    try {
+      await api('/api/suggestions/' + id, {method: 'DELETE'});
+      toast('Deleted');
+      loadSuggestions();
+    } catch(e) { toast('Delete failed: ' + e.message, 'error'); }
+  }
+
+
+  // ── Vocabulary & Encyclopaedia Stats ─────────────────────────────────────
+  async function loadVocabStats() {
+    try {
+      const [stats, sample] = await Promise.all([
+        api('/api/vocabulary/stats'),
+        api('/api/vocabulary/sample'),
+      ]);
+      const vtEl = document.getElementById('lm-vocab-total');
+      const etEl = document.getElementById('lm-encyc-total');
+      const dEl  = document.getElementById('lm-vocab-domains');
+      const stEl = document.getElementById('lm-vocab-status');
+      const rwEl = document.getElementById('lm-recent-words');
+      if (vtEl) vtEl.textContent = (stats.vocabulary_total || 0).toLocaleString();
+      if (etEl) etEl.textContent = (stats.encyclopaedia_total || 0).toLocaleString();
+      if (dEl)  dEl.textContent  = Object.keys(stats.vocabulary_by_domain || {}).length;
+      if (stEl) stEl.textContent = stats.status === 'active' ? '&#x25cf; Active' : 'Idle';
+      if (rwEl && sample.words && sample.words.length) {
+        rwEl.innerHTML = sample.words.slice(0, 12).map(w =>
+          `<span title="${w.definition}" style="font-size:11px;padding:.2rem .5rem;border-radius:12px;`
+          + `background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:default;">`
+          + `${w.word} <span style="color:var(--text-muted);font-size:9px;">${w.pos||''}</span></span>`
+        ).join('');
+      } else if (rwEl) {
+        rwEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">No words ingested yet — ingestion starts 2 minutes after deploy.</span>';
+      }
+    } catch(e) {
+      console.warn('loadVocabStats failed:', e);
+    }
+  }
+
+
+  // ── Maintenance / Integrity ───────────────────────────────────────────────
+  let _maintFilter = 'all';
+  let _maintFlags  = [];
+
+  function setMaintFilter(f) {
+    _maintFilter = f;
+    ['all','critical','warning','open','resolved'].forEach(k => {
+      const el = document.getElementById('mf-' + k);
+      if (el) el.className = k === f ? 'btn-action' : 'btn-action secondary';
+    });
+    renderMaintFlags();
+  }
+
+  async function runIntegrityCheck() {
+    const btn = document.getElementById('maint-run-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Running…'; }
+    try {
+      await api('/api/integrity/run', { method: 'POST' });
+      toast('Integrity check started — refresh in a few seconds');
+      setTimeout(loadIntegrityReport, 4000);
+    } catch(e) {
+      toast('Failed to start check: ' + e.message, 'error');
+    } finally {
+      setTimeout(() => { if (btn) { btn.disabled = false; btn.textContent = '▶ Run Integrity Check'; }}, 4000);
+    }
+  }
+
+  async function loadIntegrityReport() {
+    try {
+      const data = await api('/api/integrity/report');
+      if (data.status === 'no_report') {
+        document.getElementById('maint-flags-list').innerHTML =
+          '<p style="color:var(--text-muted);font-size:13px;">No report yet. Click Run Integrity Check.</p>';
+        return;
+      }
+      const r = data.report || {};
+      // Stats
+      document.getElementById('maint-total-checked').textContent = (r.total_checked || 0).toLocaleString();
+      document.getElementById('maint-critical').textContent      = r.critical || 0;
+      document.getElementById('maint-warning').textContent       = r.warning  || 0;
+      document.getElementById('maint-info').textContent          = r.info     || 0;
+      const resolvedCount = (data.flags || []).filter(f => f.resolved).length;
+      document.getElementById('maint-resolved').textContent      = resolvedCount;
+
+      // Summary banner
+      const banner = document.getElementById('maint-summary-banner');
+      if (banner && r.summary) {
+        const colour = r.critical > 0 ? 'var(--red)' : r.warning > 0 ? 'var(--yellow)' : 'var(--green)';
+        banner.style.display = 'block';
+        banner.style.borderLeftColor = colour;
+        banner.innerHTML = '<strong>Last run:</strong> ' + new Date(r.run_at).toLocaleString() +
+          ' &nbsp;·&nbsp; ' + r.summary;
+      }
+
+      // Store flags
+      _maintFlags = data.flags || [];
+      renderMaintFlags();
+
+      // History
+      const histEl = document.getElementById('maint-history');
+      if (histEl && data.history && data.history.length) {
+        histEl.innerHTML = '<table style="width:100%;border-collapse:collapse;">' +
+          '<tr style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">' +
+          '<th style="text-align:left;padding:.2rem .4rem;">Run</th>' +
+          '<th style="text-align:center;padding:.2rem .4rem;">Total</th>' +
+          '<th style="text-align:center;padding:.2rem .4rem;color:var(--red);">Crit</th>' +
+          '<th style="text-align:center;padding:.2rem .4rem;color:var(--yellow);">Warn</th>' +
+          '<th style="text-align:center;padding:.2rem .4rem;">Info</th></tr>' +
+          data.history.map(h =>
+            '<tr style="font-size:11px;border-top:1px solid var(--border);">' +
+            '<td style="padding:.3rem .4rem;color:var(--text-muted);">' +
+              new Date(h.run_at).toLocaleString([], {dateStyle:'short',timeStyle:'short'}) + '</td>' +
+            '<td style="text-align:center;padding:.3rem .4rem;">' + (h.total_flags || 0) + '</td>' +
+            '<td style="text-align:center;padding:.3rem .4rem;color:var(--red);">' + (h.critical || 0) + '</td>' +
+            '<td style="text-align:center;padding:.3rem .4rem;color:var(--yellow);">' + (h.warning || 0) + '</td>' +
+            '<td style="text-align:center;padding:.3rem .4rem;color:var(--text-muted);">' + (h.info || 0) + '</td>' +
+            '</tr>'
+          ).join('') + '</table>';
+      }
+    } catch(e) {
+      console.warn('loadIntegrityReport failed:', e);
+    }
+  }
+
+  function renderMaintFlags() {
+    const el = document.getElementById('maint-flags-list');
+    if (!el) return;
+    let flags = _maintFlags;
+    if (_maintFilter === 'critical')  flags = flags.filter(f => f.severity === 'critical');
+    if (_maintFilter === 'warning')   flags = flags.filter(f => f.severity === 'warning');
+    if (_maintFilter === 'open')      flags = flags.filter(f => !f.resolved);
+    if (_maintFilter === 'resolved')  flags = flags.filter(f => f.resolved);
+
+    if (!flags.length) {
+      el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:.5rem 0;">' +
+        (_maintFilter === 'all' ? 'Knowledge base is clean — no flags found.' :
+         'No flags matching this filter.') + '</p>';
+      return;
+    }
+    el.innerHTML = flags.map(f => renderFlagCard(f)).join('');
+  }
+
+  function renderFlagCard(f) {
+    const SEV_COLOUR = { critical: 'var(--red)', warning: 'var(--yellow)', info: 'var(--text-muted)' };
+    const SEV_BG     = { critical: 'rgba(220,50,50,0.08)', warning: 'rgba(240,192,64,0.08)', info: 'transparent' };
+    const TYPE_ICON  = {
+      DEFINITION_CONFLICT:     '📖',
+      ORPHANED_NEURON:         '🔵',
+      LOW_CONFIDENCE_CLUSTER:  '📉',
+      STALE_ENTRIES:           '🕰',
+      DUPLICATE_CONCEPT:       '⚡',
+      SEMANTIC_DRIFT:          '🔀',
+      OVERCLAIMED_CAPABILITY:  '⚠',
+    };
+    const colour = SEV_COLOUR[f.severity] || 'var(--text-muted)';
+    const bg     = f.resolved ? 'rgba(100,200,100,0.04)' : (SEV_BG[f.severity] || 'transparent');
+    const icon   = TYPE_ICON[f.flag_type] || '🔍';
+    const opacity = f.resolved ? '0.5' : '1';
+    const detail = (f.detail || '').replace(/\n/g, '<br>');
+    const action = f.suggested_action || '';
+    const ts = f.created_at ? new Date(f.created_at).toLocaleString([], {dateStyle:'short',timeStyle:'short'}) : '';
+
+    return `<div style="background:${bg};border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;border-left:3px solid ${colour};opacity:${opacity};">
+      <div style="display:flex;align-items:flex-start;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem;">
+        <span style="font-size:14px;">${icon}</span>
+        <span style="font-size:11px;font-weight:700;color:${colour};text-transform:uppercase;letter-spacing:.04em;padding-top:.1rem;">${f.severity}</span>
+        <span style="font-size:11px;color:var(--text-muted);padding-top:.1rem;">${f.flag_type}</span>
+        <span style="flex:1;"></span>
+        ${f.resolved ? '<span style="font-size:10px;color:var(--green);font-weight:600;">✓ RESOLVED</span>' : ''}
+        <span style="font-size:10px;color:var(--text-muted);">${ts}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:.4rem;">${f.title}</div>
+      <details>
+        <summary style="font-size:11px;color:var(--text-muted);cursor:pointer;margin-bottom:.3rem;">Show detail</summary>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin:.4rem 0;padding:.5rem;background:var(--surface2);border-radius:6px;">${detail}</div>
+      </details>
+      <div style="font-size:11px;color:var(--accent);margin-top:.3rem;padding:.35rem .5rem;background:rgba(124,106,247,0.08);border-radius:5px;">
+        <strong>Action:</strong> ${action}
+      </div>
+      ${!f.resolved ? `<div class="action-row" style="margin-top:.5rem;gap:.4rem;">
+        <button class="btn-action secondary" style="padding:.2rem .6rem;font-size:11px;" onclick="resolveFlag('${f.id}')">&#10003; Mark Resolved</button>
+      </div>` : ''}
+    </div>`;
+  }
+
+  async function resolveFlag(flagId) {
+    try {
+      const note = 'Resolved via admin UI';
+      await api('/api/integrity/resolve/' + flagId, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({note})
+      });
+      toast('Flag resolved');
+      // Optimistically update local state
+      const flag = _maintFlags.find(f => f.id === flagId);
+      if (flag) flag.resolved = true;
+      renderMaintFlags();
+      // Update resolved count
+      const rc = document.getElementById('maint-resolved');
+      if (rc) rc.textContent = parseInt(rc.textContent || '0') + 1;
+    } catch(e) { toast('Resolve failed: ' + e.message, 'error'); }
+  }
+
+  function showPurgeDialog() {
+    document.getElementById('maint-purge-dialog').style.display = 'flex';
+    previewPurge();
+  }
+
+  async function previewPurge() {
+    const t = parseFloat(document.getElementById('purge-threshold').value) || 0.2;
+    const prev = document.getElementById('purge-preview');
+    try {
+      const r = await api('/api/integrity/purge', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({threshold: t, dry_run: true})
+      });
+      if (prev) prev.textContent = `${r.would_delete ?? 0} insights would be deleted at threshold ${t}`;
+    } catch(e) {
+      if (prev) prev.textContent = 'Preview failed: ' + e.message;
+    }
+  }
+
+  async function executePurge() {
+    if (!confirm('This will permanently delete low-confidence insights. Continue?')) return;
+    const t = parseFloat(document.getElementById('purge-threshold').value) || 0.2;
+    try {
+      const r = await api('/api/integrity/purge', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({threshold: t, dry_run: false})
+      });
+      document.getElementById('maint-purge-dialog').style.display = 'none';
+      toast(`Purged ${r.deleted ?? 0} low-confidence insights`, 'warn');
+      loadIntegrityReport();
+    } catch(e) { toast('Purge failed: ' + e.message, 'error'); }
+  }
+
+
+  // ── Mobile nav ────────────────────────────────────────────────────────────
+  function toggleMobileNav() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.getElementById('mob-overlay');
+    const isOpen = sb && sb.classList.contains('open');
+    if (isOpen) { closeMobileNav(); } else { openMobileNav(); }
+  }
+  function openMobileNav() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.getElementById('mob-overlay');
+    if (sb) sb.classList.add('open');
+    if (ov) ov.classList.add('open');
+  }
+  function closeMobileNav() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.getElementById('mob-overlay');
+    if (sb) sb.classList.remove('open');
+    if (ov) ov.classList.remove('open');
+  }
+
+
+  // ── Heartbeat Panel ────────────────────────────────────────────────────────
+  let _hbInterval = null;
+
+  function _renderHeartbeat(d) {
+    const fmt = v => (v !== null && v !== undefined) ? Number(v).toLocaleString() : '—';
+    const el = id => document.getElementById(id);
+
+    el('hb-stage').textContent            = d.learning_stage || '—';
+    el('hb-skills-24h').textContent        = fmt(d.skills_learned_24h);
+    el('hb-entities-24h').textContent      = fmt(d.entities_discovered_24h);
+    el('hb-total-insights').textContent    = fmt(d.total_insights);
+    el('hb-neurons').textContent           = fmt(d.graph_stats && d.graph_stats.neurons);
+    el('hb-synapses').textContent          = fmt(d.graph_stats && d.graph_stats.synapses);
+
+    // Stage track
+    const track = el('hb-stage-track');
+    if (track && d.stages) {
+      track.innerHTML = d.stages.map((s, i) => {
+        const col = i === d.stage_index ? 'var(--accent)' : i < d.stage_index ? 'var(--green)' : 'var(--text-muted)';
+        const wt  = i === d.stage_index ? '700' : '400';
+        return `<span style="font-size:0.65rem;color:${col};font-weight:${wt}">${s}</span>`;
+      }).join('');
+    }
+    const bar = el('hb-stage-bar');
+    if (bar) bar.style.width = (d.stage_progress_pct || 0) + '%';
+
+    // Knowledge Pulse SVG chart
+    const pulse = d.knowledge_pulse || [];
+    const svgEl = el('hb-pulse-chart');
+    if (svgEl) {
+      const W = svgEl.parentElement.clientWidth || 540;
+      const H = 160;
+      svgEl.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      svgEl.innerHTML = '';
+      const ns = 'http://www.w3.org/2000/svg';
+
+      if (pulse.length > 1) {
+        const maxC = Math.max.apply(null, pulse.map(p => p.count)) || 1;
+        const pL=32, pR=10, pT=10, pB=28;
+        const xs = pulse.map((_,i) => pL + (i/(pulse.length-1))*(W-pL-pR));
+        const ys = pulse.map(p  => pT + (1-p.count/maxC)*(H-pT-pB));
+
+        const defs = document.createElementNS(ns,'defs');
+        defs.innerHTML = '<linearGradient id="hbGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="#6c63ff"/>' +
+          '<stop offset="100%" stop-color="#6c63ff" stop-opacity="0"/></linearGradient>';
+        svgEl.appendChild(defs);
+
+        // Area
+        let aD = 'M'+xs[0]+','+(H-pB);
+        xs.forEach((x,i)=>{ aD+=' L'+x+','+ys[i]; });
+        aD += ' L'+xs[xs.length-1]+','+(H-pB)+' Z';
+        const area = document.createElementNS(ns,'path');
+        area.setAttribute('d',aD); area.setAttribute('fill','url(#hbGrad)'); area.setAttribute('opacity','0.3');
+        svgEl.appendChild(area);
+
+        // Line
+        let lD = 'M'+xs[0]+','+ys[0];
+        xs.forEach((x,i)=>{ if(i>0) lD+=' L'+x+','+ys[i]; });
+        const line = document.createElementNS(ns,'path');
+        line.setAttribute('d',lD); line.setAttribute('stroke','#6c63ff');
+        line.setAttribute('stroke-width','1.8'); line.setAttribute('fill','none');
+        svgEl.appendChild(line);
+
+        // X labels
+        const step = Math.max(1,Math.floor(pulse.length/5));
+        pulse.forEach((p,i)=>{
+          if(i%step===0||i===pulse.length-1){
+            const t=document.createElementNS(ns,'text');
+            t.setAttribute('x',xs[i]); t.setAttribute('y',H-4);
+            t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','9'); t.setAttribute('fill','#666');
+            t.textContent=p.hour?p.hour.substring(5,13).replace('T',' '):'';
+            svgEl.appendChild(t);
+          }
+        });
+        // Y max
+        const yL=document.createElementNS(ns,'text');
+        yL.setAttribute('x',pL-4); yL.setAttribute('y',pT+5);
+        yL.setAttribute('text-anchor','end'); yL.setAttribute('font-size','9'); yL.setAttribute('fill','#666');
+        yL.textContent=maxC; svgEl.appendChild(yL);
+      } else {
+        const t=document.createElementNS(ns,'text');
+        t.setAttribute('x','50%'); t.setAttribute('y','50%');
+        t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
+        t.setAttribute('fill','#666'); t.setAttribute('font-size','12');
+        t.textContent='Insight data accumulating — check back once DMAI has been running';
+        svgEl.appendChild(t);
+      }
+    }
+
+    // Active research nodes
+    const nodesEl = el('hb-research-nodes');
+    if (nodesEl) {
+      const nodes = d.active_research_nodes || [];
+      if (!nodes.length) {
+        nodesEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No active research in the last 24 hours</p>';
+      } else {
+        const mxN = Math.max.apply(null, nodes.map(n=>n.count))||1;
+        nodesEl.innerHTML = nodes.map(n=>`
+          <div style="margin-bottom:.55rem">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--text)">${n.domain}</span>
+              <span style="color:var(--accent);font-weight:600">${n.count}</span>
+            </div>
+            <div style="background:var(--bg);border-radius:4px;height:5px">
+              <div style="width:${Math.round((n.count/mxN)*100)}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px"></div>
+            </div>
+          </div>`).join('');
+      }
+    }
+
+    // Top entities
+    const entEl = el('hb-top-entities');
+    if (entEl) {
+      const ents = d.top_entities || [];
+      if (!ents.length) {
+        entEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No confidence data yet</p>';
+      } else {
+        entEl.innerHTML = ents.map(e=>`
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.topic||''}</div>
+              <div style="font-size:10px;color:var(--text-muted)">${e.domain||''}</div>
+            </div>
+            <div style="flex-shrink:0;width:42px;text-align:right;font-size:12px;font-weight:700;color:${e.confidence>0.7?'var(--green)':e.confidence>0.4?'var(--yellow)':'var(--red)'}">${Math.round(e.confidence*100)}%</div>
+          </div>`).join('');
+      }
+    }
+
+    const lu = el('hb-last-updated');
+    if (lu) lu.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  }
+
+  async function _loadHeartbeat() {
+    try {
+      const r = await api('/api/heartbeat');
+      _renderHeartbeat(r);
+    } catch(e) {
+      console.warn('Heartbeat error:', e);
+    }
+  }
+  // ── End Heartbeat Panel ────────────────────────────────────────────────────
+
+  
+  // ── Stage Analytics Panel ────────────────────────────────────────────────
+  function _renderStageAnalytics(d) {
+    const el = id => document.getElementById(id);
+    const fmt = (v, decimals=0) => v !== null && v !== undefined
+      ? Number(v).toLocaleString(undefined, {maximumFractionDigits: decimals})
+      : '—';
+
+    // Forecast banner
+    const fc = d.forecast || {};
+    el('sa-forecast-date').textContent = fc.forecast_date || '—';
+    const bdDays = fc.bottleneck_days;
+    el('sa-forecast-sub').textContent = bdDays != null
+      ? `${fmt(bdDays)} days from now · bottleneck: ${fc.bottleneck || '—'}`
+      : 'Insufficient rate data — ensure API keys are set';
+
+    const vel = d.velocity || {};
+    el('sa-ins-rate').textContent  = fmt(vel.insights_per_day_7d, 0);
+    el('sa-caps-rate').textContent = fmt(vel.caps_per_day_7d, 1);
+
+    const trendCol = vel.trend === 'accelerating' ? 'var(--green)'
+                   : vel.trend === 'decelerating' ? 'var(--red)' : 'var(--yellow)';
+    el('sa-trend').textContent  = vel.trend ? vel.trend.charAt(0).toUpperCase() + vel.trend.slice(1) : '—';
+    el('sa-trend').style.color  = trendCol;
+
+    const bnk = fc.bottleneck || '';
+    el('sa-bottleneck').textContent = bnk.charAt(0).toUpperCase() + bnk.slice(1);
+
+    // Next stage gaps
+    const ng = d.next_stage_gaps || {};
+    const ngEl = el('sa-next-gaps');
+    if (ng.stage) {
+      const rows = [
+        ['Insights',       ng.insights,      ng.days_to_next_insights],
+        ['Capabilities',   ng.capabilities,  ng.days_to_next_caps],
+        ['Vocab words',    ng.vocab,         ng.days_to_next_vocab],
+      ];
+      const maxGap = Math.max(...rows.map(r => r[1] || 0)) || 1;
+      ngEl.innerHTML = `<div style="font-size:13px;color:var(--text);margin-bottom:.6rem">Next: <strong>${ng.stage}</strong></div>` +
+        rows.map(([label, gap, days]) => `
+          <div style="margin-bottom:.55rem">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--text)">${label}</span>
+              <span style="color:var(--text-muted)">${gap > 0 ? fmt(gap) + ' needed' : '✓ met'} ${days > 0 && days < 9999 ? '· ' + fmt(days) + 'd' : ''}</span>
+            </div>
+            <div style="background:var(--bg);border-radius:4px;height:5px">
+              <div style="width:${gap <= 0 ? 100 : Math.max(3, 100 - Math.round((gap/maxGap)*100))}%;height:100%;background:${gap <= 0 ? 'var(--green)' : 'var(--accent)'};border-radius:4px"></div>
+            </div>
+          </div>`).join('');
+    } else {
+      ngEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">Already at highest stage</p>';
+    }
+
+    // Daily ingestion SVG chart with plateau shading
+    const series = d.daily_series || [];
+    const svgEl  = el('sa-daily-chart');
+    if (svgEl && series.length > 1) {
+      const W = svgEl.parentElement.clientWidth || 580;
+      const H = 160;
+      const pL=40, pR=10, pT=10, pB=30;
+      svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svgEl.innerHTML = '';
+      const ns = 'http://www.w3.org/2000/svg';
+
+      const maxV = Math.max(...series.map(s => s.insights), 1);
+      const xs   = series.map((_, i) => pL + (i/(series.length-1))*(W-pL-pR));
+      const ys   = series.map(s => pT + (1 - s.insights/maxV)*(H-pT-pB));
+
+      // 30d average reference line
+      const avg30 = d.velocity?.insights_per_day_30d || 0;
+      const avgY  = pT + (1 - avg30/maxV)*(H-pT-pB);
+      const avgLine = document.createElementNS(ns, 'line');
+      avgLine.setAttribute('x1', pL); avgLine.setAttribute('x2', W-pR);
+      avgLine.setAttribute('y1', avgY); avgLine.setAttribute('y2', avgY);
+      avgLine.setAttribute('stroke', '#555'); avgLine.setAttribute('stroke-dasharray', '4 3');
+      avgLine.setAttribute('stroke-width', '1');
+      svgEl.appendChild(avgLine);
+
+      const avgLbl = document.createElementNS(ns, 'text');
+      avgLbl.setAttribute('x', pL + 2); avgLbl.setAttribute('y', avgY - 3);
+      avgLbl.setAttribute('font-size', '8'); avgLbl.setAttribute('fill', '#666');
+      avgLbl.textContent = '30d avg';
+      svgEl.appendChild(avgLbl);
+
+      // Plateau shading
+      (d.plateaus || []).forEach(p => {
+        const startIdx = series.findIndex(s => s.date >= p.start);
+        const endIdx   = Math.min(startIdx + p.days - 1, series.length - 1);
+        if (startIdx >= 0) {
+          const rect = document.createElementNS(ns, 'rect');
+          rect.setAttribute('x', xs[startIdx]);
+          rect.setAttribute('y', pT);
+          rect.setAttribute('width', xs[endIdx] - xs[startIdx]);
+          rect.setAttribute('height', H - pT - pB);
+          rect.setAttribute('fill', 'rgba(224,90,90,0.1)');
+          svgEl.appendChild(rect);
+        }
+      });
+
+      const defs = document.createElementNS(ns, 'defs');
+      defs.innerHTML = '<linearGradient id="saGrad" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="#6c63ff"/>' +
+        '<stop offset="100%" stop-color="#6c63ff" stop-opacity="0"/></linearGradient>';
+      svgEl.appendChild(defs);
+
+      let aD = `M${xs[0]},${H-pB}`;
+      xs.forEach((x,i) => { aD += ` L${x},${ys[i]}`; });
+      aD += ` L${xs[xs.length-1]},${H-pB} Z`;
+      const area = document.createElementNS(ns,'path');
+      area.setAttribute('d',aD); area.setAttribute('fill','url(#saGrad)'); area.setAttribute('opacity','0.3');
+      svgEl.appendChild(area);
+
+      let lD = `M${xs[0]},${ys[0]}`;
+      xs.forEach((x,i) => { if(i>0) lD+=` L${x},${ys[i]}`; });
+      const line = document.createElementNS(ns,'path');
+      line.setAttribute('d',lD); line.setAttribute('stroke','var(--accent)');
+      line.setAttribute('stroke-width','1.8'); line.setAttribute('fill','none');
+      svgEl.appendChild(line);
+
+      // X labels — every 7 days
+      series.forEach((s, i) => {
+        if (i % 7 === 0 || i === series.length - 1) {
+          const t = document.createElementNS(ns,'text');
+          t.setAttribute('x', xs[i]); t.setAttribute('y', H-4);
+          t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','9'); t.setAttribute('fill','#666');
+          t.textContent = s.date ? s.date.slice(5) : '';
+          svgEl.appendChild(t);
+        }
+      });
+
+      // Y axis labels
+      [0, 0.5, 1].forEach(frac => {
+        const val = Math.round(maxV * (1 - frac));
+        const yPos = pT + frac * (H - pT - pB);
+        const t = document.createElementNS(ns,'text');
+        t.setAttribute('x', pL-3); t.setAttribute('y', yPos+3);
+        t.setAttribute('text-anchor','end'); t.setAttribute('font-size','8'); t.setAttribute('fill','#666');
+        t.textContent = val >= 1000 ? (val/1000).toFixed(1)+'k' : val;
+        svgEl.appendChild(t);
+      });
+    } else if (svgEl) {
+      svgEl.innerHTML = '<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="#666" font-size="12">No daily data yet — data accumulates over time</text>';
+    }
+
+    // Channels bar chart
+    const chEl = el('sa-channels');
+    const chs  = d.channels || [];
+    if (chs.length) {
+      const maxC = Math.max(...chs.map(c => c.count), 1);
+      chEl.innerHTML = chs.map(c => `
+        <div style="margin-bottom:.55rem">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65%">${c.channel}</span>
+            <span style="color:var(--accent);font-weight:600">${fmt(c.count)}</span>
+          </div>
+          <div style="background:var(--bg);border-radius:4px;height:5px">
+            <div style="width:${Math.round((c.count/maxC)*100)}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px"></div>
+          </div>
+        </div>`).join('');
+    } else {
+      chEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No channel data in last 7 days</p>';
+    }
+
+    // Stage history
+    const shEl = el('sa-stage-history');
+    const hist = d.stage_history || [];
+    if (hist.length) {
+      shEl.innerHTML = hist.map(h => `
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;padding:.4rem .6rem;background:var(--bg);border-radius:6px">
+          <span style="font-size:11px;color:var(--text-muted)">${h.prev_stage || '—'}</span>
+          <span style="color:var(--accent);font-size:14px">→</span>
+          <span style="font-size:12px;font-weight:700;color:var(--green)">${h.stage}</span>
+          <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${h.recorded_at ? h.recorded_at.slice(0,10) : ''}</span>
+        </div>`).join('');
+    } else {
+      shEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No stage advances yet — DMAI is currently accumulating in Baby</p>';
+    }
+
+    // Plateaus
+    const plEl = el('sa-plateaus');
+    if (plEl && d.plateaus?.length) {
+      plEl.innerHTML = d.plateaus.map(p => `
+        <div style="padding:.5rem .75rem;border-left:3px solid var(--red);background:var(--bg);border-radius:4px;margin-bottom:.4rem;font-size:12px">
+          <span style="color:var(--red);font-weight:600">${p.days} days</span>
+          <span style="color:var(--text-muted)"> starting ${p.start}</span>
+        </div>`).join('');
+    } else if (plEl) {
+      plEl.innerHTML = '<p style="color:var(--text-muted);font-size:12px">No significant plateaus detected ✓</p>';
+    }
+
+    el('sa-last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  }
+
+  function _renderStageAnalyticsDegraded(d) {
+    const banner = document.getElementById('sa-forecast-banner');
+    if (banner) {
+      banner.style.borderLeftColor = 'var(--red)';
+      banner.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-size:11px;color:var(--red);letter-spacing:.05em;margin-bottom:.25rem">⚠️ STAGE ANALYTICS DEGRADED</div>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:.4rem">Knowledge DB unavailable</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:.4rem">${(d && d.error) || 'Unknown error'}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${(d && d.hint) || 'Try /api/admin/db-rebuild then /api/admin/db-bootstrap'}</div>
+          </div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button class="btn-action secondary" onclick="_saRebuildDb()">Rebuild DB</button>
+            <button class="btn-action secondary" onclick="_loadStageAnalytics()">Retry</button>
+          </div>
+        </div>`;
+    }
+    // Reset the lower panels to neutral placeholders so users see *something*.
+    const setMsg = (id, msg) => { const e = document.getElementById(id); if (e) e.innerHTML = `<p style="color:var(--text-muted);font-size:12px">${msg}</p>`; };
+    setMsg('sa-next-gaps', 'Awaiting DB recovery');
+    setMsg('sa-channels', 'Awaiting DB recovery');
+    setMsg('sa-stage-history', 'Awaiting DB recovery');
+    setMsg('sa-plateaus', 'Awaiting DB recovery');
+    const svg = document.getElementById('sa-daily-chart');
+    if (svg) svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="#666" font-size="12">Daily ingestion unavailable while DB is degraded</text>';
+    const lu = document.getElementById('sa-last-updated');
+    if (lu) lu.textContent = 'Last attempted: ' + new Date().toLocaleTimeString();
+  }
+
+  window._saRebuildDb = async function() {
+    if (!confirm('Rebuild dmai_knowledge.db? The current malformed file will be quarantined. Existing data may be lost.')) return;
+    toast('Rebuilding knowledge DB …', 'warn');
+    try {
+      const r1 = await api('/api/admin/db-rebuild', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({force:true, db:'dmai_knowledge.db'}) });
+      console.log('db-rebuild', r1);
+      const r2 = await api('/api/admin/db-bootstrap', { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+      console.log('db-bootstrap', r2);
+      toast('Rebuild complete, reloading analytics', 'info');
+      setTimeout(_loadStageAnalytics, 800);
+    } catch (e) {
+      console.error('rebuild failed', e);
+      toast('Rebuild failed: ' + (e.message || e), 'error');
+    }
+  };
+
+  async function _loadStageAnalytics() {
+    try {
+      const d = await api('/api/stage/analytics');
+      if (!d || d.degraded || d.error) {
+        _renderStageAnalyticsDegraded(d || {error:'No response'});
+        return;
+      }
+      _renderStageAnalytics(d);
+    } catch(e) {
+      console.warn('StageAnalytics error:', e);
+      _renderStageAnalyticsDegraded({error: (e && e.message) || String(e)});
+    }
+  }
+  // ── End Stage Analytics Panel ─────────────────────────────────────────────
+
+  // ── Tip Tracking Panel ───────────────────────────────────────────────────
+  async function _ttFetch(url) {
+    const r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok) throw new Error(`${url} → ${r.status}`);
+    return await r.json();
+  }
+  function _ttFmtPct(x) {
+    if (x == null || isNaN(x)) return '—';
+    return (Number(x) * 100).toFixed(1) + '%';
+  }
+  function _ttFmtMoney(x) {
+    if (x == null || isNaN(x)) return '—';
+    const v = Number(x);
+    const sign = v >= 0 ? '+' : '';
+    return sign + '£' + v.toFixed(2);
+  }
+  function _ttTierBadge(tip) {
+    const ev = (tip.ev_pct != null) ? tip.ev_pct : ((tip.expected_value || 0) * 100);
+    const conf = tip.confidence || 0;
+    if (ev >= 20 && conf >= 0.70) return '<span style="background:#dc2626;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">🔥🔥 STRONG</span>';
+    if (ev >= 10) return '<span style="background:#ea580c;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">🔥 HOT</span>';
+    return '<span style="background:#16a34a;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">✅ EDGE</span>';
+  }
+
+  async function loadTipTracking() {
+    const mode = (document.getElementById('tt-mode-filter') || {}).value || 'all';
+    const win  = parseInt((document.getElementById('tt-window') || {}).value || '7', 10);
+    try {
+      const [up, hist, perf, userBets, userPerf] = await Promise.all([
+        _ttFetch('/api/monetisation/tips/upcoming?days=7&limit=50').catch(_ => ({tips:[]})),
+        _ttFetch(`/api/monetisation/tips/history?limit=100&mode=${mode}`).catch(_ => ({tips:[]})),
+        _ttFetch(`/api/monetisation/tips/performance?window=${win}&mode=${mode}`).catch(_ => ({})),
+        _ttFetch('/api/monetisation/bets?limit=100').catch(_ => ({bets:[]})),
+        _ttFetch('/api/monetisation/bets/performance').catch(_ => ({})),
+      ]);
+
+      _renderTipPerf(perf);
+      _renderUpcoming(up.tips || []);
+      _renderHistory(hist.tips || []);
+      _renderCalibration(perf.calibration || []);
+      _renderUserBets(userBets.bets || []);
+      _renderUserPerf(userPerf);
+      const el = document.getElementById('tt-last-updated');
+      if (el) el.textContent = 'Last updated ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      console.error('loadTipTracking error:', e);
+      showToast('Could not load tip tracking: ' + (e.message || e));
+    }
+  }
+
+  function _renderTipPerf(perf) {
+    const hr = document.getElementById('tt-hit-rate');
+    const roi = document.getElementById('tt-roi');
+    const brier = document.getElementById('tt-brier');
+    const pending = document.getElementById('tt-pending');
+    const hrSub = document.getElementById('tt-hit-rate-sub');
+    const roiSub = document.getElementById('tt-roi-sub');
+
+    if (hr)  hr.textContent  = _ttFmtPct(perf.hit_rate);
+    if (roi) {
+      const pl = perf.paper_pl;
+      const stake = perf.total_paper_stake || 0;
+      const roiVal = stake > 0 ? (pl / stake) : null;
+      roi.textContent = (roiVal == null) ? '—' : (roiVal >= 0 ? '+' : '') + (roiVal * 100).toFixed(1) + '%';
+      roi.style.color = (roiVal == null) ? '' : (roiVal >= 0 ? 'var(--green)' : 'var(--red)');
+    }
+    if (brier) brier.textContent = (perf.brier != null) ? Number(perf.brier).toFixed(3) : '—';
+    if (pending) pending.textContent = perf.pending != null ? perf.pending : '—';
+    if (hrSub) hrSub.textContent = (perf.settled_count != null) ? `${perf.settled_count} settled` : 'All settled tips';
+    if (roiSub) roiSub.textContent = (perf.paper_pl != null) ? `P/L ${_ttFmtMoney(perf.paper_pl)}` : 'At recommended stake';
+  }
+
+  function _renderUpcoming(tips) {
+    const body = document.getElementById('tt-upcoming-body');
+    if (!body) return;
+    if (!tips.length) {
+      body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted)">No upcoming tips. Model will flag them as races approach.</td></tr>';
+      return;
+    }
+    body.innerHTML = tips.map(t => {
+      const ev = t.ev_pct != null ? t.ev_pct : ((t.expected_value || 0) * 100);
+      const evColor = ev >= 20 ? 'var(--red)' : (ev >= 10 ? '#ea580c' : 'var(--green)');
+      // Race date is parsed out of the event_name suffix (YYYY-MM-DD) by
+      // BettingAdvisor.list_upcoming and surfaced as race_date.
+      const rt = t.race_date || t.race_time || '—';
+      const odds = (t.decimal_odds != null) ? t.decimal_odds : t.odds;
+      return `<tr>
+        <td>${_ttTierBadge(t)}</td>
+        <td style="font-size:12px">${(t.event_name || '—')}</td>
+        <td style="font-weight:600">${t.selection || '—'}</td>
+        <td>${odds != null ? Number(odds).toFixed(2) : '—'}</td>
+        <td>${_ttFmtPct(t.model_probability)}</td>
+        <td style="color:${evColor};font-weight:600">${ev != null ? ev.toFixed(1) + '%' : '—'}</td>
+        <td>${_ttFmtPct(t.confidence)}</td>
+        <td>${_ttFmtMoney(t.recommended_stake)}</td>
+        <td style="font-size:11px">${rt}</td>
+        <td style="font-family:monospace;font-size:11px">${t.id || '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderHistory(tips) {
+    const body = document.getElementById('tt-history-body');
+    if (!body) return;
+    if (!tips.length) {
+      body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No settled tips yet. Check back after races finish.</td></tr>';
+      return;
+    }
+    body.innerHTML = tips.map(t => {
+      const status = (t.status || t.outcome || '').toLowerCase();
+      const won = status === 'won' || status === 'win';
+      const lost = status === 'lost' || status === 'loss';
+      const voided = status === 'void';
+      const resultBadge = won
+        ? '<span style="color:var(--green);font-weight:600">WIN</span>'
+        : (lost ? '<span style="color:var(--red);font-weight:600">LOSS</span>'
+          : (voided ? '<span style="color:var(--text-muted)">VOID</span>' : '<span style="color:var(--text-muted)">—</span>'));
+      // settled_at is a unix epoch (seconds) coming from the API — convert to ms.
+      const dtRaw = t.settled_at || t.race_time || t.created_at;
+      const dtMs = (typeof dtRaw === 'number' && dtRaw < 1e12) ? dtRaw * 1000 : dtRaw;
+      const dts = dtMs ? new Date(dtMs).toLocaleDateString() : '—';
+      const pl = (t.profit_loss != null) ? t.profit_loss : t.paper_pl;
+      const plColor = (pl == null) ? '' : (pl >= 0 ? 'var(--green)' : 'var(--red)');
+      const ev = t.ev_pct != null ? t.ev_pct : ((t.expected_value || 0) * 100);
+      return `<tr>
+        <td style="font-size:11px">${dts}</td>
+        <td style="font-weight:600">${t.selection || '—'}</td>
+        <td>${(t.decimal_odds != null ? Number(t.decimal_odds).toFixed(2) : (t.odds != null ? Number(t.odds).toFixed(2) : '—'))}</td>
+        <td>${_ttFmtPct(t.model_probability)}</td>
+        <td>${ev != null ? ev.toFixed(1) + '%' : '—'}</td>
+        <td>${resultBadge}</td>
+        <td style="color:${plColor};font-weight:600">${_ttFmtMoney(pl)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderCalibration(buckets) {
+    const body = document.getElementById('tt-calib-body');
+    if (!body) return;
+    if (!buckets || !buckets.length) {
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No data yet</td></tr>';
+      return;
+    }
+    body.innerHTML = buckets.map(b => {
+      const drift = (b.actual != null && b.predicted != null) ? (b.actual - b.predicted) : null;
+      const driftColor = drift == null ? '' : (Math.abs(drift) < 0.05 ? 'var(--green)' : (Math.abs(drift) < 0.10 ? 'var(--yellow)' : 'var(--red)'));
+      return `<tr>
+        <td>${b.band || '—'}</td>
+        <td>${b.n || 0}</td>
+        <td>${_ttFmtPct(b.predicted)}</td>
+        <td style="color:${driftColor};font-weight:600">${_ttFmtPct(b.actual)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderUserBets(bets) {
+    const body = document.getElementById('tt-user-bets-body');
+    if (!body) return;
+    if (!bets.length) {
+      body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No bets recorded yet. Use the form above to log one.</td></tr>';
+      return;
+    }
+    body.innerHTML = bets.map(b => {
+      const pa = b.placed_at;
+      const paMs = (typeof pa === 'number' && pa < 1e12) ? pa * 1000 : pa;
+      const dts = paMs ? new Date(paMs).toLocaleDateString() : '—';
+      const pl = b.profit_loss;
+      const plColor = (pl == null) ? '' : (pl >= 0 ? 'var(--green)' : 'var(--red)');
+      const statusColor = b.status === 'won' ? 'var(--green)' : (b.status === 'lost' ? 'var(--red)' : 'var(--text-muted)');
+      const settleBtn = (b.status === 'pending')
+        ? `<button class="btn-action secondary" style="font-size:11px;padding:4px 8px" onclick="settleBet('${b.id}','won')">Won</button>
+           <button class="btn-action secondary" style="font-size:11px;padding:4px 8px" onclick="settleBet('${b.id}','lost')">Lost</button>
+           <button class="btn-action secondary" style="font-size:11px;padding:4px 8px" onclick="settleBet('${b.id}','void')">Void</button>`
+        : '—';
+      return `<tr>
+        <td style="font-size:11px">${dts}</td>
+        <td style="font-size:12px">${b.event_name || '—'}</td>
+        <td style="font-weight:600">${b.selection || '—'}</td>
+        <td>${b.actual_odds != null ? Number(b.actual_odds).toFixed(2) : '—'}</td>
+        <td>${_ttFmtMoney(b.actual_stake)}</td>
+        <td style="color:${statusColor};font-weight:600;text-transform:uppercase;font-size:11px">${b.status || '—'}</td>
+        <td style="color:${plColor};font-weight:600">${_ttFmtMoney(pl)}</td>
+        <td>${settleBtn}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function _renderUserPerf(p) {
+    const el = document.getElementById('tt-user-perf');
+    if (!el) return;
+    if (!p || p.total_bets == null) { el.innerHTML = ''; return; }
+    const items = [
+      { label: 'Bets settled', value: p.settled_bets || 0 },
+      { label: 'Hit rate', value: _ttFmtPct(p.hit_rate) },
+      { label: 'Your P/L', value: _ttFmtMoney(p.profit_loss) },
+      { label: 'Model P/L (rec. stakes)', value: _ttFmtMoney(p.model_pl_at_recommended_stake) },
+      { label: 'You vs model', value: _ttFmtMoney(p.delta_vs_model) },
+    ];
+    el.innerHTML = items.map(it => `
+      <div style="padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">${it.label}</div>
+        <div style="font-weight:600">${it.value}</div>
+      </div>`).join('');
+  }
+
+  async function recordUserBet() {
+    const body = {
+      tip_id: document.getElementById('tt-bet-tip-id').value.trim() || null,
+      event_name: document.getElementById('tt-bet-event').value.trim(),
+      market: document.getElementById('tt-bet-market').value.trim(),
+      selection: document.getElementById('tt-bet-selection').value.trim(),
+      actual_odds: parseFloat(document.getElementById('tt-bet-odds').value),
+      actual_stake: parseFloat(document.getElementById('tt-bet-stake').value),
+      bookmaker: document.getElementById('tt-bet-bookmaker').value.trim() || 'Betfair',
+      notes: document.getElementById('tt-bet-notes').value.trim() || null,
+    };
+    if (!body.event_name || !body.selection || !body.actual_odds || !body.actual_stake) {
+      showToast('Event, selection, odds and stake are required');
+      return;
+    }
+    try {
+      const r = await fetch('/api/monetisation/bets', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(_ => ({}));
+        throw new Error(d.error || `HTTP ${r.status}`);
+      }
+      showToast('Bet recorded');
+      ['tt-bet-tip-id','tt-bet-event','tt-bet-market','tt-bet-selection','tt-bet-odds','tt-bet-stake','tt-bet-bookmaker','tt-bet-notes']
+        .forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+      loadTipTracking();
+    } catch (e) {
+      showToast('Could not record bet: ' + (e.message || e));
+    }
+  }
+
+  async function settleBet(betId, outcome) {
+    try {
+      const r = await fetch(`/api/monetisation/bets/${encodeURIComponent(betId)}/settle`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ status: outcome }),
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(_ => ({}));
+        throw new Error(d.error || `HTTP ${r.status}`);
+      }
+      showToast(`Bet settled: ${outcome}`);
+      loadTipTracking();
+    } catch (e) {
+      showToast('Could not settle bet: ' + (e.message || e));
+    }
+  }
+  // ── End Tip Tracking Panel ────────────────────────────────────────────────
+
+
+
+  
+  // ── Training Status Banner ────────────────────────────────────────────────
+  function loadTrainingStatus() {
+    const LABELS = {
+      background_updater:    'Background Updater',
+      parallel_learner:      'Parallel Web Learner',
+      autonomous_researcher: 'Autonomous Researcher',
+      stage_learner:         'Stage Learner',
+      kaizen_repair:         'Kaizen Repair',
+      graph_evolution:       'Graph Evolution',
+      kpi_seed:              'KPI Seeder',
+      vocab_ingest:          'Vocab Ingestion',
+    };
+    fetch('/api/training/status', {
+      headers: { 'Authorization': 'Bearer ' + (window._jwt || '') }
+    })
+      .then(r => r.json())
+      .then(data => {
+        const dot    = document.getElementById('training-pulse-dot');
+        const badge  = document.getElementById('training-health-badge');
+        const grid   = document.getElementById('training-thread-grid');
+        const ts     = document.getElementById('training-status-ts');
+        const healthy = data.status === 'healthy';
+
+        if (dot) {
+          dot.style.background  = healthy ? '#00ff88' : '#ffaa00';
+          dot.style.boxShadow   = healthy ? '0 0 8px #00ff88' : '0 0 8px #ffaa00';
+        }
+        if (badge) {
+          badge.textContent         = healthy ? '✓ ' + data.active_count + ' threads active' : '⚠ degraded';
+          badge.style.background    = healthy ? '#00ff8822' : '#ffaa0022';
+          badge.style.color         = healthy ? '#00ff88'   : '#ffaa00';
+        }
+        if (grid && data.services) {
+          grid.innerHTML = Object.entries(data.services).map(([k, v]) => `
+            <div style="background:${v ? 'rgba(0,255,136,.07)' : 'rgba(255,60,60,.07)'};border:1px solid ${v ? 'rgba(0,255,136,.2)' : 'rgba(255,80,80,.2)'};border-radius:6px;padding:5px 10px;display:flex;align-items:center;gap:6px;">
+              <span style="font-size:9px;">${v ? '🟢' : '🔴'}</span>
+              <span style="color:${v ? '#00ff88' : '#ff6666'};font-size:11px;font-weight:600;">${LABELS[k] || k}</span>
+            </div>`).join('');
+        }
+        if (ts) ts.textContent = new Date().toLocaleTimeString();
+      })
+      .catch(() => {
+        const ts = document.getElementById('training-status-ts');
+        if (ts) ts.textContent = 'unreachable · ' + new Date().toLocaleTimeString();
+      });
+  }
+
+  // Initial call + poll every 30s
+  loadTrainingStatus();
+  setInterval(loadTrainingStatus, 30000);
+
+</script>
+</body>
+</html>

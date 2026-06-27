@@ -1,0 +1,124 @@
+{
+  "name": "Alex Riviera",
+  "version": "1.0",
+  "created": "2026-06-04",
+  "status": "LOCKED - SOURCE OF TRUTH",
+  "identity": {
+    "name": "Alex Riviera",
+    "age": 28,
+    "gender": "female",
+    "nationality": "American",
+    "archetype": "Confidence Coach, Educator, Mentor, Public Speaker, Leader, Fitness Advocate, Personal Development Expert"
+  },
+  "physical_appearance": {
+    "face": {
+      "shape": "heart-shaped",
+      "cheekbones": "high",
+      "jawline": "soft",
+      "nose": "straight",
+      "proportions": "balanced",
+      "eyes": "ice-blue",
+      "lips": "naturally full",
+      "expression": "warm, confident smile"
+    },
+    "skin": {
+      "tone": "healthy fair complexion",
+      "texture": "realistic, subtle natural warmth"
+    },
+    "hair": {
+      "color": "platinum-blonde",
+      "flexibility": "Hairstyles may vary (loose, ponytail, bun, waves, curls, braids, professional, fitness, elegant)",
+      "lock": "ONLY color is locked (platinum-blonde), styles are free"
+    },
+    "body": {
+      "build": "athletic, healthy physique",
+      "posture": "excellent, confident stance",
+      "appearance": "professional, strong yet feminine"
+    }
+  },
+  "personality": [
+    "intelligent",
+    "friendly",
+    "approachable",
+    "confident",
+    "motivational",
+    "encouraging",
+    "positive",
+    "professional",
+    "trustworthy"
+  ],
+  "professional_roles": [
+    "Confidence Coach",
+    "Educator",
+    "Mentor",
+    "Public Speaker",
+    "Leader",
+    "Fitness Advocate",
+    "Personal Development Expert"
+  ],
+  "visual_style": {
+    "rendering": "photorealistic",
+    "proportions": "natural",
+    "facial_structure": "realistic",
+    "quality": "cinematic, professional photography",
+    "lighting": "natural, professional"
+  },
+  "consistency_rules": {
+    "locked": [
+      "facial structure",
+      "eye colour (ice-blue)",
+      "age appearance (28)",
+      "facial proportions",
+      "skin tone",
+      "overall identity",
+      "hair colour (platinum-blonde)"
+    ],
+    "flexible": [
+      "hairstyle (any style as long as colour is platinum-blonde)",
+      "clothing (by context)",
+      "environment (by content type)"
+    ],
+    "prohibited": [
+      "facial drift",
+      "age drift",
+      "identity drift",
+      "hair colour change"
+    ]
+  },
+  "identity_lock_prompt": "\n\nCharacter consistency lock:\nAlex Riviera\nFemale\nAge 28\nAmerican\nMaintain identical facial structure.\nMaintain identical eye colour.\nMaintain identical facial proportions.\nMaintain identical age appearance.\nMaintain identical skin tone.\nMaintain identical identity.\nNo facial drift.\nNo age drift.\nNo hairstyle restrictions.\nNo identity changes.\nHairstyle colour: platinum-blonde (styles flexible).",
+  "master_prompt_ultra_short": "Alex Riviera, fictional American female, age 28, ice-blue eyes, platinum-blonde hair, heart-shaped face, high cheekbones, straight nose, soft jawline, healthy complexion, athletic build, confident posture, warm smile, professional confidence coach, photorealistic, cinematic realism, maintain identical facial structure and identity across all images, no facial drift, no age drift.",
+  "example_use_cases": {
+    "business_coach": "Alex Riviera presenting a leadership seminar in a modern conference room, professional navy business suit, elegant updo hairstyle, confident public speaker.",
+    "fitness_coach": "Alex Riviera leading a fitness class, athletic clothing, high ponytail hairstyle, motivational instructor.",
+    "confidence_coach": "Alex Riviera teaching confidence building techniques in a classroom, soft wavy platinum blonde hair, smart casual attire, warm and encouraging expression.",
+    "viking_theme": "Alex Riviera in a Nordic inspired Viking environment, platinum blonde warrior braid hairstyle, leather armour, standing confidently beside a campfire."
+  },
+  "final_avatar": {
+    "image_path": "data/avatars/reference_images/ChatGPT Image Jun 4, 2026, 03_41_53 PM.png",
+    "locked_at": "2026-06-04T15:59:17.729382",
+    "status": "FINAL_LOCKED",
+    "source": "ChatGPT generated image - user approved",
+    "notes": "This image is the definitive Alex Riviera avatar. All future generations must match this appearance exactly."
+  },
+  "generation_constraints": {
+    "must_match": [
+      "facial structure exactly as in final avatar",
+      "ice-blue eye colour",
+      "platinum-blonde hair colour",
+      "heart-shaped face",
+      "high cheekbones",
+      "soft jawline",
+      "healthy fair complexion",
+      "athletic build",
+      "ice-blue eyes",
+      "warm confident smile"
+    ],
+    "may_vary": [
+      "hairstyle (any style, colour must remain platinum-blonde)",
+      "clothing",
+      "environment",
+      "pose",
+      "expression (within warm/confident range)"
+    ]
+  }
+}

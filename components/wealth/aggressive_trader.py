@@ -1,21 +1,31 @@
-cat > components/wealth/aggressive_trader.py << 'ENDOFFILE'
 """
 Aggressive trading strategies for DMAI - 80% consciousness optimized
 """
 
+import os
+import logging
 import requests
 import time
 import json
 import random
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 class AggressiveTrader:
     """High-performance trading with 70-80% capital utilization"""
     
-    def __init__(self, api_key: str, secret_key: str, paper: bool = True):
+    def __init__(self, api_key: str, secret_key: str, paper: bool = True,
+                 prediction_engine: Optional[Any] = None):
         self.api_key = api_key
         self.secret_key = secret_key
+        # Hard-enforce paper unless TRADING_LIVE=true env var is explicitly set
+        if not paper and os.getenv("TRADING_LIVE", "").lower() != "true":
+            logger.warning("AggressiveTrader: TRADING_LIVE!=true, forcing paper=True")
+            paper = True
+        self.paper = paper
+        self.prediction_engine = prediction_engine
         self.base_url = "https://paper-api.alpaca.markets" if paper else "https://api.alpaca.markets"
         self.headers = {
             'APCA-API-KEY-ID': self.api_key,
@@ -138,40 +148,68 @@ class AggressiveTrader:
         else:
             return 0.7  # Bullish during market hours
     
+    def _predict_symbol(self, symbol: str) -> Optional[Dict]:
+        """Use Microfish PredictionEngine to forecast a symbol's near-term direction."""
+        if not self.prediction_engine:
+            return None
+        try:
+            sentiment = self.get_market_sentiment()
+            seed = (
+                f"Symbol: {symbol}\n"
+                f"Current market sentiment proxy: {sentiment:.2f}\n"
+                f"Asset class: {'ETF' if symbol in self.conservative_pairs else 'individual equity'}\n"
+                f"Trading universe: {self.trading_pairs + self.conservative_pairs}\n"
+                f"Timestamp: {datetime.now().isoformat()}\n"
+            )
+            verdict = self.prediction_engine.predict(
+                requirement=f"Will {symbol} close higher than today's price within the next 5 trading days?",
+                seed_data=seed,
+                max_rounds=2,
+                agent_count=3,
+            )
+            p = float(verdict.get("probability", 0.5))
+            conf = float(verdict.get("confidence", 0.5))
+            v = verdict.get("verdict", "uncertain")
+            action = "BUY" if v == "likely" and p >= 0.55 else ("SELL" if v == "unlikely" and p <= 0.45 else "HOLD")
+            blended = (abs(p - 0.5) * 2.0) * conf
+            return {
+                "symbol": symbol,
+                "action": action,
+                "confidence": round(min(0.99, max(0.0, blended)), 3),
+                "reason": (verdict.get("rationale") or "prediction_engine")[:200],
+                "prediction_id": verdict.get("id"),
+            }
+        except Exception as e:
+            logger.warning("AggressiveTrader._predict_symbol(%s) failed: %s", symbol, e)
+            return None
+
     def generate_signals(self) -> List[Dict]:
-        """Generate trading signals with confidence scores"""
+        """Generate trading signals. Routes through Microfish PredictionEngine when available."""
+        signals: List[Dict] = []
+        universe = self.trading_pairs + self.conservative_pairs
+
+        if self.prediction_engine:
+            for symbol in universe:
+                pred = self._predict_symbol(symbol)
+                if pred and pred["action"] != "HOLD":
+                    signals.append(pred)
+            if signals:
+                return signals
+            logger.warning("AggressiveTrader: prediction_engine returned no actionable signals, using heuristic fallback")
+
+        # Fallback heuristic (only if PredictionEngine unavailable or returned no signals)
         sentiment = self.get_market_sentiment()
-        signals = []
-        
-        # Strong buy signals for top performers
-        strong_buy = ['NVDA', 'MSFT', 'AAPL']
-        for symbol in strong_buy:
-            signals.append({
-                'symbol': symbol,
-                'action': 'BUY',
-                'confidence': 0.85 + (sentiment * 0.1),
-                'reason': 'Strong technical momentum'
-            })
-        
-        # Medium confidence signals
-        medium_buy = ['AMZN', 'META', 'GOOGL']
-        for symbol in medium_buy:
-            signals.append({
-                'symbol': symbol,
-                'action': 'BUY',
-                'confidence': 0.70 + (sentiment * 0.1),
-                'reason': 'Positive trend'
-            })
-        
-        # ETFs for diversification
+        for symbol in ['NVDA', 'MSFT', 'AAPL']:
+            signals.append({'symbol': symbol, 'action': 'BUY',
+                            'confidence': 0.85 + (sentiment * 0.1),
+                            'reason': 'fallback: strong technical momentum'})
+        for symbol in ['AMZN', 'META', 'GOOGL']:
+            signals.append({'symbol': symbol, 'action': 'BUY',
+                            'confidence': 0.70 + (sentiment * 0.1),
+                            'reason': 'fallback: positive trend'})
         for symbol in self.conservative_pairs:
-            signals.append({
-                'symbol': symbol,
-                'action': 'BUY',
-                'confidence': 0.65,
-                'reason': 'Market exposure'
-            })
-        
+            signals.append({'symbol': symbol, 'action': 'BUY',
+                            'confidence': 0.65, 'reason': 'fallback: market exposure'})
         return signals
     
     def execute_aggressive_trades(self) -> Dict:
@@ -214,20 +252,23 @@ class AggressiveTrader:
         account = self.get_account()
         positions = self.get_positions()
         
-        total_value = account.get("equity", 0)
+        total_value = account.get("equity", 0) or 0
         initial_capital = 100000
         profit_loss = total_value - initial_capital
-        roi = (profit_loss / initial_capital) * 100
+        roi = (profit_loss / initial_capital) * 100 if initial_capital else 0.0
+        cash = account.get("cash", total_value) or 0
+        capital_utilized = ((total_value - cash) / total_value * 100) if total_value else 0.0
         
         return {
             "total_value": total_value,
             "profit_loss": profit_loss,
             "roi_percent": roi,
             "positions_count": len(positions),
-            "capital_utilized": (total_value - account.get("cash", total_value)) / total_value * 100,
+            "capital_utilized": capital_utilized,
             "timestamp": datetime.now().isoformat()
         }
 
-def get_aggressive_trader(api_key: str, secret_key: str, paper: bool = True):
+def get_aggressive_trader(api_key: str, secret_key: str, paper: bool = True,
+                          prediction_engine: Optional[Any] = None):
     """Initialize aggressive trader"""
-    return AggressiveTrader(api_key, secret_key, paper)
+    return AggressiveTrader(api_key, secret_key, paper, prediction_engine=prediction_engine)

@@ -1,0 +1,324 @@
+{
+  "version": "1.0.0",
+  "description": "DMAI canonical expert-brain seed. Each entry MUST have a real source URL. No synthesised facts. Loaded into core_knowledge tier (100% mastery, never decays).",
+  "domains": {
+    "quantitative_trading": {
+      "label": "Quantitative trading and market microstructure",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Kelly criterion for position sizing",
+          "content": "The Kelly criterion gives the optimal fraction f* of bankroll to wager on a positive-expectancy bet: f* = (bp - q) / b, where b = net odds, p = probability of win, q = 1-p. For trading where outcomes are continuous, f* ≈ edge / variance (mu / sigma^2). Practitioners use HALF-KELLY or QUARTER-KELLY because Kelly is highly sensitive to overestimated edge and produces ruinous drawdowns under estimation error. Maximum theoretical growth rate G = p*ln(1+b*f) + q*ln(1-f).",
+          "source": "https://en.wikipedia.org/wiki/Kelly_criterion"
+        },
+        {
+          "topic": "Expected value (EV) gate for trade selection",
+          "content": "EV = (probability_win * avg_win) - (probability_loss * avg_loss). A trade with positive EV does not guarantee profit on any single instance but is profitable in aggregate across many independent samples. Required edge per trade should exceed transaction costs (commission + spread + slippage). For US equities via Alpaca paper/live, frictions are near-zero on commission but spread+slippage can be 5-15 bps on liquid names, 30+ bps on small caps.",
+          "source": "https://www.investopedia.com/terms/e/expectedvalue.asp"
+        },
+        {
+          "topic": "Market microstructure: bid-ask spread, depth, slippage",
+          "content": "Order book depth determines slippage on market orders. A market BUY of size N on a thin book walks up multiple ask levels — realised price worsens with order size. Limit orders avoid slippage but introduce execution risk. For volatile small caps, prefer limit orders pegged to mid-price; for highly liquid mega-caps (SPY, AAPL, MSFT), market orders typically fill within 1-2 bps of mid. Reference text: 'Trading and Exchanges' by Larry Harris.",
+          "source": "https://academic.oup.com/book/52658"
+        },
+        {
+          "topic": "Mean reversion vs momentum",
+          "content": "Mean-reversion strategies profit when prices return toward a moving average after dislocation; they work best on range-bound, lower-volatility assets and have short holding periods. Momentum strategies profit when recent winners keep winning; they work best on trending assets over 1-12 month horizons. Jegadeesh and Titman (1993) documented persistent 12-month momentum premia in US equities. Both strategies fail in regime changes — momentum collapses at market turning points, mean reversion fails during breakouts.",
+          "source": "https://www.jstor.org/stable/2328882"
+        },
+        {
+          "topic": "Maximum drawdown and ulcer index",
+          "content": "Maximum drawdown = (trough - peak) / peak, measured over a rolling window. A 50% drawdown requires a 100% gain to break even. The Ulcer Index (Peter Martin, 1987) measures sustained drawdown depth and duration jointly: UI = sqrt(mean(drawdown_pct^2)). Lower UI = smoother equity curve. Risk-adjusted return metrics that account for drawdown (Calmar, Sterling, Martin ratios) are more honest than Sharpe for strategies with fat-left-tailed return distributions.",
+          "source": "https://en.wikipedia.org/wiki/Drawdown_(economics)"
+        },
+        {
+          "topic": "Sharpe vs Sortino vs Calmar ratios",
+          "content": "Sharpe = (Rp - Rf) / sigma(Rp). Penalises upside volatility equally with downside, which is irrational for asymmetric strategies. Sortino = (Rp - Rf) / sigma(downside only) — better for strategies with skewed returns. Calmar = annualised return / max drawdown — directly measures pain-per-unit-return. For autonomous trading, optimise Sortino or Calmar, not Sharpe. Typical thresholds: Sharpe > 1.0 = good, > 2.0 = very good, > 3.0 = either great or overfit.",
+          "source": "https://www.investopedia.com/articles/07/sortino_ratio.asp"
+        },
+        {
+          "topic": "Backtest overfitting and the deflated Sharpe ratio",
+          "content": "When N strategies are backtested in parallel and the best is selected, expected Sharpe of the winner grows as sqrt(2*ln(N)) under the null of no edge. Bailey and Lopez de Prado's Deflated Sharpe Ratio (DSR) corrects for this. Rule: any backtest with fewer than 100 independent trades is unreliable; any strategy chosen from a search over 100+ variants needs DSR adjustment. Walk-forward validation and out-of-sample holdout are mandatory.",
+          "source": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551"
+        },
+        {
+          "topic": "US equity trading hours and session structure",
+          "content": "Regular session: 09:30-16:00 US Eastern (14:30-21:00 UTC during EDT). Pre-market: 04:00-09:30 ET, after-hours: 16:00-20:00 ET. Liquidity and tight spreads only during regular session for most names. Opening 5 minutes (09:30-09:35) has wide spreads and aggressive price discovery — avoid market orders. Closing auction (15:55-16:00) is the highest-volume window, often used for portfolio rebalancing. Half-day sessions on Black Friday and Christmas Eve close at 13:00 ET.",
+          "source": "https://www.nyse.com/markets/hours-calendars"
+        }
+      ]
+    },
+    "risk_management": {
+      "label": "Risk management and capital preservation",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Value at Risk (VaR) and Conditional VaR",
+          "content": "VaR at 95% confidence = the loss threshold that should be breached only 5% of days. CVaR (Expected Shortfall) = average loss conditional on exceeding VaR — captures tail severity that VaR misses. VaR fails during regime shifts (it is not subadditive and can underestimate during volatility clustering). Always pair VaR with stress tests on historical worst-case windows (2008, 2020-Q1, 2022).",
+          "source": "https://www.bis.org/publ/work128.htm"
+        },
+        {
+          "topic": "Position correlation and portfolio variance",
+          "content": "Portfolio variance = sum(w_i^2 * sigma_i^2) + sum(w_i * w_j * cov(i,j)) for i != j. If positions are highly correlated (e.g. all US large-cap tech), 'diversification' is illusory — they all draw down together. Rule: keep max sector concentration < 40%, max single-name < 10% of equity for a 20+ position book. Pairwise correlation > 0.7 means positions effectively act as one.",
+          "source": "https://www.investopedia.com/terms/m/modernportfoliotheory.asp"
+        },
+        {
+          "topic": "Stop-loss theory and the case against fixed stops",
+          "content": "Fixed-percent stops (e.g. -8%) systematically lose money on mean-reverting assets and are 'volatility-aware' adjustments. ATR-based stops (e.g. 2 * 14-day Average True Range) adapt to the asset's natural noise level. Trailing stops lock in profits but get whipsawed in choppy markets. The right stop is asset-specific and should be set BEFORE entry based on the trade thesis — if the thesis was wrong, exit; do not let unrealised P&L override the exit rule.",
+          "source": "https://www.investopedia.com/articles/active-trading/091813/which-order-use-stoploss-or-stoplimit-orders.asp"
+        },
+        {
+          "topic": "Drawdown circuit breakers and daily loss limits",
+          "content": "Hard rule: cap intraday drawdown at 2-4% of equity. When hit, halt new entries for the session. Cap monthly drawdown at 10-15% — if hit, reduce position size by 50% for the next month. This converts ruinous tail losses into manageable bad months. The DMAI AutonomousTrader tier system implements this: each tier has max_daily_drawdown that triggers halt_until_eod.",
+          "source": "https://www.investopedia.com/terms/c/circuitbreaker.asp"
+        },
+        {
+          "topic": "Risk of ruin formula",
+          "content": "For a fixed-fraction bettor with win probability p, loss probability q, win/loss ratio R, and bet size f: probability of ruin = ((q/p) * (1/R))^(N) for N units of bankroll. Even a positive-EV strategy with 60% win rate and 1:1 R has 1% ruin risk if bet size is 10% of bankroll. Halve the bet, halve the ruin probability exponentially. Practical implication: cap single-trade risk at 1-2% of equity.",
+          "source": "https://en.wikipedia.org/wiki/Gambler%27s_ruin"
+        },
+        {
+          "topic": "Black swan exposure and Taleb's barbell",
+          "content": "Taleb's barbell: hold 85-90% in very safe assets (T-bills, cash), 10-15% in extremely high-asymmetry bets (options, venture, crypto). Avoid the 'mediocristan middle' — assets with limited upside and full downside. Tail risks dominate long-run wealth. For DMAI: do not run leverage > 1.5x without hedging; never short uncovered; size individual moonshot trades so total worst-case loss stays under daily drawdown limit.",
+          "source": "https://www.fooledbyrandomness.com/imbeciles.htm"
+        }
+      ]
+    },
+    "sports_betting": {
+      "label": "Sports betting, probability, and tipster discipline",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Decimal odds to implied probability",
+          "content": "Implied probability = 1 / decimal_odds. Example: 2.50 odds => 40% implied. The bookmaker's overround is the sum of implied probabilities across all outcomes minus 1; a fair 2-outcome market with 50/50 true probability would price both at 2.00 (no overround). UK books typically run 105-110% on football markets, 102-105% on horse racing win markets, and 115%+ on accumulators. Always strip overround before judging a price.",
+          "source": "https://www.pinnacle.com/en/betting-articles/Betting-Strategy/how-to-calculate-implied-probability/AS39C2HJG6DBZGTH"
+        },
+        {
+          "topic": "Closing line value (CLV) as the only honest skill metric",
+          "content": "CLV = the difference between your entry odds and the closing odds (right before kickoff). The closing line at sharp books (Pinnacle, Betfair Exchange) is the most efficient available probability estimate. If you consistently beat the closing line by 2-3%, you have edge regardless of short-term P&L variance. Short-term P&L over <500 bets is noise. Track CLV every bet — if it is flat or negative across 200+ bets, you do not have edge.",
+          "source": "https://www.pinnacle.com/en/betting-articles/educational/why-bettors-should-track-closing-line-value/Z29MJ4Z8NACWCRZ7"
+        },
+        {
+          "topic": "Kelly staking for sports betting",
+          "content": "For a single bet: f* = (p*(b+1) - 1) / b where p = your estimated probability, b = decimal_odds - 1. Almost always use FRACTIONAL Kelly (1/4 or 1/8) because probability estimates are imprecise. A 5% nominal Kelly stake at quarter-Kelly becomes 1.25% — that is healthy for a tipster portfolio. Full Kelly produces drawdowns over 50% in normal variance.",
+          "source": "https://www.pinnacle.com/en/betting-articles/Betting-Strategy/the-real-kelly-criterion/HZKJTFCFKRZ266BR"
+        },
+        {
+          "topic": "Bookmaker margins and value-finding",
+          "content": "Sharp books (Pinnacle, Betfair Exchange, Smarkets) operate on 1-3% margin; recreational books (Bet365, William Hill, Sky Bet) run 5-10%. The only way recreational books survive is by limiting or banning winners. Strategy: place value bets at recreational books with stake-distribution risk in mind; price-check against sharp books to identify mispricings. The Asian Handicap and Total Goals markets typically have the tightest pricing.",
+          "source": "https://www.pinnacle.com/en/betting-articles/educational/why-betting-margins-matter/T56KKW9CB29YDZ7C"
+        },
+        {
+          "topic": "Variance and bankroll units in tipster portfolios",
+          "content": "A tipster with a true 5% edge on even-money bets will see equity swings of +/-20% over any 100-bet window. Bankroll should be sized in 'units' (e.g. 1 unit = 1% of bankroll), and a single bet rarely exceeds 5 units even at peak edge. A 10% loss month with proper unit discipline is unremarkable; a 30% loss month means either edge has died or unit size was too large.",
+          "source": "https://www.football-data.co.uk/ratings.pdf"
+        },
+        {
+          "topic": "Horse racing market efficiency",
+          "content": "UK horse racing Win markets are roughly weak-form efficient: starting prices reflect available public information. Edges exist in: (1) early morning prices before the market settles, (2) Each-Way bets where places are mispriced relative to win odds, (3) outsiders 16/1+ where the favourite-longshot bias persists. Edges are typically 1-3% and require high turnover to be meaningful.",
+          "source": "https://www.tandfonline.com/doi/abs/10.1080/096031098332899"
+        }
+      ]
+    },
+    "software_engineering": {
+      "label": "Software engineering and system design",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Python AST module for safe code generation",
+          "content": "Before committing any auto-generated Python file, validate with `ast.parse(source)` — this catches syntax errors, unterminated strings, indentation bugs, and most import-level errors. AST also enables structural refactoring: walking the tree to find function definitions, imports, and class attributes. For self-modifying code in DMAI, the rule is: parse the file, modify the tree, unparse with `ast.unparse` (Python 3.9+) — never use regex on Python source.",
+          "source": "https://docs.python.org/3/library/ast.html"
+        },
+        {
+          "topic": "Idiomatic FastAPI route design",
+          "content": "FastAPI routes should: (1) validate input with Pydantic models, not manual dict parsing; (2) return JSONResponse with explicit status codes; (3) use dependency injection for shared resources (DB connections, auth); (4) keep business logic out of the route handler — handlers should be thin glue. For DMAI's monetisation routes, every state-changing route should accept POST + JSON body + auth header, never URL query params for secrets.",
+          "source": "https://fastapi.tiangolo.com/tutorial/path-operation-configuration/"
+        },
+        {
+          "topic": "Twelve-Factor App principles",
+          "content": "Twelve-Factor cornerstones for production services: (1) config in env vars not code, (2) explicit dependency declaration, (3) stateless processes, (4) port-binding for services, (5) logs as event streams (stdout), (6) one-off admin tasks via short-lived processes, (7) treat backing services as attached resources. DMAI on Render follows this: env vars for keys, SQLite as attached service, stdout logging captured by Render.",
+          "source": "https://12factor.net/"
+        },
+        {
+          "topic": "SQLite concurrency rules and WAL mode",
+          "content": "SQLite supports ONE writer at a time but many readers. Enable WAL mode (`PRAGMA journal_mode=WAL`) for concurrent reader+writer; otherwise readers block during writes. Always use `with conn:` to ensure atomic commits. Use `timeout=10` on connect() to handle brief lock contention gracefully. For multi-thread Python, set `check_same_thread=False` ONLY if every access path is properly locked at application level.",
+          "source": "https://www.sqlite.org/wal.html"
+        },
+        {
+          "topic": "Idempotent migrations and CREATE TABLE IF NOT EXISTS",
+          "content": "All schema mutations in DMAI must be idempotent: every restart and every fresh deploy must converge to the same schema without manual intervention. Use `CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, and `ALTER TABLE ... ADD COLUMN` wrapped in try/except for column additions. Never assume a column exists — check via `PRAGMA table_info(tablename)` before reading.",
+          "source": "https://www.sqlite.org/lang_altertable.html"
+        },
+        {
+          "topic": "Git pre-commit safety: AST validate, smoke-test, then push",
+          "content": "Before `git commit && git push` on auto-generated code: (1) `python -c 'import ast; ast.parse(open(file).read())'` for each .py file; (2) run smoke tests if a tests/ folder exists; (3) verify the module imports without raising — `python -c 'import module_path'`. If any step fails, abort the commit and enqueue the diff for human review instead of force-pushing broken code. DMAI's SelfCommitter implements this with a 5KB ceiling; larger edits enqueue to SelfEditQueue.",
+          "source": "https://pre-commit.com/"
+        },
+        {
+          "topic": "Render.com deployment lifecycle",
+          "content": "Render auto-deploys on push to the configured branch. Web Services use a Procfile-style start command. Cold starts on the free tier take 30-60 seconds and serve 502 responses meanwhile. Persistent disks survive redeploys; ephemeral storage does not. Health checks are HTTP GET against a configured path; failure restarts the service. Build timeout default is 15 minutes. Set `gunicorn --timeout 120` for long-running requests; default 30s timeout will kill self-evolution and code-gen routes.",
+          "source": "https://render.com/docs/web-services"
+        }
+      ]
+    },
+    "ai_ml_engineering": {
+      "label": "AI/ML engineering and LLM systems",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Retrieval-Augmented Generation (RAG) architecture",
+          "content": "RAG = embed documents, retrieve top-K by cosine similarity to query embedding, stuff retrieved chunks into the LLM context. Key parameters: chunk size 256-1024 tokens with 10-20% overlap; embedding model dimension matters less than embedding-corpus alignment; retrieval K=4-8 is the sweet spot. Hybrid search (BM25 + dense) outperforms either alone on most domain corpora. Reranking with a cross-encoder boosts precision at modest latency cost.",
+          "source": "https://arxiv.org/abs/2005.11401"
+        },
+        {
+          "topic": "Prompt engineering: structured output and few-shot patterns",
+          "content": "For reliable LLM output: (1) prefer JSON-schema constrained decoding over free-form, (2) include 2-3 high-quality examples (few-shot) for tasks more complex than classification, (3) use explicit role/task/format/constraints structure, (4) ask the model to think step-by-step BEFORE producing the final answer ('chain of thought'). For code generation, supply the function signature and existing imports in the prompt — never expect the model to invent the right import path.",
+          "source": "https://arxiv.org/abs/2201.11903"
+        },
+        {
+          "topic": "Agentic loop patterns: ReAct, Plan-and-Execute",
+          "content": "ReAct interleaves Reasoning and Action steps: thought -> action -> observation -> thought ... A simple ReAct loop: (1) LLM produces JSON {thought, action, action_input}, (2) executor runs the action, (3) result fed back into next LLM call, (4) loop until {action: 'final_answer'}. Plan-and-Execute first generates a multi-step plan, then executes each step — better for long-horizon tasks but more brittle when steps fail. Add max-iterations cap (10-20) to prevent infinite loops.",
+          "source": "https://arxiv.org/abs/2210.03629"
+        },
+        {
+          "topic": "LLM provider fallback chain and cost optimization",
+          "content": "Cheapest reliable order for fungible tasks (2026 pricing): Groq (Llama-3.1-70B) ~$0.59/M input, Google Gemini Flash ~$0.075/M, DeepSeek ~$0.27/M, OpenAI GPT-4o-mini ~$0.15/M. For high-quality code-gen: Claude Sonnet > GPT-4o > Llama-3.1-405B. Pattern: try cheapest first, fall through on rate-limit or empty response, never use most-expensive as default. Cache prompt-response pairs by content-hash for 24h to avoid repeated charges.",
+          "source": "https://openrouter.ai/models"
+        },
+        {
+          "topic": "Embedding model selection for SQLite-only stacks",
+          "content": "For a SQLite-only stack without a vector DB, store embeddings as BLOB and search via Python numpy dot-product. Embedding models that work CPU-side: sentence-transformers/all-MiniLM-L6-v2 (384-dim, fast), BAAI/bge-small-en-v1.5 (384-dim, slightly better). At 384 dimensions and float32, each vector is 1.5KB — a 100k-document KB fits in 150MB RAM and queries in <100ms with numpy. For higher-quality retrieval, use bge-large-en-v1.5 (1024-dim, 4KB per vector).",
+          "source": "https://www.sbert.net/docs/pretrained_models.html"
+        },
+        {
+          "topic": "Evaluating LLM-generated code: AST diff + unit-test pass-rate",
+          "content": "Code generation quality cannot be measured by token-level diff. Use: (1) ast.parse to confirm syntactic validity, (2) static analysis (ruff, mypy) to catch undefined names and type errors, (3) pass-rate on unit tests if available, (4) embedding similarity to canonical solutions as a weak signal. HumanEval and MBPP benchmarks use pass@k metric: probability that at least one of k samples passes all tests.",
+          "source": "https://arxiv.org/abs/2107.03374"
+        },
+        {
+          "topic": "Self-evolution loop architecture",
+          "content": "A safe self-evolution loop: (1) SCAN — capability mapper reports gaps; (2) PRIORITISE — sort gaps by impact * (1 / effort); (3) GENERATE — LLM produces a diff; (4) VALIDATE — AST parse + import check + test run; (5) GATE — commit if diff < threshold AND tests pass, else enqueue for human approval; (6) COMMIT — git commit with descriptive message + author attribution; (7) DEPLOY — auto-deploy via CI; (8) MONITOR — post-deploy health check and rollback if regression. DMAI implements this with a 5KB diff ceiling and the SelfEditQueue.",
+          "source": "https://arxiv.org/abs/2404.02147"
+        }
+      ]
+    },
+    "personal_finance_uk": {
+      "label": "UK personal finance, tax, and wealth-building",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "ISA allowance and Stocks and Shares ISA",
+          "content": "ISA annual allowance for 2025/26 = £20,000 across all ISA types. Stocks and Shares ISA gains are exempt from CGT and dividend tax — the most efficient long-term wealth vehicle for UK residents. Lifetime ISA (LISA) adds a 25% government bonus on up to £4,000/year contributions (for first-home purchase or age-60+ withdrawal). Junior ISA = £9,000/year, locked until child is 18.",
+          "source": "https://www.gov.uk/individual-savings-accounts"
+        },
+        {
+          "topic": "SIPP and pension tax relief",
+          "content": "Contributions to a SIPP receive tax relief at marginal rate: a £100 contribution costs a basic-rate taxpayer £80, a higher-rate taxpayer £60, an additional-rate taxpayer £55. Annual allowance £60,000 (2025/26), tapered down to £10,000 for incomes above £260,000. Carry-forward unused allowance from up to 3 prior tax years. Crystallised at 25% tax-free lump sum from age 55 (rising to 57 in 2028).",
+          "source": "https://www.gov.uk/tax-on-your-private-pension"
+        },
+        {
+          "topic": "Capital gains tax (CGT) on investments and crypto",
+          "content": "UK CGT annual exemption = £3,000 for 2025/26 (down from £12,300 in 2022/23). Rates above the exemption: 10% basic-rate, 20% higher/additional-rate on shares and most assets. Residential property gains (non-primary): 18% / 24%. Crypto is treated as a chargeable asset — every disposal is a CGT event including crypto-to-crypto swaps. Bed-and-ISA is a legal mechanism: sell shares, immediately rebuy inside ISA to crystallise CGT under the exemption.",
+          "source": "https://www.gov.uk/capital-gains-tax"
+        },
+        {
+          "topic": "Dividend tax and the dividend allowance",
+          "content": "Dividend allowance 2025/26 = £500 (down from £2,000 in 2022/23). Above that: 8.75% basic, 33.75% higher, 39.35% additional. Dividends inside an ISA or SIPP are tax-free. For owner-managed UK Ltd companies, the tax-efficient extraction pattern is: take a small salary up to the NI threshold, then dividends — but the squeeze of dividend allowance + corporation tax rises (25% from April 2023) has eroded this advantage.",
+          "source": "https://www.gov.uk/tax-on-dividends"
+        },
+        {
+          "topic": "Compound growth and the rule of 72",
+          "content": "Rule of 72: years to double = 72 / annual_growth_rate. 7% compounded = doubles in ~10 years, 10% = 7.2 years, 15% = 4.8 years. A £10,000 ISA pot compounding at 8% real return for 30 years = £100,627. The difference between 6% and 9% returns over 30 years is 3x final value, not 1.5x — small return differences dominate large savings differences over decades.",
+          "source": "https://www.investopedia.com/terms/r/ruleof72.asp"
+        },
+        {
+          "topic": "Emergency fund and asset-allocation by life stage",
+          "content": "Standard rule: 3-6 months of essential expenses in cash/Premium Bonds before any market exposure. Beyond that, age-based equity allocation is a rough heuristic: %equity = 120 - age. A 35-year-old: 85% equity, 15% bonds/cash. Adjust for risk tolerance and timeline. For entrepreneurs with volatile income, hold 12+ months expenses in liquid cash before adding leverage or illiquid bets.",
+          "source": "https://www.bogleheads.org/wiki/Emergency_fund"
+        }
+      ]
+    },
+    "uk_real_estate": {
+      "label": "UK real estate, property development, and BTL",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Stamp Duty Land Tax (SDLT) for property purchases",
+          "content": "SDLT for residential purchases in England and NI (2025/26): 0% up to £125k, 2% £125k-£250k, 5% £250k-£925k, 10% £925k-£1.5m, 12% over £1.5m. Additional-property surcharge: extra 5% on top of standard bands for second homes and BTL purchases. First-time buyers: 0% up to £300k on properties under £500k. Wales uses LTT, Scotland uses LBTT — different bands and rates. SDLT is payable within 14 days of completion.",
+          "source": "https://www.gov.uk/stamp-duty-land-tax/residential-property-rates"
+        },
+        {
+          "topic": "Buy-to-let yield calculation: gross vs net",
+          "content": "Gross yield = (annual rent / purchase price) * 100. Net yield = (annual rent - costs) / purchase price. Costs to subtract: letting agent fees (8-12% of rent), insurance, void allowance (1 month/yr = 8.3%), maintenance (10% of rent), service charges, ground rent for leaseholds. A 7% gross BTL typically nets 4-5%. Northern English cities (Liverpool, Manchester suburbs, Leeds, Newcastle, Bradford) consistently show 8-12% gross yields; London 3-5%.",
+          "source": "https://www.gov.uk/renting-out-a-property"
+        },
+        {
+          "topic": "Section 24 mortgage interest relief restriction",
+          "content": "Since April 2020, individual landlords cannot deduct mortgage interest from rental income for tax purposes — instead they receive a 20% tax credit on interest. For higher-rate taxpayers this effectively raises tax on geared BTL income. Workaround used by professional landlords: hold properties in a Ltd company (SPV), where mortgage interest IS deductible against corporation tax. Higher mortgage rates for Ltd-co BTL but post-tax often better for higher-rate borrowers.",
+          "source": "https://www.gov.uk/guidance/changes-to-tax-relief-for-residential-landlords-how-its-worked-out-including-case-studies"
+        },
+        {
+          "topic": "BMV (below market value) sourcing and the 75% rule",
+          "content": "Buy at 70-75% of post-refurb value (ARV) minus refurb costs. Worked example: 3-bed terrace ARV £200k, refurb £25k, target buy price = 0.75 * 200000 - 25000 = £125k. This 25% buffer covers stamp duty, legals, finance costs, and provides equity for refinance/release. Sourcing channels: auction (Allsop, Savills Live, Auction House), probate, repossession, motivated-seller leaflet drops, off-market via property sourcers.",
+          "source": "https://www.eigpropertyauctions.co.uk/"
+        },
+        {
+          "topic": "BRRR strategy: Buy, Refurb, Refinance, Rent",
+          "content": "BRRR cycle: (1) buy at BMV with bridging or cash, (2) refurb to add value, (3) refinance with mortgage at 75% LTV of new value to pull out original capital, (4) rent for cash flow. Done correctly, BRRR recycles the same deposit across multiple properties. Risks: refurb overrun (budget 20% contingency), down-valuation by mortgage surveyor, void during refurb. Bridging loans cost 0.7-1.0% per month; budget refinance within 4-6 months.",
+          "source": "https://www.propertyhub.net/library/brrr-strategy/"
+        },
+        {
+          "topic": "HMO licensing and yields",
+          "content": "A House in Multiple Occupation (HMO) with 5+ unrelated occupants requires mandatory licensing in England. Article 4 areas require planning permission for change of use to HMO. HMO yields are typically 2-3x single-let — a 3-bed terrace at £700/month single-let can become a 5-bed HMO at £450/room = £2,250/month. Trade-offs: higher voids, more management, stricter fire/safety regs (FD30 doors, interlinked smoke alarms, emergency lighting).",
+          "source": "https://www.gov.uk/house-in-multiple-occupation-licence"
+        },
+        {
+          "topic": "Refurb cost benchmarks (UK, 2025)",
+          "content": "Light refurb (paint, carpets, kitchen tidy): £8-15/sqft. Medium refurb (new kitchen + bathroom, decoration, flooring): £25-45/sqft. Heavy refurb (rewire, replumb, restructure, extension): £100-200/sqft. Loft conversion: £30,000-£60,000 for typical 3-bed terrace. Single-storey rear extension: £1,800-£2,500/sqm. Always get 3 quotes; pad timeline by 50%. Cheapest quote rarely finishes on budget.",
+          "source": "https://www.checkatrade.com/blog/cost-of-jobs/house-renovation-cost/"
+        }
+      ]
+    },
+    "business_monetisation": {
+      "label": "Business operations, monetisation, and growth",
+      "tier": "canonical",
+      "entries": [
+        {
+          "topic": "Unit economics: CAC, LTV, and payback period",
+          "content": "CAC (Customer Acquisition Cost) = total acquisition spend / new customers. LTV (Lifetime Value) = ARPU * gross_margin * (1 / churn_rate). Healthy SaaS: LTV:CAC >= 3:1, CAC payback <= 12 months. If LTV:CAC < 1, growth is destroying value — every customer costs more to acquire than they ever pay back. Track these monthly; cohorts reveal whether new customers are getting more or less valuable over time.",
+          "source": "https://www.forentrepreneurs.com/saas-metrics-2/"
+        },
+        {
+          "topic": "Pricing psychology: anchoring, decoy effect, charm pricing",
+          "content": "Anchoring: the first price shown sets reference for all comparisons — premium tier should be priced high to make middle tier seem reasonable. Decoy effect: a deliberately worse option makes the target option look better (Economist 3-tier pricing experiment, Ariely 2008). Charm pricing (£9.99 vs £10) gains ~2% conversion on consumer goods, near-zero effect on B2B. Always A/B test pricing — intuition is wrong more often than right.",
+          "source": "https://hbr.org/2009/09/the-irrational-side-of-pricing"
+        },
+        {
+          "topic": "Growth loops vs funnels",
+          "content": "A funnel is linear: traffic -> signup -> activation -> revenue. A growth loop is cyclical: every output of the system feeds the input. Examples: Dropbox referral (user gets storage by inviting friends -> more users), Pinterest content (users pin -> SEO traffic -> more users -> more pins). Loops compound; funnels leak. The strongest businesses have multiple overlapping loops (UGC + referral + paid + SEO).",
+          "source": "https://www.reforge.com/blog/growth-loops"
+        },
+        {
+          "topic": "Recurring revenue valuation multiples",
+          "content": "Public SaaS companies (2025) trade at 5-15x ARR depending on growth rate and net retention. Rule of 40: growth_rate + profit_margin should exceed 40% for healthy SaaS valuation. Sub-$5M ARR companies acquire at 3-6x ARR; $5M-$25M at 5-10x; growth-stage at 10-20x. Private valuations roughly half of public comps. Marketplaces and ad-supported businesses trade lower (2-5x revenue) due to less predictability.",
+          "source": "https://www.bvp.com/atlas/state-of-the-cloud-2024"
+        },
+        {
+          "topic": "Revenue split structures: profit share vs revenue share",
+          "content": "Revenue share = % of gross revenue paid to partner. Profit share = % of net profit (after costs) paid to partner. Revenue share is simpler and pays partner regardless of cost overruns — preferred when you trust the operator. Profit share aligns incentives but requires audit-able accounts. For DMAI's 60/40 split favouring the system: 60% covers infrastructure, subscriptions, and growth re-investment; 40% to operator. Apply to NET revenue after all hard costs.",
+          "source": "https://www.investopedia.com/terms/r/revenuesharing.asp"
+        },
+        {
+          "topic": "Affiliate and partnership margin math",
+          "content": "Typical affiliate commission rates: 5-15% on physical products, 20-50% on digital products, 30-50% recurring on SaaS. Average affiliate program: 2-5% of partners drive 80% of revenue (Pareto holds). For DMAI revenue streams: prefer recurring (subscription affiliates) over one-shot, pre-vet products before promoting (refund rate matters), use unique URL params for attribution. Disclose affiliate relationships per UK ASA and US FTC rules.",
+          "source": "https://www.asa.org.uk/advice-online/affiliate-marketing.html"
+        },
+        {
+          "topic": "Cash flow vs profit: the founder's killer mistake",
+          "content": "Profit is an accounting concept; cash flow pays bills. Fast-growing businesses can go bankrupt while profitable (working-capital crunch on receivables, inventory build, capex). Always model 13-week cash flow alongside P&L. Never deploy growth capital without 6 months of operating runway. For DMAI revenue streams, prefer Stripe-style upfront payment over net-30 invoicing. If invoicing, factor invoices when growth exceeds working-capital comfort.",
+          "source": "https://www.investopedia.com/articles/personal-finance/053015/why-do-companies-care-about-their-stock-prices.asp"
+        }
+      ]
+    }
+  }
+}

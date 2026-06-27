@@ -30,8 +30,8 @@ DMAI is a complete, self-contained AGI system that evolves continuously through 
 
 ### Deployment
 
-**Main Application:** [https://dmai-complete.onrender.com](https://dmai-complete.onrender.com)
-**Health Check:** [https://dmai-complete.onrender.com/health](https://dmai-complete.onrender.com/health)
+**Main Application:** [https://dmai-web.onrender.com](https://dmai-web.onrender.com)
+**Health Check:** [https://dmai-web.onrender.com/health](https://dmai-web.onrender.com/health)
 
 ---
 

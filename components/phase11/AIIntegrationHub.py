@@ -52,7 +52,21 @@ class AIIntegrationHub:
         
         # Load existing query history
         self._load_history()
-        
+
+        # ----------------------------------------------------------------
+        # Phase 12 stabilization: thread-saturation guards
+        # ----------------------------------------------------------------
+        # Circuit breaker: skip providers that consistently fail.
+        self._cb_state: Dict[str, Dict[str, Any]] = {}
+        self._cb_failure_threshold = int(os.getenv('AI_HUB_CB_FAILURES', '3'))
+        self._cb_cooldown_s = int(os.getenv('AI_HUB_CB_COOLDOWN_S', '300'))
+        # Hard per-provider call timeout (stops 30s reads from hogging threads).
+        self._cb_provider_timeout_s = int(os.getenv('AI_HUB_PROVIDER_TIMEOUT_S', '8'))
+        # Hub-wide concurrency cap — prevents background loops from starving
+        # HTTP request threads. Created lazily inside an event loop.
+        self._max_concurrent_providers = int(os.getenv('AI_HUB_MAX_CONCURRENT', '4'))
+        self._provider_semaphore: Optional[asyncio.Semaphore] = None
+
         # Track active tutors count
         active_tutors = self._get_active_tutors()
         logger.info(f"🚀 AIIntegrationHub initialized with {len(active_tutors)} active tutors")
@@ -66,6 +80,7 @@ class AIIntegrationHub:
         # ORIGINAL COMMERCIAL LLMs (All preserved)
         # ====================================================================
         keys['openai'] = os.getenv('OPENAI_API_KEY')
+        keys['groq'] = os.getenv('GROQ_API_KEY') or os.getenv('GROQ_KEY')
         keys['deepseek'] = os.getenv('DEEPSEEK_API_KEY')
         keys['gemini'] = os.getenv('GEMINI_API_KEY')
         keys['anthropic'] = os.getenv('ANTHROPIC_API_KEY')
@@ -92,6 +107,21 @@ class AIIntegrationHub:
         # ORIGINAL Google ecosystem (All preserved)
         # ====================================================================
         keys['google_ai_studio'] = os.getenv('GOOGLE_AI_STUDIO_KEY')
+        
+        # ====================================================================
+        # NEW: Cerebras Inference (1M tokens/day free, 2,600 tok/s)
+        # ====================================================================
+        keys['cerebras'] = os.getenv('CEREBRAS_API_KEY')
+        
+        # ====================================================================
+        # NEW: GitHub Models (45+ frontier models, free with GitHub account)
+        # ====================================================================
+        keys['github_models'] = os.getenv('GITHUB_MODELS_TOKEN') or os.getenv('GITHUB_TOKEN_MAIN')
+        
+        # ====================================================================
+        # NEW: Mistral AI (Experiment plan — all models, 1B tokens/month free)
+        # ====================================================================
+        keys['mistral'] = os.getenv('MISTRAL_API_KEY')
         keys['notebooklm'] = os.getenv('NOTEBOOKLM_API_KEY')
         keys['imagen'] = os.getenv('IMAGEN_API_KEY')
         keys['gemini_gems'] = os.getenv('GEMINI_GEMS_KEY')
@@ -192,6 +222,9 @@ class AIIntegrationHub:
             ('Anthropic Claude', self._query_anthropic),
             ('Perplexity AI', self._query_perplexity),
             ('xAI Grok', self._query_grok),
+            ('Cerebras Inference', self._query_cerebras),
+            ('GitHub Models', self._query_github_models),
+            ('Mistral AI', self._query_mistral),
             # Code/research tools available via dedicated methods, NOT queried as thinking tutors:
             # HuggingFace: _query_huggingface  (model search, not Q&A)
             # GitHub: _query_github  (repo search, not Q&A)
@@ -389,7 +422,7 @@ class AIIntegrationHub:
     
     def _query_openai(self, prompt: str) -> Dict:
         """Query OpenAI GPT-4 with increased timeout and retry"""
-        api_key = self.api_keys.get('openai')
+        api_key = os.getenv('OPENAI_API_KEY') or self.api_keys.get('openai')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'OpenAI', 'error': 'No API key'}
         
@@ -431,7 +464,7 @@ class AIIntegrationHub:
             
     def _query_deepseek(self, prompt: str) -> Dict:
         """Query DeepSeek with increased timeout and retry logic"""
-        api_key = self.api_keys.get('deepseek')
+        api_key = os.getenv('DEEPSEEK_API_KEY') or self.api_keys.get('deepseek')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'DeepSeek', 'error': 'No API key'}
         
@@ -481,7 +514,7 @@ class AIIntegrationHub:
         for attempt in range(2):
             try:
                 response = requests.post(
-                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}',
+                    f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}',
                     headers={'Content-Type': 'application/json'},
                     json={
                         'contents': [{'parts': [{'text': prompt}]}],
@@ -499,7 +532,7 @@ class AIIntegrationHub:
                         'success': True,
                         'tutor': 'Google Gemini',
                         'response': data['candidates'][0]['content']['parts'][0]['text'],
-                        'model': 'gemini-pro'
+                        'model': 'gemini-1.5-flash'
                     }
                 else:
                     return {'success': False, 'tutor': 'Gemini', 'error': f'HTTP {response.status_code}'}
@@ -517,7 +550,7 @@ class AIIntegrationHub:
             
     def _query_anthropic(self, prompt: str) -> Dict:
         """Query Anthropic Claude with increased timeout and retry"""
-        api_key = self.api_keys.get('anthropic')
+        api_key = os.getenv('ANTHROPIC_API_KEY') or self.api_keys.get('anthropic')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'Claude', 'error': 'No API key'}
         
@@ -575,7 +608,7 @@ class AIIntegrationHub:
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'model': 'llama-3.1-sonar-small-128k-online',
+                    'model': 'sonar',  # Perplexity Sonar — real-time web search + AI
                     'messages': [{'role': 'user', 'content': prompt}],
                     'max_tokens': 500,
                     'temperature': 0.7
@@ -589,7 +622,7 @@ class AIIntegrationHub:
                     'success': True,
                     'tutor': 'Perplexity AI',
                     'response': data['choices'][0]['message']['content'],
-                    'model': 'llama-3.1-sonar'
+                    'model': 'sonar'
                 }
             else:
                 return {'success': False, 'tutor': 'Perplexity', 'error': f'HTTP {response.status_code}'}
@@ -731,14 +764,14 @@ class AIIntegrationHub:
     
     def _query_google_ai_studio(self, prompt: str) -> Dict:
         """Query Google AI Studio - Original functionality"""
-        api_key = self.api_keys.get('google_ai_studio')
+        api_key = os.getenv('GOOGLE_AI_STUDIO_KEY') or os.getenv('GEMINI_API_KEY') or self.api_keys.get('google_ai_studio')
         if not api_key or api_key == "pending":
             return {'success': False, 'tutor': 'Google AI Studio', 'error': 'No API key'}
             
         try:
             # Implementation similar to Gemini but with different endpoint
             response = requests.post(
-                f'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}',
+                f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}',
                 json={'contents': [{'parts': [{'text': prompt}]}]},
                 timeout=15
             )
@@ -842,6 +875,334 @@ class AIIntegrationHub:
             'error': 'Google Whisk API requires specific implementation'
         }
         
+
+    # ====================================================================
+    # UNIFIED CHAT INTERFACE (called by ExtendedHub fallback + _ai_chat directly)
+    # ====================================================================
+
+    # ====================================================================
+    # CIRCUIT BREAKER HELPERS (Phase 12 stabilization)
+    # ====================================================================
+    def _cb_is_tripped(self, name: str) -> bool:
+        st = self._cb_state.get(name)
+        return bool(st and st.get("tripped_until", 0) > time.time())
+
+    def _cb_record_failure(self, name: str, error: str) -> None:
+        st = self._cb_state.setdefault(name, {"fail_count": 0, "tripped_until": 0, "last_error": ""})
+        st["fail_count"] += 1
+        st["last_error"] = (error or "")[:200]
+        if st["fail_count"] >= self._cb_failure_threshold:
+            st["tripped_until"] = time.time() + self._cb_cooldown_s
+            logger.warning(
+                "chat(): circuit breaker TRIPPED for %s after %d failures (cooldown %ds) - %s",
+                name, st["fail_count"], self._cb_cooldown_s, st["last_error"],
+            )
+
+    def _cb_record_success(self, name: str) -> None:
+        st = self._cb_state.get(name)
+        if st and (st.get("fail_count") or st.get("tripped_until")):
+            logger.info("chat(): circuit breaker RESET for %s", name)
+        self._cb_state[name] = {"fail_count": 0, "tripped_until": 0, "last_error": ""}
+
+    def get_provider_health(self) -> Dict[str, Any]:
+        """Public snapshot of circuit breaker state - surfaced via /api/ai-hub/diagnostic."""
+        now = time.time()
+        providers = {}
+        for name, st in self._cb_state.items():
+            tu = st.get("tripped_until", 0)
+            providers[name] = {
+                "fail_count": st.get("fail_count", 0),
+                "tripped": tu > now,
+                "cooldown_remaining_s": max(0, int(tu - now)) if tu > now else 0,
+                "last_error": st.get("last_error", ""),
+            }
+        return {
+            "threshold": self._cb_failure_threshold,
+            "cooldown_s": self._cb_cooldown_s,
+            "per_call_timeout_s": self._cb_provider_timeout_s,
+            "max_concurrent": self._max_concurrent_providers,
+            "providers": providers,
+        }
+
+    async def chat(self, prompt: str) -> str:
+        """
+        Async chat interface - tries providers in priority order, returns first success.
+
+        Hardened (Phase 12 stabilization):
+          - Hub-wide asyncio.Semaphore caps concurrent provider calls so
+            background loops cannot starve HTTP request threads.
+          - Per-provider asyncio.wait_for hard timeout stops 30s slow reads
+            from hogging gunicorn worker threads.
+          - Circuit breaker skips providers tripped by N consecutive failures
+            for a cooldown window (avoids retrying dead 401/402/429 keys).
+
+        Priority (cheapest/fastest first):
+          1. Cerebras   - 1M tokens/day
+          2. Groq       - 14,400 req/day
+          3. Google AI Studio
+          4. GitHub Models
+          5. Mistral AI
+          6. DeepSeek
+          7. OpenAI
+          8. Anthropic
+        """
+        import asyncio
+
+        # Lazy-create semaphore inside the active event loop
+        if self._provider_semaphore is None:
+            self._provider_semaphore = asyncio.Semaphore(self._max_concurrent_providers)
+
+        priority_methods = [
+            ("Cerebras",         self._query_cerebras),
+            ("Groq",             self._query_groq),
+            ("Google AI Studio", self._query_google_ai_studio),
+            ("GitHub Models",    self._query_github_models),
+            ("Mistral AI",       self._query_mistral),
+            ("DeepSeek",         self._query_deepseek),
+            ("OpenAI",           self._query_openai),
+            ("Anthropic",        self._query_anthropic),
+        ]
+
+        tripped_skipped = []
+        attempted = 0
+        for name, method in priority_methods:
+            if self._cb_is_tripped(name):
+                tripped_skipped.append(name)
+                continue
+            attempted += 1
+            try:
+                async with self._provider_semaphore:
+                    loop = asyncio.get_event_loop()
+                    result = await asyncio.wait_for(
+                        loop.run_in_executor(None, method, prompt),
+                        timeout=self._cb_provider_timeout_s,
+                    )
+                if not isinstance(result, dict):
+                    logger.warning("chat(): %s returned non-dict: %s", name, type(result).__name__)
+                    self._cb_record_failure(name, "non-dict result")
+                    continue
+                if result.get("success"):
+                    self._cb_record_success(name)
+                    logger.info("chat(): responded via %s", name)
+                    resp = result.get("response")
+                    if isinstance(resp, tuple):
+                        resp = resp[0] if resp else None
+                    if resp and not isinstance(resp, str):
+                        resp = str(resp)
+                    if resp:
+                        return resp
+                    self._cb_record_failure(name, "empty response")
+                else:
+                    err = result.get("error", "unknown")
+                    logger.warning("chat(): %s failed - %s", name, err)
+                    self._cb_record_failure(name, err)
+            except asyncio.TimeoutError:
+                logger.warning("chat(): %s exceeded %ds hard timeout", name, self._cb_provider_timeout_s)
+                self._cb_record_failure(name, f"hard timeout {self._cb_provider_timeout_s}s")
+            except Exception as exc:
+                logger.warning("chat(): %s exception - %s", name, exc)
+                self._cb_record_failure(name, f"exception: {exc}")
+
+        if tripped_skipped:
+            logger.info("chat(): skipped %d tripped: %s", len(tripped_skipped), ", ".join(tripped_skipped))
+
+        if attempted == 0 and tripped_skipped:
+            return (
+                "DMAI AI Hub: all providers in cooldown (circuit breaker tripped). "
+                "See /api/ai-hub/diagnostic; rotate failing keys or wait for cooldown."
+            )
+
+        return (
+            "DMAI is online but no AI provider key is active. "
+            "Add a free key - Groq (GROQ_API_KEY) is fastest to set up: "
+            "https://console.groq.com/keys"
+        )
+
+    def chat_sync(self, prompt: str) -> str:
+        """Synchronous wrapper around chat() — safe in any thread context."""
+        import asyncio
+        try:
+            try:
+                asyncio.get_running_loop()
+                is_running = True
+            except RuntimeError:
+                is_running = False
+
+            if is_running:
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    fut = pool.submit(asyncio.run, self.chat(prompt))
+                    result = fut.result(timeout=45)
+            else:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(self.chat(prompt))
+                finally:
+                    loop.close()
+                    asyncio.set_event_loop(None)
+
+            return result if isinstance(result, str) else (str(result) if result is not None else None)
+        except Exception as exc:
+            logger.warning("chat_sync error: %s", exc)
+            return None
+
+    # ====================================================================
+    # NEW FREE-TIER TUTOR QUERY METHODS
+    # Groq · Cerebras · GitHub Models · Mistral AI
+    # ====================================================================
+
+    def _query_groq(self, prompt: str) -> Dict:
+        """Query Groq — 14,400 req/day free, ultra-low latency LLM inference"""
+        api_key = os.getenv('GROQ_API_KEY') or self.api_keys.get('groq')
+        if not api_key or api_key == 'pending':
+            return {'success': False, 'tutor': 'Groq', 'error': 'No API key — sign up free at console.groq.com/keys'}
+        try:
+            response = requests.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'model': 'llama-3.3-70b-versatile',
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7,
+                },
+                timeout=30,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'Groq',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'llama-3.3-70b-versatile',
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'Groq', 'error': 'Rate limited'}
+            else:
+                return {'success': False, 'tutor': 'Groq', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+        except Exception as e:
+            return {'success': False, 'tutor': 'Groq', 'error': str(e)}
+
+    def _query_cerebras(self, prompt: str) -> Dict:
+        """Query Cerebras Inference — 1M tokens/day free, world-fastest inference (2,600+ tok/s)"""
+        api_key = os.getenv('CEREBRAS_API_KEY') or self.api_keys.get('cerebras')
+        if not api_key or api_key == "pending":
+            return {'success': False, 'tutor': 'Cerebras', 'error': 'No API key — sign up free at cloud.cerebras.ai'}
+
+        try:
+            response = requests.post(
+                'https://api.cerebras.ai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'gpt-oss-120b',  # Cerebras free tier (Nov 2025+)
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'Cerebras Inference',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'gpt-oss-120b'
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'Cerebras', 'error': 'Rate limited (30 RPM / 1M tokens/day)'}
+            else:
+                return {'success': False, 'tutor': 'Cerebras', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+
+        except Exception as e:
+            return {'success': False, 'tutor': 'Cerebras', 'error': str(e)}
+
+    def _query_github_models(self, prompt: str) -> Dict:
+        """Query GitHub Models Marketplace — 45+ frontier models free with GitHub account"""
+        api_key = os.getenv('GITHUB_TOKEN_MAIN') or os.getenv('GITHUB_TOKEN') or self.api_keys.get('github_models')
+        if not api_key or api_key == "pending":
+            return {'success': False, 'tutor': 'GitHub Models', 'error': 'No token — set GITHUB_MODELS_TOKEN or GITHUB_TOKEN_MAIN'}
+
+        try:
+            response = requests.post(
+                'https://models.github.ai/inference/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'gpt-4o-mini',  # 15 RPM / 150 RPD on free tier
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'GitHub Models',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'gpt-4o-mini'
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'GitHub Models', 'error': 'Rate limited (15 RPM / 150 RPD free tier)'}
+            elif response.status_code == 401:
+                return {'success': False, 'tutor': 'GitHub Models', 'error': 'Invalid token — needs Models read permission'}
+            else:
+                return {'success': False, 'tutor': 'GitHub Models', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+
+        except Exception as e:
+            return {'success': False, 'tutor': 'GitHub Models', 'error': str(e)}
+
+    def _query_mistral(self, prompt: str) -> Dict:
+        """Query Mistral AI — Experiment plan: all models including Large, 1B tokens/month free"""
+        api_key = os.getenv('MISTRAL_API_KEY') or self.api_keys.get('mistral')
+        if not api_key or api_key == "pending":
+            return {'success': False, 'tutor': 'Mistral AI', 'error': 'No API key — sign up free at console.mistral.ai'}
+
+        try:
+            response = requests.post(
+                'https://api.mistral.ai/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'mistral-large-latest',  # Full Large model on free Experiment tier
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 500,
+                    'temperature': 0.7
+                },
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'success': True,
+                    'tutor': 'Mistral AI',
+                    'response': data['choices'][0]['message']['content'],
+                    'model': 'mistral-large-latest'
+                }
+            elif response.status_code == 429:
+                return {'success': False, 'tutor': 'Mistral AI', 'error': 'Rate limited (2 RPM on Experiment plan)'}
+            else:
+                return {'success': False, 'tutor': 'Mistral AI', 'error': f'HTTP {response.status_code}: {response.text[:120]}'}
+
+        except Exception as e:
+            return {'success': False, 'tutor': 'Mistral AI', 'error': str(e)}
+
     # ====================================================================
     # PHASE 11 ENHANCEMENTS (All preserved)
     # ====================================================================
@@ -946,6 +1307,12 @@ class AIIntegrationHub:
                     active.append('GitHub')
                 elif service == 'google_ai_studio':
                     active.append('Google AI Studio')
+                elif service == 'cerebras':
+                    active.append('Cerebras Inference')
+                elif service == 'github_models':
+                    active.append('GitHub Models')
+                elif service == 'mistral':
+                    active.append('Mistral AI')
                 else:
                     active.append(service)
         return active

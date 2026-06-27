@@ -1,0 +1,817 @@
+{
+  "baseline_snapshot_at": "INITIAL",
+  "current_snapshot_at": "2026-06-23T14:56:18Z",
+  "added": {
+    "ALPACA_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "ALPACA_BASE_URL": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "ALPACA_SECRET_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "AMAZON_SELLER_ID": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "ANTHROPIC_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "AWS_REGION": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "BRAVE_SEARCH_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "CEREBRAS_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "CLOUDFLARE_ACCOUNT_ID": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "CLOUDFLARE_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "COHERE_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "DATABASE_URL": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "DATA_PATH": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "DEEPSEEK_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "ELEVENLABS_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GEMINI_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GEMINI_GEMS_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GITHUB_MODELS_TOKEN": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GITHUB_TOKEN_MAIN": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GITHUB_TOKEN_SECONDARY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GOOGLE_AI_STUDIO_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "GROQ_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "HUGGINGFACE_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "IMAGEN_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "JWT_SECRET": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "KDP_EMAIL": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "KDP_PASSWORD": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "LOG_LEVEL": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "MASTER_PASSWORD": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "MISTRAL_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "NOTEBOOKLM_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "OPENAI_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "OPENROUTER_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "PERPLEXITY_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "PINECONE_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "PINECONE_ENVIRONMENT": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "PINECONE_INDEX": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "PORT": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "RENDER": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "REPLICATE_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "RUNWAY_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "STABILITY_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "TAVILY_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "TELEGRAM_CHAT_ID": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "TOGETHER_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "WEBHOOK_SECRET": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    },
+    "XAI_API_KEY": {
+      "current": {
+        "status": "UNSET",
+        "fingerprint": "__UNSET__",
+        "source": "local_env_fallback"
+      },
+      "approved": false
+    }
+  },
+  "removed": {},
+  "changed": {},
+  "unapproved": {
+    "added": {
+      "ALPACA_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "ALPACA_BASE_URL": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "ALPACA_SECRET_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "AMAZON_SELLER_ID": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "ANTHROPIC_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "AWS_ACCESS_KEY_ID": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "AWS_REGION": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "AWS_SECRET_ACCESS_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "BRAVE_SEARCH_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "CEREBRAS_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "CLOUDFLARE_ACCOUNT_ID": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "CLOUDFLARE_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "COHERE_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "DATABASE_URL": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "DATA_PATH": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "DEEPSEEK_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "ELEVENLABS_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GEMINI_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GEMINI_GEMS_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GITHUB_MODELS_TOKEN": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GITHUB_TOKEN_MAIN": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GITHUB_TOKEN_SECONDARY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GOOGLE_AI_STUDIO_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "GROQ_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "HUGGINGFACE_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "IMAGEN_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "JWT_SECRET": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "KDP_EMAIL": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "KDP_PASSWORD": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "LOG_LEVEL": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "MASTER_PASSWORD": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "MISTRAL_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "NOTEBOOKLM_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "OPENAI_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "OPENROUTER_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "PERPLEXITY_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "PINECONE_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "PINECONE_ENVIRONMENT": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "PINECONE_INDEX": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "PORT": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "RENDER": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "REPLICATE_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "RUNWAY_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "STABILITY_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "TAVILY_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "TELEGRAM_BOT_TOKEN": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "TELEGRAM_CHAT_ID": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "TOGETHER_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "WEBHOOK_SECRET": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      },
+      "XAI_API_KEY": {
+        "current": {
+          "status": "UNSET",
+          "fingerprint": "__UNSET__",
+          "source": "local_env_fallback"
+        },
+        "approved": false
+      }
+    },
+    "removed": {},
+    "changed": {}
+  },
+  "total_changes": 50,
+  "total_unapproved": 50,
+  "alert": true
+}

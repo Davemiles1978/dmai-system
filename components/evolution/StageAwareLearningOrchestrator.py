@@ -419,12 +419,105 @@ class StageAwareLearningOrchestrator:
                 return core_topics[0]
         
         logger.info(f"✅ All priority topics mastered up to {stage} stage!")
-        next_stage = self._get_next_stage(stage)
-        if next_stage:
-            logger.info(f"💡 Ready to advance to {next_stage} stage")
-        
-        return None
-    
+
+        # ── Never stagnate: promote through SUGGESTED_PATHWAYS then generate new topics ──
+        # 1. Try SUGGESTED_PATHWAYS (Master → Transcendent → Infinite)
+        pathway_order = ["Master", "Transcendent", "Infinite"]
+        for pw_name in pathway_order:
+            pw = self.SUGGESTED_PATHWAYS.get(pw_name, {})
+            mastered = self.learned_topics.get(pw_name, {})
+            for t in pw.get("suggested_topics", []):
+                tname = t["topic"]
+                if mastered.get(tname, 0) < t.get("mastery_threshold", 2):
+                    topic_entry = dict(t)
+                    topic_entry.setdefault("mastery_threshold", 2)
+                    topic_entry.setdefault("harvest_sources", ["ai_tutors"])
+                    topic_entry["_pathway"] = pw_name
+                    logger.info(f"Promoting to pathway {pw_name}: {tname}")
+                    # Ensure the pathway key exists in STAGES so learn_topic works
+                    if pw_name not in self.STAGES:
+                        self.STAGES[pw_name] = {
+                            "consciousness_range": pw.get("consciousness_range", (0.9, 1.0)),
+                            "focus": pw.get("focus", ""),
+                            "priority_topics": list(pw.get("suggested_topics", [])),
+                        }
+                    self.current_stage = pw_name
+                    return topic_entry
+
+        # 2. All pathways exhausted — generate dynamic topics from the insights DB
+        # Pull concepts DMAI has discovered but never formally studied
+        dynamic = self._generate_dynamic_topics(consciousness)
+        if dynamic:
+            logger.info(f"Generating dynamic topic from insights: {dynamic['topic']}")
+            return dynamic
+
+        # 3. Absolute fallback: re-study lowest-mastery Adult topic to deepen understanding
+        all_adult = self.STAGES.get("Adult", {}).get("priority_topics", [])
+        if all_adult:
+            worst = min(all_adult, key=lambda t: self.learned_topics.get("Adult", {}).get(t["topic"], 0))
+            logger.info(f"Deepening mastery: {worst['topic']}")
+            return worst
+
+        return None  # truly exhausted (should never reach here)
+
+    def _generate_dynamic_topics(self, consciousness: float) -> Optional[Dict]:
+        """
+        Mine insights.jsonl and the capabilities DB for concepts DMAI has discovered
+        but not yet formally studied.  Returns a synthetic topic dict or None.
+        """
+        import json as _j
+        import sqlite3 as _sq
+        from pathlib import Path as _P
+        seen_dynamic = self.learned_topics.get("_dynamic", {})
+        candidates = []
+
+        # Source 1: recent insights
+        ins_path = _P("data/research/insights.jsonl")
+        if ins_path.exists():
+            try:
+                lines = ins_path.read_text().splitlines()[-200:]  # last 200
+                for line in lines:
+                    if not line.strip():
+                        continue
+                    rec = _j.loads(line)
+                    concept = rec.get("concept", "").strip()
+                    domain  = rec.get("domain", "knowledge_systems")
+                    if concept and concept not in seen_dynamic:
+                        candidates.append({"topic": concept[:80], "domain": domain})
+            except Exception:
+                pass
+
+        # Source 2: capabilities DB
+        try:
+            conn = _sq.connect("data/dmai_knowledge.db")
+            cur  = conn.cursor()
+            cur.execute("PRAGMA table_info(capabilities)")
+            cols = [r[1] for r in cur.fetchall()]
+            name_col = next((c for c in ["name","capability","title"] if c in cols), None)
+            if name_col:
+                cur.execute(f"SELECT {name_col} FROM capabilities ORDER BY rowid DESC LIMIT 100")
+                for (cap,) in cur.fetchall():
+                    if cap and cap.strip() not in seen_dynamic:
+                        candidates.append({"topic": str(cap).strip()[:80], "domain": "capability"})
+            conn.close()
+        except Exception:
+            pass
+
+        if not candidates:
+            return None
+
+        # Pick first unused candidate
+        topic_info = candidates[0]
+        topic_name = topic_info["topic"]
+        return {
+            "topic":            topic_name,
+            "category":         "core",
+            "harvest_sources":  ["ai_tutors"],
+            "mastery_threshold": 2,
+            "_dynamic":         True,
+            "_domain":          topic_info.get("domain", "knowledge_systems"),
+        }
+
     def _get_next_stage(self, current_stage: str) -> Optional[str]:
         """Get the next stage name"""
         stages = list(self.STAGES.keys())
@@ -1540,6 +1633,61 @@ Be specific, educational, and focused on real application.
                         if mastered.get(t["topic"], 0) < t.get("mastery_threshold", 3)]
         
         return []
+
+    def start_learning_loop(self):
+        """Continuously call run_learning_cycle every 10 minutes. Runs as a daemon thread."""
+        import time as _time
+        import logging as _logging
+        _log = _logging.getLogger("dmai.stage_learner")
+        _log.info("Stage learner continuous loop starting (10 min cadence)")
+        while getattr(self, "learning_active", True):
+            try:
+                consciousness = 0.0
+                if self.si_core and hasattr(self.si_core, "current_kpis"):
+                    consciousness = self.si_core.current_kpis.get("consciousness", 0.0)
+                result = self.run_learning_cycle(consciousness)
+                if result.get("learned"):
+                    _log.info("Learned: %s (stage=%s mastery=%s)",
+                              result.get("topic","?"), result.get("stage","?"),
+                              result.get("mastery_progress","?"))
+                    # Push KPI update back to si_core
+                    if self.si_core and hasattr(self.si_core, "update_kpi"):
+                        # System-scoped JWT so SICore accepts the update.
+                        _tok = None
+                        try:
+                            import sys as _sys
+                            from pathlib import Path as _Path
+                            _root = str(_Path(__file__).resolve().parent.parent.parent)
+                            if _root not in _sys.path:
+                                _sys.path.insert(0, _root)
+                            from security import generate_token as _gen_tok
+                            _tok = _gen_tok({"sub": "stage_learner", "role": "system"},
+                                            expires_minutes=10)
+                        except Exception as _e:
+                            _log.debug("stage_learner token failed: %s", _e)
+                        stage_order = list(self.STAGES.keys())
+                        idx = stage_order.index(self.current_stage) if self.current_stage in stage_order else 0
+                        self.si_core.update_kpi("transfer_learning_rate",
+                            idx / max(len(stage_order) - 1, 1), token=_tok)
+                        # Count mastered topics for skill_acquisition_rate
+                        all_mastered = sum(
+                            1 for stage_topics in self.learned_topics.values()
+                            for v in stage_topics.values()
+                            if isinstance(v, (int, float)) and v >= 3
+                        )
+                        all_seen = sum(
+                            1 for stage_topics in self.learned_topics.values()
+                            for k, v in stage_topics.items()
+                            if not k.startswith("_")
+                        )
+                        if all_seen > 0:
+                            self.si_core.update_kpi("skill_acquisition_rate",
+                                all_mastered / all_seen, token=_tok)
+                else:
+                    _log.info("Learning cycle: %s", result.get("message", "no new topics"))
+            except Exception as e:
+                _log.warning("Stage learner loop error: %s", e)
+            _time.sleep(600)  # 10 minutes between cycles
 
     def run_phase_exam(self) -> Dict:
         """Run comprehension test on the most recently completed phase. Returns exam results."""

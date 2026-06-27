@@ -903,7 +903,7 @@ STAGE: Toddler
 MASTERY: 100% (Permanent Syllabus Topic)
 
 WHY THIS MATTERS:
-Music, film, books, lifestyle references for authentic conversation as Alex Riviera (age 28)
+Music, film, books, lifestyle references for authentic conversation as DMAI public persona (age 28)
 
 LEARNING DEPTH: working knowledge
 PRIMARY FOCUS: practical applications and examples

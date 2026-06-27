@@ -1,0 +1,17 @@
+__pycache__/
+
+# Local agent test artifacts (do NOT commit; Render persistent state lives at runtime)
+data/dmai.db
+data/dmai.db-shm
+data/dmai.db-wal
+data/trading_mastery.db
+data/trading_mastery.db-shm
+data/trading_mastery.db-wal
+data/auto_registrar_state.json
+data/tutor_configurator_state.json
+data/research/knowledge/
+data/self_healing/backups/
+data/stage_state.json
+data/dmai_knowledge.db.bak_*
+data/dmai_knowledge.db.pre_restore_*
+

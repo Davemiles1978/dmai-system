@@ -27,7 +27,7 @@ class SyntheticIntelligenceTraining:
     This is the CORE training system - evolves consciousness itself
     """
     
-    def __init__(self, data_path: Path, synthetic_network, knowledge_graph, ai_hub):
+    def __init__(self, data_path: Path, synthetic_network=None, knowledge_graph=None, ai_hub=None, si_core=None, **kwargs):
         self.data_path = data_path
         self.synthetic_network = synthetic_network
         self.knowledge_graph = knowledge_graph
@@ -466,7 +466,7 @@ Keep it concise but informative."""
 class SITrainingOrchestrator:
     """Orchestrates Synthetic Intelligence Training"""
     
-    def __init__(self, data_path: Path, synthetic_network, knowledge_graph, ai_hub):
+    def __init__(self, data_path: Path, synthetic_network=None, knowledge_graph=None, ai_hub=None, si_core=None, **kwargs):
         self.data_path = data_path
         self.training = SyntheticIntelligenceTraining(
             data_path, synthetic_network, knowledge_graph, ai_hub

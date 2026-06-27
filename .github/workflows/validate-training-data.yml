@@ -1,0 +1,306 @@
+name: DMAI — Training Data Validation Gate
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggers
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      # Only fires when JSONL training data files are touched
+      - "data/training/**/*.jsonl"
+      - "data/research/discoveries.jsonl"
+      - "data/research/insights.jsonl"
+      - "data/graph_evolution/changelog.jsonl"
+      # Also re-validate on validator script changes
+      - "aevora-training/scripts/validate_training_data.py"
+      - ".github/workflows/validate-training-data.yml"
+
+  push:
+    branches: [main]
+    paths:
+      - "data/training/**/*.jsonl"
+      - "data/research/discoveries.jsonl"
+      - "data/research/insights.jsonl"
+
+  # Allow manual trigger for a full re-validation of all datasets
+  workflow_dispatch:
+    inputs:
+      validate_all:
+        description: "Validate ALL JSONL files (not just changed ones)"
+        required: false
+        default: "false"
+      strict_mode:
+        description: "Strict mode — treat warnings as errors"
+        required: false
+        default: "false"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Permissions — needed for PR status checks and inline annotations
+# ─────────────────────────────────────────────────────────────────────────────
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  statuses: write
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Only one validation run per branch at a time
+# ─────────────────────────────────────────────────────────────────────────────
+concurrency:
+  group: training-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Jobs
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Primary validation job — the PR merge gate
+  # ───────────────────────────────────────────────────────────────────────────
+  validate:
+    name: Validate Training Data
+    runs-on: ubuntu-latest
+
+    outputs:
+      passed:        ${{ steps.run-validation.outputs.passed }}
+      total_errors:  ${{ steps.run-validation.outputs.total_errors }}
+      total_warnings:${{ steps.run-validation.outputs.total_warnings }}
+      total_entries: ${{ steps.run-validation.outputs.total_entries }}
+      files_checked: ${{ steps.run-validation.outputs.files_checked }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so git diff can compare against origin/main
+          fetch-depth: 0
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      # Validator is stdlib-only — no pip install needed.
+      # This step exists for future extension (e.g. URL reachability checks).
+      - name: Install dependencies
+        run: pip install --quiet requests 2>/dev/null || true
+
+      # ── Determine which files to validate ──────────────────────────────────
+      - name: Identify changed JSONL files
+        id: changed-files
+        run: |
+          if [ "${{ github.event.inputs.validate_all }}" = "true" ] || \
+             [ "${{ github.event_name }}" = "push" ]; then
+            echo "mode=all" >> $GITHUB_OUTPUT
+            echo "ℹ  Mode: validate ALL JSONL files"
+          else
+            echo "mode=changed" >> $GITHUB_OUTPUT
+            echo "ℹ  Mode: validate only CHANGED files in this PR"
+          fi
+
+      # ── Run the validator ──────────────────────────────────────────────────
+      - name: Run training data validation
+        id: run-validation
+        run: |
+          set +e
+
+          STRICT_FLAG=""
+          if [ "${{ github.event.inputs.strict_mode }}" = "true" ]; then
+            STRICT_FLAG="--strict"
+            echo "⚠  Strict mode enabled — warnings treated as errors"
+          fi
+
+          if [ "${{ steps.changed-files.outputs.mode }}" = "changed" ]; then
+            python3 aevora-training/scripts/validate_training_data.py \
+              --changed-only \
+              --github-annotations \
+              --json \
+              --no-color \
+              $STRICT_FLAG \
+              2>&1 | tee /tmp/validation_output.txt
+          else
+            python3 aevora-training/scripts/validate_training_data.py \
+              --github-annotations \
+              --json \
+              --no-color \
+              $STRICT_FLAG \
+              2>&1 | tee /tmp/validation_output.txt
+          fi
+
+          EXIT_CODE=${PIPESTATUS[0]}
+
+          # Parse JSON output to extract metrics for downstream steps
+          python3 - << 'PYEOF'
+          import json, os, sys
+
+          with open('/tmp/validation_output.txt') as f:
+              raw = f.read()
+
+          # JSON block starts after "JSON:" marker
+          data = {}
+          if 'JSON:' in raw:
+              try:
+                  data = json.loads(raw.split('JSON:')[-1].strip())
+              except Exception as e:
+                  print(f"⚠ Could not parse JSON output: {e}", file=sys.stderr)
+
+          passed        = str(data.get('overall', False)).lower()
+          total_errors  = str(data.get('total_errors', 0))
+          total_warnings= str(data.get('total_warnings', 0))
+          total_entries = str(data.get('total_entries', 0))
+          files_checked = str(len(data.get('files', [])))
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as gh:
+              gh.write(f"passed={passed}\n")
+              gh.write(f"total_errors={total_errors}\n")
+              gh.write(f"total_warnings={total_warnings}\n")
+              gh.write(f"total_entries={total_entries}\n")
+              gh.write(f"files_checked={files_checked}\n")
+          PYEOF
+
+          exit $EXIT_CODE
+
+      # ── Always print the full output ───────────────────────────────────────
+      - name: Print validation output
+        if: always()
+        run: cat /tmp/validation_output.txt
+
+      # ── Post inline PR comment with results ────────────────────────────────
+      - name: Post PR comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const passed        = '${{ steps.run-validation.outputs.passed }}' === 'true';
+            const totalErrors   = parseInt('${{ steps.run-validation.outputs.total_errors }}') || 0;
+            const totalWarnings = parseInt('${{ steps.run-validation.outputs.total_warnings }}') || 0;
+            const totalEntries  = parseInt('${{ steps.run-validation.outputs.total_entries }}') || 0;
+            const filesChecked  = parseInt('${{ steps.run-validation.outputs.files_checked }}') || 0;
+
+            const icon = passed ? '✅' : '❌';
+            const status = passed ? 'PASSED — safe to merge' : 'FAILED — fix errors before merging';
+
+            const rows = [
+              `| Metric | Value |`,
+              `|--------|-------|`,
+              `| Files checked | ${filesChecked} |`,
+              `| Entries validated | ${totalEntries} |`,
+              `| Errors | ${totalErrors === 0 ? '0 ✅' : totalErrors + ' ❌'} |`,
+              `| Warnings | ${totalWarnings === 0 ? '0 ✅' : totalWarnings + ' ⚠️'} |`,
+              `| Result | **${status}** |`,
+            ].join('\n');
+
+            const body = [
+              `## ${icon} DMAI Training Data Validation`,
+              ``,
+              rows,
+              ``,
+              passed
+                ? `All training data entries passed quality checks. This PR is cleared to merge.\n\nValidated: schema completeness, domain key validity, source verifiability, prompt quality, expected improvement references, description quality, and no mock/synthetic data markers.`
+                : `**Training data validation failed.** The SI model must only train on verified, high-quality data.\n\nReview the annotations on changed files for specific error locations, then fix and re-push.`,
+              ``,
+              `---`,
+              `_Validated by [\`validate_training_data.py\`](../blob/main/aevora-training/scripts/validate_training_data.py) · Run ID: \`${{ github.run_id }}\`_`,
+            ].join('\n');
+
+            // Find existing bot comment and update, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('DMAI Training Data Validation')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      # ── Fail the job if errors were found (blocks merge) ──────────────────
+      - name: Enforce gate — fail if errors found
+        if: steps.run-validation.outputs.passed == 'false'
+        run: |
+          echo "❌ Training data validation FAILED."
+          echo "   Errors: ${{ steps.run-validation.outputs.total_errors }}"
+          echo "   Warnings: ${{ steps.run-validation.outputs.total_warnings }}"
+          echo ""
+          echo "This job is a required status check."
+          echo "Merging is blocked until all errors are resolved."
+          echo ""
+          echo "Error reference:"
+          echo "  SCHEMA_*           — required fields missing or wrong type"
+          echo "  DOMAIN_INVALID     — domain must be a SICore KPI name"
+          echo "  SOURCE_INVALID     — source must be a real https:// URL or arXiv:ID"
+          echo "  PROMPT_TOO_SHORT   — training_prompt must be ≥80 chars"
+          echo "  PROMPT_DUPLICATE   — same prompt appears twice in the file"
+          echo "  PROMPT_PLACEHOLDERS— unfilled <TOKEN> or {FIELD} in prompt"
+          echo "  MOCK_DATA_DETECTED — synthetic/placeholder markers found"
+          echo "  IMPROVEMENT_*      — expected_improvement too vague or missing KPI"
+          echo "  DESCRIPTION_*      — description too short or is just the technique name"
+          exit 1
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Summary job — writes to GitHub Actions Step Summary
+  # ───────────────────────────────────────────────────────────────────────────
+  summary:
+    name: Write Summary
+    runs-on: ubuntu-latest
+    needs: validate
+    if: always()
+    steps:
+      - name: Write step summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const passed        = '${{ needs.validate.outputs.passed }}' === 'true';
+            const totalErrors   = '${{ needs.validate.outputs.total_errors }}';
+            const totalWarnings = '${{ needs.validate.outputs.total_warnings }}';
+            const totalEntries  = '${{ needs.validate.outputs.total_entries }}';
+            const filesChecked  = '${{ needs.validate.outputs.files_checked }}';
+
+            const icon = passed ? '✅' : '❌';
+
+            await core.summary
+              .addHeading(`${icon} DMAI Training Data Validation`)
+              .addTable([
+                [{data: 'Metric',             header: true},
+                 {data: 'Value',              header: true}],
+                ['Files checked',    filesChecked],
+                ['Entries checked',  totalEntries],
+                ['Errors',           totalErrors  + (totalErrors  === '0' ? ' ✅' : ' ❌')],
+                ['Warnings',         totalWarnings + (totalWarnings === '0' ? ' ✅' : ' ⚠️')],
+                ['Gate result',      passed ? '**PASS — safe to merge**' : '**FAIL — blocked**'],
+              ])
+              .addHeading('Validation Checks', 3)
+              .addList([
+                'JSON parseable — every line must be valid JSON',
+                'Schema completeness — all required fields present with correct types',
+                'Domain key validity — domain must map to a SICore KPI',
+                'Source verifiability — must be a real https:// URL or arXiv:ID',
+                'Prompt quality — ≥80 chars, no placeholders, instruction verb, no duplicates',
+                'Expected improvement — ≥20 chars, references a KPI',
+                'Description quality — ≥10 words, not just the technique name',
+                'No mock/synthetic data — no placeholder markers in any field',
+              ])
+              .write();

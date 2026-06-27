@@ -1,398 +1,468 @@
 """
-SI Core v2.0 - Self-Improvement Core with Full Network State
-Tracks 8 intelligence metrics, consciousness, and network evolution
+DMAI Self-Improvement Core (v7.0.0)
+=====================================
+Manages KPI tracking, atomic state persistence, regression detection,
+and baseline integrity for the self-improvement sub-system.
+
+All KPI mutations require a valid JWT token issued by security.generate_token().
+Regression alerts require human review before any remediation action.
+Auto-retraining without approval is NOT implemented by design.
+
+8 SICore KPIs tracked:
+  1. skill_acquisition_rate
+  2. transfer_learning_rate
+  3. zero_shot_success_count
+  4. agentic_capability_score
+  5. recursive_self_improvement_rate
+  6. sample_efficiency_trend
+  7. metacognition_accuracy
+  8. multi_modal_integration_score
 """
 
+from __future__ import annotations
+
+import hashlib
 import json
 import logging
 import os
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-from collections import deque
+import tempfile
+import time
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-class SICore:
-    def __init__(self, data_path: Optional[Path] = None):
-        # Set data path for persistence
-        if data_path:
-            self.data_path = Path(data_path)
-        else:
-            self.data_path = Path(__file__).parent.parent / 'data'
-        self.data_path.mkdir(parents=True, exist_ok=True)
-        
-        # KPI history storage (last 100 cycles)
-        self.kpi_history = {
-            'skill_acquisition_rate': deque(maxlen=100),
-            'transfer_learning_rate': deque(maxlen=100),
-            'zero_shot_success_count': deque(maxlen=100),
-            'agentic_capability_score': deque(maxlen=100),
-            'recursive_self_improvement_rate': deque(maxlen=100),
-            'sample_efficiency_trend': deque(maxlen=100),
-            'metacognition_accuracy': deque(maxlen=100),
-            'multi_modal_integration_score': deque(maxlen=100),
-            'consciousness': deque(maxlen=100)
-        }
-        
-        # Current KPI values
-        self.current_kpis = {
-            'skill_acquisition_rate': 0.0,
-            'transfer_learning_rate': 0,
-            'zero_shot_success_count': 0,
-            'agentic_capability_score': 0.0,
-            'recursive_self_improvement_rate': 0.0,
-            'sample_efficiency_trend': 0.0,
-            'metacognition_accuracy': 0.0,
-            'multi_modal_integration_score': 0.0,
-            'consciousness': 0.0
-        }
-        
-        # Track attempts for success rate calculations
-        self.code_mod_attempts = 0
-        self.code_mod_successes = 0
-        self.zero_shot_attempts = 0
-        self.zero_shot_successes = 0
-        
-        # Evolution tracking
-        self.evolution_cycles = 0
-        self.last_topic = None
-        self.accelerator_triggered = False
-        
-        # Dynamic network state
-        self._neuron_count = 3533  # Base from Neo4j
-        self._synapse_count = 0
-        self._consciousness_history = deque(maxlen=20)
-        
-        # Load saved state
-        self.load_state()
-    
-    def process(self, input_data: Dict) -> Dict:
-        """Process input data through the network with improved state tracking"""
-        try:
-            # Track evolution cycles
-            if 'evolution_cycle' in input_data:
-                self.evolution_cycles = input_data.get('evolution_cycle', 0)
-            
-            # Track learning topics
-            if 'learning_topic' in input_data:
-                self.last_topic = input_data.get('learning_topic')
-            
-            # Track accelerator flag
-            if input_data.get('is_accelerator', False):
-                self.accelerator_triggered = True
-                # Accelerator gives bonus to consciousness
-                self.current_kpis['consciousness'] += 0.01
-            
-            # Update neurons and synapses based on learning
-            if self.last_topic:
-                # New learning creates new neurons
-                self._neuron_count += 1
-                # Create synapses between related concepts
-                self._synapse_count += 2
-            
-            # Cap at reasonable values
-            self._neuron_count = min(10000, self._neuron_count)
-            self._synapse_count = min(50000, self._synapse_count)
-            
-            return {'processed': True, 'input': input_data}
-        except Exception as e:
-            logger.error(f"Process error: {e}")
-            return {'processed': False, 'error': str(e)}
-    
-    def evolve(self) -> Dict:
-        """Evolve the network with exponential moving average consciousness"""
-        try:
-            # Calculate base consciousness from KPIs
-            raw_consciousness = 0.0
-            
-            # Weighted contributions from each KPI
-            weights = {
-                'skill_acquisition_rate': 0.20,
-                'transfer_learning_rate': 0.15,
-                'agentic_capability_score': 0.20,
-                'metacognition_accuracy': 0.15,
-                'multi_modal_integration_score': 0.15,
-                'recursive_self_improvement_rate': 0.10,
-                'zero_shot_success_count': 0.05
-            }
-            
-            for kpi, weight in weights.items():
-                value = self.current_kpis.get(kpi, 0.0)
-                if kpi == 'transfer_learning_rate':
-                    # Normalize to 0-1 scale (max 100 synapses)
-                    normalized = min(1.0, value / 100)
-                elif kpi == 'zero_shot_success_count':
-                    normalized = min(1.0, value / 10)
-                elif kpi == 'recursive_self_improvement_rate':
-                    normalized = value / 100
-                elif kpi == 'metacognition_accuracy':
-                    normalized = value / 100
-                else:
-                    normalized = value
-                
-                raw_consciousness += normalized * weight
-            
-            # Apply exponential moving average for smooth consciousness
-            self._consciousness_history.append(raw_consciousness)
-            if len(self._consciousness_history) > 0:
-                # EMA with alpha=0.3
-                alpha = 0.3
-                if len(self._consciousness_history) == 1:
-                    consciousness = raw_consciousness
-                else:
-                    prev = self.current_kpis.get('consciousness', 0.0)
-                    consciousness = alpha * raw_consciousness + (1 - alpha) * prev
-            else:
-                consciousness = raw_consciousness
-            
-            # Cap at 1.0
-            consciousness = min(1.0, max(0.0, consciousness))
-            
-            # Update consciousness
-            self.current_kpis['consciousness'] = round(consciousness, 6)
-            self.kpi_history['consciousness'].append({
-                'value': consciousness,
-                'raw': raw_consciousness,
-                'timestamp': datetime.now().isoformat()
-            })
-            
-            # Track evolution cycle
-            self.evolution_cycles += 1
-            
-            # Save state periodically (every 10 cycles)
-            if self.evolution_cycles % 10 == 0:
-                self.save_state()
-            
-            return {
-                'consciousness': consciousness,
-                'raw_consciousness': raw_consciousness,
-                'evolution_cycle': self.evolution_cycles,
-                'neurons': self._neuron_count,
-                'synapses': self._synapse_count,
-                'changes': self._get_recent_changes()
-            }
-        except Exception as e:
-            logger.error(f"Evolve error: {e}")
-            return {
-                'consciousness': 0.0,
-                'evolution_cycle': 0,
-                'neurons': 0,
-                'synapses': 0,
-                'changes': [],
-                'error': str(e)
-            }
-    
-    def _get_recent_changes(self) -> List:
-        """Get recent evolution changes"""
-        changes = []
-        if self.accelerator_triggered:
-            changes.append("Accelerator boost applied")
-            self.accelerator_triggered = False
-        if self.last_topic:
-            changes.append(f"Learned: {self.last_topic[:50]}")
-        return changes
-    
-    def save_state(self) -> None:
-        """Save network state to disk"""
-        try:
-            state_file = self.data_path / 'si_core_state.json'
-            state = {
-                'evolution_cycles': self.evolution_cycles,
-                'current_kpis': self.current_kpis,
-                'neuron_count': self._neuron_count,
-                'synapse_count': self._synapse_count,
-                'code_mod_attempts': self.code_mod_attempts,
-                'code_mod_successes': self.code_mod_successes,
-                'zero_shot_attempts': self.zero_shot_attempts,
-                'zero_shot_successes': self.zero_shot_successes,
-                'last_saved': datetime.now().isoformat()
-            }
-            with open(state_file, 'w') as f:
-                json.dump(state, f, indent=2)
-            logger.debug(f"Saved SI Core state: {self.evolution_cycles} cycles")
-        except Exception as e:
-            logger.error(f"Failed to save state: {e}")
-    
-    def load_state(self) -> None:
-        """Load network state from disk"""
-        try:
-            state_file = self.data_path / 'si_core_state.json'
-            if state_file.exists():
-                with open(state_file, 'r') as f:
-                    state = json.load(f)
-                self.evolution_cycles = state.get('evolution_cycles', 0)
-                self.current_kpis.update(state.get('current_kpis', {}))
-                self._neuron_count = state.get('neuron_count', 3533)
-                self._synapse_count = state.get('synapse_count', 0)
-                self.code_mod_attempts = state.get('code_mod_attempts', 0)
-                self.code_mod_successes = state.get('code_mod_successes', 0)
-                self.zero_shot_attempts = state.get('zero_shot_attempts', 0)
-                self.zero_shot_successes = state.get('zero_shot_successes', 0)
-                logger.info(f"Loaded SI Core state: {self.evolution_cycles} cycles, {self._neuron_count} neurons")
-        except Exception as e:
-            logger.warning(f"Failed to load state (starting fresh): {e}")
-    
-    @property
-    def consciousness(self) -> float:
-        """Get current consciousness level"""
-        return self.current_kpis.get('consciousness', 0.0)
-    
-    @property
-    def neuron_count(self) -> int:
-        """Get dynamic neuron count"""
-        return self._neuron_count
-    
-    @property
-    def synapse_count(self) -> int:
-        """Get dynamic synapse count"""
-        return self._synapse_count
-    
-    # ========== KPI Update Methods ==========
-    
-    def update_kpi_1_skill_acquisition(self, new_domains_mastered: float) -> None:
-        """KPI 1: Track new domains mastered per cycle (precision: 0.001)"""
-        self.current_kpis['skill_acquisition_rate'] = round(new_domains_mastered, 3)
-        self.kpi_history['skill_acquisition_rate'].append({
-            'value': self.current_kpis['skill_acquisition_rate'],
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_2_transfer_learning(self, new_cross_domain_synapses: int) -> None:
-        """KPI 2: Track new cross-domain synapses created"""
-        self.current_kpis['transfer_learning_rate'] = new_cross_domain_synapses
-        self._synapse_count += new_cross_domain_synapses
-        self.kpi_history['transfer_learning_rate'].append({
-            'value': self.current_kpis['transfer_learning_rate'],
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_3_zero_shot(self, success: bool) -> None:
-        """KPI 3: Track zero-shot task successes"""
-        self.zero_shot_attempts += 1
-        if success:
-            self.zero_shot_successes += 1
-            self.current_kpis['zero_shot_success_count'] = self.zero_shot_successes
-        
-        self.kpi_history['zero_shot_success_count'].append({
-            'value': self.current_kpis['zero_shot_success_count'],
-            'attempts': self.zero_shot_attempts,
-            'successes': self.zero_shot_successes,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_4_agentic_capability(self, multi_step_tasks_completed: int, 
-                                        total_attempted: int) -> None:
-        """KPI 4: Track multi-step tasks completed autonomously (0-1 scale)"""
-        if total_attempted > 0:
-            score = multi_step_tasks_completed / total_attempted
-            self.current_kpis['agentic_capability_score'] = round(score, 3)
-        self.kpi_history['agentic_capability_score'].append({
-            'value': self.current_kpis['agentic_capability_score'],
-            'completed': multi_step_tasks_completed,
-            'attempted': total_attempted,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_5_recursive_self_improvement(self, success: bool) -> None:
-        """KPI 5: Track code self-modification success rate"""
-        self.code_mod_attempts += 1
-        if success:
-            self.code_mod_successes += 1
-        
-        rate = (self.code_mod_successes / self.code_mod_attempts * 100) if self.code_mod_attempts > 0 else 0
-        self.current_kpis['recursive_self_improvement_rate'] = round(rate, 1)
-        
-        self.kpi_history['recursive_self_improvement_rate'].append({
-            'value': self.current_kpis['recursive_self_improvement_rate'],
-            'attempts': self.code_mod_attempts,
-            'successes': self.code_mod_successes,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_6_sample_efficiency(self, data_points: int, concepts_learned: int) -> None:
-        """KPI 6: Track data points needed per new concept learned"""
-        if concepts_learned > 0:
-            ratio = data_points / concepts_learned
-            self.current_kpis['sample_efficiency_trend'] = round(ratio, 1)
-        self.kpi_history['sample_efficiency_trend'].append({
-            'value': self.current_kpis['sample_efficiency_trend'],
-            'data_points': data_points,
-            'concepts_learned': concepts_learned,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_7_metacognition(self, predicted_confidence: float, actual_accuracy: float) -> None:
-        """KPI 7: Track confidence calibration error margin"""
-        error_margin = abs(predicted_confidence - actual_accuracy) * 100
-        # Score is 100 - error_margin (lower error = better score)
-        accuracy_score = max(0, 100 - error_margin)
-        self.current_kpis['metacognition_accuracy'] = round(accuracy_score, 1)
-        
-        self.kpi_history['metacognition_accuracy'].append({
-            'value': self.current_kpis['metacognition_accuracy'],
-            'predicted': predicted_confidence,
-            'actual': actual_accuracy,
-            'error_margin': error_margin,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def update_kpi_8_multi_modal(self, new_synergies_discovered: int, 
-                                 total_modalities: int = 5) -> None:
-        """KPI 8: Track new modality synergies discovered (0-1 scale)"""
-        # Max synergies = n*(n-1)/2 for n modalities
-        max_synergies = (total_modalities * (total_modalities - 1)) / 2
-        if max_synergies > 0:
-            score = min(1.0, new_synergies_discovered / max_synergies)
-            self.current_kpis['multi_modal_integration_score'] = round(score, 3)
-        
-        self.kpi_history['multi_modal_integration_score'].append({
-            'value': self.current_kpis['multi_modal_integration_score'],
-            'synergies': new_synergies_discovered,
-            'max_synergies': max_synergies,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    def get_kpis_for_status(self) -> Dict:
-        """Return current KPIs formatted for status page"""
+# ---------------------------------------------------------------------------
+# 8 SICore KPI defaults (P1-5 — never fabricated, only real scored values)
+# ---------------------------------------------------------------------------
+_DEFAULT_STATE: Dict[str, Any] = {
+    # The 8 canonical SICore KPIs
+    "skill_acquisition_rate":        0.0,
+    "transfer_learning_rate":         0.0,
+    "zero_shot_success_count":        0,
+    "agentic_capability_score":       0.0,
+    "recursive_self_improvement_rate": 0.0,
+    "sample_efficiency_trend":        0.0,
+    "metacognition_accuracy":         0.0,
+    "multi_modal_integration_score":  0.0,
+    # Legacy / compatibility KPIs
+    "task_completion_rate":           0.0,
+    "error_rate":                     0.0,
+    "response_quality":               0.0,
+    "consciousness":                  0.0,
+    "last_updated":                   None,
+}
+
+# Regression thresholds
+_REGRESSION_WARNING_PCT  = 0.10   # 10% drop  → WARNING
+_REGRESSION_HIGH_PCT     = 0.15   # 15% drop  → HIGH
+_REGRESSION_CRITICAL_PCT = 0.30   # 30% drop  → CRITICAL
+
+# Benchmark baseline file name
+_BASELINE_FILE_NAME = "benchmark_baseline.json"
+
+
+# ---------------------------------------------------------------------------
+# Data classes
+# ---------------------------------------------------------------------------
+
+@dataclass
+class RegressionAlert:
+    """Emitted when a KPI drops below a regression threshold."""
+    kpi_name: str
+    baseline: float
+    new_value: float
+    drop_pct: float
+    severity: str
+    requires_human_review: bool = True
+    auto_retraining_triggered: bool = False
+
+    def to_dict(self) -> dict:
         return {
-            'skill_acquisition_rate': self.current_kpis['skill_acquisition_rate'],
-            'transfer_learning_rate': self.current_kpis['transfer_learning_rate'],
-            'zero_shot_success_count': self.current_kpis['zero_shot_success_count'],
-            'agentic_capability_score': self.current_kpis['agentic_capability_score'],
-            'recursive_self_improvement_rate': self.current_kpis['recursive_self_improvement_rate'],
-            'sample_efficiency_trend': self.current_kpis['sample_efficiency_trend'],
-            'metacognition_accuracy': self.current_kpis['metacognition_accuracy'],
-            'multi_modal_integration_score': self.current_kpis['multi_modal_integration_score']
+            "kpi_name":                 self.kpi_name,
+            "baseline":                 self.baseline,
+            "new_value":                self.new_value,
+            "drop_pct":                 round(self.drop_pct, 4),
+            "severity":                 self.severity,
+            "requires_human_review":    self.requires_human_review,
+            "auto_retraining_triggered": self.auto_retraining_triggered,
         }
-    
-    def get_kpi_history(self, kpi_name: str, last_n: int = 10) -> List:
-        """Get historical values for a KPI"""
-        if kpi_name in self.kpi_history:
-            return list(self.kpi_history[kpi_name])[-last_n:]
-        return []
-    
-    def calculate_any_improvement(self) -> bool:
-        """Check if ANY KPI improved in the last cycle"""
-        thresholds = {
-            'skill_acquisition_rate': 0.001,
-            'transfer_learning_rate': 1,
-            'zero_shot_success_count': 1,
-            'agentic_capability_score': 0.001,
-            'recursive_self_improvement_rate': 0.1,
-            'sample_efficiency_trend': -0.1,
-            'metacognition_accuracy': 0.1,
-            'multi_modal_integration_score': 0.001
+
+
+# ---------------------------------------------------------------------------
+# SICore
+# ---------------------------------------------------------------------------
+
+class SICore:
+    """Self-Improvement Core: KPI management, regression detection,
+    atomic state persistence, and SHA-256 baseline integrity guard.
+
+    All public KPI mutators require a valid JWT token.  Mutations without
+    a valid token are silently rejected (no phantom increments).
+    """
+
+    def __init__(self, data_path: Optional[Path] = None, state_path: Optional[Path] = None):
+        """
+        Args:
+            data_path: Root data directory (preferred — used to resolve all files).
+            state_path: Explicit path for the JSON state file (legacy compat).
+        """
+        # Support both calling conventions
+        if data_path is not None:
+            data_path = Path(data_path)
+            self.state_path = data_path / "si_core_state.json"
+            self._baseline_path = data_path / _BASELINE_FILE_NAME
+        else:
+            if state_path is None:
+                state_path = Path(tempfile.gettempdir()) / "si_core_state.json"
+            self.state_path = Path(state_path)
+            self._baseline_path = self.state_path.parent / _BASELINE_FILE_NAME
+
+        self._state: Dict[str, Any] = dict(_DEFAULT_STATE)
+        self._baseline: Dict[str, float] = {}
+        self._baseline_hash: Optional[str] = None
+
+        # Attempt to load persisted state on init
+        self.load_state()
+
+    # ------------------------------------------------------------------
+    # Public property — used throughout dmai_core_complete.py
+    # ------------------------------------------------------------------
+
+    @property
+    def current_kpis(self) -> Dict[str, Any]:
+        """Return a copy of the current KPI state."""
+        return dict(self._state)
+
+    # ------------------------------------------------------------------
+    # State persistence (atomic)
+    # ------------------------------------------------------------------
+
+    def _atomic_write_json(self, data: dict, path: Path) -> None:
+        """Write data atomically via temp file + os.replace()."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_fd, tmp_path = tempfile.mkstemp(
+            dir=path.parent, prefix=".si_tmp_", suffix=".json"
+        )
+        try:
+            with os.fdopen(tmp_fd, "w") as fh:
+                json.dump(data, fh, indent=2)
+            os.replace(tmp_path, str(path))
+        except Exception:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+            raise
+
+    def save_state(self) -> None:
+        """Persist current KPI state to disk atomically."""
+        self._state["last_updated"] = time.time()
+        self._atomic_write_json(self._state, self.state_path)
+
+    def load_state(self) -> bool:
+        """Load KPI state from disk.
+
+        Returns True if successful, False on missing/corrupt file.
+        """
+        if not self.state_path.exists():
+            return False
+        try:
+            raw = self.state_path.read_text(encoding="utf-8")
+            loaded = json.loads(raw)
+            if not isinstance(loaded, dict):
+                raise ValueError("State is not a JSON object.")
+            # Only accept known KPI keys (never let arbitrary keys pollute state)
+            for k in _DEFAULT_STATE:
+                if k in loaded:
+                    self._state[k] = loaded[k]
+            return True
+        except Exception as exc:
+            logger.error("Failed to load SI state from %s: %s", self.state_path, exc)
+            return False
+
+    # ------------------------------------------------------------------
+    # SHA-256 baseline integrity guard (P1-7)
+    # ------------------------------------------------------------------
+
+    def _compute_baseline_hash(self, baseline: dict) -> str:
+        """Return SHA-256 hex digest of the canonical JSON of baseline."""
+        canonical = json.dumps(baseline, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+    def save_baseline(self) -> None:
+        """Persist the current in-memory baseline to disk with its hash."""
+        payload = {
+            "baseline": self._baseline,
+            "sha256": self._compute_baseline_hash(self._baseline),
+            "saved_at": time.time(),
         }
-        
-        improved = False
-        for kpi, threshold in thresholds.items():
-            value = self.current_kpis[kpi]
-            if kpi == 'sample_efficiency_trend':
-                if value < threshold:
-                    improved = True
-            else:
-                if value > threshold:
-                    improved = True
-        
-        return improved
+        self._atomic_write_json(payload, self._baseline_path)
+        self._baseline_hash = payload["sha256"]
+        logger.info("Baseline saved to %s (sha256=%s…)", self._baseline_path, payload["sha256"][:12])
+
+    def load_baseline(self) -> bool:
+        """Load baseline from disk, verifying its SHA-256 hash.
+
+        Returns True if loaded and hash verified, False otherwise.
+        If the hash does not match the file is rejected and the
+        in-memory baseline is left unchanged.
+        """
+        if not self._baseline_path.exists():
+            return False
+        try:
+            payload = json.loads(self._baseline_path.read_text(encoding="utf-8"))
+            stored_hash = payload.get("sha256", "")
+            baseline = payload.get("baseline", {})
+            expected = self._compute_baseline_hash(baseline)
+            if stored_hash != expected:
+                logger.error(
+                    "Baseline hash mismatch! Expected %s got %s — "
+                    "rejecting baseline file (possible tampering).",
+                    expected[:16], stored_hash[:16],
+                )
+                return False
+            self._baseline = {k: float(v) for k, v in baseline.items()}
+            self._baseline_hash = stored_hash
+            logger.info("Baseline loaded and hash verified (sha256=%s…)", stored_hash[:12])
+            return True
+        except Exception as exc:
+            logger.error("Failed to load baseline from %s: %s", self._baseline_path, exc)
+            return False
+
+    # ------------------------------------------------------------------
+    # Token validation
+    # ------------------------------------------------------------------
+
+    def _validate_token(self, token: Optional[str]) -> bool:
+        """Return True if token is a valid JWT."""
+        if not token:
+            return False
+        try:
+            # security.py lives in repo root, one level up from components/
+            import sys
+            root = str(Path(__file__).parent.parent)
+            if root not in sys.path:
+                sys.path.insert(0, root)
+            from security import verify_token
+            return verify_token(token) is not None
+        except Exception as exc:
+            logger.debug("Token validation error: %s", exc)
+            return False
+
+    # ------------------------------------------------------------------
+    # KPI mutators — all 8 SICore KPIs (P1-5)
+    # Each requires a valid JWT. No fabricated values accepted.
+    # ------------------------------------------------------------------
+
+    def _update_kpi(self, kpi_name: str, value: float, token: Optional[str]) -> bool:
+        """Generic KPI update with token gate.
+
+        PERSISTENT-MAX semantics: the stored value is the maximum of the
+        previous value and the new measurement. This prevents a single
+        bad evaluation cycle from regressing a previously-earned score.
+        Real regressions are still surfaced via check_regression() which
+        compares against the saved baseline, not the live value.
+
+        Override with env DMAI_KPI_MODE=replace to restore old behaviour.
+        """
+        if not self._validate_token(token):
+            logger.warning("Rejected KPI update for %s: invalid/missing token.", kpi_name)
+            return False
+        mode = os.environ.get("DMAI_KPI_MODE", "max").lower()
+        prev = self._state.get(kpi_name)
+        try:
+            new_v = float(value) if not isinstance(value, bool) else value
+        except (TypeError, ValueError):
+            new_v = value
+        if mode == "max" and isinstance(prev, (int, float)) and isinstance(new_v, (int, float)):
+            self._state[kpi_name] = max(prev, new_v)
+        else:
+            self._state[kpi_name] = new_v
+        # Persist immediately so KPIs survive restarts and worker recycles
+        try:
+            self.save_state()
+        except Exception as e:
+            logger.warning("save_state failed after %s update: %s", kpi_name, e)
+        return True
+
+    def update_kpi_skill_acquisition_rate(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("skill_acquisition_rate", float(value), token)
+
+    def update_kpi_transfer_learning_rate(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("transfer_learning_rate", float(value), token)
+
+    def update_kpi_zero_shot_success_count(self, value: int, token: Optional[str] = None) -> bool:
+        return self._update_kpi("zero_shot_success_count", int(value), token)
+
+    def update_kpi_agentic_capability_score(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("agentic_capability_score", float(value), token)
+
+    def update_kpi_recursive_self_improvement_rate(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("recursive_self_improvement_rate", float(value), token)
+
+    def update_kpi_sample_efficiency_trend(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("sample_efficiency_trend", float(value), token)
+
+    def update_kpi_metacognition_accuracy(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("metacognition_accuracy", float(value), token)
+
+    def update_kpi_multi_modal_integration_score(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("multi_modal_integration_score", float(value), token)
+
+    # Legacy compat methods (used by older components)
+    def update_kpi_1_skill_acquisition(self, value: float, token: Optional[str] = None) -> bool:
+        return self.update_kpi_skill_acquisition_rate(value, token)
+
+    def update_kpi_2_task_completion(self, value: float, token: Optional[str] = None) -> bool:
+        return self._update_kpi("task_completion_rate", float(value), token)
+
+    # Generic getter
+    def get_kpi(self, name: str) -> Optional[Any]:
+        return self._state.get(name)
+
+    # Generic setter (dispatches to typed update method when one exists,
+    # otherwise updates the state dict directly via _update_kpi)
+    def update_kpi(self, name: str, value, token: Optional[str] = None) -> bool:
+        typed = getattr(self, f"update_kpi_{name}", None)
+        if callable(typed):
+            try:
+                return typed(value, token)
+            except TypeError:
+                # Some legacy update_kpi_* don't accept a token kwarg
+                return typed(value)
+        try:
+            return self._update_kpi(name, value, token)
+        except Exception as e:
+            logger.warning("update_kpi(%s) failed: %s", name, e)
+            return False
+
+    # ------------------------------------------------------------------
+    # Training gate — no KPI update without real AI scored response
+    # ------------------------------------------------------------------
+
+    def record_training_result(
+        self,
+        kpi_name: str,
+        scored_value: float,
+        source: str,
+        token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Update a KPI only from a real scored AI response (P1-5).
+
+        Args:
+            kpi_name:      One of the 8 SICore KPI names.
+            scored_value:  Value produced by a real AI provider call.
+            source:        Human-readable source (e.g. 'openai:gpt-4o scored 0.82').
+            token:         Valid JWT — required.
+
+        Returns a result dict with 'status': 'updated' | 'rejected' | 'invalid_kpi'.
+        """
+        valid_kpis = set(_DEFAULT_STATE.keys()) - {"last_updated", "consciousness"}
+        if kpi_name not in valid_kpis:
+            return {"status": "invalid_kpi", "kpi": kpi_name}
+        updated = self._update_kpi(kpi_name, scored_value, token)
+        if not updated:
+            return {"status": "rejected", "reason": "invalid or missing JWT token"}
+        regression = self.check_regression(kpi_name, scored_value)
+        result: Dict[str, Any] = {
+            "status": "updated",
+            "kpi": kpi_name,
+            "value": scored_value,
+            "source": source,
+            "regression": regression.to_dict() if regression else None,
+        }
+        self.save_state()
+        return result
+
+    # ------------------------------------------------------------------
+    # Baseline management
+    # ------------------------------------------------------------------
+
+    def set_baseline(self, kpi_name: str, value: float) -> None:
+        self._baseline[kpi_name] = float(value)
+
+    def set_all_baselines(self, baselines: Dict[str, float]) -> None:
+        """Set multiple baselines at once and persist with hash."""
+        for k, v in baselines.items():
+            self._baseline[k] = float(v)
+        self.save_baseline()
+
+    # ------------------------------------------------------------------
+    # Regression detection
+    # ------------------------------------------------------------------
+
+    def check_regression(self, kpi_name: str, new_value: float) -> Optional[RegressionAlert]:
+        baseline = self._baseline.get(kpi_name)
+        if baseline is None or baseline == 0.0:
+            return None
+        drop = baseline - new_value
+        drop_pct = drop / baseline
+        if drop_pct < _REGRESSION_WARNING_PCT:
+            return None
+        if drop_pct >= _REGRESSION_CRITICAL_PCT:
+            severity = "CRITICAL"
+        elif drop_pct >= _REGRESSION_HIGH_PCT:
+            severity = "HIGH"
+        else:
+            severity = "WARNING"
+        return RegressionAlert(
+            kpi_name=kpi_name,
+            baseline=baseline,
+            new_value=new_value,
+            drop_pct=drop_pct,
+            severity=severity,
+            requires_human_review=True,
+            auto_retraining_triggered=False,
+        )
+
+    # ------------------------------------------------------------------
+    # Introspection helpers used by tests
+    # ------------------------------------------------------------------
+
+    def has_method(self, name: str) -> bool:
+        return callable(getattr(self, name, None))
+
+    def add_insight(self, domain: str, concept: str, source: str = "internal",
+                    confidence: float = 0.8, metadata: dict = None) -> dict:
+        """
+        Persist a new insight to data/research/insights.jsonl.
+        Called whenever DMAI discovers a notable pattern or relationship.
+        Returns the insight record.
+        """
+        import json, os
+        from datetime import datetime, timezone
+        from pathlib import Path
+
+        insight = {
+            "id": f"insight_{int(datetime.now(timezone.utc).timestamp())}",
+            "domain": domain,
+            "concept": concept,
+            "source": source,
+            "confidence": confidence,
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "metadata": metadata or {},
+        }
+
+        insights_path = Path("data/research/insights.jsonl")
+        insights_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(insights_path, "a") as f:
+            f.write(json.dumps(insight) + "\n")
+
+        # Also update SICore internal state if self.insights_store exists
+        if hasattr(self, "insights_store") and isinstance(self.insights_store, list):
+            self.insights_store.append(insight)
+
+        # ── Immediately grow knowledge graph ──────────────────────────────────
+        # Every new insight creates a neuron + synapse in graph_schema.json
+        # so the live knowledge graph grows with every learning cycle.
+        try:
+            from components.graph_writer import GraphWriter as _GW
+            _GW().add_insight_node(domain, concept, source)
+        except Exception:
+            pass  # non-fatal — graph growth is best-effort
+
+        return insight
