@@ -6134,7 +6134,22 @@ class DMAIApplication:
         self.base_path = Path(__file__).parent
         self.data_path = self.base_path / 'data'
         self.data_path.mkdir(exist_ok=True)
-        self.evolution = UnifiedEvolutionEngine(self.base_path)
+        try:
+            self.evolution = UnifiedEvolutionEngine(self.base_path)
+        except Exception as _ue:
+            import traceback
+            logging.error(f'UnifiedEvolutionEngine failed to init: {_ue}')
+            logging.error(traceback.format_exc())
+            # Create minimal stub so Flask app can still bind and serve an error page
+            class _MinimalEvolution:
+                def __init__(self): 
+                    self.context_limit = 50
+                    self.neo4j_storage = None
+                    self.integration_engine = None
+                    self.gdrive_scanner = None
+                    self.github_starred_scanner = None
+                def _start_evolution(self): pass
+            self.evolution = _MinimalEvolution()
         self.evolution.parent = self  # Add parent reference for command routing
         self.app = Flask(__name__, template_folder=self.base_path / 'templates')
         self.app.secret_key = os.urandom(32).hex()
