@@ -35,12 +35,36 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 from enum import Enum
-from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
-from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
-from components.integration.google_drive_scanner import GoogleDriveScanner
-from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
-from components.integration.github_starred_scanner import GitHubStarredScanner
-from components.capability_integrator import CapabilityIntegrator
+try:
+    from components.autonomous_ingestor import AutonomousDeveloper as AutonomousIngestor
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    AutonomousIngestor = None
+try:
+    from components.integration.repo_integration_engine import RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    RepoIntegrationEngine, DEFAULT_INTEGRATION_QUEUE = None, None
+try:
+    from components.integration.google_drive_scanner import GoogleDriveScanner
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    GoogleDriveScanner = None
+try:
+    from components.integration.ai_tutor_auto_configurator import AITutorAutoConfigurator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    AITutorAutoConfigurator = None
+try:
+    from components.integration.github_starred_scanner import GitHubStarredScanner
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    GitHubStarredScanner = None
+try:
+    from components.capability_integrator import CapabilityIntegrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    CapabilityIntegrator = None
 import uuid
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -53,39 +77,81 @@ from flask_cors import CORS
 # PHASE 6 IMPORTS - REAL SYNTHETIC INTELLIGENCE CORE
 # ============================================================================
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'components'))
-from phase6.P6_AdvancedIntelligence import (
-    SyntheticNeuron as RealSyntheticNeuron,
-    SyntheticNeuralNetwork as RealSyntheticNeuralNetwork,
-    PatternSynthesis,
-    KnowledgeGraph as RealKnowledgeGraph,
-    ThreatIntelligence,
-    DarkWebIntel,
-    SelfImprovementLoop,
-    AIModelFusion,
-    RecursiveSelfImprover,
-    UnbreakableMasterInterface,
-    Phase6Manager
-)
+try:
+    from phase6.P6_AdvancedIntelligence import (
+        SyntheticNeuron as RealSyntheticNeuron,
+        SyntheticNeuralNetwork as RealSyntheticNeuralNetwork,
+        PatternSynthesis,
+        KnowledgeGraph as RealKnowledgeGraph,
+        ThreatIntelligence,
+        DarkWebIntel,
+        SelfImprovementLoop,
+        AIModelFusion,
+        RecursiveSelfImprover,
+        UnbreakableMasterInterface,
+        Phase6Manager
+    )
+except Exception as e:
+    logging.warning(f"Phase 6 import failed (non-fatal): {e}")
+    # Stub classes so rest of app starts
+    class _Stub:
+        def __init__(self, *a, **kw): pass
+    RealSyntheticNeuron = RealSyntheticNeuralNetwork = PatternSynthesis = _Stub
+    RealKnowledgeGraph = ThreatIntelligence = DarkWebIntel = _Stub
+    SelfImprovementLoop = AIModelFusion = RecursiveSelfImprover = _Stub
+    UnbreakableMasterInterface = Phase6Manager = _Stub
 
 # ============================================================================
 # PHASE 11 IMPORTS - AI TUTOR NETWORK
 # ============================================================================
-from components.phase11.AIIntegrationHub import AIIntegrationHub
-from components.phase11.CapabilitySynthesizer import CapabilitySynthesizer
-from components.phase11.LearningOrchestrator import LearningOrchestrator
-from components.phase11.DynamicAIDiscovery import DynamicAIDiscovery
-from components.phase11.TutorManager import TutorManager
-from components.phase11.IntelligenceBridge import IntelligenceBridge
+try:
+    from components.phase11.AIIntegrationHub import AIIntegrationHub
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    AIIntegrationHub = None
+try:
+    from components.phase11.CapabilitySynthesizer import CapabilitySynthesizer
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    CapabilitySynthesizer = None
+try:
+    from components.phase11.LearningOrchestrator import LearningOrchestrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    LearningOrchestrator = None
+try:
+    from components.phase11.DynamicAIDiscovery import DynamicAIDiscovery
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    DynamicAIDiscovery = None
+try:
+    from components.phase11.TutorManager import TutorManager
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    TutorManager = None
+try:
+    from components.phase11.IntelligenceBridge import IntelligenceBridge
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    IntelligenceBridge = None
 
 # ============================================================================
 # KNOWLEDGE SOURCES IMPORTS
 # ============================================================================
-from components.knowledge_sources.CoreKnowledgeSources import CoreKnowledgeSources
+try:
+    from components.knowledge_sources.CoreKnowledgeSources import CoreKnowledgeSources
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    CoreKnowledgeSources = None
 
 # ============================================================================
 # API HARVESTER IMPORTS
 # ============================================================================
-from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHarvester
+try:
+    from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHarvester
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    RealAPIHarvester = None
 
 # ============================================================================
 # NEO4J PERSISTENT STORAGE
@@ -95,39 +161,87 @@ from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHar
 # ============================================================================
 # ADAPTIVE EVOLUTION TIMER IMPORTS
 # ============================================================================
-from components.evolution_timer import AdaptiveEvolutionTimer
-from components.growth_watcher import GrowthWatcher
+try:
+    from components.evolution_timer import AdaptiveEvolutionTimer
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    AdaptiveEvolutionTimer = None
+try:
+    from components.growth_watcher import GrowthWatcher
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    GrowthWatcher = None
 
 # ============================================================================
 # REVERSE ENGINEERING MODULE IMPORTS
 # ============================================================================
-from components.reverse_engineering.ReverseEngineer import ReverseEngineeringOrchestrator
+try:
+    from components.reverse_engineering.ReverseEngineer import ReverseEngineeringOrchestrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    ReverseEngineeringOrchestrator = None
 
 # ============================================================================
 # COMPREHENSIVE TRAINING SYSTEM IMPORTS
 # ============================================================================
 
 # Software Training
-from components.software_training.ComprehensiveSoftwareTraining import ComprehensiveSoftwareTraining
+try:
+    from components.software_training.ComprehensiveSoftwareTraining import ComprehensiveSoftwareTraining
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    ComprehensiveSoftwareTraining = None
 
 # LLM Training
-from components.llm_training.ComprehensiveLLMTraining import ComprehensiveLLMTraining
+try:
+    from components.llm_training.ComprehensiveLLMTraining import ComprehensiveLLMTraining
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    ComprehensiveLLMTraining = None
 
 # AGI Training
-from components.training.ComprehensiveAGITraining import ComprehensiveAGITraining
+try:
+    from components.training.ComprehensiveAGITraining import ComprehensiveAGITraining
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    ComprehensiveAGITraining = None
 
 # Generative AI Training
-from components.genai_training.ComprehensiveGenAITraining import ComprehensiveGenAITraining
+try:
+    from components.genai_training.ComprehensiveGenAITraining import ComprehensiveGenAITraining
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    ComprehensiveGenAITraining = None
 
 # Synthetic Intelligence Training
-from components.si_training.SyntheticIntelligenceTraining import SITrainingOrchestrator
-from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
+try:
+    from components.si_training.SyntheticIntelligenceTraining import SITrainingOrchestrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    SITrainingOrchestrator = None
+try:
+    from components.evolution_training.EvolutionTrainingSystem import EvolutionTrainingSystem
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    EvolutionTrainingSystem = None
 
 # Self-Funding Training (PHASE 1: Knowledge Acquisition - NO TRADING)
-from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator as FundingOrchestrator
+try:
+    from components.funding.SelfFundingOrchestrator import SelfFundingOrchestrator as FundingOrchestrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    FundingOrchestrator = None
 # from components.voice.VoiceIntegration import VoiceIntegration
-from components.avatar_generator import AvatarGenerator
-from components.uncensored_video_research import UncensoredVideoResearcher
+try:
+    from components.avatar_generator import AvatarGenerator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    AvatarGenerator = None
+try:
+    from components.uncensored_video_research import UncensoredVideoResearcher
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    UncensoredVideoResearcher = None
 
 # RESEARCH TARGETS - High-value knowledge domains
 RESEARCH_TARGETS = {
@@ -157,10 +271,18 @@ RESEARCH_TARGETS = {
         'sources': ['telomere_research', 'cellular_biology', 'regenerative_medicine', 'stem_cell_journals']
     }
 }
-from components.unified_learning_orchestrator import UnifiedLearningOrchestrator
+try:
+    from components.unified_learning_orchestrator import UnifiedLearningOrchestrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    UnifiedLearningOrchestrator = None
 
 # Stage Aware Learning Orchestrator
-from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
+try:
+    from components.evolution.StageAwareLearningOrchestrator import StageAwareLearningOrchestrator
+except Exception as _e:
+    logging.warning(f'Import failed (non-fatal): {_e}')
+    StageAwareLearningOrchestrator = None
 
 # ============================================================================
 # AUTONOMOUS ACCOUNT CREATOR (Optional - requires playwright)
