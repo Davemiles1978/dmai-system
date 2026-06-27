@@ -90,7 +90,7 @@ from components.phase0.P0T4_Enhance_API_harvester_with_sources import RealAPIHar
 # ============================================================================
 # NEO4J PERSISTENT STORAGE
 # ============================================================================
-from components.neo4j_storage import get_neo4j_storage
+# neo4j removed — not used on Render
 
 # ============================================================================
 # ADAPTIVE EVOLUTION TIMER IMPORTS
@@ -434,7 +434,7 @@ class SyntheticIntelligenceCore:
                 logger.warning(f"Schema migration failed (continuing): {e}")
         
         # PERMANENT FIX: Sync with Neo4j on every startup to ensure all insights are loaded
-        self._sync_with_neo4j()
+        # self._sync_with_neo4j()  # neo4j removed
     
     def _sync_with_neo4j(self):
         """Synchronize with Neo4j database on startup - ensures all 3588 insights are loaded"""
@@ -3067,7 +3067,7 @@ class UnifiedEvolutionEngine:
 
         # NEO4J PERSISTENT STORAGE
         logger.info("☁️ Initializing Neo4j persistent storage...")
-        self.neo4j_storage = get_neo4j_storage()
+        # self.neo4j_storage = get_neo4j_storage()  # neo4j removed
 
         # ADAPTIVE EVOLUTION TIMER
         logger.info("⏱️ Initializing Adaptive Evolution Timer...")
@@ -3376,10 +3376,10 @@ class UnifiedEvolutionEngine:
         self._restore_conversation_context()
 
         # Restore from Neo4j
-        self._restore_from_neo4j()
+        # self._restore_from_neo4j()
 
         # Load insights from Neo4j into SI Core
-        self._load_insights_from_neo4j()
+        # self._load_insights_from_neo4j()
 
         # Start systems
         self._start_active_systems()

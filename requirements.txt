@@ -23,7 +23,6 @@ networkx>=3.0
 
 # Database
 psycopg2-binary>=2.9.0
-neo4j==5.28.3
 
 # AI APIs (core)
 openai>=1.0.0
