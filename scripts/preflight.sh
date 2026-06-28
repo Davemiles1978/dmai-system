@@ -20,6 +20,20 @@ set -uo pipefail
 REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 cd "$REPO_ROOT"
 
+# Auto-activate local venv if it exists and no venv is currently active.
+# Render runs in its own env with all deps installed; locally we need the venv
+# for runtime imports (flask_cors, etc.) to be available during check B.
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+    for VENV_PATH in /tmp/dmai_venv .venv venv; do
+        if [[ -f "$VENV_PATH/bin/activate" ]]; then
+            # shellcheck disable=SC1090,SC1091
+            source "$VENV_PATH/bin/activate"
+            echo "[info] activated venv at $VENV_PATH"
+            break
+        fi
+    done
+fi
+
 PY="${PYTHON:-python3}"
 FAILED=0
 START_TS=$(date +%s)

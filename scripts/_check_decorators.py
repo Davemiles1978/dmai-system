@@ -99,6 +99,10 @@ def head_is_ok(head: str, defined: set[str]) -> bool:
             return True
     # Take the leftmost segment — that's the symbol that must resolve in the module
     root = head.split(".")[0]
+    # `self`/`cls` decorators are bound-method calls evaluated at runtime inside
+    # a method body, not at module import. They never cause boot crashes — skip.
+    if root in ("self", "cls"):
+        return True
     if root in defined:
         return True
     # Allow module-level references like 'os.path.join' if 'os' is imported
