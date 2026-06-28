@@ -62,6 +62,27 @@ TIERS: Dict[str, Dict[str, float]] = {
 TIER_ORDER = ["conservative", "moderate", "aggressive"]
 
 
+def _bytes_to_str(v):
+    """Decode bytes -> str so jsonify() doesn't TypeError on legacy DB rows."""
+    if isinstance(v, bytes):
+        try:
+            return v.decode("utf-8", errors="replace")
+        except Exception:
+            return v.decode("latin-1", errors="replace")
+    return v
+
+
+def _row_safe(row):
+    """Convert a sqlite3.Row to a JSON-safe dict, decoding bytes values."""
+    if row is None:
+        return None
+    try:
+        d = dict(row)
+    except Exception:
+        return row
+    return {k: _bytes_to_str(v) for k, v in d.items()}
+
+
 def _norm_tier(value, default: str = "conservative") -> str:
     """Coerce a tier value to a known string key.
 
@@ -347,24 +368,25 @@ class AutonomousTrader:
                 "SELECT ts, symbol, side, qty, confidence, ev, tier, live "
                 "FROM at_trades ORDER BY id DESC LIMIT 20"
             ).fetchall()
-        tier = _norm_tier(s["tier"]) if s else "conservative"
+        s_safe = _row_safe(s)
+        tier = _norm_tier(s_safe.get("tier")) if s_safe else "conservative"
         return {
-            "enabled":          bool(s["enabled"]) if s else False,
+            "enabled":          bool(s_safe.get("enabled")) if s_safe else False,
             "tier":             tier,
             "tier_caps":        TIERS[tier],
             "live":             _is_live(),
             "market_open":      _us_market_open(),
             "loop_interval_s":  self.loop_interval_s,
             "require_approval": self.require_approval,
-            "last_tick_ts":     s["last_tick_ts"] if s else None,
-            "last_tick_note":   s["last_tick_note"] if s else None,
-            "today_date":       s["today_date"] if s else None,
-            "today_deployed_pct": s["today_deployed_pct"] if s else 0,
-            "today_trades":     s["today_trades"] if s else 0,
-            "today_open_eq":    s["today_open_eq"] if s else None,
+            "last_tick_ts":     s_safe.get("last_tick_ts") if s_safe else None,
+            "last_tick_note":   s_safe.get("last_tick_note") if s_safe else None,
+            "today_date":       s_safe.get("today_date") if s_safe else None,
+            "today_deployed_pct": s_safe.get("today_deployed_pct") if s_safe else 0,
+            "today_trades":     s_safe.get("today_trades") if s_safe else 0,
+            "today_open_eq":    s_safe.get("today_open_eq") if s_safe else None,
             "universe":         self.universe,
-            "recent_ticks":     [dict(r) for r in recent],
-            "recent_trades":    [dict(r) for r in trades],
+            "recent_ticks":     [_row_safe(r) for r in recent],
+            "recent_trades":    [_row_safe(r) for r in trades],
             "pending_count":    self._pending_count(),
         }
 
