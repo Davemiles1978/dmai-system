@@ -2923,7 +2923,17 @@ def api_mon_trader_status():
     at = components.get("autonomous_trader")
     if not at:
         return jsonify({"error": "autonomous_trader not loaded"}), 503
-    return jsonify(at.status())
+    try:
+        return jsonify(at.status())
+    except Exception as e:
+        import traceback as _tb_ts
+        logger.error("trader.status() failed: %s\n%s", e, _tb_ts.format_exc())
+        return jsonify({
+            "error": "trader.status() raised",
+            "exception": str(e),
+            "exception_type": type(e).__name__,
+            "trace": _tb_ts.format_exc()[-1500:],
+        }), 500
 
 @app.route("/api/monetisation/trader/enable", methods=["POST"])
 def api_mon_trader_enable():
@@ -3035,7 +3045,18 @@ def api_mon_trader_metrics():
     if not at:
         return ("# autonomous_trader not loaded\n", 503,
                 {"Content-Type": "text/plain; version=0.0.4"})
-    return (at.metrics_text(), 200, {"Content-Type": "text/plain; version=0.0.4"})
+    try:
+        return (at.metrics_text(), 200, {"Content-Type": "text/plain; version=0.0.4"})
+    except Exception as e:
+        import traceback as _tb_tm
+        logger.error("trader.metrics_text() failed: %s\n%s", e, _tb_tm.format_exc())
+        return (
+            "# trader.metrics_text() raised: %s\n# %s\n" % (
+                type(e).__name__, str(e)
+            ),
+            500,
+            {"Content-Type": "text/plain; version=0.0.4"},
+        )
 
 @app.route("/api/monetisation/trader/watchdog", methods=["GET"])
 def api_mon_trader_watchdog():

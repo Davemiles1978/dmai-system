@@ -120,7 +120,7 @@ class SelfScanner:
     # different casing (KpiSeedLoop vs kpi_seed). Strict equality undercounts.
     EXPECTED_THREAD_KEYWORDS = {
         "autonomous_researcher": ["research", "autonomous-researcher", "autonomous_researcher"],
-        "background_updater":    ["updater", "background_updater", "background-updater"],
+        "background_updater":    ["updater", "update", "background_updater", "background-updater", "dmai-update"],
         "graph_evolution":       ["graph", "evolution"],
         "kaizen_repair":         ["kaizen", "repair"],
         "kpi_seed":              ["kpi"],
