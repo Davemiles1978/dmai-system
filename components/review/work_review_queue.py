@@ -37,6 +37,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .skill_assessor import SkillAssessor, WORK_TYPES, get_skill_assessor
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ class WorkReviewQueue:
         self._init_db()
 
     def _conn(self) -> sqlite3.Connection:
-        c = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
+        c = safe_open_kdb(self.db_path, timeout=10, check_same_thread=False)
         c.row_factory = sqlite3.Row
         return c
 

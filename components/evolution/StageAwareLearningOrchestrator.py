@@ -18,6 +18,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 import logging
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -489,7 +490,7 @@ class StageAwareLearningOrchestrator:
 
         # Source 2: capabilities DB
         try:
-            conn = _sq.connect("data/dmai_knowledge.db")
+            conn = safe_open_kdb("data/dmai_knowledge.db")
             cur  = conn.cursor()
             cur.execute("PRAGMA table_info(capabilities)")
             cols = [r[1] for r in cur.fetchall()]
@@ -1472,7 +1473,7 @@ Be specific, educational, and focused on real application.
             from pathlib import Path
             db_path = Path("data/dmai_knowledge.db")
             if db_path.exists():
-                conn = sqlite3.connect(str(db_path))
+                conn = safe_open_kdb(str(db_path))
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute('''
@@ -1557,7 +1558,7 @@ Be specific, educational, and focused on real application.
             from pathlib import Path
             db_path = Path("data/dmai_knowledge.db")
             if db_path.exists():
-                conn = sqlite3.connect(str(db_path))
+                conn = safe_open_kdb(str(db_path))
                 cursor = conn.cursor()
                 cursor.execute('''
                     SELECT insight_text FROM insights 

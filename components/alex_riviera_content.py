@@ -5,6 +5,7 @@ Public persona: Alex Riviera — AI researcher and autonomous systems developer.
 """
 import os, json, sqlite3, logging
 from datetime import datetime, timezone, timedelta
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class AlexRivieraContentEngine:
         """Make sure the insights table exists. Idempotent."""
         try:
             os.makedirs(self.data_path, exist_ok=True)
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS insights (
                     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +61,7 @@ class AlexRivieraContentEngine:
         try:
             if not os.path.exists(self.db_path):
                 return None
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             yesterday = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%d")
             rows = conn.execute(
                 "SELECT COALESCE(content, description, title, '') as content FROM insights WHERE created_at >= ? ORDER BY id DESC LIMIT 5",
@@ -70,7 +71,7 @@ class AlexRivieraContentEngine:
 
             if not rows:
                 # Fall back to most recent insights regardless of date
-                conn = sqlite3.connect(self.db_path)
+                conn = safe_open_kdb(self.db_path)
                 rows = conn.execute(
                     "SELECT COALESCE(content, description, title, '') as content FROM insights ORDER BY id DESC LIMIT 3"
                 ).fetchall()
@@ -113,7 +114,7 @@ Tweet 1 must be a scroll-stopping hook. Include 1-2 relevant hashtags in the las
 
             caps, insights_count = 0, 0
             if os.path.exists(self.db_path):
-                conn = sqlite3.connect(self.db_path)
+                conn = safe_open_kdb(self.db_path)
                 try:
                     caps = conn.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
                     insights_count = conn.execute("SELECT COUNT(*) FROM insights").fetchone()[0]

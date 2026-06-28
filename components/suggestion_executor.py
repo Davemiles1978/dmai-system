@@ -20,6 +20,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ def _extract_json(text: str) -> Optional[dict]:
 
 # ── DB helpers ─────────────────────────────────────────────────────────────
 def _db():
-    conn = sqlite3.connect(str(DB_PATH))
+    conn = safe_open_kdb(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
 

@@ -13,6 +13,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class ResponseQualityTrainer:
         
     def extract_topics_from_micros(self, limit: int = 50) -> List[Dict]:
         """Extract meaningful topics from micro-level neurons across categories."""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         cursor = conn.cursor()
         
         # Get diverse topics from article micros (richest content)

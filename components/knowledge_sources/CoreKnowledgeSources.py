@@ -34,6 +34,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from enum import Enum
 import feedparser
 from bs4 import BeautifulSoup
+from components.db import safe_open_kdb
 
 # Add parent directory for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -709,7 +710,7 @@ class ArticleReader:
                 db_path = self.si_core.sqlite.db_path if hasattr(self.si_core, 'sqlite') and self.si_core.sqlite else None
                 
                 if db_path:
-                    conn = sqlite3.connect(str(db_path))
+                    conn = safe_open_kdb(str(db_path))
                     cursor = conn.cursor()
                     cursor.execute('''
                         SELECT id FROM insights 
@@ -780,7 +781,7 @@ class ArticleReader:
                 # CREATE SYNAPSES TO RELATED TOPICS (TEMPORARILY DISABLED)
                 # ============================================================
                 # if db_path:
-                #     conn = sqlite3.connect(str(db_path))
+                #     conn = safe_open_kdb(str(db_path))
                 #     cursor = conn.cursor()
                 #     
                 #     for entity in entities[:5]:

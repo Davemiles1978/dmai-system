@@ -3,6 +3,7 @@ import logging
 import sqlite3
 from datetime import datetime
 from components.thread_manager import thread_manager
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ class RepoProcessor:
         self._init_db()
     
     def _init_db(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS processed_repos (
@@ -29,7 +30,7 @@ class RepoProcessor:
         try:
             logger.info(f"Processing repo: {repo_name}")
             # Simulate processing - in production, this would clone and analyze
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT OR REPLACE INTO processed_repos (repo_name, processed_at, status)

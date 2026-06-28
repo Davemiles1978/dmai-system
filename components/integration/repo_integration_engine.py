@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 from enum import Enum
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,7 @@ class RepoIntegrationEngine:
         if not db_path:
             return False
         import sqlite3
-        conn = sqlite3.connect(str(db_path))
+        conn = safe_open_kdb(str(db_path))
         conn.execute('''
             CREATE TABLE IF NOT EXISTS integration_queue (
                 id TEXT PRIMARY KEY,
@@ -131,7 +132,7 @@ class RepoIntegrationEngine:
                     pass
             return []
         import sqlite3
-        conn = sqlite3.connect(str(db_path))
+        conn = safe_open_kdb(str(db_path))
         conn.row_factory = sqlite3.Row
         rows = conn.execute('SELECT * FROM integration_queue ORDER BY priority, added_at').fetchall()
         conn.close()
@@ -156,7 +157,7 @@ class RepoIntegrationEngine:
                 json.dump(self.queue, f, indent=2, default=str)
             return
         import sqlite3
-        conn = sqlite3.connect(str(db_path))
+        conn = safe_open_kdb(str(db_path))
         for item in self.queue:
             classification_json = json.dumps(item.get('classification', {}), default=str) if item.get('classification') else '{}'
             conn.execute('''
@@ -197,7 +198,7 @@ class RepoIntegrationEngine:
                     pass
             return {'completed': [], 'organs': {}, 'capabilities': {}, 'knowledge': {}}
         import sqlite3
-        conn = sqlite3.connect(str(db_path))
+        conn = safe_open_kdb(str(db_path))
         conn.row_factory = sqlite3.Row
         rows = conn.execute('SELECT * FROM integration_registry').fetchall()
         conn.close()
@@ -225,7 +226,7 @@ class RepoIntegrationEngine:
                 json.dump(self.registry, f, indent=2, default=str)
             return
         import sqlite3
-        conn = sqlite3.connect(str(db_path))
+        conn = safe_open_kdb(str(db_path))
         for item in self.registry.get('completed', []):
             data_json = json.dumps(item, default=str)
             conn.execute('''

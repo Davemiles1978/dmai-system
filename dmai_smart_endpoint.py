@@ -4,6 +4,7 @@ import sqlite3
 from datetime import datetime
 import os
 import openai
+from components.db import safe_open_kdb
 
 smart_bp = Blueprint('smart', __name__)
 
@@ -197,7 +198,7 @@ def ask():
             })
         
         # STEP 2: Check WEIGHTED KNOWLEDGE BASE (previously researched topics)
-        conn = sqlite3.connect('data/dmai_knowledge.db')
+        conn = safe_open_kdb('data/dmai_knowledge.db')
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS researched_knowledge (
@@ -238,7 +239,7 @@ def ask():
         
         if researched_answer:
             # Store the researched knowledge for future
-            conn = sqlite3.connect('data/dmai_knowledge.db')
+            conn = safe_open_kdb('data/dmai_knowledge.db')
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO researched_knowledge (topic, content, weight, last_accessed)
@@ -287,7 +288,7 @@ def get_syllabus():
 def get_weights():
     """View researched topics by weight (most frequently accessed)"""
     try:
-        conn = sqlite3.connect('data/dmai_knowledge.db')
+        conn = safe_open_kdb('data/dmai_knowledge.db')
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS researched_knowledge (

@@ -433,6 +433,11 @@ try:
     from components.si_core import SICore
     components["si_core"] = SICore(data_path=Path(DATA_PATH))
     # Seed KPIs from persisted learning_progress.json (survives redeploys via Git)
+    # SAFETY: this is RATCHET-ONLY. We only call update_kpi for values that
+    # would raise the persisted KPI, never lower it. The PERSISTENT-MAX guard
+    # in _update_kpi gives belt-and-suspenders protection, but we also pre-gate
+    # here so an empty/stale learning_progress.json on a freshly-wiped persistent
+    # disk cannot reset KPIs to 0 if the saved baseline was lost too.
     try:
         import json as _json
         _lp_file = Path(DATA_PATH) / "learning" / "stage_syllabus" / "learning_progress.json"
@@ -448,18 +453,35 @@ try:
             _stage_order = ["Baby", "Toddler", "Child", "Teen", "Adult", "Expert"]
             _cur_stage = _lp.get("current_stage", "Baby")
             _stage_idx = _stage_order.index(_cur_stage) if _cur_stage in _stage_order else 0
+            _proposed_sar = min(_avg / 3.0, 1.0)
+            _proposed_tlr = _stage_idx / (len(_stage_order) - 1)
+            _proposed_zss = float(_mastered)
             _token = None
             try:
                 from security import generate_token as _gen_tok
                 _token = _gen_tok({"sub": "system_boot", "role": "system"}, expires_minutes=10)
             except Exception as _e:
                 logger.warning("system boot token failed: %s", _e)
+            # Read current persisted values BEFORE writing
+            _cur_state = getattr(_si, "_state", {}) or {}
+            _cur_sar = _cur_state.get("skill_acquisition_rate", 0.0) or 0.0
+            _cur_tlr = _cur_state.get("transfer_learning_rate", 0.0) or 0.0
+            _cur_zss = _cur_state.get("zero_shot_success_count", 0.0) or 0.0
             if hasattr(_si, "update_kpi"):
-                _si.update_kpi("skill_acquisition_rate", min(_avg / 3.0, 1.0), token=_token)
-                _si.update_kpi("transfer_learning_rate", _stage_idx / (len(_stage_order) - 1), token=_token)
-                _si.update_kpi("zero_shot_success_count", float(_mastered), token=_token)
-            logger.info("SICore seeded from learning_progress.json: stage=%s mastered=%d avg=%.3f",
-                        _cur_stage, _mastered, _avg)
+                # Only push if seed RAISES the value
+                if _proposed_sar > _cur_sar:
+                    _si.update_kpi("skill_acquisition_rate", _proposed_sar, token=_token)
+                if _proposed_tlr > _cur_tlr:
+                    _si.update_kpi("transfer_learning_rate", _proposed_tlr, token=_token)
+                if _proposed_zss > _cur_zss:
+                    _si.update_kpi("zero_shot_success_count", _proposed_zss, token=_token)
+            logger.info(
+                "SICore seed from learning_progress: stage=%s mastered=%d avg=%.3f "
+                "proposed_sar=%.3f cur_sar=%.3f proposed_tlr=%.3f cur_tlr=%.3f "
+                "proposed_zss=%.0f cur_zss=%.0f (ratchet-only; only raises applied)",
+                _cur_stage, _mastered, _avg,
+                _proposed_sar, _cur_sar, _proposed_tlr, _cur_tlr, _proposed_zss, _cur_zss
+            )
     except Exception as _e:
         logger.warning("SICore seed from learning_progress failed: %s", _e)
     logger.info("SICore initialised")

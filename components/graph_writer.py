@@ -29,6 +29,7 @@ import sqlite3
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
+from components.db import safe_open_kdb
 
 logger = logging.getLogger("dmai.graph_writer")
 
@@ -179,7 +180,7 @@ class GraphWriter:
 
         # ── 3. Mastered syllabus topics → learning activation ────────────────
         try:
-            conn = sqlite3.connect(str(DB_PATH))
+            conn = safe_open_kdb(str(DB_PATH))
             cur  = conn.cursor()
             cur.execute("SELECT AVG(mastery) FROM syllabus_content WHERE mastery >= 0.7")
             avg_mastery = cur.fetchone()[0]
@@ -193,7 +194,7 @@ class GraphWriter:
 
         # ── 4. Capability volume → knowledge_mgr activation ──────────────────
         try:
-            conn = sqlite3.connect(str(DB_PATH))
+            conn = safe_open_kdb(str(DB_PATH))
             cur  = conn.cursor()
             cur.execute("SELECT COUNT(*) FROM capabilities")
             cap_count = cur.fetchone()[0]

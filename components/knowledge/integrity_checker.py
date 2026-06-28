@@ -28,6 +28,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +76,7 @@ def _short_overlap(a: str, b: str, min_len: int = 4) -> float:
 
 # ── DB helpers ─────────────────────────────────────────────────────────────
 def _db():
-    conn = sqlite3.connect(str(DB_PATH))
+    conn = safe_open_kdb(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
 

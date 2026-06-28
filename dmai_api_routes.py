@@ -23,7 +23,7 @@ def _get_db_conn(timeout: int = 10):
         conn.row_factory = psycopg2.extras.RealDictCursor
         return conn, "postgres"
     db_path = Path("data/dmai_knowledge.db")
-    conn = sqlite3.connect(str(db_path), timeout=timeout)
+    conn = safe_open_kdb(str(db_path), timeout=timeout)
     return conn, "sqlite"
 
 class _AdaptedCursor:
@@ -1922,6 +1922,7 @@ def chat2():
         }), 200
 
 from components.knowledge_manager import TwoTierKnowledgeManager
+from components.db import safe_open_kdb
 knowledge_manager = TwoTierKnowledgeManager()
 
 @api_bp.route('/ask', methods=['POST'])

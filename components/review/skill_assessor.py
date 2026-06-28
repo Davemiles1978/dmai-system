@@ -33,6 +33,7 @@ import statistics
 import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class SkillAssessor:
         self._init_db()
 
     def _conn(self) -> sqlite3.Connection:
-        c = sqlite3.connect(self.db_path, timeout=10)
+        c = safe_open_kdb(self.db_path, timeout=10)
         c.row_factory = sqlite3.Row
         return c
 

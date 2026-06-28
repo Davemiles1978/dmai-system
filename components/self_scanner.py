@@ -5,6 +5,7 @@ Runs on startup and every 30 minutes via SelfEvolutionOrchestrator.
 import os, json, sqlite3, threading, ast, logging
 from datetime import datetime, timezone
 from pathlib import Path
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -167,7 +168,7 @@ class SelfScanner:
         try:
             if not os.path.exists(self.db_path):
                 return ["database_missing"]
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             for table in should_have_data:
                 try:
                     count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]

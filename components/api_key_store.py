@@ -15,6 +15,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class APIKeyStore:
         logger.info(f"🔑 APIKeyStore ready (dynamic, {self._count_active()} active keys)")
 
     def _get_conn(self):
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         conn.row_factory = sqlite3.Row
         return conn
 

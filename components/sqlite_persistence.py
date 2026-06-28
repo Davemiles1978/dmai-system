@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import logging
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +124,7 @@ class SQLitePersistence:
     
     def _init_db(self):
         """Create all tables if they don't exist"""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         
         # ============================================================
         # INSIGHTS TABLE (matches InsightNeuron exactly)
@@ -634,7 +635,7 @@ class SQLitePersistence:
         
         try:
             # Use SQLite's backup API for safe copy
-            source = sqlite3.connect(str(self.db_path))
+            source = safe_open_kdb(str(self.db_path))
             dest = sqlite3.connect(str(backup_path))
             source.backup(dest)
             source.close()
