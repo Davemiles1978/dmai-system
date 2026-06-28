@@ -61,6 +61,27 @@ TIERS: Dict[str, Dict[str, float]] = {
 
 TIER_ORDER = ["conservative", "moderate", "aggressive"]
 
+
+def _norm_tier(value, default: str = "conservative") -> str:
+    """Coerce a tier value to a known string key.
+
+    Defensive against legacy DB rows that stored the value as bytes
+    (SQLite blob affinity quirk) instead of TEXT — would raise
+    KeyError on TIERS[tier] otherwise. Also normalises case/whitespace.
+    """
+    if value is None:
+        return default
+    if isinstance(value, bytes):
+        try:
+            value = value.decode("utf-8", errors="replace")
+        except Exception:
+            return default
+    try:
+        v = str(value).strip().lower()
+    except Exception:
+        return default
+    return v if v in TIERS else default
+
 # Promotion rule: ≥10 trades over last 5 sessions AND rolling P&L ≥ +3% → step up.
 # Demotion rule: rolling P&L ≤ -2% over last 5 sessions → step down.
 PROMOTE_TRADES   = 10
@@ -281,11 +302,25 @@ class AutonomousTrader:
             with self._conn() as c:
                 for ddl in SCHEMA:
                     c.execute(ddl)
-                row = c.execute("SELECT id FROM at_state WHERE id = 1").fetchone()
+                row = c.execute("SELECT id, tier FROM at_state WHERE id = 1").fetchone()
                 if not row:
                     c.execute(
                         "INSERT INTO at_state(id, enabled, tier) VALUES (1, 0, 'conservative')"
                     )
+                else:
+                    # Self-heal: if tier was stored as BLOB (legacy bug) the
+                    # comparison TIERS[tier] would KeyError. Rewrite as TEXT.
+                    raw_tier = row["tier"] if hasattr(row, "keys") else row[1]
+                    if isinstance(raw_tier, bytes) or (raw_tier and str(raw_tier) not in TIERS):
+                        clean = _norm_tier(raw_tier)
+                        c.execute(
+                            "UPDATE at_state SET tier = ?, updated_at = datetime('now') WHERE id = 1",
+                            (clean,),
+                        )
+                        logger.warning(
+                            "AutonomousTrader: cleaned malformed tier value %r -> %r",
+                            raw_tier, clean,
+                        )
                 c.commit()
         except Exception as e:
             logger.warning("AutonomousTrader._ensure_tables: %s", e)
@@ -312,7 +347,7 @@ class AutonomousTrader:
                 "SELECT ts, symbol, side, qty, confidence, ev, tier, live "
                 "FROM at_trades ORDER BY id DESC LIMIT 20"
             ).fetchall()
-        tier = s["tier"] if s else "conservative"
+        tier = _norm_tier(s["tier"]) if s else "conservative"
         return {
             "enabled":          bool(s["enabled"]) if s else False,
             "tier":             tier,
@@ -348,7 +383,7 @@ class AutonomousTrader:
             raise ValueError(f"Unknown tier: {tier}")
         with self._conn() as c:
             cur = c.execute("SELECT tier FROM at_state WHERE id = 1").fetchone()
-            from_tier = cur["tier"] if cur else "conservative"
+            from_tier = _norm_tier(cur["tier"]) if cur else "conservative"
             if from_tier == tier:
                 return self.status()
             c.execute(
@@ -424,8 +459,8 @@ class AutonomousTrader:
 
         with self._conn() as c:
             s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
-            tier = s["tier"]
-            enabled = bool(s["enabled"])
+            tier = _norm_tier(s["tier"]) if s else "conservative"
+            enabled = bool(s["enabled"]) if s else False
             today = date.today().isoformat()
             # Roll daily counters at session boundary.
             if s["today_date"] != today:
@@ -616,7 +651,7 @@ class AutonomousTrader:
             cur = c.execute("SELECT tier FROM at_state WHERE id = 1").fetchone()
         if not cur:
             return
-        tier = cur["tier"]
+        tier = _norm_tier(cur["tier"])
         idx = TIER_ORDER.index(tier)
 
         trade_count = len(rows)
@@ -779,7 +814,7 @@ class AutonomousTrader:
             pnl_pct = (equity - open_eq) / open_eq
         return {
             "date":         today,
-            "tier":         s["tier"] if s else "conservative",
+            "tier":         _norm_tier(s["tier"]) if s else "conservative",
             "live":         _is_live(),
             "trades":       int(trades["n"]) if trades else 0,
             "deployed_pct": s["today_deployed_pct"] if s else 0,
