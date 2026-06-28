@@ -5,6 +5,7 @@ import requests
 import time
 from typing import Dict, List, Optional
 from datetime import datetime
+from components.db import safe_open_kdb
 
 _DOMAIN_KEYWORDS = {
     "machine_learning":       ["neural network", "deep learning", "gradient descent", "backpropagation", "transformer", "attention", "bert", "gpt", "llm", "fine-tuning", "pre-training"],
@@ -366,7 +367,7 @@ class AutonomousResearcher:
             # From capabilities DB
             try:
                 import sqlite3 as _sq
-                conn = _sq.connect("data/dmai_knowledge.db")
+                conn = safe_open_kdb("data/dmai_knowledge.db")
                 cur = conn.cursor()
                 cur.execute("PRAGMA table_info(capabilities)")
                 cols = [r[1] for r in cur.fetchall()]

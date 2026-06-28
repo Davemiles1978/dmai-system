@@ -8,6 +8,7 @@ import random
 from datetime import datetime
 import threading
 import logging
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class SelfOptimizer:
         self.start_optimization_cycle()
     
     def init_tables(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -81,7 +82,7 @@ class SelfOptimizer:
     
     def measure_performance(self, component):
         """Measure current performance of a component"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         metrics = {}
@@ -121,7 +122,7 @@ class SelfOptimizer:
         """Update performance baselines for all components"""
         components = ['response_time', 'memory_usage', 'accuracy', 'learning_rate']
         
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         for component in components:
@@ -141,7 +142,7 @@ class SelfOptimizer:
     
     def identify_optimization_opportunities(self):
         """Identify areas for system improvement"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         opportunities = []
@@ -220,7 +221,7 @@ class SelfOptimizer:
         """Test an improvement before deployment"""
         experiment_id = hashlib.md5(f"{improvement['type']}_{datetime.now().isoformat()}".encode()).hexdigest()[:16]
         
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO experiments (id, hypothesis, change_code, expected_outcome, created_at)
@@ -234,7 +235,7 @@ class SelfOptimizer:
         test_passed = random.random() < 0.8
         
         if test_passed:
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             cursor = conn.cursor()
             cursor.execute('''
                 UPDATE experiments 
@@ -246,7 +247,7 @@ class SelfOptimizer:
             conn.close()
             return True, experiment_id
         else:
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             cursor = conn.cursor()
             cursor.execute('''
                 UPDATE experiments 
@@ -260,7 +261,7 @@ class SelfOptimizer:
     
     def deploy_improvement(self, improvement, experiment_id):
         """Deploy tested improvement to production"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO system_optimizations (component, change_type, old_version, new_version, expected_improvement, status, deployed_at)
@@ -282,7 +283,7 @@ class SelfOptimizer:
     
     def learn_from_improvements(self):
         """Analyze past improvements to generate better improvements"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -341,7 +342,7 @@ class SelfOptimizer:
                 if patterns:
                     logger.info(f"Learned {len(patterns)} successful improvement patterns")
                 
-                conn = sqlite3.connect(self.db_path)
+                conn = safe_open_kdb(self.db_path)
                 cursor = conn.cursor()
                 cursor.execute('''
                     INSERT INTO system_optimizations (component, change_type, status, tested_at)

@@ -6,6 +6,7 @@ import random
 from datetime import datetime
 import threading
 import logging
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class MetaLearningEngine:
         self.start_optimization_loop()
     
     def init_tables(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         # Track learning outcomes
@@ -96,7 +97,7 @@ class MetaLearningEngine:
     
     def record_outcome(self, topic, strategy, weight_before, weight_after, response_quality, time_spent):
         """Record learning outcome for optimization"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO learning_outcomes (topic, strategy_used, weight_before, weight_after, response_quality, time_spent, timestamp)
@@ -126,7 +127,7 @@ class MetaLearningEngine:
     
     def update_optimal_strategy(self, category, strategy, effectiveness):
         """Update which strategy works best for each category"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -145,7 +146,7 @@ class MetaLearningEngine:
         """Dynamically select the best learning strategy based on past effectiveness"""
         category = self.get_topic_category(topic)
         
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             SELECT strategy, effectiveness FROM optimal_strategies 
@@ -173,7 +174,7 @@ class MetaLearningEngine:
     
     def analyze_learning_patterns(self):
         """Find patterns in what learning approaches work best"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         # Find which strategies lead to fastest weight gain
@@ -229,7 +230,7 @@ class MetaLearningEngine:
     
     def apply_learning_to_evolution(self, evolution_engine):
         """Apply meta-learning insights to the main evolution engine"""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         
         # Get best strategies for each category

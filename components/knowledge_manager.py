@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import logging
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +178,7 @@ class TwoTierKnowledgeManager:
 
     def _init_tables(self) -> None:
         """Initialize two-tier knowledge tables."""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
 
         # CORE KNOWLEDGE TIER (always 100% weight, never decays)
@@ -247,7 +248,7 @@ class TwoTierKnowledgeManager:
             ("Training Systems",        "System",   "Software, AGI, GenAI, LLM, SI training modules and mastery tracking"),
         ]
 
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
 
         for topic, category, content in core_topics:
@@ -269,7 +270,7 @@ class TwoTierKnowledgeManager:
 
     def get_knowledge(self, topic: str, prefer_core: bool = True) -> Optional[Dict]:
         """Retrieve knowledge - checks core tier first, then weighted."""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
@@ -346,7 +347,7 @@ class TwoTierKnowledgeManager:
             """Internal write function for core knowledge."""
             t_id = hashlib.md5(d["topic"].encode()).hexdigest()[:16]
             now  = datetime.now().isoformat()
-            conn = sqlite3.connect(self.db_path)
+            conn = safe_open_kdb(self.db_path)
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT OR REPLACE INTO core_knowledge
@@ -389,7 +390,7 @@ class TwoTierKnowledgeManager:
             k_id       = hashlib.md5(d["topic"].encode()).hexdigest()[:16]
             normalized = d["topic"].lower().strip()
             now        = datetime.now().isoformat()
-            conn       = sqlite3.connect(self.db_path)
+            conn       = safe_open_kdb(self.db_path)
             cursor     = conn.cursor()
             cursor.execute(
                 "SELECT id, weight FROM weighted_knowledge WHERE normalized_topic = ?",
@@ -497,7 +498,7 @@ class TwoTierKnowledgeManager:
 
     def get_core_topics(self) -> List[Dict]:
         """Get all core syllabus topics DMAI has mastered."""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
@@ -510,7 +511,7 @@ class TwoTierKnowledgeManager:
 
     def get_high_weight_topics(self, min_weight: float = 0.7) -> List[Dict]:
         """Get well-learned weighted topics (candidates for promotion)."""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("""
@@ -526,7 +527,7 @@ class TwoTierKnowledgeManager:
 
     def decay_weights(self, days_threshold: int = 7) -> None:
         """Reduce weights of unused knowledge (core tier never decays)."""
-        conn = sqlite3.connect(self.db_path)
+        conn = safe_open_kdb(self.db_path)
         cursor = conn.cursor()
         threshold_date = (datetime.now() - timedelta(days=days_threshold)).isoformat()
         cursor.execute("""

@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Optional
 
 import requests
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +182,7 @@ class VocabularyIngester:
 
     # ── Table init ──────────────────────────────────────────────────────────
     def _ensure_tables(self):
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS vocabulary (
                 id TEXT PRIMARY KEY,
@@ -282,7 +283,7 @@ class VocabularyIngester:
         """Store a vocabulary entry. Returns True if new, False if already existed."""
         word_data = self._mw_augment(dict(word_data))
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = safe_open_kdb(str(self.db_path))
             existing = conn.execute("SELECT id FROM vocabulary WHERE word=?",
                                     (word_data["word"],)).fetchone()
             if existing:
@@ -531,7 +532,7 @@ class VocabularyIngester:
     def store_topic(self, topic_data: dict) -> bool:
         """Store an encyclopaedia entry. Returns True if new."""
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = safe_open_kdb(str(self.db_path))
             existing = conn.execute("SELECT id FROM encyclopaedia WHERE title=?",
                                     (topic_data["title"],)).fetchone()
             if existing:
@@ -600,7 +601,7 @@ class VocabularyIngester:
     def _get_insight_topics(self, limit: int = 20) -> list:
         """Pull high-confidence concept terms from the insights table."""
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = safe_open_kdb(str(self.db_path))
             rows = conn.execute(
                 "SELECT DISTINCT source_topic FROM insights WHERE confidence > 0.6 "
                 "AND NOT EXISTS (SELECT 1 FROM encyclopaedia WHERE title = source_topic) "
@@ -615,7 +616,7 @@ class VocabularyIngester:
     # ── Stats ──────────────────────────────────────────────────────────────
     def get_stats(self) -> dict:
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = safe_open_kdb(str(self.db_path))
             vocab_count = conn.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
             encyc_count = conn.execute("SELECT COUNT(*) FROM encyclopaedia").fetchone()[0]
             vocab_domains = dict(conn.execute(
@@ -648,7 +649,7 @@ class VocabularyIngester:
         # Determine which words already exist to skip them fast
         existing_words = set()
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = safe_open_kdb(str(self.db_path))
             existing_words = {row[0] for row in conn.execute("SELECT word FROM vocabulary").fetchall()}
             conn.close()
         except Exception as _e:
@@ -737,7 +738,7 @@ class VocabularyIngester:
     def _add_to_insights(self, concept: str, text: str, domain: str):
         """Mirror learning into the insights table so it feeds the knowledge graph."""
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = safe_open_kdb(str(self.db_path))
             existing = conn.execute(
                 "SELECT id FROM insights WHERE source_topic=? LIMIT 1", (concept,)
             ).fetchone()
