@@ -56,7 +56,7 @@ class WorkReviewQueue:
         self._init_db()
 
     def _conn(self) -> sqlite3.Connection:
-        c = safe_open_kdb(self.db_path, timeout=10, check_same_thread=False)
+        c = safe_open_kdb(self.db_path, timeout=10)
         c.row_factory = sqlite3.Row
         return c
 

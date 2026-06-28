@@ -1154,7 +1154,13 @@ try:
     components["skill_assessor"] = components["work_review_queue"].assessor
     logger.info("WorkReviewQueue initialised (long-form Alex output gated until graduated)")
 except Exception as e:
-    logger.warning("WorkReviewQueue failed: %s", e)
+    import traceback as _tb_wrq
+    _trace = _tb_wrq.format_exc()[-2000:]
+    logger.warning("WorkReviewQueue failed: %s\n%s", e, _trace)
+    try:
+        _STARTUP_ERRORS["work_review_queue"] = {"error": str(e), "trace": _trace}
+    except Exception:
+        pass
 
 
 
