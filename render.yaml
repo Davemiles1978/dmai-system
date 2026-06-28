@@ -8,6 +8,14 @@ services:
     # would override the config file and reintroduce worker recycling.
     startCommand: gunicorn dmai_core_complete:app --config gunicorn_config.py
     healthCheckPath: /health
+    # Persistent disk so dmai_knowledge.db survives deploys/restarts.
+    # Was on ephemeral overlayfs which (a) wiped DB on every deploy and
+    # (b) has unsafe fsync semantics for SQLite WAL. See
+    # DB_CORRUPTION_AUDIT_2026-06-27.md.
+    disk:
+      name: dmai-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
     envVars:
 
       # ── Core System ──────────────────────────────────────────
