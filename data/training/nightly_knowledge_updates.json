@@ -1,0 +1,83 @@
+[
+  {
+    "source": "arXiv:2606.26294 https://arxiv.org/abs/2606.26294",
+    "date_added": "2026-06-28",
+    "domain": "recursive_self_improvement_rate",
+    "technique": "Red Queen G\u00f6del Machine (co-evolving evaluators)",
+    "description": "Evolutionary framework for recursive self-improvement under non-stationary utilities by organizing search into epochs with controlled utility evolution; incorporates agent-as-a-judge signals.",
+    "training_prompt": "Design an RSI loop with epoch-based objectives: propose (1) an agent improvement operator, (2) an evaluator update operator, and (3) a safety constraint that must remain invariant across epochs. Then simulate one epoch transition using a toy task.",
+    "expected_improvement": "recursive_self_improvement_rate via non-stationary evaluator co-evolution; metacognition_accuracy via explicit judge panels."
+  },
+  {
+    "source": "arXiv:2606.27136 https://arxiv.org/abs/2606.27136",
+    "date_added": "2026-06-28",
+    "domain": "skill_acquisition_rate",
+    "technique": "JERP (joint rule+policy learning from trajectories)",
+    "description": "Jointly updates a long-term natural-language experiential rule pool and agent policy from the same trajectories; retrieves task-relevant rules at decision time and revises the rule pool post-episode.",
+    "training_prompt": "Given a sequence of 5 interaction episodes with successes/failures, extract experiential rules, propose how to revise them using comparisons to successful trajectories, and show how the next action is conditioned on retrieved rules + history.",
+    "expected_improvement": "skill_acquisition_rate and transfer_learning_rate by aligning externalized rules with evolving policy; sample_efficiency_trend by reusing trajectories for both rules and policy updates."
+  },
+  {
+    "source": "arXiv:2606.27009 https://arxiv.org/abs/2606.27009",
+    "date_added": "2026-06-28",
+    "domain": "sample_efficiency_trend",
+    "technique": "Semantic early stopping for agent loops",
+    "description": "Stops iterative LLM agent loops when consecutive drafts stop changing semantically (embedding distance + patience), reducing unnecessary iterations and token spend.",
+    "training_prompt": "You are running a Writer/Critic loop. Propose a semantic early-stopping rule using embedding similarity and a patience window. Given 6 draft summaries, decide at which iteration to stop and justify with a computed similarity table.",
+    "expected_improvement": "sample_efficiency_trend by reducing wasted tokens in multi-step agent loops; agentic_capability_score by preventing truncation on hard cases via adaptive iteration budgets."
+  },
+  {
+    "source": "arXiv:2606.26918 https://arxiv.org/abs/2606.26918",
+    "date_added": "2026-06-28",
+    "domain": "transfer_learning_rate",
+    "technique": "Task-Perturbed NLL Optimization (task sensitivity regularizer)",
+    "description": "Contrastive regularizer that encourages actions to depend on task instructions, mitigating task-insensitive shortcut behavior and improving OOD generalization for language agents.",
+    "training_prompt": "Create a pair of similar tasks with subtly different goals. Show how an agent's action distribution should change when the task instruction is perturbed. Propose a contrastive loss term that penalizes identical actions under instruction perturbations.",
+    "expected_improvement": "transfer_learning_rate and zero_shot_success_count by improving sensitivity to task instructions under distribution shift; metacognition_accuracy via attention stability to task tokens."
+  },
+  {
+    "source": "arXiv:2606.27226 https://arxiv.org/abs/2606.27226",
+    "date_added": "2026-06-28",
+    "domain": "metacognition_accuracy",
+    "technique": "BINEVAL (binary-question decomposed evaluation)",
+    "description": "Decomposes evaluation criteria into atomic binary questions answered independently, producing interpretable multi-dimensional scores and question-level feedback usable for prompt self-improvement.",
+    "training_prompt": "Given an LLM output and an evaluation rubric, generate 10 atomic yes/no evaluation questions, answer them, and aggregate into a multi-dimensional score. Then propose a prompt revision guided by the failed questions.",
+    "expected_improvement": "metacognition_accuracy via interpretable self-evaluation; skill_acquisition_rate via faster prompt iteration using question-level feedback."
+  },
+  {
+    "source": "arXiv:2606.27369 https://arxiv.org/abs/2606.27369",
+    "date_added": "2026-06-28",
+    "domain": "agentic_capability_score",
+    "technique": "RiVER (RL without ground-truth via ranking-calibrated continuous rewards)",
+    "description": "Trains LLMs on score-based optimization tasks without ground-truth solutions by calibrating continuous execution rewards to avoid scale/frequency dominance, improving transfer to exact-solution coding benchmarks.",
+    "training_prompt": "Design an RL training loop for score-based coding tasks where only an execution score is available. Specify a reward calibration method using instance-wise comparisons and top-rank emphasis, and explain how it avoids scale dominance and frequency dominance.",
+    "expected_improvement": "agentic_capability_score and sample_efficiency_trend by expanding verifiable-RL to non-ground-truth tasks; zero_shot_success_count via transfer to exact-solution benchmarks."
+  },
+  {
+    "source": "arXiv:2606.26917 https://arxiv.org/abs/2606.26917",
+    "date_added": "2026-06-28",
+    "domain": "sample_efficiency_trend",
+    "technique": "GeoAlign (directional-consensus rollout curation for LLM RL)",
+    "description": "Stabilizes online LLM reinforcement learning under noisy rewards by detecting directionally inconsistent rollouts in representation space and replacing them with within-prompt stable alternatives.",
+    "training_prompt": "You have 8 rollouts for the same prompt with reward scores and hidden-state vectors. Compute reward-ordered displacement directions, find the consensus prototype direction, flag outliers by angular deviation, and show how curated rollouts change the policy update.",
+    "expected_improvement": "sample_efficiency_trend and recursive_self_improvement_rate by reducing oscillation/variance in RL updates; metacognition_accuracy by surfacing inconsistency signals."
+  },
+  {
+    "source": "github.com/topoteretes/cognee https://github.com/topoteretes/cognee",
+    "date_added": "2026-06-28",
+    "domain": "multi_modal_integration_score",
+    "technique": "Agent memory layer (lightweight memory for agents)",
+    "description": "Lightweight memory layer for agents; relevant as an implementation reference for persistent knowledge/memory in agent systems.",
+    "training_prompt": "Draft a minimal memory API (store/retrieve/summarize/evict) for DMAI agents. Then write a scenario where the agent must use stored memories to improve performance on a repeated task without leaking irrelevant context.",
+    "expected_improvement": "agentic_capability_score and transfer_learning_rate by improving long-horizon memory use; multi_modal_integration_score if extended to store multimodal embeddings."
+  },
+  {
+    "source": "github.com/stanfordnlp/dspy https://github.com/stanfordnlp/dspy",
+    "date_added": "2026-06-28",
+    "domain": "skill_acquisition_rate",
+    "technique": "Programmatic optimization of LM pipelines (DSPy)",
+    "description": "Framework for programmatically optimizing and compiling LM pipelines; useful for turning prompt-tuned components into optimized modules with measurable improvements.",
+    "training_prompt": "Convert a DMAI prompt-based skill into a modular pipeline with explicit input/output signatures. Define an optimization objective (e.g., factuality or success rate) and describe how you would compile/optimize the module using automated evaluation.",
+    "expected_improvement": "skill_acquisition_rate via systematic optimization loops; metacognition_accuracy via explicit metrics-driven compilation rather than ad-hoc prompting."
+  }
+]
