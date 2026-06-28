@@ -29,12 +29,13 @@ services:
         value: /opt/render/project/src/data
       - key: DB_AUTO_HEAL
         value: "true"
-      # Enable autonomous self-repair — DMAI runs her own kaizen loop every 10
-      # minutes to detect & fix broken routes, dead threads, empty tables,
-      # underperforming KPIs. The dead-letter sweep and AI-repair batch cap
-      # prevent worker starvation that disabled this in earlier versions.
+      # Kaizen auto-repair loop — currently disabled because previous attempt
+      # triggered worker starvation on Render. SelfHealer handles thread
+      # restarts; AI-driven code repair stays gated until the kaizen worker
+      # starvation issue is fully characterised. Enable via Render dashboard
+      # to flip on without a redeploy when ready.
       - key: KAIZEN_AUTO_REPAIR_ENABLED
-        value: "true"
+        value: "false"
       - key: MASTER_PASSWORD
         sync: false
 

@@ -73,6 +73,12 @@ class SelfHealer:
         self._thread     = None
         self._fail_count: Dict[str, int] = {}   # path → consecutive failure count
         self._hashes: Dict[str, str]     = {}   # path → last-known-good SHA-256
+        # Grace period — do not restart background components for the first
+        # 5 minutes of SelfHealer's life. Most components start their _thread
+        # asynchronously after boot, so restarting them mid-init would race
+        # the boot sequence.
+        self._started_ts = time.time()
+        self._grace_seconds = 300
 
     # ── Public API ─────────────────────────────────────────────────────────
 
@@ -189,7 +195,9 @@ class SelfHealer:
         # NEW: also probe registry-tracked components with _thread attribute.
         # Rate-limit restarts: if we've restarted the same component 3 times in
         # the last 30 minutes, escalate via KaizenProposal instead of looping.
-        if self.components:
+        # Grace period: skip during the first 5 minutes after SelfHealer starts
+        # so the normal boot sequence has time to start bg threads itself.
+        if self.components and (time.time() - self._started_ts) >= self._grace_seconds:
             critical_bg = [
                 "kaizen_auto_repair",
                 "greyhound_runner",
