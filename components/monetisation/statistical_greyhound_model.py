@@ -135,8 +135,8 @@ class StatisticalGreyhoundModel:
             return cached[0]
         rate = 0.0
         try:
-            import sqlite3
-            conn = sqlite3.connect(self.db_path, timeout=10.0)
+            from components.db import safe_open_kdb
+            conn = safe_open_kdb(self.db_path, timeout=10.0)
             try:
                 cur = conn.execute(
                     "SELECT status, COUNT(*) FROM mon_tips "
