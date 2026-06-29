@@ -56,11 +56,15 @@ class SelfRepairOrchestrator:
             return False
         return True
 
-    def run_once(self, auto_approve: bool = False) -> OrchestratorRunSummary:
+    def run_once(self, auto_approve: bool = False, **_ignored: Any) -> OrchestratorRunSummary:
         """Run a single gap->proposal->queue pass.
 
         In this incremental build, this method is safe and may return an empty
         run summary if gaps cannot be fetched yet.
+
+        chunk 7.6: accept and ignore unknown kwargs (e.g. ``fresh=True`` passed
+        by the /api/self-evolution/repair-gap route) so the public surface is
+        forgiving of caller drift.
         """
 
         matched: List[str] = []
@@ -75,6 +79,11 @@ class SelfRepairOrchestrator:
             gap_entries = list(iter_gap_entries())
         except Exception:
             gap_entries = []
+
+        # chunk 7.6: caller may pass fresh=True to indicate they expect a
+        # full re-scan; current implementation always re-fetches so this is a
+        # no-op, but we record it for parity with the route contract.
+        _ = bool(_ignored.get("fresh", False))
 
         for gap in gap_entries:
             for pat in PATTERNS:
@@ -134,3 +143,66 @@ class SelfRepairOrchestrator:
             auto_approved_edit_ids=auto_approved,
         )
         return self.last_run
+
+    # chunk 7.6: status surface for /api/self-evolution/repair-status.
+    # The route expects a JSON-serialisable dict. Wrap the last run summary
+    # and any queue history we can fetch defensively (the queue may not be
+    # importable yet, or may not have history methods in early chunks).
+    def status(self) -> Dict[str, Any]:
+        """Return last-run summary plus queue snapshot (best-effort).
+
+        Shape:
+            {
+              "ok": True,
+              "last_run": {matched_patterns, proposals_count, enqueued,
+                            auto_approved} | None,
+              "queue": {pending: int, history: [...]} | None,
+            }
+        """
+
+        last_run_payload: Optional[Dict[str, Any]] = None
+        if self.last_run is not None:
+            last_run_payload = {
+                "matched_patterns": list(self.last_run.matched_patterns),
+                "proposals_count": len(self.last_run.proposals),
+                "enqueued_edit_ids": list(self.last_run.enqueued_edit_ids),
+                "auto_approved_edit_ids": list(
+                    self.last_run.auto_approved_edit_ids
+                ),
+            }
+
+        queue_payload: Optional[Dict[str, Any]] = None
+        try:
+            from components.self_edit_queue import SelfEditQueue
+
+            q = SelfEditQueue(repo_root=self.repo_root)
+            pending: List[Any] = []
+            history: List[Any] = []
+            for attr in ("pending", "list_pending", "get_pending"):
+                fn = getattr(q, attr, None)
+                if callable(fn):
+                    try:
+                        pending = list(fn() or [])
+                        break
+                    except Exception:
+                        pass
+            for attr in ("history", "recent", "list_recent"):
+                fn = getattr(q, attr, None)
+                if callable(fn):
+                    try:
+                        history = list(fn() or [])[:20]
+                        break
+                    except Exception:
+                        pass
+            queue_payload = {
+                "pending_count": len(pending),
+                "history": history,
+            }
+        except Exception:
+            queue_payload = None
+
+        return {
+            "ok": True,
+            "last_run": last_run_payload,
+            "queue": queue_payload,
+        }

@@ -739,11 +739,12 @@ except Exception as e:
 _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
 try:
     from components.self_repair_orchestrator import SelfRepairOrchestrator
-    components["self_repair_orchestrator"] = SelfRepairOrchestrator(
-        repo_root=".",
-        data_path=DATA_PATH,
-        notifier=components.get("notifier"),
-    )
+    # chunk 7.6: SelfRepairOrchestrator.__init__ only accepts repo_root.
+    # Earlier wiring passed data_path/notifier which caused a TypeError at
+    # boot, leaving the orchestrator unregistered and /api/self-evolution/
+    # repair-gap + repair-status both returning 503 (visible in
+    # /api/startup/errors). Fix the kwargs to match the real signature.
+    components["self_repair_orchestrator"] = SelfRepairOrchestrator(repo_root=".")
     logger.info("SelfRepairOrchestrator initialised")
 except Exception as e:
     import traceback as _tb_sro
