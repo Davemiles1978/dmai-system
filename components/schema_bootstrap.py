@@ -28,6 +28,7 @@ import os
 import re
 import sqlite3
 from typing import Dict, List
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -308,9 +309,7 @@ def bootstrap_all_schemas(db_path: str) -> Dict[str, int]:
 
     conn = None
     try:
-        conn = sqlite3.connect(db_path, timeout=30.0)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
+        conn = safe_open_kdb(db_path, timeout=30.0)
         cur = conn.cursor()
         for stmt in statements:
             try:

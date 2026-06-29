@@ -112,14 +112,7 @@ class SQLitePersistence:
     def _get_connection(self) -> sqlite3.Connection:
         """Thread-safe connection with WAL mode"""
         if not hasattr(self._local, 'conn'):
-            self._local.conn = sqlite3.connect(
-                str(self.db_path),
-                check_same_thread=False,
-                timeout=30.0
-            )
-            self._local.conn.execute("PRAGMA journal_mode=WAL")
-            self._local.conn.execute("PRAGMA synchronous=NORMAL")
-            self._local.conn.execute("PRAGMA foreign_keys=ON")
+            self._local.conn = safe_open_kdb(str(self.db_path), timeout=30.0)
         return self._local.conn
     
     def _init_db(self):

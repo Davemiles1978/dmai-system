@@ -21,6 +21,7 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +38,7 @@ class ConversationMemory:
 
     # ── schema ─────────────────────────────────────────────────────────
     def _conn(self) -> sqlite3.Connection:
-        c = sqlite3.connect(self.db_path, timeout=10, isolation_level=None)
-        c.execute("PRAGMA journal_mode=WAL;")
+        c = safe_open_kdb(self.db_path, timeout=10)
         return c
 
     def _ensure_tables(self) -> None:

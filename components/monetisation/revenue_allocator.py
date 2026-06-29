@@ -19,6 +19,7 @@ import threading
 import time
 import uuid
 from typing import Any, Dict, List, Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 _LOCK = threading.Lock()
@@ -69,7 +70,7 @@ class RevenueAllocator:
         self._ensure_wallet(self.DAVID_WALLET)
 
     def _conn(self):
-        c = sqlite3.connect(self.db_path, timeout=30.0)
+        c = safe_open_kdb(self.db_path, timeout=30.0)
         c.execute("PRAGMA journal_mode=WAL")
         c.row_factory = sqlite3.Row
         return c

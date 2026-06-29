@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import sqlite3
+from components.db import safe_open_kdb
 import threading
 import time
 import uuid
@@ -72,7 +73,7 @@ class WealthAllocator:
 
     def _conn(self):
         # Integrity check + quarantine removed (was destroying shared tables).
-        c = sqlite3.connect(self.db_path, timeout=30.0)
+        c = safe_open_kdb(self.db_path, timeout=30.0)
         try:
             c.execute("PRAGMA journal_mode=WAL")
             c.execute("PRAGMA busy_timeout=5000")

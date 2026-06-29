@@ -12,6 +12,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger('dmai_sqlite')
 
@@ -39,7 +40,7 @@ DB_PATH = _resolve_db_path()
 def _get_conn() -> sqlite3.Connection:
     """Return a thread-local SQLite connection with WAL mode enabled."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)
+    conn = safe_open_kdb(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")

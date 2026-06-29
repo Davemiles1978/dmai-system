@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import sqlite3
+from components.db import safe_open_kdb
 import threading
 import time
 import uuid
@@ -149,7 +150,7 @@ class BettingAdvisor:
         # (at_state, capabilities, system_state) created by boot bootstrap.
         # Boot bootstrap is now authoritative; per-component _ensure_tables
         # handles missing tables on demand.
-        c = sqlite3.connect(self.db_path, timeout=30.0)
+        c = safe_open_kdb(self.db_path, timeout=30.0)
         try:
             c.execute("PRAGMA journal_mode=WAL")
             c.execute("PRAGMA busy_timeout=5000")

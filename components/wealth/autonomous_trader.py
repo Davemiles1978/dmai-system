@@ -30,6 +30,7 @@ import sqlite3
 import threading
 from datetime import datetime, date, timedelta, timezone
 from typing import Any, Dict, List, Optional
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -244,7 +245,7 @@ class AutonomousTrader:
         we quarantine the file, recreate schema, and seed at_state.
         """
         try:
-            c = sqlite3.connect(self.db_path, timeout=30)
+            c = safe_open_kdb(self.db_path, timeout=30)
             c.row_factory = sqlite3.Row
             try:
                 c.execute("PRAGMA journal_mode=WAL")
@@ -260,7 +261,7 @@ class AutonomousTrader:
                 "AutonomousTrader: malformed DB on connect, self-healing: %s", e
             )
             self._self_heal_db()
-            c = sqlite3.connect(self.db_path, timeout=30)
+            c = safe_open_kdb(self.db_path, timeout=30)
             c.row_factory = sqlite3.Row
             try:
                 c.execute("PRAGMA journal_mode=WAL")
@@ -289,7 +290,7 @@ class AutonomousTrader:
         except Exception as he:
             logger.error("AutonomousTrader: self-heal rename failed: %s", he)
         try:
-            fresh = sqlite3.connect(self.db_path, timeout=30)
+            fresh = safe_open_kdb(self.db_path, timeout=30)
             try:
                 fresh.execute("PRAGMA journal_mode=WAL")
                 for ddl in SCHEMA:

@@ -60,6 +60,27 @@ run_check() {
 }
 
 # ---------------------------------------------------------------------------
+# Check 0 — DB safety guard: no bare sqlite3.connect() in components/.
+# Use safe_open_kdb() from components.db. See INCIDENT_BRIEF_db_corruption.md.
+# Mixed WAL/rollback-journal openers on the same file corrupt page 1.
+# ---------------------------------------------------------------------------
+section "Check 0: no bare sqlite3.connect in components/"
+BARE=$(grep -rn "sqlite3\.connect" components/ --include="*.py" 2>/dev/null \
+       | grep -v "safe_open_kdb" \
+       | grep -v "^components/db\.py:" \
+       | grep -v "^components/sqlite_persistence\.py:[0-9]*:[[:space:]]*dest = " \
+       || true)
+if [[ -n "$BARE" ]]; then
+    echo "[FAIL] bare sqlite3.connect() found in components/:"
+    echo "$BARE"
+    echo ""
+    echo "Use safe_open_kdb() from components.db — see INCIDENT_BRIEF_db_corruption.md"
+    FAILED=$((FAILED + 1))
+else
+    echo "[PASS] no bare sqlite3.connect in components/"
+fi
+
+# ---------------------------------------------------------------------------
 # Check A — byte-compile
 # ---------------------------------------------------------------------------
 section "Check A: byte-compile"

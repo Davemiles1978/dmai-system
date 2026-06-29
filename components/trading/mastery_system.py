@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 from enum import Enum
+from components.db import safe_open_kdb
 
 class TradingType(Enum):
     QUANT = "Quantitative Trading"
@@ -64,7 +65,7 @@ class TradingMasterySystem:
     
     def _init_db(self):
         """Initialize trading mastery database"""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         cursor = conn.cursor()
         
         # Trades table
@@ -145,7 +146,7 @@ class TradingMasterySystem:
     
     def record_trade(self, trade: TradeRecord):
         """Record a completed trade for analysis"""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO trades VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -161,7 +162,7 @@ class TradingMasterySystem:
     
     def update_performance(self, trading_type: str, algorithm: str, daily_data: Dict):
         """Update performance metrics"""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO performance (trading_type, algorithm, date, daily_pnl, win_rate, sharpe, max_drawdown, trades_count)
@@ -177,7 +178,7 @@ class TradingMasterySystem:
     
     def generate_report(self, trading_type: str = None) -> Dict:
         """Generate comprehensive performance report"""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         cursor = conn.cursor()
         
         report = {
@@ -257,7 +258,7 @@ class TradingMasterySystem:
     
     def get_learning_status(self) -> Dict:
         """Get DMAI's learning progress for each trading type"""
-        conn = sqlite3.connect(str(self.db_path))
+        conn = safe_open_kdb(str(self.db_path))
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM learning_progress")
         rows = cursor.fetchall()

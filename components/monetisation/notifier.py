@@ -30,6 +30,7 @@ from datetime import datetime
 from typing import Any, Dict, Iterable, Optional
 
 import requests
+from components.db import safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ class SlackNotifier:
 
     # ── DB ────────────────────────────────────────────────────────────────────
     def _conn(self) -> sqlite3.Connection:
-        c = sqlite3.connect(self.db_path, timeout=30)
+        c = safe_open_kdb(self.db_path, timeout=30)
         c.row_factory = sqlite3.Row
         return c
 

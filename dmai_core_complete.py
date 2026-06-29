@@ -9355,6 +9355,26 @@ except Exception as _e:
     _STARTUP_ERRORS["schema_bootstrap"] = {"error": str(_e)}
     logger.warning("schema_bootstrap failed at boot: %s", _e)
 
+# ── Knowledge DB integrity probe at boot (additive — never crashes startup) ──
+try:
+    from components.db import safe_open_kdb as _kdb_open
+    _kdb_probe = _kdb_open(os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db"))
+    try:
+        _kdb_probe.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    except Exception:
+        pass
+    _kdb_row = _kdb_probe.execute("PRAGMA integrity_check").fetchone()
+    if _kdb_row and _kdb_row[0] != "ok":
+        _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
+        _STARTUP_ERRORS["kdb_integrity_check"] = {"result": _kdb_row[0]}
+        logger.critical("KDB integrity_check FAILED at boot: %s", _kdb_row[0])
+    else:
+        logger.info("KDB integrity_check at boot: ok")
+except Exception as _e:
+    _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
+    _STARTUP_ERRORS["kdb_integrity_check_init"] = {"error": str(_e)}
+    logger.warning("kdb_integrity_check init failed: %s", _e)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

@@ -15,6 +15,7 @@ Used by: AutonomousResearcher, KPIEvaluator, CodeWriter, KaizenAutoRepair
 import json
 import sqlite3
 import logging
+from components.db import safe_open_kdb
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime, timezone
@@ -168,7 +169,7 @@ def _search_knowledge_db(query: str, top_k: int) -> MemoryResult:
 
     hits = []
     try:
-        conn = sqlite3.connect(str(_KNOWLEDGE_DB), timeout=5)
+        conn = safe_open_kdb(str(_KNOWLEDGE_DB), read_only=True)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA busy_timeout=3000")
         conn.row_factory = sqlite3.Row
