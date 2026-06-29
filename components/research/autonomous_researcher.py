@@ -3,6 +3,7 @@ Autonomous researcher - DMAI studies topics in depth
 """
 import requests
 import time
+from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 from components.db import safe_open_kdb
