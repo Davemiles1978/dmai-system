@@ -12,6 +12,23 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+# Files that Layer 3 must never auto-edit / auto-commit.
+# (Manual edits may still occur as part of normal development.)
+CRITICAL_FILES = {
+    "dmai_core_complete.py",
+    "app.py",
+}
+
+
+def is_critical_file(path: str) -> bool:
+    p = (path or "").replace('\\', '/')
+    if not p:
+        return True
+    if p.startswith("data/self_healing/backups/"):
+        return True
+    return p in CRITICAL_FILES
+
+
 @dataclass
 class FixProposal:
     """A concrete, human-readable patch proposal derived from a single gap entry."""
