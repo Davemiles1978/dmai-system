@@ -7253,6 +7253,44 @@ def api_self_evolution_gaps():
         return jsonify({"error": str(e)}), 500
 
 
+
+
+@app.route("/api/self-evolution/repair-gap", methods=["POST"])
+def api_self_evolution_repair_gap():
+    """Run Layer 3 orchestrator once: gaps -> pattern matches -> enqueue edits.
+
+    Body JSON: {"auto_approve": bool} (auto-approve is ignored until later chunks).
+    """
+    auth = _require_auth()
+    if auth is not None:
+        return auth
+    try:
+        payload = request.get_json(silent=True) or {}
+        # reserved for later chunks
+        _ = bool(payload.get("auto_approve", False))
+
+        orch = components.get("self_repair_orchestrator")
+        if orch is None:
+            return jsonify({"ok": False, "error": "orchestrator unavailable"}), 503
+
+        summary = orch.run_once(fresh=True)
+        return jsonify({"ok": True, "result": summary})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/self-evolution/repair-status", methods=["GET"])
+def api_self_evolution_repair_status():
+    """Return last orchestrator run summary + queue pending/recent history."""
+    try:
+        orch = components.get("self_repair_orchestrator")
+        if orch is None:
+            return jsonify({"ok": False, "error": "orchestrator unavailable"}), 503
+        return jsonify(orch.status())
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/self-evolution/recent-commits")
 def api_self_evolution_recent_commits():
     """Return the last 30 git commits authored by the self-evolution loop."""
