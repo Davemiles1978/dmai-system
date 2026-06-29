@@ -7262,19 +7262,24 @@ def api_self_evolution_repair_gap():
 
     Body JSON: {"auto_approve": bool} (auto-approve is ignored until later chunks).
     """
-    auth = _require_auth()
-    if auth is not None:
-        return auth
+    # chunk 7.7: original chunk-4 logic was `auth = _require_auth(); if auth
+    # is not None: return auth` — but _require_auth() returns bool, not a
+    # Response, so any call (auth'd or not) caused Flask to 500 trying to
+    # render True/False as the view return. Match the convention used by all
+    # other auth'd routes in this file.
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
     try:
         payload = request.get_json(silent=True) or {}
-        # reserved for later chunks
-        _ = bool(payload.get("auto_approve", False))
+        auto_approve = bool(payload.get("auto_approve", False))
 
         orch = components.get("self_repair_orchestrator")
         if orch is None:
             return jsonify({"ok": False, "error": "orchestrator unavailable"}), 503
 
-        summary = orch.run_once(fresh=True)
+        # chunk 7.7: pass auto_approve through to the orchestrator (previously
+        # was read then discarded; chunk 6 already shipped the guardrails).
+        summary = orch.run_once(auto_approve=auto_approve, fresh=True)
         return jsonify({"ok": True, "result": summary})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
