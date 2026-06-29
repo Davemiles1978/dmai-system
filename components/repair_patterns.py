@@ -118,9 +118,7 @@ logger = logging.getLogger(__name__)
 try: from components.db import safe_open_kdb
 except Exception: safe_open_kdb = None  # type: ignore
 def _seed() -> None:
-    # chunk 10.3: prod DB lives at data/dmai_knowledge.db (SelfEditQueue and
-    # SelfScanner both use that path). Default fallback updated to match.
-    p = os.environ.get("DMAI_KDB_PATH") or next((c for c in ("data/dmai_knowledge.db", "dmai_knowledge.db") if os.path.exists(c)), "data/dmai_knowledge.db")
+    p = os.environ.get("DMAI_KDB_PATH") or next((c for c in ("data/dmai_knowledge.db","dmai_knowledge.db") if os.path.exists(c)), "data/dmai_knowledge.db")
     if safe_open_kdb is None or not os.path.exists(p): return
     ts = datetime.now(timezone.utc).isoformat()
     rows = [
