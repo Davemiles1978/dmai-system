@@ -773,8 +773,12 @@ if _os_l4_6.environ.get("SELF_HEAL_SERVICE_ENABLED", "false").lower() in ("1", "
     try:
         from components.self_heal_service import SelfHealService as _SelfHealSvc
         _self_heal_interval = int(_os_l4_6.environ.get("SELF_HEAL_INTERVAL_SECONDS", "1800"))
+        # NOTE: app is not yet defined at this point in module load (Flask app
+        # is created later at line ~1301). SelfHealService accepts app=None;
+        # passing it explicitly here would NameError at boot. The daemon does
+        # not currently require app for its probe/repair cycle.
         _self_heal_svc = _SelfHealSvc(
-            app=app,
+            app=None,
             data_path=DATA_PATH,
             interval_seconds=_self_heal_interval,
         )
