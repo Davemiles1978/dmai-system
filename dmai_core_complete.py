@@ -6897,6 +6897,29 @@ def api_self_evolution_status():
         return jsonify({"status": "error", "error": str(e)})
 
 
+# ── Layer 4: Self-Generation Autonomy Score ──────────────────────────
+try:
+    from components.self_gen_autonomy_tracker import SelfGenAutonomyTracker as _SgAutonomy
+    _sg_autonomy_available = True
+except Exception as _sg_e:  # noqa: BLE001
+    _sg_autonomy_available = False
+
+
+@app.route("/api/self-generation/autonomy-score", methods=["GET"])
+def api_self_generation_autonomy_score():
+    """Layer 4 rolling 7-day autonomy score (L4-5)."""
+    if not _sg_autonomy_available:
+        return jsonify({
+            "status": "unavailable",
+            "reason": "SelfGenAutonomyTracker import failed at boot",
+        }), 503
+    try:
+        tracker = _SgAutonomy(data_path=DATA_PATH)
+        return jsonify(tracker.compute_score()), 200
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""
