@@ -70,3 +70,25 @@ def iter_gaps(fresh: bool = True) -> Iterable[GapEntry]:
     entries, _raw = fetch_gaps(fresh=fresh)
     for entry in entries:
         yield entry
+
+
+def iter_gap_entries(fresh: bool = True) -> Iterable[Dict[str, Any]]:
+    """Yield gap entries as plain dicts shaped for RepairPattern detectors.
+
+    Chunk 10: this is the contract the orchestrator already imports. Each
+    yielded dict carries the original payload plus an injected ``kind`` field
+    (the category) so detectors can branch on category strings cleanly.
+
+    String-style payloads (e.g. ``empty_tables`` returns bare table names
+    like ``"capabilities"``) are coerced into ``{"table": <name>}`` so the
+    table-shaped detectors hit.
+    """
+
+    for entry in iter_gaps(fresh=fresh):
+        payload = dict(entry.payload or {})
+        payload.setdefault("kind", entry.category)
+        # Coerce common string-shaped payloads into table-keyed dicts so
+        # downstream detectors (which look at ``table``) can match.
+        if entry.category == "empty_tables" and "value" in payload and "table" not in payload:
+            payload["table"] = payload["value"]
+        yield payload

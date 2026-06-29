@@ -28,6 +28,18 @@ class SelfRepairOrchestrator:
     def __init__(self, repo_root: str = ".") -> None:
         self.repo_root = repo_root
         self.last_run: Optional[OrchestratorRunSummary] = None
+        # chunk 10: best-effort import of any Layer 3 self-bootstrapping
+        # seeder modules so their idempotent setup work runs on cold boot
+        # without requiring a dmai_core_complete.py wiring change.
+        try:
+            import importlib
+            for _mod in ("components.empty_tables_seeder",):
+                try:
+                    importlib.import_module(_mod)
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
     def _patch_line_count(self, proposal: FixProposal) -> int:
         """Approximate patch size by counting changed lines in snippets."""
@@ -131,6 +143,23 @@ class SelfRepairOrchestrator:
                         res = q.approve(str(edit_id), decided_by="self_repair_orchestrator")
                         if isinstance(res, dict) and res.get("ok") is True:
                             auto_approved.append(str(edit_id))
+                            # chunk 10: self-bootstrapping seeder modules
+                            # execute their work on first import. After a
+                            # successful auto-approve of such a module,
+                            # import it in-process so the seed runs now
+                            # instead of waiting for the next deploy.
+                            try:
+                                tgt = (prop.file or "").replace("\\", "/")
+                                if tgt.startswith("components/") and tgt.endswith(".py"):
+                                    mod_name = tgt[:-3].replace("/", ".")
+                                    import importlib
+                                    try:
+                                        m = importlib.import_module(mod_name)
+                                        importlib.reload(m)
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                pass
                     except Exception:
                         pass
         except Exception:
