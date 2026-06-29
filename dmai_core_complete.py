@@ -9332,6 +9332,30 @@ def api_review_submit():
     return jsonify({"ok": True, "item": item})
 
 
+# ── Schema bootstrap (eager CREATE TABLE for all components) ────────────────
+# Runs at module-import time so gunicorn workers get tables created before
+# any GET-only route tries to SELECT against a freshly-rebuilt DB.
+# Idempotent: every statement is `IF NOT EXISTS`. Safe to run on every boot.
+try:
+    from components.schema_bootstrap import bootstrap_all_schemas as _bootstrap_schemas
+    _schema_db = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    _schema_res = _bootstrap_schemas(_schema_db)
+    logger.info(
+        "Schema bootstrap: %d statements, %d executed, %d skipped, %d errors, %d tables after",
+        _schema_res.get("statements_total", 0),
+        _schema_res.get("executed", 0),
+        _schema_res.get("skipped", 0),
+        _schema_res.get("errors", 0),
+        _schema_res.get("tables_after", 0),
+    )
+    if _schema_res.get("error_samples"):
+        logger.warning("Schema bootstrap errors (sample): %s", _schema_res["error_samples"])
+except Exception as _e:
+    _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
+    _STARTUP_ERRORS["schema_bootstrap"] = {"error": str(_e)}
+    logger.warning("schema_bootstrap failed at boot: %s", _e)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
