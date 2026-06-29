@@ -45,6 +45,37 @@ class SelfEditQueue:
         c.execute("PRAGMA journal_mode=WAL;")
         return c
 
+    def _conn_safe(self) -> sqlite3.Connection:
+        """Return a connection with schema guaranteed.
+
+        Survives external DB rebuilds (watchdog quarantines + recreates the
+        file). CREATE TABLE IF NOT EXISTS is idempotent and cheap; calling it
+        before each operation is safer than relying on a one-shot __init__.
+        """
+        c = self._conn()
+        try:
+            c.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS se_edits (
+                    id TEXT PRIMARY KEY,
+                    ts TEXT NOT NULL,
+                    capability TEXT NOT NULL,
+                    target_file TEXT NOT NULL,
+                    bytes_proposed INTEGER NOT NULL,
+                    bytes_existing INTEGER NOT NULL,
+                    rationale TEXT,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    decided_ts TEXT,
+                    decided_by TEXT,
+                    commit_sha TEXT
+                );
+                CREATE INDEX IF NOT EXISTS ix_se_edits_status ON se_edits(status, ts);
+                """
+            )
+        except Exception as e:
+            logger.warning("SelfEditQueue: lazy ensure-tables failed: %s", e)
+        return c
+
     def _ensure_tables(self) -> None:
         with self._lock, self._conn() as conn:
             conn.executescript("""
@@ -94,7 +125,7 @@ class SelfEditQueue:
             "bytes_existing": len(existing),
             "rationale": rationale,
         }, indent=2))
-        with self._lock, self._conn() as conn:
+        with self._lock, self._conn_safe() as conn:
             conn.execute(
                 "INSERT INTO se_edits (id, ts, capability, target_file, "
                 "bytes_proposed, bytes_existing, rationale, status) "
@@ -123,7 +154,7 @@ class SelfEditQueue:
 
     # ── list/read ──────────────────────────────────────────────────────
     def pending(self) -> List[Dict[str, Any]]:
-        with self._lock, self._conn() as conn:
+        with self._lock, self._conn_safe() as conn:
             rows = conn.execute(
                 "SELECT id, ts, capability, target_file, bytes_proposed, "
                 "bytes_existing, rationale FROM se_edits "
@@ -143,7 +174,7 @@ class SelfEditQueue:
         return None
 
     def history(self, limit: int = 50) -> List[Dict[str, Any]]:
-        with self._lock, self._conn() as conn:
+        with self._lock, self._conn_safe() as conn:
             rows = conn.execute(
                 "SELECT id, ts, capability, target_file, status, "
                 "decided_ts, decided_by, commit_sha FROM se_edits "
@@ -159,7 +190,7 @@ class SelfEditQueue:
 
     # ── approve / reject ───────────────────────────────────────────────
     def approve(self, edit_id: str, decided_by: str = "operator") -> Dict[str, Any]:
-        with self._lock, self._conn() as conn:
+        with self._lock, self._conn_safe() as conn:
             row = conn.execute(
                 "SELECT target_file, status FROM se_edits WHERE id=?",
                 (edit_id,),
@@ -216,7 +247,7 @@ class SelfEditQueue:
 
     def _mark(self, edit_id: str, status: str, decided_by: str,
               commit_sha: Optional[str]) -> None:
-        with self._lock, self._conn() as conn:
+        with self._lock, self._conn_safe() as conn:
             conn.execute(
                 "UPDATE se_edits SET status=?, decided_ts=?, decided_by=?, "
                 "commit_sha=? WHERE id=?",
