@@ -10,6 +10,19 @@ Chunk 1 only scaffolds the library + detection logic.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
+@dataclass
+class FixProposal:
+    """A concrete, human-readable patch proposal derived from a single gap entry."""
+
+    file: str
+    original_snippet: str
+    new_snippet: str
+    description: str
+    confidence: float = 0.5
+    meta: Optional[Dict[str, Any]] = None
+
 from typing import Any, Callable, Dict, List, Optional
 
 
