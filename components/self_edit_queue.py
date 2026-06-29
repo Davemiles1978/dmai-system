@@ -256,21 +256,97 @@ class SelfEditQueue:
             )
 
     def _git_commit(self, target_file: str, edit_id: str) -> Optional[str]:
+        """Chunk 10.4: persist approved self-edits to GitHub via the Contents API.
+
+        The Render container has no `.git/` working tree, so the previous
+        `git add/commit/push` chain was a silent no-op. We now PUT the file
+        directly to `Davemiles1978/dmai-system` on `main` using a personal
+        access token in env var `GITHUB_TOKEN_MAIN`.
+
+        Returns the 12-char commit SHA on success, or None if the call fails
+        (in which case the edit is still applied locally and marked approved,
+        matching the previous best-effort semantics).
+        """
+        import base64
         try:
-            subprocess.run(["git", "add", target_file],
-                           check=True, timeout=10)
-            msg = f"self-edit: approved {edit_id} -> {target_file}"
-            subprocess.run(["git", "commit", "-m", msg],
-                           check=True, timeout=15)
-            r = subprocess.run(["git", "rev-parse", "HEAD"],
-                               capture_output=True, text=True, timeout=5)
-            sha = r.stdout.strip()[:12]
-            # Push is best-effort; relies on credentials in env
-            try:
-                subprocess.run(["git", "push"], check=True, timeout=30)
-            except Exception as e:
-                logger.warning(f"SelfEditQueue: push failed (commit kept locally): {e}")
-            return sha
+            import requests  # type: ignore
         except Exception as e:
-            logger.error(f"SelfEditQueue: git commit failed: {e}")
+            logger.error(f"SelfEditQueue: requests not importable: {e}")
             return None
+
+        token = os.environ.get("GITHUB_TOKEN_MAIN") or os.environ.get("GITHUB_TOKEN")
+        if not token:
+            logger.warning("SelfEditQueue: no GITHUB_TOKEN_MAIN env var; skipping remote commit")
+            return None
+
+        owner = os.environ.get("DMAI_GH_OWNER", "Davemiles1978")
+        repo = os.environ.get("DMAI_GH_REPO", "dmai-system")
+        branch = os.environ.get("DMAI_GH_BRANCH", "main")
+        # Strip any leading ./ and normalise to a repo-relative POSIX path.
+        rel_path = target_file.replace("\\", "/").lstrip("./")
+        api = f"https://api.github.com/repos/{owner}/{repo}/contents/{rel_path}"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "dmai-self-edit-queue",
+        }
+
+        # Read the just-applied file content (already on disk from approve()).
+        try:
+            with open(target_file, "rb") as f:
+                content_b64 = base64.b64encode(f.read()).decode("ascii")
+        except Exception as e:
+            logger.error(f"SelfEditQueue: cannot read {target_file} for commit: {e}")
+            return None
+
+        # Fetch current file SHA (required by PUT when the file already exists).
+        existing_sha: Optional[str] = None
+        try:
+            g = requests.get(api, headers=headers, params={"ref": branch}, timeout=15)
+            if g.status_code == 200:
+                existing_sha = (g.json() or {}).get("sha")
+            elif g.status_code not in (404,):
+                logger.warning(
+                    f"SelfEditQueue: GET contents returned {g.status_code}: {g.text[:200]}"
+                )
+        except Exception as e:
+            logger.warning(f"SelfEditQueue: GET contents failed: {e}")
+
+        payload = {
+            "message": f"self-edit: approved {edit_id} -> {rel_path}",
+            "content": content_b64,
+            "branch": branch,
+            "committer": {
+                "name": "DMAI-SelfEditQueue",
+                "email": "self-edit@dmai.local",
+            },
+        }
+        if existing_sha:
+            payload["sha"] = existing_sha
+
+        try:
+            p = requests.put(api, headers=headers, json=payload, timeout=30)
+        except Exception as e:
+            logger.error(f"SelfEditQueue: PUT contents failed: {e}")
+            return None
+
+        if p.status_code not in (200, 201):
+            logger.error(
+                f"SelfEditQueue: PUT contents {p.status_code}: {p.text[:300]}"
+            )
+            return None
+
+        try:
+            commit_sha = (p.json().get("commit") or {}).get("sha")
+        except Exception as e:
+            logger.error(f"SelfEditQueue: cannot parse PUT response: {e}")
+            return None
+
+        if not commit_sha:
+            logger.warning("SelfEditQueue: PUT succeeded but no commit.sha in response")
+            return None
+        logger.info(
+            f"SelfEditQueue: persisted {edit_id} as {commit_sha[:12]} on {owner}/{repo}@{branch}"
+        )
+        return commit_sha[:12]
