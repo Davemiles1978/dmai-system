@@ -105,8 +105,12 @@ class SelfRepairOrchestrator:
                 )
                 enqueued.append(str(edit_id))
                 if auto_approve and self._should_auto_approve(prop):
-                    # Auto-commit wire is added in chunk 7.
-                    auto_approved.append(str(edit_id))
+                    try:
+                        res = q.approve(str(edit_id), decided_by="self_repair_orchestrator")
+                        if isinstance(res, dict) and res.get("ok") is True:
+                            auto_approved.append(str(edit_id))
+                    except Exception:
+                        pass
         except Exception:
             pass
 
