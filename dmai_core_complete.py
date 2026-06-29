@@ -734,6 +734,25 @@ try:
 except Exception as e:
     logger.warning("CodeWriter failed: %s", e)
 
+# ── SelfRepairOrchestrator (Layer 3) — gap → proposal → queue ───────────────
+# Constructor only; does not start any background loop in this chunk.
+_STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
+try:
+    from components.self_repair_orchestrator import SelfRepairOrchestrator
+    components["self_repair_orchestrator"] = SelfRepairOrchestrator(
+        repo_root=".",
+        data_path=DATA_PATH,
+        notifier=components.get("notifier"),
+    )
+    logger.info("SelfRepairOrchestrator initialised")
+except Exception as e:
+    import traceback as _tb_sro
+    _STARTUP_ERRORS["self_repair_orchestrator"] = {
+        "error": str(e),
+        "trace": _tb_sro.format_exc()[-2000:],
+    }
+    logger.warning("SelfRepairOrchestrator failed: %s", e)
+
 # ── KaizenAutoRepair — autonomous fix executor ───────────────────────────────────
 try:
     from components.kaizen_auto_repair import KaizenAutoRepair
