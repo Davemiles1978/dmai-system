@@ -88,7 +88,24 @@ class SelfEvolutionOrchestrator:
             logger.warning(f"SelfEvolutionOrchestrator: scanner error: {e}")
             return
 
-        # 3. Prioritise — broken routes (1), capability gaps (2),
+        # 3. Layer 3 self-repair hook (optional)
+        # If enabled, attempt targeted micro-fixes for known gap patterns.
+        # This runs BEFORE generation/commit so it can reduce noise in work_items.
+        try:
+            if os.environ.get("LAYER3_AUTO_REPAIR_ENABLED", "").strip().lower() in ("1", "true", "yes", "on"):
+                from components.self_repair_orchestrator import SelfRepairOrchestrator
+                sro = SelfRepairOrchestrator(repo_root=".")
+                summary = sro.run_once(auto_approve=True)
+                logger.info(
+                    "Layer3 auto-repair tick: matched=%d enqueued=%d auto_approved=%d",
+                    len(summary.matched_patterns or []),
+                    len(summary.enqueued_edit_ids or []),
+                    len(summary.auto_approved_edit_ids or []),
+                )
+        except Exception as e:
+            logger.warning(f"Layer3 auto-repair tick failed: {e}")
+
+        # 4. Prioritise — broken routes (1), capability gaps (2),
         #    empty tables (3), underperforming KPIs (4).
         work_items = []
         for item in gap_report.get("broken_routes", []):
