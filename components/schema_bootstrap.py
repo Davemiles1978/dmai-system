@@ -119,6 +119,81 @@ _EXPLICIT_FALLBACK_SCHEMAS = [
     );""",
 ]
 
+# Tables whose schema drifts across the codebase — the legacy CREATE TABLE
+# (in dmai_core_complete.py) runs at import time and 'wins' the IF NOT EXISTS
+# race, leaving the modern code with INSERTs that reference columns that
+# don't exist. After table creation, we run ALTER TABLE ADD COLUMN for
+# any missing columns listed here. ADD COLUMN in SQLite can't use
+# CURRENT_TIMESTAMP as default, so we use NULL/static defaults only and
+# let application code populate real values.
+_REQUIRED_COLUMNS = {
+    # canonical rich schema from components/sqlite_persistence.py + INSERT in dmai_api_routes.py
+    "insights": [
+        # (column_name, sqlite_type_with_default)
+        ("entity_type", "TEXT"),
+        ("entities", "TEXT"),
+        ("relationship", "TEXT"),
+        ("source_topic", "TEXT"),
+        ("target_topic", "TEXT"),
+        ("source_url", "TEXT"),
+        ("source_title", "TEXT"),
+        ("source_type", "TEXT"),
+        ("occurrence_count", "INTEGER DEFAULT 1"),
+        ("last_used", "TIMESTAMP"),
+        # legacy columns the early CREATE already has — listed here so IF MISSING
+        # we still ADD them (e.g. on a Postgres-imported snapshot)
+        ("content", "TEXT"),
+        ("description", "TEXT"),
+        ("title", "TEXT"),
+    ],
+    # capabilities also drifts (sqlite_persistence vs core)
+    "capabilities": [
+        ("capability_type", "TEXT"),
+        ("runtime_mode", "TEXT"),
+        ("description", "TEXT"),
+        ("category", "TEXT"),
+        ("proficiency", "REAL DEFAULT 0.0"),
+    ],
+}
+
+
+def _ensure_columns(conn: sqlite3.Connection, result: Dict) -> None:
+    """For each table in _REQUIRED_COLUMNS, add any missing columns.
+
+    Idempotent: PRAGMA table_info reveals existing columns; we only ALTER
+    for ones that don't exist yet. ALTER TABLE ADD COLUMN is fast even on
+    large tables in SQLite because it doesn't rewrite the table.
+    """
+    cur = conn.cursor()
+    for table, cols in _REQUIRED_COLUMNS.items():
+        try:
+            existing = {row[1] for row in cur.execute(f"PRAGMA table_info({table})").fetchall()}
+            if not existing:
+                # table doesn't exist — skip (CREATE pass should have made it)
+                continue
+            for col_name, col_type in cols:
+                if col_name in existing:
+                    continue
+                try:
+                    cur.execute(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}")
+                    result.setdefault("columns_added", 0)
+                    result["columns_added"] += 1
+                except sqlite3.OperationalError as oe:
+                    msg = str(oe)
+                    if "duplicate column name" in msg.lower():
+                        continue  # already exists
+                    result["errors"] += 1
+                    if len(result["error_samples"]) < 8:
+                        result["error_samples"].append(
+                            f"alter {table}.{col_name}: {msg[:100]}"
+                        )
+        except Exception as e:
+            result["errors"] += 1
+            if len(result["error_samples"]) < 8:
+                result["error_samples"].append(
+                    f"ensure_cols({table}): {type(e).__name__}: {str(e)[:100]}"
+                )
+
 
 def _extract_statement(text: str, start_idx: int) -> str:
     """Given the position of a CREATE statement start, walk forward to find the
@@ -260,6 +335,9 @@ def bootstrap_all_schemas(db_path: str) -> Dict[str, int]:
                     result["error_samples"].append(
                         f"{os.path.basename(stmt['file'])}: {type(e).__name__}: {str(e)[:120]}"
                     )
+        conn.commit()
+        # Ensure schema-drift tables have all required columns (ALTER TABLE ADD COLUMN)
+        _ensure_columns(conn, result)
         conn.commit()
         # Count tables after
         try:
