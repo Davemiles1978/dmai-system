@@ -197,3 +197,87 @@ class SelfScanner:
         except Exception as e:
             logger.warning(f"Capability gap audit error: {e}")
         return gaps
+
+    # ------------------------------------------------------------------
+    # Layer 4 — typed capability-gap audit (chunk L4-1)
+    # Additive: never touched by existing run() / _audit_capability_gaps().
+    # ------------------------------------------------------------------
+    _L4_KPI_GAP_MAP = {
+        "skill_acquisition_rate":         ("skill_acquisition_engine",       1),
+        "transfer_learning_rate":         ("transfer_learning_adapter",      1),
+        "zero_shot_success_count":        ("zero_shot_capability_handler",   2),
+        "agentic_capability_score":       ("agentic_task_executor",          1),
+        "recursive_self_improvement_rate":("recursive_improvement_loop",     1),
+        "sample_efficiency_trend":        ("sample_efficiency_optimizer",    2),
+    }
+
+    def audit_capability_gaps_typed(self) -> list:
+        """Return CapabilityGapEntry items for Layer 4 self-generation.
+
+        Sources:
+          (a) KPI-driven gaps  — si_core_state.json values < 0.5 → emit a
+              capability shaped to move that KPI.
+          (b) Registry-driven  — target_capabilities.json entries with no
+              matching components/<slug>.py on disk.
+
+        Never raises. Returns [] on any failure.
+        """
+        try:
+            from components.capability_gap_entry import CapabilityGapEntry
+        except Exception as e:
+            logger.warning(f"L4 typed audit: CapabilityGapEntry import failed: {e}")
+            return []
+
+        entries = []
+
+        # (a) KPI-driven gaps -------------------------------------------------
+        kpis = {}
+        try:
+            state_path = os.path.join(self.data_path, "si_core_state.json")
+            if os.path.exists(state_path):
+                with open(state_path) as f:
+                    kpis = json.load(f) or {}
+        except Exception as e:
+            logger.warning(f"L4 typed audit: KPI read failed: {e}")
+        for kpi_key, (cap_name, priority) in self._L4_KPI_GAP_MAP.items():
+            try:
+                current = float(kpis.get(kpi_key, 0.0) or 0.0)
+            except (TypeError, ValueError):
+                current = 0.0
+            if current < 0.5:
+                entries.append(CapabilityGapEntry(
+                    name=cap_name,
+                    description=f"Implement {cap_name} to improve {kpi_key}",
+                    priority=priority,
+                    evidence_source=f"kpi:{kpi_key}",
+                    target_kpi=kpi_key,
+                    current_value=current,
+                    target_value=0.5,
+                ))
+
+        # (b) Registry-driven gaps -------------------------------------------
+        try:
+            if os.path.exists(self.target_caps_path):
+                with open(self.target_caps_path) as f:
+                    caps = json.load(f) or {}
+                existing = {p.stem for p in Path("components").glob("*.py")}
+                # Names already covered by KPI map shouldn't double-emit.
+                kpi_names = {cap for cap, _ in self._L4_KPI_GAP_MAP.values()}
+                for slug, info in caps.items():
+                    if slug.startswith("_") or not isinstance(info, dict):
+                        continue
+                    if info.get("implemented", False):
+                        continue
+                    if slug in existing or slug in kpi_names:
+                        continue
+                    entries.append(CapabilityGapEntry(
+                        name=slug,
+                        description=info.get("description", ""),
+                        priority=int(info.get("priority", 3)),
+                        evidence_source="registry:missing",
+                        target_kpi=info.get("target_kpi", ""),
+                    ))
+        except Exception as e:
+            logger.warning(f"L4 typed audit: registry scan failed: {e}")
+
+        return entries

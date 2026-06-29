@@ -122,3 +122,25 @@ def iter_gap_entries(fresh: bool = True) -> Iterable[Dict[str, Any]]:
         if entry.category == "empty_tables" and "value" in payload and "table" not in payload:
             payload["table"] = payload["value"]
         yield payload
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Layer 4 — typed capability-gap iterator (chunk L4-1)
+# ──────────────────────────────────────────────────────────────────────────
+def iter_capability_gaps(fresh: bool = True):
+    """Yield CapabilityGapEntry items shaped for the Layer 4 pipeline.
+
+    Always in-process (no HTTP loopback). Falls back to an empty iterator if
+    the scanner is unavailable. The ``fresh`` flag is accepted for API
+    symmetry with iter_gap_entries but is currently a no-op — the typed
+    audit is cheap enough to always re-run.
+    """
+    import os as _os
+    try:
+        from components.self_scanner import SelfScanner  # type: ignore
+        data_path = _os.environ.get("DMAI_DATA_PATH", "data/")
+        scanner = SelfScanner(app=None, data_path=data_path)
+        for item in scanner.audit_capability_gaps_typed():
+            yield item
+    except Exception:
+        return
