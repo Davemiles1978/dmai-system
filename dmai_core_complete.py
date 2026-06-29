@@ -7364,9 +7364,9 @@ def api_self_evolution_diff(edit_id):
 
 @app.route("/api/self-evolution/approve/<edit_id>", methods=["POST"])
 def api_self_evolution_approve(edit_id):
-    auth = _require_auth()
-    if auth is not None:
-        return auth
+    # chunk 10.4b: _require_auth() returns a bool, not None/Response.
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
     try:
         q = components.get("self_edit_queue")
         if q is None:
@@ -7379,9 +7379,9 @@ def api_self_evolution_approve(edit_id):
 
 @app.route("/api/self-evolution/reject/<edit_id>", methods=["POST"])
 def api_self_evolution_reject(edit_id):
-    auth = _require_auth()
-    if auth is not None:
-        return auth
+    # chunk 10.4b: _require_auth() returns a bool, not None/Response.
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
     try:
         q = components.get("self_edit_queue")
         if q is None:
