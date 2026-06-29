@@ -94,14 +94,27 @@ class SelfRepairOrchestrator:
 
             q = SelfEditQueue(repo_root=self.repo_root)
             for prop in proposals:
+                # chunk 7.5: validate proposed code parses before enqueueing.
+                # Refuse syntactically broken proposals at the orchestrator
+                # boundary so they never reach apply-time.
+                try:
+                    import ast
+                    ast.parse(prop.new_snippet or "")
+                except SyntaxError:
+                    continue
+
+                # chunk 7.5: match real SelfEditQueue.enqueue signature
+                # (capability, target_file, code, rationale).
+                rationale = (
+                    f"{prop.description} "
+                    f"(confidence={prop.confidence:.2f}, "
+                    f"proposed_by=self_repair_orchestrator)"
+                )
                 edit_id = q.enqueue(
-                    file_path=prop.file,
-                    description=prop.description,
-                    original_snippet=prop.original_snippet,
-                    new_snippet=prop.new_snippet,
-                    proposed_by="self_repair_orchestrator",
-                    confidence=prop.confidence,
-                    meta=prop.meta or {},
+                    capability="self_repair_orchestrator",
+                    target_file=prop.file,
+                    code=prop.new_snippet,
+                    rationale=rationale,
                 )
                 enqueued.append(str(edit_id))
                 if auto_approve and self._should_auto_approve(prop):
