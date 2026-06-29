@@ -113,8 +113,22 @@ class SelfRepairOrchestrator:
         try:
             from components.self_edit_queue import SelfEditQueue
 
-            q = SelfEditQueue(repo_root=self.repo_root)
+            # chunk 10.2: SelfEditQueue.__init__ takes (data_path, notifier),
+            # not repo_root. The earlier chunk-7.5 hotfix passed repo_root which
+            # raised TypeError and was silently swallowed by the outer
+            # try/except — explaining why every prior live run had zero
+            # enqueued_edit_ids despite valid proposals.
+            q = SelfEditQueue(data_path="data")
+            # chunk 10.2: dedupe identical proposals by (file, hash). When 3
+            # empty_tables gaps all fire the same seeder proposer, we only
+            # want a single enqueue/approve/commit cycle.
+            import hashlib as _hashlib
+            _seen_props: set = set()
             for prop in proposals:
+                _key = (prop.file, _hashlib.sha256((prop.new_snippet or "").encode()).hexdigest())
+                if _key in _seen_props:
+                    continue
+                _seen_props.add(_key)
                 # chunk 7.5: validate proposed code parses before enqueueing.
                 # Refuse syntactically broken proposals at the orchestrator
                 # boundary so they never reach apply-time.
@@ -204,7 +218,8 @@ class SelfRepairOrchestrator:
         try:
             from components.self_edit_queue import SelfEditQueue
 
-            q = SelfEditQueue(repo_root=self.repo_root)
+            # chunk 10.2: same fix as in run_once().
+            q = SelfEditQueue(data_path="data")
             pending: List[Any] = []
             history: List[Any] = []
             for attr in ("pending", "list_pending", "get_pending"):
