@@ -1267,6 +1267,15 @@ def _save_kaizen(proposal):
 
 # ── Flask app ─────────────────────────────────────────────────────────────────
 app = Flask(__name__, static_folder="static", static_url_path="/static")
+
+# Late-bind Flask app into Layer 3 orchestrator (constructed earlier, before app existed).
+try:
+    _orch = components.get("self_repair_orchestrator")
+    if _orch is not None and hasattr(_orch, "set_app"):
+        _orch.set_app(app)
+        logger.info("SelfRepairOrchestrator: Flask app late-bound")
+except Exception as _e_lb:
+    logger.warning("SelfRepairOrchestrator late-bind failed: %s", _e_lb)
 CORS(app)
 
 # Register circuit breaker after_request hook (CB-01–CB-06)
@@ -7261,9 +7270,8 @@ def api_self_evolution_repair_gap():
 
     Body JSON: {"auto_approve": bool} (auto-approve is ignored until later chunks).
     """
-    auth = _require_auth()
-    if auth is not None:
-        return auth
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
     try:
         payload = request.get_json(silent=True) or {}
         # reserved for later chunks
