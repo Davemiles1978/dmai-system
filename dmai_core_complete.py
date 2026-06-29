@@ -766,6 +766,37 @@ try:
 except Exception as e:
     logger.warning("KaizenAutoRepair failed: %s", e)
 
+# ── Layer 4: SelfHealService (L4-6 scaffold; L4-10 wires repair steps) ──────
+import os as _os_l4_6
+_STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
+if _os_l4_6.environ.get("SELF_HEAL_SERVICE_ENABLED", "false").lower() in ("1", "true", "yes"):
+    try:
+        from components.self_heal_service import SelfHealService as _SelfHealSvc
+        _self_heal_interval = int(_os_l4_6.environ.get("SELF_HEAL_INTERVAL_SECONDS", "1800"))
+        _self_heal_svc = _SelfHealSvc(
+            app=app,
+            data_path=DATA_PATH,
+            interval_seconds=_self_heal_interval,
+        )
+        _self_heal_svc.start()
+        components["self_heal_service"] = _self_heal_svc
+        logger.info("SelfHealService started (L4-6 scaffold)")
+    except Exception as _e_shs:
+        import traceback as _tb_shs
+        _STARTUP_ERRORS["self_heal_service"] = {
+            "error": str(_e_shs),
+            "trace": _tb_shs.format_exc()[-2000:],
+        }
+        logger.warning("SelfHealService failed: %s", _e_shs)
+else:
+    # Import-only smoke (kill-switched until SELF_HEAL_SERVICE_ENABLED=true).
+    try:
+        from components.self_heal_service import SelfHealService as _SelfHealSvc  # noqa: F401
+        logger.info("SelfHealService available but NOT started (SELF_HEAL_SERVICE_ENABLED=false)")
+    except Exception as _e_shs_imp:
+        _STARTUP_ERRORS["self_heal_service_import"] = {"error": str(_e_shs_imp)}
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ── UNWIRED COMPONENTS — full wiring (instantiation order respects deps) ─────
 # ═══════════════════════════════════════════════════════════════════════════
