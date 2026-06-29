@@ -35,18 +35,12 @@ class SelfRepairOrchestrator:
         repo_root: str | Path = ".",
         data_path: str | Path = "data",
         notifier=None,
-        app=None,
     ):
         self.repo_root = str(repo_root)
         self.data_path = str(data_path)
         self.notifier = notifier
-        self.app = app
         self.queue = SelfEditQueue(data_path=self.data_path, notifier=notifier)
         self.last_run: Dict[str, Any] = {}
-
-    def set_app(self, app) -> None:
-        """Late-bind the Flask app (orchestrator is constructed before app exists)."""
-        self.app = app
 
     def _entry_to_gap_dict(self, entry: GapEntry) -> Dict[str, Any]:
         d = dict(entry.payload or {})
@@ -59,7 +53,7 @@ class SelfRepairOrchestrator:
 
         Returns a structured summary suitable for an API response.
         """
-        entries, raw = fetch_gaps(fresh=fresh, app=self.app, data_path=self.data_path)
+        entries, raw = fetch_gaps(fresh=fresh)
 
         summary: Dict[str, Any] = {
             "ok": True,
