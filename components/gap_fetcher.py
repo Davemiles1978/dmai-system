@@ -63,6 +63,36 @@ def fetch_gaps(fresh: bool = True) -> Tuple[List[GapEntry], Dict[str, Any]]:
     except Exception:
         pass
 
+    # Chunk 10.1: SelfScanner is the actual gap source in production. The
+    # /api/self-evolution/gaps route calls SelfScanner(...).run() directly,
+    # so we mirror that here so the orchestrator sees the same gaps users
+    # see in the API. Use cached gap_report.json if available, fall back to
+    # a live scan only when fresh=True.
+    try:
+        import json as _json
+        import os as _os
+
+        if not fresh:
+            for candidate in ("data/gap_report.json", "gap_report.json"):
+                if _os.path.exists(candidate):
+                    with open(candidate) as _f:
+                        raw = _json.load(_f)
+                    if isinstance(raw, dict):
+                        return _normalize_gaps(raw), raw
+
+        from components.self_scanner import SelfScanner  # type: ignore
+
+        # SelfScanner needs app + data_path. We don't have the Flask app here,
+        # but SelfScanner tolerates app=None for the route-audit path being
+        # skipped (broken_routes will be empty, which is correct in-process).
+        data_path = _os.environ.get("DMAI_DATA_PATH", "data/")
+        scanner = SelfScanner(app=None, data_path=data_path)  # type: ignore
+        raw = scanner.run()
+        if isinstance(raw, dict):
+            return _normalize_gaps(raw), raw
+    except Exception:
+        pass
+
     return [], raw
 
 
