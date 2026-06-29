@@ -2025,6 +2025,39 @@ def api_startup_errors():
     return jsonify({"count": len(errs), "errors": errs})
 
 
+@app.route("/api/self-heal/status", methods=["GET"])
+def api_self_heal_status():
+    """L4-10.1 — surface SelfHealService runtime status + tick log tail.
+
+    Read-only. Used to observe in-app self-heal cycles without waiting
+    for the default 30-min interval. Required auth: master password.
+    """
+    try:
+        if not _require_auth():
+            return jsonify({"error": "unauthorized"}), 401
+    except Exception:
+        pass
+    svc = components.get("self_heal_service")
+    if svc is None:
+        return jsonify({"running": False, "reason": "SelfHealService not loaded"})
+    try:
+        status = svc.status() if hasattr(svc, "status") else {"running": False}
+    except Exception as _e:
+        status = {"running": False, "error": str(_e)}
+    # Tail the tick log
+    import os as _os_shs_st
+    log_path = _os_shs_st.path.join(DATA_PATH, "self_healing", "self_heal_service.log.jsonl")
+    tail = []
+    try:
+        if _os_shs_st.path.exists(log_path):
+            with open(log_path, "r") as _fh:
+                tail = _fh.readlines()[-20:]
+            tail = [line.strip() for line in tail if line.strip()]
+    except Exception as _e:
+        tail = [f"<read error: {_e}>"]
+    return jsonify({"status": status, "log_tail": tail, "log_path": log_path})
+
+
 @app.route("/api/chat/debug", methods=["GET"])
 def api_chat_debug():
     """Diagnostic: which provider keys are visible at request time + waterfall trace."""
