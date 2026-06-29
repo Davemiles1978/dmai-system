@@ -18,9 +18,10 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import threading
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -32,20 +33,36 @@ class SelfHealService:
     """In-process watchdog daemon."""
 
     DEFAULT_INTERVAL_SECONDS = 1800  # 30 minutes
+    DEFAULT_HALT_THRESHOLD = 5       # consecutive failures → halt
+    DEFAULT_HALT_HOURS = 4
 
     def __init__(
         self,
         app=None,
         data_path: str = "data",
         interval_seconds: int = DEFAULT_INTERVAL_SECONDS,
+        halt_threshold: Optional[int] = None,
+        halt_hours: Optional[int] = None,
     ) -> None:
         self.app = app
         self.data_path = data_path
         self.interval_seconds = max(60, int(interval_seconds))
+        self.halt_threshold = int(
+            halt_threshold
+            if halt_threshold is not None
+            else os.environ.get("SELF_HEAL_HALT_THRESHOLD", self.DEFAULT_HALT_THRESHOLD)
+        )
+        self.halt_hours = int(
+            halt_hours
+            if halt_hours is not None
+            else os.environ.get("SELF_HEAL_HALT_HOURS", self.DEFAULT_HALT_HOURS)
+        )
         self._running = False
         self._thread: Optional[threading.Thread] = None
         self._last_probe: Optional[str] = None
         self._last_repair: Optional[str] = None
+        self._last_repair_summary: Optional[Dict[str, Any]] = None
+        self._last_layer4_summary: Optional[Dict[str, Any]] = None
         self._halt_until: Optional[str] = None
         self._consecutive_failures = 0
         self._lock = threading.Lock()
@@ -82,8 +99,12 @@ class SelfHealService:
             "running": bool(self._thread and self._thread.is_alive()),
             "last_probe": self._last_probe,
             "last_repair": self._last_repair,
+            "last_repair_summary": self._last_repair_summary,
+            "last_layer4_summary": self._last_layer4_summary,
             "halt_until": self._halt_until,
             "consecutive_failures": self._consecutive_failures,
+            "halt_threshold": self.halt_threshold,
+            "halt_hours": self.halt_hours,
             "interval_seconds": self.interval_seconds,
         }
 
@@ -131,31 +152,57 @@ class SelfHealService:
         logger.info("SelfHealService loop exited cleanly")
 
     def _tick(self) -> None:
-        """One probe → repair → notify cycle."""
-        # Step 1 — health probe
+        """One probe → scan → repair → layer4 → notify cycle."""
         ok = self._probe_health()
         now_iso = datetime.now(timezone.utc).isoformat()
         self._last_probe = now_iso
 
-        # Step 2 — gap scan (L4-10 will implement)
-        self._gap_scan_stub()
+        gap_summary = self._gap_scan_stub()
+        repair_summary = self._repair_tick_stub()
+        l4_summary = self._layer4_tick_stub()
 
-        # Step 3 — repair tick (L4-10 will implement)
-        self._repair_tick_stub()
-
-        # Step 4 — Layer 4 tick (L4-10 will implement)
-        self._layer4_tick_stub()
-
-        # Step 5 — notify
         if ok:
             self._consecutive_failures = 0
-            self._log_event("tick_ok", {"ts": now_iso})
+            self._log_event("tick_ok", {
+                "ts": now_iso,
+                "gap": bool(gap_summary),
+                "repair": repair_summary,
+                "layer4": l4_summary,
+            })
         else:
             self._consecutive_failures += 1
             self._log_event("tick_unhealthy", {
                 "ts": now_iso,
                 "consecutive_failures": self._consecutive_failures,
             })
+            if self._consecutive_failures >= self.halt_threshold:
+                halt_iso = (
+                    datetime.now(timezone.utc) + timedelta(hours=self.halt_hours)
+                ).isoformat()
+                self._halt_until = halt_iso
+                self._notify_halt(self._consecutive_failures, halt_iso)
+                self._log_event("halt_triggered", {
+                    "ts": now_iso,
+                    "consecutive_failures": self._consecutive_failures,
+                    "halt_until": halt_iso,
+                })
+
+    def _notify_halt(self, failures: int, halt_iso: str) -> None:
+        """Best-effort Slack notification on halt; durable record in JSONL log."""
+        msg = (
+            f":rotating_light: DMAI in-app SelfHealService HALTED "
+            f"after {failures} consecutive unhealthy ticks. "
+            f"halt_until={halt_iso}."
+        )
+        logger.error(msg)
+        try:
+            import importlib
+            slack_mod = importlib.import_module("components.slack_notifier")
+            notifier_cls = getattr(slack_mod, "SlackNotifier", None)
+            if notifier_cls:
+                notifier_cls().post(msg)
+        except Exception:  # noqa: BLE001
+            pass
 
     # ------------------------------------------------------------------
     # Step implementations (1 & 5 real; 2-4 stubs for L4-10)
@@ -172,17 +219,59 @@ class SelfHealService:
         except Exception:  # noqa: BLE001
             return False
 
-    def _gap_scan_stub(self) -> None:
-        """Step 2 stub — L4-10 wires SelfScanner.run()."""
-        return None
+    def _gap_scan_stub(self) -> Optional[Dict[str, Any]]:
+        """Step 2 — SelfScanner.run() (best-effort, never crashes the loop)."""
+        try:
+            from components.self_scanner import SelfScanner
+            scanner = SelfScanner(data_path=self.data_path)
+            result = scanner.run()
+            return result if isinstance(result, dict) else {"ok": True}
+        except Exception as e:  # noqa: BLE001
+            self._log_event("gap_scan_error", {"error": repr(e)})
+            return None
 
-    def _repair_tick_stub(self) -> None:
-        """Step 3 stub — L4-10 wires SelfRepairOrchestrator.run_once()."""
-        return None
+    def _repair_tick_stub(self) -> Optional[Dict[str, Any]]:
+        """Step 3 — SelfRepairOrchestrator.run_once(auto_approve=True).
 
-    def _layer4_tick_stub(self) -> None:
-        """Step 4 stub — L4-10 wires SelfGenOrchestrator.run_once()."""
-        return None
+        Returns a JSON-safe summary on success; None on failure. Updates
+        ``self._last_repair`` and ``self._last_repair_summary``.
+        """
+        try:
+            from components.self_repair_orchestrator import SelfRepairOrchestrator
+            orch = SelfRepairOrchestrator(repo_root=".")
+            summary = orch.run_once(auto_approve=True)
+            payload = {
+                "matched_patterns": list(getattr(summary, "matched_patterns", []) or []),
+                "enqueued": len(getattr(summary, "enqueued_edit_ids", []) or []),
+                "auto_approved": len(getattr(summary, "auto_approved_edit_ids", []) or []),
+            }
+            self._last_repair = datetime.now(timezone.utc).isoformat()
+            self._last_repair_summary = payload
+            return payload
+        except Exception as e:  # noqa: BLE001
+            self._log_event("repair_tick_error", {"error": repr(e)})
+            return None
+
+    def _layer4_tick_stub(self) -> Optional[Dict[str, Any]]:
+        """Step 4 — SelfGenOrchestrator.run_once(), no-op until L4-9 ships.
+
+        Lazy import so a missing SelfGenOrchestrator is a graceful skip,
+        not a tick failure. L4-9 will create the module; this hook is ready.
+        """
+        try:
+            from components.self_gen_orchestrator import SelfGenOrchestrator  # noqa: F401
+        except Exception:
+            return None
+        try:
+            from components.self_gen_orchestrator import SelfGenOrchestrator
+            orch = SelfGenOrchestrator(data_path=self.data_path)
+            result = orch.run_once()
+            payload = result if isinstance(result, dict) else {"ok": True}
+            self._last_layer4_summary = payload
+            return payload
+        except Exception as e:  # noqa: BLE001
+            self._log_event("layer4_tick_error", {"error": repr(e)})
+            return None
 
     # ------------------------------------------------------------------
     # Logging
