@@ -88,6 +88,24 @@ def _noop_propose(_: Dict[str, Any], __: str) -> Optional[Any]:
     return None
 
 
+def _detect_empty_sqlite_tables(gap_entry: Dict[str, Any]) -> bool:
+    """Detect a gap indicating core SQLite tables exist but are empty.
+
+    Intended for production live-state gaps like empty `capabilities`, `insights`,
+    `suggestions` tables.
+    """
+
+    t = _gap_text(gap_entry)
+    # Match either explicit table key or textual mention.
+    table = str(gap_entry.get("table", "")).lower()
+    if table in {"capabilities", "insights", "suggestions"}:
+        return True
+    return (
+        ("capabilities" in t or "insights" in t or "suggestions" in t)
+        and ("empty" in t or "0 rows" in t or "no rows" in t)
+    )
+
+
 PATTERNS: List[RepairPattern] = [
     RepairPattern(
         name="startup_errors_swallowed",
@@ -112,6 +130,11 @@ PATTERNS: List[RepairPattern] = [
     RepairPattern(
         name="bytes_json_serialization_typeerror",
         detect=_detect_bytes_json_serialization_typeerror,
+        propose=_noop_propose,
+    ),
+    RepairPattern(
+        name="empty_sqlite_tables",
+        detect=_detect_empty_sqlite_tables,
         propose=_noop_propose,
     ),
 ]
