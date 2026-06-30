@@ -7986,7 +7986,7 @@ def api_stage_analytics():
 
         conn.close()
 
-        return jsonify({
+        return safe_jsonify({
             "generated_at":    now_utc.isoformat() + "Z",
             "current": {
                 "stage":        cur_stage,
