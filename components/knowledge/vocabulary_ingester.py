@@ -22,8 +22,10 @@ in the `encyclopaedia` table of dmai_knowledge.db.
 
 import json
 import logging
+import os
 import re
 import sqlite3
+import threading
 import time
 import uuid
 from datetime import datetime, timezone
@@ -31,12 +33,25 @@ from pathlib import Path
 from typing import Optional
 
 import requests
-from components.db import safe_open_kdb
+from components.db import acquire_write_lock, safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
 DB_PATH   = Path("data/dmai_knowledge.db")
 DATA_PATH = Path("data/vocabulary")
+
+# ── Batched-insert defaults (2026-06-30, lock-storm reduction) ─────────────
+# Per-word INSERT+COMMIT was the dominant source of write-lock acquisitions.
+# Accumulate rows and flush in transactions of N (default 200). All knobs are
+# optional env overrides — no env var is required and no schema changes.
+DEFAULT_BATCH_SIZE    = 200
+DEFAULT_FLUSH_SECONDS = 5.0
+
+_VOCAB_INSERT_SQL = (
+    "INSERT OR IGNORE INTO vocabulary (id, word, part_of_speech, definition, "
+    "etymology, example, pronunciation, domain, source, confidence, created_at) "
+    "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+)
 
 # ── Curated seed lists ─────────────────────────────────────────────────────
 # OED-grade vocabulary: academic, philosophical, scientific, literary terms
@@ -171,12 +186,39 @@ class VocabularyIngester:
     Runs in a background thread, cycling through word/topic lists.
     """
 
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str = None, batch_size: int = None):
         self.db_path = Path(db_path) if db_path else DB_PATH
         self.session = requests.Session()
         self.session.headers.update({
             "User-Agent": "DMAI-Knowledge-Bot/1.0 (autonomous educational AI; contact: milesd040@gmail.com)"
         })
+
+        # ── Batched-insert configuration ───────────────────────────────────
+        # Precedence: explicit batch_size arg > VOCAB_INGEST_BATCH_SIZE env > default.
+        if batch_size is not None:
+            resolved = batch_size
+        else:
+            try:
+                resolved = int(os.environ.get("VOCAB_INGEST_BATCH_SIZE", DEFAULT_BATCH_SIZE))
+            except (TypeError, ValueError):
+                resolved = DEFAULT_BATCH_SIZE
+        self.batch_size = max(1, int(resolved))
+        try:
+            self.flush_seconds = float(
+                os.environ.get("VOCAB_INGEST_FLUSH_SECONDS", DEFAULT_FLUSH_SECONDS)
+            )
+        except (TypeError, ValueError):
+            self.flush_seconds = DEFAULT_FLUSH_SECONDS
+
+        self._batch: list = []            # pending row tuples
+        self._batch_words: set = set()    # in-memory dedup within the buffer
+        self._batch_lock = threading.RLock()
+        self._last_add_ts = time.monotonic()
+        self.transactions = 0             # committed write transactions (observability/tests)
+        self._failures_path = DATA_PATH / "vocab_ingest_failures.jsonl"
+        self._flush_timer: Optional[threading.Thread] = None
+        self._stop_event = threading.Event()
+
         self._ensure_tables()
         DATA_PATH.mkdir(parents=True, exist_ok=True)
 
@@ -310,6 +352,163 @@ class VocabularyIngester:
         except Exception as e:
             logger.error("store_word failed for '%s': %s", word_data.get("word"), e)
             return False
+
+    # ── Batched ingestion ───────────────────────────────────────────────────
+    def _prepare_row(self, word_data: dict):
+        """Augment + classify a word payload into an INSERT row tuple.
+
+        Returns ``(word, row_tuple)`` or ``None`` if the payload is unusable.
+        """
+        wd = self._mw_augment(dict(word_data))
+        word = (wd.get("word") or "").strip().lower()
+        definition = wd.get("definition") or ""
+        if not word or not definition:
+            return None
+        domain = self._classify_word_domain(definition, wd.get("part_of_speech", ""))
+        row = (
+            str(uuid.uuid4()),
+            word,
+            wd.get("part_of_speech", ""),
+            definition,
+            wd.get("etymology", ""),
+            wd.get("example", ""),
+            wd.get("pronunciation", ""),
+            domain,
+            wd.get("source", "wiktionary"),
+            0.92,
+            _now(),
+        )
+        return word, row
+
+    def ingest_one(self, word_data: dict) -> None:
+        """Buffer a single word for batched insertion. Auto-flushes when the
+        buffer reaches ``batch_size``."""
+        prepared = self._prepare_row(word_data)
+        if prepared is None:
+            return
+        word, row = prepared
+        self._maybe_start_flush_timer()
+        with self._batch_lock:
+            if word in self._batch_words:
+                return  # dedup within the current buffer
+            self._batch_words.add(word)
+            self._batch.append(row)
+            self._last_add_ts = time.monotonic()
+            if len(self._batch) >= self.batch_size:
+                self._flush_locked()
+
+    def ingest_many(self, items) -> int:
+        """Buffer many word payloads. Full batches flush automatically; any
+        remainder stays buffered until ``flush()``, the idle timer, or
+        shutdown. Returns the number of rows written by auto-flushes here."""
+        written = 0
+        for item in items:
+            before = self.transactions
+            self.ingest_one(item)
+            # (transactions only advances on an actual flush)
+            if self.transactions > before:
+                written += 1
+        return written
+
+    def flush(self) -> int:
+        """Flush any buffered rows in a single transaction. Returns rows written."""
+        with self._batch_lock:
+            return self._flush_locked()
+
+    def _flush_locked(self) -> int:
+        """Flush the buffer. Caller must hold ``self._batch_lock``."""
+        if not self._batch:
+            return 0
+        rows = self._batch
+        self._batch = []
+        self._batch_words = set()
+        return self._write_batch(rows)
+
+    def _write_batch(self, rows) -> int:
+        """Write rows in one transaction; on error fall back to one-by-one.
+
+        The whole BEGIN/executemany/COMMIT is held under the process write lock
+        so a batch is atomic with respect to other writers (the lock is
+        reentrant, so the proxy's per-statement guards nest safely)."""
+        conn = safe_open_kdb(str(self.db_path))
+        try:
+            with acquire_write_lock(self.db_path):
+                conn.executemany(_VOCAB_INSERT_SQL, rows)
+                conn.commit()
+            self.transactions += 1
+            return len(rows)
+        except Exception as e:
+            logger.warning(
+                "VocabularyIngester: batch insert of %d rows failed (%s) — "
+                "falling back to one-by-one", len(rows), e,
+            )
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            return self._write_rows_individually(rows)
+
+    def _write_rows_individually(self, rows) -> int:
+        """Per-row fallback so a single bad row doesn't drop the whole batch."""
+        written = 0
+        conn = safe_open_kdb(str(self.db_path))
+        for row in rows:
+            try:
+                conn.execute(_VOCAB_INSERT_SQL, row)
+                conn.commit()
+                self.transactions += 1
+                written += 1
+            except Exception as e:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                self._record_failure(row, e)
+        return written
+
+    def _record_failure(self, row, error) -> None:
+        """Append a failed row to a JSONL file (no new schema, per design)."""
+        try:
+            DATA_PATH.mkdir(parents=True, exist_ok=True)
+            rec = {
+                "ts": _now(),
+                "word": row[1] if len(row) > 1 else None,
+                "error": str(error),
+                "row": list(row),
+            }
+            with open(self._failures_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(rec, default=str) + "\n")
+        except Exception as e:
+            logger.debug("could not record vocab ingest failure: %s", e)
+
+    def _maybe_start_flush_timer(self) -> None:
+        """Lazily start a daemon thread that flushes a partial buffer after it
+        has been idle for ``flush_seconds``."""
+        if self._flush_timer is not None or self.flush_seconds <= 0:
+            return
+        self._stop_event.clear()
+        t = threading.Thread(
+            target=self._idle_flush_loop, name="vocab-ingest-flush", daemon=True
+        )
+        self._flush_timer = t
+        t.start()
+
+    def _idle_flush_loop(self) -> None:
+        poll = min(self.flush_seconds, 1.0) or 1.0
+        while not self._stop_event.wait(poll):
+            try:
+                with self._batch_lock:
+                    if self._batch and (
+                        time.monotonic() - self._last_add_ts
+                    ) >= self.flush_seconds:
+                        self._flush_locked()
+            except Exception as e:
+                logger.debug("VocabularyIngester idle flush failed: %s", e)
+
+    def shutdown(self) -> int:
+        """Stop the idle timer and flush remaining buffered rows."""
+        self._stop_event.set()
+        return self.flush()
 
     # ── Merriam-Webster (gated on env var) ──────────────────────────
     def _mw_augment(self, word_data: dict) -> dict:
@@ -706,13 +905,18 @@ class VocabularyIngester:
             data = self.fetch_word(word)
             attempted += 1
             if data:
-                if self.store_word(data):
-                    new_words += 1
-                    existing_words.add(word)
-                    logger.info("VocabularyIngester: learned %r (%s)", word, data.get("part_of_speech", "?"))
-                    self._add_to_insights(word, data["definition"], "linguistics")
+                # Buffer for batched insertion (INSERT OR IGNORE dedupes against
+                # the table; we already skip known words via existing_words).
+                self.ingest_one(data)
+                new_words += 1
+                existing_words.add(word)
+                logger.info("VocabularyIngester: learned %r (%s)", word, data.get("part_of_speech", "?"))
+                self._add_to_insights(word, data["definition"], "linguistics")
             # gentler rate-limit (Wiktionary REST has generous quotas)
             time.sleep(0.15)
+
+        # Persist any words still buffered from this pass.
+        self.flush()
 
         # Advance cursor by the window size so next pass moves forward
         if big_pool:

@@ -47,8 +47,14 @@ default __exit__ behaviour) but does NOT close.
 """
 from __future__ import annotations
 
+import logging
+import os
 import sqlite3
+import sys
 import threading
+import traceback
+
+logger = logging.getLogger(__name__)
 
 _PER_CONNECTION_PRAGMAS = (
     "PRAGMA journal_mode=WAL",          # MUST be first
@@ -68,6 +74,134 @@ _PER_CONNECTION_PRAGMAS = (
 _TLS = threading.local()
 
 
+# ── Process-level write mutex (2026-06-30, lock-storm root-cause fix) ──────
+# KeepOpenProxy (f6fba609) stopped the close/reopen flapping. The remaining
+# lock storm (~100 `database is locked`/min from vocabulary_ingester) is
+# multi-thread WRITE contention: several worker threads each hold their own
+# per-thread connection and issue concurrent writes to the same file. SQLite
+# serializes writers at the file level, and under load the loser raises
+# "database is locked" before busy_timeout elapses.
+#
+# Fix: serialize *writes* in-process through a re-entrant lock keyed by the
+# canonical DB path. Reads stay fully parallel. The lock is reentrant so
+# nested write paths on the same thread (e.g. execute INSERT then commit, or
+# a batched BEGIN..executemany..COMMIT held under one guard) don't deadlock.
+_WRITE_MUTEX_TIMEOUT = 30.0  # seconds; on expiry we raise, never block forever
+_WRITE_LOCKS: dict[str, threading.RLock] = {}
+_WRITE_LOCKS_META = threading.Lock()           # guards _WRITE_LOCKS mutation
+_WRITE_LOCK_HOLDERS: dict[str, int] = {}        # path -> last-acquirer thread ident
+
+# SQL whose first token marks a pure read. Everything else takes the lock
+# (safe default per design: ambiguous == treat as write).
+_READ_ONLY_FIRST_TOKENS = frozenset({"select", "pragma", "explain"})
+
+
+def _canonical_db_key(path) -> str:
+    try:
+        return os.path.realpath(str(path))
+    except Exception:
+        return str(path)
+
+
+def _get_write_lock(path) -> tuple[str, threading.RLock]:
+    """Return (canonical_key, RLock) for path, creating the lock once."""
+    key = _canonical_db_key(path)
+    lock = _WRITE_LOCKS.get(key)
+    if lock is None:
+        with _WRITE_LOCKS_META:
+            lock = _WRITE_LOCKS.get(key)
+            if lock is None:
+                lock = threading.RLock()
+                _WRITE_LOCKS[key] = lock
+    return key, lock
+
+
+def _first_sql_token(sql: str) -> str:
+    """Lower-cased first SQL keyword, skipping leading whitespace/comments."""
+    s = sql.lstrip()
+    while s:
+        if s.startswith("--"):
+            nl = s.find("\n")
+            if nl == -1:
+                return ""
+            s = s[nl + 1:].lstrip()
+        elif s.startswith("/*"):
+            end = s.find("*/")
+            if end == -1:
+                return ""
+            s = s[end + 2:].lstrip()
+        else:
+            break
+    i = 0
+    while i < len(s) and (s[i].isalpha() or s[i] == "_"):
+        i += 1
+    return s[:i].lower()
+
+
+def _is_write_sql(sql) -> bool:
+    """True if the statement mutates. Non-str or unclassifiable -> True (safe)."""
+    if not isinstance(sql, str):
+        return True
+    token = _first_sql_token(sql)
+    if not token:
+        return True
+    return token not in _READ_ONLY_FIRST_TOKENS
+
+
+def _format_holder_stack(ident) -> str:
+    if ident is None:
+        return "  <no recorded holder>"
+    frame = sys._current_frames().get(ident)
+    if frame is None:
+        return f"  <holder thread {ident} not found>"
+    return "".join(traceback.format_stack(frame)[-8:])
+
+
+class _WriteGuard:
+    """Context manager: acquire the per-path write lock with a 30 s timeout.
+
+    On timeout, log a structured warning naming the recorded holder thread and
+    a snapshot of its current stack, then raise
+    ``sqlite3.OperationalError("write_mutex_timeout")`` — observability, not a
+    silent hang or silent failure.
+    """
+
+    __slots__ = ("_key", "_lock")
+
+    def __init__(self, key: str, lock: threading.RLock) -> None:
+        self._key = key
+        self._lock = lock
+
+    def __enter__(self) -> "_WriteGuard":
+        if not self._lock.acquire(timeout=_WRITE_MUTEX_TIMEOUT):
+            holder = _WRITE_LOCK_HOLDERS.get(self._key)
+            logger.warning(
+                "write_mutex_timeout: thread %s (%s) could not acquire write lock "
+                "for %s within %.0fs. Recorded holder thread ident=%s; holder stack:\n%s",
+                threading.current_thread().name,
+                threading.get_ident(),
+                self._key,
+                _WRITE_MUTEX_TIMEOUT,
+                holder,
+                _format_holder_stack(holder),
+            )
+            raise sqlite3.OperationalError("write_mutex_timeout")
+        _WRITE_LOCK_HOLDERS[self._key] = threading.get_ident()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        self._lock.release()
+        return False
+
+
+def acquire_write_lock(path):
+    """Public helper returning a context manager that holds the write lock for
+    ``path`` across a block. Reentrant: safe to nest with the proxy's own
+    per-statement guards (e.g. wrap a whole BEGIN/executemany/COMMIT batch)."""
+    key, lock = _get_write_lock(path)
+    return _WriteGuard(key, lock)
+
+
 class KeepOpenProxy:
     """Wraps a sqlite3.Connection so .close() is a no-op.
 
@@ -82,15 +216,122 @@ class KeepOpenProxy:
     NOT close the connection.
     """
 
-    __slots__ = ("_conn",)
+    __slots__ = ("_conn", "_wkey", "_wlock", "_txn_held")
 
-    def __init__(self, conn: sqlite3.Connection) -> None:
+    def __init__(
+        self,
+        conn: sqlite3.Connection,
+        write_key: str = "",
+        write_lock: threading.RLock | None = None,
+    ) -> None:
         object.__setattr__(self, "_conn", conn)
+        object.__setattr__(self, "_wkey", write_key)
+        object.__setattr__(self, "_wlock", write_lock)
+        # True while we hold one outstanding lock acquisition for an
+        # in-progress write transaction on this (per-thread) connection.
+        object.__setattr__(self, "_txn_held", False)
 
     # ── close() override ────────────────────────────────────────────
     def close(self) -> None:  # noqa: D401
         """No-op. The cache owns the connection lifecycle."""
         return None
+
+    # ── write-gating internals ──────────────────────────────────────
+    # Only mutating operations take the process-level write lock; reads stay
+    # ungated and fully parallel. The lock is held across the WHOLE transaction
+    # — from the first write statement until commit/rollback — not per
+    # statement. Releasing between a statement and its commit would let another
+    # thread open a competing SQLite transaction and deadlock against the
+    # busy_timeout. The RLock is reentrant so nested acquisitions are cheap.
+    def _acquire(self) -> None:
+        if self._wlock is None:
+            return
+        if not self._wlock.acquire(timeout=_WRITE_MUTEX_TIMEOUT):
+            holder = _WRITE_LOCK_HOLDERS.get(self._wkey)
+            logger.warning(
+                "write_mutex_timeout: thread %s (%s) could not acquire write lock "
+                "for %s within %.0fs. Recorded holder thread ident=%s; holder stack:\n%s",
+                threading.current_thread().name,
+                threading.get_ident(),
+                self._wkey,
+                _WRITE_MUTEX_TIMEOUT,
+                holder,
+                _format_holder_stack(holder),
+            )
+            raise sqlite3.OperationalError("write_mutex_timeout")
+        _WRITE_LOCK_HOLDERS[self._wkey] = threading.get_ident()
+
+    def _release(self) -> None:
+        if self._wlock is None:
+            return
+        self._wlock.release()
+
+    def _settle_after_write(self) -> None:
+        # Keep exactly one acquisition outstanding while a transaction is open;
+        # release immediately when the statement left no open transaction.
+        if self._wlock is None:
+            return
+        if self._conn.in_transaction:
+            if self._txn_held:
+                self._release()  # already holding for the txn; drop the extra
+            else:
+                object.__setattr__(self, "_txn_held", True)  # keep this one
+        else:
+            self._release()
+
+    def _release_txn_hold(self) -> None:
+        if self._txn_held:
+            object.__setattr__(self, "_txn_held", False)
+            self._release()
+
+    # ── write-gated method wrappers ─────────────────────────────────
+    def execute(self, sql, *args, **kwargs):
+        if not _is_write_sql(sql):
+            return self._conn.execute(sql, *args, **kwargs)
+        self._acquire()
+        try:
+            cur = self._conn.execute(sql, *args, **kwargs)
+        except BaseException:
+            self._release()
+            raise
+        self._settle_after_write()
+        return cur
+
+    def executemany(self, sql, *args, **kwargs):
+        self._acquire()
+        try:
+            cur = self._conn.executemany(sql, *args, **kwargs)
+        except BaseException:
+            self._release()
+            raise
+        self._settle_after_write()
+        return cur
+
+    def executescript(self, sql, *args, **kwargs):
+        self._acquire()
+        try:
+            cur = self._conn.executescript(sql, *args, **kwargs)
+        except BaseException:
+            self._release()
+            raise
+        self._settle_after_write()
+        return cur
+
+    def commit(self):
+        self._acquire()
+        try:
+            return self._conn.commit()
+        finally:
+            self._release()
+            self._release_txn_hold()
+
+    def rollback(self):
+        self._acquire()
+        try:
+            return self._conn.rollback()
+        finally:
+            self._release()
+            self._release_txn_hold()
 
     # ── attribute forwarding ────────────────────────────────────────
     def __getattr__(self, name: str):
@@ -114,8 +355,13 @@ class KeepOpenProxy:
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         # Delegate commit/rollback to the underlying connection, but do
         # NOT close. sqlite3.Connection.__exit__ does not close either,
-        # so this is consistent with stdlib behaviour.
-        self._conn.__exit__(exc_type, exc_val, exc_tb)
+        # so this is consistent with stdlib behaviour. This commits/rolls
+        # back the connection directly (bypassing our commit()), so release
+        # any write-lock hold left open by writes inside the with-block.
+        try:
+            self._conn.__exit__(exc_type, exc_val, exc_tb)
+        finally:
+            self._release_txn_hold()
 
     # ── helpful introspection ───────────────────────────────────────
     def __repr__(self) -> str:
@@ -156,6 +402,8 @@ def safe_open_kdb(
     if cache is None:
         cache = _TLS.conns = {}
     key = (str(path), bool(read_only))
+    # Process-level write lock for this DB file (shared across all threads).
+    wkey, wlock = _get_write_lock(path)
     cached = cache.get(key)
     if cached is not None:
         try:
@@ -165,7 +413,9 @@ def safe_open_kdb(
             real.execute("SELECT 1")
             # Always hand callers a proxy — even if a non-proxy slipped
             # into the cache (defensive against future bugs).
-            return cached if isinstance(cached, KeepOpenProxy) else KeepOpenProxy(cached)
+            if isinstance(cached, KeepOpenProxy):
+                return cached
+            return KeepOpenProxy(cached, wkey, wlock)
         except sqlite3.Error:
             cache.pop(key, None)
             _really_close(cached)
@@ -194,6 +444,6 @@ def safe_open_kdb(
             # synchronous, foreign_keys) come first and will raise on
             # the same kind of failure if it's a real problem.
             pass
-    proxy = KeepOpenProxy(conn)
+    proxy = KeepOpenProxy(conn, wkey, wlock)
     cache[key] = proxy
     return proxy
