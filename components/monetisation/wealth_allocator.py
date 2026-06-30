@@ -76,7 +76,6 @@ class WealthAllocator:
         c = safe_open_kdb(self.db_path, timeout=30.0)
         try:
             c.execute("PRAGMA journal_mode=WAL")
-            c.execute("PRAGMA busy_timeout=5000")
             c.execute("PRAGMA synchronous=NORMAL")
         except Exception:
             pass
