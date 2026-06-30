@@ -152,6 +152,7 @@ Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
 # sqlite3 connections — they rename/replace the file and must not pollute the
 # per-thread connection cache.
 from components.db import safe_open_kdb
+from components.json_utils import safe_jsonify
 
 # ── Boot-time SQLite self-heal ───────────────────────────────────────────────
 # If dmai_knowledge.db is malformed, quarantine it so components recreate
@@ -2679,7 +2680,7 @@ def api_mon_status():
         out["betting"] = ba.stats()
     if wa:
         out["wealth"] = wa.summary()
-    return jsonify(out)
+    return safe_jsonify(out)
 
 @app.route("/api/monetisation/income", methods=["POST"])
 def api_mon_credit_income():
@@ -2709,17 +2710,17 @@ def api_mon_ledger():
         limit = int(request.args.get("limit", 100))
     except Exception:
         limit = 100
-    return jsonify({"ledger": ra.get_ledger(wallet=wallet, limit=limit),
-                    "income_events": ra.get_income_events(limit=min(limit, 50)),
-                    "wallets": ra.get_wallets()})
+    return safe_jsonify({"ledger": ra.get_ledger(wallet=wallet, limit=limit),
+                         "income_events": ra.get_income_events(limit=min(limit, 50)),
+                         "wallets": ra.get_wallets()})
 
 @app.route("/api/monetisation/bills", methods=["GET"])
 def api_mon_bills():
     bp = components.get("bill_payer")
     if not bp:
         return jsonify({"error": "bill_payer not loaded"}), 503
-    return jsonify({"bills": bp.list_bills(active_only=False), "summary": bp.summary(),
-                    "recent_payments": bp.payment_history(limit=20)})
+    return safe_jsonify({"bills": bp.list_bills(active_only=False), "summary": bp.summary(),
+                         "recent_payments": bp.payment_history(limit=20)})
 
 @app.route("/api/monetisation/bills/pay-due", methods=["POST"])
 def api_mon_pay_due():
@@ -7684,7 +7685,7 @@ def api_heartbeat():
         pass
 
     _next_stage = stages[stage_index + 1] if stage_index < len(stages) - 1 else None
-    return jsonify({
+    return safe_jsonify({
         "learning_stage": learning_stage,
         "stage_index": stage_index,
         "stage_progress_pct": stage_progress_pct,
@@ -9199,7 +9200,7 @@ def api_personas_list():
         return jsonify({"error": "persona_registry not loaded"}), 503
     items = r.all()
     # Strip system_prompt from list view for brevity
-    return jsonify({"personas": items, "count": len(items)})
+    return safe_jsonify({"personas": items, "count": len(items)})
 
 
 @app.route("/api/personas/<name>", methods=["GET"])
