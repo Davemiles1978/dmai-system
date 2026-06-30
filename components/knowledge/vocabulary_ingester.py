@@ -51,7 +51,18 @@ DEFAULT_FLUSH_SECONDS = 5.0
 # DEFAULT_BATCH_SIZE rows, but the write lock is acquired per sub-batch of this
 # size and released between sub-batches so other writers can interleave. Keeps
 # each write-lock hold to ~2-3s instead of one multi-second hold for 200 rows.
-_WRITE_SUB_BATCH_SIZE = 50
+_VOCAB_SUBBATCH_SIZE = 50
+
+# Cooperative yield between sub-batches. After each sub-batch releases the write
+# mutex we sleep this many milliseconds so a queued waiter (greyhound-pick-flush,
+# greyhound-runner, save_knowledge, …) is actually scheduled and can grab the
+# mutex, rather than this thread immediately winning the re-acquire race under
+# the GIL and starving every other writer into a write_mutex_timeout. Env
+# override VOCAB_SUBBATCH_YIELD_MS; default 5 ms.
+try:
+    _VOCAB_SUBBATCH_YIELD_MS = float(os.environ.get("VOCAB_SUBBATCH_YIELD_MS", 5))
+except (TypeError, ValueError):
+    _VOCAB_SUBBATCH_YIELD_MS = 5.0
 
 _VOCAB_INSERT_SQL = (
     "INSERT OR IGNORE INTO vocabulary (id, word, part_of_speech, definition, "
@@ -433,28 +444,35 @@ class VocabularyIngester:
     def _write_batch(self, rows) -> int:
         """Write rows in sub-batches, one short transaction per sub-batch.
 
-        Each sub-batch of ``_WRITE_SUB_BATCH_SIZE`` rows runs as its own
-        BEGIN/executemany/COMMIT held under the process write lock, and the lock
-        is released and re-acquired between sub-batches so other writers (e.g.
-        self_evolution) can interleave. Holding the lock across the whole batch
-        (the previous behaviour) routinely exceeded the 30s write-mutex timeout
-        under load and starved every other writer; per-sub-batch acquisition
-        keeps each hold to ~2-3s. On error, a sub-batch falls back to one-by-one
-        so a single bad row doesn't drop the rest."""
-        conn = safe_open_kdb(str(self.db_path))
+        Each sub-batch of ``_VOCAB_SUBBATCH_SIZE`` rows acquires the process
+        write mutex, runs its own executemany/COMMIT, then **releases the mutex
+        and yields** (``_VOCAB_SUBBATCH_YIELD_MS``) before the next sub-batch.
+        The acquire/commit/release lives entirely inside the loop, so a large
+        idle flush no longer holds the mutex for its full duration. The previous
+        shape let this thread win the re-acquire race under the GIL on every
+        iteration and starved other writers (greyhound-pick-flush,
+        greyhound-runner, save_knowledge) into 30s ``write_mutex_timeout``s; the
+        explicit yield hands a queued waiter a turn between sub-batches. On
+        error, a sub-batch falls back to one-by-one so a single bad row doesn't
+        drop the rest."""
         total_rows = len(rows)
         start = time.monotonic()
         logger.info(
             "vocab_write_batch_start rows=%d sub_batch_size=%d",
-            total_rows, _WRITE_SUB_BATCH_SIZE,
+            total_rows, _VOCAB_SUBBATCH_SIZE,
         )
         written = 0
-        total_sub = (total_rows + _WRITE_SUB_BATCH_SIZE - 1) // _WRITE_SUB_BATCH_SIZE
+        failed_sub_batches = 0
+        total_sub = (total_rows + _VOCAB_SUBBATCH_SIZE - 1) // _VOCAB_SUBBATCH_SIZE
+        yield_seconds = max(0.0, _VOCAB_SUBBATCH_YIELD_MS / 1000.0)
         for idx in range(total_sub):
-            sub = rows[idx * _WRITE_SUB_BATCH_SIZE:(idx + 1) * _WRITE_SUB_BATCH_SIZE]
+            sub = rows[idx * _VOCAB_SUBBATCH_SIZE:(idx + 1) * _VOCAB_SUBBATCH_SIZE]
             sub_start = time.monotonic()
             try:
-                with acquire_write_lock(self.db_path):
+                # Open (cached, per-thread) and take the write mutex per
+                # sub-batch; both are released when the with-block exits.
+                with safe_open_kdb(str(self.db_path)) as conn, \
+                        acquire_write_lock(self.db_path):
                     conn.executemany(_VOCAB_INSERT_SQL, sub)
                     conn.commit()
                 self.transactions += 1
@@ -465,19 +483,25 @@ class VocabularyIngester:
                     int((time.monotonic() - sub_start) * 1000),
                 )
             except Exception as e:
+                failed_sub_batches += 1
                 logger.warning(
                     "VocabularyIngester: sub-batch %d/%d insert of %d rows failed "
                     "(%s) — falling back to one-by-one",
                     idx + 1, total_sub, len(sub), e,
                 )
-                try:
-                    conn.rollback()
-                except Exception:
-                    pass
                 written += self._write_rows_individually(sub)
+            # Yield between sub-batches (never after the last) with the mutex
+            # released so a queued waiter is actually scheduled and can acquire.
+            if idx < total_sub - 1:
+                time.sleep(yield_seconds)
+        elapsed_ms = int((time.monotonic() - start) * 1000)
         logger.info(
             "vocab_write_batch_end rows=%d written=%d elapsed_ms=%d",
-            total_rows, written, int((time.monotonic() - start) * 1000),
+            total_rows, written, elapsed_ms,
+        )
+        logger.info(
+            "vocab flush: flushed=%d sub_batches=%d failed_sub_batches=%d elapsed_ms=%d",
+            written, total_sub, failed_sub_batches, elapsed_ms,
         )
         return written
 
