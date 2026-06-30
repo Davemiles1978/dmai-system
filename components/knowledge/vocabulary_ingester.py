@@ -47,6 +47,12 @@ DATA_PATH = Path("data/vocabulary")
 DEFAULT_BATCH_SIZE    = 200
 DEFAULT_FLUSH_SECONDS = 5.0
 
+# Transaction chunk size inside _write_batch. The buffer may hold up to
+# DEFAULT_BATCH_SIZE rows, but the write lock is acquired per sub-batch of this
+# size and released between sub-batches so other writers can interleave. Keeps
+# each write-lock hold to ~2-3s instead of one multi-second hold for 200 rows.
+_WRITE_SUB_BATCH_SIZE = 50
+
 _VOCAB_INSERT_SQL = (
     "INSERT OR IGNORE INTO vocabulary (id, word, part_of_speech, definition, "
     "etymology, example, pronunciation, domain, source, confidence, created_at) "
@@ -425,28 +431,55 @@ class VocabularyIngester:
         return self._write_batch(rows)
 
     def _write_batch(self, rows) -> int:
-        """Write rows in one transaction; on error fall back to one-by-one.
+        """Write rows in sub-batches, one short transaction per sub-batch.
 
-        The whole BEGIN/executemany/COMMIT is held under the process write lock
-        so a batch is atomic with respect to other writers (the lock is
-        reentrant, so the proxy's per-statement guards nest safely)."""
+        Each sub-batch of ``_WRITE_SUB_BATCH_SIZE`` rows runs as its own
+        BEGIN/executemany/COMMIT held under the process write lock, and the lock
+        is released and re-acquired between sub-batches so other writers (e.g.
+        self_evolution) can interleave. Holding the lock across the whole batch
+        (the previous behaviour) routinely exceeded the 30s write-mutex timeout
+        under load and starved every other writer; per-sub-batch acquisition
+        keeps each hold to ~2-3s. On error, a sub-batch falls back to one-by-one
+        so a single bad row doesn't drop the rest."""
         conn = safe_open_kdb(str(self.db_path))
-        try:
-            with acquire_write_lock(self.db_path):
-                conn.executemany(_VOCAB_INSERT_SQL, rows)
-                conn.commit()
-            self.transactions += 1
-            return len(rows)
-        except Exception as e:
-            logger.warning(
-                "VocabularyIngester: batch insert of %d rows failed (%s) — "
-                "falling back to one-by-one", len(rows), e,
-            )
+        total_rows = len(rows)
+        start = time.monotonic()
+        logger.info(
+            "vocab_write_batch_start rows=%d sub_batch_size=%d",
+            total_rows, _WRITE_SUB_BATCH_SIZE,
+        )
+        written = 0
+        total_sub = (total_rows + _WRITE_SUB_BATCH_SIZE - 1) // _WRITE_SUB_BATCH_SIZE
+        for idx in range(total_sub):
+            sub = rows[idx * _WRITE_SUB_BATCH_SIZE:(idx + 1) * _WRITE_SUB_BATCH_SIZE]
+            sub_start = time.monotonic()
             try:
-                conn.rollback()
-            except Exception:
-                pass
-            return self._write_rows_individually(rows)
+                with acquire_write_lock(self.db_path):
+                    conn.executemany(_VOCAB_INSERT_SQL, sub)
+                    conn.commit()
+                self.transactions += 1
+                written += len(sub)
+                logger.info(
+                    "vocab_write_sub_batch sub_batch=%d/%d rows=%d elapsed_ms=%d",
+                    idx + 1, total_sub, len(sub),
+                    int((time.monotonic() - sub_start) * 1000),
+                )
+            except Exception as e:
+                logger.warning(
+                    "VocabularyIngester: sub-batch %d/%d insert of %d rows failed "
+                    "(%s) — falling back to one-by-one",
+                    idx + 1, total_sub, len(sub), e,
+                )
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                written += self._write_rows_individually(sub)
+        logger.info(
+            "vocab_write_batch_end rows=%d written=%d elapsed_ms=%d",
+            total_rows, written, int((time.monotonic() - start) * 1000),
+        )
+        return written
 
     def _write_rows_individually(self, rows) -> int:
         """Per-row fallback so a single bad row doesn't drop the whole batch."""

@@ -29,35 +29,41 @@ from decimal import Decimal
 from pathlib import Path
 
 
-def _jsonable(obj):
-    """Recursively coerce a value into something ``json.dumps`` can serialize.
+try:
+    # Shared implementation (also used by Flask routes via safe_jsonify).
+    from components.json_utils import _jsonable
+except Exception:
+    # Fallback so this script still runs as a standalone CLI without the app
+    # package on sys.path. Keep in sync with components/json_utils.py.
+    def _jsonable(obj):
+        """Recursively coerce a value into something ``json.dumps`` can serialize.
 
-    SQLite can hand back ``bytes`` (e.g. ``MAX()`` over a BLOB-affinity column,
-    or raw pragma rows), which Flask's ``jsonify`` rejects with
-    ``TypeError: Object of type bytes is not JSON serializable``. Decode bytes,
-    flatten ``sqlite3.Row``, and stringify other non-primitive types so the
-    health-check payload is always serializable.
-    """
-    if obj is None or isinstance(obj, (bool, int, float, str)):
-        return obj
-    if isinstance(obj, bytes):
-        return obj.decode("utf-8", errors="replace")
-    if isinstance(obj, bytearray):
-        return bytes(obj).decode("utf-8", errors="replace")
-    if isinstance(obj, sqlite3.Row):
-        return {k: _jsonable(obj[k]) for k in obj.keys()}
-    if isinstance(obj, dict):
-        return {(_jsonable(k) if not isinstance(k, str) else k): _jsonable(v)
-                for k, v in obj.items()}
-    if isinstance(obj, (list, tuple, set, frozenset)):
-        return [_jsonable(v) for v in obj]
-    if isinstance(obj, Decimal):
-        return float(obj)
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    if isinstance(obj, Path):
+        SQLite can hand back ``bytes`` (e.g. ``MAX()`` over a BLOB-affinity column,
+        or raw pragma rows), which Flask's ``jsonify`` rejects with
+        ``TypeError: Object of type bytes is not JSON serializable``. Decode bytes,
+        flatten ``sqlite3.Row``, and stringify other non-primitive types so the
+        health-check payload is always serializable.
+        """
+        if obj is None or isinstance(obj, (bool, int, float, str)):
+            return obj
+        if isinstance(obj, bytes):
+            return obj.decode("utf-8", errors="replace")
+        if isinstance(obj, bytearray):
+            return bytes(obj).decode("utf-8", errors="replace")
+        if isinstance(obj, sqlite3.Row):
+            return {k: _jsonable(obj[k]) for k in obj.keys()}
+        if isinstance(obj, dict):
+            return {(_jsonable(k) if not isinstance(k, str) else k): _jsonable(v)
+                    for k, v in obj.items()}
+        if isinstance(obj, (list, tuple, set, frozenset)):
+            return [_jsonable(v) for v in obj]
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        if isinstance(obj, Path):
+            return str(obj)
         return str(obj)
-    return str(obj)
 
 # Worst-wins ordering for combining statuses.
 _STATUS_RANK = {"ok": 0, "warn": 1, "fail": 2}
