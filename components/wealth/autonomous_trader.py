@@ -249,7 +249,6 @@ class AutonomousTrader:
             c.row_factory = sqlite3.Row
             try:
                 c.execute("PRAGMA journal_mode=WAL")
-                c.execute("PRAGMA busy_timeout=5000")
                 c.execute("PRAGMA synchronous=NORMAL")
             except Exception:
                 pass
@@ -265,7 +264,6 @@ class AutonomousTrader:
             c.row_factory = sqlite3.Row
             try:
                 c.execute("PRAGMA journal_mode=WAL")
-                c.execute("PRAGMA busy_timeout=5000")
             except Exception:
                 pass
             return c
