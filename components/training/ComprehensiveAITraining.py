@@ -522,7 +522,8 @@ class ComprehensiveAITraining:
         if the DB has no relevant knowledge for this domain.
         """
         try:
-            import sqlite3 as _sq, os as _os
+            import os as _os
+            from components.db import safe_open_kdb
             db_candidates = [
                 _os.path.join("data", "dmai_knowledge.db"),
                 _os.path.join("data/", "dmai_knowledge.db"),
@@ -536,7 +537,7 @@ class ComprehensiveAITraining:
             keywords = [w.lower() for w in domain["domain"].split()]
             skills = domain.get("stages", {}).get(stage, [])
 
-            conn = _sq.connect(db_path, timeout=10)
+            conn = safe_open_kdb(db_path, timeout=10)
             evidence = []
 
             # Check mastered syllabus topics related to this domain

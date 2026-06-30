@@ -550,7 +550,8 @@ class FullSITrainingProgram:
         Returns a float score 0-1, or None if no relevant KB data found.
         """
         try:
-            import sqlite3 as _sq, os as _os
+            import os as _os
+            from components.db import safe_open_kdb
             db_candidates = [
                 _os.path.join("data", "dmai_knowledge.db"),
                 "data/dmai_knowledge.db",
@@ -568,7 +569,7 @@ class FullSITrainingProgram:
                 [kpi.replace("_", " ") for kpi in kpi_domains]
             ))[:6]
 
-            conn = _sq.connect(db_path, timeout=10)
+            conn = safe_open_kdb(db_path, timeout=10)
             evidence_count = 0
             total_confidence = 0.0
 
