@@ -466,6 +466,13 @@ def after_request_hook(response):
         The unmodified response.
     """
     try:
+        from flask import request
+        if request.headers.get("X-Internal-Probe") == "1":
+            return response
+    except Exception:
+        # request context unavailable -- fall through to normal recording
+        pass
+    try:
         CircuitBreakerManager.get().record_response(response.status_code)
     except Exception as exc:
         logger.error("after_request_hook failed: %s", exc)

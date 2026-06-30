@@ -57,7 +57,8 @@ class SelfScanner:
                         # Bearer JWT. Bearer requires minting a JWT which is heavy
                         # for an audit pass; X-Master-Password works in-process too.
                         _hdrs = {"X-Master-Password": _pw} if _pw else {}
-                        resp = client.get(path, headers=_hdrs)
+                        _probe_hdrs = {**_hdrs, "X-Internal-Probe": "1"}
+                        resp = client.get(path, headers=_probe_hdrs)
                         if resp.status_code >= 500:
                             broken.append({"path": path, "error": str(resp.status_code)})
                         elif resp.status_code == 200:
