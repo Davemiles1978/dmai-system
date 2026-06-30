@@ -49,20 +49,31 @@ DEFAULT_FLUSH_SECONDS = 5.0
 
 # Transaction chunk size inside _write_batch. The buffer may hold up to
 # DEFAULT_BATCH_SIZE rows, but the write lock is acquired per sub-batch of this
-# size and released between sub-batches so other writers can interleave. Keeps
-# each write-lock hold to ~2-3s instead of one multi-second hold for 200 rows.
-_VOCAB_SUBBATCH_SIZE = 50
+# size and released between sub-batches so other writers can interleave. Small
+# (10) so each executemany is a short unit of work: combined with the 2 s
+# per-connection busy_timeout below, the worst-case mutex hold per sub-batch is
+# ~2 s, well under the 30 s write_mutex_timeout that previously tripped every
+# other writer when a single 50-row executemany retried for the full 30 s.
+_VOCAB_SUBBATCH_SIZE = 10
+
+# busy_timeout (ms) forced on the vocab write connection only, inside
+# _write_batch. The global default is 30000 (components/db.py
+# _PER_CONNECTION_PRAGMAS) — we do NOT change that; other callers keep 30 s.
+# A short 2 s timeout makes the writer fast-fail on a busy DB and fall back to
+# the per-row path within ~2 s instead of monopolising the write mutex for 30 s.
+_VOCAB_BUSY_TIMEOUT_MS = 2000
 
 # Cooperative yield between sub-batches. After each sub-batch releases the write
 # mutex we sleep this many milliseconds so a queued waiter (greyhound-pick-flush,
 # greyhound-runner, save_knowledge, …) is actually scheduled and can grab the
 # mutex, rather than this thread immediately winning the re-acquire race under
 # the GIL and starving every other writer into a write_mutex_timeout. Env
-# override VOCAB_SUBBATCH_YIELD_MS; default 5 ms.
+# override VOCAB_SUBBATCH_YIELD_MS; default 10 ms (belt-and-braces fairness
+# margin now that sub-batches are smaller and more numerous).
 try:
-    _VOCAB_SUBBATCH_YIELD_MS = float(os.environ.get("VOCAB_SUBBATCH_YIELD_MS", 5))
+    _VOCAB_SUBBATCH_YIELD_MS = float(os.environ.get("VOCAB_SUBBATCH_YIELD_MS", 10))
 except (TypeError, ValueError):
-    _VOCAB_SUBBATCH_YIELD_MS = 5.0
+    _VOCAB_SUBBATCH_YIELD_MS = 10.0
 
 _VOCAB_INSERT_SQL = (
     "INSERT OR IGNORE INTO vocabulary (id, word, part_of_speech, definition, "
@@ -232,6 +243,7 @@ class VocabularyIngester:
         self._batch_lock = threading.RLock()
         self._last_add_ts = time.monotonic()
         self.transactions = 0             # committed write transactions (observability/tests)
+        self.busy_failures = 0            # sub-batches that fast-failed on a busy DB
         self._failures_path = DATA_PATH / "vocab_ingest_failures.jsonl"
         self._flush_timer: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
@@ -473,6 +485,10 @@ class VocabularyIngester:
                 # sub-batch; both are released when the with-block exits.
                 with safe_open_kdb(str(self.db_path)) as conn, \
                         acquire_write_lock(self.db_path):
+                    # Vocab connection only: fast-fail on a busy DB (~2 s)
+                    # instead of retrying for the 30 s global default, so we
+                    # release the write mutex quickly and fall back per-row.
+                    conn.execute("PRAGMA busy_timeout=%d" % _VOCAB_BUSY_TIMEOUT_MS)
                     conn.executemany(_VOCAB_INSERT_SQL, sub)
                     conn.commit()
                 self.transactions += 1
@@ -484,6 +500,8 @@ class VocabularyIngester:
                 )
             except Exception as e:
                 failed_sub_batches += 1
+                if "database is locked" in str(e).lower():
+                    self.busy_failures += 1
                 logger.warning(
                     "VocabularyIngester: sub-batch %d/%d insert of %d rows failed "
                     "(%s) — falling back to one-by-one",
@@ -500,8 +518,10 @@ class VocabularyIngester:
             total_rows, written, elapsed_ms,
         )
         logger.info(
-            "vocab flush: flushed=%d sub_batches=%d failed_sub_batches=%d elapsed_ms=%d",
+            "vocab flush: flushed=%d sub_batches=%d failed_sub_batches=%d "
+            "elapsed_ms=%d subbatch_size=%d busy_timeout_ms=%d",
             written, total_sub, failed_sub_batches, elapsed_ms,
+            _VOCAB_SUBBATCH_SIZE, _VOCAB_BUSY_TIMEOUT_MS,
         )
         return written
 

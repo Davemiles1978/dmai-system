@@ -92,7 +92,10 @@ def test_fallback_one_by_one_on_locked_sub_batch(tmp_path, monkeypatch):
             return self.real.executemany(sql, seq)
 
         def execute(self, sql, *a, **k):
-            self.execute_calls += 1
+            # Count only the per-row INSERT fallbacks, not the per-sub-batch
+            # PRAGMA busy_timeout the writer now issues before executemany.
+            if not sql.lstrip().lower().startswith("pragma"):
+                self.execute_calls += 1
             return self.real.execute(sql, *a, **k)
 
         def commit(self):
@@ -150,6 +153,72 @@ def test_flush_buffer_is_cleared_after_success(tmp_path):
     count = check.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
     check.close()
     assert count == 5
+
+
+def test_vocab_connection_uses_short_busy_timeout(tmp_path, monkeypatch):
+    """The vocab write connection must set PRAGMA busy_timeout=2000 before its
+    executemany, so a busy DB fast-fails (~2 s) instead of hogging the mutex."""
+    db_file = tmp_path / "kdb.db"
+    ing = VocabularyIngester(db_path=str(db_file))
+    ing.flush_seconds = 0
+    _push_rows(ing, 3)
+
+    class SpyConn:
+        def __init__(self, real):
+            self.real = real
+            self.calls = []  # ordered ("execute"|"executemany", sql)
+
+        def execute(self, sql, *a, **k):
+            self.calls.append(("execute", sql))
+            return self.real.execute(sql, *a, **k)
+
+        def executemany(self, sql, seq):
+            self.calls.append(("executemany", sql))
+            return self.real.executemany(sql, seq)
+
+        def commit(self):
+            return self.real.commit()
+
+        def rollback(self):
+            return self.real.rollback()
+
+        def close(self):
+            return None
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            if exc_type is None:
+                self.real.commit()
+            else:
+                self.real.rollback()
+            return False
+
+    spy = SpyConn(sqlite3.connect(str(db_file)))
+    monkeypatch.setattr(vi, "safe_open_kdb", lambda *a, **k: spy)
+
+    written = ing.flush()
+    assert written == 3
+
+    pragma_idx = next(
+        i for i, (kind, sql) in enumerate(spy.calls)
+        if kind == "execute" and "busy_timeout=2000" in sql.replace(" ", "")
+    )
+    exec_many_idx = next(
+        i for i, (kind, _sql) in enumerate(spy.calls) if kind == "executemany"
+    )
+    assert pragma_idx < exec_many_idx
+
+
+def test_other_writers_keep_default_busy_timeout(tmp_path):
+    """Non-vocab callers of safe_open_kdb must still get the 30 s default —
+    guards against accidentally changing _PER_CONNECTION_PRAGMAS for everyone."""
+    from components.db import safe_open_kdb
+
+    conn = safe_open_kdb(str(tmp_path / "other.db"))
+    busy_timeout = conn.execute("PRAGMA busy_timeout").fetchone()[0]
+    assert busy_timeout == 30000
 
 
 def test_public_api_signatures_unchanged():
