@@ -247,6 +247,12 @@ class VocabularyIngester:
         self._failures_path = DATA_PATH / "vocab_ingest_failures.jsonl"
         self._flush_timer: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
+        # Single-flight guard for the IDLE flush path only (see _idle_flush_tick).
+        # When an idle flush is running this is set; a second idle tick observes
+        # it and skips, so two vocab flush threads never contend on the write
+        # mutex. Explicit flush() and the size-triggered flush in ingest_one are
+        # NOT guarded by this — they are synchronous and must always write.
+        self._flush_in_progress = threading.Event()
 
         self._ensure_tables()
         DATA_PATH.mkdir(parents=True, exist_ok=True)
@@ -477,53 +483,61 @@ class VocabularyIngester:
         failed_sub_batches = 0
         total_sub = (total_rows + _VOCAB_SUBBATCH_SIZE - 1) // _VOCAB_SUBBATCH_SIZE
         yield_seconds = max(0.0, _VOCAB_SUBBATCH_YIELD_MS / 1000.0)
-        for idx in range(total_sub):
-            sub = rows[idx * _VOCAB_SUBBATCH_SIZE:(idx + 1) * _VOCAB_SUBBATCH_SIZE]
-            sub_start = time.monotonic()
-            try:
-                # Open (cached, per-thread) and take the write mutex per
-                # sub-batch; both are released when the with-block exits.
-                with safe_open_kdb(str(self.db_path)) as conn, \
-                        acquire_write_lock(self.db_path):
-                    # Vocab connection only: fast-fail on a busy DB (~2 s)
-                    # instead of retrying for the 30 s global default, so we
-                    # release the write mutex quickly and fall back per-row.
-                    conn.execute("PRAGMA busy_timeout=%d" % _VOCAB_BUSY_TIMEOUT_MS)
-                    conn.executemany(_VOCAB_INSERT_SQL, sub)
-                    conn.commit()
-                self.transactions += 1
-                written += len(sub)
-                logger.info(
-                    "vocab_write_sub_batch sub_batch=%d/%d rows=%d elapsed_ms=%d",
-                    idx + 1, total_sub, len(sub),
-                    int((time.monotonic() - sub_start) * 1000),
-                )
-            except Exception as e:
-                failed_sub_batches += 1
-                if "database is locked" in str(e).lower():
-                    self.busy_failures += 1
-                logger.warning(
-                    "VocabularyIngester: sub-batch %d/%d insert of %d rows failed "
-                    "(%s) — falling back to one-by-one",
-                    idx + 1, total_sub, len(sub), e,
-                )
-                written += self._write_rows_individually(sub)
-            # Yield between sub-batches (never after the last) with the mutex
-            # released so a queued waiter is actually scheduled and can acquire.
-            if idx < total_sub - 1:
-                time.sleep(yield_seconds)
-        elapsed_ms = int((time.monotonic() - start) * 1000)
-        logger.info(
-            "vocab_write_batch_end rows=%d written=%d elapsed_ms=%d",
-            total_rows, written, elapsed_ms,
-        )
-        logger.info(
-            "vocab flush: flushed=%d sub_batches=%d failed_sub_batches=%d "
-            "elapsed_ms=%d subbatch_size=%d busy_timeout_ms=%d",
-            written, total_sub, failed_sub_batches, elapsed_ms,
-            _VOCAB_SUBBATCH_SIZE, _VOCAB_BUSY_TIMEOUT_MS,
-        )
-        return written
+        elapsed_ms = 0
+        # The success-summary log lives in `finally:` so it fires on EVERY flush
+        # — happy path, partial fallback, or fully per-row fallback. Counters
+        # (written, failed_sub_batches, total_sub) and `start` are bound before
+        # the try, so the finally always has sensible values even on early exit.
+        try:
+            for idx in range(total_sub):
+                sub = rows[idx * _VOCAB_SUBBATCH_SIZE:(idx + 1) * _VOCAB_SUBBATCH_SIZE]
+                sub_start = time.monotonic()
+                try:
+                    # Open (cached, per-thread) and take the write mutex per
+                    # sub-batch; both are released when the with-block exits.
+                    with safe_open_kdb(str(self.db_path)) as conn, \
+                            acquire_write_lock(self.db_path):
+                        # Vocab connection only: fast-fail on a busy DB (~2 s)
+                        # instead of retrying for the 30 s global default, so we
+                        # release the write mutex quickly and fall back per-row.
+                        conn.execute("PRAGMA busy_timeout=%d" % _VOCAB_BUSY_TIMEOUT_MS)
+                        conn.executemany(_VOCAB_INSERT_SQL, sub)
+                        conn.commit()
+                    self.transactions += 1
+                    written += len(sub)
+                    logger.info(
+                        "vocab_write_sub_batch sub_batch=%d/%d rows=%d elapsed_ms=%d",
+                        idx + 1, total_sub, len(sub),
+                        int((time.monotonic() - sub_start) * 1000),
+                    )
+                except Exception as e:
+                    failed_sub_batches += 1
+                    if "database is locked" in str(e).lower():
+                        self.busy_failures += 1
+                    logger.warning(
+                        "VocabularyIngester: sub-batch %d/%d insert of %d rows failed "
+                        "(%s) — falling back to one-by-one",
+                        idx + 1, total_sub, len(sub), e,
+                    )
+                    written += self._write_rows_individually(sub)
+                # Yield between sub-batches (never after the last) with the mutex
+                # released so a queued waiter is actually scheduled and can acquire.
+                if idx < total_sub - 1:
+                    time.sleep(yield_seconds)
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            logger.info(
+                "vocab_write_batch_end rows=%d written=%d elapsed_ms=%d",
+                total_rows, written, elapsed_ms,
+            )
+            return written
+        finally:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            logger.info(
+                "vocab flush: flushed=%d sub_batches=%d failed_sub_batches=%d "
+                "elapsed_ms=%d subbatch_size=%d busy_timeout_ms=%d",
+                written, total_sub, failed_sub_batches, elapsed_ms,
+                _VOCAB_SUBBATCH_SIZE, _VOCAB_BUSY_TIMEOUT_MS,
+            )
 
     def _write_rows_individually(self, rows) -> int:
         """Per-row fallback so a single bad row doesn't drop the whole batch."""
@@ -570,15 +584,41 @@ class VocabularyIngester:
         self._flush_timer = t
         t.start()
 
+    def _idle_flush_tick(self) -> None:
+        """Run one guarded idle flush.
+
+        Single-flight: only one idle flush may run at a time. If a prior idle
+        flush is still in progress (a 1000-row flush that fell back per-row can
+        take 10-20+ s), this tick skips instead of spawning a second mutex
+        acquisition that would wait 30 s and trip write_mutex_timeout.
+
+        Guard scope — callers of _flush_locked and whether they are guarded:
+          * _idle_flush_tick (this method, the idle loop)  -> GUARDED
+          * flush() (public API, e.g. run_once/shutdown)    -> NOT guarded
+          * ingest_one (size-triggered flush at batch_size)  -> NOT guarded
+        The two unguarded callers are synchronous and their callers expect the
+        write to happen now, so they bypass the single-flight gate by design.
+        """
+        if self._flush_in_progress.is_set():
+            logger.debug(
+                "VocabularyIngester: idle flush skipped — prior flush still running"
+            )
+            return
+        self._flush_in_progress.set()
+        try:
+            with self._batch_lock:
+                if self._batch and (
+                    time.monotonic() - self._last_add_ts
+                ) >= self.flush_seconds:
+                    self._flush_locked()
+        finally:
+            self._flush_in_progress.clear()
+
     def _idle_flush_loop(self) -> None:
         poll = min(self.flush_seconds, 1.0) or 1.0
         while not self._stop_event.wait(poll):
             try:
-                with self._batch_lock:
-                    if self._batch and (
-                        time.monotonic() - self._last_add_ts
-                    ) >= self.flush_seconds:
-                        self._flush_locked()
+                self._idle_flush_tick()
             except Exception as e:
                 logger.debug("VocabularyIngester idle flush failed: %s", e)
 
