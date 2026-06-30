@@ -8980,6 +8980,36 @@ def api_admin_db_query():
         return jsonify({"error": str(_e)}), 500
 
 
+@app.route("/api/admin/db-health", methods=["POST"])
+def api_admin_db_health():
+    """Run the manual DB health-check suite (scripts/db_health.py).
+
+    Master-password gated (same X-Master-Password convention as the other
+    /api/admin/db-* routes). Returns the full run_all_checks JSON.
+    HTTP status mirrors overall_status: 200 for ok/warn, 503 for fail.
+    """
+    if request.headers.get("X-Master-Password") != os.environ.get("MASTER_PASSWORD"):
+        return jsonify({"error": "unauthorized"}), 401
+    # Import here so the route still registers even if scripts/ is briefly absent.
+    try:
+        import sys as _sys
+        _here = os.path.dirname(os.path.abspath(__file__))
+        if _here not in _sys.path:
+            _sys.path.insert(0, _here)
+        from scripts.db_health import run_all_checks
+    except Exception as _ie:
+        return jsonify({"error": f"db_health unavailable: {_ie}"}), 500
+    db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+    schema_path = os.path.join(_here, "scripts", "schema.sql")
+    try:
+        result = run_all_checks(db_path, schema_path)
+    except Exception as _re:
+        return jsonify({"error": str(_re)}), 500
+    status_code = {"ok": 200, "warn": 200, "fail": 503}.get(
+        result.get("overall_status"), 503)
+    return jsonify(result), status_code
+
+
 @app.route("/api/admin/db-bootstrap", methods=["POST"])
 def api_admin_db_bootstrap():
     """Re-run boot-time schema bootstrap so mf_* + encyclopaedia tables exist."""
