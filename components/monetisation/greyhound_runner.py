@@ -266,6 +266,15 @@ class GreyhoundRunner:
 
     def stop(self):
         self._stop.set()
+        # Flush any tracking picks the advisor still has buffered so a clean
+        # shutdown doesn't drop the last partial batch (atexit also covers
+        # ungraceful exits).
+        try:
+            flush = getattr(self.advisor, "flush_tracking_picks", None)
+            if callable(flush):
+                flush()
+        except Exception as e:
+            logger.warning("greyhound flush on stop failed: %s", e)
 
     def status(self) -> Dict[str, Any]:
         return {

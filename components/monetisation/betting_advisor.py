@@ -14,6 +14,7 @@ Bankroll source: RevenueAllocator.dmai_operating wallet's "betting" sub-allocati
 (default: 5% of operating wallet, configurable).
 """
 from __future__ import annotations
+import atexit
 import json
 import logging
 import os
@@ -26,6 +27,31 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 _LOCK = threading.Lock()
+
+# ── Greyhound tracking-pick write batching (2026-06-30, lock-storm reduction) ──
+# The GreyhoundRunner records one top pick per race via record_tracking_pick,
+# which previously wrote a row (INSERT + COMMIT) per call at race-tick
+# frequency — the dominant remaining source of `database is locked` after
+# PR #154. We buffer picks and flush them in a single executemany transaction.
+#
+# Unlike the vocabulary ingester's count-only flush, picks must reach the DB
+# quickly so the trader/admin UI sees them within ~1s, so the trigger is
+# TIME-BOUNDED as well: flush after GREYHOUND_BATCH_SIZE picks OR
+# GREYHOUND_FLUSH_MS since the first buffered pick — whichever comes first.
+# A daemon flusher thread wakes every 250ms to honour the time bound. Both
+# knobs are optional env overrides; no schema change.
+_DEFAULT_GREYHOUND_BATCH_SIZE = 50
+_DEFAULT_GREYHOUND_FLUSH_MS = 1000
+_GREYHOUND_FLUSH_POLL_SECONDS = 0.25
+
+# INSERT OR IGNORE so the UNIQUE(event_name, market) constraint silently
+# dedupes re-buffered picks (the runner re-records the same race every cycle
+# until it starts) instead of failing the whole executemany batch.
+_TRACKING_PICK_INSERT_SQL = (
+    "INSERT OR IGNORE INTO mon_tracking_picks (id, event_name, market, selection, "
+    "decimal_odds, model_probability, confidence, expected_value, rationale, "
+    "prediction_id, outcome, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+)
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS mon_tips (
@@ -144,6 +170,28 @@ class BettingAdvisor:
         self.currency = currency
         os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
         self._init_schema()
+
+        # ── Greyhound tracking-pick write buffer ───────────────────────────
+        try:
+            self._pick_batch_size = max(
+                1, int(os.environ.get("GREYHOUND_BATCH_SIZE",
+                                      _DEFAULT_GREYHOUND_BATCH_SIZE))
+            )
+        except (TypeError, ValueError):
+            self._pick_batch_size = _DEFAULT_GREYHOUND_BATCH_SIZE
+        try:
+            self._pick_flush_ms = float(
+                os.environ.get("GREYHOUND_FLUSH_MS", _DEFAULT_GREYHOUND_FLUSH_MS)
+            )
+        except (TypeError, ValueError):
+            self._pick_flush_ms = float(_DEFAULT_GREYHOUND_FLUSH_MS)
+        self._pick_buffer: List[tuple] = []     # pending INSERT row tuples
+        self._pick_keys: set = set()            # (event_name, market) in-buffer dedup
+        self._pick_buffer_lock = threading.Lock()
+        self._pick_first_ts: Optional[float] = None  # monotonic ts of first buffered pick
+        self._pick_flusher: Optional[threading.Thread] = None
+        self._pick_stop = threading.Event()
+        atexit.register(self.shutdown)
 
     def _conn(self):
         # Integrity check + quarantine removed: it was destroying shared tables
@@ -394,24 +442,31 @@ class BettingAdvisor:
         if decimal_odds <= 1.0:
             return {"error": "decimal_odds must be > 1.0"}
         pick_id = uuid.uuid4().hex[:16]
-        with _LOCK, self._conn() as c:
-            existing = c.execute(
-                "SELECT * FROM mon_tracking_picks WHERE event_name=? AND market=?",
-                (event_name, market),
-            ).fetchone()
-            if existing:
-                return {"id": existing["id"], "event_name": event_name,
-                        "selection": existing["selection"],
-                        "status": "already_tracked"}
-            c.execute(
-                "INSERT INTO mon_tracking_picks (id, event_name, market, selection, "
-                "decimal_odds, model_probability, confidence, expected_value, "
-                "rationale, prediction_id, outcome, created_at) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                (pick_id, event_name, market, selection, decimal_odds,
-                 model_probability, confidence, expected_value, rationale,
-                 prediction_id, "pending", time.time()),
-            )
+        row = (pick_id, event_name, market, selection, decimal_odds,
+               model_probability, confidence, expected_value, rationale,
+               prediction_id, "pending", time.time())
+        # Buffer the write (single executemany transaction on flush) rather than
+        # writing one row per pick. DB-level idempotency on (event_name, market)
+        # is preserved by INSERT OR IGNORE against the UNIQUE constraint.
+        self._maybe_start_pick_flusher()
+        flush_now = False
+        status = "tracked"
+        key = (event_name, market)
+        with self._pick_buffer_lock:
+            if key in self._pick_keys:
+                status = "already_tracked"
+            else:
+                self._pick_keys.add(key)
+                if not self._pick_buffer:
+                    self._pick_first_ts = time.monotonic()
+                self._pick_buffer.append(row)
+                if len(self._pick_buffer) >= self._pick_batch_size:
+                    flush_now = True
+        if flush_now:
+            self._flush_picks()
+        if status == "already_tracked":
+            return {"id": pick_id, "event_name": event_name,
+                    "selection": selection, "status": "already_tracked"}
         # HOT-TIP notification for STRONG-tier tracking picks (manual-bet phase).
         # Criteria mirror SlackNotifier.hot_tip 'STRONG': EV >= 0.20 AND confidence >= 0.70.
         try:
@@ -434,6 +489,94 @@ class BettingAdvisor:
             logger.warning("tracking hot-tip notify failed: %s", e)
         return {"id": pick_id, "event_name": event_name, "selection": selection,
                 "status": "tracked"}
+
+    # ---- tracking-pick write batching ----
+
+    def _maybe_start_pick_flusher(self) -> None:
+        """Lazily start the daemon thread that flushes the pick buffer once it
+        has been waiting ``GREYHOUND_FLUSH_MS`` since its first buffered pick."""
+        if self._pick_flusher is not None or self._pick_flush_ms <= 0:
+            return
+        self._pick_stop.clear()
+        t = threading.Thread(
+            target=self._pick_flush_loop, name="greyhound-pick-flush", daemon=True
+        )
+        self._pick_flusher = t
+        t.start()
+
+    def _pick_flush_loop(self) -> None:
+        """Wake every 250ms; flush when the time bound has elapsed. The
+        count bound is handled inline in record_tracking_pick."""
+        while not self._pick_stop.wait(_GREYHOUND_FLUSH_POLL_SECONDS):
+            try:
+                with self._pick_buffer_lock:
+                    due = bool(
+                        self._pick_buffer
+                        and self._pick_first_ts is not None
+                        and (time.monotonic() - self._pick_first_ts) * 1000.0
+                        >= self._pick_flush_ms
+                    )
+                if due:
+                    self._flush_picks()
+            except Exception as e:
+                logger.debug("greyhound pick idle flush failed: %s", e)
+
+    def flush_tracking_picks(self) -> int:
+        """Flush any buffered tracking picks in a single transaction.
+
+        Returns the number of rows written. Safe to call from any thread and
+        at shutdown."""
+        return self._flush_picks()
+
+    def _flush_picks(self) -> int:
+        with self._pick_buffer_lock:
+            if not self._pick_buffer:
+                return 0
+            rows = self._pick_buffer
+            self._pick_buffer = []
+            self._pick_keys = set()
+            self._pick_first_ts = None
+        return self._write_picks(rows)
+
+    def _write_picks(self, rows) -> int:
+        """Write buffered picks: acquire the write lock once, executemany in a
+        single transaction. On batch failure, fall back to one-by-one so a
+        single bad row doesn't drop the rest (mirrors the vocab ingester)."""
+        start = time.monotonic()
+        try:
+            with _LOCK, self._conn() as c:
+                c.executemany(_TRACKING_PICK_INSERT_SQL, rows)
+            written = len(rows)
+        except Exception as e:
+            logger.warning(
+                "greyhound tracking-pick batch insert of %d rows failed (%s) "
+                "— falling back to one-by-one", len(rows), e,
+            )
+            written = self._write_picks_individually(rows)
+        logger.info(
+            "greyhound_tracking_pick_flush rows=%d elapsed_ms=%d source=greyhound_runner",
+            written, int((time.monotonic() - start) * 1000),
+        )
+        return written
+
+    def _write_picks_individually(self, rows) -> int:
+        written = 0
+        for row in rows:
+            try:
+                with _LOCK, self._conn() as c:
+                    c.execute(_TRACKING_PICK_INSERT_SQL, row)
+                written += 1
+            except Exception as e:
+                logger.warning(
+                    "greyhound tracking-pick row insert failed (event=%r): %s",
+                    row[1] if len(row) > 1 else None, e,
+                )
+        return written
+
+    def shutdown(self) -> int:
+        """Stop the flusher thread and flush remaining buffered picks."""
+        self._pick_stop.set()
+        return self._flush_picks()
 
     def list_tracking_picks(self, outcome: Optional[str] = None,
                             limit: int = 200) -> List[Dict[str, Any]]:
