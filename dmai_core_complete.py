@@ -145,6 +145,14 @@ if IS_RENDER:
 DATA_PATH = os.environ.get("DATA_PATH", "data/")
 Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
 
+# Shared knowledge-DB opener. All normal-operation reads/writes to
+# dmai_knowledge.db route through safe_open_kdb so they share the WAL pragmas
+# and the process-level write mutex (components/db.py). Boot-time self-heal and
+# the DB repair/restore/salvage admin paths below intentionally keep bare
+# sqlite3 connections — they rename/replace the file and must not pollute the
+# per-thread connection cache.
+from components.db import safe_open_kdb
+
 # ── Boot-time SQLite self-heal ───────────────────────────────────────────────
 # If dmai_knowledge.db is malformed, quarantine it so components recreate
 # schema on first access. Controlled by DB_AUTO_HEAL=true (default off).
@@ -1738,7 +1746,7 @@ def api_status():
             try:
                 import sqlite3 as _sq_k
                 _db_k = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/"), "dmai_knowledge.db")
-                _ck = _sq_k.connect(_db_k, timeout=5)
+                _ck = safe_open_kdb(_db_k, timeout=5)
                 _caps_k = _ck.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
                 _ins_k  = _ck.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
                 try:
@@ -2531,7 +2539,7 @@ def api_training_status():
     try:
         import sqlite3 as _sq3
         _db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
-        _conn = _sq3.connect(_db_path, timeout=5)
+        _conn = safe_open_kdb(_db_path, timeout=5)
         _expert = _conn.execute("SELECT COUNT(*) FROM syllabus_content WHERE mastery >= 0.8").fetchone()[0]
         _tot    = _conn.execute("SELECT COUNT(*) FROM syllabus_content").fetchone()[0]
         _avg    = _conn.execute("SELECT AVG(mastery) FROM syllabus_content").fetchone()[0] or 0.0
@@ -3273,7 +3281,7 @@ def _update_training_progress(db_path):
     live syllabus_content table — the single source the dashboard/metrics read."""
     import sqlite3 as _sq
     try:
-        conn = _sq.connect(db_path, timeout=30)
+        conn = safe_open_kdb(db_path, timeout=30)
         mastered = conn.execute(
             "SELECT COUNT(*) FROM syllabus_content WHERE mastery >= 0.9").fetchone()[0] or 0
         _row = conn.execute(
@@ -3313,7 +3321,7 @@ def _run_intensive_training():
     try:
         while True:
             try:
-                conn = _sq.connect(db_path, timeout=30)
+                conn = safe_open_kdb(db_path, timeout=30)
                 conn.row_factory = _sq.Row
                 rows = conn.execute(
                     "SELECT topic FROM syllabus_content "
@@ -3344,7 +3352,7 @@ def _run_intensive_training():
                 if not summary:
                     summary = f"Studied syllabus topic '{topic}'."
                 try:
-                    conn = _sq.connect(db_path, timeout=30)
+                    conn = safe_open_kdb(db_path, timeout=30)
                     iid = f"train_{int(_dt.now(_tz.utc).timestamp()*1000)}_{processed}"
                     conn.execute(
                         "INSERT OR IGNORE INTO insights "
@@ -5102,7 +5110,7 @@ def api_learning_full_status():
                     os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
                     "dmai_knowledge.db"
                 )
-                _con_fs = _sq_fs.connect(_db_fs, timeout=5)
+                _con_fs = safe_open_kdb(_db_fs, timeout=5)
                 _caps_fs  = _con_fs.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
                 _ins_fs   = _con_fs.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
                 try:
@@ -5185,7 +5193,7 @@ def api_learning_full_status():
     db_stats = {"insights": 0, "capabilities": 0, "syllabus_mastered": 0}
     try:
         import sqlite3
-        conn = sqlite3.connect("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -5278,7 +5286,7 @@ def api_learning_full_status():
     try:
         import sqlite3 as _sq2
         _db2 = os.path.join(os.environ.get("DATA_PATH", "data"), "dmai_knowledge.db")
-        _con2 = _sq2.connect(_db2, timeout=5)
+        _con2 = safe_open_kdb(_db2, timeout=5)
         _cur2 = _con2.cursor()
         for _sname in ["baby", "toddler", "child", "teen", "adult", "expert"]:
             try:
@@ -5542,7 +5550,7 @@ def api_metrics():
     _daily_series = []
 
     try:
-        _conn = _sq.connect(_DB)
+        _conn = safe_open_kdb(_DB)
         _conn.row_factory = _sq.Row
         _ins  = _conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
         _caps = _conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
@@ -5658,7 +5666,7 @@ def api_vocabulary_stats():
     """Return vocabulary and encyclopaedia ingestion stats."""
     try:
         import sqlite3 as _vsq
-        conn = _vsq.connect("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -5691,7 +5699,7 @@ def api_vocabulary_sample():
     """Return a random sample of recently learned words."""
     try:
         import sqlite3 as _vsq
-        conn = _vsq.connect("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -5731,7 +5739,7 @@ def api_vocabulary_purge():
     try:
         import sqlite3 as _vsq
         db_file = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
-        conn = _vsq.connect(db_file, timeout=30.0)
+        conn = safe_open_kdb(db_file, timeout=30.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -5861,7 +5869,7 @@ def api_integrity_report():
         return jsonify({"error": "Unauthorized"}), 401
     try:
         import sqlite3 as _isq
-        conn = _isq.connect("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -5949,7 +5957,7 @@ import uuid as _uuid_mod
 
 def _sug_db():
     import sqlite3 as _sq
-    conn = _sq.connect("data/dmai_knowledge.db", timeout=30.0)
+    conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
     try:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA busy_timeout=30000")
@@ -6136,7 +6144,7 @@ def _ensure_syllabus_content_table():
     try:
         db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        conn = _ss3.connect(db_path)
+        conn = safe_open_kdb(db_path)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS syllabus_content ("
             "topic TEXT PRIMARY KEY, "
@@ -6209,7 +6217,7 @@ def _ensure_sources_table():
     try:
         db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        conn = _ss3.connect(db_path)
+        conn = safe_open_kdb(db_path)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS sources ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -6287,7 +6295,7 @@ def _ensure_sources_table():
 def _ensure_system_state_table():
     import sqlite3 as _ss3
     try:
-        conn = _ss3.connect(_DB_PATH_STAGE)
+        conn = safe_open_kdb(_DB_PATH_STAGE)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS system_state ("
             "key TEXT PRIMARY KEY, "
@@ -6318,7 +6326,7 @@ def _get_db_metrics():
     import sqlite3 as _sm3
     m = {"insights": 0, "capabilities": 0, "vocab": 0, "avg_kpi": 0.0}
     try:
-        conn = _sm3.connect(_DB_PATH_STAGE)
+        conn = safe_open_kdb(_DB_PATH_STAGE)
         conn.row_factory = _sm3.Row
         m["insights"]     = conn.execute("SELECT COUNT(*) as c FROM insights").fetchone()["c"]
         m["capabilities"] = conn.execute("SELECT COUNT(*) as c FROM capabilities").fetchone()["c"]
@@ -6835,7 +6843,7 @@ def _write_stage_to_db(stage, within_pct, m):
     while _attempts < 2:
         _attempts += 1
         try:
-            conn = _sw3.connect(_DB_PATH_STAGE, timeout=10)
+            conn = safe_open_kdb(_DB_PATH_STAGE, timeout=10)
             conn.row_factory = _sw3.Row
             now = _sdt.datetime.utcnow().isoformat()
             row = conn.execute("SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
@@ -7056,7 +7064,7 @@ def api_self_evolution_health():
     db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
     table_rows = {}
     try:
-        conn = _sq3.connect(db_path, timeout=5)
+        conn = safe_open_kdb(db_path, timeout=5)
         for t in ["syllabus_content", "sources", "capabilities", "insights", "suggestions",
                   "work_review_queue", "skill_assessments", "at_ticks", "at_trades",
                   "expert_brain_entries", "personas", "conversation_memory"]:
@@ -7218,7 +7226,7 @@ def api_admin_stage_debug():
         out["computed"] = {"stage": stage_computed, "within_pct": within_computed}
         # Persisted
         db_path = _dos.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
-        conn = _dsq.connect(db_path, timeout=10)
+        conn = safe_open_kdb(db_path, timeout=10)
         conn.row_factory = _dsq.Row
         persisted = {}
         for k in ("learning_stage", "stage_within_pct", "stage_insights",
@@ -7254,7 +7262,7 @@ def api_admin_stage_force_write():
     db_path = _fos.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
     try:
         # Read before
-        conn = _fsq.connect(db_path, timeout=10)
+        conn = safe_open_kdb(db_path, timeout=10)
         before_row = conn.execute(
             "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
         before_stage = before_row[0] if before_row else None
@@ -7266,7 +7274,7 @@ def api_admin_stage_force_write():
         # Also re-seed KPIs to refresh transfer/rsi
         _seed_kpis_from_db()
         # Read after
-        conn = _fsq.connect(db_path, timeout=10)
+        conn = safe_open_kdb(db_path, timeout=10)
         after_row = conn.execute(
             "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
         after_stage = after_row[0] if after_row else None
@@ -7523,7 +7531,7 @@ def _ensure_suggestions_table():
     from pathlib import Path as _P3
     db = _P3("data/dmai_knowledge.db")
     db.parent.mkdir(parents=True, exist_ok=True)
-    conn = _sq3.connect(str(db))
+    conn = safe_open_kdb(str(db))
     conn.execute('''
         CREATE TABLE IF NOT EXISTS suggestions (
             id TEXT PRIMARY KEY,
@@ -7558,7 +7566,7 @@ def api_heartbeat():
     cutoff_7d  = (now - _dt.timedelta(days=7)).isoformat()
 
     def _hb_conn():
-        c = _hbsq.connect(DB_PATH)
+        c = safe_open_kdb(DB_PATH)
         c.row_factory = _hbsq.Row
         return c
 
@@ -7735,7 +7743,7 @@ def api_stage_analytics():
         # Resolve DB path against DATA_PATH so we hit the persistent disk.
         _data_dir = (os.environ.get("DATA_PATH") or "data/").rstrip("/").rstrip("\\")
         _resolved_db = os.path.join(_data_dir, "dmai_knowledge.db")
-        conn = _an_sq.connect(_resolved_db)
+        conn = safe_open_kdb(_resolved_db)
         conn.row_factory = _an_sq.Row
 
         # ── 1. Current metrics ────────────────────────────────────────────────
@@ -8043,7 +8051,7 @@ def _read_stage_from_db():
             os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
             "dmai_knowledge.db")
         import sqlite3 as _sq3s
-        _c = _sq3s.connect(db_path, timeout=5)
+        _c = safe_open_kdb(db_path, timeout=5)
         _r = _c.execute(
             "SELECT value FROM system_state WHERE key='learning_stage'").fetchone()
         if _r and _r[0]:
@@ -8064,7 +8072,7 @@ def _seed_kpis_from_db():
     try:
         db_path = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
         import sqlite3 as _sq3
-        con = _sq3.connect(db_path, timeout=5)
+        con = safe_open_kdb(db_path, timeout=5)
         cur = con.cursor()
 
         def _count(tbl, where="1=1"):
@@ -8969,7 +8977,7 @@ def api_admin_db_query():
     try:
         import sqlite3 as _sq
         _p = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
-        _c = _sq.connect(_p, timeout=10)
+        _c = safe_open_kdb(_p, timeout=10)
         _c.row_factory = _sq.Row
         cur = _c.execute(sql)
         rows = [dict(r) for r in cur.fetchall()[:200]]
@@ -9022,7 +9030,7 @@ def api_admin_db_bootstrap():
     try:
         import sqlite3 as _sq
         _p = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
-        _c = _sq.connect(_p, timeout=10)
+        _c = safe_open_kdb(_p, timeout=10)
         _c.executescript("""
             CREATE TABLE IF NOT EXISTS mf_predictions (
                 id TEXT PRIMARY KEY,
