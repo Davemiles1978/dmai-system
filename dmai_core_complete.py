@@ -8997,12 +8997,16 @@ def api_admin_db_health():
         if _here not in _sys.path:
             _sys.path.insert(0, _here)
         from scripts.db_health import run_all_checks
+        try:
+            from scripts.db_health import _jsonable
+        except Exception:
+            _jsonable = lambda x: x  # noqa: E731 — fall back to raw result
     except Exception as _ie:
         return jsonify({"error": f"db_health unavailable: {_ie}"}), 500
     db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
     schema_path = os.path.join(_here, "scripts", "schema.sql")
     try:
-        result = run_all_checks(db_path, schema_path)
+        result = _jsonable(run_all_checks(db_path, schema_path))
     except Exception as _re:
         return jsonify({"error": str(_re)}), 500
     status_code = {"ok": 200, "warn": 200, "fail": 503}.get(
