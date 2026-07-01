@@ -265,11 +265,17 @@ class PersonaRegistry:
                 "WHERE ts >= datetime('now', ?) GROUP BY persona ORDER BY n DESC",
                 (f"-{days} days",),
             ).fetchall()
-            return {
+            # ``persona`` can come back as ``bytes`` when the column has BLOB
+            # affinity, which makes Flask's ``jsonify`` reject the dict key with
+            # "keys must be str, int, float, bool or None, not bytes". Coerce the
+            # whole payload through the shared ``_jsonable`` helper (PR #152
+            # family) so the route always serialises.
+            from components.json_utils import _jsonable
+            return _jsonable({
                 "window_days": days,
                 "by_persona": {r["persona"]: r["n"] for r in rows},
                 "total": sum(r["n"] for r in rows),
-            }
+            })
 
     def reload(self) -> Dict[str, Any]:
         with self._lock:

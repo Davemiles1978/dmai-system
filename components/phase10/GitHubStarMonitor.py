@@ -94,8 +94,12 @@ class GitHubStarMonitor:
         Analyze a repository and determine how to use it
         """
         name = repo.get('full_name')
-        description = repo.get('description', '')
-        language = repo.get('language', 'Unknown')
+        # GitHub sends ``"description": null`` for repos with no blurb, so
+        # ``.get('description', '')`` returns None (the key exists) — the later
+        # ``"AI" in description`` / ``description.lower()`` then raised
+        # "argument of type 'NoneType' is not iterable". Coerce to str.
+        description = repo.get('description') or ''
+        language = repo.get('language') or 'Unknown'
         stars = repo.get('stargazers_count', 0)
         url = repo.get('html_url')
         clone_url = repo.get('clone_url')
