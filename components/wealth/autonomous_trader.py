@@ -111,8 +111,43 @@ PROMOTE_PNL_PCT  = 0.03
 DEMOTE_PNL_PCT   = -0.02
 ROLLING_WINDOW_DAYS = 5
 
-LOOP_INTERVAL_SECONDS = 300   # 5 minutes
+LOOP_INTERVAL_SECONDS = 300   # legacy default; scheduled cadence is now env-driven (2h)
 MARKET_TZ_OFFSET_HOURS = -4   # EDT default; refined per tick via _us_market_open()
+
+# ── Cadence (PR #163) ─────────────────────────────────────────────────────────
+# Post-#162 the trader became the dominant write-mutex holder: a 5-min loop tick
+# hitting c.execute() under SQLite write pressure produced a steady
+# "database is locked" storm. We rate-limit to a default 2h cadence, with a
+# dashboard-controlled live-mode override (30s) that auto-expires after 4h so it
+# can't accidentally re-trigger the lock storm. All env reads happen at call
+# time so a running loop honours changes without restart.
+MODE_SCHEDULED = "scheduled"
+MODE_LIVE = "live"
+SLEEP_CHUNK_SECONDS = 10       # re-check mode file this often mid-sleep
+HEARTBEAT_EVERY_SECONDS = 300  # refresh heartbeat ~every 5 min during sleep
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        v = int(os.getenv(name, str(default)))
+        return v if v > 0 else default
+    except Exception:
+        return default
+
+
+def _tick_interval_s() -> int:
+    """Scheduled-mode cadence (default 2h)."""
+    return _env_int("AUTONOMOUS_TRADER_TICK_INTERVAL_SECONDS", 7200)
+
+
+def _live_interval_s() -> int:
+    """Live-mode cadence while the dashboard trading window is open (default 30s)."""
+    return _env_int("AUTONOMOUS_TRADER_LIVE_INTERVAL_SECONDS", 30)
+
+
+def _live_max_minutes() -> int:
+    """Live-mode auto-expiry: revert to scheduled after this long (default 4h)."""
+    return _env_int("AUTONOMOUS_TRADER_LIVE_MAX_MINUTES", 240)
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS at_state (
         id              INTEGER PRIMARY KEY CHECK (id = 1),
@@ -189,7 +224,7 @@ class AutonomousTrader:
         prediction_engine: Optional[Any] = None,
         notifier: Optional[Any] = None,
         universe: Optional[List[str]] = None,
-        loop_interval_s: int = LOOP_INTERVAL_SECONDS,
+        loop_interval_s: Optional[int] = None,
         require_approval: bool = False,
     ):
         self.db_path = db_path
@@ -199,8 +234,17 @@ class AutonomousTrader:
         self.universe = universe or (
             getattr(trader, "conservative_pairs", []) + getattr(trader, "trading_pairs", [])
         )
-        self.loop_interval_s = loop_interval_s
+        # Scheduled-mode cadence. Defaults to the env-driven 2h interval so the
+        # TraderWatchdog's staleness threshold (2 * loop_interval_s + 30) scales
+        # with the real cadence instead of the old 5-min value.
+        self.loop_interval_s = loop_interval_s if loop_interval_s is not None else _tick_interval_s()
         self.require_approval = bool(require_approval)
+
+        # Mode + heartbeat files live alongside the DB so the API layer and the
+        # loop share one location, and tests can point at a temp dir.
+        _data_dir = os.path.dirname(os.path.abspath(self.db_path))
+        self.mode_file = os.path.join(_data_dir, "autonomous_trader_mode.txt")
+        self.heartbeat_file = os.path.join(_data_dir, "autonomous_trader_heartbeat.txt")
 
         self._stop = threading.Event()
         self._thread: Optional[threading.Thread] = None
@@ -369,6 +413,7 @@ class AutonomousTrader:
             ).fetchall()
         s_safe = _row_safe(s)
         tier = _norm_tier(s_safe.get("tier")) if s_safe else "conservative"
+        mode_info = self.mode_status(mutate_expiry=False)
         return {
             "enabled":          bool(s_safe.get("enabled")) if s_safe else False,
             "tier":             tier,
@@ -376,6 +421,11 @@ class AutonomousTrader:
             "live":             _is_live(),
             "market_open":      _us_market_open(),
             "loop_interval_s":  self.loop_interval_s,
+            "mode":             mode_info.get("mode"),
+            "mode_expires_at":  mode_info.get("expires_at"),
+            "next_tick_at":     mode_info.get("next_tick_at"),
+            "scheduled_interval_s": _tick_interval_s(),
+            "live_interval_s":  _live_interval_s(),
             "require_approval": self.require_approval,
             "last_tick_ts":     s_safe.get("last_tick_ts") if s_safe else None,
             "last_tick_note":   s_safe.get("last_tick_note") if s_safe else None,
@@ -436,24 +486,139 @@ class AutonomousTrader:
         t = threading.Thread(target=self._run, name="AutonomousTrader-loop", daemon=True)
         self._thread = t
         t.start()
-        logger.info("AutonomousTrader: loop started (interval=%ss)", self.loop_interval_s)
+        logger.info(
+            "AutonomousTrader: loop started (scheduled=%ss, live=%ss, live_max=%dm)",
+            _tick_interval_s(), _live_interval_s(), _live_max_minutes(),
+        )
 
     def stop(self) -> None:
         self._stop.set()
+
+    # ── Mode file (scheduled | live) ────────────────────────────────────────────
+    def _read_mode(self) -> str:
+        """Read the mode file, creating it as 'scheduled' if absent.
+
+        Returns MODE_LIVE or MODE_SCHEDULED. Any unrecognised/garbled content is
+        treated as scheduled (fail safe — never leave the fast loop running by
+        accident)."""
+        try:
+            with open(self.mode_file, "r", encoding="utf-8") as fh:
+                val = (fh.read() or "").strip().lower()
+            return MODE_LIVE if val == MODE_LIVE else MODE_SCHEDULED
+        except FileNotFoundError:
+            self._write_mode(MODE_SCHEDULED)
+            return MODE_SCHEDULED
+        except Exception as e:
+            logger.debug("AutonomousTrader: mode read failed (%s), assuming scheduled", e)
+            return MODE_SCHEDULED
+
+    def _write_mode(self, mode: str) -> None:
+        """Atomically write the mode file. Rewrite bumps mtime → resets live expiry."""
+        mode = MODE_LIVE if str(mode).strip().lower() == MODE_LIVE else MODE_SCHEDULED
+        tmp = self.mode_file + ".tmp"
+        try:
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(mode)
+            os.replace(tmp, self.mode_file)
+        except Exception as e:
+            logger.warning("AutonomousTrader: mode write failed: %s", e)
+
+    def _mode_mtime(self) -> Optional[float]:
+        try:
+            return os.path.getmtime(self.mode_file)
+        except Exception:
+            return None
+
+    def mode_status(self, mutate_expiry: bool = False) -> Dict[str, Any]:
+        """Current effective mode + timing. When mutate_expiry is True and live
+        mode has aged past LIVE_MAX_MINUTES, revert the file to scheduled.
+
+        Returns {"mode", "expires_at", "next_tick_at"} (ISO-8601 / None)."""
+        now = datetime.now(timezone.utc)
+        mode = self._read_mode()
+        expires_at = None
+        if mode == MODE_LIVE:
+            mtime = self._mode_mtime()
+            if mtime is not None:
+                exp = datetime.fromtimestamp(mtime, timezone.utc) + timedelta(
+                    minutes=_live_max_minutes()
+                )
+                if now >= exp:
+                    if mutate_expiry:
+                        self._write_mode(MODE_SCHEDULED)
+                        logger.info(
+                            "AutonomousTrader live mode expired, reverting to scheduled"
+                        )
+                    mode = MODE_SCHEDULED
+                else:
+                    expires_at = exp.isoformat()
+        interval = _live_interval_s() if mode == MODE_LIVE else _tick_interval_s()
+        return {
+            "mode": mode,
+            "expires_at": expires_at,
+            "next_tick_at": (now + timedelta(seconds=interval)).isoformat(),
+        }
+
+    def set_mode(self, mode: str) -> Dict[str, Any]:
+        """Set trader cadence mode. Called by POST /api/trader/mode.
+
+        Writing 'live' bumps the file mtime so the 4h auto-expiry clock restarts.
+        """
+        norm = str(mode or "").strip().lower()
+        if norm not in (MODE_LIVE, MODE_SCHEDULED):
+            raise ValueError("mode must be 'live' or 'scheduled'")
+        self._write_mode(norm)
+        logger.info("AutonomousTrader: mode set to %s", norm)
+        return self.mode_status(mutate_expiry=False)
+
+    def _effective_interval(self) -> tuple:
+        """(interval_seconds, mode) for the current sleep, applying auto-expiry."""
+        st = self.mode_status(mutate_expiry=True)
+        mode = st["mode"]
+        interval = _live_interval_s() if mode == MODE_LIVE else _tick_interval_s()
+        return interval, mode
+
+    def _write_heartbeat(self, mode: str, remaining_s: float) -> None:
+        """Atomically stamp the heartbeat file (consumed by PR #164 self_healer)."""
+        tmp = self.heartbeat_file + ".tmp"
+        try:
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(datetime.now(timezone.utc).isoformat())
+            os.replace(tmp, self.heartbeat_file)
+        except Exception as e:
+            logger.debug("AutonomousTrader: heartbeat write failed: %s", e)
+        rem = max(0, int(remaining_s))
+        logger.info(
+            "AutonomousTrader alive, mode=%s, next tick in %dm %ds",
+            mode, rem // 60, rem % 60,
+        )
 
     def _run(self) -> None:
         # Stagger first tick by ~10s so the rest of the app finishes startup.
         time.sleep(10)
         while not self._stop.is_set():
+            interval, mode = self._effective_interval()
+            self._write_heartbeat(mode, interval)
             try:
                 self.tick()
             except Exception as e:
                 logger.exception("AutonomousTrader tick failed: %s", e)
-            # Sleep in small chunks so stop() is responsive.
-            slept = 0
-            while slept < self.loop_interval_s and not self._stop.is_set():
-                time.sleep(min(5, self.loop_interval_s - slept))
-                slept += 5
+
+            # Sleep in ~10s chunks so a dashboard flip to live mode is honoured
+            # within one chunk even mid-way through a 2h scheduled sleep.
+            slept = 0.0
+            last_hb = time.monotonic()
+            while slept < interval and not self._stop.is_set():
+                chunk = min(SLEEP_CHUNK_SECONDS, interval - slept)
+                time.sleep(chunk)
+                slept += chunk
+                new_interval, new_mode = self._effective_interval()
+                # Mode changed (or shorter cadence now applies) → tick promptly.
+                if new_mode != mode or new_interval < interval:
+                    break
+                if time.monotonic() - last_hb >= HEARTBEAT_EVERY_SECONDS:
+                    self._write_heartbeat(new_mode, interval - slept)
+                    last_hb = time.monotonic()
 
     # ── Tick (single iteration) ───────────────────────────────────────────────
     def tick(self) -> Dict[str, Any]:
