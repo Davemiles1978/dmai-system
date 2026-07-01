@@ -3162,6 +3162,34 @@ def api_mon_trader_watchdog():
         return jsonify({"error": "trader_watchdog not loaded"}), 503
     return jsonify(wd.status())
 
+# ── Trader cadence mode (PR #163): scheduled (2h) ↔ live (30s, 4h auto-expiry) ──
+# The dashboard flips the trader into fast "live" ticks while a trading window is
+# open; it auto-expires back to the 2h scheduled cadence after 4h so it can't be
+# left on and re-trigger the write-lock storm PR #162/#163 fixed. Both the short
+# alias and the /api/monetisation/ path are registered for the same handler.
+@app.route("/api/trader/mode", methods=["GET"])
+@app.route("/api/monetisation/trader/mode", methods=["GET"])
+def api_trader_mode_get():
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify(at.mode_status(mutate_expiry=False))
+
+@app.route("/api/trader/mode", methods=["POST"])
+@app.route("/api/monetisation/trader/mode", methods=["POST"])
+def api_trader_mode_set():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    mode = (data.get("mode") or "").strip().lower()
+    try:
+        return jsonify(at.set_mode(mode))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
 @app.route("/api/monetisation/notifier", methods=["GET"])
 def api_mon_notifier_status():
     n = components.get("notifier")
