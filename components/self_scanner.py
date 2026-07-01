@@ -2,7 +2,7 @@
 SelfScanner — audits DMAI's own routes, components, KPIs, DB tables, and capability gaps.
 Runs on startup and every 30 minutes via SelfEvolutionOrchestrator.
 """
-import os, json, sqlite3, threading, ast, logging
+import os, json, sqlite3, threading, ast, logging, inspect, textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 from components.db import safe_open_kdb
@@ -40,39 +40,68 @@ class SelfScanner:
         logger.info(f"SelfScanner: {total} total gaps found")
         return report
 
+    def _iter_route_rules(self) -> list:
+        """Offline enumeration of the app's URL rules. No request dispatch."""
+        if not self.app:
+            return []
+        return list(self.app.url_map.iter_rules())
+
     def _audit_routes(self) -> list:
+        """Audit registered routes without dispatching any requests.
+
+        Previously this issued in-process ``test_client().get()`` probes
+        against every GET route. Those synthetic requests ran the real view
+        handlers, and handlers such as persona_registry.resolve() acquire the
+        SQLite write mutex mid-request — starving the vocabulary_ingester flush
+        and producing write_mutex_timeout / "database is locked" churn.
+
+        This offline version walks Flask's ``url_map`` and introspects each
+        view function's signature and source instead. No request path is
+        exercised, no write mutex is touched, no DB connection is opened.
+        """
         broken = []
         if not self.app:
             return broken
         try:
-            with self.app.test_client() as client:
-                for rule in self.app.url_map.iter_rules():
-                    if "GET" not in rule.methods or "<" in str(rule):
-                        continue
-                    path = str(rule)
-                    try:
-                        import os as _os
-                        _pw = _os.environ.get("MASTER_PASSWORD", "")
-                        # The Flask app accepts X-Master-Password header (legacy) or
-                        # Bearer JWT. Bearer requires minting a JWT which is heavy
-                        # for an audit pass; X-Master-Password works in-process too.
-                        _hdrs = {"X-Master-Password": _pw} if _pw else {}
-                        _probe_hdrs = {**_hdrs, "X-Internal-Probe": "1"}
-                        resp = client.get(path, headers=_probe_hdrs)
-                        if resp.status_code >= 500:
-                            broken.append({"path": path, "error": str(resp.status_code)})
-                        elif resp.status_code == 200:
-                            try:
-                                data = resp.get_json() or {}
-                                if data.get("status") in ["not_implemented", "stub"]:
-                                    broken.append({"path": path, "error": "stub"})
-                            except Exception:
-                                pass
-                    except Exception as e:
-                        broken.append({"path": path, "error": str(e)[:100]})
+            view_functions = getattr(self.app, "view_functions", {}) or {}
+            for rule in self._iter_route_rules():
+                methods = rule.methods or set()
+                if "GET" not in methods or "<" in str(rule):
+                    continue
+                path = str(rule)
+                view_func = view_functions.get(rule.endpoint)
+                if view_func is None:
+                    broken.append({"path": path, "error": "no_view_function"})
+                    continue
+                # Introspect the signature offline; a view we cannot introspect
+                # is not itself an error, so ignore signature failures.
+                try:
+                    inspect.signature(view_func)
+                except (TypeError, ValueError):
+                    pass
+                if self._view_is_stub(view_func):
+                    broken.append({"path": path, "error": "stub"})
         except Exception as e:
             logger.warning(f"Route audit error: {e}")
         return broken
+
+    @classmethod
+    def _view_is_stub(cls, view_func) -> bool:
+        """Detect a stub view offline via its source: a real
+        ``raise NotImplementedError`` or a returned not_implemented/stub status
+        payload — mirroring the old live-probe stub detection without dispatch.
+        """
+        try:
+            source = textwrap.dedent(inspect.getsource(view_func))
+        except (OSError, TypeError):
+            return False
+        if cls._has_real_not_implemented(source):
+            return True
+        lowered = source.lower()
+        if '"status"' in lowered or "'status'" in lowered:
+            if "not_implemented" in lowered or "stub" in lowered:
+                return True
+        return False
 
     @staticmethod
     def _has_real_not_implemented(source: str) -> bool:
