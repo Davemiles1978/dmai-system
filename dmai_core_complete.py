@@ -3190,6 +3190,114 @@ def api_trader_mode_set():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
+# ── AutonomousTrader paper/live execution mode (PR #166) ────────────────────────
+# Distinct from the cadence mode above (scheduled|live). This flips whether the
+# trader points at Alpaca's paper or live API. Staged rollout: run in paper,
+# watch the ledger, flip to live when happy. at_state.mode defaults to 'paper'.
+@app.route("/api/trader/at-mode", methods=["GET"])
+@app.route("/api/monetisation/trader/at-mode", methods=["GET"])
+def api_trader_at_mode_get():
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    return jsonify(at.get_at_mode())
+
+@app.route("/api/trader/at-mode", methods=["POST"])
+@app.route("/api/monetisation/trader/at-mode", methods=["POST"])
+def api_trader_at_mode_set():
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    at = components.get("autonomous_trader")
+    if not at:
+        return jsonify({"error": "autonomous_trader not loaded"}), 503
+    data = request.get_json(silent=True) or {}
+    mode = (data.get("mode") or "").strip().lower()
+    try:
+        return jsonify(at.set_at_mode(mode, reason="admin"))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+# ── Performance ledger (PR #166): isolated data/dmai_ledger.db ─────────────────
+# Read-only views of trades + bets plus a manual bet-outcome upload. Writes to
+# the ledger happen in the trader/tipster hooks; this surface only reads and the
+# single POST recomputes P&L server-side from stored odds.
+@app.route("/api/ledger/trades", methods=["GET"])
+def api_ledger_trades():
+    try:
+        from components.ledger import ledger_db
+        ledger_db.init_ledger_db()
+        mode = (request.args.get("mode") or "").strip().lower() or None
+        status = (request.args.get("status") or "").strip().lower() or None
+        limit = min(max(int(request.args.get("limit", 100)), 1), 1000)
+        offset = max(int(request.args.get("offset", 0)), 0)
+        rows = ledger_db.list_trades(mode=mode, status=status,
+                                     limit=limit, offset=offset)
+        return jsonify({"trades": rows, "count": len(rows)})
+    except ValueError:
+        return jsonify({"error": "limit/offset must be integers"}), 400
+    except Exception as e:
+        logger.warning("api_ledger_trades failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ledger/bets", methods=["GET"])
+def api_ledger_bets():
+    try:
+        from components.ledger import ledger_db
+        ledger_db.init_ledger_db()
+        outcome = (request.args.get("outcome") or "").strip().lower() or None
+        limit = min(max(int(request.args.get("limit", 100)), 1), 1000)
+        offset = max(int(request.args.get("offset", 0)), 0)
+        rows = ledger_db.list_bets(outcome=outcome, limit=limit, offset=offset)
+        return jsonify({"bets": rows, "count": len(rows)})
+    except ValueError:
+        return jsonify({"error": "limit/offset must be integers"}), 400
+    except Exception as e:
+        logger.warning("api_ledger_bets failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ledger/summary", methods=["GET"])
+def api_ledger_summary():
+    try:
+        from components.ledger import ledger_db
+        ledger_db.init_ledger_db()
+        return jsonify(ledger_db.summary())
+    except Exception as e:
+        logger.warning("api_ledger_summary failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/ledger/bets/<int:bet_id>", methods=["POST"])
+def api_ledger_bet_update(bet_id):
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        from components.ledger import ledger_db
+        ledger_db.init_ledger_db()
+        data = request.get_json(silent=True) or {}
+        outcome = data.get("outcome")
+        if outcome is not None:
+            outcome = str(outcome).strip().lower()
+            if outcome not in ("win", "loss", "void", "pending"):
+                return jsonify({"error": "outcome must be win/loss/void/pending"}), 400
+        stake = data.get("stake")
+        if stake is not None:
+            stake = float(stake)
+        row = ledger_db.update_bet(
+            bet_id,
+            stake=stake,
+            outcome=outcome,
+            placed_at=data.get("placed_at"),
+            settled_at=data.get("settled_at"),
+            notes=data.get("notes"),
+        )
+        if row is None:
+            return jsonify({"error": "bet not found"}), 404
+        return jsonify(row)
+    except (ValueError, TypeError):
+        return jsonify({"error": "stake must be numeric"}), 400
+    except Exception as e:
+        logger.warning("api_ledger_bet_update failed: %s", e)
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/monetisation/notifier", methods=["GET"])
 def api_mon_notifier_status():
     n = components.get("notifier")

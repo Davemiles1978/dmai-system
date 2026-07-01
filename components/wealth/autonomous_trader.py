@@ -104,6 +104,30 @@ def _norm_tier(value, default: str = "conservative") -> str:
         return default
     return v if v in TIERS else default
 
+
+# ── Paper / live execution mode (PR #166) ─────────────────────────────────────
+# Distinct from the cadence "mode" (scheduled|live). This is the at_state.mode
+# column that decides whether AggressiveTrader points at the Alpaca paper or live
+# API. Defaults to 'paper' so a fresh boot never trades real money by accident;
+# the user flips it to 'live' explicitly via POST /api/trader/at-mode.
+AT_MODES = ("paper", "live")
+
+
+def _norm_at_mode(value, default: str = "paper") -> str:
+    """Coerce an at_state.mode value to 'paper' or 'live'. Bytes/NULL → default."""
+    if value is None:
+        return default
+    if isinstance(value, bytes):
+        try:
+            value = value.decode("utf-8", errors="replace")
+        except Exception:
+            return default
+    try:
+        v = str(value).strip().lower()
+    except Exception:
+        return default
+    return v if v in AT_MODES else default
+
 # Promotion rule: ≥10 trades over last 5 sessions AND rolling P&L ≥ +3% → step up.
 # Demotion rule: rolling P&L ≤ -2% over last 5 sessions → step down.
 PROMOTE_TRADES   = 10
@@ -337,6 +361,7 @@ class AutonomousTrader:
                 fresh.execute("PRAGMA journal_mode=WAL")
                 for ddl in SCHEMA:
                     fresh.execute(ddl)
+                self._migrate_mode_column(fresh)
                 row = fresh.execute(
                     "SELECT id FROM at_state WHERE id = 1"
                 ).fetchone()
@@ -354,10 +379,31 @@ class AutonomousTrader:
         except Exception as se:
             logger.error("AutonomousTrader: schema recreation failed: %s", se)
 
+    @staticmethod
+    def _migrate_mode_column(c) -> None:
+        """Add at_state.mode if missing (idempotent). Backfill NULLs to 'paper'
+        so no tick ever runs without an explicit paper/live mode (PR #166 A.1/A.4).
+        """
+        try:
+            c.execute(
+                "ALTER TABLE at_state ADD COLUMN mode TEXT NOT NULL DEFAULT 'paper' "
+                "CHECK (mode IN ('paper', 'live'))"
+            )
+        except sqlite3.OperationalError:
+            # Column already exists — re-run is a no-op.
+            pass
+        try:
+            c.execute(
+                "UPDATE at_state SET mode = 'paper' WHERE mode IS NULL AND id = 1"
+            )
+        except sqlite3.OperationalError:
+            pass
+
     def _init_db(self) -> None:
         with self._conn() as c:
             for ddl in SCHEMA:
                 c.execute(ddl)
+            self._migrate_mode_column(c)
             c.commit()
 
     def _ensure_tables(self) -> None:
@@ -366,6 +412,7 @@ class AutonomousTrader:
             with self._conn() as c:
                 for ddl in SCHEMA:
                     c.execute(ddl)
+                self._migrate_mode_column(c)
                 row = c.execute("SELECT id, tier FROM at_state WHERE id = 1").fetchone()
                 if not row:
                     c.execute(
@@ -416,6 +463,7 @@ class AutonomousTrader:
         mode_info = self.mode_status(mutate_expiry=False)
         return {
             "enabled":          bool(s_safe.get("enabled")) if s_safe else False,
+            "at_mode":          _norm_at_mode(s_safe.get("mode")) if s_safe else "paper",
             "tier":             tier,
             "tier_caps":        TIERS[tier],
             "live":             _is_live(),
@@ -448,6 +496,48 @@ class AutonomousTrader:
             c.commit()
         logger.info("AutonomousTrader: enabled=%s (%s)", enabled, reason)
         return self.status()
+
+    # ── Paper / live execution mode (PR #166) ──────────────────────────────────
+    def get_at_mode(self) -> Dict[str, Any]:
+        """Current paper/live execution mode + enabled flag + next tick estimate.
+
+        Shape: {"mode": "paper"|"live", "enabled": bool, "next_tick_at": iso}.
+        """
+        self._ensure_tables()
+        with self._conn() as c:
+            row = c.execute(
+                "SELECT mode, enabled FROM at_state WHERE id = 1"
+            ).fetchone()
+        mode = _norm_at_mode(row["mode"]) if row else "paper"
+        enabled = bool(row["enabled"]) if row else False
+        return {
+            "mode": mode,
+            "enabled": enabled,
+            "next_tick_at": self.mode_status(mutate_expiry=False).get("next_tick_at"),
+        }
+
+    def set_at_mode(self, mode: str, reason: str = "admin") -> Dict[str, Any]:
+        """Flip the trader between paper and live execution. Persists to
+        at_state.mode and logs the transition at WARNING so it's visible in the
+        Render logs. Raises ValueError on an unknown value."""
+        norm = str(mode or "").strip().lower()
+        if norm not in AT_MODES:
+            raise ValueError("mode must be 'paper' or 'live'")
+        self._ensure_tables()
+        with self._conn() as c:
+            cur = c.execute("SELECT mode FROM at_state WHERE id = 1").fetchone()
+            from_mode = _norm_at_mode(cur["mode"]) if cur else "paper"
+            c.execute(
+                "UPDATE at_state SET mode = ?, updated_at = datetime('now') WHERE id = 1",
+                (norm,),
+            )
+            c.commit()
+        if from_mode != norm:
+            logger.warning(
+                "AutonomousTrader mode changed: %s → %s by %s",
+                from_mode, norm, reason,
+            )
+        return self.get_at_mode()
 
     def set_tier(self, tier: str, reason: str = "manual_override") -> Dict[str, Any]:
         if tier not in TIERS:
@@ -629,6 +719,24 @@ class AutonomousTrader:
         live = _is_live()
         market_open = _us_market_open()
 
+        # Reconcile the broker client with the persisted paper/live mode BEFORE
+        # any execute_buy / execute_sell runs this tick (PR #166 A.2). A missing
+        # or garbled value falls back to paper.
+        at_mode = "paper"
+        try:
+            with self._conn() as c:
+                row = c.execute("SELECT mode FROM at_state WHERE id = 1").fetchone()
+            at_mode = _norm_at_mode(row["mode"]) if row else "paper"
+        except Exception as e:
+            logger.warning("AutonomousTrader: at_state.mode read failed (%s), using paper", e)
+            at_mode = "paper"
+        try:
+            set_mode = getattr(self.trader, "set_mode", None)
+            if callable(set_mode):
+                set_mode(paper=(at_mode != "live"))
+        except Exception as e:
+            logger.warning("AutonomousTrader: trader.set_mode failed: %s", e)
+
         # Step 0: evaluate exits FIRST so capital is freed before new buys.
         exits_summary: Dict[str, Any] = {"checked": 0, "closed": 0}
         if self.exit_manager and market_open:
@@ -692,7 +800,7 @@ class AutonomousTrader:
                     if ev < caps["ev_gate"]:
                         continue
                     signals_passed += 1
-                    placed = self._maybe_execute(sig, tier, caps, live)
+                    placed = self._maybe_execute(sig, tier, caps, live, at_mode)
                     if placed:
                         trades_placed += 1
                         with self._conn() as c:
@@ -783,7 +891,8 @@ class AutonomousTrader:
         return out
 
     def _maybe_execute(self, sig: Dict[str, Any], tier: str,
-                       caps: Dict[str, float], live: bool) -> bool:
+                       caps: Dict[str, float], live: bool,
+                       at_mode: str = "paper") -> bool:
         symbol = sig["symbol"]
         confidence = float(sig.get("confidence") or 0)
         ev = float(sig.get("ev") or 0)
@@ -805,6 +914,9 @@ class AutonomousTrader:
         success = isinstance(result, dict) and "error" not in result and \
             result.get("status") != "skipped"
         qty = float(result.get("qty") or 0) if isinstance(result, dict) else 0
+        # Ledger mirror (PR #166 B.3): open row on success, error row on failure.
+        # NEVER let a ledger write failure block or unwind a real trade.
+        self._ledger_record_buy(symbol, qty, confidence, at_mode, result, success)
         with self._conn() as c:
             c.execute(
                 "INSERT INTO at_trades(symbol, side, qty, confidence, ev, tier, live, "
@@ -826,6 +938,34 @@ class AutonomousTrader:
                 except Exception as e:
                     logger.debug("notifier.trade failed: %s", e)
         return success
+
+    def _ledger_record_buy(self, symbol, qty, confidence, at_mode,
+                           result, success) -> None:
+        """Mirror a buy into data/dmai_ledger.db. Isolated DB, best-effort:
+        wrapped so a ledger failure can never block or unwind a real trade."""
+        try:
+            from components.ledger import ledger_db
+            if success and isinstance(result, dict):
+                entry_price = result.get("price")
+                stake = result.get("value")
+                ledger_db.insert_trade(
+                    symbol=symbol, side="buy", qty=qty,
+                    entry_price=entry_price, stake=stake,
+                    mode=at_mode, status="open", confidence=confidence,
+                    source="autonomous_trader",
+                )
+            else:
+                err = None
+                if isinstance(result, dict):
+                    err = result.get("error") or result.get("reason")
+                ledger_db.insert_trade(
+                    symbol=symbol, side="buy", qty=qty or 0.0,
+                    mode=at_mode, status="error", confidence=confidence,
+                    source="autonomous_trader",
+                    notes=(str(err)[:500] if err else "execute_buy failed"),
+                )
+        except Exception as le:
+            logger.warning("AutonomousTrader: ledger buy-record failed: %s", le)
 
     def _maybe_change_tier(self) -> None:
         """Promote/demote tier based on rolling P&L + trade count."""

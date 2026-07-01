@@ -7,6 +7,9 @@ data/dmai.db-wal
 data/trading_mastery.db
 data/trading_mastery.db-shm
 data/trading_mastery.db-wal
+data/dmai_ledger.db
+data/dmai_ledger.db-shm
+data/dmai_ledger.db-wal
 data/auto_registrar_state.json
 data/tutor_configurator_state.json
 data/research/knowledge/
