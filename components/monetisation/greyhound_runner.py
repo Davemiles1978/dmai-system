@@ -47,6 +47,11 @@ logger = logging.getLogger(__name__)
 _LONDON_TZ = ZoneInfo("Europe/London")
 _DEFAULT_TIP_HOUR_UK = 8
 _DEFAULT_DAY_MARKER = "data/greyhound_last_tip_date.txt"
+# Heartbeat marker refreshed every ~10 min while the runner sleeps between
+# daily tips, so self_healer sees a live thread instead of a 24h-silent one
+# (PR #165; mirrors the AutonomousTrader chunked-sleep pattern from PR #164).
+_HEARTBEAT_PATH = "data/greyhound_runner_heartbeat.txt"
+_HEARTBEAT_EVERY_SECONDS = 600
 
 TIMEFORM_BASE = "https://www.timeform.com"
 GBGB_RESULTS = "https://api.gbgb.org.uk/api/results"
@@ -257,6 +262,7 @@ class GreyhoundRunner:
         self.daily_tip_hour = max(0, min(23, int(daily_tip_hour)))
         self._tz = _LONDON_TZ
         self._day_marker_path = day_marker_path or _DEFAULT_DAY_MARKER
+        self._heartbeat_path = _HEARTBEAT_PATH
         self.min_odds = float(min_odds)
         self.max_odds = float(max_odds)
         self.softmax_temperature = float(softmax_temperature)
@@ -398,6 +404,24 @@ class GreyhoundRunner:
         except Exception as e:
             logger.warning("greyhound day-marker write failed: %s", e)
 
+    def _touch_heartbeat(self) -> None:
+        """Atomically stamp the heartbeat file consumed by self_healer.
+
+        The runner sleeps ~24h between daily tips; without a live signal
+        self_healer's liveness check treats the dormant thread as dead and
+        restarts it. Touching this file every ~10 min gives a real
+        live-thread signal (PR #165).
+        """
+        path = self._heartbeat_path
+        try:
+            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+            tmp = f"{path}.tmp.{os.getpid()}"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write(datetime.now(timezone.utc).isoformat())
+            os.replace(tmp, path)  # atomic on POSIX
+        except Exception as e:
+            logger.debug("greyhound heartbeat write failed: %s", e)
+
     def _already_tipped_today(self, now: datetime) -> bool:
         today = now.astimezone(self._tz).date().isoformat()
         return self._last_tip_date() == today
@@ -411,6 +435,7 @@ class GreyhoundRunner:
     def _loop(self):
         if self._stop.wait(20):
             return
+        self._touch_heartbeat()
         while not self._stop.is_set():
             now = datetime.now(self._tz)
             if self._due_to_fire(now):
@@ -422,8 +447,16 @@ class GreyhoundRunner:
                     self.last_status = f"error: {e}"
             nxt = self._next_fire_at(datetime.now(self._tz))
             wait_s = max(1.0, (nxt - datetime.now(self._tz)).total_seconds())
-            if self._stop.wait(wait_s):
-                break
+            # Sleep in ~10-min chunks, touching the heartbeat each chunk so
+            # self_healer sees a live thread through the ~24h daily sleep
+            # (mirrors the trader chunked-sleep pattern from PR #164).
+            slept = 0.0
+            while slept < wait_s and not self._stop.is_set():
+                chunk = min(_HEARTBEAT_EVERY_SECONDS, wait_s - slept)
+                if self._stop.wait(chunk):
+                    return
+                slept += chunk
+                self._touch_heartbeat()
 
     def run_once(self) -> Dict[str, Any]:
         """Emit the single best-EV tip of the day.

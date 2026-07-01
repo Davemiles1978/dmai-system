@@ -69,8 +69,22 @@ class AggressiveTrader:
         position_size = base_size * min(2.0, confidence_multiplier)
         return min(position_size, account_equity * self.max_position_size)
     
-    def execute_buy(self, symbol: str, confidence: float) -> Dict:
+    def execute_buy(self, symbol: str, confidence: float,
+                    *, manual_approval_token: Optional[str] = None) -> Dict:
         """Execute buy order with dynamic sizing"""
+        # HARD MANUAL-ONLY GUARDRAIL (PR #165) — belt+braces on top of the
+        # AutonomousTrader.enabled flag (prod default: disabled). User policy:
+        # "All bets and all trades MANUAL. Microfish not for sports."
+        # A trade is only allowed when AUTONOMOUS_TRADER_MANUAL_TOKEN is set in
+        # the environment AND a matching manual_approval_token is passed in.
+        _MANUAL_TOKEN_ENV = "AUTONOMOUS_TRADER_MANUAL_TOKEN"
+        _expected = os.environ.get(_MANUAL_TOKEN_ENV, "").strip()
+        if not _expected or manual_approval_token != _expected:
+            raise PermissionError(
+                "AutonomousTrader.execute_buy blocked: manual-only policy. "
+                "Set AUTONOMOUS_TRADER_MANUAL_TOKEN env AND pass matching "
+                "manual_approval_token kwarg to execute a trade."
+            )
         account = self.get_account()
         if "error" in account:
             return {"error": account["error"]}
