@@ -65,7 +65,11 @@ def test_normal_request_still_counted(manager):
     assert is_5xx is True
 
 
-def test_scanner_sends_internal_probe_header(manager):
+def test_scanner_audit_dispatches_no_probes(manager):
+    """PR #161: the route audit is now offline (url_map introspection), so it
+    no longer issues in-process probes at all. The X-Internal-Probe filter in
+    after_request_hook stays as defence-in-depth (tests above), but the scanner
+    never exercises it because it dispatches nothing."""
     seen_headers = []
 
     app = Flask(__name__)
@@ -86,12 +90,9 @@ def test_scanner_sends_internal_probe_header(manager):
     app.after_request(after_request_hook)
 
     scanner = SelfScanner(app=app)
-    broken_routes = scanner._audit_routes()
+    scanner._audit_routes()
 
-    # The always-failing route is detected by the audit...
-    assert any(r["path"] == "/broken" for r in broken_routes)
-    # ...every probe carried the X-Internal-Probe header...
-    assert seen_headers, "scanner issued no probes"
-    assert all(h.get("X-Internal-Probe") == "1" for h in seen_headers)
-    # ...and the synthetic 500 from the audit run was NOT recorded by CB-01.
+    # No request was dispatched, so before_request never fired...
+    assert seen_headers == [], "offline audit must not dispatch any requests"
+    # ...and nothing was recorded by CB-01.
     assert len(manager._error_window) == 0
