@@ -19,7 +19,14 @@ from unittest.mock import MagicMock
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from components.self_management.self_healer import SelfHealer
+from components.self_management.self_healer import HEARTBEAT_MAX_AGE, SelfHealer
+
+
+def test_greyhound_heartbeat_max_age_covers_daily_sleep():
+    # greyhound_runner sleeps ~24h between daily 08:00 UK tips (PR #162), so its
+    # allowed heartbeat age must clear the 24h floor or self_healer spuriously
+    # restarts a healthy-but-sleeping thread (PR #165).
+    assert HEARTBEAT_MAX_AGE["greyhound_runner"] >= 86400
 
 
 class _FakeThread:
