@@ -6972,10 +6972,31 @@ def api_admin_db_rebuild():
                     "note": "Components will lay down fresh schema on next access"})
 
 
+# PR #167: cache last-written stage + progression pct to avoid hammering SQLite on
+# every loop iteration. `learning_stage` rarely changes; `within_pct` changes
+# often but is only used for observability, so we throttle it separately.
+_LAST_STAGE_WRITTEN = {"stage": None, "pct": None, "written_at": 0.0}
+_STAGE_MIN_WRITE_INTERVAL_S = 300  # 5 minutes — floor for periodic touch
+
+# PR #167 (Strategy B, defensive): env-controlled outer-loop cadence. Default 60s;
+# the write-on-change cache above means most ticks are no-ops regardless.
+_STAGE_PROGRESSION_INTERVAL_SECONDS = int(
+    os.environ.get("STAGE_PROGRESSION_INTERVAL_SECONDS", 60))
+
+
 def _write_stage_to_db(stage, within_pct, m):
-    import sqlite3 as _sw3, datetime as _sdt
+    import sqlite3 as _sw3, datetime as _sdt, time as _swt
     # ALWAYS write the sidecar first — independent of DB health.
     _write_stage_sidecar(stage, within_pct, m)
+    # PR #167 (Strategy A): write-on-change throttle. Skip the SQLite write entirely
+    # when the stage is unchanged AND we wrote inside the last _STAGE_MIN_WRITE_INTERVAL_S.
+    _now_ts = _swt.time()
+    _stage_changed = (stage != _LAST_STAGE_WRITTEN["stage"])
+    _elapsed = _now_ts - _LAST_STAGE_WRITTEN["written_at"]
+    if not _stage_changed and _elapsed < _STAGE_MIN_WRITE_INTERVAL_S:
+        logger.debug("stage unchanged (%s); skipping SQLite write (%.0fs < %ds)",
+                     stage, _elapsed, _STAGE_MIN_WRITE_INTERVAL_S)
+        return
     _attempts = 0
     while _attempts < 2:
         _attempts += 1
@@ -7013,6 +7034,14 @@ def _write_stage_to_db(stage, within_pct, m):
                             prev, stage, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
             conn.commit()
             conn.close()
+            # PR #167: record the successful write so subsequent unchanged ticks
+            # inside the interval are skipped.
+            _LAST_STAGE_WRITTEN["stage"] = stage
+            _LAST_STAGE_WRITTEN["pct"] = within_pct
+            _LAST_STAGE_WRITTEN["written_at"] = _now_ts
+            if not _stage_changed:
+                logger.debug("stage periodic touch: %s (%.0fs since last write)",
+                             stage, _elapsed)
             return  # success
         except Exception as _e:
             _msg = str(_e).lower()
@@ -7031,6 +7060,29 @@ def _run_stage_progression():
                      stage, within_pct, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
     except Exception as _e:
         logger.warning("_run_stage_progression: %s", _e)
+
+
+@app.route("/api/admin/stage-progression", methods=["GET"])
+def api_admin_stage_progression():
+    """PR #167 diagnostic: eyeball stage-progression throttle state without shell-diving.
+    Auth via X-Master-Password (or Bearer) — same as the trader/ledger admin routes."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    import datetime as _dt
+    stage = _LAST_STAGE_WRITTEN.get("stage")
+    pct = _LAST_STAGE_WRITTEN.get("pct")
+    written = _LAST_STAGE_WRITTEN.get("written_at") or 0.0
+    # Cache is empty until the first write this process — fall back to the DB.
+    if stage is None:
+        stage, _idx, pct = _read_stage_from_db()
+    last_written_at = (
+        _dt.datetime.utcfromtimestamp(written).isoformat() + "Z" if written else None)
+    return jsonify({
+        "current_stage": stage,
+        "within_pct": float(pct) if pct is not None else None,
+        "last_written_at": last_written_at,
+        "loop_interval_s": _STAGE_PROGRESSION_INTERVAL_SECONDS,
+    })
 
 
 @app.route("/api/kaizen/status")
@@ -8773,11 +8825,18 @@ def _start_background_services(force=False):
                     _seed_kpis_from_db()
                 except Exception as _le:
                     logger.warning("Stage progression tick failed: %s", _le)
-                _spt.sleep(300)
+                # PR #167 (Strategy B): sleep STAGE_PROGRESSION_INTERVAL_SECONDS in
+                # ~10s chunks so a shutdown signal is honoured promptly instead of
+                # blocking for the full interval.
+                _remaining = _STAGE_PROGRESSION_INTERVAL_SECONDS
+                while _remaining > 0:
+                    _spt.sleep(min(10, _remaining))
+                    _remaining -= 10
         _sp_thread = threading.Thread(
             target=_stage_progression_loop, daemon=True, name="dmai-stage-progress")
         _sp_thread.start()
-        logger.info("Stage progression loop started (5m interval)")
+        logger.info("Stage progression loop started (interval=%ss, write-on-change)",
+                    _STAGE_PROGRESSION_INTERVAL_SECONDS)
     except Exception as _e:
         logger.warning("Stage progression loop failed: %s", _e)
 
