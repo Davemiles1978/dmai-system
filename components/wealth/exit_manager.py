@@ -235,6 +235,18 @@ class ExitManager:
         pnl_usd = (exit_price - avg_entry) * qty
         pnl_pct = (exit_price - avg_entry) / avg_entry if avg_entry else 0.0
 
+        sell_ok = isinstance(result, dict) and "error" not in result
+        # Ledger mirror (PR #166 B.3): close the matching open row in the isolated
+        # dmai_ledger.db. Best-effort — a ledger failure must never block an exit.
+        if sell_ok:
+            try:
+                from components.ledger import ledger_db
+                ledger_db.close_open_trade_for_symbol(
+                    symbol, exit_price=exit_price, pnl=pnl_usd, notes=reason,
+                )
+            except Exception as le:
+                logger.warning("ExitManager: ledger close-record failed: %s", le)
+
         with self._conn() as c:
             c.execute(
                 "INSERT INTO at_exits(symbol, qty, entry_avg, exit_price, "

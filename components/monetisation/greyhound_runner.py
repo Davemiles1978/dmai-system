@@ -562,6 +562,7 @@ class GreyhoundRunner:
                     if isinstance(result, dict) and result.get("status") == "pending":
                         summary["tips_generated"] = 1
                         self._tag_mode(result.get("id"))
+                        self._ledger_record_tip(best)
                     else:
                         summary["tips_rejected"] += 1
                 except Exception as e:
@@ -631,6 +632,29 @@ class GreyhoundRunner:
                 c.execute("UPDATE mon_tips SET notes=? WHERE id=?", (tag, tip_id))
         except Exception:
             pass
+
+    def _ledger_record_tip(self, best: Dict[str, Any]) -> None:
+        """Mirror an emitted tip into the isolated data/dmai_ledger.db as a
+        pending, unstaked bet (PR #166 B.3). Bets are MANUAL: stake/placed_at/pnl
+        stay NULL until the user records them. Best-effort — a ledger failure
+        must NEVER block or unwind the tip."""
+        try:
+            from components.ledger import ledger_db
+            ledger_db.insert_bet(
+                event=best.get("event_name", ""),
+                selection=best.get("selection", ""),
+                odds=best.get("decimal_odds"),
+                stake=None,
+                outcome="pending",
+                pnl=None,
+                placed_at=None,
+                ev=best.get("expected_value"),
+                confidence=best.get("confidence"),
+                source="greyhound_runner",
+                notes=("live" if self.live else "paper"),
+            )
+        except Exception as le:
+            logger.warning("greyhound_runner: ledger tip-record failed: %s", le)
 
     # ---- settlement ----
 

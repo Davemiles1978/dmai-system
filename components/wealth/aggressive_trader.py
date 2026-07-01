@@ -41,7 +41,26 @@ class AggressiveTrader:
         # Trading parameters
         self.trading_pairs = ['AAPL', 'MSFT', 'NVDA', 'TSLA', 'AMZN', 'META', 'GOOGL']
         self.conservative_pairs = ['SPY', 'QQQ', 'IVV']  # ETFs for safety
-        
+
+    def set_mode(self, paper: bool) -> None:
+        """Swap the effective Alpaca client between paper and live (PR #166).
+
+        AutonomousTrader calls this on every tick from the persisted at_state.mode
+        so the operator can flip paper↔live via the admin API without a restart.
+        Live still requires TRADING_LIVE=true as a hard belt-and-braces guard; if
+        it's not set we force paper and warn, so a stray flip never risks real
+        money without the env-level opt-in.
+        """
+        want_paper = bool(paper)
+        if not want_paper and os.getenv("TRADING_LIVE", "").strip().lower() != "true":
+            logger.warning("AggressiveTrader.set_mode: TRADING_LIVE!=true, forcing paper")
+            want_paper = True
+        self.paper = want_paper
+        self.base_url = (
+            "https://paper-api.alpaca.markets" if want_paper
+            else "https://api.alpaca.markets"
+        )
+
     def get_account(self) -> Dict:
         """Get current account status"""
         response = requests.get(f"{self.base_url}/v2/account", headers=self.headers, timeout=10)
