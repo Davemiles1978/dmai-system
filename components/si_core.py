@@ -425,16 +425,47 @@ class SICore:
     def has_method(self, name: str) -> bool:
         return callable(getattr(self, name, None))
 
-    def add_insight(self, domain: str, concept: str, source: str = "internal",
-                    confidence: float = 0.8, metadata: dict = None) -> dict:
+    def add_insight(self, domain: str = None, concept: str = None,
+                    source: str = "internal", confidence: float = 0.8,
+                    metadata: dict = None, *, insight_text: str = None,
+                    entity_type: str = None, entities=None,
+                    relationship: str = None, source_topic: str = None,
+                    target_topic: str = None, source_title: str = None,
+                    source_url: str = None, **extra) -> dict:
         """
         Persist a new insight to data/research/insights.jsonl.
         Called whenever DMAI discovers a notable pattern or relationship.
         Returns the insight record.
+
+        Accepts both the legacy ``(domain, concept)`` positional form and the
+        richer keyword form used across the learning orchestrators
+        (``insight_text=``, ``entity_type=``, ``source_topic=`` …). Callers that
+        pass ``insight_text`` previously crashed with
+        ``got an unexpected keyword argument 'insight_text'``; the extra keywords
+        are now normalised and folded into ``metadata``.
         """
         import json, os
         from datetime import datetime, timezone
         from pathlib import Path
+
+        # Normalise the two calling conventions.
+        concept = concept if concept is not None else insight_text
+        domain = domain if domain is not None else (source_topic or entity_type or "general")
+        source = source_title or source_url or source
+
+        extra_meta = {
+            k: v for k, v in {
+                "entity_type": entity_type,
+                "entities": entities,
+                "relationship": relationship,
+                "source_topic": source_topic,
+                "target_topic": target_topic,
+                "source_title": source_title,
+                "source_url": source_url,
+                **extra,
+            }.items() if v is not None
+        }
+        merged_meta = {**(metadata or {}), **extra_meta}
 
         insight = {
             "id": f"insight_{int(datetime.now(timezone.utc).timestamp())}",
@@ -444,7 +475,7 @@ class SICore:
             "confidence": confidence,
             "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "metadata": metadata or {},
+            "metadata": merged_meta,
         }
 
         insights_path = Path("data/research/insights.jsonl")

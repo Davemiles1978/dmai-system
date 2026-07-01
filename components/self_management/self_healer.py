@@ -27,6 +27,29 @@ logger = logging.getLogger("dmai.self_healer")
 HEAL_LOG   = Path("data/self_healing/heal_log.jsonl")
 BACKUP_DIR = Path("data/self_healing/backups")
 INTERVAL   = 60   # seconds between health sweeps
+
+# Rate-limited loops do not keep a thread continuously busy — they sleep for
+# long stretches between fires (greyhound fires daily, the trader ticks every
+# ~2h) and signal liveness by touching ``data/<component>_heartbeat.txt`` or a
+# ``data/<component>_last_*.txt`` marker instead. A fresh heartbeat/marker means
+# the component is healthy and MUST NOT be restarted, even if its thread object
+# is momentarily absent or sleeping. Map component -> max age (seconds) a
+# heartbeat/marker may reach before we treat the component as genuinely dead.
+DEFAULT_HEARTBEAT_MAX_AGE = 15 * 60            # 15 min
+HEARTBEAT_MAX_AGE = {
+    "greyhound_runner":      24 * 3600 + 3600,  # fires daily at 08:00 UK (PR #162)
+    "autonomous_trader":     2 * 3600 + 600,    # ticks ~2h, heartbeat every ~5m (PR #163a)
+    "autonomous_researcher": 60 * 60,
+    "learning_orchestrator": 30 * 60,
+}
+
+# Components guarded by an env flag. When the flag is off we skip liveness
+# checks and restarts entirely — a stopped component is the intended state, not
+# a fault. kaizen_auto_repair is OFF unless KAIZEN_AUTO_REPAIR_ENABLED == "1".
+ENV_GATED_COMPONENTS = {
+    "kaizen_auto_repair": "KAIZEN_AUTO_REPAIR_ENABLED",
+}
+
 CRITICAL_FILES = [
     "dmai_core_complete.py",
     "components/si_core.py",
@@ -209,10 +232,20 @@ class SelfHealer:
             if not hasattr(self, "_restart_history"):
                 self._restart_history = {}  # comp_key -> [ts, ts, ts]
             for comp_key in critical_bg:
+                # Env-gated components (e.g. kaizen_auto_repair) are skipped
+                # entirely when their flag is off — a stopped component is the
+                # intended state, so probing/restarting it just flaps.
+                gate = ENV_GATED_COMPONENTS.get(comp_key)
+                if gate and os.getenv(gate, "0") != "1":
+                    continue
                 comp = self.components.get(comp_key)
                 if not comp or not hasattr(comp, "_thread"):
                     continue
                 t = getattr(comp, "_thread", None)
+                # A fresh heartbeat/marker file means a rate-limited loop is
+                # healthy but sleeping — never restart it in that case.
+                if self._alive_by_heartbeat(comp_key):
+                    continue
                 # _thread can be None (never started) or a Thread that's now dead
                 if t is None or not (hasattr(t, "is_alive") and t.is_alive()):
                     # Drop restart timestamps older than 30 min
@@ -244,6 +277,34 @@ class SelfHealer:
                     history.append(now_ts)
                     self._restart_history[comp_key] = history
                     self._try_restart_thread(comp_key)
+
+    def _alive_by_heartbeat(self, comp_key: str) -> bool:
+        """True if a fresh heartbeat file or last-fire marker proves liveness.
+
+        Rate-limited loops (daily greyhound, hourly trader) sleep for long
+        stretches, so thread activity alone is a false "dead" signal. They touch
+        ``data/<component>_heartbeat.txt`` while running and/or drop a
+        ``data/<component>_last_*.txt`` marker each time they fire. If either is
+        newer than the component's allowed max age, the component is healthy and
+        must not be restarted.
+        """
+        max_age = HEARTBEAT_MAX_AGE.get(comp_key, DEFAULT_HEARTBEAT_MAX_AGE)
+        now_ts = time.time()
+        data_dir = self.root / "data"
+
+        candidates = [data_dir / f"{comp_key}_heartbeat.txt"]
+        try:
+            candidates.extend(data_dir.glob(f"{comp_key}_last_*.txt"))
+        except OSError:
+            pass
+
+        for path in candidates:
+            try:
+                if path.exists() and (now_ts - path.stat().st_mtime) <= max_age:
+                    return True
+            except OSError:
+                continue
+        return False
 
     def _try_restart_thread(self, thread_name: str):
         """Best-effort restart of a known daemon thread.
