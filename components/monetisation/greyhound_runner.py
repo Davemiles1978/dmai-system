@@ -34,10 +34,19 @@ import threading
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
+from zoneinfo import ZoneInfo
 
 import requests
 
 logger = logging.getLogger(__name__)
+
+# Daily-tip cadence (PR #162). The runner emits exactly ONE tip per day at
+# GREYHOUND_DAILY_TIP_HOUR_UK:00 Europe/London (default 08:00). Europe/London
+# handles BST/GMT automatically via zoneinfo. A per-day marker file guards
+# against double-firing across process restarts.
+_LONDON_TZ = ZoneInfo("Europe/London")
+_DEFAULT_TIP_HOUR_UK = 8
+_DEFAULT_DAY_MARKER = "data/greyhound_last_tip_date.txt"
 
 TIMEFORM_BASE = "https://www.timeform.com"
 GBGB_RESULTS = "https://api.gbgb.org.uk/api/results"
@@ -230,9 +239,24 @@ class GreyhoundRunner:
     def __init__(self, advisor, *, interval_seconds: int = 600,
                  min_odds: float = 1.5, max_odds: float = 25.0,
                  softmax_temperature: float = 6.0,
-                 live: Optional[bool] = None):
+                 live: Optional[bool] = None,
+                 daily_tip_hour: Optional[int] = None,
+                 day_marker_path: Optional[str] = None):
         self.advisor = advisor
+        # interval_seconds is retained for the boot signature + status display,
+        # but no longer drives cadence: the runner now fires once per day.
         self.interval = max(120, int(interval_seconds))
+        if daily_tip_hour is None:
+            try:
+                daily_tip_hour = int(
+                    os.environ.get("GREYHOUND_DAILY_TIP_HOUR_UK",
+                                   _DEFAULT_TIP_HOUR_UK)
+                )
+            except (TypeError, ValueError):
+                daily_tip_hour = _DEFAULT_TIP_HOUR_UK
+        self.daily_tip_hour = max(0, min(23, int(daily_tip_hour)))
+        self._tz = _LONDON_TZ
+        self._day_marker_path = day_marker_path or _DEFAULT_DAY_MARKER
         self.min_odds = float(min_odds)
         self.max_odds = float(max_odds)
         self.softmax_temperature = float(softmax_temperature)
@@ -261,8 +285,8 @@ class GreyhoundRunner:
         self._thread = threading.Thread(target=self._loop, daemon=True,
                                         name="greyhound-runner")
         self._thread.start()
-        logger.info("GreyhoundRunner: started (interval=%ds, mode=%s)",
-                    self.interval, "LIVE" if self.live else "PAPER")
+        logger.info("GreyhoundRunner: started (daily tip @ %02d:00 Europe/London, mode=%s)",
+                    self.daily_tip_hour, "LIVE" if self.live else "PAPER")
 
     def stop(self):
         self._stop.set()
@@ -280,6 +304,10 @@ class GreyhoundRunner:
         return {
             "running": bool(self._thread and self._thread.is_alive()),
             "interval_seconds": self.interval,
+            "cadence": "daily",
+            "daily_tip_hour_uk": self.daily_tip_hour,
+            "last_tip_date": self._last_tip_date(),
+            "next_fire_at": self._next_fire_at(datetime.now(self._tz)).isoformat(),
             "last_run_at": self.last_run_at,
             "last_status": self.last_status,
             "last_summary": self.last_summary,
@@ -323,26 +351,95 @@ class GreyhoundRunner:
             return "Set STAKING_BANKROLL and TIPSTER_LIVE=true to reach Tier 2 (live staking)."
         return None
 
+    # ---- daily scheduling ----
+
+    def _next_fire_at(self, now: datetime) -> datetime:
+        """Next ``daily_tip_hour``:00 Europe/London at or after ``now``.
+
+        Returns today's fire time when ``now`` is before it, otherwise
+        tomorrow's. ``now`` may be any tz-aware datetime; it is converted to
+        Europe/London so BST/GMT is handled automatically.
+        """
+        london_now = now.astimezone(self._tz)
+        fire_today = london_now.replace(
+            hour=self.daily_tip_hour, minute=0, second=0, microsecond=0
+        )
+        if london_now < fire_today:
+            return fire_today
+        return fire_today + timedelta(days=1)
+
+    def _past_fire_time(self, now: datetime) -> bool:
+        london_now = now.astimezone(self._tz)
+        fire_today = london_now.replace(
+            hour=self.daily_tip_hour, minute=0, second=0, microsecond=0
+        )
+        return london_now >= fire_today
+
+    def _last_tip_date(self) -> Optional[str]:
+        """ISO date (Europe/London) of the last emitted tip, or None."""
+        try:
+            with open(self._day_marker_path, "r", encoding="utf-8") as f:
+                return f.read().strip() or None
+        except FileNotFoundError:
+            return None
+        except Exception as e:
+            logger.warning("greyhound day-marker read failed: %s", e)
+            return None
+
+    def _mark_tipped(self, date_str: str) -> None:
+        """Atomically record that a tip was emitted for ``date_str``."""
+        path = self._day_marker_path
+        try:
+            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+            tmp = f"{path}.tmp.{os.getpid()}"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write(date_str)
+            os.replace(tmp, path)  # atomic on POSIX
+        except Exception as e:
+            logger.warning("greyhound day-marker write failed: %s", e)
+
+    def _already_tipped_today(self, now: datetime) -> bool:
+        today = now.astimezone(self._tz).date().isoformat()
+        return self._last_tip_date() == today
+
+    def _due_to_fire(self, now: datetime) -> bool:
+        """True when we're at/after the fire hour today and haven't fired yet."""
+        return self._past_fire_time(now) and not self._already_tipped_today(now)
+
     # ---- loop ----
 
     def _loop(self):
         if self._stop.wait(20):
             return
         while not self._stop.is_set():
-            try:
-                self.run_once()
-            except Exception as e:
-                logger.exception("GreyhoundRunner: cycle crashed: %s", e)
-                self.last_status = f"error: {e}"
-            if self._stop.wait(self.interval):
+            now = datetime.now(self._tz)
+            if self._due_to_fire(now):
+                try:
+                    self.run_once()
+                    self._mark_tipped(now.date().isoformat())
+                except Exception as e:
+                    logger.exception("GreyhoundRunner: daily cycle crashed: %s", e)
+                    self.last_status = f"error: {e}"
+            nxt = self._next_fire_at(datetime.now(self._tz))
+            wait_s = max(1.0, (nxt - datetime.now(self._tz)).total_seconds())
+            if self._stop.wait(wait_s):
                 break
 
     def run_once(self) -> Dict[str, Any]:
+        """Emit the single best-EV tip of the day.
+
+        Scans every candidate race (read-only), scores each runner with the
+        existing advisor logic, then selects ONE global best by EV x confidence.
+        Exactly one tracking-pick is recorded and at most one manual-bet tip is
+        generated per invocation — this is called once per day by ``_loop``.
+        """
         summary = {"meetings_seen": 0, "races_seen": 0, "runners_seen": 0,
                    "tips_generated": 0, "tips_rejected": 0, "settled": 0,
+                   "tracking_picks_recorded": 0,
                    "mode": "LIVE" if self.live else "PAPER"}
         meetings = _list_meetings_today()
         summary["meetings_seen"] = len(meetings)
+        best = None  # single global best candidate across ALL races today
         for race in meetings:
             html = _ua_get(race["url"])
             if not html:
@@ -360,9 +457,6 @@ class GreyhoundRunner:
             field_ratings = [
                 float(_r.get("master_rating", 0) or 0) for _r in runners
             ]
-            # Per-race best candidate for TRACKING MODE (recorded regardless
-            # of EV gate so we can score the model over 2-7 days).
-            best_track = None
             for r in runners:
                 summary["runners_seen"] += 1
                 dec = r.get("implied_decimal_odds") or 0.0
@@ -371,8 +465,6 @@ class GreyhoundRunner:
                 if not r.get("dog"):
                     continue
                 seed = self._build_seed(race, r, field_ratings)
-                # Always run analyse_candidate (cheap, deterministic for
-                # greyhound model) so we can both gate and track.
                 analysis = self.advisor.analyse_candidate(
                     event_name=event_name,
                     selection=r["dog"],
@@ -383,58 +475,65 @@ class GreyhoundRunner:
                 )
                 if not isinstance(analysis, dict) or analysis.get("error"):
                     continue
-                # Update tracking best
-                prob = float(analysis.get("model_probability", 0) or 0)
-                if best_track is None or prob > best_track["model_probability"]:
-                    best_track = {
+                ev = float(analysis.get("expected_value", 0) or 0)
+                conf = float(analysis.get("confidence", 0) or 0)
+                score = ev * conf  # rank by EV x confidence
+                if best is None or score > best["score"]:
+                    best = {
+                        "event_name": event_name,
                         "selection": r["dog"],
                         "decimal_odds": dec,
-                        "model_probability": prob,
-                        "confidence": float(analysis.get("confidence", 0) or 0),
-                        "expected_value": float(analysis.get("expected_value", 0) or 0),
+                        "model_probability": float(analysis.get("model_probability", 0) or 0),
+                        "confidence": conf,
+                        "expected_value": ev,
                         "rationale": analysis.get("rationale", ""),
                         "prediction_id": analysis.get("prediction_id"),
+                        "seed": seed,
+                        "passes_ev_gate": bool(analysis.get("passes_ev_gate")),
+                        "score": score,
                     }
-                # Live-tip gate: only emit a real mon_tip if EV passes and
-                # we haven't already tipped this selection.
-                if self._already_tipped(event_name, r["dog"]):
-                    continue
-                if not analysis.get("passes_ev_gate"):
-                    summary["tips_rejected"] += 1
-                    continue
+            time.sleep(0.4)  # be polite to timeform
+        # Emit exactly ONE tracking pick + at most ONE tip for the day's best.
+        if best is not None:
+            try:
+                tr = self.advisor.record_tracking_pick(
+                    event_name=best["event_name"],
+                    market="trap_winner",
+                    selection=best["selection"],
+                    decimal_odds=best["decimal_odds"],
+                    model_probability=best["model_probability"],
+                    confidence=best["confidence"],
+                    expected_value=best["expected_value"],
+                    rationale=best["rationale"],
+                    prediction_id=best["prediction_id"],
+                )
+                if isinstance(tr, dict) and tr.get("status") == "tracked":
+                    summary["tracking_picks_recorded"] = 1
+            except Exception as e:
+                logger.warning("record_tracking_pick failed for %s: %s",
+                               best["event_name"], e)
+            # Manual-bet tip: only when the day's best passes the EV gate and
+            # hasn't already been tipped in the last 24h.
+            if not best["passes_ev_gate"]:
+                summary["tips_rejected"] += 1
+            elif not self._already_tipped(best["event_name"], best["selection"]):
                 try:
                     result = self.advisor.generate_tip(
-                        event_name=event_name,
-                        selection=r["dog"],
-                        decimal_odds=dec,
+                        event_name=best["event_name"],
+                        selection=best["selection"],
+                        decimal_odds=best["decimal_odds"],
                         market="trap_winner",
                         bookmaker="implied (timeform_mstr)",
-                        seed_data=seed,
+                        seed_data=best["seed"],
                     )
                     if isinstance(result, dict) and result.get("status") == "pending":
-                        summary["tips_generated"] += 1
+                        summary["tips_generated"] = 1
                         self._tag_mode(result.get("id"))
                     else:
                         summary["tips_rejected"] += 1
                 except Exception as e:
                     logger.warning("generate_tip failed for %s/%s: %s",
-                                   event_name, r["dog"], e)
-            # Record per-race tracking pick (idempotent on (event,market))
-            if best_track is not None:
-                try:
-                    tr = self.advisor.record_tracking_pick(
-                        event_name=event_name,
-                        market="trap_winner",
-                        **best_track,
-                    )
-                    if tr.get("status") == "tracked":
-                        summary["tracking_picks_recorded"] = (
-                            summary.get("tracking_picks_recorded", 0) + 1
-                        )
-                except Exception as e:
-                    logger.warning("record_tracking_pick failed for %s: %s",
-                                   event_name, e)
-            time.sleep(0.4)  # be polite to timeform
+                                   best["event_name"], best["selection"], e)
         # Settlement pass — yesterday + today
         try:
             summary["settled"] = self._settle()
@@ -443,7 +542,7 @@ class GreyhoundRunner:
         self.last_run_at = time.time()
         self.last_status = "ok"
         self.last_summary = summary
-        logger.info("GreyhoundRunner cycle: %s", summary)
+        logger.info("GreyhoundRunner daily tip: %s", summary)
         return summary
 
     # ---- helpers ----
