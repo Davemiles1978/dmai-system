@@ -183,12 +183,57 @@ def _quarantine_malformed_db(db_path, ts=None):
     return quarantine
 
 
+def _checkpoint_before_integrity(db_path):
+    """Fold committed WAL frames back into the main DB before integrity_check.
+
+    After a SIGKILL (gunicorn timeout=300, common Render restart signals) the
+    ``-wal`` sidecar can hold committed-but-uncheckpointed transactions. A bare
+    connection running ``PRAGMA integrity_check`` doesn't reconcile the WAL, so
+    it can report a non-"ok" verdict and trigger a *false-positive* quarantine.
+    Opening in WAL mode and running ``wal_checkpoint(TRUNCATE)`` here folds those
+    frames back into the main file first, so only genuine corruption survives to
+    the integrity_check. Best-effort: never raises. A locked/busy DB is a signal,
+    not proof of corruption — the caller's integrity_check + quarantine still run
+    afterwards and will catch real damage.
+    """
+    import sqlite3
+    if not os.path.exists(db_path):
+        return  # missing DB: nothing to checkpoint, and don't create an empty one
+    if not os.path.exists(db_path + "-wal"):
+        logger.info("boot checkpoint: no -wal sidecar for %s; skipping", db_path)
+        return
+    try:
+        conn = sqlite3.connect(db_path, timeout=30)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")  # ensure WAL mode
+            # result is (busy, log_frames, checkpointed_frames); busy=0 => full
+            row = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+            conn.commit()
+        finally:
+            conn.close()
+        ok = row is not None and row[0] == 0
+        logger.info(
+            "boot checkpoint: busy=%s log=%s checkpointed=%s ok=%s",
+            row[0] if row else None,
+            row[1] if row else None,
+            row[2] if row else None,
+            ok,
+        )
+    except sqlite3.Error as e:
+        # Do NOT quarantine on checkpoint failure alone — it is a signal, not proof.
+        logger.warning("boot checkpoint failed: %s", e)
+
+
 if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
     import sqlite3 as _bsq, time as _bt
     for _db_name in ("dmai_knowledge.db", "dmai.db", "trading_mastery.db"):
         _p = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), _db_name)
         if not os.path.exists(_p):
             continue
+        # R2: checkpoint any SIGKILL-orphaned WAL back into the main file BEFORE
+        # integrity_check, so committed-but-uncheckpointed rows don't read as
+        # corruption and trigger a false-positive quarantine.
+        _checkpoint_before_integrity(_p)
         try:
             _c = _bsq.connect(_p, timeout=5)
             try:
