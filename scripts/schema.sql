@@ -1,37 +1,35 @@
--- ============================================================================
+-- ==========================================================================
 -- DMAI knowledge DB schema  --  scripts/schema.sql
--- ============================================================================
--- Source: dumped from live prod via in-code DDL recovery on 2026-06-30.
---   Recovered by scanning the application source for
---   `CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` statements
---   (components/*.py + dmai_core_complete.py + root helpers). String literals
---   are reconstructed with Python's tokenizer (handling implicit
---   adjacent-literal concatenation and triple-quoted executescript blocks),
---   then each statement is isolated with a balanced-paren walker -- the same
---   approach components/schema_bootstrap.py uses at boot.
---   Table set validated against the live-prod salvage manifest
---   (POST /api/admin/db-salvage, captured 2026-06-30T09:35Z): all 76 tables
---   present, 0 unresolved.
+-- ==========================================================================
+-- Reconstructed from repository DDL definitions on 2026-07-02.
+--   Consolidated from CREATE TABLE/INDEX/VIEW/TRIGGER statements found in
+--   the application source (dmai_core_complete.py, components/*.py,
+--   scripts/*, and related helpers). Statements are grouped and
+--   alphabetized: tables, then indexes, then views, then triggers.
 --
--- Branch base SHA: f6fba6094dee83b175c662fcc9de3b1726a9e002 (main)
+-- Cross-checked against the live prod schema object count = 122
+--   (tables + indexes + views + triggers combined).
+-- This reconstruction contains 118 objects (76 tables, 42 indexes, 0 views, 0 triggers).
 --
--- This file is the SOURCE OF TRUTH for the schema. It is consumed by:
+-- SOURCE OF TRUTH for the schema. Consumed by:
 --   - scripts/db_health.py   (schema-drift check)
---   - scripts/db_migrate.py  (idempotent CREATE-missing-tables step)
--- Every statement is IF NOT EXISTS so the migrator is fully idempotent.
--- ============================================================================
+--   - scripts/db_migrate.py  (idempotent CREATE-missing step)
+-- Every statement is IF NOT EXISTS so re-running the migration is idempotent.
+-- ==========================================================================
 
 PRAGMA foreign_keys = ON;
 
 
--- admin_api_keys  (recovered from components/sqlite_storage.py)
+-- --------------------------------------------------------------------------
+-- TABLES (76)
+-- --------------------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS admin_api_keys (
     provider_id TEXT PRIMARY KEY,
     api_key TEXT NOT NULL,
     updated_at TEXT
 );
 
--- ai_systems  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS ai_systems (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -44,7 +42,6 @@ CREATE TABLE IF NOT EXISTS ai_systems (
     category TEXT DEFAULT 'llm'
 );
 
--- api_keys  (recovered from components/api_key_store.py)
 CREATE TABLE IF NOT EXISTS api_keys (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     provider TEXT NOT NULL,
@@ -60,16 +57,12 @@ CREATE TABLE IF NOT EXISTS api_keys (
     is_active INTEGER DEFAULT 1
 );
 
--- at_exits  (recovered from components/wealth/exit_manager.py)
 CREATE TABLE IF NOT EXISTS at_exits (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT DEFAULT (datetime('now')), symbol TEXT NOT NULL, qty REAL, entry_avg REAL, exit_price REAL, pnl_usd REAL, pnl_pct REAL, hold_days REAL, reason TEXT NOT NULL, live INTEGER, result_json TEXT);
 
--- at_pending  (recovered from components/wealth/autonomous_trader.py)
 CREATE TABLE IF NOT EXISTS at_pending (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL DEFAULT (datetime('now')), symbol TEXT NOT NULL, confidence REAL, ev REAL, tier TEXT, status TEXT NOT NULL DEFAULT 'pending', resolved_ts TEXT, result_json TEXT);
 
--- at_position_high  (recovered from components/wealth/exit_manager.py)
 CREATE TABLE IF NOT EXISTS at_position_high (symbol TEXT PRIMARY KEY, session_high REAL, updated_at TEXT DEFAULT (datetime('now')));
 
--- at_state  (recovered from components/wealth/autonomous_trader.py)
 CREATE TABLE IF NOT EXISTS at_state (
     id              INTEGER PRIMARY KEY CHECK (id = 1),
     enabled         INTEGER NOT NULL DEFAULT 0,
@@ -84,7 +77,6 @@ CREATE TABLE IF NOT EXISTS at_state (
     updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
--- at_ticks  (recovered from components/wealth/autonomous_trader.py)
 CREATE TABLE IF NOT EXISTS at_ticks (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ts              TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -97,7 +89,6 @@ CREATE TABLE IF NOT EXISTS at_ticks (
     note            TEXT
 );
 
--- at_tier_changes  (recovered from components/wealth/autonomous_trader.py)
 CREATE TABLE IF NOT EXISTS at_tier_changes (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ts              TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -106,7 +97,6 @@ CREATE TABLE IF NOT EXISTS at_tier_changes (
     reason          TEXT    NOT NULL
 );
 
--- at_trades  (recovered from components/wealth/autonomous_trader.py)
 CREATE TABLE IF NOT EXISTS at_trades (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ts              TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -120,13 +110,10 @@ CREATE TABLE IF NOT EXISTS at_trades (
     result_json     TEXT
 );
 
--- brain_entries  (recovered from components/brain/brain_loader.py)
 CREATE TABLE IF NOT EXISTS brain_entries (id TEXT PRIMARY KEY, domain TEXT NOT NULL, domain_label TEXT, topic TEXT NOT NULL, content TEXT NOT NULL, source_url TEXT NOT NULL, tier TEXT DEFAULT 'canonical', version TEXT, loaded_at TEXT DEFAULT (datetime('now')));
 
--- brain_load_log  (recovered from components/brain/brain_loader.py)
 CREATE TABLE IF NOT EXISTS brain_load_log (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT DEFAULT (datetime('now')), seed_version TEXT, entries_loaded INTEGER, entries_skipped INTEGER, notes TEXT);
 
--- capabilities  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS capabilities (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -144,7 +131,6 @@ CREATE TABLE IF NOT EXISTS capabilities (
     integrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- conv_messages  (recovered from components/conversation_memory.py)
 CREATE TABLE IF NOT EXISTS conv_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id TEXT NOT NULL,
@@ -154,7 +140,6 @@ CREATE TABLE IF NOT EXISTS conv_messages (
     meta_json TEXT
 );
 
--- conv_sessions  (recovered from components/conversation_memory.py)
 CREATE TABLE IF NOT EXISTS conv_sessions (
     session_id TEXT PRIMARY KEY,
     started_ts TEXT NOT NULL,
@@ -163,7 +148,6 @@ CREATE TABLE IF NOT EXISTS conv_sessions (
     title TEXT
 );
 
--- conversations  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS conversations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ts TEXT,
@@ -173,7 +157,6 @@ CREATE TABLE IF NOT EXISTS conversations (
     is_task INTEGER DEFAULT 0
 );
 
--- core_knowledge  (recovered from components/knowledge_manager.py)
 CREATE TABLE IF NOT EXISTS core_knowledge (
     id TEXT PRIMARY KEY,
     topic TEXT UNIQUE,
@@ -186,7 +169,6 @@ CREATE TABLE IF NOT EXISTS core_knowledge (
     metadata TEXT
 );
 
--- encyclopaedia  (recovered from components/knowledge/vocabulary_ingester.py)
 CREATE TABLE IF NOT EXISTS encyclopaedia (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
@@ -199,7 +181,6 @@ CREATE TABLE IF NOT EXISTS encyclopaedia (
     created_at TEXT NOT NULL
 );
 
--- evolution_cycles  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS evolution_cycles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     cycle_number INTEGER,
@@ -210,7 +191,6 @@ CREATE TABLE IF NOT EXISTS evolution_cycles (
     consciousness_level REAL
 );
 
--- evolution_state  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS evolution_state (
     id TEXT PRIMARY KEY DEFAULT 'core',
     consciousness REAL DEFAULT 0,
@@ -221,7 +201,6 @@ CREATE TABLE IF NOT EXISTS evolution_state (
     last_update TEXT
 );
 
--- experiments  (recovered from components/self_optimizer.py)
 CREATE TABLE IF NOT EXISTS experiments (
     id TEXT PRIMARY KEY,
     hypothesis TEXT,
@@ -233,7 +212,6 @@ CREATE TABLE IF NOT EXISTS experiments (
     completed_at TIMESTAMP
 );
 
--- funding_avenues  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS funding_avenues (
     id TEXT PRIMARY KEY,
     name TEXT,
@@ -242,13 +220,11 @@ CREATE TABLE IF NOT EXISTS funding_avenues (
     updated_at TEXT
 );
 
--- funding_concepts  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS funding_concepts (
     id TEXT PRIMARY KEY,
     learned_at TEXT
 );
 
--- funding_state  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS funding_state (
     id TEXT PRIMARY KEY DEFAULT 'core',
     completed_avenues TEXT DEFAULT '[]',
@@ -260,7 +236,6 @@ CREATE TABLE IF NOT EXISTS funding_state (
     updated_at TEXT
 );
 
--- genealogy_predictions  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS genealogy_predictions (
     id TEXT PRIMARY KEY,
     system_id TEXT NOT NULL,
@@ -277,7 +252,6 @@ CREATE TABLE IF NOT EXISTS genealogy_predictions (
     FOREIGN KEY(system_id) REFERENCES ai_systems(id) ON DELETE CASCADE
 );
 
--- improvement_patterns  (recovered from components/self_optimizer.py)
 CREATE TABLE IF NOT EXISTS improvement_patterns (
     pattern_id TEXT PRIMARY KEY,
     component TEXT,
@@ -288,7 +262,6 @@ CREATE TABLE IF NOT EXISTS improvement_patterns (
     created_at TIMESTAMP
 );
 
--- insight_topics  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS insight_topics (
     insight_id TEXT NOT NULL,
     topic_name TEXT NOT NULL,
@@ -297,7 +270,6 @@ CREATE TABLE IF NOT EXISTS insight_topics (
     FOREIGN KEY(topic_name) REFERENCES topics(name) ON DELETE CASCADE
 );
 
--- insights  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS insights (
     id TEXT PRIMARY KEY,
     insight_text TEXT NOT NULL,
@@ -315,7 +287,6 @@ CREATE TABLE IF NOT EXISTS insights (
     last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- integration_queue  (recovered from components/integration/repo_integration_engine.py)
 CREATE TABLE IF NOT EXISTS integration_queue (
     id TEXT PRIMARY KEY,
     url TEXT NOT NULL,
@@ -335,7 +306,6 @@ CREATE TABLE IF NOT EXISTS integration_queue (
     classification TEXT
 );
 
--- integration_registry  (recovered from components/integration/repo_integration_engine.py)
 CREATE TABLE IF NOT EXISTS integration_registry (
     id TEXT PRIMARY KEY,
     url TEXT NOT NULL,
@@ -347,7 +317,6 @@ CREATE TABLE IF NOT EXISTS integration_registry (
     data TEXT
 );
 
--- integrity_flags  (recovered from components/knowledge/integrity_checker.py)
 CREATE TABLE IF NOT EXISTS integrity_flags (
     id TEXT PRIMARY KEY,
     report_id TEXT NOT NULL,
@@ -364,7 +333,6 @@ CREATE TABLE IF NOT EXISTS integrity_flags (
     created_at TEXT NOT NULL
 );
 
--- integrity_reports  (recovered from components/knowledge/integrity_checker.py)
 CREATE TABLE IF NOT EXISTS integrity_reports (
     id TEXT PRIMARY KEY,
     run_at TEXT NOT NULL,
@@ -379,7 +347,6 @@ CREATE TABLE IF NOT EXISTS integrity_reports (
     summary TEXT
 );
 
--- learning_outcomes  (recovered from components/meta_learner.py)
 CREATE TABLE IF NOT EXISTS learning_outcomes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     topic TEXT,
@@ -391,7 +358,6 @@ CREATE TABLE IF NOT EXISTS learning_outcomes (
     timestamp TIMESTAMP
 );
 
--- learning_patterns  (recovered from components/meta_learner.py)
 CREATE TABLE IF NOT EXISTS learning_patterns (
     pattern_id TEXT PRIMARY KEY,
     pattern_type TEXT,
@@ -401,7 +367,6 @@ CREATE TABLE IF NOT EXISTS learning_patterns (
     created_at TIMESTAMP
 );
 
--- learning_progress  (recovered from components/trading/mastery_system.py)
 CREATE TABLE IF NOT EXISTS learning_progress (
     trading_type TEXT PRIMARY KEY,
     mastery_level REAL,
@@ -411,7 +376,6 @@ CREATE TABLE IF NOT EXISTS learning_progress (
     last_update REAL
 );
 
--- mf_actions  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mf_actions (
     prediction_id TEXT NOT NULL,
     action_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -423,7 +387,6 @@ CREATE TABLE IF NOT EXISTS mf_actions (
     ts REAL NOT NULL
 );
 
--- mf_agents  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mf_agents (
     prediction_id TEXT NOT NULL,
     agent_id TEXT NOT NULL,
@@ -432,7 +395,6 @@ CREATE TABLE IF NOT EXISTS mf_agents (
     PRIMARY KEY (prediction_id, agent_id)
 );
 
--- mf_entities  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mf_entities (
     prediction_id TEXT NOT NULL,
     entity_id TEXT NOT NULL,
@@ -442,7 +404,6 @@ CREATE TABLE IF NOT EXISTS mf_entities (
     PRIMARY KEY (prediction_id, entity_id)
 );
 
--- mf_predictions  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mf_predictions (
     id TEXT PRIMARY KEY,
     requirement TEXT NOT NULL,
@@ -453,7 +414,6 @@ CREATE TABLE IF NOT EXISTS mf_predictions (
     completed_at REAL
 );
 
--- mf_relations  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mf_relations (
     prediction_id TEXT NOT NULL,
     rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -463,7 +423,6 @@ CREATE TABLE IF NOT EXISTS mf_relations (
     attrs_json TEXT
 );
 
--- mon_alerts  (recovered from components/monetisation/notifier.py)
 CREATE TABLE IF NOT EXISTS mon_alerts (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     ts          TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -475,7 +434,6 @@ CREATE TABLE IF NOT EXISTS mon_alerts (
     error       TEXT
 );
 
--- mon_bill_payments  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mon_bill_payments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bill_id TEXT NOT NULL,
@@ -485,7 +443,6 @@ CREATE TABLE IF NOT EXISTS mon_bill_payments (
     notes TEXT
 );
 
--- mon_bills  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mon_bills (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -499,7 +456,6 @@ CREATE TABLE IF NOT EXISTS mon_bills (
     created_at REAL NOT NULL DEFAULT 0
 );
 
--- mon_income_events  (recovered from components/monetisation/revenue_allocator.py)
 CREATE TABLE IF NOT EXISTS mon_income_events (
     id TEXT PRIMARY KEY,
     source TEXT NOT NULL,
@@ -509,7 +465,6 @@ CREATE TABLE IF NOT EXISTS mon_income_events (
     raw_json TEXT
 );
 
--- mon_tips  (recovered from components/monetisation/betting_advisor.py)
 CREATE TABLE IF NOT EXISTS mon_tips (
     id TEXT PRIMARY KEY,
     event_name TEXT NOT NULL,
@@ -534,7 +489,6 @@ CREATE TABLE IF NOT EXISTS mon_tips (
     created_at REAL NOT NULL
 );
 
--- mon_tracking_picks  (recovered from components/monetisation/betting_advisor.py)
 CREATE TABLE IF NOT EXISTS mon_tracking_picks (
     id TEXT PRIMARY KEY,
     event_name TEXT NOT NULL,
@@ -546,17 +500,14 @@ CREATE TABLE IF NOT EXISTS mon_tracking_picks (
     expected_value REAL NOT NULL,
     rationale TEXT,
     prediction_id TEXT,
-    -- outcome: pending | won | lost | void  (settled by runner against GBGB)
     outcome TEXT NOT NULL DEFAULT 'pending',
     settled_at REAL,
-    -- paper P/L if you had staked 1 unit at decimal_odds (informational only)
     paper_pl REAL,
     notes TEXT,
     created_at REAL NOT NULL,
     UNIQUE(event_name, market)
 );
 
--- mon_user_bets  (recovered from components/monetisation/betting_advisor.py)
 CREATE TABLE IF NOT EXISTS mon_user_bets (
     id TEXT PRIMARY KEY,
     tip_id TEXT,
@@ -576,7 +527,6 @@ CREATE TABLE IF NOT EXISTS mon_user_bets (
     created_at REAL NOT NULL
 );
 
--- mon_wallet_ledger  (recovered from components/monetisation/revenue_allocator.py)
 CREATE TABLE IF NOT EXISTS mon_wallet_ledger (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     wallet TEXT NOT NULL,
@@ -587,7 +537,6 @@ CREATE TABLE IF NOT EXISTS mon_wallet_ledger (
     ts REAL NOT NULL
 );
 
--- mon_wallets  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mon_wallets (
     name TEXT PRIMARY KEY,
     balance REAL NOT NULL DEFAULT 0.0,
@@ -595,7 +544,6 @@ CREATE TABLE IF NOT EXISTS mon_wallets (
     updated_at REAL NOT NULL DEFAULT 0
 );
 
--- mon_wealth_deployments  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS mon_wealth_deployments (
     id TEXT PRIMARY KEY,
     total_amount REAL NOT NULL,
@@ -607,7 +555,6 @@ CREATE TABLE IF NOT EXISTS mon_wealth_deployments (
     notes TEXT
 );
 
--- optimal_strategies  (recovered from components/meta_learner.py)
 CREATE TABLE IF NOT EXISTS optimal_strategies (
     topic_category TEXT,
     strategy TEXT,
@@ -617,7 +564,6 @@ CREATE TABLE IF NOT EXISTS optimal_strategies (
     PRIMARY KEY (topic_category, strategy)
 );
 
--- performance  (recovered from components/trading/mastery_system.py)
 CREATE TABLE IF NOT EXISTS performance (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trading_type TEXT,
@@ -630,7 +576,6 @@ CREATE TABLE IF NOT EXISTS performance (
     trades_count INTEGER
 );
 
--- performance_baselines  (recovered from components/self_optimizer.py)
 CREATE TABLE IF NOT EXISTS performance_baselines (
     component TEXT PRIMARY KEY,
     metric_name TEXT,
@@ -640,7 +585,6 @@ CREATE TABLE IF NOT EXISTS performance_baselines (
     last_updated TIMESTAMP
 );
 
--- persona  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS persona (
     id TEXT PRIMARY KEY DEFAULT 'dmai',
     traits TEXT DEFAULT '{}',
@@ -650,20 +594,16 @@ CREATE TABLE IF NOT EXISTS persona (
     last_update TEXT
 );
 
--- persona_usage  (recovered from components/personas/persona_registry.py)
 CREATE TABLE IF NOT EXISTS persona_usage (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT DEFAULT (datetime('now')), persona TEXT, component TEXT, task TEXT);
 
--- personas  (recovered from components/personas/persona_registry.py)
 CREATE TABLE IF NOT EXISTS personas (name TEXT PRIMARY KEY, label TEXT, scope TEXT, used_by_json TEXT, brain_domains_json TEXT, model_pref_json TEXT, system_prompt TEXT, decision_rules_json TEXT, version TEXT, updated_at TEXT DEFAULT (datetime('now')));
 
--- processed_repos  (recovered from components/integration/repo_processor.py)
 CREATE TABLE IF NOT EXISTS processed_repos (
     repo_name TEXT PRIMARY KEY,
     processed_at TIMESTAMP,
     status TEXT
 );
 
--- se_edits  (recovered from components/self_edit_queue.py)
 CREATE TABLE IF NOT EXISTS se_edits (
     id TEXT PRIMARY KEY,
     ts TEXT NOT NULL,
@@ -678,7 +618,6 @@ CREATE TABLE IF NOT EXISTS se_edits (
     commit_sha TEXT
 );
 
--- sg_autonomy_log  (recovered from components/self_gen_autonomy_tracker.py)
 CREATE TABLE IF NOT EXISTS sg_autonomy_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ts TEXT NOT NULL,
@@ -688,7 +627,6 @@ CREATE TABLE IF NOT EXISTS sg_autonomy_log (
     meta TEXT
 );
 
--- skill_assessments  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS skill_assessments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ts TEXT DEFAULT (datetime('now')),
@@ -701,10 +639,8 @@ CREATE TABLE IF NOT EXISTS skill_assessments (
     assessor TEXT DEFAULT 'auto'
 );
 
--- skill_graduation  (recovered from components/review/skill_assessor.py)
 CREATE TABLE IF NOT EXISTS skill_graduation (work_type TEXT PRIMARY KEY, graduated INTEGER DEFAULT 0, graduated_at TEXT, graduated_by TEXT, notes TEXT);
 
--- sources  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS sources (
     url TEXT PRIMARY KEY,
     repo_name TEXT,
@@ -714,13 +650,10 @@ CREATE TABLE IF NOT EXISTS sources (
     capabilities_integrated INTEGER DEFAULT 0
 );
 
--- stage_history  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS stage_history (id INTEGER PRIMARY KEY AUTOINCREMENT, stage TEXT NOT NULL, prev_stage TEXT, insights INTEGER, capabilities INTEGER, vocab INTEGER, avg_kpi REAL, within_pct REAL, recorded_at TEXT NOT NULL DEFAULT (datetime('now')));
 
--- strategy_runs  (recovered from components/wealth/strategy_lab.py)
 CREATE TABLE IF NOT EXISTS strategy_runs (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT DEFAULT (datetime('now')), variant TEXT NOT NULL, trades_considered INTEGER, trades_accepted INTEGER, total_pnl_usd REAL, win_rate REAL, avg_pnl_pct REAL, score REAL, notes TEXT);
 
--- suggestions  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS suggestions (
     id TEXT PRIMARY KEY,
     source TEXT NOT NULL DEFAULT 'user',
@@ -738,10 +671,8 @@ CREATE TABLE IF NOT EXISTS suggestions (
     completed_at TEXT DEFAULT NULL
 );
 
--- syllabus_content  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS syllabus_content (topic TEXT PRIMARY KEY, name TEXT, stage TEXT, category TEXT, content TEXT, mastery REAL DEFAULT 0.0, topic_type TEXT DEFAULT 'general', last_trained TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')));
 
--- synapses  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS synapses (
     id TEXT PRIMARY KEY,
     from_insight TEXT NOT NULL,
@@ -754,7 +685,6 @@ CREATE TABLE IF NOT EXISTS synapses (
     FOREIGN KEY(to_insight) REFERENCES insights(id) ON DELETE CASCADE
 );
 
--- system_optimizations  (recovered from components/self_optimizer.py)
 CREATE TABLE IF NOT EXISTS system_optimizations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     component TEXT,
@@ -769,13 +699,11 @@ CREATE TABLE IF NOT EXISTS system_optimizations (
     rollback_at TIMESTAMP
 );
 
--- system_state  (recovered from dmai_core_complete.py)
 CREATE TABLE IF NOT EXISTS system_state (
     key TEXT PRIMARY KEY, value TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- system_versions  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS system_versions (
     id TEXT PRIMARY KEY,
     system_id TEXT NOT NULL,
@@ -793,7 +721,6 @@ CREATE TABLE IF NOT EXISTS system_versions (
     FOREIGN KEY(system_id) REFERENCES ai_systems(id) ON DELETE CASCADE
 );
 
--- tasks  (recovered from components/sqlite_storage.py)
 CREATE TABLE IF NOT EXISTS tasks (
     id TEXT PRIMARY KEY,
     description TEXT,
@@ -804,13 +731,11 @@ CREATE TABLE IF NOT EXISTS tasks (
     priority TEXT DEFAULT 'normal'
 );
 
--- topics  (recovered from components/sqlite_persistence.py)
 CREATE TABLE IF NOT EXISTS topics (
     name TEXT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- trades  (recovered from components/trading/mastery_system.py)
 CREATE TABLE IF NOT EXISTS trades (
     id TEXT PRIMARY KEY,
     timestamp REAL,
@@ -827,7 +752,6 @@ CREATE TABLE IF NOT EXISTS trades (
     reasoning TEXT
 );
 
--- vocabulary  (recovered from components/knowledge/vocabulary_ingester.py)
 CREATE TABLE IF NOT EXISTS vocabulary (
     id TEXT PRIMARY KEY,
     word TEXT NOT NULL UNIQUE,
@@ -843,7 +767,6 @@ CREATE TABLE IF NOT EXISTS vocabulary (
     last_reviewed TEXT
 );
 
--- weighted_knowledge  (recovered from components/knowledge_manager.py)
 CREATE TABLE IF NOT EXISTS weighted_knowledge (
     id TEXT PRIMARY KEY,
     topic TEXT UNIQUE,
@@ -859,7 +782,6 @@ CREATE TABLE IF NOT EXISTS weighted_knowledge (
     metadata TEXT
 );
 
--- work_review_queue  (recovered from components/review/work_review_queue.py)
 CREATE TABLE IF NOT EXISTS work_review_queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     submission_uid TEXT UNIQUE,
@@ -879,51 +801,93 @@ CREATE TABLE IF NOT EXISTS work_review_queue (
     persona TEXT
 );
 
--- ---------------------------------------------------------------------------
--- Indexes
--- ---------------------------------------------------------------------------
+-- --------------------------------------------------------------------------
+-- INDEXES (42)
+-- --------------------------------------------------------------------------
+
 CREATE INDEX IF NOT EXISTS idx_api_keys_active ON api_keys(is_active);
+
 CREATE INDEX IF NOT EXISTS idx_api_keys_provider ON api_keys(provider);
+
 CREATE INDEX IF NOT EXISTS idx_brain_domain ON brain_entries(domain);
+
 CREATE INDEX IF NOT EXISTS idx_capabilities_runtime ON capabilities(runtime_mode);
+
 CREATE INDEX IF NOT EXISTS idx_capabilities_type ON capabilities(capability_type);
+
 CREATE INDEX IF NOT EXISTS idx_core_topic ON core_knowledge(topic);
+
 CREATE INDEX IF NOT EXISTS idx_encyc_title ON encyclopaedia(title);
+
 CREATE INDEX IF NOT EXISTS idx_flags_report ON integrity_flags(report_id);
+
 CREATE INDEX IF NOT EXISTS idx_flags_resolved ON integrity_flags(resolved);
+
 CREATE INDEX IF NOT EXISTS idx_flags_type ON integrity_flags(flag_type);
+
 CREATE INDEX IF NOT EXISTS idx_insights_created ON insights(created_at);
+
 CREATE INDEX IF NOT EXISTS idx_insights_entity_type ON insights(entity_type);
+
 CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic);
+
 CREATE INDEX IF NOT EXISTS idx_insights_source_url ON insights(source_url);
+
 CREATE INDEX IF NOT EXISTS idx_learning_outcomes_timestamp ON learning_outcomes(timestamp);
+
 CREATE INDEX IF NOT EXISTS idx_learning_outcomes_topic ON learning_outcomes(topic);
+
 CREATE INDEX IF NOT EXISTS idx_mf_actions_pred ON mf_actions(prediction_id, round_num);
+
 CREATE INDEX IF NOT EXISTS idx_mf_entities_pred ON mf_entities(prediction_id);
+
 CREATE INDEX IF NOT EXISTS idx_mf_relations_pred ON mf_relations(prediction_id);
+
 CREATE INDEX IF NOT EXISTS idx_mon_bills_active ON mon_bills(active, next_due);
+
 CREATE INDEX IF NOT EXISTS idx_mon_ledger_wallet ON mon_wallet_ledger(wallet, ts DESC);
+
 CREATE INDEX IF NOT EXISTS idx_mon_tips_status ON mon_tips(status, created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_mon_wealth_ts ON mon_wealth_deployments(ts DESC);
+
 CREATE INDEX IF NOT EXISTS idx_skill_work_type ON skill_assessments(work_type, ts DESC);
+
 CREATE INDEX IF NOT EXISTS idx_strategy_runs_variant ON strategy_runs(variant, ts DESC);
+
 CREATE INDEX IF NOT EXISTS idx_synapses_from ON synapses(from_insight);
+
 CREATE INDEX IF NOT EXISTS idx_synapses_to ON synapses(to_insight);
+
 CREATE INDEX IF NOT EXISTS idx_tracking_outcome ON mon_tracking_picks(outcome, created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_usage_persona ON persona_usage(persona, ts DESC);
+
 CREATE INDEX IF NOT EXISTS idx_user_bets_status ON mon_user_bets(status, placed_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_user_bets_tip ON mon_user_bets(tip_id);
+
 CREATE INDEX IF NOT EXISTS idx_vocab_domain ON vocabulary(domain);
+
 CREATE INDEX IF NOT EXISTS idx_vocab_word ON vocabulary(word);
+
 CREATE INDEX IF NOT EXISTS idx_weighted_topic ON weighted_knowledge(topic);
+
 CREATE INDEX IF NOT EXISTS idx_weighted_weight ON weighted_knowledge(weight DESC);
+
 CREATE INDEX IF NOT EXISTS idx_wrq_status ON work_review_queue(status);
+
 CREATE INDEX IF NOT EXISTS idx_wrq_type ON work_review_queue(work_type);
+
 CREATE INDEX IF NOT EXISTS ix_conv_messages_session
 ON conv_messages(session_id, ts);
+
 CREATE INDEX IF NOT EXISTS ix_se_edits_status ON se_edits(status, ts);
+
 CREATE INDEX IF NOT EXISTS ix_sg_autonomy_log_event
 ON sg_autonomy_log(event, ts);
+
 CREATE INDEX IF NOT EXISTS ix_sg_autonomy_log_ts
 ON sg_autonomy_log(ts);
+
 CREATE INDEX IF NOT EXISTS mon_alerts_cat_ts ON mon_alerts(category, ts DESC);
