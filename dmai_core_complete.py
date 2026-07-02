@@ -9189,33 +9189,31 @@ def api_admin_db_health():
     """Run the manual DB health-check suite (scripts/db_health.py).
 
     Master-password gated (same X-Master-Password convention as the other
-    /api/admin/db-* routes). Returns the full run_all_checks JSON.
-    HTTP status mirrors overall_status: 200 for ok/warn, 503 for fail.
+    /api/admin/db-* routes). Body: optional JSON {"db_path": "..."}.
+    Returns {"ok": <bool>, "checks": [...], "overall_status": "..."}.
     """
     if request.headers.get("X-Master-Password") != os.environ.get("MASTER_PASSWORD"):
         return jsonify({"error": "unauthorized"}), 401
-    # Import here so the route still registers even if scripts/ is briefly absent.
     try:
         import sys as _sys
         _here = os.path.dirname(os.path.abspath(__file__))
         if _here not in _sys.path:
             _sys.path.insert(0, _here)
-        from scripts.db_health import run_all_checks
-        try:
-            from scripts.db_health import _jsonable
-        except Exception:
-            _jsonable = lambda x: x  # noqa: E731 — fall back to raw result
-    except Exception as _ie:
-        return jsonify({"error": f"db_health unavailable: {_ie}"}), 500
-    db_path = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
-    schema_path = os.path.join(_here, "scripts", "schema.sql")
-    try:
-        result = _jsonable(run_all_checks(db_path, schema_path))
-    except Exception as _re:
-        return jsonify({"error": str(_re)}), 500
-    status_code = {"ok": 200, "warn": 200, "fail": 503}.get(
-        result.get("overall_status"), 503)
-    return jsonify(result), status_code
+        from scripts.db_health import run_all_checks, worst_status, _jsonable
+        body = request.get_json(silent=True) or {}
+        db_path = body.get("db_path") or os.path.join(
+            DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+        results = run_all_checks(db_path)
+        overall = worst_status(results)
+        checks = [_jsonable(c) for c in results]
+        return jsonify({
+            "ok": overall in ("ok", "info"),
+            "checks": checks,
+            "overall_status": overall,
+        })
+    except Exception as _e:
+        # Do not leak stack traces to the response body.
+        return jsonify({"ok": False, "error": str(_e)}), 500
 
 
 @app.route("/api/admin/db-bootstrap", methods=["POST"])

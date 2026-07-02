@@ -4,20 +4,22 @@
 Dry-run by default — mutations require ``--apply``. Reuses the health-check
 functions from db_health so there is one source of truth for "is this DB ok".
 
-Order of operations (mutations only happen with --apply):
-  1. integrity check          (abort before mutating a corrupt DB)
-  2. foreign-key check
-  3. backup                   sqlite3 Connection.backup() + copy of -wal/-shm
-  4. VACUUM                   refused unless integrity == "ok"
-  5. CREATE TABLE IF NOT EXISTS from schema.sql   (idempotent)
-  6. ANALYZE
+Order of operations (strict; mutations only happen with --apply):
+  1. integrity check   — refuse to proceed if not ok (VACUUM on a corrupt DB
+                         destroys data).
+  2. foreign-key check — dry-run continues on violations; --apply refuses.
+  3. backup            — sqlite3 Connection.backup() (+ copy of -wal). --apply only.
+  4. VACUUM            — --apply only, and only if integrity is ok.
+  5. recreate missing tables from schema.sql (CREATE TABLE IF NOT EXISTS).
+  6. ANALYZE.
 
-Every run appends one JSON line to data/migrations/migration_log.jsonl.
+Every run (dry-run and apply) appends one JSON line to
+data/migrations/migration_log.jsonl.
 
 CLI:
-  python scripts/db_migrate.py [--db PATH] [--schema PATH] [--apply] [--json]
+  python scripts/db_migrate.py [--db PATH] [--apply] [--json|--pretty]
 
-Exit code: 0=ok, 1=warn, 2=fail/abort.
+Exit code: 0=ok, 1=warn, 2=error/refused.
 """
 from __future__ import annotations
 
@@ -30,70 +32,68 @@ import sqlite3
 import sys
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 
-# Import the shared check functions — single source of truth with the CLI/endpoint.
+# Single source of truth with the CLI/endpoint health suite.
 try:
-    from db_health import (
-        check_integrity,
-        check_schema_drift,
-        _schema_table_names,
-        _list_tables,
-        _connect,
-    )
-except ImportError:  # when invoked as `python -m scripts.db_migrate` or from repo root
+    from db_health import check_integrity, _default_schema_path, _list_tables, _connect
+except ImportError:  # invoked from repo root / as scripts.db_migrate
     from scripts.db_health import (  # type: ignore
-        check_integrity,
-        check_schema_drift,
-        _schema_table_names,
-        _list_tables,
-        _connect,
-    )
+        check_integrity, _default_schema_path, _list_tables, _connect)
 
-_EXIT_CODE = {"ok": 0, "warn": 1, "fail": 2}
+_EXIT_CODE = {"ok": 0, "warn": 1, "error": 2, "refused": 2}
+_STATUS_RANK = {"ok": 0, "warn": 1, "error": 2}
 _LOG_PATH = os.path.join("data", "migrations", "migration_log.jsonl")
 _BACKUP_ROOT = os.path.join("data", "migrations", "backups")
+
+# Statuses that a step may report but that do not count against the overall roll-up.
+_NEUTRAL_STEP = {"skipped", "info"}
+
+
+@dataclass
+class StepResult:
+    name: str
+    status: str
+    duration_ms: float
+    details: dict = field(default_factory=dict)
 
 
 @dataclass
 class MigrationReport:
-    ts: str
+    started_at: str
+    finished_at: str
+    mode: Literal["dry-run", "apply"]
     db_path: str
-    apply: bool
     steps: list = field(default_factory=list)
     backup_path: str | None = None
-    started_integrity: str | None = None
-    final_integrity: str | None = None
-    tables_created: list = field(default_factory=list)
-    vacuum_ran: bool = False
-    analyze_ran: bool = False
-    errors: list = field(default_factory=list)
-    overall_status: str = "ok"
-
-    def step(self, name: str, status: str, **info) -> None:
-        self.steps.append({"name": name, "status": status, **info})
+    overall_status: Literal["ok", "warn", "error", "refused"] = "ok"
 
 
-def check_foreign_keys(db_path: str) -> dict:
-    """FK-only view derived from check_integrity's foreign_key_check result."""
-    res = check_integrity(db_path)
-    fk = res["details"].get("foreign_key_violations", [])
-    status = "ok" if not fk else "warn"
-    if res["status"] == "fail":
-        status = "fail"
-    return {"name": "foreign_keys", "status": status,
-            "details": {"violations": fk}}
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _worst(statuses) -> str:
+    worst = "ok"
+    for s in statuses:
+        if _STATUS_RANK.get(s, 0) > _STATUS_RANK[worst]:
+            worst = s
+    return worst
 
 
 def _split_statements(schema_sql: str):
-    """Split schema.sql into individual statements (comments stripped)."""
-    lines = [ln for ln in schema_sql.splitlines() if not ln.lstrip().startswith("--")]
-    body = "\n".join(lines)
+    """Split schema.sql into individual statements (line comments stripped)."""
+    body = "\n".join(
+        ln for ln in schema_sql.splitlines() if not ln.lstrip().startswith("--"))
     return [s.strip() for s in body.split(";") if s.strip()]
 
 
-def _backup(db_path: str, ts: str, report: MigrationReport) -> str:
+def _backup(db_path: str) -> str:
+    """Back up the DB via the SQLite backup API (not a file copy). Returns dest path."""
     dbname = os.path.basename(db_path)
+    ts = _now_iso()
     dest_dir = os.path.join(_BACKUP_ROOT, f"{dbname}_{ts}")
     os.makedirs(dest_dir, exist_ok=True)
     dest_db = os.path.join(dest_dir, dbname)
@@ -106,156 +106,163 @@ def _backup(db_path: str, ts: str, report: MigrationReport) -> str:
             dst.close()
     finally:
         src.close()
-    # Also copy the WAL/SHM sidecars if present (point-in-time completeness).
-    for suffix in ("-wal", "-shm"):
-        side = db_path + suffix
-        if os.path.exists(side):
-            shutil.copy2(side, os.path.join(dest_dir, dbname + suffix))
-    report.step("backup", "ok", backup_path=dest_db)
+    # Copy the -wal sidecar too, if present (point-in-time completeness).
+    wal = db_path + "-wal"
+    if os.path.exists(wal):
+        shutil.copy2(wal, os.path.join(dest_dir, dbname + "-wal"))
     return dest_db
 
 
-def run_migration(db_path: str, schema_sql_path: str, apply: bool) -> MigrationReport:
-    ts = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
-    report = MigrationReport(ts=ts, db_path=db_path, apply=apply)
+def _timed(fn):
+    t0 = time.perf_counter()
+    result = fn()
+    return result, round((time.perf_counter() - t0) * 1000, 3)
+
+
+def run_migration(db_path: str, apply: bool) -> MigrationReport:
+    mode = "apply" if apply else "dry-run"
+    report = MigrationReport(started_at=_now_iso(), finished_at="",
+                             mode=mode, db_path=db_path)
+    schema_sql_path = _default_schema_path()
+
+    def add(name, status, details=None, duration_ms=0.0):
+        report.steps.append(StepResult(name, status, duration_ms, details or {}))
+
+    def finish(overall):
+        report.overall_status = overall
+        report.finished_at = _now_iso()
+        _write_log(report)
+        return report
 
     if not os.path.exists(db_path):
-        report.errors.append(f"db not found: {db_path}")
-        report.step("preflight", "fail", error=f"db not found: {db_path}")
-        report.overall_status = "fail"
-        return report
+        add("preflight", "error", {"error": f"db not found: {db_path}"})
+        return finish("error")
 
-    # 1. integrity --------------------------------------------------------
+    # 1. integrity — refuse to mutate a corrupt DB -------------------------
     integ = check_integrity(db_path)
-    report.started_integrity = integ["status"]
-    report.step("integrity", integ["status"], details=integ["details"])
-    if integ["status"] == "fail":
-        report.errors.append("integrity_check failed — refusing to mutate a corrupt DB")
-        report.overall_status = "fail"
-        # Do NOT proceed to VACUUM/backup-mutate on a corrupt DB.
-        _write_log(report)
-        return report
+    add("integrity", integ.status, integ.details, integ.duration_ms)
+    if integ.status != "ok":
+        # integrity error OR fk-warn from integrity? Only integrity!=ok blocks.
+        if integ.details.get("integrity_check") != ["ok"]:
+            add("refuse", "refused",
+                {"reason": "integrity_check is not ok; VACUUM/backup on a corrupt "
+                           "DB can destroy data. Aborting."})
+            return finish("refused")
 
-    # 2. foreign keys -----------------------------------------------------
-    fk = check_foreign_keys(db_path)
-    report.step("foreign_keys", fk["status"], details=fk["details"])
+    # 2. foreign-key check -------------------------------------------------
+    fk_violations = integ.details.get("foreign_key_violations", [])
+    if fk_violations:
+        if apply:
+            add("foreign_keys", "refused",
+                {"violations": fk_violations,
+                 "reason": "foreign-key violations present; refusing to mutate in "
+                           "--apply mode. Re-run dry-run to inspect."})
+            return finish("refused")
+        add("foreign_keys", "warn",
+            {"violations": fk_violations,
+             "note": "dry-run: continuing despite FK violations (would refuse in --apply)"})
+    else:
+        add("foreign_keys", "ok", {"violations": []})
 
-    # schema drift (informational; drives which tables we will create) ----
-    drift = check_schema_drift(db_path, schema_sql_path)
-    report.step("schema_drift_initial", drift["status"], details=drift["details"])
-    missing_tables = drift["details"].get("missing_tables", []) if drift else []
+    # Which tables are missing (drives step 5 reporting) -------------------
+    try:
+        conn = _connect(db_path)
+        try:
+            existing = {t.lower() for t in _list_tables(conn)}
+        finally:
+            conn.close()
+        schema_sql = Path(schema_sql_path).read_text(encoding="utf-8")
+        import re as _re
+        schema_tables = {m.group(1).lower() for m in _re.finditer(
+            r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"'`]?(\w+)",
+            "\n".join(l for l in schema_sql.splitlines()
+                      if not l.lstrip().startswith("--")), _re.IGNORECASE)}
+        missing_tables = sorted(schema_tables - existing)
+    except Exception as e:
+        missing_tables = []
+        add("schema_scan", "warn", {"error": str(e)})
 
-    statuses = [integ["status"], fk["status"], drift["status"]]
-
+    # ---- dry-run: report intentions, mutate nothing ---------------------
     if not apply:
-        # Dry-run: report what WOULD be created, mutate nothing.
-        report.step("backup", "skipped", reason="dry-run")
-        report.step("vacuum", "skipped", reason="dry-run")
-        report.step("create_tables", "skipped", reason="dry-run",
-                    would_create=missing_tables)
-        report.step("analyze", "skipped", reason="dry-run")
-        report.overall_status = _worst(statuses)
-        _write_log(report)
-        return report
+        add("backup", "skipped", {"reason": "dry-run"})
+        add("vacuum", "skipped", {"reason": "dry-run"})
+        add("recreate_tables", "skipped",
+            {"reason": "dry-run", "would_create": missing_tables})
+        add("analyze", "skipped", {"reason": "dry-run"})
+        overall = _worst([s.status for s in report.steps
+                          if s.status not in _NEUTRAL_STEP and s.status not in ("skipped",)])
+        return finish(overall)
 
     # ---- APPLY path -----------------------------------------------------
     # 3. backup
     try:
-        report.backup_path = _backup(db_path, ts, report)
+        (dest, dur) = _timed(lambda: _backup(db_path))
+        report.backup_path = dest
+        add("backup", "ok", {"backup_path": dest}, dur)
     except Exception as e:
-        report.errors.append(f"backup failed: {e}")
-        report.step("backup", "fail", error=str(e))
-        report.overall_status = "fail"
-        _write_log(report)
-        return report
+        add("backup", "error", {"error": str(e)})
+        return finish("error")
 
-    # 4. VACUUM (only if integrity ok — guaranteed here since we'd have aborted)
-    if integ["status"] == "ok":
-        try:
-            conn = sqlite3.connect(db_path, timeout=60.0)
-            try:
-                conn.execute("VACUUM")
-                conn.commit()
-            finally:
-                conn.close()
-            report.vacuum_ran = True
-            report.step("vacuum", "ok")
-        except Exception as e:
-            report.errors.append(f"vacuum failed: {e}")
-            report.step("vacuum", "fail", error=str(e))
-    else:
-        report.step("vacuum", "skipped", reason=f"integrity={integ['status']}")
-
-    # 5. CREATE TABLE IF NOT EXISTS from schema.sql
+    # 4. VACUUM (integrity is ok — guaranteed, else we'd have refused)
     try:
-        before = set(t.lower() for t in _list_tables(_connect(db_path)))
-        schema_sql = Path(schema_sql_path).read_text(encoding="utf-8")
-        conn = sqlite3.connect(db_path, timeout=60.0)
-        stmt_errors = []
-        try:
-            for stmt in _split_statements(schema_sql):
-                try:
-                    conn.execute(stmt)
-                except sqlite3.OperationalError as e:
-                    stmt_errors.append(f"{stmt[:60]}...: {e}")
-            conn.commit()
-            after = {r[0].lower() for r in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
-                "AND name NOT LIKE 'sqlite_%'").fetchall()}
-        finally:
-            conn.close()
-        report.tables_created = sorted(after - before)
-        # Tables are created with IF NOT EXISTS; individual index statements may
-        # fail against a pre-existing drifted table (missing column). That is a
-        # warn-level signal for manual attention, not a hard migration failure —
-        # so it is recorded in the step but NOT added to report.errors (which
-        # would force overall=fail).
-        step_status = "ok" if not stmt_errors else "warn"
-        report.step("create_tables", step_status,
-                    created=report.tables_created, stmt_errors=stmt_errors)
+        def _vacuum():
+            c = sqlite3.connect(db_path, timeout=60.0)
+            try:
+                c.execute("VACUUM")
+                c.commit()
+            finally:
+                c.close()
+        _, dur = _timed(_vacuum)
+        add("vacuum", "ok", {}, dur)
     except Exception as e:
-        report.errors.append(f"create_tables failed: {e}")
-        report.step("create_tables", "fail", error=str(e))
+        add("vacuum", "error", {"error": str(e)})
+
+    # 5. recreate missing tables from schema.sql (idempotent)
+    try:
+        def _recreate():
+            c = sqlite3.connect(db_path, timeout=60.0)
+            stmt_errors = []
+            try:
+                before = {r[0].lower() for r in c.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%'").fetchall()}
+                for stmt in _split_statements(schema_sql):
+                    if not stmt.upper().lstrip().startswith("CREATE TABLE"):
+                        continue
+                    try:
+                        c.execute(stmt)
+                    except sqlite3.OperationalError as e:
+                        stmt_errors.append(f"{stmt[:60]}...: {e}")
+                c.commit()
+                after = {r[0].lower() for r in c.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%'").fetchall()}
+            finally:
+                c.close()
+            return sorted(after - before), stmt_errors
+        (created, stmt_errors), dur = _timed(_recreate)
+        add("recreate_tables", "warn" if stmt_errors else "ok",
+            {"created": created, "stmt_errors": stmt_errors}, dur)
+    except Exception as e:
+        add("recreate_tables", "error", {"error": str(e)})
 
     # 6. ANALYZE
     try:
-        conn = sqlite3.connect(db_path, timeout=60.0)
-        try:
-            conn.execute("ANALYZE")
-            conn.commit()
-        finally:
-            conn.close()
-        report.analyze_ran = True
-        report.step("analyze", "ok")
+        def _analyze():
+            c = sqlite3.connect(db_path, timeout=60.0)
+            try:
+                c.execute("ANALYZE")
+                c.commit()
+            finally:
+                c.close()
+        _, dur = _timed(_analyze)
+        add("analyze", "ok", {}, dur)
     except Exception as e:
-        report.errors.append(f"analyze failed: {e}")
-        report.step("analyze", "fail", error=str(e))
+        add("analyze", "error", {"error": str(e)})
 
-    # final integrity + drift re-check (post-mutation state is what matters now)
-    final = check_integrity(db_path)
-    report.final_integrity = final["status"]
-    report.step("final_integrity", final["status"], details=final["details"])
-    drift_final = check_schema_drift(db_path, schema_sql_path)
-    report.step("schema_drift", drift_final["status"], details=drift_final["details"])
-
-    # Overall reflects the resulting state: the pre-mutation drift ("schema_drift_initial")
-    # is the reason we ran and is intentionally excluded.
-    counted = {"integrity", "foreign_keys", "create_tables", "vacuum",
-               "analyze", "final_integrity", "schema_drift"}
-    all_statuses = [s["status"] for s in report.steps
-                    if s["name"] in counted and s["status"] in _EXIT_CODE]
-    report.overall_status = "fail" if report.errors else _worst(all_statuses)
-    _write_log(report)
-    return report
-
-
-def _worst(statuses) -> str:
-    rank = {"ok": 0, "warn": 1, "fail": 2}
-    worst = "ok"
-    for s in statuses:
-        if rank.get(s, 0) > rank[worst]:
-            worst = s
-    return worst
+    overall = _worst([s.status for s in report.steps
+                      if s.status not in _NEUTRAL_STEP and s.status != "skipped"])
+    return finish(overall)
 
 
 def _write_log(report: MigrationReport) -> None:
@@ -268,27 +275,24 @@ def _write_log(report: MigrationReport) -> None:
         sys.stderr.write(f"[warn] could not append migration log: {e}\n")
 
 
-def _default_schema_path() -> str:
-    return str(Path(__file__).resolve().parent / "schema.sql")
-
-
-def main(argv=None) -> int:
+def cli_main() -> int:
     parser = argparse.ArgumentParser(description="DMAI DB migration orchestrator")
     parser.add_argument("--db", default="data/dmai_knowledge.db")
-    parser.add_argument("--schema", default=_default_schema_path())
     parser.add_argument("--apply", action="store_true",
                         help="perform mutations (default: dry-run)")
-    parser.add_argument("--json", action="store_true", help="emit JSON report")
-    args = parser.parse_args(argv)
+    fmt = parser.add_mutually_exclusive_group()
+    fmt.add_argument("--json", action="store_true", help="compact JSON (default)")
+    fmt.add_argument("--pretty", action="store_true", help="pretty-printed JSON")
+    args = parser.parse_args()
 
-    report = run_migration(args.db, args.schema, apply=args.apply)
+    report = run_migration(args.db, apply=args.apply)
     payload = dataclasses.asdict(report)
-    if args.json:
-        print(json.dumps(payload, default=str))
-    else:
+    if args.pretty:
         print(json.dumps(payload, indent=2, default=str))
+    else:
+        print(json.dumps(payload, default=str))
     return _EXIT_CODE.get(report.overall_status, 2)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli_main())
