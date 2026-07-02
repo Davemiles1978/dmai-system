@@ -13,13 +13,15 @@
 --     auto-created when the first AUTOINCREMENT table is created; it cannot be
 --     created explicitly and must not be declared here.
 --
+-- Object counts: 78 tables + 46 indexes.
+--
 -- Pending indexes carried over from the reconstructed schema.sql (they exist in
 -- schema.sql but not yet in prod; the next db_migrate.py --apply creates them):
 --   idx_learning_outcomes_timestamp, idx_learning_outcomes_topic  -> valid, live below.
---   idx_api_keys_active, idx_api_keys_provider  -> reference columns (is_active,
---     provider) that DO NOT EXIST in the authoritative prod api_keys table
---     (columns: key, service, source, validated, created_at, last_used). They are
---     preserved as comments only; creating them would fail on prod. See PR notes.
+--   idx_api_keys_active -> repointed to api_keys(validated), the closest real column
+--     (columns: key, service, source, validated, created_at, last_used); live below.
+--   idx_api_keys_provider -> dropped; idx_api_keys_service on api_keys(service) already
+--     covers the lookup-by-provider-name pattern, so it would be a redundant duplicate.
 
 CREATE TABLE IF NOT EXISTS suggestions (
             id TEXT PRIMARY KEY,
@@ -778,9 +780,4 @@ CREATE INDEX IF NOT EXISTS ix_bets_outcome ON bets_ledger(outcome);
 CREATE INDEX IF NOT EXISTS idx_learning_outcomes_timestamp ON learning_outcomes(timestamp);
 CREATE INDEX IF NOT EXISTS idx_learning_outcomes_topic ON learning_outcomes(topic);
 
--- The following two indexes existed in the reconstructed schema.sql but reference
--- columns that are absent from the authoritative prod api_keys table. They are
--- kept here as a record; they cannot be created against the real schema and are
--- therefore commented out (uncomment only after api_keys gains these columns):
--- CREATE INDEX IF NOT EXISTS idx_api_keys_active ON api_keys(is_active);
--- CREATE INDEX IF NOT EXISTS idx_api_keys_provider ON api_keys(provider);
+CREATE INDEX IF NOT EXISTS idx_api_keys_active ON api_keys(validated);
