@@ -157,6 +157,32 @@ from components.json_utils import safe_jsonify
 # ── Boot-time SQLite self-heal ───────────────────────────────────────────────
 # If dmai_knowledge.db is malformed, quarantine it so components recreate
 # schema on first access. Controlled by DB_AUTO_HEAL=true (default off).
+def _quarantine_malformed_db(db_path, ts=None):
+    """Move a malformed SQLite DB aside without destroying its committed data.
+
+    Renames ``db_path`` to ``<db_path>.malformed_<ts>`` and RENAMES its
+    ``-wal`` / ``-shm`` sidecars to ``<db_path>.wal.bak_<ts>`` /
+    ``<db_path>.shm.bak_<ts>`` rather than deleting them. In WAL mode the
+    ``-wal`` file holds committed-but-not-yet-checkpointed rows, so deleting it
+    destroys the very data quarantine is meant to preserve. The shared ``ts``
+    across the trio lets recovery tooling pair a WAL back with its main file.
+    Returns the quarantine path of the main file.
+    """
+    import time as _t
+    if ts is None:
+        ts = int(_t.time())
+    quarantine = db_path + f".malformed_{ts}"
+    os.rename(db_path, quarantine)
+    for _sfx, _bak in (("-wal", f".wal.bak_{ts}"), ("-shm", f".shm.bak_{ts}")):
+        _sp = db_path + _sfx
+        if os.path.exists(_sp):
+            try:
+                os.rename(_sp, db_path + _bak)
+            except Exception:
+                pass
+    return quarantine
+
+
 if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
     import sqlite3 as _bsq, time as _bt
     for _db_name in ("dmai_knowledge.db", "dmai.db", "trading_mastery.db"):
@@ -173,16 +199,8 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
         except Exception as _be:
             _ic = f"open_failed:{_be}"
         if _ic != "ok":
-            _q = _p + f".malformed_{int(_bt.time())}"
             try:
-                os.rename(_p, _q)
-                for _sfx in ("-wal", "-shm"):
-                    _sp = _p + _sfx
-                    if os.path.exists(_sp):
-                        try:
-                            os.remove(_sp)
-                        except Exception:
-                            pass
+                _q = _quarantine_malformed_db(_p)
                 logger.warning("DB self-heal: quarantined %s (integrity=%s) -> %s", _p, _ic, _q)
             except Exception as _be:
                 logger.error("DB self-heal rename failed for %s: %s", _p, _be)
@@ -6801,7 +6819,8 @@ def api_admin_db_salvage():
         return jsonify({"ok": False, "error": "db not found", "path": live}), 404
 
     fresh = live + ".salvaged_new"
-    quarantine = live + f".malformed_{int(_stime.time())}"
+    _sts = int(_stime.time())
+    quarantine = live + f".malformed_{_sts}"
     if _sos.path.exists(fresh):
         try: _sos.remove(fresh)
         except Exception: pass
@@ -6905,10 +6924,13 @@ def api_admin_db_salvage():
 
         _sos.rename(live, quarantine)
         _sos.rename(fresh, live)
-        for sfx in ("-wal", "-shm"):
+        # Preserve the old DB's WAL/SHM alongside the quarantined main file
+        # (same ts) instead of deleting them: the bare-connection salvage read
+        # above may have missed committed rows still resident in the WAL.
+        for sfx, bak in (("-wal", f".wal.bak_{_sts}"), ("-shm", f".shm.bak_{_sts}")):
             p = live + sfx
             if _sos.path.exists(p):
-                try: _sos.remove(p)
+                try: _sos.rename(p, live + bak)
                 except Exception: pass
         summary["ok"] = True
         summary["quarantined_to"] = quarantine
@@ -6931,7 +6953,7 @@ def api_admin_db_rebuild():
     """
     if not _require_auth():
         return jsonify({"error": "Unauthorized"}), 401
-    import os as _qos, time as _qtime, sqlite3 as _qsq
+    import os as _qos, sqlite3 as _qsq
     body = request.get_json(silent=True) or {}
     db_name = body.get("db", "dmai_knowledge.db")
     if "/" in db_name or "\\" in db_name or ".." in db_name:
@@ -6954,19 +6976,13 @@ def api_admin_db_rebuild():
     if integrity == "ok" and not force:
         return jsonify({"ok": True, "rebuilt": False, "integrity": integrity,
                         "note": "DB healthy; pass force=true to rebuild anyway"})
-    quarantine = live + f".malformed_{int(_qtime.time())}"
+    # Rename main + WAL/SHM sidecars aside under a shared ts (never delete the
+    # WAL: it may hold committed-but-uncheckpointed rows). See
+    # _quarantine_malformed_db.
     try:
-        _qos.rename(live, quarantine)
+        quarantine = _quarantine_malformed_db(live)
     except Exception as e:
         return jsonify({"ok": False, "error": "rename failed", "detail": str(e)}), 500
-    # Also remove WAL/SHM siblings if present
-    for sfx in ("-wal", "-shm", ".wal", ".shm"):
-        p = live + sfx
-        if _qos.path.exists(p):
-            try:
-                _qos.remove(p)
-            except Exception:
-                pass
     return jsonify({"ok": True, "rebuilt": True, "integrity_before": integrity,
                     "quarantined_to": quarantine, "live_path": live,
                     "note": "Components will lay down fresh schema on next access"})
