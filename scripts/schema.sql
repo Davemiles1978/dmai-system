@@ -7,9 +7,27 @@
 --   scripts/*, and related helpers). Statements are grouped and
 --   alphabetized: tables, then indexes, then views, then triggers.
 --
--- Cross-checked against the live prod schema object count = 122
---   (tables + indexes + views + triggers combined).
--- This reconstruction contains 118 objects (76 tables, 42 indexes, 0 views, 0 triggers).
+-- 2026-07-02 reconciliation: PR #168's POST /api/admin/db-health smoke test
+--   surfaced 2 tables + 5 indexes present in live prod but absent here. Their
+--   DDL was captured verbatim from a live prod .backup snapshot (online backup
+--   of dmai_knowledge.db) and added: tables bets_ledger, trades_ledger; indexes
+--   idx_api_keys_service, ix_bets_outcome, ix_bets_tipped, ix_trades_mode_status,
+--   ix_trades_opened. idx_api_keys_service references api_keys(service); the
+--   reconstructed api_keys table was missing that column (confirmed present in
+--   prod via migrate_to_postgres.py), so `service TEXT` was added to it here too.
+--
+-- NOTE: the prior header undercounted tables (claimed 76) but the file actually
+--   defined 77 (verified by loading the pre-change file into sqlite). Corrected
+--   below. Object counts here are the authoritative sqlite_master counts.
+--
+-- Expected object count = 126 (79 tables, 47 indexes, 0 views, 0 triggers).
+--   (Pre-change actual = 119 = 77 tables + 42 indexes; this PR adds +2 tables,
+--   +5 indexes.)
+-- The 4 indexes idx_api_keys_active, idx_api_keys_provider,
+--   idx_learning_outcomes_timestamp, idx_learning_outcomes_topic are defined
+--   here but currently missing on prod; the next `db_migrate.py --apply` will
+--   create them, after which prod matches this file exactly and schema_diff
+--   (which compares object *names*, not the count above) returns `ok`.
 --
 -- SOURCE OF TRUTH for the schema. Consumed by:
 --   - scripts/db_health.py   (schema-drift check)
@@ -21,7 +39,7 @@ PRAGMA foreign_keys = ON;
 
 
 -- --------------------------------------------------------------------------
--- TABLES (76)
+-- TABLES (79)
 -- --------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS admin_api_keys (
@@ -45,6 +63,7 @@ CREATE TABLE IF NOT EXISTS ai_systems (
 CREATE TABLE IF NOT EXISTS api_keys (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     provider TEXT NOT NULL,
+    service TEXT,
     key_hash TEXT NOT NULL UNIQUE,
     key_prefix TEXT NOT NULL,
     source TEXT DEFAULT 'manual',
@@ -109,6 +128,23 @@ CREATE TABLE IF NOT EXISTS at_trades (
     live            INTEGER NOT NULL,
     result_json     TEXT
 );
+
+CREATE TABLE IF NOT EXISTS bets_ledger (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        event          TEXT NOT NULL,
+        selection      TEXT NOT NULL,
+        odds           REAL,
+        stake          REAL,
+        outcome        TEXT CHECK (outcome IN ('win', 'loss', 'void', 'pending', NULL)),
+        pnl            REAL,
+        tipped_at      TEXT NOT NULL,
+        placed_at      TEXT,
+        settled_at     TEXT,
+        source         TEXT NOT NULL DEFAULT 'greyhound_runner',
+        ev             REAL,
+        confidence     REAL,
+        notes          TEXT
+    );
 
 CREATE TABLE IF NOT EXISTS brain_entries (id TEXT PRIMARY KEY, domain TEXT NOT NULL, domain_label TEXT, topic TEXT NOT NULL, content TEXT NOT NULL, source_url TEXT NOT NULL, tier TEXT DEFAULT 'canonical', version TEXT, loaded_at TEXT DEFAULT (datetime('now')));
 
@@ -752,6 +788,24 @@ CREATE TABLE IF NOT EXISTS trades (
     reasoning TEXT
 );
 
+CREATE TABLE IF NOT EXISTS trades_ledger (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        symbol         TEXT NOT NULL,
+        side           TEXT NOT NULL CHECK (side IN ('buy', 'sell')),
+        qty            REAL NOT NULL,
+        entry_price    REAL,
+        exit_price     REAL,
+        stake          REAL,
+        pnl            REAL,
+        mode           TEXT NOT NULL CHECK (mode IN ('paper', 'live')),
+        status         TEXT NOT NULL CHECK (status IN ('open', 'closed', 'cancelled', 'error')),
+        opened_at      TEXT NOT NULL,
+        closed_at      TEXT,
+        source         TEXT NOT NULL DEFAULT 'autonomous_trader',
+        confidence     REAL,
+        notes          TEXT
+    );
+
 CREATE TABLE IF NOT EXISTS vocabulary (
     id TEXT PRIMARY KEY,
     word TEXT NOT NULL UNIQUE,
@@ -802,12 +856,14 @@ CREATE TABLE IF NOT EXISTS work_review_queue (
 );
 
 -- --------------------------------------------------------------------------
--- INDEXES (42)
+-- INDEXES (47)
 -- --------------------------------------------------------------------------
 
 CREATE INDEX IF NOT EXISTS idx_api_keys_active ON api_keys(is_active);
 
 CREATE INDEX IF NOT EXISTS idx_api_keys_provider ON api_keys(provider);
+
+CREATE INDEX IF NOT EXISTS idx_api_keys_service ON api_keys(service);
 
 CREATE INDEX IF NOT EXISTS idx_brain_domain ON brain_entries(domain);
 
@@ -879,6 +935,10 @@ CREATE INDEX IF NOT EXISTS idx_wrq_status ON work_review_queue(status);
 
 CREATE INDEX IF NOT EXISTS idx_wrq_type ON work_review_queue(work_type);
 
+CREATE INDEX IF NOT EXISTS ix_bets_outcome ON bets_ledger(outcome);
+
+CREATE INDEX IF NOT EXISTS ix_bets_tipped ON bets_ledger(tipped_at DESC);
+
 CREATE INDEX IF NOT EXISTS ix_conv_messages_session
 ON conv_messages(session_id, ts);
 
@@ -889,5 +949,9 @@ ON sg_autonomy_log(event, ts);
 
 CREATE INDEX IF NOT EXISTS ix_sg_autonomy_log_ts
 ON sg_autonomy_log(ts);
+
+CREATE INDEX IF NOT EXISTS ix_trades_mode_status ON trades_ledger(mode, status);
+
+CREATE INDEX IF NOT EXISTS ix_trades_opened ON trades_ledger(opened_at DESC);
 
 CREATE INDEX IF NOT EXISTS mon_alerts_cat_ts ON mon_alerts(category, ts DESC);
