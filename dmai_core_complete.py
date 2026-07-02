@@ -224,6 +224,43 @@ def _checkpoint_before_integrity(db_path):
         logger.warning("boot checkpoint failed: %s", e)
 
 
+def _sidecar_is_live(sidecar_path):
+    """Return True if a ``-wal``/``-shm`` sidecar belongs to a live SQLite DB.
+
+    Disk-cleanup sweeps glob for scratch files by suffix and would happily
+    delete a ``-wal`` that an open connection is still writing to — destroying
+    committed-but-uncheckpointed transactions and leaving the main .db in a
+    state that reads as malformed at the next boot (which then quarantines it).
+
+    Liveness is decided by *existence of a valid main .db*, not by lock
+    inspection: SQLite in WAL mode does not hold a continuous exclusive lock on
+    the main file, so fcntl-based detection is unreliable. If the main .db is
+    present and starts with the SQLite magic header, the sidecar belongs to it
+    and MUST be preserved. An orphan sidecar (no main file) or one beside a
+    non-SQLite main file is stale and safe to delete — that is cleanup's job.
+    """
+    from pathlib import Path as _P
+    sidecar_path = _P(sidecar_path)
+    if not sidecar_path.exists():
+        return False
+    name = sidecar_path.name
+    if name.endswith("-wal") or name.endswith("-shm"):
+        main_name = name[:-4]  # strip "-wal" / "-shm"
+    else:
+        return False  # not a sidecar we guard
+    main_path = sidecar_path.parent / main_name
+    if not main_path.exists():
+        return False  # orphan sidecar with no main file — safe to delete
+    try:
+        with open(main_path, "rb") as _f:
+            magic = _f.read(16)
+    except OSError:
+        return False
+    if magic != b"SQLite format 3\x00":
+        return False  # main file exists but isn't a SQLite DB — sidecar is stale
+    return True  # main .db exists and is valid → sidecar is live, preserve it
+
+
 if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
     import sqlite3 as _bsq, time as _bt
     for _db_name in ("dmai_knowledge.db", "dmai.db", "trading_mastery.db"):
@@ -6810,6 +6847,12 @@ def api_admin_disk_cleanup():
                     if any(s in f for s in suffix_kill):
                         reason = "disposable suffix"
                     elif any(f.endswith(s) for s in name_kill):
+                        # R3: never delete a -wal/-shm sidecar whose main .db is
+                        # live — doing so destroys uncommitted/uncheckpointed
+                        # transactions and can induce quarantine on next boot.
+                        if (f.endswith("-wal") or f.endswith("-shm")) and _sidecar_is_live(fp):
+                            logger.info("cleanup: skipping live sidecar %s (main DB exists)", fp)
+                            continue
                         reason = "sqlite scratch file"
                     elif f.endswith(extension_kill) and age_days > log_min_age_days and sz > log_min_size_mb * 1_048_576:
                         reason = f"old large log ({round(age_days,1)}d, {round(sz/1_048_576,1)}MB)"
