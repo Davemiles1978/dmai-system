@@ -7933,6 +7933,82 @@ def api_admin_insight_promoter_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/capability-promoter-status", methods=["GET"])
+def api_admin_capability_promoter_status():
+    """Live status of the registry.json -> SQL capability promoter (PR D).
+
+    Response shape::
+
+        {
+          "ok": true,
+          "running": true,
+          "registry_path": ".../data/capabilities/registry.json",
+          "registry_exists": true,
+          "registry_mtime": 1720807200.0,
+          "registry_total": 20694,
+          "sql_capabilities": 20694,
+          "last_summary": {"promoted": ..., "skipped": ..., ...},
+          "ts": "..."
+        }
+
+    Use this to verify the capabilities SQL table is in sync with the
+    integrator registry that stage-progression relies on.
+    """
+    import datetime as _dt, json as _cpj
+    try:
+        from components.capability_promoter import (
+            get_promoter_loop as _gcpl,
+            _registry_path as _rp,
+            _kdb_path as _kdb,
+        )
+        loop = _gcpl()
+        running = bool(loop and loop._thread and loop._thread.is_alive())
+        rp = _rp()
+        exists = rp.exists()
+        mtime  = rp.stat().st_mtime if exists else None
+
+        # Best-effort read of registry total (may fail on partial writes).
+        registry_total = None
+        if exists:
+            try:
+                with rp.open("r", encoding="utf-8") as _rf:
+                    _rj = _cpj.load(_rf)
+                _caps = _rj.get("capabilities") if isinstance(_rj, dict) else None
+                if isinstance(_caps, dict):
+                    registry_total = len(_caps)
+            except Exception as _rre:
+                logger.debug("capability_promoter status registry read: %s", _rre)
+
+        sql_count = 0
+        try:
+            from components.db import safe_open_kdb as _sok
+            conn = _sok(_kdb())
+            try:
+                rc = conn.execute("SELECT COUNT(*) FROM capabilities").fetchone()
+                sql_count = int(rc[0]) if rc else 0
+            finally:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+        except Exception as _dbe:
+            logger.warning("capability_promoter status db read failed: %s", _dbe)
+
+        return jsonify({
+            "ok": True,
+            "running": running,
+            "registry_path": str(rp),
+            "registry_exists": exists,
+            "registry_mtime": mtime,
+            "registry_total": registry_total,
+            "sql_capabilities": sql_count,
+            "last_summary": (loop.last_summary if loop else {}),
+            "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
@@ -8964,6 +9040,18 @@ def _start_background_services(force=False):
         _start_ip()
     except Exception as _ip_e:
         logger.warning("insight_promoter init failed: %s", _ip_e)
+
+    # PR D — Capability registry -> SQL promoter (starts after insights).
+    # Bridges data/capabilities/registry.json (20k+ rows) into the
+    # ``capabilities`` SQL table so /api/metrics + stage progression can
+    # actually see them. Runs a one-shot backfill on boot, then re-syncs
+    # every 60s only when registry.json mtime advances. Idempotent (INSERT
+    # OR REPLACE keyed on capability id).
+    try:
+        from components.capability_promoter import start_promoter_loop as _start_cp
+        _start_cp()
+    except Exception as _cp_e:
+        logger.warning("capability_promoter init failed: %s", _cp_e)
 
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:

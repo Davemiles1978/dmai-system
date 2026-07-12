@@ -28,10 +28,15 @@ class SQLitePersistence:
     - Automatic recovery from corruption
     """
     
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: Optional[str] = None):
+        # Honour DATA_PATH env var (matches Render's persistent-disk mount and
+        # every other DB-touching component). Explicit data_dir still wins so
+        # tests can point at a tmpdir.
+        if data_dir is None:
+            data_dir = os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.db_path = self.data_dir / "dmai_knowledge.db"
         self._lock = threading.Lock()
         self._local = threading.local()
