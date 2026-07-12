@@ -210,6 +210,51 @@ class BettingAdvisor:
     def _init_schema(self):
         with _LOCK, self._conn() as c:
             c.executescript(_SCHEMA)
+            self._migrate_mon_tips_columns(c)
+
+    def _migrate_mon_tips_columns(self, c) -> None:
+        """Add columns to ``mon_tips`` that were introduced after the table
+        was first created.
+
+        Prod prior to this migration had a ``mon_tips`` schema missing
+        ``recommended_stake`` and ``kelly_fraction`` (both added when the
+        Kelly-sizing logic landed). This broke
+        ``/api/monetisation/bets/performance`` with
+        ``no such column: t.recommended_stake``. This migration is
+        idempotent: it only adds columns that don't already exist.
+        """
+        try:
+            existing = {row[1] for row in
+                        c.execute("PRAGMA table_info(mon_tips)").fetchall()}
+        except sqlite3.OperationalError:
+            # Table doesn't exist yet — the CREATE TABLE from _SCHEMA just
+            # ran, so this is impossible in normal flow. Bail quietly.
+            return
+        wanted = [
+            ("recommended_stake", "REAL NOT NULL DEFAULT 0"),
+            ("kelly_fraction",    "REAL NOT NULL DEFAULT 0"),
+            ("actual_stake",      "REAL"),
+            ("profit_loss",       "REAL"),
+            ("settled_at",        "REAL"),
+            ("placed_at",         "REAL"),
+            ("notes",             "TEXT"),
+            ("expected_value",    "REAL NOT NULL DEFAULT 0"),
+            ("confidence",        "REAL NOT NULL DEFAULT 0"),
+            ("model_probability", "REAL NOT NULL DEFAULT 0"),
+            ("prediction_id",     "TEXT"),
+            ("currency",          "TEXT NOT NULL DEFAULT 'GBP'"),
+            ("rationale",         "TEXT"),
+        ]
+        for col, ddl in wanted:
+            if col in existing:
+                continue
+            try:
+                c.execute(f"ALTER TABLE mon_tips ADD COLUMN {col} {ddl}")
+            except sqlite3.OperationalError as e:
+                # Race with a parallel migration attempt — log and continue.
+                logging.getLogger("dmai.monetisation").warning(
+                    "mon_tips migrate ADD COLUMN %s failed: %s", col, e,
+                )
 
     # ---- bankroll ----
 

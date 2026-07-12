@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>DMAI · Records</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #0b0d10;
+    --panel: #14171c;
+    --panel-2: #1a1f26;
+    --border: #262c36;
+    --fg: #e6edf3;
+    --fg-dim: #8b949e;
+    --accent: #58a6ff;
+    --win: #3fb950;
+    --loss: #f85149;
+    --pending: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+  }
+  h1 { font-size: 20px; margin: 0 0 16px 0; font-weight: 600; }
+  h2 { font-size: 14px; margin: 0 0 8px 0; font-weight: 600;
+       color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .toggles { margin-bottom: 20px; }
+  .toggle-group {
+    display: inline-flex; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    margin-right: 16px;
+  }
+  .toggle-group button {
+    background: transparent; color: var(--fg-dim); border: none;
+    padding: 8px 16px; cursor: pointer; font-size: 13px;
+    font-weight: 500; transition: all 0.15s;
+  }
+  .toggle-group button:hover { color: var(--fg); }
+  .toggle-group button.active {
+    background: var(--accent); color: white;
+  }
+  .fin-state {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .stat-label {
+    color: var(--fg-dim); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .stat-value { font-size: 20px; font-weight: 600; }
+  .stat-value.positive { color: var(--win); }
+  .stat-value.negative { color: var(--loss); }
+  .stat-sub { font-size: 11px; color: var(--fg-dim); margin-top: 2px; }
+  .note-bar {
+    background: var(--panel-2); border-left: 3px solid var(--accent);
+    padding: 8px 12px; border-radius: 4px; color: var(--fg-dim);
+    font-size: 12px; margin-bottom: 16px;
+  }
+  table {
+    width: 100%; border-collapse: collapse; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  }
+  th, td {
+    padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+    font-size: 12px; white-space: nowrap;
+  }
+  th {
+    background: var(--panel-2); color: var(--fg-dim); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.3px; font-size: 10px;
+    cursor: pointer; user-select: none;
+  }
+  th:hover { color: var(--fg); }
+  th .sort-arrow { color: var(--accent); margin-left: 4px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--panel-2); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 500;
+  }
+  .badge.win, .badge.won { background: rgba(63,185,80,0.15); color: var(--win); }
+  .badge.loss, .badge.lost { background: rgba(248,81,73,0.15); color: var(--loss); }
+  .badge.pending, .badge.open { background: rgba(210,153,34,0.15); color: var(--pending); }
+  .badge.scratch, .badge.void, .badge.push { background: rgba(139,148,158,0.15); color: var(--fg-dim); }
+  .pnl-pos { color: var(--win); }
+  .pnl-neg { color: var(--loss); }
+  .loading, .empty { text-align: center; padding: 40px; color: var(--fg-dim); }
+  .footer { display: flex; justify-content: space-between; align-items: center;
+            margin-top: 12px; color: var(--fg-dim); font-size: 12px; }
+  .pager button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--fg);
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+  }
+  .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .refresh {
+    background: var(--panel); border: 1px solid var(--border); color: var(--fg);
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+    margin-left: auto;
+  }
+  .refresh:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+  <h1>DMAI · Records</h1>
+
+  <div class="toggles row">
+    <div class="toggle-group" id="system-toggle">
+      <button data-system="trader" class="active">Trader</button>
+      <button data-system="betting">Betting</button>
+    </div>
+    <div class="toggle-group" id="mode-toggle">
+      <button data-mode="training" class="active">Training</button>
+      <button data-mode="live">Live</button>
+    </div>
+    <button class="refresh" id="refresh-btn">Refresh</button>
+  </div>
+
+  <h2>Financial state</h2>
+  <div class="fin-state" id="fin-state"></div>
+  <div class="note-bar" id="note-bar"></div>
+
+  <h2>Records</h2>
+  <div id="table-container">
+    <div class="loading">Loading…</div>
+  </div>
+
+  <div class="footer">
+    <div id="count-info"></div>
+    <div class="pager">
+      <button id="prev-btn" disabled>← Prev</button>
+      <button id="next-btn" disabled>Next →</button>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const state = {
+    system: "trader",
+    mode:   "training",
+    offset: 0,
+    limit:  100,
+    rows:   [],
+    total:  0,
+    sortKey: null,
+    sortDir: 1,
+  };
+
+  const $ = (sel) => document.querySelector(sel);
+
+  function fmtNum(v, digits = 2) {
+    if (v === null || v === undefined || v === "") return "—";
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "—";
+    return n.toLocaleString(undefined, {
+      minimumFractionDigits: digits, maximumFractionDigits: digits,
+    });
+  }
+  function fmtPct(v) {
+    if (v === null || v === undefined || v === "") return "—";
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "—";
+    return (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+  }
+  function fmtMoney(v) {
+    if (v === null || v === undefined || v === "") return "—";
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "—";
+    return (n >= 0 ? "+" : "−") + Math.abs(n).toLocaleString(undefined, {
+      minimumFractionDigits: 2, maximumFractionDigits: 2,
+    });
+  }
+  function fmtTs(v) {
+    if (!v) return "—";
+    try {
+      const d = new Date(v);
+      if (isNaN(d)) return v;
+      return d.toISOString().replace("T", " ").slice(0, 19);
+    } catch(e) { return v; }
+  }
+  function pnlClass(v) {
+    if (v === null || v === undefined) return "";
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "";
+    if (n > 0) return "pnl-pos";
+    if (n < 0) return "pnl-neg";
+    return "";
+  }
+
+  function renderFinState(fs, top) {
+    const container = $("#fin-state");
+    if (!fs) { container.innerHTML = ""; return; }
+    const cards = [
+      { label: "Bankroll", value: fmtNum(fs.bankroll, 2),
+        sub: fs.bankroll_source || "" },
+      { label: "Total P/L", value: fmtMoney(fs.total_pnl),
+        cls: pnlClass(fs.total_pnl) },
+      { label: "ROI %", value: fmtPct(fs.roi_pct),
+        cls: pnlClass(fs.roi_pct) },
+      { label: "Total staked", value: fmtNum(fs.total_staked, 2) },
+      { label: "Win rate", value: (fs.win_rate_pct !== null ?
+        fs.win_rate_pct.toFixed(1) + "%" : "—"),
+        sub: `${fs.win_count}W / ${fs.loss_count}L / ${fs.settled_count} settled` },
+      { label: "Open exposure", value: fmtNum(fs.open_exposure, 2),
+        sub: "unsettled on this page" },
+    ];
+    container.innerHTML = cards.map(c => `
+      <div class="stat">
+        <div class="stat-label">${c.label}</div>
+        <div class="stat-value ${c.cls || ""}">${c.value}</div>
+        ${c.sub ? `<div class="stat-sub">${c.sub}</div>` : ""}
+      </div>
+    `).join("");
+    $("#note-bar").textContent = fs.note || "";
+  }
+
+  // Column definitions per system
+  const traderCols = [
+    { key: "ts",         label: "Opened" },
+    { key: "closed_at",  label: "Closed" },
+    { key: "symbol",     label: "Symbol" },
+    { key: "side",       label: "Side" },
+    { key: "qty",        label: "Qty",         num: true, digits: 4 },
+    { key: "entry_price",label: "Entry",       num: true },
+    { key: "exit_price", label: "Exit",        num: true },
+    { key: "stake",      label: "Stake",       num: true },
+    { key: "confidence", label: "Conf",        num: true, digits: 3 },
+    { key: "outcome",    label: "Outcome",     badge: true },
+    { key: "pnl",        label: "P/L",         num: true, money: true },
+    { key: "pnl_pct",    label: "P/L %",       num: true, pct: true },
+    { key: "cumulative_pnl", label: "Cum P/L", num: true, money: true },
+    { key: "cumulative_pnl_pct", label: "Cum %", num: true, pct: true },
+  ];
+  const bettingCols = [
+    { key: "ts",             label: "Placed" },
+    { key: "closed_at",      label: "Settled" },
+    { key: "event",          label: "Event" },
+    { key: "market",         label: "Market" },
+    { key: "selection",      label: "Selection" },
+    { key: "decimal_odds",   label: "Odds",     num: true, digits: 2 },
+    { key: "ev",             label: "EV",       num: true, digits: 3 },
+    { key: "confidence",     label: "Conf",     num: true, digits: 2 },
+    { key: "stake",          label: "Stake",    num: true },
+    { key: "outcome",        label: "Outcome",  badge: true },
+    { key: "pnl",            label: "P/L",      num: true, money: true },
+    { key: "pnl_pct",        label: "P/L %",    num: true, pct: true },
+    { key: "cumulative_pnl", label: "Cum P/L",  num: true, money: true },
+    { key: "cumulative_pnl_pct", label: "Cum %", num: true, pct: true },
+  ];
+
+  function cols() {
+    return state.system === "trader" ? traderCols : bettingCols;
+  }
+
+  function cellValue(row, col) {
+    const v = row[col.key];
+    if (v === null || v === undefined) return "—";
+    if (col.badge) {
+      const cls = String(v).toLowerCase();
+      return `<span class="badge ${cls}">${v}</span>`;
+    }
+    if (col.pct)   return `<span class="${pnlClass(v)}">${fmtPct(v)}</span>`;
+    if (col.money) return `<span class="${pnlClass(v)}">${fmtMoney(v)}</span>`;
+    if (col.num)   return fmtNum(v, col.digits ?? 2);
+    if (col.key === "ts" || col.key === "closed_at") return fmtTs(v);
+    return v;
+  }
+
+  function renderTable() {
+    const container = $("#table-container");
+    if (!state.rows.length) {
+      container.innerHTML = '<div class="empty">No records yet — training data will appear here once the settle loops close outcomes.</div>';
+      return;
+    }
+    const sorted = [...state.rows];
+    if (state.sortKey) {
+      sorted.sort((a, b) => {
+        const av = a[state.sortKey], bv = b[state.sortKey];
+        if (av === null || av === undefined) return 1;
+        if (bv === null || bv === undefined) return -1;
+        if (typeof av === "number" && typeof bv === "number") {
+          return (av - bv) * state.sortDir;
+        }
+        return String(av).localeCompare(String(bv)) * state.sortDir;
+      });
+    }
+    const cs = cols();
+    const html = `
+      <table>
+        <thead><tr>${cs.map(c => {
+          const arrow = state.sortKey === c.key
+            ? `<span class="sort-arrow">${state.sortDir === 1 ? "↑" : "↓"}</span>`
+            : "";
+          return `<th data-key="${c.key}" class="${c.num ? 'num' : ''}">${c.label}${arrow}</th>`;
+        }).join("")}</tr></thead>
+        <tbody>${sorted.map(r => `
+          <tr>${cs.map(c => `<td class="${c.num ? 'num' : ''}">${cellValue(r, c)}</td>`).join("")}</tr>
+        `).join("")}</tbody>
+      </table>
+    `;
+    container.innerHTML = html;
+    container.querySelectorAll("th").forEach(th => {
+      th.addEventListener("click", () => {
+        const k = th.dataset.key;
+        if (state.sortKey === k) state.sortDir *= -1;
+        else { state.sortKey = k; state.sortDir = 1; }
+        renderTable();
+      });
+    });
+  }
+
+  function renderFooter() {
+    const shown = state.rows.length;
+    const start = state.offset + 1;
+    const end   = state.offset + shown;
+    $("#count-info").textContent =
+      shown ? `Showing ${start}–${end} of ${state.total}` : `0 of ${state.total}`;
+    $("#prev-btn").disabled = state.offset <= 0;
+    $("#next-btn").disabled = end >= state.total;
+  }
+
+  async function load() {
+    $("#table-container").innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const url = `/api/records/table?system=${state.system}&mode=${state.mode}` +
+                  `&limit=${state.limit}&offset=${state.offset}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (!data.ok) throw new Error(data.error || "unknown error");
+      state.rows  = data.rows || [];
+      state.total = data.total_rows || 0;
+      renderFinState(data.financial_state);
+      renderTable();
+      renderFooter();
+    } catch(e) {
+      $("#table-container").innerHTML =
+        `<div class="empty">Error: ${e.message}</div>`;
+      renderFinState(null);
+      renderFooter();
+    }
+  }
+
+  // Toggle handlers
+  $("#system-toggle").addEventListener("click", (e) => {
+    if (e.target.tagName !== "BUTTON") return;
+    $("#system-toggle").querySelectorAll("button").forEach(b =>
+      b.classList.toggle("active", b === e.target));
+    state.system = e.target.dataset.system;
+    state.offset = 0;
+    state.sortKey = null;
+    load();
+  });
+  $("#mode-toggle").addEventListener("click", (e) => {
+    if (e.target.tagName !== "BUTTON") return;
+    $("#mode-toggle").querySelectorAll("button").forEach(b =>
+      b.classList.toggle("active", b === e.target));
+    state.mode = e.target.dataset.mode;
+    state.offset = 0;
+    load();
+  });
+  $("#prev-btn").addEventListener("click", () => {
+    state.offset = Math.max(0, state.offset - state.limit); load();
+  });
+  $("#next-btn").addEventListener("click", () => {
+    state.offset += state.limit; load();
+  });
+  $("#refresh-btn").addEventListener("click", load);
+
+  load();
+})();
+</script>
+</body>
+</html>
