@@ -8083,6 +8083,388 @@ def api_admin_fresh_blood_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR F: unified records viewer ───────────────────────────────────────────
+#
+# Serves the /admin/records page. Two systems (trader, betting) x two
+# modes (training, live). The training views are the paper/tracking
+# tables — model picks scored against actual outcomes without money on
+# the line. The live views are the money-on-the-line tables.
+#
+# Response shape (both systems):
+#   {
+#     "system": "trader"|"betting",
+#     "mode":   "training"|"live",
+#     "rows":   [ ... ],   # newest first
+#     "count":  int,
+#     "cumulative_pnl": float,  # sum of pnl in returned rows (chronological)
+#     "total_rows": int,   # unpaged total
+#     "ts": iso-string
+#   }
+
+@app.route("/api/records/table", methods=["GET"])
+def api_records_table():
+    """Unified records viewer for trader + betting, training + live."""
+    import datetime as _rdt
+    system = (request.args.get("system") or "").strip().lower()
+    mode   = (request.args.get("mode") or "").strip().lower()
+    limit  = min(int(request.args.get("limit", 100) or 100), 500)
+    offset = int(request.args.get("offset", 0) or 0)
+
+    if system not in ("trader", "betting"):
+        return jsonify({"ok": False,
+                        "error": "system must be 'trader' or 'betting'"}), 400
+    if mode not in ("training", "live"):
+        return jsonify({"ok": False,
+                        "error": "mode must be 'training' or 'live'"}), 400
+
+    ts = _rdt.datetime.now(_rdt.timezone.utc).isoformat()
+    try:
+        if system == "trader":
+            rows, total = _records_trader(mode=mode, limit=limit, offset=offset)
+        else:
+            rows, total = _records_betting(mode=mode, limit=limit, offset=offset)
+    except Exception as e:
+        logger.exception("/api/records/table failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+    # Cumulative P/L + P/L%: reverse the (newest-first) list to compute
+    # chronological running totals, then map back. Rows without pnl contribute
+    # 0. Per-row pnl_pct = pnl / stake_basis * 100.
+    cum_pnl     = 0.0
+    cum_stake   = 0.0
+    wins        = 0
+    losses      = 0
+    settled     = 0
+    chrono = list(reversed(rows))
+    for r in chrono:
+        basis = _stake_basis(r)
+        pnl   = r.get("pnl")
+        if pnl is not None:
+            try:
+                p = float(pnl)
+                cum_pnl += p
+                r["cumulative_pnl"] = round(cum_pnl, 4)
+                if basis and basis > 0:
+                    r["pnl_pct"] = round(p / basis * 100.0, 4)
+            except (TypeError, ValueError):
+                pass
+        if basis and basis > 0:
+            cum_stake += basis
+            if cum_stake > 0:
+                r["cumulative_pnl_pct"] = round(cum_pnl / cum_stake * 100.0, 4)
+        # win/loss/settled tally for financial_state
+        oc = (r.get("outcome") or "").lower()
+        if oc in ("win", "won"):
+            wins += 1; settled += 1
+        elif oc in ("loss", "lost"):
+            losses += 1; settled += 1
+        elif oc in ("scratch", "void", "push"):
+            settled += 1
+    rows_out = list(reversed(chrono))
+
+    # Open exposure (rows still pending / open, unpaged view is a superset
+    # but the page-level number is still useful as a sanity check).
+    open_exposure = 0.0
+    for r in rows_out:
+        oc = (r.get("outcome") or "").lower()
+        if oc in ("open", "pending"):
+            basis = _stake_basis(r) or 0.0
+            open_exposure += basis
+
+    fin_state = _financial_state(
+        system=system, mode=mode,
+        cum_pnl=cum_pnl, cum_stake=cum_stake,
+        wins=wins, losses=losses, settled=settled,
+        open_exposure=open_exposure,
+    )
+
+    return jsonify({
+        "ok":              True,
+        "system":          system,
+        "mode":            mode,
+        "rows":            rows_out,
+        "count":           len(rows_out),
+        "cumulative_pnl":  round(cum_pnl, 4),
+        "cumulative_pnl_pct": (round(cum_pnl / cum_stake * 100.0, 4)
+                                if cum_stake > 0 else None),
+        "total_staked":    round(cum_stake, 4),
+        "financial_state": fin_state,
+        "total_rows":      int(total),
+        "limit":           limit,
+        "offset":          offset,
+        "ts":              ts,
+    })
+
+
+def _stake_basis(row: Dict[str, Any]) -> float:
+    """Return the P/L percentage denominator for a row.
+
+    - Trader: stake (money committed) if present; else entry_price * qty.
+    - Betting training: notional 1-unit stake.
+    - Betting live: actual_stake.
+
+    Returns 0.0 when we can't compute a meaningful basis — the caller
+    skips pct math for that row.
+    """
+    stake = row.get("stake")
+    if stake is not None:
+        try:
+            v = float(stake)
+            if v > 0:
+                return v
+        except (TypeError, ValueError):
+            pass
+    entry = row.get("entry_price")
+    qty   = row.get("qty")
+    if entry is not None and qty is not None:
+        try:
+            v = abs(float(entry) * float(qty))
+            if v > 0:
+                return v
+        except (TypeError, ValueError):
+            pass
+    return 0.0
+
+
+def _financial_state(*, system, mode, cum_pnl, cum_stake,
+                     wins, losses, settled, open_exposure):
+    """Compute an overall financial-state block for the page-level view.
+
+    Includes bankroll snapshot from the appropriate source:
+      - trader:  DMAI operating wallet via revenue_allocator (proxy for
+                 trading equity when Alpaca isn't polled here)
+      - betting: betting_advisor.get_bankroll() (bankroll_pct of DMAI wallet)
+    """
+    roi_pct = (round(cum_pnl / cum_stake * 100.0, 4)
+               if cum_stake > 0 else None)
+    win_rate = (round(wins / settled * 100.0, 2)
+                if settled > 0 else None)
+    bankroll = None
+    bankroll_source = None
+    try:
+        if system == "betting":
+            ba = components.get("betting_advisor")
+            if ba is not None:
+                bankroll = ba.get_bankroll()
+                bankroll_source = "betting_advisor.get_bankroll()"
+        else:
+            alloc = components.get("revenue_allocator")
+            if alloc is not None:
+                bankroll = float(alloc.get_balance(alloc.DMAI_WALLET))
+                bankroll_source = "revenue_allocator.dmai_operating"
+    except Exception as e:
+        logger.debug("financial_state bankroll lookup failed: %s", e)
+    return {
+        "total_staked":   round(cum_stake, 4),
+        "total_pnl":      round(cum_pnl, 4),
+        "roi_pct":        roi_pct,
+        "win_count":      wins,
+        "loss_count":     losses,
+        "settled_count":  settled,
+        "win_rate_pct":   win_rate,
+        "open_exposure":  round(open_exposure, 4),
+        "bankroll":       (round(bankroll, 4) if bankroll is not None else None),
+        "bankroll_source": bankroll_source,
+        "note":           ("training P/L is notional — no money staked"
+                           if mode == "training" else
+                           "live P/L reflects money actually deployed"),
+    }
+
+
+def _records_trader(*, mode: str, limit: int, offset: int):
+    """Read trader rows from trades_ledger (canonical) with fallback to
+    at_trades when trades_ledger is empty (early boot before mirroring).
+
+    Returns (rows, total_count). rows are newest-first.
+    """
+    from components.ledger import ledger_db
+    ledger_db.init_ledger_db()
+    ledger_mode = "paper" if mode == "training" else "live"
+    rows = ledger_db.list_trades(mode=ledger_mode, limit=limit, offset=offset)
+    out = []
+    for r in rows:
+        out.append({
+            "id":         r.get("id"),
+            "ts":         r.get("opened_at"),
+            "closed_at":  r.get("closed_at"),
+            "symbol":     r.get("symbol"),
+            "side":       r.get("side"),
+            "qty":        r.get("qty"),
+            "entry_price": r.get("entry_price"),
+            "exit_price":  r.get("exit_price"),
+            "stake":      r.get("stake"),
+            "confidence": r.get("confidence"),
+            "ev":         None,   # ev not stored in trades_ledger; see at_trades
+            "status":     r.get("status"),
+            "outcome":    _pnl_to_outcome(r.get("pnl"), r.get("status")),
+            "pnl":        r.get("pnl"),
+            "mode":       r.get("mode"),
+            "source":     r.get("source"),
+            "notes":      r.get("notes"),
+        })
+    # total count for pagination footer
+    from components.db import safe_open_kdb
+    with safe_open_kdb(ledger_db.default_ledger_path()) as c:
+        total = c.execute(
+            "SELECT COUNT(*) FROM trades_ledger WHERE mode = ?",
+            (ledger_mode,),
+        ).fetchone()[0]
+    return out, total
+
+
+def _pnl_to_outcome(pnl, status):
+    if status != "closed":
+        return status or "open"
+    if pnl is None:
+        return "closed"
+    try:
+        p = float(pnl)
+    except (TypeError, ValueError):
+        return "closed"
+    if p > 0:
+        return "win"
+    if p < 0:
+        return "loss"
+    return "scratch"
+
+
+def _records_betting(*, mode: str, limit: int, offset: int):
+    """Read betting rows from the appropriate table.
+
+    training → mon_tracking_picks (every model pick, no money)
+    live     → mon_user_bets      (user's actual placed bets)
+    """
+    ba = components.get("betting_advisor")
+    if not ba:
+        return [], 0
+    out: list = []
+    if mode == "training":
+        with ba._conn() as c:
+            total = c.execute(
+                "SELECT COUNT(*) FROM mon_tracking_picks"
+            ).fetchone()[0]
+            rows = c.execute(
+                "SELECT id, event_name, market, selection, decimal_odds, "
+                "       model_probability, confidence, expected_value, "
+                "       outcome, paper_pl, settled_at, created_at, rationale "
+                "FROM mon_tracking_picks "
+                "ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                (limit, offset),
+            ).fetchall()
+        for r in rows:
+            d = dict(r)
+            out.append({
+                "id":         d.get("id"),
+                "ts":         _epoch_to_iso(d.get("created_at")),
+                "closed_at":  _epoch_to_iso(d.get("settled_at")),
+                "event":      d.get("event_name"),
+                "market":     d.get("market"),
+                "selection":  d.get("selection"),
+                "decimal_odds": d.get("decimal_odds"),
+                "model_probability": d.get("model_probability"),
+                "confidence": d.get("confidence"),
+                "ev":         d.get("expected_value"),
+                "stake":      1.0,   # tracking = notional 1-unit stake
+                "outcome":    d.get("outcome"),
+                "pnl":        d.get("paper_pl"),
+                "mode":       "training",
+                "notes":      d.get("rationale"),
+            })
+    else:
+        with ba._conn() as c:
+            total = c.execute(
+                "SELECT COUNT(*) FROM mon_user_bets"
+            ).fetchone()[0]
+            rows = c.execute(
+                "SELECT id, event_name, market, selection, actual_odds, "
+                "       actual_stake, status, actual_return, profit_loss, "
+                "       settled_at, placed_at, bookmaker, notes "
+                "FROM mon_user_bets "
+                "ORDER BY placed_at DESC LIMIT ? OFFSET ?",
+                (limit, offset),
+            ).fetchall()
+        for r in rows:
+            d = dict(r)
+            out.append({
+                "id":         d.get("id"),
+                "ts":         _epoch_to_iso(d.get("placed_at")),
+                "closed_at":  _epoch_to_iso(d.get("settled_at")),
+                "event":      d.get("event_name"),
+                "market":     d.get("market"),
+                "selection":  d.get("selection"),
+                "decimal_odds": d.get("actual_odds"),
+                "stake":      d.get("actual_stake"),
+                "outcome":    d.get("status"),
+                "pnl":        d.get("profit_loss"),
+                "mode":       "live",
+                "bookmaker":  d.get("bookmaker"),
+                "notes":      d.get("notes"),
+            })
+    return out, int(total)
+
+
+def _epoch_to_iso(epoch):
+    if epoch is None:
+        return None
+    try:
+        import datetime as _rdt
+        return _rdt.datetime.fromtimestamp(float(epoch), _rdt.timezone.utc).isoformat()
+    except (TypeError, ValueError):
+        return None
+
+
+@app.route("/api/monetisation/picks/<pick_id>/settle", methods=["POST"])
+def api_pick_manual_settle(pick_id):
+    """Manual override for mon_tracking_picks. Body:
+        { "outcome": "won"|"lost"|"void", "note": "optional string" }
+    """
+    ba = components.get("betting_advisor")
+    if not ba:
+        return jsonify({"ok": False, "error": "betting_advisor not loaded"}), 503
+    body = request.get_json(silent=True) or {}
+    outcome = (body.get("outcome") or "").strip().lower()
+    note    = body.get("note") or ""
+    if outcome not in ("won", "lost", "void"):
+        return jsonify({"ok": False,
+                        "error": "outcome must be won|lost|void"}), 400
+    try:
+        with ba._conn() as c:
+            row = c.execute(
+                "SELECT decimal_odds, outcome FROM mon_tracking_picks WHERE id=?",
+                (pick_id,),
+            ).fetchone()
+            if not row:
+                return jsonify({"ok": False, "error": "pick not found"}), 404
+            if row["outcome"] != "pending":
+                return jsonify({"ok": False,
+                                "error": f"already settled ({row['outcome']})"}), 409
+            if outcome == "won":
+                paper_pl = round(float(row["decimal_odds"]) - 1.0, 4)
+            elif outcome == "lost":
+                paper_pl = -1.0
+            else:  # void
+                paper_pl = 0.0
+            import time as _rt
+            manual_note = f"[manual override] {note}".strip() if note else "[manual override]"
+            c.execute(
+                "UPDATE mon_tracking_picks SET outcome=?, settled_at=?, "
+                "paper_pl=?, notes=COALESCE(notes || ' | ', '') || ? "
+                "WHERE id=?",
+                (outcome, _rt.time(), paper_pl, manual_note, pick_id),
+            )
+        return jsonify({"ok": True, "id": pick_id, "outcome": outcome,
+                        "paper_pl": paper_pl})
+    except Exception as e:
+        logger.exception("manual pick settle failed for %s: %s", pick_id, e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/admin/records", methods=["GET"])
+def page_admin_records():
+    """Static HTML shell for the records viewer."""
+    return send_from_directory("static", "records.html")
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
@@ -9138,6 +9520,29 @@ def _start_background_services(force=False):
         _start_fb()
     except Exception as _fb_e:
         logger.warning("fresh_blood_injector init failed: %s", _fb_e)
+
+    # PR F — Trade Settler: close the outcome loop on every trade the
+    # autonomous_trader opens. Paper trades marked-to-market from free
+    # market data (yfinance chart endpoint); live trades settled against
+    # Alpaca fills. Idempotent by construction — only touches rows in
+    # trades_ledger where status='open' and age >= 5 min.
+    try:
+        from components.wealth.trade_settler import start_settler_loop as _start_ts
+        _start_ts()
+    except Exception as _ts_e:
+        logger.warning("trade_settler init failed: %s", _ts_e)
+
+    # PR F — Pick Settler: close the outcome loop on every model pick
+    # inserted into mon_tracking_picks. Polls OpticOdds /results and
+    # calls betting_advisor.settle_tracking_pick. Advisor is fetched
+    # lazily via a getter because it's instantiated later in this
+    # function — the loop will report "advisor_not_ready" until then
+    # and pick up the advisor on the next iteration.
+    try:
+        from components.monetisation.pick_settler import start_settler_loop as _start_ps
+        _start_ps(advisor_getter=lambda: components.get("betting_advisor"))
+    except Exception as _ps_e:
+        logger.warning("pick_settler init failed: %s", _ps_e)
 
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:
