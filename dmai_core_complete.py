@@ -261,6 +261,25 @@ def _sidecar_is_live(sidecar_path):
     return True  # main .db exists and is valid → sidecar is live, preserve it
 
 
+_GENUINE_CORRUPTION_SIGNATURES = (
+    "database disk image is malformed",
+    "file is not a database",
+    "malformed",
+    "corruption",
+    "database is corrupt",
+)
+
+
+def _is_genuine_corruption(integrity_result) -> bool:
+    """True only for integrity_check verdicts that are actual proof of on-disk
+    corruption. ``open_failed:...`` (a locked file, permission error, etc.) is a
+    *signal*, not proof — callers must not quarantine on that alone (R4)."""
+    if not integrity_result or integrity_result == "ok":
+        return False
+    low = str(integrity_result).lower()
+    return any(sig in low for sig in _GENUINE_CORRUPTION_SIGNATURES)
+
+
 if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
     import sqlite3 as _bsq, time as _bt
     for _db_name in ("dmai_knowledge.db", "dmai.db", "trading_mastery.db"):
@@ -274,18 +293,34 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
         try:
             _c = _bsq.connect(_p, timeout=5)
             try:
+                # R4/Bug 1: set WAL BEFORE integrity_check. A bare rollback-journal
+                # open racing a sibling WAL connection is exactly the collision
+                # that produces "database disk image is malformed" (see module
+                # docstring comment above and components/db.py). Best-effort: a
+                # failure here is itself just a signal, not proof of corruption.
+                try:
+                    _c.execute("PRAGMA journal_mode=WAL")
+                    _c.execute("PRAGMA synchronous=NORMAL")
+                    _c.execute("PRAGMA busy_timeout=30000")
+                    _c.commit()
+                except Exception as _wale:
+                    logger.warning("DB self-heal: WAL setup failed for %s: %s", _p, _wale)
                 _row = _c.execute("PRAGMA integrity_check").fetchone()
                 _ic = _row[0] if _row else "unknown"
             finally:
                 _c.close()
         except Exception as _be:
             _ic = f"open_failed:{_be}"
-        if _ic != "ok":
+        # R4/Bug 3: only quarantine on genuine proof of corruption. Ambiguous
+        # signals (locked file, permission error, etc.) are logged and left alone.
+        if _is_genuine_corruption(_ic):
             try:
                 _q = _quarantine_malformed_db(_p)
                 logger.warning("DB self-heal: quarantined %s (integrity=%s) -> %s", _p, _ic, _q)
             except Exception as _be:
                 logger.error("DB self-heal rename failed for %s: %s", _p, _be)
+        elif _ic != "ok":
+            logger.warning("DB self-heal: non-ok but non-genuine integrity signal for %s: %s (not quarantined)", _p, _ic)
 
 # ── Boot-time schema bootstrap (idempotent) ──────────────────────────────────
 # Ensures core tables exist even if a previous DB rebuild left them missing.
@@ -293,232 +328,301 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
 # If a later thread opens the DB in rollback-journal mode while another holds
 # WAL, the journal modes fight and the DB becomes 'database disk image is
 # malformed'. Setting WAL here, before any component init, prevents that.
-try:
-    import sqlite3 as _ssq
-    _kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
-    _kn_conn = _ssq.connect(_kn_db, timeout=10)
-    # Lock journal mode to WAL BEFORE any schema work or other opens.
+_CORE_SCHEMA_SQL = '''
+    CREATE TABLE IF NOT EXISTS capabilities (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'function',
+        capability_type TEXT NOT NULL DEFAULT 'general',
+        description TEXT,
+        source_url TEXT,
+        source_repo TEXT,
+        file_path TEXT,
+        runtime_mode TEXT,
+        language TEXT,
+        methods TEXT,
+        is_async INTEGER DEFAULT 0,
+        args TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        integrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS insights (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        concept TEXT,
+        insight_text TEXT,
+        confidence REAL DEFAULT 0.5,
+        domain TEXT,
+        source TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS system_state (
+        key TEXT PRIMARY KEY,
+        value TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS mon_wallets (
+        name TEXT PRIMARY KEY,
+        balance REAL NOT NULL DEFAULT 0.0,
+        currency TEXT NOT NULL DEFAULT 'GBP',
+        updated_at REAL NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS mon_tips (
+        id TEXT PRIMARY KEY,
+        event_name TEXT, market TEXT, selection TEXT, bookmaker TEXT,
+        decimal_odds REAL, status TEXT DEFAULT 'pending',
+        actual_stake REAL DEFAULT 0, profit_loss REAL DEFAULT 0,
+        notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        placed_at TIMESTAMP, settled_at TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS at_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        enabled INTEGER NOT NULL DEFAULT 0,
+        tier TEXT NOT NULL DEFAULT 'conservative',
+        last_tick_ts TEXT, last_tick_note TEXT,
+        today_date TEXT,
+        today_deployed_pct REAL NOT NULL DEFAULT 0,
+        today_trades INTEGER NOT NULL DEFAULT 0,
+        today_open_eq REAL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS at_trades (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT NOT NULL DEFAULT (datetime('now')),
+        symbol TEXT NOT NULL, side TEXT NOT NULL,
+        qty REAL, confidence REAL, ev REAL,
+        tier TEXT NOT NULL, live INTEGER NOT NULL,
+        result_json TEXT
+    );
+    CREATE TABLE IF NOT EXISTS at_ticks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT NOT NULL DEFAULT (datetime('now')),
+        market_open INTEGER NOT NULL, tier TEXT NOT NULL,
+        live INTEGER NOT NULL,
+        signals_seen INTEGER NOT NULL DEFAULT 0,
+        signals_passed INTEGER NOT NULL DEFAULT 0,
+        trades_placed INTEGER NOT NULL DEFAULT 0,
+        note TEXT
+    );
+    CREATE TABLE IF NOT EXISTS mon_bills (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        amount REAL NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'GBP',
+        cadence TEXT NOT NULL DEFAULT 'monthly',
+        next_due REAL,
+        auto_pay INTEGER NOT NULL DEFAULT 1,
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at REAL NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS mon_bill_payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bill_id TEXT NOT NULL,
+        amount REAL NOT NULL,
+        status TEXT NOT NULL,
+        ts REAL NOT NULL,
+        notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS mon_wealth_deployments (
+        id TEXT PRIMARY KEY,
+        total_amount REAL NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'GBP',
+        basket_name TEXT NOT NULL,
+        breakdown_json TEXT NOT NULL,
+        status TEXT NOT NULL,
+        ts REAL NOT NULL,
+        notes TEXT
+    );
+    CREATE TABLE IF NOT EXISTS mon_alerts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT NOT NULL DEFAULT (datetime('now')),
+        category TEXT NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT,
+        meta_json TEXT,
+        delivered INTEGER NOT NULL DEFAULT 0,
+        error TEXT
+    );
+    CREATE INDEX IF NOT EXISTS mon_alerts_cat_ts ON mon_alerts(category, ts DESC);
+    CREATE TABLE IF NOT EXISTS work_review_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        submission_uid TEXT UNIQUE,
+        work_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        summary TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        scores_json TEXT,
+        overall_score REAL,
+        passed INTEGER,
+        submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+        decided_at TEXT,
+        decided_by TEXT,
+        decision_notes TEXT,
+        source_component TEXT,
+        persona TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_wrq_status ON work_review_queue(status);
+    CREATE INDEX IF NOT EXISTS idx_wrq_type ON work_review_queue(work_type);
+    CREATE TABLE IF NOT EXISTS skill_assessments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT DEFAULT (datetime('now')),
+        submission_id TEXT NOT NULL,
+        work_type TEXT NOT NULL,
+        scores_json TEXT,
+        overall REAL,
+        passed INTEGER,
+        notes TEXT,
+        assessor TEXT DEFAULT 'auto'
+    );
+    CREATE TABLE IF NOT EXISTS mf_predictions (
+        id TEXT PRIMARY KEY,
+        requirement TEXT NOT NULL,
+        seed_hash TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        verdict_json TEXT,
+        created_at REAL NOT NULL DEFAULT 0,
+        completed_at REAL
+    );
+    CREATE TABLE IF NOT EXISTS mf_entities (
+        prediction_id TEXT NOT NULL,
+        entity_id TEXT NOT NULL,
+        label TEXT NOT NULL,
+        type TEXT NOT NULL,
+        attrs_json TEXT,
+        PRIMARY KEY (prediction_id, entity_id)
+    );
+    CREATE TABLE IF NOT EXISTS mf_relations (
+        prediction_id TEXT NOT NULL,
+        rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_id TEXT NOT NULL,
+        to_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        attrs_json TEXT
+    );
+    CREATE TABLE IF NOT EXISTS mf_agents (
+        prediction_id TEXT NOT NULL,
+        agent_id TEXT NOT NULL,
+        persona_json TEXT NOT NULL,
+        platform TEXT,
+        PRIMARY KEY (prediction_id, agent_id)
+    );
+    CREATE TABLE IF NOT EXISTS mf_actions (
+        prediction_id TEXT NOT NULL,
+        action_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        agent_id TEXT NOT NULL,
+        action_type TEXT NOT NULL,
+        content TEXT,
+        target_id TEXT,
+        round_num INTEGER NOT NULL,
+        ts REAL NOT NULL
+    );
+'''
+
+# Defensive ALTER TABLE statements for legacy DBs missing newer columns.
+_CORE_SCHEMA_ALTERS = (
+    "ALTER TABLE capabilities ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE insights ADD COLUMN insight_text TEXT",
+    "ALTER TABLE insights ADD COLUMN concept TEXT",
+    "ALTER TABLE insights ADD COLUMN content TEXT",
+    "ALTER TABLE insights ADD COLUMN description TEXT",
+    "ALTER TABLE insights ADD COLUMN title TEXT",
+)
+
+
+def _ensure_kdb_schema(db_path: str) -> dict:
+    """Idempotently create/repair schema on dmai_knowledge.db.
+
+    Safe to call any time — CREATE TABLE IF NOT EXISTS everywhere.
+    Uses bare sqlite3.connect but ALWAYS sets journal_mode=WAL first.
+    Also runs components.schema_bootstrap.bootstrap_all_schemas afterwards.
+    Never raises. Returns {'core_ok': bool, 'bootstrap': {...}, 'error': str|None}.
+
+    This is the runtime-callable form of the old module-import-only boot
+    block (R4/Bug 2): db_rebuild, db_salvage, and safe_open_kdb's self-heal
+    path can all call this to lay down fresh schema immediately instead of
+    leaving the DB missing/tableless until the next process restart.
+    """
+    import sqlite3 as _essq
+    result = {"core_ok": False, "bootstrap": {}, "error": None}
     try:
-        _kn_conn.execute("PRAGMA journal_mode=WAL")
-        _kn_conn.execute("PRAGMA synchronous=NORMAL")
-        _kn_conn.execute("PRAGMA busy_timeout=30000")
-        _kn_conn.commit()
-        logger.info("dmai_knowledge.db: WAL mode confirmed at boot")
-    except Exception as _wale:
-        logger.warning("dmai_knowledge.db WAL setup failed: %s", _wale)
-    _kn_conn.executescript('''
-        CREATE TABLE IF NOT EXISTS capabilities (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            type TEXT NOT NULL DEFAULT 'function',
-            capability_type TEXT NOT NULL DEFAULT 'general',
-            description TEXT,
-            source_url TEXT,
-            source_repo TEXT,
-            file_path TEXT,
-            runtime_mode TEXT,
-            language TEXT,
-            methods TEXT,
-            is_async INTEGER DEFAULT 0,
-            args TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            integrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS insights (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            concept TEXT,
-            insight_text TEXT,
-            confidence REAL DEFAULT 0.5,
-            domain TEXT,
-            source TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS system_state (
-            key TEXT PRIMARY KEY,
-            value TEXT,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS mon_wallets (
-            name TEXT PRIMARY KEY,
-            balance REAL NOT NULL DEFAULT 0.0,
-            currency TEXT NOT NULL DEFAULT 'GBP',
-            updated_at REAL NOT NULL DEFAULT 0
-        );
-        CREATE TABLE IF NOT EXISTS mon_tips (
-            id TEXT PRIMARY KEY,
-            event_name TEXT, market TEXT, selection TEXT, bookmaker TEXT,
-            decimal_odds REAL, status TEXT DEFAULT 'pending',
-            actual_stake REAL DEFAULT 0, profit_loss REAL DEFAULT 0,
-            notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            placed_at TIMESTAMP, settled_at TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS at_state (
-            id INTEGER PRIMARY KEY CHECK (id = 1),
-            enabled INTEGER NOT NULL DEFAULT 0,
-            tier TEXT NOT NULL DEFAULT 'conservative',
-            last_tick_ts TEXT, last_tick_note TEXT,
-            today_date TEXT,
-            today_deployed_pct REAL NOT NULL DEFAULT 0,
-            today_trades INTEGER NOT NULL DEFAULT 0,
-            today_open_eq REAL,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
-            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-        );
-        CREATE TABLE IF NOT EXISTS at_trades (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ts TEXT NOT NULL DEFAULT (datetime('now')),
-            symbol TEXT NOT NULL, side TEXT NOT NULL,
-            qty REAL, confidence REAL, ev REAL,
-            tier TEXT NOT NULL, live INTEGER NOT NULL,
-            result_json TEXT
-        );
-        CREATE TABLE IF NOT EXISTS at_ticks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ts TEXT NOT NULL DEFAULT (datetime('now')),
-            market_open INTEGER NOT NULL, tier TEXT NOT NULL,
-            live INTEGER NOT NULL,
-            signals_seen INTEGER NOT NULL DEFAULT 0,
-            signals_passed INTEGER NOT NULL DEFAULT 0,
-            trades_placed INTEGER NOT NULL DEFAULT 0,
-            note TEXT
-        );
-        CREATE TABLE IF NOT EXISTS mon_bills (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            category TEXT NOT NULL,
-            amount REAL NOT NULL,
-            currency TEXT NOT NULL DEFAULT 'GBP',
-            cadence TEXT NOT NULL DEFAULT 'monthly',
-            next_due REAL,
-            auto_pay INTEGER NOT NULL DEFAULT 1,
-            active INTEGER NOT NULL DEFAULT 1,
-            created_at REAL NOT NULL DEFAULT 0
-        );
-        CREATE TABLE IF NOT EXISTS mon_bill_payments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            bill_id TEXT NOT NULL,
-            amount REAL NOT NULL,
-            status TEXT NOT NULL,
-            ts REAL NOT NULL,
-            notes TEXT
-        );
-        CREATE TABLE IF NOT EXISTS mon_wealth_deployments (
-            id TEXT PRIMARY KEY,
-            total_amount REAL NOT NULL,
-            currency TEXT NOT NULL DEFAULT 'GBP',
-            basket_name TEXT NOT NULL,
-            breakdown_json TEXT NOT NULL,
-            status TEXT NOT NULL,
-            ts REAL NOT NULL,
-            notes TEXT
-        );
-        CREATE TABLE IF NOT EXISTS mon_alerts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ts TEXT NOT NULL DEFAULT (datetime('now')),
-            category TEXT NOT NULL,
-            title TEXT NOT NULL,
-            body TEXT,
-            meta_json TEXT,
-            delivered INTEGER NOT NULL DEFAULT 0,
-            error TEXT
-        );
-        CREATE INDEX IF NOT EXISTS mon_alerts_cat_ts ON mon_alerts(category, ts DESC);
-        CREATE TABLE IF NOT EXISTS work_review_queue (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            submission_uid TEXT UNIQUE,
-            work_type TEXT NOT NULL,
-            title TEXT NOT NULL,
-            payload_json TEXT NOT NULL,
-            summary TEXT,
-            status TEXT NOT NULL DEFAULT 'pending',
-            scores_json TEXT,
-            overall_score REAL,
-            passed INTEGER,
-            submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
-            decided_at TEXT,
-            decided_by TEXT,
-            decision_notes TEXT,
-            source_component TEXT,
-            persona TEXT
-        );
-        CREATE INDEX IF NOT EXISTS idx_wrq_status ON work_review_queue(status);
-        CREATE INDEX IF NOT EXISTS idx_wrq_type ON work_review_queue(work_type);
-        CREATE TABLE IF NOT EXISTS skill_assessments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ts TEXT DEFAULT (datetime('now')),
-            submission_id TEXT NOT NULL,
-            work_type TEXT NOT NULL,
-            scores_json TEXT,
-            overall REAL,
-            passed INTEGER,
-            notes TEXT,
-            assessor TEXT DEFAULT 'auto'
-        );
-        CREATE TABLE IF NOT EXISTS mf_predictions (
-            id TEXT PRIMARY KEY,
-            requirement TEXT NOT NULL,
-            seed_hash TEXT,
-            status TEXT NOT NULL DEFAULT 'pending',
-            verdict_json TEXT,
-            created_at REAL NOT NULL DEFAULT 0,
-            completed_at REAL
-        );
-        CREATE TABLE IF NOT EXISTS mf_entities (
-            prediction_id TEXT NOT NULL,
-            entity_id TEXT NOT NULL,
-            label TEXT NOT NULL,
-            type TEXT NOT NULL,
-            attrs_json TEXT,
-            PRIMARY KEY (prediction_id, entity_id)
-        );
-        CREATE TABLE IF NOT EXISTS mf_relations (
-            prediction_id TEXT NOT NULL,
-            rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            from_id TEXT NOT NULL,
-            to_id TEXT NOT NULL,
-            type TEXT NOT NULL,
-            attrs_json TEXT
-        );
-        CREATE TABLE IF NOT EXISTS mf_agents (
-            prediction_id TEXT NOT NULL,
-            agent_id TEXT NOT NULL,
-            persona_json TEXT NOT NULL,
-            platform TEXT,
-            PRIMARY KEY (prediction_id, agent_id)
-        );
-        CREATE TABLE IF NOT EXISTS mf_actions (
-            prediction_id TEXT NOT NULL,
-            action_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            agent_id TEXT NOT NULL,
-            action_type TEXT NOT NULL,
-            content TEXT,
-            target_id TEXT,
-            round_num INTEGER NOT NULL,
-            ts REAL NOT NULL
-        );
-    ''')
-    # Seed at_state singleton row if absent
+        os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
+    except Exception as e:
+        result["error"] = f"makedirs failed: {e}"
+        return result
+
+    conn = None
     try:
-        _kn_conn.execute("INSERT OR IGNORE INTO at_state (id, enabled, tier) VALUES (1, 0, 'conservative')")
-    except Exception:
-        pass
-    # Defensive column adds for legacy DBs missing newer columns
-    for _alter in (
-        "ALTER TABLE capabilities ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-        "ALTER TABLE insights ADD COLUMN insight_text TEXT",
-        "ALTER TABLE insights ADD COLUMN concept TEXT",
-        "ALTER TABLE insights ADD COLUMN content TEXT",
-        "ALTER TABLE insights ADD COLUMN description TEXT",
-        "ALTER TABLE insights ADD COLUMN title TEXT",
-    ):
+        conn = _essq.connect(db_path, timeout=10)
+        # R4/Bug 1: WAL must be set BEFORE anything else touches the file. A
+        # rollback-journal open racing a sibling WAL open is the root cause of
+        # "database disk image is malformed" (see components/db.py docstring).
+        # Fail-closed on this root cause: if WAL can't be set, do not proceed.
         try:
-            _kn_conn.execute(_alter)
-        except _ssq.OperationalError:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+            conn.commit()
+        except Exception as _wale:
+            logger.warning("_ensure_kdb_schema: WAL setup failed for %s: %s", db_path, _wale)
+            result["error"] = f"WAL setup failed: {_wale}"
+            try:
+                conn.close()
+            except Exception:
+                pass
+            return result
+
+        conn.executescript(_CORE_SCHEMA_SQL)
+
+        # Seed at_state singleton row if absent.
+        try:
+            conn.execute("INSERT OR IGNORE INTO at_state (id, enabled, tier) VALUES (1, 0, 'conservative')")
+        except Exception:
             pass
-    _kn_conn.commit(); _kn_conn.close()
-    logger.info("Boot schema bootstrap OK: capabilities/insights/system_state/mon_wallets/mon_tips/mon_bills/mon_bill_payments/mon_wealth_deployments/mon_alerts/work_review_queue/skill_assessments/mf_* ensured")
-except Exception as _bse:
-    logger.warning("Boot schema bootstrap failed: %s", _bse)
+
+        # Defensive column adds for legacy DBs missing newer columns.
+        for _alter in _CORE_SCHEMA_ALTERS:
+            try:
+                conn.execute(_alter)
+            except _essq.OperationalError:
+                pass
+
+        conn.commit()
+        result["core_ok"] = True
+        logger.info(
+            "_ensure_kdb_schema: core schema OK for %s "
+            "(capabilities/insights/system_state/mon_wallets/mon_tips/mon_bills/"
+            "mon_bill_payments/mon_wealth_deployments/mon_alerts/work_review_queue/"
+            "skill_assessments/mf_* ensured)",
+            db_path,
+        )
+    except Exception as e:
+        logger.warning("_ensure_kdb_schema: core schema step failed for %s: %s", db_path, e)
+        result["error"] = str(e)
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+    try:
+        from components.schema_bootstrap import bootstrap_all_schemas as _bootstrap_schemas
+        result["bootstrap"] = _bootstrap_schemas(db_path)
+    except Exception as e:
+        logger.warning("_ensure_kdb_schema: bootstrap_all_schemas failed for %s: %s", db_path, e)
+        result["bootstrap"] = {"error": str(e)}
+
+    return result
+
+
+_kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
+_kn_schema_result = _ensure_kdb_schema(_kn_db)
+if _kn_schema_result.get("core_ok"):
+    logger.info("Boot schema bootstrap OK for %s: %s", _kn_db, _kn_schema_result.get("bootstrap"))
+else:
+    logger.warning("Boot schema bootstrap failed for %s: %s", _kn_db, _kn_schema_result.get("error"))
 
 # ── Startup time ─────────────────────────────────────────────────────────────
 DMAI_VERSION = "7.1.0"  # canonical version — single source of truth
@@ -6904,7 +7008,21 @@ def api_admin_db_salvage():
     data_dir = _sos.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\")
     live = _sos.path.join(data_dir, db_name)
     if not _sos.path.exists(live):
-        return jsonify({"ok": False, "error": "db not found", "path": live}), 404
+        # R4/Bug 2: a missing DB used to be a dead end (404, and nothing ever
+        # recreated it until the next process restart laid down schema at
+        # import time). Try to lay down a fresh, healthy schema right now so
+        # the salvage endpoint leaves behind a working DB instead of nothing.
+        _restore = _ensure_kdb_schema(live)
+        if _restore.get("core_ok"):
+            return jsonify({
+                "ok": True,
+                "created_empty": True,
+                "path": live,
+                "schema_restore": _restore,
+                "note": "db was missing; fresh empty schema created instead of salvaging",
+            })
+        return jsonify({"ok": False, "error": "db not found", "path": live,
+                        "schema_restore_error": _restore.get("error")}), 404
 
     fresh = live + ".salvaged_new"
     _sts = int(_stime.time())
@@ -7064,6 +7182,25 @@ def api_admin_db_rebuild():
     if integrity == "ok" and not force:
         return jsonify({"ok": True, "rebuilt": False, "integrity": integrity,
                         "note": "DB healthy; pass force=true to rebuild anyway"})
+    # R4/Bug 3: genuine-corruption signatures (e.g. "file is not a database",
+    # which SQLite raises at connect() time for a garbage file, arriving here
+    # wrapped as "open_failed:file is not a database") are real proof and
+    # proceed to quarantine even without force. Check this BEFORE the generic
+    # open_failed gate below, since a genuine signature is stronger evidence
+    # than the mere fact that open failed.
+    if not _is_genuine_corruption(integrity):
+        # An open_failed:... verdict (locked file, permission error, a
+        # transient busy connection, etc.) is a *signal*, not proof of
+        # corruption. Refuse to quarantine on that alone unless forced.
+        if str(integrity).startswith("open_failed:") and not force:
+            return jsonify({"ok": False, "error": "ambiguous_signal, pass force=true to rebuild",
+                            "integrity": integrity, "live_path": live}), 409
+        if not force:
+            return jsonify({"ok": False, "error": "integrity signal is not genuine corruption; pass force=true to rebuild",
+                            "integrity": integrity, "live_path": live}), 409
+    # Fold committed WAL frames back into the main file before quarantining —
+    # otherwise rows committed-but-not-yet-checkpointed are lost at rename time.
+    _checkpoint_before_integrity(live)
     # Rename main + WAL/SHM sidecars aside under a shared ts (never delete the
     # WAL: it may hold committed-but-uncheckpointed rows). See
     # _quarantine_malformed_db.
@@ -7071,9 +7208,14 @@ def api_admin_db_rebuild():
         quarantine = _quarantine_malformed_db(live)
     except Exception as e:
         return jsonify({"ok": False, "error": "rename failed", "detail": str(e)}), 500
+    # R4/Bug 2: don't leave the DB missing until the next process restart —
+    # lay down fresh schema immediately so callers get a working DB back.
+    _schema_restore = _ensure_kdb_schema(live)
     return jsonify({"ok": True, "rebuilt": True, "integrity_before": integrity,
                     "quarantined_to": quarantine, "live_path": live,
-                    "note": "Components will lay down fresh schema on next access"})
+                    "schema_restored": bool(_schema_restore.get("core_ok")),
+                    "schema_restore": _schema_restore,
+                    "note": "Fresh schema created; DB ready"})
 
 
 # PR #167: cache last-written stage + progression pct to avoid hammering SQLite on
