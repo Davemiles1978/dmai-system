@@ -394,3 +394,64 @@ def test_multi_channel_round(monkeypatch, tmp_db, tmp_jsonl, rng):
     assert set(result["channels_used"]) == {"arxiv", "wildcard"}
     rows = _read_jsonl(tmp_jsonl)
     assert len({r["seed_hash"] for r in rows}) == 4  # all distinct
+
+
+# --- regression: respawn guard survives dead-thread module state -----------
+#
+# Guards against the Gunicorn preload_app + fork() pathology where the
+# master process starts the daemon thread, workers inherit `_LOOP` as a
+# non-None reference to a **dead** thread (threads do not survive fork),
+# and a naive `if _LOOP is None` guard therefore never restarts the loop
+# in any worker. This test asserts start_injector_loop rebuilds the loop
+# when the previous thread is not alive, matching the semantics of
+# insight_promoter.start_promoter_loop and capability_promoter.
+#
+# See PR: ops/fresh-blood-respawn-guard.
+
+def test_start_injector_loop_restarts_when_thread_dead(monkeypatch, tmp_path):
+    # Poison the module-level singleton with a fake "already ran" loop
+    # whose thread reports is_alive() == False, mimicking the post-fork
+    # inherited-dead-thread state.
+    class _DeadThread:
+        def is_alive(self):
+            return False
+
+    class _CorpseLoop:
+        _thread = _DeadThread()
+        last_summary = {"corpse": True}
+
+    monkeypatch.setattr(fb, "_LOOP", _CorpseLoop())
+
+    # Prevent the real _run() from doing HTTP / real DB — replace inject_once
+    # with a no-op so the newly-spawned thread exits fast and doesn't touch
+    # production paths.
+    monkeypatch.setattr(fb, "inject_once", lambda *a, **kw: {"emitted": 0, "skipped": 0})
+
+    new_loop = fb.start_injector_loop()
+
+    # Must be a freshly built loop, not the corpse
+    assert new_loop is not None
+    assert not isinstance(new_loop._thread, _DeadThread)
+    # Newly-spawned thread should have started (may already have exited
+    # since the mocked inject_once returns immediately and _stop.wait
+    # then blocks — but the Thread object itself must have been created)
+    assert new_loop._thread is not None
+    # And the module-level singleton must now point to the new loop
+    assert fb._LOOP is new_loop
+
+
+def test_start_injector_loop_reuses_live_loop(monkeypatch):
+    """Sanity check: if the thread IS alive, don't clobber the running loop."""
+    class _LiveThread:
+        def is_alive(self):
+            return True
+
+    class _RunningLoop:
+        _thread = _LiveThread()
+        last_summary = {"live": True}
+
+    running = _RunningLoop()
+    monkeypatch.setattr(fb, "_LOOP", running)
+
+    result = fb.start_injector_loop()
+    assert result is running  # same object, not rebuilt

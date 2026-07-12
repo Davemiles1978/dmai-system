@@ -651,10 +651,27 @@ _LOOP: Optional[FreshBloodInjectorLoop] = None
 
 def start_injector_loop(jsonl_path: Optional[Path] = None,
                         db_path: Optional[str] = None) -> FreshBloodInjectorLoop:
+    """Idempotent boot hook. Safe to call multiple times.
+
+    Returns the existing loop only when its background thread is still
+    alive; otherwise rebuilds a fresh ``FreshBloodInjectorLoop`` and
+    starts it. Matches the survival semantics used by
+    ``insight_promoter.start_promoter_loop`` and
+    ``capability_promoter.start_promoter_loop``.
+
+    Motivation: Gunicorn's ``preload_app`` boots the module in the
+    master process (starting the daemon thread) then forks workers.
+    Threads do not survive ``os.fork()``, so each forked worker
+    inherits ``_LOOP`` as a non-None reference to a **dead** thread.
+    A guard of ``if _LOOP is None`` therefore never re-starts the
+    thread in any worker, leaving ``running: False`` forever even
+    though the module-level state looks initialised.
+    """
     global _LOOP
-    if _LOOP is None:
-        _LOOP = FreshBloodInjectorLoop(jsonl_path=jsonl_path, db_path=db_path)
-        _LOOP.start()
+    if _LOOP is not None and _LOOP._thread and _LOOP._thread.is_alive():
+        return _LOOP
+    _LOOP = FreshBloodInjectorLoop(jsonl_path=jsonl_path, db_path=db_path)
+    _LOOP.start()
     return _LOOP
 
 
