@@ -7795,6 +7795,78 @@ def api_admin_db_lock_status():
     })
 
 
+@app.route("/api/admin/insight-promoter-status", methods=["GET"])
+def api_admin_insight_promoter_status():
+    """Live status of the JSONL -> SQL insight promoter.
+
+    Returns the most recent sweep summary, the persisted JSONL byte
+    offset, current JSONL size, and current SQL insight row count. Use
+    this to verify that DMAI's learning is being surfaced in the admin
+    panel's KPIs.
+
+    Response shape::
+
+        {
+          "ok": true,
+          "running": true,
+          "jsonl_path": ".../data/research/insights.jsonl",
+          "jsonl_size": 6423190,
+          "jsonl_offset": 6423190,
+          "sql_insights": 18339,
+          "last_summary": {"promoted": 0, "skipped": 0, ...},
+          "ts": "..."
+        }
+    """
+    import datetime as _dt
+    try:
+        from components.insight_promoter import (
+            get_promoter_loop as _gpl, DEFAULT_JSONL as _DJ, OFFSET_KEY as _OK,
+            _kdb_path as _kdb,
+        )
+        loop = _gpl()
+        running = bool(loop and loop._thread and loop._thread.is_alive())
+        jsonl_size = _DJ.stat().st_size if _DJ.exists() else 0
+
+        offset = 0
+        row_count = 0
+        try:
+            from components.db import safe_open_kdb as _sok
+            conn = _sok(_kdb())
+            try:
+                r = conn.execute(
+                    "SELECT value FROM system_state WHERE key = ?", (_OK,)
+                ).fetchone()
+                if r and r[0] is not None:
+                    try:
+                        offset = int(r[0])
+                    except (TypeError, ValueError):
+                        offset = 0
+                rc = conn.execute(
+                    "SELECT COUNT(*) FROM insights"
+                ).fetchone()
+                row_count = int(rc[0]) if rc else 0
+            finally:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+        except Exception as _dbe:
+            logger.warning("insight_promoter status db read failed: %s", _dbe)
+
+        return jsonify({
+            "ok": True,
+            "running": running,
+            "jsonl_path": str(_DJ),
+            "jsonl_size": jsonl_size,
+            "jsonl_offset": offset,
+            "sql_insights": row_count,
+            "last_summary": (loop.last_summary if loop else {}),
+            "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
@@ -8812,6 +8884,21 @@ def _start_background_services(force=False):
     except Exception as _e:
         logger.warning("syllabus_content init failed: %s", _e)
     _start_kpi_seed_loop()  # DB-derived KPI seeder — single source of truth
+
+    # ── JSONL -> SQL insight promoter ─────────────────────────────────────
+    # si_core writes discoveries to data/research/insights.jsonl, but the
+    # admin panel + KPI derivations read from the ``insights`` SQL table.
+    # Nothing was closing that gap, so the panel showed a single bootstrap
+    # insight even with tens of thousands of JSONL rows. The promoter tails
+    # the JSONL file and inserts new rows into SQL; on boot it also runs a
+    # one-shot backfill of everything already there. Idempotent via an
+    # offset stored in system_state.
+    try:
+        from components.insight_promoter import start_promoter_loop as _start_ip
+        _start_ip()
+    except Exception as _ip_e:
+        logger.warning("insight_promoter init failed: %s", _ip_e)
+
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:
         from components.pg_storage import get_storage as _get_pg_storage
