@@ -94,12 +94,20 @@ _EXPLICIT_FALLBACK_SCHEMAS = [
         version TEXT,
         updated_at TEXT DEFAULT (datetime('now'))
     );""",
+    # R4: this fallback previously declared persona_name/operation/metadata_json,
+    # which does not match the real schema created by
+    # components/personas/persona_registry.py's _init_db (persona/component/task).
+    # Both are CREATE TABLE IF NOT EXISTS, so whichever ran first won permanently
+    # — harmless while bootstrap_all_schemas only ran once per long-lived boot
+    # DB, but _ensure_kdb_schema (R4) now calls it on every fresh-DB self-heal,
+    # so a mismatched fallback would silently lock in the wrong columns for any
+    # new DB. Kept in sync with persona_registry.py's real DDL.
     """CREATE TABLE IF NOT EXISTS persona_usage (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ts TEXT DEFAULT (datetime('now')),
-        persona_name TEXT,
-        operation TEXT,
-        metadata_json TEXT
+        persona TEXT,
+        component TEXT,
+        task TEXT
     );""",
     # suggestions (built inside dmai_core_complete.py boot fn, not in components/)
     """CREATE TABLE IF NOT EXISTS suggestions (

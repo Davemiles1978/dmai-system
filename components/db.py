@@ -420,6 +420,36 @@ def safe_open_kdb(
             cache.pop(key, None)
             _really_close(cached)
 
+    # R4/Bug 2 self-heal: a cached connection can go stale because its file
+    # vanished from under it (quarantined by a rebuild/admin action, or the
+    # boot-time self-heal path). If the DB file is genuinely missing and this
+    # is a write-capable open, try to lay down fresh schema right now instead
+    # of silently falling through to a bare, schema-less sqlite3.connect()
+    # below (which would create an empty file with no tables and defer the
+    # real fix to the next process restart). Local import avoids a hard
+    # import cycle with dmai_core_complete (which imports safe_open_kdb).
+    # Scoped to dmai_knowledge.db specifically: _ensure_kdb_schema lays down
+    # the shared CORE_SCHEMA (capabilities/insights/at_state/etc.) plus every
+    # components/*.py CREATE-TABLE it can scan. Running it against an
+    # arbitrary caller-chosen db_path (e.g. a component's own isolated test
+    # DB, or trading_mastery.db) would let a generic/fallback schema win a
+    # CREATE TABLE IF NOT EXISTS race against that component's own, more
+    # specific _init_db() — silently locking in the wrong columns. Only
+    # dmai_knowledge.db is the intended target of this self-heal.
+    if (
+        not read_only
+        and not os.path.exists(path)
+        and os.path.basename(str(path)) == "dmai_knowledge.db"
+    ):
+        try:
+            logger.warning("safe_open_kdb: %s missing, invoking schema restore", path)
+            from dmai_core_complete import _ensure_kdb_schema
+            _ensure_kdb_schema(str(path))
+        except Exception as _heal_err:
+            logger.warning("safe_open_kdb: schema restore for %s failed: %s", path, _heal_err)
+            # Fall through to the bare-connect path below — it will create an
+            # empty schema-less DB, but at least we tried.
+
     if read_only:
         conn = sqlite3.connect(
             f"file:{path}?mode=ro",
