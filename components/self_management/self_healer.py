@@ -57,6 +57,43 @@ CRITICAL_FILES = [
     "components/sqlite_storage.py",
 ]
 
+# Directories under components/ that MUST NOT be syntax-swept.
+# These are backup snapshots and generated artifacts — they intentionally
+# contain stale/broken code and treating them as live source drives the
+# Kaizen queue full of "Auto-repair needed" proposals nothing can fix.
+EXCLUDED_DIR_PREFIXES = (
+    "backup_final_",
+    "backup_before_",
+)
+EXCLUDED_DIR_NAMES = frozenset({
+    "__pycache__",
+    ".git",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "node_modules",
+})
+
+
+def _is_excluded_path(path: Path, root: Path) -> bool:
+    """True if ``path`` is inside a backup / cache / vendored dir the healer
+    must skip. Match is done against every path segment under ``root``.
+    """
+    try:
+        rel_parts = path.relative_to(root).parts
+    except ValueError:
+        return False
+    for part in rel_parts:
+        if part in EXCLUDED_DIR_NAMES:
+            return True
+        for prefix in EXCLUDED_DIR_PREFIXES:
+            if part.startswith(prefix):
+                return True
+        # Any *.dist-info or *.egg-info directory
+        if part.endswith(".dist-info") or part.endswith(".egg-info"):
+            return True
+    return False
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -128,6 +165,14 @@ class SelfHealer:
     def _run(self):
         # Initial backup of critical files
         self._snapshot_critical()
+        # One-shot: retire stale Kaizen proposals whose target file lives in
+        # an excluded dir (backups, __pycache__). Prior versions of this
+        # module scanned backup snapshots and filed thousands of
+        # "Auto-repair needed:" proposals that nothing could act on.
+        try:
+            self._retire_excluded_kaizen_entries()
+        except Exception as e:
+            logger.warning("SelfHealer: kaizen retirement failed: %s", e)
         while not self._stop.is_set():
             try:
                 self._sweep_components()
@@ -143,7 +188,13 @@ class SelfHealer:
         if not component_dir.exists():
             return
 
-        py_files = list(component_dir.rglob("*.py"))
+        # Skip backup snapshots, __pycache__, and vendored dirs — those
+        # contain intentional/legacy syntax errors and treating them as
+        # live source spams the Kaizen queue with un-actionable proposals.
+        py_files = [
+            p for p in component_dir.rglob("*.py")
+            if not _is_excluded_path(p, self.root)
+        ]
         # Also check critical top-level files
         for cf in CRITICAL_FILES:
             p = self.root / cf
@@ -435,6 +486,74 @@ class SelfHealer:
             logger.debug("SelfHealer: could not POST to suggestions API: %s", _api_e)
 
     # ── Helpers ────────────────────────────────────────────────────────────
+
+    def _retire_excluded_kaizen_entries(self) -> None:
+        """Remove any Kaizen entries in both jsonl stores whose ``file`` or
+        ``file_path`` points inside an excluded directory. Idempotent.
+
+        Runs once per SelfHealer.start(), which is once per app boot.
+        """
+        data_dir = self.root / "data"
+        removed_total = 0
+        for name in ("kaizen_proposals.jsonl", "kaizen_queue.jsonl"):
+            f = data_dir / name
+            if not f.exists():
+                continue
+            try:
+                kept: list[str] = []
+                removed_here = 0
+                for line in f.read_text().splitlines():
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        obj = json.loads(line)
+                    except Exception:
+                        # Preserve un-parseable lines verbatim.
+                        kept.append(line)
+                        continue
+                    target = obj.get("file") or obj.get("file_path") or ""
+                    # Cheap prefix check — target is a repo-relative path str.
+                    if isinstance(target, str) and self._path_matches_excluded(target):
+                        removed_here += 1
+                        continue
+                    kept.append(line)
+                if removed_here:
+                    # Atomic rewrite via temp + rename.
+                    tmp = f.with_suffix(f.suffix + ".tmp")
+                    tmp.write_text("\n".join(kept) + ("\n" if kept else ""))
+                    os.replace(tmp, f)
+                    logger.info(
+                        "SelfHealer: retired %d stale kaizen entries from %s",
+                        removed_here, name,
+                    )
+                    _log({
+                        "event": "kaizen_retired", "file": name, "count": removed_here,
+                    })
+                removed_total += removed_here
+            except Exception as e:
+                logger.warning("kaizen retirement pass on %s failed: %s", name, e)
+        if removed_total:
+            logger.info(
+                "SelfHealer: retired %d stale kaizen entries total", removed_total
+            )
+
+    @staticmethod
+    def _path_matches_excluded(rel: str) -> bool:
+        """True if ``rel`` (a repo-relative posix path) sits inside an
+        excluded directory. Mirrors _is_excluded_path but works on strings
+        so we don't need a real filesystem entry.
+        """
+        parts = [p for p in rel.replace("\\", "/").split("/") if p]
+        for part in parts:
+            if part in EXCLUDED_DIR_NAMES:
+                return True
+            for prefix in EXCLUDED_DIR_PREFIXES:
+                if part.startswith(prefix):
+                    return True
+            if part.endswith(".dist-info") or part.endswith(".egg-info"):
+                return True
+        return False
 
     def _last_log_entry(self) -> Optional[dict]:
         if not HEAL_LOG.exists():
