@@ -1592,12 +1592,52 @@
   }
 
   // ── Fetch helper ──────────────────────────────────────────────────────────
+  // Every helper on this page funnels through api(). Before 2026-07 this
+  // just called r.json() unconditionally, which meant any 401/404/405/500
+  // whose body was Flask's default HTML error page produced a
+  // SyntaxError: Unexpected token '<' -- the message spamming the admin
+  // panel screenshots. That one bad response broke every widget because it
+  // poisoned the shared render pipeline.
+  //
+  // New contract:
+  //   * JSON response -> parse and return.
+  //   * Non-JSON / empty / network error -> return {ok:false, status, error}
+  //     so callers that only touch fields degrade to 'N/A' instead of
+  //     throwing.
   async function api(url, opts = {}) {
-    const r = await fetch(url, {
-      ...opts,
-      headers: { ...authHeaders(), ...(opts.headers || {}) },
-    });
-    return r.json();
+    let r;
+    try {
+      r = await fetch(url, {
+        ...opts,
+        headers: { ...authHeaders(), ...(opts.headers || {}) },
+      });
+    } catch (netErr) {
+      return { ok: false, status: 0, error: String((netErr && netErr.message) || netErr) };
+    }
+    if (r.status === 204) return { ok: r.ok, status: r.status };
+    const ct = (r.headers.get('content-type') || '').toLowerCase();
+    if (ct.includes('application/json') || ct.includes('+json')) {
+      try {
+        const j = await r.json();
+        if (j && typeof j === 'object' && !Array.isArray(j)) {
+          if (typeof j.ok === 'undefined')     j.ok = r.ok;
+          if (typeof j.status === 'undefined') j.status = r.status;
+        }
+        return j;
+      } catch (parseErr) {
+        return { ok: false, status: r.status, error: 'invalid_json' };
+      }
+    }
+    let snippet = '';
+    try { snippet = (await r.text()).slice(0, 200); } catch (_) {}
+    return {
+      ok: false,
+      status: r.status,
+      error: r.status === 405 ? 'method_not_allowed'
+           : r.status === 404 ? 'not_found'
+           : `http_${r.status}`,
+      body_snippet: snippet,
+    };
   }
 
   // Poll a background job until it finishes or times out. Returns the final job state.

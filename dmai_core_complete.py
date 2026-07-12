@@ -1518,6 +1518,55 @@ def _save_kaizen(proposal):
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 CORS(app)
 
+# ---------------------------------------------------------------------------
+# JSON error handlers for /api/*
+#
+# Flask's default 404/405/500 responses are HTML pages. That's fine for a
+# browser, but the admin panel's api() helper calls response.json() on every
+# reply — an HTML error body threw "SyntaxError: Unexpected token '<'" and
+# broke every widget on the page. Return JSON for /api/* paths so the client
+# can render partial state even when a single endpoint fails.
+# ---------------------------------------------------------------------------
+from werkzeug.exceptions import HTTPException as _HTTPException
+
+def _wants_json_error() -> bool:
+    try:
+        path = request.path or ""
+    except Exception:
+        return False
+    if path.startswith("/api/"):
+        return True
+    # Also honour explicit Accept: application/json
+    try:
+        accept = request.headers.get("Accept", "") or ""
+    except Exception:
+        accept = ""
+    return "application/json" in accept.lower()
+
+@app.errorhandler(_HTTPException)
+def _api_http_error(e):
+    if not _wants_json_error():
+        return e
+    return jsonify({
+        "ok": False,
+        "status": e.code,
+        "error": e.name,
+        "message": e.description,
+    }), e.code
+
+@app.errorhandler(Exception)
+def _api_unhandled_error(e):
+    logger.exception("unhandled error: %s", e)
+    if not _wants_json_error():
+        # let Flask's default HTML page render for browser routes
+        raise e
+    return jsonify({
+        "ok": False,
+        "status": 500,
+        "error": "Internal Server Error",
+        "message": str(e),
+    }), 500
+
 # Register circuit breaker after_request hook (CB-01–CB-06)
 if CB_AVAILABLE:
     app.after_request(after_request_hook)
@@ -3137,10 +3186,21 @@ def api_mon_user_bets():
             limit = int(request.args.get("limit", 100))
         except Exception:
             limit = 100
-        return jsonify({
-            "bets": ba.list_user_bets(status=status, limit=limit),
-            "performance": ba.user_bet_performance(),
-        })
+        # Guard both list_user_bets and user_bet_performance so a bug in
+        # either one returns a structured JSON error rather than Flask's
+        # default HTML 500 page — the HTML body was breaking the admin
+        # panel's api() helper with "Unexpected token '<'".
+        try:
+            bets = ba.list_user_bets(status=status, limit=limit)
+        except Exception as e:
+            logger.warning("/api/monetisation/bets list failed: %s", e)
+            bets = []
+        try:
+            perf = ba.user_bet_performance()
+        except Exception as e:
+            logger.warning("/api/monetisation/bets performance failed: %s", e)
+            perf = {"error": str(e)}
+        return jsonify({"bets": bets, "performance": perf})
     # POST — record a new user bet
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
@@ -3185,7 +3245,13 @@ def api_mon_user_bets_performance():
     ba = components.get("betting_advisor")
     if not ba:
         return jsonify({"error": "betting_advisor not loaded"}), 503
-    return jsonify(ba.user_bet_performance())
+    # Wrap so an exception inside betting_advisor doesn't surface as an
+    # HTML 500 and crash the admin panel's JSON parser.
+    try:
+        return jsonify(ba.user_bet_performance())
+    except Exception as e:
+        logger.warning("/api/monetisation/bets/performance failed: %s", e)
+        return jsonify({"error": str(e), "ok": False}), 200
 
 @app.route("/api/monetisation/wealth/deploy", methods=["POST"])
 def api_mon_wealth_deploy():
