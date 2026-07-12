@@ -274,6 +274,16 @@ class AutonomousTrader:
         self._thread: Optional[threading.Thread] = None
         self._lock = threading.Lock()
 
+        # Once-per-instance guard for _ensure_tables. Every public entry used
+        # to call _ensure_tables(), which runs a CREATE TABLE IF NOT EXISTS
+        # loop through the write-gating proxy — each call briefly held the
+        # process-wide write mutex on dmai_knowledge.db. Under contention that
+        # made GET /api/trader/at-mode queue up to the 30 s write_mutex_timeout
+        # (observed: 36.7 s latency post-boot). Since PR #175's boot-time
+        # _ensure_kdb_schema already creates every trader table, this call is
+        # redundant after the first invocation on this instance.
+        self._tables_ensured = False
+
         self._init_db()
         self._ensure_state_row()
 
@@ -406,6 +416,23 @@ class AutonomousTrader:
             self._migrate_mode_column(c)
             c.commit()
 
+    def _ensure_tables_once(self) -> None:
+        """Run _ensure_tables at most once per instance.
+
+        Every public entry previously called self._ensure_tables(), which
+        acquires the process-wide write mutex through the KeepOpenProxy on
+        each CREATE TABLE IF NOT EXISTS. Under any background writer, that
+        turns simple reads (e.g. GET /api/trader/at-mode) into 30-second
+        queues. Since boot-time _ensure_kdb_schema (PR #175) already creates
+        every table this class needs, we only need to run it defensively
+        once per instance — and only actually needed if boot bootstrap
+        failed for some reason.
+        """
+        if self._tables_ensured:
+            return
+        self._ensure_tables()
+        self._tables_ensured = True
+
     def _ensure_tables(self) -> None:
         """Idempotent table create + state-row seed. Safe to call on every public entry."""
         try:
@@ -447,7 +474,7 @@ class AutonomousTrader:
 
     # ── Public surface ────────────────────────────────────────────────────────
     def status(self) -> Dict[str, Any]:
-        self._ensure_tables()
+        self._ensure_tables_once()
         with self._conn() as c:
             s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
             recent = c.execute(
@@ -503,7 +530,7 @@ class AutonomousTrader:
 
         Shape: {"mode": "paper"|"live", "enabled": bool, "next_tick_at": iso}.
         """
-        self._ensure_tables()
+        self._ensure_tables_once()
         with self._conn() as c:
             row = c.execute(
                 "SELECT mode, enabled FROM at_state WHERE id = 1"
@@ -523,7 +550,7 @@ class AutonomousTrader:
         norm = str(mode or "").strip().lower()
         if norm not in AT_MODES:
             raise ValueError("mode must be 'paper' or 'live'")
-        self._ensure_tables()
+        self._ensure_tables_once()
         with self._conn() as c:
             cur = c.execute("SELECT mode FROM at_state WHERE id = 1").fetchone()
             from_mode = _norm_at_mode(cur["mode"]) if cur else "paper"
@@ -1115,7 +1142,7 @@ class AutonomousTrader:
     # ----- Daily P&L digest --------------------------------------------------
     def daily_summary(self):
         today = date.today().isoformat()
-        self._ensure_tables()
+        self._ensure_tables_once()
         try:
             with self._conn() as c:
                 s = c.execute("SELECT * FROM at_state WHERE id = 1").fetchone()
@@ -1161,7 +1188,7 @@ class AutonomousTrader:
     # ----- Trade journal export ----------------------------------------------
     def export_journal_rows(self, days=30):
         since = (datetime.utcnow() - timedelta(days=days)).isoformat()
-        self._ensure_tables()
+        self._ensure_tables_once()
         with self._conn() as c:
             rows = c.execute(
                 "SELECT ts, symbol, side, qty, confidence, ev, tier, live "

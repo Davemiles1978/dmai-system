@@ -202,6 +202,55 @@ def acquire_write_lock(path):
     return _WriteGuard(key, lock)
 
 
+def get_write_lock_status() -> dict:
+    """Snapshot the current write-lock holders. Used by the diagnostic
+    endpoint /api/admin/db-lock-status.
+
+    Returns a dict of {path: {holder_thread_ident, holder_thread_name,
+    holder_stack, has_lock_object}}. Never raises.
+    """
+    out: dict = {}
+    # Copy keys first — dict may mutate while iterating from other threads.
+    try:
+        keys = list(_WRITE_LOCKS.keys())
+    except Exception:
+        keys = []
+    threads_by_ident = {t.ident: t for t in threading.enumerate() if t.ident is not None}
+    for key in keys:
+        holder_ident = _WRITE_LOCK_HOLDERS.get(key)
+        holder_thread = threads_by_ident.get(holder_ident) if holder_ident else None
+        holder_name = holder_thread.name if holder_thread else None
+        # Only render a stack if the lock appears to be held right now.
+        stack: list[str] = []
+        lock_obj = _WRITE_LOCKS.get(key)
+        held_now = False
+        if lock_obj is not None:
+            # Try a non-blocking acquire; if it succeeds, the lock was free,
+            # so release it immediately. If it fails, the lock is currently
+            # held by someone — render the holder's stack for diagnostics.
+            got = False
+            try:
+                got = lock_obj.acquire(blocking=False)
+            except Exception:
+                got = False
+            if got:
+                try:
+                    lock_obj.release()
+                except Exception:
+                    pass
+            else:
+                held_now = True
+                stack_lines = _format_holder_stack(holder_ident).splitlines()
+                stack = stack_lines[-12:]
+        out[key] = {
+            "holder_thread_ident": holder_ident,
+            "holder_thread_name": holder_name,
+            "currently_held": held_now,
+            "holder_stack": stack,
+        }
+    return out
+
+
 class KeepOpenProxy:
     """Wraps a sqlite3.Connection so .close() is a no-op.
 
