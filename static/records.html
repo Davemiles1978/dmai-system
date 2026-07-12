@@ -107,6 +107,66 @@
     margin-left: auto;
   }
   .refresh:hover { border-color: var(--accent); }
+
+  /* Chart */
+  .chart-wrap {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; margin-bottom: 20px;
+  }
+  .chart-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .chart-title {
+    font-size: 12px; color: var(--fg-dim); text-transform: uppercase;
+    letter-spacing: 0.5px; font-weight: 600;
+  }
+  .chart-metric-toggle {
+    display: inline-flex; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+  }
+  .chart-metric-toggle button {
+    background: transparent; color: var(--fg-dim); border: none;
+    padding: 4px 10px; cursor: pointer; font-size: 11px;
+    font-weight: 500;
+  }
+  .chart-metric-toggle button.active { background: var(--accent); color: white; }
+  .chart-metric-toggle button:hover:not(.active) { color: var(--fg); }
+  #chart-svg { width: 100%; height: 240px; display: block; }
+  .chart-axis-line { stroke: var(--border); stroke-width: 1; }
+  .chart-axis-text { fill: var(--fg-dim); font-size: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .chart-grid-line { stroke: var(--border); stroke-width: 1;
+    stroke-dasharray: 2 3; opacity: 0.5; }
+  .chart-zero-line { stroke: var(--fg-dim); stroke-width: 1;
+    stroke-dasharray: 4 4; opacity: 0.6; }
+  .chart-line-pos { fill: none; stroke: var(--win); stroke-width: 2; }
+  .chart-line-neg { fill: none; stroke: var(--loss); stroke-width: 2; }
+  .chart-line-mixed { fill: none; stroke: var(--accent); stroke-width: 2; }
+  .chart-area-pos { fill: rgba(63,185,80,0.12); }
+  .chart-area-neg { fill: rgba(248,81,73,0.12); }
+  .chart-area-mixed { fill: rgba(88,166,255,0.08); }
+  .chart-dot {
+    fill: var(--panel); stroke: var(--accent); stroke-width: 2;
+    opacity: 0; pointer-events: none; transition: opacity 0.1s;
+  }
+  .chart-hover-line {
+    stroke: var(--fg-dim); stroke-width: 1; stroke-dasharray: 2 2;
+    opacity: 0; pointer-events: none;
+  }
+  .chart-tooltip {
+    position: absolute; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 6px 10px; font-size: 11px; color: var(--fg);
+    pointer-events: none; opacity: 0; transition: opacity 0.1s;
+    white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 10;
+  }
+  .chart-tooltip-label { color: var(--fg-dim); font-size: 10px; }
+  .chart-empty {
+    text-align: center; color: var(--fg-dim);
+    padding: 60px 0; font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -127,6 +187,18 @@
   <h2>Financial state</h2>
   <div class="fin-state" id="fin-state"></div>
   <div class="note-bar" id="note-bar"></div>
+
+  <div class="chart-wrap" style="position: relative;">
+    <div class="chart-header">
+      <div class="chart-title">Cumulative P/L over time</div>
+      <div class="chart-metric-toggle" id="chart-metric-toggle">
+        <button data-metric="money" class="active">Money</button>
+        <button data-metric="pct">% ROI</button>
+      </div>
+    </div>
+    <svg id="chart-svg" viewBox="0 0 800 240" preserveAspectRatio="none"></svg>
+    <div class="chart-tooltip" id="chart-tooltip"></div>
+  </div>
 
   <h2>Records</h2>
   <div id="table-container">
@@ -152,6 +224,7 @@
     total:  0,
     sortKey: null,
     sortDir: 1,
+    chartMetric: "money",   // "money" or "pct"
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -327,6 +400,189 @@
     $("#next-btn").disabled = end >= state.total;
   }
 
+  // ── Chart ────────────────────────────────────────────────────────────
+  //
+  // Cumulative P/L chart. Uses the same rows already loaded for the
+  // table (the endpoint returns rows newest-first with per-row
+  // cumulative_pnl and cumulative_pnl_pct pre-computed on the server).
+  //
+  // Design choices:
+  // - Vanilla SVG, no chart library. Zero new dependencies.
+  // - Uses the page's viewBox width (800) so the SVG scales fluidly.
+  // - Colours the line green/red/blue based on whether we're
+  //   currently in profit, loss, or crossing zero.
+  // - Hover reveals a vertical guide + tooltip with timestamp + value.
+
+  function renderChart() {
+    const svg = $("#chart-svg");
+    if (!state.rows.length) {
+      svg.innerHTML = '<text x="400" y="120" text-anchor="middle" class="chart-axis-text">No settled trades yet.</text>';
+      return;
+    }
+
+    // Build chronological series (rows come newest-first).
+    const chrono = [...state.rows].reverse();
+    const key = state.chartMetric === "pct" ? "cumulative_pnl_pct" : "cumulative_pnl";
+    const points = [];
+    for (const r of chrono) {
+      const t = r.ts;
+      const v = r[key];
+      if (t === null || t === undefined) continue;
+      if (v === null || v === undefined) continue;
+      const ts = Date.parse(t);
+      if (!Number.isFinite(ts)) continue;
+      const val = Number(v);
+      if (!Number.isFinite(val)) continue;
+      points.push({ ts, val, row: r });
+    }
+
+    if (points.length < 2) {
+      svg.innerHTML = '<text x="400" y="120" text-anchor="middle" class="chart-axis-text">' +
+        (points.length === 0
+          ? "Waiting for settled records to plot."
+          : "Need at least 2 settled records to draw a line.") + '</text>';
+      return;
+    }
+
+    // Chart geometry (viewBox is 800x240).
+    const W = 800, H = 240;
+    const M = { top: 20, right: 60, bottom: 30, left: 20 };
+    const plotW = W - M.left - M.right;
+    const plotH = H - M.top - M.bottom;
+
+    const tMin = points[0].ts;
+    const tMax = points[points.length - 1].ts;
+    const tSpan = Math.max(1, tMax - tMin);
+
+    let vMin = Math.min(0, ...points.map(p => p.val));
+    let vMax = Math.max(0, ...points.map(p => p.val));
+    // Pad the range a bit so the line doesn't sit on the border.
+    const pad = Math.max(1, (vMax - vMin) * 0.1);
+    vMin -= pad; vMax += pad;
+    const vSpan = Math.max(1e-9, vMax - vMin);
+
+    const xOf = (ts)  => M.left + (ts  - tMin) / tSpan * plotW;
+    const yOf = (val) => M.top  + (vMax - val) / vSpan * plotH;
+
+    // Line + area paths.
+    let linePath = "";
+    let areaPath = "";
+    for (let i = 0; i < points.length; i++) {
+      const x = xOf(points[i].ts);
+      const y = yOf(points[i].val);
+      linePath += (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1);
+    }
+    // Close area down to zero-line.
+    const zeroY = yOf(0);
+    const firstX = xOf(points[0].ts);
+    const lastX  = xOf(points[points.length - 1].ts);
+    areaPath = linePath + "L" + lastX.toFixed(1) + "," + zeroY.toFixed(1) +
+               "L" + firstX.toFixed(1) + "," + zeroY.toFixed(1) + "Z";
+
+    // Colour classification: pure-positive, pure-negative, or mixed.
+    const finalVal = points[points.length - 1].val;
+    const anyPos = points.some(p => p.val > 0);
+    const anyNeg = points.some(p => p.val < 0);
+    let lineCls, areaCls;
+    if (anyPos && anyNeg) { lineCls = "chart-line-mixed"; areaCls = "chart-area-mixed"; }
+    else if (finalVal >= 0) { lineCls = "chart-line-pos"; areaCls = "chart-area-pos"; }
+    else { lineCls = "chart-line-neg"; areaCls = "chart-area-neg"; }
+
+    // Y-axis gridlines (4 ticks between vMin and vMax).
+    const yTicks = 4;
+    let gridlines = "";
+    let yLabels = "";
+    for (let i = 0; i <= yTicks; i++) {
+      const val = vMin + (vSpan * i / yTicks);
+      const y = yOf(val);
+      gridlines += `<line class="chart-grid-line" x1="${M.left}" y1="${y.toFixed(1)}" x2="${(W - M.right).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      const label = state.chartMetric === "pct"
+        ? val.toFixed(1) + "%"
+        : fmtMoney(val);
+      yLabels += `<text class="chart-axis-text" x="${W - M.right + 6}" y="${(y + 3).toFixed(1)}">${label}</text>`;
+    }
+
+    // X-axis labels (start, middle, end).
+    const xLabels = [tMin, (tMin + tMax) / 2, tMax].map((t, i) => {
+      const anchor = i === 0 ? "start" : i === 1 ? "middle" : "end";
+      const x = i === 0 ? M.left : i === 1 ? M.left + plotW / 2 : M.left + plotW;
+      const d = new Date(t);
+      const label = d.toISOString().replace("T", " ").slice(5, 16);
+      return `<text class="chart-axis-text" x="${x}" y="${H - 10}" text-anchor="${anchor}">${label}</text>`;
+    }).join("");
+
+    // Zero-line (only draw if it's within the plot area).
+    let zeroLine = "";
+    if (0 >= vMin && 0 <= vMax) {
+      zeroLine = `<line class="chart-zero-line" x1="${M.left}" y1="${zeroY.toFixed(1)}" x2="${(W - M.right).toFixed(1)}" y2="${zeroY.toFixed(1)}"/>`;
+    }
+
+    svg.innerHTML =
+      gridlines +
+      zeroLine +
+      `<path class="${areaCls}" d="${areaPath}"/>` +
+      `<path class="${lineCls}" d="${linePath}"/>` +
+      xLabels + yLabels +
+      `<line class="chart-hover-line" id="chart-hover-line" x1="0" y1="${M.top}" x2="0" y2="${M.top + plotH}"/>` +
+      `<circle class="chart-dot" id="chart-hover-dot" r="4" cx="0" cy="0"/>` +
+      `<rect x="${M.left}" y="${M.top}" width="${plotW}" height="${plotH}" fill="transparent" id="chart-hit-area"/>`;
+
+    // Hover interactions: find nearest point by x-distance.
+    const hitArea    = svg.querySelector("#chart-hit-area");
+    const hoverLine  = svg.querySelector("#chart-hover-line");
+    const hoverDot   = svg.querySelector("#chart-hover-dot");
+    const tooltip    = $("#chart-tooltip");
+    const wrap       = svg.parentElement;
+
+    function findNearest(clientX) {
+      const rect = svg.getBoundingClientRect();
+      // Map clientX into SVG viewBox coords (viewBox is 800 wide).
+      const svgX = (clientX - rect.left) / rect.width * W;
+      let best = null; let bestDist = Infinity;
+      for (const p of points) {
+        const px = xOf(p.ts);
+        const d = Math.abs(px - svgX);
+        if (d < bestDist) { bestDist = d; best = p; }
+      }
+      return best;
+    }
+
+    hitArea.addEventListener("mousemove", (e) => {
+      const p = findNearest(e.clientX);
+      if (!p) return;
+      const x = xOf(p.ts), y = yOf(p.val);
+      hoverLine.setAttribute("x1", x.toFixed(1));
+      hoverLine.setAttribute("x2", x.toFixed(1));
+      hoverLine.style.opacity = 1;
+      hoverDot.setAttribute("cx", x.toFixed(1));
+      hoverDot.setAttribute("cy", y.toFixed(1));
+      hoverDot.style.opacity = 1;
+
+      // Tooltip: position relative to wrapper.
+      const wrapRect = wrap.getBoundingClientRect();
+      const svgRect  = svg.getBoundingClientRect();
+      const pxX = svgRect.left - wrapRect.left + (x / W) * svgRect.width;
+      const pxY = svgRect.top  - wrapRect.top  + (y / H) * svgRect.height;
+      const valueLabel = state.chartMetric === "pct"
+        ? fmtPct(p.val)
+        : fmtMoney(p.val);
+      const ts = new Date(p.ts).toISOString().replace("T", " ").slice(0, 16);
+      const symbol = p.row.symbol || p.row.event || "";
+      tooltip.innerHTML =
+        `<div class="chart-tooltip-label">${ts}</div>` +
+        `<div style="font-weight: 600;">${valueLabel}</div>` +
+        (symbol ? `<div class="chart-tooltip-label">${symbol}</div>` : "");
+      tooltip.style.left = (pxX + 12) + "px";
+      tooltip.style.top  = (pxY - 32) + "px";
+      tooltip.style.opacity = 1;
+    });
+    hitArea.addEventListener("mouseleave", () => {
+      hoverLine.style.opacity = 0;
+      hoverDot.style.opacity  = 0;
+      tooltip.style.opacity   = 0;
+    });
+  }
+
   async function load() {
     $("#table-container").innerHTML = '<div class="loading">Loading…</div>';
     try {
@@ -338,12 +594,14 @@
       state.rows  = data.rows || [];
       state.total = data.total_rows || 0;
       renderFinState(data.financial_state);
+      renderChart();
       renderTable();
       renderFooter();
     } catch(e) {
       $("#table-container").innerHTML =
         `<div class="empty">Error: ${e.message}</div>`;
       renderFinState(null);
+      renderChart();
       renderFooter();
     }
   }
@@ -373,6 +631,14 @@
     state.offset += state.limit; load();
   });
   $("#refresh-btn").addEventListener("click", load);
+
+  $("#chart-metric-toggle").addEventListener("click", (e) => {
+    if (e.target.tagName !== "BUTTON") return;
+    $("#chart-metric-toggle").querySelectorAll("button").forEach(b =>
+      b.classList.toggle("active", b === e.target));
+    state.chartMetric = e.target.dataset.metric;
+    renderChart();
+  });
 
   load();
 })();
