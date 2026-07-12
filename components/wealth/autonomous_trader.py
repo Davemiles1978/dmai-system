@@ -417,21 +417,65 @@ class AutonomousTrader:
             c.commit()
 
     def _ensure_tables_once(self) -> None:
-        """Run _ensure_tables at most once per instance.
+        """Run _ensure_tables at most once per instance, and only if the
+        boot-time bootstrap actually failed to lay down the schema.
 
-        Every public entry previously called self._ensure_tables(), which
-        acquires the process-wide write mutex through the KeepOpenProxy on
-        each CREATE TABLE IF NOT EXISTS. Under any background writer, that
-        turns simple reads (e.g. GET /api/trader/at-mode) into 30-second
-        queues. Since boot-time _ensure_kdb_schema (PR #175) already creates
-        every table this class needs, we only need to run it defensively
-        once per instance — and only actually needed if boot bootstrap
-        failed for some reason.
+        Background: every public entry previously called self._ensure_tables(),
+        which routes every CREATE TABLE / ALTER TABLE through the
+        KeepOpenProxy write-gate. Under any background writer holding the
+        SQLite file lock, even the first _ensure_tables call blocks on
+        BUSY-wait for up to timeout=30s — turning GET /api/trader/at-mode
+        into a 30-second stall (observed live 2026-07-12 via
+        /api/admin/db-lock-status).
+
+        Fast path: a read-only PRAGMA table_info check — no write mutex,
+        no BUSY-wait — confirms the schema is in place, in which case we
+        set the guard and skip _ensure_tables entirely. Fallback: only if
+        boot bootstrap actually failed do we run the full ensure.
         """
         if self._tables_ensured:
             return
+        try:
+            if self._schema_ready_readonly():
+                self._tables_ensured = True
+                return
+        except Exception as e:  # never let diagnostics break the app
+            logger.debug("trader schema readonly check failed, falling back: %s", e)
         self._ensure_tables()
         self._tables_ensured = True
+
+    def _schema_ready_readonly(self) -> bool:
+        """Read-only check: does at_state exist with the 'mode' column?
+
+        Runs on a fresh raw sqlite3 connection (NOT the KeepOpenProxy) so
+        it never acquires the process-wide write mutex. Only reads PRAGMAs.
+        """
+        import sqlite3 as _sq
+        try:
+            # Read-only URI mode: no journal-mode changes, cannot write,
+            # cannot flap the on-disk locking state — safe alongside the
+            # KeepOpenProxy's WAL connection (see PR #175).
+            raw = _sq.connect(f"file:{self.db_path}?mode=ro", uri=True, timeout=2)
+        except Exception:
+            return False
+        try:
+            row = raw.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='at_state'"
+            ).fetchone()
+            if not row:
+                return False
+            cols = [r[1] for r in raw.execute("PRAGMA table_info(at_state)").fetchall()]
+            if "mode" not in cols:
+                return False
+            # Also confirm the singleton row exists so get_at_mode/set_at_mode
+            # don't hit a missing-row path.
+            r = raw.execute("SELECT 1 FROM at_state WHERE id = 1").fetchone()
+            return r is not None
+        finally:
+            try:
+                raw.close()
+            except Exception:
+                pass
 
     def _ensure_tables(self) -> None:
         """Idempotent table create + state-row seed. Safe to call on every public entry."""
