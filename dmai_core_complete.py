@@ -7760,6 +7760,41 @@ def api_admin_db_integrity():
         return jsonify({"ok": False, "error": str(e), "path": db_path})
 
 
+@app.route("/api/admin/db-lock-status", methods=["GET"])
+def api_admin_db_lock_status():
+    """Snapshot of the process-wide SQLite write-mutex holders.
+
+    Unauthenticated on purpose: read-only introspection, no secrets, no
+    mutations. Used to pinpoint which background thread is holding the
+    dmai_knowledge.db write mutex when an endpoint takes 30+ s.
+
+    Response shape::
+
+        {
+          "paths": {
+            "/opt/render/project/src/data/dmai_knowledge.db": {
+              "holder_thread_ident": 140234567890,
+              "holder_thread_name": "vocab_ingest",
+              "currently_held": true,
+              "holder_stack": ["  File ...", "    conn.executemany(...)", ...]
+            }
+          },
+          "ts": "2026-07-12T..."
+        }
+    """
+    import datetime as _dt
+    try:
+        from components.db import get_write_lock_status as _gwls
+        paths = _gwls()
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    return jsonify({
+        "ok": True,
+        "paths": paths,
+        "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+    })
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
