@@ -50,19 +50,24 @@ def _make_trader(tmp_path):
 
 
 def test_ensure_tables_runs_at_most_once(tmp_path):
-    """Multiple public method calls -> _ensure_tables invoked exactly once."""
+    """Multiple public method calls -> _ensure_tables invoked at most once.
+
+    After the read-only fast-path was added, calls skip _ensure_tables
+    entirely when the schema is already present (the common prod case).
+    Force the readonly check to fail so we exercise the fallback and can
+    prove the guard still bounds the call count.
+    """
     at = _make_trader(tmp_path)
-    # After __init__, the once-guard should still allow a first call. Reset it
-    # so we can count from a known state.
     at._tables_ensured = False
-    with mock.patch.object(
-        at, "_ensure_tables", wraps=at._ensure_tables
-    ) as spy:
-        at._ensure_tables_once()
-        at._ensure_tables_once()
-        at._ensure_tables_once()
+    with mock.patch.object(at, "_schema_ready_readonly", return_value=False):
+        with mock.patch.object(
+            at, "_ensure_tables", wraps=at._ensure_tables
+        ) as spy:
+            at._ensure_tables_once()
+            at._ensure_tables_once()
+            at._ensure_tables_once()
     assert spy.call_count == 1, (
-        f"_ensure_tables should run once per instance, got {spy.call_count}"
+        f"_ensure_tables should run at most once per instance, got {spy.call_count}"
     )
     assert at._tables_ensured is True
 
@@ -104,6 +109,39 @@ def test_public_methods_use_once_guard(tmp_path):
     assert spy.call_count <= 1, (
         f"public methods should share the once-guard, got {spy.call_count} calls"
     )
+
+
+def test_schema_ready_readonly_skips_ensure_when_schema_already_present(tmp_path):
+    """Once the schema is set up, _ensure_tables_once must skip _ensure_tables
+    entirely — no write-mutex acquisition on the hot request path. This is
+    the exact behaviour observed in prod 2026-07-12 that gated GET
+    /api/trader/at-mode for 30 seconds.
+    """
+    at = _make_trader(tmp_path)
+    # __init__ ran _init_db which laid down at_state with the mode column.
+    at._tables_ensured = False
+    # readonly check should return True since schema is fully in place
+    assert at._schema_ready_readonly() is True
+    with mock.patch.object(at, "_ensure_tables") as spy:
+        at._ensure_tables_once()
+    assert spy.call_count == 0, (
+        "Once schema is in place, _ensure_tables_once must skip _ensure_tables "
+        "to keep the write mutex free. Called it %d time(s)." % spy.call_count
+    )
+    assert at._tables_ensured is True
+
+
+def test_ensure_tables_once_falls_back_when_readonly_check_fails(tmp_path):
+    """If the read-only check returns False (schema truly missing) the
+    once-guard must fall back to the full _ensure_tables path so we self-heal.
+    """
+    at = _make_trader(tmp_path)
+    at._tables_ensured = False
+    with mock.patch.object(at, "_schema_ready_readonly", return_value=False):
+        with mock.patch.object(at, "_ensure_tables") as spy:
+            at._ensure_tables_once()
+    assert spy.call_count == 1
+    assert at._tables_ensured is True
 
 
 def test_source_has_no_direct_ensure_tables_in_hot_paths():
