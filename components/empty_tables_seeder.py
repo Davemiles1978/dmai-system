@@ -7,14 +7,12 @@ logger = logging.getLogger(__name__)
 try: from components.db import safe_open_kdb
 except Exception: safe_open_kdb = None  # type: ignore
 def _seed() -> None:
-    # chunk 10.3: prod DB lives at data/dmai_knowledge.db (SelfEditQueue and
-    # SelfScanner both use that path). Default fallback updated to match.
-    p = os.environ.get("DMAI_KDB_PATH") or next((c for c in ("data/dmai_knowledge.db", "dmai_knowledge.db") if os.path.exists(c)), "data/dmai_knowledge.db")
+    p = os.environ.get("DMAI_KDB_PATH") or next((c for c in ("data/dmai_knowledge.db","dmai_knowledge.db") if os.path.exists(c)), "data/dmai_knowledge.db")
     if safe_open_kdb is None or not os.path.exists(p): return
     ts = datetime.now(timezone.utc).isoformat()
     rows = [
-        ("capabilities","INSERT INTO capabilities (id,name,type,capability_type,description) VALUES (?,?,?,?,?)",("seed_bootstrap","layer3_seed","function","bootstrap","Layer3 baseline row")),
-        ("insights","INSERT INTO insights (id,insight_text,entity_type,entities,relationship,source_topic,target_topic) VALUES (?,?,?,?,?,?,?)",("seed_bootstrap","Layer3 baseline insight","system","[]","bootstrap","layer3","layer3")),
+        ("capabilities","INSERT INTO capabilities (name,description,category,capability_type) VALUES (?,?,?,?)",("layer3_seed","Layer3 baseline row","bootstrap","bootstrap")),
+        ("insights","INSERT INTO insights (concept,insight_text,confidence,domain,source) VALUES (?,?,?,?,?)",("layer3_bootstrap","Layer3 baseline insight",0.5,"system","layer3")),
         ("suggestions","INSERT INTO suggestions (id,source,title,description,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?)",("seed_bootstrap","layer3","Layer3 bootstrap","Baseline suggestion row","pending",ts,ts)),
     ]
     try:
