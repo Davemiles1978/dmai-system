@@ -8009,6 +8009,80 @@ def api_admin_capability_promoter_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/fresh-blood-status", methods=["GET"])
+def api_admin_fresh_blood_status():
+    """Live status of the Fresh Blood Injector (PR E).
+
+    Returns the loop-running flag, the last injection timestamp, the
+    number of fresh_blood-sourced rows already promoted into the
+    ``insights`` SQL table, the current capability_type diversity
+    metric, the top-3 types by count, the last-run summary, and the
+    tail of the injection log.
+    """
+    import datetime as _dt, json as _fbj
+    try:
+        from components.fresh_blood_injector import (
+            get_injector_loop as _gfi,
+            _kdb_path as _fbkdb,
+            _load_log as _fbload,
+            _diversity_metric as _fbdm,
+            _capability_type_distribution as _fbdist,
+            LAST_RUN_KEY as _fb_last_key,
+        )
+        from components.db import safe_open_kdb as _fb_sok
+        loop = _gfi()
+        running = bool(loop and loop._thread and loop._thread.is_alive())
+
+        last_run = None
+        sql_fb_count = 0
+        log_tail = []
+        dist = []
+        metric = {"entropy": 0.0, "max_entropy": 0.0, "ratio": 0.0,
+                  "dominant": None, "dominant_share": 0.0}
+
+        try:
+            conn = _fb_sok(_fbkdb())
+            try:
+                row = conn.execute(
+                    "SELECT value FROM system_state WHERE key = ?",
+                    (_fb_last_key,),
+                ).fetchone()
+                last_run = row[0] if row else None
+                rc = conn.execute(
+                    "SELECT COUNT(*) FROM insights WHERE source = 'fresh_blood'"
+                ).fetchone()
+                sql_fb_count = int(rc[0]) if rc else 0
+                dist   = _fbdist(conn)
+                metric = _fbdm(dist)
+                log    = _fbload(conn)
+                log_tail = log[-10:]
+            finally:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+        except Exception as _dbe:
+            logger.warning("fresh_blood status db read failed: %s", _dbe)
+
+        return jsonify({
+            "ok": True,
+            "running": running,
+            "last_run_ts": last_run,
+            "sql_fresh_blood_insights": sql_fb_count,
+            "capability_type_entropy":          round(metric["entropy"], 4),
+            "capability_type_max_entropy":      round(metric["max_entropy"], 4),
+            "capability_type_diversity_ratio":  round(metric["ratio"], 4),
+            "capability_type_dominant":         metric["dominant"],
+            "capability_type_dominant_share":   round(metric["dominant_share"], 4),
+            "top_types":                        dist[:5],
+            "recent_injections":                log_tail,
+            "last_summary":                     (loop.last_summary if loop else {}),
+            "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
@@ -9052,6 +9126,18 @@ def _start_background_services(force=False):
         _start_cp()
     except Exception as _cp_e:
         logger.warning("capability_promoter init failed: %s", _cp_e)
+
+    # PR E — Fresh Blood Injector.
+    # Combats echo-chamber convergence in the evolution engine by
+    # periodically injecting exploratory insights sourced from arXiv,
+    # GitHub trending, capability-type crossovers, a curated frontier
+    # vocabulary, and a Shannon-entropy diversity check. Emits into the
+    # same JSONL the insight_promoter tails, so no new DB paths.
+    try:
+        from components.fresh_blood_injector import start_injector_loop as _start_fb
+        _start_fb()
+    except Exception as _fb_e:
+        logger.warning("fresh_blood_injector init failed: %s", _fb_e)
 
     # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
     try:
