@@ -8083,6 +8083,102 @@ def api_admin_fresh_blood_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR I: treasury status + admin controls ────────────────────────────────
+#
+# Exposes the banked-revenue ledger for the self-hosting funding goal.
+# GET  /api/admin/treasury-status    - balance + summary + last 20 entries
+# POST /api/admin/treasury-sync      - force an on-demand sync
+# POST /api/admin/treasury-fx        - override the USD->GBP conversion
+# POST /api/admin/treasury-manual    - record infra spend or manual credit/debit
+
+@app.route("/api/admin/treasury-status", methods=["GET"])
+def api_admin_treasury_status():
+    """Return the treasury balance, summary, and recent entries."""
+    try:
+        from components.treasury import treasury_ledger as _tl
+        try:
+            from components.treasury.treasury_loop import _LOOP as _TL_LOOP
+        except Exception:
+            _TL_LOOP = None
+        summary = _tl.get_summary()
+        entries = _tl.list_entries(limit=20)
+        return jsonify({
+            "running":     bool(_TL_LOOP
+                                and getattr(_TL_LOOP, "_thread", None)
+                                and _TL_LOOP._thread.is_alive()),
+            "summary":     summary,
+            "entries":     entries,
+            "last_summary": getattr(_TL_LOOP, "last_summary", {})
+                            if _TL_LOOP else {},
+            "ts":          datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/treasury-sync", methods=["POST"])
+def api_admin_treasury_sync():
+    """Force an immediate treasury sync from trades + bets ledgers."""
+    try:
+        from components.treasury import treasury_ledger as _tl
+        report = _tl.sync_from_ledger()
+        return jsonify({"ok": True, "report": report.as_dict()})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/treasury-fx", methods=["POST"])
+def api_admin_treasury_fx():
+    """Override the USD->GBP conversion rate. Body: {"rate": 0.78}."""
+    try:
+        from components.treasury import treasury_ledger as _tl
+        body = request.get_json(silent=True) or {}
+        rate = body.get("rate")
+        if rate is None:
+            return jsonify({"ok": False,
+                            "error": "body must include 'rate'"}), 400
+        _tl.set_fx_usd_gbp(float(rate))
+        return jsonify({"ok": True,
+                        "fx_usd_gbp": _tl.get_fx_usd_gbp()})
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/treasury-manual", methods=["POST"])
+def api_admin_treasury_manual():
+    """Record a manual credit/debit/infra_spend.
+
+    Body: {"kind": "infra_spend", "amount_gbp": -18.50,
+           "description": "Render Web + Worker Jul 2026"}
+
+    Signs are the caller's responsibility - a Render bill goes in
+    as a negative amount_gbp.
+    """
+    try:
+        from components.treasury import treasury_ledger as _tl
+        body = request.get_json(silent=True) or {}
+        kind = body.get("kind")
+        amount = body.get("amount_gbp")
+        description = body.get("description") or ""
+        if not kind or amount is None:
+            return jsonify({"ok": False,
+                            "error": "body must include 'kind' and "
+                                     "'amount_gbp'"}), 400
+        row_id = _tl.record_manual(
+            kind=str(kind),
+            amount_gbp=float(amount),
+            description=str(description),
+        )
+        return jsonify({"ok": True, "id": row_id,
+                        "balance_gbp": _tl.get_balance()})
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── PR H: capability materialiser status ─────────────────────────────────
 #
 # Exposes what the LLM-driven capability materialiser did last, plus
@@ -9786,6 +9882,21 @@ def _start_background_services(force=False):
         _start_matl()
     except Exception as _matl_e:
         logger.warning("capability_materialiser init failed: %s", _matl_e)
+
+    # PR I — Treasury Loop.
+    # Mirrors realised P&L from trades_ledger (live-mode closures) and
+    # bets_ledger (settled bets) into data/dmai_treasury.db every 10
+    # minutes. USD -> GBP conversion uses the treasury_state fx rate.
+    # Every row is dated at closed_at/settled_at and only counts if
+    # that timestamp is >= install_ts (zero-start rule). Exposes
+    # treasury_balance for the self-hosting funding goal.
+    try:
+        from components.treasury.treasury_loop import (
+            start_treasury_loop as _start_treas,
+        )
+        _start_treas()
+    except Exception as _treas_e:
+        logger.warning("treasury_loop init failed: %s", _treas_e)
 
     # PR F — Trade Settler: close the outcome loop on every trade the
     # autonomous_trader opens. Paper trades marked-to-market from free
