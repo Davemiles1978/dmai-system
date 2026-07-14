@@ -4291,6 +4291,199 @@ def api_admin_keys_delete(provider_id):
     return jsonify({"ok": True, "provider_id": provider_id, "sinks": status})
 
 
+# ── SQLite → Postgres migration (one-shot, idempotent) ────────────────────────
+
+# Tables to lift from the on-disk SQLite DB into Postgres during the cutover.
+# pk_cols drives the ON CONFLICT target; conflict_action UPDATE => upsert.
+TABLES_TO_MIGRATE = [
+    {"name": "admin_api_keys", "pk_cols": ["provider_id"], "conflict_action": "UPDATE"},
+]
+
+# SQLite declared-type -> Postgres column type (used only when the PG table is
+# absent and we have to create it from the SQLite schema).
+_SQLITE_TO_PG_TYPE = {
+    "TEXT":      "TEXT",
+    "INTEGER":   "BIGINT",
+    "REAL":      "DOUBLE PRECISION",
+    "BLOB":      "BYTEA",
+    "TIMESTAMP": "TIMESTAMPTZ",
+}
+
+
+def _pg_type_for(sqlite_decl: str) -> str:
+    """Map a SQLite declared column type to a Postgres type (default TEXT)."""
+    base = (sqlite_decl or "").strip().upper()
+    # Strip any size/precision, e.g. VARCHAR(255) -> VARCHAR
+    base = base.split("(")[0].strip()
+    return _SQLITE_TO_PG_TYPE.get(base, "TEXT")
+
+
+def _migrate_one_table(db, sqlite_conn, spec: dict) -> dict:
+    """Migrate a single table from SQLite into Postgres via upsert.
+
+    Returns a per-table stats dict. Never mutates the SQLite source.
+    """
+    import sqlite3 as _sq
+    table    = spec["name"]
+    pk_cols  = spec["pk_cols"]
+    stats = {
+        "sqlite_rows_read": 0,
+        "pg_rows_before":   0,
+        "pg_rows_after":    0,
+        "inserted":         0,
+        "updated":          0,
+        "errors":           [],
+    }
+
+    # ── Introspect the SQLite source table ────────────────────────────────────
+    sqlite_conn.row_factory = _sq.Row
+    cols_info = sqlite_conn.execute(f"PRAGMA table_info({table})").fetchall()
+    if not cols_info:
+        stats["errors"].append(f"sqlite table {table} not found")
+        return stats
+    col_names = [c["name"] for c in cols_info]
+    col_types = {c["name"]: c["type"] for c in cols_info}
+
+    # ── Ensure the Postgres table exists (create from SQLite schema if not) ────
+    pg_cols = db._exec(
+        "SELECT column_name FROM information_schema.columns WHERE table_name=%s",
+        (table,), fetch="all",
+    ) or []
+    if not pg_cols:
+        col_defs = []
+        for name in col_names:
+            pg_type = _pg_type_for(col_types.get(name, "TEXT"))
+            col_defs.append(f'"{name}" {pg_type}')
+        pk_clause = ""
+        if pk_cols:
+            pk_list = ", ".join(f'"{c}"' for c in pk_cols)
+            pk_clause = f", PRIMARY KEY ({pk_list})"
+        create_sql = f'CREATE TABLE IF NOT EXISTS {table} ({", ".join(col_defs)}{pk_clause})'
+        db._exec(create_sql)
+        logger.info("migrate: created PG table %s", table)
+
+    # ── Count PG rows before ──────────────────────────────────────────────────
+    before = db._exec(f"SELECT COUNT(*) AS c FROM {table}", fetch="one")
+    stats["pg_rows_before"] = int(before["c"]) if before else 0
+
+    # ── Existing PKs (to classify insert vs update) ───────────────────────────
+    pk_select = ", ".join(f'"{c}"' for c in pk_cols)
+    existing = db._exec(f"SELECT {pk_select} FROM {table}", fetch="all") or []
+    existing_pks = {tuple(r[c] for c in pk_cols) for r in existing}
+
+    # ── Read all SQLite rows and upsert ───────────────────────────────────────
+    src_rows = sqlite_conn.execute(f"SELECT * FROM {table}").fetchall()
+    stats["sqlite_rows_read"] = len(src_rows)
+
+    col_list      = ", ".join(f'"{c}"' for c in col_names)
+    placeholders  = ", ".join(["%s"] * len(col_names))
+    non_pk_cols   = [c for c in col_names if c not in pk_cols]
+    conflict_target = ", ".join(f'"{c}"' for c in pk_cols)
+    if spec.get("conflict_action") == "UPDATE" and non_pk_cols:
+        set_clause = ", ".join(f'"{c}"=EXCLUDED."{c}"' for c in non_pk_cols)
+        conflict_sql = f"ON CONFLICT ({conflict_target}) DO UPDATE SET {set_clause}"
+    else:
+        conflict_sql = f"ON CONFLICT ({conflict_target}) DO NOTHING"
+    insert_sql = f"INSERT INTO {table} ({col_list}) VALUES ({placeholders}) {conflict_sql}"
+
+    for row in src_rows:
+        values = tuple(row[c] for c in col_names)
+        pk_tuple = tuple(row[c] for c in pk_cols)
+        try:
+            db._exec(insert_sql, values)
+            if pk_tuple in existing_pks:
+                stats["updated"] += 1
+            else:
+                stats["inserted"] += 1
+        except Exception as row_exc:
+            logger.warning("migrate: row upsert failed on %s pk=%s: %s",
+                           table, pk_tuple, row_exc)
+            if len(stats["errors"]) < 10:
+                stats["errors"].append({"pk": list(pk_tuple), "error": str(row_exc)})
+
+    after = db._exec(f"SELECT COUNT(*) AS c FROM {table}", fetch="one")
+    stats["pg_rows_after"] = int(after["c"]) if after else 0
+    return stats
+
+
+@app.route("/api/admin/migrate-sqlite-to-postgres", methods=["POST"])
+def api_admin_migrate_sqlite_to_postgres():
+    """Migrate rows from the on-disk SQLite DB into the attached Postgres.
+
+    Idempotent (ON CONFLICT upsert), read-only against the SQLite source, and
+    master-password / JWT gated. Used once during the SQLite→Postgres cutover so
+    operator API keys and durable state survive the backend switch.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+
+    try:
+        # 1) Postgres must be the active backend.
+        if not os.environ.get("DATABASE_URL"):
+            return jsonify({
+                "error": "postgres not active — nothing to migrate to",
+                "hint":  "set DATABASE_URL env var first",
+            }), 400
+        db = components.get("db_storage")
+        if db is None:
+            _bootstrap_api_key_hydration()
+            db = components.get("db_storage")
+        if db is None or not getattr(db, "is_available", lambda: False)() \
+                or not hasattr(db, "_exec"):
+            return jsonify({
+                "error": "postgres not active — nothing to migrate to",
+                "hint":  "set DATABASE_URL env var first",
+            }), 400
+
+        # 2) Locate the SQLite source on the persistent disk.
+        data_dir = os.environ.get("DATA_DIR", "/opt/render/project/src/data")
+        sqlite_path = os.path.join(data_dir, "dmai_knowledge.db")
+        if not os.path.exists(sqlite_path):
+            return jsonify({"error": "sqlite source not found", "path": sqlite_path}), 404
+
+        logger.info("migrate: starting SQLite→Postgres migration from %s", sqlite_path)
+
+        # 3) Open SQLite read-only (never mutate the source).
+        import sqlite3 as _sq
+        sqlite_conn = _sq.connect(f"file:{sqlite_path}?mode=ro", uri=True)
+        tables_out = {}
+        try:
+            for spec in TABLES_TO_MIGRATE:
+                tables_out[spec["name"]] = _migrate_one_table(db, sqlite_conn, spec)
+        finally:
+            sqlite_conn.close()
+
+        # 4) Re-hydrate env from DB, then rescan the activator so provider
+        #    statuses flip within seconds.
+        hydration = _bootstrap_api_key_hydration()
+        post_scan = {}
+        activator = components.get("api_activator")
+        if activator is not None:
+            try:
+                results = activator.scan_and_activate()
+                post_scan = {
+                    "active":      results.get("activated", []),
+                    "invalid":     results.get("invalid", []),
+                    "pending_key": results.get("pending", []),
+                }
+            except Exception as scan_exc:
+                logger.warning("migrate: post-migration rescan failed: %s", scan_exc)
+                post_scan = {"error": str(scan_exc)}
+
+        logger.info("migrate: complete — tables=%s", list(tables_out))
+        return jsonify({
+            "ok":            True,
+            "backend":       "postgres",
+            "sqlite_source": sqlite_path,
+            "tables":        tables_out,
+            "hydration":     hydration,
+            "post_scan":     post_scan,
+        })
+    except Exception as exc:
+        logger.exception("migrate: unexpected failure: %s", exc)
+        return jsonify({"error": str(exc)}), 500
+
+
 # ── Execution sandbox endpoints ───────────────────────────────────────────────
 
 @app.route("/api/sandbox/execute", methods=["POST"])
