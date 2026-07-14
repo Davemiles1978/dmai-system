@@ -8179,6 +8179,60 @@ def api_admin_treasury_manual():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR J: workload self-profiler status ──────────────────────────
+#
+# Records what DMAI actually consumes so PR K's procurement research
+# skill can price a home-lab replacement for Render.
+# GET  /api/admin/workload-status  - latest sample + rollups + db growth
+# GET  /api/admin/workload-growth  - SQLite growth history alone
+# POST /api/admin/workload-sample  - force one sample right now (debug)
+
+@app.route("/api/admin/workload-status", methods=["GET"])
+def api_admin_workload_status():
+    try:
+        from components.workload import workload_profiler as _wp
+        try:
+            from components.workload.workload_loop import _LOOP as _WL_LOOP
+        except Exception:
+            _WL_LOOP = None
+        status = _wp.get_status()
+        return jsonify({
+            "running":     bool(_WL_LOOP
+                                and getattr(_WL_LOOP, "_thread", None)
+                                and _WL_LOOP._thread.is_alive()),
+            "status":      status,
+            "last_summary": getattr(_WL_LOOP, "last_summary", {})
+                            if _WL_LOOP else {},
+            "ts":          datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/workload-growth", methods=["GET"])
+def api_admin_workload_growth():
+    try:
+        from components.workload import workload_profiler as _wp
+        try:
+            days = int(request.args.get("days", "7"))
+        except Exception:
+            days = 7
+        return jsonify({"ok": True,
+                        "growth": _wp.get_db_growth(days=days)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/workload-sample", methods=["POST"])
+def api_admin_workload_sample():
+    try:
+        from components.workload import workload_profiler as _wp
+        s = _wp.sample_now()
+        return jsonify({"ok": True, "sample": s.as_dict()})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── PR H: capability materialiser status ─────────────────────────────────
 #
 # Exposes what the LLM-driven capability materialiser did last, plus
@@ -9897,6 +9951,19 @@ def _start_background_services(force=False):
         _start_treas()
     except Exception as _treas_e:
         logger.warning("treasury_loop init failed: %s", _treas_e)
+
+    # PR J — Workload Self-Profiler.
+    # Samples the current process every 10 minutes (psutil snapshot +
+    # SQLite file sizes for the four DMAI DBs) so PR K's procurement
+    # research skill can price a home-lab replacement using DMAI's
+    # actual footprint instead of vendor peak-load marketing.
+    try:
+        from components.workload.workload_loop import (
+            start_workload_loop as _start_wl,
+        )
+        _start_wl()
+    except Exception as _wl_e:
+        logger.warning("workload_loop init failed: %s", _wl_e)
 
     # PR F — Trade Settler: close the outcome loop on every trade the
     # autonomous_trader opens. Paper trades marked-to-market from free
