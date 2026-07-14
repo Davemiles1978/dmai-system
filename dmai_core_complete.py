@@ -8925,6 +8925,403 @@ def page_admin_records():
     return send_from_directory("static", "records.html")
 
 
+# ── PR K.1: /admin/procurement HTML page ─────────────────────────────────
+#
+# Server-side rendered (unlike /admin/records which is a static shell that
+# fetches client-side): the route reads the procurement store directly and
+# injects the shortlist rows, so the shortlist is visible in the HTML body
+# with no JS required. CSS is copied from static/records.html to match.
+
+_PROCUREMENT_VERDICT_BADGE = {
+    "affordable":   "win",
+    "stretch":      "pending",
+    "aspirational": "scratch",
+}
+
+
+def _procurement_humanise_ts(ts):
+    """Render an ISO timestamp as 'N minutes/hours/days ago' (UTC)."""
+    if not ts:
+        return "never"
+    try:
+        from datetime import datetime as _dt, timezone as _tz
+        t = _dt.fromisoformat(str(ts))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=_tz.utc)
+        delta = _dt.now(_tz.utc) - t
+        secs = int(delta.total_seconds())
+        if secs < 0:
+            secs = 0
+        if secs < 60:
+            return "just now"
+        if secs < 3600:
+            m = secs // 60
+            return f"{m} minute{'s' if m != 1 else ''} ago"
+        if secs < 86400:
+            h = secs // 3600
+            return f"{h} hour{'s' if h != 1 else ''} ago"
+        d = secs // 86400
+        return f"{d} day{'s' if d != 1 else ''} ago"
+    except Exception:
+        return str(ts)
+
+
+@app.route("/admin/procurement", methods=["GET"])
+def page_admin_procurement():
+    """Server-side rendered dark-theme view of the hardware shortlist."""
+    import html as _html
+
+    summary = {}
+    rows = []
+    load_error = None
+    try:
+        from components.procurement import researcher as _pr
+        from components.procurement.store import ProcurementStore as _PS
+        summary = _pr.get_last_summary() or {}
+        store = _PS()
+        store.init_db()
+        rows = store.get_shortlist() or []
+    except Exception as e:  # pragma: no cover - defensive
+        load_error = str(e)
+
+    def esc(v):
+        return _html.escape("" if v is None else str(v))
+
+    def fmt_gbp(v):
+        try:
+            return f"£{float(v):,.2f}"
+        except (TypeError, ValueError):
+            return "—"
+
+    def fmt_num(v, suffix=""):
+        if v is None:
+            return "—"
+        try:
+            f = float(v)
+            if f == int(f):
+                return f"{int(f)}{suffix}"
+            return f"{f:g}{suffix}"
+        except (TypeError, ValueError):
+            return esc(v)
+
+    catalog_size = summary.get("catalog_size")
+    candidate_count = summary.get("candidate_count")
+    treasury_gbp = summary.get("treasury_gbp")
+    if treasury_gbp is None:
+        try:
+            from components.procurement import researcher as _pr2
+            treasury_gbp = _pr2.read_treasury_balance()
+        except Exception:
+            treasury_gbp = 0.0
+    run_ts = summary.get("run_ts")
+    workload = summary.get("workload") or {}
+
+    # Top pick = rank-1 row's capex (fall back to summary shortlist).
+    top_pick_capex = None
+    top_pick_name = None
+    if rows:
+        first = rows[0]
+        top_pick_capex = first.get("capex_gbp")
+        top_pick_name = first.get("hw_name") or first.get("name")
+    elif summary.get("shortlist"):
+        first = summary["shortlist"][0]
+        top_pick_capex = first.get("capex_gbp")
+        top_pick_name = first.get("name")
+
+    try:
+        bal = float(treasury_gbp or 0.0)
+        cap = float(top_pick_capex) if top_pick_capex is not None else 0.0
+        pct = int(round(100 * bal / cap)) if cap > 0 else 0
+        pct_clamped = max(0, min(100, pct))
+    except (TypeError, ValueError):
+        bal, cap, pct, pct_clamped = 0.0, 0.0, 0, 0
+    treasury_sub = (f"{fmt_gbp(bal)} / {fmt_gbp(cap)} ({pct}%)"
+                    if top_pick_capex is not None
+                    else f"{fmt_gbp(bal)} / —")
+
+    # ── table rows ──
+    row_html_parts = []
+    for r in rows:
+        verdict = (r.get("verdict") or "").lower()
+        badge_cls = _PROCUREMENT_VERDICT_BADGE.get(verdict, "scratch")
+        url = r.get("hw_url")
+        if url:
+            action = (f'<a class="ext-link" href="{esc(url)}" target="_blank" '
+                      f'rel="noopener noreferrer" title="Open listing">↗</a>')
+        else:
+            action = '<span class="ext-link disabled">—</span>'
+        row_html_parts.append(
+            "<tr>"
+            f'<td class="num" data-sort="{esc(r.get("rank"))}">'
+            f'{esc(r.get("rank"))}</td>'
+            f'<td>{esc(r.get("hw_source"))}</td>'
+            f'<td>{esc(r.get("hw_name"))}</td>'
+            f'<td>{esc(r.get("hw_cpu"))}</td>'
+            f'<td class="num" data-sort="{esc(r.get("hw_ram_gb") or 0)}">'
+            f'{fmt_num(r.get("hw_ram_gb"), " GB")}</td>'
+            f'<td class="num" data-sort="{esc(r.get("hw_idle_w") or 0)}">'
+            f'{fmt_num(r.get("hw_idle_w"), " W")}</td>'
+            f'<td class="num" data-sort="{esc(r.get("capex_gbp") or 0)}">'
+            f'{fmt_gbp(r.get("capex_gbp"))}</td>'
+            f'<td class="num" data-sort="{esc(r.get("tco_gbp_3yr") or 0)}">'
+            f'{fmt_gbp(r.get("tco_gbp_3yr"))}</td>'
+            f'<td data-sort="{esc(verdict)}">'
+            f'<span class="badge {badge_cls}">{esc(verdict or "—")}</span></td>'
+            f'<td class="actions">{action}</td>'
+            "</tr>"
+        )
+    if not row_html_parts:
+        empty = ("No shortlist yet — run a research pass with the "
+                 "Force refresh button." if load_error is None
+                 else f"Could not load shortlist: {esc(load_error)}")
+        row_html_parts.append(
+            f'<tr><td colspan="10" class="empty">{empty}</td></tr>')
+    table_rows = "\n".join(row_html_parts)
+
+    page = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMAI · Procurement</title>
+<style>
+  :root {{
+    --bg:#0b0d10; --panel:#14171c; --panel-2:#1a1f26; --border:#262c36;
+    --fg:#e6edf3; --fg-dim:#8b949e; --accent:#58a6ff;
+    --win:#3fb950; --loss:#f85149; --pending:#d29922;
+  }}
+  * {{ box-sizing:border-box; }}
+  body {{
+    background:var(--bg); color:var(--fg); margin:0; padding:24px;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif; font-size:14px;
+  }}
+  a {{ color:var(--accent); }}
+  .head {{ display:flex; align-items:center; gap:12px; margin-bottom:4px; }}
+  h1 {{ font-size:20px; font-weight:600; margin:0; }}
+  h2 {{ font-size:14px; font-weight:600; color:var(--fg-dim);
+        text-transform:uppercase; letter-spacing:.04em;
+        margin:24px 0 10px; }}
+  .crumb {{ color:var(--fg-dim); font-size:12px; margin-bottom:18px; }}
+  .crumb a {{ text-decoration:none; }}
+  .refresh {{
+    background:var(--panel); border:1px solid var(--border); color:var(--fg);
+    padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;
+    margin-left:auto;
+  }}
+  .refresh:hover {{ border-color:var(--accent); }}
+  .refresh:disabled {{ opacity:.5; cursor:default; }}
+  .fin-state {{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    gap:12px;
+  }}
+  .stat {{
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:12px 14px;
+  }}
+  .stat-label {{ text-transform:uppercase; font-size:11px;
+                 color:var(--fg-dim); letter-spacing:.05em; }}
+  .stat-value {{ font-size:20px; font-weight:600; margin-top:4px; }}
+  .stat-sub {{ font-size:11px; color:var(--fg-dim); margin-top:4px; }}
+  .bar {{ height:6px; background:var(--panel-2); border-radius:3px;
+          margin-top:8px; overflow:hidden; }}
+  .bar > span {{ display:block; height:100%; background:var(--accent); }}
+  .table-container {{ overflow-x:auto; }}
+  table {{
+    width:100%; border-collapse:collapse; background:var(--panel);
+    border:1px solid var(--border); border-radius:8px; overflow:hidden;
+    min-width:820px;
+  }}
+  th {{
+    background:var(--panel-2); color:var(--fg-dim); text-transform:uppercase;
+    font-size:10px; letter-spacing:.05em; text-align:left; padding:10px 12px;
+    cursor:pointer; user-select:none; white-space:nowrap;
+  }}
+  th:hover {{ color:var(--fg); }}
+  th .sort-arrow {{ color:var(--accent); margin-left:4px; }}
+  td {{ padding:10px 12px; border-top:1px solid var(--border);
+        white-space:nowrap; }}
+  td.num {{ text-align:right; font-variant-numeric:tabular-nums; }}
+  td.actions {{ text-align:center; }}
+  td.empty {{ text-align:center; color:var(--fg-dim); padding:24px; }}
+  tr:hover td {{ background:var(--panel-2); }}
+  .ext-link {{ text-decoration:none; font-size:15px; }}
+  .ext-link.disabled {{ color:var(--fg-dim); }}
+  .badge {{ display:inline-block; padding:2px 8px; border-radius:4px;
+            font-size:11px; font-weight:500; text-transform:capitalize; }}
+  .badge.win {{ background:rgba(63,185,80,.15); color:var(--win); }}
+  .badge.pending {{ background:rgba(210,153,34,.15); color:var(--pending); }}
+  .badge.scratch {{ background:rgba(139,148,158,.15); color:var(--fg-dim); }}
+  .panel {{
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:14px 16px; margin-top:10px;
+  }}
+  .panel .kv {{ display:flex; gap:24px; flex-wrap:wrap; }}
+  .panel .kv div {{ font-size:13px; }}
+  .panel .kv span {{ color:var(--fg-dim); display:block; font-size:11px;
+                     text-transform:uppercase; letter-spacing:.05em;
+                     margin-bottom:2px; }}
+  .note-bar {{
+    background:var(--panel-2); border-left:3px solid var(--accent);
+    padding:8px 12px; border-radius:4px; color:var(--fg-dim);
+    font-size:12px; line-height:1.5; margin-top:10px;
+  }}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>DMAI · Procurement</h1>
+    <button class="refresh" id="refreshBtn" onclick="forceRefresh()">
+      Force refresh
+    </button>
+  </div>
+  <div class="crumb"><a href="/admin">← Admin</a> · hardware shortlist</div>
+
+  <div class="fin-state">
+    <div class="stat">
+      <div class="stat-label">Last run</div>
+      <div class="stat-value">{esc(_procurement_humanise_ts(run_ts))}</div>
+      <div class="stat-sub">{esc(run_ts or "no run yet")}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Catalog size</div>
+      <div class="stat-value">{esc(catalog_size if catalog_size is not None else "—")}</div>
+      <div class="stat-sub">hardware rows normalised</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Candidates</div>
+      <div class="stat-value">{esc(candidate_count if candidate_count is not None else "—")}</div>
+      <div class="stat-sub">passing headroom gates</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Treasury vs top pick</div>
+      <div class="stat-value">{fmt_gbp(bal)}</div>
+      <div class="stat-sub">{esc(treasury_sub)}</div>
+      <div class="bar"><span style="width:{pct_clamped}%"></span></div>
+    </div>
+  </div>
+
+  <h2>Shortlist</h2>
+  <div class="table-container">
+    <table id="shortlist">
+      <thead>
+        <tr>
+          <th data-key="rank" data-type="num">Rank</th>
+          <th data-key="source">Source</th>
+          <th data-key="name">Name</th>
+          <th data-key="cpu">CPU</th>
+          <th data-key="ram" data-type="num">RAM</th>
+          <th data-key="idle" data-type="num">Idle W</th>
+          <th data-key="capex" data-type="num">Capex GBP</th>
+          <th data-key="tco" data-type="num">3yr TCO GBP</th>
+          <th data-key="verdict">Verdict</th>
+          <th data-key="actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+{table_rows}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Workload snapshot used for ranking</h2>
+  <div class="panel">
+    <div class="kv">
+      <div><span>Peak RSS</span>{fmt_num(workload.get("peak_rss_mb"), " MB")}</div>
+      <div><span>CPU seconds / day</span>{fmt_num(workload.get("cpu_seconds_delta"))}</div>
+      <div><span>Days sampled</span>{fmt_num(workload.get("days"))}</div>
+    </div>
+  </div>
+
+  <h2>About this shortlist</h2>
+  <div class="note-bar">
+    3-year TCO = purchase price plus three years of electricity at
+    £0.27/kWh, estimated from the machine's idle power draw (an always-on
+    home-lab box spends nearly all its life idle).
+    Only machines with at least 2× the RAM and CPU headroom over DMAI's
+    measured peak workload are shortlisted, so there is room to grow.
+    Prices come from hand-seeded fallback listings until the capability
+    materialiser generates live vendor parsers — verify the current price
+    before purchase.
+  </div>
+
+<script>
+(function() {{
+  var table = document.getElementById('shortlist');
+  if (!table) return;
+  var tbody = table.tBodies[0];
+  var state = {{ key: 'rank', dir: 1 }};
+
+  function cellValue(row, idx, type) {{
+    var cell = row.cells[idx];
+    if (!cell) return '';
+    var ds = cell.getAttribute('data-sort');
+    var raw = ds !== null ? ds : cell.textContent.trim();
+    if (type === 'num') {{ var n = parseFloat(raw); return isNaN(n) ? 0 : n; }}
+    return raw.toLowerCase();
+  }}
+
+  function sortBy(idx, type) {{
+    var rows = Array.prototype.slice.call(tbody.rows).filter(function(r) {{
+      return !r.querySelector('.empty');
+    }});
+    if (!rows.length) return;
+    rows.sort(function(a, b) {{
+      var va = cellValue(a, idx, type), vb = cellValue(b, idx, type);
+      if (va < vb) return -1 * state.dir;
+      if (va > vb) return 1 * state.dir;
+      return 0;
+    }});
+    rows.forEach(function(r) {{ tbody.appendChild(r); }});
+  }}
+
+  var headers = table.tHead.rows[0].cells;
+  Array.prototype.forEach.call(headers, function(th, idx) {{
+    if (th.getAttribute('data-key') === 'actions') return;
+    th.addEventListener('click', function() {{
+      var type = th.getAttribute('data-type') || 'str';
+      var key = th.getAttribute('data-key');
+      if (state.key === key) {{ state.dir *= -1; }}
+      else {{ state.key = key; state.dir = 1; }}
+      Array.prototype.forEach.call(headers, function(h) {{
+        var old = h.querySelector('.sort-arrow');
+        if (old) old.remove();
+      }});
+      var arrow = document.createElement('span');
+      arrow.className = 'sort-arrow';
+      arrow.textContent = state.dir === 1 ? '▲' : '▼';
+      th.appendChild(arrow);
+      sortBy(idx, type);
+    }});
+  }});
+}})();
+
+function forceRefresh() {{
+  if (!confirm('Run a new procurement research pass now?')) return;
+  var btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = 'Running…';
+  fetch('/api/admin/procurement-run', {{ method: 'POST' }})
+    .then(function(res) {{
+      if (res.status === 200) {{ location.reload(); }}
+      else {{
+        btn.disabled = false;
+        btn.textContent = 'Force refresh';
+        alert('Run failed (HTTP ' + res.status + ')');
+      }}
+    }})
+    .catch(function(err) {{
+      btn.disabled = false;
+      btn.textContent = 'Force refresh';
+      alert('Run failed: ' + err);
+    }});
+}}
+</script>
+</body>
+</html>"""
+    return Response(page, mimetype="text/html")
+
+
 @app.route("/api/self-evolution/gaps")
 def api_self_evolution_gaps():
     """Read the most recent gap_report.json. ?fresh=1 forces a re-scan."""
