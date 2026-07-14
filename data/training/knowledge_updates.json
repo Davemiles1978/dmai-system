@@ -1,0 +1,65 @@
+[
+  {
+    "source": "arXiv:2607.11875 https://arxiv.org/abs/2607.11875",
+    "date_added": "2026-07-14",
+    "domain": "metacognition_accuracy",
+    "technique": "Invariant-manifold view of transformer circuit formation",
+    "description": "Theory + diagnostics: transformer training dynamics on inductive reasoning tasks collapse to a low-dimensional invariant manifold with interpretable coordinates that can detect which circuits (in-context vs in-weights) were learned.",
+    "training_prompt": "Given a model's outputs on synthetic inductive tasks (n-gram, multi-hop), propose a minimal set of scalar 'circuit indicators' that distinguish in-context from in-weights learning; then design an experiment to validate the indicators and predict which circuit will dominate under changed data statistics.",
+    "expected_improvement": "Improves metacognition_accuracy by training DMAI to self-diagnose which internal strategy it is using and predict strategy shifts under distribution changes."
+  },
+  {
+    "source": "arXiv:2607.11871 https://arxiv.org/abs/2607.11871",
+    "date_added": "2026-07-14",
+    "domain": "agentic_capability_score",
+    "technique": "Representation-level bias detection for LLM-as-judge",
+    "description": "Mechanistic bias geometry: biased judging inputs shift activations along a low-dimensional bias subspace; steering/projection along this direction can reproduce or mitigate scoring bias and predict failures on unseen benchmarks.",
+    "training_prompt": "Design an evaluation harness for DMAI where it acts as an LLM-judge: propose a procedure to detect 'bias directions' from hidden-state features (conceptually), and outline how to use a linear projection to flag likely mis-judgments before final scoring.",
+    "expected_improvement": "Improves agentic_capability_score and metacognition_accuracy by making DMAI's self-evaluation/verification loops more reliable and debiased."
+  },
+  {
+    "source": "arXiv:2607.11883 https://arxiv.org/abs/2607.11883",
+    "date_added": "2026-07-14",
+    "domain": "sample_efficiency_trend",
+    "technique": "Requential coding (teacher-selected self-generated samples) for compression/generalization",
+    "description": "Compression via 'requential coding' where a teacher selects samples from the student's distribution; code length depends on teacher-student disagreement rather than parameter count or data entropy, enabling tighter PAC-Bayes bounds and insight into learnable structure.",
+    "training_prompt": "Create a DMAI training exercise: given a dataset description and a student/teacher model behavior summary, propose a requential-sampling curriculum that concentrates on disagreement regions and explain how it should change over epochs to avoid overfitting.",
+    "expected_improvement": "Improves sample_efficiency_trend and recursive_self_improvement_rate by encouraging disagreement-focused self-training curricula and tighter self-assessment of generalization."
+  },
+  {
+    "source": "arXiv:2607.11826 https://arxiv.org/abs/2607.11826",
+    "date_added": "2026-07-14",
+    "domain": "sample_efficiency_trend",
+    "technique": "Frugal NAS via Transformer RL controller + swarm local search",
+    "description": "Hybrid NAS: transformer controller trained with RL for global search plus artificial-bee-colony local refinement; adds dynamic entropy to avoid premature convergence and penalizes depth to reduce bloat.",
+    "training_prompt": "Propose a low-budget architecture-search plan for a new DMAI submodule: specify (1) a global proposal generator, (2) a local mutation/refinement operator, (3) an exploration-stagnation detector, and (4) a size penalty; then justify the choices under a 3-hour RTX-3060 constraint.",
+    "expected_improvement": "Improves sample_efficiency_trend and transfer_learning_rate by giving DMAI a template for constrained architecture/toolchain optimization loops."
+  },
+  {
+    "source": "github.com/topoteretes/cognee https://github.com/topoteretes/cognee",
+    "date_added": "2026-07-14",
+    "domain": "agentic_capability_score",
+    "technique": "Agent memory layer in minimal code",
+    "description": "Trending Python project positioning as 'Memory for AI Agents in 5 lines of code'; useful as a reference implementation for lightweight agent memory persistence and retrieval.",
+    "training_prompt": "Draft a design for a minimal agent-memory API (store, recall, summarize, forget) and specify how DMAI should decide when to write vs retrieve memories during multi-step tool tasks.",
+    "expected_improvement": "Improves agentic_capability_score and transfer_learning_rate by strengthening long-horizon task continuity and cross-task recall heuristics."
+  },
+  {
+    "source": "github.com/stanfordnlp/dspy https://github.com/stanfordnlp/dspy",
+    "date_added": "2026-07-14",
+    "domain": "zero_shot_success_count",
+    "technique": "Programmatic optimization of LLM pipelines (DSPy)",
+    "description": "Framework for programming (and optimizing) LLM pipelines rather than hand-crafted prompting; relevant for automating prompt/program search and evaluation-driven improvements.",
+    "training_prompt": "Convert a brittle prompt-based DMAI capability into a small 'program' with modules and an optimizer loop; define the training signal, search space, and stopping criteria.",
+    "expected_improvement": "Improves zero_shot_success_count and skill_acquisition_rate by turning prompt iteration into structured, evaluable pipeline optimization."
+  },
+  {
+    "source": "github.com/langchain-ai/langmem https://github.com/langchain-ai/langmem",
+    "date_added": "2026-07-14",
+    "domain": "multi_agent_coordination",
+    "technique": "Memory primitives for agents (LangChain LangMem)",
+    "description": "Memory primitives aimed at improving long-term agent behavior; relevant to DMAI's conversation/task memory and reflection loops.",
+    "training_prompt": "Specify a memory schema (episodic, semantic, procedural) and write a policy for how multi-agent DMAI components should share/merge memories without feedback loops or duplication.",
+    "expected_improvement": "Improves multi_agent_coordination and agentic_capability_score through better shared context management."
+  }
+]
