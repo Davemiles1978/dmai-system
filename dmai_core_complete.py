@@ -8083,6 +8083,159 @@ def api_admin_fresh_blood_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR G: seed capability promoter status ─────────────────────────────────
+#
+# Exposes what the seed → capability promoter did last, plus the
+# daily-cap budget remaining. Used by the weekly digest cron and the
+# readiness monitor.
+
+@app.route("/api/admin/seed-capability-promoter-status", methods=["GET"])
+def api_admin_seed_capability_promoter_status():
+    """Return current status of the seed → capability promoter loop.
+
+    Response shape::
+
+        {
+          "ok":                    bool,
+          "running":               bool,
+          "last_run_ts":           str | None,
+          "jsonl_offset":          int,
+          "day_bucket":            str,
+          "day_count":             int,
+          "daily_cap":             int,
+          "remaining_today":       int,
+          "last_summary":          dict,
+          "ts":                    str,
+        }
+    """
+    import datetime as _dt
+    import sqlite3
+    try:
+        import json as _json
+        from components.seed_capability_promoter import (
+            get_seed_capability_promoter_loop as _gscp,
+            _kdb_path as _scp_kdb,
+            OFFSET_KEY, DAY_BUCKET_KEY, DAY_COUNT_KEY, LAST_RUN_KEY,
+            REJECT_LOG_KEY, JUDGE_STATS_KEY,
+            DEFAULT_DAILY_CAP,
+        )
+        from components.db import safe_open_kdb as _scp_sok
+        loop = _gscp()
+        running = bool(loop and loop._thread and loop._thread.is_alive())
+
+        offset = 0
+        day_bucket = ""
+        day_count = 0
+        last_run = None
+        reject_log = []
+        judge_stats = {}
+        deferred_total = 0
+        deferred_pending = 0
+        deferred_recent = []
+        try:
+            conn = _scp_sok(_scp_kdb())
+            try:
+                def _get(k):
+                    row = conn.execute(
+                        "SELECT value FROM system_state WHERE key = ?", (k,)
+                    ).fetchone()
+                    return row[0] if row else None
+                try:
+                    offset = int(_get(OFFSET_KEY) or 0)
+                except (TypeError, ValueError):
+                    offset = 0
+                day_bucket = _get(DAY_BUCKET_KEY) or ""
+                try:
+                    day_count = int(_get(DAY_COUNT_KEY) or 0)
+                except (TypeError, ValueError):
+                    day_count = 0
+                last_run = _get(LAST_RUN_KEY)
+
+                # Reject log (tail-of-20 list).
+                raw_rl = _get(REJECT_LOG_KEY)
+                if raw_rl:
+                    try:
+                        rl = _json.loads(raw_rl)
+                        if isinstance(rl, list):
+                            reject_log = rl[-20:]
+                    except _json.JSONDecodeError:
+                        pass
+
+                # Judge stats.
+                raw_js = _get(JUDGE_STATS_KEY)
+                if raw_js:
+                    try:
+                        js = _json.loads(raw_js)
+                        if isinstance(js, dict):
+                            judge_stats = js
+                    except _json.JSONDecodeError:
+                        pass
+
+                # Deferred queue.
+                try:
+                    row = conn.execute(
+                        "SELECT COUNT(*), "
+                        "COALESCE(SUM(CASE WHEN acquired=0 THEN 1 ELSE 0 END), 0) "
+                        "FROM deferred_seeds"
+                    ).fetchone()
+                    if row:
+                        deferred_total = int(row[0] or 0)
+                        deferred_pending = int(row[1] or 0)
+                    rows = conn.execute(
+                        "SELECT concept, channel, reason, gap_summary, "
+                        "attempts, acquired, last_seen "
+                        "FROM deferred_seeds "
+                        "ORDER BY last_seen DESC LIMIT 10"
+                    ).fetchall()
+                    deferred_recent = [
+                        {
+                            "concept":     r[0],
+                            "channel":     r[1],
+                            "reason":      r[2],
+                            "gap_summary": r[3],
+                            "attempts":    r[4],
+                            "acquired":    bool(r[5]),
+                            "last_seen":   r[6],
+                        } for r in rows
+                    ]
+                except sqlite3.OperationalError:
+                    # Table not created yet (first boot before any pass).
+                    pass
+            finally:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+        except Exception as _dbe:
+            logger.warning("seed_capability_promoter status db read failed: %s", _dbe)
+
+        daily_cap = DEFAULT_DAILY_CAP
+        if loop and isinstance(loop.last_summary, dict):
+            daily_cap = int(loop.last_summary.get("daily_cap", DEFAULT_DAILY_CAP))
+
+        return jsonify({
+            "ok":                True,
+            "running":           running,
+            "last_run_ts":       last_run,
+            "jsonl_offset":      offset,
+            "day_bucket":        day_bucket,
+            "day_count":         day_count,
+            "daily_cap":         daily_cap,
+            "remaining_today":   max(0, daily_cap - day_count),
+            "judge_stats":       judge_stats,
+            "reject_log":        reject_log,
+            "deferred_queue": {
+                "total":         deferred_total,
+                "pending":       deferred_pending,
+                "recent":        deferred_recent,
+            },
+            "last_summary":      (loop.last_summary if loop else {}),
+            "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── PR F: unified records viewer ───────────────────────────────────────────
 #
 # Serves the /admin/records page. Two systems (trader, betting) x two
@@ -9520,6 +9673,20 @@ def _start_background_services(force=False):
         _start_fb()
     except Exception as _fb_e:
         logger.warning("fresh_blood_injector init failed: %s", _fb_e)
+
+    # PR G — Seed → Capability Promoter.
+    # Bridges accepted fresh-blood seeds into new type=concept entries
+    # in registry.json. Bumping the registry mtime wakes up the existing
+    # capability_promoter, which mirrors the new rows into SQL — so the
+    # capabilities count actually grows day-to-day and the diversity
+    # ratio has room to move. Soft daily cap defaults to 10.
+    try:
+        from components.seed_capability_promoter import (
+            start_seed_capability_promoter_loop as _start_scp,
+        )
+        _start_scp()
+    except Exception as _scp_e:
+        logger.warning("seed_capability_promoter init failed: %s", _scp_e)
 
     # PR F — Trade Settler: close the outcome loop on every trade the
     # autonomous_trader opens. Paper trades marked-to-market from free

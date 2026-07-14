@@ -317,11 +317,16 @@ def _capability_type_distribution(conn: sqlite3.Connection) -> List[Tuple[str, i
         return []
 
 
-def _crossover_seeds(conn: sqlite3.Connection, seen: set, limit: int,
-                     rng: random.Random) -> List[Dict[str, Any]]:
-    """Emit "explore intersection of X and Y" seeds where X and Y are
-    distant (differently-sized) capability_types."""
-    dist = _capability_type_distribution(conn)
+def _crossover_seeds_from_snapshot(dist: List[Tuple[str, int]], seen: set,
+                                    limit: int, rng: random.Random
+                                    ) -> List[Dict[str, Any]]:
+    """Snapshot-based crossover seed generator (no live DB connection).
+
+    See ``_crossover_seeds`` for the semantics. Kept as separate function
+    so ``inject_once`` can drop the connection before HTTP fetches while
+    other threads (capability promoter, insight promoter, settlers) make
+    progress on the same knowledge DB.
+    """
     if len(dist) < 2:
         return []
     heavy = [t for t, _ in dist[: max(1, len(dist) // 2)]]
@@ -405,9 +410,10 @@ def _diversity_metric(dist: List[Tuple[str, int]]) -> Dict[str, Any]:
     }
 
 
-def _diversity_seeds(conn: sqlite3.Connection, seen: set, limit: int,
-                     rng: random.Random) -> List[Dict[str, Any]]:
-    dist = _capability_type_distribution(conn)
+def _diversity_seeds_from_snapshot(dist: List[Tuple[str, int]], seen: set,
+                                    limit: int, rng: random.Random
+                                    ) -> List[Dict[str, Any]]:
+    """Snapshot-based diversity seed generator (no live DB connection)."""
     metric = _diversity_metric(dist)
     if metric["dominant_share"] < DIVERSITY_THRESHOLD:
         return []
@@ -436,7 +442,122 @@ def _diversity_seeds(conn: sqlite3.Connection, seen: set, limit: int,
 
 # ── Channel picker ────────────────────────────────────────────────────────
 
-CHANNELS = ("arxiv", "github", "crossover", "wildcard", "diversity")
+AI_RELEASE_FEEDS: Tuple[Tuple[str, str], ...] = (
+    ("anthropic",  "https://docs.anthropic.com/en/release-notes/api.rss"),
+    ("openai",     "https://openai.com/blog/rss.xml"),
+    ("openrouter", "https://openrouter.ai/blog/rss.xml"),
+    ("mcp",        "https://modelcontextprotocol.io/rss.xml"),
+)
+
+AI_REPO_RELEASES: Tuple[Tuple[str, str], ...] = (
+    ("anthropic",  "anthropics/anthropic-sdk-python"),
+    ("openai",     "openai/openai-python"),
+    ("openrouter", "OpenRouterTeam/ai-sdk-provider"),
+    ("mcp",        "modelcontextprotocol/servers"),
+)
+
+
+def _ai_release_feed_seeds(seen: set, limit: int) -> List[Dict[str, Any]]:
+    """Poll each AI provider's public release-notes feed.
+
+    We use very tolerant parsing: any ``<title>`` inside an ``<item>``
+    or ``<entry>`` counts. Empty results per source are silently
+    skipped.
+    """
+    seeds: List[Dict[str, Any]] = []
+    for provider, url in AI_RELEASE_FEEDS:
+        if len(seeds) >= limit:
+            break
+        body = _http_get(url)
+        if not body:
+            continue
+        for m in re.finditer(
+            r"<(?:item|entry)[^>]*>.*?<title[^>]*>(.*?)</title>"
+            r"(?:.*?<(?:link|id)[^>]*>(.*?)</(?:link|id)>)?",
+            body, flags=re.DOTALL | re.IGNORECASE,
+        ):
+            title_raw = m.group(1) or ""
+            link_raw  = m.group(2) or ""
+            title = re.sub(r"<[^>]+>", "", title_raw).strip()
+            title = re.sub(r"^\s*(?:<!\[CDATA\[)?|(?:\]\]>)?\s*$", "", title)
+            title = title.strip()
+            if not title:
+                continue
+            concept = f"ai_release:{provider}:{title[:150]}"
+            h = _seed_hash("ai_releases", concept)
+            if h in seen:
+                continue
+            link = re.sub(r"<[^>]+>", "", link_raw).strip() or url
+            seeds.append({
+                "channel": "ai_releases",
+                "concept": concept,
+                "insight_text": (
+                    f"{provider.title()} released: '{title}'. "
+                    "Investigate whether the new capability translates "
+                    "to a primitive DMAI could adopt."
+                ),
+                "source_url": link,
+                "seed_hash": h,
+            })
+            if len(seeds) >= limit:
+                break
+    return seeds
+
+
+def _ai_repo_release_seeds(seen: set, limit: int) -> List[Dict[str, Any]]:
+    """Poll GitHub Releases API for the tracked AI-provider SDKs.
+
+    Unauthenticated calls have a low IP-based rate limit; we accept
+    that and simply fall back to an empty list on 429 or 403.
+    """
+    seeds: List[Dict[str, Any]] = []
+    for provider, repo in AI_REPO_RELEASES:
+        if len(seeds) >= limit:
+            break
+        api = f"https://api.github.com/repos/{repo}/releases?per_page=3"
+        body = _http_get(api)
+        if not body:
+            continue
+        try:
+            releases = json.loads(body)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        if not isinstance(releases, list):
+            continue
+        for rel in releases:
+            if not isinstance(rel, dict):
+                continue
+            tag  = str(rel.get("tag_name") or rel.get("name") or "").strip()
+            name = str(rel.get("name") or tag).strip()
+            if not tag:
+                continue
+            concept = f"ai_repo_release:{provider}:{repo}@{tag}"
+            h = _seed_hash("ai_repo_releases", concept)
+            if h in seen:
+                continue
+            seeds.append({
+                "channel": "ai_repo_releases",
+                "concept": concept,
+                "insight_text": (
+                    f"{provider.title()} SDK '{repo}' shipped {tag} "
+                    f"({name[:120]}). Look at the release notes for "
+                    "any newly-exposed primitives to absorb."
+                ),
+                "source_url": str(
+                    rel.get("html_url")
+                    or f"https://github.com/{repo}/releases"
+                ),
+                "seed_hash": h,
+            })
+            if len(seeds) >= limit:
+                break
+    return seeds
+
+
+CHANNELS = (
+    "arxiv", "github", "crossover", "wildcard", "diversity",
+    "ai_releases", "ai_repo_releases",
+)
 
 
 def _pick_channels(log: List[Dict[str, Any]], k: int,
@@ -504,10 +625,12 @@ def inject_once(
     dbp  = db_path or _kdb_path()
     rng  = rng or random.Random()
 
+    # ---- Phase 1: brief DB read to check cooldown + load log + read type
+    #      distribution snapshot. Then CLOSE the connection so we don't hold
+    #      the write mutex across HTTP fetches that take many seconds.
     conn = safe_open_kdb(dbp)
     try:
         _ensure_state(conn)
-        # Cooldown guard.
         last = _state_get(conn, LAST_RUN_KEY)
         if last and not force:
             try:
@@ -527,72 +650,95 @@ def inject_once(
 
         log = _load_log(conn)
         seen_hashes = {e.get("seed_hash") for e in log if e.get("seed_hash")}
-
-        # Pick channels.
-        picks = channels_override or _pick_channels(log, per_round_channels, rng)
-
-        collected: List[Dict[str, Any]] = []
-        skipped = 0
-        for ch in picks:
-            if ch == "arxiv":
-                got = _arxiv_seeds(seen_hashes, per_channel)
-            elif ch == "github":
-                got = _github_trending_seeds(seen_hashes, per_channel)
-            elif ch == "crossover":
-                got = _crossover_seeds(conn, seen_hashes, per_channel, rng)
-            elif ch == "wildcard":
-                got = _wildcard_seeds(seen_hashes, per_channel, rng)
-            elif ch == "diversity":
-                got = _diversity_seeds(conn, seen_hashes, per_channel, rng)
-            else:
-                skipped += 1
-                continue
-            if not got:
-                skipped += 1
-                continue
-            for seed in got:
-                seen_hashes.add(seed["seed_hash"])
-            collected.extend(got)
-
-        # Emit to JSONL.
-        if collected:
-            jp.parent.mkdir(parents=True, exist_ok=True)
-            with jp.open("a", encoding="utf-8") as fp:
-                for seed in collected:
-                    _emit_row(fp, seed)
-
-        # Update log + last_run.
-        now_iso = _dt.datetime.now(_dt.timezone.utc).isoformat()
-        for seed in collected:
-            log.append({
-                "channel":   seed["channel"],
-                "concept":   seed["concept"],
-                "seed_hash": seed["seed_hash"],
-                "ts":        now_iso,
-            })
-        _save_log(conn, log)
-        _state_set(conn, LAST_RUN_KEY, now_iso)
-        conn.commit()
-
-        channels_used = sorted({s["channel"] for s in collected})
-        summary = {
-            "emitted":        len(collected),
-            "skipped":        skipped,
-            "channels_used":  channels_used,
-            "seed_hashes":    [s["seed_hash"] for s in collected],
-            "picked":         list(picks),
-            "ts":             now_iso,
-        }
-        logger.info(
-            "🩸 fresh_blood: emitted=%d skipped=%d channels=%s",
-            summary["emitted"], summary["skipped"], channels_used,
-        )
-        return summary
+        # Snapshot the capability type distribution *now* so crossover +
+        # diversity seed generators can work without holding the connection.
+        cap_dist_snapshot = _capability_type_distribution(conn)
     finally:
         try:
             conn.close()
         except Exception:
             pass
+
+    # ---- Phase 2: seed collection WITHOUT holding a DB connection. HTTP
+    #      fetches happen here — potentially minutes of network work — but
+    #      the write mutex is free for other threads (capability promoter,
+    #      insight promoter, trader/settlers) to make progress.
+    picks = channels_override or _pick_channels(log, per_round_channels, rng)
+
+    collected: List[Dict[str, Any]] = []
+    skipped = 0
+    for ch in picks:
+        if ch == "arxiv":
+            got = _arxiv_seeds(seen_hashes, per_channel)
+        elif ch == "github":
+            got = _github_trending_seeds(seen_hashes, per_channel)
+        elif ch == "crossover":
+            # Uses the snapshotted distribution rather than a live conn.
+            got = _crossover_seeds_from_snapshot(
+                cap_dist_snapshot, seen_hashes, per_channel, rng,
+            )
+        elif ch == "wildcard":
+            got = _wildcard_seeds(seen_hashes, per_channel, rng)
+        elif ch == "diversity":
+            got = _diversity_seeds_from_snapshot(
+                cap_dist_snapshot, seen_hashes, per_channel, rng,
+            )
+        elif ch == "ai_releases":
+            got = _ai_release_feed_seeds(seen_hashes, per_channel)
+        elif ch == "ai_repo_releases":
+            got = _ai_repo_release_seeds(seen_hashes, per_channel)
+        else:
+            skipped += 1
+            continue
+        if not got:
+            skipped += 1
+            continue
+        for seed in got:
+            seen_hashes.add(seed["seed_hash"])
+        collected.extend(got)
+
+    # Emit to JSONL (file lock, not DB lock).
+    if collected:
+        jp.parent.mkdir(parents=True, exist_ok=True)
+        with jp.open("a", encoding="utf-8") as fp:
+            for seed in collected:
+                _emit_row(fp, seed)
+
+    # ---- Phase 3: brief DB write to persist log + last_run. Only holds
+    #      the write mutex for the duration of two small INSERTs.
+    now_iso = _dt.datetime.now(_dt.timezone.utc).isoformat()
+    for seed in collected:
+        log.append({
+            "channel":   seed["channel"],
+            "concept":   seed["concept"],
+            "seed_hash": seed["seed_hash"],
+            "ts":        now_iso,
+        })
+    conn = safe_open_kdb(dbp)
+    try:
+        _save_log(conn, log)
+        _state_set(conn, LAST_RUN_KEY, now_iso)
+        conn.commit()
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+    channels_used = sorted({s["channel"] for s in collected})
+    summary = {
+        "emitted":        len(collected),
+        "skipped":        skipped,
+        "channels_used":  channels_used,
+        "seed_hashes":    [s["seed_hash"] for s in collected],
+        "picked":         list(picks),
+        "ts":             now_iso,
+    }
+    logger.info(
+        "fresh_blood: emitted=%d skipped=%d channels=%s",
+        summary["emitted"], summary["skipped"], channels_used,
+    )
+    return summary
 
 
 # ── Loop wrapper ──────────────────────────────────────────────────────────

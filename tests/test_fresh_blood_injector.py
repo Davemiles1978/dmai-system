@@ -295,6 +295,98 @@ def test_github_channel_parses_repos(monkeypatch, tmp_db, tmp_jsonl, rng):
     assert "github_trending:facebook/react" in repos
 
 
+# --- ai_releases channel: RSS/Atom feed monkeypatched --------------------
+
+_AI_RELEASE_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+<item>
+  <title>Claude 4.9 API adds interleaved thinking</title>
+  <link>https://docs.anthropic.com/en/release-notes/api#4-9</link>
+</item>
+<item>
+  <title>New /messages parameter: parallel_tool_calls</title>
+  <link>https://docs.anthropic.com/en/release-notes/api#4-8</link>
+</item>
+</channel></rss>"""
+
+
+def test_ai_releases_channel_parses_feed(monkeypatch, tmp_db, tmp_jsonl, rng):
+    # Stub the AI_RELEASE_FEEDS tuple down to a single provider so the
+    # test is deterministic regardless of how many providers ship.
+    monkeypatch.setattr(
+        fb, "AI_RELEASE_FEEDS",
+        (("anthropic", "https://docs.anthropic.com/en/release-notes/api.rss"),),
+    )
+    monkeypatch.setattr(fb, "_http_get", lambda url, timeout=10: _AI_RELEASE_RSS)
+    result = fb.inject_once(
+        jsonl_path=tmp_jsonl, db_path=tmp_db, force=True,
+        channels_override=["ai_releases"], per_channel=2, rng=rng,
+    )
+    assert result["emitted"] == 2
+    rows = _read_jsonl(tmp_jsonl)
+    for r in rows:
+        assert r["channel"] == "ai_releases"
+        assert r["concept"].startswith("ai_release:anthropic:")
+        assert r["source_url"].startswith("https://docs.anthropic.com/")
+
+
+def test_ai_releases_http_failure_is_silent(monkeypatch, tmp_db, tmp_jsonl, rng):
+    monkeypatch.setattr(fb, "_http_get", lambda url, timeout=10: None)
+    result = fb.inject_once(
+        jsonl_path=tmp_jsonl, db_path=tmp_db, force=True,
+        channels_override=["ai_releases"], per_channel=2, rng=rng,
+    )
+    assert result["emitted"] == 0
+    assert result["skipped"] == 1
+
+
+# --- ai_repo_releases channel: GitHub Releases API monkeypatched ---------
+
+_AI_REPO_RELEASES_JSON = json.dumps([
+    {"tag_name": "v4.9.0", "name": "4.9.0: interleaved thinking",
+     "html_url": "https://github.com/anthropics/anthropic-sdk-python/releases/tag/v4.9.0"},
+    {"tag_name": "v4.8.1", "name": "4.8.1: bugfix",
+     "html_url": "https://github.com/anthropics/anthropic-sdk-python/releases/tag/v4.8.1"},
+])
+
+
+def test_ai_repo_releases_parses_github_api(monkeypatch, tmp_db, tmp_jsonl, rng):
+    monkeypatch.setattr(
+        fb, "AI_REPO_RELEASES",
+        (("anthropic", "anthropics/anthropic-sdk-python"),),
+    )
+    monkeypatch.setattr(
+        fb, "_http_get",
+        lambda url, timeout=10: _AI_REPO_RELEASES_JSON,
+    )
+    result = fb.inject_once(
+        jsonl_path=tmp_jsonl, db_path=tmp_db, force=True,
+        channels_override=["ai_repo_releases"], per_channel=2, rng=rng,
+    )
+    assert result["emitted"] == 2
+    rows = _read_jsonl(tmp_jsonl)
+    for r in rows:
+        assert r["channel"] == "ai_repo_releases"
+        assert r["concept"].startswith(
+            "ai_repo_release:anthropic:anthropics/anthropic-sdk-python@"
+        )
+        assert "github.com" in r["source_url"]
+
+
+def test_ai_repo_releases_bad_json_skipped(monkeypatch, tmp_db, tmp_jsonl, rng):
+    monkeypatch.setattr(fb, "_http_get", lambda url, timeout=10: "not json")
+    result = fb.inject_once(
+        jsonl_path=tmp_jsonl, db_path=tmp_db, force=True,
+        channels_override=["ai_repo_releases"], per_channel=2, rng=rng,
+    )
+    assert result["emitted"] == 0
+
+
+def test_channels_tuple_includes_new_ai_channels():
+    assert "ai_releases" in fb.CHANNELS
+    assert "ai_repo_releases" in fb.CHANNELS
+
+
 # --- cooldown ------------------------------------------------------------
 
 def test_cooldown_blocks_immediate_reinjection(monkeypatch, tmp_db, tmp_jsonl, rng):
