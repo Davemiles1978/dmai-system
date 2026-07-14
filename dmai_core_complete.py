@@ -8083,6 +8083,89 @@ def api_admin_fresh_blood_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR H: capability materialiser status ─────────────────────────────────
+#
+# Exposes what the LLM-driven capability materialiser did last, plus
+# the daily cap budget, and a tail of the materialisation_log so the
+# admin panel can show promoted vs failed candidates.
+
+@app.route("/api/admin/capability-materialiser-status", methods=["GET"])
+def api_admin_capability_materialiser_status():
+    """Return status of the PR H capability materialiser."""
+    try:
+        import sqlite3 as _sq3
+        import json as _mj
+        from components.capability_materialiser import (
+            STATE_KEY_LAST_SUMMARY, STATE_KEY_LAST_RUN,
+            DEFAULT_DB_PATH,
+        )
+        try:
+            from components.capability_materialiser import _LOOP as _MAT_LOOP
+        except Exception:
+            _MAT_LOOP = None
+
+        conn = _sq3.connect(DEFAULT_DB_PATH, timeout=5.0)
+        conn.row_factory = _sq3.Row
+        try:
+            summary_row = conn.execute(
+                "SELECT value FROM system_state WHERE key = ?",
+                (STATE_KEY_LAST_SUMMARY,),
+            ).fetchone()
+            last_run_row = conn.execute(
+                "SELECT value FROM system_state WHERE key = ?",
+                (STATE_KEY_LAST_RUN,),
+            ).fetchone()
+            last_summary = _mj.loads(summary_row[0]) if summary_row else {}
+            last_run_ts  = last_run_row[0] if last_run_row else None
+
+            # Tail of the materialisation_log for the admin panel.
+            log_rows = conn.execute(
+                "SELECT capability_id, concept, slug, outcome, "
+                "       model_used, reasons, judge_confidence, "
+                "       duration_sec, created_at "
+                "FROM materialisation_log "
+                "ORDER BY id DESC LIMIT 20"
+            ).fetchall()
+            log = [
+                {
+                    "capability_id":    r["capability_id"],
+                    "concept":          r["concept"],
+                    "slug":             r["slug"],
+                    "outcome":          r["outcome"],
+                    "model_used":       r["model_used"],
+                    "reasons":          _mj.loads(r["reasons"] or "[]"),
+                    "judge_confidence": r["judge_confidence"],
+                    "duration_sec":     r["duration_sec"],
+                    "created_at":       r["created_at"],
+                }
+                for r in log_rows
+            ]
+            # Counts
+            counts_rows = conn.execute(
+                "SELECT outcome, COUNT(*) FROM materialisation_log "
+                "GROUP BY outcome"
+            ).fetchall()
+            counts = {r[0]: r[1] for r in counts_rows}
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return jsonify({
+            "running":       bool(_MAT_LOOP
+                                 and getattr(_MAT_LOOP, "_thread", None)
+                                 and _MAT_LOOP._thread.is_alive()),
+            "last_run_ts":   last_run_ts,
+            "last_summary":  last_summary,
+            "counts":        counts,
+            "log":           log,
+            "ts":            datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── PR G: seed capability promoter status ─────────────────────────────────
 #
 # Exposes what the seed → capability promoter did last, plus the
@@ -9687,6 +9770,22 @@ def _start_background_services(force=False):
         _start_scp()
     except Exception as _scp_e:
         logger.warning("seed_capability_promoter init failed: %s", _scp_e)
+
+    # PR H — Capability Materialiser.
+    # Turns judge-accepted concept stubs (runtime_mode='stub', provenance
+    # 'fresh_blood_seed+self_judge', judge_confidence >= 0.80) into
+    # runnable modules via an LLM cascade (gpt-4o-mini → claude-sonnet-4.5).
+    # Sandboxed generation → AST validate → auto smoke pytest → 5s
+    # happy-path → self_judge docstring re-eval, then promote
+    # staging/ → live/ and flip runtime_mode='generated_module'.
+    # Daily cap 5.
+    try:
+        from components.capability_materialiser import (
+            start_capability_materialiser_loop as _start_matl,
+        )
+        _start_matl()
+    except Exception as _matl_e:
+        logger.warning("capability_materialiser init failed: %s", _matl_e)
 
     # PR F — Trade Settler: close the outcome loop on every trade the
     # autonomous_trader opens. Paper trades marked-to-market from free
