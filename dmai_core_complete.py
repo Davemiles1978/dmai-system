@@ -28,6 +28,7 @@ Environment variables: see .env.template
 import os
 import sys
 import json
+import hmac
 import logging
 import asyncio
 import tempfile
@@ -1680,6 +1681,31 @@ def _require_auth():
     pwd = request.headers.get("X-Master-Password") or request.args.get("password", "")
     master = os.environ.get("MASTER_PASSWORD", "")
     return pwd == master
+
+def _require_cron_auth():
+    """PR M: dedicated auth path for scheduled (cron) callers.
+
+    Authorises a request iff the ``X-Cron-Secret`` header exactly matches the
+    ``CRON_SECRET`` env var, compared in constant time. Fails closed — if
+    ``CRON_SECRET`` is unset/empty, no request is ever authorised. Deliberately
+    does NOT accept the master password or a JWT, so scheduled traffic stays
+    separated from interactive/admin traffic and the master password never has
+    to appear in cron task-text.
+    """
+    secret = os.environ.get("CRON_SECRET", "")
+    if not secret:
+        return False
+    supplied = request.headers.get("X-Cron-Secret", "")
+    if not supplied:
+        return False
+    return hmac.compare_digest(supplied, secret)
+
+# Fail-closed warning: surfaced once at startup so an unset CRON_SECRET is
+# obvious in Render logs (every /api/cron/* call will 401 until it is set).
+if not os.environ.get("CRON_SECRET"):
+    logger.warning(
+        "CRON_SECRET not set — /api/cron/* endpoints will reject all "
+        "requests (fail closed). Set it with: render env set CRON_SECRET <secret>")
 
 def _safe_sanitise(text):
     """Wrapper that normalises sanitise_input result to a plain string.
@@ -6268,6 +6294,103 @@ def api_integrity_run():
     _t = threading.Thread(target=_run, daemon=True, name="integrity-check")
     _t.start()
     return jsonify({"status": "started", "message": "Integrity check running in background"})
+
+# ── PR M: cron-secret auth endpoints ──────────────────────────────────────────
+# Scheduled tasks authenticate with the X-Cron-Secret header (see
+# _require_cron_auth) rather than embedding the master password in cron
+# task-text. These endpoints ONLY accept cron auth — never a JWT or the master
+# password — so scheduled and interactive traffic stay cleanly separated.
+
+def _cron_guard():
+    """Return a Flask 401 response if cron auth fails, else None.
+
+    On success, log the call so scheduled traffic is distinguishable from
+    interactive traffic in Render logs.
+    """
+    if not _require_cron_auth():
+        return jsonify({"error": "cron auth required",
+                        "hint": "set X-Cron-Secret header"}), 401
+    logger.info("cron-auth call: %s %s", request.method, request.path)
+    return None
+
+@app.route("/api/cron/status", methods=["GET"])
+def api_cron_status():
+    """Trivial healthcheck so a cron can verify the auth path before firing."""
+    guard = _cron_guard()
+    if guard is not None:
+        return guard
+    return jsonify({"ok": True, "auth": "cron"})
+
+@app.route("/api/cron/integrity/run", methods=["POST"])
+def api_cron_integrity_run():
+    """Cron-authenticated mirror of /api/integrity/run."""
+    guard = _cron_guard()
+    if guard is not None:
+        return guard
+    def _run():
+        try:
+            from components.knowledge.integrity_checker import KnowledgeIntegrityChecker
+            KnowledgeIntegrityChecker().run()
+        except Exception as _e:
+            logger.error("IntegrityChecker cron bg run: %s", _e)
+    _t = threading.Thread(target=_run, daemon=True, name="cron-integrity-check")
+    _t.start()
+    return jsonify({"status": "started",
+                    "message": "Integrity check running in background"})
+
+@app.route("/api/cron/providers/health-check", methods=["POST"])
+def api_cron_providers_health_check():
+    """Cron-authenticated provider health diagnostic.
+
+    Reuses the AutoAPIActivator status that backs /api/harvester/status and
+    wraps it in a compact health verdict.
+    """
+    guard = _cron_guard()
+    if guard is not None:
+        return guard
+    activator = components.get("api_activator")
+    if activator is None:
+        return jsonify({"error": "AutoAPIActivator not initialised"}), 503
+    status = activator.get_status()
+    providers = status.get("providers", {})
+    active  = [pid for pid, p in providers.items() if p.get("status") == "active"]
+    pending = [pid for pid, p in providers.items() if p.get("status") == "pending_api_key"]
+    invalid = [pid for pid, p in providers.items() if p.get("status") == "invalid"]
+    return jsonify({
+        "ok":              True,
+        "checked_at":      status.get("timestamp"),
+        "total_providers": len(providers),
+        "active_count":    len(active),
+        "active":          active,
+        "pending_key":     pending,
+        "invalid":         invalid,
+        "healthy":         len(active) > 0,
+    })
+
+@app.route("/api/cron/self-evolution/gaps", methods=["GET"])
+def api_cron_self_evolution_gaps():
+    """Cron-authenticated mirror of /api/self-evolution/gaps (?fresh=1 re-scans)."""
+    guard = _cron_guard()
+    if guard is not None:
+        return guard
+    try:
+        import os as _os, json as _json
+        fresh = request.args.get("fresh") in ("1", "true", "yes")
+        p = _os.path.join(DATA_PATH.rstrip("/"), "gap_report.json")
+        if not fresh and _os.path.exists(p):
+            with open(p) as f:
+                return jsonify(_json.load(f))
+        try:
+            from components.self_scanner import SelfScanner
+            return jsonify(SelfScanner(app=app, data_path=DATA_PATH).run())
+        except Exception as _se:
+            logger.warning("cron gaps scan failed: %s", _se)
+            if _os.path.exists(p):
+                with open(p) as f:
+                    return jsonify(_json.load(f))
+            return jsonify({"status": "no_scan_yet"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/integrity/report", methods=["GET"])
 def api_integrity_report():
