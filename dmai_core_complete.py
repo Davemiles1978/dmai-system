@@ -746,9 +746,84 @@ except Exception as e:
     logger.warning("DeepResearchOrchestrator failed: %s", e)
 
 
+# ── API key registry + DB hydration (defined here so it runs BEFORE the ──────
+# AutoAPIActivator below performs its first validation pass) ──────────────────
+_PROVIDER_REGISTRY = [
+    # (provider_id, display_name, env_var, signup_url)
+    ("groq",            "Groq",            "GROQ_API_KEY",         "https://console.groq.com/keys"),
+    ("cerebras",        "Cerebras",        "CEREBRAS_API_KEY",      "https://cloud.cerebras.ai"),
+    ("google_ai_studio","Google AI Studio","GOOGLE_AI_STUDIO_KEY",  "https://aistudio.google.com/apikey"),
+    ("tavily",          "Tavily",          "TAVILY_API_KEY",        "https://tavily.com/#api"),
+    ("deepseek",        "DeepSeek",        "DEEPSEEK_API_KEY",      "https://platform.deepseek.com/api_keys"),
+    ("openrouter",      "OpenRouter",      "OPENROUTER_API_KEY",    "https://openrouter.ai/keys"),
+    ("cloudflare",      "Cloudflare AI",   "CLOUDFLARE_API_KEY",    "https://dash.cloudflare.com/profile/api-tokens"),
+    ("cohere",          "Cohere",          "COHERE_API_KEY",        "https://dashboard.cohere.com/api-keys"),
+    ("huggingface",     "Hugging Face",    "HUGGINGFACE_API_KEY",   "https://huggingface.co/settings/tokens"),
+    ("openai",          "OpenAI",          "OPENAI_API_KEY",        "https://platform.openai.com/api-keys"),
+    ("anthropic",       "Anthropic",       "ANTHROPIC_API_KEY",     "https://console.anthropic.com/settings/keys"),
+    ("perplexity",      "Perplexity",      "PERPLEXITY_API_KEY",    "https://docs.perplexity.ai"),
+    ("github_models",   "GitHub Models",   "GITHUB_TOKEN",          "https://github.com/settings/tokens"),
+    ("mistral",         "Mistral",         "MISTRAL_API_KEY",       "https://console.mistral.ai"),
+    ("betfair_delayed", "Betfair (delayed)",   "BETFAIR_APP_KEY_DELAYED", "https://developer.betfair.com"),
+    ("betfair_live",    "Betfair (live)",      "BETFAIR_APP_KEY_LIVE",    "https://developer.betfair.com"),
+]
+_CORE_PROVIDERS = {"groq", "cerebras", "google_ai_studio", "tavily", "deepseek"}
+
+
+def _get_db_key(provider_id: str) -> str:
+    try:
+        st = components.get("db_storage")
+        if st and hasattr(st, "get_api_key"):
+            return st.get_api_key(provider_id) or ""
+    except Exception:
+        pass
+    return ""
+
+
+def _bootstrap_api_key_hydration():
+    """Initialise db_storage if not already present, then push DB-stored
+    API keys into os.environ so provider clients that init later see them.
+    Idempotent — safe to call multiple times; existing env vars win.
+    Returns dict: {"db_ready": bool, "hydrated": [pid, ...]}.
+    """
+    out = {"db_ready": False, "hydrated": []}
+    # Init db_storage if not present
+    if not components.get("db_storage"):
+        try:
+            from components.pg_storage import get_storage as _get_pg_storage
+            components["db_storage"] = _get_pg_storage()
+            out["db_ready"] = True
+            logger.info("db_storage bootstrapped: %s", type(components["db_storage"]).__name__)
+        except Exception as e:
+            logger.warning("db_storage bootstrap failed: %s", e)
+            return out
+    else:
+        out["db_ready"] = True
+    # Walk provider registry, push DB values to env
+    try:
+        for _pid, _name, _env_var, _ in _PROVIDER_REGISTRY:
+            if os.environ.get(_env_var):
+                continue
+            _db_val = _get_db_key(_pid)
+            if _db_val:
+                os.environ[_env_var] = _db_val
+                out["hydrated"].append(_pid)
+        if out["hydrated"]:
+            logger.info("API key hydration: pushed %d DB-stored keys into env: %s",
+                        len(out["hydrated"]), ",".join(out["hydrated"]))
+        else:
+            logger.info("API key hydration: no DB-stored keys needed injection")
+    except Exception as _e:
+        logger.warning("API key hydration failed: %s", _e)
+    return out
+
+
 # ── AutoAPIActivator ──────────────────────────────────────────────────────────
 try:
     from components.integration.auto_api_activator import AutoAPIActivator
+    # PR O — hydrate DB-stored API keys into env BEFORE activator constructs, so
+    # first validation pass sees them.
+    _bootstrap_api_key_hydration()
     _hub_ref = components.get("extended_hub") or components.get("ai_hub")
     components["api_activator"] = AutoAPIActivator(
         ai_hub=_hub_ref,
@@ -4035,26 +4110,9 @@ def api_admin_auth():
 # at runtime so all provider clients can use them immediately.
 # Masked = only last 4 chars shown; full key is NEVER returned over the wire.
 
-_PROVIDER_REGISTRY = [
-    # (provider_id, display_name, env_var, signup_url)
-    ("groq",            "Groq",            "GROQ_API_KEY",         "https://console.groq.com/keys"),
-    ("cerebras",        "Cerebras",        "CEREBRAS_API_KEY",      "https://cloud.cerebras.ai"),
-    ("google_ai_studio","Google AI Studio","GOOGLE_AI_STUDIO_KEY",  "https://aistudio.google.com/apikey"),
-    ("tavily",          "Tavily",          "TAVILY_API_KEY",        "https://tavily.com/#api"),
-    ("deepseek",        "DeepSeek",        "DEEPSEEK_API_KEY",      "https://platform.deepseek.com/api_keys"),
-    ("openrouter",      "OpenRouter",      "OPENROUTER_API_KEY",    "https://openrouter.ai/keys"),
-    ("cloudflare",      "Cloudflare AI",   "CLOUDFLARE_API_KEY",    "https://dash.cloudflare.com/profile/api-tokens"),
-    ("cohere",          "Cohere",          "COHERE_API_KEY",        "https://dashboard.cohere.com/api-keys"),
-    ("huggingface",     "Hugging Face",    "HUGGINGFACE_API_KEY",   "https://huggingface.co/settings/tokens"),
-    ("openai",          "OpenAI",          "OPENAI_API_KEY",        "https://platform.openai.com/api-keys"),
-    ("anthropic",       "Anthropic",       "ANTHROPIC_API_KEY",     "https://console.anthropic.com/settings/keys"),
-    ("perplexity",      "Perplexity",      "PERPLEXITY_API_KEY",    "https://docs.perplexity.ai"),
-    ("github_models",   "GitHub Models",   "GITHUB_TOKEN",          "https://github.com/settings/tokens"),
-    ("mistral",         "Mistral",         "MISTRAL_API_KEY",       "https://console.mistral.ai"),
-    ("betfair_delayed", "Betfair (delayed)",   "BETFAIR_APP_KEY_DELAYED", "https://developer.betfair.com"),
-    ("betfair_live",    "Betfair (live)",      "BETFAIR_APP_KEY_LIVE",    "https://developer.betfair.com"),
-]
-_CORE_PROVIDERS = {"groq", "cerebras", "google_ai_studio", "tavily", "deepseek"}
+# _PROVIDER_REGISTRY, _CORE_PROVIDERS, and _get_db_key are defined earlier
+# (before the AutoAPIActivator block) so DB key hydration can run before the
+# activator's first validation pass — see _bootstrap_api_key_hydration().
 
 
 def _mask_key(key: str) -> str:
@@ -4063,16 +4121,6 @@ def _mask_key(key: str) -> str:
     if len(key) <= 8:
         return "*" * len(key)
     return key[:3] + "****" + key[-4:]
-
-
-def _get_db_key(provider_id: str) -> str:
-    try:
-        st = components.get("db_storage")
-        if st and hasattr(st, "get_api_key"):
-            return st.get_api_key(provider_id) or ""
-    except Exception:
-        pass
-    return ""
 
 
 def _render_sync_env(env_var, value):
@@ -11170,35 +11218,18 @@ def _start_background_services(force=False):
     except Exception as _ps_e:
         logger.warning("pick_settler init failed: %s", _ps_e)
 
-    # ── DB storage (Postgres w/ SQLite fallback) ──────────────────────────
+    # ── DB storage + API key hydration (idempotent retry) ─────────────────
+    # Hydration already ran once at import time, before the AutoAPIActivator's
+    # first validation pass (see _bootstrap_api_key_hydration). We call it again
+    # here as a safety net for the rare case where db_storage init failed the
+    # first time (e.g. Postgres wasn't ready yet) and now needs to retry. It is
+    # idempotent — env vars already set at import win and are not overwritten.
     try:
-        from components.pg_storage import get_storage as _get_pg_storage
-        components["db_storage"] = _get_pg_storage()
-        logger.info("db_storage initialised: %s", type(components["db_storage"]).__name__)
-    except Exception as e:
-        logger.warning("db_storage init failed: %s", e)
-
-    # ── Hydrate API keys from DB into os.environ ─────────────────────────
-    # Keys live in SQLite admin_api_keys table; if Render env vars were ever
-    # wiped (or never set), the running worker still has DB copies. Walk the
-    # provider registry and push DB values into os.environ BEFORE any provider
-    # client initialises, so OpenAI/Anthropic/Groq/etc. clients see their keys.
-    try:
-        _hydrated = []
-        for _pid, _name, _env_var, _ in _PROVIDER_REGISTRY:
-            if os.environ.get(_env_var):
-                continue  # env wins — don't overwrite a freshly-set Render var
-            _db_val = _get_db_key(_pid)
-            if _db_val:
-                os.environ[_env_var] = _db_val
-                _hydrated.append(_pid)
-        if _hydrated:
-            logger.info("API key hydration: pushed %d DB-stored keys into env: %s",
-                        len(_hydrated), ",".join(_hydrated))
-        else:
-            logger.info("API key hydration: no DB-stored keys needed injection")
+        _boot = _bootstrap_api_key_hydration()
+        if not _boot.get("db_ready"):
+            logger.warning("db_storage still unavailable at background-service start")
     except Exception as _e:
-        logger.warning("API key hydration failed: %s", _e)
+        logger.warning("API key hydration retry failed: %s", _e)
 
     # ── Knowledge sources — start on ALL environments (free-tier only) ─────
     km = components.get("knowledge_manager")
