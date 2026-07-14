@@ -4318,6 +4318,62 @@ def _pg_type_for(sqlite_decl: str) -> str:
     return _SQLITE_TO_PG_TYPE.get(base, "TEXT")
 
 
+def _migration_data_dir() -> str:
+    """Persistent-disk dir holding the SQLite DBs.
+
+    Mirrors components/sqlite_storage.py: the live DB is <DATA_PATH>/dmai.db, so
+    DATA_PATH is the primary source of truth. DATA_DIR is kept as a fallback and
+    the Render mount as the final default.
+    """
+    return (os.environ.get("DATA_PATH")
+            or os.environ.get("DATA_DIR")
+            or "/opt/render/project/src/data")
+
+
+def _sqlite_has_admin_api_keys(path: str) -> bool:
+    """True if `path` is a readable SQLite DB containing an admin_api_keys table."""
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            row = conn.execute(
+                "SELECT name FROM sqlite_master "
+                "WHERE type='table' AND name='admin_api_keys' LIMIT 1"
+            ).fetchone()
+        finally:
+            conn.close()
+        return bool(row)
+    except Exception:
+        return False
+
+
+def _discover_sqlite_source():
+    """Find a SQLite file on the persistent disk containing admin_api_keys.
+
+    Priority order:
+      1. <data_dir>/dmai.db          (the live DB per components/sqlite_storage.py)
+      2. <data_dir>/dmai_knowledge.db
+      3. glob <data_dir>/*.db and pick the first with an admin_api_keys table.
+    Returns the path, or None if nothing suitable exists.
+    """
+    data_dir = _migration_data_dir()
+    candidates = [
+        os.path.join(data_dir, "dmai.db"),
+        os.path.join(data_dir, "dmai_knowledge.db"),
+    ]
+    try:
+        import glob as _g
+        for p in sorted(_g.glob(os.path.join(data_dir, "*.db"))):
+            if p not in candidates:
+                candidates.append(p)
+    except Exception:
+        pass
+    for p in candidates:
+        if os.path.exists(p) and _sqlite_has_admin_api_keys(p):
+            return p
+    return None
+
+
 def _migrate_one_table(db, sqlite_conn, spec: dict) -> dict:
     """Migrate a single table from SQLite into Postgres via upsert.
 
@@ -4435,11 +4491,20 @@ def api_admin_migrate_sqlite_to_postgres():
                 "hint":  "set DATABASE_URL env var first",
             }), 400
 
-        # 2) Locate the SQLite source on the persistent disk.
-        data_dir = os.environ.get("DATA_DIR", "/opt/render/project/src/data")
-        sqlite_path = os.path.join(data_dir, "dmai_knowledge.db")
-        if not os.path.exists(sqlite_path):
-            return jsonify({"error": "sqlite source not found", "path": sqlite_path}), 404
+        # 2) Locate the SQLite source on the persistent disk. An explicit
+        #    ?source= / form override wins; otherwise auto-discover the DB that
+        #    actually holds admin_api_keys (the live file is dmai.db, not
+        #    dmai_knowledge.db — see components/sqlite_storage.py).
+        override = request.args.get("source") or (request.form.get("source") if request.form else None)
+        if override:
+            sqlite_path = override
+            if not os.path.exists(sqlite_path):
+                return jsonify({"error": "sqlite source not found", "path": sqlite_path}), 404
+        else:
+            sqlite_path = _discover_sqlite_source()
+            if not sqlite_path:
+                return jsonify({"error": "no sqlite source found",
+                                "searched": [_migration_data_dir()]}), 404
 
         logger.info("migrate: starting SQLite→Postgres migration from %s", sqlite_path)
 
@@ -4482,6 +4547,56 @@ def api_admin_migrate_sqlite_to_postgres():
     except Exception as exc:
         logger.exception("migrate: unexpected failure: %s", exc)
         return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/admin/list-sqlite-sources", methods=["GET"])
+def api_admin_list_sqlite_sources():
+    """Operator diagnostic: list *.db files on the persistent disk with their
+    table list and admin_api_keys row count (master-password / JWT gated).
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+
+    import sqlite3 as _sq
+    data_dir = _migration_data_dir()
+    sources = []
+    try:
+        import glob as _g
+        paths = sorted(_g.glob(os.path.join(data_dir, "*.db")))
+    except Exception as exc:
+        logger.warning("list-sqlite-sources: glob failed: %s", exc)
+        paths = []
+
+    for p in paths:
+        entry = {
+            "path":                p,
+            "size_bytes":          0,
+            "has_admin_api_keys":  False,
+            "admin_api_keys_rows": 0,
+            "tables":              [],
+        }
+        try:
+            entry["size_bytes"] = os.path.getsize(p)
+        except Exception:
+            pass
+        try:
+            conn = _sq.connect(f"file:{p}?mode=ro", uri=True)
+            try:
+                tables = [r[0] for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+                ).fetchall()]
+                entry["tables"] = tables
+                if "admin_api_keys" in tables:
+                    entry["has_admin_api_keys"] = True
+                    row = conn.execute("SELECT COUNT(*) FROM admin_api_keys").fetchone()
+                    entry["admin_api_keys_rows"] = int(row[0]) if row else 0
+            finally:
+                conn.close()
+        except Exception as exc:
+            entry["error"] = str(exc)
+        sources.append(entry)
+
+    return jsonify({"data_dir": data_dir, "sources": sources})
 
 
 # ── Execution sandbox endpoints ───────────────────────────────────────────────

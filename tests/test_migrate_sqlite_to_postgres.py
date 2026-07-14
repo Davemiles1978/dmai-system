@@ -115,7 +115,8 @@ def test_migration_happy_path(client, monkeypatch, tmp_path):
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@localhost:5432/db")
     src_dir = str(tmp_path)
     _make_sqlite_source(src_dir, {"groq": "sk-g", "openai": "sk-o", "cohere": "sk-c"})
-    monkeypatch.setenv("DATA_DIR", src_dir)
+    monkeypatch.setenv("DATA_PATH", src_dir)
+    monkeypatch.delenv("DATA_DIR", raising=False)
     monkeypatch.setitem(dmai_core_complete.components, "db_storage", _FakePG())
     monkeypatch.setitem(dmai_core_complete.components, "api_activator", _FakeActivator())
 
@@ -139,7 +140,8 @@ def test_migration_idempotent(client, monkeypatch, tmp_path):
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@localhost:5432/db")
     src_dir = str(tmp_path)
     _make_sqlite_source(src_dir, {"groq": "sk-g", "openai": "sk-o", "cohere": "sk-c"})
-    monkeypatch.setenv("DATA_DIR", src_dir)
+    monkeypatch.setenv("DATA_PATH", src_dir)
+    monkeypatch.delenv("DATA_DIR", raising=False)
     fake = _FakePG()
     monkeypatch.setitem(dmai_core_complete.components, "db_storage", fake)
     monkeypatch.setitem(dmai_core_complete.components, "api_activator", _FakeActivator())
@@ -159,8 +161,9 @@ def test_migration_idempotent(client, monkeypatch, tmp_path):
 def test_migration_sqlite_source_missing(client, monkeypatch, tmp_path):
     monkeypatch.setenv("MASTER_PASSWORD", _MASTER_PW)
     monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@localhost:5432/db")
-    monkeypatch.setenv("DATA_DIR", str(tmp_path))  # empty dir, no db file
+    monkeypatch.setenv("DATA_PATH", str(tmp_path))  # empty dir, no db file
+    monkeypatch.delenv("DATA_DIR", raising=False)
     monkeypatch.setitem(dmai_core_complete.components, "db_storage", _FakePG())
     resp = client.post("/api/admin/migrate-sqlite-to-postgres", headers=_AUTH)
     assert resp.status_code == 404
-    assert resp.get_json()["error"] == "sqlite source not found"
+    assert resp.get_json()["error"] == "no sqlite source found"
