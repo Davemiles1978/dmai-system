@@ -8160,7 +8160,7 @@ def api_admin_capability_materialiser_status():
             "last_summary":  last_summary,
             "counts":        counts,
             "log":           log,
-            "ts":            _dt.datetime.now(_dt.timezone.utc).isoformat(),
+            "ts":            datetime.now(timezone.utc).isoformat(),
         })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
