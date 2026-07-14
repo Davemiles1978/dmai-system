@@ -8233,6 +8233,80 @@ def api_admin_workload_sample():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR K: procurement research ────────────────────────────────────────────
+#
+# Shortlists home-lab hardware for the self-hosting migration, priced on
+# a 3-year TCO basis against DMAI's own workload footprint + treasury
+# balance. Mirrors the treasury / workload status endpoints.
+# GET  /api/admin/procurement-status    - last run summary + top-3 shortlist
+# GET  /api/admin/procurement-shortlist  - full shortlist rows
+# POST /api/admin/procurement-run        - force a new research run (testing)
+
+@app.route("/api/admin/procurement-status", methods=["GET"])
+def api_admin_procurement_status():
+    """Return the last procurement run summary, top-3 shortlist, the
+    workload snapshot used, and the current treasury balance."""
+    try:
+        from components.procurement import researcher as _pr
+        from components.procurement.store import ProcurementStore as _PS
+        try:
+            from components.procurement.loop import _LOOP as _PROC_LOOP
+        except Exception:
+            _PROC_LOOP = None
+
+        last_summary = _pr.get_last_summary()
+        store = _PS()
+        store.init_db()
+        top3 = store.get_shortlist()[:3]
+        return jsonify({
+            "running":      bool(_PROC_LOOP
+                                 and getattr(_PROC_LOOP, "_thread", None)
+                                 and _PROC_LOOP._thread.is_alive()),
+            "last_summary": last_summary,
+            "top3":         top3,
+            "workload":     last_summary.get("workload") if last_summary
+                            else None,
+            "treasury_gbp": _pr.read_treasury_balance(),
+            "ts":           datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/procurement-shortlist", methods=["GET"])
+def api_admin_procurement_shortlist():
+    """Return the full shortlist rows (latest run) as JSON."""
+    try:
+        from components.procurement.store import ProcurementStore as _PS
+        store = _PS()
+        store.init_db()
+        return jsonify({"ok": True, "shortlist": store.get_shortlist()})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/procurement-run", methods=["POST"])
+def api_admin_procurement_run():
+    """Force a new procurement research run (bypasses the 6h cadence)."""
+    try:
+        from components.procurement import researcher as _pr
+        try:
+            from components.procurement.loop import _LOOP as _PROC_LOOP
+        except Exception:
+            _PROC_LOOP = None
+        if _PROC_LOOP is not None:
+            summary = _PROC_LOOP.force_run()
+        else:
+            summary = _pr.run_research()
+        return jsonify({
+            "ok":     True,
+            "run_id": summary.get("run_ts"),
+            "summary": summary,
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── PR H: capability materialiser status ─────────────────────────────────
 #
 # Exposes what the LLM-driven capability materialiser did last, plus
@@ -9964,6 +10038,21 @@ def _start_background_services(force=False):
         _start_wl()
     except Exception as _wl_e:
         logger.warning("workload_loop init failed: %s", _wl_e)
+
+    # PR K — Procurement Research.
+    # Every 6 hours, reads the workload footprint (PR J) + treasury
+    # balance (PR I), scrapes candidate home-lab hardware via per-source
+    # parser stubs (hand-written seed fallbacks until the PR H materialiser
+    # generates their bodies), computes 3-year TCO at £0.27/kWh with 2x
+    # headroom gates, and writes a ranked shortlist to
+    # data/dmai_procurement.db for the self-hosting migration decision.
+    try:
+        from components.procurement.loop import (
+            start_procurement_loop as _start_proc,
+        )
+        _start_proc()
+    except Exception as _proc_e:
+        logger.warning("procurement_loop init failed: %s", _proc_e)
 
     # PR F — Trade Settler: close the outcome loop on every trade the
     # autonomous_trader opens. Paper trades marked-to-market from free
