@@ -8307,6 +8307,201 @@ def api_admin_procurement_run():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR L: purchase-approval gate ──────────────────────────────────────────
+#
+# DMAI monitors treasury vs the live procurement top-1 and emits purchase
+# proposals when balance >= 1.2x capex. Operator approves (auto-debits the
+# treasury), checks out manually, then marks purchased (ledger reconciles the
+# delta). An auto-checkout adapter layer is scaffolded but FLAGGED OFF with no
+# working retailer implementation.
+
+_PURCHASE_STATES = ("pending", "approved", "purchased", "cancelled", "declined")
+
+
+def _purchase_store():
+    from components.purchase_gate.purchase_ledger import PurchaseGateStore
+    store = PurchaseGateStore()
+    store.init_db()
+    return store
+
+
+@app.route("/api/admin/purchase-proposals", methods=["GET"])
+def api_admin_purchase_proposals():
+    """List purchase proposals, optionally filtered by ?state=."""
+    try:
+        state = request.args.get("state")
+        if state and state not in _PURCHASE_STATES:
+            return jsonify({"ok": False, "error": f"bad state: {state}"}), 400
+        store = _purchase_store()
+        return jsonify({"ok": True,
+                        "proposals": store.list_proposals(state=state)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-proposals/<int:pid>", methods=["GET"])
+def api_admin_purchase_proposal_detail(pid):
+    try:
+        store = _purchase_store()
+        prop = store.get_proposal(pid)
+        if prop is None:
+            return jsonify({"ok": False, "error": "not found"}), 404
+        return jsonify({"ok": True, "proposal": prop})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-proposals/<int:pid>/approve",
+           methods=["POST"])
+def api_admin_purchase_approve(pid):
+    try:
+        body = request.get_json(silent=True) or {}
+        from components.purchase_gate import purchase_ledger as _pl
+        prop = _pl.approve_proposal(pid, note=str(body.get("note", "")))
+        return jsonify({"ok": True, "proposal": prop})
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-proposals/<int:pid>/decline",
+           methods=["POST"])
+def api_admin_purchase_decline(pid):
+    try:
+        body = request.get_json(silent=True) or {}
+        from components.purchase_gate import purchase_ledger as _pl
+        prop = _pl.decline_proposal(pid, note=str(body.get("note", "")))
+        return jsonify({"ok": True, "proposal": prop})
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-proposals/<int:pid>/mark-purchased",
+           methods=["POST"])
+def api_admin_purchase_mark_purchased(pid):
+    try:
+        body = request.get_json(silent=True) or {}
+        if body.get("actual_price_gbp") is None:
+            return jsonify({"ok": False,
+                            "error": "actual_price_gbp required"}), 400
+        from components.purchase_gate import purchase_ledger as _pl
+        prop = _pl.mark_purchased(
+            pid, actual_price_gbp=float(body["actual_price_gbp"]),
+            note=str(body.get("note", "")))
+        return jsonify({"ok": True, "proposal": prop})
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-proposals/<int:pid>/cancel",
+           methods=["POST"])
+def api_admin_purchase_cancel(pid):
+    try:
+        body = request.get_json(silent=True) or {}
+        from components.purchase_gate import purchase_ledger as _pl
+        prop = _pl.cancel_proposal(pid, note=str(body.get("note", "")))
+        return jsonify({"ok": True, "proposal": prop})
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-gate-status", methods=["GET"])
+def api_admin_purchase_gate_status():
+    """Loop status + open-proposal count + full auto-checkout state."""
+    try:
+        from components.purchase_gate import config as _cfg
+        from components.purchase_gate.monitor import positive_pnl_streak_days
+        from components.purchase_gate.checkout_adapter import adapter_map
+        try:
+            from components.purchase_gate.monitor_loop import _LOOP as _PG_LOOP
+        except Exception:
+            _PG_LOOP = None
+
+        store = _purchase_store()
+        open_count = (len(store.list_proposals(state="pending")) +
+                      len(store.list_proposals(state="approved")))
+        streak = positive_pnl_streak_days()
+        req = _cfg.AUTO_CHECKOUT_REQUIRE_STREAK_DAYS
+        return jsonify({
+            "running":            bool(_PG_LOOP and _PG_LOOP.is_running()),
+            "last_check_ts":      (_PG_LOOP.monitor.last_check_ts
+                                   if _PG_LOOP else None),
+            "next_check_ts":      (_PG_LOOP.next_check_ts()
+                                   if _PG_LOOP else None),
+            "open_proposals_count": open_count,
+            "auto_checkout_enabled":  store.auto_checkout_enabled(),
+            "auto_checkout_dry_run":  store.auto_checkout_dry_run(),
+            "auto_checkout_max_gbp":  store.auto_checkout_max_gbp(),
+            "streak_days_positive":   streak,
+            "streak_requirement_days": req,
+            "streak_requirement_met": streak >= req,
+            "confirm_token":          store.confirm_token(),
+            "adapter_map":            adapter_map(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-gate/auto-checkout-config", methods=["GET"])
+def api_admin_purchase_autocheckout_config_get():
+    try:
+        store = _purchase_store()
+        return jsonify({
+            "ok":            True,
+            "enabled":       store.auto_checkout_enabled(),
+            "dry_run":       store.auto_checkout_dry_run(),
+            "max_gbp":       store.auto_checkout_max_gbp(),
+            "confirm_token": store.confirm_token(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/purchase-gate/auto-checkout-config", methods=["POST"])
+def api_admin_purchase_autocheckout_config_set():
+    """Update auto-checkout config. Enabling requires the confirm_token.
+
+    If confirm_token is missing/blank the token is returned so the operator
+    can see it; no change is applied in that case.
+    """
+    try:
+        from components.purchase_gate import config as _cfg
+        body = request.get_json(silent=True) or {}
+        store = _purchase_store()
+        token = store.confirm_token()
+        supplied = str(body.get("confirm_token", "") or "")
+        if supplied != token:
+            return jsonify({
+                "ok":            False,
+                "error":         "confirm_token required",
+                "confirm_token": token,
+            }), 403
+        if "enabled" in body:
+            store.config_kv_set(_cfg.KV_AUTO_CHECKOUT_ENABLED,
+                                bool(body["enabled"]))
+        if "dry_run" in body:
+            store.config_kv_set(_cfg.KV_AUTO_CHECKOUT_DRY_RUN,
+                                bool(body["dry_run"]))
+        if "max_gbp" in body:
+            store.config_kv_set(_cfg.KV_AUTO_CHECKOUT_MAX_GBP,
+                                float(body["max_gbp"]))
+        return jsonify({
+            "ok":      True,
+            "enabled": store.auto_checkout_enabled(),
+            "dry_run": store.auto_checkout_dry_run(),
+            "max_gbp": store.auto_checkout_max_gbp(),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── PR H: capability materialiser status ─────────────────────────────────
 #
 # Exposes what the LLM-driven capability materialiser did last, plus
@@ -9315,6 +9510,373 @@ function forceRefresh() {{
       btn.textContent = 'Force refresh';
       alert('Run failed: ' + err);
     }});
+}}
+</script>
+</body>
+</html>"""
+    return Response(page, mimetype="text/html")
+
+
+# ── PR L: /admin/purchases HTML page ──────────────────────────────────────
+#
+# Server-side rendered (mirrors /admin/procurement): reads the purchase-gate
+# store + treasury directly and injects proposal rows, so state is visible in
+# the HTML body with no JS required. Per-state actions POST to the admin API.
+# The auto-checkout panel at the bottom is read-only — there is deliberately
+# NO in-page enable toggle (invariant: enabling is a token-gated API call).
+
+_PURCHASE_STATE_BADGE = {
+    "pending":   "pending",
+    "approved":  "win",
+    "purchased": "win",
+    "cancelled": "scratch",
+    "declined":  "scratch",
+}
+
+
+@app.route("/admin/purchases", methods=["GET"])
+def page_admin_purchases():
+    """Server-side rendered dark-theme view of purchase proposals."""
+    import html as _html
+
+    rows = []
+    load_error = None
+    open_count = 0
+    approved_count = 0
+    total_purchased = 0.0
+    treasury_gbp = 0.0
+    ac = {"enabled": False, "dry_run": True, "max_gbp": 750.0,
+          "streak": 0, "streak_req": 30, "streak_met": False,
+          "confirm_token": "", "adapter_map": {}}
+    try:
+        from components.purchase_gate.purchase_ledger import PurchaseGateStore
+        from components.purchase_gate import config as _pcfg
+        from components.purchase_gate.monitor import positive_pnl_streak_days
+        from components.purchase_gate.checkout_adapter import adapter_map
+        store = PurchaseGateStore()
+        store.init_db()
+        rows = store.list_proposals() or []
+        open_count = len(store.list_proposals(state="pending"))
+        approved_count = len(store.list_proposals(state="approved"))
+        total_purchased = store.total_purchased_gbp()
+        streak = positive_pnl_streak_days()
+        ac = {
+            "enabled":       store.auto_checkout_enabled(),
+            "dry_run":       store.auto_checkout_dry_run(),
+            "max_gbp":       store.auto_checkout_max_gbp(),
+            "streak":        streak,
+            "streak_req":    _pcfg.AUTO_CHECKOUT_REQUIRE_STREAK_DAYS,
+            "streak_met":    streak >= _pcfg.AUTO_CHECKOUT_REQUIRE_STREAK_DAYS,
+            "confirm_token": store.confirm_token(),
+            "adapter_map":   adapter_map(),
+        }
+    except Exception as e:  # pragma: no cover - defensive
+        load_error = str(e)
+    try:
+        from components.treasury import treasury_ledger as _tl
+        treasury_gbp = float(_tl.get_balance())
+    except Exception:
+        treasury_gbp = 0.0
+
+    def esc(v):
+        return _html.escape("" if v is None else str(v))
+
+    def fmt_gbp(v):
+        try:
+            return f"£{float(v):,.2f}"
+        except (TypeError, ValueError):
+            return "—"
+
+    # ── proposal table rows ──
+    row_html_parts = []
+    for r in rows:
+        state = (r.get("state") or "").lower()
+        badge_cls = _PURCHASE_STATE_BADGE.get(state, "scratch")
+        pid = int(r.get("id"))
+        url = r.get("hw_url")
+        name = esc(r.get("hw_name"))
+        if url:
+            name = (f'<a href="{esc(url)}" target="_blank" '
+                    f'rel="noopener noreferrer">{name} ↗</a>')
+        if state == "pending":
+            actions = (
+                f'<button class="btn ok" onclick="act({pid},\'approve\')">'
+                f'Approve</button>'
+                f'<button class="btn bad" onclick="act({pid},\'decline\')">'
+                f'Decline</button>')
+        elif state == "approved":
+            actions = (
+                f'<button class="btn ok" '
+                f'onclick="markPurchased({pid})">Mark purchased</button>'
+                f'<button class="btn bad" onclick="act({pid},\'cancel\')">'
+                f'Cancel</button>')
+        else:
+            actions = '<span class="muted">—</span>'
+        actual = r.get("actual_price_gbp")
+        actual_disp = fmt_gbp(actual) if actual is not None else "—"
+        row_html_parts.append(
+            "<tr>"
+            f'<td class="num">{pid}</td>'
+            f'<td>{name}</td>'
+            f'<td>{esc(r.get("hw_source"))}</td>'
+            f'<td class="num">{fmt_gbp(r.get("capex_gbp"))}</td>'
+            f'<td class="num">{actual_disp}</td>'
+            f'<td class="num">'
+            f'{fmt_gbp(r.get("treasury_at_proposal_gbp"))}</td>'
+            f'<td><span class="badge {badge_cls}">{esc(state or "—")}</span>'
+            f'</td>'
+            f'<td class="actions">{actions}</td>'
+            "</tr>"
+        )
+    if not row_html_parts:
+        empty = ("No purchase proposals yet — one is emitted automatically "
+                 "when treasury reaches 1.2× the top hardware pick."
+                 if load_error is None
+                 else f"Could not load proposals: {esc(load_error)}")
+        row_html_parts.append(
+            f'<tr><td colspan="8" class="empty">{empty}</td></tr>')
+    table_rows = "\n".join(row_html_parts)
+
+    # ── auto-checkout panel ──
+    if ac["enabled"] and not ac["dry_run"]:
+        banner_cls, banner_txt = "banner-red", (
+            "AUTO-CHECKOUT ENABLED · LIVE MODE — but no adapter implements a "
+            "real checkout path, so nothing can actually be purchased.")
+    elif ac["enabled"]:
+        banner_cls, banner_txt = "banner-amber", (
+            "Auto-checkout enabled · DRY-RUN — eligible proposals are marked "
+            "but never purchased.")
+    else:
+        banner_cls, banner_txt = "banner-green", (
+            "Auto-checkout disabled (default). Proposals require manual "
+            "operator approval.")
+
+    adapter_rows = []
+    for src, info in (ac.get("adapter_map") or {}).items():
+        impl = info.get("is_implemented")
+        impl_badge = ('<span class="badge win">yes</span>' if impl
+                      else '<span class="badge scratch">no</span>')
+        adapter_rows.append(
+            f"<tr><td>{esc(src)}</td><td>{esc(info.get('class'))}</td>"
+            f"<td>{impl_badge}</td></tr>")
+    adapter_table = "\n".join(adapter_rows) or (
+        '<tr><td colspan="3" class="empty">no adapters</td></tr>')
+
+    streak_cls = "ok" if ac["streak_met"] else "muted"
+
+    page = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMAI · Purchases</title>
+<style>
+  :root {{
+    --bg:#0b0d10; --panel:#14171c; --panel-2:#1a1f26; --border:#262c36;
+    --fg:#e6edf3; --fg-dim:#8b949e; --accent:#58a6ff;
+    --win:#3fb950; --loss:#f85149; --pending:#d29922;
+  }}
+  * {{ box-sizing:border-box; }}
+  body {{
+    background:var(--bg); color:var(--fg); margin:0; padding:24px;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif; font-size:14px;
+  }}
+  a {{ color:var(--accent); }}
+  .head {{ display:flex; align-items:center; gap:12px; margin-bottom:4px; }}
+  h1 {{ font-size:20px; font-weight:600; margin:0; }}
+  h2 {{ font-size:14px; font-weight:600; color:var(--fg-dim);
+        text-transform:uppercase; letter-spacing:.04em;
+        margin:24px 0 10px; }}
+  .crumb {{ color:var(--fg-dim); font-size:12px; margin-bottom:18px; }}
+  .crumb a {{ text-decoration:none; }}
+  .fin-state {{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    gap:12px;
+  }}
+  .stat {{
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:12px 14px;
+  }}
+  .stat-label {{ text-transform:uppercase; font-size:11px;
+                 color:var(--fg-dim); letter-spacing:.05em; }}
+  .stat-value {{ font-size:20px; font-weight:600; margin-top:4px; }}
+  .stat-sub {{ font-size:11px; color:var(--fg-dim); margin-top:4px; }}
+  .table-container {{ overflow-x:auto; }}
+  table {{
+    width:100%; border-collapse:collapse; background:var(--panel);
+    border:1px solid var(--border); border-radius:8px; overflow:hidden;
+    min-width:820px;
+  }}
+  th {{
+    background:var(--panel-2); color:var(--fg-dim); text-transform:uppercase;
+    font-size:10px; letter-spacing:.05em; text-align:left; padding:10px 12px;
+    white-space:nowrap;
+  }}
+  td {{ padding:10px 12px; border-top:1px solid var(--border);
+        white-space:nowrap; }}
+  td.num {{ text-align:right; font-variant-numeric:tabular-nums; }}
+  td.actions {{ text-align:right; }}
+  td.empty {{ text-align:center; color:var(--fg-dim); padding:24px; }}
+  tr:hover td {{ background:var(--panel-2); }}
+  .muted {{ color:var(--fg-dim); }}
+  .badge {{ display:inline-block; padding:2px 8px; border-radius:4px;
+            font-size:11px; font-weight:500; text-transform:capitalize; }}
+  .badge.win {{ background:rgba(63,185,80,.15); color:var(--win); }}
+  .badge.pending {{ background:rgba(210,153,34,.15); color:var(--pending); }}
+  .badge.scratch {{ background:rgba(139,148,158,.15); color:var(--fg-dim); }}
+  .btn {{ background:var(--panel-2); border:1px solid var(--border);
+          color:var(--fg); padding:4px 10px; border-radius:4px;
+          cursor:pointer; font-size:12px; margin-left:6px; }}
+  .btn:hover {{ border-color:var(--accent); }}
+  .btn.ok {{ color:var(--win); }}
+  .btn.bad {{ color:var(--loss); }}
+  .panel {{
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:14px 16px; margin-top:10px;
+  }}
+  .panel .kv {{ display:flex; gap:24px; flex-wrap:wrap; margin-bottom:10px; }}
+  .panel .kv div {{ font-size:13px; }}
+  .panel .kv span {{ color:var(--fg-dim); display:block; font-size:11px;
+                     text-transform:uppercase; letter-spacing:.05em;
+                     margin-bottom:2px; }}
+  .banner {{ padding:10px 14px; border-radius:6px; font-size:13px;
+             font-weight:500; margin-bottom:12px; }}
+  .banner-red {{ background:rgba(248,81,73,.15); color:var(--loss);
+                 border:1px solid rgba(248,81,73,.4); }}
+  .banner-amber {{ background:rgba(210,153,34,.15); color:var(--pending);
+                   border:1px solid rgba(210,153,34,.4); }}
+  .banner-green {{ background:rgba(63,185,80,.12); color:var(--win);
+                   border:1px solid rgba(63,185,80,.3); }}
+  .token {{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size:11px; background:var(--panel-2); padding:2px 6px;
+            border-radius:4px; color:var(--fg-dim); word-break:break-all; }}
+  .note-bar {{
+    background:var(--panel-2); border-left:3px solid var(--pending);
+    padding:8px 12px; border-radius:4px; color:var(--fg-dim);
+    font-size:12px; line-height:1.5; margin-top:10px;
+  }}
+  .ok {{ color:var(--win); }}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>DMAI · Purchases</h1>
+  </div>
+  <div class="crumb"><a href="/admin">← Admin</a> · purchase-approval gate</div>
+
+  <div class="fin-state">
+    <div class="stat">
+      <div class="stat-label">Open proposals</div>
+      <div class="stat-value">{open_count}</div>
+      <div class="stat-sub">awaiting decision</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Approved</div>
+      <div class="stat-value">{approved_count}</div>
+      <div class="stat-sub">awaiting purchase</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Purchased lifetime</div>
+      <div class="stat-value">{fmt_gbp(total_purchased)}</div>
+      <div class="stat-sub">total spent on hardware</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Treasury balance</div>
+      <div class="stat-value">{fmt_gbp(treasury_gbp)}</div>
+      <div class="stat-sub">current GBP</div>
+    </div>
+  </div>
+
+  <h2>Proposals</h2>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Hardware</th>
+          <th>Source</th>
+          <th>Capex GBP</th>
+          <th>Actual GBP</th>
+          <th>Treasury @ proposal</th>
+          <th>State</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+{table_rows}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Auto-checkout (feature-flagged)</h2>
+  <div class="panel">
+    <div class="banner {banner_cls}">{esc(banner_txt)}</div>
+    <div class="kv">
+      <div><span>Enabled</span>{"yes" if ac["enabled"] else "no"}</div>
+      <div><span>Dry-run</span>{"yes" if ac["dry_run"] else "no"}</div>
+      <div><span>Max spend</span>{fmt_gbp(ac["max_gbp"])}</div>
+      <div><span>Positive-P&amp;L streak</span>
+        <span class="{streak_cls}">{ac["streak"]} / {ac["streak_req"]} days
+        {"✓" if ac["streak_met"] else ""}</span></div>
+    </div>
+    <div class="table-container">
+      <table style="min-width:0">
+        <thead><tr><th>Source</th><th>Adapter</th>
+          <th>Implemented</th></tr></thead>
+        <tbody>
+{adapter_table}
+        </tbody>
+      </table>
+    </div>
+    <div class="note-bar">
+      No retailer adapter implements a live checkout path — every
+      <code>execute_checkout</code> raises <code>NotImplementedError</code>,
+      so DMAI can never actually complete a purchase on its own. This layer
+      exists only so the gate has a stable interface once a real,
+      PCI-reviewed implementation is written and reviewed.
+    </div>
+    <div class="note-bar" style="border-left-color:var(--accent)">
+      There is no toggle here by design. To change auto-checkout config, an
+      operator must POST to
+      <code>/api/admin/purchase-gate/auto-checkout-config</code> with the
+      confirm token:<br>
+      <span class="token">{esc(ac["confirm_token"])}</span>
+    </div>
+  </div>
+
+<script>
+function act(pid, action) {{
+  var note = prompt('Optional note for ' + action + ':', '');
+  if (note === null) return;
+  fetch('/api/admin/purchase-proposals/' + pid + '/' + action, {{
+    method: 'POST',
+    headers: {{ 'Content-Type': 'application/json' }},
+    body: JSON.stringify({{ note: note }})
+  }}).then(function(res) {{
+    return res.json().then(function(j) {{
+      if (res.ok && j.ok) {{ location.reload(); }}
+      else {{ alert(action + ' failed: ' + (j.error || res.status)); }}
+    }});
+  }}).catch(function(err) {{ alert(action + ' failed: ' + err); }});
+}}
+
+function markPurchased(pid) {{
+  var price = prompt('Actual price paid (GBP):', '');
+  if (price === null) return;
+  var val = parseFloat(price);
+  if (isNaN(val)) {{ alert('Enter a numeric price.'); return; }}
+  var note = prompt('Optional note:', '') || '';
+  fetch('/api/admin/purchase-proposals/' + pid + '/mark-purchased', {{
+    method: 'POST',
+    headers: {{ 'Content-Type': 'application/json' }},
+    body: JSON.stringify({{ actual_price_gbp: val, note: note }})
+  }}).then(function(res) {{
+    return res.json().then(function(j) {{
+      if (res.ok && j.ok) {{ location.reload(); }}
+      else {{ alert('mark-purchased failed: ' + (j.error || res.status)); }}
+    }});
+  }}).catch(function(err) {{ alert('mark-purchased failed: ' + err); }});
 }}
 </script>
 </body>
@@ -10450,6 +11012,17 @@ def _start_background_services(force=False):
         _start_proc()
     except Exception as _proc_e:
         logger.warning("procurement_loop init failed: %s", _proc_e)
+
+    # PR L — Purchase-approval gate: watches treasury vs the procurement
+    # top-1 and emits an operator purchase proposal once balance >= 1.2x
+    # capex. Auto-checkout is scaffolded but flagged OFF (no live adapter).
+    try:
+        from components.purchase_gate.monitor_loop import (
+            start_purchase_gate_loop as _start_pg,
+        )
+        _start_pg()
+    except Exception as _pg_e:
+        logger.warning("purchase_gate_loop init failed: %s", _pg_e)
 
     # PR F — Trade Settler: close the outcome loop on every trade the
     # autonomous_trader opens. Paper trades marked-to-market from free
