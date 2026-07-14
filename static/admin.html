@@ -801,9 +801,13 @@
 
         <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
           <button class="btn-action primary" onclick="loadApiKeys()" style="font-size:13px;">&#8635; Refresh Status</button>
+          <button onclick="scanAllProviders()" class="btn-secondary" style="font-size:13px;">Rescan All Providers</button>
           <button class="btn-action" onclick="loadPendingSignups()" style="font-size:13px;background:var(--accent);color:#000;">&#9654; Auto-Register Free Keys</button>
           <span id="apikeys-last-refresh" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
         </div>
+
+        <!-- Inline save/activation feedback (survives table re-render) -->
+        <div id="apikeys-feedback" style="display:none;font-size:12px;line-height:1.5;margin-bottom:1rem;padding:10px 12px;border-radius:8px;border-left:3px solid var(--border);background:var(--surface2);"></div>
 
         <!-- CORE providers -->
         <div class="card-title" style="margin-bottom:10px;color:var(--green);font-size:12px;letter-spacing:.06em;text-transform:uppercase;">
@@ -1591,7 +1595,7 @@
   // ── Toast ─────────────────────────────────────────────────────────────────
   function toast(msg, type = 'info') {
     const el = document.getElementById('toast');
-    const colors = { info: 'var(--green)', error: 'var(--red)', warn: 'var(--yellow)' };
+    const colors = { info: 'var(--green)', success: 'var(--green)', error: 'var(--red)', warn: 'var(--yellow)' };
     el.style.borderLeftColor = colors[type] || 'var(--accent)';
     el.style.borderLeft = `3px solid ${colors[type] || 'var(--accent)'}`;
     el.textContent = msg;
@@ -2084,20 +2088,87 @@
     }
   }
 
+  // Persistent inline feedback panel — lives in the section header so it
+  // survives the loadApiKeys() table re-render (which rewrites the row grids).
+  function _keyFeedback(html, type = 'info') {
+    const el = document.getElementById('apikeys-feedback');
+    if (!el) return;
+    const colors = { info: 'var(--green)', success: 'var(--green)', error: 'var(--red)', warn: 'var(--yellow)' };
+    el.style.borderLeftColor = colors[type] || 'var(--border)';
+    el.innerHTML = html;
+    el.style.display = 'block';
+  }
+
   async function saveKey(providerId) {
     const input = document.getElementById('key-input-' + providerId);
     const key = input ? input.value.trim() : '';
     if (!key) { toast('Paste a key first', 'warn'); return; }
     try {
       const d = await api('/api/admin/keys', { method:'POST', body: JSON.stringify({ provider_id: providerId, key }) });
-      if (d.ok) {
-        toast(`${providerId} key saved (${d.masked_key})`);
-        if (input) input.value = '';
-        await loadApiKeys();
+      if (!d.ok) { toast(d.error || 'Save failed', 'error'); return; }
+      if (input) input.value = '';
+
+      const sinks  = d.sinks || {};
+      const act    = sinks.activator || {};
+      const status = act.provider_status;
+      const notes  = [];
+
+      if (status === 'active') {
+        toast(`${providerId} saved and ACTIVATED (${status})`, 'success');
+      } else if (status === 'invalid') {
+        toast(`${providerId} saved but validation FAILED — key rejected by provider`, 'error');
+        if (act.error) notes.push(`<div style="color:var(--red);">Provider error: ${act.error}</div>`);
+      } else if (status === 'pending_api_key') {
+        toast(`${providerId} saved but not activated — check env or provider config`, 'warn');
       } else {
-        toast(d.error || 'Save failed', 'error');
+        toast(`${providerId} key saved (${d.masked_key})`, 'info');
       }
+
+      const render = sinks.render || {};
+      if (render.synced === false && render.reason === 'RENDER_API_KEY not set') {
+        notes.push('<div style="color:var(--text-muted);margin-top:4px;">Note: Render env not synced (RENDER_API_KEY not set). Value lives in DB + running process only. Will be lost on next redeploy unless also added to Render env.</div>');
+      }
+
+      if (notes.length) _keyFeedback(notes.join(''), status === 'invalid' ? 'error' : 'warn');
+      else document.getElementById('apikeys-feedback').style.display = 'none';
+
+      await loadApiKeys();
     } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function scanAllProviders() {
+    toast('Rescanning all providers…', 'info');
+    try {
+      const d = await api('/api/harvester/scan', { method: 'POST' });
+      if (d.error) { toast('Scan failed: ' + d.error, 'error'); return; }
+      const activated = d.activated || [];
+      const invalid   = d.invalid   || [];
+      const pending   = d.pending   || [];
+
+      // Pull per-provider errors from status for the invalid list.
+      let statusProviders = {};
+      try {
+        const s = await api('/api/harvester/status');
+        statusProviders = (s && s.providers) || {};
+      } catch (_e) { /* status is best-effort */ }
+
+      let html = `<div style="font-weight:600;margin-bottom:6px;">Rescan complete — ${activated.length} active, ${invalid.length} invalid, ${pending.length} pending</div>`;
+      if (invalid.length) {
+        html += `<div style="color:var(--red);margin-top:4px;"><strong>Invalid:</strong><ul style="margin:4px 0 0 18px;padding:0;">`;
+        invalid.forEach(pid => {
+          const err = (statusProviders[pid] && (statusProviders[pid].error || statusProviders[pid].reason)) || 'rejected by provider';
+          html += `<li>${pid} — ${err}</li>`;
+        });
+        html += `</ul></div>`;
+      }
+      if (pending.length) {
+        html += `<div style="color:var(--yellow);margin-top:4px;"><strong>Pending (no key):</strong> ${pending.join(', ')}</div>`;
+      }
+      _keyFeedback(html, invalid.length ? 'error' : (pending.length ? 'warn' : 'success'));
+      toast(`Rescan: ${activated.length} activated, ${invalid.length} invalid, ${pending.length} pending`,
+            invalid.length ? 'error' : 'success');
+      await loadApiKeys();
+    } catch (e) { toast('Scan error: ' + e.message, 'error'); }
   }
 
   async function clearKey(providerId) {
