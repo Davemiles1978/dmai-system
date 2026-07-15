@@ -1014,10 +1014,10 @@
         <!-- Left Column -->
         <div class="left-col">
 
-          <!-- Training Progress -->
+          <!-- Background Training Services (thread liveness, not progress) -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title"><span class="card-title-dot"></span>Training Progress</div>
+              <div class="card-title"><span class="card-title-dot"></span>Background Training Services</div>
               <div class="card-badge" id="trainingBadge">loading…</div>
             </div>
             <div class="stage-list" id="stageList">
@@ -1382,7 +1382,11 @@ function animateNumber(id, target, addPct = false) {
   requestAnimationFrame(tick);
 }
 
-// ── Render: Training Progress (background services) ───────────────
+// ── Render: Background Training Services (thread liveness) ────────
+// NOTE: These bars indicate whether each background worker thread is
+// ALIVE (100%) or DOWN (0%). They are NOT training-progress percentages.
+// For real per-topic training progress, see the 'AI Training Progress'
+// stat card + the Study Progress tab.
 function renderStages(orch) {
   const list = document.getElementById('stageList');
   const badge = document.getElementById('trainingBadge');
@@ -1396,7 +1400,7 @@ function renderStages(orch) {
     }
     const entries = Object.entries(services);
     const active = entries.filter(([, v]) => v).length;
-    if (badge) badge.textContent = `${active} / ${entries.length} services`;
+    if (badge) badge.textContent = `${active} / ${entries.length} online`;
 
     list.innerHTML = entries.map(([key, on]) => {
       const label = SI_SERVICE_LABELS[key] || key;
@@ -1404,9 +1408,10 @@ function renderStages(orch) {
         <div class="stage-row${on ? ' active' : ''}">
           <span class="stage-label">${label}</span>
           <div class="stage-bar-wrap">
-            <div class="stage-bar" data-pct="${on ? 100 : 0}" style="width:0%"></div>
+            <div class="stage-bar" data-pct="${on ? 100 : 0}" style="width:0%"
+                 title="${on ? 'thread alive' : 'thread not running'}"></div>
           </div>
-          <span class="stage-count">${on ? 'live' : 'down'}</span>
+          <span class="stage-count">${on ? 'online' : 'offline'}</span>
         </div>`;
     }).join('');
 
