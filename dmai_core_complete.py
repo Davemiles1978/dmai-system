@@ -8694,6 +8694,43 @@ def api_capabilities_migrate_schema():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/self-generation/force-tick", methods=["POST"])
+def api_self_generation_force_tick():
+    """Run one materialiser tick synchronously and return the summary.
+
+    Bypasses the background loop's 5-min poll so we can verify the
+    seeder + picker + codegen chain on demand instead of waiting.
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    try:
+        from components.capability_materialiser import (
+            materialise_once,
+            DEFAULT_DB_PATH,
+            DEFAULT_DAILY_CAP,
+            DEFAULT_MIN_JUDGE_CONFIDENCE,
+        )
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"materialiser module unavailable: {e}",
+        }), 500
+
+    try:
+        summary = materialise_once(
+            db_path=DEFAULT_DB_PATH,
+            daily_cap=DEFAULT_DAILY_CAP,
+            min_confidence=DEFAULT_MIN_JUDGE_CONFIDENCE,
+        )
+        return jsonify({"ok": True, "summary": summary}), 200
+    except Exception as e:  # noqa: BLE001
+        logger.exception("force-tick failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""
