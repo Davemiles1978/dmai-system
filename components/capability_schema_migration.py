@@ -90,7 +90,17 @@ def migrate_capabilities_schema(*,
         report["error"] = f"db not found at {path}"
         return report
 
-    conn = sqlite3.connect(path)
+    # Route through safe_open_kdb so we participate in the same
+    # WAL/busy_timeout/write-lock regime as every other DMAI writer.
+    # Fall back to a well-configured bare connect for unit tests with
+    # isolated tmp_path DBs.
+    try:
+        from components.db import safe_open_kdb  # noqa
+        conn = safe_open_kdb(path, timeout=30.0)
+    except Exception:  # noqa: BLE001
+        conn = sqlite3.connect(path, timeout=30.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
     try:
         # Snapshot before
         cols_before = _existing_columns(conn, "capabilities")

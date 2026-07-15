@@ -117,9 +117,26 @@ def _slug(text: str) -> str:
 # ── SQLite helpers ────────────────────────────────────────────────────────
 
 def _safe_connect(db_path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path, timeout=15.0)
-    conn.execute("PRAGMA journal_mode=WAL")
-    return conn
+    """Open the DMAI knowledge DB through the shared safe_open_kdb
+    helper (WAL, busy_timeout=30s, per-thread cache, process-level write
+    mutex). Falls back to a plain sqlite3.connect only if the shared
+    helper is unavailable — e.g. under unit tests that use isolated
+    tmp_path DBs.
+    """
+    try:
+        # Local import so unit tests that don't set up the full package
+        # environment can still use this module.
+        from components.db import safe_open_kdb  # noqa
+        # safe_open_kdb returns a KeepOpenProxy; it forwards sqlite3
+        # methods and its .close() is a no-op so the cache stays owner.
+        return safe_open_kdb(db_path, timeout=30.0)
+    except Exception:  # noqa: BLE001
+        # Test / fallback path: still set the important pragmas so unit
+        # tests exercise WAL + a real busy_timeout, matching prod.
+        conn = sqlite3.connect(db_path, timeout=30.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+        return conn
 
 
 def _ensure_tables(conn: sqlite3.Connection) -> None:

@@ -341,7 +341,16 @@ def diagnose_self_generation(min_confidence: Optional[float] = None,
         return result
 
     try:
-        conn = sqlite3.connect(db_path)
+        # Prefer safe_open_kdb so we don't force a rollback-journal /
+        # WAL flip on a hot DB. Fall back to a well-configured bare
+        # connect for tests using isolated tmp_path DBs.
+        try:
+            from components.db import safe_open_kdb  # noqa
+            conn = safe_open_kdb(db_path, timeout=30.0, read_only=True)
+        except Exception:  # noqa: BLE001
+            conn = sqlite3.connect(db_path, timeout=30.0)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=30000")
     except sqlite3.OperationalError as e:
         result["ok"] = False
         result["error"] = f"connect failed: {e}"
