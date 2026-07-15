@@ -5219,6 +5219,105 @@ def api_capabilities_integrate():
     return jsonify({"status": "queued", "data": data})
 
 
+@app.route("/api/capabilities/inventory", methods=["GET"])
+def api_capabilities_inventory():
+    """Detailed listing of ingested capabilities from the registry.
+
+    Query params:
+      type: filter by capability_type (e.g. 'utility', 'ai_model'). Optional.
+      runtime: filter by runtime_mode ('autonomous', 'ondemand'). Optional.
+      limit: max rows to return (default 500, max 5000).
+      offset: pagination offset (default 0).
+      fields: comma-separated fields to include per row. Default:
+              'name,capability_type,runtime_mode,source,file_path,description'.
+              Use fields=summary for a per-type histogram only.
+
+    No auth (registry names are not secrets; the underlying code files are
+    already in the repo).
+    """
+    ci = components.get("capability_integrator")
+    if ci is None:
+        return jsonify({"available": False, "error": "CapabilityIntegrator not loaded"}), 503
+
+    try:
+        registry = getattr(ci, "registry", None) or {}
+        caps = registry.get("capabilities", {}) or {}
+
+        fields_param = (request.args.get("fields") or "").strip().lower()
+        type_filter = (request.args.get("type") or "").strip().lower() or None
+        runtime_filter = (request.args.get("runtime") or "").strip().lower() or None
+
+        # Summary-only mode: return per-type + per-runtime histograms.
+        if fields_param == "summary":
+            by_type = {}
+            by_runtime = {}
+            for cap in caps.values():
+                t = (cap.get("capability_type") or "unknown").lower()
+                r = (cap.get("runtime_mode") or "unknown").lower()
+                by_type[t] = by_type.get(t, 0) + 1
+                by_runtime[r] = by_runtime.get(r, 0) + 1
+            return jsonify({
+                "ok": True,
+                "total": len(caps),
+                "by_type": dict(sorted(by_type.items(), key=lambda kv: -kv[1])),
+                "by_runtime": dict(sorted(by_runtime.items(), key=lambda kv: -kv[1])),
+            })
+
+        # Detail mode.
+        try:
+            limit = min(int(request.args.get("limit", 500)), 5000)
+        except Exception:
+            limit = 500
+        try:
+            offset = max(int(request.args.get("offset", 0)), 0)
+        except Exception:
+            offset = 0
+
+        default_fields = [
+            "name", "capability_type", "runtime_mode", "source",
+            "file_path", "description",
+        ]
+        if fields_param:
+            fields = [f.strip() for f in fields_param.split(",") if f.strip()]
+        else:
+            fields = default_fields
+
+        # Apply filters, paginate.
+        rows = []
+        skipped = 0
+        for cap_id, cap in caps.items():
+            if type_filter and (cap.get("capability_type") or "").lower() != type_filter:
+                continue
+            if runtime_filter and (cap.get("runtime_mode") or "").lower() != runtime_filter:
+                continue
+            if skipped < offset:
+                skipped += 1
+                continue
+            row = {"id": cap_id}
+            for f in fields:
+                v = cap.get(f)
+                # Trim long text fields for wire economy.
+                if isinstance(v, str) and len(v) > 400:
+                    v = v[:400] + "..."
+                row[f] = v
+            rows.append(row)
+            if len(rows) >= limit:
+                break
+
+        return jsonify({
+            "ok": True,
+            "total": len(caps),
+            "returned": len(rows),
+            "offset": offset,
+            "limit": limit,
+            "filters": {"type": type_filter, "runtime": runtime_filter},
+            "capabilities": rows,
+        })
+    except Exception as e:
+        logger.error("capabilities/inventory failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 # ── Kaizen integrator cycle ───────────────────────────────────────────────────
 @app.route("/api/kaizen/run-cycle", methods=["POST"])
 def api_kaizen_run_cycle():
