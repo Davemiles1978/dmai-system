@@ -278,7 +278,7 @@ class AutoAPIActivator:
     Runs as a background daemon with periodic re-validation.
     """
 
-    CHECK_INTERVAL   = 3600   # re-validate every hour
+    CHECK_INTERVAL   = 900    # re-validate every 15 min (was 3600 / hourly)
     TIMEOUT          = 12     # per-provider HTTP timeout
 
     def __init__(self, ai_hub=None, data_path: str = "data"):
@@ -291,6 +291,7 @@ class AutoAPIActivator:
         self._lock    = threading.Lock()
         self._stop    = threading.Event()
         self._thread: Optional[threading.Thread] = None
+        self._in_selfheal = False   # guards against self-heal rescan loops
 
         logger.info("AutoAPIActivator initialised — %d providers in catalogue", len(PROVIDER_CATALOGUE))
 
@@ -310,11 +311,39 @@ class AutoAPIActivator:
     def stop(self):
         self._stop.set()
 
+    def _hydrate_from_db_before_scan(self):
+        """Before every scan, ensure DB-stored keys are in os.environ.
+
+        Prevents env vars silently reverting to an unset state between scans.
+        Idempotent — env wins if already set with a value. Reaches back into
+        dmai_core_complete._bootstrap_api_key_hydration via a late-bound module
+        lookup to avoid a circular import.
+        """
+        try:
+            import sys
+            core = sys.modules.get("dmai_core_complete")
+            if core and hasattr(core, "_bootstrap_api_key_hydration"):
+                core._bootstrap_api_key_hydration()
+        except Exception as exc:
+            logger.warning("activator: hydrate-from-db failed: %s", exc)
+
     def scan_and_activate(self) -> Dict:
         """
         Synchronous scan: check every provider, validate keys found,
         hot-wire working ones into ai_hub. Returns a results summary.
         """
+        start_ts = time.time()
+        # PR T: DB → env before each scan so a key present in the DB can never
+        # be lost just because its env var got cleared.
+        self._hydrate_from_db_before_scan()
+
+        # Snapshot the previous active set for regression detection.
+        prev_active = set()
+        if isinstance(self.registry, dict):
+            for pid, info in (self.registry.get("providers") or {}).items():
+                if isinstance(info, dict) and info.get("status") == "active":
+                    prev_active.add(pid)
+
         results = {
             "timestamp":   datetime.now(timezone.utc).isoformat(),
             "providers":   {},
@@ -363,11 +392,58 @@ class AutoAPIActivator:
                 results["invalid"].append(provider_id)
 
         self._save_registry(results)
+        elapsed = time.time() - start_ts
         logger.info(
-            "AutoAPIActivator scan complete — %d active, %d pending key, %d invalid",
-            results["total_active"], len(results["pending"]), len(results["invalid"])
+            "AutoAPIActivator scan complete — %d active, %d pending key, %d invalid (took %.1fs)",
+            results["total_active"], len(results["pending"]), len(results["invalid"]), elapsed
         )
+        if logger.isEnabledFor(logging.DEBUG):
+            for pid, info in results["providers"].items():
+                env_vars = PROVIDER_CATALOGUE.get(pid, {}).get("env_vars", [])
+                logger.debug(
+                    "  pid=%s status=%s env_lens=%s",
+                    pid, info.get("status"),
+                    [(ev, len(os.environ.get(ev, ""))) for ev in env_vars],
+                )
+
+        # PR T: regression detection — a provider that was active last scan but
+        # is now pending (env var lost / transient issue) triggers a follow-up.
+        now_pending = set(results.get("pending", []))
+        regressed = prev_active & now_pending
+        if regressed:
+            logger.warning(
+                "activator: REGRESSION detected — %d provider(s) went active → pending: %s",
+                len(regressed), sorted(regressed)
+            )
+            for pid in sorted(regressed):
+                env_vars = PROVIDER_CATALOGUE.get(pid, {}).get("env_vars", [])
+                env_status = [(ev, len(os.environ.get(ev, ""))) for ev in env_vars]
+                logger.warning("  regression detail: pid=%s env_vars=%s", pid, env_status)
+            if not self._in_selfheal:
+                self._schedule_selfheal_rescan()
+            else:
+                logger.info("activator: regression persists during self-heal — not re-scheduling")
         return results
+
+    def _schedule_selfheal_rescan(self):
+        """Trigger a fresh scan_and_activate() in ~30s on a one-shot daemon
+        thread. Sets _in_selfheal so the follow-up scan won't chain another
+        rescan if the regression persists."""
+        self._in_selfheal = True
+
+        def _delayed():
+            try:
+                time.sleep(30)
+                logger.info("activator: self-heal rescan starting")
+                self.scan_and_activate()
+            except Exception as exc:
+                logger.warning("activator: self-heal rescan failed: %s", exc)
+            finally:
+                self._in_selfheal = False
+
+        threading.Thread(
+            target=_delayed, daemon=True, name="dmai-activator-selfheal"
+        ).start()
 
     def get_status(self) -> Dict:
         """Return cached registry (no API calls)."""
