@@ -8630,14 +8630,9 @@ def api_self_generation_diagnose():
 
     Auth: gated by X-Cron-Secret or master_password for now.
     """
-    # Auth
-    cron = request.headers.get("X-Cron-Secret", "")
-    pw = request.args.get("password", "") or request.headers.get(
-        "X-Master-Password", "",
-    )
-    ok_cron = bool(CRON_SECRET) and cron == CRON_SECRET
-    ok_pw = bool(pw) and pw == os.environ.get("MASTER_PASSWORD", "")
-    if not (ok_cron or ok_pw):
+    # Auth: reuse the shared cron-auth helper (constant-time compare
+    # against CRON_SECRET env var; fails closed if unset).
+    if not _require_cron_auth():
         return jsonify({"ok": False, "error": "unauthorised"}), 401
 
     try:
