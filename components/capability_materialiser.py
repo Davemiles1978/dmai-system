@@ -73,10 +73,25 @@ logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────
 
-DEFAULT_DAILY_CAP           = 5
-DEFAULT_MIN_JUDGE_CONFIDENCE = 0.80
+# PR DD (2026-07-15): widen the queue. Auto-revert (PR CC) makes it
+# safe to lower the judge bar and raise the daily cap.
+DEFAULT_DAILY_CAP           = 10
+DEFAULT_MIN_JUDGE_CONFIDENCE = 0.60
 POLL_SECONDS                = 300          # every 5 minutes
 DEFAULT_DB_PATH             = "data/dmai_knowledge.db"
+
+# Daily cap split across the three picker paths. Sum should equal
+# DEFAULT_DAILY_CAP so the total budget is preserved. If any pool is
+# empty the unused budget rolls to the next pool in order.
+PICKER_QUOTAS = {
+    "fresh_blood_seed+self_judge": 5,
+    "promoter_path+self_judge":    3,
+    "gap_driven":                  2,
+}
+
+# Recognised provenances the picker will consider. Order matters:
+# fresh_blood first (highest quality), then promoter_path, then gap.
+ACCEPTED_PROVENANCES = tuple(PICKER_QUOTAS.keys())
 
 REPO_ROOT      = Path(__file__).resolve().parents[1]
 STAGING_DIR    = REPO_ROOT / "components" / "generated" / "staging"
@@ -184,36 +199,46 @@ def _bump_day(conn: sqlite3.Connection, by: int = 1) -> int:
 def _pick_candidates(conn: sqlite3.Connection,
                      *,
                      min_confidence: float,
-                     limit: int) -> List[Dict[str, Any]]:
+                     limit: int,
+                     quotas: Optional[Dict[str, int]] = None,
+                     ) -> List[Dict[str, Any]]:
     """Read the capabilities table for stubs eligible for materialisation.
 
     A capability is eligible when:
     - ``runtime_mode`` is ``'stub'`` (never materialised) OR
       ``'stub_reverted'`` (previously promoted then verifier-reverted)
-    - ``provenance   = 'fresh_blood_seed+self_judge'``
+    - ``provenance`` is one of :data:`ACCEPTED_PROVENANCES`
     - ``judge_confidence >= min_confidence``
     - There is no ``materialisation_log`` row for this cap_id with
       ``outcome = 'promoted'`` (already done) or with a failed row
       created in the last 24 hours (backoff).
 
     ``'quarantined'`` rows are excluded permanently.
+
+    Picking honours :data:`PICKER_QUOTAS` (or ``quotas`` if supplied):
+    each provenance pool gets its own slice of the daily budget. Unused
+    slices roll forward to the next pool in the declared order so a
+    starved pool doesn't waste the whole tick.
     """
+    quotas = quotas or PICKER_QUOTAS
+
     # capabilities table shape in the registry-mirror on prod:
     # (id, name, type, capability_type, description, provenance,
     #  judge_confidence, runtime_mode, ...)
+    provenance_list = list(quotas.keys())
+    placeholders = ",".join("?" * len(provenance_list))
     try:
         rows = conn.execute(
-            """
+            f"""
             SELECT id, name, capability_type, description,
                    provenance, judge_confidence, runtime_mode
             FROM capabilities
             WHERE runtime_mode IN ('stub', 'stub_reverted')
-              AND provenance   = 'fresh_blood_seed+self_judge'
+              AND provenance   IN ({placeholders})
               AND (judge_confidence IS NOT NULL
                    AND judge_confidence >= ?)
-            LIMIT ?
             """,
-            (float(min_confidence), int(limit) * 4),  # over-fetch;
+            tuple(provenance_list) + (float(min_confidence),),
         ).fetchall()
     except sqlite3.OperationalError as e:
         # Column not present in this DB. Return empty and let the
@@ -224,14 +249,17 @@ def _pick_candidates(conn: sqlite3.Connection,
 
     # Filter out already-promoted and freshly-failed (24h) ids.
     ineligible: set = set()
-    log_rows = conn.execute(
-        """
-        SELECT capability_id, outcome, created_at
-        FROM materialisation_log
-        WHERE capability_id IN ({})
-        """.format(",".join("?" * len(rows)) or "''"),
-        tuple(r[0] for r in rows) or ("",),
-    ).fetchall() if rows else []
+    if rows:
+        log_rows = conn.execute(
+            """
+            SELECT capability_id, outcome, created_at
+            FROM materialisation_log
+            WHERE capability_id IN ({})
+            """.format(",".join("?" * len(rows))),
+            tuple(r[0] for r in rows),
+        ).fetchall()
+    else:
+        log_rows = []
     now = _dt.datetime.now(_dt.timezone.utc)
     for cid, outcome, created in log_rows:
         if outcome == "promoted":
@@ -247,22 +275,105 @@ def _pick_candidates(conn: sqlite3.Connection,
                 and (now - when).total_seconds() < 24 * 3600:
             ineligible.add(cid)
 
-    picks: List[Dict[str, Any]] = []
+    # Bucket eligible rows by provenance so we can apply per-pool quotas.
+    buckets: Dict[str, List[Dict[str, Any]]] = {
+        p: [] for p in provenance_list
+    }
     for r in rows:
         if r[0] in ineligible:
             continue
-        picks.append({
+        prov = r[4]
+        if prov not in buckets:
+            continue
+        buckets[prov].append({
             "id":              r[0],
             "name":            r[1],
             "capability_type": r[2],
             "description":     r[3],
-            "provenance":      r[4],
+            "provenance":      prov,
             "judge_confidence": r[5],
             "runtime_mode":    r[6],
         })
+
+    picks: List[Dict[str, Any]] = []
+    rollover = 0
+    for prov in provenance_list:
+        pool = buckets[prov]
+        # Preference: highest judge_confidence first inside each pool.
+        pool.sort(key=lambda c: (c.get("judge_confidence") or 0.0), reverse=True)
+        pool_budget = min(int(quotas.get(prov, 0)) + rollover, limit - len(picks))
+        take = pool[:max(0, pool_budget)]
+        picks.extend(take)
+        rollover = max(0, pool_budget - len(take))
         if len(picks) >= limit:
             break
-    return picks
+    return picks[:limit]
+
+
+# ── Gap-driven seeder (PR DD) ─────────────────────────────────
+
+def _seed_gap_capabilities(conn: sqlite3.Connection,
+                           *,
+                           max_new: int = 5,
+                           ) -> int:
+    """Insert capability rows for detected gaps so the picker can consume them.
+
+    Reads ``iter_capability_gaps()`` (from gap_fetcher) and materialises
+    each into a ``capabilities`` row with:
+      - ``runtime_mode = 'stub'``
+      - ``provenance   = 'gap_driven'``
+      - ``judge_confidence = 0.65`` (above the 0.60 floor, well below
+        fresh-blood quality so quota preference still favours those)
+
+    Idempotent: an INSERT OR IGNORE keyed off the gap slug prevents
+    duplicate seeding on repeated ticks.
+
+    Returns the number of rows freshly inserted.
+    """
+    try:
+        from components.gap_fetcher import iter_capability_gaps  # noqa
+    except Exception as e:  # noqa: BLE001
+        logger.info("gap seeder unavailable: %s", e)
+        return 0
+
+    try:
+        gaps = list(iter_capability_gaps(fresh=False))
+    except Exception as e:  # noqa: BLE001
+        logger.info("iter_capability_gaps failed: %s", e)
+        return 0
+
+    if not gaps:
+        return 0
+
+    # Priority 1 first, then 2, etc. Cap at max_new.
+    gaps.sort(key=lambda g: int(getattr(g, "priority", 5) or 5))
+    gaps = gaps[:max_new]
+
+    inserted = 0
+    for g in gaps:
+        slug = _slug(str(getattr(g, "name", "") or ""))
+        if not slug or slug == "unnamed":
+            continue
+        desc = str(getattr(g, "description", "") or slug.replace("_", " "))
+        cap_id = f"gap_{slug}"
+        try:
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO capabilities
+                    (id, name, capability_type, description,
+                     provenance, judge_confidence, runtime_mode)
+                VALUES (?, ?, 'utility', ?, 'gap_driven', 0.65, 'stub')
+                """,
+                (cap_id, slug, desc[:800]),
+            )
+            if cur.rowcount > 0:
+                inserted += 1
+        except sqlite3.OperationalError as e:
+            logger.info("gap seed skipped for %s: %s", slug, e)
+            break  # schema shape isn't compatible; stop trying
+    if inserted:
+        conn.commit()
+    return inserted
 
 
 def _happy_kwargs_for(capability_type: str) -> Dict[str, Any]:
@@ -452,8 +563,16 @@ def materialise_once(*,
                      min_confidence: float = DEFAULT_MIN_JUDGE_CONFIDENCE,
                      codegen_fn: Optional[
                          Callable[..., codegen.CodegenAttempt]] = None,
+                     seed_gaps: Optional[bool] = None,
                      ) -> Dict[str, Any]:
-    """Run one pass. Returns a summary dict for the admin endpoint."""
+    """Run one pass. Returns a summary dict for the admin endpoint.
+
+    ``seed_gaps=None`` (default) auto-detects: enabled only when the DB
+    path looks like a real knowledge DB (``dmai_knowledge`` in the
+    path). Tests that use tmp DBs get seeding disabled automatically
+    so the SelfScanner's live gap data doesn't pollute the fixture.
+    Callers can force with True/False.
+    """
     codegen_fn = codegen_fn or codegen.request_code
     conn = _safe_connect(db_path)
     try:
@@ -472,6 +591,22 @@ def materialise_once(*,
                        json.dumps(summary, default=str))
             conn.commit()
             return summary
+
+        # PR DD: seed gap-driven capability rows before picking so the
+        # gap pool has candidates to draw from. Auto-disabled for
+        # non-prod DBs (e.g. pytest tmp_path fixtures) so the live
+        # SelfScanner doesn't leak into unit tests.
+        should_seed = seed_gaps
+        if should_seed is None:
+            should_seed = "dmai_knowledge" in db_path
+        gaps_seeded = 0
+        if should_seed:
+            try:
+                gaps_seeded = _seed_gap_capabilities(
+                    conn, max_new=PICKER_QUOTAS.get("gap_driven", 2) * 2,
+                )
+            except Exception as e:  # noqa: BLE001
+                logger.info("gap seeding failed non-fatally: %s", e)
 
         candidates = _pick_candidates(
             conn, min_confidence=min_confidence, limit=remaining,
@@ -567,6 +702,12 @@ def materialise_once(*,
                         "reason": f"verifier_error: {e}",
                     })
 
+        # Provenance breakdown of what we picked this tick (for observability).
+        prov_breakdown: Dict[str, int] = {}
+        for c in candidates:
+            key = str(c.get("provenance") or "unknown")
+            prov_breakdown[key] = prov_breakdown.get(key, 0) + 1
+
         now = _dt.datetime.now(_dt.timezone.utc).isoformat()
         summary = {
             "picked":    picked,
@@ -575,6 +716,10 @@ def materialise_once(*,
             "cap_hit":   False,
             "day_count": _day_counter(conn),
             "daily_cap": daily_cap,
+            "min_confidence": min_confidence,
+            "quotas":    dict(PICKER_QUOTAS),
+            "gaps_seeded": gaps_seeded,
+            "provenance_breakdown": prov_breakdown,
             "results":   [r.as_dict() for r in results],
             "verifications": verifications,
             "ts":        now,
