@@ -6652,10 +6652,44 @@ def api_graph_rebuild():
     a bounded set of same_repo capability ↔ capability edges.
 
     Auth required. Idempotent — safe to run on a schedule.
+
+    Query params:
+      force=true — forcibly release any lingering write-lock hold
+        before starting. Escape hatch for the InsightPromoter wedge
+        we saw on prod; use only when a normal rebuild returns
+        write_mutex_timeout.
     """
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
+    force = (request.args.get("force") or "").lower() in ("1", "true", "yes")
     try:
+        if force:
+            # Nuclear option: reach into the write-lock registry and
+            # drop any recorded holder for dmai_knowledge.db, then
+            # try rebuild. Safe because the projector's rebuild is
+            # idempotent and uses BEGIN IMMEDIATE with retries.
+            try:
+                from components.db import (
+                    _WRITE_LOCKS as _WL,
+                    _WRITE_LOCK_HOLDERS as _WLH,
+                )
+                import os as _os_r
+                _kdb = _os_r.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+                _key = _os_r.path.abspath(_kdb)
+                _lock = _WL.get(_key)
+                if _lock is not None:
+                    # Best-effort release attempts. RLock counts nesting,
+                    # so drain until it's genuinely free.
+                    for _ in range(8):
+                        try:
+                            _lock.release()
+                        except RuntimeError:
+                            break
+                _WLH.pop(_key, None)
+                logger.warning("api_graph_rebuild: force=true drained write lock for %s", _kdb)
+            except Exception as _fe:
+                logger.warning("api_graph_rebuild force drain failed: %s", _fe)
+
         from components.graph_projector import GraphProjector as _GP
         result = _GP().rebuild()
         return jsonify(result)

@@ -155,6 +155,14 @@ def promote_once(
             "  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
+        # PR AA: force-commit any pending txn from the CREATE TABLE above so
+        # the KeepOpenProxy releases its write lock before we do heavier work
+        # or exit. Without this, _txn_held can linger and block the projector
+        # rebuild on the next tick.
+        try:
+            conn.commit()
+        except Exception:
+            pass
         offset = _get_offset(conn)
         size   = jsonl_path.stat().st_size
 
@@ -205,6 +213,15 @@ def promote_once(
                 promoted += len(batch)
                 cur_offset = batch_end_offset
 
+        # PR AA: final commit + explicit lock release before returning.
+        # Belt-and-braces — ensures the RLock is dropped so background
+        # readers (graph projector, admin queries) don't have to wait
+        # through the next poll cycle for the promoter to notice.
+        try:
+            conn.commit()
+        except Exception:
+            pass
+
         return {
             "promoted": promoted,
             "skipped": skipped,
@@ -213,6 +230,14 @@ def promote_once(
         }
     finally:
         # KeepOpenProxy.close() is a no-op — connection is pool-owned.
+        # A final commit here defends against a code path that returned
+        # without committing (should be impossible after the checks above,
+        # but cheap insurance against the wedged-lock behaviour we've
+        # observed on prod).
+        try:
+            conn.commit()
+        except Exception:
+            pass
         try:
             conn.close()
         except Exception:
