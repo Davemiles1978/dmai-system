@@ -313,13 +313,18 @@ def test_health_green_with_live_and_good_verify(db: str) -> None:
     for i in range(2):
         _insert_verify(db, f"bad_{i}", ok=0)
 
-    # Pretend materialiser loop is alive
+    # Pretend materialiser loop is alive.
+    # CapabilityMaterialiserLoop wraps a threading.Thread in ._thread
+    # — mirror that shape so the running check matches production.
     from components import capability_materialiser
     original_loop = getattr(capability_materialiser, "_LOOP", None)
     try:
-        class _FakeLoop:
+        class _FakeThread:
             def is_alive(self):
                 return True
+
+        class _FakeLoop:
+            _thread = _FakeThread()
         capability_materialiser._LOOP = _FakeLoop()
 
         payload = sgs.build_status(db)
