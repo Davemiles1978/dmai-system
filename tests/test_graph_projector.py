@@ -26,11 +26,14 @@ def seeded_env(tmp_path):
             language TEXT, methods TEXT, is_async INTEGER DEFAULT 0,
             args TEXT, integrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+        -- Real prod insights schema: promoter path fills concept/domain,
+        -- legacy path fills source_topic/target_topic.
         CREATE TABLE insights (
             id TEXT PRIMARY KEY, insight_text TEXT NOT NULL,
-            entity_type TEXT NOT NULL, entities TEXT NOT NULL,
-            relationship TEXT NOT NULL, confidence REAL DEFAULT 0.5,
-            source_topic TEXT NOT NULL, target_topic TEXT NOT NULL,
+            concept TEXT, domain TEXT,
+            entity_type TEXT, entities TEXT,
+            relationship TEXT, confidence REAL DEFAULT 0.5,
+            source_topic TEXT, target_topic TEXT,
             source_url TEXT, source_title TEXT, source_type TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             occurrence_count INTEGER DEFAULT 1, last_used TIMESTAMP
@@ -50,18 +53,31 @@ def seeded_env(tmp_path):
             "file_path,runtime_mode) VALUES (?,?,?,?,?,?,?,?,?)",
             c,
         )
-    insights = [
+    # Legacy-path insights (source_topic/target_topic populated)
+    legacy_insights = [
         ("i1", "trading depends on market data", "dep", "[]", "depends_on", 0.9, "trading", "market_data"),
         ("i2", "tradeexecutor is a trading tool", "cat", "[]", "is_a", 0.8, "tradeexecutor", "trading"),
         ("i3", "market data feeds trading", "cause", "[]", "enables", 0.7, "market_data", "trading"),
         ("i4", "search engine finds data", "util", "[]", "finds", 0.6, "searchengine", "market_data"),
     ]
-    for i in insights:
+    for i in legacy_insights:
         conn.execute(
             "INSERT INTO insights "
             "(id,insight_text,entity_type,entities,relationship,confidence,"
             "source_topic,target_topic) VALUES (?,?,?,?,?,?,?,?)",
             i,
+        )
+    # Promoter-path insights (concept/domain populated, topic cols NULL)
+    promoter_insights = [
+        ("p1", "greyhound racing forms fed model", "greyhounds", "racing", 0.72),
+        ("p2", "betfair odds analysis", "betfair", "betting", 0.65),
+        ("p3", "macro inflation causes rate move", "inflation", "macro", 0.80),
+    ]
+    for pid, text, concept, domain, conf in promoter_insights:
+        conn.execute(
+            "INSERT INTO insights (id, insight_text, concept, domain, confidence) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (pid, text, concept, domain, conf),
         )
     conn.commit()
     conn.close()
@@ -93,9 +109,12 @@ def test_rebuild_produces_all_layers(seeded_env):
     assert stats["capability_neurons"] == 4
     # utility, trading, api → 3 type-cluster neurons
     assert stats["type_neurons"] == 3
-    # trading, market_data, tradeexecutor, searchengine → 4 topics
-    assert stats["topic_neurons"] == 4
-    assert stats["insight_synapses"] >= 4
+    # Legacy path: 4 unique topics (trading, market_data, tradeexecutor,
+    # searchengine). Promoter path adds 6 more (greyhounds, racing, betfair,
+    # betting, inflation, macro) → 10 topics total.
+    assert stats["topic_neurons"] == 10
+    # 4 legacy relationship edges + 3 promoter concept→domain edges.
+    assert stats["insight_synapses"] >= 7
     assert stats["arch_synapses"] == 1
 
 
@@ -104,8 +123,9 @@ def test_schema_read_returns_neurons_and_edges(seeded_env):
     gp = GraphProjector(db_path=db, arch_schema_path=arch)
     gp.rebuild()
     schema = gp.to_schema()
-    assert schema["total_neurons"] == 14
-    assert schema["total_synapses"] >= 10
+    # 3 arch + 3 type + 4 caps + 10 topics = 20 neurons
+    assert schema["total_neurons"] == 20
+    assert schema["total_synapses"] >= 13
 
     edges = {(s["source"], s["target"], s["type"])
              for s in schema["synapses"]}
@@ -143,7 +163,26 @@ def test_stats_reports_layers(seeded_env):
     assert st["by_layer"]["architecture"] == 3
     assert st["by_layer"]["capability"] == 4
     assert st["by_layer"]["capability_type"] == 3
-    assert st["by_layer"]["topic"] == 4
+    assert st["by_layer"]["topic"] == 10
+
+
+def test_promoter_path_topics_captured(seeded_env):
+    """Concept/domain columns from InsightPromoter path must produce
+    topic neurons + concept→domain synapses even when source_topic and
+    target_topic are NULL (the real prod situation)."""
+    db, arch = seeded_env
+    gp = GraphProjector(db_path=db, arch_schema_path=arch)
+    gp.rebuild()
+    schema = gp.to_schema()
+    labels = {n["label"] for n in schema["neurons"] if n["layer"] == "topic"}
+    # Promoter-path concepts and domains must be present.
+    assert "greyhounds" in labels
+    assert "racing" in labels
+    assert "inflation" in labels
+    edges = {(s["source"], s["target"], s["relationship"])
+             for s in schema["synapses"]}
+    # concept→domain edges are labelled 'concept_in_domain'.
+    assert ("topic:greyhounds", "topic:racing", "concept_in_domain") in edges
 
 
 def test_rebuild_is_idempotent(seeded_env):
