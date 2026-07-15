@@ -318,20 +318,37 @@ class GraphProjector:
                     (type_neuron_id, cap_type),
                 )
 
-            # 3) Topic neurons (union of insights.source_topic & target_topic).
-            topic_rows = conn.execute("""
-                SELECT topic, SUM(cnt) AS occurrences
-                FROM (
-                    SELECT source_topic AS topic, COUNT(*) AS cnt
-                    FROM insights WHERE source_topic IS NOT NULL AND LENGTH(source_topic) > 1
-                    GROUP BY source_topic
-                    UNION ALL
-                    SELECT target_topic AS topic, COUNT(*) AS cnt
-                    FROM insights WHERE target_topic IS NOT NULL AND LENGTH(target_topic) > 1
-                    GROUP BY target_topic
+            # 3) Topic neurons — union of every populated topic-like column.
+            #
+            # Reality on prod: the InsightPromoter (the majority writer)
+            # only fills (concept, insight_text, confidence, domain,
+            # source), leaving source_topic/target_topic NULL. Other
+            # writers fill source_topic/target_topic. So we build the
+            # topic set from four columns and treat 'concept' as the
+            # primary topic when it exists.
+            #
+            # Detect which columns exist so we don't SELECT a missing
+            # column and blow up on legacy DBs.
+            cols = {
+                row[1] for row in conn.execute("PRAGMA table_info(insights)").fetchall()
+            }
+            topic_selects: list[str] = []
+            for col in ("source_topic", "target_topic", "concept", "domain"):
+                if col in cols:
+                    topic_selects.append(
+                        f"SELECT {col} AS topic, COUNT(*) AS cnt "
+                        f"FROM insights WHERE {col} IS NOT NULL "
+                        f"AND LENGTH({col}) > 1 GROUP BY {col}"
+                    )
+            if topic_selects:
+                topic_sql = (
+                    "SELECT topic, SUM(cnt) AS occurrences FROM (\n"
+                    + "\nUNION ALL\n".join(topic_selects)
+                    + "\n) GROUP BY topic"
                 )
-                GROUP BY topic
-            """).fetchall()
+                topic_rows = conn.execute(topic_sql).fetchall()
+            else:
+                topic_rows = []
 
             topic_ids: Dict[str, str] = {}
             for r in topic_rows:
@@ -357,19 +374,47 @@ class GraphProjector:
                 stats["topic_neurons"] += 1
 
             # 4) Insight synapses (topic → topic).
-            insight_edges = conn.execute("""
-                SELECT source_topic, target_topic, relationship,
-                       COUNT(*) AS n, MAX(confidence) AS max_conf
-                FROM insights
-                WHERE source_topic IS NOT NULL AND target_topic IS NOT NULL
-                  AND LENGTH(source_topic) > 1 AND LENGTH(target_topic) > 1
-                  AND source_topic <> target_topic
-                GROUP BY source_topic, target_topic, relationship
-            """).fetchall()
+            #
+            # Two paths:
+            #   (a) legacy: source_topic → target_topic + relationship
+            #   (b) main promoter path: concept → domain (both fields
+            #       populated on every promoter insert). We treat that
+            #       as a 'concept_in_domain' relationship.
+            insight_edges: list[dict] = []
+            if {"source_topic", "target_topic", "relationship"} <= cols:
+                for r in conn.execute("""
+                    SELECT source_topic AS s, target_topic AS t,
+                           relationship AS rel,
+                           COUNT(*) AS n, MAX(confidence) AS max_conf
+                    FROM insights
+                    WHERE source_topic IS NOT NULL AND target_topic IS NOT NULL
+                      AND LENGTH(source_topic) > 1 AND LENGTH(target_topic) > 1
+                      AND source_topic <> target_topic
+                    GROUP BY source_topic, target_topic, relationship
+                """).fetchall():
+                    insight_edges.append({
+                        "s": r["s"], "t": r["t"],
+                        "rel": r["rel"], "n": r["n"], "max_conf": r["max_conf"],
+                    })
+            if {"concept", "domain"} <= cols:
+                for r in conn.execute("""
+                    SELECT concept AS s, domain AS t,
+                           COUNT(*) AS n, MAX(confidence) AS max_conf
+                    FROM insights
+                    WHERE concept IS NOT NULL AND domain IS NOT NULL
+                      AND LENGTH(concept) > 1 AND LENGTH(domain) > 1
+                      AND LOWER(concept) <> LOWER(domain)
+                    GROUP BY concept, domain
+                """).fetchall():
+                    insight_edges.append({
+                        "s": r["s"], "t": r["t"],
+                        "rel": "concept_in_domain", "n": r["n"],
+                        "max_conf": r["max_conf"],
+                    })
 
             for e in insight_edges:
-                s = self._neuron_id_for_topic(e["source_topic"])
-                t = self._neuron_id_for_topic(e["target_topic"])
+                s = self._neuron_id_for_topic(e["s"])
+                t = self._neuron_id_for_topic(e["t"])
                 if s not in topic_ids or t not in topic_ids:
                     continue
                 try:
@@ -380,7 +425,7 @@ class GraphProjector:
                         (
                             s, t,
                             float(e["max_conf"] or 0.5),
-                            e["relationship"] or "related",
+                            e["rel"] or "related",
                             json.dumps({"insight_count": int(e["n"] or 1)}),
                         ),
                     )
