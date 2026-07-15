@@ -38,8 +38,16 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+try:  # Prefer DMAI's shared connection proxy so we honour the shared write
+    # mutex + long busy_timeout used across the codebase. Falls back to a
+    # raw sqlite3.connect for the unit tests, which supply a tmp DB.
+    from components.db import safe_open_kdb as _safe_open_kdb  # type: ignore
+except Exception:  # pragma: no cover
+    _safe_open_kdb = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +86,48 @@ class GraphProjector:
                  arch_schema_path: Optional[Path] = None):
         self.db_path = Path(db_path or DB_PATH)
         self.arch_schema_path = Path(arch_schema_path or ARCH_SCHEMA_PATH)
+
+    # ── Connection helpers ────────────────────────────────────────────
+    def _open_conn(self, timeout: float = 30.0):
+        """Return a connection that respects DMAI's shared write mutex.
+
+        Uses safe_open_kdb from components.db when available (i.e. when
+        running inside the live app). Falls back to a raw sqlite3
+        connection for unit tests, which use tmp_path databases and
+        don't need the process-wide mutex.
+        """
+        if _safe_open_kdb is not None:
+            try:
+                return _safe_open_kdb(str(self.db_path), timeout=timeout)
+            except Exception as e:
+                logger.warning(
+                    "safe_open_kdb failed, falling back to raw sqlite3: %s", e
+                )
+        conn = sqlite3.connect(str(self.db_path), timeout=timeout)
+        return conn
+
+    def _acquire_write_slot(self, conn, *, attempts: int = 5,
+                            initial_delay: float = 0.5) -> None:
+        """Force acquisition of the SQLite write lock with backoff.
+
+        Immediately BEGIN IMMEDIATE — if the DB is locked we back off
+        with exponential delays instead of hitting an unbounded wait
+        inside the huge bulk-clear DELETE. Fails loud after N attempts
+        so the caller can report a friendly error rather than a 30s
+        hang.
+        """
+        delay = initial_delay
+        for i in range(attempts):
+            try:
+                conn.execute("BEGIN IMMEDIATE")
+                return
+            except sqlite3.OperationalError as e:
+                if "lock" not in str(e).lower():
+                    raise
+                if i == attempts - 1:
+                    raise
+                time.sleep(delay)
+                delay = min(delay * 2, 8.0)
 
     # ── Schema ────────────────────────────────────────────────────────
     def _ensure_tables(self, conn: sqlite3.Connection) -> None:
@@ -138,12 +188,18 @@ class GraphProjector:
         if not self.db_path.exists():
             return {"ok": False, "error": f"DB not found: {self.db_path}"}
 
-        conn = sqlite3.connect(str(self.db_path), timeout=30.0)
-        conn.row_factory = sqlite3.Row
+        conn = self._open_conn(timeout=90.0)
+        # sqlite3.Row for both proxy and raw paths.
+        try:
+            underlying = getattr(conn, "_conn", conn)
+            underlying.row_factory = sqlite3.Row
+        except Exception:
+            pass
         try:
             conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
+            conn.execute("PRAGMA busy_timeout=90000")
             self._ensure_tables(conn)
+            self._acquire_write_slot(conn)
             self._clear(conn)
 
             stats = {
@@ -408,11 +464,17 @@ class GraphProjector:
             stats["ok"] = True
             return stats
         except Exception as e:
-            conn.rollback()
+            try:
+                conn.rollback()
+            except Exception:
+                pass
             logger.exception("GraphProjector.rebuild failed")
             return {"ok": False, "error": str(e)}
         finally:
-            conn.close()
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     # ── Read API ──────────────────────────────────────────────────────
     def to_schema(self, limit_per_layer: int = 5000) -> Dict[str, Any]:
@@ -426,8 +488,12 @@ class GraphProjector:
             return {"neurons": [], "synapses": [], "total_neurons": 0,
                     "total_synapses": 0}
 
-        conn = sqlite3.connect(str(self.db_path), timeout=30.0)
-        conn.row_factory = sqlite3.Row
+        conn = self._open_conn(timeout=30.0)
+        try:
+            underlying = getattr(conn, "_conn", conn)
+            underlying.row_factory = sqlite3.Row
+        except Exception:
+            pass
         try:
             # Bail if projection tables don't exist yet.
             has_table = conn.execute(
@@ -495,7 +561,7 @@ class GraphProjector:
     def stats(self) -> Dict[str, Any]:
         if not self.db_path.exists():
             return {"ok": False, "error": "DB not found"}
-        conn = sqlite3.connect(str(self.db_path), timeout=30.0)
+        conn = self._open_conn(timeout=30.0)
         try:
             has_table = conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' "
