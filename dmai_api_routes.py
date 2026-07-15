@@ -19,8 +19,9 @@ def _get_db_conn(timeout: int = 10):
             dsn = "postgresql://" + dsn[len("postgres://"):]
         conn = psycopg2.connect(dsn, connect_timeout=timeout)
         conn.autocommit = False
-        # Make psycopg2 Row objects subscriptable like sqlite3.Row
-        conn.row_factory = psycopg2.extras.RealDictCursor
+        # NOTE: psycopg2 does not accept .row_factory as an attribute
+        # (it's a C-type). Dict-like rows are obtained by using
+        # RealDictCursor as the cursor_factory in _db_cursor().
         return conn, "postgres"
     db_path = Path("data/dmai_knowledge.db")
     conn = safe_open_kdb(str(db_path), timeout=timeout)

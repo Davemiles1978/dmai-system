@@ -383,7 +383,14 @@ Return ONLY the raw Python code."""
 
     # ── Self-suggestion generation ────────────────────────────────────────────
     def generate_self_suggestions(self):
-        """Mine insight gaps and auto-create development suggestions."""
+        """Mine insight gaps and auto-create development suggestions.
+
+        PR V-fast follow-up: the previous implementation ran an O(N·M)
+        cross-product SELECT (~25k insights × ~20k capabilities ×
+        LIKE-substring), which held the connection busy for 30s+ and
+        starved the write mutex. Rewrite: pull small candidate sets
+        into Python and do set-difference in-process.
+        """
         try:
             conn = _db()
 
@@ -395,23 +402,46 @@ Return ONLY the raw Python code."""
                 conn.close()
                 return
 
-            # Find high-confidence insights with no matching capability name
-            rows = conn.execute("""
-                SELECT DISTINCT i.source_topic as concept
-                FROM insights i
-                WHERE i.confidence > 0.7
-                  AND NOT EXISTS (
-                      SELECT 1 FROM capabilities c
-                      WHERE LOWER(c.name) LIKE '%' || LOWER(i.source_topic) || '%'
-                  )
-                  AND NOT EXISTS (
-                      SELECT 1 FROM suggestions s
-                      WHERE LOWER(s.title) LIKE '%' || LOWER(i.source_topic) || '%'
-                        AND s.source = 'self'
-                  )
-                LIMIT 3
+            # Distinct high-confidence insight topics (top-50 by recency /
+            # ordering — bounded so the scan is cheap).
+            insight_rows = conn.execute("""
+                SELECT DISTINCT source_topic
+                FROM insights
+                WHERE confidence > 0.7
+                  AND source_topic IS NOT NULL
+                  AND LENGTH(source_topic) > 2
+                LIMIT 50
             """).fetchall()
+            insight_topics = [(r["source_topic"] or "").strip() for r in insight_rows]
+            insight_topics = [t for t in insight_topics if t]
+
+            # Existing capability names (lowercased). Bounded LIMIT to keep
+            # memory + wire modest — 20k rows is fine, 200k is not.
+            cap_rows = conn.execute(
+                "SELECT name FROM capabilities LIMIT 50000"
+            ).fetchall()
+            cap_names_lc = {(r["name"] or "").lower() for r in cap_rows}
+
+            # Existing self-suggestion titles (lowercased).
+            sug_rows = conn.execute(
+                "SELECT title FROM suggestions WHERE source='self' LIMIT 10000"
+            ).fetchall()
+            sug_titles_lc = {(r["title"] or "").lower() for r in sug_rows}
             conn.close()
+
+            # In-process filter: keep topics whose lowercase form isn't a
+            # substring of any capability name and isn't already suggested.
+            def _already_covered(topic: str) -> bool:
+                tlc = topic.lower()
+                if any(tlc in n for n in cap_names_lc):
+                    return True
+                if any(tlc in t for t in sug_titles_lc):
+                    return True
+                return False
+
+            rows = [
+                {"concept": t} for t in insight_topics if not _already_covered(t)
+            ][:3]
 
             slots = max(0, 5 - pending_count)
             for row in rows[:slots]:
