@@ -6284,10 +6284,37 @@ def api_master_set_goal():
 # ── Graph Evolution — live status endpoint ────────────────────────────────────
 @app.route("/api/graph/schema", methods=["GET"])
 def api_graph_schema():
-    """Return full graph_schema.json — neurons + synapses — for the live dashboard."""
+    """Return the live knowledge graph — neurons + synapses.
+
+    Prefers the projected graph (built from the capabilities + insights
+    tables by components.graph_projector). Falls back to the legacy
+    hand-curated graph_schema.json when the projection tables haven't
+    been built yet.
+
+    Query params:
+      source=projection|file  — force one source. Default: projection first.
+      limit_per_layer=<n>      — cap neurons per layer (default 5000).
+    """
     import json as _j
     from pathlib import Path as _PL
-    # Try repo-relative path first, then DATA_PATH-relative, then absolute fallback
+
+    _source = (request.args.get("source") or "").strip().lower()
+    try:
+        _limit = int(request.args.get("limit_per_layer", 5000))
+    except Exception:
+        _limit = 5000
+
+    # Try the projection first unless the caller explicitly asked for the file.
+    if _source != "file":
+        try:
+            from components.graph_projector import GraphProjector as _GP
+            projected = _GP().to_schema(limit_per_layer=_limit)
+            if projected.get("total_neurons", 0) > 0:
+                return jsonify(projected)
+        except Exception as e:
+            logger.warning("projection read failed, falling back to file: %s", e)
+
+    # Fallback: legacy hand-curated schema file.
     _candidates = [
         _PL("aevora-training/dashboard/data/graph_schema.json"),
         _PL(DATA_PATH) / "graph_schema.json",
@@ -6297,18 +6324,18 @@ def api_graph_schema():
         for _sp in _candidates:
             if _sp.exists():
                 data = _j.loads(_sp.read_text(encoding="utf-8"))
+                data["projection"] = False
                 return jsonify(data)
-        # File not found — return empty but valid schema so dashboard doesn't crash
         return jsonify({
             "neurons": [], "synapses": [],
             "total_neurons": 0, "total_synapses": 0,
             "evolution_cycle": 0,
-            "_note": "graph_schema.json not found on this deployment — checked: " +
-                     str([str(c) for c in _candidates])
+            "_note": "neither projection nor graph_schema.json available",
         })
     except Exception as e:
         logger.error("api_graph_schema error: %s", e)
-        return jsonify({"error": str(e), "neurons": [], "synapses": [], "total_neurons": 0, "total_synapses": 0}), 200
+        return jsonify({"error": str(e), "neurons": [], "synapses": [],
+                        "total_neurons": 0, "total_synapses": 0}), 200
 
 
 @app.route("/api/metrics", methods=["GET"])
@@ -6425,18 +6452,28 @@ def api_metrics():
 
 @app.route("/api/graph/status", methods=["GET"])
 def api_graph_status():
-    """Return live knowledge graph size and growth stats."""
+    """Return live knowledge graph size and growth stats.
+
+    Reports both the projection (built from capabilities + insights)
+    and the legacy hand-curated architectural graph.
+    """
+    out = {"ok": True}
     try:
         from components.graph_writer import GraphWriter as _GW
-        gw = _GW()
-        return jsonify(gw.status())
+        out["architectural"] = _GW().status()
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        out["architectural"] = {"error": str(e)}
+    try:
+        from components.graph_projector import GraphProjector as _GP
+        out["projection"] = _GP().stats()
+    except Exception as e:
+        out["projection"] = {"error": str(e)}
+    return jsonify(out)
 
 
 @app.route("/api/graph/evolve", methods=["POST"])
 def api_graph_evolve():
-    """Manually trigger a full graph evolution pass."""
+    """Manually trigger a full graph evolution pass (activation only)."""
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
     try:
@@ -6445,6 +6482,55 @@ def api_graph_evolve():
         return jsonify({"status": "ok", "result": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/graph/rebuild", methods=["POST"])
+def api_graph_rebuild():
+    """Rebuild the projected knowledge graph from capabilities + insights.
+
+    Populates graph_neurons and graph_synapses in dmai_knowledge.db by
+    projecting the ingested registries into a tiered graph:
+
+      Layer 1 — the 32 architectural neurons
+      Layer 2 — capability_type cluster neurons
+      Layer 3 — capability neurons (~20k)
+      Layer 4 — insight-topic neurons (deduped from insights table)
+
+    Synapses come from four sources: the existing architectural edges,
+    capability_type ↔ architecture anchors, insight rows (source_topic
+    → target_topic), and capability ↔ topic name matches. Also emits
+    a bounded set of same_repo capability ↔ capability edges.
+
+    Auth required. Idempotent — safe to run on a schedule.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    try:
+        from components.graph_projector import GraphProjector as _GP
+        result = _GP().rebuild()
+        return jsonify(result)
+    except Exception as e:
+        logger.exception("graph_rebuild failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/cron/graph/rebuild", methods=["POST"])
+def api_cron_graph_rebuild():
+    """Cron entrypoint for graph projection rebuild.
+
+    Requires X-Cron-Secret matching CRON_SECRET env var.
+    """
+    _sec = os.environ.get("CRON_SECRET") or ""
+    _hdr = request.headers.get("X-Cron-Secret") or ""
+    if not _sec or _hdr != _sec:
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+    try:
+        from components.graph_projector import GraphProjector as _GP
+        result = _GP().rebuild()
+        return jsonify(result)
+    except Exception as e:
+        logger.exception("cron graph_rebuild failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 
