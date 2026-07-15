@@ -603,6 +603,238 @@ class GraphProjector:
         finally:
             conn.close()
 
+    def drilldown(
+        self,
+        view: str = "overview",
+        expand_type: Optional[str] = None,
+        expand_cap: Optional[str] = None,
+        expand_topic: Optional[str] = None,
+        limit: int = 60,
+    ) -> Dict[str, Any]:
+        """Return a bounded, layered slice of the graph for drilldown UIs.
+
+        Views:
+          - ``overview``: architecture neurons + capability_type neurons
+            + top-N topics by degree. This is the default readable view.
+          - ``type``: architecture + all type neurons + top ``limit``
+            capabilities of ``expand_type`` (by activation).
+          - ``capability``: the requested capability + its
+            immediate neighbours (type parent + linked topics + same-repo
+            peers, all bounded by ``limit``).
+          - ``topic``: the requested topic + capabilities linked to it +
+            other topics one hop away.
+
+        Returns the same shape as ``to_schema`` (neurons + synapses +
+        totals) so the frontend renderer can consume both uniformly.
+        """
+        if not self.db_path.exists():
+            return {"neurons": [], "synapses": [], "total_neurons": 0,
+                    "total_synapses": 0, "view": view}
+
+        conn = self._open_conn(timeout=30.0)
+        try:
+            underlying = getattr(conn, "_conn", conn)
+            underlying.row_factory = sqlite3.Row
+        except Exception:
+            pass
+
+        try:
+            has_table = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "AND name='graph_neurons'"
+            ).fetchone()
+            if not has_table:
+                return {"neurons": [], "synapses": [], "total_neurons": 0,
+                        "total_synapses": 0, "view": view,
+                        "_note": "projection tables not built yet"}
+
+            total_neurons = conn.execute(
+                "SELECT COUNT(*) FROM graph_neurons"
+            ).fetchone()[0]
+            total_synapses = conn.execute(
+                "SELECT COUNT(*) FROM graph_synapses"
+            ).fetchone()[0]
+
+            def _pack(row: sqlite3.Row) -> Dict[str, Any]:
+                return {
+                    "id": row["id"],
+                    "label": row["label"],
+                    "layer": row["layer"],
+                    "cluster": row["cluster"],
+                    "capability_type": row["capability_type"],
+                    "activation": row["activation"],
+                    "has_children": False,  # set below per-view
+                    "child_count": 0,
+                }
+
+            neurons: Dict[str, Dict[str, Any]] = {}
+            counts_by_layer: Dict[str, int] = {}
+            for row in conn.execute(
+                "SELECT layer, COUNT(*) AS n FROM graph_neurons GROUP BY layer"
+            ).fetchall():
+                counts_by_layer[row["layer"]] = int(row["n"])
+
+            def _include(row: sqlite3.Row) -> None:
+                if row["id"] not in neurons:
+                    neurons[row["id"]] = _pack(row)
+
+            # 1) Every view includes architecture + capability_type as the
+            # legible top layers.
+            for row in conn.execute(
+                "SELECT id, label, layer, cluster, capability_type, activation "
+                "FROM graph_neurons WHERE layer IN ('architecture','capability_type') "
+                "ORDER BY layer, activation DESC"
+            ).fetchall():
+                _include(row)
+
+            # 2) View-specific expansion.
+            if view == "overview":
+                # Add top topics by degree so the overview has some
+                # topical texture without dumping 20k caps into the DOM.
+                for row in conn.execute(
+                    """SELECT n.id, n.label, n.layer, n.cluster,
+                              n.capability_type, n.activation
+                       FROM graph_neurons n
+                       LEFT JOIN (
+                         SELECT source AS nid, COUNT(*) AS d FROM graph_synapses GROUP BY source
+                         UNION ALL
+                         SELECT target AS nid, COUNT(*) AS d FROM graph_synapses GROUP BY target
+                       ) e ON e.nid = n.id
+                       WHERE n.layer='topic'
+                       GROUP BY n.id
+                       ORDER BY COALESCE(SUM(e.d), 0) DESC, n.activation DESC
+                       LIMIT ?""",
+                    (max(20, min(limit, 200)),),
+                ).fetchall():
+                    _include(row)
+
+            elif view == "type" and expand_type:
+                for row in conn.execute(
+                    "SELECT id, label, layer, cluster, capability_type, activation "
+                    "FROM graph_neurons WHERE layer='capability' "
+                    "AND capability_type=? ORDER BY activation DESC LIMIT ?",
+                    (expand_type, max(10, min(limit, 500))),
+                ).fetchall():
+                    _include(row)
+
+            elif view == "capability" and expand_cap:
+                target_row = conn.execute(
+                    "SELECT id, label, layer, cluster, capability_type, activation "
+                    "FROM graph_neurons WHERE id=?",
+                    (expand_cap,),
+                ).fetchone()
+                if target_row:
+                    _include(target_row)
+                    # Neighbours via synapses.
+                    for row in conn.execute(
+                        """SELECT n.id, n.label, n.layer, n.cluster,
+                                  n.capability_type, n.activation
+                           FROM graph_synapses s
+                           JOIN graph_neurons n
+                             ON n.id = CASE WHEN s.source=? THEN s.target ELSE s.source END
+                           WHERE s.source=? OR s.target=?
+                           ORDER BY s.weight DESC
+                           LIMIT ?""",
+                        (expand_cap, expand_cap, expand_cap,
+                         max(10, min(limit, 200))),
+                    ).fetchall():
+                        _include(row)
+
+            elif view == "topic" and expand_topic:
+                target_row = conn.execute(
+                    "SELECT id, label, layer, cluster, capability_type, activation "
+                    "FROM graph_neurons WHERE id=?",
+                    (expand_topic,),
+                ).fetchone()
+                if target_row:
+                    _include(target_row)
+                    for row in conn.execute(
+                        """SELECT n.id, n.label, n.layer, n.cluster,
+                                  n.capability_type, n.activation
+                           FROM graph_synapses s
+                           JOIN graph_neurons n
+                             ON n.id = CASE WHEN s.source=? THEN s.target ELSE s.source END
+                           WHERE s.source=? OR s.target=?
+                           ORDER BY s.weight DESC
+                           LIMIT ?""",
+                        (expand_topic, expand_topic, expand_topic,
+                         max(10, min(limit, 200))),
+                    ).fetchall():
+                        _include(row)
+
+            # 3) Compute child counts for every visible neuron so the UI
+            # can show '+N' badges (has_children indicator).
+            visible_ids = list(neurons.keys())
+            if visible_ids:
+                # For architecture neurons: count capability_type children linked via cap_to_arch.
+                for row in conn.execute(
+                    "SELECT source AS arch, COUNT(DISTINCT target) AS n "
+                    "FROM graph_synapses WHERE edge_type='cap_to_arch' "
+                    "GROUP BY source"
+                ).fetchall():
+                    # arch -> capability edges reversed elsewhere; keep it simple.
+                    pass
+                # For capability_type neurons: count capabilities of that type.
+                for row in conn.execute(
+                    "SELECT capability_type, COUNT(*) AS n "
+                    "FROM graph_neurons WHERE layer='capability' "
+                    "GROUP BY capability_type"
+                ).fetchall():
+                    type_id = f"type:{row['capability_type']}"
+                    if type_id in neurons:
+                        neurons[type_id]["has_children"] = True
+                        neurons[type_id]["child_count"] = int(row["n"])
+                # For capability neurons: 'has_children' = degree > 0.
+                deg_rows = conn.execute(
+                    "SELECT nid, COUNT(*) AS d FROM ("
+                    "  SELECT source AS nid FROM graph_synapses UNION ALL"
+                    "  SELECT target AS nid FROM graph_synapses"
+                    ") GROUP BY nid"
+                ).fetchall()
+                deg_by_id = {r["nid"]: int(r["d"]) for r in deg_rows}
+                for nid, n in neurons.items():
+                    if n["layer"] in ("capability", "topic") and deg_by_id.get(nid, 0) > 0:
+                        n["has_children"] = True
+                        n["child_count"] = deg_by_id[nid]
+
+            # 4) Synapses between visible neurons only.
+            visible_set = set(neurons.keys())
+            synapses: List[Dict[str, Any]] = []
+            if visible_set:
+                placeholders = ",".join("?" for _ in visible_set)
+                for row in conn.execute(
+                    f"SELECT source, target, edge_type, weight, relationship "
+                    f"FROM graph_synapses "
+                    f"WHERE source IN ({placeholders}) AND target IN ({placeholders}) "
+                    f"LIMIT ?",
+                    (*visible_set, *visible_set, len(visible_set) * 6),
+                ).fetchall():
+                    synapses.append({
+                        "source": row["source"],
+                        "target": row["target"],
+                        "type": row["edge_type"],
+                        "weight": row["weight"],
+                        "relationship": row["relationship"],
+                    })
+
+            return {
+                "schema_version": "2.1",
+                "view": view,
+                "expand_type": expand_type,
+                "expand_cap": expand_cap,
+                "expand_topic": expand_topic,
+                "neurons": list(neurons.values()),
+                "synapses": synapses,
+                "visible_neurons": len(neurons),
+                "visible_synapses": len(synapses),
+                "total_neurons": int(total_neurons),
+                "total_synapses": int(total_synapses),
+                "counts_by_layer": counts_by_layer,
+                "projection": True,
+            }
+        finally:
+            conn.close()
+
     def stats(self) -> Dict[str, Any]:
         if not self.db_path.exists():
             return {"ok": False, "error": "DB not found"}

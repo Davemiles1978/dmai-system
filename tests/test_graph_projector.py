@@ -185,6 +185,37 @@ def test_promoter_path_topics_captured(seeded_env):
     assert ("topic:greyhounds", "topic:racing", "concept_in_domain") in edges
 
 
+def test_drilldown_overview_returns_top_layers(seeded_env):
+    db, arch = seeded_env
+    gp = GraphProjector(db_path=db, arch_schema_path=arch)
+    gp.rebuild()
+    result = gp.drilldown(view="overview", limit=50)
+    layers = {n["layer"] for n in result["neurons"]}
+    # Overview MUST include architecture and capability_type; capability
+    # neurons must be HIDDEN by default (drilldown pattern).
+    assert "architecture" in layers
+    assert "capability_type" in layers
+    assert "capability" not in layers
+    # Type neurons should carry has_children + child_count for the UI.
+    types = [n for n in result["neurons"] if n["layer"] == "capability_type"]
+    assert any(t["has_children"] and t["child_count"] > 0 for t in types)
+    # Totals reflect the whole projection, not just what's visible.
+    assert result["total_neurons"] > result["visible_neurons"]
+
+
+def test_drilldown_type_reveals_capabilities(seeded_env):
+    db, arch = seeded_env
+    gp = GraphProjector(db_path=db, arch_schema_path=arch)
+    gp.rebuild()
+    result = gp.drilldown(view="type", expand_type="trading", limit=10)
+    layers = {n["layer"] for n in result["neurons"]}
+    assert "capability" in layers
+    cap_types = {n["capability_type"] for n in result["neurons"]
+                 if n["layer"] == "capability"}
+    # Expanding 'trading' should ONLY reveal trading capabilities.
+    assert cap_types == {"trading"}
+
+
 def test_rebuild_is_idempotent(seeded_env):
     db, arch = seeded_env
     gp = GraphProjector(db_path=db, arch_schema_path=arch)
