@@ -8583,6 +8583,40 @@ def api_self_generation_verify_one(cap_id: str):
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR EE: unified self-generation status dashboard ─────────────────────
+@app.route("/api/self-generation/status", methods=["GET"])
+def api_self_generation_status():
+    """One-call snapshot of the self-generation loop.
+
+    Aggregates materialiser, verifier, queue depth, live modules and
+    gap scanner into a single JSON payload with a green/yellow/red
+    health verdict. Backed by ``components.self_generation_status``.
+    """
+    try:
+        from components.self_generation_status import build_status
+        from components.capability_materialiser import DEFAULT_DB_PATH
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"status module unavailable: {e}",
+            "health": {"level": "red",
+                       "reasons": ["status module import failed"]},
+        }), 500
+
+    try:
+        payload = build_status(DEFAULT_DB_PATH)
+        # If build_status flagged partial failure return 200 anyway —
+        # the health block already tells the client something is off.
+        return jsonify(payload), 200
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": str(e),
+            "health": {"level": "red",
+                       "reasons": [f"build_status raised: {e}"]},
+        }), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""
