@@ -52,6 +52,7 @@ import os
 import sqlite3
 import sys
 import threading
+import time
 import traceback
 
 logger = logging.getLogger(__name__)
@@ -86,10 +87,15 @@ _TLS = threading.local()
 # canonical DB path. Reads stay fully parallel. The lock is reentrant so
 # nested write paths on the same thread (e.g. execute INSERT then commit, or
 # a batched BEGIN..executemany..COMMIT held under one guard) don't deadlock.
-_WRITE_MUTEX_TIMEOUT = 30.0  # seconds; on expiry we raise, never block forever
+# PR V-fast: bumped from 30s -> 60s to reduce storm noise while V-real (hot-
+# table Postgres migration) is in flight. On expiry we still raise cleanly.
+_WRITE_MUTEX_TIMEOUT = 60.0  # seconds; on expiry we raise, never block forever
 _WRITE_LOCKS: dict[str, threading.RLock] = {}
 _WRITE_LOCKS_META = threading.Lock()           # guards _WRITE_LOCKS mutation
 _WRITE_LOCK_HOLDERS: dict[str, int] = {}        # path -> last-acquirer thread ident
+# PR V-fast: rolling max wait-to-acquire per path (ms). Reset on read via the
+# diagnostic endpoint. Populated by _WriteGuard.__enter__ and proxy._acquire.
+_WRITE_LOCK_MAX_WAIT_MS: dict[str, int] = {}
 
 # SQL whose first token marks a pure read. Everything else takes the lock
 # (safe default per design: ambiguous == treat as write).
@@ -173,6 +179,8 @@ class _WriteGuard:
         self._lock = lock
 
     def __enter__(self) -> "_WriteGuard":
+        # PR V-fast: record wait-to-acquire for /api/admin/db-lock-status.
+        _t0 = time.monotonic()
         if not self._lock.acquire(timeout=_WRITE_MUTEX_TIMEOUT):
             holder = _WRITE_LOCK_HOLDERS.get(self._key)
             logger.warning(
@@ -186,6 +194,7 @@ class _WriteGuard:
                 _format_holder_stack(holder),
             )
             raise sqlite3.OperationalError("write_mutex_timeout")
+        _record_wait_ms(self._key, int((time.monotonic() - _t0) * 1000))
         _WRITE_LOCK_HOLDERS[self._key] = threading.get_ident()
         return self
 
@@ -202,12 +211,24 @@ def acquire_write_lock(path):
     return _WriteGuard(key, lock)
 
 
+def _record_wait_ms(key: str, wait_ms: int) -> None:
+    """PR V-fast: track the rolling max wait-to-acquire per DB path so we can
+    see contention pressure via /api/admin/db-lock-status without waiting for
+    a 60s timeout to log a warning."""
+    try:
+        prev = _WRITE_LOCK_MAX_WAIT_MS.get(key, 0)
+        if wait_ms > prev:
+            _WRITE_LOCK_MAX_WAIT_MS[key] = wait_ms
+    except Exception:
+        pass
+
+
 def get_write_lock_status() -> dict:
     """Snapshot the current write-lock holders. Used by the diagnostic
     endpoint /api/admin/db-lock-status.
 
     Returns a dict of {path: {holder_thread_ident, holder_thread_name,
-    holder_stack, has_lock_object}}. Never raises.
+    holder_stack, has_lock_object, max_wait_ms}}. Never raises.
     """
     out: dict = {}
     # Copy keys first — dict may mutate while iterating from other threads.
@@ -247,6 +268,7 @@ def get_write_lock_status() -> dict:
             "holder_thread_name": holder_name,
             "currently_held": held_now,
             "holder_stack": stack,
+            "max_wait_ms": _WRITE_LOCK_MAX_WAIT_MS.get(key, 0),
         }
     return out
 
@@ -295,6 +317,8 @@ class KeepOpenProxy:
     def _acquire(self) -> None:
         if self._wlock is None:
             return
+        # PR V-fast: record wait-to-acquire for /api/admin/db-lock-status.
+        _t0 = time.monotonic()
         if not self._wlock.acquire(timeout=_WRITE_MUTEX_TIMEOUT):
             holder = _WRITE_LOCK_HOLDERS.get(self._wkey)
             logger.warning(
@@ -308,6 +332,7 @@ class KeepOpenProxy:
                 _format_holder_stack(holder),
             )
             raise sqlite3.OperationalError("write_mutex_timeout")
+        _record_wait_ms(self._wkey, int((time.monotonic() - _t0) * 1000))
         _WRITE_LOCK_HOLDERS[self._wkey] = threading.get_ident()
 
     def _release(self) -> None:

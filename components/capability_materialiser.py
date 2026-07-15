@@ -548,6 +548,8 @@ class CapabilityMaterialiserLoop:
         self.last_summary: Dict[str, Any] = {}
 
     def _run(self) -> None:
+        # PR V-fast: exponential backoff on DB lock contention.
+        backoff = 0.0
         while not self._stop.is_set():
             try:
                 self.last_summary = materialise_once(
@@ -555,12 +557,22 @@ class CapabilityMaterialiserLoop:
                     daily_cap=self._daily_cap,
                     min_confidence=self._min_confidence,
                 )
+                backoff = 0.0  # success — reset backoff
             except Exception as e:
-                logger.exception(
-                    "capability_materialiser: pass crashed: %s", e,
-                )
+                msg = str(e).lower()
+                if "lock" in msg or "mutex_timeout" in msg:
+                    # Cap at ~5 min so we still recover once the storm clears.
+                    backoff = min(backoff * 2 + 5.0, 300.0)
+                    logger.warning(
+                        "capability_materialiser: DB busy, backing off %.0fs: %s",
+                        backoff, e,
+                    )
+                else:
+                    logger.exception(
+                        "capability_materialiser: pass crashed: %s", e,
+                    )
                 self.last_summary = {"error": str(e)}
-            self._stop.wait(self._poll)
+            self._stop.wait(self._poll + backoff)
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
