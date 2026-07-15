@@ -106,11 +106,15 @@ def _materialiser_section(conn: sqlite3.Connection) -> Dict[str, Any]:
         except Exception:  # noqa: BLE001
             last_summary = {"error": "summary_parse_failed"}
 
-    # Whether the loop thread is alive at all
+    # Whether the loop thread is alive at all.
+    # CapabilityMaterialiserLoop wraps a thread in ._thread, it isn't
+    # itself a Thread subclass. Mirror the shape used by
+    # /api/admin/capability-materialiser-status so both endpoints agree.
     running = False
     try:
         from components.capability_materialiser import _LOOP as _MAT_LOOP
-        running = bool(_MAT_LOOP and _MAT_LOOP.is_alive())
+        thr = getattr(_MAT_LOOP, "_thread", None) if _MAT_LOOP else None
+        running = bool(thr and thr.is_alive())
     except Exception:  # noqa: BLE001
         running = False
 
