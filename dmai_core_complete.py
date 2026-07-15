@@ -8658,6 +8658,42 @@ def api_self_generation_diagnose():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/capabilities/migrate-schema", methods=["POST"])
+def api_capabilities_migrate_schema():
+    """Additive, idempotent migration of the capabilities table to the
+    shape the self-generation materialiser expects.
+
+    Adds ``provenance`` + ``judge_confidence`` columns if missing,
+    backfills legacy rows with ``provenance='legacy_*'`` so the picker
+    ignores them, creates picker index + materialisation_log table.
+    Never overwrites runtime_mode on existing rows.
+
+    Query params:
+      - dry_run (bool, default false) — report plan without changes
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    try:
+        from components.capability_schema_migration import (
+            migrate_capabilities_schema,
+        )
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"migration module unavailable: {e}",
+        }), 500
+
+    dry = str(request.args.get("dry_run", "")).lower() in ("1", "true", "yes")
+    try:
+        payload = migrate_capabilities_schema(dry_run=dry)
+        return jsonify(payload), 200
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""
