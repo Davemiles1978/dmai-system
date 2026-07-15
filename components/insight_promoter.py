@@ -263,12 +263,16 @@ class InsightPromoterLoop:
         self._stop.set()
 
     def _run(self) -> None:
+        # PR V-fast: exponential backoff on lock contention so we stop
+        # hammering a busy DB every poll interval. Reset on success.
+        backoff = 0.0
         while not self._stop.is_set():
-            self._stop.wait(self._poll)
+            self._stop.wait(self._poll + backoff)
             if self._stop.is_set():
                 return
             try:
                 self.last_summary = promote_once(self._jsonl_path, self._db_path)
+                backoff = 0.0  # success — reset backoff
                 if self.last_summary["promoted"]:
                     logger.info(
                         "InsightPromoter tick: promoted=%d skipped=%d offset=%d",
@@ -277,7 +281,11 @@ class InsightPromoterLoop:
                         self.last_summary["new_offset"],
                     )
             except Exception as e:
-                logger.warning("InsightPromoter tick error: %s", e)
+                msg = str(e).lower()
+                if "lock" in msg or "mutex_timeout" in msg:
+                    # Cap at ~5 min so we still recover once the storm clears.
+                    backoff = min(backoff * 2 + 5.0, 300.0)
+                logger.warning("InsightPromoter tick error: %s (backoff=%.0fs)", e, backoff)
 
 
 # Module-level singleton (started by dmai_core_complete boot sequence).

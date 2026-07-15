@@ -336,14 +336,17 @@ class CapabilityPromoterLoop:
         self._stop.set()
 
     def _run(self) -> None:
+        # PR V-fast: exponential backoff on lock contention.
+        backoff = 0.0
         while not self._stop.is_set():
-            self._stop.wait(self._poll)
+            self._stop.wait(self._poll + backoff)
             if self._stop.is_set():
                 return
             try:
                 self.last_summary = promote_once(
                     self._registry_path, self._db_path,
                 )
+                backoff = 0.0  # success — reset backoff
                 if self.last_summary.get("promoted"):
                     logger.info(
                         "CapabilityPromoter tick: promoted=%d skipped=%d total=%s",
@@ -352,7 +355,10 @@ class CapabilityPromoterLoop:
                         self.last_summary.get("total_in_registry"),
                     )
             except Exception as e:
-                logger.warning("CapabilityPromoter tick error: %s", e)
+                msg = str(e).lower()
+                if "lock" in msg or "mutex_timeout" in msg:
+                    backoff = min(backoff * 2 + 5.0, 300.0)
+                logger.warning("CapabilityPromoter tick error: %s (backoff=%.0fs)", e, backoff)
 
 
 _LOOP: Optional[CapabilityPromoterLoop] = None
