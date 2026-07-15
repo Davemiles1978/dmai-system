@@ -8324,6 +8324,61 @@ def api_self_generation_autonomy_score():
         return jsonify({"status": "error", "error": str(e)}), 500
 
 
+@app.route("/api/self-generation/knowledge-proof", methods=["GET"])
+def api_self_generation_knowledge_proof():
+    """Prove DMAI's knowledge is stored AND useable.
+
+    Runs three read-only probes and returns a merged result:
+
+    1. ``insights_stored`` — pick a random recent insight, confirm it
+       round-trips through the SQL insights table with topic/domain
+       fields populated.
+    2. ``capabilities_stored`` — pick a random capability with
+       ``runtime_mode='generated_module'`` (or any capability if none
+       exist yet), confirm the row is present, the live module file
+       exists on disk, its source parses as Python, and its docstring
+       matches the capability description.
+    3. ``capability_callable`` — take a random generated_module
+       capability and actually invoke its ``run()`` in a fresh
+       subprocess with a 5s wall-clock cap. Prove the code executes.
+
+    Query params:
+      lookback_hours — how far back to look for a recent insight
+        sample (default 24).
+      timeout — subprocess wall-clock cap for the callable probe
+        (default 5, min 1, max 30).
+
+    Overall_ok is True only when the insights probe passes AND at
+    least one of the capabilities/callable probes passes.
+    """
+    try:
+        from components.knowledge_proof import run_knowledge_proof as _kp
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"knowledge_proof import failed: {e}",
+        }), 503
+
+    try:
+        lookback = int(request.args.get("lookback_hours", 24))
+        timeout = int(request.args.get("timeout", 5))
+        lookback = max(1, min(lookback, 720))     # cap at 30 days
+        timeout = max(1, min(timeout, 30))         # cap at 30s
+    except Exception:  # noqa: BLE001
+        lookback, timeout = 24, 5
+
+    try:
+        result = _kp(
+            data_path=DATA_PATH,
+            lookback_hours=lookback,
+            callable_timeout_sec=timeout,
+        )
+        return jsonify(result.to_dict()), 200
+    except Exception as e:  # noqa: BLE001
+        logger.exception("knowledge_proof failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""
