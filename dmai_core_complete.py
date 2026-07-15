@@ -8617,6 +8617,52 @@ def api_self_generation_status():
         }), 500
 
 
+@app.route("/api/admin/self-generation/diagnose", methods=["GET"])
+def api_self_generation_diagnose():
+    """Read-only diagnostic: why is the self-gen loop producing zero?
+
+    Walks capabilities table, gap seeder, fresh-blood, and capability
+    promoter, reporting counts + a verdict for each pool so we can see
+    exactly which filter step is the block.
+
+    Query params:
+      - min_confidence (float, default 0.60) — override picker floor
+
+    Auth: gated by X-Cron-Secret or master_password for now.
+    """
+    # Auth
+    cron = request.headers.get("X-Cron-Secret", "")
+    pw = request.args.get("password", "") or request.headers.get(
+        "X-Master-Password", "",
+    )
+    ok_cron = bool(CRON_SECRET) and cron == CRON_SECRET
+    ok_pw = bool(pw) and pw == os.environ.get("MASTER_PASSWORD", "")
+    if not (ok_cron or ok_pw):
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    try:
+        from components.self_generation_diagnose import (
+            diagnose_self_generation,
+        )
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"diagnose module unavailable: {e}",
+        }), 500
+
+    try:
+        min_conf = request.args.get("min_confidence")
+        min_conf_f = float(min_conf) if min_conf else None
+    except (TypeError, ValueError):
+        min_conf_f = None
+
+    try:
+        payload = diagnose_self_generation(min_confidence=min_conf_f)
+        return jsonify(payload), 200
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""

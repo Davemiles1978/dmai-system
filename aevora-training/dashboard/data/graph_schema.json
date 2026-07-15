@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
-  "last_updated": "2026-06-25",
-  "evolution_cycle": 2,
+  "last_updated": "2026-07-15",
+  "evolution_cycle": 52,
   "total_neurons": 32,
   "total_synapses": 47,
   "metadata": {
@@ -9,7 +9,7 @@
     "auto_evolved": false,
     "graph_locked": true,
     "generator": "graph_evolution_monitor.py",
-    "last_live_update": "2026-06-25T07:08:19Z"
+    "last_live_update": "2026-07-15T17:50:34Z"
   },
   "clusters": {
     "core": {
@@ -57,7 +57,7 @@
       "label": "SICore Engine",
       "cluster": "core",
       "description": "SICore Engine component",
-      "activation": 0.9
+      "activation": 1.0
     },
     {
       "id": "db_storage",
@@ -142,21 +142,21 @@
       "label": "Auto Researcher",
       "cluster": "research",
       "description": "Auto Researcher component",
-      "activation": 0.8
+      "activation": 0.52
     },
     {
       "id": "insight_processor",
       "label": "Insight Processor",
       "cluster": "research",
       "description": "Insight Processor component",
-      "activation": 0.7
+      "activation": 1.0
     },
     {
       "id": "graph_evolution",
       "label": "Graph Evolution",
       "cluster": "research",
       "description": "Graph Evolution component",
-      "activation": 0.7
+      "activation": 0.52
     },
     {
       "id": "kaizen_engine",
