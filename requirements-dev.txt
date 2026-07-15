@@ -1,0 +1,2 @@
+# Development / test-only dependencies (not installed in production images).
+moto[s3]>=5.0        # in-memory AWS S3 mock for R2 backup tests

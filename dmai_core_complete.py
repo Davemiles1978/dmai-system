@@ -6748,6 +6748,84 @@ def api_cron_self_evolution_gaps():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# ── PR P: nightly R2 backup ───────────────────────────────────────────────────
+# POST /api/cron/backup/run snapshots the persistent disk (SQLite via the online
+# backup API) + a per-table Postgres JSON dump, uploads a dated tarball to
+# Cloudflare R2, then applies the 7-daily / 4-weekly / 12-monthly rotation. It is
+# cron-authenticated (X-Cron-Secret). The companion restore-list endpoint is
+# master-password gated because restore is destructive.
+
+@app.route("/api/cron/backup/run", methods=["POST"])
+def api_cron_backup_run():
+    """Create a snapshot, upload it to R2, and rotate old backups."""
+    guard = _cron_guard()
+    if guard is not None:
+        return guard
+
+    import time as _time
+    from components.backup import r2_backup as _r2
+
+    started = _time.time()
+    tar_path = None
+    try:
+        db_url = os.environ.get("DATABASE_URL") or None
+        tar_path, manifest = _r2.create_snapshot(DATA_PATH.rstrip("/"), db_url)
+        backup_key = _r2.R2_BACKUP_PREFIX + manifest["tar_name"]
+
+        client = _r2.R2BackupClient()
+        client.upload_file(tar_path, backup_key)
+        rotation = _r2.apply_rotation(client, _r2.R2_BACKUP_PREFIX)
+
+        return jsonify({
+            "ok": True,
+            "backup_key": backup_key,
+            "size_bytes": manifest.get("size_bytes", 0),
+            "sqlite_files": manifest.get("sqlite_files", []),
+            "extras": manifest.get("extras", []),
+            "postgres_tables": list(manifest.get("postgres_tables", {}).keys()),
+            "postgres_rows": sum(manifest.get("postgres_tables", {}).values()),
+            "rotation": rotation,
+            "elapsed_sec": round(_time.time() - started, 2),
+        })
+    except Exception as e:
+        logger.error("backup run failed: %s", e)
+        return jsonify({"ok": False, "error": str(e),
+                        "elapsed_sec": round(_time.time() - started, 2)}), 500
+    finally:
+        if tar_path:
+            try:
+                import shutil as _shutil
+                _shutil.rmtree(os.path.dirname(tar_path), ignore_errors=True)
+            except Exception:
+                pass
+
+@app.route("/api/cron/backup/restore-list", methods=["POST"])
+def api_cron_backup_restore_list():
+    """List available R2 backups (newest first). Master-password gated.
+
+    Restore is destructive, so this deliberately requires the master password
+    (not the cron secret) and never restores anything automatically — it only
+    reports what is available.
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        from components.backup import r2_backup as _r2
+        client = _r2.R2BackupClient()
+        objs = client.list_objects(_r2.R2_BACKUP_PREFIX)
+        backups = [{
+            "key": o["key"],
+            "size_bytes": o.get("size", 0),
+            "last_modified": (o["last_modified"].isoformat()
+                              if hasattr(o.get("last_modified"), "isoformat")
+                              else o.get("last_modified")),
+        } for o in objs]
+        backups.sort(key=lambda b: b.get("last_modified") or "", reverse=True)
+        return jsonify({"ok": True, "count": len(backups), "backups": backups})
+    except Exception as e:
+        logger.error("restore-list failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 @app.route("/api/integrity/report", methods=["GET"])
 def api_integrity_report():
     """Return the latest integrity report and unresolved flags."""
