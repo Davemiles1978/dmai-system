@@ -8379,6 +8379,210 @@ def api_self_generation_knowledge_proof():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR CC: post-integration verification + auto-revert ────────────────────
+
+def _kdb_path() -> str:
+    return os.path.join(DATA_PATH.rstrip("/") + "/", "dmai_knowledge.db")
+
+
+@app.route("/api/self-generation/verification-status", methods=["GET"])
+def api_self_generation_verification_status():
+    """Snapshot of the verifier: totals, recent runs, revert counts.
+
+    Query params:
+      limit — number of recent verification_log rows to include
+        (default 20, capped at 100).
+    """
+    try:
+        from components import capability_verifier as _verifier
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"capability_verifier import failed: {e}",
+        }), 503
+
+    try:
+        limit = max(1, min(int(request.args.get("limit", 20)), 100))
+    except Exception:  # noqa: BLE001
+        limit = 20
+
+    try:
+        snap = _verifier.verification_status(
+            db_path=_kdb_path(), limit=limit,
+        )
+        return jsonify(snap), (200 if snap.get("ok") else 500)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("verification_status failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/self-generation/verify-latest", methods=["POST", "GET"])
+def api_self_generation_verify_latest():
+    """Verify the last N recently-promoted modules on demand.
+
+    Reads recent 'promoted' rows from ``materialisation_log``,
+    runs the two-stage verifier on each, and returns the results.
+    Any failures quarantine the live file and revert runtime_mode.
+
+    Query/body param:
+      limit — how many recent promotions to verify (default 5,
+        capped at 20). GET works too so this can be triggered from
+        a browser.
+    """
+    try:
+        from components import capability_verifier as _verifier
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"capability_verifier import failed: {e}",
+        }), 503
+
+    try:
+        raw_limit = request.args.get("limit")
+        if raw_limit is None and request.is_json:
+            raw_limit = (request.get_json(silent=True) or {}).get("limit")
+        limit = max(1, min(int(raw_limit or 5), 20))
+    except Exception:  # noqa: BLE001
+        limit = 5
+
+    kdb = _kdb_path()
+    if not os.path.exists(kdb):
+        return jsonify({
+            "ok": False,
+            "error": f"knowledge db not found at {kdb}",
+        }), 503
+
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(kdb, timeout=15.0)
+        conn.row_factory = _sq.Row
+        try:
+            rows = conn.execute(
+                """
+                SELECT ml.capability_id, ml.concept, ml.slug,
+                       ml.created_at, c.capability_type
+                FROM materialisation_log ml
+                LEFT JOIN capabilities c ON c.id = ml.capability_id
+                WHERE ml.outcome = 'promoted'
+                ORDER BY ml.id DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        finally:
+            try:
+                conn.close()
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as e:  # noqa: BLE001
+        logger.exception("verify_latest read failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+    verifications = []
+    for row in rows:
+        cap_id = row["capability_id"]
+        slug = row["slug"]
+        cap_type = (row["capability_type"] or "utility")
+        try:
+            vr = _verifier.verify_promoted(
+                cap_id=str(cap_id),
+                slug=str(slug),
+                capability_type=str(cap_type),
+                happy_kwargs={},
+                db_path=kdb,
+                use_cache=True,
+            )
+            verifications.append(vr.to_dict())
+        except Exception as e:  # noqa: BLE001
+            verifications.append({
+                "capability_id": cap_id, "slug": slug,
+                "ok": False, "stage": "error",
+                "reason": f"verifier_error: {e}",
+            })
+
+    ok_count = sum(1 for v in verifications if v.get("ok"))
+    fail_count = len(verifications) - ok_count
+    return jsonify({
+        "ok": True,
+        "verified": len(verifications),
+        "passed": ok_count,
+        "failed": fail_count,
+        "verifications": verifications,
+    }), 200
+
+
+@app.route("/api/self-generation/verify/<cap_id>", methods=["POST"])
+def api_self_generation_verify_one(cap_id: str):
+    """Verify one capability by id, on demand."""
+    try:
+        from components import capability_verifier as _verifier
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"capability_verifier import failed: {e}",
+        }), 503
+
+    kdb = _kdb_path()
+    if not os.path.exists(kdb):
+        return jsonify({"ok": False, "error": "knowledge db missing"}), 503
+
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(kdb, timeout=15.0)
+        conn.row_factory = _sq.Row
+        try:
+            row = conn.execute(
+                """
+                SELECT id, name, capability_type
+                FROM capabilities WHERE id = ?
+                """,
+                (cap_id,),
+            ).fetchone()
+        finally:
+            try:
+                conn.close()
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+    if not row:
+        return jsonify({
+            "ok": False, "error": f"capability {cap_id} not found",
+        }), 404
+
+    # Slug lives on materialisation_log; look up latest promoted row.
+    conn = _sq.connect(kdb, timeout=15.0)
+    conn.row_factory = _sq.Row
+    slug_row = conn.execute(
+        """
+        SELECT slug FROM materialisation_log
+        WHERE capability_id = ? AND outcome = 'promoted'
+        ORDER BY id DESC LIMIT 1
+        """,
+        (cap_id,),
+    ).fetchone()
+    conn.close()
+    if not slug_row:
+        return jsonify({
+            "ok": False,
+            "error": f"no promoted materialisation_log row for {cap_id}",
+        }), 404
+
+    try:
+        vr = _verifier.verify_promoted(
+            cap_id=str(cap_id),
+            slug=str(slug_row["slug"]),
+            capability_type=str(row["capability_type"] or "utility"),
+            happy_kwargs={},
+            db_path=kdb,
+            use_cache=False,
+        )
+        return jsonify({"ok": True, "result": vr.to_dict()}), 200
+    except Exception as e:  # noqa: BLE001
+        logger.exception("verify_one failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""

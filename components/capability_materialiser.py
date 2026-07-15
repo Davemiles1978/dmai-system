@@ -63,6 +63,11 @@ from components.generated import _self_judge_review as reviewer
 from components.generated import _smoke_writer as smoke_writer
 from components.generated import _validator as validator
 
+try:
+    from components import capability_verifier as verifier  # type: ignore
+except Exception:  # pragma: no cover - defensive at import time
+    verifier = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -183,12 +188,15 @@ def _pick_candidates(conn: sqlite3.Connection,
     """Read the capabilities table for stubs eligible for materialisation.
 
     A capability is eligible when:
-    - ``runtime_mode = 'stub'``
+    - ``runtime_mode`` is ``'stub'`` (never materialised) OR
+      ``'stub_reverted'`` (previously promoted then verifier-reverted)
     - ``provenance   = 'fresh_blood_seed+self_judge'``
     - ``judge_confidence >= min_confidence``
     - There is no ``materialisation_log`` row for this cap_id with
       ``outcome = 'promoted'`` (already done) or with a failed row
       created in the last 24 hours (backoff).
+
+    ``'quarantined'`` rows are excluded permanently.
     """
     # capabilities table shape in the registry-mirror on prod:
     # (id, name, type, capability_type, description, provenance,
@@ -199,7 +207,7 @@ def _pick_candidates(conn: sqlite3.Connection,
             SELECT id, name, capability_type, description,
                    provenance, judge_confidence, runtime_mode
             FROM capabilities
-            WHERE runtime_mode = 'stub'
+            WHERE runtime_mode IN ('stub', 'stub_reverted')
               AND provenance   = 'fresh_blood_seed+self_judge'
               AND (judge_confidence IS NOT NULL
                    AND judge_confidence >= ?)
@@ -386,8 +394,19 @@ def _materialise_candidate(cap: Dict[str, Any],
         # -- All green
         return True, [], att
 
-    # Primary attempt
-    ok, reasons, att = _attempt(codegen.MODEL_PRIMARY, None)
+    # Primary attempt. If this capability was previously reverted by
+    # the verifier, feed the last failure traceback in as guidance so
+    # codegen fixes what broke last time (PR CC self-repair loop).
+    initial_guidance: Optional[List[str]] = None
+    if str(cap.get("runtime_mode") or "") == "stub_reverted":
+        try:
+            from components import capability_verifier as _verifier  # noqa
+            g = _verifier.get_retry_guidance(str(cap["id"]), db_path=db_path)
+            if g:
+                initial_guidance = g
+        except Exception:  # noqa: BLE001
+            initial_guidance = None
+    ok, reasons, att = _attempt(codegen.MODEL_PRIMARY, initial_guidance)
     model_used = att.model
     if not ok:
         reasons_all.extend(reasons)
@@ -506,6 +525,48 @@ def materialise_once(*,
                 except sqlite3.OperationalError:
                     pass  # column absent on the test schema
 
+        # ── Post-integration verification (PR CC) ─────────────────────
+        # After promotion + runtime_mode flip, run staged verification
+        # on each freshly-promoted capability. Failures quarantine the
+        # live file and revert runtime_mode so the next pass re-picks
+        # it with the failure traceback fed to codegen.
+        verifications: List[Dict[str, Any]] = []
+        if verifier is not None:
+            for r in results:
+                if r.outcome != "promoted":
+                    continue
+                try:
+                    concept_name = next(
+                        (c["name"] for c in candidates
+                         if c["id"] == r.capability_id), "",
+                    )
+                    cap_type = next(
+                        (c.get("capability_type", "") for c in candidates
+                         if c["id"] == r.capability_id), "",
+                    )
+                    happy = _happy_kwargs_for(cap_type or "")
+                    vr = verifier.verify_promoted(
+                        cap_id=str(r.capability_id),
+                        slug=r.slug,
+                        capability_type=cap_type or "utility",
+                        happy_kwargs=happy,
+                        db_path=db_path,
+                        use_cache=False,
+                    )
+                    verifications.append(vr.to_dict())
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(
+                        "post-integration verification errored for %s: %s",
+                        r.slug, e,
+                    )
+                    verifications.append({
+                        "capability_id": r.capability_id,
+                        "slug": r.slug,
+                        "ok": False,
+                        "stage": "error",
+                        "reason": f"verifier_error: {e}",
+                    })
+
         now = _dt.datetime.now(_dt.timezone.utc).isoformat()
         summary = {
             "picked":    picked,
@@ -515,6 +576,7 @@ def materialise_once(*,
             "day_count": _day_counter(conn),
             "daily_cap": daily_cap,
             "results":   [r.as_dict() for r in results],
+            "verifications": verifications,
             "ts":        now,
         }
         _state_set(conn, STATE_KEY_LAST_RUN, now)
