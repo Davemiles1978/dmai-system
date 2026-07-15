@@ -825,6 +825,40 @@
       font-size: 0.65rem; color: var(--text-muted);
     }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Knowledge-graph drilldown */
+    .kg-drilldown { padding: 12px 16px 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .kg-crumb-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .kg-crumb-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #7f7dad; }
+    .kg-crumbs { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .kg-crumb {
+      background: rgba(108,99,255,0.08); color: #c8c6ff; border: 1px solid rgba(108,99,255,0.25);
+      padding: 4px 10px; border-radius: 12px; font-size: 12px; cursor: pointer;
+      font-family: inherit; transition: all 0.15s ease;
+    }
+    .kg-crumb:hover { background: rgba(108,99,255,0.18); border-color: rgba(108,99,255,0.5); }
+    .kg-crumb.active { background: rgba(108,99,255,0.28); color: #fff; border-color: #6c63ff; }
+    .kg-crumb-sep { color: #4a4870; font-size: 11px; user-select: none; }
+    .kg-hint { font-size: 11px; color: #6f6d99; margin-left: auto; }
+    .kg-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+    .kg-body::-webkit-scrollbar { width: 6px; }
+    .kg-body::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.25); border-radius: 3px; }
+    .kg-cell {
+      background: rgba(15,14,32,0.6); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px; padding: 8px 10px; cursor: pointer; transition: all 0.12s ease;
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px;
+    }
+    .kg-cell:hover { border-color: rgba(108,99,255,0.5); background: rgba(30,26,60,0.7); transform: translateY(-1px); }
+    .kg-cell.no-children { cursor: default; opacity: 0.85; }
+    .kg-cell.no-children:hover { transform: none; border-color: rgba(255,255,255,0.05); }
+    .kg-cell-name { color: #d8d5ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .kg-cell-badge { background: rgba(108,99,255,0.2); color: #a29bfe; font-size: 10px; padding: 2px 6px; border-radius: 8px; flex-shrink: 0; font-family: monospace; }
+    .kg-cell.arch  .kg-cell-badge { background: rgba(108,99,255,0.25); color: #b6b1ff; }
+    .kg-cell.type  .kg-cell-badge { background: rgba(0,212,170,0.2); color: #74e5c8; }
+    .kg-cell.topic .kg-cell-badge { background: rgba(255,165,2,0.2); color: #ffc76b; }
+    .kg-cell.cap   .kg-cell-badge { background: rgba(162,155,254,0.15); color: #b6b1ff; }
+    .kg-empty { grid-column: 1 / -1; text-align: center; color: #6f6d99; padding: 20px; font-size: 12px; }
+    .kg-section-header { grid-column: 1 / -1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #7f7dad; padding: 6px 4px 2px; }
     .brain-tooltip {
       position: fixed;
       background: rgba(18,18,26,0.95);
@@ -955,6 +989,20 @@
             <div class="legend-item"><div class="legend-dot" style="background:#ff4757;box-shadow:0 0 6px #ff4757;"></div>Revenue / Trading</div>
             <div class="legend-item"><div class="legend-dot" style="background:#a29bfe;box-shadow:0 0 6px #a29bfe;"></div>Knowledge</div>
             <div class="legend-item"><div class="legend-dot" style="background:#74b9ff;box-shadow:0 0 6px #74b9ff;"></div>Providers</div>
+          </div>
+
+          <!-- Drilldown: hierarchical explorer for the full projected graph -->
+          <div class="kg-drilldown" id="kgDrilldown">
+            <div class="kg-crumb-row">
+              <span class="kg-crumb-label">Explore:</span>
+              <div class="kg-crumbs" id="kgCrumbs">
+                <button class="kg-crumb kg-crumb-root active" data-view="overview">Architecture</button>
+              </div>
+              <span class="kg-hint" id="kgHint">Click a capability type to drill down.</span>
+            </div>
+            <div class="kg-body" id="kgBody">
+              <div class="kg-empty">Loading knowledge layers…</div>
+            </div>
           </div>
         </div>
       </div>
@@ -2150,7 +2198,10 @@ setInterval(() => {
     // Update stats
     document.getElementById('brainActiveCount').textContent = nodes.filter(n => n.active).length;
 
-    // Pull live graph schema and add any new neurons not in the static skeleton
+    // Pull live graph totals. The Nodes/Synapses badges reflect the FULL
+    // projection (~20k+ once built), not just what we draw on the canvas.
+    // The canvas itself only renders the top-level architectural cluster
+    // for legibility — the drilldown panel below shows the rest.
     const graphStatus = await apiFetch('/api/graph/status');
     if (graphStatus && !graphStatus.error) {
       const liveTotal    = graphStatus.total_neurons  || 0;
@@ -2159,9 +2210,11 @@ setInterval(() => {
       document.getElementById('brainLinkCount').textContent = liveSynapses;
     }
 
-    // Pull full schema neurons and inject any new ones into the simulation
+    // Overview: architecture + top capability types + top topics only.
+    // Bounded so the canvas stays readable. Capability-level neurons are
+    // exposed via the drilldown panel below the canvas, not injected here.
     try {
-      const schema = await apiFetch('/api/graph/schema');
+      const schema = await apiFetch('/api/graph/schema?view=overview&limit=40');
       const graphLocked = schema && schema.metadata && schema.metadata.graph_locked;
       if (schema && Array.isArray(schema.neurons) && !graphLocked) {
         const existingIds = new Set(nodes.map(n => n.id));
@@ -2169,25 +2222,31 @@ setInterval(() => {
         const cx = rect.width / 2, cy = rect.height / 2;
         const GROUP_MAP = { core:'core', learning:'learning', research:'research',
                             knowledge:'knowledge', providers:'providers', revenue:'revenue' };
+        // Only inject capability_type + topic layer neurons — architecture is
+        // already drawn from the static skeleton, and capability-layer nodes
+        // would swamp the canvas. Cap the injected count so the visual stays
+        // legible even after months of growth.
+        const injectable = schema.neurons.filter(n =>
+          n.layer === 'capability_type' || n.layer === 'topic'
+        ).slice(0, 24);
         let added = 0;
-        schema.neurons.forEach(sn => {
+        injectable.forEach(sn => {
           if (existingIds.has(sn.id)) return;
           const group = GROUP_MAP[sn.cluster] || 'knowledge';
           const angle = Math.random() * Math.PI * 2;
-          const radius = 120 + Math.random() * 100;
+          const radius = 160 + Math.random() * 120;
           nodes.push({
-            id: sn.id, label: (sn.label || sn.id).slice(0, 24),
-            group, r: 6 + Math.min(4, Math.floor((sn.activation || 0.5) * 6)),
+            id: sn.id, label: (sn.label || sn.id).slice(0, 20),
+            group, r: sn.layer === 'capability_type' ? 8 : 6,
             x: cx + Math.cos(angle) * radius,
             y: cy + Math.sin(angle) * radius,
             vx: 0, vy: 0, active: true,
-            statusLabel: sn.source || 'learned',
+            statusLabel: sn.layer,
             autoGenerated: true,
           });
           existingIds.add(sn.id);
           added++;
         });
-        // Add synapses for new nodes
         if (added > 0 && Array.isArray(schema.synapses)) {
           schema.synapses.forEach(edge => {
             const src = nodes.find(n => n.id === edge.source);
@@ -2200,11 +2259,6 @@ setInterval(() => {
               }
             }
           });
-        }
-        if (added > 0) {
-          document.getElementById('brainNodeCount').textContent = nodes.length;
-          document.getElementById('brainLinkCount').textContent = links.length;
-          document.getElementById('brainActiveCount').textContent = nodes.filter(n => n.active).length;
         }
       }
     } catch(_) {}
@@ -2231,6 +2285,127 @@ setInterval(() => {
 
 })();
 
+// ═════════════════════════════════════════════════════════════════════════════
+// Knowledge-graph drilldown — lightweight text-forward hierarchical explorer.
+// Shows top-level architecture + capability types by default; expands to reveal
+// child capabilities and topics when the user clicks a cell. Data comes from
+// /api/graph/schema?view=... which returns bounded, layered slices of the full
+// projection so the DOM never renders more than ~200 cells at a time.
+// ═════════════════════════════════════════════════════════════════════════════
+(function kgDrilldown() {
+  const body   = document.getElementById('kgBody');
+  const crumbs = document.getElementById('kgCrumbs');
+  const hint   = document.getElementById('kgHint');
+  if (!body || !crumbs) return;
+
+  // Stack of {view, key, label} — the drill path.
+  const path = [{ view: 'overview', key: null, label: 'Architecture' }];
+
+  const LAYER_CLASS = { architecture: 'arch', capability_type: 'type', topic: 'topic', capability: 'cap' };
+  const LAYER_LABEL = { architecture: 'ARCH', capability_type: 'TYPE', topic: 'TOPIC', capability: 'CAP' };
+
+  function renderCrumbs() {
+    crumbs.innerHTML = '';
+    path.forEach((step, i) => {
+      if (i > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'kg-crumb-sep';
+        sep.textContent = '›';
+        crumbs.appendChild(sep);
+      }
+      const b = document.createElement('button');
+      b.className = 'kg-crumb' + (i === path.length - 1 ? ' active' : '');
+      b.textContent = step.label;
+      b.addEventListener('click', () => {
+        // Pop back to this step.
+        path.splice(i + 1);
+        loadCurrent();
+      });
+      crumbs.appendChild(b);
+    });
+  }
+
+  async function loadCurrent() {
+    renderCrumbs();
+    body.innerHTML = '<div class="kg-empty">Loading…</div>';
+    const step = path[path.length - 1];
+    const params = new URLSearchParams({ view: step.view, limit: '120' });
+    if (step.view === 'type'       && step.key) params.set('expand_type',  step.key);
+    if (step.view === 'capability' && step.key) params.set('expand_cap',   step.key);
+    if (step.view === 'topic'      && step.key) params.set('expand_topic', step.key);
+
+    let data = null;
+    try {
+      const r = await fetch('/api/graph/schema?' + params.toString(),
+                            { headers: { 'X-Master-Password': 'Talula.78' } });
+      if (r.ok) data = await r.json();
+    } catch (e) { /* fall through */ }
+
+    if (!data || !Array.isArray(data.neurons) || data.neurons.length === 0) {
+      body.innerHTML = '<div class="kg-empty">No neurons found for this view.</div>';
+      hint.textContent = 'Knowledge graph is still building.';
+      return;
+    }
+
+    // Group neurons by layer for readable sections.
+    const byLayer = { architecture: [], capability_type: [], capability: [], topic: [] };
+    for (const n of data.neurons) {
+      (byLayer[n.layer] || (byLayer[n.layer] = [])).push(n);
+    }
+
+    const LAYER_ORDER = ['architecture', 'capability_type', 'capability', 'topic'];
+    body.innerHTML = '';
+    for (const layer of LAYER_ORDER) {
+      const items = byLayer[layer] || [];
+      if (!items.length) continue;
+      const header = document.createElement('div');
+      header.className = 'kg-section-header';
+      const total = (data.counts_by_layer && data.counts_by_layer[layer]) || items.length;
+      header.textContent = `${layer.replace('_', ' ')} · showing ${items.length} of ${total}`;
+      body.appendChild(header);
+
+      // Sort by activation/name for stable rendering.
+      items.sort((a, b) => (b.activation || 0) - (a.activation || 0));
+      for (const n of items) {
+        const cell = document.createElement('div');
+        const cls  = LAYER_CLASS[n.layer] || 'cap';
+        cell.className = 'kg-cell ' + cls + (n.has_children ? '' : ' no-children');
+        cell.innerHTML =
+          `<span class="kg-cell-name" title="${(n.label || n.id).replace(/"/g, '&quot;')}">${n.label || n.id}</span>` +
+          `<span class="kg-cell-badge">${LAYER_LABEL[n.layer] || 'N'}${n.child_count ? ' +' + n.child_count : ''}</span>`;
+        if (n.has_children || n.layer === 'capability_type' || n.layer === 'topic' || n.layer === 'capability') {
+          cell.addEventListener('click', () => {
+            let nextView = 'capability';
+            let nextKey  = n.id;
+            if (n.layer === 'capability_type') {
+              nextView = 'type';
+              nextKey  = n.capability_type || (n.id || '').replace(/^type:/, '');
+            } else if (n.layer === 'topic') {
+              nextView = 'topic';
+              nextKey  = n.id;
+            }
+            path.push({ view: nextView, key: nextKey, label: (n.label || n.id).slice(0, 24) });
+            loadCurrent();
+          });
+        }
+        body.appendChild(cell);
+      }
+    }
+
+    hint.textContent = `Visible ${data.visible_neurons || data.neurons.length} of ${data.total_neurons} neurons · ${data.visible_synapses || 0} edges`;
+  }
+
+  // Root button rebinds to reset the path.
+  const rootBtn = crumbs.querySelector('.kg-crumb-root');
+  if (rootBtn) {
+    rootBtn.addEventListener('click', () => { path.splice(1); loadCurrent(); });
+  }
+
+  // Wait for the API to warm up before first load.
+  setTimeout(loadCurrent, 2500);
+  // Refresh in the background every 60s so new caps/topics show up.
+  setInterval(loadCurrent, 60000);
+})();
 
 </script>
 </body>

@@ -304,7 +304,29 @@ class KeepOpenProxy:
 
     # ── close() override ────────────────────────────────────────────
     def close(self) -> None:  # noqa: D401
-        """No-op. The cache owns the connection lifecycle."""
+        """Release any outstanding transaction write-lock hold.
+
+        The underlying connection stays open (the cache owns its
+        lifecycle) but any RLock acquisition we were carrying for an
+        open txn is dropped. Without this, a caller who opens a proxy,
+        starts a write txn, and closes the proxy without an explicit
+        commit/rollback leaves the process-wide RLock held — which
+        starves every other writer until the pooled connection is
+        eventually reused. That's the exact wedge that blocked the
+        graph projector rebuild on prod (dmai-insight-promoter thread
+        held dmai_knowledge.db's write lock across its poll wait).
+        """
+        try:
+            # Best effort: rollback flushes any half-open txn state
+            # before we drop the RLock. If the connection is idle this
+            # is a no-op.
+            if getattr(self._conn, "in_transaction", False):
+                try:
+                    self._conn.rollback()
+                except Exception:
+                    pass
+        finally:
+            self._release_txn_hold()
         return None
 
     # ── write-gating internals ──────────────────────────────────────

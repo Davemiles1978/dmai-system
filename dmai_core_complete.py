@@ -6393,15 +6393,46 @@ def api_graph_schema():
     Query params:
       source=projection|file  — force one source. Default: projection first.
       limit_per_layer=<n>      — cap neurons per layer (default 5000).
+      view=overview|type|capability|topic|full — drilldown mode. When
+         supplied and != 'full', returns the drilldown slice (bounded,
+         readable) instead of the full schema.
+      expand_type=<name>       — required when view=type
+      expand_cap=<id>          — required when view=capability
+      expand_topic=<id>        — required when view=topic
+      limit=<n>                — max neurons returned per drilldown branch
     """
     import json as _j
     from pathlib import Path as _PL
 
     _source = (request.args.get("source") or "").strip().lower()
+    _view = (request.args.get("view") or "").strip().lower()
     try:
         _limit = int(request.args.get("limit_per_layer", 5000))
     except Exception:
         _limit = 5000
+    try:
+        _dlimit = int(request.args.get("limit", 60))
+    except Exception:
+        _dlimit = 60
+    _expand_type  = request.args.get("expand_type") or None
+    _expand_cap   = request.args.get("expand_cap") or None
+    _expand_topic = request.args.get("expand_topic") or None
+
+    # Drilldown path: bounded, layered slice for the readable UI.
+    if _view and _view != "full":
+        try:
+            from components.graph_projector import GraphProjector as _GP
+            result = _GP().drilldown(
+                view=_view,
+                expand_type=_expand_type,
+                expand_cap=_expand_cap,
+                expand_topic=_expand_topic,
+                limit=_dlimit,
+            )
+            return jsonify(result)
+        except Exception as e:
+            logger.warning("drilldown failed: %s", e)
+            # Fall through to legacy behaviour.
 
     # Try the projection first unless the caller explicitly asked for the file.
     if _source != "file":
@@ -6555,6 +6586,11 @@ def api_graph_status():
 
     Reports both the projection (built from capabilities + insights)
     and the legacy hand-curated architectural graph.
+
+    Top-level ``total_neurons`` / ``total_synapses`` reflect the
+    projection when it is built, otherwise the architectural graph.
+    This keeps the dashboard widget stable across the old and new
+    graph shapes.
     """
     out = {"ok": True}
     try:
@@ -6567,6 +6603,21 @@ def api_graph_status():
         out["projection"] = _GP().stats()
     except Exception as e:
         out["projection"] = {"error": str(e)}
+
+    # Surface the best available numbers at the top level so the
+    # dashboard widget doesn't have to know about the tiered shape.
+    proj = out.get("projection") or {}
+    arch = out.get("architectural") or {}
+    proj_n = int(proj.get("total_neurons") or 0)
+    proj_s = int(proj.get("total_synapses") or 0)
+    if proj.get("built") and proj_n > 0:
+        out["total_neurons"] = proj_n
+        out["total_synapses"] = proj_s
+        out["source"] = "projection"
+    else:
+        out["total_neurons"] = int(arch.get("total_neurons") or 0)
+        out["total_synapses"] = int(arch.get("total_synapses") or 0)
+        out["source"] = "architectural"
     return jsonify(out)
 
 
@@ -6601,10 +6652,44 @@ def api_graph_rebuild():
     a bounded set of same_repo capability ↔ capability edges.
 
     Auth required. Idempotent — safe to run on a schedule.
+
+    Query params:
+      force=true — forcibly release any lingering write-lock hold
+        before starting. Escape hatch for the InsightPromoter wedge
+        we saw on prod; use only when a normal rebuild returns
+        write_mutex_timeout.
     """
     if not _require_auth():
         return jsonify({"error": "Unauthorised"}), 401
+    force = (request.args.get("force") or "").lower() in ("1", "true", "yes")
     try:
+        if force:
+            # Nuclear option: reach into the write-lock registry and
+            # drop any recorded holder for dmai_knowledge.db, then
+            # try rebuild. Safe because the projector's rebuild is
+            # idempotent and uses BEGIN IMMEDIATE with retries.
+            try:
+                from components.db import (
+                    _WRITE_LOCKS as _WL,
+                    _WRITE_LOCK_HOLDERS as _WLH,
+                )
+                import os as _os_r
+                _kdb = _os_r.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
+                _key = _os_r.path.abspath(_kdb)
+                _lock = _WL.get(_key)
+                if _lock is not None:
+                    # Best-effort release attempts. RLock counts nesting,
+                    # so drain until it's genuinely free.
+                    for _ in range(8):
+                        try:
+                            _lock.release()
+                        except RuntimeError:
+                            break
+                _WLH.pop(_key, None)
+                logger.warning("api_graph_rebuild: force=true drained write lock for %s", _kdb)
+            except Exception as _fe:
+                logger.warning("api_graph_rebuild force drain failed: %s", _fe)
+
         from components.graph_projector import GraphProjector as _GP
         result = _GP().rebuild()
         return jsonify(result)
