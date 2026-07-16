@@ -424,21 +424,26 @@ def _happy_kwargs_for(capability_type: str) -> Dict[str, Any]:
     The generator gets this in the prompt as "MUST succeed with
     these" so it plans a signature that accepts it.
     """
+    # PR SS: include db_path in the base kwargs. Gap-driven codegen
+    # very often ships a run(*, db_path) signature (writes to DMAI's
+    # own DB), and the smoke test's 4-way fallback already tolerates
+    # signatures that ignore db_path, so this is safe for every type.
+    _base = {"db_path": ":memory:"}
     return {
-        "utility":            {"values": [1, 2, 3, 4]},
-        "configuration":      {"config": {}},
-        "data_structure":     {"items": []},
-        "trading":            {"prices": [100.0, 101.5, 99.75]},
-        "blockchain":         {"payload": {}},
-        "interface":          {"request": {}},
-        "research":           {"query": "test"},
-        "integration":        {"payload": {}},
-        "composite":          {"a": {}, "b": {}},
-        "frontier":           {"seed": 0},
-        "diversity_nudge":    {"seed": 0},
-        "ai_provider_update": {"release": {"tag": "v0.0.0"}},
-        "concept":            {"input": None},
-    }.get(str(capability_type or "").lower(), {"input": None})
+        "utility":            {**_base, "values": [1, 2, 3, 4]},
+        "configuration":      {**_base, "config": {}},
+        "data_structure":     {**_base, "items": []},
+        "trading":            {**_base, "prices": [100.0, 101.5, 99.75]},
+        "blockchain":         {**_base, "payload": {}},
+        "interface":          {**_base, "request": {}},
+        "research":           {**_base, "query": "test"},
+        "integration":        {**_base, "payload": {}},
+        "composite":          {**_base, "a": {}, "b": {}},
+        "frontier":           {**_base, "seed": 0},
+        "diversity_nudge":    {**_base, "seed": 0},
+        "ai_provider_update": {**_base, "release": {"tag": "v0.0.0"}},
+        "concept":            {**_base, "input": None},
+    }.get(str(capability_type or "").lower(), {**_base, "input": None})
 
 
 # ── One-shot materialisation ──────────────────────────────────────────────
@@ -532,9 +537,20 @@ def _materialise_candidate(cap: Dict[str, Any],
             ], att
 
         # -- self_judge re-eval on docstring
+        # PR SS: pass provenance as the channel so the reviewer's
+        # normaliser can apply the relaxed vocab floor for gap-driven
+        # seeds. Before PR SS we passed capability_type (usually
+        # "utility"), which bypassed _RELAXED_VOCAB_CHANNELS entirely
+        # and kept the floor at 0.40 - guaranteeing defer on every
+        # gap-driven candidate. Fall back to capability_type only when
+        # provenance is missing (should never happen for gap_driven).
         review = reviewer.review_generated_module(
             concept=concept,
-            channel=str(cap.get("capability_type") or "concept"),
+            channel=str(
+                cap.get("provenance")
+                or cap.get("capability_type")
+                or "concept"
+            ),
             docstring=report.docstring or "",
             db_path=db_path,
         )

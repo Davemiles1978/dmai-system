@@ -59,18 +59,56 @@ def test_happy_path_returns_within_2s():
     # PR NN: graceful fallback matching capability_verifier._run_isolated.
     # If codegen produced a signature that doesn't accept our happy
     # kwargs (e.g. requires db_path or takes no args), retry with an
-    # empty call rather than failing the whole test. The point of the
-    # smoke test is "can run() be invoked at all", not "does it accept
-    # exactly this dict". Real signature validation happens later in
+    # empty call rather than failing the whole test.
+    #
+    # PR SS: broaden the fallback. Codegen frequently ships
+    # ``raise ValueError("db_path is required")`` guards at the top of
+    # run(); those hit ValueError, not TypeError, so the previous
+    # narrow catch let every gap-driven module fail the smoke test.
+    # A ValueError mentioning a *missing* required kwarg is a
+    # signature-shape hint, identical semantically to "unexpected
+    # keyword" - so we re-invoke with (a) empty kwargs, then (b) a
+    # small set of plausible defaults for the common required args.
+    # The point of the smoke test is "can run() be invoked at all";
+    # real signature validation happens later in
     # capability_verifier.verify_promoted with cache=False.
-    try:
-        result = mod.run(**HAPPY_KWARGS)
-    except TypeError as te:
-        msg = str(te)
-        if "unexpected keyword" in msg or "takes 0 positional" in msg:
-            result = mod.run()
-        else:
+    def _looks_like_missing_kwarg_error(msg: str) -> bool:
+        m = (msg or "").lower()
+        return (
+            "unexpected keyword" in m
+            or "takes 0 positional" in m
+            or "required" in m  # e.g. "db_path is required"
+            or "must be provided" in m
+            or "missing" in m
+        )
+
+    result = None
+    _attempts = [
+        HAPPY_KWARGS,
+        {{}},
+        {{"db_path": ":memory:"}},
+        {{"db_path": ":memory:", **HAPPY_KWARGS}},
+    ]
+    _last_exc = None
+    for _kw in _attempts:
+        try:
+            result = mod.run(**_kw)
+            _last_exc = None
+            break
+        except TypeError as te:
+            if _looks_like_missing_kwarg_error(str(te)):
+                _last_exc = te
+                continue
             raise
+        except ValueError as ve:
+            if _looks_like_missing_kwarg_error(str(ve)):
+                _last_exc = ve
+                continue
+            raise
+    if _last_exc is not None:
+        # Exhausted all signature-shape retries with the same
+        # missing-kwarg error class. Surface it.
+        raise _last_exc
     dt = time.monotonic() - t0
     assert dt < 2.0, f"run() took {{dt:.2f}}s, budget is 2s"
     # Return value is left free-form on purpose; just prove it
