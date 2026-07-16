@@ -127,6 +127,17 @@ jobs:
             -f txt || true
           echo "✅ Bandit scan complete (high-severity only; warnings are non-blocking)"
 
+      - name: Lint — no raw sqlite3.connect on knowledge DB (PR OO)
+        run: |
+          # Class-of-bug prevention: the knowledge DB must only be
+          # opened via components.db.safe_open_kdb so every writer
+          # participates in the shared RLock + WAL + busy_timeout.
+          # PR MM cleaned all existing offenders; PR OO wires the
+          # lint so no future PR can silently reintroduce a lock
+          # competitor. See scripts/lint_no_raw_kdb_connect.py for
+          # the full rationale and whitelist.
+          python3 scripts/lint_no_raw_kdb_connect.py
+
   # ───────────────────────────────────────────────────────────────────────────
   # 2. Docker build
   # ───────────────────────────────────────────────────────────────────────────
