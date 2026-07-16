@@ -459,6 +459,15 @@ class PGStorage:
                        entities: str = "", relationship: str = "",
                        confidence: float = 0.5, source_url: str = "",
                        source_title: str = "", source_type: str = "web") -> bool:
+        # PR QQ: never write empty/whitespace-only insights. Callers get
+        # False so they can route the row back to the research queue
+        # instead of persisting junk data.
+        if not insight_id or not str(insight_id).strip():
+            logger.warning("insert_insight rejected: empty insight_id")
+            return False
+        if not text or not str(text).strip():
+            logger.warning("insert_insight rejected: empty text for id=%s", insight_id)
+            return False
         try:
             self._exec(
                 """INSERT INTO insights

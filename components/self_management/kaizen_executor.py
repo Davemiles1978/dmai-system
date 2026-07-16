@@ -289,11 +289,32 @@ def run_once():
     logger.info("Kaizen run complete. New PRs opened: %d", len(new_prs))
 
 
+# PR QQ: cooperative-stop machinery so the daemon loop can be shut down
+# cleanly on process exit or explicit stop() (instead of a bare while-True).
+_KAIZEN_STOP_EVENT = threading.Event()
+_KAIZEN_THREAD: "threading.Thread | None" = None
+
+
+def stop_background_loop(join_timeout: float = 5.0) -> None:
+    """Signal the Kaizen background loop to stop and (optionally) join."""
+    global _KAIZEN_THREAD
+    _KAIZEN_STOP_EVENT.set()
+    if _KAIZEN_THREAD is not None and _KAIZEN_THREAD.is_alive():
+        _KAIZEN_THREAD.join(timeout=join_timeout)
+    _KAIZEN_THREAD = None
+
+
 def start_background_loop():
-    """Start KaizenExecutor as a daemon thread."""
+    """Start KaizenExecutor as a daemon thread (idempotent, stoppable)."""
+    global _KAIZEN_THREAD
+    if _KAIZEN_THREAD is not None and _KAIZEN_THREAD.is_alive():
+        logger.info("KaizenExecutor loop already running; skip duplicate start")
+        return _KAIZEN_THREAD
+    _KAIZEN_STOP_EVENT.clear()
+
     def loop():
         logger.info("KaizenExecutor background loop started (interval=%ds)", POLL_INTERVAL_SECONDS)
-        while True:
+        while not _KAIZEN_STOP_EVENT.is_set():
             try:
                 if GITHUB_TOKEN:
                     run_once()
@@ -301,10 +322,14 @@ def start_background_loop():
                     logger.warning("GITHUB_TOKEN not set — KaizenExecutor disabled")
             except Exception as e:
                 logger.error("KaizenExecutor loop error: %s", e)
-            time.sleep(POLL_INTERVAL_SECONDS)
+            # Interruptible sleep: returns True if stop was requested.
+            if _KAIZEN_STOP_EVENT.wait(POLL_INTERVAL_SECONDS):
+                break
+        logger.info("KaizenExecutor background loop stopped cleanly")
 
     t = threading.Thread(target=loop, daemon=True, name="KaizenExecutor")
     t.start()
+    _KAIZEN_THREAD = t
     return t
 
 

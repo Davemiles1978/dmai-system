@@ -213,6 +213,31 @@ def _bump_day(conn: sqlite3.Connection, by: int = 1) -> int:
 
 # ── Candidate selection ───────────────────────────────────────────────────
 
+def _pool_depth(conn: sqlite3.Connection, *, min_confidence: float) -> int:
+    """PR QQ: cheap count of stub capabilities that *would* be eligible.
+
+    Mirrors the primary WHERE clause of ``_pick_candidates`` but without
+    the materialisation_log join, so it's fast and safe to call on every
+    tick. Used to detect a starved queue / a too-conservative daily cap.
+    """
+    provenance_list = list(PICKER_QUOTAS.keys())
+    placeholders = ",".join("?" * len(provenance_list))
+    try:
+        row = conn.execute(
+            f"""
+            SELECT COUNT(*) FROM capabilities
+            WHERE runtime_mode IN ('stub', 'stub_reverted')
+              AND provenance   IN ({placeholders})
+              AND judge_confidence IS NOT NULL
+              AND judge_confidence >= ?
+            """,
+            tuple(provenance_list) + (float(min_confidence),),
+        ).fetchone()
+        return int(row[0]) if row else 0
+    except sqlite3.OperationalError:
+        return 0
+
+
 def _pick_candidates(conn: sqlite3.Connection,
                      *,
                      min_confidence: float,
@@ -629,10 +654,22 @@ def _materialise_once_inner(*,
         day_count = _day_counter(conn)
         remaining = max(0, daily_cap - day_count)
         if remaining <= 0:
+            # PR QQ: expose the residual pool size so the health check can
+            # distinguish "cap hit, nothing else to do" from "cap hit while
+            # dozens of good candidates were skipped" (→ auto-raise cap).
+            try:
+                remaining_pool_size = _pool_depth(conn, min_confidence=min_confidence)
+            except Exception:
+                remaining_pool_size = None
             summary = {
                 "picked": 0, "promoted": 0, "failed": 0,
                 "cap_hit": True, "day_count": day_count,
                 "daily_cap": daily_cap,
+                "remaining_pool_size": remaining_pool_size,
+                "cap_likely_low": (
+                    remaining_pool_size is not None
+                    and remaining_pool_size >= max(10, daily_cap)
+                ),
                 "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
             }
             _state_set(conn, STATE_KEY_LAST_RUN, summary["ts"])
@@ -757,6 +794,24 @@ def _materialise_once_inner(*,
             key = str(c.get("provenance") or "unknown")
             prov_breakdown[key] = prov_breakdown.get(key, 0) + 1
 
+        # PR QQ: starvation-visibility. When picked==0 we still need to know
+        # whether that's "queue empty upstream" vs "queue full but everyone
+        # was ineligible" — the former means "kick the seed pipeline / poll
+        # sooner", the latter means "lower min_confidence / clear failed
+        # backoff". Never a silent no-op.
+        try:
+            pool_depth_now = _pool_depth(conn, min_confidence=min_confidence)
+        except Exception:
+            pool_depth_now = None
+        starved = (picked == 0 and (pool_depth_now or 0) == 0)
+        blocked = (picked == 0 and (pool_depth_now or 0) > 0)
+        # Ask the loop to poll sooner if we're starved/blocked, so the
+        # system "keeps looking for work" instead of waiting the full
+        # POLL_SECONDS between empty ticks.
+        retry_after_hint: Optional[int] = None
+        if starved or blocked:
+            retry_after_hint = 30  # seconds; caller may override
+
         now = _dt.datetime.now(_dt.timezone.utc).isoformat()
         summary = {
             "picked":    picked,
@@ -769,6 +824,10 @@ def _materialise_once_inner(*,
             "quotas":    dict(PICKER_QUOTAS),
             "gaps_seeded": gaps_seeded,
             "provenance_breakdown": prov_breakdown,
+            "pool_depth": pool_depth_now,
+            "starved":   starved,       # queue truly empty upstream
+            "blocked":   blocked,       # queue has rows but none eligible
+            "retry_after_hint": retry_after_hint,
             "results":   [r.as_dict() for r in results],
             "verifications": verifications,
             "ts":        now,
@@ -828,7 +887,22 @@ class CapabilityMaterialiserLoop:
                         "capability_materialiser: pass crashed: %s", e,
                     )
                 self.last_summary = {"error": str(e)}
-            self._stop.wait(self._poll + backoff)
+            # PR QQ: honour the retry_after_hint from materialise_once so
+            # the loop "keeps looking for work" when we detect a starved
+            # or blocked queue, instead of waiting the full poll interval
+            # on empty ticks. The hint is capped by the normal poll so we
+            # never accelerate past what the loop was configured for.
+            hint = None
+            try:
+                hint = (self.last_summary or {}).get("retry_after_hint")
+            except AttributeError:
+                hint = None
+            effective_wait: float
+            if isinstance(hint, (int, float)) and hint > 0:
+                effective_wait = min(float(hint), float(self._poll)) + backoff
+            else:
+                effective_wait = self._poll + backoff
+            self._stop.wait(effective_wait)
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
