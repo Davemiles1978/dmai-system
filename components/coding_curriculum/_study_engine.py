@@ -174,6 +174,7 @@ def _promote_coding_pattern(exercise: Exercise,
 
     conn = sqlite3.connect(db_path, timeout=30.0)
     try:
+        conn.execute("PRAGMA busy_timeout=30000")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS capabilities (
                 id                TEXT PRIMARY KEY,
@@ -349,13 +350,27 @@ def run_study_batch(*,
                     language: Optional[str] = None,
                     db_path: str = "data/dmai_knowledge.db",
                     ) -> Dict[str, Any]:
-    """Run N study rounds in sequence and return an aggregate summary."""
+    """Run N study rounds in sequence and return an aggregate summary.
+
+    Never fails the whole batch on a single round error - each round
+    is wrapped so a transient SQLite lock or grader mishap becomes a
+    failed-round entry, not a 500 response.
+    """
     started = _dt.datetime.now(_dt.timezone.utc).isoformat()
     rounds: List[Dict[str, Any]] = []
     passes = 0
     promotions = 0
+    errors = 0
     for _ in range(max(1, min(int(n), 50))):
-        r = run_study_round(language=language, db_path=db_path)
+        try:
+            r = run_study_round(language=language, db_path=db_path)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("study round failed non-fatally: %s", e)
+            r = {
+                "ok": False, "passed": False, "promoted": False,
+                "reason": f"{type(e).__name__}: {e}",
+            }
+            errors += 1
         rounds.append({
             "topic":    r.get("topic"),
             "shape":    r.get("shape"),
@@ -375,6 +390,7 @@ def run_study_batch(*,
         "rounds":     len(rounds),
         "passes":     passes,
         "promotions": promotions,
+        "errors":     errors,
         "detail":     rounds,
     }
 

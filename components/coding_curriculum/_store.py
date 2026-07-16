@@ -59,9 +59,14 @@ CREATE INDEX IF NOT EXISTS ix_curriculum_mastery_lang_tier
 
 def _connect(db_path: str) -> sqlite3.Connection:
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(db_path, timeout=10.0)
+    # 30s Python-side timeout + 30s SQLite busy_timeout: DMAI runs many
+    # concurrent writers (capability_promoter, insight_promoter,
+    # fresh_blood_injector, materialiser) against the same DB. Short
+    # timeouts here surface as "database is locked" 500s.
+    conn = sqlite3.connect(db_path, timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("PRAGMA busy_timeout=30000")
     conn.row_factory = sqlite3.Row
     return conn
 
