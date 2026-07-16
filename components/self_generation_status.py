@@ -29,6 +29,7 @@ import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from components.db import safe_open_kdb
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ QUARANTINE_DIR = REPO_ROOT / "components" / "generated" / "quarantine"
 
 def _connect(db_path: str) -> Optional[sqlite3.Connection]:
     try:
-        conn = sqlite3.connect(db_path, timeout=10.0)
+        conn = safe_open_kdb(db_path, timeout=10.0)
         conn.row_factory = sqlite3.Row
         return conn
     except Exception as e:  # noqa: BLE001
