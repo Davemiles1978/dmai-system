@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-07-16T12:03:00Z",
+  "total_items": 22,
+  "by_priority": {
+    "1": 7,
+    "2": 8,
+    "3": 7
+  },
+  "by_type": {
+    "infrastructure": 6,
+    "monitor": 8,
+    "analyser": 4,
+    "training": 1,
+    "generator": 2,
+    "integration": 1
+  },
+  "by_estimated_scope": {
+    "small": 7,
+    "trivial": 2,
+    "medium": 5,
+    "large": 8
+  },
+  "buildability_split": {
+    "no_touches_main_app": 5,
+    "no_bug_fix": 3,
+    "partial": 4,
+    "no_touches_ui": 3,
+    "no_infra": 5,
+    "yes": 2
+  },
+  "workflow_split": {
+    "B": 20,
+    "A": 2
+  },
+  "workflow_definitions": {
+    "A": "Autonomous \u2014 buildable_by_self_gen == 'yes'. Materialiser picks stub -> codegen writes module under components/generated/live/ -> verifier tests -> if verified, promoted to live automatically (dashboard reflects it) -> if failed, quarantined + auto-retried per PR CC.",
+    "B": "Drafted-then-approved \u2014 buildable_by_self_gen starts with 'no_'. Same picker/queue, but codegen writes the proposed change to a sandbox branch (never live code) -> sandbox tests run (fix-proposer loop, Issue #220) -> if tests pass, DMAI opens a GitHub PR titled '[DMAI-DRAFT] ...' with description, diff scope, test evidence, and confidence score -> DMAI sends an in-app notification ('Draft fix ready for review: PR #NNN') -> human merges (approve) or closes (reject) -> DMAI records the outcome and updates its self-model of what fixes work."
+  },
+  "assumes_schema": "capabilities table post-PR HH migration",
+  "seed_command": "POST /api/admin/self-generation/seed-backlog?path=data/self_gen_backlog.jsonl (this endpoint DOES NOT EXIST YET \u2014 must be built as one of the priority-1 items in the backlog itself: see gap_seed_backlog_ingestion_endpoint)"
+}
