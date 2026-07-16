@@ -116,7 +116,19 @@ try:
         print(json.dumps({"ok": False, "reason": "no_run_attr"}))
         sys.exit(2)
     t0 = time.monotonic()
-    rv = mod.run(**kwargs)
+    # PR NN: graceful kwargs fallback. If codegen produced a signature
+    # that rejects our default happy_kwargs (e.g. it requires db_path
+    # or accepts nothing), retry with no kwargs before failing. Real
+    # signature validation lives in capability_verifier; the sandbox
+    # only checks that run() can be invoked at all.
+    try:
+        rv = mod.run(**kwargs)
+    except TypeError as te:
+        msg = str(te)
+        if "unexpected keyword" in msg or "takes 0 positional" in msg:
+            rv = mod.run()
+        else:
+            raise
     dt = time.monotonic() - t0
     # Only try to serialise; if it fails we still count the call as ok.
     try:

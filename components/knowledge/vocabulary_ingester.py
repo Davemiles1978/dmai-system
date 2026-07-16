@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Optional
 
 import requests
-from components.db import acquire_write_lock, safe_open_kdb
+from components.db import acquire_write_lock, is_priority_held, safe_open_kdb
 
 logger = logging.getLogger(__name__)
 
@@ -617,6 +617,18 @@ class VocabularyIngester:
     def _idle_flush_loop(self) -> None:
         poll = min(self.flush_seconds, 1.0) or 1.0
         while not self._stop_event.wait(poll):
+            # PR NN: cooperative priority pause. When a higher-priority
+            # writer (materialiser tick, migration, admin one-shot) sets
+            # the priority hold, skip this flush and let queued rows
+            # accumulate. The next successful iteration drains them.
+            # This eliminates the case where a large batch fallback
+            # loop keeps the DB effectively locked while self-gen ticks
+            # can't get in.
+            if is_priority_held():
+                logger.debug(
+                    "VocabularyIngester: priority hold active, skipping flush"
+                )
+                continue
             try:
                 self._idle_flush_tick()
             except Exception as e:

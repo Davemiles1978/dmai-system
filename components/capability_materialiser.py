@@ -589,7 +589,39 @@ def materialise_once(*,
     path). Tests that use tmp DBs get seeding disabled automatically
     so the SelfScanner's live gap data doesn't pollute the fixture.
     Callers can force with True/False.
+
+    PR NN: takes a cooperative priority hold on the shared db module so
+    background writers (e.g. vocabulary_ingester._idle_flush_loop) that
+    poll ``is_priority_held()`` will skip their flushes during this tick.
+    Non-cooperating writers are unaffected.
     """
+    try:
+        from components.db import priority_hold_ctx as _priority_hold_ctx  # noqa
+    except Exception:  # noqa: BLE001
+        # Older db.py without the hook; provide a no-op context manager.
+        import contextlib as _cl
+        @_cl.contextmanager
+        def _priority_hold_ctx(_token):  # type: ignore
+            yield None
+
+    with _priority_hold_ctx("materialise_once"):
+        return _materialise_once_inner(
+            db_path=db_path, daily_cap=daily_cap,
+            min_confidence=min_confidence, codegen_fn=codegen_fn,
+            seed_gaps=seed_gaps,
+        )
+
+
+def _materialise_once_inner(*,
+                             db_path: str,
+                             daily_cap: int,
+                             min_confidence: float,
+                             codegen_fn: Optional[
+                                 Callable[..., codegen.CodegenAttempt]],
+                             seed_gaps: Optional[bool],
+                             ) -> Dict[str, Any]:
+    """Actual tick body. Extracted so materialise_once can wrap it in a
+    cooperative priority hold without changing the body's control flow."""
     codegen_fn = codegen_fn or codegen.request_code
     conn = _safe_connect(db_path)
     try:
