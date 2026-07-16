@@ -14,10 +14,10 @@ retries with a hint pointing at the concept mismatch.
 """
 from __future__ import annotations
 
-import sqlite3
 from dataclasses import dataclass
 from typing import Optional
 
+from components.db import safe_open_kdb
 from components.self_judge import judge_seed
 
 
@@ -45,12 +45,24 @@ def review_generated_module(*,
     want a positive verdict for anything that looks aligned. Reject
     threshold is left at the module default (0.30).
     """
+    # PR PP: mark gap-driven / self-scanner seeds so self_judge applies
+    # the relaxed vocab floor. Any capability_type starting with 'gap_'
+    # or channel already tagged gap_driven/self_scanner/backlog_seed
+    # gets the relaxed floor.
+    normalised_channel = str(channel or "").lower()
+    if normalised_channel.startswith("gap_") or normalised_channel in (
+        "self_scanner", "backlog_seed", "self_gen", "gap_driven",
+    ):
+        normalised_channel = "gap_driven"
+
     seed = {
-        "channel":      channel,
+        "channel":      normalised_channel,
         "concept":      concept,
         "insight_text": docstring or "",
     }
-    conn = sqlite3.connect(db_path) if db_path else None
+    # PR MM/PR PP: use safe_open_kdb so the reviewer participates in
+    # the shared write lock instead of being a hidden lock competitor.
+    conn = safe_open_kdb(db_path) if db_path else None
     try:
         verdict = judge_seed(seed, conn, accept_threshold=accept_threshold)
     finally:

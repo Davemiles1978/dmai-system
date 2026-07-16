@@ -41,7 +41,7 @@ WHITELIST = {
     "components/db.py",                        # defines safe_open_kdb
     "components/capability_materialiser.py",   # documented test fallback
     "components/generated/_codegen_client.py", # docstring only
-    "components/generated/_self_judge_review.py",  # accepts external db_path
+
     "components/purchase_gate/purchase_ledger.py",  # different DB
     "components/wealth/autonomous_trader.py",  # documented raw handle for test isolation
     "components/monetisation/revenue_allocator.py",  # different DB (ledger)

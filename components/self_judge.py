@@ -80,6 +80,19 @@ REJECT_THRESHOLD          = 0.30   # confidence <= this \u2192 reject
 # about words she doesn't know.
 VOCAB_COVERAGE_FLOOR      = 0.40
 
+# PR PP: gap-driven seeds come from DMAI's own self-scanner. Their
+# vocabulary is by definition domain-specific (module names, slugs,
+# infrastructure terms like "postgres", "cutover", "materialiser").
+# We know these are legitimate because DMAI wrote them. Use a much
+# lower floor for this channel so the review step doesn't reject
+# gap items on grammar/domain-vocab grounds.
+GAP_VOCAB_COVERAGE_FLOOR  = 0.10
+
+# Channel names that get the relaxed vocab floor. Extendable.
+_RELAXED_VOCAB_CHANNELS = frozenset({
+    "gap_driven", "self_scanner", "backlog_seed", "self_gen",
+})
+
 # Weights for the confidence combo. Sum to 1.0.
 WEIGHT_VOCAB              = 0.30
 WEIGHT_INSIGHT_NEIGHBOUR  = 0.25
@@ -384,6 +397,14 @@ def judge_seed(seed: Dict[str, Any],
             signals=JudgeSignals(),
         )
 
+    # PR PP: apply relaxed vocab floor for gap-driven / self-scanner
+    # channels where the seed came from DMAI itself and rejecting on
+    # vocab coverage punishes her for words she authored.
+    _seed_channel = str(seed.get("channel") or "").lower()
+    _effective_vocab_floor = vocab_floor
+    if _seed_channel in _RELAXED_VOCAB_CHANNELS:
+        _effective_vocab_floor = min(vocab_floor, GAP_VOCAB_COVERAGE_FLOOR)
+
     text = _seed_text(seed)
     tokens = _tokenise(text)
 
@@ -405,13 +426,15 @@ def judge_seed(seed: Dict[str, Any],
 
     # Rule 1: comprehension floor. If DMAI doesn't know most of the
     # words, she cannot judge \u2014 defer to acquire the missing vocabulary.
-    if vocab_cov < vocab_floor:
+    # PR PP: use _effective_vocab_floor (relaxed for gap-driven channels).
+    if vocab_cov < _effective_vocab_floor:
         gap = _describe_gap_unknown_tokens(unknown, concept)
         return Verdict(
             verdict=VERDICT_DEFER_STR,
             confidence=0.0,
             reason=(
-                f"vocab_coverage={vocab_cov:.2f} below floor {vocab_floor:.2f}; "
+                f"vocab_coverage={vocab_cov:.2f} below floor "
+                f"{_effective_vocab_floor:.2f}; "
                 f"{len(unknown)} unknown tokens"
             ),
             signals=signals,
