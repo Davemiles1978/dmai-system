@@ -8824,6 +8824,137 @@ def api_self_generation_clear_backoff():
 
 @app.route("/api/admin/self-generation/codegen-probe", methods=["POST"])
 def api_self_generation_codegen_probe():
+    """PR TT+UU: probe OpenRouter with either a tiny message or the
+    real codegen payload (?full=1) so we can distinguish tiny-request
+    success from real-request failure.
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    import os as _os
+    key = _os.environ.get("OPENROUTER_API_KEY", "")
+    masked = f"{key[:8]}...{key[-4:]}" if len(key) > 12 else ("SET" if key else "UNSET")
+
+    if not key:
+        return jsonify({
+            "ok": False,
+            "openrouter_key_set": False,
+            "openrouter_key_masked": "UNSET",
+            "diagnosis": "OPENROUTER_API_KEY is not set on this Render instance",
+        }), 200
+
+    use_full = request.args.get("full") in ("1", "true", "yes")
+
+    if use_full:
+        # Real codegen path — request_code with a benign concept
+        try:
+            from components.generated._codegen_client import (
+                request_code, MODEL_PRIMARY, MAX_TOKENS_DEFAULT,
+            )
+        except Exception as e:
+            return jsonify({
+                "ok": False, "error": f"import failed: {e}",
+            }), 500
+        try:
+            att = request_code(
+                concept="probe: add two integers and return the sum",
+                insight="a trivial capability that adds two ints",
+                capability_type="utility",
+                happy_kwargs={"db_path": ":memory:", "values": [1, 2, 3]},
+                model=MODEL_PRIMARY,
+                retry_reasons=None,
+            )
+            return jsonify({
+                "ok": bool(att.ok),
+                "openrouter_key_set": True,
+                "openrouter_key_masked": masked,
+                "model_tried": MODEL_PRIMARY,
+                "max_tokens": MAX_TOKENS_DEFAULT,
+                "attempt_ok": bool(att.ok),
+                "attempt_reason": att.reason,
+                "attempt_source_len": len(att.source or ""),
+                "attempt_source_head": (att.source or "")[:400],
+                "attempt_usage": att.usage,
+                "mode": "full",
+            }), 200
+        except Exception as e:
+            import traceback
+            return jsonify({
+                "ok": False,
+                "openrouter_key_set": True,
+                "openrouter_key_masked": masked,
+                "mode": "full",
+                "exception_class": type(e).__name__,
+                "exception_msg": str(e)[:300],
+                "traceback": traceback.format_exc()[:2000],
+            }), 200
+
+    # Tiny probe (default) — same as PR TT
+    import json as _json
+    import urllib.request as _u_req
+    import urllib.error as _u_err
+    try:
+        from components.generated._codegen_client import (
+            MODEL_PRIMARY, OPENROUTER_URL, REQUEST_TIMEOUT_SEC,
+        )
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"import failed: {e}"}), 500
+
+    payload = _json.dumps({
+        "model": MODEL_PRIMARY,
+        "messages": [{"role": "user", "content": "say ok"}],
+        "temperature": 0.0,
+        "max_tokens": 8,
+    }).encode("utf-8")
+    req = _u_req.Request(
+        OPENROUTER_URL, data=payload,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://dmai-web.onrender.com",
+            "X-Title": "DMAI codegen probe",
+        },
+    )
+
+    http_status = None; http_reason = ""; body_snippet = ""
+    exception_class = None; exception_msg = None
+    try:
+        with _u_req.urlopen(req, timeout=REQUEST_TIMEOUT_SEC) as resp:
+            http_status = resp.status
+            http_reason = getattr(resp, "reason", "") or ""
+            body_snippet = resp.read().decode("utf-8", "replace")[:400]
+    except _u_err.HTTPError as e:
+        http_status = e.code; http_reason = e.reason or ""
+        try: body_snippet = e.read().decode("utf-8", "replace")[:400]
+        except Exception: body_snippet = ""
+        exception_class = "HTTPError"; exception_msg = str(e)[:300]
+    except _u_err.URLError as e:
+        exception_class = "URLError"
+        exception_msg = str(e.reason)[:300] if getattr(e,"reason",None) else str(e)[:300]
+    except OSError as e:
+        exception_class = "OSError"; exception_msg = str(e)[:300]
+    except Exception as e:
+        exception_class = type(e).__name__; exception_msg = str(e)[:300]
+
+    return jsonify({
+        "ok": True,
+        "openrouter_key_set": True,
+        "openrouter_key_masked": masked,
+        "model_tried": MODEL_PRIMARY,
+        "openrouter_url": OPENROUTER_URL,
+        "http_status": http_status,
+        "http_reason": http_reason,
+        "body_snippet": body_snippet,
+        "exception_class": exception_class,
+        "exception_msg": exception_msg,
+        "mode": "tiny",
+        "diagnosis": _diagnose_codegen_probe(http_status, exception_class, body_snippet),
+    }), 200
+
+
+def _api_self_generation_codegen_probe_LEGACY_OLD():
     """PR TT: diagnose the *real* reason codegen returns
     'http_or_auth_failure' from _post_openrouter.
 
