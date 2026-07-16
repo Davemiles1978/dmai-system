@@ -98,7 +98,7 @@ def migrate_capabilities_schema(*,
         from components.db import safe_open_kdb  # noqa
         conn = safe_open_kdb(path, timeout=30.0)
     except Exception:  # noqa: BLE001
-        conn = sqlite3.connect(path, timeout=30.0)
+        conn = safe_open_kdb(path, timeout=30.0)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA busy_timeout=30000")
     try:

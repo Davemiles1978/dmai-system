@@ -49,6 +49,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from components.db import safe_open_kdb
 
 
 logger = logging.getLogger(__name__)
@@ -92,7 +93,7 @@ class VerificationResult:
 # ── SQLite helpers ────────────────────────────────────────────────────────
 
 def _safe_connect(db_path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path, timeout=15.0)
+    conn = safe_open_kdb(db_path, timeout=15.0)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
     return conn

@@ -103,7 +103,7 @@ class GraphProjector:
                 logger.warning(
                     "safe_open_kdb failed, falling back to raw sqlite3: %s", e
                 )
-        conn = sqlite3.connect(str(self.db_path), timeout=timeout)
+        conn = safe_open_kdb(str(self.db_path), timeout=timeout)
         return conn
 
     def _acquire_write_slot(self, conn, *, attempts: int = 5,

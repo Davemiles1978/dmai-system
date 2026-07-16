@@ -40,6 +40,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from components.db import safe_open_kdb
 
 
 logger = logging.getLogger(__name__)
@@ -93,7 +94,7 @@ def _kdb_path(data_path: Optional[str] = None) -> str:
 
 
 def _safe_connect(path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(path, timeout=10.0)
+    conn = safe_open_kdb(path, timeout=10.0)
     conn.row_factory = sqlite3.Row
     return conn
 

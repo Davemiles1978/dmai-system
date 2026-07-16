@@ -27,6 +27,7 @@ import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from components.db import safe_open_kdb
 
 log = logging.getLogger(__name__)
 
@@ -126,7 +127,7 @@ def seed_backlog(
 
     if dry_run:
         # Simulate: check which ids are already present without writing.
-        conn = sqlite3.connect(db_path)
+        conn = safe_open_kdb(db_path)
         try:
             existing = {row[0] for row in conn.execute(
                 "SELECT id FROM capabilities"
@@ -142,7 +143,7 @@ def seed_backlog(
         ]
         return summary
 
-    conn = sqlite3.connect(db_path, timeout=30.0)
+    conn = safe_open_kdb(db_path, timeout=30.0)
     try:
         conn.execute("PRAGMA journal_mode=WAL")
         # Discover the actual capabilities table columns so we only insert
