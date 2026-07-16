@@ -137,17 +137,41 @@ def _post_openrouter(model: str, messages: List[dict],
             "X-Title":       "DMAI capability materialiser",
         },
     )
+    # PR VV: capture the real HTTP/exception info instead of swallowing
+    # everything into an opaque None. Downstream now sees a dict with
+    # __error__ set on any failure, so CodegenAttempt.reason can be
+    # a concrete diagnosis ('openrouter_401_invalid_key', '429_quota',
+    # etc.) instead of 'http_or_auth_failure'.
     try:
         with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT_SEC) as resp:
             body = resp.read().decode("utf-8", "replace")
-        return json.loads(body)
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
-        logger.warning("codegen_client: HTTP failure for %s: %s", model, e)
-        return None
-    except json.JSONDecodeError as e:
-        logger.warning("codegen_client: non-JSON response from %s: %s",
-                       model, e)
-        return None
+        try:
+            return json.loads(body)
+        except json.JSONDecodeError as e:
+            logger.warning("codegen_client: non-JSON response from %s: %s",
+                           model, e)
+            return {"__error__": "non_json_response",
+                    "http_status": 200,
+                    "body_snippet": (body or "")[:400]}
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode("utf-8", "replace")
+        except Exception:
+            err_body = ""
+        logger.warning("codegen_client: HTTP %s from %s: %s",
+                       e.code, model, err_body[:200])
+        return {"__error__": f"http_{e.code}",
+                "http_status": e.code,
+                "http_reason": e.reason or "",
+                "body_snippet": err_body[:400]}
+    except urllib.error.URLError as e:
+        logger.warning("codegen_client: URLError for %s: %s", model, e)
+        return {"__error__": "url_error",
+                "exception_msg": str(getattr(e, "reason", e))[:300]}
+    except OSError as e:
+        logger.warning("codegen_client: OSError for %s: %s", model, e)
+        return {"__error__": "os_error",
+                "exception_msg": str(e)[:300]}
 
 
 # ── Code extractor ────────────────────────────────────────────────────────
@@ -197,10 +221,24 @@ def request_code(concept: str,
         })
 
     resp = _post_openrouter(model, messages, max_tokens=max_tokens)
+    # PR VV: unpack the richer error payload from _post_openrouter.
     if resp is None:
+        # Only path that still returns None: OPENROUTER_API_KEY unset.
         return CodegenAttempt(
-            ok=False, model=model, reason="http_or_auth_failure",
+            ok=False, model=model, reason="openrouter_key_unset",
         )
+    if resp.get("__error__"):
+        # Concrete failure: preserve HTTP status + body snippet in reason
+        # so the picker (and materialisation_log) shows a real cause.
+        err = resp["__error__"]
+        hs = resp.get("http_status")
+        snip = resp.get("body_snippet") or resp.get("exception_msg") or ""
+        reason = f"codegen_{err}"
+        if hs:
+            reason += f"_status_{hs}"
+        if snip:
+            reason += f": {snip[:200]}"
+        return CodegenAttempt(ok=False, model=model, reason=reason)
     try:
         choice0 = resp["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
