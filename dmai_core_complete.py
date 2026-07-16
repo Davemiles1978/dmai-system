@@ -8731,6 +8731,95 @@ def api_self_generation_force_tick():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+
+
+@app.route("/api/admin/self-generation/clear-backoff", methods=["POST"])
+def api_self_generation_clear_backoff():
+    """PR RR: clear stale materialisation_log failure rows so the picker
+    can retry candidates that are stuck in 24h cooldown from failures
+    that predate a fix.
+
+    Body (JSON, all optional):
+      - provenance:   list[str] of provenance names to clear (default: all)
+      - older_than_hours: int, only clear failure rows older than this
+                          many hours (default: 0 = clear all failures)
+      - dry_run:      bool (default False) — return affected count without
+                      deleting
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    try:
+        payload = request.get_json(silent=True) or {}
+        provenance_filter = payload.get("provenance")
+        older_than_hours = int(payload.get("older_than_hours", 0) or 0)
+        dry_run = bool(payload.get("dry_run", False))
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"bad payload: {e}"}), 400
+
+    try:
+        from components.capability_materialiser import DEFAULT_DB_PATH
+        from components.db import safe_open_kdb, acquire_write_lock
+    except Exception as e:
+        return jsonify({
+            "ok": False,
+            "error": f"materialiser modules unavailable: {e}",
+        }), 500
+
+    # Build the DELETE. Only touch rows with outcome='failed' (never
+    # remove promoted rows — those are the audit trail).
+    where_clauses = ["outcome = 'failed'"]
+    params: list = []
+    if older_than_hours >= 0:
+        where_clauses.append(
+            f"created_at <= datetime('now','-{int(older_than_hours)} hours')"
+        )
+    if provenance_filter:
+        if not isinstance(provenance_filter, list):
+            return jsonify({
+                "ok": False, "error": "provenance must be a list",
+            }), 400
+        # Restrict to failures whose capability_id points at a
+        # capabilities row matching one of the requested provenances.
+        placeholders = ",".join("?" * len(provenance_filter))
+        where_clauses.append(
+            f"capability_id IN (SELECT id FROM capabilities "
+            f"                  WHERE provenance IN ({placeholders}))"
+        )
+        params.extend(provenance_filter)
+    where_sql = " AND ".join(where_clauses)
+
+    try:
+        conn = safe_open_kdb(DEFAULT_DB_PATH)
+        try:
+            count_sql = f"SELECT COUNT(*) FROM materialisation_log WHERE {where_sql}"
+            n = conn.execute(count_sql, tuple(params)).fetchone()[0]
+            deleted = 0
+            if not dry_run and n > 0:
+                with acquire_write_lock(DEFAULT_DB_PATH, timeout=30.0):
+                    del_sql = f"DELETE FROM materialisation_log WHERE {where_sql}"
+                    conn.execute(del_sql, tuple(params))
+                    conn.commit()
+                    deleted = n
+            return jsonify({
+                "ok": True,
+                "matched": int(n),
+                "deleted": int(deleted),
+                "dry_run": dry_run,
+                "where": where_sql,
+                "provenance_filter": provenance_filter,
+                "older_than_hours": older_than_hours,
+            }), 200
+        finally:
+            try: conn.close()
+            except Exception: pass
+    except Exception as e:
+        logger.exception("clear-backoff failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/admin/self-generation/seed-backlog", methods=["POST"])
 def api_self_generation_seed_backlog():
     """Ingest a JSONL backlog file into the capabilities table.
