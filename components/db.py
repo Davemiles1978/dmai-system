@@ -223,6 +223,62 @@ def _record_wait_ms(key: str, wait_ms: int) -> None:
         pass
 
 
+# ── PR NN: cooperative priority-pause for background writers ──────────────
+# Some background threads (vocab ingester, gap fetcher, etc.) keep the write
+# mutex effectively occupied by continuously flushing rows. When a higher-
+# priority operation runs (materialiser tick, migration, admin action), it
+# calls priority_hold() to signal "back off"; polite background writers check
+# is_priority_held() before starting a batch and sleep instead.
+#
+# This is COOPERATIVE. Background loops must opt in by consulting
+# is_priority_held() in their poll code. The lock itself remains available;
+# a rogue writer that doesn't check will still succeed. This is deliberate:
+# migrations and one-shots must still be able to write.
+_PRIORITY_HOLDERS: set[str] = set()          # opaque tokens of active holders
+_PRIORITY_HOLDERS_LOCK = threading.Lock()
+
+
+def priority_hold(token: str) -> None:
+    """Signal to polite background writers to back off. Idempotent; call
+    ``priority_release(token)`` in a finally block."""
+    with _PRIORITY_HOLDERS_LOCK:
+        _PRIORITY_HOLDERS.add(str(token))
+
+
+def priority_release(token: str) -> None:
+    """Release the priority hold registered under ``token``. No-op if unknown."""
+    with _PRIORITY_HOLDERS_LOCK:
+        _PRIORITY_HOLDERS.discard(str(token))
+
+
+def is_priority_held() -> bool:
+    """Return True if any thread has called priority_hold and not yet released.
+    Background writers should check this and sleep instead of flushing."""
+    with _PRIORITY_HOLDERS_LOCK:
+        return bool(_PRIORITY_HOLDERS)
+
+
+class _PriorityHold:
+    """Context manager wrapper around priority_hold/release."""
+    __slots__ = ("_token",)
+
+    def __init__(self, token: str) -> None:
+        self._token = str(token)
+
+    def __enter__(self) -> "_PriorityHold":
+        priority_hold(self._token)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        priority_release(self._token)
+        return False
+
+
+def priority_hold_ctx(token: str) -> "_PriorityHold":
+    """Context-manager form: ``with priority_hold_ctx('tag'): ...``."""
+    return _PriorityHold(token)
+
+
 def get_write_lock_status() -> dict:
     """Snapshot the current write-lock holders. Used by the diagnostic
     endpoint /api/admin/db-lock-status.
