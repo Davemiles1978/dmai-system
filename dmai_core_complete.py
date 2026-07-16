@@ -8820,6 +8820,147 @@ def api_self_generation_clear_backoff():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+
+
+@app.route("/api/admin/self-generation/codegen-probe", methods=["POST"])
+def api_self_generation_codegen_probe():
+    """PR TT: diagnose the *real* reason codegen returns
+    'http_or_auth_failure' from _post_openrouter.
+
+    Makes one tiny OpenRouter call and returns:
+      - openrouter_key_set: bool (env var present)
+      - openrouter_key_masked: str
+      - http_status: int or None
+      - http_reason: str
+      - body_snippet: str  (first 400 chars of response body)
+      - exception_class: str or None
+      - exception_msg: str or None
+      - model_tried: str
+
+    Purpose: gives us a real error to act on when the materialiser
+    reports http_or_auth_failure - previously that string masked
+    everything from 401 auth-fail to 429 rate-limit to network
+    outage.
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    import os as _os
+    import json as _json
+    import urllib.request as _u_req
+    import urllib.error as _u_err
+
+    key = _os.environ.get("OPENROUTER_API_KEY", "")
+    masked = f"{key[:8]}...{key[-4:]}" if len(key) > 12 else ("SET" if key else "UNSET")
+
+    try:
+        from components.generated._codegen_client import (
+            MODEL_PRIMARY, OPENROUTER_URL, REQUEST_TIMEOUT_SEC,
+        )
+    except Exception as e:
+        return jsonify({
+            "ok": False,
+            "openrouter_key_set": bool(key),
+            "openrouter_key_masked": masked,
+            "error": f"cannot import codegen constants: {e}",
+        }), 500
+
+    if not key:
+        return jsonify({
+            "ok": False,
+            "openrouter_key_set": False,
+            "openrouter_key_masked": "UNSET",
+            "diagnosis": "OPENROUTER_API_KEY is not set on this Render instance",
+        }), 200
+
+    # Tiny probe: 1 message, 8 tokens.
+    payload = _json.dumps({
+        "model":       MODEL_PRIMARY,
+        "messages":    [{"role": "user", "content": "say ok"}],
+        "temperature": 0.0,
+        "max_tokens":  8,
+    }).encode("utf-8")
+    req = _u_req.Request(
+        OPENROUTER_URL,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type":  "application/json",
+            "HTTP-Referer":  "https://dmai-web.onrender.com",
+            "X-Title":       "DMAI codegen probe",
+        },
+    )
+
+    http_status = None
+    http_reason = ""
+    body_snippet = ""
+    exception_class = None
+    exception_msg = None
+
+    try:
+        with _u_req.urlopen(req, timeout=REQUEST_TIMEOUT_SEC) as resp:
+            http_status = resp.status
+            http_reason = getattr(resp, "reason", "") or ""
+            body = resp.read().decode("utf-8", "replace")
+            body_snippet = body[:400]
+    except _u_err.HTTPError as e:
+        http_status = e.code
+        http_reason = e.reason or ""
+        try:
+            body_snippet = e.read().decode("utf-8", "replace")[:400]
+        except Exception:
+            body_snippet = ""
+        exception_class = "HTTPError"
+        exception_msg = str(e)[:300]
+    except _u_err.URLError as e:
+        exception_class = "URLError"
+        exception_msg = str(e.reason)[:300] if getattr(e, "reason", None) else str(e)[:300]
+    except OSError as e:
+        exception_class = "OSError"
+        exception_msg = str(e)[:300]
+    except Exception as e:
+        exception_class = type(e).__name__
+        exception_msg = str(e)[:300]
+
+    return jsonify({
+        "ok": True,
+        "openrouter_key_set": True,
+        "openrouter_key_masked": masked,
+        "model_tried": MODEL_PRIMARY,
+        "openrouter_url": OPENROUTER_URL,
+        "http_status": http_status,
+        "http_reason": http_reason,
+        "body_snippet": body_snippet,
+        "exception_class": exception_class,
+        "exception_msg": exception_msg,
+        "diagnosis": _diagnose_codegen_probe(http_status, exception_class, body_snippet),
+    }), 200
+
+
+def _diagnose_codegen_probe(http_status, exception_class, body_snippet):
+    """PR TT helper: one-line diagnosis string for the codegen probe."""
+    if exception_class in ("URLError", "OSError"):
+        return f"network-layer failure ({exception_class}) - Render outbound blocked or DNS issue"
+    if http_status is None:
+        return "unknown - no status and no exception captured"
+    if http_status == 200:
+        return "OpenRouter reachable, key valid, request succeeded"
+    if http_status in (401, 403):
+        return "OPENROUTER_API_KEY invalid, expired, or revoked - rotate the key"
+    if http_status == 429:
+        snippet_l = (body_snippet or "").lower()
+        if "credit" in snippet_l or "quota" in snippet_l or "balance" in snippet_l:
+            return "OpenRouter credit/quota exhausted - top up account"
+        return "OpenRouter rate-limit - back off and retry"
+    if http_status == 404:
+        return "model not available on OpenRouter - check MODEL_PRIMARY name"
+    if 500 <= http_status < 600:
+        return "OpenRouter server error - transient, retry later"
+    return f"unexpected HTTP {http_status}"
+
+
 @app.route("/api/admin/self-generation/seed-backlog", methods=["POST"])
 def api_self_generation_seed_backlog():
     """Ingest a JSONL backlog file into the capabilities table.
