@@ -557,6 +557,10 @@ def _ai_repo_release_seeds(seen: set, limit: int) -> List[Dict[str, Any]]:
 CHANNELS = (
     "arxiv", "github", "crossover", "wildcard", "diversity",
     "ai_releases", "ai_repo_releases",
+    # PR YY-1: coding-curriculum channel. Emits one seed per round
+    # targeting the lowest-mastery topic whose prerequisites are
+    # satisfied. Powers DMAI's coding education.
+    "coding_curriculum",
 )
 
 
@@ -687,6 +691,22 @@ def inject_once(
             got = _ai_release_feed_seeds(seen_hashes, per_channel)
         elif ch == "ai_repo_releases":
             got = _ai_repo_release_seeds(seen_hashes, per_channel)
+        elif ch == "coding_curriculum":
+            # PR YY-1: study the lowest-mastery coding topic.
+            try:
+                from components.coding_curriculum import (
+                    inject_coding_curriculum_seeds,
+                )
+                got = inject_coding_curriculum_seeds(
+                    seen=seen_hashes,
+                    limit=per_channel,
+                    db_path=dbp,
+                )
+            except Exception as e:  # noqa: BLE001
+                logger.info(
+                    "coding_curriculum channel failed non-fatally: %s", e,
+                )
+                got = []
         else:
             skipped += 1
             continue
