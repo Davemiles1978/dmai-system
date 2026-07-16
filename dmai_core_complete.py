@@ -8798,7 +8798,7 @@ def api_self_generation_clear_backoff():
             n = conn.execute(count_sql, tuple(params)).fetchone()[0]
             deleted = 0
             if not dry_run and n > 0:
-                with acquire_write_lock(DEFAULT_DB_PATH, timeout=30.0):
+                with acquire_write_lock(DEFAULT_DB_PATH):
                     del_sql = f"DELETE FROM materialisation_log WHERE {where_sql}"
                     conn.execute(del_sql, tuple(params))
                     conn.commit()
