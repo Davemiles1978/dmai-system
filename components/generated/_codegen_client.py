@@ -216,7 +216,52 @@ def request_code(concept: str,
 
     On the first attempt pass ``retry_reasons=None``. On a retry pass
     the validator/sandbox reasons so the LLM knows what to fix.
+
+    PR XX-1: try local template synthesis first for well-understood
+    capability shapes. Only if the local path can't handle this type,
+    or if a retry is requested (meaning a previous attempt failed
+    validation and we need a smarter path), do we fall through to the
+    external LLM. This is Layer 1 of DMAI's coding self-sufficiency.
     """
+    # PR XX-1: local template synthesis (tier 1).
+    # Skipped on retry: if the caller is asking for a retry, the
+    # first attempt (which was likely also templated) didn't pass
+    # smoke test, so escalate to the LLM instead of retemplating.
+    if not retry_reasons:
+        try:
+            from components.local_codegen import (
+                can_template, generate_from_template,
+            )
+            if can_template(capability_type):
+                tr = generate_from_template(
+                    concept=concept,
+                    insight=insight,
+                    capability_type=capability_type,
+                    happy_kwargs=happy_kwargs,
+                )
+                if tr.ok:
+                    logger.info(
+                        "codegen_client: tier-1 template used (%s)",
+                        tr.template_id,
+                    )
+                    return CodegenAttempt(
+                        ok=True,
+                        model=tr.template_id,
+                        source=tr.source,
+                        reason="",
+                        usage={"template": tr.template_id,
+                               "local": True},
+                    )
+                logger.info(
+                    "codegen_client: tier-1 template declined (%s): %s",
+                    capability_type, tr.reason,
+                )
+        except Exception as e:  # noqa: BLE001
+            # Non-fatal: fall through to external LLM.
+            logger.info(
+                "codegen_client: local template raised, falling "
+                "back to LLM: %s", e,
+            )
     user = USER_PROMPT_TEMPLATE.format(
         concept=concept[:400],
         insight=insight[:800],
