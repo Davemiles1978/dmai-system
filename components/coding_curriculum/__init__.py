@@ -45,6 +45,21 @@ from ._store import (
 from ._picker import next_topic_to_study
 from ._channel import inject_coding_curriculum_seeds
 
+# PR YY-2: nightly study loop.
+from ._exercises import (
+    Exercise,
+    GradingCase,
+    exercise_for_topic,
+    all_supported_shapes,
+)
+from ._grader import grade_exercise
+from ._study_engine import (
+    run_study_round,
+    run_study_batch,
+    read_study_log,
+    study_stats,
+)
+
 __all__ = [
     # Taxonomy
     "CURRICULUM_TOPICS",
@@ -64,4 +79,14 @@ __all__ = [
     "next_topic_to_study",
     # fresh_blood channel
     "inject_coding_curriculum_seeds",
+    # Study loop (PR YY-2)
+    "Exercise",
+    "GradingCase",
+    "exercise_for_topic",
+    "all_supported_shapes",
+    "grade_exercise",
+    "run_study_round",
+    "run_study_batch",
+    "read_study_log",
+    "study_stats",
 ]
