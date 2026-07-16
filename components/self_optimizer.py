@@ -313,10 +313,20 @@ class SelfOptimizer:
         return successful_patterns
     
     def continuous_optimization_cycle(self):
-        """Main optimization loop - runs every 30 minutes"""
-        while True:
-            time.sleep(1800)
-            
+        """Main optimization loop - runs every 30 minutes.
+
+        Cooperative-stop pattern (PR QQ): checks ``self._stop_event`` and uses
+        ``event.wait(timeout)`` instead of a bare ``time.sleep`` so the loop
+        can be shut down cleanly on process exit / restart.
+        """
+        # PR QQ: initialise stop event lazily so both existing callers
+        # (module-level singleton + future explicit bootstrap) work.
+        if not hasattr(self, "_stop_event") or self._stop_event is None:
+            self._stop_event = threading.Event()
+        while not self._stop_event.is_set():
+            # Sleep is interruptible: returns True if stop was requested.
+            if self._stop_event.wait(1800):
+                break
             try:
                 logger.info("Starting system optimization cycle")
                 self.update_baselines()
@@ -355,12 +365,62 @@ class SelfOptimizer:
                 
             except Exception as e:
                 logger.error(f"Optimization cycle error: {e}")
-    
-    def start_optimization_cycle(self):
-        """Start background optimization thread"""
-        thread = threading.Thread(target=self.continuous_optimization_cycle, daemon=True)
-        thread.start()
-        logger.info("Self-optimization cycle started (every 30 minutes)")
+        logger.info("Self-optimization loop stopped")
 
-self_optimizer = SelfOptimizer()
-logger.info("Self-optimization engine active")
+    def stop(self, join_timeout: float = 5.0) -> None:
+        """Request the optimisation loop to stop and (optionally) join it."""
+        if not hasattr(self, "_stop_event") or self._stop_event is None:
+            self._stop_event = threading.Event()
+        self._stop_event.set()
+        t = getattr(self, "_thread", None)
+        if t is not None and t.is_alive():
+            t.join(timeout=join_timeout)
+
+    def start_optimization_cycle(self):
+        """Start background optimization thread (idempotent)."""
+        if not hasattr(self, "_stop_event") or self._stop_event is None:
+            self._stop_event = threading.Event()
+        # Prevent double-start.
+        existing = getattr(self, "_thread", None)
+        if existing is not None and existing.is_alive():
+            logger.info("Self-optimization cycle already running; skip duplicate start")
+            return existing
+        self._stop_event.clear()
+        thread = threading.Thread(
+            target=self.continuous_optimization_cycle,
+            daemon=True,
+            name="SelfOptimizerLoop",
+        )
+        thread.start()
+        self._thread = thread
+        logger.info("Self-optimization cycle started (every 30 minutes)")
+        return thread
+
+
+# PR QQ: no longer instantiate at module-import time. Import-time thread
+# spawning was causing duplicate loops when the module was imported via
+# different paths and made clean shutdown impossible. Use ``get_optimizer()``
+# from application bootstrap when you actually want the background loop.
+_singleton_optimizer: "SelfOptimizer | None" = None
+
+
+def get_optimizer(auto_start: bool = True) -> "SelfOptimizer":
+    """Return the process-wide SelfOptimizer, creating it on first call.
+
+    Set ``auto_start=False`` to construct without spawning the background
+    thread (useful for unit tests or one-off diagnostic calls).
+    """
+    global _singleton_optimizer
+    if _singleton_optimizer is None:
+        _singleton_optimizer = SelfOptimizer()
+        if auto_start:
+            _singleton_optimizer.start_optimization_cycle()
+    elif auto_start:
+        _singleton_optimizer.start_optimization_cycle()
+    return _singleton_optimizer
+
+
+# Legacy attribute for backward compatibility. NOTE: no thread is spawned
+# until ``get_optimizer()`` is called. Existing imports that only reference
+# the name will succeed without side effects.
+self_optimizer = None  # type: ignore[assignment]

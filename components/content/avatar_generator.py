@@ -91,7 +91,9 @@ class AvatarGenerator:
                 # Poll for completion
                 for _ in range(30):
                     time.sleep(2)
-                    status_response = requests.get(prediction['urls']['get'], headers=headers)
+                    # PR QQ: without a timeout, a hung GET can defeat the
+                    # 30-iteration retry bound and stall the calling thread.
+                    status_response = requests.get(prediction['urls']['get'], headers=headers, timeout=15)
                     if status_response.status_code == 200:
                         status = status_response.json()
                         if status['status'] == 'succeeded':

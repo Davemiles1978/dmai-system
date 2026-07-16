@@ -388,9 +388,14 @@ class AutonomousResearcher:
         all_topics = _expand_pool(list(topics))
         print(f"Autonomous research loop: {len(all_topics)} topics ({len(topics)} base + {len(all_topics)-len(topics)} dynamic), cycling forever")
 
+        # PR QQ: cooperative-stop pattern. ``self.is_active`` now actually
+        # gates the loop; ``self._stop_event`` (if present) interrupts sleeps.
+        import threading as _threading
+        if not hasattr(self, "_stop_event") or self._stop_event is None:
+            self._stop_event = _threading.Event()
         self.is_active = True
         cycle = 0
-        while True:
+        while self.is_active and not self._stop_event.is_set():
             try:
                 today = _dt.utcnow().strftime('%Y-%m-%d')
 
@@ -406,12 +411,15 @@ class AutonomousResearcher:
                 if dedup_key in seen_topics:
                     cycle += 1
                     if cycle % len(all_topics) == 0:
-                        # Full pool done for today — sleep 30 min then re-expand
+                        # Full pool done for today — sleep 30 min then re-expand.
+                        # Interruptible: returns True if stop was requested.
                         print(f"[researcher] Full pool done for today. Sleeping 30 min.")
-                        time.sleep(1800)
+                        if self._stop_event.wait(1800):
+                            break
                         all_topics = _expand_pool(list(topics))
                     else:
-                        time.sleep(10)
+                        if self._stop_event.wait(10):
+                            break
                     continue
 
                 result = self.research_topic_deep(topic)
@@ -432,11 +440,22 @@ class AutonomousResearcher:
                         print(f"[researcher] Pool expanded {prev} → {len(all_topics)}")
 
                 cycle += 1
-                time.sleep(120 if from_mem else 300)
+                if self._stop_event.wait(120 if from_mem else 300):
+                    break
             except Exception as e:
                 self.last_error = str(e)
                 print(f"Researcher loop error (cycle {cycle}): {e}")
-                time.sleep(60)
+                if self._stop_event.wait(60):
+                    break
+        print("[researcher] run_continuous_research stopped cleanly")
+
+    def stop(self, join_timeout: float = 5.0) -> None:
+        """Cooperatively stop the continuous research loop (PR QQ)."""
+        import threading as _threading
+        if not hasattr(self, "_stop_event") or self._stop_event is None:
+            self._stop_event = _threading.Event()
+        self.is_active = False
+        self._stop_event.set()
 
     def _ingest_nightly_training(self):
         """Read data/training/*.json and add insights to SI core from new entries."""
