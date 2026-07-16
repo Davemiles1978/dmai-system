@@ -9152,6 +9152,80 @@ def api_coding_curriculum_weakest():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ── PR YY-2: coding-curriculum study loop endpoints ───────────────────
+
+@app.route("/api/cron/coding-curriculum/study", methods=["POST"])
+def api_cron_coding_curriculum_study():
+    """Run one or more study rounds. Called by the nightly cron.
+
+    Query/body params:
+        n         - number of rounds to run (default 3, max 25)
+        language  - optional filter (python/js/bash/sql/cs)
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+    try:
+        from components.coding_curriculum import run_study_batch, initialise
+        initialise(db_path=DB_PATH)
+
+        payload = request.get_json(silent=True) or {}
+        n = int(payload.get("n") or request.args.get("n", 3))
+        n = max(1, min(n, 25))
+        lang = payload.get("language") or request.args.get("language") or None
+
+        summary = run_study_batch(n=n, language=lang, db_path=DB_PATH)
+        return jsonify(summary)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum study cron failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/coding-curriculum/study-log", methods=["GET"])
+def api_coding_curriculum_study_log():
+    """Return the most recent study-log entries (newest first)."""
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+    try:
+        from components.coding_curriculum import read_study_log
+        limit = min(int(request.args.get("limit", 50)), 500)
+        return jsonify({"ok": True, "log": read_study_log(limit=limit)})
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum study-log failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/coding-curriculum/study-stats", methods=["GET"])
+def api_coding_curriculum_study_stats():
+    """Return aggregate study stats for the admin dashboard."""
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+    try:
+        from components.coding_curriculum import study_stats, initialise
+        initialise(db_path=DB_PATH)
+        return jsonify(study_stats(db_path=DB_PATH))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum study-stats failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/coding-curriculum/run-once", methods=["POST"])
+def api_coding_curriculum_run_once():
+    """Run exactly one study round on demand (for testing)."""
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+    try:
+        from components.coding_curriculum import run_study_round, initialise
+        initialise(db_path=DB_PATH)
+        payload = request.get_json(silent=True) or {}
+        lang = payload.get("language") or None
+        return jsonify(run_study_round(language=lang, db_path=DB_PATH))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum run-once failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/admin/self-generation/seed-backlog", methods=["POST"])
 def api_self_generation_seed_backlog():
     """Ingest a JSONL backlog file into the capabilities table.
