@@ -719,6 +719,64 @@ def _materialise_once_inner(*,
         except Exception:
             pass
 
+    # PR WW: pre-flight credit check. If the OpenRouter balance can't
+    # cover the minimum viable request, skip the tick cleanly with a
+    # concrete reason instead of picking N candidates and burning them
+    # all on 402s. Reads the LLM budget once at the top of the tick;
+    # any exception is non-fatal (we fall back to the old behaviour of
+    # attempting and letting request_code report the 402).
+    credit_skip_reason = None
+    try:
+        credits = codegen.get_openrouter_credits()
+        if credits is not None and credits.get("balance") is not None:
+            balance = float(credits["balance"])
+            # $0.01 covers ~5-8 completion calls at gpt-4o-mini rates,
+            # enough to be worth trying; below that we're going to 402
+            # on every attempt.
+            if balance < 0.01:
+                credit_skip_reason = (
+                    f"credit_exhausted_preflight: openrouter balance "
+                    f"${balance:.4f} below viable floor $0.0100. "
+                    f"Skipping {len(candidates)} candidate(s). Top up "
+                    f"credits or switch MODEL_PRIMARY."
+                )
+    except Exception as e:
+        logger.info("pre-flight credit check failed non-fatally: %s", e)
+
+    if credit_skip_reason is not None:
+        # Return a clean summary that self-generation/diagnose can pick
+        # up. Do NOT write per-candidate failed rows - that's the
+        # 'never insert None/zero values' user rule.
+        _now_iso = _dt.datetime.now(_dt.timezone.utc).isoformat()
+        summary = {
+            "picked":       0,
+            "promoted":     0,
+            "failed":       0,
+            "blocked":      True,
+            "starved":      False,
+            "credit_skip":  True,
+            "credit_skip_reason": credit_skip_reason,
+            "pool_depth":   len(candidates),
+            "cap_hit":      False,
+            "day_count":    day_count,
+            "daily_cap":    daily_cap,
+            "min_confidence": min_confidence,
+            "gaps_seeded":  gaps_seeded,
+            "ts":           _now_iso,
+            "retry_after_hint": 300,  # try again in 5 min
+        }
+        conn = _safe_connect(db_path)
+        try:
+            _ensure_tables(conn)
+            _state_set(conn, STATE_KEY_LAST_RUN, summary["ts"])
+            _state_set(conn, STATE_KEY_LAST_SUMMARY,
+                       json.dumps(summary, default=str))
+            conn.commit()
+        finally:
+            try: conn.close()
+            except Exception: pass
+        return summary
+
     picked = len(candidates)
     promoted = 0
     failed = 0

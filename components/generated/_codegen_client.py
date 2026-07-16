@@ -31,12 +31,27 @@ logger = logging.getLogger(__name__)
 # ── Config ────────────────────────────────────────────────────────────────
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_CREDITS_URL = "https://openrouter.ai/api/v1/credits"
 
 MODEL_PRIMARY  = "openai/gpt-4o-mini"
 MODEL_FALLBACK = "anthropic/claude-sonnet-4.5"
 
 REQUEST_TIMEOUT_SEC = 30
 MAX_TOKENS_DEFAULT  = 1500
+
+# PR WW: floor below which we treat a request as guaranteed-fail. If
+# even with the credit-adaptive resize we can't afford this many
+# tokens, codegen can't produce a valid module docstring + run()
+# function and we should skip the attempt instead of burning it.
+MIN_VIABLE_MAX_TOKENS = 400
+
+
+# PR WW: parse the OpenRouter 402 body to learn how many tokens we
+# can actually afford right now.
+_402_AFFORD_RE = re.compile(
+    r"can only afford\s+(\d+)\s+tokens",
+    re.IGNORECASE,
+)
 
 
 # ── Prompt template ───────────────────────────────────────────────────────
@@ -220,25 +235,98 @@ def request_code(concept: str,
             ),
         })
 
-    resp = _post_openrouter(model, messages, max_tokens=max_tokens)
-    # PR VV: unpack the richer error payload from _post_openrouter.
+    # PR WW: attempt-with-adaptive-retry on HTTP 402 ("you can only
+    # afford N tokens"). The self-heal loop:
+    #   1. Try the requested max_tokens.
+    #   2. If OpenRouter says we can only afford N (< requested),
+    #      re-attempt with max_tokens=N (once).
+    #   3. If N < MIN_VIABLE_MAX_TOKENS, mark as credit_exhausted and
+    #      skip - don't burn a real attempt on a doomed request.
+    #
+    # This keeps the picker productive on days when the OpenRouter
+    # balance is low but non-zero, and produces a clean, actionable
+    # 'credit_exhausted' reason (not 'http_or_auth_failure') when it
+    # actually runs out.
+    effective_max = max_tokens
+    resp = _post_openrouter(model, messages, max_tokens=effective_max)
     if resp is None:
         # Only path that still returns None: OPENROUTER_API_KEY unset.
         return CodegenAttempt(
             ok=False, model=model, reason="openrouter_key_unset",
         )
     if resp.get("__error__"):
-        # Concrete failure: preserve HTTP status + body snippet in reason
-        # so the picker (and materialisation_log) shows a real cause.
         err = resp["__error__"]
         hs = resp.get("http_status")
         snip = resp.get("body_snippet") or resp.get("exception_msg") or ""
-        reason = f"codegen_{err}"
-        if hs:
-            reason += f"_status_{hs}"
-        if snip:
-            reason += f": {snip[:200]}"
-        return CodegenAttempt(ok=False, model=model, reason=reason)
+
+        # PR WW self-heal branch: HTTP 402 with a concrete affordable-
+        # token count -> retry once at that size.
+        if hs == 402:
+            m = _402_AFFORD_RE.search(snip or "")
+            if m:
+                afford = int(m.group(1))
+                if afford < MIN_VIABLE_MAX_TOKENS:
+                    return CodegenAttempt(
+                        ok=False, model=model,
+                        reason=(
+                            f"credit_exhausted: openrouter can only "
+                            f"afford {afford} tokens (below viable floor "
+                            f"{MIN_VIABLE_MAX_TOKENS}). Top up credits or "
+                            f"switch MODEL_PRIMARY to a cheaper model."
+                        ),
+                    )
+                # Retry at the affordable size (leave 8-token headroom
+                # so we don't tickle the same 402 back on a rounding).
+                effective_max = max(MIN_VIABLE_MAX_TOKENS, afford - 8)
+                logger.info(
+                    "codegen_client: 402 - retrying %s at max_tokens=%d",
+                    model, effective_max,
+                )
+                resp = _post_openrouter(
+                    model, messages, max_tokens=effective_max,
+                )
+                if resp is None:
+                    return CodegenAttempt(
+                        ok=False, model=model,
+                        reason="openrouter_key_unset_on_retry",
+                    )
+                if resp.get("__error__"):
+                    err = resp["__error__"]
+                    hs = resp.get("http_status")
+                    snip = (
+                        resp.get("body_snippet")
+                        or resp.get("exception_msg")
+                        or ""
+                    )
+                    reason = f"codegen_{err}"
+                    if hs:
+                        reason += f"_status_{hs}"
+                    if snip:
+                        reason += f": {snip[:200]}"
+                    return CodegenAttempt(
+                        ok=False, model=model, reason=reason,
+                    )
+                # Fall through into the normal success path with the
+                # retry response.
+            else:
+                # 402 with no parseable token count = quota-of-a-
+                # different-flavour. Report cleanly.
+                return CodegenAttempt(
+                    ok=False, model=model,
+                    reason=(
+                        f"credit_exhausted: openrouter returned 402 "
+                        f"but token affordance not parseable. Snippet: "
+                        f"{snip[:200]}"
+                    ),
+                )
+        else:
+            # Non-402 error path -> report as PR VV did.
+            reason = f"codegen_{err}"
+            if hs:
+                reason += f"_status_{hs}"
+            if snip:
+                reason += f": {snip[:200]}"
+            return CodegenAttempt(ok=False, model=model, reason=reason)
     try:
         choice0 = resp["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
@@ -276,6 +364,18 @@ def request_code_cascade(concept: str,
     )
     if first.ok:
         return [first]
+    # PR WW: skip the fallback model when the primary failed because
+    # of credit exhaustion. MODEL_FALLBACK is more expensive per token
+    # than MODEL_PRIMARY, so retrying there guarantees another 402 and
+    # wastes wall-clock time + writes a second failed row for the same
+    # underlying reason.
+    reason_lc = (first.reason or "").lower()
+    if "credit_exhausted" in reason_lc or "status_402" in reason_lc:
+        logger.info(
+            "codegen_client: primary hit credit_exhausted - skipping "
+            "more-expensive MODEL_FALLBACK",
+        )
+        return [first]
     second = request_code(
         concept, insight, capability_type, happy_kwargs,
         model=MODEL_FALLBACK,
@@ -284,10 +384,51 @@ def request_code_cascade(concept: str,
     return [first, second]
 
 
+# PR WW: pre-flight credit check so the materialiser can skip a tick
+# cleanly when the OpenRouter balance is below the minimum viable
+# request size, rather than burning a picked candidate to discover it.
+def get_openrouter_credits() -> Optional[dict]:
+    """Query OpenRouter's /api/v1/credits endpoint. Returns a dict
+    with 'usage', 'limit', and 'balance' (in USD), or None on failure.
+
+    Returns None if OPENROUTER_API_KEY is unset. Any HTTP or network
+    failure also returns None so the caller can safely continue with
+    the old (attempt-then-fail-back) path.
+    """
+    key = os.environ.get("OPENROUTER_API_KEY")
+    if not key:
+        return None
+    req = urllib.request.Request(
+        OPENROUTER_CREDITS_URL,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type":  "application/json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8", "replace")
+        data = json.loads(body)
+        d = data.get("data") if isinstance(data, dict) else None
+        if isinstance(d, dict):
+            usage   = float(d.get("total_usage", 0.0) or 0.0)
+            limit   = d.get("total_credits", None)
+            balance = None
+            if isinstance(limit, (int, float)):
+                balance = float(limit) - usage
+            return {"usage": usage, "limit": limit, "balance": balance}
+        return None
+    except Exception as e:
+        logger.info("codegen_client: credit check failed: %s", e)
+        return None
+
+
 __all__ = [
     "MODEL_PRIMARY",
     "MODEL_FALLBACK",
     "CodegenAttempt",
     "request_code",
     "request_code_cascade",
+    "get_openrouter_credits",
+    "MIN_VIABLE_MAX_TOKENS",
 ]
