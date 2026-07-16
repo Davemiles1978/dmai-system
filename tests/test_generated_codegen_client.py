@@ -62,13 +62,34 @@ def test_request_code_flags_missing_run(monkeypatch):
 
 
 def test_request_code_flags_http_failure(monkeypatch):
+    # PR VV: None from _post_openrouter now specifically means
+    # OPENROUTER_API_KEY is unset (the only path that still returns
+    # None). Real HTTP failures come back as a dict with __error__.
     monkeypatch.setattr(cg, "_post_openrouter", lambda *a, **k: None)
     att = cg.request_code(
         concept="c", insight="i",
         capability_type="utility", happy_kwargs={},
     )
     assert not att.ok
-    assert att.reason == "http_or_auth_failure"
+    assert att.reason == "openrouter_key_unset"
+
+
+def test_request_code_surfaces_http_error_details(monkeypatch):
+    """PR VV: HTTP failures produce a concrete reason with status +
+    body snippet instead of the opaque http_or_auth_failure."""
+    monkeypatch.setattr(cg, "_post_openrouter", lambda *a, **k: {
+        "__error__": "http_401",
+        "http_status": 401,
+        "body_snippet": '{"error":{"message":"invalid api key"}}',
+    })
+    att = cg.request_code(
+        concept="c", insight="i",
+        capability_type="utility", happy_kwargs={},
+    )
+    assert not att.ok
+    assert "http_401" in att.reason
+    assert "401" in att.reason
+    assert "invalid api key" in att.reason
 
 
 def test_request_code_flags_malformed(monkeypatch):
