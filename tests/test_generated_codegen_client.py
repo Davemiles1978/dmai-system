@@ -35,6 +35,8 @@ def test_extract_code_no_fence_returns_as_is():
 
 
 def test_request_code_returns_ok_when_response_has_run(monkeypatch):
+    """PR XX-1: LLM path is now tier-2. Force the LLM path by using an
+    unknown capability_type so the local template layer declines."""
     def fake(model, msgs, max_tokens):
         return _fake_response(
             '"""Doc."""\ndef run(**kw):\n    return 42\n'
@@ -42,7 +44,7 @@ def test_request_code_returns_ok_when_response_has_run(monkeypatch):
     monkeypatch.setattr(cg, "_post_openrouter", fake)
     att = cg.request_code(
         concept="sum", insight="add numbers",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert att.ok
     assert "def run" in att.source
@@ -55,7 +57,7 @@ def test_request_code_flags_missing_run(monkeypatch):
     monkeypatch.setattr(cg, "_post_openrouter", fake)
     att = cg.request_code(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert not att.ok
     assert att.reason == "no_run_in_response"
@@ -68,7 +70,7 @@ def test_request_code_flags_http_failure(monkeypatch):
     monkeypatch.setattr(cg, "_post_openrouter", lambda *a, **k: None)
     att = cg.request_code(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert not att.ok
     assert att.reason == "openrouter_key_unset"
@@ -84,7 +86,7 @@ def test_request_code_surfaces_http_error_details(monkeypatch):
     })
     att = cg.request_code(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert not att.ok
     assert "http_401" in att.reason
@@ -97,7 +99,7 @@ def test_request_code_flags_malformed(monkeypatch):
                         lambda *a, **k: {"choices": []})
     att = cg.request_code(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert not att.ok
     assert att.reason == "malformed_response"
@@ -111,7 +113,7 @@ def test_cascade_stops_on_primary_success(monkeypatch):
     monkeypatch.setattr(cg, "_post_openrouter", fake)
     atts = cg.request_code_cascade(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert len(atts) == 1
     assert atts[0].ok
@@ -128,7 +130,7 @@ def test_cascade_falls_back_when_primary_fails(monkeypatch):
     monkeypatch.setattr(cg, "_post_openrouter", fake)
     atts = cg.request_code_cascade(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
     )
     assert len(atts) == 2
     assert not atts[0].ok
@@ -144,7 +146,7 @@ def test_retry_hint_is_appended(monkeypatch):
     monkeypatch.setattr(cg, "_post_openrouter", fake)
     cg.request_code(
         concept="c", insight="i",
-        capability_type="utility", happy_kwargs={},
+        capability_type="unknown_shape_forces_llm", happy_kwargs={},
         retry_reasons=["banned_call: eval", "missing_docstring"],
     )
     joined = "\n".join(m["content"] for m in captured["msgs"])
