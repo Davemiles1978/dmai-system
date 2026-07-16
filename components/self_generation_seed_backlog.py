@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional
 log = logging.getLogger(__name__)
 
 # Same DB path the materialiser uses so we write into the same registry.
-_DEFAULT_JSONL = "data/self_gen_backlog.jsonl"
+_DEFAULT_JSONL = "docs/planning/self_gen_backlog.jsonl"
 _DEFAULT_DB = os.environ.get(
     "DMAI_CAPABILITIES_DB",
     "data/dmai_knowledge.db",

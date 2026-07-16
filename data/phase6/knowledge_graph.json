@@ -1,0 +1,22 @@
+{
+  "nodes": [
+    {
+      "id": "40c5c85b7ec5",
+      "name": "stage_Toddler_Cause_Effect_Reasoning",
+      "type": "stage_learning",
+      "created": "2026-07-16T12:12:09.369485",
+      "last_accessed": "2026-07-16T12:12:09.369488",
+      "access_count": 0,
+      "metadata": {
+        "content": "COMPREHENSIVE KNOWLEDGE: Cause-Effect Reasoning\nCategory: core | Stage: Toddler\n\nOVERVIEW:\nCause-Effect Reasoning is a core concept essential for DMAI's development in the Toddler stage. Mastery of this topic requires understanding its fundamental principles, practical applications, and integration with DMAI's existing architecture.\n\nKEY AREAS TO RESEARCH:\n1. Core definitions and theoretical foundations of Cause-Effect Reasoning.\n2. How Cause-Effect Reasoning applies to evolving AGI systems like",
+        "topic": "Cause-Effect Reasoning",
+        "category": "core",
+        "is_accelerator": false,
+        "source": "synthetic_fallback",
+        "timestamp": "2026-07-16T12:12:09.369446"
+      }
+    }
+  ],
+  "edges": [],
+  "metadata": {}
+}

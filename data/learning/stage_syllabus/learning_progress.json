@@ -2,7 +2,7 @@
   "learned_topics": {
     "Toddler": {
       "EVOLUTION: Neural Network Pruning": 1,
-      "Cause-Effect Reasoning": 2
+      "Cause-Effect Reasoning": 1
     },
     "Baby": {
       "English Language Fundamentals": 3,
@@ -33,7 +33,7 @@
       "Wealth Creation - Basic Concepts": 2
     }
   },
-  "last_learning_cycle": "2026-06-04T11:59:46.311909",
+  "last_learning_cycle": "2026-07-16T12:12:09.520371",
   "current_stage": "Toddler",
-  "last_updated": "2026-06-04T16:48:33.527578"
+  "last_updated": "2026-07-16T12:12:09.520379"
 }

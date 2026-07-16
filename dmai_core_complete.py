@@ -8760,7 +8760,7 @@ def api_self_generation_seed_backlog():
             "error": f"seed module unavailable: {e}",
         }), 500
 
-    path = request.args.get("path", "data/self_gen_backlog.jsonl")
+    path = request.args.get("path", "docs/planning/self_gen_backlog.jsonl")
     dry = str(request.args.get("dry_run", "")).lower() in ("1", "true", "yes")
 
     try:
