@@ -9102,8 +9102,8 @@ def api_coding_curriculum_coverage():
         return jsonify({"ok": False, "error": "unauthorized"}), 401
     try:
         from components.coding_curriculum import coverage_summary, initialise
-        initialise(db_path=DB_PATH)
-        return jsonify(coverage_summary(db_path=DB_PATH))
+        initialise(db_path=_kdb_path())
+        return jsonify(coverage_summary(db_path=_kdb_path()))
     except Exception as e:  # noqa: BLE001
         logger.exception("coding-curriculum coverage failed")
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -9118,9 +9118,9 @@ def api_coding_curriculum_next_topic():
         from components.coding_curriculum import (
             next_topic_to_study, initialise,
         )
-        initialise(db_path=DB_PATH)
+        initialise(db_path=_kdb_path())
         lang = request.args.get("language") or None
-        topic = next_topic_to_study(language=lang, db_path=DB_PATH)
+        topic = next_topic_to_study(language=lang, db_path=_kdb_path())
         return jsonify({"ok": True, "topic": topic})
     except Exception as e:  # noqa: BLE001
         logger.exception("coding-curriculum next-topic failed")
@@ -9136,7 +9136,7 @@ def api_coding_curriculum_weakest():
         from components.coding_curriculum import (
             lowest_mastery_topics, initialise,
         )
-        initialise(db_path=DB_PATH)
+        initialise(db_path=_kdb_path())
         limit = min(int(request.args.get("limit", 10)), 50)
         lang  = request.args.get("language") or None
         tier_arg = request.args.get("tier")
@@ -9144,7 +9144,7 @@ def api_coding_curriculum_weakest():
         return jsonify({
             "ok":     True,
             "topics": lowest_mastery_topics(
-                limit=limit, language=lang, tier=tier, db_path=DB_PATH,
+                limit=limit, language=lang, tier=tier, db_path=_kdb_path(),
             ),
         })
     except Exception as e:  # noqa: BLE001
@@ -9168,14 +9168,14 @@ def api_cron_coding_curriculum_study():
         return jsonify({"ok": False, "error": "unauthorised"}), 401
     try:
         from components.coding_curriculum import run_study_batch, initialise
-        initialise(db_path=DB_PATH)
+        initialise(db_path=_kdb_path())
 
         payload = request.get_json(silent=True) or {}
         n = int(payload.get("n") or request.args.get("n", 3))
         n = max(1, min(n, 25))
         lang = payload.get("language") or request.args.get("language") or None
 
-        summary = run_study_batch(n=n, language=lang, db_path=DB_PATH)
+        summary = run_study_batch(n=n, language=lang, db_path=_kdb_path())
         return jsonify(summary)
     except Exception as e:  # noqa: BLE001
         logger.exception("coding-curriculum study cron failed")
@@ -9203,8 +9203,8 @@ def api_coding_curriculum_study_stats():
         return jsonify({"ok": False, "error": "unauthorised"}), 401
     try:
         from components.coding_curriculum import study_stats, initialise
-        initialise(db_path=DB_PATH)
-        return jsonify(study_stats(db_path=DB_PATH))
+        initialise(db_path=_kdb_path())
+        return jsonify(study_stats(db_path=_kdb_path()))
     except Exception as e:  # noqa: BLE001
         logger.exception("coding-curriculum study-stats failed")
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -9217,10 +9217,10 @@ def api_coding_curriculum_run_once():
         return jsonify({"ok": False, "error": "unauthorised"}), 401
     try:
         from components.coding_curriculum import run_study_round, initialise
-        initialise(db_path=DB_PATH)
+        initialise(db_path=_kdb_path())
         payload = request.get_json(silent=True) or {}
         lang = payload.get("language") or None
-        return jsonify(run_study_round(language=lang, db_path=DB_PATH))
+        return jsonify(run_study_round(language=lang, db_path=_kdb_path()))
     except Exception as e:  # noqa: BLE001
         logger.exception("coding-curriculum run-once failed")
         return jsonify({"ok": False, "error": str(e)}), 500
