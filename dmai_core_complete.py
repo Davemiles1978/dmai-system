@@ -8731,6 +8731,49 @@ def api_self_generation_force_tick():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/self-generation/seed-backlog", methods=["POST"])
+def api_self_generation_seed_backlog():
+    """Ingest a JSONL backlog file into the capabilities table.
+
+    Reads rows from ``data/self_gen_backlog.jsonl`` (or ``?path=...``)
+    and INSERT OR IGNORE each into ``capabilities`` as a gap-driven stub
+    (provenance='gap_driven', runtime_mode='stub'), so the materialiser's
+    next tick picks them up.
+
+    Companion to the collated 2026-07-16 backlog
+    (docs/planning/DMAI_COLLATED_REQUIREMENTS_AND_ROADMAP.md).
+
+    Query params:
+      - path (str, optional) — override default JSONL path
+      - dry_run (bool, default false) — preview without writing
+
+    Auth: X-Cron-Secret required.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+
+    try:
+        from components.self_generation_seed_backlog import seed_backlog
+    except Exception as e:  # noqa: BLE001
+        return jsonify({
+            "ok": False,
+            "error": f"seed module unavailable: {e}",
+        }), 500
+
+    path = request.args.get("path", "data/self_gen_backlog.jsonl")
+    dry = str(request.args.get("dry_run", "")).lower() in ("1", "true", "yes")
+
+    try:
+        summary = seed_backlog(jsonl_path=path, dry_run=dry)
+        status = 200 if summary.get("ok") else 500
+        return jsonify(summary), status
+    except FileNotFoundError as e:
+        return jsonify({"ok": False, "error": str(e)}), 404
+    except Exception as e:  # noqa: BLE001
+        logger.exception("seed-backlog failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/social/status")
 def api_social_status():
     """Alex Riviera social automation queue status."""
