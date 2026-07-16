@@ -9092,6 +9092,66 @@ def _diagnose_codegen_probe(http_status, exception_class, body_snippet):
     return f"unexpected HTTP {http_status}"
 
 
+# ── PR YY-1: coding-curriculum admin endpoints ─────────────────────────────
+
+@app.route("/api/admin/coding-curriculum/coverage", methods=["GET"])
+def api_coding_curriculum_coverage():
+    """Return DMAI's coding-curriculum coverage: how many topics she has
+    been exposed to, studied, or mastered, broken down by language."""
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+    try:
+        from components.coding_curriculum import coverage_summary, initialise
+        initialise(db_path=DB_PATH)
+        return jsonify(coverage_summary(db_path=DB_PATH))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum coverage failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/coding-curriculum/next-topic", methods=["GET"])
+def api_coding_curriculum_next_topic():
+    """Return the topic DMAI would study next (the picker's decision)."""
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+    try:
+        from components.coding_curriculum import (
+            next_topic_to_study, initialise,
+        )
+        initialise(db_path=DB_PATH)
+        lang = request.args.get("language") or None
+        topic = next_topic_to_study(language=lang, db_path=DB_PATH)
+        return jsonify({"ok": True, "topic": topic})
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum next-topic failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/coding-curriculum/weakest", methods=["GET"])
+def api_coding_curriculum_weakest():
+    """Return the N topics with the lowest mastery."""
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+    try:
+        from components.coding_curriculum import (
+            lowest_mastery_topics, initialise,
+        )
+        initialise(db_path=DB_PATH)
+        limit = min(int(request.args.get("limit", 10)), 50)
+        lang  = request.args.get("language") or None
+        tier_arg = request.args.get("tier")
+        tier = int(tier_arg) if tier_arg else None
+        return jsonify({
+            "ok":     True,
+            "topics": lowest_mastery_topics(
+                limit=limit, language=lang, tier=tier, db_path=DB_PATH,
+            ),
+        })
+    except Exception as e:  # noqa: BLE001
+        logger.exception("coding-curriculum weakest failed")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/admin/self-generation/seed-backlog", methods=["POST"])
 def api_self_generation_seed_backlog():
     """Ingest a JSONL backlog file into the capabilities table.
