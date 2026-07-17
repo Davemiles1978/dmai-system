@@ -16,6 +16,12 @@ external LLM call, for the well-understood capability shapes:
     - diversity_nudge    -> seeded RNG scalar (labelled)
     - ai_provider_update -> release-note passthrough
     - concept            -> input-echo
+    - monitor            -> healthy vs alerting metric samples
+    - infrastructure     -> service/env/port topology digest
+    - analyser           -> record-list distribution summary
+    - training           -> sample-list stats + label balance
+    - api_wrapper        -> request-envelope normaliser (no HTTP)
+    - testing            -> assertion-case pass/fail runner (pure)
 
 Every generated module:
     - is syntactically valid Python 3.11 (ast.parse in the local

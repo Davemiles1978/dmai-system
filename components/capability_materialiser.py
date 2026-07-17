@@ -578,6 +578,18 @@ def _happy_kwargs_for(capability_type: str) -> Dict[str, Any]:
         "diversity_nudge":    {**_base, "seed": 0},
         "ai_provider_update": {**_base, "release": {"tag": "v0.0.0"}},
         "concept":            {**_base, "input": None},
+        # PR AAA-2: shapes drawn from the gap_driven stub queue.
+        "monitor":            {**_base, "samples": [{"cpu": 0.5, "mem": 0.3}],
+                                          "thresholds": {"cpu": 0.9, "mem": 0.9}},
+        "infrastructure":     {**_base, "resources": {"services": ["web"],
+                                                       "envs": ["OPENROUTER_KEY"],
+                                                       "ports": [8000]}},
+        "analyser":           {**_base, "records": [{"kind": "a"}, {"kind": "b"}],
+                                          "group_by": "kind"},
+        "training":           {**_base, "samples": [{"x": 1, "y": 2, "label": "pos"}]},
+        "api_wrapper":        {**_base, "request": {"method": "GET", "path": "/"}},
+        "testing":            {**_base, "target": {"k": 1},
+                                          "cases":  [{"key": "k", "expected": 1}]},
     }.get(str(capability_type or "").lower(), {**_base, "input": None})
 
 

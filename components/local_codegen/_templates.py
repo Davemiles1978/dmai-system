@@ -32,6 +32,17 @@ LOCAL_CAPABILITY_TYPES = frozenset({
     "diversity_nudge",
     "ai_provider_update",
     "concept",
+    # PR AAA-2: shapes drawn from the actual gap_driven queue on
+    # 2026-07-17 (7 monitor + 4 infrastructure + 2 analyser + 1
+    # training stubs). Each is a pure-function summariser — no I/O,
+    # no sqlite writes, no network — so the materialiser's smoke
+    # test can execute the module safely against happy_kwargs.
+    "monitor",
+    "infrastructure",
+    "analyser",
+    "training",
+    "api_wrapper",
+    "testing",
 })
 
 
@@ -313,6 +324,224 @@ def _body_concept() -> str:
         ''')
 
 
+# ── PR AAA-2: monitor / infrastructure / analyser / training / api_wrapper / testing ──
+
+def _body_monitor() -> str:
+    """Consume a metrics dict, classify healthy vs alerting samples
+    against optional thresholds."""
+    return textwrap.dedent('''\
+        samples = kwargs.get("samples") or []
+        if not isinstance(samples, list):
+            return {"ok": False, "reason": "samples must be a list",
+                    "source": "local_template.monitor"}
+        thresholds = kwargs.get("thresholds") or {}
+        if not isinstance(thresholds, dict):
+            thresholds = {}
+        healthy = 0
+        alerting = 0
+        breaches = []
+        for s in samples:
+            if not isinstance(s, dict):
+                continue
+            broken = False
+            for k, limit in thresholds.items():
+                try:
+                    v = float(s.get(k))
+                    lim = float(limit)
+                except (TypeError, ValueError):
+                    continue
+                if v > lim:
+                    broken = True
+                    breaches.append({"metric": k, "value": v, "limit": lim})
+            if broken:
+                alerting += 1
+            else:
+                healthy += 1
+        total = healthy + alerting
+        return {
+            "ok":              True,
+            "total":           total,
+            "healthy":         healthy,
+            "alerting":        alerting,
+            "health_ratio":    (healthy / total) if total else 1.0,
+            "breaches":        breaches[:20],
+            "breach_count":    len(breaches),
+            "source":          "local_template.monitor",
+        }
+        ''')
+
+
+def _body_infrastructure() -> str:
+    """Introspect a resources dict (services, ports, envs). Reports
+    counts + a stable digest for change detection."""
+    return textwrap.dedent('''\
+        resources = kwargs.get("resources") or {}
+        if not isinstance(resources, dict):
+            return {"ok": False, "reason": "resources must be a dict",
+                    "source": "local_template.infrastructure"}
+        services = resources.get("services") or []
+        envs     = resources.get("envs") or []
+        ports    = resources.get("ports") or []
+        try:
+            svc_names = sorted(str(s) for s in services)
+            env_names = sorted(str(e) for e in envs)
+            port_list = sorted(int(p) for p in ports if isinstance(p, (int, float)))
+        except Exception:
+            svc_names, env_names, port_list = [], [], []
+        signature = repr((tuple(svc_names), tuple(env_names), tuple(port_list)))
+        digest = hashlib.sha256(signature.encode("utf-8", "replace")).hexdigest()
+        return {
+            "ok":              True,
+            "service_count":   len(svc_names),
+            "services":        svc_names,
+            "env_count":       len(env_names),
+            "envs":            env_names,
+            "port_count":      len(port_list),
+            "ports":           port_list,
+            "topology_digest": digest,
+            "source":          "local_template.infrastructure",
+        }
+        ''')
+
+
+def _body_analyser() -> str:
+    """Summarise a records list — count, distinct kinds, distribution."""
+    return textwrap.dedent('''\
+        records = kwargs.get("records") or []
+        if not isinstance(records, list):
+            return {"ok": False, "reason": "records must be a list",
+                    "source": "local_template.analyser"}
+        key = kwargs.get("group_by") or "kind"
+        key = str(key)
+        distribution = {}
+        malformed = 0
+        for r in records:
+            if isinstance(r, dict):
+                v = r.get(key)
+                bucket = str(v) if v is not None else "(none)"
+            else:
+                malformed += 1
+                bucket = "(non_dict)"
+            distribution[bucket] = distribution.get(bucket, 0) + 1
+        top = sorted(distribution.items(), key=lambda x: -x[1])[:5]
+        return {
+            "ok":            True,
+            "count":         len(records),
+            "group_by":      key,
+            "distinct":      len(distribution),
+            "distribution":  distribution,
+            "top":           [{"key": k, "count": n} for k, n in top],
+            "malformed":     malformed,
+            "source":        "local_template.analyser",
+        }
+        ''')
+
+
+def _body_training() -> str:
+    """Compute simple aggregates over training samples (x, y pairs
+    or labelled dicts). No model — just data-quality shape."""
+    return textwrap.dedent('''\
+        samples = kwargs.get("samples") or []
+        if not isinstance(samples, list):
+            return {"ok": False, "reason": "samples must be a list",
+                    "source": "local_template.training"}
+        labels = {}
+        xs = []
+        ys = []
+        for s in samples:
+            if isinstance(s, dict):
+                lbl = s.get("label")
+                if lbl is not None:
+                    lbl = str(lbl)
+                    labels[lbl] = labels.get(lbl, 0) + 1
+                if isinstance(s.get("x"), (int, float)):
+                    xs.append(float(s["x"]))
+                if isinstance(s.get("y"), (int, float)):
+                    ys.append(float(s["y"]))
+        n = len(samples)
+        return {
+            "ok":             True,
+            "sample_count":   n,
+            "label_count":    len(labels),
+            "labels":         labels,
+            "x_min":          min(xs) if xs else None,
+            "x_max":          max(xs) if xs else None,
+            "y_min":          min(ys) if ys else None,
+            "y_max":          max(ys) if ys else None,
+            "balanced":       (len(set(labels.values())) <= 1) if labels else True,
+            "source":         "local_template.training",
+        }
+        ''')
+
+
+def _body_api_wrapper() -> str:
+    """Normalise a request envelope: method/path/params/headers.
+    Pure — does NOT make an HTTP call, just validates shape."""
+    return textwrap.dedent('''\
+        request = kwargs.get("request") or {}
+        if not isinstance(request, dict):
+            return {"ok": False, "reason": "request must be a dict",
+                    "source": "local_template.api_wrapper"}
+        method = str(request.get("method", "GET")).upper()
+        path   = str(request.get("path", "/"))
+        params = request.get("params") or {}
+        headers = request.get("headers") or {}
+        params  = params if isinstance(params, dict) else {"value": params}
+        headers = headers if isinstance(headers, dict) else {}
+        return {
+            "ok":            True,
+            "method":        method,
+            "path":          path,
+            "param_count":   len(params),
+            "header_count":  len(headers),
+            "normalised":    {"method": method, "path": path,
+                              "params": params, "headers": headers},
+            "source":        "local_template.api_wrapper",
+        }
+        ''')
+
+
+def _body_testing() -> str:
+    """Run assertion cases against a target dict, reporting pass/fail
+    per case. Pure — no test-runner subprocess."""
+    return textwrap.dedent('''\
+        target = kwargs.get("target") or {}
+        cases  = kwargs.get("cases") or []
+        if not isinstance(cases, list):
+            return {"ok": False, "reason": "cases must be a list",
+                    "source": "local_template.testing"}
+        if not isinstance(target, dict):
+            target = {"value": target}
+        passed = 0
+        failed = 0
+        details = []
+        for c in cases:
+            if not isinstance(c, dict):
+                failed += 1
+                details.append({"ok": False, "reason": "case not a dict"})
+                continue
+            k = c.get("key")
+            expected = c.get("expected")
+            actual = target.get(k) if k is not None else None
+            ok = actual == expected
+            if ok:
+                passed += 1
+            else:
+                failed += 1
+            details.append({"ok": ok, "key": k,
+                            "expected": expected, "actual": actual})
+        return {
+            "ok":       True,
+            "total":    len(cases),
+            "passed":   passed,
+            "failed":   failed,
+            "pass_rate": (passed / len(cases)) if cases else 1.0,
+            "details":  details[:20],
+            "source":   "local_template.testing",
+        }
+        ''')
+
+
 _BODIES = {
     "utility":            _body_utility,
     "configuration":      _body_configuration,
@@ -327,6 +556,13 @@ _BODIES = {
     "diversity_nudge":    _body_diversity_nudge,
     "ai_provider_update": _body_ai_provider_update,
     "concept":            _body_concept,
+    # PR AAA-2
+    "monitor":            _body_monitor,
+    "infrastructure":     _body_infrastructure,
+    "analyser":           _body_analyser,
+    "training":           _body_training,
+    "api_wrapper":        _body_api_wrapper,
+    "testing":            _body_testing,
 }
 
 
@@ -335,6 +571,7 @@ _IMPORTS = {
     "blockchain":       "import hashlib",
     "frontier":         "import random",
     "diversity_nudge":  "import random",
+    "infrastructure":   "import hashlib",  # PR AAA-2: topology_digest
 }
 
 

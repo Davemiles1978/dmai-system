@@ -68,6 +68,110 @@ class TestTemplateSynthesis:
         assert out["source"] == f"local_template.{cap_type}"
 
 
+class TestPRAAA2NewShapes:
+    """PR AAA-2: explicit smoke tests for the 6 new templated shapes.
+    Each shape must (a) declare templatable, (b) generate valid Python,
+    and (c) return the expected `source: local_template.<type>`
+    contract when executed with realistic kwargs."""
+
+    NEW_TYPES = ["monitor", "infrastructure", "analyser",
+                 "training", "api_wrapper", "testing"]
+
+    @pytest.mark.parametrize("cap_type", NEW_TYPES)
+    def test_new_type_is_templatable(self, cap_type):
+        assert can_template(cap_type) is True
+        assert cap_type in LOCAL_CAPABILITY_TYPES
+
+    def test_monitor_flags_threshold_breach(self):
+        r = generate_from_template(
+            concept="cpu monitor", insight="alert on cpu > 0.9",
+            capability_type="monitor", happy_kwargs=_kwargs_for("monitor"),
+        )
+        assert r.ok
+        ns = {}
+        exec(r.source, ns)
+        out = ns["run"](
+            samples=[{"cpu": 0.5}, {"cpu": 0.95}, {"cpu": 0.3}],
+            thresholds={"cpu": 0.9},
+        )
+        assert out["ok"] and out["total"] == 3
+        assert out["alerting"] == 1
+        assert out["healthy"] == 2
+        assert out["breach_count"] == 1
+
+    def test_infrastructure_produces_stable_digest(self):
+        r = generate_from_template(
+            concept="topology", insight="",
+            capability_type="infrastructure",
+            happy_kwargs=_kwargs_for("infrastructure"),
+        )
+        ns = {}; exec(r.source, ns)
+        a = ns["run"](resources={"services": ["web", "db"]})
+        b = ns["run"](resources={"services": ["db", "web"]})  # sorted ⇒ same
+        assert a["topology_digest"] == b["topology_digest"]
+        c = ns["run"](resources={"services": ["web"]})
+        assert a["topology_digest"] != c["topology_digest"]
+
+    def test_analyser_counts_distribution(self):
+        r = generate_from_template(
+            concept="kinds", insight="",
+            capability_type="analyser", happy_kwargs=_kwargs_for("analyser"),
+        )
+        ns = {}; exec(r.source, ns)
+        out = ns["run"](
+            records=[{"kind": "a"}, {"kind": "a"}, {"kind": "b"}],
+            group_by="kind",
+        )
+        assert out["count"] == 3
+        assert out["distribution"] == {"a": 2, "b": 1}
+        assert out["top"][0] == {"key": "a", "count": 2}
+
+    def test_training_reports_label_balance(self):
+        r = generate_from_template(
+            concept="balance", insight="",
+            capability_type="training", happy_kwargs=_kwargs_for("training"),
+        )
+        ns = {}; exec(r.source, ns)
+        # Balanced
+        out = ns["run"](samples=[{"label": "a"}, {"label": "b"}])
+        assert out["balanced"] is True
+        # Imbalanced
+        out = ns["run"](samples=[{"label": "a"}, {"label": "a"},
+                                  {"label": "b"}])
+        assert out["balanced"] is False
+        assert out["label_count"] == 2
+
+    def test_api_wrapper_never_makes_http_call(self):
+        """Critical: template must NOT import urllib/requests."""
+        r = generate_from_template(
+            concept="echo", insight="",
+            capability_type="api_wrapper",
+            happy_kwargs=_kwargs_for("api_wrapper"),
+        )
+        assert r.ok
+        assert "urllib" not in r.source
+        assert "import requests" not in r.source
+        assert "urlopen" not in r.source
+        ns = {}; exec(r.source, ns)
+        out = ns["run"](request={"method": "post", "path": "/x",
+                                  "params": {"a": 1}})
+        assert out["method"] == "POST"
+        assert out["param_count"] == 1
+
+    def test_testing_runs_assertion_cases(self):
+        r = generate_from_template(
+            concept="assert", insight="",
+            capability_type="testing", happy_kwargs=_kwargs_for("testing"),
+        )
+        ns = {}; exec(r.source, ns)
+        out = ns["run"](target={"a": 1, "b": 2},
+                        cases=[{"key": "a", "expected": 1},
+                               {"key": "b", "expected": 99}])
+        assert out["passed"] == 1
+        assert out["failed"] == 1
+        assert out["pass_rate"] == 0.5
+
+
 class TestTemplateResilience:
     def test_utility_handles_empty_values(self):
         r = generate_from_template(
