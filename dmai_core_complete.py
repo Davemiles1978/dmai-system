@@ -3354,6 +3354,135 @@ def api_mon_user_bets_performance():
         logger.warning("/api/monetisation/bets/performance failed: %s", e)
         return jsonify({"error": str(e), "ok": False}), 200
 
+
+# ── PR ZZ-2: Training bets/trades tracking (paper) ─────────────────────────
+# Read-only endpoints for the /admin/training page. Data is written by
+# the greyhound_runner (ZZ-1b) + autonomous_trader (ZZ-1d) into
+# training_paper_tips + training_paper_trades in dmai_knowledge.db.
+# All wrapped so a downstream exception returns structured JSON rather
+# than an HTML 500 that would break the admin panel's api() helper.
+
+@app.route("/api/admin/training/tips", methods=["GET"])
+def api_admin_training_tips():
+    """List paper tips (every analysed pick, gated or not).
+
+    Query params: limit (default 100), outcome (pending|won|lost|void).
+    """
+    try:
+        from components.monetisation import training_ledger as _tl
+        try:
+            limit = int(request.args.get("limit", 100))
+        except (TypeError, ValueError):
+            limit = 100
+        outcome = request.args.get("outcome")
+        tips = _tl.list_paper_tips(limit=limit, outcome=outcome)
+        return jsonify({"ok": True, "count": len(tips), "tips": tips})
+    except Exception as e:
+        logger.warning("/api/admin/training/tips failed: %s", e)
+        return jsonify({"ok": False, "error": str(e), "tips": []}), 200
+
+
+@app.route("/api/admin/training/trades", methods=["GET"])
+def api_admin_training_trades():
+    """List paper trades (every signal, EV-gated or not).
+
+    Query params: limit (default 100), outcome (pending|won|lost|void).
+    """
+    try:
+        from components.monetisation import training_ledger as _tl
+        try:
+            limit = int(request.args.get("limit", 100))
+        except (TypeError, ValueError):
+            limit = 100
+        outcome = request.args.get("outcome")
+        trades = _tl.list_paper_trades(limit=limit, outcome=outcome)
+        return jsonify({"ok": True, "count": len(trades), "trades": trades})
+    except Exception as e:
+        logger.warning("/api/admin/training/trades failed: %s", e)
+        return jsonify({"ok": False, "error": str(e), "trades": []}), 200
+
+
+@app.route("/api/admin/training/performance", methods=["GET"])
+def api_admin_training_performance():
+    """Aggregate performance across both paper tips and trades.
+
+    Returns: win_rate, ROI, running P/L, turnover, settled_count for each
+    stream, plus the ready_for_live gate showing which thresholds are met.
+    """
+    try:
+        from components.monetisation import training_ledger as _tl
+        perf = _tl.performance()
+        return jsonify({"ok": True, **perf})
+    except Exception as e:
+        logger.warning("/api/admin/training/performance failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
+@app.route("/api/admin/training/ready", methods=["GET"])
+def api_admin_training_ready():
+    """Ready-for-live gate only — concise checklist for the admin page.
+
+    Returns per-stream {ok, settled_count, win_rate, roi_pct} against the
+    documented thresholds (50 settled bets @ 20% WR @ +5% ROI; 30 settled
+    trades @ +2% ROI).
+    """
+    try:
+        from components.monetisation import training_ledger as _tl
+        perf = _tl.performance()
+        return jsonify({"ok": True, "ready_for_live": perf.get("ready_for_live", {})})
+    except Exception as e:
+        logger.warning("/api/admin/training/ready failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
+@app.route("/api/admin/training/settle-tip", methods=["POST"])
+def api_admin_training_settle_tip():
+    """Manually settle a paper tip. Body: {tip_id: str, outcome: won|lost|void}.
+
+    Auth-gated — admin only. Used by the training dashboard's inline
+    settle buttons + as a fallback while ZZ-1e's auto-settlement isn't
+    live yet.
+    """
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    try:
+        from components.monetisation import training_ledger as _tl
+        b = request.get_json(silent=True) or {}
+        tip_id = b.get("tip_id")
+        outcome = b.get("outcome")
+        if not tip_id or outcome not in ("won", "lost", "void"):
+            return jsonify({"ok": False, "error": "tip_id + outcome (won|lost|void) required"}), 400
+        ok = _tl.settle_paper_tip(tip_id, outcome)
+        return jsonify({"ok": bool(ok), "tip_id": tip_id, "outcome": outcome})
+    except Exception as e:
+        logger.warning("/api/admin/training/settle-tip failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
+@app.route("/api/admin/training/settle-trade", methods=["POST"])
+def api_admin_training_settle_trade():
+    """Manually settle a paper trade. Body: {trade_id: int, exit_price: float}.
+
+    Auth-gated — admin only. For trader signals recorded with the ZZ-1d
+    normalised entry_price=1.0, exit_price should be 1.0 + return_pct
+    (e.g. 1.05 for +5%).
+    """
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    try:
+        from components.monetisation import training_ledger as _tl
+        b = request.get_json(silent=True) or {}
+        trade_id = b.get("trade_id")
+        exit_price = b.get("exit_price")
+        if trade_id is None or exit_price is None:
+            return jsonify({"ok": False, "error": "trade_id + exit_price required"}), 400
+        ok = _tl.settle_paper_trade(int(trade_id), float(exit_price))
+        return jsonify({"ok": bool(ok), "trade_id": trade_id, "exit_price": exit_price})
+    except Exception as e:
+        logger.warning("/api/admin/training/settle-trade failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
 @app.route("/api/monetisation/wealth/deploy", methods=["POST"])
 def api_mon_wealth_deploy():
     if not _require_auth():
