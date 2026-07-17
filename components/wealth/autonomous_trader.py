@@ -864,6 +864,53 @@ class AutonomousTrader:
             else:
                 signals = self._collect_signals()
                 signals_seen = len(signals)
+
+                # PR ZZ-1d: paper-log EVERY signal to training_paper_trades
+                # BEFORE the EV gate + trade-count cap. This captures the
+                # full universe of signals the trader saw — not just the
+                # ones that would be placed for money — so we can measure
+                # signal quality end-to-end before switching to live.
+                #
+                # Entry price is synthetic (1.0 per share, qty=stake) so the
+                # P/L math in ZZ-1e can express (exit_price - 1.0) * qty as
+                # a normalised return against the sized paper stake. Real
+                # market prices land in ZZ-1e's settlement pass.
+                try:
+                    from components.monetisation.training_ledger import (
+                        paper_bankroll as _paper_bankroll,
+                        record_paper_trade as _record_paper_trade,
+                    )
+                    _pb = _paper_bankroll()
+                    for _sig in signals:
+                        _sym = _sig.get("symbol")
+                        _conf = float(_sig.get("confidence") or 0)
+                        _ev = float(_sig.get("ev") or 0)
+                        if not _sym or _conf <= 0:
+                            continue
+                        # Size like _maybe_execute would: paper_bankroll *
+                        # max_pct_per_trade * confidence. Never zero — the
+                        # ledger layer rejects anything <= 0.
+                        _stake = round(
+                            _pb * float(caps["max_pct_per_trade"]) * _conf, 4
+                        )
+                        if _stake <= 0:
+                            continue
+                        _record_paper_trade(
+                            symbol=_sym,
+                            side="buy",
+                            entry_price=1.0,     # synthetic normalised unit
+                            qty=_stake,          # 1 share per £ staked
+                            stake=_stake,
+                            paper_bankroll_amt=_pb,
+                            confidence=_conf,
+                            expected_value=_ev,
+                            tier=tier,
+                            passed_ev_gate=(_ev >= caps["ev_gate"]),
+                            source="autonomous_trader",
+                        )
+                except Exception as _tl_err:
+                    logger.warning("paper-trade write failed: %s", _tl_err)
+
                 for sig in signals:
                     if signals_passed >= caps["max_trades_per_day"] - s["today_trades"]:
                         break
