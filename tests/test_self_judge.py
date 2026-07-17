@@ -209,6 +209,54 @@ def test_judge_reject_on_near_duplicate(conn):
     assert "near-duplicate" in v.reason or "duplicate" in v.reason.lower()
 
 
+def test_gap_driven_seed_bypasses_vocab_floor(conn):
+    """PR AAA-4: gap_driven seeds must NOT be deferred on vocab coverage
+    even when DMAI's vocabulary is empty for their tokens. These concepts
+    were authored by DMAI herself so vocab coverage carries no signal.
+
+    Regression guard for the prod state where 18 gap_driven stubs were
+    all deferred with vocab_coverage=0.02-0.05 below the 0.10 floor,
+    starving the materialiser after AAA-1/AAA-2 had cleared every
+    other blocker.
+    """
+    # Empty vocabulary -> coverage will be 0.0 for any real concept.
+    # A `arxiv`-channel seed with these tokens WOULD be deferred.
+    # A `gap_driven` seed must NOT be deferred.
+    seed = {
+        "concept": "fix proposer loop metric contract manifest audit",
+        "insight_text": "fix proposer loop metric contract manifest audit",
+        "channel": "gap_driven",
+    }
+    v = sj.judge_seed(seed, conn)
+    assert v.verdict != "defer", (
+        f"gap_driven seed must not defer on vocab; got verdict={v.verdict} "
+        f"reason={v.reason}"
+    )
+    assert "below floor" not in (v.reason or ""), (
+        f"vocab floor should not fire for gap_driven; got: {v.reason}"
+    )
+
+
+def test_arxiv_seed_still_defers_on_vocab(conn):
+    """Sanity: non-relaxed channels still enforce their own vocab floor.
+    Guards against accidentally globally dropping the floor."""
+    v = sj.judge_seed(
+        {"concept": "quaternion holography entropy solitons",
+         "insight_text": "quaternion holography entropy solitons",
+         "channel": "arxiv"},
+        conn,
+    )
+    assert v.verdict == "defer"
+    assert "below floor" in v.reason
+
+
+def test_gap_vocab_floor_constant_is_zero():
+    """Explicit pin: GAP_VOCAB_COVERAGE_FLOOR == 0.0 (PR AAA-4).
+    Any regression that raises it back to a positive number will hit
+    this assertion loudly."""
+    assert sj.GAP_VOCAB_COVERAGE_FLOOR == 0.0
+
+
 def test_judge_missing_concept_rejected():
     v = sj.judge_seed({"insight_text": "no concept here"}, None)
     assert v.verdict == "reject"

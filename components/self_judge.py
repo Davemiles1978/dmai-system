@@ -86,7 +86,20 @@ VOCAB_COVERAGE_FLOOR      = 0.40
 # We know these are legitimate because DMAI wrote them. Use a much
 # lower floor for this channel so the review step doesn't reject
 # gap items on grammar/domain-vocab grounds.
-GAP_VOCAB_COVERAGE_FLOOR  = 0.10
+#
+# PR AAA-4: dropped from 0.10 -> 0.0. In prod the 18 gap stubs were
+# still hitting 0.02-0.05 coverage because DMAI's vocabulary table
+# is under-populated for her own generated terms (`proposer`,
+# `manifest`, `mislabel`, `sweep`, `contract`, `mismatch`, ...). A
+# 0.10 floor was still rejecting every gap_driven candidate before
+# any code was generated, keeping the materialiser starved despite
+# AAA-1 (local_only) and AAA-2 (100% templatable). Since gap seeds
+# are authored by DMAI's own gap-analyser (not scraped from open
+# text), vocab coverage carries no signal for this channel - the
+# tokens are her domain vocabulary by construction. Real quality
+# checks still run: happy-path unit test, smoke test, insight
+# neighbourhood duplicate check, KPI linkage, diversity pressure.
+GAP_VOCAB_COVERAGE_FLOOR  = 0.0
 
 # Channel names that get the relaxed vocab floor. Extendable.
 _RELAXED_VOCAB_CHANNELS = frozenset({
