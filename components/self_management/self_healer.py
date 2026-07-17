@@ -72,6 +72,14 @@ EXCLUDED_DIR_NAMES = frozenset({
     ".mypy_cache",
     ".ruff_cache",
     "node_modules",
+    # PR BBB-3: staging is the materialiser's ephemeral scratch dir.
+    # Files here are created, tested, and (on failure) deleted within
+    # a single materialisation tick. Sweeping it produces a race where
+    # rglob() lists the file but _syntax_ok() then hits FileNotFound
+    # because the failed candidate has already been cleaned up. Live
+    # (promoted) capabilities land in components/generated/live/ and
+    # are still swept as source code.
+    "staging",
 })
 
 
@@ -110,12 +118,24 @@ def _sha256(path: Path) -> str:
 
 
 def _syntax_ok(path: Path) -> tuple[bool, str]:
-    """Return (ok, error_message). Uses ast.parse for speed."""
+    """Return (ok, error_message). Uses ast.parse for speed.
+
+    PR BBB-3: FileNotFoundError is treated as ok=True with a sentinel
+    reason. The materialiser deletes staging files when a candidate
+    fails validation (see capability_materialiser._materialise_candidate
+    cleanup block), which can race with the healer's rglob() snapshot.
+    A missing file is not a syntax error - there is nothing to heal -
+    so we skip it instead of spamming the kaizen queue with phantom
+    "restore from backup" attempts for files that never had a backup.
+    """
     try:
         ast.parse(path.read_text(errors="replace"))
         return True, ""
     except SyntaxError as e:
         return False, f"SyntaxError at line {e.lineno}: {e.msg}"
+    except FileNotFoundError:
+        # File vanished between rglob() and read_text() - benign race.
+        return True, "file_missing_skipped"
     except Exception as e:
         return False, str(e)
 
@@ -203,6 +223,13 @@ class SelfHealer:
 
         healed = repaired = 0
         for path in py_files:
+            # PR BBB-3: pre-check existence. rglob() built the list a
+            # moment ago; a concurrent materialiser abort may have
+            # deleted staging files by now. Skip silently rather than
+            # logging a phantom syntax error for a file that no longer
+            # exists on disk.
+            if not path.exists():
+                continue
             ok, err = _syntax_ok(path)
             rel = str(path.relative_to(self.root))
 
