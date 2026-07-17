@@ -336,6 +336,140 @@ def test_queue_composition_classifies_correctly(db, monkeypatch):
     assert "integration" in out["local_capability_types"]
 
 
+# ── PR AAA-3: transient-failure backoff clearing ────────────────────
+
+def _write_log_row(db_path: str, cap_id: str, outcome: str,
+                   reasons: list, minutes_ago: int = 30):
+    """Direct-insert a materialisation_log row for backoff tests."""
+    import datetime as _dt
+    import json as _json
+    conn = sqlite3.connect(db_path)
+    try:
+        mat._ensure_tables(conn)
+        when = _dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(minutes=minutes_ago)
+        conn.execute(
+            "INSERT INTO materialisation_log "
+            "(capability_id, concept, slug, outcome, model_used, reasons, "
+            " judge_confidence, duration_sec, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (cap_id, "concept", "slug", outcome, "model-x",
+             _json.dumps(reasons), 0.0, 0.5, when.isoformat()),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def test_is_transient_only_all_credit_reasons():
+    import json as _json
+    payload = _json.dumps(["credit_exhausted_preflight: openrouter balance ..."])
+    assert mat._is_transient_only(payload) is True
+
+
+def test_is_transient_only_mixed_reasons_returns_false():
+    """If any reason is a real quality failure, backoff stays."""
+    import json as _json
+    payload = _json.dumps([
+        "credit_exhausted: openrouter returned 402",
+        "self_judge_review: defer (0.000) - vocab_coverage=0.03",
+    ])
+    assert mat._is_transient_only(payload) is False
+
+
+def test_is_transient_only_empty_returns_false():
+    assert mat._is_transient_only(None) is False
+    assert mat._is_transient_only("") is False
+    assert mat._is_transient_only("[]") is False
+    assert mat._is_transient_only("not json") is False
+
+
+def test_is_transient_only_http_auth_and_5xx():
+    import json as _json
+    for reason in [
+        "http_or_auth_failure",
+        "status_401 unauthorised",
+        "status_429 rate limited",
+        "status_503 backend unavailable",
+    ]:
+        assert mat._is_transient_only(_json.dumps([reason])) is True, reason
+
+
+def test_pick_candidates_skips_transient_backoff(db):
+    """A cap with only credit failures in the last 24h should still be
+    picked — no false-positive backoff."""
+    _seed_capability(db, id="cap_credit_only",
+                     capability_type="utility")
+    _write_log_row(db, "cap_credit_only", "failed",
+                   ["credit_exhausted: openrouter returned 402"],
+                   minutes_ago=30)
+    conn = sqlite3.connect(db)
+    mat._ensure_tables(conn)
+    try:
+        picks = mat._pick_candidates(conn, min_confidence=0.6, limit=5)
+        ids = {p["id"] for p in picks}
+        assert "cap_credit_only" in ids, \
+            "transient credit failure should NOT trigger 24h backoff"
+    finally:
+        conn.close()
+
+
+def test_pick_candidates_honours_real_quality_backoff(db):
+    """A cap with a real self_judge_review defer should still be blocked."""
+    _seed_capability(db, id="cap_quality_fail",
+                     capability_type="utility")
+    _write_log_row(db, "cap_quality_fail", "failed",
+                   ["self_judge_review: defer (0.000) - vocab_coverage=0.03"],
+                   minutes_ago=30)
+    conn = sqlite3.connect(db)
+    mat._ensure_tables(conn)
+    try:
+        picks = mat._pick_candidates(conn, min_confidence=0.6, limit=5)
+        ids = {p["id"] for p in picks}
+        assert "cap_quality_fail" not in ids, \
+            "real quality failure MUST still trigger 24h backoff"
+    finally:
+        conn.close()
+
+
+def test_clear_transient_backoffs_removes_only_transient(db):
+    _seed_capability(db, id="cap_a", capability_type="utility")
+    _seed_capability(db, id="cap_b", capability_type="utility")
+    _seed_capability(db, id="cap_c", capability_type="utility")
+    _write_log_row(db, "cap_a", "failed",
+                   ["credit_exhausted: openrouter 402"], minutes_ago=30)
+    _write_log_row(db, "cap_b", "failed",
+                   ["self_judge_review: defer"], minutes_ago=30)
+    _write_log_row(db, "cap_c", "failed",
+                   ["http_or_auth_failure"], minutes_ago=30)
+
+    out = mat.clear_transient_backoffs(db_path=db, hours=24)
+    assert out["ok"] is True
+    assert out["cleared"] == 2
+    assert out["total_scanned"] == 3
+    assert set(out["sample_ids"]) == {"cap_a", "cap_c"}
+
+    # Verify cap_b's real quality failure is still there
+    conn = sqlite3.connect(db)
+    try:
+        remaining = conn.execute(
+            "SELECT capability_id FROM materialisation_log"
+        ).fetchall()
+        assert [r[0] for r in remaining] == ["cap_b"]
+    finally:
+        conn.close()
+
+
+def test_clear_transient_backoffs_idempotent(db):
+    _seed_capability(db, id="cap_a", capability_type="utility")
+    _write_log_row(db, "cap_a", "failed",
+                   ["credit_exhausted"], minutes_ago=30)
+
+    out1 = mat.clear_transient_backoffs(db_path=db)
+    out2 = mat.clear_transient_backoffs(db_path=db)
+    assert out1["cleared"] == 1
+    assert out2["cleared"] == 0  # nothing left to clear
+
+
 def test_start_loop_is_idempotent(db, monkeypatch):
     # Ensure the module-level global isn't affected between test runs
     mat._LOOP = None

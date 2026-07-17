@@ -10492,6 +10492,44 @@ def api_admin_capability_materialiser_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/capability-materialiser/clear-transient",
+           methods=["POST"])
+def api_admin_capability_materialiser_clear_transient():
+    """PR AAA-3: delete materialisation_log rows whose failures were
+    purely transient (credit / auth / 5xx) within the last N hours.
+
+    Body (JSON, optional): {"hours": 24}
+    Auth: X-Cron-Secret header must match CRON_SECRET env var.
+
+    Rationale: when OpenRouter credits are exhausted or the network
+    hiccups, the materialiser writes ``failed`` rows for every attempt,
+    which then trigger a 24h backoff in ``_pick_candidates``. Those
+    weren't code-quality failures — they were infra. Clearing them
+    lets the queue drain immediately once credits return (or once the
+    local-only path takes over).
+
+    Idempotent — safe to run repeatedly, or on a cron.
+    """
+    if not _require_cron_auth():
+        return jsonify({"ok": False, "error": "unauthorised"}), 401
+    try:
+        body = request.get_json(silent=True) or {}
+        hours = int(body.get("hours", 24))
+        if hours < 1 or hours > 168:  # 1h .. 7d
+            return jsonify({
+                "ok": False,
+                "error": "hours must be between 1 and 168",
+            }), 400
+        from components.capability_materialiser import clear_transient_backoffs
+        return jsonify(clear_transient_backoffs(hours=hours))
+    except Exception as e:
+        logger.warning(
+            "/api/admin/capability-materialiser/clear-transient failed: %s",
+            e,
+        )
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/admin/capability-materialiser/queue", methods=["GET"])
 def api_admin_capability_materialiser_queue():
     """PR AAA-1: expose the stub-queue composition for diagnostics.

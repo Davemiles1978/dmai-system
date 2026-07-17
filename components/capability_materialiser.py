@@ -238,6 +238,103 @@ def _pool_depth(conn: sqlite3.Connection, *, min_confidence: float) -> int:
         return 0
 
 
+# PR AAA-3: reasons that indicate infrastructure noise, not code quality.
+# Failures whose entire reasons list is transient don't count toward the
+# 24h backoff. Match on substrings because reasons include trailing
+# detail (HTTP body snippets, model names, etc.).
+_TRANSIENT_REASON_MARKERS = (
+    "credit_exhausted",
+    "credit_skip",
+    "credit_exhausted_preflight",
+    "http_or_auth_failure",
+    "openrouter returned 402",
+    "openrouter balance",
+    "status_401",
+    "status_402",
+    "status_429",
+    "status_503",
+    "status_504",
+)
+
+
+def _is_transient_only(reasons_json: Optional[str]) -> bool:
+    """PR AAA-3: True if every reason in the JSON list is a transient
+    infra failure (credit / auth / 5xx). Empty or unparseable reasons
+    return False — we err on the side of respecting the backoff."""
+    if not reasons_json:
+        return False
+    try:
+        reasons = json.loads(reasons_json)
+    except (ValueError, TypeError):
+        return False
+    if not isinstance(reasons, list) or not reasons:
+        return False
+    for r in reasons:
+        s = str(r).lower()
+        if not any(marker in s for marker in _TRANSIENT_REASON_MARKERS):
+            return False
+    return True
+
+
+def clear_transient_backoffs(db_path: Optional[str] = None,
+                             *,
+                             hours: int = 24,
+                             ) -> Dict[str, Any]:
+    """PR AAA-3: delete materialisation_log rows whose failures were
+    purely transient (credit / auth / 5xx) within the last ``hours``.
+    Returns a summary with the count deleted and a sample of the
+    capability_ids freed up.
+
+    Called from the /api/admin/capability-materialiser/clear-transient
+    endpoint. Idempotent — safe to call repeatedly. Does NOT touch
+    real code-quality failures (self_judge_review defer, smoke_test
+    failed, syntax_error, etc.).
+    """
+    path = db_path or DEFAULT_DB_PATH
+    conn = _safe_connect(path)
+    try:
+        _ensure_tables(conn)
+        cutoff_iso = (
+            _dt.datetime.now(_dt.timezone.utc)
+            - _dt.timedelta(hours=int(hours))
+        ).isoformat()
+        candidates = conn.execute(
+            """
+            SELECT rowid, capability_id, reasons
+            FROM materialisation_log
+            WHERE outcome IN ('failed', 'rejected_review')
+              AND created_at >= ?
+            """,
+            (cutoff_iso,),
+        ).fetchall()
+        to_delete: List[int] = []
+        cleared_ids: List[str] = []
+        for rowid, cid, reasons_json in candidates:
+            if _is_transient_only(reasons_json):
+                to_delete.append(rowid)
+                cleared_ids.append(cid)
+        if to_delete:
+            placeholders = ",".join("?" * len(to_delete))
+            conn.execute(
+                f"DELETE FROM materialisation_log WHERE rowid IN ({placeholders})",
+                tuple(to_delete),
+            )
+            conn.commit()
+        return {
+            "ok": True,
+            "cleared": len(cleared_ids),
+            "total_scanned": len(candidates),
+            "hours_window": int(hours),
+            "sample_ids": cleared_ids[:20],
+            "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        }
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
 def queue_composition(db_path: Optional[str] = None,
                       *,
                       min_confidence: float = DEFAULT_MIN_JUDGE_CONFIDENCE,
@@ -407,11 +504,17 @@ def _pick_candidates(conn: sqlite3.Connection,
         return []
 
     # Filter out already-promoted and freshly-failed (24h) ids.
+    #
+    # PR AAA-3: a failure whose reasons list is entirely transient
+    # (credit_exhausted / http_or_auth_failure / credit_skip) does NOT
+    # count toward the 24h backoff — those aren't code-quality
+    # failures, they're infrastructure noise. Without this, a single
+    # OpenRouter outage burns the entire queue for 24h.
     ineligible: set = set()
     if rows:
         log_rows = conn.execute(
             """
-            SELECT capability_id, outcome, created_at
+            SELECT capability_id, outcome, created_at, reasons
             FROM materialisation_log
             WHERE capability_id IN ({})
             """.format(",".join("?" * len(rows))),
@@ -420,7 +523,7 @@ def _pick_candidates(conn: sqlite3.Connection,
     else:
         log_rows = []
     now = _dt.datetime.now(_dt.timezone.utc)
-    for cid, outcome, created in log_rows:
+    for cid, outcome, created, reasons_json in log_rows:
         if outcome == "promoted":
             ineligible.add(cid)
             continue
@@ -432,6 +535,9 @@ def _pick_candidates(conn: sqlite3.Connection,
             when = now
         if outcome in ("failed", "rejected_review") \
                 and (now - when).total_seconds() < 24 * 3600:
+            if _is_transient_only(reasons_json):
+                # PR AAA-3: skip — don't add to ineligible.
+                continue
             ineligible.add(cid)
 
     # PR AAA-1: in local_only mode restrict to capability_types the
