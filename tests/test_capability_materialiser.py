@@ -367,11 +367,15 @@ def test_is_transient_only_all_credit_reasons():
 
 
 def test_is_transient_only_mixed_reasons_returns_false():
-    """If any reason is a real quality failure, backoff stays."""
+    """If any reason is a real quality failure, backoff stays.
+
+    PR AAA-4c: defer + vocab are now transient, so use a reject to
+    represent the real-quality half of the mixed pair.
+    """
     import json as _json
     payload = _json.dumps([
         "credit_exhausted: openrouter returned 402",
-        "self_judge_review: defer (0.000) - vocab_coverage=0.03",
+        "self_judge_review: reject - near-duplicate of insight i1",
     ])
     assert mat._is_transient_only(payload) is False
 
@@ -381,6 +385,38 @@ def test_is_transient_only_empty_returns_false():
     assert mat._is_transient_only("") is False
     assert mat._is_transient_only("[]") is False
     assert mat._is_transient_only("not json") is False
+
+
+def test_is_transient_only_defer_and_vocab():
+    """PR AAA-4c: defer and historical vocab-floor defers are transient."""
+    import json as _json
+    for reason in [
+        "self_judge_review: defer (0.38) - confidence=0.38 in uncertain band",
+        "self_judge_review: defer (0.000) - vocab_coverage=0.03 below floor",
+    ]:
+        assert mat._is_transient_only(_json.dumps([reason])) is True, reason
+
+
+def test_is_transient_only_reject_and_pytest_still_not_transient():
+    """PR AAA-4c: real quality failures still enforce backoff."""
+    import json as _json
+    for reason in [
+        "self_judge_review: reject - near-duplicate of insight i1",
+        "pytest_failed: TypeError in test",
+        "happy_path_failed: AssertionError",
+        "syntax_error: unexpected EOF",
+    ]:
+        assert mat._is_transient_only(_json.dumps([reason])) is False, reason
+
+
+def test_is_transient_only_credit_plus_defer_is_transient():
+    """PR AAA-4c: the exact prod pattern - credit + defer - now clears."""
+    import json as _json
+    payload = _json.dumps([
+        "self_judge_review: defer (0.380) - confidence=0.38 in uncertain band (0.30, 0.55)",
+        "credit_exhausted: openrouter returned 402 but token affordance not parseable",
+    ])
+    assert mat._is_transient_only(payload) is True
 
 
 def test_is_transient_only_http_auth_and_5xx():
@@ -414,11 +450,15 @@ def test_pick_candidates_skips_transient_backoff(db):
 
 
 def test_pick_candidates_honours_real_quality_backoff(db):
-    """A cap with a real self_judge_review defer should still be blocked."""
+    """A cap with a real (reject/pytest/happy_path) failure MUST stay blocked.
+
+    PR AAA-4c: defer is now transient (AAA-4b made it ok for gap_driven).
+    Real quality failures still enforce backoff.
+    """
     _seed_capability(db, id="cap_quality_fail",
                      capability_type="utility")
     _write_log_row(db, "cap_quality_fail", "failed",
-                   ["self_judge_review: defer (0.000) - vocab_coverage=0.03"],
+                   ["self_judge_review: reject - near-duplicate of insight i1"],
                    minutes_ago=30)
     conn = sqlite3.connect(db)
     mat._ensure_tables(conn)
@@ -432,23 +472,30 @@ def test_pick_candidates_honours_real_quality_backoff(db):
 
 
 def test_clear_transient_backoffs_removes_only_transient(db):
+    """PR AAA-4c: credit + http + defer all clearable; reject stays."""
     _seed_capability(db, id="cap_a", capability_type="utility")
     _seed_capability(db, id="cap_b", capability_type="utility")
     _seed_capability(db, id="cap_c", capability_type="utility")
+    _seed_capability(db, id="cap_d", capability_type="utility")
     _write_log_row(db, "cap_a", "failed",
                    ["credit_exhausted: openrouter 402"], minutes_ago=30)
     _write_log_row(db, "cap_b", "failed",
-                   ["self_judge_review: defer"], minutes_ago=30)
+                   ["self_judge_review: reject - near-duplicate"],
+                   minutes_ago=30)
     _write_log_row(db, "cap_c", "failed",
                    ["http_or_auth_failure"], minutes_ago=30)
+    _write_log_row(db, "cap_d", "failed",
+                   ["self_judge_review: defer (0.38)",
+                    "credit_exhausted: openrouter 402"], minutes_ago=30)
 
     out = mat.clear_transient_backoffs(db_path=db, hours=24)
     assert out["ok"] is True
-    assert out["cleared"] == 2
-    assert out["total_scanned"] == 3
-    assert set(out["sample_ids"]) == {"cap_a", "cap_c"}
+    # cap_a, cap_c, cap_d all clearable
+    assert out["cleared"] == 3, out
+    assert out["total_scanned"] == 4
+    assert set(out["sample_ids"]) == {"cap_a", "cap_c", "cap_d"}
 
-    # Verify cap_b's real quality failure is still there
+    # Verify cap_b's real reject failure is still there
     conn = sqlite3.connect(db)
     try:
         remaining = conn.execute(

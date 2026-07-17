@@ -242,6 +242,16 @@ def _pool_depth(conn: sqlite3.Connection, *, min_confidence: float) -> int:
 # Failures whose entire reasons list is transient don't count toward the
 # 24h backoff. Match on substrings because reasons include trailing
 # detail (HTTP body snippets, model names, etc.).
+#
+# PR AAA-4c: added "self_judge_review: defer" as transient. A defer is
+# an uncertain-band verdict, not a rejection - the docstring drift check
+# didn't fire, the code passed all runtime gates, the self-judge just
+# didn't have enough weighted signal to be sure. AAA-4b already treats
+# defer as ok for gap_driven at review-time; AAA-4c is the retroactive
+# clearing counterpart so the pre-AAA-4b log rows (with credit +
+# defer) stop enforcing a 24h backoff for candidates that would now
+# promote cleanly. Real quality failures (reject, syntax, pytest,
+# happy_path) still enforce backoff.
 _TRANSIENT_REASON_MARKERS = (
     "credit_exhausted",
     "credit_skip",
@@ -254,6 +264,8 @@ _TRANSIENT_REASON_MARKERS = (
     "status_429",
     "status_503",
     "status_504",
+    "self_judge_review: defer",
+    "vocab_coverage=",  # historical low-vocab defer rows (pre AAA-4)
 )
 
 
