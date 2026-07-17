@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training — DMAI</title>
+  <style>
+    :root {
+      --accent: #6c63ff; --accent-dim: #4e47c4;
+      --green: #00d4aa; --green-dim: #00a882;
+      --red: #ff4757; --yellow: #ffa502;
+      --bg: #0a0a0f; --card: #12121a;
+      --border: #1e1e2e; --text: #e0dff5; --text-muted: #7c7b9a; --text-faint: #3f3e56;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+      --radius-md: 10px; --radius-lg: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100dvh; background: var(--bg); color: var(--text);
+      font-family: var(--font-body); font-size: 14px; line-height: 1.55; }
+    a { color: var(--accent); text-decoration: none; }
+    button { cursor: pointer; background: none; border: none; color: inherit; font: inherit; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .topbar h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+    .topbar .links { display: flex; gap: 14px; font-size: 13px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 900px) {
+      .grid.cols-4, .grid.cols-2 { grid-template-columns: 1fr; }
+    }
+    .card { background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 18px; }
+    .card h2 { font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .stat { font-family: var(--font-mono); font-size: 26px; font-weight: 600;
+      letter-spacing: -0.02em; }
+    .stat.green { color: var(--green); }
+    .stat.red { color: var(--red); }
+    .stat.yellow { color: var(--yellow); }
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .section { margin-top: 28px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; }
+    .btn { background: var(--accent); color: white; padding: 8px 14px;
+      border-radius: 8px; font-size: 13px; font-weight: 500; transition: opacity .15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn.small { padding: 4px 8px; font-size: 11px; }
+    .btn.green { background: var(--green); color: #001510; }
+    .btn.red { background: var(--red); }
+    table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 500; text-transform: uppercase;
+      font-size: 10px; letter-spacing: 0.06em; }
+    td.num { text-align: right; }
+    tr:hover { background: rgba(108,99,255,0.04); }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .pill.pending { background: rgba(255,165,2,0.12); color: var(--yellow); }
+    .pill.won { background: rgba(0,212,170,0.12); color: var(--green); }
+    .pill.lost { background: rgba(255,71,87,0.12); color: var(--red); }
+    .pill.void { background: rgba(124,123,154,0.15); color: var(--text-muted); }
+    .checklist { list-style: none; }
+    .checklist li { padding: 6px 0; display: flex; align-items: center; gap: 10px;
+      font-size: 13px; }
+    .checklist li .dot { width: 10px; height: 10px; border-radius: 50%;
+      background: var(--text-faint); flex-shrink: 0; }
+    .checklist li.ok .dot { background: var(--green); box-shadow: 0 0 10px rgba(0,212,170,0.4); }
+    .checklist li.ok { color: var(--text); }
+    .checklist li.pending { color: var(--text-muted); }
+    .empty { padding: 40px; text-align: center; color: var(--text-muted); }
+    .empty small { display: block; margin-top: 6px; font-size: 11px; }
+    .loading { color: var(--text-muted); font-size: 12px; padding: 20px; }
+    .filter-bar { display: flex; gap: 6px; margin-bottom: 10px; }
+    .filter-bar button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 11px; font-family: var(--font-mono); }
+    .filter-bar button.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .banner { background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.25);
+      border-radius: 10px; padding: 12px 16px; font-size: 12px; color: var(--text-muted);
+      margin-bottom: 20px; line-height: 1.6; }
+    .banner strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1>Training Ledger</h1>
+      <div class="links">
+        <a href="/admin">← Admin</a>
+        <a href="/monetisation">Monetisation</a>
+        <a href="/dashboard">Dashboard</a>
+        <button class="btn ghost small" onclick="loadAll()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div class="banner">
+      <strong>What am I looking at?</strong> Every analysed greyhound pick (ZZ-1b) and every
+      trader signal (ZZ-1d) is paper-logged here — including picks/signals that would be
+      filtered out by the EV gate. Paper bankroll is <strong>£100</strong> (override with
+      <code style="color:var(--text)">BETTING_PAPER_BANKROLL</code> env). The ready-for-live
+      checklist below flips green once thresholds are met — that's when to switch to real
+      money.
+    </div>
+
+    <!-- Ready-for-live checklist -->
+    <div class="section">
+      <div class="section-title">Ready for live?</div>
+      <div class="card">
+        <ul class="checklist" id="readyList">
+          <li class="pending"><span class="dot"></span>Loading…</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Aggregate stats -->
+    <div class="section">
+      <div class="section-title">Overview</div>
+      <div class="grid cols-4">
+        <div class="card">
+          <h2>Bets settled</h2>
+          <div class="stat" id="bets-settled">—</div>
+          <div class="stat-sub" id="bets-pending">…</div>
+        </div>
+        <div class="card">
+          <h2>Bet win rate</h2>
+          <div class="stat" id="bets-wr">—</div>
+          <div class="stat-sub" id="bets-wl">…</div>
+        </div>
+        <div class="card">
+          <h2>Bet ROI</h2>
+          <div class="stat" id="bets-roi">—</div>
+          <div class="stat-sub" id="bets-pl">…</div>
+        </div>
+        <div class="card">
+          <h2>Bet turnover</h2>
+          <div class="stat" id="bets-turnover">—</div>
+          <div class="stat-sub">£ staked (settled)</div>
+        </div>
+      </div>
+      <div class="grid cols-4" style="margin-top: 12px;">
+        <div class="card">
+          <h2>Trades settled</h2>
+          <div class="stat" id="trades-settled">—</div>
+          <div class="stat-sub" id="trades-pending">…</div>
+        </div>
+        <div class="card">
+          <h2>Trade win rate</h2>
+          <div class="stat" id="trades-wr">—</div>
+          <div class="stat-sub" id="trades-wl">…</div>
+        </div>
+        <div class="card">
+          <h2>Trade ROI</h2>
+          <div class="stat" id="trades-roi">—</div>
+          <div class="stat-sub" id="trades-pl">…</div>
+        </div>
+        <div class="card">
+          <h2>Trade turnover</h2>
+          <div class="stat" id="trades-turnover">—</div>
+          <div class="stat-sub">£ staked (settled)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips + Trades tables side by side -->
+    <div class="section">
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Paper Tips (greyhounds)</div>
+          <div class="filter-bar" id="tips-filter">
+            <button class="active" data-filter="">All</button>
+            <button data-filter="pending">Pending</button>
+            <button data-filter="won">Won</button>
+            <button data-filter="lost">Lost</button>
+          </div>
+          <div id="tipsTable"><div class="loading">Loading…</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Paper Trades (signals)</div>
+          <div class="filter-bar" id="trades-filter">
+            <button class="active" data-filter="">All</button>
+            <button data-filter="pending">Pending</button>
+            <button data-filter="won">Won</button>
+            <button data-filter="lost">Lost</button>
+          </div>
+          <div id="tradesTable"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const fmt = (n, d=2) => n == null ? "—" : Number(n).toFixed(d);
+    const fmtPct = n => n == null ? "—" : (Number(n) * 100).toFixed(1) + "%";
+    const fmtCurr = n => n == null ? "—" : "£" + Number(n).toFixed(2);
+
+    let tipsFilter = "";
+    let tradesFilter = "";
+
+    async function api(path) {
+      try {
+        const r = await fetch(path);
+        return await r.json();
+      } catch (e) {
+        return { ok: false, error: String(e) };
+      }
+    }
+
+    function renderReady(data) {
+      const r = data.ready_for_live || {};
+      const list = $("#readyList");
+      if (!r.checks || !r.checks.length) {
+        list.innerHTML = '<li class="pending"><span class="dot"></span>No data yet. Runners will log tips/trades on next fire.</li>';
+        return;
+      }
+      list.innerHTML = r.checks.map(c => `
+        <li class="${c.ok ? 'ok' : 'pending'}">
+          <span class="dot"></span>
+          <span>${c.label}</span>
+          <span style="margin-left:auto; font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">
+            ${c.current == null ? '—' : (typeof c.current === 'number' ? c.current.toFixed(2) : c.current)}
+            ${c.threshold != null ? ' / ' + c.threshold : ''}
+          </span>
+        </li>
+      `).join('') + (r.overall_ok ? '<li class="ok" style="margin-top:8px; font-weight:600;"><span class="dot"></span>READY FOR LIVE</li>' : '');
+    }
+
+    function renderPerf(data) {
+      const b = data.bets || {};
+      const t = data.trades || {};
+      $("#bets-settled").textContent = b.settled_count ?? 0;
+      $("#bets-pending").textContent = (b.pending ?? 0) + " pending";
+      $("#bets-wr").textContent = fmtPct(b.win_rate);
+      $("#bets-wl").textContent = `${b.won || 0}W / ${b.lost || 0}L`;
+      $("#bets-roi").textContent = b.roi_pct == null ? "—" : b.roi_pct.toFixed(2) + "%";
+      $("#bets-roi").className = "stat " + (b.roi_pct == null ? "" : b.roi_pct > 0 ? "green" : "red");
+      $("#bets-pl").textContent = "P/L: " + fmtCurr(b.total_pl);
+      $("#bets-turnover").textContent = fmtCurr(b.turnover);
+
+      $("#trades-settled").textContent = t.settled_count ?? 0;
+      $("#trades-pending").textContent = (t.pending ?? 0) + " pending";
+      $("#trades-wr").textContent = fmtPct(t.win_rate);
+      $("#trades-wl").textContent = `${t.won || 0}W / ${t.lost || 0}L`;
+      $("#trades-roi").textContent = t.roi_pct == null ? "—" : t.roi_pct.toFixed(2) + "%";
+      $("#trades-roi").className = "stat " + (t.roi_pct == null ? "" : t.roi_pct > 0 ? "green" : "red");
+      $("#trades-pl").textContent = "P/L: " + fmtCurr(t.total_pl);
+      $("#trades-turnover").textContent = fmtCurr(t.turnover);
+    }
+
+    function renderTips(tips) {
+      const el = $("#tipsTable");
+      if (!tips || !tips.length) {
+        el.innerHTML = '<div class="empty">No paper tips yet.<small>Greyhound runner logs picks daily around 08:00 UK.</small></div>';
+        return;
+      }
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Event / Selection</th>
+              <th class="num">Odds</th><th class="num">Stake</th>
+              <th class="num">P/L</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tips.map(t => `
+              <tr>
+                <td>${(t.created_ts || '').substring(5, 16).replace('T', ' ')}</td>
+                <td>${(t.event_name || '—').substring(0, 30)}<br><small style="color:var(--text-muted);">${(t.selection || '—').substring(0, 30)}</small></td>
+                <td class="num">${fmt(t.decimal_odds)}</td>
+                <td class="num">${fmtCurr(t.recommended_stake)}</td>
+                <td class="num" style="color:${(t.profit_loss ?? 0) > 0 ? 'var(--green)' : (t.profit_loss ?? 0) < 0 ? 'var(--red)' : 'var(--text-muted)'};">${t.profit_loss == null ? '—' : fmtCurr(t.profit_loss)}</td>
+                <td><span class="pill ${t.outcome || 'pending'}">${t.outcome || 'pending'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderTrades(trades) {
+      const el = $("#tradesTable");
+      if (!trades || !trades.length) {
+        el.innerHTML = '<div class="empty">No paper trades yet.<small>Autonomous trader logs every signal on each tick.</small></div>';
+        return;
+      }
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Symbol</th>
+              <th class="num">Conf</th><th class="num">EV</th>
+              <th class="num">Stake</th><th class="num">P/L</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${trades.map(t => `
+              <tr>
+                <td>${(t.created_ts || '').substring(5, 16).replace('T', ' ')}</td>
+                <td>${t.symbol || '—'}${t.passed_ev_gate ? ' <span style="color:var(--green); font-size:10px;">✓EV</span>' : ''}</td>
+                <td class="num">${fmt(t.confidence)}</td>
+                <td class="num">${fmt(t.expected_value)}</td>
+                <td class="num">${fmtCurr(t.stake)}</td>
+                <td class="num" style="color:${(t.profit_loss ?? 0) > 0 ? 'var(--green)' : (t.profit_loss ?? 0) < 0 ? 'var(--red)' : 'var(--text-muted)'};">${t.profit_loss == null ? '—' : fmtCurr(t.profit_loss)}</td>
+                <td><span class="pill ${t.outcome || 'pending'}">${t.outcome || 'pending'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function loadTips() {
+      const q = tipsFilter ? `?limit=100&outcome=${tipsFilter}` : `?limit=100`;
+      const r = await api(`/api/admin/training/tips${q}`);
+      renderTips(r.tips || []);
+    }
+    async function loadTrades() {
+      const q = tradesFilter ? `?limit=100&outcome=${tradesFilter}` : `?limit=100`;
+      const r = await api(`/api/admin/training/trades${q}`);
+      renderTrades(r.trades || []);
+    }
+    async function loadPerf() {
+      const r = await api(`/api/admin/training/performance`);
+      if (r.ok !== false) { renderPerf(r); renderReady(r); }
+    }
+    async function loadAll() { await Promise.all([loadPerf(), loadTips(), loadTrades()]); }
+
+    document.querySelectorAll("#tips-filter button").forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll("#tips-filter button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        tipsFilter = b.dataset.filter;
+        loadTips();
+      };
+    });
+    document.querySelectorAll("#trades-filter button").forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll("#trades-filter button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        tradesFilter = b.dataset.filter;
+        loadTrades();
+      };
+    });
+
+    loadAll();
+    setInterval(loadAll, 30000);
+  </script>
+</body>
+</html>

@@ -430,30 +430,66 @@ READY_THRESHOLDS = {
 
 
 def _readiness(perf: Dict[str, Any]) -> Dict[str, Any]:
-    """Per-stream go/no-go against ready-for-live thresholds."""
+    """Per-stream go/no-go against ready-for-live thresholds.
+
+    Returns both the legacy per-stream shape (bets/trades) and a flat
+    ``checks`` array the /admin/training UI (ZZ-3) renders as a checklist.
+    ``overall_ok`` is the AND of every check.
+    """
     bets = perf.get("bets", {})
     trades = perf.get("trades", {})
-    bet_ready = (
-        bets.get("settled_count", 0) >= READY_THRESHOLDS["min_settled_bets"]
-        and (bets.get("win_rate") or 0) >= READY_THRESHOLDS["min_bet_win_rate"]
-        and (bets.get("roi_pct") or -1e9) >= READY_THRESHOLDS["min_bet_roi_pct"]
-    )
-    trade_ready = (
-        trades.get("settled_count", 0) >= READY_THRESHOLDS["min_settled_trades"]
-        and (trades.get("roi_pct") or -1e9) >= READY_THRESHOLDS["min_trade_roi_pct"]
-    )
+    bet_wr = bets.get("win_rate")
+    bet_roi = bets.get("roi_pct")
+    tr_roi = trades.get("roi_pct")
+
+    checks = [
+        {
+            "label": f"\u2265 {READY_THRESHOLDS['min_settled_bets']} settled bets",
+            "current": bets.get("settled_count", 0),
+            "threshold": READY_THRESHOLDS["min_settled_bets"],
+            "ok": bets.get("settled_count", 0) >= READY_THRESHOLDS["min_settled_bets"],
+        },
+        {
+            "label": f"Bet win rate \u2265 {int(READY_THRESHOLDS['min_bet_win_rate']*100)}%",
+            "current": None if bet_wr is None else round(bet_wr * 100, 1),
+            "threshold": int(READY_THRESHOLDS["min_bet_win_rate"] * 100),
+            "ok": (bet_wr or 0) >= READY_THRESHOLDS["min_bet_win_rate"],
+        },
+        {
+            "label": f"Bet ROI \u2265 +{READY_THRESHOLDS['min_bet_roi_pct']:.1f}%",
+            "current": None if bet_roi is None else round(bet_roi, 2),
+            "threshold": READY_THRESHOLDS["min_bet_roi_pct"],
+            "ok": (bet_roi or -1e9) >= READY_THRESHOLDS["min_bet_roi_pct"],
+        },
+        {
+            "label": f"\u2265 {READY_THRESHOLDS['min_settled_trades']} settled trades",
+            "current": trades.get("settled_count", 0),
+            "threshold": READY_THRESHOLDS["min_settled_trades"],
+            "ok": trades.get("settled_count", 0) >= READY_THRESHOLDS["min_settled_trades"],
+        },
+        {
+            "label": f"Trade ROI \u2265 +{READY_THRESHOLDS['min_trade_roi_pct']:.1f}%",
+            "current": None if tr_roi is None else round(tr_roi, 2),
+            "threshold": READY_THRESHOLDS["min_trade_roi_pct"],
+            "ok": (tr_roi or -1e9) >= READY_THRESHOLDS["min_trade_roi_pct"],
+        },
+    ]
+    bet_ready = all(c["ok"] for c in checks[:3])
+    trade_ready = all(c["ok"] for c in checks[3:])
     return {
         "bets": {
             "ok": bool(bet_ready),
             "settled_count": bets.get("settled_count", 0),
-            "win_rate": bets.get("win_rate"),
-            "roi_pct": bets.get("roi_pct"),
+            "win_rate": bet_wr,
+            "roi_pct": bet_roi,
         },
         "trades": {
             "ok": bool(trade_ready),
             "settled_count": trades.get("settled_count", 0),
             "win_rate": trades.get("win_rate"),
-            "roi_pct": trades.get("roi_pct"),
+            "roi_pct": tr_roi,
         },
+        "checks": checks,
+        "overall_ok": bool(bet_ready and trade_ready),
         "thresholds": dict(READY_THRESHOLDS),
     }

@@ -2227,6 +2227,12 @@ def chat_page():
     return send_from_directory("static", "chat.html")
 
 
+@app.route("/admin/training")
+def admin_training_page():
+    """PR ZZ-3: Training-ledger dashboard."""
+    return send_from_directory("static", "training.html")
+
+
 @app.route("/admin")
 def admin_page():
     """Admin panel — JWT-gated client-side lock screen."""
