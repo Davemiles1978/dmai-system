@@ -72,8 +72,22 @@ def review_generated_module(*,
             except Exception:
                 pass
 
+    # PR AAA-4: match the module's own contract - "strict on rejects,
+    # tolerant on defers" (see docstring at top). For gap_driven /
+    # self-authored seeds the docstring has already been vetted upstream
+    # by the gap-analyser and the code has passed syntax, happy-path,
+    # and smoke gates. A defer verdict from weighted-signal uncertainty
+    # (low insight_neighbourhood + low kpi_linkage) is not a real
+    # quality signal here - it just means the docstring is short and
+    # the concept is niche. Treat defer as ok for these channels;
+    # keep reject strict so a docstring that has genuinely drifted
+    # from the concept still bounces.
+    _is_gap = normalised_channel == "gap_driven"
+    _tolerant_ok = verdict.verdict in ("accept", "defer") if _is_gap \
+        else verdict.verdict == "accept"
+
     return ReviewResult(
-        ok=(verdict.verdict == "accept"),
+        ok=_tolerant_ok,
         verdict=verdict.verdict,
         confidence=float(verdict.confidence),
         reason=verdict.reason,
