@@ -259,11 +259,32 @@ class BettingAdvisor:
     # ---- bankroll ----
 
     def get_bankroll(self) -> float:
-        """Notional betting bankroll = bankroll_pct of DMAI operating wallet."""
-        if not self.allocator:
-            return 0.0
-        op_balance = self.allocator.get_balance(self.allocator.DMAI_WALLET)
-        return round(max(0.0, op_balance * self.bankroll_pct), 2)
+        """Notional betting bankroll = bankroll_pct of DMAI operating wallet.
+
+        Training-mode fallback: when the real wallet is £0 (no allocator, or
+        empty operating wallet), fall back to BETTING_PAPER_BANKROLL (default
+        £100) so training tips get a real recommended_stake and can be tracked
+        end-to-end before switching to live money. Live users with a funded
+        wallet are unaffected — the real balance always wins.
+        """
+        real_bankroll = 0.0
+        if self.allocator:
+            try:
+                op_balance = self.allocator.get_balance(self.allocator.DMAI_WALLET)
+                real_bankroll = round(max(0.0, op_balance * self.bankroll_pct), 2)
+            except Exception as e:
+                logger.warning("get_bankroll: allocator read failed: %s", e)
+                real_bankroll = 0.0
+        if real_bankroll > 0:
+            return real_bankroll
+        # Paper fallback — the paper amount IS the training bankroll, no
+        # additional bankroll_pct haircut (that's for wallet allocation only,
+        # which doesn't apply in training). £100 default; env-overridable.
+        try:
+            from components.monetisation.training_ledger import paper_bankroll
+            return paper_bankroll()
+        except Exception:
+            return 100.0
 
     # ---- analysis ----
 

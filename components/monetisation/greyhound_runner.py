@@ -511,6 +511,40 @@ class GreyhoundRunner:
                 ev = float(analysis.get("expected_value", 0) or 0)
                 conf = float(analysis.get("confidence", 0) or 0)
                 score = ev * conf  # rank by EV x confidence
+
+                # PR ZZ-1b: paper-log EVERY analysed candidate to the training
+                # ledger — not just the day's best. Fixes "can't tell if tips
+                # work until we see a large sample." Sized off the advisor's
+                # bankroll (which pulls from the real wallet if funded, else
+                # falls back to BETTING_PAPER_BANKROLL). Zero/None stakes are
+                # rejected at the ledger layer per the data-quality rule.
+                try:
+                    rec_stake = float(analysis.get("recommended_stake", 0) or 0)
+                    if rec_stake > 0:
+                        from components.monetisation import training_ledger as _tl
+                        _tl.record_paper_tip(
+                            event_name=event_name,
+                            market="trap_winner",
+                            selection=r["dog"],
+                            decimal_odds=dec,
+                            model_probability=float(analysis.get("model_probability", 0) or 0),
+                            confidence=conf,
+                            expected_value=ev,
+                            kelly_fraction=float(analysis.get("kelly_fraction", 0) or 0),
+                            passes_ev_gate=bool(analysis.get("passes_ev_gate")),
+                            recommended_stake=rec_stake,
+                            paper_bankroll_amt=float(analysis.get("bankroll", 0) or 0),
+                            rationale=analysis.get("rationale", ""),
+                            prediction_id=analysis.get("prediction_id"),
+                            source="greyhound_runner",
+                        )
+                        summary["paper_tips_logged"] = summary.get("paper_tips_logged", 0) + 1
+                except Exception as _tl_err:
+                    logger.warning(
+                        "paper-tip write failed for %s/%s: %s",
+                        event_name, r.get("dog"), _tl_err,
+                    )
+
                 if best is None or score > best["score"]:
                     best = {
                         "event_name": event_name,
