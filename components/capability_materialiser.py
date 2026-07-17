@@ -238,11 +238,128 @@ def _pool_depth(conn: sqlite3.Connection, *, min_confidence: float) -> int:
         return 0
 
 
+def queue_composition(db_path: Optional[str] = None,
+                      *,
+                      min_confidence: float = DEFAULT_MIN_JUDGE_CONFIDENCE,
+                      ) -> Dict[str, Any]:
+    """PR AAA-1: return the current stub-queue composition for the
+    ``/api/admin/capability-materialiser/queue`` diagnostic endpoint.
+
+    Groups eligible stub capabilities by (provenance, capability_type)
+    and classifies each capability_type as either ``local_templatable``
+    (the local synthesiser can handle it without an LLM) or
+    ``llm_required``. Also returns the current ``local_only_mode``
+    flag so the caller can see whether the materialiser is currently
+    narrowing the queue to templated types only.
+
+    Cheap: one SELECT + a set lookup. Safe to poll every minute.
+    """
+    path = db_path or DEFAULT_DB_PATH
+    try:
+        from components.local_codegen import LOCAL_CAPABILITY_TYPES
+        local_types = LOCAL_CAPABILITY_TYPES
+    except Exception:  # noqa: BLE001
+        local_types = frozenset()
+
+    provenance_list = list(PICKER_QUOTAS.keys())
+    placeholders = ",".join("?" * len(provenance_list))
+    conn = _safe_connect(path)
+    try:
+        try:
+            rows = conn.execute(
+                f"""
+                SELECT provenance, capability_type, COUNT(*)
+                FROM capabilities
+                WHERE runtime_mode IN ('stub', 'stub_reverted')
+                  AND provenance   IN ({placeholders})
+                  AND judge_confidence IS NOT NULL
+                  AND judge_confidence >= ?
+                GROUP BY provenance, capability_type
+                ORDER BY provenance, COUNT(*) DESC
+                """,
+                tuple(provenance_list) + (float(min_confidence),),
+            ).fetchall()
+        except sqlite3.OperationalError:
+            rows = []
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+    by_provenance: Dict[str, Dict[str, Any]] = {}
+    total_local = 0
+    total_llm = 0
+    for prov, cap_type, n in rows:
+        ct = str(cap_type or "").lower()
+        n = int(n)
+        bucket = by_provenance.setdefault(str(prov), {
+            "local_templatable": 0,
+            "llm_required": 0,
+            "by_type": {},
+        })
+        bucket["by_type"][ct or "(none)"] = n
+        if ct in local_types:
+            bucket["local_templatable"] += n
+            total_local += n
+        else:
+            bucket["llm_required"] += n
+            total_llm += n
+
+    return {
+        "ok": True,
+        "ts": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "min_confidence": min_confidence,
+        "local_only_mode": _local_only_mode(),
+        "totals": {
+            "local_templatable": total_local,
+            "llm_required": total_llm,
+            "eligible": total_local + total_llm,
+        },
+        "by_provenance": by_provenance,
+        "local_capability_types": sorted(local_types),
+    }
+
+
+def _local_only_mode() -> bool:
+    """PR AAA-1: return True when the materialiser should restrict
+    itself to capability_types that the local template synthesiser can
+    handle without any external LLM call.
+
+    Two triggers, checked in order:
+
+    1. ``MATERIALISER_LOCAL_ONLY=1`` explicit env override — always on.
+    2. ``MATERIALISER_LOCAL_ONLY_AUTO=1`` (default) + OpenRouter balance
+       below the viable floor ($0.01) — auto-fallback when credits
+       are exhausted so self-generation still makes progress on the
+       templated types instead of hard-stopping the whole tick.
+
+    Any error looking up the balance means the auto path stays off
+    (better to attempt an LLM call and get a real 402 than to silently
+    narrow the queue on every tick).
+    """
+    if os.environ.get("MATERIALISER_LOCAL_ONLY", "0") == "1":
+        return True
+    if os.environ.get("MATERIALISER_LOCAL_ONLY_AUTO", "1") != "1":
+        return False
+    try:
+        credits = codegen.get_openrouter_credits()
+        if credits is None:
+            return False
+        bal = credits.get("balance")
+        if bal is None:
+            return False
+        return float(bal) < 0.01
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def _pick_candidates(conn: sqlite3.Connection,
                      *,
                      min_confidence: float,
                      limit: int,
                      quotas: Optional[Dict[str, int]] = None,
+                     local_only: bool = False,
                      ) -> List[Dict[str, Any]]:
     """Read the capabilities table for stubs eligible for materialisation.
 
@@ -317,6 +434,20 @@ def _pick_candidates(conn: sqlite3.Connection,
                 and (now - when).total_seconds() < 24 * 3600:
             ineligible.add(cid)
 
+    # PR AAA-1: in local_only mode restrict to capability_types the
+    # local template synthesiser can handle without an LLM. Falls back
+    # here so the materialiser keeps making progress when OpenRouter
+    # credits are exhausted — the LLM-only architectural candidates
+    # sit in the queue until credits return.
+    if local_only:
+        try:
+            from components.local_codegen import LOCAL_CAPABILITY_TYPES
+            _local_types = LOCAL_CAPABILITY_TYPES
+        except Exception:  # noqa: BLE001
+            _local_types = frozenset()
+    else:
+        _local_types = None
+
     # Bucket eligible rows by provenance so we can apply per-pool quotas.
     buckets: Dict[str, List[Dict[str, Any]]] = {
         p: [] for p in provenance_list
@@ -327,6 +458,10 @@ def _pick_candidates(conn: sqlite3.Connection,
         prov = r[4]
         if prov not in buckets:
             continue
+        if _local_types is not None:
+            ct = str(r[2] or "").lower()
+            if ct not in _local_types:
+                continue
         buckets[prov].append({
             "id":              r[0],
             "name":            r[1],
@@ -710,8 +845,14 @@ def _materialise_once_inner(*,
             except Exception as e:  # noqa: BLE001
                 logger.info("gap seeding failed non-fatally: %s", e)
 
+        # PR AAA-1: enter local-only mode if either the explicit env flag
+        # is set, or (auto path) OpenRouter is credit-exhausted. Narrows
+        # the queue to templated capability_types so we skip the LLM
+        # entirely for this tick and keep self-generation productive.
+        local_only = _local_only_mode()
         candidates = _pick_candidates(
             conn, min_confidence=min_confidence, limit=remaining,
+            local_only=local_only,
         )
     finally:
         try:
@@ -725,23 +866,29 @@ def _materialise_once_inner(*,
     # all on 402s. Reads the LLM budget once at the top of the tick;
     # any exception is non-fatal (we fall back to the old behaviour of
     # attempting and letting request_code report the 402).
+    #
+    # PR AAA-1: in local-only mode we already narrowed the queue to
+    # capability_types the local synthesiser can handle without an
+    # LLM — skip the credit_skip preflight entirely so those local
+    # candidates get their chance.
     credit_skip_reason = None
-    try:
-        credits = codegen.get_openrouter_credits()
-        if credits is not None and credits.get("balance") is not None:
-            balance = float(credits["balance"])
-            # $0.01 covers ~5-8 completion calls at gpt-4o-mini rates,
-            # enough to be worth trying; below that we're going to 402
-            # on every attempt.
-            if balance < 0.01:
-                credit_skip_reason = (
-                    f"credit_exhausted_preflight: openrouter balance "
-                    f"${balance:.4f} below viable floor $0.0100. "
-                    f"Skipping {len(candidates)} candidate(s). Top up "
-                    f"credits or switch MODEL_PRIMARY."
-                )
-    except Exception as e:
-        logger.info("pre-flight credit check failed non-fatally: %s", e)
+    if not local_only:
+        try:
+            credits = codegen.get_openrouter_credits()
+            if credits is not None and credits.get("balance") is not None:
+                balance = float(credits["balance"])
+                # $0.01 covers ~5-8 completion calls at gpt-4o-mini rates,
+                # enough to be worth trying; below that we're going to 402
+                # on every attempt.
+                if balance < 0.01:
+                    credit_skip_reason = (
+                        f"credit_exhausted_preflight: openrouter balance "
+                        f"${balance:.4f} below viable floor $0.0100. "
+                        f"Skipping {len(candidates)} candidate(s). Top up "
+                        f"credits or switch MODEL_PRIMARY."
+                    )
+        except Exception as e:
+            logger.info("pre-flight credit check failed non-fatally: %s", e)
 
     if credit_skip_reason is not None:
         # Return a clean summary that self-generation/diagnose can pick
@@ -762,6 +909,7 @@ def _materialise_once_inner(*,
             "daily_cap":    daily_cap,
             "min_confidence": min_confidence,
             "gaps_seeded":  gaps_seeded,
+            "local_only":   bool(local_only),
             "ts":           _now_iso,
             "retry_after_hint": 300,  # try again in 5 min
         }
@@ -901,6 +1049,7 @@ def _materialise_once_inner(*,
             "pool_depth": pool_depth_now,
             "starved":   starved,       # queue truly empty upstream
             "blocked":   blocked,       # queue has rows but none eligible
+            "local_only": bool(local_only),
             "retry_after_hint": retry_after_hint,
             "results":   [r.as_dict() for r in results],
             "verifications": verifications,

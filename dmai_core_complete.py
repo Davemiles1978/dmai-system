@@ -10492,6 +10492,30 @@ def api_admin_capability_materialiser_status():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/admin/capability-materialiser/queue", methods=["GET"])
+def api_admin_capability_materialiser_queue():
+    """PR AAA-1: expose the stub-queue composition for diagnostics.
+
+    Returns eligible stub capabilities grouped by (provenance,
+    capability_type) with a classification per group of whether the
+    local template synthesiser can handle it (no LLM needed) or
+    whether an external LLM call is required. Also surfaces the
+    current ``local_only_mode`` flag so the operator can see whether
+    the materialiser is auto-narrowed to templated types because
+    OpenRouter credits are exhausted.
+
+    This is the go-to diagnostic when the materialiser reports
+    ``blocked``, ``starved``, or ``credit_skip`` and you need to see
+    what actually sits in the queue.
+    """
+    try:
+        from components.capability_materialiser import queue_composition
+        return jsonify(queue_composition())
+    except Exception as e:
+        logger.warning("/api/admin/capability-materialiser/queue failed: %s", e)
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
 # ── PR G: seed capability promoter status ─────────────────────────────────
 #
 # Exposes what the seed → capability promoter did last, plus the
