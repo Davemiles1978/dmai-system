@@ -140,19 +140,29 @@ CREATE TABLE IF NOT EXISTS admin_api_keys (
 );
 
 CREATE TABLE IF NOT EXISTS insights (
-    id              TEXT PRIMARY KEY,
-    insight_text    TEXT,
-    entity_type     TEXT,
-    entities        TEXT,
-    relationship    TEXT,
-    confidence      REAL DEFAULT 0.5,
-    source_url      TEXT,
-    source_title    TEXT,
-    source_type     TEXT DEFAULT 'web',
-    created_at      TIMESTAMPTZ DEFAULT NOW()
+    id                TEXT PRIMARY KEY,
+    insight_text      TEXT,
+    entity_type       TEXT,
+    entities          TEXT,
+    relationship      TEXT,
+    confidence        REAL DEFAULT 0.5,
+    source_topic      TEXT,
+    target_topic      TEXT,
+    source_url        TEXT,
+    source_title      TEXT,
+    source_type       TEXT DEFAULT 'web',
+    created_at        TIMESTAMPTZ DEFAULT NOW(),
+    occurrence_count  INTEGER DEFAULT 1,
+    last_used         TIMESTAMPTZ,
+    neuron_level      TEXT DEFAULT 'micro',
+    parent_macro_id   TEXT,
+    domain            TEXT,
+    provenance        TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_insights_entity ON insights(entity_type);
 CREATE INDEX IF NOT EXISTS idx_insights_created ON insights(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic);
+CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance);
 """
 
 
@@ -222,6 +232,21 @@ class PGStorage:
                     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()",
                     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS last_used TIMESTAMPTZ",
                     "CREATE INDEX IF NOT EXISTS idx_api_keys_service ON api_keys(service)",
+                    # PR BBB-1: bring insights table up to the canonical
+                    # (SQLite) shape so save_knowledge/promoter/ingester
+                    # writes stop failing with 'column X does not exist'.
+                    # ADD COLUMN IF NOT EXISTS is idempotent — safe on
+                    # every boot.
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS source_topic TEXT",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS target_topic TEXT",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS occurrence_count INTEGER DEFAULT 1",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS last_used TIMESTAMPTZ",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS neuron_level TEXT DEFAULT 'micro'",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS parent_macro_id TEXT",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS domain TEXT",
+                    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS provenance TEXT",
+                    "CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic)",
+                    "CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance)",
                 ]
                 for stmt in _migrations:
                     try:
