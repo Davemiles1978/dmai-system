@@ -1660,12 +1660,14 @@ except Exception as _rh_err:
 # See components/external_api/ for auth model + rate limiting.
 try:
     from components.external_api import (
-        external_api_bp, external_admin_bp, external_insight_bp,
+        external_api_bp, external_admin_bp,
+        external_insight_bp, external_insight_search_bp,
     )
     app.register_blueprint(external_api_bp)
     app.register_blueprint(external_admin_bp)
     app.register_blueprint(external_insight_bp)
-    logger.info("External API blueprints registered: /api/external/*, /api/admin/external-keys/*, /api/external/insight")
+    app.register_blueprint(external_insight_search_bp)
+    logger.info("External API blueprints registered: /api/external/{ping,status,insight,insight/search}, /api/admin/external-keys/*")
 except Exception as _ext_err:
     logger.warning("External API blueprint registration failed: %s", _ext_err)
 
