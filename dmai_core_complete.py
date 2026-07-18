@@ -1659,10 +1659,13 @@ except Exception as _rh_err:
 # PR CCC-1a: register /api/external/* blueprint for external integrations.
 # See components/external_api/ for auth model + rate limiting.
 try:
-    from components.external_api import external_api_bp, external_admin_bp
+    from components.external_api import (
+        external_api_bp, external_admin_bp, external_insight_bp,
+    )
     app.register_blueprint(external_api_bp)
     app.register_blueprint(external_admin_bp)
-    logger.info("External API blueprints registered at /api/external/* and /api/admin/external-keys/*")
+    app.register_blueprint(external_insight_bp)
+    logger.info("External API blueprints registered: /api/external/*, /api/admin/external-keys/*, /api/external/insight")
 except Exception as _ext_err:
     logger.warning("External API blueprint registration failed: %s", _ext_err)
 

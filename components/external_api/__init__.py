@@ -15,5 +15,6 @@ add /api/external/insight, /api/external/signal, /api/external/webhook/<source>)
 """
 from .routes import external_api_bp  # noqa: F401
 from .admin import external_admin_bp  # noqa: F401
+from .insight import external_insight_bp  # noqa: F401
 
-__all__ = ["external_api_bp", "external_admin_bp"]
+__all__ = ["external_api_bp", "external_admin_bp", "external_insight_bp"]
