@@ -379,3 +379,49 @@ def log_chain(metadata: Optional[dict] = None):
 
         return wrapper
     return decorator
+
+
+# ---------------------------------------------------------------------------
+# PR CCC-1a: boot-time import compat shim.
+#
+# dmai_core_complete.py imports `log_chain_step(chain_id, step, data)` -
+# a fire-and-forget helper that predates the class-based ChainLogger.
+# The rename to ChainLogger.log_step + start_chain/complete_chain left
+# `log_chain_step` unexported, so every boot logged:
+#
+#     WARNING:root:chain_logger.py not found - chain logging disabled:
+#     cannot import name 'log_chain_step' from 'chain_logger'
+#
+# This shim uses a module-level singleton to preserve the "one call,
+# one atomic audit entry" contract the callsite expects. Failures are
+# swallowed so an audit-log write can never break a business path.
+# ---------------------------------------------------------------------------
+_default_logger: Optional[ChainLogger] = None
+
+
+def _get_default_logger() -> ChainLogger:
+    """Lazily construct the module-level ChainLogger singleton."""
+    global _default_logger
+    if _default_logger is None:
+        _default_logger = ChainLogger(data_path=Path("data"))
+    return _default_logger
+
+
+def log_chain_step(
+    chain_id: str,
+    step: str,
+    data: Optional[dict] = None,
+) -> None:
+    """Fire-and-forget audit step.
+
+    Wraps start_chain -> log_step -> complete_chain so a single call
+    emits a complete JSON trace. Never raises: audit logging must not
+    break the calling business path.
+    """
+    try:
+        cl = _get_default_logger()
+        cid = cl.start_chain(metadata={"external_chain_id": chain_id})
+        cl.log_step(cid, action=step, input_data=data or {})
+        cl.complete_chain(cid, result={"step": step}, success=True)
+    except Exception as e:  # noqa: BLE001 - audit path must not raise
+        logger.warning("log_chain_step swallow: %s", e)

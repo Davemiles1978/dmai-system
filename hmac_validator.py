@@ -300,3 +300,22 @@ def parse_payment_webhook(request) -> Tuple[Optional[WebhookPayload], str]:
         verified=verified,
     )
     return webhook, ""
+
+
+# ---------------------------------------------------------------------------
+# PR CCC-1a: boot-time import aliases.
+#
+# dmai_core_complete.py imports `validate_webhook_signature` and
+# `require_webhook_hmac` (the historical names), but this module was
+# refactored to `verify_webhook_signature` and `require_webhook_auth`.
+# The rename left a permanent WARNING on every boot:
+#
+#     WARNING:root:hmac_validator.py not found — HMAC webhook validation
+#     disabled: cannot import name 'validate_webhook_signature' from
+#     'hmac_validator'
+#
+# Aliases restore both symbols so the import succeeds and the HMAC path
+# is live in prod without touching the (correct, tested) new names.
+# ---------------------------------------------------------------------------
+validate_webhook_signature = verify_webhook_signature
+require_webhook_hmac = require_webhook_auth
