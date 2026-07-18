@@ -163,3 +163,48 @@ services:
         sync: false
       - key: AMAZON_SELLER_ID
         sync: false
+
+  # ══════════════════════════════════════════════════════════════════════
+  # Cron Jobs (PR DDD-1)
+  # ══════════════════════════════════════════════════════════════════════
+  # Migrated off Perplexity's cron scheduler so they run without depending
+  # on the user's Perplexity credit balance. Each cron is a tiny alpine +
+  # curl container that POSTs to an existing /api/cron/* endpoint on the
+  # dmai-web service. Same X-Cron-Secret constant-time auth as before.
+  #
+  # Schedule notes:
+  #   * All cron: expressions are in UTC (Render requirement).
+  #   * BST months (Apr-Oct): backup at 00:45 BST = 23:45 UTC prev day.
+  #     Render can't express "month range in local time", so we run at
+  #     00:45 UTC year-round. UK viewers see:
+  #       - BST: 01:45 local (was 00:45 in Perplexity BST cron)
+  #       - GMT: 00:45 local (was 01:45 in Perplexity GMT cron)
+  #     Close enough to the historical windows and easier to reason about.
+  #   * Curriculum: 02:15 UTC year-round (was BST 02:15 UK / GMT 03:15 UK).
+  # ──────────────────────────────────────────────────────────────────────
+
+  - type: cron
+    name: dmai-r2-backup
+    env: docker
+    dockerfilePath: ./cron/backup.Dockerfile
+    dockerContext: ./cron
+    # 00:45 UTC daily. See schedule notes above.
+    schedule: "45 0 * * *"
+    envVars:
+      - key: CRON_SECRET
+        sync: false
+      - key: TARGET_URL
+        value: https://dmai-web.onrender.com/api/cron/backup/run
+
+  - type: cron
+    name: dmai-coding-curriculum
+    env: docker
+    dockerfilePath: ./cron/curriculum.Dockerfile
+    dockerContext: ./cron
+    # 02:15 UTC daily. See schedule notes above.
+    schedule: "15 2 * * *"
+    envVars:
+      - key: CRON_SECRET
+        sync: false
+      - key: TARGET_URL
+        value: https://dmai-web.onrender.com/api/cron/coding-curriculum/study
