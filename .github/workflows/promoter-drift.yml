@@ -1,0 +1,77 @@
+# PR DDD-2: Weekly promoter-drift diagnostic, hosted on GitHub Actions.
+#
+# Replaces Perplexity cron ebd617e8 (Mondays 07:00 BST). Runs entirely
+# on GitHub's free scheduled-workflow runners so it does not consume
+# Perplexity credit.
+#
+# Flow:
+#   1. Curl DMAI admin endpoints to collect fresh-blood / promoter /
+#      materialiser status.
+#   2. Compute diversity ratio, delta vs 28-day baseline, stagnant types.
+#   3. Compose an HTML + text email body.
+#   4. POST it to /api/cron/promoter-drift/email on dmai-web, which
+#      hands it to Resend (primary) or Slack #dmaitalk (fallback).
+#   5. Save the snapshot back to the repo under
+#      workspace/promoter_drift_log.md via a follow-up commit so we
+#      have next week's 7-day baseline (idempotent - only the log line
+#      changes).
+#
+# Failure surfaces in the Actions tab of the repo AND propagates
+# through the email/Slack fallback chain. No dependency on Perplexity.
+name: promoter-drift
+
+on:
+  # Mondays 07:00 BST = 06:00 UTC April-October, 07:00 UTC rest of year.
+  # GitHub Actions only accepts UTC cron: entries, so we schedule at
+  # 06:00 UTC year-round. UK viewers see it fire at 06:00 GMT / 07:00 BST.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+concurrency:
+  group: promoter-drift
+  cancel-in-progress: false
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DMAI_BASE_URL: https://dmai-web.onrender.com
+      DMAI_CRON_SECRET: ${{ secrets.DMAI_CRON_SECRET }}
+      DRIFT_LOG_PATH: workspace/promoter_drift_log.md
+      DRIFT_EMAIL_TO: milesd040@gmail.com
+    steps:
+      - name: Checkout repo (needs log commit access)
+        uses: actions/checkout@v4
+        with:
+          # Fetch enough history that git-commit can see the log file
+          # if it already exists.
+          fetch-depth: 2
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run drift diagnostic + POST email
+        id: drift
+        env:
+          RUN_TS: ${{ github.event.repository.updated_at }}
+        run: |
+          set -euo pipefail
+          python .github/workflows/scripts/promoter_drift.py
+
+      - name: Commit updated log if it changed
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain "${DRIFT_LOG_PATH}")" ]; then
+            git config user.name "dmai-cron-bot"
+            git config user.email "dmai-cron-bot@users.noreply.github.com"
+            git add "${DRIFT_LOG_PATH}"
+            git commit -m "chore(drift): weekly promoter drift snapshot [skip ci]"
+            git push
+          else
+            echo "No log changes to commit."
+          fi
