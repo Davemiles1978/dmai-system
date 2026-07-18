@@ -1656,6 +1656,15 @@ try:
 except Exception as _rh_err:
     logger.warning("RenderDeployHook blueprint registration failed: %s", _rh_err)
 
+# PR CCC-1a: register /api/external/* blueprint for external integrations.
+# See components/external_api/ for auth model + rate limiting.
+try:
+    from components.external_api import external_api_bp
+    app.register_blueprint(external_api_bp)
+    logger.info("External API blueprint registered at /api/external/*")
+except Exception as _ext_err:
+    logger.warning("External API blueprint registration failed: %s", _ext_err)
+
 # Register orchestrator routes
 if "training_orchestrator" in components:
     try:
