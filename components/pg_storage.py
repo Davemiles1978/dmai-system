@@ -124,14 +124,32 @@ CREATE TABLE IF NOT EXISTS funding_concepts (
 );
 
 CREATE TABLE IF NOT EXISTS api_keys (
-    key         TEXT PRIMARY KEY,
-    service     TEXT,
-    source      TEXT,
-    validated   INTEGER DEFAULT 0,
-    created_at  TIMESTAMPTZ DEFAULT NOW(),
-    last_used   TIMESTAMPTZ
+    key                 TEXT PRIMARY KEY,
+    service             TEXT,
+    source              TEXT,
+    validated           INTEGER DEFAULT 0,
+    created_at          TIMESTAMPTZ DEFAULT NOW(),
+    last_used           TIMESTAMPTZ,
+    -- PR CCC-1a: external-integration fields
+    key_hash            TEXT,
+    scope               TEXT DEFAULT '',
+    rate_limit_per_min  INTEGER DEFAULT 60,
+    revoked             INTEGER DEFAULT 0,
+    label               TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_api_keys_service ON api_keys(service);
+CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash);
+
+CREATE TABLE IF NOT EXISTS external_api_calls (
+    id           BIGSERIAL PRIMARY KEY,
+    key_hash     TEXT NOT NULL,
+    service      TEXT,
+    endpoint     TEXT NOT NULL,
+    status_code  INTEGER,
+    ts           TIMESTAMPTZ DEFAULT NOW(),
+    duration_ms  INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_ext_calls_key_ts ON external_api_calls(key_hash, ts DESC);
 
 CREATE TABLE IF NOT EXISTS admin_api_keys (
     provider_id TEXT PRIMARY KEY,
@@ -247,6 +265,28 @@ class PGStorage:
                     "ALTER TABLE insights ADD COLUMN IF NOT EXISTS provenance TEXT",
                     "CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic)",
                     "CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance)",
+                    # PR CCC-1a: external-integration migrations on
+                    # api_keys so old prod DBs get the new columns.
+                    # SHA-256 hex is 64 chars; store as TEXT for pg
+                    # portability. scope is a space-separated token
+                    # list; rate_limit_per_min is a per-minute cap.
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS key_hash TEXT",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS scope TEXT DEFAULT ''",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS rate_limit_per_min INTEGER DEFAULT 60",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS revoked INTEGER DEFAULT 0",
+                    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS label TEXT",
+                    "CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)",
+                    # external_api_calls audit trail
+                    """CREATE TABLE IF NOT EXISTS external_api_calls (
+                        id           BIGSERIAL PRIMARY KEY,
+                        key_hash     TEXT NOT NULL,
+                        service      TEXT,
+                        endpoint     TEXT NOT NULL,
+                        status_code  INTEGER,
+                        ts           TIMESTAMPTZ DEFAULT NOW(),
+                        duration_ms  INTEGER
+                    )""",
+                    "CREATE INDEX IF NOT EXISTS idx_ext_calls_key_ts ON external_api_calls(key_hash, ts DESC)",
                 ]
                 for stmt in _migrations:
                     try:
