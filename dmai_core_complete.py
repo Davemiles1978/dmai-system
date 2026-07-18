@@ -1665,6 +1665,16 @@ try:
 except Exception as _ext_err:
     logger.warning("External API blueprint registration failed: %s", _ext_err)
 
+# PR DDD-3: register /api/cron/promoter-drift/* blueprint so an external
+# scheduler (GitHub Actions) can deliver drift reports via Resend + Slack
+# fallback without depending on Perplexity credit for delivery.
+try:
+    from components.cron_email import cron_email_bp
+    app.register_blueprint(cron_email_bp)
+    logger.info("Cron email blueprint registered at /api/cron/promoter-drift/*")
+except Exception as _ce_err:
+    logger.warning("Cron email blueprint registration failed: %s", _ce_err)
+
 # Register orchestrator routes
 if "training_orchestrator" in components:
     try:
