@@ -186,7 +186,8 @@ def list_keys():
         cur.close()
     except Exception as e:
         logger.exception("list_keys failed: %s", e)
-        return jsonify({"ok": False, "error": "db_query_failed"}), 500
+        return jsonify({"ok": False, "error": "db_query_failed",
+                        "detail": str(e)[:400]}), 500
     finally:
         try:
             conn.close()
