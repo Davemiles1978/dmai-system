@@ -51,6 +51,13 @@ WHITELIST = {
     "components/sqlite_persistence.py",        # backup path — different lifecycle
     "components/backup/r2_backup.py",          # opens read-only source + writes to different file
     "dmai_core_complete.py",                   # main app: reviewed manually
+    # PR CCC-1a/CCC-1b: external_api modules use sqlite3.connect only
+    # as a test-mode fallback when DATABASE_URL isn't set. In prod they
+    # always hit Postgres via components.pg_storage._get_conn().
+    "components/external_api/admin.py",
+    "components/external_api/auth.py",
+    "components/external_api/insight.py",
+    "components/external_api/insight_search.py",
 }
 
 # Whitelisted prefixes (dev/one-shot scripts)
