@@ -13,24 +13,55 @@ See auth.py for the _require_external_key(scope) decorator.
 v1 endpoints (this PR ships /api/external/status only; subsequent PRs
 add /api/external/insight, /api/external/signal, /api/external/webhook/<source>).
 """
-# PR CCC-1b hotfix 3: force PGStorage init on module load so the
-# CCC-1a api_keys migrations (key_hash/scope/rate_limit_per_min/
-# revoked/label) actually run against prod. Without this, prod's
-# api_keys table stays on its pre-CCC-1a shape and every external
-# API DB query 500s with 'column key_hash does not exist'.
+# PR CCC-1b hotfix 4: apply the CCC-1a api_keys migrations directly
+# at module load time. Depending on pg_storage._init_schema() to run
+# them turned out to be unreliable in prod - the pg_storage init path
+# is gated on lazy hydration and one failing statement in the outer
+# _SCHEMA_SQL block leaves the CCC-1a ALTER TABLEs unreached.
+# Each ALTER TABLE ADD COLUMN IF NOT EXISTS is idempotent so this is
+# safe on every boot.
 import os as _os
 import logging as _logging
 _bp_logger = _logging.getLogger(__name__)
+_CCC1A_MIGRATIONS = [
+    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS key_hash TEXT",
+    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS scope TEXT DEFAULT ''",
+    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS rate_limit_per_min INTEGER DEFAULT 60",
+    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS revoked INTEGER DEFAULT 0",
+    "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS label TEXT",
+    "CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)",
+    """CREATE TABLE IF NOT EXISTS external_api_calls (
+        id           BIGSERIAL PRIMARY KEY,
+        key_hash     TEXT NOT NULL,
+        service      TEXT,
+        endpoint     TEXT NOT NULL,
+        status_code  INTEGER,
+        ts           TIMESTAMPTZ DEFAULT NOW(),
+        duration_ms  INTEGER
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_ext_calls_key_ts ON external_api_calls(key_hash, ts DESC)",
+]
 if _os.environ.get("DATABASE_URL", "").strip():
     try:
-        from components.pg_storage import get_pg_storage as _get_pg
-        _pg = _get_pg()
-        if getattr(_pg, "is_available", lambda: False)():
-            _bp_logger.info("external_api: PGStorage init OK, migrations applied")
-        else:
-            _bp_logger.error("external_api: PGStorage NOT available on boot")
+        from components.pg_storage import _get_conn as _pg_conn, _return_conn as _pg_return
+        _c = _pg_conn()
+        try:
+            for _stmt in _CCC1A_MIGRATIONS:
+                try:
+                    with _c.cursor() as _cur:
+                        _cur.execute(_stmt)
+                    _c.commit()
+                except Exception as _mig_err:
+                    _c.rollback()
+                    _bp_logger.warning(
+                        "external_api: CCC-1a migration skipped (%s): %s",
+                        _stmt.split()[0:4], _mig_err,
+                    )
+            _bp_logger.info("external_api: CCC-1a api_keys migrations applied")
+        finally:
+            _pg_return(_c)
     except Exception as _e:
-        _bp_logger.error("external_api: PGStorage boot init failed: %s", _e)
+        _bp_logger.error("external_api: CCC-1a migration bootstrap failed: %s", _e)
 
 from .routes import external_api_bp  # noqa: F401
 from .admin import external_admin_bp  # noqa: F401
