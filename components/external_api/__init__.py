@@ -24,12 +24,27 @@ import os as _os
 import logging as _logging
 _bp_logger = _logging.getLogger(__name__)
 _CCC1A_MIGRATIONS = [
+    # CCC-1a api_keys columns
     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS key_hash TEXT",
     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS scope TEXT DEFAULT ''",
     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS rate_limit_per_min INTEGER DEFAULT 60",
     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS revoked INTEGER DEFAULT 0",
     "ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS label TEXT",
     "CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)",
+    # BBB-1 insights columns - the insight/search endpoint reads
+    # source_topic/target_topic/domain/provenance and CCC-1b writes
+    # provenance. Prod's insights table also lags these migrations.
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS source_topic TEXT",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS target_topic TEXT",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS occurrence_count INTEGER DEFAULT 1",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS last_used TIMESTAMPTZ",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS neuron_level TEXT DEFAULT 'micro'",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS parent_macro_id TEXT",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS domain TEXT",
+    "ALTER TABLE insights ADD COLUMN IF NOT EXISTS provenance TEXT",
+    "CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic)",
+    "CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance)",
+    # external_api_calls audit trail
     """CREATE TABLE IF NOT EXISTS external_api_calls (
         id           BIGSERIAL PRIMARY KEY,
         key_hash     TEXT NOT NULL,
