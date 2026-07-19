@@ -59,15 +59,22 @@ def _require_admin() -> bool:
 
 
 def _get_conn():
-    """Match the auth.py connection strategy exactly."""
+    """Return a live DB connection matching the app's canonical store.
+
+    Prod uses Postgres via components.pg_storage._get_conn(), which is
+    a pooled psycopg2 connection reader. Local tests use SQLite at
+    DMAI_DB_PATH. Do NOT try PGStorage(url).conn - that's a landmine
+    (PGStorage takes no args, has no .conn attribute) which used to
+    silently fall through to a stale local sqlite file inside the
+    Render container.
+    """
     database_url = os.environ.get("DATABASE_URL", "").strip()
     if database_url:
         try:
-            import psycopg  # noqa: F401
-            from components.pg_storage import PGStorage
-            return PGStorage(database_url).conn
+            from components.pg_storage import _get_conn as _pg_conn
+            return _pg_conn()
         except Exception as e:
-            logger.warning("admin conn: pg fallback -> sqlite: %s", e)
+            logger.error("admin conn: pg failed, sqlite fallback: %s", e)
     return sqlite3.connect(os.environ.get("DMAI_DB_PATH", "data/dmai.db"))
 
 

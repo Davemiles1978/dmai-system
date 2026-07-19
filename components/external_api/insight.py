@@ -72,15 +72,16 @@ FIELD_LIMITS = {
 
 
 def _get_conn():
-    """Match auth.py connection strategy exactly."""
+    """Prod: pooled psycopg2 via pg_storage._get_conn.
+    Local/tests: sqlite at DMAI_DB_PATH. See admin.py docstring for why
+    we don't use PGStorage(url).conn."""
     database_url = os.environ.get("DATABASE_URL", "").strip()
     if database_url:
         try:
-            import psycopg  # noqa: F401
-            from components.pg_storage import PGStorage
-            return PGStorage(database_url).conn
+            from components.pg_storage import _get_conn as _pg_conn
+            return _pg_conn()
         except Exception as e:
-            logger.warning("insight conn: pg fallback -> sqlite: %s", e)
+            logger.error("insight conn: pg failed, sqlite fallback: %s", e)
     return sqlite3.connect(os.environ.get("DMAI_DB_PATH", "data/dmai.db"))
 
 

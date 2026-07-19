@@ -60,14 +60,15 @@ SELECT_COLS = (
 
 
 def _get_conn():
+    """Prod: pooled psycopg2 via pg_storage._get_conn.
+    Local/tests: sqlite at DMAI_DB_PATH."""
     database_url = os.environ.get("DATABASE_URL", "").strip()
     if database_url:
         try:
-            import psycopg  # noqa: F401
-            from components.pg_storage import PGStorage
-            return PGStorage(database_url).conn
+            from components.pg_storage import _get_conn as _pg_conn
+            return _pg_conn()
         except Exception as e:
-            logger.warning("insight_search conn: pg fallback -> sqlite: %s", e)
+            logger.error("insight_search conn: pg failed, sqlite fallback: %s", e)
     return sqlite3.connect(os.environ.get("DMAI_DB_PATH", "data/dmai.db"))
 
 

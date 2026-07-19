@@ -89,11 +89,10 @@ def _get_conn():
     database_url = os.environ.get("DATABASE_URL", "").strip()
     if database_url:
         try:
-            import psycopg  # noqa: F401
-            from components.pg_storage import PGStorage
-            return PGStorage(database_url).conn
+            from components.pg_storage import _get_conn as _pg_conn
+            return _pg_conn()
         except Exception as e:
-            logger.warning("external_api auth: pg conn failed, sqlite fallback: %s", e)
+            logger.error("external_api auth: pg failed, sqlite fallback: %s", e)
     db_path = os.environ.get("DMAI_DB_PATH", "data/dmai.db")
     return sqlite3.connect(db_path)
 
