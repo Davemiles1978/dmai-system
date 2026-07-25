@@ -1,5 +1,8 @@
 __pycache__/
 
+# Load-test run artifacts (timestamped subdirs under ops/load_test_runs/)
+ops/load_test_runs/
+
 # Local agent test artifacts (do NOT commit; Render persistent state lives at runtime)
 data/dmai.db
 data/dmai.db-shm
