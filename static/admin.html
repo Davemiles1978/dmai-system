@@ -1077,6 +1077,47 @@
         <div style="color:var(--text-muted);font-size:11px;text-align:right" id="hb-last-updated">Last updated: —</div>
       </div>
 
+        <!-- V4 Self-Evolution Training Panel -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+            <svg width="16" height="16" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 1v3M7.5 11v3M1 7.5h3M11 7.5h3M2.9 2.9l2.1 2.1M9.9 9.9l2.1 2.1M2.9 12.1l2.1-2.1M9.9 5.1l2.1-2.1" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--text);letter-spacing:.05em">V4 SELF-EVOLUTION TRAINING</span>
+            <span id="v4-status-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#333;color:#888;margin-left:auto">—</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">CODE FACTORY</div>
+              <div id="v4-code-factory" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">COMPETITOR REPLICATOR</div>
+              <div id="v4-competitor" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">SELF HEALER</div>
+              <div id="v4-self-healer" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">PENTEST AGENT</div>
+              <div id="v4-pentest" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">TREND PREDICTOR</div>
+              <div id="v4-trends" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">MARKET LEADERBOARD</div>
+              <div id="v4-leaderboard" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+          </div>
+          <!-- V4 Module Progress Bars -->
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:.05em">MODULE MASTERY PROGRESS</div>
+          <div id="v4-module-bars" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--text-muted);font-size:11px">Loading...</div>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right">Syllabus: <span id="v4-syllabus-chars">—</span> chars loaded</div>
+        </div>
+
       <!-- Maintenance / Integrity -->
       <div class="section" id="sec-maintenance">
         <div class="section-title">
@@ -1578,6 +1619,7 @@
     if (id === 'study')   setTimeout(loadStudyProgress, 50);
     if (id === 'selfgen')  setTimeout(loadCWHistory, 50);
     if (id === 'learning') { setTimeout(loadLearningMetrics, 50); setTimeout(loadVocabStats, 200); }
+    if (id === 'training') { setTimeout(loadV4Status, 100); }
     if (id === 'suggestions') setTimeout(loadSuggestions, 50);
     if (id === 'stage-analytics') { _loadStageAnalytics(); }
     if (id === 'tip-tracking') { setTimeout(loadTipTracking, 50); }
@@ -1675,6 +1717,7 @@
 
   async function refreshAll() {
     await loadStatus();
+    loadV4Status();
     const active = document.querySelector('.section.active')?.id?.replace('sec-', '');
     if (active === 'circuit') loadCBs();
     if (active === 'kaizen')  loadKaizen();
@@ -1752,6 +1795,62 @@
       const sysEl = document.getElementById('sys-status');
       if (sysEl) sysEl.textContent = 'Offline';
       addLog('[ERR] Status check failed: ' + e.message, 'err');
+    }
+  }
+
+
+  // ── V4 Self-Evolution Status (live) ─────────────────────────────────────
+  async function loadV4Status() {
+    try {
+      const v4 = await api('/api/v4/status');
+      const badge = document.getElementById('v4-status-badge');
+      if (badge) {
+        badge.textContent = v4.v4_available ? '● ACTIVE' : '● OFFLINE';
+        badge.style.background = v4.v4_available ? '#00ff8822' : '#ff444422';
+        badge.style.color = v4.v4_available ? '#00ff88' : '#ff4444';
+      }
+      const tools = v4.tools || {};
+      const setV4 = (id, tool) => {
+        const el = document.getElementById('v4-' + id);
+        if (el) { el.textContent = tools[tool] ? '✓ LIVE' : '✗ DOWN'; el.style.color = tools[tool] ? '#00ff88' : '#ff4444'; }
+      };
+      setV4('code-factory', 'code_factory');
+      setV4('competitor', 'competitor_replicator');
+      setV4('self-healer', 'self_healer');
+      setV4('pentest', 'pentest_agent');
+      setV4('trends', 'trend_predictor');
+      setV4('leaderboard', 'market_leaderboard');
+      document.getElementById('v4-syllabus-chars').textContent = v4.syllabus_loaded ? '42,810' : 'MISSING';
+
+      try {
+        const gaps = await api('/api/self-evolution/gaps');
+        const barsEl = document.getElementById('v4-module-bars');
+        if (barsEl && gaps) {
+          const modules = [
+            { id: 'm0.1', name: 'Zero-Shot Reasoning', key: 'zero_shot' },
+            { id: 'm0.2', name: 'Knowledge Graph Linking', key: 'knowledge_graph' },
+            { id: 'm0.3', name: 'Gap Analysis', key: 'gap_analysis' },
+            { id: 'm7.1', name: 'Curriculum Generation', key: 'curriculum' },
+            { id: 'm7.2', name: 'Competitor Ingestion', key: 'competitor' },
+            { id: 'm7.3', name: 'Code Self-Mastery', key: 'code_mastery' },
+          ];
+          barsEl.innerHTML = modules.map(m => {
+            const gaps_count = (gaps[m.key] && Array.isArray(gaps[m.key])) ? gaps[m.key].length : 0;
+            const pct = Math.max(0, 100 - gaps_count * 10);
+            return `<div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:10px;color:var(--text-muted);width:140px;flex-shrink:0">${m.name}</span>
+              <div style="flex:1;background:var(--bg);border-radius:999px;height:6px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:999px;transition:width 0.8s ease"></div>
+              </div>
+              <span style="font-size:10px;color:var(--text-muted);width:32px;text-align:right">${pct}%</span>
+            </div>`;
+          }).join('');
+        }
+      } catch (_) { /* gap data not critical */ }
+
+      addLog('[V4] Self-evolution status refreshed — ' + (v4.v4_available ? 'ACTIVE' : 'OFFLINE'), v4.v4_available ? 'info' : 'err');
+    } catch (e) {
+      addLog('[V4] Status check failed: ' + e.message, 'err');
     }
   }
 
