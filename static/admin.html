@@ -1898,7 +1898,7 @@
   async function loadStudyProgress() {
     try {
       const r = await api('/api/learning/progress');
-      const d = await r.json();
+      const d = r;
       document.getElementById('study-stage').textContent = d.current_stage || '--';
       document.getElementById('study-mastered').textContent = d.mastered ?? '--';
       document.getElementById('study-inprogress').textContent = d.in_progress ?? '--';
