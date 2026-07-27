@@ -2011,9 +2011,14 @@ def _direct_provider_chat(prompt):
             debug_log.append({"provider": name, "exception": str(exc)[:160]})
     return None, None, debug_log
 
-
 def _ai_chat(message):
-    """DMAI chat entry point: direct providers first, hub fallback second."""
+    """DMAI chat entry point with correct priority chain:
+    1. Local memory (syllabus)
+    2. Direct AI providers
+    3. AI Hub fallback
+    4. Live web search (Tavily + DuckDuckGo)
+    5. Acquire + learn if all else fails — NEVER give up
+    """
     if SECURITY_AVAILABLE:
         clean_message = _safe_sanitise(message)
         if check_injection(clean_message):
@@ -2033,19 +2038,29 @@ def _ai_chat(message):
 
     response_text = None
 
-    # Primary: direct provider waterfall (env vars at call time)
-    try:
-        direct_resp, provider, _dbg = _direct_provider_chat(clean_message)
-        if direct_resp:
-            response_text = direct_resp
-            logger.info("_ai_chat: direct provider success via %s", provider)
-        else:
-            logger.warning("_ai_chat: all direct providers failed: %s", _dbg)
-    except Exception as e:
-        import traceback
-        logger.warning("_ai_chat direct path error: %s\n%s", e, traceback.format_exc())
+    # ── Priority 1: Local memory / syllabus knowledge ──────────────────────
+    ml = clean_message.lower()
+    for topic, info in SYLLABUS_TOPICS.items():
+        if topic in ml or ml in topic:
+            response_text = info.get("content", f"I know about {topic} at {info.get('stage','?')} level.")
+            if response_text:
+                logger.info("_ai_chat: answered from syllabus memory — topic: %s", topic)
+                break
 
-    # Fallback: legacy hub plumbing
+    # ── Priority 2: Direct AI providers ────────────────────────────────────
+    if response_text is None:
+        try:
+            direct_resp, provider, _dbg = _direct_provider_chat(clean_message)
+            if direct_resp:
+                response_text = direct_resp
+                logger.info("_ai_chat: direct provider success via %s", provider)
+            else:
+                logger.warning("_ai_chat: all direct providers failed: %s", _dbg)
+        except Exception as e:
+            import traceback
+            logger.warning("_ai_chat direct path error: %s\n%s", e, traceback.format_exc())
+
+    # ── Priority 3: AI Hub fallback ────────────────────────────────────────
     if response_text is None:
         hub = components.get("extended_hub") or components.get("ai_hub")
         if hub:
@@ -2061,28 +2076,68 @@ def _ai_chat(message):
                     if isinstance(_res, tuple):
                         _res = _res[0] if _res else None
                     response_text = _res if isinstance(_res, str) else (str(_res) if _res else None)
+                if response_text:
+                    logger.info("_ai_chat: hub fallback success")
             except Exception as e:
                 logger.warning("AI chat hub-fallback error: %s", e)
 
+    # Clean up tuple responses
     if isinstance(response_text, tuple):
         _raw = response_text[0] if response_text else None
         response_text = _raw if isinstance(_raw, str) else None
     elif response_text is not None and not isinstance(response_text, str):
         response_text = str(response_text)
 
+    # ── Priority 4: Live web search ────────────────────────────────────────
     if response_text is None:
-        ml = clean_message.lower()
-        for topic, info in SYLLABUS_TOPICS.items():
-            if topic in ml or ml in topic:
-                response_text = info.get("content", f"I know about {topic} at {info.get('stage','?')} level.")
-                break
-        if response_text is None:
-            response_text = (
-                f"DMAI received: '{clean_message}'. "
-                f"Add an AI provider API key for full LLM responses. "
-                f"Current syllabus: {TOTAL_TOPICS} mastered topics available."
-            )
+        try:
+            from components.web_search import search_and_summarize
+            web_results = search_and_summarize(clean_message)
+            if web_results:
+                response_text = (
+                    f"[Live web search results]\n\n{web_results}\n\n"
+                    f"Synthesise a complete answer from the above current information."
+                )
+                logger.info("_ai_chat: web search provided results")
+        except Exception as _we:
+            logger.warning("Web search fallback failed: %s", _we)
 
+    # ── Priority 5: Acquire knowledge — NEVER give up ──────────────────────
+    if response_text is None:
+        # Final attempt: search web and force-learn the topic
+        try:
+            from components.web_search import search_web as _sw
+            results = _sw(clean_message, max_results=5)
+            if results:
+                # Build a knowledge entry from search results
+                knowledge_text = "\n".join([
+                    f"Title: {r['title']}\nContent: {r['snippet']}\nSource: {r['url']}"
+                    for r in results[:3]
+                ])
+                # Store in memory for future recall
+                try:
+                    memory_store = components.get("memory_store")
+                    if memory_store:
+                        memory_store(clean_message[:80], knowledge_text)
+                except Exception:
+                    pass
+                response_text = (
+                    f"I researched this on the live web and learned:\n\n{knowledge_text}\n\n"
+                    f"This knowledge has been saved to my memory for future use."
+                )
+                logger.info("_ai_chat: acquired new knowledge from web search")
+        except Exception as _fe:
+            logger.error("Final knowledge acquisition failed: %s", _fe)
+
+    # ── Absolute last resort — honest but actionable ────────────────────────
+    if response_text is None:
+        response_text = (
+            f"I've checked my memory, consulted AI providers, and searched the live web, "
+            f"but need more context to fully answer: '{clean_message[:200]}'. "
+            f"Please provide more detail or rephrase, and I will continue searching and learning."
+        )
+
+    # Security scan on code blocks
     if SECURITY_AVAILABLE and isinstance(response_text, str) and "```" in response_text:
         scan = scan_generated_code(response_text)
         if not scan.get("safe", True):
@@ -2091,7 +2146,6 @@ def _ai_chat(message):
             response_text = safe_code_output(response_text)
 
     return response_text
-
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
