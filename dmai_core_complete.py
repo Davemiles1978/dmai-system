@@ -155,6 +155,50 @@ Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
 from components.db import safe_open_kdb
 from components.json_utils import safe_jsonify
 
+# ── DMAI Self-Evolution Packages V4 ────────────────────────────────────────────
+try:
+    import sys as _sys
+    _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "packages"))
+    from dmaicodegen import CodeBlockFactory as _CodeBlockFactory
+    from competitor_replicator import CompetitorReplicator as _CompetitorReplicator
+    from self_healer import CodeSelfHealer as _CodeSelfHealer
+    from pentest_agent import PenTestAgent as _PenTestAgent
+    from trend_predictor import TrendPredictor as _TrendPredictor
+    from market_leaderboard import AIMarketLeaderboard as _AIMarketLeaderboard
+    _v4_packages_available = True
+except Exception as _v4e:
+    logging.warning("DMAI V4 packages not available: %s", _v4e)
+    _v4_packages_available = False
+    _CodeBlockFactory = None
+    _CompetitorReplicator = None
+    _CodeSelfHealer = None
+    _PenTestAgent = None
+    _TrendPredictor = None
+    _AIMarketLeaderboard = None
+
+_v4_tools = {}
+
+def _get_v4_tool(name: str):
+    """Lazy-initialise a V4 package singleton."""
+    if not _v4_packages_available:
+        return None
+    if name not in _v4_tools:
+        v4_dir = os.path.join(DATA_PATH, "v4_tools")
+        if name == "code_factory":
+            _v4_tools[name] = _CodeBlockFactory(sandbox_dir=v4_dir)
+        elif name == "competitor_replicator":
+            _v4_tools[name] = _CompetitorReplicator(_get_v4_tool("code_factory"))
+        elif name == "self_healer":
+            _v4_tools[name] = _CodeSelfHealer(tool_directory=v4_dir)
+        elif name == "pentest_agent":
+            _v4_tools[name] = _PenTestAgent(tool_directory=v4_dir)
+        elif name == "trend_predictor":
+            _v4_tools[name] = _TrendPredictor()
+        elif name == "market_leaderboard":
+            _v4_tools[name] = _AIMarketLeaderboard()
+    return _v4_tools.get(name)
+
+
 # ── Boot-time SQLite self-heal ───────────────────────────────────────────────
 # If dmai_knowledge.db is malformed, quarantine it so components recreate
 # schema on first access. Controlled by DB_AUTO_HEAL=true (default off).
@@ -14202,6 +14246,181 @@ except Exception as _e:
     logger.warning("kdb_integrity_check init failed: %s", _e)
 
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  DMAI V4 SELF-EVOLUTION API ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/api/v4/codegen/create", methods=["POST"])
+def api_v4_codegen_create():
+    """Create a new tool from a spec {name, description, code_template, test_cases}."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    factory = _get_v4_tool("code_factory")
+    if factory is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        spec = request.get_json(force=True)
+        func = factory.create_tool(spec)
+        return jsonify({"ok": True, "tool": spec.get("name"), "registered": list(factory.list_tools())})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/codegen/tools", methods=["GET"])
+def api_v4_codegen_list():
+    """List all registered V4 tools."""
+    factory = _get_v4_tool("code_factory")
+    if factory is None:
+        return jsonify({"tools": [], "available": False})
+    return jsonify({"tools": list(factory.list_tools()), "available": True})
+
+
+@app.route("/api/v4/competitor/replicate", methods=["POST"])
+def api_v4_competitor_replicate():
+    """Replicate a capability observed from an external AI system."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    replicator = _get_v4_tool("competitor_replicator")
+    if replicator is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        spec = request.get_json(force=True)
+        func = replicator.replicate_from_observation(**spec)
+        return jsonify({"ok": True, "tool": spec.get("capability_name")})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/self-heal/scan", methods=["POST"])
+def api_v4_self_heal_scan():
+    """Scan a V4 tool file for code quality issues."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    healer = _get_v4_tool("self_healer")
+    if healer is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        body = request.get_json(silent=True) or {}
+        filename = body.get("filename")
+        if not filename:
+            return jsonify({"ok": False, "error": "filename required"}), 400
+        issues = healer.analyze_tool_file(filename)
+        return jsonify({"ok": True, "filename": filename, "issues": issues})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/pentest/run", methods=["POST"])
+def api_v4_pentest_run():
+    """Run a penetration test against a specified tool or the approval gate."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    agent = _get_v4_tool("pentest_agent")
+    if agent is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        body = request.get_json(silent=True) or {}
+        target = body.get("target", "approval_gate")
+        if target == "approval_gate":
+            result = agent.audit_approval_gate({})
+            return jsonify({"ok": True, "target": target, "passed": result})
+        return jsonify({"ok": False, "error": f"Unknown target: {target}"}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/trends/predict", methods=["GET"])
+def api_v4_trends_predict():
+    """Predict the next critical AI capability based on research trends."""
+    predictor = _get_v4_tool("trend_predictor")
+    if predictor is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        prediction = predictor.predict_next_capability()
+        prototype = predictor.generate_prototype(prediction)
+        return jsonify({"ok": True, "prediction": prediction, "prototype": prototype})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/leaderboard/report", methods=["GET"])
+def api_v4_leaderboard_report():
+    """Generate a competitive analysis report showing DMAI vs other AIs."""
+    board = _get_v4_tool("market_leaderboard")
+    if board is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        report = board.generate_leadership_report()
+        return jsonify({"ok": True, "report": report})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/leaderboard/update-self", methods=["POST"])
+def api_v4_leaderboard_update_self():
+    """Update DMAI's own capability scores."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    board = _get_v4_tool("market_leaderboard")
+    if board is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        body = request.get_json(force=True)
+        for cap, score in body.items():
+            board.update_self(cap, float(score))
+        return jsonify({"ok": True, "scores": board.self_scores})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/leaderboard/update-competitor", methods=["POST"])
+def api_v4_leaderboard_update_competitor():
+    """Add or update a competitor's capability scores."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    board = _get_v4_tool("market_leaderboard")
+    if board is None:
+        return jsonify({"ok": False, "error": "V4 packages unavailable"}), 503
+    try:
+        body = request.get_json(force=True)
+        name = body.pop("name")
+        board.update_competitor(name, body)
+        return jsonify({"ok": True, "competitors": list(board.competitors.keys())})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/syllabus", methods=["GET"])
+def api_v4_syllabus():
+    """Return the V4 add-on syllabus content."""
+    try:
+        syllabus_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "system_prompt", "DMAI_ADDON_SYLLABUS_V4.md")
+        if os.path.exists(syllabus_path):
+            with open(syllabus_path, "r") as f:
+                content = f.read()
+            return jsonify({"ok": True, "syllabus": content, "length": len(content)})
+        return jsonify({"ok": False, "error": "Syllabus file not found"}), 404
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/status", methods=["GET"])
+def api_v4_status():
+    """Overall V4 package status and health."""
+    return jsonify({
+        "v4_available": _v4_packages_available,
+        "tools": {
+            "code_factory": _get_v4_tool("code_factory") is not None,
+            "competitor_replicator": _get_v4_tool("competitor_replicator") is not None,
+            "self_healer": _get_v4_tool("self_healer") is not None,
+            "pentest_agent": _get_v4_tool("pentest_agent") is not None,
+            "trend_predictor": _get_v4_tool("trend_predictor") is not None,
+            "market_leaderboard": _get_v4_tool("market_leaderboard") is not None,
+        },
+        "syllabus_loaded": os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "system_prompt", "DMAI_ADDON_SYLLABUS_V4.md")),
+    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
@@ -14209,6 +14428,7 @@ if __name__ == "__main__":
     logger.info("  Components: %s", list(components.keys()))
     logger.info("  Syllabus topics: %d", TOTAL_TOPICS)
     logger.info("  Render mode: %s", IS_RENDER)
+    logger.info("  V4 Self-Evolution: %s", _v4_packages_available)
     logger.info("  Security: JWT=%s CB=%s HMAC=%s Bandit=%s",
                 SECURITY_AVAILABLE, CB_AVAILABLE, HMAC_AVAILABLE, BANDIT_AVAILABLE)
     logger.info("=" * 55)
