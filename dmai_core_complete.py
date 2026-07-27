@@ -14421,6 +14421,83 @@ def api_v4_status():
         "syllabus_loaded": os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "system_prompt", "DMAI_ADDON_SYLLABUS_V4.md")),
     })
 
+
+@app.route("/api/v4/progress", methods=["GET"])
+def api_v4_progress():
+    """Return V4 module mastery progress from persistent state."""
+    import os as _os, json as _json
+    v4_state_path = _os.path.join(DATA_PATH, "v4_progress.json")
+    default_modules = {
+        "m0.1_zero_shot": {"name": "Zero-Shot Reasoning", "pct": 0, "status": "not_started"},
+        "m0.2_knowledge_graph": {"name": "Knowledge Graph Linking", "pct": 0, "status": "not_started"},
+        "m0.3_gap_analysis": {"name": "Gap Analysis", "pct": 0, "status": "not_started"},
+        "m1.1_learning_science": {"name": "Science of Learning", "pct": 0, "status": "not_started"},
+        "m1.2_ml_foundations": {"name": "ML Foundations", "pct": 0, "status": "not_started"},
+        "m2.1_deep_nn": {"name": "Deep Neural Networks", "pct": 0, "status": "not_started"},
+        "m2.2_transformers": {"name": "Transformer Architecture", "pct": 0, "status": "not_started"},
+        "m3.1_multimodal_alignment": {"name": "Multimodal Alignment", "pct": 0, "status": "not_started"},
+        "m3.2_generative_decoders": {"name": "Generative Decoders", "pct": 0, "status": "not_started"},
+        "m4.1_moe_orchestrator": {"name": "MoE Orchestrator", "pct": 0, "status": "not_started"},
+        "m4.2_advanced_rag": {"name": "Advanced RAG", "pct": 0, "status": "not_started"},
+        "m4.3_persistent_memory": {"name": "Persistent Memory", "pct": 0, "status": "not_started"},
+        "m5.1_code_interpreter": {"name": "Code Interpreter", "pct": 0, "status": "not_started"},
+        "m5.2_web_agent": {"name": "Web Agent", "pct": 0, "status": "not_started"},
+        "m5.3_dag_orchestration": {"name": "DAG Orchestration", "pct": 0, "status": "not_started"},
+        "m6.1_multimodal_safety": {"name": "Multimodal Safety", "pct": 0, "status": "not_started"},
+        "m7.1_curriculum_gen": {"name": "Curriculum Generation", "pct": 0, "status": "not_started"},
+        "m7.2_competitor_ingestion": {"name": "Competitor Ingestion", "pct": 0, "status": "not_started"},
+        "m7.3_code_mastery": {"name": "Code Self-Mastery", "pct": 0, "status": "not_started"},
+    }
+    try:
+        if _os.path.exists(v4_state_path):
+            with open(v4_state_path, "r") as f:
+                state = _json.load(f)
+        else:
+            state = default_modules
+        total = len(state)
+        mastered = sum(1 for m in state.values() if isinstance(m, dict) and m.get("status") == "mastered")
+        in_progress = sum(1 for m in state.values() if isinstance(m, dict) and m.get("status") == "in_progress")
+        overall_pct = round((mastered / total) * 100) if total > 0 else 0
+        return jsonify({
+            "ok": True,
+            "modules": state,
+            "total": total,
+            "mastered": mastered,
+            "in_progress": in_progress,
+            "overall_pct": overall_pct,
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/v4/progress/update", methods=["POST"])
+def api_v4_progress_update():
+    """Update a V4 module progress. Body: {"module": "m0.1_zero_shot", "pct": 50, "status": "in_progress"}"""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    import os as _os, json as _json
+    v4_state_path = _os.path.join(DATA_PATH, "v4_progress.json")
+    try:
+        body = request.get_json(force=True)
+        module_id = body.get("module")
+        if not module_id:
+            return jsonify({"ok": False, "error": "module required"}), 400
+        if _os.path.exists(v4_state_path):
+            with open(v4_state_path, "r") as f:
+                state = _json.load(f)
+        else:
+            state = {}
+        state[module_id] = {
+            "name": body.get("name", state.get(module_id, {}).get("name", module_id)),
+            "pct": int(body.get("pct", 0)),
+            "status": body.get("status", "not_started"),
+        }
+        with open(v4_state_path, "w") as f:
+            _json.dump(state, f)
+        return jsonify({"ok": True, "module": module_id, "state": state[module_id]})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
