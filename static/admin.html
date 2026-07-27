@@ -1113,6 +1113,10 @@
           <!-- V4 Module Progress Bars -->
           <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:.05em">MODULE MASTERY PROGRESS</div>
           <div id="v4-module-bars" style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--text-muted)">OVERALL V4 MASTERY</span>
+            <span id="v4-overall-pct" style="font-size:18px;font-weight:700;color:var(--accent)">—</span>
+          </div>
             <div style="color:var(--text-muted);font-size:11px">Loading...</div>
           </div>
           <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right">Syllabus: <span id="v4-syllabus-chars">—</span> chars loaded</div>
@@ -1823,28 +1827,23 @@
       document.getElementById('v4-syllabus-chars').textContent = v4.syllabus_loaded ? '42,810' : 'MISSING';
 
       try {
-        const gaps = await api('/api/self-evolution/gaps');
+        const progress = await api('/api/v4/progress');
         const barsEl = document.getElementById('v4-module-bars');
-        if (barsEl && gaps) {
-          const modules = [
-            { id: 'm0.1', name: 'Zero-Shot Reasoning', key: 'zero_shot' },
-            { id: 'm0.2', name: 'Knowledge Graph Linking', key: 'knowledge_graph' },
-            { id: 'm0.3', name: 'Gap Analysis', key: 'gap_analysis' },
-            { id: 'm7.1', name: 'Curriculum Generation', key: 'curriculum' },
-            { id: 'm7.2', name: 'Competitor Ingestion', key: 'competitor' },
-            { id: 'm7.3', name: 'Code Self-Mastery', key: 'code_mastery' },
-          ];
-          barsEl.innerHTML = modules.map(m => {
-            const gaps_count = (gaps[m.key] && Array.isArray(gaps[m.key])) ? gaps[m.key].length : 0;
-            const pct = Math.max(0, 100 - gaps_count * 10);
+        if (barsEl && progress.ok && progress.modules) {
+          const modules = progress.modules;
+          barsEl.innerHTML = Object.entries(modules).map(([key, m]) => {
+            const pct = m.pct || 0;
+            const color = m.status === 'mastered' ? 'var(--green)' : m.status === 'in_progress' ? 'var(--yellow)' : 'var(--accent)';
             return `<div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:10px;color:var(--text-muted);width:140px;flex-shrink:0">${m.name}</span>
+              <span style="font-size:10px;color:var(--text-muted);width:155px;flex-shrink:0">${m.name || key}</span>
               <div style="flex:1;background:var(--bg);border-radius:999px;height:6px;overflow:hidden">
-                <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:999px;transition:width 0.8s ease"></div>
+                <div style="height:100%;width:${pct}%;background:${color};border-radius:999px;transition:width 0.8s ease"></div>
               </div>
-              <span style="font-size:10px;color:var(--text-muted);width:32px;text-align:right">${pct}%</span>
+              <span style="font-size:10px;color:var(--text-muted);width:70px;text-align:right">${m.status === 'mastered' ? 'MASTERED' : m.status === 'in_progress' ? pct + '%' : 'QUEUED'}</span>
             </div>`;
           }).join('');
+          const overallEl = document.getElementById('v4-overall-pct');
+          if (overallEl) overallEl.textContent = progress.overall_pct + '%';
         }
       } catch (_) { /* gap data not critical */ }
 
