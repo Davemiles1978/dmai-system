@@ -38,38 +38,66 @@ GITHUB_REPO      = os.getenv("GITHUB_REPO", "Davemiles1978/dmai-system")
 
 # ── LLM call (Groq → DeepSeek → Cerebras) ─────────────────────────────────
 def _call_llm(prompt: str, system: str = "", max_tokens: int = 3000, temp: float = 0.2) -> Optional[str]:
-    import requests as _req
+    """Use DMAI's main chat pipeline which has full provider fallback chain."""
+    import sys, os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    try:
+        # Build message in DMAI's format
+        full_prompt = f"{system}\n\n{prompt}" if system else prompt
+        from dmai_core_complete import _ai_chat
+        response = _ai_chat(full_prompt)
+        if response and not response.startswith("I've checked my memory"):
+            return response
+    except Exception as e:
+        logger.warning("_ai_chat fallback failed: %s", e)
+    
+    # Final fallback: direct providers
     messages = []
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
 
+    import requests as _req
+    import os as _os
     providers = []
-    if GROQ_API_KEY:
+    if _os.environ.get("GROQ_API_KEY"):
         providers.append(("https://api.groq.com/openai/v1/chat/completions",
-                          GROQ_API_KEY, "llama-3.3-70b-versatile"))
-    if DEEPSEEK_API_KEY:
+                          _os.environ["GROQ_API_KEY"], "llama-3.3-70b-versatile"))
+    if _os.environ.get("DEEPSEEK_API_KEY"):
         providers.append(("https://api.deepseek.com/chat/completions",
-                          DEEPSEEK_API_KEY, "deepseek-chat"))
-    if CEREBRAS_API_KEY:
+                          _os.environ["DEEPSEEK_API_KEY"], "deepseek-chat"))
+    if _os.environ.get("CEREBRAS_API_KEY"):
         providers.append(("https://api.cerebras.ai/v1/chat/completions",
-                          CEREBRAS_API_KEY, "llama3.1-70b"))
+                          _os.environ["CEREBRAS_API_KEY"], "llama3.1-70b"))
+    if _os.environ.get("OPENAI_API_KEY"):
+        providers.append(("https://api.openai.com/v1/chat/completions",
+                          _os.environ["OPENAI_API_KEY"], "gpt-4o-mini"))
+    if _os.environ.get("ANTHROPIC_API_KEY"):
+        providers.append(("https://api.anthropic.com/v1/messages",
+                          _os.environ["ANTHROPIC_API_KEY"], "claude-3-5-sonnet-20241022"))
 
     for url, key, model in providers:
         try:
-            r = _req.post(url,
-                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-                json={"model": model, "messages": messages,
-                      "max_tokens": max_tokens, "temperature": temp},
-                timeout=90)
+            if "anthropic" in url:
+                r = _req.post(url,
+                    headers={"x-api-key": key, "Content-Type": "application/json", "anthropic-version": "2023-06-01"},
+                    json={"model": model, "max_tokens": max_tokens, "messages": messages},
+                    timeout=90)
+            else:
+                r = _req.post(url,
+                    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                    json={"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": temp},
+                    timeout=90)
             r.raise_for_status()
-            text = r.json()["choices"][0]["message"]["content"].strip()
+            if "anthropic" in url:
+                text = r.json()["content"][0]["text"].strip()
+            else:
+                text = r.json()["choices"][0]["message"]["content"].strip()
             if text:
                 return text
         except Exception as e:
             logger.debug("LLM provider %s failed: %s", url, e)
     return None
-
 
 def _extract_json(text: str) -> Optional[dict]:
     """Extract first JSON object from LLM response text."""
