@@ -327,6 +327,19 @@ Generate the complete component:"""
 
         # Otherwise use AI to generate a fix
         if not self.ai_hub:
+            # Fallback: try web search for the fix
+            try:
+                from components.web_search import search_web
+                results = search_web(f"python fix: {problem}", max_results=3)
+                if results:
+                    fix_info = "\n".join([r['snippet'][:200] for r in results])
+                    return {
+                        "ok": True,
+                        "action": "web_search_fix",
+                        "note": f"Web search results for manual review:\n{fix_info}",
+                    }
+            except Exception:
+                pass
             return {"ok": False, "error": "No AI hub and no structured fix provided"}
 
         content_preview = ""
