@@ -672,6 +672,51 @@
           <pre id="training-output" style="font-size:12px;color:var(--text-muted);white-space:pre-wrap;font-family:monospace;min-height:80px;">—</pre>
         </div>
       </div>
+        <!-- V4 Self-Evolution Training Panel -->
+        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+            <svg width="16" height="16" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 1v3M7.5 11v3M1 7.5h3M11 7.5h3M2.9 2.9l2.1 2.1M9.9 9.9l2.1 2.1M2.9 12.1l2.1-2.1M9.9 5.1l2.1-2.1" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--text);letter-spacing:.05em">V4 SELF-EVOLUTION TRAINING</span>
+            <span id="v4-status-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#333;color:#888;margin-left:auto">—</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">CODE FACTORY</div>
+              <div id="v4-code-factory" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">COMPETITOR REPLICATOR</div>
+              <div id="v4-competitor" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">SELF HEALER</div>
+              <div id="v4-self-healer" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">PENTEST AGENT</div>
+              <div id="v4-pentest" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">TREND PREDICTOR</div>
+              <div id="v4-trends" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+            <div class="card" style="padding:10px;background:var(--bg)">
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">MARKET LEADERBOARD</div>
+              <div id="v4-leaderboard" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
+            </div>
+          </div>
+          <!-- V4 Module Progress Bars -->
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:.05em">MODULE MASTERY PROGRESS</div>
+          <div id="v4-module-bars" style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--text-muted)">OVERALL V4 MASTERY</span>
+            <span id="v4-overall-pct" style="font-size:18px;font-weight:700;color:var(--accent)">—</span>
+          </div>
+            <div style="color:var(--text-muted);font-size:11px">Loading...</div>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right">Syllabus: <span id="v4-syllabus-chars">—</span> chars loaded</div>
+        </div>
+
 
       <!-- ── Study Progress ─────────────────────────────────────────── -->
       <div class="section" id="sec-study">
@@ -1076,51 +1121,6 @@
 
         <div style="color:var(--text-muted);font-size:11px;text-align:right" id="hb-last-updated">Last updated: —</div>
       </div>
-        <!-- V4 Self-Evolution Training Panel -->
-        <div class="card" style="padding:1.25rem;margin-bottom:1.25rem;border-left:3px solid var(--accent)">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
-            <svg width="16" height="16" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 1v3M7.5 11v3M1 7.5h3M11 7.5h3M2.9 2.9l2.1 2.1M9.9 9.9l2.1 2.1M2.9 12.1l2.1-2.1M9.9 5.1l2.1-2.1" stroke="currentColor" stroke-width="1.2"/></svg>
-            <span style="font-size:13px;font-weight:600;color:var(--text);letter-spacing:.05em">V4 SELF-EVOLUTION TRAINING</span>
-            <span id="v4-status-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#333;color:#888;margin-left:auto">—</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
-            <div class="card" style="padding:10px;background:var(--bg)">
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">CODE FACTORY</div>
-              <div id="v4-code-factory" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
-            </div>
-            <div class="card" style="padding:10px;background:var(--bg)">
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">COMPETITOR REPLICATOR</div>
-              <div id="v4-competitor" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
-            </div>
-            <div class="card" style="padding:10px;background:var(--bg)">
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">SELF HEALER</div>
-              <div id="v4-self-healer" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
-            </div>
-            <div class="card" style="padding:10px;background:var(--bg)">
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">PENTEST AGENT</div>
-              <div id="v4-pentest" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
-            </div>
-            <div class="card" style="padding:10px;background:var(--bg)">
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">TREND PREDICTOR</div>
-              <div id="v4-trends" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
-            </div>
-            <div class="card" style="padding:10px;background:var(--bg)">
-              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">MARKET LEADERBOARD</div>
-              <div id="v4-leaderboard" style="font-size:18px;font-weight:700;color:var(--text)">—</div>
-            </div>
-          </div>
-          <!-- V4 Module Progress Bars -->
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;letter-spacing:.05em">MODULE MASTERY PROGRESS</div>
-          <div id="v4-module-bars" style="display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-size:11px;color:var(--text-muted)">OVERALL V4 MASTERY</span>
-            <span id="v4-overall-pct" style="font-size:18px;font-weight:700;color:var(--accent)">—</span>
-          </div>
-            <div style="color:var(--text-muted);font-size:11px">Loading...</div>
-          </div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right">Syllabus: <span id="v4-syllabus-chars">—</span> chars loaded</div>
-        </div>
-
       </div>
 
       <!-- Maintenance / Integrity -->
