@@ -859,120 +859,120 @@ SYLLABUS_TOPICS = {
         "mastery": "100%",
         "content": "Artistic Legacy & Curation - Adult Stage Mastery\n\n**Category:** Artistic\n**Stage:** Adult\n**Mastery Level:** 100% (Permanent Syllabus)\n\nThis topic is part of DMAI's required syllabus and permanently mastered at expert level.\n\n**Key aspects include:**\n• Core principles and fundamental concepts\n• Practical applications and real-world use cases\n• Connections to other syllabus topics\n\nWhat specific aspect of Artistic Legacy & Curation would you like to explore?"
     },
-}
-    # ── V4 Self-Evolution Add-On Modules ──────────────────────────────────
     "zero-shot generalization": {
         "stage": "Adult",
         "category": "SI_Meta",
         "mastery": "5%",
-        "content": "Zero-Shot Generalization - Adult Stage\n\n**Category:** SI Meta-Cognition\n**Module:** 0.1\n**Mastery Level:** 5% (In Progress)\n\nAnalogical reasoning, schema abstraction, first-principles decomposition of novel problems. Conceptual blending across domains."
+        "content": "Zero-Shot Generalization - Module 0.1 - Analogical reasoning, schema abstraction, first-principles decomposition."
     },
     "knowledge graph inter-domain linking": {
         "stage": "Adult",
         "category": "SI_Meta",
         "mastery": "0%",
-        "content": "Knowledge Graph Inter-Domain Linking - Adult Stage\n\n**Category:** SI Meta-Cognition\n**Module:** 0.2\n\nBisociation, lateral thinking, missing link discovery across disparate knowledge domains."
+        "content": "Knowledge Graph Inter-Domain Linking - Module 0.2 - Bisociation, lateral thinking, missing link discovery."
     },
     "autonomous gap analysis": {
         "stage": "Adult",
         "category": "SI_Meta",
         "mastery": "0%",
-        "content": "Autonomous Knowledge Gap Analysis - Adult Stage\n\n**Category:** SI Meta-Cognition\n**Module:** 0.3\n\nSelf-auditing knowledge boundaries, adversarial edge-case testing, structured gap reporting."
+        "content": "Autonomous Knowledge Gap Analysis - Module 0.3 - Self-auditing, adversarial edge-case testing."
     },
-    "science of learning": {
+    "science of learning v4": {
         "stage": "Adult",
         "category": "Meta",
         "mastery": "0%",
-        "content": "Science of Learning & Knowledge Acquisition - Adult Stage\n\n**Category:** Meta-Cognition\n**Module:** 1.1\n\nDeliberate practice, spaced repetition (SM-2, FSRS), Feynman Technique, Zettelkasten."
+        "content": "Science of Learning - Module 1.1 - Deliberate practice, spaced repetition, Feynman Technique."
     },
-    "ml foundations": {
+    "ml foundations v4": {
         "stage": "Adult",
         "category": "AI",
         "mastery": "0%",
-        "content": "Machine Learning Foundations - Adult Stage\n\n**Category:** AI\n**Module:** 1.2\n\nStatistical learning theory, bias-variance tradeoff, supervised/unsupervised/RL, fairness audit."
+        "content": "ML Foundations - Module 1.2 - Statistical learning theory, bias-variance, fairness audit."
     },
     "deep neural networks from scratch": {
         "stage": "Adult",
         "category": "AI",
         "mastery": "0%",
-        "content": "Deep Neural Networks from First Principles - Adult Stage\n\n**Category:** AI\n**Module:** 2.1\n\nBackpropagation, batch norm, AdamW, SAM optimization. Numpy-only implementation."
+        "content": "Deep Neural Networks - Module 2.1 - Backpropagation, batch norm, AdamW, numpy-only."
     },
     "transformer architecture deep dive": {
         "stage": "Adult",
         "category": "AI",
         "mastery": "0%",
-        "content": "Transformer Architecture Deep Dive - Adult Stage\n\n**Category:** AI\n**Module:** 2.2\n\nMulti-head attention, RoPE, FlashAttention, KV-cache, GPT decoder from scratch."
+        "content": "Transformer Architecture - Module 2.2 - MHA, RoPE, FlashAttention, GPT decoder."
     },
-    "multimodal alignment": {
+    "multimodal alignment v4": {
         "stage": "Adult",
         "category": "AI",
         "mastery": "0%",
-        "content": "Multimodal Alignment & Joint Embedding Spaces - Adult Stage\n\n**Category:** AI\n**Module:** 3.1\n\nCLIP/SigLIP, ImageBind, contrastive learning, ColBERT late-interaction."
+        "content": "Multimodal Alignment - Module 3.1 - CLIP/SigLIP, ImageBind, contrastive learning."
     },
     "generative visual audio decoders": {
         "stage": "Adult",
         "category": "AI",
         "mastery": "0%",
-        "content": "Generative Visual & Audio Decoders - Adult Stage\n\n**Category:** AI\n**Module:** 3.2\n\nStable Diffusion, AudioLDM, MusicGen, ControlNet, EnCodec tokenization."
+        "content": "Generative Decoders - Module 3.2 - Stable Diffusion, AudioLDM, MusicGen."
     },
     "moe orchestrator dag routing": {
         "stage": "Adult",
         "category": "System",
         "mastery": "0%",
-        "content": "MoE Orchestrator & DAG Routing - Adult Stage\n\n**Category:** System\n**Module:** 4.1\n\nMixture-of-Experts routing, speculative decoding, heterogeneous GPU management."
+        "content": "MoE Orchestrator - Module 4.1 - Mixture-of-Experts routing, speculative decoding."
     },
-    "advanced rag": {
+    "advanced rag v4": {
         "stage": "Adult",
         "category": "System",
         "mastery": "0%",
-        "content": "Advanced Retrieval Augmented Generation - Adult Stage\n\n**Category:** System\n**Module:** 4.2\n\nMulti-hop RAG, Self-RAG, CRAG, multimodal indexing, hybrid search."
+        "content": "Advanced RAG - Module 4.2 - Multi-hop, Self-RAG, CRAG, hybrid search."
     },
     "persistent memory systems": {
         "stage": "Adult",
         "category": "System",
         "mastery": "0%",
-        "content": "Persistent Working & Episodic Memory - Adult Stage\n\n**Category:** System\n**Module:** 4.3\n\nMemGPT-style memory, KV-cache optimization, long-term preference storage."
+        "content": "Persistent Memory - Module 4.3 - MemGPT-style, KV-cache optimization."
     },
-    "code interpreter sandbox": {
+    "code interpreter sandbox v4": {
         "stage": "Adult",
         "category": "Tool",
         "mastery": "0%",
-        "content": "Code Interpreter & Sandbox Environment - Adult Stage\n\n**Category:** Tool Mastery\n**Module:** 5.1\n\nStateful sandbox, self-correcting Python, OCR, interactive dashboards."
+        "content": "Code Interpreter Sandbox - Module 5.1 - Stateful sandbox, OCR, dashboards."
     },
-    "autonomous web agent": {
+    "autonomous web agent v4": {
         "stage": "Adult",
         "category": "Tool",
         "mastery": "0%",
-        "content": "Autonomous Live Web Agent - Adult Stage\n\n**Category:** Tool Mastery\n**Module:** 5.2\n\nPlaywright automation, DOM parsing, SPA navigation, form filling."
+        "content": "Autonomous Web Agent - Module 5.2 - Playwright, DOM parsing, SPA navigation."
     },
-    "complex dag orchestration": {
+    "complex dag orchestration v4": {
         "stage": "Adult",
         "category": "System",
         "mastery": "0%",
-        "content": "Complex Multi-Step DAG Orchestration - Adult Stage\n\n**Category:** System\n**Module:** 5.3\n\nSociety of Mind debate pattern, approval gates, conditional branching."
+        "content": "Complex DAG Orchestration - Module 5.3 - Society of Mind, approval gates."
     },
-    "multimodal safety alignment": {
+    "multimodal safety alignment v4": {
         "stage": "Adult",
         "category": "Safety",
         "mastery": "0%",
-        "content": "Multimodal Safety & Adversarial Alignment - Adult Stage\n\n**Category:** Safety\n**Module:** 6.1\n\nRed-teaming, Llama Guard, No Roboto protocol, jailbreak detection."
+        "content": "Multimodal Safety - Module 6.1 - Red-teaming, Llama Guard, jailbreak detection."
     },
     "autonomous curriculum generation": {
         "stage": "Adult",
         "category": "SI_Meta",
         "mastery": "0%",
-        "content": "Autonomous Curriculum Generation & Self-Extension - Adult Stage\n\n**Category:** SI Meta-Cognition\n**Module:** 7.1\n\nDesigning mastery-gated curricula, Curiosity Engine, LoRA self-bootstrapping."
+        "content": "Autonomous Curriculum Generation - Module 7.1 - Mastery-gated curricula, Curiosity Engine."
     },
     "competitor capability ingestion": {
         "stage": "Adult",
         "category": "SI_Meta",
         "mastery": "0%",
-        "content": "External AI System Analysis & Capability Ingestion - Adult Stage\n\n**Category:** SI Meta-Cognition\n**Module:** 7.2\n\nBlack-box probing, white-box weight analysis, functional reverse-engineering."
+        "content": "Competitor Capability Ingestion - Module 7.2 - Black-box probing, reverse-engineering."
     },
     "code self-mastery hardening": {
         "stage": "Adult",
         "category": "System",
         "mastery": "0%",
-        "content": "Advanced Code Self-Mastery & System Hardening - Adult Stage\n\n**Category:** System\n**Module:** 7.3\n\nSelf-creating components, penetration testing, trend prediction, market leadership."
+        "content": "Code Self-Mastery - Module 7.3 - Self-creating components, pentesting, market leadership."
     },
+}
+
 TOTAL_TOPICS = 162
