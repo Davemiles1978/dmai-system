@@ -2111,14 +2111,59 @@ def _ai_chat(message):
     # ── Priority 4: Live web search ────────────────────────────────────────
     if response_text is None:
         try:
-            from components.web_search import search_and_summarize
-            web_results = search_and_summarize(clean_message)
-            if web_results:
-                response_text = (
-                    f"[Live web search results]\n\n{web_results}\n\n"
-                    f"Synthesise a complete answer from the above current information."
+            from components.web_search import search_web as _sw, search_and_summarize
+            # Try multiple search queries for better results
+            queries = [clean_message]
+            # Add simplified queries
+            words = clean_message.split()
+            if len(words) > 5:
+                queries.append(" ".join(words[:6]))
+                queries.append(" ".join(words[-6:]))
+            
+            all_results = []
+            for q in queries[:2]:  # Try up to 2 query variants
+                results = _sw(q, max_results=3)
+                if results:
+                    all_results.extend(results)
+                    if len(all_results) >= 5:
+                        break
+            
+            if all_results:
+                # Deduplicate by URL
+                seen = set()
+                unique_results = []
+                for r in all_results:
+                    if r['url'] not in seen:
+                        seen.add(r['url'])
+                        unique_results.append(r)
+                
+                knowledge_text = "\n\n".join([
+                    f"Source {i+1}: {r['title']}\n{r['snippet'][:500]}\nURL: {r['url']}"
+                    for i, r in enumerate(unique_results[:5])
+                ])
+                # Feed web results to an AI provider for synthesis
+                synth_prompt = (
+                    f"Using the following live web search results, provide a comprehensive, "
+                    f"up-to-date answer to this question: {clean_message}\n\n"
+                    f"WEB RESULTS:\n{knowledge_text}\n\n"
+                    f"If the web results don't contain relevant information, say so honestly "
+                    f"and provide whatever partial information you can."
                 )
-                logger.info("_ai_chat: web search provided results")
+                try:
+                    direct_resp, provider, _dbg = _direct_provider_chat(synth_prompt)
+                    if direct_resp and not any(p in direct_resp.lower() for p in ["i don't have", "i cannot", "my knowledge", "training cut-off", "i'm sorry", "i am sorry"]):
+                        response_text = direct_resp
+                        logger.info("_ai_chat: web search synthesized via %s", provider)
+                except Exception:
+                    pass
+                
+                # If AI synthesis failed, return raw web results
+                if response_text is None:
+                    response_text = (
+                        f"[Live web search results for: '{clean_message}']\n\n{knowledge_text}\n\n"
+                        f"These are the most current results available. DMAI will save this knowledge for future reference."
+                    )
+                logger.info("_ai_chat: web search provided %d unique results", len(unique_results))
         except Exception as _we:
             logger.warning("Web search fallback failed: %s", _we)
 
