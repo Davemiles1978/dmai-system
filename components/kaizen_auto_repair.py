@@ -153,7 +153,23 @@ class KaizenAutoRepair:
                     dead_lettered += 1
                     continue
             ai_pending.append(p)
-
+        
+        # Deduplicate: keep only most recent per file (collapses 3000 -> ~2)
+        seen_files = {}
+        deduped = []
+        for p in ai_pending:
+            f = (p.get("file") or p.get("file_path") or "").lstrip("./")
+            if f and f in seen_files:
+                p["status"] = "resolved"
+                p["resolution"] = "deduplicated_duplicate"
+                p["resolved_at"] = datetime.now(timezone.utc).isoformat()
+                dead_lettered += 1
+            else:
+                if f:
+                    seen_files[f] = p
+                deduped.append(p)
+        ai_pending = deduped
+        
         # Pass 2: AI-assisted repairs (bounded by _AI_REPAIR_BATCH)
         for proposal in ai_pending[:_AI_REPAIR_BATCH]:
             result = self._attempt_repair(proposal)
