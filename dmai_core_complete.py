@@ -5616,6 +5616,33 @@ def api_kaizen_run_cycle():
 def api_kaizen_cycle_status():
     return _comp_status("kaizen_integrator")
 
+@app.route("/api/kaizen/reset-failed", methods=["POST"])
+def api_kaizen_reset_failed():
+    """Reset attempt_count on failed Kaizen items so the repair loop retries them."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    import json as _json, os as _os
+    kaizen_file = _os.path.join(DATA_PATH, "kaizen_queue.jsonl")
+    if not _os.path.exists(kaizen_file):
+        return jsonify({"ok": False, "error": "No kaizen queue file found"}), 404
+    try:
+        lines = []
+        reset_count = 0
+        with open(kaizen_file, "r") as f:
+            for line in f:
+                if line.strip():
+                    item = _json.loads(line)
+                    if item.get("status") == "failed":
+                        item["status"] = "pending"
+                        item["attempt_count"] = 0
+                        item["last_attempt"] = None
+                        reset_count += 1
+                    lines.append(_json.dumps(item) + "\n")
+        with open(kaizen_file, "w") as f:
+            f.writelines(lines)
+        return jsonify({"ok": True, "reset": reset_count})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 @app.route("/api/kaizen/auto-repair", methods=["POST"])
 def api_kaizen_auto_repair():
