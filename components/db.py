@@ -60,7 +60,7 @@ logger = logging.getLogger(__name__)
 _PER_CONNECTION_PRAGMAS = (
     "PRAGMA journal_mode=WAL",          # MUST be first
     "PRAGMA synchronous=NORMAL",        # safe + fast with WAL
-    "PRAGMA busy_timeout=30000",        # 30 s
+    "PRAGMA busy_timeout=120000",        # 120 s
     "PRAGMA foreign_keys=ON",
     "PRAGMA temp_store=MEMORY",         # avoid /tmp churn on Render
     "PRAGMA cache_size=-65536",         # 64 MB (negative = KB)
@@ -89,7 +89,7 @@ _TLS = threading.local()
 # a batched BEGIN..executemany..COMMIT held under one guard) don't deadlock.
 # PR V-fast: bumped from 30s -> 60s to reduce storm noise while V-real (hot-
 # table Postgres migration) is in flight. On expiry we still raise cleanly.
-_WRITE_MUTEX_TIMEOUT = 60.0  # seconds; on expiry we raise, never block forever
+_WRITE_MUTEX_TIMEOUT = 120.0  # seconds; on expiry we raise, never block forever
 _WRITE_LOCKS: dict[str, threading.RLock] = {}
 _WRITE_LOCKS_META = threading.Lock()           # guards _WRITE_LOCKS mutation
 _WRITE_LOCK_HOLDERS: dict[str, int] = {}        # path -> last-acquirer thread ident
@@ -533,7 +533,7 @@ def _really_close(conn) -> None:
 def safe_open_kdb(
     path: str,
     *,
-    timeout: float = 30.0,
+    timeout: float = 60.0,
     read_only: bool = False,
 ) -> KeepOpenProxy:
     """Open or reuse a connection to a DMAI SQLite DB with safe defaults.
@@ -626,6 +626,11 @@ def safe_open_kdb(
             # synchronous, foreign_keys) come first and will raise on
             # the same kind of failure if it's a real problem.
             pass
+    # Auto-checkpoint WAL to prevent bloat and reduce lock contention
+    try:
+        conn.execute("PRAGMA wal_autocheckpoint=1000")
+    except Exception:
+        pass
     proxy = KeepOpenProxy(conn, wkey, wlock)
     cache[key] = proxy
     return proxy
