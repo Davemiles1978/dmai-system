@@ -7540,18 +7540,22 @@ def api_integrity_purge():
 import uuid as _uuid_mod
 
 def _sug_db():
+    """Return PostgreSQL connection when available, SQLite fallback."""
+    import os as _os
+    db_url = _os.environ.get("DATABASE_URL")
+    if db_url:
+        try:
+            import psycopg2 as _pg
+            import psycopg2.extras as _pg_extras
+            conn = _pg.connect(db_url)
+            conn.cursor_factory = _pg_extras.RealDictCursor
+            return conn
+        except Exception as _e:
+            logger.warning("_sug_db: PostgreSQL failed, falling back to SQLite: %s", _e)
     import sqlite3 as _sq
     conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
-    try:
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA busy_timeout=30000")
-    except Exception:
-        pass
     conn.row_factory = _sq.Row
     return conn
-
-def _sug_now():
-    return datetime.now(timezone.utc).isoformat()
 
 @app.route("/api/suggestions", methods=["POST"])
 def api_suggestions_create():
