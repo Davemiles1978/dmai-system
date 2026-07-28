@@ -7557,6 +7557,9 @@ def _sug_db():
     conn.row_factory = _sq.Row
     return conn
 
+
+def _sug_now():
+    return datetime.now(timezone.utc).isoformat()
 @app.route("/api/suggestions", methods=["POST"])
 def api_suggestions_create():
     if not _require_auth():
