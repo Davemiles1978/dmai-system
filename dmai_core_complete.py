@@ -2055,7 +2055,8 @@ def _ai_chat(message):
                 ignorance_phrases = [
                     "i don't have", "i don't know", "i cannot provide", "i can't provide",
                     "my knowledge", "training cut-off", "training data", "after my",
-                    "i'm sorry", "i am sorry", "i apologize", "as an ai", "as a language model",
+                    "i'm sorry", "iu2019m sorry", "i am sorry", "i apologize", "as an ai", "as a language model",
+                    "as of my latest", "i don't have any record", "no record of",
                     "don't have access", "do not have access", "not able to",
                     "post-april", "real-time", "real time",
                     "my last training", "my training", "knowledge cutoff", "cutoff date",
