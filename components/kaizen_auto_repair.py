@@ -43,6 +43,7 @@ _AI_REPAIR_BATCH = 100
 # Paths that are safe to auto-resolve without invoking CodeWriter — these are
 # self-healing artefacts or backups, not real source files.
 _DEAD_LETTER_PREFIXES = (
+    "components/phase3/",
     "data/self_healing/backups/",
     "data/quarantine/",
     "components/backup_final_",
