@@ -2051,9 +2051,28 @@ def _ai_chat(message):
     if response_text is None:
         try:
             direct_resp, provider, _dbg = _direct_provider_chat(clean_message)
-            if direct_resp:
-                response_text = direct_resp
-                logger.info("_ai_chat: direct provider success via %s", provider)
+                if direct_resp:
+                    ignorance_phrases = [
+                        "i don't have", "i don't know", "i cannot provide", "i can't provide",
+                        "my knowledge", "training cut-off", "training data", "after my",
+                        "i'm sorry", "i am sorry", "i apologize", "as an ai", "as a language model",
+                        "don't have access", "do not have access", "not able to",
+                        "post-april", "post-april 2023", "real-time", "real time",
+                        "my last training", "my training", "knowledge cutoff", "cutoff date",
+                        "i can't give", "i cannot give", "don't have information",
+                        "do not have information", "no information", "not aware",
+                        "beyond my", "outside my", "after my knowledge",
+                        "i wasn't trained", "i was not trained", "my cutoff",
+                        "can't access", "cannot access", "not equipped",
+                        "don't have the ability", "limited to", "limited knowledge",
+                    ]
+                    is_ignorant = any(p in direct_resp.lower() for p in ignorance_phrases)
+                    if is_ignorant:
+                        logger.info("_ai_chat: provider %s admitted ignorance — skipping to next priority", provider)
+                        response_text = None
+                    else:
+                        response_text = direct_resp
+                        logger.info("_ai_chat: direct provider success via %s", provider)
             else:
                 logger.warning("_ai_chat: all direct providers failed: %s", _dbg)
         except Exception as e:
