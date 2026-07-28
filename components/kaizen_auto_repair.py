@@ -111,6 +111,11 @@ class KaizenAutoRepair:
             if p.get("status") == "failed" and p.get("attempt_count", 0) < _MAX_ATTEMPTS:
                 p["status"] = "pending"
 
+        # Normalize: some items use "action" instead of "status"
+        for p in proposals:
+            if "action" in p and "status" not in p:
+                p["status"] = p["action"]
+        
         pending = [
             p for p in proposals
             if p.get("status") in ("pending", "auto_repair_needed", "review_and_fix")
