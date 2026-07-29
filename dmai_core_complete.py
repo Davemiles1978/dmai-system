@@ -7539,6 +7539,7 @@ def api_integrity_purge():
 # ═══════════════════════════════════════════════════════════════════════════
 import uuid as _uuid_mod
 
+
 def _sug_db():
     """Return a DB proxy for suggestions (PG primary, SQLite fallback).
 
@@ -7550,11 +7551,30 @@ def _sug_db():
 
     # Try PostgreSQL via shared PGStorage pool
     try:
-        pg_storage = _get_component("db_storage")
+        pg_storage = components.get("db_storage")
         if pg_storage is not None and getattr(pg_storage, "_available", False):
             return _PGSuggestionsProxy(pg_storage)
-    except Exception as _e:
-        logger.warning("_sug_db: PGStorage unavailable, fallback SQLite: %s", _e)
+    except Exception:
+        pass
+
+    # PGStorage pool not available — try direct PG connection
+    import os as _os
+    db_url = _os.environ.get("DATABASE_URL")
+    if db_url:
+        try:
+            import psycopg2 as _pg
+            import psycopg2.extras as _pg_extras
+            if db_url.startswith("postgres://"):
+                db_url = "postgresql://" + db_url[len("postgres://"):]
+            conn = _pg.connect(db_url)
+            conn.autocommit = True
+            conn.cursor_factory = _pg_extras.RealDictCursor
+            cur = conn.cursor()
+            cur.execute("SELECT 1")
+            cur.close()
+            return _PGRawConnectionProxy(conn)
+        except Exception as _e:
+            logger.warning("_sug_db: direct PG failed, fallback SQLite: %s", _e)
 
     # SQLite fallback
     import sqlite3 as _sq
@@ -7618,6 +7638,51 @@ class _PGSuggestionsCursor:
 
     def fetchall(self):
         self._ensure_executed()
+        return self._rows
+
+
+class _PGRawConnectionProxy:
+    """Wraps a raw psycopg2 connection for the suggestions CRUD functions.
+    Translates ? placeholders to %s; .commit() and .close() are safe no-ops
+    (autocommit is already on)."""
+
+    __slots__ = ("_conn",)
+
+    def __init__(self, conn):
+        self._conn = conn
+
+    def execute(self, sql, params=()):
+        pg_sql = sql.replace("?", "%s")
+        cur = self._conn.cursor()
+        cur.execute(pg_sql, params)
+        return _PGRawCursor(cur)
+
+    def commit(self):
+        pass
+
+    def close(self):
+        pass
+
+
+class _PGRawCursor:
+    """Wraps a psycopg2 cursor to look like sqlite3 cursor."""
+
+    __slots__ = ("_cur", "_rows")
+
+    def __init__(self, cur):
+        self._cur = cur
+        self._rows = None
+
+    def _ensure_fetched(self):
+        if self._rows is None:
+            self._rows = self._cur.fetchall()
+
+    def fetchone(self):
+        self._ensure_fetched()
+        return self._rows[0] if self._rows else None
+
+    def fetchall(self):
+        self._ensure_fetched()
         return self._rows
 @app.route("/api/suggestions", methods=["POST"])
 def api_suggestions_create():
@@ -12340,6 +12405,7 @@ def api_conversation_stats():
         return jsonify({"error": str(e)}), 500
 
 
+
 def _ensure_suggestions_table():
     """Create suggestions table if it doesn't exist (PG primary, SQLite fallback)."""
     _CREATE_SQL = """
@@ -12362,7 +12428,7 @@ def _ensure_suggestions_table():
     """
     # Try PostgreSQL via shared PGStorage pool
     try:
-        pg_storage = _get_component("db_storage")
+        pg_storage = components.get("db_storage")
         if pg_storage is not None and getattr(pg_storage, "_available", False):
             pg_storage._exec(_CREATE_SQL)
             return
