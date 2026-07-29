@@ -117,9 +117,37 @@ def _extract_json(text: str) -> Optional[dict]:
 
 # ── DB helpers ─────────────────────────────────────────────────────────────
 def _db():
+    """Get suggestions DB connection (PG primary, SQLite fallback)."""
+    import os as _os
+    db_url = _os.environ.get("DATABASE_URL")
+    if db_url:
+        try:
+            import psycopg2 as _pg
+            import psycopg2.extras as _pg_extras
+            if db_url.startswith("postgres://"):
+                db_url = "postgresql://" + db_url[len("postgres://"):]
+            conn = _pg.connect(db_url)
+            conn.autocommit = True
+            conn.cursor_factory = _pg_extras.RealDictCursor
+            cur = conn.cursor()
+            cur.execute("SELECT 1")
+            cur.close()
+            return conn
+        except Exception as _e:
+            logger.warning("_db: PG failed, fallback SQLite: %s", _e)
     conn = safe_open_kdb(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def _db_execute(conn, sql, params=()):
+    """Execute on PG or SQLite, translating ? to %s for PG."""
+    if hasattr(conn, 'cursor_factory'):  # psycopg2 connection
+        pg_sql = sql.replace("?", "%s")
+        cur = conn.cursor()
+        cur.execute(pg_sql, params)
+        return cur
+    return conn.execute(sql, params)
 
 
 def _now() -> str:
@@ -134,8 +162,11 @@ def _update_suggestion(sid: str, **kwargs):
     vals = list(kwargs.values()) + [sid]
     try:
         conn = _db()
-        conn.execute(f"UPDATE suggestions SET {sets} WHERE id=?", vals)
-        conn.commit()
+        _db_execute(conn, f"UPDATE suggestions SET {sets} WHERE id=?", vals)
+        try:
+            conn.commit()
+        except Exception:
+            pass
         conn.close()
     except Exception as e:
         logger.error("DB update failed for suggestion %s: %s", sid, e)
@@ -186,7 +217,7 @@ class SuggestionExecutor:
         """Full pipeline: analyse → code → commit/PR → log."""
         try:
             conn = _db()
-            row = conn.execute("SELECT * FROM suggestions WHERE id=?", (suggestion_id,)).fetchone()
+            row = _db_execute(conn, "SELECT * FROM suggestions WHERE id=?", (suggestion_id,)).fetchone()
             conn.close()
             if not row:
                 logger.error("Suggestion %s not found", suggestion_id)
