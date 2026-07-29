@@ -213,8 +213,17 @@ def _open_github_pr(branch: str, title: str, body: str) -> Optional[str]:
 # ── Main executor ───────────────────────────────────────────────────────────
 class SuggestionExecutor:
 
-    def execute(self, suggestion_id: str):
-        """Full pipeline: analyse → code → commit/PR → log."""
+    def execute(self, suggestion_id: str, attempt: int = 0, previous_failures: list = None):
+        """Recursive self-healing pipeline: analyse → code → commit/PR → log.
+
+        On failure, logs what went wrong, designs an alternative approach, and
+        retries with exponential backoff. Never gives up — every failure is a
+        teaching opportunity committed to persistent memory.
+        """
+        if previous_failures is None:
+            previous_failures = []
+
+        # ── Load suggestion ────────────────────────────────────────────
         try:
             conn = _db()
             row = _db_execute(conn, "SELECT * FROM suggestions WHERE id=?", (suggestion_id,)).fetchone()
@@ -228,29 +237,67 @@ class SuggestionExecutor:
             logger.error("Failed to load suggestion %s: %s", suggestion_id, e)
             return
 
+        # ── Exponential backoff ────────────────────────────────────────
+        if attempt > 0:
+            delay = min(2 ** (attempt - 1), 300)  # 1s, 2s, 4s, 8s... max 5min
+            logger.info("Suggestion %s retry attempt %d — waiting %ds", suggestion_id, attempt, delay)
+            time.sleep(delay)
+
         try:
-            # ── Step 1: Analyse ────────────────────────────────────────────
-            _update_suggestion(suggestion_id, status="analysing")
-            plan = self._analyse(title, description, suggestion_id)
+            # ── Step 1: Analyse (with failure memory) ─────────────────
+            status_label = f"analysing (attempt {attempt+1})" if attempt > 0 else "analysing"
+            _update_suggestion(suggestion_id, status=status_label)
+
+            plan = self._analyse(title, description, suggestion_id, previous_failures)
             if not plan:
-                _update_suggestion(suggestion_id, status="failed",
-                                   result="LLM analysis failed — no providers available or all timed out.")
+                failure = {
+                    "attempt": attempt + 1,
+                    "stage": "analysis",
+                    "error": "LLM analysis failed — no providers available or all timed out.",
+                    "timestamp": _now()
+                }
+                previous_failures.append(failure)
+                _update_suggestion(suggestion_id,
+                                   status="retrying",
+                                   result=json.dumps(previous_failures))
+                self._log_failure_to_kaizen(suggestion_id, title, failure)
+                self.execute(suggestion_id, attempt + 1, previous_failures)
                 return
 
             complexity = plan.get("complexity", "complex")
             _update_suggestion(suggestion_id, status="coding",
                                complexity=complexity, plan=json.dumps(plan))
 
-            # ── Step 2: Generate code ──────────────────────────────────────
+            # ── Step 2: Generate code ─────────────────────────────────
             files_written = self._generate_code(plan, suggestion_id, title)
             if not files_written:
-                _update_suggestion(suggestion_id, status="failed",
-                                   result="Code generation produced no files.")
+                failure = {
+                    "attempt": attempt + 1,
+                    "stage": "code_generation",
+                    "error": "Code generation produced no files.",
+                    "plan_used": plan,
+                    "timestamp": _now()
+                }
+                previous_failures.append(failure)
+                _update_suggestion(suggestion_id,
+                                   status="retrying",
+                                   result=json.dumps(previous_failures))
+                self._log_failure_to_kaizen(suggestion_id, title, failure)
+                self.execute(suggestion_id, attempt + 1, previous_failures)
                 return
 
-            # ── Step 3: Commit / PR ────────────────────────────────────────
-            _configure_git()
-            _git("pull", "--rebase", "origin", "main")
+            # ── Step 3: Commit / PR ───────────────────────────────────
+            try:
+                _configure_git()
+                _git("pull", "--rebase", "origin", "main")
+            except Exception as git_e:
+                # Git failures are often environment issues — stash and retry
+                try:
+                    _git("stash")
+                    _git("pull", "--rebase", "origin", "main")
+                    _git("stash", "pop")
+                except Exception:
+                    pass  # Continue anyway — might still be able to commit
 
             rel_paths = [str(p.relative_to(REPO_ROOT)) for p in files_written]
 
@@ -286,24 +333,74 @@ class SuggestionExecutor:
                 if not pr_url:
                     result_msg += " (PR creation failed — GITHUB_TOKEN may be missing)"
 
+            # ── Success! ──────────────────────────────────────────────
+            final_result = {
+                "attempts": attempt + 1,
+                "previous_failures": previous_failures,
+                "final_approach": plan,
+                "files": rel_paths,
+                "completed_at": _now()
+            }
             _update_suggestion(suggestion_id,
                                status=final_status,
-                               result=result_msg,
+                               result=json.dumps(final_result),
                                pr_url=pr_url,
                                branch=branch if complexity != "simple" else "main",
                                files_changed=json.dumps(rel_paths),
                                completed_at=_now())
 
-            # ── Step 4: Log as capability + training ───────────────────────
             self._log_completion(suggestion_id, title, rel_paths)
+            logger.info("Suggestion %s COMPLETED after %d attempt(s)", suggestion_id, attempt + 1)
 
         except Exception as e:
-            logger.error("SuggestionExecutor.execute failed for %s: %s", suggestion_id, e)
-            _update_suggestion(suggestion_id, status="failed", result=str(e))
+            failure = {
+                "attempt": attempt + 1,
+                "stage": "execution",
+                "error": str(e)[:500],
+                "timestamp": _now()
+            }
+            previous_failures.append(failure)
+            logger.error("Suggestion %s attempt %d failed: %s", suggestion_id, attempt + 1, e)
+
+            try:
+                _update_suggestion(suggestion_id,
+                                   status="retrying",
+                                   result=json.dumps(previous_failures))
+            except Exception:
+                pass
+
+            self._log_failure_to_kaizen(suggestion_id, title, failure)
+            self.execute(suggestion_id, attempt + 1, previous_failures)
+
+    def _log_failure_to_kaizen(self, sid: str, title: str, failure: dict):
+        """Log a failed attempt to Kaizen so DMAI learns across suggestions."""
+        try:
+            kaizen_entry = {
+                "source": f"suggestion:{sid}",
+                "title": f"Failed attempt {failure['attempt']} for: {title}",
+                "stage": failure["stage"],
+                "error": failure["error"],
+                "timestamp": failure["timestamp"],
+                "category": "self_build"
+            }
+            kaizen_file = REPO_ROOT / "data" / "kaizen_failures.jsonl"
+            kaizen_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(kaizen_file, "a") as f:
+                f.write(json.dumps(kaizen_entry) + "\n")
+        except Exception as e:
+            logger.warning("Failed to log to Kaizen: %s", e)
 
     # ── Analysis ────────────────────────────────────────────────────────────
-    def _analyse(self, title: str, description: str, sid: str) -> Optional[dict]:
+    def _analyse(self, title: str, description: str, sid: str, previous_failures: list = None) -> Optional[dict]:
         system = "You are DMAI's internal coding planner. Respond ONLY with valid JSON."
+        # Build failure context for the LLM
+        failure_context = ""
+        if previous_failures:
+            failure_context = "\n\nPREVIOUS FAILED ATTEMPTS (learn from these — do NOT repeat):\n"
+            for f in previous_failures:
+                failure_context += f"- Attempt {f['attempt']}: [{f['stage']}] {f['error'][:200]}\n"
+            failure_context += "\nDesign a DIFFERENT approach than those above.\n"
+
         prompt = f"""Analyse this development suggestion and produce a JSON implementation plan.
 
 Title: {title}
