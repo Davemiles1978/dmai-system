@@ -6431,7 +6431,7 @@ def api_learning_full_status():
     db_stats = {"insights": 0, "capabilities": 0, "syllabus_mastered": 0}
     try:
         import sqlite3
-        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -7075,7 +7075,7 @@ def api_vocabulary_stats():
     """Return vocabulary and encyclopaedia ingestion stats."""
     try:
         import sqlite3 as _vsq
-        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -7108,7 +7108,7 @@ def api_vocabulary_sample():
     """Return a random sample of recently learned words."""
     try:
         import sqlite3 as _vsq
-        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -7453,7 +7453,7 @@ def api_integrity_report():
         return jsonify({"error": "Unauthorized"}), 401
     try:
         import sqlite3 as _isq
-        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
+        conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=30000")
@@ -7553,7 +7553,7 @@ def _sug_db():
         except Exception as _e:
             logger.warning("_sug_db: PostgreSQL failed, falling back to SQLite: %s", _e)
     import sqlite3 as _sq
-    conn = safe_open_kdb("data/dmai_knowledge.db", timeout=30.0)
+    conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
     conn.row_factory = _sq.Row
     return conn
 
