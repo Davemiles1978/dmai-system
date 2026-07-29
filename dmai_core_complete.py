@@ -7540,45 +7540,85 @@ def api_integrity_purge():
 import uuid as _uuid_mod
 
 def _sug_db():
-    """Use PostgreSQL (dmai-harvester-db) primary, SQLite fallback."""
-    import os as _os
-    db_url = _os.environ.get("DATABASE_URL")
-    if db_url:
-        try:
-            import psycopg2 as _pg
-            import psycopg2.extras as _pg_extras
-            conn = _pg.connect(db_url)
-            conn.autocommit = True
-            conn.cursor_factory = _pg_extras.RealDictCursor
-            cur = conn.cursor()
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS suggestions (
-                    id TEXT PRIMARY KEY,
-                    source TEXT NOT NULL DEFAULT 'user',
-                    title TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    status TEXT NOT NULL DEFAULT 'pending',
-                    complexity TEXT DEFAULT NULL,
-                    plan TEXT DEFAULT NULL,
-                    result TEXT DEFAULT NULL,
-                    pr_url TEXT DEFAULT NULL,
-                    branch TEXT DEFAULT NULL,
-                    files_changed TEXT DEFAULT NULL,
-                    created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL
-                )
-            """)
-            cur.close()
-            return conn
-        except Exception as _e:
-            logger.warning("_sug_db: PG failed, fallback SQLite: %s", _e)
+    """Return a DB proxy for suggestions (PG primary, SQLite fallback).
+
+    Callers use .execute(sql, params) with ? placeholders regardless of backend.
+    .commit() and .close() are safe no-ops on PG, normal on SQLite.
+    """
+    # Ensure table exists first
+    _ensure_suggestions_table()
+
+    # Try PostgreSQL via shared PGStorage pool
+    try:
+        pg_storage = _get_component("db_storage")
+        if pg_storage is not None and getattr(pg_storage, "_available", False):
+            return _PGSuggestionsProxy(pg_storage)
+    except Exception as _e:
+        logger.warning("_sug_db: PGStorage unavailable, fallback SQLite: %s", _e)
+
+    # SQLite fallback
     import sqlite3 as _sq
     conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
     conn.row_factory = _sq.Row
     return conn
-
 def _sug_now():
     return datetime.now(timezone.utc).isoformat()
+
+
+# ── PostgreSQL proxy for suggestions CRUD ────────────────────────────────────
+# Makes PGStorage._exec() look like a sqlite3 connection so the existing
+# CRUD functions work unchanged with ? placeholders on both backends.
+
+class _PGSuggestionsProxy:
+    """Thin wrapper that makes PGStorage._exec() look like a sqlite3 connection
+    for the suggestions CRUD functions — translates ? placeholders to %s and
+    makes .commit()/.close() safe no-ops."""
+
+    __slots__ = ("_pg",)
+
+    def __init__(self, pg_storage):
+        self._pg = pg_storage
+
+    def execute(self, sql, params=()):
+        pg_sql = sql.replace("?", "%s")
+        return _PGSuggestionsCursor(self._pg, pg_sql, params)
+
+    def commit(self):
+        pass
+
+    def close(self):
+        pass
+
+
+class _PGSuggestionsCursor:
+    """Simulates a sqlite3 cursor for a single PGStorage query."""
+
+    __slots__ = ("_pg", "_sql", "_params", "_executed", "_rows")
+
+    def __init__(self, pg_storage, sql, params):
+        self._pg = pg_storage
+        self._sql = sql
+        self._params = params
+        self._executed = False
+        self._rows = None
+
+    def _ensure_executed(self):
+        if not self._executed:
+            sql_upper = self._sql.strip().upper()
+            if sql_upper.startswith("SELECT"):
+                self._rows = self._pg._exec(self._sql, self._params, fetch="all")
+            else:
+                self._pg._exec(self._sql, self._params)
+                self._rows = []
+            self._executed = True
+
+    def fetchone(self):
+        self._ensure_executed()
+        return self._rows[0] if self._rows else None
+
+    def fetchall(self):
+        self._ensure_executed()
+        return self._rows
 @app.route("/api/suggestions", methods=["POST"])
 def api_suggestions_create():
     if not _require_auth():
@@ -12301,13 +12341,8 @@ def api_conversation_stats():
 
 
 def _ensure_suggestions_table():
-    """Create suggestions table if it doesn't exist."""
-    import sqlite3 as _sq3
-    from pathlib import Path as _P3
-    db = _P3("data/dmai_knowledge.db")
-    db.parent.mkdir(parents=True, exist_ok=True)
-    conn = safe_open_kdb(str(db))
-    conn.execute('''
+    """Create suggestions table if it doesn't exist (PG primary, SQLite fallback)."""
+    _CREATE_SQL = """
         CREATE TABLE IF NOT EXISTS suggestions (
             id TEXT PRIMARY KEY,
             source TEXT NOT NULL DEFAULT 'user',
@@ -12324,10 +12359,24 @@ def _ensure_suggestions_table():
             updated_at TEXT NOT NULL,
             completed_at TEXT DEFAULT NULL
         )
-    ''')
+    """
+    # Try PostgreSQL via shared PGStorage pool
+    try:
+        pg_storage = _get_component("db_storage")
+        if pg_storage is not None and getattr(pg_storage, "_available", False):
+            pg_storage._exec(_CREATE_SQL)
+            return
+    except Exception as _e:
+        logger.warning("_ensure_suggestions_table: PG failed, using SQLite: %s", _e)
+
+    # SQLite fallback
+    from pathlib import Path as _P3
+    db = _P3("data/dmai_knowledge.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
+    conn = safe_open_kdb(str(db))
+    conn.execute(_CREATE_SQL)
     conn.commit()
     conn.close()
-
 @app.route("/api/heartbeat", methods=["GET"])
 def api_heartbeat():
     """Live learning heartbeat — feeds the admin D3.js Heartbeat panel."""
