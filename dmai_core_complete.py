@@ -12406,6 +12406,7 @@ def api_conversation_stats():
 
 
 
+
 def _ensure_suggestions_table():
     """Create suggestions table if it doesn't exist (PG primary, SQLite fallback)."""
     _CREATE_SQL = """
@@ -12432,8 +12433,26 @@ def _ensure_suggestions_table():
         if pg_storage is not None and getattr(pg_storage, "_available", False):
             pg_storage._exec(_CREATE_SQL)
             return
-    except Exception as _e:
-        logger.warning("_ensure_suggestions_table: PG failed, using SQLite: %s", _e)
+    except Exception:
+        pass
+
+    # PGStorage pool not available — try direct PG connection
+    import os as _os
+    db_url = _os.environ.get("DATABASE_URL")
+    if db_url:
+        try:
+            import psycopg2 as _pg
+            if db_url.startswith("postgres://"):
+                db_url = "postgresql://" + db_url[len("postgres://"):]
+            conn = _pg.connect(db_url)
+            conn.autocommit = True
+            cur = conn.cursor()
+            cur.execute(_CREATE_SQL)
+            cur.close()
+            conn.close()
+            return
+        except Exception as _e:
+            logger.warning("_ensure_suggestions_table: direct PG failed: %s", _e)
 
     # SQLite fallback
     from pathlib import Path as _P3
