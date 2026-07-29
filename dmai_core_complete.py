@@ -7600,8 +7600,10 @@ def api_suggestions_create():
             "VALUES (?, ?, ?, ?, 'pending', ?, ?)",
             (sid, source, title, description, now, now)
         )
-        try: conn.commit()
-except Exception: pass
+        try:
+            conn.commit()
+        except Exception:
+            pass
         conn.close()
         # Fire executor in background thread
         def _exec():
@@ -7696,7 +7698,10 @@ def api_suggestions_delete(sid):
     try:
         conn = _sug_db()
         conn.execute("DELETE FROM suggestions WHERE id=?", (sid,))
-        conn.commit()
+        try:
+            conn.commit()
+        except Exception:
+            pass
         conn.close()
         return jsonify({"deleted": sid})
     except Exception as e:
