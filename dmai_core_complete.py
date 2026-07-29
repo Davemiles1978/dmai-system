@@ -7540,7 +7540,7 @@ def api_integrity_purge():
 import uuid as _uuid_mod
 
 def _sug_db():
-    """Return PostgreSQL connection when available, SQLite fallback."""
+    """Use PostgreSQL (dmai-harvester-db) primary, SQLite fallback."""
     import os as _os
     db_url = _os.environ.get("DATABASE_URL")
     if db_url:
@@ -7548,15 +7548,34 @@ def _sug_db():
             import psycopg2 as _pg
             import psycopg2.extras as _pg_extras
             conn = _pg.connect(db_url)
+            conn.autocommit = True
             conn.cursor_factory = _pg_extras.RealDictCursor
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS suggestions (
+                    id TEXT PRIMARY KEY,
+                    source TEXT NOT NULL DEFAULT 'user',
+                    title TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    complexity TEXT DEFAULT NULL,
+                    plan TEXT DEFAULT NULL,
+                    result TEXT DEFAULT NULL,
+                    pr_url TEXT DEFAULT NULL,
+                    branch TEXT DEFAULT NULL,
+                    files_changed TEXT DEFAULT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+            """)
+            cur.close()
             return conn
         except Exception as _e:
-            logger.warning("_sug_db: PostgreSQL failed, falling back to SQLite: %s", _e)
+            logger.warning("_sug_db: PG failed, fallback SQLite: %s", _e)
     import sqlite3 as _sq
     conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
     conn.row_factory = _sq.Row
     return conn
-
 
 def _sug_now():
     return datetime.now(timezone.utc).isoformat()
@@ -7581,7 +7600,8 @@ def api_suggestions_create():
             "VALUES (?, ?, ?, ?, 'pending', ?, ?)",
             (sid, source, title, description, now, now)
         )
-        conn.commit()
+        try: conn.commit()
+except Exception: pass
         conn.close()
         # Fire executor in background thread
         def _exec():
