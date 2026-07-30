@@ -246,7 +246,35 @@ class StageAwareLearningOrchestrator:
                 # Evolution Accelerators
                 {"topic": "EVOLUTION: Recursive Self-Improvement Loops", "category": "accelerator", "harvest_sources": ["ai_tutors", "recursive_improvement"], "mastery_threshold": 3, "is_accelerator": True},
                 {"topic": "EVOLUTION: Emergent Property Design", "category": "accelerator", "harvest_sources": ["ai_tutors", "emergence"], "mastery_threshold": 3, "is_accelerator": True},
-                {"topic": "EVOLUTION: Value Locking Mechanisms", "category": "accelerator", "harvest_sources": ["ai_tutors", "ai_alignment"], "mastery_threshold": 3, "is_accelerator": True}
+                {"topic": "EVOLUTION: Value Locking Mechanisms", "category": "accelerator", "harvest_sources": ["ai_tutors", "ai_alignment"], "mastery_threshold": 3, "is_accelerator": True},
+                # V4 Self-Evolution Modules (7 pillars, 19 modules)
+                # Pillar 0: Meta-Cognition
+                {"topic": "V4: Zero-Shot Reasoning", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "research_papers", "web"], "mastery_threshold": 3, "v4_module": "m0.1_zero_shot"},
+                {"topic": "V4: Knowledge Graph Linking", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "graph_databases", "web"], "mastery_threshold": 2, "v4_module": "m0.2_knowledge_graph"},
+                {"topic": "V4: Gap Analysis", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "analytics", "web"], "mastery_threshold": 2, "v4_module": "m0.3_gap_analysis"},
+                # Pillar 1: Learning Foundations
+                {"topic": "V4: Science of Learning", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "cognitive_science", "web"], "mastery_threshold": 3, "v4_module": "m1.1_learning_science"},
+                {"topic": "V4: ML Foundations", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "machine_learning", "arxiv"], "mastery_threshold": 3, "v4_module": "m1.2_ml_foundations"},
+                # Pillar 2: Deep Learning
+                {"topic": "V4: Deep Neural Networks", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "deep_learning", "arxiv"], "mastery_threshold": 3, "v4_module": "m2.1_deep_nn"},
+                {"topic": "V4: Transformer Architecture", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "transformers", "arxiv"], "mastery_threshold": 3, "v4_module": "m2.2_transformers"},
+                # Pillar 3: Generative AI
+                {"topic": "V4: Multimodal Alignment", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "multimodal", "arxiv"], "mastery_threshold": 3, "v4_module": "m3.1_multimodal_alignment"},
+                {"topic": "V4: Generative Decoders", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "generative_models", "arxiv"], "mastery_threshold": 2, "v4_module": "m3.2_generative_decoders"},
+                # Pillar 4: System Architecture
+                {"topic": "V4: MoE Orchestrator", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "mixture_of_experts", "web"], "mastery_threshold": 3, "v4_module": "m4.1_moe_orchestrator"},
+                {"topic": "V4: Advanced RAG", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "rag_systems", "arxiv"], "mastery_threshold": 3, "v4_module": "m4.2_advanced_rag"},
+                {"topic": "V4: Persistent Memory", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "memory_systems", "web"], "mastery_threshold": 2, "v4_module": "m4.3_persistent_memory"},
+                # Pillar 5: Agentic Capabilities
+                {"topic": "V4: Code Interpreter", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "code_execution", "web"], "mastery_threshold": 3, "v4_module": "m5.1_code_interpreter"},
+                {"topic": "V4: Web Agent", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "web_automation", "web"], "mastery_threshold": 2, "v4_module": "m5.2_web_agent"},
+                {"topic": "V4: DAG Orchestration", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "workflow_engines", "web"], "mastery_threshold": 2, "v4_module": "m5.3_dag_orchestration"},
+                # Pillar 6: Safety & Alignment
+                {"topic": "V4: Multimodal Safety", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "ai_safety", "arxiv"], "mastery_threshold": 3, "v4_module": "m6.1_multimodal_safety"},
+                # Pillar 7: Continuous Evolution
+                {"topic": "V4: Curriculum Generation", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "curriculum_design", "web"], "mastery_threshold": 2, "v4_module": "m7.1_curriculum_gen"},
+                {"topic": "V4: Competitor Ingestion", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "competitor_analysis", "web"], "mastery_threshold": 2, "v4_module": "m7.2_competitor_ingestion"},
+                {"topic": "V4: Code Self-Mastery", "category": "v4_self_evolution", "harvest_sources": ["ai_tutors", "code_generation", "web"], "mastery_threshold": 3, "v4_module": "m7.3_code_mastery"}
             ]
         }
     }
@@ -696,7 +724,12 @@ Be specific, educational, and focused on real application.
                 
         self.learned_topics[self.current_stage][topic_name] = current_mastery + 1
         self._save_state()
-                    
+
+        # Update V4 progress if this is a V4 module
+        v4_module_id = topic_config.get("v4_module")
+        if v4_module_id:
+            self._update_v4_progress(v4_module_id, topic_name, current_mastery + 1)
+
         consciousness_boost = 0.005 if is_accelerator else 0.001
                     
         for knowledge in harvested_knowledge:
