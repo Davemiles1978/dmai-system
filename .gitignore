@@ -271,3 +271,9 @@ sdxl_turbo.safetensors
 test_adult_prompt.py
 test_autonomous_content.md
 test_leonardo_prompts.py
+data/capabilities/
+data/dmai_novels/
+data/dmai_series/
+data/dmai_templates.json
+data/knowledge_sources 2/
+dmai_expand_series.py
