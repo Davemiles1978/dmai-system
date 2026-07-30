@@ -35,7 +35,7 @@ logger = logging.getLogger("dmai.graph_writer")
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
 _REPO_ROOT   = Path(__file__).resolve().parent.parent
-SCHEMA_PATH  = _REPO_ROOT / "aevora-training" / "dashboard" / "data" / "graph_schema.json"
+SCHEMA_PATH  = _REPO_ROOT / "data" / "graph_schema.json"
 DISCOVERIES  = _REPO_ROOT / "data" / "research" / "discoveries.jsonl"
 INSIGHTS     = _REPO_ROOT / "data" / "research" / "insights.jsonl"
 DB_PATH      = _REPO_ROOT / "data" / "dmai_knowledge.db"
