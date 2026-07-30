@@ -99,7 +99,7 @@ class PersonaRegistry:
         with self._conn() as c:
             for name, p in personas.items():
                 c.execute(
-                    "INSERT OR REPLACE INTO personas("
+                    "INSERT OR IGNORE INTO personas("
                     "name, label, scope, used_by_json, brain_domains_json, "
                     "model_pref_json, system_prompt, decision_rules_json, "
                     "version, updated_at) "
@@ -121,6 +121,32 @@ class PersonaRegistry:
                     len(personas), version)
 
     # ── Public ────────────────────────────────────────────────────────────────
+    
+    def update_persona(self, name: str, **kwargs) -> bool:
+        """Update a persona's fields. Only provided kwargs are changed.
+        This is how DMAI evolves her own identity over time.
+        """
+        allowed = {"system_prompt", "label", "brain_domains_json",
+                   "model_pref_json", "decision_rules_json"}
+        updates = {k: v for k, v in kwargs.items() if k in allowed}
+        if not updates:
+            return False
+        set_clause = ", ".join(f"{k}=?" for k in updates)
+        values = list(updates.values()) + [name]
+        try:
+            with self._conn() as c:
+                c.execute(
+                    f"UPDATE personas SET {set_clause}, updated_at=datetime('now') "
+                    f"WHERE name=?",
+                    values,
+                )
+                c.commit()
+            logger.info("Persona '%s' evolved: %s", name, list(updates.keys()))
+            return True
+        except Exception as e:
+            logger.error("Failed to update persona '%s': %s", name, e)
+            return False
+
     def all(self) -> List[Dict[str, Any]]:
         with self._conn() as c:
             rows = c.execute(
