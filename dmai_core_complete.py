@@ -1461,6 +1461,22 @@ try:
 except Exception as e:
     logger.warning("GreyhoundRunner failed: %s", e)
 
+# ── Prolific Worker (Alex Riviera / Invisible Ferret Ltd) ──────────────────
+try:
+    from components.revenue.prolific_worker import ProlificWorker as _PW
+    components["prolific_worker"] = _PW(data_path=DATA_PATH)
+    logger.info("ProlificWorker initialised")
+except Exception as e:
+    logger.warning("ProlificWorker failed: %s", e)
+
+# ── Fiverr Worker (Alex Riviera / Invisible Ferret Ltd) ────────────────────
+try:
+    from components.revenue.fiverr_worker import FiverrWorker as _FW
+    components["fiverr_worker"] = _FW(data_path=DATA_PATH)
+    logger.info("FiverrWorker initialised")
+except Exception as e:
+    logger.warning("FiverrWorker failed: %s", e)
+
 
 # ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
 try:
@@ -3500,7 +3516,7 @@ def api_revenue_summary():
         "company": "Invisible Ferret Ltd",
         "personas": {
             "alex_riviera": {"email": "alex.riviera.creator@proton.me",
-                             "streams": ["mturk", "fiverr", "youtube", "books", "art", "music"]},
+                             "streams": ["prolific", "fiverr", "youtube", "books", "art", "music"]},
             "alexa_rivers": {"email": "alexa.rivers@proton.me",
                              "streams": ["onlyfans", "adult_content"]},
         },
@@ -4267,16 +4283,23 @@ def _start_self_evolution_pipeline():
                     except Exception as _rie:
                         logger.warning("RepoIntegrator scan failed: %s", _rie)
 
-                # ── Phase 2.5: MTurk revenue session ────────────────
-                mturk = components.get("mturk_worker")
-                if mturk:
+                # ── Phase 2.5: Revenue sessions ─────────────────
+                prolific = components.get("prolific_worker")
+                if prolific:
                     try:
-                        result = mturk.run_session(max_hits=3, max_time_minutes=15)
-                        if result.get("earnings_usd", 0) > 0:
-                            logger.info("MTurk: earned $%.4f (%d HITs)",
-                                       result["earnings_usd"], result["hits_completed"])
-                    except Exception as _me:
-                        logger.debug("MTurk session: %s", _me)
+                        result = prolific.run_session(max_studies=2)
+                        if result.get("earnings_gbp", 0) > 0:
+                            logger.info("Prolific: GBP %.4f (%d studies)",
+                                       result["earnings_gbp"], result["studies_completed"])
+                    except Exception as _pe:
+                        logger.debug("Prolific: %s", _pe)
+
+                fiverr = components.get("fiverr_worker")
+                if fiverr:
+                    try:
+                        fiverr.run_session()
+                    except Exception as _fe:
+                        logger.debug("Fiverr: %s", _fe)
 
                 # ── Phase 3: Process integration queue ─────────────────
                 if integrator and hasattr(integrator, "process_queue"):
