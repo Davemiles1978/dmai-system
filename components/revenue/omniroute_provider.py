@@ -24,12 +24,14 @@ logger = logging.getLogger("OmniRoute")
 
 # Known OmniRoute endpoints (DMAI will research and update these)
 OMNIROUTE_CONFIG = {
+    "repo": "https://github.com/diegosouzapw/OmniRoute",
     "base_url": "https://api.omniroute.ai/v1",
     "chat_endpoint": "/chat/completions",
     "models": ["llama-3.1-70b", "mixtral-8x7b", "gemma-2-9b", "qwen-2-72b"],
     "free_tier": True,
     "rate_limit": "100 requests/hour",
-    "requires_key": False,  # Free tier doesn't need API key
+    "requires_key": False,
+    "status": "needs_research",  # DMAI will verify and update
 }
 
 
@@ -49,16 +51,18 @@ class OmniRouteProvider:
         try:
             from dmai_core_complete import _ai_chat
             
-            prompt = """Research OmniRoute (omniroute.ai) - a free AI gateway that 
-provides access to multiple LLMs through a single API. Find:
-1. Current API base URL and endpoint structure
+            prompt = """Analyze the OmniRoute GitHub repository (github.com/diegosouzapw/OmniRoute).
+This is a free AI gateway that provides access to multiple LLMs through a single API.
+Research and determine:
+1. Current API base URL and endpoint structure from the code
 2. Available models and their capabilities
-3. Rate limits for free tier
-4. Authentication requirements
-5. Any recent changes or announcements
+3. Rate limits and any authentication requirements
+4. How to send chat completion requests (headers, payload format)
+5. Is it currently active and usable?
 
-Return as JSON with keys: base_url, chat_endpoint, models, rate_limit, requires_key, status, notes.
-Only include verified, current information."""
+Return as JSON with keys: base_url, chat_endpoint, models, rate_limit, requires_key, 
+auth_header, example_payload, status (active/inactive/needs_key), notes.
+Only include verified information found in the repository code."""
             
             response = _ai_chat(prompt)
             if response:
