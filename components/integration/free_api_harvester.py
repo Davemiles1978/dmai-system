@@ -196,6 +196,43 @@ class FreeAPIHarvester:
         logger.info(f"🔑 Harvest complete: {new_count} new keys, {len(self.harvested_keys['keys'])} total")
         return result
     
+    def apply_keys(self) -> int:
+        """Auto-apply validated free keys to DMAI's API key store and provider chain.
+        Returns number of keys applied."""
+        applied = 0
+        try:
+            # Get the API key store
+            api_store = None
+            if hasattr(self.dmai, 'components'):
+                api_store = self.dmai.components.get("api_key_store")
+            if api_store is None:
+                from components.api_key_store import APIKeyStore
+                api_store = APIKeyStore()
+            if api_store is None:
+                return 0
+
+            for service, key_data in self.harvested_keys.get("keys", {}).items():
+                if isinstance(key_data, list):
+                    for kd in key_data:
+                        if isinstance(kd, dict) and kd.get("validated"):
+                            try:
+                                api_store.set_key(service, kd["key"], source="harvested")
+                                applied += 1
+                            except Exception:
+                                pass
+                elif isinstance(key_data, dict) and key_data.get("validated"):
+                    try:
+                        api_store.set_key(service, key_data["key"], source="harvested")
+                        applied += 1
+                    except Exception:
+                        pass
+
+            if applied > 0:
+                logger.info("Applied %d harvested keys to API store", applied)
+        except Exception as e:
+            logger.warning("apply_keys failed: %s", e)
+        return applied
+
     def get_harvested_keys(self) -> List[Dict]:
         """Return all harvested keys"""
         return list(self.harvested_keys['keys'].values())

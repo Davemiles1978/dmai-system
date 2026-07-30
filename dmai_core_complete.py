@@ -4157,6 +4157,135 @@ def _update_training_progress(db_path):
         logger.debug("_update_training_progress failed: %s", _e)
 
 
+
+def _start_self_evolution_pipeline():
+    """Background thread that continuously runs the self-evolution pipeline:
+    1. FreeAPIHarvester - scrape GitHub/Pastebin/HuggingFace for free API keys
+    2. RepoIntegrationEngine - scan starred GitHub repos for ingestible code
+    3. SelfScanner - audit capability gaps and feed self-generation seeds
+    Runs every 30 minutes.
+    """
+    import time as _time
+
+    def _pipeline_loop():
+        logger.info("Self-evolution pipeline started (30min cycle)")
+        while True:
+            try:
+                # ── Phase 1: Harvest free API keys ─────────────────────
+                harvester = components.get("free_api_harvester")
+                if harvester and hasattr(harvester, "harvest_all"):
+                    try:
+                        result = harvester.harvest_all()
+                        found = result.get("total_found", 0)
+                        if found > 0:
+                            logger.info("API Harvester: found %d new keys", found)
+                            # Auto-apply any validated keys to the provider chain
+                            if hasattr(harvester, "apply_keys"):
+                                applied = harvester.apply_keys()
+                                logger.info("API Harvester: applied %d keys to providers", applied)
+                    except Exception as _he:
+                        logger.warning("API Harvester cycle failed: %s", _he)
+
+                # ── Phase 2: Scan starred GitHub repos ─────────────────
+                integrator = components.get("repo_integrator")
+                if integrator and hasattr(integrator, "scan_starred_repos"):
+                    try:
+                        new_repos = integrator.scan_starred_repos()
+                        if new_repos:
+                            logger.info("RepoIntegrator: discovered %d new repos", len(new_repos))
+                            for repo in new_repos:
+                                integrator.queue_repo(repo)
+                    except Exception as _rie:
+                        logger.warning("RepoIntegrator scan failed: %s", _rie)
+
+                # ── Phase 3: Process integration queue ─────────────────
+                if integrator and hasattr(integrator, "process_queue"):
+                    try:
+                        processed = integrator.process_queue(max_items=3)
+                        if processed > 0:
+                            logger.info("RepoIntegrator: processed %d repos", processed)
+                    except Exception as _rpe:
+                        logger.warning("RepoIntegrator process failed: %s", _rpe)
+
+                # ── Phase 4: Gap analysis & self-generation seeding ────
+                scanner = components.get("self_scanner")
+                if scanner is None:
+                    from components.self_scanner import SelfScanner
+                    scanner = SelfScanner(app=app, data_path=DATA_PATH)
+                    components["self_scanner"] = scanner
+
+                if scanner and hasattr(scanner, "audit_capability_gaps_typed"):
+                    try:
+                        gaps = scanner.audit_capability_gaps_typed()
+                        if gaps:
+                            logger.info("SelfScanner: found %d capability gaps", len(gaps))
+                            # Feed gaps into self-generation seed backlog
+                            _feed_gaps_to_seed_backlog(gaps)
+                    except Exception as _se:
+                        logger.warning("SelfScanner gap audit failed: %s", _se)
+
+                # ── Phase 5: Process self-generation seeds ─────────────
+                try:
+                    from components.self_generation_seed_backlog import seed_backlog
+                    seed_backlog(jsonl_path="docs/planning/self_gen_backlog.jsonl", dry_run=False)
+                except Exception as _sbe:
+                    logger.debug("Seed backlog processing: %s", _sbe)
+
+            except Exception as _pe:
+                logger.error("Self-evolution pipeline error: %s", _pe)
+
+            # Sleep 30 minutes between cycles
+            _time.sleep(1800)
+
+    import threading as _th
+    _t = _th.Thread(target=_pipeline_loop, daemon=True, name="self-evolution-pipeline")
+    _t.start()
+    logger.info("Self-evolution pipeline thread started")
+
+
+def _feed_gaps_to_seed_backlog(gaps):
+    """Convert CapabilityGapEntry objects into self_gen_backlog.jsonl entries."""
+    import json as _json, os as _os
+    backlog_path = _os.path.join(DATA_PATH, "..", "docs", "planning", "self_gen_backlog.jsonl")
+    backlog_path = _os.path.abspath(backlog_path)
+    _os.makedirs(_os.path.dirname(backlog_path), exist_ok=True)
+
+    existing_ids = set()
+    if _os.path.exists(backlog_path):
+        with open(backlog_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        entry = _json.loads(line)
+                        existing_ids.add(entry.get("id", ""))
+                    except Exception:
+                        pass
+
+    new_entries = 0
+    with open(backlog_path, "a") as f:
+        for gap in gaps:
+            gap_id = f"gap_{gap.name}"
+            if gap_id in existing_ids:
+                continue
+            entry = {
+                "id": gap_id,
+                "title": gap.name.replace("_", " ").title(),
+                "description": gap.description,
+                "priority": gap.priority,
+                "source": gap.evidence_source,
+                "target_kpi": gap.target_kpi,
+                "current_value": gap.current_value,
+                "target_value": gap.target_value,
+                "created_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+            }
+            f.write(_json.dumps(entry) + "\n")
+            existing_ids.add(gap_id)
+            new_entries += 1
+
+    if new_entries > 0:
+        logger.info("Fed %d new gaps to self-generation seed backlog", new_entries)
+
 def _run_intensive_training():
     """Continuous real syllabus training: research each unmastered topic, persist a
     DB insight (drives KPI counts), bump mastery, checkpoint stage progress + re-seed

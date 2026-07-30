@@ -465,6 +465,74 @@ class RepoIntegrationEngine:
                     analysis['entry_points'].append(str(fp.relative_to(repo_path)))
         return analysis
 
+    def scan_starred_repos(self) -> list:
+        """Scan GitHub starred repos for new ingestible repositories.
+        Returns list of new repo URLs discovered."""
+        discovered = []
+        try:
+            import requests as _req
+            github_token = os.environ.get("GITHUB_TOKEN")
+            if not github_token:
+                logger.warning("No GITHUB_TOKEN - cannot scan starred repos")
+                return discovered
+
+            headers = {"Authorization": f"Bearer {github_token}",
+                       "Accept": "application/vnd.github+json"}
+            # Get starred repos
+            starred_url = "https://api.github.com/user/starred?per_page=100"
+            r = _req.get(starred_url, headers=headers, timeout=30)
+            r.raise_for_status()
+            repos = r.json()
+
+            for repo in repos:
+                url = repo.get("html_url") or repo.get("clone_url")
+                name = repo.get("full_name") or repo.get("name")
+                description = repo.get("description", "")
+                if not url:
+                    continue
+
+                # Check if already in queue or registry
+                already_known = False
+                for item in self.queue:
+                    if item.get("url") == url:
+                        already_known = True
+                        break
+                if already_known:
+                    continue
+                for reg in self.registry.get("completed", []):
+                    if reg.get("url") == url:
+                        already_known = True
+                        break
+                if already_known:
+                    continue
+
+                # Classify and queue
+                category = self.classify_repo(url, name, description)
+                if category and category != RepoCategory.UNKNOWN:
+                    discovered.append({"url": url, "name": name, "category": category.value})
+                    self.add_to_queue(url, repo_name=name)
+
+            logger.info("Scanned %d starred repos, discovered %d new", len(repos), len(discovered))
+        except Exception as e:
+            logger.warning("scan_starred_repos failed: %s", e)
+        return discovered
+
+    def process_queue(self, max_items: int = 3) -> int:
+        """Process up to max_items from the integration queue.
+        Returns number of items processed."""
+        processed = 0
+        for _ in range(max_items):
+            try:
+                result = self.execute_next_integration()
+                if result and result.get("status") != "error":
+                    processed += 1
+                else:
+                    break  # Queue empty or blocked
+            except Exception as e:
+                logger.warning("process_queue item failed: %s", e)
+                break
+        return processed
+
     def get_status(self):
         queued = len([i for i in self.queue if i['status'] in ['queued', 'analyzing']])
         in_progress = len([i for i in self.queue if i['status'] == 'in_progress'])
