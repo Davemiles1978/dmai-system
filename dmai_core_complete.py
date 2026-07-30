@@ -1461,6 +1461,14 @@ try:
 except Exception as e:
     logger.warning("GreyhoundRunner failed: %s", e)
 
+# ── MTurk Worker (Alex Riviera) ──────────────────────────────────────────────
+try:
+    from components.revenue.mturk_worker import MTurkWorker as _MTurkWorker
+    components["mturk_worker"] = _MTurkWorker(data_path=DATA_PATH)
+    logger.info("MTurkWorker initialised (Alex Riviera / Invisible Ferret Ltd)")
+except Exception as e:
+    logger.warning("MTurkWorker failed: %s", e)
+
 # ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
 try:
     from components.monetisation.notifier import SlackNotifier as _SlackNotifier
@@ -3441,6 +3449,53 @@ def api_mon_tip_settle(tid):
 # These power the Tip Tracking tab + the user's manual-bet log.
 # ─────────────────────────────────────────────────────────────────────────────
 
+@app.route("/api/revenue/summary", methods=["GET"])
+def api_revenue_summary():
+    """Get total revenue across all streams."""
+    streams = {}
+    total = 0.0
+
+    # MTurk earnings
+    mturk = components.get("mturk_worker")
+    if mturk:
+        try:
+            s = mturk.get_earnings_summary()
+            streams["mturk"] = s
+            total += s["total_earnings_usd"]
+        except Exception:
+            streams["mturk"] = {"error": "unavailable"}
+
+    # Betting P&L
+    ba = components.get("betting_advisor")
+    if ba:
+        try:
+            stats = ba.stats()
+            streams["betting"] = {
+                "total_pl_gbp": stats.get("total_pl", 0),
+                "win_rate": stats.get("win_rate"),
+                "roi_pct": stats.get("roi_pct"),
+                "bankroll": stats.get("bankroll"),
+                "settled_count": stats.get("settled_count", 0),
+                "mode": "paper" if os.environ.get("TIPSTER_LIVE") != "true" else "live",
+            }
+            total += stats.get("total_pl", 0) * 1.27  # GBP to USD approx
+        except Exception:
+            streams["betting"] = {"error": "unavailable"}
+
+    return jsonify({
+        "company": "Invisible Ferret Ltd",
+        "personas": {
+            "alex_riviera": {"email": "alex.riviera.creator@proton.me",
+                             "streams": ["mturk", "fiverr", "youtube", "books", "art", "music"]},
+            "alexa_rivers": {"email": "alexa.rivers@proton.me",
+                             "streams": ["onlyfans", "adult_content"]},
+        },
+        "streams": streams,
+        "total_revenue_usd_est": round(total, 2),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
+
 @app.route("/api/monetisation/tips/upcoming", methods=["GET"])
 def api_mon_tips_upcoming():
     ba = components.get("betting_advisor")
@@ -4197,6 +4252,17 @@ def _start_self_evolution_pipeline():
                                 integrator.queue_repo(repo)
                     except Exception as _rie:
                         logger.warning("RepoIntegrator scan failed: %s", _rie)
+
+                # ── Phase 2.5: MTurk revenue session ────────────────
+                mturk = components.get("mturk_worker")
+                if mturk:
+                    try:
+                        result = mturk.run_session(max_hits=3, max_time_minutes=15)
+                        if result.get("earnings_usd", 0) > 0:
+                            logger.info("MTurk: earned $%.4f (%d HITs)",
+                                       result["earnings_usd"], result["hits_completed"])
+                    except Exception as _me:
+                        logger.debug("MTurk session: %s", _me)
 
                 # ── Phase 3: Process integration queue ─────────────────
                 if integrator and hasattr(integrator, "process_queue"):
