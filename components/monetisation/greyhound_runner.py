@@ -79,7 +79,7 @@ _FORM = re.compile(
 )
 
 
-def _ua_get(url: str, timeout: int = 20) -> Optional[str]:
+def _ua_get(url: str, timeout: int = 10) -> Optional[str]:
     try:
         r = requests.get(url, headers={"User-Agent": UA, "Accept": "text/html,*/*"},
                          timeout=timeout)
@@ -92,7 +92,7 @@ def _ua_get(url: str, timeout: int = 20) -> Optional[str]:
         return None
 
 
-def _ua_get_json(url: str, timeout: int = 20) -> Optional[Any]:
+def _ua_get_json(url: str, timeout: int = 10) -> Optional[Any]:
     try:
         r = requests.get(url, headers={"User-Agent": UA, "Accept": "application/json"},
                          timeout=timeout)

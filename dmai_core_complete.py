@@ -3431,17 +3431,23 @@ def api_mon_tip_skipped(tid):
 
 @app.route("/api/monetisation/greyhound/settle", methods=["POST"])
 def api_greyhound_settle():
-    """Force settlement of pending greyhound tips against GBGB results."""
+    """Trigger async settlement of pending greyhound tips (non-blocking)."""
     if not _require_auth():
         return jsonify({"ok": False, "error": "Unauthorised"}), 401
     runner = components.get("greyhound_runner")
     if not runner:
         return jsonify({"ok": False, "error": "GreyhoundRunner not loaded"}), 503
-    try:
-        settled = runner._settle()
-        return jsonify({"ok": True, "settled": settled})
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+    
+    import threading as _th
+    def _bg_settle():
+        try:
+            settled = runner._settle()
+            logger.info("Greyhound settle complete: %d tips settled", settled)
+        except Exception as e:
+            logger.warning("Greyhound settle failed: %s", e)
+    
+    _th.Thread(target=_bg_settle, daemon=True, name="greyhound-settle").start()
+    return jsonify({"ok": True, "message": "Settlement started in background — check stats in ~30s"})
 
 
 @app.route("/api/monetisation/tips/<tid>/settle", methods=["POST"])
