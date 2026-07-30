@@ -3429,6 +3429,21 @@ def api_mon_tip_skipped(tid):
     b = request.get_json(silent=True) or {}
     return jsonify(ba.mark_skipped(tid, notes=b.get("notes", "")))
 
+@app.route("/api/monetisation/greyhound/settle", methods=["POST"])
+def api_greyhound_settle():
+    """Force settlement of pending greyhound tips against GBGB results."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    runner = components.get("greyhound_runner")
+    if not runner:
+        return jsonify({"ok": False, "error": "GreyhoundRunner not loaded"}), 503
+    try:
+        settled = runner._settle()
+        return jsonify({"ok": True, "settled": settled})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/monetisation/tips/<tid>/settle", methods=["POST"])
 def api_mon_tip_settle(tid):
     if not _require_auth():
