@@ -28,7 +28,7 @@ logger = logging.getLogger("GraphWallpaper")
 # ── Config ────────────────────────────────────────────────────────────────────
 GRAPH_SCHEMA_PATH = os.getenv(
     "GRAPH_SCHEMA_PATH",
-    "aevora-training/dashboard/data/graph_schema.json"
+    "data/graph_schema.json"
 )
 
 CLUSTER_COLORS = {

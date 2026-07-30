@@ -33,7 +33,7 @@ from components.db import safe_open_kdb
 logger = logging.getLogger(__name__)
 
 DB_PATH      = Path("data/dmai_knowledge.db")
-GRAPH_PATH   = Path("aevora-training/dashboard/data/graph_schema.json")
+GRAPH_PATH   = Path("data/graph_schema.json")
 REPORTS_DIR  = Path("data/integrity/reports")
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 

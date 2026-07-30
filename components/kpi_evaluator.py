@@ -44,7 +44,7 @@ logger = logging.getLogger("dmai.kpi_evaluator")
 # ---------------------------------------------------------------------------
 _REPO_ROOT    = Path(__file__).resolve().parent.parent
 _EVAL_HISTORY = _REPO_ROOT / "data" / "kpi_eval_history.jsonl"
-_GRAPH_SCHEMA = _REPO_ROOT / "aevora-training" / "dashboard" / "data" / "graph_schema.json"
+_GRAPH_SCHEMA = _REPO_ROOT / "data" / "graph_schema.json"
 
 # How many graph evolution cycles = RSI of 1.0  (target ceiling)
 _RSI_CYCLE_TARGET = 52   # 1 per week for a year

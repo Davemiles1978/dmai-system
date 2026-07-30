@@ -2938,7 +2938,7 @@ def api_kpi_rsi_sync():
         import json as _rj
         from pathlib import Path as _rp
         rate = kpi_eval.eval_rsi_from_graph()
-        schema_path = _rp("aevora-training/dashboard/data/graph_schema.json")
+        schema_path = _rp("data/graph_schema.json")
         evo_cycle = 0
         if schema_path.exists():
             try:
@@ -7096,9 +7096,9 @@ def api_graph_schema():
 
     # Fallback: legacy hand-curated schema file.
     _candidates = [
-        _PL("aevora-training/dashboard/data/graph_schema.json"),
+        _PL("data/graph_schema.json"),
         _PL(DATA_PATH) / "graph_schema.json",
-        _PL(__file__).parent / "aevora-training" / "dashboard" / "data" / "graph_schema.json",
+        _PL(__file__).parent / "data" / "graph_schema.json",
     ]
     try:
         for _sp in _candidates:
@@ -12870,7 +12870,7 @@ def api_heartbeat():
     graph_stats = {"neurons": 0, "synapses": 0, "evolution_cycle": 0}
     try:
         _gp = _hbos.path.join(_hbos.path.dirname(_hbos.path.abspath(__file__)),
-                               "aevora-training", "dashboard", "data", "graph_schema.json")
+                               "data", "graph_schema.json")
         with open(_gp) as _f:
             _gs = _json.load(_f)
         graph_stats = {

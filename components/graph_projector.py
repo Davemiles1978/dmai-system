@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = _REPO_ROOT / "data" / "dmai_knowledge.db"
-ARCH_SCHEMA_PATH = _REPO_ROOT / "aevora-training" / "dashboard" / "data" / "graph_schema.json"
+ARCH_SCHEMA_PATH = _REPO_ROOT / "data" / "graph_schema.json"
 
 # Fixed mapping from capability_type → architectural anchor neuron.
 # Keeps the top-layer sane and lets SI see which subsystem a capability
