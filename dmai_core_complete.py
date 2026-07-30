@@ -1477,6 +1477,14 @@ try:
 except Exception as e:
     logger.warning("FiverrWorker failed: %s", e)
 
+# ── OmniRoute AI Gateway ──────────────────────────────────────────────────
+try:
+    from components.revenue.omniroute_provider import OmniRouteProvider as _ORP
+    components["omniroute"] = _ORP()
+    logger.info("OmniRoute provider initialised — DMAI will research and integrate")
+except Exception as e:
+    logger.warning("OmniRoute failed: %s", e)
+
 
 # ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
 try:
@@ -4300,6 +4308,21 @@ def _start_self_evolution_pipeline():
                         fiverr.run_session()
                     except Exception as _fe:
                         logger.debug("Fiverr: %s", _fe)
+
+                # OmniRoute — research and integrate free AI providers
+                omniroute = components.get("omniroute")
+                if omniroute and not omniroute.available:
+                    try:
+                        result = omniroute.research_and_update()
+                        if result.get("available"):
+                            logger.info("OmniRoute: integrated — %d models available",
+                                       len(result.get("models", [])))
+                            # Register with AI Hub as fallback provider
+                            hub = components.get("ai_hub")
+                            if hub and hasattr(hub, "register_provider"):
+                                hub.register_provider("omniroute", omniroute.chat)
+                    except Exception as _oe:
+                        logger.debug("OmniRoute: %s", _oe)
 
                 # ── Phase 3: Process integration queue ─────────────────
                 if integrator and hasattr(integrator, "process_queue"):
