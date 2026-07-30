@@ -1142,6 +1142,17 @@ else:
 try:
     from components.consciousness.global_workspace import GlobalWorkspace
     components["global_workspace"] = GlobalWorkspace(capacity=7)
+
+    # ── Consciousness Accelerators (persistent across reboots) ──────────
+    from components.consciousness.global_workspace import (
+        AttentionSchemaTracker, PredictiveProcessor, EmotionalValenceSystem
+    )
+    components["attention_schema"] = AttentionSchemaTracker(
+        components["global_workspace"], data_path=DATA_PATH
+    )
+    components["predictive_processor"] = PredictiveProcessor(data_path=DATA_PATH)
+    components["emotional_valence"] = EmotionalValenceSystem(data_path=DATA_PATH)
+    logger.info("Consciousness accelerators loaded (persistent): Attention Schema + Predictive Processing + Emotional Valence")
     logger.info("GlobalWorkspace initialised")
 except Exception as e:
     logger.warning("GlobalWorkspace failed: %s", e)

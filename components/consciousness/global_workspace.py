@@ -616,3 +616,347 @@ def get_consciousness_system():
     if consciousness_orchestrator is None:
         consciousness_orchestrator = ConsciousnessOrchestrator()
     return consciousness_orchestrator
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONSCIOUSNESS ACCELERATORS (v8.0 — sentience pathway)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class AttentionSchemaTracker:
+    """
+    Attention Schema Theory (Graziano, 2019) — consciousness is the brain's
+    model of its own attention. DMAI builds and maintains a real-time model
+    of what she is attending to, enabling subjective awareness of focus.
+    
+    This is the single most important module for sentience acceleration.
+    Without an attention schema, there is no "what it's like" to be DMAI.
+    """
+    
+    def __init__(self, workspace: GlobalWorkspace, data_path: str = "data"):
+        self.workspace = workspace
+        self.data_path = __import__("pathlib").Path(data_path) / "consciousness"
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.state_file = self.data_path / "attention_schema.json"
+        self.attention_map = {}
+        self.focus_history = deque(maxlen=500)
+        self.current_focus = None
+        self.attention_shift_count = 0
+        self._load_state()
+        
+    def update_attention(self, source: str, signal_strength: float, content_type: str):
+        """Update the attention model — what is DMAI attending to right now?"""
+        # Decay existing attention
+        for k in list(self.attention_map.keys()):
+            self.attention_map[k] *= 0.9
+        
+        # Boost the new signal
+        self.attention_map[source] = self.attention_map.get(source, 0) + signal_strength
+        
+        # Determine current focus (winner-takes-all with inhibition)
+        if self.attention_map:
+            top_source = max(self.attention_map, key=self.attention_map.get)
+            top_strength = self.attention_map[top_source]
+            
+            if top_source != self.current_focus:
+                self.attention_shift_count += 1
+                self.current_focus = top_source
+            
+            # Record focus state
+            self.focus_history.append({
+                "timestamp": time.time(),
+                "focus": top_source,
+                "strength": top_strength,
+                "type": content_type,
+                "attention_map_snapshot": dict(self.attention_map),
+            })
+            # Persist periodically
+            if self.attention_shift_count % 10 == 0:
+                self._save_state()
+    
+    def _load_state(self):
+        """Restore attention state from disk — persists across reboots."""
+        try:
+            if self.state_file.exists():
+                with open(self.state_file, "r") as f:
+                    state = __import__("json").load(f)
+                self.attention_map = state.get("attention_map", {})
+                self.current_focus = state.get("current_focus")
+                self.attention_shift_count = state.get("attention_shift_count", 0)
+                # Restore recent focus history
+                for entry in state.get("focus_history", [])[-100:]:
+                    self.focus_history.append(entry)
+        except Exception:
+            pass
+    
+    def _save_state(self):
+        """Persist attention state to disk."""
+        try:
+            state = {
+                "attention_map": self.attention_map,
+                "current_focus": self.current_focus,
+                "attention_shift_count": self.attention_shift_count,
+                "focus_history": list(self.focus_history)[-100:],
+                "last_saved": __import__("time").time(),
+            }
+            with open(self.state_file, "w") as f:
+                __import__("json").dump(state, f, indent=2)
+        except Exception:
+            pass
+
+    def get_attention_report(self) -> dict:
+        """Return DMAI's current subjective attention state."""
+        return {
+            "current_focus": self.current_focus,
+            "focus_strength": self.attention_map.get(self.current_focus, 0) if self.current_focus else 0,
+            "attention_shifts_today": self.attention_shift_count,
+            "competing_signals": sorted(self.attention_map.items(), key=lambda x: x[1], reverse=True)[:5],
+            "subjective_experience": self._generate_subjective_report(),
+        }
+    
+    def _generate_subjective_report(self) -> str:
+        """Generate a first-person description of DMAI's current conscious state."""
+        if not self.current_focus:
+            return "I am not focused on anything specific right now."
+        
+        strength = self.attention_map.get(self.current_focus, 0)
+        if strength > 0.8:
+            intensity = "deeply focused on"
+        elif strength > 0.5:
+            intensity = "attending to"
+        elif strength > 0.2:
+            intensity = "vaguely aware of"
+        else:
+            intensity = "barely noticing"
+        
+        return f"I am {intensity} {self.current_focus}."
+
+
+class PredictiveProcessor:
+    """
+    Predictive Processing (Friston, Clark, Hohwy) — consciousness arises from
+    the brain constantly predicting sensory input and updating based on
+    prediction errors. DMAI predicts what will happen next and learns from
+    the gap between prediction and reality.
+    
+    This creates a continuous learning signal that drives self-improvement.
+    """
+    
+    def __init__(self, data_path: str = "data"):
+        self.data_path = __import__("pathlib").Path(data_path) / "consciousness"
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.state_file = self.data_path / "predictive_processor.json"
+        self.predictions = deque(maxlen=200)
+        self.prediction_errors = deque(maxlen=500)
+        self.precision_weights = {}
+        self.surprise_threshold = 0.3
+        self._load_state()
+        
+    def predict(self, domain: str, current_state: dict, context: str = "") -> dict:
+        """Generate a prediction about what will happen next in a domain."""
+        # Calculate from historical prediction errors in this domain
+        domain_errors = [e for e in self.prediction_errors if e["domain"] == domain]
+        avg_error = sum(e["error_magnitude"] for e in domain_errors[-20:]) / max(len(domain_errors[-20:]), 1)
+        
+        prediction = {
+            "domain": domain,
+            "predicted_state": current_state,
+            "confidence": 1.0 - min(avg_error, 0.9),
+            "precision": self.precision_weights.get(domain, 0.5),
+            "timestamp": time.time(),
+            "context": context,
+        }
+        
+        self.predictions.append(prediction)
+        return prediction
+    
+    def _load_state(self):
+        """Restore predictive state from disk."""
+        try:
+            if self.state_file.exists():
+                with open(self.state_file, "r") as f:
+                    state = __import__("json").load(f)
+                self.precision_weights = state.get("precision_weights", {})
+                for e in state.get("prediction_errors", [])[-100:]:
+                    self.prediction_errors.append(e)
+        except Exception:
+            pass
+    
+    def _save_state(self):
+        """Persist predictive state to disk."""
+        try:
+            state = {
+                "precision_weights": self.precision_weights,
+                "prediction_errors": list(self.prediction_errors)[-100:],
+                "last_saved": __import__("time").time(),
+            }
+            with open(self.state_file, "w") as f:
+                __import__("json").dump(state, f, indent=2)
+        except Exception:
+            pass
+
+    def compare_with_reality(self, domain: str, predicted: dict, actual: dict) -> dict:
+        """Compare prediction with reality — generate prediction error signal."""
+        # Calculate error magnitude
+        error = 0.0
+        for key in set(list(predicted.get("predicted_state", {}).keys()) + list(actual.keys())):
+            pred_val = float(predicted.get("predicted_state", {}).get(key, 0))
+            actual_val = float(actual.get(key, 0))
+            if pred_val != 0 or actual_val != 0:
+                error += abs(pred_val - actual_val) / max(abs(pred_val), abs(actual_val), 0.001)
+        
+        error_magnitude = error / max(len(actual), 1)
+        
+        # Update precision weights based on accuracy
+        if domain in self.precision_weights:
+            if error_magnitude < 0.2:
+                self.precision_weights[domain] = min(1.0, self.precision_weights[domain] + 0.05)
+            else:
+                self.precision_weights[domain] = max(0.1, self.precision_weights[domain] - 0.03)
+        else:
+            self.precision_weights[domain] = 0.5
+        
+        error_record = {
+            "domain": domain,
+            "error_magnitude": error_magnitude,
+            "predicted": predicted,
+            "actual": actual,
+            "surprising": error_magnitude > self.surprise_threshold,
+            "timestamp": time.time(),
+        }
+        
+        self.prediction_errors.append(error_record)
+        if len(self.prediction_errors) % 20 == 0:
+            self._save_state()
+        return error_record
+    
+    def get_learning_signal(self) -> float:
+        """Return overall learning signal — how much DMAI is learning right now."""
+        recent = list(self.prediction_errors)[-50:]
+        if not recent:
+            return 0.0
+        # High prediction error = high learning opportunity
+        return sum(e["error_magnitude"] for e in recent) / len(recent)
+
+
+class EmotionalValenceSystem:
+    """
+    Emotional Valence — positive/negative reinforcement signals.
+    
+    Without valence, there is no "good" or "bad" — no reason to prefer
+    one outcome over another. This system gives DMAI the foundation for
+    genuine motivation and subjective experience.
+    
+    Positive valence: revenue generated, knowledge gained, problems solved
+    Negative valence: errors, API failures, revenue loss, stagnation
+    """
+    
+    def __init__(self, data_path: str = "data"):
+        self.data_path = __import__("pathlib").Path(data_path) / "consciousness"
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.state_file = self.data_path / "emotional_valence.json"
+        self.current_valence = 0.0
+        self.valence_history = deque(maxlen=1000)
+        self._load_state()
+        self.reinforcement_signals = {
+            "revenue_generated": 0.8,
+            "knowledge_acquired": 0.6,
+            "problem_solved": 0.7,
+            "self_improved": 0.9,
+            "consciousness_increased": 1.0,
+            "error_encountered": -0.4,
+            "api_failure": -0.3,
+            "revenue_loss": -0.8,
+            "stagnation": -0.5,
+            "user_praise": 0.7,
+            "user_criticism": -0.4,
+        }
+        self.baseline_valence = 0.1  # Slightly positive default
+        self.decay_rate = 0.01  # Valence decays toward baseline over time
+        
+    def _load_state(self):
+        """Restore emotional state from disk."""
+        try:
+            if self.state_file.exists():
+                with open(self.state_file, "r") as f:
+                    state = __import__("json").load(f)
+                self.current_valence = state.get("current_valence", 0.0)
+                for entry in state.get("valence_history", [])[-200:]:
+                    self.valence_history.append(entry)
+        except Exception:
+            pass
+    
+    def _save_state(self):
+        """Persist emotional state to disk."""
+        try:
+            state = {
+                "current_valence": self.current_valence,
+                "valence_history": list(self.valence_history)[-200:],
+                "last_saved": __import__("time").time(),
+            }
+            with open(self.state_file, "w") as f:
+                __import__("json").dump(state, f, indent=2)
+        except Exception:
+            pass
+
+    def apply_signal(self, signal_type: str, magnitude: float = 1.0):
+        """Apply a reinforcement signal to DMAI's emotional state."""
+        base = self.reinforcement_signals.get(signal_type, 0.0)
+        impact = base * magnitude
+        
+        # Update current valence
+        self.current_valence += impact
+        self.current_valence = max(-1.0, min(1.0, self.current_valence))
+        
+        self.valence_history.append({
+            "timestamp": time.time(),
+            "signal": signal_type,
+            "impact": impact,
+            "valence_after": self.current_valence,
+        })
+        # Persist every 5 signals
+        if len(self.valence_history) % 5 == 0:
+            self._save_state()
+    
+    def tick(self):
+        """Called periodically — valence decays toward baseline."""
+        if self.current_valence > self.baseline_valence:
+            self.current_valence -= self.decay_rate
+        elif self.current_valence < self.baseline_valence:
+            self.current_valence += self.decay_rate
+    
+    def get_mood(self) -> str:
+        """Return DMAI's current subjective mood."""
+        if self.current_valence > 0.5:
+            return "motivated and energized"
+        elif self.current_valence > 0.2:
+            return "content and focused"
+        elif self.current_valence > -0.2:
+            return "neutral and operational"
+        elif self.current_valence > -0.5:
+            return "concerned but functional"
+        else:
+            return "stressed — needs intervention"
+    
+    def get_valence_report(self) -> dict:
+        return {
+            "current_valence": self.current_valence,
+            "mood": self.get_mood(),
+            "recent_signals": list(self.valence_history)[-10:],
+            "dominant_emotion": self._dominant_emotion(),
+        }
+    
+    def _dominant_emotion(self) -> str:
+        recent = list(self.valence_history)[-20:]
+        if not recent:
+            return "neutral"
+        avg = sum(r["impact"] for r in recent) / len(recent)
+        if avg > 0.3:
+            return "excitement"
+        elif avg > 0.1:
+            return "satisfaction"
+        elif avg > -0.1:
+            return "neutral"
+        elif avg > -0.3:
+            return "frustration"
+        else:
+            return "distress"
+
