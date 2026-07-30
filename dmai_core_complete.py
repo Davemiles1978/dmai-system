@@ -1606,10 +1606,29 @@ def _load_kaizen(n=20):
     return records[-n:]
 
 def _save_kaizen(proposal):
-    """Atomic append via temp-file rename (P1-6)."""
+    """Atomic append with deduplication — same title updates existing entry."""
     _KAIZEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+    title = proposal.get("title", "")
+
+    # Load existing proposals and check for duplicate
+    existing = _load_kaizen(200)
+    updated = False
+    for i, p in enumerate(existing):
+        if p.get("title") == title:
+            # Update the existing entry: bump count, refresh timestamp
+            existing[i]["count"] = p.get("count", 1) + 1
+            existing[i]["timestamp"] = proposal.get("timestamp", datetime.now(timezone.utc).isoformat())
+            existing[i]["last_error"] = proposal.get("description", p.get("description", ""))
+            updated = True
+            break
+
+    if updated:
+        # Rewrite file with updated entry
+        _KAIZEN_FILE.write_text("\n".join(json.dumps(p) for p in existing) + "\n")
+        return
+
     # Check queue depth cap
-    depth = len(_load_kaizen(100))
+    depth = len(existing)
     if depth >= _KAIZEN_QUEUE_CAP:
         logger.warning("Kaizen queue at capacity (%d). Proposal not saved.", _KAIZEN_QUEUE_CAP)
         if cb_manager:
@@ -5661,6 +5680,55 @@ def api_kaizen_run_cycle():
 @app.route("/api/kaizen/cycle-status", methods=["GET"])
 def api_kaizen_cycle_status():
     return _comp_status("kaizen_integrator")
+
+@app.route("/api/kaizen/dismiss", methods=["POST"])
+def api_kaizen_dismiss():
+    """Dismiss/delete a Kaizen proposal by title."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    try:
+        data = request.get_json(silent=True) or {}
+        title = data.get("title", "")
+        if not title:
+            return jsonify({"ok": False, "error": "title required"}), 400
+        existing = _load_kaizen(200)
+        filtered = [p for p in existing if p.get("title") != title]
+        _KAIZEN_FILE.write_text("\n".join(json.dumps(p) for p in filtered) + "\n")
+        return jsonify({"ok": True, "dismissed": title, "remaining": len(filtered)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/kaizen/force-fix", methods=["POST"])
+def api_kaizen_force_fix():
+    """Force immediate retry of a Kaizen proposal by title."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    try:
+        data = request.get_json(silent=True) or {}
+        title = data.get("title", "")
+        if not title:
+            return jsonify({"ok": False, "error": "title required"}), 400
+        ki = components.get("kaizen_integrator")
+        if ki and hasattr(ki, "force_repair"):
+            result = ki.force_repair(title)
+            return jsonify({"ok": True, "title": title, "result": result})
+        return jsonify({"ok": False, "error": "KaizenIntegrator not available"}), 503
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/kaizen/clear-all", methods=["POST"])
+def api_kaizen_clear_all():
+    """Clear all Kaizen proposals."""
+    if not _require_auth():
+        return jsonify({"ok": False, "error": "Unauthorised"}), 401
+    try:
+        _KAIZEN_FILE.write_text("")
+        return jsonify({"ok": True, "message": "All Kaizen proposals cleared"})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 
 @app.route("/api/kaizen/reset-failed", methods=["POST"])
 def api_kaizen_reset_failed():
