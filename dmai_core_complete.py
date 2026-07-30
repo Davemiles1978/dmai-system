@@ -1461,13 +1461,6 @@ try:
 except Exception as e:
     logger.warning("GreyhoundRunner failed: %s", e)
 
-# ── MTurk Worker (Alex Riviera) ──────────────────────────────────────────────
-try:
-    from components.revenue.mturk_worker import MTurkWorker as _MTurkWorker
-    components["mturk_worker"] = _MTurkWorker(data_path=DATA_PATH)
-    logger.info("MTurkWorker initialised (Alex Riviera / Invisible Ferret Ltd)")
-except Exception as e:
-    logger.warning("MTurkWorker failed: %s", e)
 
 # ── Slack notifier (Slack webhook — SLACK_WEBHOOK_URL env, optional) ────────────
 try:
