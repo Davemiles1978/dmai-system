@@ -1,6 +1,6 @@
 __pycache__/
 
-# Local agent test artifacts (do NOT commit; Render persistent state lives at runtime)
+# ── Local agent test artifacts (do NOT commit) ──
 data/dmai.db
 data/dmai.db-shm
 data/dmai.db-wal
@@ -18,6 +18,206 @@ data/stage_state.json
 data/dmai_knowledge.db.bak_*
 data/dmai_knowledge.db.pre_restore_*
 
+# ── OS files ──
+.DS_Store
+Thumbs.db
+
+# ── Environment ──
+.env
+.env.*
+!.env.example
+
+# ── Backups ──
+*.backup
+*.backup-*
 *.bak.*
+*_backup.py
+*_broken.py
+*_old.py
+*_working.py
+*_fixed_clean.py
+*_fixed_broken.py
+*_simplified_backup.py
+
+# ── Generated content ──
+data/alex_projects/
+data/alex_riviera/
+data/alexa_rivers/
+data/avatars/
+data/backups/
+data/books/
+data/complete_books/
+data/comprehensive_books/
+data/detailed_books/
+data/dmai_books/
+data/expert_books/
+data/final_books/
+data/fixed_books/
+data/generated_content/
+data/kdp_ready*/
+data/music/
+data/novels/
+data/page_*.png
+data/production_books/
+data/professional_books/
+data/real_books/
+data/ultimate_books/
+data/universal_books/
+data/visual_books/
+data/voice/
+data/voice_enrollment/
+data/test_*.png
+data/simple_coloring_book/
+data/coloring_templates/
+data/book_templates/
+data/complete_visual_books/
+data/lora_training/
+
+# ── Logs ──
+*.log
+logs/
+health_reports/
+injection.log
+web.log
+
+# ── Fix/utility scripts ──
+fix_*.py
+update_*.py
+add_*.py
+
+# ── Book/article generators ──
+*_book_*.py
+*_book.py
+*_novel_*.py
+*_novel.py
+generate_*.py
+*_generator*.py
+*_publisher*.py
+assemble_*.py
+complete_*.py
+comprehensive_*.py
+detailed_*.py
+direct_*.py
+expanded_*.py
+final_*.py
+fixed_*.py
+proper_*.py
+real_*.py
+robust_*.py
+ultimate_*.py
+universal_*.py
+valid_*.py
+visual_*.py
+write_*.py
+teach_*.py
+simple_*.py
+clean_*.py
+autonomous_*.py
+master_*.py
+
+# ── Training data ──
+training/
+data/training/
+learning/
+language_learning/
+data/dmai_knowledge/
+data/synthetic/
+
+# ── Misc data ──
+data/accounts.json
+data/anonymity_audit.json
+data/avatar.json
+data/dark_operations.json
+data/discovered_sources.json
+data/dmai_book_learning.json
+data/dmai_knowledge_base.json
+data/email_accounts.json
+data/evolution.json
+data/evolution_state.json
+data/finance.json
+data/funding_fix_applied
+data/funding_training_state.json
+data/gap_analyzer_state.json
+data/hacking_operations.json
+data/harvested_keys.json
+data/harvester_stats.json
+data/identities.json
+data/identity.json
+data/income.json
+data/infinite_state.json
+data/integration_queue.json
+data/investments.json
+data/knowledge_graph.json
+data/master_task.json
+data/phase5_discoveries.json
+data/phase5_streams.json
+data/search_queries.json
+data/successful_merges.json
+data/syllabus_topics.json
+data/telegram_token.json
+data/tokens.json
+data/transactions.json
+data/tutor_state.json
+data/knowledge_sources/
+data/research/
+data/research_topics/
+data/secure/
+data/social_media/
+data/execution/
+data/trends/
+data/trading/
+data/prompts/
+data/media/
+data/phase11/
+data/phase6/
+data/evo_errors.log
+data/dmai_novel_ideas_ollama.txt
+
+# ── Generated docs ──
+generated_article.md
+generated_book.json
+dmai_autonomous_article_v2.md
+dmai_autonomous_book.md
+dmai_learned_article.md
+dmai_tv_series.md
+DMAI_TRAINING_SESSION.md
+
+# ── Misc scripts ──
+analyze_avatar.py
+app.py.old
+cookies.txt
+disable_problematic.py
+discover_leonardo_models.py
+dmai_batch_write_novel.py
+dmai_registry_patch.py
+dmai_use_grok.py
+dmai_use_ollama.py
+find_element_id.py
+kdp_helper.py
+legal_compliance_check.py
+trend_follower.py
+web_interface_automation.py
+
+# ── Directories ──
+api-harvester/
+autonomy/
+evolution/
+shared_checkpoints/
+test_si_data/
+test_tools/
+voice/
+agi/
+
+# ── Models ──
+*.safetensors
+
+# ── DeepSeek ──
 DeepSeek-V3/
-DeepSeek-V3/
+
+# ── Cookiecutter copies ──
+dmai_core_complete 2.py
+dmai_core_complete 3.py
+dmai_core_complete_*.py
+dmai_smart_endpoint_*.py
+dmai_api_routes.py.backup*
+dmai_web.py.backup*
