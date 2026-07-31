@@ -5524,9 +5524,6 @@ def api_knowledge_status():
         return jsonify({"error": "No knowledge components loaded"}), 503
     return jsonify({"success": True, "url": url, "reason": reason,
                     "queue_depth": pl.get_status().get("queue_depth", 0) if pl else None})
-                    "queue_depth": pl.get_status().get("queue_depth", 0) if pl else None})
-
-
 @app.route("/api/knowledge/add-book", methods=["POST"])
 def api_knowledge_add_book():
     """
