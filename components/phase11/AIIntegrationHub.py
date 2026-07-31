@@ -164,6 +164,56 @@ class AIIntegrationHub:
         
         return keys
         
+
+    def _get_active_providers_with_methods(self):
+        """Return list of (provider_name, query_method) for active, known providers."""
+        activator = None
+        try:
+            import sys as _sys
+            core = _sys.modules.get("dmai_core_complete")
+            if core and hasattr(core, "components"):
+                activator = core.components.get("api_activator")
+        except Exception:
+            pass
+        if activator is None:
+            logger.warning("Activator not found – using static provider list")
+            return []
+
+        active_ids = activator.get_active_providers()
+        method_map = {
+            'groq':              ('Groq', self._query_groq),
+            'google_ai_studio':  ('Google AI Studio', self._query_google_ai_studio),
+            'cerebras':          ('Cerebras', self._query_cerebras),
+            'openai':            ('OpenAI', self._query_openai),
+            'anthropic':         ('Anthropic', self._query_anthropic),
+            'deepseek':          ('DeepSeek', self._query_deepseek),
+            'github_models':     ('GitHub Models', self._query_github_models),
+            'mistral':           ('Mistral', self._query_mistral),
+        }
+        priority = ['groq', 'google_ai_studio', 'cerebras', 'openai', 'anthropic', 'deepseek', 'github_models', 'mistral']
+        result = []
+        for pid in priority:
+            if pid in active_ids and pid in method_map:
+                result.append(method_map[pid])
+        for pid in active_ids:
+            if pid in method_map and pid not in priority:
+                result.append(method_map[pid])
+        if not result:
+            logger.warning("No active known providers – falling back to static list")
+        return result
+
+    def _trigger_harvester_if_needed(self):
+        """If no active providers, trigger the free API harvester."""
+        try:
+            import sys as _sys
+            core = _sys.modules.get("dmai_core_complete")
+            if core and hasattr(core, "components"):
+                harvester = core.components.get("free_api_harvester")
+                if harvester and hasattr(harvester, "harvest"):
+                    logger.info("No active providers – triggering harvester")
+                    harvester.harvest()
+        except Exception as e:
+            logger.warning(f"Harvester trigger failed: {e}")
     def _load_history(self):
         """Load query history from disk"""
         try:
@@ -191,21 +241,18 @@ class AIIntegrationHub:
         except Exception as e:
             logger.error(f"Failed to save query history: {e}")
             
+
     def query_all_tutors(self, prompt: str, use_cache: bool = True) -> Dict:
-        """
-        Query all available tutors and collect responses.
-        Original functionality preserved with enhanced features.
-        """
+        """Query all available tutors using dynamic active provider list."""
         start_time = time.time()
-        
-        # Check cache first
+
         cache_key = hash(prompt)
         if use_cache and cache_key in self.learning_cache:
             cache_time = self.learning_cache[cache_key]['timestamp']
-            if (datetime.now() - cache_time).seconds < 300:  # 5 minute cache
+            if (datetime.now() - cache_time).seconds < 300:
                 logger.info(f"Using cached response for: {prompt[:50]}...")
                 return self.learning_cache[cache_key]['response']
-        
+
         results = {
             'timestamp': datetime.now().isoformat(),
             'prompt': prompt,
@@ -213,34 +260,33 @@ class AIIntegrationHub:
             'errors': [],
             'synthesis': None
         }
-        
-        # AI THINKING TUTORS - LLMs that reason, answer questions, and synthesize knowledge
-        query_methods = [
-            ('OpenAI GPT-4', self._query_openai),
-            ('DeepSeek', self._query_deepseek),
-            ('Google Gemini', self._query_gemini),
-            ('Anthropic Claude', self._query_anthropic),
-            ('Perplexity AI', self._query_perplexity),
-            ('xAI Grok', self._query_grok),
-            ('Cerebras Inference', self._query_cerebras),
-            ('GitHub Models', self._query_github_models),
-            ('Mistral AI', self._query_mistral),
-            # Code/research tools available via dedicated methods, NOT queried as thinking tutors:
-            # HuggingFace: _query_huggingface  (model search, not Q&A)
-            # GitHub: _query_github  (repo search, not Q&A)
-        ]
-        
-        # Query each tutor (sequential to avoid rate limits)
+
+        # Get dynamic provider list
+        query_methods = self._get_active_providers_with_methods()
+        if not query_methods:
+            # Fallback to static list (keep original as last resort)
+            query_methods = [
+                ('OpenAI GPT-4', self._query_openai),
+                ('DeepSeek', self._query_deepseek),
+                ('Google Gemini', self._query_gemini),
+                ('Anthropic Claude', self._query_anthropic),
+                ('Perplexity AI', self._query_perplexity),
+                ('xAI Grok', self._query_grok),
+                ('Cerebras Inference', self._query_cerebras),
+                ('GitHub Models', self._query_github_models),
+                ('Mistral AI', self._query_mistral),
+            ]
+            self._trigger_harvester_if_needed()
+
         for tutor_name, method in query_methods:
             try:
                 logger.debug(f"Querying {tutor_name}...")
                 result = method(prompt)
-                
+
                 if result.get('success'):
                     results['responses'][tutor_name] = result['response']
                     self.performance_metrics['successful_queries'] += 1
-                    
-                    # Update tutor performance
+
                     if tutor_name not in self.performance_metrics['tutor_performance']:
                         self.performance_metrics['tutor_performance'][tutor_name] = {
                             'successes': 0,
@@ -248,81 +294,64 @@ class AIIntegrationHub:
                             'avg_response_time': 0
                         }
                     self.performance_metrics['tutor_performance'][tutor_name]['successes'] += 1
-                    
-                    # Record comparison with synthetic network if available
+
                     if self.tutor_manager:
                         quality = self._estimate_response_quality(result['response'])
                         dma_quality = self._estimate_dma_quality(prompt)
                         self.tutor_manager.record_comparison(tutor_name, dma_quality, quality)
-                        
+
                 else:
                     results['errors'].append(f"{tutor_name}: {result.get('error', 'Unknown error')}")
                     self.performance_metrics['failed_queries'] += 1
-                    
+
                     if self.tutor_manager and tutor_name in self.performance_metrics['tutor_performance']:
                         self.performance_metrics['tutor_performance'][tutor_name]['failures'] += 1
-                        
+
             except Exception as e:
                 logger.error(f"Error querying {tutor_name}: {e}")
                 results['errors'].append(f"{tutor_name}: {str(e)}")
                 self.performance_metrics['failed_queries'] += 1
-                
-        # Synthesize responses if we have a synthesizer
+
+        # Synthesize if we have a synthesizer
         if self.capability_synthesizer and results['responses']:
             try:
                 results['synthesis'] = self.capability_synthesizer.synthesize(
                     results['responses'],
                     prompt
                 )
-                
-                # Add unified answer to results
                 if results['synthesis'].get('unified_answer'):
                     results['unified_answer'] = results['synthesis']['unified_answer']
-                    
-                # Feed to learning system
                 self._learn_from_responses(results['synthesis'], prompt)
-                
             except Exception as e:
                 logger.error(f"Synthesis error: {e}")
                 results['synthesis_error'] = str(e)
-                
-        # Update metrics
+
         response_time = time.time() - start_time
         self.performance_metrics['total_queries'] += 1
         self.performance_metrics['average_response_time'] = (
             (self.performance_metrics['average_response_time'] * (self.performance_metrics['total_queries'] - 1) + response_time) /
             self.performance_metrics['total_queries']
         )
-        
-        # Store in history
+
+        # Update query history
         self.query_history.append({
-            'timestamp': results['timestamp'],
-            'prompt': prompt[:200],
+            'prompt': prompt,
+            'timestamp': datetime.now().isoformat(),
             'response_count': len(results['responses']),
             'error_count': len(results['errors']),
             'response_time': response_time
         })
-        
+        if len(self.query_history) > 1000:
+            self.query_history = self.query_history[-1000:]
+
         # Cache the result
         if use_cache and results['responses']:
             self.learning_cache[cache_key] = {
-                'timestamp': datetime.now(),
-                'response': results
+                'response': results,
+                'timestamp': datetime.now()
             }
-            # Trim cache
-            if len(self.learning_cache) > 100:
-                oldest_key = min(self.learning_cache.keys(), key=lambda k: self.learning_cache[k]['timestamp'])
-                del self.learning_cache[oldest_key]
-                
-        # Save history periodically
-        if len(self.query_history) % 10 == 0:
-            self._save_history()
-            
-        logger.info(f"Query completed: {len(results['responses'])} responses, "
-                   f"{len(results['errors'])} errors in {response_time:.2f}s")
-                   
+
         return results
-        
     def _learn_from_responses(self, synthesis: Dict, prompt: str):
         """Feed synthesized responses to synthetic neural network - Original functionality"""
         try:
