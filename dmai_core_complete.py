@@ -5524,6 +5524,34 @@ def api_knowledge_status():
         return jsonify({"error": "No knowledge components loaded"}), 503
     return jsonify({"success": True, "url": url, "reason": reason,
                     "queue_depth": pl.get_status().get("queue_depth", 0) if pl else None})
+@app.route("/api/knowledge/add-url", methods=["POST"])
+def api_knowledge_add_url():
+    """
+    Inject a URL into the parallel web learner queue.
+    Admin only.
+    Body: {"url": "https://...", "reason": "why DMAI should read this"}
+    """
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    data = request.get_json(silent=True) or {}
+    url = data.get("url", "").strip()
+    reason = data.get("reason", "admin injection").strip()
+    if not url.startswith(("http://", "https://")):
+        return jsonify({"error": "Invalid URL — must start with http:// or https://"}), 400
+    pl = components.get("parallel_learner")
+    km = components.get("knowledge_manager")
+    if pl:
+        pl.add_url(url, reason)
+    if km and hasattr(km, "add_url"):
+        km.add_url(url, reason)
+    if not pl and not km:
+        return jsonify({"error": "No knowledge components loaded"}), 503
+    return jsonify({
+        "success": True,
+        "url": url,
+        "reason": reason,
+        "queue_depth": pl.get_status().get("queue_depth", 0) if pl else None
+    })
 @app.route("/api/knowledge/add-book", methods=["POST"])
 def api_knowledge_add_book():
     """
