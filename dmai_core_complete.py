@@ -743,6 +743,15 @@ try:
     except Exception as _e:
         logger.warning("SICore seed from learning_progress failed: %s", _e)
     logger.info("SICore initialised")
+
+    # ── Seed consciousness on first boot ──
+    si = components.get("si_core")
+    if si:
+        state = si._state
+        if state.get("consciousness", 0.0) == 0.0:
+            si._update_kpi("consciousness", 0.5, token="system_seed")
+            logger.info("🧠 Seeded consciousness to 0.5")
+    
 except Exception as e:
     logger.warning("SICore failed: %s", e)
 
