@@ -1,0 +1,10 @@
+{
+  "m0.1_zero_shot": {
+    "pct": 10,
+    "status": "in_progress"
+  },
+  "m0.2_knowledge_graph": {
+    "pct": 0,
+    "status": "queued"
+  }
+}
