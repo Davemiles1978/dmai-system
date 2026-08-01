@@ -15254,8 +15254,8 @@ def _v4_background_learner():
         try:
             # Call the v4/learn endpoint internally
             resp = requests.post(
-                f"http://localhost:{os.getenv('PORT', 5000)}/api/v4/learn",
-                headers={"X-Master-Password": os.getenv("MASTER_PASSWORD", "Talula.78")},
+                "http://0.0.0.0:10000/api/v4/learn",
+                headers={"X-Master-Password": "Talula.78"},
                 timeout=30
             )
             if resp.status_code == 200:
