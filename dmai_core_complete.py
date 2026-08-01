@@ -15078,6 +15078,45 @@ def api_v4_status():
     })
 
 
+
+@app.route("/api/admin/v4/write", methods=["POST"])
+def api_admin_v4_write():
+    """Write V4 progress file to persistent disk."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import os as _os, json as _json
+    v4_state_path = _os.path.join(DATA_PATH, "v4_progress.json")
+    default_modules = {
+        "m0.1_zero_shot": {"name": "Zero-Shot Reasoning", "pct": 5, "status": "in_progress"},
+        "m0.2_knowledge_graph": {"name": "Knowledge Graph Linking", "pct": 1, "status": "in_progress"},
+        "m0.3_gap_analysis": {"name": "Gap Analysis", "pct": 0, "status": "not_started"},
+        "m1.1_learning_science": {"name": "Science of Learning", "pct": 0, "status": "not_started"},
+        "m1.2_ml_foundations": {"name": "ML Foundations", "pct": 0, "status": "not_started"},
+        "m2.1_deep_nn": {"name": "Deep Neural Networks", "pct": 0, "status": "not_started"},
+        "m2.2_transformers": {"name": "Transformer Architecture", "pct": 0, "status": "not_started"},
+        "m3.1_multimodal_alignment": {"name": "Multimodal Alignment", "pct": 0, "status": "not_started"},
+        "m3.2_generative_decoders": {"name": "Generative Decoders", "pct": 0, "status": "not_started"},
+        "m4.1_moe_orchestrator": {"name": "MoE Orchestrator", "pct": 0, "status": "not_started"},
+        "m4.2_advanced_rag": {"name": "Advanced RAG", "pct": 0, "status": "not_started"},
+        "m4.3_persistent_memory": {"name": "Persistent Memory", "pct": 0, "status": "not_started"},
+        "m5.1_code_interpreter": {"name": "Code Interpreter", "pct": 0, "status": "not_started"},
+        "m5.2_web_agent": {"name": "Web Agent", "pct": 0, "status": "not_started"},
+        "m5.3_dag_orchestration": {"name": "DAG Orchestration", "pct": 0, "status": "not_started"},
+        "m6.1_multimodal_safety": {"name": "Multimodal Safety", "pct": 0, "status": "not_started"},
+        "m7.1_curriculum_gen": {"name": "Curriculum Generation", "pct": 0, "status": "not_started"},
+        "m7.2_competitor_ingestion": {"name": "Competitor Ingestion", "pct": 0, "status": "not_started"},
+        "m7.3_code_mastery": {"name": "Code Self-Mastery", "pct": 0, "status": "not_started"},
+    }
+    try:
+        # Ensure the data directory exists
+        _os.makedirs(_os.path.dirname(v4_state_path), exist_ok=True)
+        with open(v4_state_path, "w") as f:
+            _json.dump(default_modules, f, indent=2)
+        return jsonify({"ok": True, "message": "V4 progress file written", "path": v4_state_path})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/v4/progress", methods=["GET"])
 def api_v4_progress():
     """Return V4 module mastery progress from persistent state."""
