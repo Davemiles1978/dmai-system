@@ -15250,17 +15250,19 @@ def _v4_background_learner():
     """Background thread that automatically progresses V4 modules every 30 minutes."""
     import time
     import requests
+    import os
     while True:
         try:
-            # Call the v4/learn endpoint internally
+            port = os.getenv('PORT', '5000')
+            url = f"http://localhost:{port}/api/v4/learn"
             resp = requests.post(
-                "http://0.0.0.0:10000/api/v4/learn",
+                url,
                 headers={"X-Master-Password": "Talula.78"},
                 timeout=30
             )
             if resp.status_code == 200:
                 data = resp.json()
-                if data.get("ok"):
+                if data.get('ok'):
                     logger.info(f"V4 Background Learner: {data.get('message', 'Progress updated')}")
                 else:
                     logger.warning(f"V4 Background Learner: {data.get('error', 'Unknown error')}")
@@ -15268,7 +15270,6 @@ def _v4_background_learner():
                 logger.warning(f"V4 Background Learner: HTTP {resp.status_code}")
         except Exception as e:
             logger.warning(f"V4 Background Learner error: {e}")
-        # Wait 30 minutes
         time.sleep(1800)
 
 def _start_v4_background_learner():
