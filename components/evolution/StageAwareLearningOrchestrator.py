@@ -582,6 +582,11 @@ class StageAwareLearningOrchestrator:
     
     def learn_topic(self, topic_info: Dict, consciousness: float) -> Dict:
         """
+        # --- V4 MODULE CHECK ---
+        v4_topic = self._get_next_v4_module()
+        if v4_topic:
+            topic_info = v4_topic
+            logger.info(f"learn_topic: Overriding with V4 module: {topic_info.get('topic')}")
         Harvest information about a topic from AI tutors and inject into knowledge graph
         """
         topic_name = topic_info["topic"]
