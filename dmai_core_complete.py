@@ -749,9 +749,10 @@ try:
     if si:
         state = si._state
         if state.get("consciousness", 0.0) == 0.0:
-            si._update_kpi("consciousness", 0.5, token="system_seed")
+            si._state["consciousness"] = 0.5
+            si.save_state()
             logger.info("🧠 Seeded consciousness to 0.5")
-    
+
 except Exception as e:
     logger.warning("SICore failed: %s", e)
 
