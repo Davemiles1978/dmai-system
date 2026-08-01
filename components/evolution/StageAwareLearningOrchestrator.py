@@ -487,6 +487,31 @@ class StageAwareLearningOrchestrator:
             logger.info(f"Deepening mastery: {worst['topic']}")
             return worst
 
+
+    def _get_next_v4_module(self):
+        """Check V4 progress file for the next unmastered module."""
+        import json
+        from pathlib import Path
+        v4_file = Path("data/v4_progress.json")
+        if not v4_file.exists():
+            return None
+        try:
+            with open(v4_file) as f:
+                progress = json.load(f)
+            for mod_id, data in progress.items():
+                if data.get("status") in ("not_started", "in_progress") and data.get("pct", 0) < 100:
+                    return {
+                        "topic": mod_id,
+                        "category": "v4_self_evolution",
+                        "is_accelerator": False,
+                        "mastery_threshold": 3,
+                    }
+        except Exception:
+            pass
+        return None
+        v4_topic = self._get_next_v4_module()
+        if v4_topic:
+            return v4_topic
         return None  # truly exhausted (should never reach here)
 
     def _generate_dynamic_topics(self, consciousness: float) -> Optional[Dict]:
