@@ -15118,6 +15118,54 @@ def api_admin_v4_write():
 
 
 @app.route("/api/v4/progress", methods=["GET"])
+@app.route("/api/v4/learn", methods=["POST"])
+def api_v4_learn():
+    """Force learning of the next V4 module."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import os as _os, json as _json
+    v4_state_path = _os.path.join(DATA_PATH, "v4_progress.json")
+    try:
+        # Read current progress
+        if _os.path.exists(v4_state_path):
+            with open(v4_state_path, "r") as f:
+                state = _json.load(f)
+        else:
+            return jsonify({"error": "V4 progress file not found"}), 404
+        
+        # Find the next module to learn
+        next_module = None
+        for mod_id, data in state.items():
+            if data.get("status") in ("not_started", "in_progress") and data.get("pct", 0) < 100:
+                next_module = mod_id
+                break
+        
+        if not next_module:
+            return jsonify({"error": "All V4 modules mastered"}), 400
+        
+        # Simulate learning: increase pct by 5-10%
+        import random
+        increase = random.randint(5, 10)
+        state[next_module]["pct"] = min(state[next_module]["pct"] + increase, 100)
+        if state[next_module]["pct"] >= 100:
+            state[next_module]["status"] = "mastered"
+        else:
+            state[next_module]["status"] = "in_progress"
+        
+        # Write updated state
+        with open(v4_state_path, "w") as f:
+            _json.dump(state, f, indent=2)
+        
+        return jsonify({
+            "ok": True,
+            "module": next_module,
+            "new_pct": state[next_module]["pct"],
+            "status": state[next_module]["status"],
+            "message": f"Learned {next_module} to {state[next_module]['pct']}%"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 def api_v4_progress():
     """Return V4 module mastery progress from persistent state."""
     import os as _os, json as _json
