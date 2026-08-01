@@ -5525,15 +5525,19 @@ def api_knowledge_status():
     """Status of all 8 knowledge sources + parallel web learner."""
     km = components.get("knowledge_manager")
     pl = components.get("parallel_learner")
-    km = components.get("knowledge_manager")
-    if pl:
-        pl.add_url(url, reason)
-    if km and hasattr(km, "add_url"):
-        km.add_url(url, reason)   # only if method exists
-    if not pl and not km:
-        return jsonify({"error": "No knowledge components loaded"}), 503
-    return jsonify({"success": True, "url": url, "reason": reason,
-                    "queue_depth": pl.get_status().get("queue_depth", 0) if pl else None})
+    try:
+        km_status = km.get_summary() if km else {"error": "KnowledgeSourceManager not loaded"}
+    except Exception as e:
+        km_status = {"error": f"KnowledgeSourceManager error: {e}"}
+    try:
+        pl_status = pl.get_status() if pl else {"error": "ParallelWebLearner not loaded"}
+    except Exception as e:
+        pl_status = {"error": f"ParallelWebLearner error: {e}"}
+    return jsonify({
+        "knowledge_manager":   km_status,
+        "parallel_learner":    pl_status,
+        "timestamp":           datetime.now(timezone.utc).isoformat(),
+    })
 @app.route("/api/knowledge/add-url", methods=["POST"])
 def api_knowledge_add_url():
     """
