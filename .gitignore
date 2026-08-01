@@ -244,7 +244,6 @@ components/voice/*backup*
 components/fix_threads_and_repos.py
 components/content/AutonomousContentGenerator*.py
 components/content/ContentCreationEngine.py
-components/evolution/*.backup
 content_api.py
 cover_with_wrap.py
 data/.DS_Store
