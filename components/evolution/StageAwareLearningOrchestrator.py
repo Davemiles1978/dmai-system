@@ -726,7 +726,7 @@ Be specific, educational, and focused on real application.
         self._save_state()
 
         # Update V4 progress if this is a V4 module
-        v4_module_id = topic_config.get("v4_module")
+        v4_module_id = topic_info.get("v4_module")
         if v4_module_id:
             self._update_v4_progress(v4_module_id, topic_name, current_mastery + 1)
 
