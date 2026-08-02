@@ -15348,6 +15348,30 @@ def api_admin_progress_check():
         return jsonify({"error": str(e)}), 500
 
 
+
+@app.route("/api/admin/graph/schema/write", methods=["POST"])
+def api_admin_graph_schema_write():
+    """Write graph_schema.json to persistent disk."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import os as _os, json as _json
+    schema_path = _os.path.join(DATA_PATH, "graph_schema.json")
+    try:
+        # Ensure the directory exists
+        _os.makedirs(_os.path.dirname(schema_path), exist_ok=True)
+        # Read existing or create default
+        if _os.path.exists(schema_path):
+            with open(schema_path, "r") as f:
+                data = _json.load(f)
+        else:
+            data = {"nodes": [], "edges": [], "metadata": {"version": "1.0.0"}}
+        with open(schema_path, "w") as f:
+            _json.dump(data, f, indent=2)
+        return jsonify({"ok": True, "message": "Schema written", "path": schema_path})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
