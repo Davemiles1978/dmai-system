@@ -1701,6 +1701,14 @@ def _save_kaizen(proposal):
 
 # ── Flask app ─────────────────────────────────────────────────────────────────
 app = Flask(__name__, static_folder="static", static_url_path="/static")
+
+# Allow iframe embedding
+app.config["X_FRAME_OPTIONS"] = "SAMEORIGIN"
+
+@app.after_request
+def add_header(response):
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    return response
 CORS(app)
 
 # ---------------------------------------------------------------------------
