@@ -15312,6 +15312,42 @@ def api_admin_graph_stats():
         return jsonify({"error": str(e)}), 500
 
 
+
+@app.route("/api/admin/progress-check", methods=["GET"])
+def api_admin_progress_check():
+    """Check AI training progress from the orchestrator."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    try:
+        sl = components.get("stage_learner")
+        if sl is None:
+            return jsonify({"error": "StageAwareLearningOrchestrator not loaded"}), 503
+        # Get current stage
+        stage = sl.current_stage if hasattr(sl, "current_stage") else "Unknown"
+        # Get learned topics
+        learned = sl.learned_topics if hasattr(sl, "learned_topics") else {}
+        # Count mastered topics
+        mastered = 0
+        total = 0
+        if stage in sl.STAGES:
+            topics = sl.STAGES[stage].get("priority_topics", [])
+            total = len(topics)
+            for topic in topics:
+                topic_name = topic["topic"]
+                if topic_name in learned.get(stage, {}):
+                    if learned[stage][topic_name] >= topic.get("mastery_threshold", 3):
+                        mastered += 1
+        return jsonify({
+            "stage": stage,
+            "mastered": mastered,
+            "total": total,
+            "progress": round(mastered/total*100, 1) if total > 0 else 0,
+            "topic_details": {stage: learned.get(stage, {})}
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
