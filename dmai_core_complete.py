@@ -15387,6 +15387,59 @@ def brain_graph():
     return send_from_directory("static", "brain_graph.html")
 
 
+
+@app.route("/api/admin/create-insights-table", methods=["POST"])
+def api_admin_create_insights_table():
+    """Create the insights table and other missing tables."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    import sqlite3
+    from pathlib import Path
+    db_path = Path("data/dmai_knowledge.db")
+    conn = sqlite3.connect(str(db_path))
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS insights (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                insight_text TEXT NOT NULL,
+                entity_type TEXT,
+                entities TEXT,
+                relationship TEXT,
+                source_topic TEXT,
+                target_topic TEXT,
+                confidence REAL DEFAULT 0.5,
+                source_title TEXT,
+                source_url TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS system_state (
+                key TEXT PRIMARY KEY,
+                value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS capabilities (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                category TEXT,
+                description TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+        return jsonify({"ok": True, "message": "Tables created"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
