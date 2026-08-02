@@ -496,6 +496,20 @@ class StageAwareLearningOrchestrator:
         v4_file = Path("data/v4_progress.json")
         if not v4_file.exists():
             logger.info("V4: progress file not found")
+        # ----- DEEPEN EXISTING ADULT TOPICS FIRST -----
+        # Before picking a new topic, check if any Adult topics are partially learned
+        stage = self.current_stage
+        if stage == "Adult":
+            learned = self.learned_topics.get(stage, {})
+            all_topics = self.STAGES.get(stage, {}).get("priority_topics", [])
+            for topic_info in all_topics:
+                topic_name = topic_info["topic"]
+                if topic_name in learned:
+                    current = learned[topic_name]
+                    threshold = topic_info.get("mastery_threshold", 3)
+                    if 0 < current < threshold:
+                        logger.info(f"Deepening topic: {topic_name} ({current}/{threshold})")
+                        return topic_info
             return None
         try:
             with open(v4_file) as f:
