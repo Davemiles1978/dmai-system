@@ -15253,7 +15253,7 @@ def _v4_background_learner():
     import os
     while True:
         try:
-            port = os.getenv('PORT', '5000')
+            port = os.getenv("PORT", "5000")
             url = f"http://localhost:{port}/api/v4/learn"
             resp = requests.post(
                 url,

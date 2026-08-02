@@ -1,0 +1,2 @@
+{"event": "syntax_error", "file": "components/content/AutonomousContentGenerator.py", "error": "SyntaxError at line 198: f-string expression part cannot include a backslash", "count": 1, "ts": "2026-07-31T00:01:25.653927+00:00"}
+{"event": "syntax_error", "file": "components/voice/VoiceIntegration_backup.py", "error": "SyntaxError at line 544: unexpected unindent", "count": 1, "ts": "2026-07-31T00:01:25.751863+00:00"}

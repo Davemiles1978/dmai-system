@@ -1,0 +1,81 @@
+============================================================
+1. Provider initialization (look for class definitions and factory)
+============================================================
+Section not found
+
+============================================================
+2. Environment variable loading (os.getenv calls for API keys)
+============================================================
+         os.getenv("CEREBRAS_API_KEY"),
+         "https://api.cerebras.ai/v1/chat/completions",
+         "llama-3.3-70b"),
+        ("Groq",
+         os.getenv("GROQ_API_KEY"),
+         "https://api.groq.com/openai/v1/chat/completions",
+         "llama-3.3-70b-versatile"),
+        ("Google AI Studio (2.0-flash)",
+         os.getenv("GOOGLE_AI_STUDIO_KEY") or os.getenv("GEMINI_API_KEY"),
+         "__gemini__",
+         "gemini-2.0-flash"),
+        ("Google AI Studio (2.5-flash)",
+         os.getenv("GOOGLE_AI_STUDIO_KEY") or os.getenv("GEMINI_API_KEY"),
+         "__gemini__",
+         "gemini-2.5-flash"),
+        ("GitHub Models",
+         os.getenv("GITHUB_TOKEN_MAIN") or os.getenv("GITHUB_TOKEN"),
+         "https://models.github.ai/inference/chat/completions",
+         "gpt-4o-mini"),
+        ("OpenRouter (Llama 3.3 70B)",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "meta-llama/llama-3.3-70b-instruct:free"),
+        ("OpenRouter (GPT-OSS 120B)",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "openai/gpt-oss-120b:free"),
+        ("OpenRouter (GPT-OSS 20B)",
+         os.getenv("OPENROUTER_API_KEY"),
+         "https://openrouter.ai/api/v1/chat/completions",
+         "openai/gpt-oss-20b:free"),
+
+
+============================================================
+3. Provider health/active status checks (used by admin panel)
+============================================================
+    active_set = set(activator.get_active_providers()) if activator else set()
+
+    catalogue = []
+    for pid, spec in PROVIDER_CATALOGUE.items():
+        catalogue.append({
+            "id":          pid,
+            "name":        spec["name"],
+            "signup_url":  spec["signup_url"],
+            "free_tier":   spec["free_tier"],
+            "env_vars":    spec["env_vars"],
+            "models":      spec["models"],
+            "best_model":  spec.get("best_model", spec["models"][0]),
+            "active":      pid in active_set,
+        })
+    return jsonify({"providers": catalogue, "active_count": len(active_set)})
+
+
+# ── Knowledge Source Endpoints ────────────────────────────────────────────────
+
+@app.route("/api/knowledge/status", methods=["GET"])
+def api_knowledge_status():
+    """Status of all 8 knowledge sources + parallel web learner."""
+    km = components.get("knowledge_manager")
+    pl = components.get("parallel_learner")
+    try:
+        km_status = km.get_summary() if km else {"error": "KnowledgeSourceManager not loaded"}
+    except Exception as e:
+        km_status = {"error": f"KnowledgeSourceManager error: {e}"}
+    try:
+        pl_status = pl.get_status() if pl else {"error": "ParallelWebLearner not loaded"}
+    except Exception as e:
+
+
+============================================================
+4. FreeAPIHarvester.apply_keys()
+============================================================
+Section not found

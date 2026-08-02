@@ -19,6 +19,34 @@ import time
 logger = logging.getLogger(__name__)
 
 class AIIntegrationHub:
+
+    def _call_provider_with_retry(self, method, prompt, max_retries=3, base_delay=1):
+        """Call a provider with exponential backoff and retry."""
+        import time
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                result = self._call_provider_with_retry(method, prompt)
+                if result.get('success'):
+                    return result
+                # If not success, check if it's a rate limit (429) or quota error
+                error = result.get('error', '')
+                if 'Rate limited' in error or '429' in error or '402' in error or 'quota' in error.lower():
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"Rate limit or quota hit, retrying in {delay}s (attempt {attempt+1}/{max_retries})")
+                    time.sleep(delay)
+                    continue
+                return result  # Non-retryable error
+            except Exception as e:
+                last_error = e
+                if '429' in str(e) or 'rate' in str(e).lower():
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"Rate limit hit, retrying in {delay}s (attempt {attempt+1}/{max_retries})")
+                    time.sleep(delay)
+                    continue
+                return {'success': False, 'error': str(e)}
+        return {'success': False, 'error': f"All retries failed: {last_error}"}
+
     """
     Complete AI Integration Hub with all original functionality preserved.
     Connects to all AI tutors, queries them, synthesizes responses,
@@ -281,7 +309,7 @@ class AIIntegrationHub:
         for tutor_name, method in query_methods:
             try:
                 logger.debug(f"Querying {tutor_name}...")
-                result = method(prompt)
+                result = self._call_provider_with_retry(method, prompt)
 
                 if result.get('success'):
                     results['responses'][tutor_name] = result['response']

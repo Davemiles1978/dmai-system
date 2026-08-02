@@ -595,6 +595,11 @@ class StageAwareLearningOrchestrator:
         return None
     
     def learn_topic(self, topic_info: Dict, consciousness: float) -> Dict:
+
+        # Add delay to avoid rate limits
+        import time
+        time.sleep(2)  # 2-second delay between API calls
+
         """
         # --- V4 MODULE CHECK ---
         v4_topic = self._get_next_v4_module()
