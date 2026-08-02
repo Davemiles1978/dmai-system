@@ -9497,6 +9497,23 @@ def api_self_generation_diagnose():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+
+
+@app.route("/api/admin/self-evolution/force-cycle", methods=["POST"])
+def api_admin_self_evolution_force_cycle():
+    """Force the self-evolution orchestrator to run a cycle immediately."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    try:
+        evo = components.get("self_evolution_orchestrator")
+        if evo is None:
+            return jsonify({"error": "SelfEvolutionOrchestrator not loaded"}), 503
+        # Force a cycle
+        evo._run_cycle()
+        return jsonify({"ok": True, "message": "Evolution cycle triggered"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/admin/capabilities/migrate-schema", methods=["POST"])
 def api_capabilities_migrate_schema():
     """Additive, idempotent migration of the capabilities table to the
