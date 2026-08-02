@@ -15372,6 +15372,13 @@ def api_admin_graph_schema_write():
         return jsonify({"error": str(e)}), 500
 
 
+
+@app.route("/brain-graph")
+def brain_graph():
+    """Brain-style knowledge graph visualization."""
+    return send_from_directory("static", "brain_graph.html")
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)

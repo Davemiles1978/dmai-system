@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMAI Brain Graph</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0f; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #e0e0e0; overflow: hidden; height: 100vh; }
+    #graph-container { width: 100%; height: 100vh; position: relative; }
+    #graph-container svg { display: block; width: 100%; height: 100%; background: #0a0a0f; }
+
+    /* Controls */
+    #controls {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 12px 20px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      z-index: 10;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #controls button {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #c0c0c0;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    #controls button:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+    #controls button.active { background: rgba(100, 180, 255, 0.2); border-color: rgba(100, 180, 255, 0.3); color: #8abfff; }
+    #controls .filter-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    #controls .filter-label { font-size: 11px; color: #888; margin-right: 4px; }
+
+    /* Stats */
+    #stats {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+      color: #999;
+      z-index: 10;
+      line-height: 1.6;
+      min-width: 140px;
+      text-align: right;
+    }
+    #stats strong { color: #e0e0e0; font-weight: 500; }
+    #stats .num { color: #8abfff; font-weight: 500; }
+
+    /* Legend */
+    #legend {
+      position: absolute;
+      bottom: 90px;
+      right: 24px;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+      color: #999;
+      z-index: 10;
+      line-height: 1.8;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    #legend .item { display: flex; align-items: center; gap: 8px; }
+    #legend .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    #legend .label { color: #ccc; }
+
+    /* Loading */
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #666;
+      font-size: 14px;
+      z-index: 5;
+      text-align: center;
+    }
+    #loading .spinner {
+      width: 30px;
+      height: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #8abfff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      background: rgba(10, 10, 15, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: #ccc;
+      pointer-events: none;
+      z-index: 20;
+      max-width: 220px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      display: none;
+      line-height: 1.5;
+    }
+    .tooltip .name { color: #fff; font-weight: 500; }
+    .tooltip .meta { color: #888; font-size: 11px; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      #controls { bottom: 16px; padding: 10px 16px; gap: 8px; width: 92%; border-radius: 24px; }
+      #controls button { font-size: 10px; padding: 4px 12px; }
+      #stats { top: 12px; right: 12px; font-size: 10px; padding: 8px 12px; min-width: 100px; }
+      #legend { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="graph-container">
+  <!-- Loading -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div>Loading brain graph…</div>
+  </div>
+
+  <!-- Stats -->
+  <div id="stats">
+    <div>Neurons: <span class="num" id="neuron-count">—</span></div>
+    <div>Synapses: <span class="num" id="synapse-count">—</span></div>
+    <div>Visible: <span class="num" id="visible-count">—</span></div>
+  </div>
+
+  <!-- Legend -->
+  <div id="legend"></div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <div class="filter-group">
+      <span class="filter-label">Layer:</span>
+      <button data-layer="all" class="active">All</button>
+      <button data-layer="architecture">Arch</button>
+      <button data-layer="capability_type">Cap</button>
+      <button data-layer="topic">Topic</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Hemisphere:</span>
+      <button data-hemisphere="all" class="active">Both</button>
+      <button data-hemisphere="left">Left</button>
+      <button data-hemisphere="right">Right</button>
+      <button data-hemisphere="bridge">Bridge</button>
+    </div>
+    <button id="reset-view">Reset View</button>
+    <button id="toggle-labels">Labels</button>
+  </div>
+
+  <!-- Tooltip -->
+  <div class="tooltip" id="tooltip">
+    <div class="name" id="tip-name">—</div>
+    <div class="meta" id="tip-meta">—</div>
+  </div>
+</div>
+
+<!-- D3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────
+const COLORS = {
+  core: '#4a9eff',
+  learning: '#6fcf97',
+  research: '#f2c94a',
+  revenue: '#bb6bd9',
+  providers: '#f2994a',
+  topics: '#56ccf2',
+  capability_type: '#27ae60',
+  utility: '#a0a0a0',
+  default: '#666'
+};
+
+const HEMISPHERE = {
+  left: ['core', 'knowledge', 'configuration', 'data_structure', 'api', 'interface', 'linguistics', 'nlp', 'knowledge_systems'],
+  right: ['artistic', 'generation', 'trading', 'wealth', 'autonomous_agents', 'machine_learning', 'computer_vision', 'robotics'],
+  bridge: ['learning', 'research', 'revenue', 'providers', 'utility', 'self_improvement', 'accelerator']
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────
+let graphData = null;
+let simulation = null;
+let svg = null;
+let zoomGroup = null;
+let currentLayer = 'all';
+let currentHemisphere = 'all';
+let showLabels = true;
+let tooltip = document.getElementById('tooltip');
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────
+async function loadGraph() {
+  try {
+    const resp = await fetch('/api/graph/schema?view=overview&limit=300');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    graphData = data;
+    document.getElementById('neuron-count').textContent = data.total_neurons || data.neurons?.length || '—';
+    document.getElementById('synapse-count').textContent = data.total_synapses || data.synapses?.length || '—';
+    buildGraph(data);
+  } catch (err) {
+    console.error('Graph load error:', err);
+    document.getElementById('loading').innerHTML = `
+      <div style="color:#ff6b6b;">⚠️ Failed to load graph</div>
+      <div style="font-size:12px;margin-top:8px;color:#888;">${err.message}</div>
+      <button onclick="location.reload()" style="margin-top:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#ccc;padding:6px 20px;border-radius:20px;cursor:pointer;">Retry</button>
+    `;
+  }
+}
+
+// ─── BUILD GRAPH ─────────────────────────────────────────────────────────
+function buildGraph(data) {
+  document.getElementById('loading').style.display = 'none';
+
+  // Prepare nodes
+  const nodes = data.neurons || [];
+  const links = data.synapses || [];
+
+  // Compute node size based on connections
+  const linkCount = {};
+  links.forEach(l => {
+    linkCount[l.source] = (linkCount[l.source] || 0) + 1;
+    linkCount[l.target] = (linkCount[l.target] || 0) + 1;
+  });
+  nodes.forEach(n => {
+    n.degree = linkCount[n.id] || 0;
+    n.radius = Math.max(4, Math.min(18, 4 + n.degree * 0.3 + (n.activation || 0) * 4));
+    n.color = COLORS[n.cluster] || COLORS.default;
+    n.hemisphere = getHemisphere(n);
+  });
+
+  // Setup SVG
+  const container = document.getElementById('graph-container');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  svg = d3.select('#graph-container')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .style('background', '#0a0a0f');
+
+  // Zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([0.1, 4])
+    .on('zoom', (event) => {
+      zoomGroup.attr('transform', event.transform);
+    });
+
+  svg.call(zoom);
+
+  zoomGroup = svg.append('g');
+
+  // Defs for glow
+  const defs = svg.append('defs');
+  defs.append('filter')
+    .attr('id', 'glow')
+    .append('feDropShadow')
+    .attr('stdDeviation', 3)
+    .attr('flood-color', '#4a9eff')
+    .attr('flood-opacity', 0.2);
+
+  // Tooltip events
+  const tip = document.getElementById('tooltip');
+  const tipName = document.getElementById('tip-name');
+  const tipMeta = document.getElementById('tip-meta');
+
+  // ─── SIMULATION ──────────────────────────────────────────────────────
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links)
+      .id(d => d.id)
+      .distance(d => {
+        // Shorter distance for same cluster, longer for different
+        const same = d.source.cluster === d.target.cluster;
+        return same ? 30 + d.weight * 10 : 60 + d.weight * 20;
+      })
+      .strength(0.3)
+    )
+    .force('charge', d3.forceManyBody()
+      .strength(d => -30 - d.radius * 2)
+      .distanceMin(10)
+      .distanceMax(200)
+    )
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(d => d.radius + 4))
+    .force('x', d3.forceX().strength(0.02))
+    .force('y', d3.forceY().strength(0.02))
+    .alphaDecay(0.02)
+    .velocityDecay(0.4);
+
+  // ─── DRAW LINKS ──────────────────────────────────────────────────────
+  const linkGroup = zoomGroup.append('g')
+    .attr('class', 'links')
+    .style('stroke-opacity', 0.3);
+
+  const linkElements = linkGroup.selectAll('line')
+    .data(links)
+    .enter()
+    .append('line')
+    .attr('stroke', '#666')
+    .attr('stroke-width', 0.8)
+    .style('stroke-opacity', 0.3);
+
+  // ─── DRAW NODES ──────────────────────────────────────────────────────
+  const nodeGroup = zoomGroup.append('g')
+    .attr('class', 'nodes');
+
+  const nodeElements = nodeGroup.selectAll('circle')
+    .data(nodes)
+    .enter()
+    .append('circle')
+    .attr('r', d => d.radius)
+    .attr('fill', d => d.color)
+    .attr('stroke', d => d3.color(d.color).brighter(0.5).toString())
+    .attr('stroke-width', 0.5)
+    .style('cursor', 'pointer')
+    .style('filter', 'url(#glow)')
+    .on('mouseover', function(event, d) {
+      tip.style.display = 'block';
+      tipName.textContent = d.label || d.id;
+      tipMeta.textContent = `Cluster: ${d.cluster || '—'} | Layer: ${d.layer || '—'} | Connections: ${d.degree || 0}`;
+      // Highlight connections
+      linkElements.style('stroke-opacity', l => {
+        if (l.source.id === d.id || l.target.id === d.id) return 0.8;
+        return 0.08;
+      });
+      nodeElements.style('opacity', n => {
+        const connected = links.some(l => (l.source.id === d.id && l.target.id === n.id) || (l.target.id === d.id && l.source.id === n.id));
+        return connected || n.id === d.id ? 1 : 0.15;
+      });
+      // Move tooltip
+      const [x, y] = [event.pageX, event.pageY];
+      tip.style.left = (x + 16) + 'px';
+      tip.style.top = (y - 10) + 'px';
+    })
+    .on('mouseout', function() {
+      tip.style.display = 'none';
+      linkElements.style('stroke-opacity', 0.3);
+      nodeElements.style('opacity', 1);
+    });
+
+  // ─── LABELS ──────────────────────────────────────────────────────────
+  const labelGroup = zoomGroup.append('g')
+    .attr('class', 'labels')
+    .style('pointer-events', 'none');
+
+  const labelElements = labelGroup.selectAll('text')
+    .data(nodes)
+    .enter()
+    .append('text')
+    .attr('fill', '#aaa')
+    .attr('font-size', d => Math.min(10, 6 + d.radius * 0.3))
+    .attr('text-anchor', 'middle')
+    .attr('dy', d => -d.radius - 4)
+    .style('font-family', 'Inter, system-ui, sans-serif')
+    .style('text-shadow', '0 0 8px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9)')
+    .style('user-select', 'none')
+    .text(d => {
+      const label = d.label || d.id;
+      return label.length > 25 ? label.slice(0, 22) + '…' : label;
+    });
+
+  // ─── TICK ────────────────────────────────────────────────────────────
+  simulation.on('tick', () => {
+    linkElements
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
+
+    nodeElements
+      .attr('cx', d => d.x)
+      .attr('cy', d => d.y);
+
+    labelElements
+      .attr('x', d => d.x)
+      .attr('y', d => d.y);
+  });
+
+  // ─── FILTERS ────────────────────────────────────────────────────────
+  function applyFilters() {
+    const layer = currentLayer;
+    const hemi = currentHemisphere;
+
+    const visibleNodes = nodes.filter(n => {
+      const layerMatch = layer === 'all' || n.layer === layer;
+      const hemiMatch = hemi === 'all' || getHemisphereGroup(n) === hemi;
+      return layerMatch && hemiMatch;
+    });
+    const visibleIds = new Set(visibleNodes.map(n => n.id));
+    const visibleLinks = links.filter(l => visibleIds.has(l.source.id) && visibleIds.has(l.target.id));
+
+    document.getElementById('visible-count').textContent = visibleNodes.length;
+
+    // Update display
+    nodeElements.style('display', d => visibleIds.has(d.id) ? 'block' : 'none');
+    labelElements.style('display', d => visibleIds.has(d.id) ? 'block' : 'none');
+    linkElements.style('display', l => {
+      const src = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgt = typeof l.target === 'object' ? l.target.id : l.target;
+      return (visibleIds.has(src) && visibleIds.has(tgt)) ? 'block' : 'none';
+    });
+
+    // Update legend
+    updateLegend(visibleNodes);
+  }
+
+  // ─── LEGEND ──────────────────────────────────────────────────────────
+  function updateLegend(visibleNodes) {
+    const clusters = {};
+    visibleNodes.forEach(n => {
+      const c = n.cluster || 'default';
+      if (!clusters[c]) clusters[c] = { count: 0, color: n.color };
+      clusters[c].count++;
+    });
+    const legendEl = document.getElementById('legend');
+    legendEl.innerHTML = Object.entries(clusters)
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([name, data]) => `
+        <div class="item">
+          <span class="dot" style="background:${data.color};"></span>
+          <span class="label">${name} (${data.count})</span>
+        </div>
+      `).join('');
+    if (Object.keys(clusters).length === 0) {
+      legendEl.innerHTML = '<div style="color:#666;">No nodes visible</div>';
+    }
+  }
+
+  // ─── CONTROLS ────────────────────────────────────────────────────────
+  document.querySelectorAll('[data-layer]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-layer]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentLayer = btn.dataset.layer;
+      applyFilters();
+    });
+  });
+
+  document.querySelectorAll('[data-hemisphere]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-hemisphere]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentHemisphere = btn.dataset.hemisphere;
+      applyFilters();
+    });
+  });
+
+  document.getElementById('reset-view').addEventListener('click', () => {
+    svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+  });
+
+  document.getElementById('toggle-labels').addEventListener('click', function() {
+    showLabels = !showLabels;
+    labelElements.style('display', showLabels ? 'block' : 'none');
+    this.textContent = showLabels ? 'Labels' : 'Show Labels';
+  });
+
+  // ─── HELPERS ────────────────────────────────────────────────────────
+  function getHemisphere(node) {
+    const c = node.cluster || '';
+    if (HEMISPHERE.left.includes(c)) return 'left';
+    if (HEMISPHERE.right.includes(c)) return 'right';
+    if (HEMISPHERE.bridge.includes(c)) return 'bridge';
+    return 'bridge'; // default
+  }
+
+  function getHemisphereGroup(node) {
+    const h = getHemisphere(node);
+    if (h === 'left' || h === 'right') return h;
+    return 'bridge';
+  }
+
+  // Initial filter application
+  applyFilters();
+  updateLegend(nodes);
+
+  // Update stats with visible count
+  document.getElementById('visible-count').textContent = nodes.length;
+
+  // Resize handler
+  window.addEventListener('resize', () => {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    svg.attr('width', w).attr('height', h);
+    simulation.force('center', d3.forceCenter(w / 2, h / 2));
+    simulation.alpha(0.1).restart();
+  });
+}
+
+// ─── START ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadGraph);
+</script>
+</body>
+</html>
