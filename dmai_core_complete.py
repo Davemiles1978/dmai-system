@@ -15281,6 +15281,37 @@ def _start_v4_background_learner():
 
 
 _start_v4_background_learner()
+
+@app.route("/api/admin/graph-stats", methods=["GET"])
+def api_admin_graph_stats():
+    """Return knowledge graph node and edge counts."""
+    if not _require_auth():
+        return jsonify({"error": "Unauthorised"}), 401
+    try:
+        import sqlite3
+        from pathlib import Path
+        db_path = Path("data/dmai_knowledge.db")
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Count nodes
+        cursor.execute("SELECT COUNT(*) FROM knowledge_graph_nodes")
+        nodes = cursor.fetchone()[0]
+        
+        # Count edges
+        cursor.execute("SELECT COUNT(*) FROM knowledge_graph_edges")
+        edges = cursor.fetchone()[0]
+        
+        conn.close()
+        return jsonify({
+            "ok": True,
+            "nodes": nodes,
+            "edges": edges
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info("=" * 55)
