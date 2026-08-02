@@ -967,54 +967,11 @@
       </div>
 
 
-            <!-- Knowledge Graph (Brain) -->
+      <!-- Knowledge Graph (Brain) -->
       <div class="brain-section">
-        <div class="brain-card" style="padding:0;background:#0a0a0f;">
-          <div id="brain-graph-container" style="width:100%;height:500px;background:#0a0a0f;border-radius:12px;overflow:hidden;position:relative;">
-            <div id="brain-loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#666;font-size:14px;text-align:center;z-index:5;">
-              <div style="width:30px;height:30px;border:2px solid rgba(255,255,255,0.06);border-top-color:#8abfff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
-              <div>Loading brain graph…</div>
-            </div>
-            <div id="brain-stats" style="position:absolute;top:12px;right:16px;background:rgba(10,10,15,0.8);backdrop-filter:blur(12px);padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);font-size:11px;color:#999;z-index:10;line-height:1.6;min-width:120px;text-align:right;">
-              <div>Neurons: <span id="brain-neuron-count" style="color:#8abfff;font-weight:500;">—</span></div>
-              <div>Synapses: <span id="brain-synapse-count" style="color:#8abfff;font-weight:500;">—</span></div>
-              <div>Visible: <span id="brain-visible-count" style="color:#8abfff;font-weight:500;">—</span></div>
-            </div>
-            <div id="brain-legend" style="position:absolute;bottom:70px;right:16px;background:rgba(10,10,15,0.8);backdrop-filter:blur(12px);padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);font-size:10px;color:#999;z-index:10;line-height:1.6;max-height:200px;overflow-y:auto;display:none;"></div>
-            <div id="brain-controls" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:rgba(10,10,15,0.85);backdrop-filter:blur(12px);padding:8px 16px;border-radius:30px;border:1px solid rgba(255,255,255,0.08);z-index:10;flex-wrap:wrap;justify-content:center;">
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-                <span style="font-size:10px;color:#888;margin-right:2px;">Layer:</span>
-                <button class="brain-layer-btn active" data-layer="all" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">All</button>
-                <button class="brain-layer-btn" data-layer="architecture" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Arch</button>
-                <button class="brain-layer-btn" data-layer="capability_type" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Cap</button>
-                <button class="brain-layer-btn" data-layer="topic" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Topic</button>
-              </div>
-              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-                <span style="font-size:10px;color:#888;margin-right:2px;">Hemisphere:</span>
-                <button class="brain-hemi-btn active" data-hemisphere="all" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Both</button>
-                <button class="brain-hemi-btn" data-hemisphere="left" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Left</button>
-                <button class="brain-hemi-btn" data-hemisphere="right" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Right</button>
-                <button class="brain-hemi-btn" data-hemisphere="bridge" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 10px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Bridge</button>
-              </div>
-              <button id="brain-reset-view" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 12px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Reset</button>
-              <button id="brain-toggle-labels" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c0c0c0;padding:3px 12px;border-radius:14px;font-size:10px;cursor:pointer;font-family:inherit;">Labels</button>
-            </div>
-            <div id="brain-tooltip" style="position:absolute;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);font-size:11px;color:#ccc;pointer-events:none;z-index:20;max-width:200px;display:none;line-height:1.4;">
-              <div id="brain-tip-name" style="color:#fff;font-weight:500;">—</div>
-              <div id="brain-tip-meta" style="color:#888;font-size:10px;">—</div>
-            </div>
-            <style>
-              #brain-graph-container svg { display:block; width:100%; height:100%; background:#0a0a0f; }
-              #brain-graph-container .brain-layer-btn.active, #brain-graph-container .brain-hemi-btn.active { background:rgba(100,180,255,0.2); border-color:rgba(100,180,255,0.3); color:#8abfff; }
-              #brain-graph-container .brain-layer-btn:hover, #brain-graph-container .brain-hemi-btn:hover { background:rgba(255,255,255,0.12); color:#fff; }
-              @keyframes spin { to { transform:rotate(360deg); } }
-              @media (max-width:640px) {
-                #brain-controls { padding:6px 12px; gap:4px; width:95%; bottom:8px; }
-                #brain-controls button { font-size:9px; padding:2px 8px; }
-                #brain-stats { top:8px; right:8px; font-size:10px; padding:6px 10px; min-width:80px; }
-                #brain-legend { display:none !important; }
-              }
-            </style>
+        <div class="brain-card" style="padding:0;background:#0a0a0f;border-radius:12px;border:1px solid rgba(255,255,255,0.06);">
+          <div style="width:100%;height:500px;background:#0a0a0f;border-radius:12px;overflow:hidden;">
+            <iframe src="/static/brain_graph_vis.html" style="width:100%;height:100%;border:none;background:#0a0a0f;"></iframe>
           </div>
         </div>
       </div>

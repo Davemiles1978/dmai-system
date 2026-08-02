@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMAI Brain Graph</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0f; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #e0e0e0; overflow: hidden; height: 100vh; }
+    #graph-container { width: 100%; height: 100vh; position: relative; background: #0a0a0f; }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #666;
+      font-size: 14px;
+      text-align: center;
+      z-index: 5;
+    }
+    #loading .spinner {
+      width: 30px;
+      height: 30px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-top-color: #8abfff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #stats {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(12px);
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 11px;
+      color: #999;
+      z-index: 10;
+      line-height: 1.6;
+      min-width: 120px;
+      text-align: right;
+    }
+    #stats .num { color: #8abfff; font-weight: 500; }
+    #controls {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      padding: 6px 14px;
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.08);
+      z-index: 10;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #controls button {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #c0c0c0;
+      padding: 2px 10px;
+      border-radius: 14px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    #controls button:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    #controls button.active { background: rgba(100,180,255,0.2); border-color: rgba(100,180,255,0.3); color: #8abfff; }
+    #legend {
+      position: absolute;
+      bottom: 70px;
+      right: 16px;
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(12px);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 9px;
+      color: #999;
+      z-index: 10;
+      line-height: 1.6;
+      max-height: 150px;
+      overflow-y: auto;
+      display: none;
+    }
+    #legend .item { display: flex; align-items: center; gap: 4px; }
+    #legend .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div id="graph-container">
+    <div id="loading">
+      <div class="spinner"></div>
+      <div>Loading brain graph…</div>
+    </div>
+    <div id="stats">
+      <div>Neurons: <span class="num" id="neuron-count">—</span></div>
+      <div>Synapses: <span class="num" id="synapse-count">—</span></div>
+      <div>Visible: <span class="num" id="visible-count">—</span></div>
+    </div>
+    <div id="legend"></div>
+    <div id="controls">
+      <button class="layer-btn active" data-layer="all">All</button>
+      <button class="layer-btn" data-layer="architecture">Arch</button>
+      <button class="layer-btn" data-layer="capability_type">Cap</button>
+      <button class="layer-btn" data-layer="topic">Topic</button>
+      <button class="hemi-btn active" data-hemisphere="all">Both</button>
+      <button class="hemi-btn" data-hemisphere="left">Left</button>
+      <button class="hemi-btn" data-hemisphere="right">Right</button>
+      <button id="reset-view">Reset</button>
+      <button id="toggle-labels">Labels</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+  <script>
+    (function() {
+      const container = document.getElementById('graph-container');
+      const loading = document.getElementById('loading');
+
+      const COLORS = {
+        core: '#4a9eff', learning: '#6fcf97', research: '#f2c94a',
+        revenue: '#bb6bd9', providers: '#f2994a', topics: '#56ccf2',
+        capability_type: '#27ae60', utility: '#a0a0a0', default: '#666'
+      };
+
+      let network = null;
+      let currentData = null;
+
+      async function loadGraph() {
+        try {
+          const resp = await fetch('/api/graph/schema?view=overview&limit=200');
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          const data = await resp.json();
+          document.getElementById('neuron-count').textContent = data.total_neurons || data.neurons?.length || '—';
+          document.getElementById('synapse-count').textContent = data.total_synapses || data.synapses?.length || '—';
+          buildGraph(data);
+        } catch(err) {
+          loading.innerHTML = '<div style="color:#ff6b6b;">⚠️ Failed to load graph</div><div style="font-size:11px;color:#888;margin-top:4px;">' + err.message + '</div>';
+          console.error('Graph error:', err);
+        }
+      }
+
+      function buildGraph(data) {
+        loading.style.display = 'none';
+        currentData = data;
+        const nodes = data.neurons || [];
+        const links = data.synapses || [];
+
+        const visNodes = nodes.map(n => ({
+          id: n.id,
+          label: n.label || n.id,
+          title: 'Cluster: ' + (n.cluster||'—') + '\nLayer: ' + (n.layer||'—'),
+          color: COLORS[n.cluster] || COLORS.default,
+          size: 10 + (n.activation || 0) * 15,
+          font: { color: '#aaa', size: 10, face: 'Inter' }
+        }));
+
+        const visEdges = links.map(l => ({
+          from: l.source,
+          to: l.target,
+          width: 1 + (l.weight || 0.5) * 2,
+          color: { opacity: 0.2 }
+        }));
+
+        const networkData = { nodes: visNodes, edges: visEdges };
+        const options = {
+          physics: {
+            enabled: true,
+            solver: 'forceAtlas2Based',
+            stabilization: { iterations: 40 },
+            forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.01 }
+          },
+          layout: { randomSeed: 42 },
+          interaction: { hover: true, tooltipDelay: 200, zoomView: true, dragView: true },
+          nodes: { shape: 'dot', size: 12, font: { size: 10, color: '#aaa', face: 'Inter' }, borderWidth: 1 },
+          edges: { smooth: false, width: 1, color: { opacity: 0.2 } }
+        };
+
+        network = new vis.Network(container, networkData, options);
+        document.getElementById('visible-count').textContent = nodes.length;
+
+        // Legend
+        const clusters = {};
+        nodes.forEach(n => { const c = n.cluster||'default'; if(!clusters[c]) clusters[c]={count:0,color:COLORS[c]||COLORS.default}; clusters[c].count++; });
+        const legend = document.getElementById('legend');
+        legend.style.display = 'block';
+        legend.innerHTML = Object.entries(clusters).sort((a,b)=>b[1].count-a[1].count).slice(0,6).map(([name,data]) =>
+          '<div class="item"><span class="dot" style="background:'+data.color+';"></span><span>'+name+' ('+data.count+')</span></div>'
+        ).join('');
+
+        setupControls(nodes, links);
+        network.fit();
+      }
+
+      function setupControls(nodes, links) {
+        // Layer buttons
+        document.querySelectorAll('.layer-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            applyFilters(nodes, links);
+          });
+        });
+
+        // Hemisphere buttons
+        document.querySelectorAll('.hemi-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('.hemi-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            applyFilters(nodes, links);
+          });
+        });
+
+        document.getElementById('reset-view').addEventListener('click', function() { if (network) network.fit(); });
+        document.getElementById('toggle-labels').addEventListener('click', function() {
+          const show = this.textContent === 'Labels';
+          if (network) {
+            network.getOptions().nodes.font.size = show ? 10 : 0;
+            network.redraw();
+          }
+          this.textContent = show ? 'Hide Labels' : 'Labels';
+        });
+      }
+
+      function applyFilters(nodes, links) {
+        const layer = document.querySelector('.layer-btn.active')?.dataset.layer || 'all';
+        const hemi = document.querySelector('.hemi-btn.active')?.dataset.hemisphere || 'all';
+
+        const filteredNodes = nodes.filter(n => {
+          const layerMatch = layer === 'all' || n.layer === layer;
+          const hemiMatch = hemi === 'all' || getHemiGroup(n) === hemi;
+          return layerMatch && hemiMatch;
+        });
+
+        const filteredIds = new Set(filteredNodes.map(n => n.id));
+        const newVisNodes = filteredNodes.map(n => ({
+          id: n.id,
+          label: n.label || n.id,
+          color: COLORS[n.cluster] || COLORS.default,
+          size: 10 + (n.activation || 0) * 15,
+          font: { color: '#aaa', size: 10 }
+        }));
+        const newVisEdges = links.filter(l => filteredIds.has(l.source) && filteredIds.has(l.target)).map(l => ({
+          from: l.source, to: l.target, width: 1 + (l.weight || 0.5) * 2
+        }));
+
+        if (network) {
+          network.setData({ nodes: newVisNodes, edges: newVisEdges });
+          network.fit();
+        }
+        document.getElementById('visible-count').textContent = filteredNodes.length;
+      }
+
+      function getHemiGroup(node) {
+        const left = ['core', 'knowledge', 'configuration', 'data_structure', 'api', 'interface', 'linguistics', 'nlp'];
+        const right = ['artistic', 'generation', 'trading', 'wealth', 'autonomous_agents', 'machine_learning', 'computer_vision'];
+        const c = node.cluster||'';
+        if (left.includes(c)) return 'left';
+        if (right.includes(c)) return 'right';
+        return 'bridge';
+      }
+
+      document.addEventListener('DOMContentLoaded', loadGraph);
+    })();
+  </script>
+</body>
+</html>
