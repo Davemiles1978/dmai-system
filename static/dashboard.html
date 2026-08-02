@@ -976,9 +976,6 @@
               <div>Loading brain graph…</div>
             </div>
             <div id="brain-stats" style="position:absolute;top:12px;right:16px;background:rgba(10,10,15,0.8);backdrop-filter:blur(12px);padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);font-size:11px;color:#999;z-index:10;line-height:1.6;min-width:120px;text-align:right;">
-              <div>Neurons: <span id="brain-neuron-count" style="color:#8abfff;font-weight:500;">—</span></div>
-              <div>Synapses: <span id="brain-synapse-count" style="color:#8abfff;font-weight:500;">—</span></div>
-              <div>Visible: <span id="brain-visible-count" style="color:#8abfff;font-weight:500;">—</span></div>
             </div>
             <div id="brain-controls" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:rgba(10,10,15,0.85);backdrop-filter:blur(12px);padding:8px 16px;border-radius:30px;border:1px solid rgba(255,255,255,0.08);z-index:10;flex-wrap:wrap;justify-content:center;">
               <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
@@ -1030,8 +1027,6 @@
             const resp = await fetch('/api/graph/schema?view=overview&limit=200');
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             const data = await resp.json();
-            document.getElementById('brain-neuron-count').textContent = data.total_neurons || data.neurons?.length || '—';
-            document.getElementById('brain-synapse-count').textContent = data.total_synapses || data.synapses?.length || '—';
             buildBrainGraph(data);
           } catch(err) {
             fallback.style.display = 'block';
@@ -1076,7 +1071,6 @@
           };
 
           const network = new vis.Network(container, networkData, options);
-          document.getElementById('brain-visible-count').textContent = nodes.length;
 
           // Controls
           document.querySelectorAll('.brain-layer-btn, .brain-hemi-btn').forEach(btn => {
@@ -1102,7 +1096,6 @@
                 from: l.source, to: l.target, width: 1 + (l.weight || 0.5) * 2
               }));
               network.setData({ nodes: newVisNodes, edges: newVisEdges });
-              document.getElementById('brain-visible-count').textContent = filteredNodes.length;
             });
           });
 
