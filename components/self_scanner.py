@@ -241,6 +241,32 @@ class SelfScanner:
         "sample_efficiency_trend":        ("sample_efficiency_optimizer",    2),
     }
 
+
+    def _audit_pending_capabilities(self) -> list:
+        """Check the capabilities table for pending implementations."""
+        import sqlite3
+        gaps = []
+        try:
+            db_path = "data/dmai_knowledge.db"
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT name, category, description, status
+                FROM capabilities
+                WHERE status = 'pending'
+            ''')
+            rows = cursor.fetchall()
+            for row in rows:
+                gaps.append({
+                    "name": row[0],
+                    "description": row[2],
+                    "priority": 5,
+                    "component": row[1]
+                })
+            conn.close()
+        except Exception as e:
+            logger.warning(f"Pending capabilities audit error: {e}")
+        return gaps
     def audit_capability_gaps_typed(self) -> list:
         """Return CapabilityGapEntry items for Layer 4 self-generation.
 
