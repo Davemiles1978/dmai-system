@@ -994,6 +994,18 @@ except Exception as e:
 try:
     from components.alex_riviera.content_generator import AlexRivieraContent
     components["content_gen"] = AlexRivieraContent(ai_hub=components.get("ai_hub"))
+
+    # ── Viral Content Analyser ────────────────────────────────────────────
+    try:
+        from components.content.viral_analyser import ViralContentAnalyser
+        components["viral_analyser"] = ViralContentAnalyser(data_path=DATA_PATH)
+        logger.info("ViralContentAnalyser initialised")
+        try:
+            components["viral_analyser"].analyse_trends()
+        except Exception as e:
+            logger.warning(f"Initial viral analysis failed: {e}")
+    except Exception as e:
+        logger.warning(f"ViralContentAnalyser failed: {e}")
     logger.info("AlexRivieraContent initialised")
 except Exception as e:
     logger.warning("AlexRivieraContent failed: %s", e)
