@@ -193,6 +193,7 @@ class AIIntegrationHub:
         return keys
         
 
+
     def _get_active_providers_with_methods(self):
         """Return list of (provider_name, query_method) for active, known providers."""
         activator = None
@@ -209,15 +210,19 @@ class AIIntegrationHub:
 
         active_ids = activator.get_active_providers()
         method_map = {
-            'groq':              ('Groq', self._query_groq),
-            'google_ai_studio':  ('Google AI Studio', self._query_google_ai_studio),
-            'cerebras':          ('Cerebras', self._query_cerebras),
-            'openai':            ('OpenAI', self._query_openai),
-            'anthropic':         ('Anthropic', self._query_anthropic),
-            'deepseek':          ('DeepSeek', self._query_deepseek),
-            'github_models':     ('GitHub Models', self._query_github_models),
-            'mistral':           ('Mistral', self._query_mistral),
+            "groq":              ("Groq", self._query_groq),
+            "google_ai_studio":  ("Google AI Studio", self._query_google_ai_studio),
+            "cerebras":          ("Cerebras", self._query_cerebras),
+            "openai":            ("OpenAI", self._query_openai),
+            "anthropic":         ("Anthropic", self._query_anthropic),
+            "deepseek":          ("DeepSeek", self._query_deepseek),
+            "cloudflare":        ("Cloudflare Workers AI", self._query_cloudflare),
+            "cohere":            ("Cohere", self._query_cohere),
+            "huggingface":       ("HuggingFace", self._query_huggingface),
+            "github_models":     ("GitHub Models", self._query_github_models),
+            "mistral":           ("Mistral", self._query_mistral),
         }
+        priority = ["groq", "google_ai_studio", "cerebras", "openai", "anthropic", "deepseek", "cloudflare", "cohere", "huggingface", "github_models", "mistral"]
         priority = ['groq', 'google_ai_studio', 'cerebras', 'openai', 'anthropic', 'deepseek', 'github_models', 'mistral']
         result = []
         for pid in priority:
@@ -242,8 +247,6 @@ class AIIntegrationHub:
                     harvester.harvest()
         except Exception as e:
             logger.warning(f"Harvester trigger failed: {e}")
-    def _load_history(self):
-        """Load query history from disk"""
         try:
             history_file = os.path.join(self.data_path, 'phase11', 'query_history.json')
             if os.path.exists(history_file):
@@ -270,6 +273,7 @@ class AIIntegrationHub:
             logger.error(f"Failed to save query history: {e}")
             
 
+
     def query_all_tutors(self, prompt: str, use_cache: bool = True) -> Dict:
         """Query all available tutors using dynamic active provider list."""
         start_time = time.time()
@@ -292,24 +296,23 @@ class AIIntegrationHub:
         # Get dynamic provider list
         query_methods = self._get_active_providers_with_methods()
         if not query_methods:
-            # Fallback to static list (keep original as last resort)
+            # Fallback to known-working providers (last resort if activator unavailable)
             query_methods = [
-                ('OpenAI GPT-4', self._query_openai),
-                ('DeepSeek', self._query_deepseek),
-                ('Google Gemini', self._query_gemini),
-                ('Anthropic Claude', self._query_anthropic),
-                ('Perplexity AI', self._query_perplexity),
-                ('xAI Grok', self._query_grok),
-                ('Cerebras Inference', self._query_cerebras),
-                ('GitHub Models', self._query_github_models),
-                ('Mistral AI', self._query_mistral),
+                ("Groq", self._query_groq),
+                ("Google AI Studio", self._query_google_ai_studio),
+                ("Cerebras", self._query_cerebras),
+                ("OpenAI", self._query_openai),
+                ("Anthropic", self._query_anthropic),
+                ("DeepSeek", self._query_deepseek),
+                ("Cloudflare", self._query_cloudflare),
+                ("Cohere", self._query_cohere),
+                ("HuggingFace", self._query_huggingface),
             ]
-            self._trigger_harvester_if_needed()
 
         for tutor_name, method in query_methods:
             try:
                 logger.debug(f"Querying {tutor_name}...")
-                result = self._call_provider_with_retry(method, prompt)
+                result = method(prompt)
 
                 if result.get('success'):
                     results['responses'][tutor_name] = result['response']
@@ -1010,14 +1013,15 @@ class AIIntegrationHub:
             self._provider_semaphore = asyncio.Semaphore(self._max_concurrent_providers)
 
         priority_methods = [
-            ("Cerebras",         self._query_cerebras),
-            ("Groq",             self._query_groq),
+            ("Groq", self._query_groq),
             ("Google AI Studio", self._query_google_ai_studio),
-            ("GitHub Models",    self._query_github_models),
-            ("Mistral AI",       self._query_mistral),
-            ("DeepSeek",         self._query_deepseek),
-            ("OpenAI",           self._query_openai),
-            ("Anthropic",        self._query_anthropic),
+            ("Cerebras", self._query_cerebras),
+            ("OpenAI", self._query_openai),
+            ("Anthropic", self._query_anthropic),
+            ("DeepSeek", self._query_deepseek),
+            ("Cloudflare", self._query_cloudflare),
+            ("Cohere", self._query_cohere),
+            ("HuggingFace", self._query_huggingface),
         ]
 
         tripped_skipped = []
@@ -1181,6 +1185,53 @@ class AIIntegrationHub:
 
         except Exception as e:
             return {'success': False, 'tutor': 'Cerebras', 'error': str(e)}
+
+    def _query_cloudflare(self, prompt: str) -> Dict:
+        """Query Cloudflare Workers AI — 10,000 neurons/day free, Llama 3.3, Qwen3, DeepSeek R1"""
+        api_key = os.getenv("CLOUDFLARE_API_KEY") or os.getenv("CF_API_TOKEN") or self.api_keys.get("cloudflare")
+        account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
+        if not api_key or api_key == "pending":
+            return {"success": False, "tutor": "Cloudflare", "error": "No API key — sign up free at dash.cloudflare.com"}
+        if not account_id:
+            return {"success": False, "tutor": "Cloudflare", "error": "CLOUDFLARE_ACCOUNT_ID not set"}
+        try:
+            response = requests.post(
+                f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={"model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "messages": [{"role": "user", "content": prompt}], "max_tokens": 500, "temperature": 0.7},
+                timeout=30,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return {"success": True, "tutor": "Cloudflare Workers AI", "response": data["choices"][0]["message"]["content"], "model": "llama-3.3-70b"}
+            elif response.status_code == 429:
+                return {"success": False, "tutor": "Cloudflare", "error": "Rate limited (10,000 neurons/day)"}
+            else:
+                return {"success": False, "tutor": "Cloudflare", "error": f"HTTP {response.status_code}: {response.text[:120]}"}
+        except Exception as e:
+            return {"success": False, "tutor": "Cloudflare", "error": str(e)}
+
+    def _query_cohere(self, prompt: str) -> Dict:
+        """Query Cohere — 1,000 req/month free, Command R+"""
+        api_key = os.getenv("COHERE_API_KEY") or self.api_keys.get("cohere")
+        if not api_key or api_key == "pending":
+            return {"success": False, "tutor": "Cohere", "error": "No API key — sign up free at dashboard.cohere.com"}
+        try:
+            response = requests.post(
+                "https://api.cohere.ai/v2/chat",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "Accept": "application/json"},
+                json={"model": "command-r7b-12-2024", "messages": [{"role": "user", "content": prompt}], "max_tokens": 500, "temperature": 0.7},
+                timeout=30,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return {"success": True, "tutor": "Cohere", "response": data.get("text", data.get("message", {}).get("content", str(data))), "model": "command-r7b-12-2024"}
+            elif response.status_code == 429:
+                return {"success": False, "tutor": "Cohere", "error": "Rate limited (20 req/min)"}
+            else:
+                return {"success": False, "tutor": "Cohere", "error": f"HTTP {response.status_code}: {response.text[:120]}"}
+        except Exception as e:
+            return {"success": False, "tutor": "Cohere", "error": str(e)}
 
     def _query_github_models(self, prompt: str) -> Dict:
         """Query GitHub Models Marketplace — 45+ frontier models free with GitHub account"""
