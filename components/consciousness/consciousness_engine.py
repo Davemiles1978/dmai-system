@@ -193,18 +193,12 @@ class ConsciousnessEngine:
         # Write to SICore so the API reflects real internal metrics
         if self.si_core:
             try:
-                try:
-                    import sys as _sys
-                    _root = str(_REPO_ROOT)
-                    if _root not in _sys.path:
-                        _sys.path.insert(0, _root)
-                    from security import generate_token
-                    token = generate_token({"sub": "consciousness_engine", "role": "system"}, expires_minutes=10)
-                except Exception:
-                    pass
-                self.si_core._update_kpi("consciousness", consciousness, token)
+                # Write directly to SICore state — system-internal update
+                self.si_core._state["consciousness"] = consciousness
                 self.si_core.save_state()
                 logger.info("ConsciousnessEngine: SICore.consciousness updated to %.4f", consciousness)
+            except Exception as e:
+                logger.warning("ConsciousnessEngine: SICore update failed: %s", e)
             except Exception as e:
                 logger.warning("ConsciousnessEngine: SICore update failed: %s", e)
 
