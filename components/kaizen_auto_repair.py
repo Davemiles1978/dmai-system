@@ -353,7 +353,6 @@ class KaizenAutoRepair:
                                   .replace(" ", "_")
                                   .replace("-", "_")
                                   .replace("/", "_"))[:40] or f"kaizen_{pid}"
-                logger.info("[KAIZEN] Generating new component: %s", component_name)
                 return self.code_writer.generate_component(
                     component_name=component_name,
                     description=description or title,
@@ -361,13 +360,38 @@ class KaizenAutoRepair:
                     origin="kaizen_auto_repair",
                 )
             logger.info("[KAIZEN] Patching file: %s", file_hint)
-            return self.code_writer.execute_kaizen_fix(
+            result = self.code_writer.execute_kaizen_fix(
                 kaizen_id=pid,
                 file_path=file_hint,
                 problem=description or title,
                 suggested_fix=fix_hint,
                 origin="kaizen_auto_repair",
             )
+            # Auto-commit successful fixes so they persist and DMAI learns
+            if result.get("ok") and file_hint:
+                try:
+                    from components.self_committer import SelfCommitter
+                    target = _REPO_ROOT / file_hint
+                    if target.exists():
+                        committer = SelfCommitter(data_path=str(_REPO_ROOT / "data"))
+                        committed = committer.commit(
+                            capability_name=f"kaizen-{pid}",
+                            code=target.read_text(),
+                            target_file=str(target),
+                        )
+                        result["committed"] = committed
+                        if committed:
+                            logger.info("[KAIZEN] Auto-committed fix for %s", pid)
+                        else:
+                            logger.warning("[KAIZEN] Auto-commit returned False for %s", pid)
+                    else:
+                        result["committed"] = False
+                        logger.warning("[KAIZEN] Target file not found for commit: %s", target)
+                except Exception as commit_err:
+                    logger.warning("[KAIZEN] Auto-commit failed for %s: %s", pid, commit_err)
+                    result["committed"] = False
+            return result
+
         except Exception as exc:
             import traceback
             logger.error(

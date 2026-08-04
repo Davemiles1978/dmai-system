@@ -459,12 +459,48 @@ class SelfHealer:
     # ── Kaizen proposal emission ───────────────────────────────────────────
 
     def _emit_kaizen_proposal(self, rel: str, error: str):
-        """Auto-enqueue a kaizen proposal directly into the repair queue — no human approval gate."""
+        """Auto-enqueue a kaizen proposal directly into the repair queue — no human approval gate.
+        Deduplicates: if a proposal for the same file already exists, bumps its count instead of creating a new one."""
         import uuid
+        queue_file = self.root / "data" / "kaizen_queue.jsonl"
+        queue_file.parent.mkdir(parents=True, exist_ok=True)
+        proposals_file = self.root / "data" / "kaizen_proposals.jsonl"
+
+        title = f"Auto-repair needed: {rel}"
+
+        # Check for existing proposal for this file — dedup
+        if queue_file.exists():
+            existing_lines = []
+            found = False
+            for line in queue_file.read_text().splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    p = json.loads(line)
+                except Exception:
+                    existing_lines.append(line)
+                    continue
+                if p.get("title") == title:
+                    p["count"] = p.get("count", 1) + 1
+                    p["last_seen"] = _now()
+                    p["last_error"] = error
+                    existing_lines.append(json.dumps(p))
+                    found = True
+                else:
+                    existing_lines.append(json.dumps(p))
+            if found:
+                queue_file.write_text("\n".join(existing_lines) + "\n")
+                logger.info("KaizenProposal dedup: bumped count for %s", rel)
+                return
+            else:
+                queue_file.write_text("\n".join(existing_lines) + "\n")
+
+        # No duplicate — create new proposal
         proposal_id = "sh-" + uuid.uuid4().hex[:8]
         proposal = {
             "id": proposal_id,
-            "title": f"Auto-repair needed: {rel}",
+            "title": title,
             "priority": "HIGH",
             "source": "SelfHealer",
             "description": (
@@ -478,15 +514,11 @@ class SelfHealer:
             "suggested_fix": f"Fix syntax error at: {error}",
             "status": "pending",
             "attempt_count": 0,
+            "count": 1,
             "created_at": _now(),
         }
-        # Write to kaizen_queue.jsonl (read by KaizenAutoRepair)
-        queue_file = self.root / "data" / "kaizen_queue.jsonl"
-        queue_file.parent.mkdir(parents=True, exist_ok=True)
         with open(queue_file, "a") as f:
             f.write(json.dumps(proposal) + "\n")
-        # Also write to kaizen_proposals.jsonl (read by KaizenExecutor for PR creation)
-        proposals_file = self.root / "data" / "kaizen_proposals.jsonl"
         with open(proposals_file, "a") as f:
             f.write(json.dumps(proposal) + "\n")
         logger.warning("KaizenProposal auto-enqueued for %s (id=%s)", rel, proposal_id)
@@ -509,7 +541,9 @@ class SelfHealer:
             )
             with _req_mod.urlopen(_r, timeout=3):
                 pass
-        except Exception as _api_e:
+        except Exception:
+            pass
+
             logger.debug("SelfHealer: could not POST to suggestions API: %s", _api_e)
 
     # ── Helpers ────────────────────────────────────────────────────────────
