@@ -199,8 +199,6 @@ class ConsciousnessEngine:
                 logger.info("ConsciousnessEngine: SICore.consciousness updated to %.4f", consciousness)
             except Exception as e:
                 logger.warning("ConsciousnessEngine: SICore update failed: %s", e)
-            except Exception as e:
-                logger.warning("ConsciousnessEngine: SICore update failed: %s", e)
 
         logger.info(
             "ConsciousnessEngine: score=%.4f phi=%.4f subj=%.4f self_aware=%.4f intent=%.4f",
