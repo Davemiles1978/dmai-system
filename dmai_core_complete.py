@@ -13649,6 +13649,12 @@ def _start_background_services(force=False):
     except Exception as _e:
         logger.warning("syllabus_content init failed: %s", _e)
     _start_kpi_seed_loop()  # DB-derived KPI seeder — single source of truth
+    try:
+        from components.codewriter_exercise_loop import start_exercise_loop as _start_cw_ex
+        _start_cw_ex(components)
+    except Exception as _cw_ex_err:
+        logger.warning("CodeWriter exercise loop failed to start: %s", _cw_ex_err)
+
 
     # ── JSONL -> SQL insight promoter ─────────────────────────────────────
     # si_core writes discoveries to data/research/insights.jsonl, but the

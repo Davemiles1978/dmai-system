@@ -425,29 +425,33 @@ class StageAwareLearningOrchestrator:
         for check_index in range(0, current_index + 1):
             check_stage = stage_order[check_index]
             
-            # Priority order within stage: Accelerators -> Reverse -> Wealth -> Artistic -> Core
+            # Priority order within stage: Accelerators -> V4 Self-Evolution -> Reverse -> Wealth -> Artistic -> Core
             if prioritize_accelerators:
                 accelerators = self.get_priority_topics(check_stage, category="accelerator")
                 if accelerators:
                     return accelerators[0]
-            
+
+            v4_topics = self.get_priority_topics(check_stage, category="v4_self_evolution")
+            if v4_topics:
+                return v4_topics[0]
+
             reverse_topics = self.get_priority_topics(check_stage, category="reverse")
             if reverse_topics:
                 return reverse_topics[0]
-            
+
             wealth_topics = self.get_priority_topics(check_stage, category="wealth")
             if wealth_topics:
                 return wealth_topics[0]
-            
+
             artistic_topics = self.get_priority_topics(check_stage, category="artistic")
             if artistic_topics:
                 return artistic_topics[0]
-            
+
             core_topics = self.get_priority_topics(check_stage, category="core")
             if core_topics:
                 return core_topics[0]
-        
-        logger.info(f"✅ All priority topics mastered up to {stage} stage!")
+            if core_topics:
+                return core_topics[0]
 
         # ── Never stagnate: promote through SUGGESTED_PATHWAYS then generate new topics ──
         # 1. Try SUGGESTED_PATHWAYS (Master → Transcendent → Infinite)
