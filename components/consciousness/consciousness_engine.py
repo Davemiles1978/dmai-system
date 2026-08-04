@@ -193,10 +193,13 @@ class ConsciousnessEngine:
         # Write to SICore so the API reflects real internal metrics
         if self.si_core:
             try:
-                token = None
                 try:
-                    import os
-                    token = os.environ.get("MASTER_TOKEN", "dmai_master")
+                    import sys as _sys
+                    _root = str(_REPO_ROOT)
+                    if _root not in _sys.path:
+                        _sys.path.insert(0, _root)
+                    from security import generate_token
+                    token = generate_token({"sub": "consciousness_engine", "role": "system"}, expires_minutes=10)
                 except Exception:
                     pass
                 self.si_core._update_kpi("consciousness", consciousness, token)
