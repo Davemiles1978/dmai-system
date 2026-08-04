@@ -1187,13 +1187,15 @@ try:
 except Exception as e:
     logger.warning("TutorManager failed: %s", e)
 
-# ── ConsciousnessTracker ──────────────────────────────────────────────────────
+# ── ConsciousnessEngine (four-dimension consciousness: Φ, Subjective, Self-Aware, Intentional) ──
 try:
-    from components.evolution.ConsciousnessTracker import ConsciousnessTracker
-    components["consciousness_tracker"] = ConsciousnessTracker(data_path=Path(DATA_PATH))
-    logger.info("ConsciousnessTracker initialised")
+    from components.consciousness.consciousness_engine import ConsciousnessEngine
+    _ce = ConsciousnessEngine(data_path=Path(DATA_PATH), si_core=components.get("si_core"))
+    components["consciousness_tracker"] = _ce
+    components["consciousness_engine"] = _ce
+    logger.info("ConsciousnessEngine initialised (4-dimension)")
 except Exception as e:
-    logger.warning("ConsciousnessTracker failed: %s", e)
+    logger.warning("ConsciousnessEngine failed: %s", e)
 
 # ── EvolutionMetrics ──────────────────────────────────────────────────────────
 try:
@@ -13468,6 +13470,13 @@ def _start_kpi_seed_loop():
     def _loop():
         import time as _t
         while True:
+            try:
+                _ce = components.get("consciousness_engine")
+                if _ce:
+                    _ce.calculate()
+            except Exception as _ce_err:
+                logger.warning("ConsciousnessEngine update in seed loop failed: %s", _ce_err)
+
             _t.sleep(300)
             try:
                 _seed_kpis_from_db()
