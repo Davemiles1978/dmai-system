@@ -15256,7 +15256,7 @@ def api_v4_progress():
         total = len(state)
         mastered = sum(1 for m in state.values() if isinstance(m, dict) and m.get("status") == "mastered")
         in_progress = sum(1 for m in state.values() if isinstance(m, dict) and m.get("status") == "in_progress")
-        overall_pct = round((mastered / total) * 100) if total > 0 else 0
+        overall_pct = round(sum(m.get("pct", 0) for m in state.values() if isinstance(m, dict)) / max(total, 1))
         return jsonify({
             "ok": True,
             "modules": state,
