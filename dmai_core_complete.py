@@ -15154,7 +15154,6 @@ def api_admin_v4_write():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/v4/progress", methods=["GET"])
 @app.route("/api/v4/learn", methods=["POST"])
 def api_v4_learn():
     """Force learning of the next V4 module (lowest progress first)."""
@@ -15205,6 +15204,7 @@ def api_v4_learn():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/v4/progress", methods=["GET"])
 def api_v4_progress():
     """Return V4 module mastery progress from persistent state."""
     import os as _os, json as _json
