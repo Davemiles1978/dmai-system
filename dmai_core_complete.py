@@ -13466,6 +13466,14 @@ def _start_kpi_seed_loop():
     """Run _seed_kpis_from_db once now, then every 5 minutes as a daemon thread."""
     import threading as _th
     _seed_kpis_from_db()  # immediate boot seed
+    try:
+        _ce = components.get("consciousness_engine")
+        if _ce:
+            _ce.calculate()
+            logger.info("ConsciousnessEngine boot calculation complete")
+    except Exception as _ce_err:
+        logger.warning("ConsciousnessEngine boot calculation failed: %s", _ce_err)
+
 
     def _loop():
         import time as _t
