@@ -2115,6 +2115,64 @@ def _direct_provider_chat(prompt):
             debug_log.append({"provider": name, "exception": str(exc)[:160]})
     return None, None, debug_log
 
+def _detect_and_generate_media(message):
+    """Detect if user is requesting content generation and produce it.
+    Returns a list of media objects with {type, view_url, image_base64, caption}
+    or None if no generation intent detected."""
+    ml = message.lower().strip()
+    gen_keywords = [
+        "generate an image", "create an image", "draw", "make a picture",
+        "generate a picture", "create a picture", "generate image",
+        "make an image", "paint", "illustrate", "generate a photo",
+        "generate a video", "create a video", "make a video",
+        "generate audio", "create audio", "make a sound",
+        "generate music", "create music", "make music",
+        "visualize", "show me a", "show me an",
+    ]
+    if not any(kw in ml for kw in gen_keywords):
+        return None
+
+    # Extract prompt: everything after the keyword, or the whole message
+    prompt = message
+    style = "default"
+    ctype = "image"
+    if any(kw in ml for kw in ["video", "clip", "animation"]):
+        ctype = "video"
+    elif any(kw in ml for kw in ["audio", "music", "sound", "waveform"]):
+        ctype = "audio"
+    if "cyberpunk" in ml: style = "cyberpunk"
+    elif "anime" in ml: style = "anime"
+    elif "cartoon" in ml: style = "cartoon"
+    elif "realistic" in ml or "photo" in ml: style = "photorealistic"
+    elif "3d" in ml: style = "3d"
+    elif "fantasy" in ml: style = "fantasy"
+    elif "sketch" in ml: style = "sketch"
+
+    try:
+        from components.content.self_contained_generator import SelfContainedGenerator
+        scg = SelfContainedGenerator()
+        if ctype == "image":
+            result = scg.generate_image(prompt=prompt, style=style)
+        elif ctype == "video":
+            result = scg.generate_video_frames(prompt=prompt, style=style)
+        elif ctype in ("audio", "waveform"):
+            result = scg.generate_audio_visualization(style=style)
+        else:
+            result = None
+        if result and result.get("ok"):
+            media_item = {
+                "type": ctype,
+                "view_url": result.get("view_url"),
+                "image_base64": result.get("image_base64"),
+                "caption": f"DMAI generated {ctype}: {prompt[:80]}",
+            }
+            logger.info("_detect_and_generate_media: generated %s — %s", ctype, result.get("filename", "unknown"))
+            return [media_item]
+    except Exception as e:
+        logger.warning("_detect_and_generate_media failed: %s", e)
+    return None
+
+
 def _ai_chat(message):
     """DMAI chat entry point with correct priority chain:
     1. Local memory (syllabus)

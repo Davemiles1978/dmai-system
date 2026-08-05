@@ -360,7 +360,7 @@
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  function appendMsg(role, text) {
+  function appendMsg(role, text, media) {
     const msg = document.createElement('div');
     msg.className = `msg ${role}`;
     const icon = document.createElement('div');
@@ -374,6 +374,50 @@
     time.textContent = now();
     const inner = document.createElement('div');
     inner.appendChild(bubble);
+
+    // Render inline media if present
+    if (media && Array.isArray(media) && media.length > 0) {
+      const mediaContainer = document.createElement('div');
+      mediaContainer.className = 'msg-media';
+      media.forEach(m => {
+        const src = m.image_base64 || m.view_url || '';
+        if (!src) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'msg-media-item';
+        if (m.type === 'image' || m.type === 'video_frame') {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = m.caption || '';
+          img.style.cssText = 'max-width:100%;border-radius:8px;margin-top:8px;';
+          img.loading = 'lazy';
+          wrapper.appendChild(img);
+        } else if (m.type === 'video') {
+          const vid = document.createElement('video');
+          vid.src = src;
+          vid.controls = true;
+          vid.style.cssText = 'max-width:100%;border-radius:8px;margin-top:8px;';
+          vid.preload = 'metadata';
+          wrapper.appendChild(vid);
+        } else if (m.type === 'audio' || m.type === 'waveform') {
+          const aud = document.createElement('audio');
+          aud.src = src;
+          aud.controls = true;
+          aud.style.cssText = 'width:100%;margin-top:8px;';
+          aud.preload = 'metadata';
+          wrapper.appendChild(aud);
+        }
+        if (m.caption) {
+          const cap = document.createElement('div');
+          cap.className = 'msg-media-caption';
+          cap.textContent = m.caption;
+          cap.style.cssText = 'font-size:0.7rem;color:var(--text-faint);margin-top:4px;';
+          wrapper.appendChild(cap);
+        }
+        mediaContainer.appendChild(wrapper);
+      });
+      inner.appendChild(mediaContainer);
+    }
+
     inner.appendChild(time);
     msg.appendChild(icon);
     msg.appendChild(inner);
@@ -413,7 +457,7 @@
       const data = await res.json();
       setTyping(false);
       const reply = data.response || data.error || 'No response received.';
-      appendMsg('bot', reply);
+      appendMsg('bot', reply, data.media);
     } catch (err) {
       setTyping(false);
       appendMsg('bot', 'Connection error — please try again.');

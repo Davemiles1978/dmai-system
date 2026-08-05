@@ -1691,20 +1691,54 @@ async function sendChat() {
   const reply = data?.response || data?.message || data?.reply
     || `[DMAI] Received: "${msg}" — API currently unreachable. Check /api/chat endpoint.`;
 
-  appendChatMsg(reply, 'assistant');
+  appendChatMsg(reply, 'assistant', data?.media);
   chatHistory.push({ role: 'assistant', content: reply });
 }
 
-function appendChatMsg(text, role) {
+function appendChatMsg(text, role, media) {
   const win = document.getElementById('chatWindow');
   // Remove empty state if present
   const empty = win.querySelector('.empty-state');
   if (empty) empty.remove();
 
   const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+  // Build media HTML if present
+  let mediaHtml = '';
+  if (media && Array.isArray(media) && media.length > 0) {
+    mediaHtml = '<div class="chat-media">';
+    media.forEach(m => {
+      const src = m.image_base64 || m.view_url || '';
+      const caption = escapeHtml(m.caption || '');
+      if (!src) return;
+      if (m.type === 'image' || m.type === 'video_frame') {
+        mediaHtml += `<div class="chat-media-item">
+          <img src="${src}" alt="${caption}" style="max-width:100%;border-radius:8px;margin-top:8px;" loading="lazy" />
+          <div class="chat-media-caption">${caption}</div>
+        </div>`;
+      } else if (m.type === 'video') {
+        mediaHtml += `<div class="chat-media-item">
+          <video controls style="max-width:100%;border-radius:8px;margin-top:8px;" preload="metadata">
+            <source src="${src}" type="video/mp4" />
+          </video>
+          <div class="chat-media-caption">${caption}</div>
+        </div>`;
+      } else if (m.type === 'audio' || m.type === 'waveform') {
+        mediaHtml += `<div class="chat-media-item">
+          <audio controls style="width:100%;margin-top:8px;" preload="metadata">
+            <source src="${src}" type="audio/wav" />
+          </audio>
+          <div class="chat-media-caption">${caption}</div>
+        </div>`;
+      }
+    });
+    mediaHtml += '</div>';
+  }
+
   win.insertAdjacentHTML('beforeend', `
     <div class="chat-msg ${role}">
       <div class="chat-bubble">${escapeHtml(text)}</div>
+      ${mediaHtml}
       <div class="chat-time">${now}</div>
     </div>`);
   // Keep last 20 messages
