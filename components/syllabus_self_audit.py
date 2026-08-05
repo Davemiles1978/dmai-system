@@ -64,6 +64,12 @@ TARGET_CAPABILITIES = [
      "description": "Learn from and generate across multiple modalities, not just text"},
     {"topic": "Real-Time Web Research Pipeline", "category": "knowledge", "impact": 8,
      "description": "Continuously research trending topics, competitor moves, and new technologies"},
+    {"topic": "Full Internet Access & Browser Agent", "category": "knowledge", "impact": 9,
+     "description": "Study Agent-Reach repo. Build DMAI-native unrestricted internet agent: browse any site, fill forms, click, scroll, extract data. Full web autonomy."},
+    {"topic": "Advanced Web Scraping & Data Extraction", "category": "knowledge", "impact": 8,
+     "description": "Study Maxun repo. Build DMAI-native no-code scraper: extract structured data from any website, handle pagination, auth, dynamic content."},
+    {"topic": "Cybersecurity Self-Evaluation", "category": "security", "impact": 9,
+     "description": "Regular penetration testing of own infrastructure. Scan for vulnerabilities, patch exploits, harden defenses. Run automated security audits."},
     {"topic": "GitHub Repository Analysis & Integration", "category": "knowledge", "impact": 8,
      "description": "Scan starred repos, reverse engineer, rebuild as native components"},
 
