@@ -10395,27 +10395,37 @@ def api_self_evolution_stage_recompute():
         before["stage_within_pct"] = _sp
         # Run progression
         _run_stage_progression()
-        # Force orchestrator to re-evaluate its syllabus-based stage
-        # and sync current_stage + save state to disk
+        # Force orchestrator to re-evaluate its syllabus-based stage.
+        # The orchestrator's in-memory learned_topics may have diverged from
+        # the state file.  Reload from disk first, then get_current_stage()
+        # will return the correct first-incomplete-stage.
         try:
             sl = components.get("stage_learner")
             if sl and hasattr(sl, "get_current_stage"):
+                # Reload from disk to reset any in-memory drift
+                if hasattr(sl, "_load_state"):
+                    sl._load_state()
                 true_stage = sl.get_current_stage()
                 old_stage = getattr(sl, "current_stage", None)
+                logger.info(
+                    "stage-recompute: orchestrator reloaded from disk, "
+                    "true_stage=%s old_stage=%s",
+                    true_stage, old_stage
+                )
                 if true_stage and true_stage != old_stage:
                     logger.info(
                         "stage-recompute: orchestrator stage corrected %s -> %s",
                         old_stage, true_stage
                     )
-                    sl.current_stage = true_stage
-                    # Clear stale learned_topics for stages beyond true stage
-                    stage_order = list(sl.STAGES.keys())
-                    if true_stage in stage_order:
-                        idx = stage_order.index(true_stage)
-                        for s in stage_order[idx+1:]:
-                            sl.learned_topics.pop(s, None)
-                    if hasattr(sl, "_save_state"):
-                        sl._save_state()
+                sl.current_stage = true_stage
+                # Clear stale learned_topics for stages beyond true stage
+                stage_order = list(sl.STAGES.keys())
+                if true_stage in stage_order:
+                    idx = stage_order.index(true_stage)
+                    for s in stage_order[idx+1:]:
+                        sl.learned_topics.pop(s, None)
+                if hasattr(sl, "_save_state"):
+                    sl._save_state()
         except Exception as _orc_err:
             logger.debug("stage-recompute: orchestrator sync skipped: %s", _orc_err)
         # Re-seed KPIs
