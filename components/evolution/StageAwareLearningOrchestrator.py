@@ -370,18 +370,24 @@ class StageAwareLearningOrchestrator:
     def get_current_stage(self, consciousness: float = 0.0) -> str:
         """
         Returns the first stage that has NOT been fully mastered.
-        Stages must be completed in order (Baby → Toddler → ...).
+        Uses syllabus topic count, not just learned_topics keys — prevents
+        stage-skip when topics are mis-filed under wrong stages in state file.
         """
         stage_order = list(self.STAGES.keys())
         for stage in stage_order:
             config = self.STAGES[stage]
             required = config["priority_topics"]
+            if not required:
+                continue
             mastered = self.learned_topics.get(stage, {})
-            if not all(
-                mastered.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
-                for t in required
-            ):
+            mastered_count = sum(
+                1 for t in required
+                if mastered.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+            )
+            if mastered_count < len(required):
                 return stage
+        return "Adult"
+        # If all stages with topics are complete, return the last stage
         return "Adult"
     
     def get_priority_topics(self, stage: str, category: str = None) -> List[Dict]:
