@@ -364,14 +364,23 @@ class StageAwareLearningOrchestrator:
             }
             with open(self.state_file, 'w') as f:
                 json.dump(state, f, indent=2)
+            # Sync stage to DB so /api/learning/full-status reads same value
+            try:
+                import sqlite3, os
+                db_path = os.path.join(os.environ.get("DATA_PATH", "data"), "dmai_knowledge.db")
+                conn = sqlite3.connect(db_path, timeout=5)
+                conn.execute("INSERT OR REPLACE INTO system_state (key, value) VALUES (?, ?)", ("learning_stage", self.current_stage))
+                conn.commit()
+                conn.close()
+            except Exception:
+                pass
         except Exception as e:
             logger.error(f"Failed to save learning state: {e}")
     
     def get_current_stage(self, consciousness: float = 0.0) -> str:
         """
         Returns the first stage that has NOT been fully mastered.
-        Uses syllabus topic count, not just learned_topics keys — prevents
-        stage-skip when topics are mis-filed under wrong stages in state file.
+        Uses syllabus topic count to prevent stage-skip.
         """
         stage_order = list(self.STAGES.keys())
         for stage in stage_order:
@@ -387,7 +396,6 @@ class StageAwareLearningOrchestrator:
             if mastered_count < len(required):
                 return stage
         return "Adult"
-        # If all stages with topics are complete, return the last stage
         return "Adult"
     
     def get_priority_topics(self, stage: str, category: str = None) -> List[Dict]:
