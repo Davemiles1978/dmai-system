@@ -3107,6 +3107,23 @@ def api_content_generate():
                 return jsonify({"type": "book", "content": book, "validation": validation})
             except Exception as e:
                 logger.warning("Book gen error: %s", e)
+        if ctype in ("image", "video", "audio", "waveform"):
+            try:
+                from components.content.self_contained_generator import SelfContainedGenerator
+                scg = SelfContainedGenerator()
+                if ctype == "image":
+                    result = scg.generate_image(prompt=prompt, style=data.get("style", "default"))
+                elif ctype == "video":
+                    result = scg.generate_video_frames(prompt=prompt, style=data.get("style", "default"))
+                elif ctype in ("audio", "waveform"):
+                    result = scg.generate_audio_visualization(style=data.get("style", "default"))
+                else:
+                    result = None
+                if result and result.get("ok"):
+                    return jsonify({"type": ctype, **result})
+            except Exception as e:
+                logger.warning("Self-contained generation error: %s", e)
+
         return jsonify({
             "type": ctype, "status": "queued",
             "message": f"Content generation for '{prompt}' queued. Add OPENAI_API_KEY for full generation.",
