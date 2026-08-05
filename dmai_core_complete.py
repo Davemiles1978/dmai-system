@@ -13666,6 +13666,12 @@ def _start_background_services(force=False):
         logger.warning("syllabus_content table init failed: %s", _e)
 
     try:
+        from components.github_repo_pipeline import start_pipeline_loop as _start_gh_pipe
+        _start_gh_pipe(components)
+    except Exception as _gh_pipe_err:
+        logger.warning("GitHub repo pipeline failed to start: %s", _gh_pipe_err)
+
+    try:
         from components.syllabus_self_audit import start_audit_loop as _start_audit
         _start_audit(components)
     except Exception as _audit_err:
