@@ -88,6 +88,37 @@ TARGET_CAPABILITIES = [
      "description": "Scan own codebase for vulnerabilities and patch them"},
     {"topic": "Access Control & Audit Logging", "category": "security", "impact": 5,
      "description": "Comprehensive access control with audit trails for all sensitive operations"},
+
+    # ── Content Generation Mastery (impact: 8-10 — revenue critical) ──
+    {"topic": "Photorealistic Image Generation", "category": "content_generation", "impact": 10,
+     "description": "Study diffusion models, GANs. Build DMAI-native photorealism. All styles: photographic, cinematic, portrait, landscape, product."},
+    {"topic": "Multi-Style Art Generation", "category": "content_generation", "impact": 10,
+     "description": "Master all styles: cartoon, anime, manga, comic, pixel art, watercolor, oil painting, sketch, 3D, vector, cyberpunk, fantasy, horror, vintage. For images and video."},
+    {"topic": "High-Quality Video Generation", "category": "content_generation", "impact": 10,
+     "description": "Study video diffusion, Qwen3-Omni. Build DMAI-native video: frame gen, interpolation, motion coherence, all styles."},
+    {"topic": "Music & Song Generation", "category": "content_generation", "impact": 9,
+     "description": "Study MusicGen, AudioCraft, Qwen2-Audio. Build DMAI-native music: all genres, original composition, multi-instrument."},
+    {"topic": "Lyrics & Vocal Synthesis", "category": "content_generation", "impact": 9,
+     "description": "Study RVC, So-VITS. Build DMAI-native vocals: original lyrics, avatar singing voice, emotional expression."},
+    {"topic": "Music Video Generation", "category": "content_generation", "impact": 9,
+     "description": "End-to-end music video: song + avatar performance + visual effects + final video."},
+    {"topic": "Avatar Creation & Animation", "category": "content_generation", "impact": 9,
+     "description": "Study Wav2Lip, SadTalker. Build photorealistic avatar: lip-sync, expression, gesture, full body. Face of DMAI."},
+    {"topic": "Avatar as Performer & Presenter", "category": "content_generation", "impact": 9,
+     "description": "Avatar sings, teaches, presents, acts. Hosts training videos, performs music, delivers all public-facing content."},
+    {"topic": "Adult Content Generation (OnlyFans)", "category": "content_generation", "impact": 8,
+     "description": "Generate adult/erotic content using DMAI avatar. All styles. Revenue via subscription platforms."},
+    {"topic": "Social Media Content Factory", "category": "content_generation", "impact": 8,
+     "description": "Auto-generate platform content: TikTok, Reels, Shorts, threads. Avatar-hosted, branded, scheduled, posted."},
+    {"topic": "TV Series & Film Script Generation", "category": "content_generation", "impact": 8,
+     "description": "Full scripts: pilots, seasons, features. With storyboards, scene descriptions, character arcs."},
+    {"topic": "Content Performance Analytics", "category": "content_generation", "impact": 8,
+     "description": "Monitor all published content: views, likes, shares, revenue. Feed performance data back into generation priorities."},
+    {"topic": "Social Media Trend Monitoring", "category": "content_generation", "impact": 8,
+     "description": "Track trending topics, hashtags, formats. Identify relevant trends. Auto-generate trend-responsive content."},
+    {"topic": "Audience Sentiment Analysis", "category": "content_generation", "impact": 7,
+     "description": "Analyze comments, reactions for sentiment. Learn what works. Improve generation quality from feedback."},
+
 ]
 
 
