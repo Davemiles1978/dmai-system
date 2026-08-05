@@ -10396,43 +10396,46 @@ def api_self_evolution_stage_recompute():
         # Run progression
         _run_stage_progression()
         # Force orchestrator to re-evaluate its syllabus-based stage.
-        # The orchestrator's in-memory learned_topics may have diverged from
-        # the state file.  Reload from disk first, then get_current_stage()
-        # will return the correct first-incomplete-stage.
+        # Read the state file directly and compute the true stage from
+        # syllabus definitions, bypassing any in-memory drift.
         try:
+            import json as _sj
+            from pathlib import Path as _sP
+            _lp_file = _sP(DATA_PATH) / "learning" / "stage_syllabus" / "learning_progress.json"
             sl = components.get("stage_learner")
-            if sl and hasattr(sl, "get_current_stage"):
-                # Reload from disk to reset any in-memory drift
-                if hasattr(sl, "_load_state"):
-                    sl._load_state()
-                # Diagnostic: log Baby stage state for debugging
-                baby_topics = sl.learned_topics.get("Baby", {})
-                baby_required = sl.STAGES.get("Baby", {}).get("priority_topics", [])
-                baby_mastered = sum(
-                    1 for t in baby_required
-                    if baby_topics.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
-                )
-                logger.info(
-                    "stage-recompute DIAG: Baby learned_keys=%d required=%d mastered=%d "
-                    "learned_sample=%s",
-                    len(baby_topics), len(baby_required), baby_mastered,
-                    str(list(baby_topics.keys())[:3]) if baby_topics else "EMPTY"
-                )
-                true_stage = sl.get_current_stage()
+            if sl and hasattr(sl, "STAGES") and _lp_file.exists():
+                _lp = _sj.loads(_lp_file.read_text())
+                _learned = _lp.get("learned_topics", {})
+                stage_order = list(sl.STAGES.keys())
+                true_stage = "Adult"
+                for _s in stage_order:
+                    _required = sl.STAGES[_s].get("priority_topics", [])
+                    if not _required:
+                        continue
+                    _stage_learned = _learned.get(_s, {})
+                    _mastered = sum(
+                        1 for t in _required
+                        if _stage_learned.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+                    )
+                    logger.info(
+                        "stage-recompute FILE-CHECK: %s mastered=%d/%d",
+                        _s, _mastered, len(_required)
+                    )
+                    if _mastered < len(_required):
+                        true_stage = _s
+                        break
                 old_stage = getattr(sl, "current_stage", None)
                 logger.info(
-                    "stage-recompute: orchestrator reloaded from disk, "
-                    "true_stage=%s old_stage=%s",
+                    "stage-recompute: file-based true_stage=%s old_stage=%s",
                     true_stage, old_stage
                 )
-                if true_stage and true_stage != old_stage:
+                if true_stage != old_stage:
                     logger.info(
                         "stage-recompute: orchestrator stage corrected %s -> %s",
                         old_stage, true_stage
                     )
                 sl.current_stage = true_stage
                 # Clear stale learned_topics for stages beyond true stage
-                stage_order = list(sl.STAGES.keys())
                 if true_stage in stage_order:
                     idx = stage_order.index(true_stage)
                     for s in stage_order[idx+1:]:
