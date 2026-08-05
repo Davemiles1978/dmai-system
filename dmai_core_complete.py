@@ -2884,6 +2884,15 @@ def api_learning_progress():
             except Exception:
                 pass
 
+    audit_gaps = 0
+    try:
+        from components.syllabus_self_audit import TARGET_CAPABILITIES
+        audit_gaps = len(TARGET_CAPABILITIES)
+    except Exception:
+        pass
+    effective_total = TOTAL_TOPICS + audit_gaps
+
+
     # 7. Include syllabus audit gaps in the denominator so AI Metric reflects real progress
     audit_gaps = 0
     try:
@@ -3254,6 +3263,11 @@ def api_training_status():
         _avg    = _conn.execute("SELECT AVG(mastery) FROM syllabus_content").fetchone()[0] or 0.0
         _conn.close()
         # Include audit gaps so AI Training Progress reflects real outstanding work
+        try:
+            from components.syllabus_self_audit import TARGET_CAPABILITIES
+            _tot += len(TARGET_CAPABILITIES)
+        except Exception:
+            pass
         try:
             from components.syllabus_self_audit import TARGET_CAPABILITIES
             _tot += len(TARGET_CAPABILITIES)
