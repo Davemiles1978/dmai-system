@@ -7484,6 +7484,11 @@ def api_graph_status():
     arch = out.get("architectural") or {}
     proj_n = int(proj.get("total_neurons") or 0)
     proj_s = int(proj.get("total_synapses") or 0)
+    # Surface evolution_cycle at top level for dashboard widgets
+    arch_cycle = arch.get("evolution_cycle", 0)
+    proj_cycle = proj.get("evolution_cycle", 0)
+    out["evolution_cycle"] = proj_cycle if proj.get("built") and proj_n > 0 else arch_cycle
+
     if proj.get("built") and proj_n > 0:
         out["total_neurons"] = proj_n
         out["total_synapses"] = proj_s
