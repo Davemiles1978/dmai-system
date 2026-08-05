@@ -355,12 +355,19 @@ class StageProgressionTracker:
         for rec in self.state.values():
             by_stage[rec.get("stage", "Baby")] += 1
             avg_mastery += rec.get("mastery", 0.0)
+        _audit_gaps = 0
+        try:
+            from components.syllabus_self_audit import TARGET_CAPABILITIES
+            _audit_gaps = len(TARGET_CAPABILITIES)
+        except Exception:
+            pass
+        _effective_total = total + _audit_gaps
         return {
-            "domains_total": total,
+            "domains_total": _effective_total,
             "by_stage": by_stage,
             "avg_mastery": round(avg_mastery / total, 3) if total else 0,
             "expert_count": by_stage.get("Expert", 0),
-            "pct_expert": round(by_stage.get("Expert", 0) / total * 100, 1) if total else 0,
+            "pct_expert": round(by_stage.get("Expert", 0) / _effective_total * 100, 1) if _effective_total else 0,
         }
 
 
