@@ -237,22 +237,6 @@ PROVIDER_CATALOGUE: Dict[str, Dict] = {
         "call_format": "openai_compatible",
         "base_url":    "https://api.cerebras.ai/v1",
     },
-    "github_models": {
-        "name":         "GitHub Models",
-        "env_vars":     ["GITHUB_MODELS_TOKEN", "GITHUB_TOKEN_MAIN"],
-        "signup_url":   "https://github.com/marketplace/models",
-        "free_tier":    "Free with GitHub account — 45+ models incl. GPT-5, o4-mini, Llama 4, Grok-3-Mini",
-        "models":       ["gpt-4.1", "gpt-4o-mini", "o4-mini", "meta/llama-4-scout-17b-16e-instruct", "deepseek-r1", "Mistral-small"],
-        "best_model":   "gpt-4o-mini",
-        "validation": {
-            "method":  "POST",
-            "url":     "https://models.github.ai/inference/chat/completions",
-            "headers": lambda k: {"Authorization": f"Bearer {k}", "Content-Type": "application/json"},
-            "body":    {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": "hi"}], "max_tokens": 5},
-        },
-        "call_format": "openai_compatible",
-        "base_url":    "https://models.github.ai/inference",
-    },
     "mistral": {
         "name":         "Mistral AI",
         "env_vars":     ["MISTRAL_API_KEY"],
@@ -558,7 +542,6 @@ class AutoAPIActivator:
             "tavily":           "tavily",
             # ── New free-tier providers ──
             "cerebras":         "cerebras",
-            "github_models":    "github_models",
             "mistral":          "mistral",
         }
 
