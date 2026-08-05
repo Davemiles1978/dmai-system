@@ -10395,6 +10395,29 @@ def api_self_evolution_stage_recompute():
         before["stage_within_pct"] = _sp
         # Run progression
         _run_stage_progression()
+        # Force orchestrator to re-evaluate its syllabus-based stage
+        # and sync current_stage + save state to disk
+        try:
+            sl = components.get("stage_learner")
+            if sl and hasattr(sl, "get_current_stage"):
+                true_stage = sl.get_current_stage()
+                old_stage = getattr(sl, "current_stage", None)
+                if true_stage and true_stage != old_stage:
+                    logger.info(
+                        "stage-recompute: orchestrator stage corrected %s -> %s",
+                        old_stage, true_stage
+                    )
+                    sl.current_stage = true_stage
+                    # Clear stale learned_topics for stages beyond true stage
+                    stage_order = list(sl.STAGES.keys())
+                    if true_stage in stage_order:
+                        idx = stage_order.index(true_stage)
+                        for s in stage_order[idx+1:]:
+                            sl.learned_topics.pop(s, None)
+                    if hasattr(sl, "_save_state"):
+                        sl._save_state()
+        except Exception as _orc_err:
+            logger.debug("stage-recompute: orchestrator sync skipped: %s", _orc_err)
         # Re-seed KPIs
         _seed_kpis_from_db()
         # Read after state
