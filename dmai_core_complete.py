@@ -13662,6 +13662,20 @@ def _start_background_services(force=False):
     # ── Ensure critical tables exist before any background loop reads them ───────
     try:
         _ensure_syllabus_content_table()
+    except Exception as _e:
+        logger.warning("syllabus_content table init failed: %s", _e)
+
+    try:
+        from components.syllabus_self_audit import start_audit_loop as _start_audit
+        _start_audit(components)
+    except Exception as _audit_err:
+        logger.warning("Syllabus audit loop failed to start: %s", _audit_err)
+        from components.syllabus_self_audit import start_audit_loop as _start_audit
+        _start_audit(components)
+    except Exception as _audit_err:
+        logger.warning("Syllabus audit loop failed to start: %s", _audit_err)
+
+        _ensure_syllabus_content_table()
         _ensure_sources_table()
     except Exception as _e:
         logger.warning("syllabus_content init failed: %s", _e)
