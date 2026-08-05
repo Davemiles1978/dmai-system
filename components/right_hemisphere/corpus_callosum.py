@@ -188,6 +188,18 @@ class CorpusCallosum:
         # Log
         self._log_fusion(query, dominance, confidence, len(left_results), len(right_results), len(fused))
 
+        # Write fusion event to knowledge graph
+        try:
+            from components.right_hemisphere.graph_bridge import add_right_hemisphere_neuron
+            add_right_hemisphere_neuron(
+                "corpus_callosum",
+                f"Fusion: {dominance} (conf={confidence:.2f})",
+                "corpus_callosum",
+                {"left_count": len(left_results), "right_count": len(right_results)},
+            )
+        except Exception:
+            pass
+
         return {
             "fused": fused[:20],
             "dominance": dominance,
