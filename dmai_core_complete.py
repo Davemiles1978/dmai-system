@@ -2884,15 +2884,25 @@ def api_learning_progress():
             except Exception:
                 pass
 
+    # 7. Include syllabus audit gaps in the denominator so AI Metric reflects real progress
+    audit_gaps = 0
+    try:
+        from components.syllabus_self_audit import TARGET_CAPABILITIES
+        audit_gaps = len(TARGET_CAPABILITIES)
+    except Exception:
+        pass
+    effective_total = TOTAL_TOPICS + audit_gaps
+
+
     return jsonify({
         "current_stage": current_stage,
         "last_learning_cycle": last_cycle,
-        "total_syllabus_topics": TOTAL_TOPICS,
+        "total_syllabus_topics": effective_total,  # includes audit gaps
         "topics_encountered": total,
         "mastered": mastered,
         "in_progress": in_progress_count,
         "not_started": not_started,
-        "mastery_pct": round(mastered / max(TOTAL_TOPICS, 1) * 100, 1),
+        "mastery_pct": round(mastered / max(effective_total, 1) * 100, 1),
         "stage_summary": stage_summary,
         "si_modules": si_modules,
         "recent_discoveries": recent_discoveries,
