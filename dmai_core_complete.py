@@ -10405,6 +10405,19 @@ def api_self_evolution_stage_recompute():
                 # Reload from disk to reset any in-memory drift
                 if hasattr(sl, "_load_state"):
                     sl._load_state()
+                # Diagnostic: log Baby stage state for debugging
+                baby_topics = sl.learned_topics.get("Baby", {})
+                baby_required = sl.STAGES.get("Baby", {}).get("priority_topics", [])
+                baby_mastered = sum(
+                    1 for t in baby_required
+                    if baby_topics.get(t["topic"], 0) >= t.get("mastery_threshold", 3)
+                )
+                logger.info(
+                    "stage-recompute DIAG: Baby learned_keys=%d required=%d mastered=%d "
+                    "learned_sample=%s",
+                    len(baby_topics), len(baby_required), baby_mastered,
+                    str(list(baby_topics.keys())[:3]) if baby_topics else "EMPTY"
+                )
                 true_stage = sl.get_current_stage()
                 old_stage = getattr(sl, "current_stage", None)
                 logger.info(
