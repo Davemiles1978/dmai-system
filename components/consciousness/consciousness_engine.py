@@ -110,10 +110,23 @@ class ConsciousnessEngine:
     # ------------------------------------------------------------------
 
     def _calc_phi(self) -> float:
-        """Phi from AttentionSchemaTracker coherence."""
+        """Phi from AttentionSchemaTracker coherence + cross-hemispheric integration."""
         attn_state = self.attention.update()
-        return attn_state.get("phi_contribution", 0.0)
+        attn_phi = attn_state.get("phi_contribution", 0.0)
 
+        # Cross-hemispheric Φ from CorpusCallosum (right hemisphere bridge)
+        cross_phi = 0.0
+        try:
+            from dmai_core_complete import components as _comp
+            cc = _comp.get("corpus_callosum")
+            if cc:
+                cross_phi = cc.measure_phi()
+        except Exception:
+            pass
+
+        # Combined Φ = mean of attention coherence and cross-hemispheric integration
+        phi = (attn_phi + cross_phi) / 2.0 if cross_phi > 0 else attn_phi
+        return round(phi, 4)
     def _calc_self_awareness(self) -> float:
         """Self-Referential Awareness from PredictiveProcessor."""
         pred_state = self.predictive.update()

@@ -1197,6 +1197,23 @@ try:
 except Exception as e:
     logger.warning("ConsciousnessEngine failed: %s", e)
 
+# ── Right Hemisphere (Semantic, Spatial & Contextual Processing) ──────────────
+try:
+    from components.right_hemisphere.vector_store import VectorStore
+    from components.right_hemisphere.semantic_synthesis import SemanticSynthesis
+    from components.right_hemisphere.corpus_callosum import CorpusCallosum
+    from components.right_hemisphere.dynamic_router import DynamicRouter
+
+    _vs = VectorStore()
+    components["vector_store"] = _vs
+    components["semantic_synthesis"] = SemanticSynthesis(vector_store=_vs)
+    components["corpus_callosum"] = CorpusCallosum(vector_store=_vs)
+    components["dynamic_router"] = DynamicRouter()
+    logger.info("Right Hemisphere initialised (vector store, semantic synthesis, corpus callosum, dynamic router)")
+except Exception as e:
+    logger.warning("Right Hemisphere failed: %s", e)
+
+
 # ── EvolutionMetrics ──────────────────────────────────────────────────────────
 try:
     from components.evolution.EvolutionMetrics import EvolutionMetrics
