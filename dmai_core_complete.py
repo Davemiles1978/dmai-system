@@ -2820,6 +2820,13 @@ def api_learning_progress():
 
     learned = lp.get("learned_topics", {})
     current_stage = lp.get("current_stage", "Baby")
+    # Prefer live orchestrator's syllabus-based stage over cached file value
+    sl_check = components.get("stage_learner")
+    if sl_check and hasattr(sl_check, "get_current_stage"):
+        try:
+            current_stage = sl_check.get_current_stage()
+        except Exception:
+            pass  # fall back to cached file value
     last_cycle = lp.get("last_learning_cycle", None)
 
     # 2. Flatten all learned topics across stages
