@@ -3253,6 +3253,12 @@ def api_training_status():
         _tot    = _conn.execute("SELECT COUNT(*) FROM syllabus_content").fetchone()[0]
         _avg    = _conn.execute("SELECT AVG(mastery) FROM syllabus_content").fetchone()[0] or 0.0
         _conn.close()
+        # Include audit gaps so AI Training Progress reflects real outstanding work
+        try:
+            from components.syllabus_self_audit import TARGET_CAPABILITIES
+            _tot += len(TARGET_CAPABILITIES)
+        except Exception:
+            pass
         ai_training_progress = {
             "pct_expert":    round((_expert / max(_tot, 1)) * 100, 1),
             "avg_mastery":   round(_avg, 4),
