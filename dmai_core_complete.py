@@ -9140,6 +9140,47 @@ def _run_stage_progression():
     try:
         m = _get_db_metrics()
         stage, within_pct = _calculate_learning_stage(m)
+
+        # PR #168: Cross-check against syllabus-based stage from the orchestrator.
+        # Metrics-based _calculate_learning_stage uses cumulative insight/capability
+        # counts that grow passively and can report "Adult" even when Baby-stage
+        # syllabus topics are unmastered.  The orchestrator walks stages in order
+        # and returns the FIRST stage with incomplete priority topics.
+        # We cap the metrics stage so DMAI can never skip ahead of syllabus mastery.
+        try:
+            sl = components.get("stage_learner")
+            if sl and hasattr(sl, "get_current_stage"):
+                syllabus_stage = sl.get_current_stage()
+                if syllabus_stage:
+                    stage_order = ["Baby", "Toddler", "Child", "Teen", "Adult"]
+                    metrics_idx = stage_order.index(stage) if stage in stage_order else 0
+                    syllabus_idx = stage_order.index(syllabus_stage) if syllabus_stage in stage_order else 0
+                    if metrics_idx > syllabus_idx:
+                        logger.info(
+                            "STAGE CAPPED: metrics=%s (idx %d) -> syllabus=%s (idx %d) "
+                            "[orchestrator reports unmastered topics in %s]",
+                            stage, metrics_idx, syllabus_stage, syllabus_idx, syllabus_stage
+                        )
+                        stage = syllabus_stage
+                        # Recalculate within_pct for the capped stage
+                        idx = stage_order.index(stage)
+                        if idx < len(stage_order) - 1:
+                            ct = _STAGE_THRESHOLDS[stage]
+                            nt = _STAGE_THRESHOLDS[stage_order[idx + 1]]
+                            def _r2(v, lo, hi):
+                                span = hi - lo
+                                return min((v - lo) / span, 1.0) if span > 0 else 1.0
+                            within_pct = round(min(
+                                _r2(m["insights"],   ct[0], nt[0]),
+                                _r2(m["capabilities"], ct[1], nt[1]),
+                                _r2(m["vocab"],      ct[2], nt[2]),
+                                _r2(m["avg_kpi"],    ct[3], nt[3]),
+                            ) * 100, 1)
+                        else:
+                            within_pct = 100.0
+        except Exception as _cross_err:
+            logger.debug("Stage cross-check skipped: %s", _cross_err)
+
         _write_stage_to_db(stage, within_pct, m)
         logger.debug("Stage: %s %.1f%% ins=%d caps=%d vocab=%d kpi=%.3f",
                      stage, within_pct, m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"])
