@@ -83,28 +83,37 @@ class SelfContainedGenerator:
         if not HAS_PIL:
             return self._placeholder(prompt, style, width, height)
 
-        palette = self.PALETTES.get(style, self.PALETTES["default"])
-        seed = hash(prompt) if prompt else random.randint(0, 2**31)
-        random.seed(seed)
+        # Try ProceduralArtist first for scene-based generation
+        try:
+            from components.content.procedural_artist import ProceduralArtist
+            seed = hash(prompt) if prompt else random.randint(0, 2**31)
+            artist = ProceduralArtist(width=width, height=height, seed=seed)
+            img = artist.compose_scene(prompt=prompt, style=style)
+            logger.debug("SelfContainedGenerator: used ProceduralArtist for '%s'", prompt[:50])
+        except ImportError:
+            # Fallback to geometric primitives
+            palette = self.PALETTES.get(style, self.PALETTES["default"])
+            seed = hash(prompt) if prompt else random.randint(0, 2**31)
+            random.seed(seed)
 
-        img = Image.new("RGB", (width, height), palette[0])
-        draw = ImageDraw.Draw(img)
+            img = Image.new("RGB", (width, height), palette[0])
+            draw = ImageDraw.Draw(img)
 
-        # Layer 1: Gradient background
-        self._draw_gradient(draw, width, height, palette[0], palette[1])
+            # Layer 1: Gradient background
+            self._draw_gradient(draw, width, height, palette[0], palette[1])
 
-        # Layer 2: Geometric shapes based on prompt
-        num_shapes = 5 + (hash(prompt) % 15) if prompt else 8
-        for i in range(num_shapes):
-            self._draw_random_shape(draw, width, height, palette, i)
+            # Layer 2: Geometric shapes based on prompt
+            num_shapes = 5 + (hash(prompt) % 15) if prompt else 8
+            for i in range(num_shapes):
+                self._draw_random_shape(draw, width, height, palette, i)
 
-        # Layer 3: Texture overlay
-        self._add_noise_texture(img, width, height, intensity=15)
+            # Layer 3: Texture overlay
+            self._add_noise_texture(img, width, height, intensity=15)
 
-        # Layer 4: Soft blur for polish
-        img = img.filter(ImageFilter.GaussianBlur(radius=0.5))
+            # Layer 4: Soft blur for polish
+            img = img.filter(ImageFilter.GaussianBlur(radius=0.5))
 
-        random.seed()  # Reset seed
+            random.seed()  # Reset seed
 
         # Save
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
