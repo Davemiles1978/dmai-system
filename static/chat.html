@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alex Riviera — AI Assistant</title>
+  <title>DMAI — AI Assistant</title>
   <style>
     :root {
       --bg:         #0a0a0f;
@@ -275,7 +275,7 @@
   <div class="header-brand">
     <div class="avatar-ring">AR</div>
     <div class="brand-text">
-      <div class="name">Alex Riviera</div>
+      <div class="name">DMAI</div>
       <div class="tagline">AI Assistant</div>
     </div>
   </div>
@@ -292,7 +292,7 @@
     <!-- Welcome card -->
     <div class="welcome" id="welcome-card">
       <div class="welcome-avatar">AR</div>
-      <h2>Hi, I'm Alex Riviera</h2>
+      <h2>Hi, I'm DMAI</h2>
       <p>Writer, producer, and AI assistant. I can help with creative projects, answer questions, discuss ideas, or just have a conversation. What's on your mind?</p>
       <div class="suggestions">
         <button class="suggest-btn" onclick="sendSuggestion('Tell me about yourself')">Tell me about yourself</button>
@@ -329,7 +329,7 @@
     <form class="input-form" id="chat-form" onsubmit="return false;">
       <textarea
         id="msg-input"
-        placeholder="Message Alex…"
+        placeholder="Message DMAI…"
         rows="1"
         autocomplete="off"
         spellcheck="true"
@@ -389,7 +389,7 @@
     btn.classList.add('active');
     const input = document.getElementById('msg-input');
     const placeholders = {
-      chat: 'Message Alex…',
+      chat: 'Message DMAI…',
       image: 'Describe the image you want…',
       video: 'Describe the video you want…',
       audio: 'Describe the audio/music you want…',
@@ -418,7 +418,7 @@
     msg.className = `msg ${role}`;
     const icon = document.createElement('div');
     icon.className = 'msg-icon';
-    icon.textContent = role === 'user' ? 'You' : 'AR';
+    icon.textContent = role === 'user' ? 'You' : 'DMAI';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
     bubble.textContent = text;
