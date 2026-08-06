@@ -2158,6 +2158,26 @@ def _generate_media_by_mode(mode, message, style="default"):
         elif mode == "code":
             # Code generation returns text, not media — handled in response text
             return None
+        elif mode == "avatar":
+            try:
+                from components.content.avatar_engine import AvatarEngine
+                av = AvatarEngine()
+                expr = "neutral"
+                pl = prompt.lower()
+                if any(w in pl for w in ["happy", "smile", "joy", "laugh"]): expr = "happy"
+                elif any(w in pl for w in ["sad", "cry", "upset"]): expr = "sad"
+                elif any(w in pl for w in ["surprised", "shock", "wow"]): expr = "surprised"
+                elif any(w in pl for w in ["angry", "mad", "furious"]): expr = "angry"
+                result = av.generate_avatar(expression=expr)
+                if result and result.get("ok"):
+                    return [{
+                        "type": "image",
+                        "view_url": result.get("view_url"),
+                        "image_base64": result.get("image_base64"),
+                        "caption": f"DMAI Avatar ({expr}): {prompt[:80]}",
+                    }]
+            except ImportError:
+                pass
 
         if result and result.get("ok"):
             media_item = {
