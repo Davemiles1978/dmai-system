@@ -3223,7 +3223,8 @@ def api_content_generate():
             try:
                 from components.content.tts_engine import DMAIVoice
                 voice = DMAIVoice()
-                result = voice.generate_speech(prompt or "Hello, I am DMAI.")
+                speech_text = str(prompt) if prompt else "Hello, I am DMAI."
+                result = voice.generate_speech(speech_text)
                 return jsonify({"type": "speech", **result})
             except Exception as e:
                 logger.warning("TTS error: %s", e)
@@ -3233,7 +3234,8 @@ def api_content_generate():
             try:
                 from components.content.speech_analyser import SpeechAnalyser
                 sa = SpeechAnalyser()
-                result = sa.analyse(prompt or "")
+                analyse_text = str(prompt) if prompt else ""
+                result = sa.analyse(analyse_text)
                 return jsonify({"type": "speech_analyse", **result})
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
