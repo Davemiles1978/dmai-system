@@ -1902,7 +1902,10 @@
   }
 
   // ── Study Progress ────────────────────────────────────────────────────────
+  let _studyLoading = false;
   async function loadStudyProgress() {
+    if (_studyLoading) return;  // Prevent duplicate concurrent calls
+    _studyLoading = true;
     try {
       const r = await api('/api/learning/progress');
       const d = r;
@@ -1948,6 +1951,8 @@
         +'<b>'+(d.nightly_training_files||0)+'</b> files ingested from Nightly Knowledge Evolution cron.';
     } catch(e) {
       console.error('Study progress load failed:', e);
+    } finally {
+      _studyLoading = false;
       document.getElementById('study-stage').textContent = 'Error';
     }
   }
