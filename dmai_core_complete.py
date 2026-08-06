@@ -2137,6 +2137,23 @@ def _generate_media_by_mode(mode, message, style="default"):
         elif mode == "video":
             result = scg.generate_video_frames(prompt=prompt, style=style)
         elif mode == "audio":
+            # Try MusicGenerator first for song/music generation
+            try:
+                from components.content.music_generator import MusicGenerator
+                mg = MusicGenerator()
+                result = mg.generate_song(prompt=prompt, style=style, duration_bars=16)
+                if result and result.get("ok"):
+                    media_item = {
+                        "type": "audio",
+                        "view_url": result.get("view_url"),
+                        "image_base64": None,
+                        "caption": f"DMAI composed: {prompt[:80]} ({result.get('duration_seconds', 0)}s, {result.get('bpm', 0)} BPM, {result.get('style', style)})",
+                    }
+                    logger.info("_generate_media_by_mode: music — %s", result.get("filename", "unknown"))
+                    return [media_item]
+            except ImportError:
+                pass
+            # Fallback to waveform visualization
             result = scg.generate_audio_visualization(style=style)
         elif mode == "code":
             # Code generation returns text, not media — handled in response text
