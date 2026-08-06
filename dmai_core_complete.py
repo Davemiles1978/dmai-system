@@ -2709,10 +2709,15 @@ def api_chat():
             _log_chat(message, response)
         except Exception:
             pass
+
+        # Detect content generation intents and attach generated media
+        media = _detect_and_generate_media(message)
+
         return jsonify({
             "response": response,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source": "alex_riviera",
+            "media": media if media else None,
         })
     except Exception as e:
         import traceback
