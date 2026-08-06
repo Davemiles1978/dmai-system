@@ -967,10 +967,16 @@
           <div class="stat-card-sub">from extended hub</div>
         </div>
         <div class="stat-card">
-          <div class="stat-card-icon red">🔄</div>
-          <div class="stat-card-label">Kaizen Improvements</div>
-          <div class="stat-card-value" id="kaizenCount">—</div>
-          <div class="stat-card-sub">total proposals logged</div>
+          <div class="stat-card-icon purple">🧬</div>
+          <div class="stat-card-label">NCSL Language Evolution</div>
+          <div class="stat-card-value accent" id="ncslPct">—</div>
+          <div class="stat-card-sub">functionality complete</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon red">📈</div>
+          <div class="stat-card-label">System Evolution</div>
+          <div class="stat-card-value" id="evolutionStatus">—</div>
+          <div class="stat-card-sub">verified improvements</div>
         </div>
       </div>
 
@@ -1462,9 +1468,22 @@ function renderStatCards(status, orch, providers, kaizenStatus) {
       : (typeof providers?.active_count === 'number' ? providers.active_count : 0);
     setCardValue('activeProviders', provCount);
 
-    // Kaizen Improvements — total_proposals from /api/kaizen/status
-    const kaizenTotal = kaizenStatus?.total_proposals ?? 0;
-    setCardValue('kaizenCount', kaizenTotal);
+    // NCSL Language Evolution — functionality percentage from /api/ncsl/status
+    let ncslPct = '--';
+    try {
+      const ncslData = await fetch('/api/ncsl/status').then(r => r.json()).catch(() => ({}));
+      ncslPct = ncslData.functionality_pct !== undefined ? ncslData.functionality_pct + '%' : '--';
+    } catch (e) {}
+    setCardValue('ncslPct', ncslPct);
+
+    // System Evolution — evolution cycle from /api/graph/status
+    let evoStatus = '--';
+    try {
+      const graphData = await fetch('/api/graph/status').then(r => r.json()).catch(() => ({}));
+      const cycle = graphData.evolution_cycle || 0;
+      evoStatus = cycle > 0 ? 'Cycle ' + cycle : 'Initial';
+    } catch (e) {}
+    setCardValue('evolutionStatus', evoStatus);
 
   } catch (e) {
     console.error('renderStatCards failed:', e);
