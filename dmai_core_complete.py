@@ -2115,61 +2115,44 @@ def _direct_provider_chat(prompt):
             debug_log.append({"provider": name, "exception": str(exc)[:160]})
     return None, None, debug_log
 
-def _detect_and_generate_media(message):
-    """Detect if user is requesting content generation and produce it.
-    Returns a list of media objects with {type, view_url, image_base64, caption}
-    or None if no generation intent detected."""
-    ml = message.lower().strip()
-    gen_keywords = [
-        "generate an image", "create an image", "draw", "make a picture",
-        "generate a picture", "create a picture", "generate image",
-        "make an image", "paint", "illustrate", "generate a photo",
-        "generate a video", "create a video", "make a video",
-        "generate audio", "create audio", "make a sound",
-        "generate music", "create music", "make music",
-        "visualize", "show me a", "show me an",
-    ]
-    if not any(kw in ml for kw in gen_keywords):
+def _generate_media_by_mode(mode, message, style="default"):
+    """Generate media based on explicit mode from UI buttons.
+    Modes: chat (no generation), image, video, audio, code.
+    Returns a list of media objects or None."""
+    if mode == "chat":
         return None
 
-    # Extract prompt: everything after the keyword, or the whole message
-    prompt = message
-    style = "default"
-    ctype = "image"
-    if any(kw in ml for kw in ["video", "clip", "animation"]):
-        ctype = "video"
-    elif any(kw in ml for kw in ["audio", "music", "sound", "waveform"]):
-        ctype = "audio"
-    if "cyberpunk" in ml: style = "cyberpunk"
-    elif "anime" in ml: style = "anime"
-    elif "cartoon" in ml: style = "cartoon"
-    elif "realistic" in ml or "photo" in ml: style = "photorealistic"
-    elif "3d" in ml: style = "3d"
-    elif "fantasy" in ml: style = "fantasy"
-    elif "sketch" in ml: style = "sketch"
+    prompt = message.strip()
+    if not prompt:
+        return None
 
     try:
         from components.content.self_contained_generator import SelfContainedGenerator
         scg = SelfContainedGenerator()
-        if ctype == "image":
+        result = None
+        ctype = mode
+
+        if mode == "image":
             result = scg.generate_image(prompt=prompt, style=style)
-        elif ctype == "video":
+        elif mode == "video":
             result = scg.generate_video_frames(prompt=prompt, style=style)
-        elif ctype in ("audio", "waveform"):
+        elif mode == "audio":
             result = scg.generate_audio_visualization(style=style)
-        else:
-            result = None
+        elif mode == "code":
+            # Code generation returns text, not media — handled in response text
+            return None
+
         if result and result.get("ok"):
             media_item = {
                 "type": ctype,
                 "view_url": result.get("view_url"),
                 "image_base64": result.get("image_base64"),
-                "caption": f"DMAI generated {ctype}: {prompt[:80]}",
+                "caption": f"DMAI generated {ctype} ({style}): {prompt[:80]}",
             }
-            logger.info("_detect_and_generate_media: generated %s — %s", ctype, result.get("filename", "unknown"))
+            logger.info("_generate_media_by_mode: %s — %s", ctype, result.get("filename", "unknown"))
             return [media_item]
     except Exception as e:
-        logger.warning("_detect_and_generate_media failed: %s", e)
+        logger.warning("_generate_media_by_mode failed: %s", e)
     return None
 
 
@@ -2710,13 +2693,16 @@ def api_chat():
         except Exception:
             pass
 
-        # Detect content generation intents and attach generated media
-        media = _detect_and_generate_media(message)
+        # Generate media based on explicit mode (not keyword detection)
+        mode = data.get("mode", "chat")
+        style = data.get("style", "default")
+        media = _generate_media_by_mode(mode, message, style)
 
         return jsonify({
             "response": response,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source": "alex_riviera",
+            "mode": mode,
             "media": media if media else None,
         })
     except Exception as e:

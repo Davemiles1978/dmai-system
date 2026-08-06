@@ -506,6 +506,14 @@
       box-shadow: 0 0 12px rgba(108, 99, 255, 0.4);
     }
     .chat-send:active { transform: scale(0.97); }
+    .chat-mode-btn {
+      font-size: 0.65rem; padding: 4px 10px; border-radius: 14px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-muted); cursor: pointer; white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .chat-mode-btn:hover { border-color: var(--accent); color: var(--text); }
+    .chat-mode-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
 
     /* ── Avatar Card ───────────────────────────────────────────────── */
     .avatar-block {
@@ -1659,6 +1667,38 @@ function renderAvatarContent(items) {
 // ── Chat ──────────────────────────────────────────────────────────
 const chatHistory = [];
 
+let chatMode = 'chat';
+
+function setChatMode(mode, btn) {
+  chatMode = mode;
+  document.querySelectorAll('.chat-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const input = document.getElementById('chatInput');
+  const placeholders = {
+    chat: 'Ask DMAI anything…',
+    image: 'Describe the image you want…',
+    video: 'Describe the video you want…',
+    audio: 'Describe the audio/music you want…',
+    code: 'Describe the code you need…'
+  };
+  input.placeholder = placeholders[mode] || placeholders.chat;
+  const styleSelect = document.getElementById('styleSelect');
+  const styles = {
+    chat: [],
+    image: ['default', 'photorealistic', 'cartoon', 'anime', 'cyberpunk', 'fantasy', 'sketch', 'pop_art', 'oil_painting', 'watercolor', '3d_render', 'pixel_art', 'vintage', 'horror', 'manga', 'comic', 'vector'],
+    video: ['default', 'social_media', 'youtube', 'film', 'cinematic', 'documentary', 'music_video', 'tutorial', 'short_film'],
+    audio: ['default', 'pop', 'hiphop', 'dance', 'rock', 'classical', 'jazz', 'ambient', 'electronic', 'lo_fi', 'orchestral', 'acoustic'],
+    code: ['default', 'python', 'javascript', 'web_app', 'api', 'cli_tool', 'automation', 'data_pipeline', 'machine_learning', 'agent_generation', 'agent_swarm']
+  };
+  const opts = styles[mode] || [];
+  if (opts.length > 0) {
+    styleSelect.style.display = 'inline-block';
+    styleSelect.innerHTML = opts.map(s => `<option value="${s}">${s.replace(/_/g, ' ')}</option>`).join('');
+  } else {
+    styleSelect.style.display = 'none';
+  }
+}
+
 async function sendChat() {
   const input = document.getElementById('chatInput');
   const msg = (input.value || '').trim();
@@ -1680,9 +1720,10 @@ async function sendChat() {
     </div>`);
   win.scrollTop = win.scrollHeight;
 
+  const style = document.getElementById('styleSelect').value || 'default';
   const data = await apiFetch('/api/chat', {
     method: 'POST',
-    body: JSON.stringify({ message: msg, history: chatHistory.slice(-8) })
+    body: JSON.stringify({ message: msg, history: chatHistory.slice(-8), mode: chatMode, style: style })
   });
 
   const typingEl = document.getElementById(typingId);
