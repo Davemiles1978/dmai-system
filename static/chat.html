@@ -133,6 +133,16 @@
       background: rgba(108,99,255,0.08);
     }
 
+    /* ── Mode buttons ── */
+    .mode-btn {
+      font-size: 0.65rem; padding: 4px 10px; border-radius: 14px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text-muted); cursor: pointer; white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .mode-btn:hover { border-color: var(--accent); color: var(--text); }
+    .mode-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
     /* ── Message bubbles ── */
     .msg {
       display: flex;
@@ -302,6 +312,18 @@
 
   </div>
 
+  <!-- Mode Selector -->
+  <div class="mode-bar" style="display:flex;gap:6px;padding:8px 16px;flex-wrap:wrap;align-items:center;justify-content:center;border-top:1px solid var(--border);">
+    <span style="font-size:0.65rem;color:var(--text-muted);">Mode:</span>
+    <button class="mode-btn active" data-mode="chat" onclick="setChatMode('chat', this)">💬 Chat</button>
+    <button class="mode-btn" data-mode="image" onclick="setChatMode('image', this)">🖼 Image</button>
+    <button class="mode-btn" data-mode="video" onclick="setChatMode('video', this)">🎬 Video</button>
+    <button class="mode-btn" data-mode="audio" onclick="setChatMode('audio', this)">🎵 Audio</button>
+    <button class="mode-btn" data-mode="code" onclick="setChatMode('code', this)">💻 Code</button>
+    <select id="styleSelect" style="display:none;font-size:0.7rem;padding:3px 6px;border-radius:4px;background:var(--surface2);color:var(--text);border:1px solid var(--border);">
+      <option value="default">Default</option>
+    </select>
+  </div>
   <!-- Input -->
   <div class="input-bar">
     <form class="input-form" id="chat-form" onsubmit="return false;">
@@ -328,6 +350,7 @@
   const inputEl    = document.getElementById('msg-input');
   const sendBtn    = document.getElementById('send-btn');
   const typingEl   = document.getElementById('typing');
+  let chatMode = 'chat';
   const statusEl   = document.getElementById('status-label');
 
   // ── Auto-resize textarea ──────────────────────────────────────────────────
@@ -358,6 +381,36 @@
   // ── Helpers ───────────────────────────────────────────────────────────────
   function now() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function setChatMode(mode, btn) {
+    chatMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const input = document.getElementById('msg-input');
+    const placeholders = {
+      chat: 'Message Alex…',
+      image: 'Describe the image you want…',
+      video: 'Describe the video you want…',
+      audio: 'Describe the audio/music you want…',
+      code: 'Describe the code you need…'
+    };
+    input.placeholder = placeholders[mode] || placeholders.chat;
+    const styleSelect = document.getElementById('styleSelect');
+    const styles = {
+      chat: [],
+      image: ['default', 'photorealistic', 'cartoon', 'anime', 'cyberpunk', 'fantasy', 'sketch', 'pop_art', 'oil_painting', 'watercolor', '3d_render', 'pixel_art', 'vintage', 'horror', 'manga', 'comic', 'vector'],
+      video: ['default', 'social_media', 'youtube', 'film', 'cinematic', 'documentary', 'music_video', 'tutorial', 'short_film'],
+      audio: ['default', 'pop', 'hiphop', 'dance', 'rock', 'classical', 'jazz', 'ambient', 'electronic', 'lo_fi', 'orchestral', 'acoustic'],
+      code: ['default', 'python', 'javascript', 'web_app', 'api', 'cli_tool', 'automation', 'data_pipeline', 'machine_learning', 'agent_generation', 'agent_swarm']
+    };
+    const opts = styles[mode] || [];
+    if (opts.length > 0) {
+      styleSelect.style.display = 'inline-block';
+      styleSelect.innerHTML = opts.map(s => `<option value="${s}">${s.replace(/_/g, ' ')}</option>`).join('');
+    } else {
+      styleSelect.style.display = 'none';
+    }
   }
 
   function appendMsg(role, text, media) {
@@ -449,10 +502,11 @@
     setTyping(true);
 
     try {
+      const style = document.getElementById('styleSelect').value || 'default';
       const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, mode: chatMode, style: style }),
       });
       const data = await res.json();
       setTyping(false);
