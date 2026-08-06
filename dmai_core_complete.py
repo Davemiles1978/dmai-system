@@ -3219,6 +3219,36 @@ def api_content_generate():
                 return jsonify({"type": "book", "content": book, "validation": validation})
             except Exception as e:
                 logger.warning("Book gen error: %s", e)
+        if ctype == "speech":
+            try:
+                from components.content.tts_engine import DMAIVoice
+                voice = DMAIVoice()
+                result = voice.generate_speech(prompt or "Hello, I am DMAI.")
+                return jsonify({"type": "speech", **result})
+            except Exception as e:
+                logger.warning("TTS error: %s", e)
+                return jsonify({"type": "speech", "error": str(e)}), 500
+
+        if ctype == "speech_analyse":
+            try:
+                from components.content.speech_analyser import SpeechAnalyser
+                sa = SpeechAnalyser()
+                result = sa.analyse(prompt or "")
+                return jsonify({"type": "speech_analyse", **result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        if ctype == "image_analyse":
+            try:
+                from components.content.image_analyser import ImageAnalyser
+                ia = ImageAnalyser()
+                img_path = data.get("image_path", "")
+                if img_path:
+                    result = ia.measure_photorealism(img_path)
+                    return jsonify({"type": "image_analyse", **result})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
         if ctype in ("image", "video", "audio", "waveform"):
             try:
                 from components.content.self_contained_generator import SelfContainedGenerator
