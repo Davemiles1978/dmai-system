@@ -276,3 +276,7 @@ data/dmai_series/
 data/dmai_templates.json
 data/knowledge_sources 2/
 dmai_expand_series.py
+
+# Exam system — core training files (override training/ ignore)
+!components/training/ExamSystem.py
+!components/training/ComprehensiveAITraining.py
