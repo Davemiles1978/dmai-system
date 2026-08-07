@@ -1477,12 +1477,15 @@ async function renderStatCards(status, orch, providers) {
     } catch (e) {}
     setCardValue('ncslPct', ncslPct);
 
-    // System Evolution — evolution cycle from /api/graph/status
+    // System Evolution — cycle count from self-evolution orchestrator
     let evoStatus = '--';
     try {
-      const graphData = await fetch('/api/graph/status').then(r => r.json()).catch(() => ({}));
-      const cycle = graphData.evolution_cycle || 0;
+      const evoData = await fetch('/api/self-evolution/status').then(r => r.json()).catch(() => ({}));
+      const orch = evoData.orchestrator || {};
+      const cycle = orch.cycle_count || 0;
+      const fixes = orch.items_fixed_this_week || 0;
       evoStatus = cycle > 0 ? 'Cycle ' + cycle : 'Initial';
+      if (fixes > 0) evoStatus += ' (' + fixes + ' fixes)';
     } catch (e) {}
     setCardValue('evolutionStatus', evoStatus);
 
