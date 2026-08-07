@@ -4724,22 +4724,23 @@ def _feed_gaps_to_seed_backlog(gaps):
 def _run_intensive_training():
     """Continuous real syllabus training: research each unmastered topic, persist a
     DB insight (drives KPI counts), bump mastery, checkpoint stage progress + re-seed
-    KPIs after each batch. Replaces the previous <22ms no-op training."""
+    KPIs after each batch.  Memory-optimised for 512 MB–4 GB instances."""
     global _INTENSIVE_TRAINING_ACTIVE
-    import sqlite3 as _sq, time as _t
+    import gc as _gc, sqlite3 as _sq, time as _t
     from datetime import datetime as _dt, timezone as _tz
     _INTENSIVE_TRAINING_ACTIVE = True
     db_path = os.path.join(DATA_PATH, "dmai_knowledge.db")
     researcher = components.get("autonomous_researcher")
-    logger.info("Intensive training worker started")
+    logger.info("Intensive training worker started (memory-optimised v2)")
     try:
         while True:
             try:
                 conn = safe_open_kdb(db_path, timeout=30)
                 conn.row_factory = _sq.Row
+                # Reduced batch size for memory-constrained environments
                 rows = conn.execute(
                     "SELECT topic FROM syllabus_content "
-                    "WHERE mastery IS NULL OR mastery < 0.9 LIMIT 500"
+                    "WHERE mastery IS NULL OR mastery < 0.9 LIMIT 50"
                 ).fetchall()
                 conn.close()
             except Exception as _qe:
@@ -4748,56 +4749,73 @@ def _run_intensive_training():
 
             if not rows:
                 logger.info("Intensive training: all syllabus topics mastered — rechecking in 1h")
+                _gc.collect()
                 _t.sleep(3600)
                 continue
 
             processed = 0
-            for r in rows:
-                topic = r["topic"]
-                summary, confidence = "", 0.85
-                if researcher and hasattr(researcher, "research_topic_deep"):
+            # Single connection for the batch — much lower memory overhead
+            try:
+                conn = safe_open_kdb(db_path, timeout=30)
+                for r in rows:
+                    topic = r["topic"]
+                    summary, confidence = "", 0.85
+                    if researcher and hasattr(researcher, "research_topic_deep"):
+                        try:
+                            res = researcher.research_topic_deep(topic, depth="comprehensive")
+                            synth = (res or {}).get("synthesis", {}) or {}
+                            summary = synth.get("summary", "")[:2000]
+                            confidence = float(synth.get("confidence", 0.85) or 0.85)
+                            # Explicitly clear large response object
+                            del res, synth
+                        except Exception as _re:
+                            logger.debug("Intensive research failed for %s: %s", topic, _re)
+                    if not summary:
+                        summary = f"Studied syllabus topic '{topic}'."
                     try:
-                        res = researcher.research_topic_deep(topic, depth="comprehensive")
-                        synth = (res or {}).get("synthesis", {}) or {}
-                        summary = synth.get("summary", "") or ""
-                        confidence = float(synth.get("confidence", 0.85) or 0.85)
-                    except Exception as _re:
-                        logger.debug("Intensive research failed for %s: %s", topic, _re)
-                if not summary:
-                    summary = f"Studied syllabus topic '{topic}'."
-                try:
-                    conn = safe_open_kdb(db_path, timeout=30)
-                    iid = f"train_{int(_dt.now(_tz.utc).timestamp()*1000)}_{processed}"
-                    conn.execute(
-                        "INSERT OR IGNORE INTO insights "
-                        "(id, insight_text, entity_type, entities, relationship, confidence, "
-                        " source_topic, target_topic, source_type, created_at) "
-                        "VALUES (?,?,?,?,?,?,?,?,?,?)",
-                        (iid, summary[:2000], "topic", "[]", "studied", confidence,
-                         topic, topic, "intensive_training", _dt.now(_tz.utc).isoformat()))
-                    conn.execute(
-                        "UPDATE syllabus_content SET mastery = 0.95 WHERE topic = ?", (topic,))
-                    conn.commit()
-                    conn.close()
-                    processed += 1
-                except Exception as _ie:
-                    logger.debug("Intensive insight persist failed for %s: %s", topic, _ie)
+                        iid = f"train_{int(_dt.now(_tz.utc).timestamp()*1000)}_{processed}"
+                        conn.execute(
+                            "INSERT OR IGNORE INTO insights "
+                            "(id, insight_text, entity_type, entities, relationship, confidence, "
+                            " source_topic, target_topic, source_type, created_at) "
+                            "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                            (iid, summary[:2000], "topic", "[]", "studied", confidence,
+                             topic, topic, "intensive_training", _dt.now(_tz.utc).isoformat()))
+                        conn.execute(
+                            "UPDATE syllabus_content SET mastery = 0.95 WHERE topic = ?", (topic,))
+                        processed += 1
+                    except Exception as _ie:
+                        logger.debug("Intensive insight persist failed for %s: %s", topic, _ie)
 
-                if processed and processed % 25 == 0:
-                    _update_training_progress(db_path)
-                    try:
-                        _seed_kpis_from_db()
-                    except Exception:
-                        pass
+                    # Commit every 10 and collect garbage
+                    if processed % 10 == 0:
+                        conn.commit()
+                        _gc.collect()
+                        _update_training_progress(db_path)
+                        try:
+                            _seed_kpis_from_db()
+                        except Exception:
+                            pass
+                conn.commit()
+                conn.close()
+            except Exception as _ce:
+                logger.warning("Intensive training batch connection failed: %s", _ce)
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
             _update_training_progress(db_path)
             try:
                 _seed_kpis_from_db()
             except Exception:
                 pass
+            _gc.collect()
             logger.info("Intensive training: batch complete — %d topics processed", processed)
+            _t.sleep(2)  # Brief pause to let memory settle between batches
     finally:
         _INTENSIVE_TRAINING_ACTIVE = False
+
 
 
 @app.route("/api/training/run", methods=["POST"])
