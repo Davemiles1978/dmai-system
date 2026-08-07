@@ -14752,6 +14752,14 @@ def _start_telegram_bot():
     t.start()
     logger.info("Telegram bot thread started")
 
+    # ── NCSL Self-Migration Monitor ──
+    try:
+        from components.ncsl.migration import start_migration_monitor
+        start_migration_monitor(project_root=str(Path(__file__).parent), check_interval_minutes=60)
+        logger.info("NCSL migration monitor started — checks every 60 min")
+    except Exception as _ncsl_e:
+        logger.debug("NCSL migration monitor not started: %s", _ncsl_e)
+
 # Start all background services (researcher, training, evolution, etc.)
 # Runs in the gunicorn worker process — threads survive here without --preload.
 _background_services_started = False
