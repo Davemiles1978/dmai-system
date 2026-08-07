@@ -240,7 +240,16 @@ class PGStorage:
         conn = _get_conn()
         try:
             with conn.cursor() as cur:
-                cur.execute(_SCHEMA_SQL)
+                # Execute each schema statement individually (psycopg2 limitation)
+                for _stmt in _SCHEMA_SQL.split(';'):
+                    _stmt = _stmt.strip()
+                    if _stmt and not _stmt.startswith('--'):
+                        try:
+                            cur.execute(_stmt)
+                        except Exception as _se:
+                            logger.warning("PGStorage schema stmt skipped: %s — %s", _stmt[:80], _se)
+                            conn.rollback()
+                            cur = conn.cursor()
                 # ---- Idempotent migrations for older deployments ----
                 # Add missing columns expected by the current schema.
                 _migrations = [
