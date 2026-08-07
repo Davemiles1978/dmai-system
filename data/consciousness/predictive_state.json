@@ -1,0 +1,16 @@
+{
+  "predictions": [],
+  "calibration": 0.5,
+  "surprise_rate": 0.0,
+  "self_awareness_score": 0.4,
+  "last_updated": "2026-08-04T19:53:12.176333+00:00",
+  "history": [
+    {
+      "timestamp": "2026-08-04T19:53:12.175861+00:00",
+      "calibration": 0.5,
+      "surprise": 0.0,
+      "self_awareness": 0.4,
+      "events_collected": 0
+    }
+  ]
+}

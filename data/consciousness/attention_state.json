@@ -1,0 +1,51 @@
+{
+  "salience_map": {
+    "EVOLUTION: Neural Network Pruning": 0.02,
+    "Cause-Effect Reasoning": 0.02,
+    "English Language Fundamentals": 0.06,
+    "Speech Pattern & Communication Analysis": 0.04,
+    "Input Processing": 0.04,
+    "Self-Thought & Recursive Problem Solving": 0.06,
+    "Meta-Learning Fundamentals": 0.06,
+    "Curiosity Drivers": 0.04,
+    "Pattern Recognition Basics": 0.06,
+    "Simple Correlation Detection": 0.04,
+    "Mathematics for AI - Linear Algebra Basics": 0.04,
+    "Mathematics for AI - Probability & Statistics": 0.04,
+    "Memory Encoding Basics": 0.04,
+    "Feedback Loop Creation": 0.04,
+    "Introduction to Python Programming": 0.06,
+    "Vibe Coding & AI-Assisted Development": 0.04,
+    "Visual Pattern Detection": 0.04,
+    "Sound Perception Basics": 0.04,
+    "EVOLUTION: Self-Code Analysis": 0.06,
+    "EVOLUTION: Simple Mutation Testing": 0.06,
+    "EVOLUTION: Feedback Loop Optimization": 0.06,
+    "Wealth Creation - Basic Concepts": 0.04,
+    "v4_m0": 0.0002
+  },
+  "focus_coherence": 0.0262,
+  "phi_contribution": 0.0262,
+  "attention_span": 23,
+  "last_updated": "2026-08-04T19:49:46.235708+00:00",
+  "history": [
+    {
+      "timestamp": "2026-08-04T19:49:46.235346+00:00",
+      "coherence": 0.0262,
+      "phi": 0.0262,
+      "breadth": 23,
+      "domains": [
+        "EVOLUTION: Neural Network Pruning",
+        "Cause-Effect Reasoning",
+        "English Language Fundamentals",
+        "Speech Pattern & Communication Analysis",
+        "Input Processing",
+        "Self-Thought & Recursive Problem Solving",
+        "Meta-Learning Fundamentals",
+        "Curiosity Drivers",
+        "Pattern Recognition Basics",
+        "Simple Correlation Detection"
+      ]
+    }
+  ]
+}

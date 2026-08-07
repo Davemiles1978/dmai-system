@@ -1,0 +1,39 @@
+{
+  "valence_events": [
+    {
+      "valence": -0.3,
+      "source": "evolution_stalled",
+      "detail": "no_cycles",
+      "timestamp": "2026-08-04T19:55:05.090572+00:00"
+    },
+    {
+      "valence": 0.2,
+      "source": "stage_early",
+      "detail": "Toddler",
+      "timestamp": "2026-08-04T19:55:05.090950+00:00"
+    },
+    {
+      "valence": 0.15,
+      "source": "insight_discovered",
+      "detail": "recent_insight",
+      "timestamp": "2026-08-04T19:55:05.090952+00:00"
+    }
+  ],
+  "current_valence": 0.0167,
+  "valence_magnitude": 0.2167,
+  "drive_coherence": 0.3333,
+  "intentionality_score": 0.0722,
+  "positive_ratio": 0.6667,
+  "negative_ratio": 0.3333,
+  "last_updated": "2026-08-04T19:55:05.090967+00:00",
+  "history": [
+    {
+      "timestamp": "2026-08-04T19:55:05.090965+00:00",
+      "current_valence": 0.0167,
+      "magnitude": 0.2167,
+      "coherence": 0.3333,
+      "intentionality": 0.0722,
+      "events_collected": 3
+    }
+  ]
+}
