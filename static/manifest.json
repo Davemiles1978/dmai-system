@@ -1,8 +1,8 @@
 {
   "name": "DMAI",
   "short_name": "DMAI",
-  "description": "DMAI \u2014 autonomous wealth, monetisation and trading control",
-  "start_url": "/monetisation",
+  "description": "DMAI \u2014 Autonomous General Intelligence",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",
