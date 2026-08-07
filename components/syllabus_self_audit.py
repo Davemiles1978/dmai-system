@@ -248,25 +248,49 @@ class SyllabusSelfAudit:
 
 
 def start_audit_loop(components: dict, interval_hours: float = 6.0):
-    """Start a background daemon that runs syllabus self-audit periodically."""
+    """Start a background daemon that runs syllabus self-audit periodically.
+    Only runs when AI training progress reaches 95% — meaning DMAI has nearly
+    mastered the current syllabus and needs new topics to learn."""
+
+    def _get_training_pct():
+        try:
+            orch = components.get("training_orchestrator")
+            if orch and hasattr(orch, "components"):
+                ai = orch.components.get("ai_training")
+                if ai and hasattr(ai, "overall_progress"):
+                    prog = ai.overall_progress()
+                    return prog.get("pct_expert", 0)
+        except Exception:
+            pass
+        return 0
 
     def _loop():
-        time.sleep(60)  # Wait 1 min for boot
+        time.sleep(120)  # Wait 2 min for full boot
         auditor = SyllabusSelfAudit()
+        audit_has_run = False
         while True:
             try:
-                result = auditor.audit(components)
-                if result["gaps_found"] > 0:
+                training_pct = _get_training_pct()
+                if training_pct >= 95.0 and not audit_has_run:
                     logger.info(
-                        "SyllabusAudit: %d gaps. Top recommendation: %s (impact=%d)",
-                        result["gaps_found"],
-                        result["top_recommendation"]["topic"] if result["top_recommendation"] else "none",
-                        result["top_recommendation"]["impact"] if result["top_recommendation"] else 0,
+                        "SyllabusAudit: training at %.1f%% — running gap analysis for new topics",
+                        training_pct
                     )
+                    result = auditor.audit(components)
+                    if result["gaps_found"] > 0:
+                        logger.info(
+                            "SyllabusAudit: %d new gaps found. Top: %s",
+                            result["gaps_found"],
+                            result["top_recommendation"]["topic"] if result["top_recommendation"] else "none",
+                        )
+                    audit_has_run = True
+                elif training_pct < 90.0:
+                    # Reset flag when training drops (gaps were added, percentage fell)
+                    audit_has_run = False
             except Exception as e:
                 logger.warning("SyllabusAudit loop error: %s", e)
             time.sleep(interval_hours * 3600)
 
     t = threading.Thread(target=_loop, daemon=True, name="SyllabusAudit")
     t.start()
-    logger.info("Syllabus self-audit loop started (every %d hours)", interval_hours)
+    logger.info("Syllabus self-audit loop started (triggers at 95%% training, checks every %d hours)", interval_hours)
