@@ -1439,7 +1439,7 @@ function offlineHub() { return null; }
 function offlineAvatarContent() { return []; }
 
 // ── Render: Stat Cards ────────────────────────────────────────────
-function renderStatCards(status, orch, providers, kaizenStatus) {
+async function renderStatCards(status, orch, providers) {
   try {
     // AI Training Progress — % domains at Expert stage from ai_training.progress.pct_expert
     // Falls back to % of background services running if domain data unavailable
@@ -1867,22 +1867,18 @@ function formatRelTime(isoStr) {
 async function loadData() {
   document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-GB');
 
-  const [statusData, orchData, providersData, kaizenStatusData, kaizenLogData] = await Promise.all([
+  const [statusData, orchData, providersData] = await Promise.all([
     apiFetch('/api/status'),
     apiFetch('/api/orchestrator/status'),
     apiFetch('/api/harvester/status'),
-    apiFetch('/api/kaizen/status'),
-    apiFetch('/api/kaizen'),
   ]);
 
   // Use real API data only — null means the API is offline for that endpoint
   const status       = statusData       || null;
   const orch         = orchData         || null;
   const providers    = providersData    || null;
-  const kaizenStatus = kaizenStatusData || null;
-  const kaizenLog    = kaizenLogData    || null;
 
-  const isLive = !!(statusData || orchData || providersData || kaizenStatusData || kaizenLogData);
+  const isLive = !!(statusData || orchData || providersData);
   if (!isLive) {
     showToast('API offline — no data available', 'warning');
     document.getElementById('statusText').textContent = 'OFFLINE';
@@ -1912,7 +1908,7 @@ async function loadData() {
     if (fvEl) fvEl.textContent = `DMAI v${v}`;
   }
 
-  renderStatCards(status, orch, providers, kaizenStatus);
+  renderStatCards(status, orch, providers);
   renderStages(orch);
   renderKPIs(status);
   renderKaizen(kaizenLog);
