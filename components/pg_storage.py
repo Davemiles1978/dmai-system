@@ -248,8 +248,6 @@ class PGStorage:
                             cur.execute(_stmt)
                         except Exception as _se:
                             logger.warning("PGStorage schema stmt skipped: %s — %s", _stmt[:80], _se)
-                            conn.rollback()
-                            cur = conn.cursor()
                 # ---- Idempotent migrations for older deployments ----
                 # Add missing columns expected by the current schema.
                 _migrations = [
