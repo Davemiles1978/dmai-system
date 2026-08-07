@@ -15921,4 +15921,52 @@ if __name__ == "__main__":
     logger.info("  Security: JWT=%s CB=%s HMAC=%s Bandit=%s",
                 SECURITY_AVAILABLE, CB_AVAILABLE, HMAC_AVAILABLE, BANDIT_AVAILABLE)
     logger.info("=" * 55)
+    # ── Memory watchdog — prevents OOM on constrained instances ──────────
+    import gc as _gc_mem
+    import threading as _th_mem
+    import time as _time_mem
+    import os as _os_mem
+
+    def _memory_watchdog(interval_s=60, warn_pct=75, critical_pct=90):
+        """Background thread: force GC when memory exceeds thresholds."""
+        while True:
+            _time_mem.sleep(interval_s)
+            try:
+                import resource as _res
+                # Get current RSS in MB
+                usage = _res.getrusage(_res.RUSAGE_SELF).ru_maxrss
+                # On Linux, ru_maxrss is in KB; on macOS it's in bytes
+                if sys.platform == "darwin":
+                    usage_mb = usage / (1024 * 1024)
+                else:
+                    usage_mb = usage / 1024
+                # Get system memory limit (Render Pro = 4096 MB, Free = 512 MB)
+                total_mb = os.environ.get("RENDER_MEMORY_MB")
+                if total_mb:
+                    total_mb = int(total_mb)
+                else:
+                    # Default: assume 512MB free tier
+                    total_mb = 4096  # Render Pro
+                pct = (usage_mb / total_mb) * 100
+                if pct >= critical_pct:
+                    logger.warning(
+                        "MEMORY CRITICAL: %.0f MB / %d MB (%.0f%%) — forcing GC",
+                        usage_mb, total_mb, pct
+                    )
+                    _gc_mem.collect()
+                elif pct >= warn_pct:
+                    logger.info(
+                        "Memory: %.0f MB / %d MB (%.0f%%) — collecting",
+                        usage_mb, total_mb, pct
+                    )
+                    _gc_mem.collect()
+            except Exception:
+                pass  # resource module not available (Windows) — skip
+
+    _watchdog_thread = _th_mem.Thread(
+        target=_memory_watchdog, daemon=True, name="memory-watchdog"
+    )
+    _watchdog_thread.start()
+    logger.info("Memory watchdog started (thresholds: warn=%d%%, critical=%d%%)", warn_pct, critical_pct)
+
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
