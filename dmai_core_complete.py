@@ -3357,6 +3357,54 @@ def api_dashboard():
 
 # ── /api/training/* — canonical training routes ─────────────────────────────
 
+
+@app.route("/api/ncsl/status", methods=["GET"])
+def api_ncsl_status():
+    """NCSL evolution progress — how close to production-ready."""
+    try:
+        from components.ncsl import NCSLEngine
+        from components.ncsl.token_table import VERSION
+        
+        # Feature checklist — each weighted by complexity
+        features = {
+            "compiler":        {"name": "Python→NCSL Compiler",   "done": True,  "weight": 15},
+            "vm":              {"name": "Bytecode VM Execution",   "done": True,  "weight": 15},
+            "decompiler":      {"name": "NCSL→Python Decompiler",  "done": True,  "weight": 10},
+            "strings":         {"name": "String Encoding",         "done": True,  "weight": 5},
+            "integers":        {"name": "Integer Encoding",        "done": True,  "weight": 5},
+            "floats":          {"name": "Float Encoding",          "done": True,  "weight": 5},
+            "lists_dicts":     {"name": "Lists & Dictionaries",    "done": True,  "weight": 5},
+            "control_flow":    {"name": "If/Else/For/While",       "done": True,  "weight": 8},
+            "functions":       {"name": "Function Definitions",    "done": True,  "weight": 5},
+            "calls":           {"name": "Function Calls",          "done": True,  "weight": 5},
+            "call_stack":      {"name": "Call Stack (nested)",     "done": False, "weight": 12},
+            "imports":         {"name": "Import/Module System",    "done": False, "weight": 12},
+            "exceptions":      {"name": "Exception Handling",      "done": False, "weight": 10},
+            "classes":         {"name": "Class Inheritance",       "done": False, "weight": 10},
+            "expression_tree": {"name": "Expression Tree (AST)",   "done": False, "weight": 10},
+            "type_system":     {"name": "Type Validation",         "done": False, "weight": 8},
+            "async":           {"name": "Async/Await Support",     "done": False, "weight": 8},
+            "optimizer":       {"name": "Bytecode Optimizer",      "done": False, "weight": 8},
+            "jit":             {"name": "JIT Compilation",         "done": False, "weight": 8},
+            "sixg":            {"name": "6G Photonic Mapping",     "done": True,  "weight": 5},
+            "predictive":      {"name": "Predictive Zero-Byte",    "done": True,  "weight": 3},
+        }
+        
+        done_weight = sum(f["weight"] for f in features.values() if f["done"])
+        total_weight = sum(f["weight"] for f in features.values())
+        pct = round(done_weight / total_weight * 100, 1)
+        
+        return jsonify({
+            "version": VERSION,
+            "functionality_pct": pct,
+            "done_count": sum(1 for f in features.values() if f["done"]),
+            "total_features": len(features),
+            "features": {k: {"name": v["name"], "done": v["done"]} for k, v in features.items()},
+            "status": "production_ready" if pct >= 95 else "advanced" if pct >= 70 else "developing" if pct >= 40 else "foundational",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/training/status", methods=["GET"])
 def api_training_status():
     """Live status of all background training threads — 24/7 always-on."""
