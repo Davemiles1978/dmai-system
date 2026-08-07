@@ -24,12 +24,20 @@ import os
 import random
 from datetime import datetime, timezone
 from pathlib import Path
+from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Exam-based stage progression (imported here to avoid circular deps)
+from components.training.ExamSystem import (
+    ExamSystem, SI_V4_CURRICULUM, MAX_RETRIES_PER_SKILL,
+    CRITICAL_PASS_THRESHOLD, STANDARD_PASS_THRESHOLD,
+)
 
 logger = logging.getLogger("dmai.ai_training")
 
 # ---------------------------------------------------------------------------
 # Stage definitions (mirrors DMAI's dmai_syllabus_data.py categories)
+# ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 STAGES = ["Baby", "Toddler", "Child", "Teen", "Adult", "Expert"]
 
@@ -387,6 +395,7 @@ class ComprehensiveAITraining:
         si_core=None,
         knowledge_graph=None,
         ai_hub=None,
+        exam_system: Optional["ExamSystem"] = None,
     ):
         self.data_path = data_path
         self.si_core = si_core
@@ -397,7 +406,20 @@ class ComprehensiveAITraining:
         self.tracker = StageProgressionTracker(data_path)
         self.session_log: List[Dict] = []
 
-        logger.info("ComprehensiveAITraining initialised — %d domains loaded", len(FULL_CURRICULUM))
+        # Extended curriculum — original 48 domains + SI + V4
+        self.curriculum: List[Dict] = list(FULL_CURRICULUM) + list(SI_V4_CURRICULUM)
+
+        # Exam system — if not injected, legacy path is used
+        self.exam_system = exam_system
+
+        logger.info(
+            "ComprehensiveAITraining initialised — %d domains loaded (%d original + %d SI/V4)",
+            len(self.curriculum), len(FULL_CURRICULUM), len(SI_V4_CURRICULUM),
+        )
+
+    def set_exam_system(self, exam_system: "ExamSystem") -> None:
+        """Wire in an ExamSystem instance with analysers attached."""
+        self.exam_system = exam_system
 
     # ── Public API ────────────────────────────────────────────────────────
 
@@ -407,7 +429,7 @@ class ComprehensiveAITraining:
         start = datetime.now(timezone.utc)
         results = []
 
-        target_domains = [d for d in FULL_CURRICULUM if domains is None or d["domain"] in domains]
+        target_domains = [d for d in self.curriculum if domains is None or d["domain"] in domains]
 
         for domain in target_domains:
             result = await self._train_domain(domain)
@@ -429,7 +451,7 @@ class ComprehensiveAITraining:
 
     async def train_stage(self, stage: str) -> Dict:
         """Train only domains currently at a specific stage."""
-        target = [d for d in FULL_CURRICULUM
+        target = [d for d in self.curriculum
                   if self.tracker.get_stage(d["domain"]) == stage]
         logger.info("Stage-targeted training: %s — %d domains", stage, len(target))
         results = []
@@ -441,7 +463,7 @@ class ComprehensiveAITraining:
 
     async def train_category(self, category: str) -> Dict:
         """Train all domains in a DMAI category (Core/Accelerator/Artistic/Wealth)."""
-        target = [d for d in FULL_CURRICULUM if d["category"] == category]
+        target = [d for d in self.curriculum if d["category"] == category]
         results = []
         for domain in target:
             result = await self._train_domain(domain)
@@ -453,25 +475,185 @@ class ComprehensiveAITraining:
         return {
             "component": "ComprehensiveAITraining",
             "version": "1.0.0",
-            "domains": len(FULL_CURRICULUM),
+            "domains": len(self.curriculum),
             "progress": self.tracker.overall_progress(),
-            "curriculum_categories": list({d["category"] for d in FULL_CURRICULUM}),
+            "curriculum_categories": list({d["category"] for d in self.curriculum}),
         }
 
     # ── Internal helpers ──────────────────────────────────────────────────
 
     async def _train_domain(self, domain: Dict) -> Dict:
+        """Run exam-based training for a single domain.
+        
+        If ExamSystem is available: generate exam → get DMAI output → grade → advance/fail.
+        If ExamSystem is NOT available: fall back to legacy challenge/score_response flow.
+        """
         current_stage = self.tracker.get_stage(domain["domain"])
+
+        # ── Exam System path (preferred) ──────────────────────────────────
+        if self.exam_system is not None:
+            return await self._train_domain_with_exam(domain, current_stage)
+
+        # ── Legacy path (fallback when ExamSystem not wired) ──────────────
+        return await self._train_domain_legacy(domain, current_stage)
+
+    async def _train_domain_with_exam(self, domain: Dict, current_stage: str) -> Dict:
+        """Exam-based training: generate exam, get output, grade, handle retries."""
+        retry_count = self.exam_system.history.get_retry_count(
+            domain["domain"], current_stage
+        )
+
+        # Check if we've exceeded max retries
+        if retry_count >= MAX_RETRIES_PER_SKILL:
+            entry = {
+                "domain":    domain["domain"],
+                "stage":     current_stage,
+                "status":    "max_retries_exceeded",
+                "reason":    f"Failed exam {retry_count} times — requires syllabus review",
+                "score":     None,
+                "advanced":  False,
+                "new_stage": current_stage,
+            }
+            self.session_log.append(entry)
+            logger.warning(
+                "MAX RETRIES: %s at %s — %d failed attempts",
+                domain["domain"], current_stage, retry_count,
+            )
+            return entry
+
+        # Generate exam
+        exam_result = self.exam_system.run_exam(
+            domain, current_stage, self.curriculum, output=None
+        )
+        exam = exam_result["exam"]
+
+        # Get DMAI's output for the exam
+        output = await self._produce_exam_output(domain, exam, current_stage)
+
+        if output is None:
+            entry = {
+                "domain":    domain["domain"],
+                "stage":     current_stage,
+                "status":    "skipped",
+                "reason":    "could_not_produce_exam_output",
+                "score":     None,
+                "advanced":  False,
+                "new_stage": current_stage,
+            }
+            self.session_log.append(entry)
+            return entry
+
+        # Grade the exam
+        graded = self.exam_system.run_exam(
+            domain, current_stage, self.curriculum, output=output
+        )
+
+        if graded["passed"]:
+            score = graded["grade"]["overall_score"]
+            advanced = self.tracker.update_mastery(domain["domain"], score)
+            entry = {
+                "domain":    domain["domain"],
+                "stage":     current_stage,
+                "status":    "exam_passed",
+                "score":     score,
+                "advanced":  advanced,
+                "new_stage": self.tracker.get_stage(domain["domain"]),
+                "exam_id":   exam["exam_id"],
+                "grade_summary": graded["grade"]["grade_summary"],
+            }
+            self.session_log.append(entry)
+            logger.info(
+                "EXAM PASSED: %s at %s — score %.1f%%, advanced=%s",
+                domain["domain"], current_stage, score * 100, advanced,
+            )
+        else:
+            gap = graded.get("gap_analysis", {})
+            failed_skills = graded["grade"].get("failed_skills", [])
+            entry = {
+                "domain":    domain["domain"],
+                "stage":     current_stage,
+                "status":    "exam_failed",
+                "score":     graded["grade"]["overall_score"],
+                "advanced":  False,
+                "new_stage": current_stage,
+                "exam_id":   exam["exam_id"],
+                "failed_skills": failed_skills,
+                "grade_summary": graded["grade"]["grade_summary"],
+                "study_recommendations": gap.get("recommended_study", []),
+                "syllabus_modifications": gap.get("syllabus_modifications", []),
+                "retry_count": retry_count + 1,
+            }
+            self.session_log.append(entry)
+            logger.warning(
+                "EXAM FAILED: %s at %s — %.1f%%, failed skills: %s",
+                domain["domain"], current_stage,
+                graded["grade"]["overall_score"] * 100,
+                failed_skills,
+            )
+
+        if self.knowledge_graph:
+            try:
+                self.knowledge_graph.add_concept(
+                    f"ai_training_{domain['domain'].lower().replace(' ', '_')}",
+                    {
+                        "stage": entry["new_stage"],
+                        "mastery": entry.get("score", 0),
+                        "exam_passed": graded["passed"],
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+            except Exception:
+                pass
+
+        return entry
+
+    async def _produce_exam_output(
+        self, domain: Dict, exam: Dict, current_stage: str
+    ) -> Optional[Dict]:
+        """Produce DMAI's output for an exam."""
+        exam_type = exam.get("exam_type", "ReasoningChainExam")
+
+        if exam_type == "PracticalOutputExam":
+            return await self._produce_practical_output(domain, exam, current_stage)
+        else:
+            return await self._produce_text_output(domain, exam, current_stage)
+
+    async def _produce_practical_output(
+        self, domain: Dict, exam: Dict, current_stage: str
+    ) -> Optional[Dict]:
+        """Generate practical output: code, image, audio, etc."""
+        challenge = self.assessment.generate_challenge(domain, current_stage)
+        response = await self._get_ai_response(challenge)
+        if response is None:
+            response = self._self_assess_domain(domain, current_stage)
+        if response:
+            domain_name = domain["domain"].lower()
+            if "code" in domain_name:
+                return {"code": str(response), "output": str(response)}
+            return {"text": str(response), "output": str(response)}
+        return None
+
+    async def _produce_text_output(
+        self, domain: Dict, exam: Dict, current_stage: str
+    ) -> Optional[Dict]:
+        """Get text-based exam response from AI or self-assessment."""
+        challenge = self.assessment.generate_challenge(domain, current_stage)
+        response = await self._get_ai_response(challenge)
+        if response is None:
+            response = self._self_assess_domain(domain, current_stage)
+        if response:
+            return {"text": str(response), "output": str(response)}
+        return None
+
+    async def _train_domain_legacy(self, domain: Dict, current_stage: str) -> Dict:
+        """Original keyword-match training — used when ExamSystem is not available."""
         challenge = self.assessment.generate_challenge(domain, current_stage)
         response = await self._get_ai_response(challenge)
 
         if response is None:
-            # No external AI provider — use self-scored knowledge assessment.
-            # DMAI checks her own knowledge DB to score competency in this domain.
             response = self._self_assess_domain(domain, current_stage)
 
         if response is None:
-            # Truly nothing available — skip without writing any score
             entry = {
                 "domain":    domain["domain"],
                 "stage":     current_stage,
@@ -484,9 +666,10 @@ class ComprehensiveAITraining:
             self.session_log.append(entry)
             return entry
 
-        score = self.assessment.score_response(response, domain["stages"][current_stage])
+        score = self.assessment.score_response(
+            response, domain["stages"][current_stage]
+        )
         if score is None:
-            # Empty response — skip
             entry = {
                 "domain":    domain["domain"],
                 "stage":     current_stage,
@@ -514,12 +697,17 @@ class ComprehensiveAITraining:
             try:
                 self.knowledge_graph.add_concept(
                     f"ai_training_{domain['domain'].lower().replace(' ', '_')}",
-                    {"stage": entry["new_stage"], "mastery": score, "timestamp": datetime.now(timezone.utc).isoformat()},
+                    {
+                        "stage": entry["new_stage"],
+                        "mastery": score,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
                 )
             except Exception:
                 pass
 
         return entry
+
 
     def _self_assess_domain(self, domain: Dict, stage: str) -> Optional[str]:
         """
