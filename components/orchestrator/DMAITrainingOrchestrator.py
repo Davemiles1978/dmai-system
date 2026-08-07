@@ -122,6 +122,7 @@ class DMAITrainingOrchestrator:
         self.knowledge_graph  = knowledge_graph
         self.evolution_system = evolution_system
         self.config           = config or {}
+        self.ai_hub          = ai_hub
         self._update_thread: Optional[threading.Thread] = None
 
         # Load component classes
