@@ -114,6 +114,7 @@ class DMAITrainingOrchestrator:
         knowledge_graph=None,
         ai_hub=None,
         evolution_system=None,
+        exam_system=None,
         config: Optional[Dict] = None,
     ):
         self.data_path        = Path(data_path)
@@ -134,7 +135,11 @@ class DMAITrainingOrchestrator:
             ai_hub          = ai_hub,
         )
 
-        self.ai_trainer    = self._classes["ComprehensiveAITraining"](**kwargs) \
+        # Pass exam_system only to ComprehensiveAITraining (not other trainers)
+        ai_trainer_kwargs = dict(kwargs)
+        if exam_system is not None:
+            ai_trainer_kwargs["exam_system"] = exam_system
+        self.ai_trainer    = self._classes["ComprehensiveAITraining"](**ai_trainer_kwargs) \
                              if "ComprehensiveAITraining" in self._classes else None
 
         self.si_trainer    = self._classes["FullSITrainingProgram"](**kwargs) \

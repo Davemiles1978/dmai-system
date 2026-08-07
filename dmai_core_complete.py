@@ -1025,12 +1025,21 @@ try:
     from components.orchestrator.DMAITrainingOrchestrator import (
         DMAITrainingOrchestrator, register_orchestrator_routes
     )
+    # Create ExamSystem for practical skill verification
+    exam_system = None
+    try:
+        from components.training.ExamSystem import create_exam_system
+        exam_system = create_exam_system(data_path=DATA_PATH)
+        logger.info("ExamSystem created for training orchestrator")
+    except Exception as _ex_err:
+        logger.warning("ExamSystem not available: %s", _ex_err)
     components["training_orchestrator"] = DMAITrainingOrchestrator(
         data_path=DATA_PATH,
         si_core=components.get("si_core"),
         knowledge_graph=components.get("knowledge_graph"),
         ai_hub=components.get("ai_hub"),
         evolution_system=components.get("evolution_training"),
+        exam_system=exam_system,
     )
     logger.info("DMAITrainingOrchestrator initialised")
 except Exception as e:
@@ -1041,6 +1050,8 @@ except Exception as e:
     }
     logger.warning("DMAITrainingOrchestrator failed: %s", e)
     logger.warning(_tb_orch.format_exc())
+
+# ── KPIEvaluator (real benchmark evaluations for all 8 KPIs) ─────────────────
 
 # ── KPIEvaluator (real benchmark evaluations for all 8 KPIs) ─────────────────
 try:
