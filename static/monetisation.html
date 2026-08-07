@@ -1020,7 +1020,14 @@ async function loadReview() {
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));
+  return String(s).replace(/[&<>"']/g, function(c) {
+    if (c === '&') return '&amp;';
+    if (c === '<') return '&lt;';
+    if (c === '>') return '&gt;';
+    if (c === '"') return '&quot;';
+    if (c === "'") return '&#39;';
+    return c;
+  });
 }
 
 async function reviewDecide(id, action) {
