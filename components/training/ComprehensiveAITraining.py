@@ -407,6 +407,11 @@ class ComprehensiveAITraining:
         self.session_log: List[Dict] = []
 
         # Extended curriculum — original 48 domains + SI + V4
+        self.curriculum: List[Dict] = list(FULL_CURRICULUM) + list(SI_V4_CURRICULUM)
+
+        # Exam system — if not injected, legacy path is used
+        self.exam_system = exam_system
+
         # One-time reset: if all domains stuck at Expert with no exam passes,
         # reset to Baby so exams start from fundamentals (not Expert-level spam)
         _progress = self.tracker.overall_progress()
@@ -437,11 +442,6 @@ class ComprehensiveAITraining:
                     }
                 self.tracker.save_state()
                 logger.info("All domains reset to Baby — exams will start from fundamentals")
-        self.curriculum: List[Dict] = list(FULL_CURRICULUM) + list(SI_V4_CURRICULUM)
-
-        # Exam system — if not injected, legacy path is used
-        self.exam_system = exam_system
-
         logger.info(
             "ComprehensiveAITraining initialised — %d domains loaded (%d original + %d SI/V4)",
             len(self.curriculum), len(FULL_CURRICULUM), len(SI_V4_CURRICULUM),
