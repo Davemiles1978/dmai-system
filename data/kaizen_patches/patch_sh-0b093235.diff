@@ -1,0 +1,25 @@
+--- a/components/monetisation/betting_advisor.py
++++ b/components/monetisation/betting_advisor.py
+@@ -202,7 +202,7 @@
+     try
+-    print("Betting advisor is running")
++    print("Betting advisor is running")
+ 
+-Should be:
++Should be:
+--- a/components/monetisation/betting_advisor.py
++++ b/components/monetisation/betting_advisor.py
+@@ -202,7 +202,7 @@
+-    try
+-    print("Betting advisor is running")
++    try:
++        print("Betting advisor is running")
+ 
+So the correct patch is:
+--- a/components/monetisation/betting_advisor.py
++++ b/components/monetisation/betting_advisor.py
+@@ -202,7 +202,7 @@
+-    try
++    try:
+-    print("Betting advisor is running")
++        print("Betting advisor is running")
