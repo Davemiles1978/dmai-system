@@ -1,0 +1,10 @@
+--- a/components/wealth/autonomous_trader.py
++++ b/components/wealth/autonomous_trader.py
+@@ -328,7 +328,7 @@
+             try
+-            print("Attempting trade")
++            print("Attempting trade")
+             # Fix: Added indentation for the expected block after 'try'
++            pass  # Replace with actual exception handling code
+             # Rest of the code remains the same
+             # ... (rest of the file remains unchanged)
