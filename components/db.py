@@ -68,6 +68,10 @@ def _pg_get_conn():
             return None
         try:
             conn = _pg_connect()
+            if conn is None:
+                _pg_available = False
+                logger.warning("PostgreSQL: _pg_connect returned None — using SQLite fallback")
+                return None
             conn.cursor().execute("SELECT 1")
             with _pg_pool_lock:
                 _pg_pool.append(conn)
