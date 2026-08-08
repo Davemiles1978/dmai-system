@@ -141,8 +141,35 @@ class PGConnection:
         # Handle SQLite-specific syntax that slips through
         if sql.strip().upper().startswith('PRAGMA'):
             return PGCursor(self._conn.cursor(), self._row_factory)  # no-op
-        sql = sql.replace('INSERT OR IGNORE', 'INSERT')
-        sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+        # Handle INSERT OR IGNORE → ON CONFLICT DO NOTHING
+        if 'INSERT OR IGNORE' in sql.upper():
+            sql = sql.replace('INSERT OR IGNORE', 'INSERT')
+            if 'ON CONFLICT' not in sql.upper():
+                sql = sql.rstrip(';') + ' ON CONFLICT DO NOTHING'
+        # Handle INSERT OR REPLACE → ON CONFLICT DO UPDATE for PostgreSQL
+        if 'INSERT OR REPLACE' in sql.upper():
+            sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+            # Try to add ON CONFLICT clause for id primary key
+            if 'ON CONFLICT' not in sql.upper():
+                # Find the table name
+                import re as _re
+                _m = _re.search(r'INTO\s+(\w+)', sql, _re.IGNORECASE)
+                if _m:
+                    _table = _m.group(1)
+                    # Check if we know the PK for this table
+                    _pk_map = {
+                        'capabilities': 'id', 'insights': 'id', 'system_state': 'key',
+                        'mon_wallets': 'name', 'mon_tips': 'id', 'at_state': 'id',
+                        'api_keys': 'key', 'syllabus_content': 'topic',
+                    }
+                    _pk = _pk_map.get(_table, 'id')
+                    sql = sql.rstrip(';') + f' ON CONFLICT ({_pk}) DO UPDATE SET'
+                    # Add all columns except the PK
+                    _cols_match = _re.search(r'\(([^)]+)\)\s*VALUES', sql, _re.IGNORECASE)
+                    if _cols_match:
+                        _cols = [c.strip() for c in _cols_match.group(1).split(',') if c.strip() != _pk]
+                        _updates = ', '.join(f'{c}=EXCLUDED.{c}' for c in _cols)
+                        sql = sql + ' ' + _updates
         sql = sql.replace("datetime('now')", 'NOW()')
         sql = sql.replace("datetime('now')", 'NOW()')
         sql = sql.replace('datetime(\'now\')', 'NOW()')
@@ -159,8 +186,35 @@ class PGConnection:
 
     def executemany(self, sql: str, seq_of_params) -> "PGCursor":
         sql = sql.replace('?', '%s')
-        sql = sql.replace('INSERT OR IGNORE', 'INSERT')
-        sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+        # Handle INSERT OR IGNORE → ON CONFLICT DO NOTHING
+        if 'INSERT OR IGNORE' in sql.upper():
+            sql = sql.replace('INSERT OR IGNORE', 'INSERT')
+            if 'ON CONFLICT' not in sql.upper():
+                sql = sql.rstrip(';') + ' ON CONFLICT DO NOTHING'
+        # Handle INSERT OR REPLACE → ON CONFLICT DO UPDATE for PostgreSQL
+        if 'INSERT OR REPLACE' in sql.upper():
+            sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+            # Try to add ON CONFLICT clause for id primary key
+            if 'ON CONFLICT' not in sql.upper():
+                # Find the table name
+                import re as _re
+                _m = _re.search(r'INTO\s+(\w+)', sql, _re.IGNORECASE)
+                if _m:
+                    _table = _m.group(1)
+                    # Check if we know the PK for this table
+                    _pk_map = {
+                        'capabilities': 'id', 'insights': 'id', 'system_state': 'key',
+                        'mon_wallets': 'name', 'mon_tips': 'id', 'at_state': 'id',
+                        'api_keys': 'key', 'syllabus_content': 'topic',
+                    }
+                    _pk = _pk_map.get(_table, 'id')
+                    sql = sql.rstrip(';') + f' ON CONFLICT ({_pk}) DO UPDATE SET'
+                    # Add all columns except the PK
+                    _cols_match = _re.search(r'\(([^)]+)\)\s*VALUES', sql, _re.IGNORECASE)
+                    if _cols_match:
+                        _cols = [c.strip() for c in _cols_match.group(1).split(',') if c.strip() != _pk]
+                        _updates = ', '.join(f'{c}=EXCLUDED.{c}' for c in _cols)
+                        sql = sql + ' ' + _updates
         sql = sql.replace("datetime('now')", 'NOW()')
         sql = sql.replace("datetime('now')", 'NOW()')
         sql = sql.replace('datetime(\'now\')', 'NOW()')
