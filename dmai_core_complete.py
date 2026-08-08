@@ -858,6 +858,9 @@ def _bootstrap_api_key_hydration():
                     _pgconn = psycopg2.connect(_dsn)
                     _pgconn.autocommit = True
                     _schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "postgres_schema.sql")
+                    if not os.path.exists(_schema_path):
+                        # Fallback: try relative to cwd (Render sometimes resolves __file__ differently)
+                        _schema_path = os.path.join(os.getcwd(), "data", "postgres_schema.sql")
                     if os.path.exists(_schema_path):
                         with open(_schema_path, 'r') as _sf:
                             _schema_sql = _sf.read()
