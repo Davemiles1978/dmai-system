@@ -175,6 +175,12 @@ def _ensure_columns(conn: sqlite3.Connection, result: Dict) -> None:
     cur = conn.cursor()
     for table, cols in _REQUIRED_COLUMNS.items():
         try:
+            # Get existing columns for this table
+            try:
+                cur.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table}'")
+                existing = {row[0] for row in cur.fetchall()}
+            except Exception:
+                existing = set()
             if not existing:
                 # table doesn't exist — skip (CREATE pass should have made it)
                 continue
@@ -185,7 +191,7 @@ def _ensure_columns(conn: sqlite3.Connection, result: Dict) -> None:
                     cur.execute(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}")
                     result.setdefault("columns_added", 0)
                     result["columns_added"] += 1
-                except sqlite3.OperationalError as oe:
+                except Exception as oe:
                     msg = str(oe)
                     if "duplicate column name" in msg.lower():
                         continue  # already exists
@@ -321,7 +327,7 @@ def bootstrap_all_schemas(db_path: str) -> Dict[str, int]:
             try:
                 cur.execute(stmt["sql"])
                 result["executed"] += 1
-            except sqlite3.OperationalError as oe:
+            except Exception as oe:
                 # Common: "table already exists" with different schema —
                 # our IF NOT EXISTS makes that impossible, so this is real.
                 # Also: column-list parse failures from non-standard syntax.

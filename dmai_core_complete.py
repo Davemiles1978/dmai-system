@@ -344,7 +344,11 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
                     _c.commit()
                 except Exception as _wale:
                     logger.warning("DB self-heal: WAL setup failed for %s: %s", _p, _wale)
-                _ic = _row[0] if _row else "unknown"
+                try:
+                    _row = _c.execute("SELECT 1").fetchone()
+                except Exception:
+                    _row = None
+                _ic = "ok" if _row else "unknown"
             finally:
                 _c.close()
         except Exception as _be:
