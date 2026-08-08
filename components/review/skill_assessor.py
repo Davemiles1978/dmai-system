@@ -28,7 +28,6 @@ from __future__ import annotations
 import json
 import logging
 import re
-import sqlite3
 import statistics
 import threading
 from pathlib import Path
@@ -63,16 +62,15 @@ class SkillAssessor:
         self._lock = threading.RLock()
         self._init_db()
 
-    def _conn(self) -> sqlite3.Connection:
+    def _conn(self):
         c = safe_open_kdb(self.db_path, timeout=10)
-        c.row_factory = sqlite3.Row
         return c
 
     def _init_db(self) -> None:
         with self._conn() as c:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS skill_assessments ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "id SERIAL PRIMARY KEY, "
                 "ts TEXT DEFAULT (datetime('now')), "
                 "submission_id TEXT NOT NULL, "
                 "work_type TEXT NOT NULL, "

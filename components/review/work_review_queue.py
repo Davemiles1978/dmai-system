@@ -29,7 +29,6 @@ from __future__ import annotations
 
 import json
 import logging
-import sqlite3
 import threading
 import uuid
 from pathlib import Path
@@ -55,9 +54,8 @@ class WorkReviewQueue:
         self.assessor = assessor or SkillAssessor(data_path=self.data_path)
         self._init_db()
 
-    def _conn(self) -> sqlite3.Connection:
+    def _conn(self):
         c = safe_open_kdb(self.db_path, timeout=10)
-        c.row_factory = sqlite3.Row
         return c
 
     def _init_db(self) -> None:
@@ -65,7 +63,7 @@ class WorkReviewQueue:
             c.execute(
                 """
                 CREATE TABLE IF NOT EXISTS work_review_queue (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     submission_uid TEXT UNIQUE,
                     work_type TEXT NOT NULL,
                     title TEXT NOT NULL,
@@ -262,7 +260,7 @@ class WorkReviewQueue:
         }
 
     # ---------- helpers ----------
-    def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
+    def _row_to_dict(self, row) -> Dict[str, Any]:
         d = dict(row)
         for k in ("payload_json", "scores_json"):
             if d.get(k):

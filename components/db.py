@@ -136,6 +136,13 @@ class PGConnection:
         """Execute SQL and return a cursor for fetchall/fetchone."""
         if params and not isinstance(params, (tuple, list, dict)):
             params = (params,)
+        # Translate SQLite ? placeholders to PostgreSQL %s
+        sql = sql.replace('?', '%s')
+        # Handle SQLite-specific syntax that slips through
+        if sql.strip().upper().startswith('PRAGMA'):
+            return PGCursor(self._conn.cursor(), self._row_factory)  # no-op
+        sql = sql.replace('INSERT OR IGNORE', 'INSERT')
+        sql = sql.replace('INSERT OR REPLACE', 'INSERT')
         cur = self._conn.cursor()
         try:
             cur.execute(sql, params or None)
@@ -148,6 +155,9 @@ class PGConnection:
         return PGCursor(cur, self._row_factory)
 
     def executemany(self, sql: str, seq_of_params) -> "PGCursor":
+        sql = sql.replace('?', '%s')
+        sql = sql.replace('INSERT OR IGNORE', 'INSERT')
+        sql = sql.replace('INSERT OR REPLACE', 'INSERT')
         cur = self._conn.cursor()
         try:
             cur.executemany(sql, seq_of_params)
@@ -221,8 +231,13 @@ class PGConnection:
     def __setattr__(self, name, value):
         if name in ("_conn", "_row_factory"):
             object.__setattr__(self, name, value)
+        elif name == "row_factory":
+            object.__setattr__(self, "_row_factory", value)
         else:
-            setattr(self._conn, name, value)
+            try:
+                setattr(self._conn, name, value)
+            except AttributeError:
+                object.__setattr__(self, name, value)
 
 
 class PGCursor:
@@ -343,7 +358,7 @@ def acquire_write_lock(path):
     import contextlib
     return contextlib.nullcontext()
 
-def is_priority_held(path):
+def is_priority_held(path=None):
     """No-op on PostgreSQL — no write lock contention."""
     return False
 

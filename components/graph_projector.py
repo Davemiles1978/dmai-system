@@ -149,7 +149,7 @@ class GraphProjector:
             CREATE INDEX IF NOT EXISTS idx_gn_cluster ON graph_neurons(cluster);
 
             CREATE TABLE IF NOT EXISTS graph_synapses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 source TEXT NOT NULL,
                 target TEXT NOT NULL,
                 edge_type TEXT NOT NULL,        -- 'insight', 'cap_to_topic',

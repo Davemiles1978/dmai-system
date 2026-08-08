@@ -31,7 +31,7 @@ class AlexRivieraContentEngine:
             conn = safe_open_kdb(self.db_path)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS insights (
-                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id          SERIAL PRIMARY KEY,
                     title       TEXT,
                     description TEXT,
                     content     TEXT,

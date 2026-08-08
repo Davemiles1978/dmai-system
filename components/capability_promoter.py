@@ -152,7 +152,7 @@ def _row_to_params(cap_id: str, cap: Dict[str, Any]) -> Optional[tuple]:
 
 
 UPSERT_SQL = (
-    "INSERT OR REPLACE INTO capabilities "
+    "INSERT INTO capabilities "
     "(id, name, type, capability_type, description, source_url, source_repo, "
     " file_path, runtime_mode, language, methods, is_async, args, integrated_at) "
     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
