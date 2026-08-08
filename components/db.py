@@ -354,21 +354,8 @@ class PGProxy:
     @staticmethod
     def _translate_sql(sql: str) -> str:
         """Translate SQLite SQL to PostgreSQL SQL."""
-        # Replace ? placeholders with %s (positional)
-        # Must handle ? inside string literals carefully — simple approach:
-        # only replace ? that are not inside quotes
         s = sql
-        # INSERT OR IGNORE → INSERT ... ON CONFLICT DO NOTHING
-        import re
-        s = re.sub(
-            r'INSERT OR IGNORE INTO (\w+)\s',
-            r'INSERT INTO \1 ',
-            s
-        )
-        # Actually this is complex — use a simpler approach for now:
-        # Just replace the parameter style. Callers that use INSERT OR
-        # IGNORE will need the ON CONFLICT clause in their SQL.
-        # For now: replace bare ? with %s
+        # Replace ? placeholders with %s (handling quoted strings)
         in_quote = False
         quote_char = None
         result = []
@@ -388,15 +375,35 @@ class PGProxy:
                 result.append(c)
             i += 1
         translated = ''.join(result)
-        # Translate SQLite datetime('now') → NOW()
+        # SQLite → PostgreSQL translations
         translated = translated.replace("datetime('now')", "NOW()")
-        # Translate SQLite last_insert_rowid() → LASTVAL()
         translated = translated.replace('last_insert_rowid()', 'LASTVAL()')
+        # AUTOINCREMENT → nothing (PostgreSQL SERIAL is auto-increment)
+        import re
+        translated = re.sub(r'\bAUTOINCREMENT\b', '', translated)
+        # INSERT OR IGNORE → INSERT ... ON CONFLICT DO NOTHING
+        translated = re.sub(
+            r'INSERT OR IGNORE INTO (\w+)\s*\(', 
+            r'INSERT INTO \1 (', 
+            translated
+        )
+        # PRAGMA statements → no-op (PostgreSQL handles config differently)
+        if translated.strip().upper().startswith('PRAGMA'):
+            return 'SELECT 1'  # Harmless no-op
+        # sqlite_master → information_schema.tables
+        translated = translated.replace(
+            "FROM sqlite_master", 
+            "FROM information_schema.tables"
+        )
+        translated = translated.replace(
+            "FROM sqlite_master WHERE", 
+            "FROM information_schema.tables WHERE"
+        )
         return translated
 
     # ── Interface mimicking sqlite3.Connection ───────────────────────
     def execute(self, sql, params=()):
-        """Execute SQL, returning a cursor-like wrapper."""
+        """Execute SQL, returning a cursor-like wrapper that supports chaining."""
         if params and not isinstance(params, (tuple, list)):
             params = (params,)
         translated = self._translate_sql(sql)
@@ -405,7 +412,8 @@ class PGProxy:
             cur.execute(translated, params or None)
             object.__setattr__(self, "_cur", cur)
             object.__setattr__(self, "_in_transaction", True)
-            return _PGCursorWrapper(cur, self._row_factory)
+            wrapper = _PGCursorWrapper(cur, self._row_factory, self._conn)
+            return wrapper
         except Exception:
             try:
                 self._conn.rollback()
@@ -420,7 +428,8 @@ class PGProxy:
             cur.executemany(translated, seq_of_params)
             object.__setattr__(self, "_cur", cur)
             object.__setattr__(self, "_in_transaction", True)
-            return _PGCursorWrapper(cur, self._row_factory)
+            wrapper = _PGCursorWrapper(cur, self._row_factory, self._conn)
+            return wrapper
         except Exception:
             try:
                 self._conn.rollback()
@@ -487,33 +496,66 @@ class PGProxy:
 
 
 class _PGCursorWrapper:
-    """Wraps a psycopg2 cursor to look like a sqlite3 cursor."""
+    """Wraps a psycopg2 cursor to look like a sqlite3 cursor.
+    
+    Supports chained calls like conn.execute(sql, params).fetchall()
+    by returning self from execute() and implementing fetch methods.
+    """
 
-    __slots__ = ("_cur", "_row_factory", "_description")
+    __slots__ = ("_cur", "_row_factory", "_description", "_conn")
 
-    def __init__(self, cur, row_factory=None):
+    def __init__(self, cur, row_factory=None, conn=None):
         object.__setattr__(self, "_cur", cur)
         object.__setattr__(self, "_row_factory", row_factory)
-        # Cache description for fetchall/fetchone
+        object.__setattr__(self, "_conn", conn)
         try:
             object.__setattr__(self, "_description", cur.description)
         except Exception:
             object.__setattr__(self, "_description", None)
 
+    def execute(self, sql, params=()):
+        """Execute SQL on the wrapped cursor. Returns self for chaining."""
+        if params and not isinstance(params, (tuple, list)):
+            params = (params,)
+        translated = PGProxy._translate_sql(sql)
+        try:
+            self._cur.execute(translated, params or None)
+            object.__setattr__(self, "_description", self._cur.description)
+            return self
+        except Exception:
+            if self._conn:
+                try:
+                    self._conn.rollback()
+                except Exception:
+                    pass
+            raise
+
+    def executemany(self, sql, seq_of_params):
+        translated = PGProxy._translate_sql(sql)
+        try:
+            self._cur.executemany(translated, seq_of_params)
+            object.__setattr__(self, "_description", self._cur.description)
+            return self
+        except Exception:
+            if self._conn:
+                try:
+                    self._conn.rollback()
+                except Exception:
+                    pass
+            raise
+
     def fetchall(self):
         rows = self._cur.fetchall()
         if self._description and self._row_factory:
             cols = [d[0] for d in self._description]
-            if self._row_factory is dict or hasattr(self._row_factory, '__call__'):
-                return [self._row_factory(cols, row) for row in rows]
+            return [_PGPseudoRow(cols, row) for row in rows]
         return rows
 
     def fetchone(self):
         row = self._cur.fetchone()
         if row and self._description and self._row_factory:
             cols = [d[0] for d in self._description]
-            if self._row_factory is dict or hasattr(self._row_factory, '__call__'):
-                return self._row_factory(cols, row)
+            return _PGPseudoRow(cols, row)
         return row
 
     @property
@@ -527,7 +569,9 @@ class _PGCursorWrapper:
     @property
     def lastrowid(self):
         try:
-            return self._cur.fetchone()[0] if self._cur.description else None
+            self._cur.execute("SELECT LASTVAL()")
+            row = self._cur.fetchone()
+            return row[0] if row else None
         except Exception:
             return None
 
@@ -545,6 +589,32 @@ class _PGCursorWrapper:
             self._cur.close()
         except Exception:
             pass
+
+
+class _PGPseudoRow:
+    """Mimics sqlite3.Row — supports both index and key access."""
+    __slots__ = ("_cols", "_data")
+    
+    def __init__(self, cols, data):
+        object.__setattr__(self, "_cols", cols)
+        object.__setattr__(self, "_data", data)
+    
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._data[self._cols.index(key)]
+        return self._data[key]
+    
+    def __iter__(self):
+        return iter(self._data)
+    
+    def __len__(self):
+        return len(self._data)
+    
+    def keys(self):
+        return self._cols
+    
+    def __repr__(self):
+        return str(dict(zip(self._cols, self._data)))
 
 
 # ---------------------------------------------------------------------------
