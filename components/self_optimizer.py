@@ -26,7 +26,7 @@ class SelfOptimizer:
         
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS system_optimizations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 component TEXT,
                 change_type TEXT,
                 old_version TEXT,

@@ -90,7 +90,7 @@ class TradingMasterySystem:
         # Performance metrics table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS performance (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 trading_type TEXT,
                 algorithm TEXT,
                 date TEXT,

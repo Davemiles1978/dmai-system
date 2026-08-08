@@ -39,7 +39,7 @@ DEFAULT_MASK = ("trade", "tier", "halt", "digest", "error", "tip")
 
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS mon_alerts (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        id          SERIAL PRIMARY KEY,
         ts          TEXT    NOT NULL DEFAULT (datetime('now')),
         category    TEXT    NOT NULL,
         title       TEXT    NOT NULL,

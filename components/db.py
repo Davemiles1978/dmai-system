@@ -143,6 +143,9 @@ class PGConnection:
             return PGCursor(self._conn.cursor(), self._row_factory)  # no-op
         sql = sql.replace('INSERT OR IGNORE', 'INSERT')
         sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+        sql = sql.replace("datetime('now')", 'NOW()')
+        sql = sql.replace("datetime('now')", 'NOW()')
+        sql = sql.replace('datetime(\'now\')', 'NOW()')
         cur = self._conn.cursor()
         try:
             cur.execute(sql, params or None)
@@ -158,6 +161,9 @@ class PGConnection:
         sql = sql.replace('?', '%s')
         sql = sql.replace('INSERT OR IGNORE', 'INSERT')
         sql = sql.replace('INSERT OR REPLACE', 'INSERT')
+        sql = sql.replace("datetime('now')", 'NOW()')
+        sql = sql.replace("datetime('now')", 'NOW()')
+        sql = sql.replace('datetime(\'now\')', 'NOW()')
         cur = self._conn.cursor()
         try:
             cur.executemany(sql, seq_of_params)

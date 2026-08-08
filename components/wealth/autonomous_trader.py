@@ -187,7 +187,7 @@ SCHEMA = [
         updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS at_ticks (
-        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        id              SERIAL PRIMARY KEY,
         ts              TEXT    NOT NULL DEFAULT (datetime('now')),
         market_open     INTEGER NOT NULL,
         tier            TEXT    NOT NULL,
@@ -198,7 +198,7 @@ SCHEMA = [
         note            TEXT
     )""",
     """CREATE TABLE IF NOT EXISTS at_trades (
-        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        id              SERIAL PRIMARY KEY,
         ts              TEXT    NOT NULL DEFAULT (datetime('now')),
         symbol          TEXT    NOT NULL,
         side            TEXT    NOT NULL,
@@ -210,7 +210,7 @@ SCHEMA = [
         result_json     TEXT
     )""",
     """CREATE TABLE IF NOT EXISTS at_tier_changes (
-        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        id              SERIAL PRIMARY KEY,
         ts              TEXT    NOT NULL DEFAULT (datetime('now')),
         from_tier       TEXT    NOT NULL,
         to_tier         TEXT    NOT NULL,
@@ -1125,7 +1125,7 @@ class AutonomousTrader:
         with self._conn() as c:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS at_pending ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "id SERIAL PRIMARY KEY, "
                 "ts TEXT NOT NULL DEFAULT (datetime('now')), "
                 "symbol TEXT NOT NULL, confidence REAL, ev REAL, tier TEXT, "
                 "status TEXT NOT NULL DEFAULT 'pending', "

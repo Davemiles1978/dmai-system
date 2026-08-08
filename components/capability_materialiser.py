@@ -143,7 +143,7 @@ def _ensure_tables(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
         CREATE TABLE IF NOT EXISTS materialisation_log (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           capability_id TEXT,
           concept       TEXT,
           slug          TEXT,
