@@ -848,6 +848,16 @@ def _bootstrap_api_key_hydration():
             components["db_storage"] = _get_pg_storage()
             out["db_ready"] = True
             logger.info("db_storage bootstrapped: %s", type(components["db_storage"]).__name__)
+            # Bootstrap PostgreSQL schema from SQLite definitions
+            try:
+                from components.pg_storage import bootstrap_postgres_schema as _bootstrap_pg
+                _pg_result = _bootstrap_pg(_CORE_SCHEMA_SQL)
+                logger.info(
+                    "PostgreSQL schema bootstrapped: %d/%d tables created",
+                    _pg_result.get("executed", 0), _pg_result.get("statements_total", 0)
+                )
+            except Exception as _pgb_err:
+                logger.warning("PostgreSQL schema bootstrap failed: %s", _pgb_err)
         except Exception as e:
             logger.warning("db_storage bootstrap failed: %s", e)
             return out

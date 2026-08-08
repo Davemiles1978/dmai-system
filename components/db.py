@@ -997,13 +997,6 @@ def safe_open_kdb(
         conn.execute("PRAGMA wal_autocheckpoint=1000")
     except Exception:
         pass
-    # Check for PostgreSQL availability — if so, route through PGProxy
-    pg_conn = _get_pg_connection()
-    if pg_conn is not None:
-        proxy = PGProxy(pg_conn)
-        cache[key] = proxy
-        return proxy
-
     proxy = KeepOpenProxy(conn, wkey, wlock)
     cache[key] = proxy
     return proxy

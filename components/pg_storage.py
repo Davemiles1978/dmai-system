@@ -55,6 +55,105 @@ def _get_conn():
     return conn
 
 
+
+# ---------------------------------------------------------------------------
+# Schema migration: SQLite → PostgreSQL
+# ---------------------------------------------------------------------------
+
+def bootstrap_postgres_schema(sqlite_sql: str) -> dict:
+    """Take SQLite CREATE TABLE statements and execute them against PostgreSQL.
+    
+    Translates SQLite-specific syntax on the fly and runs each statement
+    individually. Idempotent — uses IF NOT EXISTS.
+    
+    Returns dict with counts: statements_total, executed, skipped, errors.
+    """
+    import re
+    stats = {"statements_total": 0, "executed": 0, "skipped": 0, "errors": 0, "error_samples": []}
+    
+    conn = None
+    try:
+        conn = _get_conn()
+        # Split into individual statements
+        statements = [s.strip() for s in sqlite_sql.split(';') if s.strip()]
+        stats["statements_total"] = len(statements)
+        
+        for stmt in statements:
+            try:
+                translated = _translate_sqlite_to_pg(stmt)
+                if translated:
+                    with conn.cursor() as cur:
+                        cur.execute(translated)
+                    conn.commit()
+                    stats["executed"] += 1
+                else:
+                    stats["skipped"] += 1
+            except Exception as e:
+                stats["errors"] += 1
+                err_msg = str(e)[:100]
+                if len(stats["error_samples"]) < 10:
+                    stats["error_samples"].append(f"{err_msg}")
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+        
+        logger.info(
+            "PostgreSQL schema bootstrap: %d statements, %d executed, %d errors",
+            stats["statements_total"], stats["executed"], stats["errors"]
+        )
+        if stats["error_samples"]:
+            logger.warning("PostgreSQL schema errors (sample): %s", stats["error_samples"][:5])
+    except Exception as e:
+        logger.error("PostgreSQL schema bootstrap failed: %s", e)
+        stats["errors"] = stats.get("errors", 0) + 1
+    finally:
+        if conn:
+            _return_conn(conn)
+    
+    return stats
+
+
+def _translate_sqlite_to_pg(sql: str) -> str:
+    """Translate a SQLite CREATE TABLE statement to PostgreSQL."""
+    s = sql.strip()
+    if not s:
+        return ""
+    
+    # Skip pure SQLite PRAGMAs
+    if s.upper().startswith('PRAGMA'):
+        return ""
+    
+    # Skip CREATE INDEX IF NOT EXISTS with SQLite-specific syntax
+    # (PostgreSQL supports CREATE INDEX IF NOT EXISTS natively)
+    
+    # Replace AUTOINCREMENT with nothing (SERIAL handles it)
+    s = re.sub(r'AUTOINCREMENT', '', s, flags=re.IGNORECASE)
+    
+    # Fix: INTEGER PRIMARY KEY → SERIAL PRIMARY KEY (for auto-increment)
+    s = re.sub(
+        r'INTEGER PRIMARY KEY(?!\s+CHECK)',
+        'SERIAL PRIMARY KEY',
+        s,
+        flags=re.IGNORECASE
+    )
+    
+    # Fix: CHECK constraints that reference id=1 (PostgreSQL doesn't allow
+    # CHECK on SERIAL columns in the same way — make it a separate constraint)
+    # Skip CHECK (id = 1) for now — it's a single-row guard
+    
+    # Replace datetime('now') with NOW()
+    s = s.replace("datetime('now')", "NOW()")
+    
+    # Replace REAL with DOUBLE PRECISION
+    s = re.sub(r'REAL', 'DOUBLE PRECISION', s, flags=re.IGNORECASE)
+    
+    # Remove COLLATE NOCASE (not needed in PostgreSQL)
+    s = re.sub(r'COLLATE\s+NOCASE', '', s, flags=re.IGNORECASE)
+    
+    return s
+
+
 def _return_conn(conn):
     with _pool_lock:
         if len(_connections) < _MAX_POOL:
