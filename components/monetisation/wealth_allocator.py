@@ -74,9 +74,7 @@ class WealthAllocator:
     def _conn(self):
         # Integrity check + quarantine removed (was destroying shared tables).
         c = safe_open_kdb(self.db_path, timeout=30.0)
-        try:
-        except Exception:
-            pass
+
         c.row_factory = sqlite3.Row
         return c
 

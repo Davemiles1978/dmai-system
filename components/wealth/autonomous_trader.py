@@ -326,6 +326,7 @@ class AutonomousTrader:
             c = safe_open_kdb(self.db_path, timeout=30)
             c.row_factory = sqlite3.Row
             try:
+                pass
             except Exception:
                 pass
             return c
@@ -339,6 +340,7 @@ class AutonomousTrader:
             c = safe_open_kdb(self.db_path, timeout=30)
             c.row_factory = sqlite3.Row
             try:
+                pass
             except Exception:
                 pass
             return c

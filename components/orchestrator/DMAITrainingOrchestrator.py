@@ -315,12 +315,8 @@ class DMAITrainingOrchestrator:
                 try:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
-                    # Skip training cycle if no AI provider available (stops exam failure spam)
-                    if self.ai_hub is not None:
-                        result = loop.run_until_complete(self.run_full_training())
-                    else:
-                        logger.info("Training loop skip — no AI hub connected (cycle deferred)")
-                        result = {"components": {}}
+                    # Always run training — self-assessment handles missing AI hub
+                    result = loop.run_until_complete(self.run_full_training())
                     loop.close()
                     ai_prog = result.get("components", {}).get("ai_training", {}).get("progress", {})
                     si_score = result.get("components", {}).get("si_training", {}).get("overall_score", 0)

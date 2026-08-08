@@ -31,8 +31,12 @@ ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS args TEXT;
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS integrated_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS provenance TEXT;
-ALTER TABLE stage_history ALTER COLUMN required_for_system TYPE INTEGER USING COALESCE(required_for_system::INTEGER, 0);
-ALTER TABLE stage_history ALTER COLUMN required_for_system SET DEFAULT 0;
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'stage_history') THEN
+        ALTER TABLE stage_history ALTER COLUMN required_for_system TYPE INTEGER USING COALESCE(required_for_system::INTEGER, 0);
+        ALTER TABLE stage_history ALTER COLUMN required_for_system SET DEFAULT 0;
+    END IF;
+END $$;
 ALTER TABLE mon_wallets ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'GBP';
 ALTER TABLE mon_wallets ADD COLUMN IF NOT EXISTS updated_at DOUBLE PRECISION NOT NULL DEFAULT 0;
 ALTER TABLE system_state ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();

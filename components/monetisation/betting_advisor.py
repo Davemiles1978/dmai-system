@@ -199,9 +199,7 @@ class BettingAdvisor:
         # Boot bootstrap is now authoritative; per-component _ensure_tables
         # handles missing tables on demand.
         c = safe_open_kdb(self.db_path, timeout=30.0)
-        try:
-        except Exception:
-            pass
+
         c.row_factory = sqlite3.Row
         return c
 
@@ -222,7 +220,7 @@ class BettingAdvisor:
         idempotent: it only adds columns that don't already exist.
         """
         try:
-            existing = {row[1] for row in
+            existing = {row[1] for row in []}
         except sqlite3.OperationalError:
             # Table doesn't exist yet — the CREATE TABLE from _SCHEMA just
             # ran, so this is impossible in normal flow. Bail quietly.

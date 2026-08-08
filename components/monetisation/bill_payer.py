@@ -87,10 +87,8 @@ class BillPayer:
         # Boot bootstrap is now authoritative; per-component _ensure_tables
         # handles missing tables on demand.
         c = safe_open_kdb(self.db_path, timeout=30.0)
-        try:
-        except Exception:
-            pass
-        c.row_factory = sqlite3.Row
+
+        
         return c
 
     def _init_schema(self):
