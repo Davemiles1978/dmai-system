@@ -7137,6 +7137,7 @@ def api_learning_full_status():
         import sqlite3
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
+            pass
         except Exception:
             pass
         c = conn.cursor()
@@ -7784,6 +7785,7 @@ def api_vocabulary_stats():
         import sqlite3 as _vsq
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
+            pass
         except Exception:
             pass
         vocab_total = 0
@@ -7815,6 +7817,7 @@ def api_vocabulary_sample():
         import sqlite3 as _vsq
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
+            pass
         except Exception:
             pass
         rows = []
@@ -7853,6 +7856,7 @@ def api_vocabulary_purge():
         db_file = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
         conn = safe_open_kdb(db_file, timeout=30.0)
         try:
+            pass
         except Exception:
             pass
         cur = conn.execute(f"DELETE FROM {table} WHERE source = ?", (source,))
@@ -8156,6 +8160,7 @@ def api_integrity_report():
         import sqlite3 as _isq
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
+            pass
         except Exception:
             pass
         conn.row_factory = _isq.Row
@@ -14860,7 +14865,8 @@ def api_admin_db_query():
     if not sql:
         return jsonify({"error": "missing sql"}), 400
     lowered = sql.lower().lstrip()
-    if not lowered.startswith(("select", "pragma", "explain")):
+    if not lowered.startswith(("select", "explain")):
+        return jsonify({"error": "only SELECT allowed"}), 403
     try:
         import sqlite3 as _sq
         _p = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
@@ -15384,6 +15390,7 @@ try:
     from components.db import safe_open_kdb as _kdb_open
     _kdb_probe = _kdb_open(os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db"))
     try:
+            pass
     except Exception:
         pass
     if _kdb_row and _kdb_row[0] != "ok":
