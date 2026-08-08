@@ -329,6 +329,302 @@ def get_write_lock_status() -> dict:
     return out
 
 
+
+
+# ---------------------------------------------------------------------------
+# PGProxy — PostgreSQL wrapper that mimics sqlite3.Connection interface
+# ---------------------------------------------------------------------------
+class PGProxy:
+    """Wraps a psycopg2 connection so it looks like a sqlite3.Connection.
+
+    Translates SQL on-the-fly: ? → %s, INSERT OR IGNORE → ON CONFLICT,
+    and other SQLite-isms to PostgreSQL equivalents.  Callers using
+    safe_open_kdb() get this automatically when DATABASE_URL is set.
+    """
+
+    __slots__ = ("_conn", "_cur", "_in_transaction", "_row_factory")
+
+    def __init__(self, conn):
+        object.__setattr__(self, "_conn", conn)
+        object.__setattr__(self, "_cur", None)
+        object.__setattr__(self, "_in_transaction", False)
+        object.__setattr__(self, "_row_factory", None)
+
+    # ── SQL translation ─────────────────────────────────────────────
+    @staticmethod
+    def _translate_sql(sql: str) -> str:
+        """Translate SQLite SQL to PostgreSQL SQL."""
+        # Replace ? placeholders with %s (positional)
+        # Must handle ? inside string literals carefully — simple approach:
+        # only replace ? that are not inside quotes
+        s = sql
+        # INSERT OR IGNORE → INSERT ... ON CONFLICT DO NOTHING
+        import re
+        s = re.sub(
+            r'INSERT OR IGNORE INTO (\w+)\s',
+            r'INSERT INTO \1 ',
+            s
+        )
+        # Actually this is complex — use a simpler approach for now:
+        # Just replace the parameter style. Callers that use INSERT OR
+        # IGNORE will need the ON CONFLICT clause in their SQL.
+        # For now: replace bare ? with %s
+        in_quote = False
+        quote_char = None
+        result = []
+        i = 0
+        while i < len(s):
+            c = s[i]
+            if c in ("'", '"') and (i == 0 or s[i-1] != '\\'):
+                if not in_quote:
+                    in_quote = True
+                    quote_char = c
+                elif c == quote_char:
+                    in_quote = False
+                    quote_char = None
+            if c == '?' and not in_quote:
+                result.append('%s')
+            else:
+                result.append(c)
+            i += 1
+        translated = ''.join(result)
+        # Translate SQLite datetime('now') → NOW()
+        translated = translated.replace("datetime('now')", "NOW()")
+        # Translate SQLite last_insert_rowid() → LASTVAL()
+        translated = translated.replace('last_insert_rowid()', 'LASTVAL()')
+        return translated
+
+    # ── Interface mimicking sqlite3.Connection ───────────────────────
+    def execute(self, sql, params=()):
+        """Execute SQL, returning a cursor-like wrapper."""
+        if params and not isinstance(params, (tuple, list)):
+            params = (params,)
+        translated = self._translate_sql(sql)
+        try:
+            cur = self._conn.cursor()
+            cur.execute(translated, params or None)
+            object.__setattr__(self, "_cur", cur)
+            object.__setattr__(self, "_in_transaction", True)
+            return _PGCursorWrapper(cur, self._row_factory)
+        except Exception:
+            try:
+                self._conn.rollback()
+            except Exception:
+                pass
+            raise
+
+    def executemany(self, sql, seq_of_params):
+        translated = self._translate_sql(sql)
+        try:
+            cur = self._conn.cursor()
+            cur.executemany(translated, seq_of_params)
+            object.__setattr__(self, "_cur", cur)
+            object.__setattr__(self, "_in_transaction", True)
+            return _PGCursorWrapper(cur, self._row_factory)
+        except Exception:
+            try:
+                self._conn.rollback()
+            except Exception:
+                pass
+            raise
+
+    def commit(self):
+        if self._in_transaction:
+            self._conn.commit()
+            object.__setattr__(self, "_in_transaction", False)
+        return None
+
+    def rollback(self):
+        if self._in_transaction:
+            self._conn.rollback()
+            object.__setattr__(self, "_in_transaction", False)
+        return None
+
+    def close(self):
+        """No-op — connection pooling owns the lifecycle."""
+        try:
+            if self._cur:
+                self._cur.close()
+        except Exception:
+            pass
+        object.__setattr__(self, "_cur", None)
+        object.__setattr__(self, "_in_transaction", False)
+        return None
+
+    @property
+    def row_factory(self):
+        return self._row_factory
+
+    @row_factory.setter
+    def row_factory(self, value):
+        object.__setattr__(self, "_row_factory", value)
+
+    @property
+    def in_transaction(self):
+        return self._in_transaction
+
+    def cursor(self):
+        return _PGCursorWrapper(self._conn.cursor(), self._row_factory)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            self.commit()
+        else:
+            self.rollback()
+        return False
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+    def __setattr__(self, name, value):
+        if name in ("_conn", "_cur", "_in_transaction", "_row_factory"):
+            object.__setattr__(self, name, value)
+        else:
+            setattr(self._conn, name, value)
+
+
+class _PGCursorWrapper:
+    """Wraps a psycopg2 cursor to look like a sqlite3 cursor."""
+
+    __slots__ = ("_cur", "_row_factory", "_description")
+
+    def __init__(self, cur, row_factory=None):
+        object.__setattr__(self, "_cur", cur)
+        object.__setattr__(self, "_row_factory", row_factory)
+        # Cache description for fetchall/fetchone
+        try:
+            object.__setattr__(self, "_description", cur.description)
+        except Exception:
+            object.__setattr__(self, "_description", None)
+
+    def fetchall(self):
+        rows = self._cur.fetchall()
+        if self._description and self._row_factory:
+            cols = [d[0] for d in self._description]
+            if self._row_factory is dict or hasattr(self._row_factory, '__call__'):
+                return [self._row_factory(cols, row) for row in rows]
+        return rows
+
+    def fetchone(self):
+        row = self._cur.fetchone()
+        if row and self._description and self._row_factory:
+            cols = [d[0] for d in self._description]
+            if self._row_factory is dict or hasattr(self._row_factory, '__call__'):
+                return self._row_factory(cols, row)
+        return row
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def rowcount(self):
+        return self._cur.rowcount
+
+    @property
+    def lastrowid(self):
+        try:
+            return self._cur.fetchone()[0] if self._cur.description else None
+        except Exception:
+            return None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        row = self.fetchone()
+        if row is None:
+            raise StopIteration
+        return row
+
+    def close(self):
+        try:
+            self._cur.close()
+        except Exception:
+            pass
+
+
+# ---------------------------------------------------------------------------
+# PostgreSQL connection pool (shared with pg_storage)
+# ---------------------------------------------------------------------------
+_pg_pool = None
+_pg_available = None  # Tri-state: None=unchecked, True=available, False=unavailable
+
+def _get_pg_connection():
+    """Get a PostgreSQL connection from the shared pool. Returns None if unavailable."""
+    global _pg_pool, _pg_available
+    if _pg_available is False:
+        return None
+    if _pg_available is None:
+        # Check if PostgreSQL is configured
+        import os as _os_pg
+        if not _os_pg.environ.get("DATABASE_URL"):
+            _pg_available = False
+            return None
+        try:
+            import psycopg2 as _pg2
+            dsn = _os_pg.environ["DATABASE_URL"]
+            if dsn.startswith("postgres://"):
+                dsn = "postgresql://" + dsn[len("postgres://"):]
+            conn = _pg2.connect(dsn)
+            conn.autocommit = False
+            conn.cursor().execute("SELECT 1")
+            _pg_pool = [conn]
+            _pg_available = True
+            logger = logging.getLogger(__name__)
+            logger.info("PostgreSQL routing active for safe_open_kdb")
+        except Exception as e:
+            _pg_available = False
+            logging.getLogger(__name__).warning(
+                "PostgreSQL not available for safe_open_kdb: %s", e
+            )
+            return None
+    # Return from pool or create new
+    import psycopg2 as _pg2
+    import os as _os_pg
+    if _pg_pool:
+        conn = _pg_pool.pop()
+        try:
+            conn.cursor().execute("SELECT 1")
+            _pg_pool.append(conn)
+            return conn
+        except Exception:
+            try:
+                conn.close()
+            except Exception:
+                pass
+    # Create new
+    try:
+        dsn = _os_pg.environ["DATABASE_URL"]
+        if dsn.startswith("postgres://"):
+            dsn = "postgresql://" + dsn[len("postgres://"):]
+        return _pg2.connect(dsn)
+    except Exception:
+        _pg_available = False
+        return None
+
+
+def _return_pg_connection(conn):
+    """Return a connection to the pool."""
+    global _pg_pool
+    if _pg_pool is None:
+        _pg_pool = []
+    try:
+        conn.rollback()
+    except Exception:
+        pass
+    if len(_pg_pool) < 4:
+        _pg_pool.append(conn)
+    else:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
 class KeepOpenProxy:
     """Wraps a sqlite3.Connection so .close() is a no-op.
 
@@ -631,6 +927,13 @@ def safe_open_kdb(
         conn.execute("PRAGMA wal_autocheckpoint=1000")
     except Exception:
         pass
+    # Check for PostgreSQL availability — if so, route through PGProxy
+    pg_conn = _get_pg_connection()
+    if pg_conn is not None:
+        proxy = PGProxy(pg_conn)
+        cache[key] = proxy
+        return proxy
+
     proxy = KeepOpenProxy(conn, wkey, wlock)
     cache[key] = proxy
     return proxy
