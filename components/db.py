@@ -177,6 +177,20 @@ class PGConnection:
     def cursor(self):
         return PGCursor(self._conn.cursor(), self._row_factory)
 
+    def executescript(self, sql: str):
+        """Execute multiple SQL statements. Splits on semicolons.
+        Exists for compatibility with old SQLite callers."""
+        for stmt in sql.split(';'):
+            stmt = stmt.strip()
+            if stmt and not stmt.startswith('--'):
+                try:
+                    cur = self._conn.cursor()
+                    cur.execute(stmt)
+                    cur.close()
+                except Exception as e:
+                    logger.debug("executescript stmt skipped: %s — %s", stmt[:60], e)
+        self.commit()
+
     @property
     def row_factory(self):
         return self._row_factory
@@ -320,6 +334,23 @@ class _PGPseudoRow:
 # ---------------------------------------------------------------------------
 # Public API — safe_open_kdb
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Compatibility exports — callers that imported these from the old db.py
+# ---------------------------------------------------------------------------
+def acquire_write_lock(path):
+    """No-op on PostgreSQL — concurrent writes are natively supported."""
+    import contextlib
+    return contextlib.nullcontext()
+
+def is_priority_held(path):
+    """No-op on PostgreSQL — no write lock contention."""
+    return False
+
+# For callers that do `from components.db import KeepOpenProxy`
+# PGConnection is the replacement
+KeepOpenProxy = PGConnection
+
 def safe_open_kdb(
     path: str,
     *,
