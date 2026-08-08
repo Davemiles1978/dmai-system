@@ -6,6 +6,37 @@ POSTGRES_SCHEMA_SQL = """\
 -- Generated 2026-08-08 — replaces all SQLite CREATE TABLE statements
 -- ============================================================================
 
+-- Column migrations for existing tables (MUST run before CREATE TABLE)
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS concept TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS insight_text TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS confidence DOUBLE PRECISION DEFAULT 0.5;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS domain TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS source TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS source_topic TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS target_topic TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS occurrence_count INTEGER DEFAULT 1;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS last_used TIMESTAMPTZ;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS neuron_level TEXT DEFAULT 'micro';
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS parent_macro_id TEXT;
+ALTER TABLE insights ADD COLUMN IF NOT EXISTS provenance TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS source_url TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS source_repo TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS file_path TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS runtime_mode TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS language TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS methods TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS is_async INTEGER DEFAULT 0;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS args TEXT;
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS integrated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS provenance TEXT;
+ALTER TABLE stage_history ALTER COLUMN required_for_system TYPE INTEGER USING COALESCE(required_for_system::INTEGER, 0);
+ALTER TABLE stage_history ALTER COLUMN required_for_system SET DEFAULT 0;
+ALTER TABLE mon_wallets ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'GBP';
+ALTER TABLE mon_wallets ADD COLUMN IF NOT EXISTS updated_at DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE system_state ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
 -- Core system tables
 CREATE TABLE IF NOT EXISTS capabilities (
     id TEXT PRIMARY KEY,
@@ -979,35 +1010,5 @@ CREATE TABLE IF NOT EXISTS materialisation_log (
 );
 
 
--- Column migrations for tables that may exist with old schemas
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS concept TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS insight_text TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS confidence DOUBLE PRECISION DEFAULT 0.5;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS domain TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS source TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS source_topic TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS target_topic TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS occurrence_count INTEGER DEFAULT 1;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS last_used TIMESTAMPTZ;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS neuron_level TEXT DEFAULT 'micro';
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS parent_macro_id TEXT;
-ALTER TABLE insights ADD COLUMN IF NOT EXISTS provenance TEXT;
-
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS description TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS source_url TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS source_repo TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS file_path TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS runtime_mode TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS language TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS methods TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS is_async INTEGER DEFAULT 0;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS args TEXT;
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS integrated_at TIMESTAMPTZ DEFAULT NOW();
-ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS provenance TEXT;
-
--- Fix column type mismatches
-ALTER TABLE stage_history ALTER COLUMN required_for_system TYPE INTEGER USING required_for_system::INTEGER;
-ALTER TABLE stage_history ALTER COLUMN required_for_system SET DEFAULT 0;
 
 """
