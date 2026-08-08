@@ -838,7 +838,7 @@ def _bootstrap_api_key_hydration():
             components["db_storage"] = _get_pg_storage()
             out["db_ready"] = True
             logger.info("db_storage bootstrapped: %s", type(components["db_storage"]).__name__)
-            # Initialize PostgreSQL schema from postgres_schema.sql
+            # Initialize PostgreSQL schema from embedded module
             try:
                 import psycopg2
                 _dsn = os.environ.get("DATABASE_URL", "")
@@ -847,27 +847,11 @@ def _bootstrap_api_key_hydration():
                         _dsn = "postgresql://" + _dsn[len("postgres://"):]
                     _pgconn = psycopg2.connect(_dsn)
                     _pgconn.autocommit = True
-                    # Find postgres_schema.sql — try multiple known Render paths
-                    _schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "postgres_schema.sql")
-                    if not os.path.exists(_schema_path):
-                        _schema_path = "/opt/render/project/src/data/postgres_schema.sql"
-                    if not os.path.exists(_schema_path):
-                        _schema_path = "data/postgres_schema.sql"
-                    if not os.path.exists(_schema_path):
-                        # Debug: list what's in the data directory
-                        _data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
-                        _files = os.listdir(_data_dir) if os.path.exists(_data_dir) else []
-                        _sql_files = [f for f in _files if f.endswith('.sql')]
-                        logger.warning("postgres_schema.sql not found. data dir contents (.sql): %s", _sql_files)
-                    if os.path.exists(_schema_path):
-                        with open(_schema_path, 'r') as _sf:
-                            _schema_sql = _sf.read()
-                        with _pgconn.cursor() as _cur:
-                            _cur.execute(_schema_sql)
-                        _pgconn.autocommit = False
-                        logger.info("PostgreSQL schema initialized from postgres_schema.sql")
-                    else:
-                        logger.warning("postgres_schema.sql not found at %s", _schema_path)
+                    from components.postgres_schema import POSTGRES_SCHEMA_SQL
+                    with _pgconn.cursor() as _cur:
+                        _cur.execute(POSTGRES_SCHEMA_SQL)
+                    _pgconn.autocommit = False
+                    logger.info("PostgreSQL schema initialized (%d tables)", POSTGRES_SCHEMA_SQL.count('CREATE TABLE IF NOT EXISTS'))
                     _pgconn.close()
             except Exception as _pgb_err:
                 logger.warning("PostgreSQL schema init failed: %s", _pgb_err)
