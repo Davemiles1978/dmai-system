@@ -848,10 +848,24 @@ def _bootstrap_api_key_hydration():
                     _pgconn = psycopg2.connect(_dsn)
                     _pgconn.autocommit = True
                     from components.postgres_schema import POSTGRES_SCHEMA_SQL
-                    with _pgconn.cursor() as _cur:
-                        _cur.execute(POSTGRES_SCHEMA_SQL)
+                    _statements = [s.strip() for s in POSTGRES_SCHEMA_SQL.split(';') if s.strip() and not s.strip().startswith('--')]
+                    _executed = 0
+                    _errors = 0
+                    for _stmt in _statements:
+                        try:
+                            with _pgconn.cursor() as _cur:
+                                _cur.execute(_stmt)
+                            _executed += 1
+                        except Exception as _se:
+                            _errors += 1
+                            if _errors <= 3:
+                                logger.debug("Schema stmt skipped: %s — %s", _stmt[:80], str(_se)[:100])
+                            try:
+                                _pgconn.rollback()
+                            except Exception:
+                                pass
                     _pgconn.autocommit = False
-                    logger.info("PostgreSQL schema initialized (%d tables)", POSTGRES_SCHEMA_SQL.count('CREATE TABLE IF NOT EXISTS'))
+                    logger.info("PostgreSQL schema initialized: %d/%d statements executed (%d errors)", _executed, len(_statements), _errors)
                     _pgconn.close()
             except Exception as _pgb_err:
                 logger.warning("PostgreSQL schema init failed: %s", _pgb_err)
