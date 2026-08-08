@@ -116,6 +116,7 @@ def bootstrap_postgres_schema(sqlite_sql: str) -> dict:
 
 def _translate_sqlite_to_pg(sql: str) -> str:
     """Translate a SQLite CREATE TABLE statement to PostgreSQL."""
+    import re
     s = sql.strip()
     if not s:
         return ""
