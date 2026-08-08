@@ -848,16 +848,28 @@ def _bootstrap_api_key_hydration():
             components["db_storage"] = _get_pg_storage()
             out["db_ready"] = True
             logger.info("db_storage bootstrapped: %s", type(components["db_storage"]).__name__)
-            # Bootstrap PostgreSQL schema from SQLite definitions
+            # Initialize PostgreSQL schema from postgres_schema.sql
             try:
-                from components.pg_storage import bootstrap_postgres_schema as _bootstrap_pg
-                _pg_result = _bootstrap_pg(_CORE_SCHEMA_SQL)
-                logger.info(
-                    "PostgreSQL schema bootstrapped: %d/%d tables created",
-                    _pg_result.get("executed", 0), _pg_result.get("statements_total", 0)
-                )
+                import psycopg2
+                _dsn = os.environ.get("DATABASE_URL", "")
+                if _dsn:
+                    if _dsn.startswith("postgres://"):
+                        _dsn = "postgresql://" + _dsn[len("postgres://"):]
+                    _pgconn = psycopg2.connect(_dsn)
+                    _pgconn.autocommit = True
+                    _schema_path = os.path.join(DATA_PATH, "postgres_schema.sql")
+                    if os.path.exists(_schema_path):
+                        with open(_schema_path, 'r') as _sf:
+                            _schema_sql = _sf.read()
+                        with _pgconn.cursor() as _cur:
+                            _cur.execute(_schema_sql)
+                        _pgconn.autocommit = False
+                        logger.info("PostgreSQL schema initialized from postgres_schema.sql")
+                    else:
+                        logger.warning("postgres_schema.sql not found at %s", _schema_path)
+                    _pgconn.close()
             except Exception as _pgb_err:
-                logger.warning("PostgreSQL schema bootstrap failed: %s", _pgb_err)
+                logger.warning("PostgreSQL schema init failed: %s", _pgb_err)
         except Exception as e:
             logger.warning("db_storage bootstrap failed: %s", e)
             return out
