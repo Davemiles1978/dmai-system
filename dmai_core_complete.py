@@ -847,12 +847,18 @@ def _bootstrap_api_key_hydration():
                         _dsn = "postgresql://" + _dsn[len("postgres://"):]
                     _pgconn = psycopg2.connect(_dsn)
                     _pgconn.autocommit = True
-                    # Try multiple locations for postgres_schema.sql
-                    _schema_path = os.path.join(os.getcwd(), "data", "postgres_schema.sql")
+                    # Find postgres_schema.sql — try multiple known Render paths
+                    _schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "postgres_schema.sql")
                     if not os.path.exists(_schema_path):
-                        _schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "postgres_schema.sql")
+                        _schema_path = "/opt/render/project/src/data/postgres_schema.sql"
                     if not os.path.exists(_schema_path):
                         _schema_path = "data/postgres_schema.sql"
+                    if not os.path.exists(_schema_path):
+                        # Debug: list what's in the data directory
+                        _data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+                        _files = os.listdir(_data_dir) if os.path.exists(_data_dir) else []
+                        _sql_files = [f for f in _files if f.endswith('.sql')]
+                        logger.warning("postgres_schema.sql not found. data dir contents (.sql): %s", _sql_files)
                     if os.path.exists(_schema_path):
                         with open(_schema_path, 'r') as _sf:
                             _schema_sql = _sf.read()
